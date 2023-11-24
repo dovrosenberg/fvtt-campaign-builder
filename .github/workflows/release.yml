@@ -1,0 +1,87 @@
+# This workflow will do a clean installation of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Update Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    # update the DOWNLOAD LINK IN MODULE.JSON
+    - name: Download Link
+      id: download_link_version
+      uses: cschleiden/replace-tokens@v1
+      with:
+        files: './static/module.json'
+      env:
+        DOWNLOAD: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip
+
+    # build  
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+    - run: npm ci
+    - run: npm run build
+
+    # save the output folder for releae job
+    - name: Archive dist folder
+      uses: actions/upload-artifact@v3
+      with:
+        name: module-download
+        path: dist/
+    - name: Archive module json
+      uses: actions/upload-artifact@v3
+      with:
+        name: module
+        path: dist/module.json
+  
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download module download file
+        uses: actions/download-artifact@v3
+        with:
+          name: module-download
+          path: module-download
+      - name: Download module.json
+        uses: actions/download-artifact@v3
+        with:
+          name: module
+      
+      # Create a zip file with all files required by the module to add to the release
+      - run: (cd module-download; zip -r ../module.zip .)
+      - name: Update Release with Files
+        id: create_version_release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true # Set this to false if you want to prevent updating existing releases
+          name: ${{ github.event.release.name }}
+          draft: false
+          prerelease: false
+          token: ${{ secrets.RELEASE_TOKEN }}
+          artifacts: './module.json, ./module.zip'
+          tag: ${{ github.event.release.tag_name }}
+          body: ${{ github.event.release.body }}
+  
+  # if we want to publish to npm at some point
+  # publish:
+  #   needs: release
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '16.x'
+  #         registry-url: 'https://registry.npmjs.org'
+  #     - run: npm ci
+  #     - run: npm publish
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
