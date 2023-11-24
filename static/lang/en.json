@@ -1,6 +1,9 @@
 {
   "fwb": {
     "settings": {
+    },
+    "tooltips": {
+      "main-button": "Launch World Builder"
     }
   }
 }

@@ -1,0 +1,45 @@
+{
+  "id": "world-builder",
+  "title": "World Builder",
+  "description": "Create full worlds (like Kanka, WorldAnvil, etc. but simpler) right inside Foundry.",
+
+  "compatibility": {
+    "minimum": "11",
+    "verified": "11.315"
+  },
+
+  "esmodules": [
+    "scripts/index.js"
+  ],
+  "styles": [
+    "styles/world-builder.css"
+  ],
+  "packs": [],
+
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+   ],
+
+  "authors": [
+    {
+      "name": "Dov Rosenberg",
+      "#discord": "",
+      "#email": "",
+      "#url": ""
+    }
+  ],
+
+  "url": "https://github.com/dovrosenberg/fvt-world-builder",
+  "manifest": "https://github.com/dovrosenberg/fvtt-world-builder/releases/latest/download/module.json",
+  "download": "#{DOWNLOAD}#",
+  "## version": "will be added when we build",
+
+  "license": "https://github.com/dovrosenberg/fvtt-world-builder/blob/master/LICENSE.md",
+  "readme": "https://github.com/dovrosenberg/fvtt-world-builder/blob/master/README.md",
+  "bugs": "https://github.com/dovrosenberg/fvtt-world-builder/issues",
+  "changelog": "https://github.com/dovrosenberg/fvtt-world-builder/blob/master/CHANGELOG.md"
+}
