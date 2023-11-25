@@ -4,11 +4,22 @@
 
 %%% Description here %%%
 
+The goal of this package is to facilitate world-building and lore creation for people who'd rather just do that in Foudry, rather than using a third-party tool like WorldAnvil, Kanka, Fantasia Archive, LengendKeeper, etc.  Why would you want to do it this way, even though many of those platforms have integration solutions with Foundry?  
+- It's free
+- It may be easier than managing the integration
+- Most importantly, you can **continue to build out lore as you play**.  
+
+While I'm seeking to make this module strong enough that it's a reasonable substitute for the primary commercial solutions, it will likely always be missing features that those provide.  Instead, the advantage of FVTT World Builder is that it is easy/fast enough to use that you can refer to it in real-time while running an adventure, and also quickly add notes.
+
+Players run into an NPC or location you hadn't thought of fleshing out ahead of time?  Quickly generate NPCs/locations on the fly 
+- Easier than managing the integration
+
 [Feature requests?](https://github.com/dovrosenberg/fvtt-world-builder/issues/new/choose)
 
 ## Features
 
-## Planned features
+## MPV features
+- Create a (user-specified-name) compendium for storing everything in
 - Journal entry for overall world with key details
 - Create geographical hierarchies (world-continents-countries-regions-towns-etc.)
 - Create organizational hierarchies (ex. for religions, governing bodies, large familes, criminal organizations, companies, etc.)
@@ -17,13 +28,30 @@
   - Key info
   - Tree view
   - Cross-references?  This may be difficult to implement
+- Create characters as journal entry - not necessarily connected to an actor
 - Hierarchy "levels" are customizable
+- Tags
+
+## Planned features
+- Create actor with one click from a journal entry character
+- Use GPT to generate the random characters/locations
+- System plugins to specify the bounds of species, classes, etc. to use... will this actually work? Can GPT do it on it's own if you specify the system?
+- Integration with https://foundryvtt.com/packages/shuggaloafs-simple-npc-generator for NPC generation (with optional actor creation... could we include token?)
+- Random shop generation?
+- Random town generation?
+- Random dungeon generation?
+- After generating an NPC, shop, etc. quickly associate it withother things to make it easier to find again
+- Track newly created items during session so make a "to do" log for cleaning them up and merging into the rest of the world
+- Functionality to facilitate that merging
+- Featured images
 - Create events/timelines (TBD if there's value here beyond what Simple Calendar already supports... suspect it's 
 -    a timeline view?)
 - Integration with Simple Calendar for dates/timeline
 - Integration with Simple Weather to connect locations to climates
 - Automatically include autocomplete-mentions?
 - ChatGPT and Stable Diffusion integration to quickly fleshout description text and create images 
+- Algolia integration (free tier) for complex full-text search
+- Autolinking pages?
 
 
 ## How it works
