@@ -4,6 +4,5 @@ export function registerFori18nInitHook() {
 
 async function i18nInit(): Promise<void> {
   // load the text
- // initializeLocalizedText();
 }
 

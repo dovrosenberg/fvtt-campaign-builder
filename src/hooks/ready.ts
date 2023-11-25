@@ -1,3 +1,5 @@
+import { WorldBuilder, updateWorldBuilder } from '@/applications/WorldBuilder';
+import { worldBuilder } from "@/applications/WorldBuilder";
 import { registerHelpers } from "@/handlebars";
 import { getGame, localize } from "@/utils/game";
 
@@ -18,9 +20,10 @@ async function ready(): Promise<void> {
 
     jQuery(document).on('click', '#fwb-launch', (event) => {
       // render the main window
-      alert('here');
+      worldBuilder.render(true);
     });
   }
 
+  // create the instance
+  updateWorldBuilder(new WorldBuilder());
 }
-

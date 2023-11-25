@@ -1,6 +1,10 @@
 {
   "fwb": {
+    "title": "World Builder",
     "settings": {
+    },
+    "labels": {
+      "newTab": "New Tab" 
     },
     "tooltips": {
       "main-button": "Launch World Builder"
