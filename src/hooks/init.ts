@@ -8,10 +8,7 @@ export function registerForInitHook() {
 
 async function init(): Promise<void> {
   // initialize settings first, so other things can use them
-  updateModuleSettings(new ModuleSettings());
-
-  alert('here');
-  
+  updateModuleSettings(new ModuleSettings());  
 }
 
 // function activateAutocompleter(targetElement) {
