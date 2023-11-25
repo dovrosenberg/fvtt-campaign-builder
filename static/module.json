@@ -1,7 +1,7 @@
 {
   "id": "world-builder",
   "title": "World Builder",
-  "description": "Create full worlds (like Kanka, WorldAnvil, etc. but simpler) right inside Foundry.",
+  "description": "Create full worlds (like Kanka, WorldAnvil, etc. but simpler) right inside Foundry - as you play.",
 
   "compatibility": {
     "minimum": "11",
