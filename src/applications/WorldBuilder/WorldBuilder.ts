@@ -4,12 +4,12 @@ import { WBFOOTER_TEMPLATE, WBFooter } from './WBFooter';
 
 import './WorldBuilder.scss';
 import { WBCONTENT_TEMPLATE, WBContent } from './WBContent';
-import { HandlebarPartial } from '@/types';
+import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 
 
 export class WorldBuilder extends Application {
   // sub-components
-  private _partials: Record<string, HandlebarPartial<any>>;
+  private _partials: Record<string, HandlebarsPartial<any>>;
 
   // state - often tracking state of children
   private _currentJournalId: string;    // uuid of currently displayed page
@@ -111,7 +111,7 @@ export class WorldBuilder extends Application {
   public activateListeners(html: JQuery<HTMLElement>): void {
     super.activateListeners(html);
 
-    Object.values(this._partials).forEach((p: HandlebarPartial<any>) => { 
+    Object.values(this._partials).forEach((p: HandlebarsPartial<any>) => { 
       p.activateListeners(html); 
     });
 

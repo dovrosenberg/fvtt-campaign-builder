@@ -1,27 +1,42 @@
 import { getGame } from '@/utils/game';
 import './WBFooter.scss';
-import { HandlebarPartial } from '@/types';
+import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
+import { HOMEPAGE_TEMPLATE, HomePage, } from './HomePage';
 
 export const WBCONTENT_TEMPLATE = 'modules/world-builder/templates/WBContent.hbs';
 
 
 type WBContentData = {
+  showHomePage: boolean;   // should we show the home page (vs. regular content)
+  HomePage: () => string,
 }
 
-export class WBContent extends HandlebarPartial<WBContent.CallbackType>  {
-  private _entryId: string;    // the entryId to show
+export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
+  private _entryId: string | null;    // the entryId to show (will show homepage if null)
 
   constructor(entryId: string, options={}) {
     super();
     
     // look up the entry - note could use fromUuid, but it's a bit tricky for compendia and also async
+    this._entryId = entryId;
     const journal = getGame().journal?.find((j) => (j.uuid===entryId));
-    if (!journal)
-      throw new Error(`Attempted to display missing journalId: ${entryId}`);
+    if (!journal) {
+      // show the homepage
+      this._entryId = null;
+    }
+  }
+
+  protected _createPartials(): void {
+    // we only need HomePage if there's no entry
+    if (!this._entryId)
+      this._partials.HomePage = new HomePage();
   }
 
   public async getData(): Promise<WBContentData> {
     const data = {
+      showHomePage: (this._entryId===null),
+      HomePage: () => HOMEPAGE_TEMPLATE,
+      HomePageData: (this._entryId===null ? await this._partials.HomePage.getData() : {}),
     };
 
     // log(false, data);

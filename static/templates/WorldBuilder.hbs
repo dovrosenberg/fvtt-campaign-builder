@@ -1,3 +1,14 @@
+{{! Requires:
+  tabs: WindowTab[] 
+  bookmarks: Bookmark[]
+  collapsed: boolean
+  canBack: boolean
+  canForward: boolean
+  WBHeader: function that returns the template name
+  WBContent: function that returns the template name
+  WBFooter: function that returns the template name
+}}
+
 <div class="fwb flexrow {{#if collapsed}}collapse{{/if}}">
   <section class="fwb-body flexcol">
     {{> (WBHeader) WBHeaderData }}

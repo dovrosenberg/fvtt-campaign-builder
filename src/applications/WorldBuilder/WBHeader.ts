@@ -3,7 +3,8 @@ import { getGame, localize } from "@/utils/game";
 
 import './WBHeader.scss';
 import { UserFlagKeys, userFlags } from '@/settings/UserFlags';
-import { Bookmark, HandlebarPartial, WindowTab } from '@/types';
+import { Bookmark, WindowTab } from '@/types';
+import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 
 export const WBHEADER_TEMPLATE = 'modules/world-builder/templates/WBHeader.hbs';
 
@@ -15,7 +16,7 @@ type WBHeaderData = {
   canForward: boolean;
 }
 
-export class WBHeader extends HandlebarPartial<WBHeader.CallbackType> {
+export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   private _tabs = [] as WindowTab[];  
   private _collapsed: boolean;
   private _bookmarks = [] as Bookmark[];
@@ -33,6 +34,10 @@ export class WBHeader extends HandlebarPartial<WBHeader.CallbackType> {
     // if there are no tabs, add one
     if (!this._tabs.length)
       this._addTab();
+  }
+
+  protected _createPartials(): void {
+    // no subcomponents
   }
 
   public async getData(): Promise<WBHeaderData> {
