@@ -11,4 +11,3 @@ Hooks.once('devModeReady', async ({ registerPackageDebugFlag: registerPackageDeb
 });
 
 registerForHooks();
-

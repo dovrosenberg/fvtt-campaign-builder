@@ -1,33 +1,41 @@
-import { SettingKeys, moduleSettings } from '@/settings/ModuleSettings';
 import { getGame, localize } from '@/utils/game';
-import { WBHeader } from './WBHeader';
-import { WBFooter } from './WBFooter';
+import { WBHEADER_TEMPLATE, WBHeader } from './WBHeader';
+import { WBFOOTER_TEMPLATE, WBFooter } from './WBFooter';
 
-import '@/../styles/WorldBuilder.scss';
+import './WorldBuilder.scss';
+import { WBCONTENT_TEMPLATE, WBContent } from './WBContent';
+import { HandlebarPartial } from '@/types';
+
 
 export class WorldBuilder extends Application {
   // sub-components
-  private _WBHeader: WBHeader;
-  private _WBFooter: WBFooter;
+  private _partials: Record<string, HandlebarPartial>;
+
+  // state - often tracking state of children
+  private _currentJournalId: string;    // uuid of currently displayed page
+
   searchresults = [];
   searchpos = 0;
   lastquery = '';
   _imgcontext = null;
-  private _collapsed = false as boolean;   // is the window collapsed?
 
-  constructor(/*object, options = {}*/) {
-    super(/*options*/);
+  constructor(options = {}) {
+    super(options);
 
-    this._WBHeader = new WBHeader(this);
-    this._WBFooter = new WBFooter(this);
-    // this.subdocument = null;
+    this._currentJournalId = 'JournalEntry.56SZqpKQIORkR0iq';
+
+    this._partials = {
+      WBHeader: new WBHeader(),
+      WBFooter: new WBFooter(),
+      WBContent: new WBContent(this, this._currentJournalId),
+    }
 
     // this._lastentry = null;
 
     // //load up the last entry being shown
     // this.object = object;
     // if (object != undefined)
-    //     this.open(object, options?.newtab, { anchor: options?.anchor });
+    //     this.open(object, options?.newtab, {});
   }
 
   static get defaultOptions() {
@@ -86,10 +94,13 @@ export class WorldBuilder extends Application {
   async getData(options): Promise<Object> {
     const data = {
       ...(await super.getData(options)),
-      collapsed: this._WBHeader.collapsed,
-      WBHeaderData: await this._WBHeader.getData(),
-      WBFooterData: await this._WBFooter.getData(),
-      // bookmarks: this._bookmarks.sort((a, b) => a.sort - b.sort),
+      collapsed: (this._partials.WBHeader as unknown as WBHeader).collapsed,
+      WBHeader: () => WBHEADER_TEMPLATE,
+      WBHeaderData: await this._partials.WBHeader.getData(),
+      WBContent: () => WBCONTENT_TEMPLATE,
+      WBFooterData: await this._partials.WBFooter.getData(),
+      WBFooter: () => WBFOOTER_TEMPLATE,
+      WBContentData: await this._partials.WBContent.getData(),
       // user: game.user,
     };
 
@@ -97,16 +108,8 @@ export class WorldBuilder extends Application {
     return data;
   }
 
-  //checkForChanges() {
-  //    return this.subsheet?.editors?.content?.active && this.subsheet.editors?.content?.mce?.isDirty();
-  //}
-
-  async _render(force, options = {}) {
-    // load components
-    await this._WBHeader.render();
-    await this._WBFooter.render();
-
-    let retval = await super._render(force, options);
+  public async render(force?: boolean, options = {}) {
+    let retval = await super.render(force, options);
 
     // if (setting('background-image') != 'none') {
     //     $(this.element).attr("background-image", setting('background-image'));
@@ -174,314 +177,7 @@ export class WorldBuilder extends Application {
     // return html;
   }
 
-  async renderSubSheet(force, options = {}) {
-    // try {
-    //     const modes = JournalSheet.VIEW_MODES;
-
-    //     let currentTab = this._activeTab();
-    //     if (!currentTab) {
-    //         if (this._tabList.length)
-    //             currentTab = this._tabList[0];
-    //         else
-    //             currentTab = this.addTab();
-    //     }
-    //     if (!currentTab.entity && !["blank", "folder"].includes(getProperty(currentTab, "flags.monks-enhanced-journal.type")))
-    //         currentTab.entity = await this.findEntity(currentTab.entityId);
-    //     if (this.object?.id != currentTab.entity?.id || currentTab.entity instanceof Promise || currentTab.entity?.id == undefined)
-    //         this.object = currentTab.entity;
-
-    //     //if there's no object then show the default
-    //     if (this.object instanceof Promise)
-    //         this.object = await this.object;
-
-    //     let defaultOptions = {
-    //         collapsed: setting("start-toc-collapsed")
-    //     };
-
-    //     options = mergeObject(options, mergeObject(defaultOptions, game.user.getFlag("monks-enhanced-journal", `pagestate.${this.object.id}`) || {}), { overwrite: false });
-
-    //     let contentform = $('.content > section', this.element);
-
-    //     if (this.object instanceof JournalEntry && this.object.pages.size == 1 && (!!getProperty(this.object.pages.contents[0], "flags.monks-enhanced-journal.type") || !!getProperty(this.object, "flags.monks-enhanced-journal.type"))) {
-    //         let type = getProperty(this.object.pages.contents[0], "flags.monks-enhanced-journal.type") || getProperty(this.object, "flags.monks-enhanced-journal.type");
-    //         if (type == "base" || type == "oldentry") type = "journalentry";
-    //         let types = MonksEnhancedJournal.getDocumentTypes();
-    //         if (types[type]) {
-    //             this.object = this.object.pages.contents[0];
-    //             let tab = this._activeTab();
-    //             tab.entityId = this.object.uuid;
-    //             tab.entity = this.object;
-    //             this.saveTabs();
-    //         }
-    //     }
-
-    //     MonksEnhancedJournal.fixType(this.object);
-
-    //     force = force || this.tempOwnership;
-
-    //     if (force != true) {
-    //         let testing = this.object;
-    //         if (testing instanceof JournalEntryPage && !!getProperty(testing, "flags.monks-enhanced-journal.type"))
-    //             testing = testing.parent;
-
-    //         if (!game.user.isGM && testing && ((!testing.compendium && testing.testUserPermission && !testing.testUserPermission(game.user, "OBSERVER")) || (testing.compendium && !testing.compendium.visible))) {
-    //             this.object = {
-    //                 name: this.object.name,
-    //                 type: 'blank',
-    //                 options: { hidebuttons: true },
-    //                 flags: {
-    //                     'monks-enhanced-journal': { type: 'blank' }
-    //                 },
-    //                 content: `${i18n("MonksEnhancedJournal.DoNotHavePermission")}: ${this.object.name}`
-    //             }
-    //         }
-    //     } else if (!["blank", "folder"].includes(this.object.type) && this.object.testUserPermission) {
-    //         if (!this.object.testUserPermission(game.user, "OBSERVER") || (this.object.parent && !this.object.parent.testUserPermission(game.user, "OBSERVER"))) {
-    //             this.object.ownership[game.user.id] = CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER;
-    //             if (this.object.parent)
-    //                 this.object.parent.ownership[game.user.id] = CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER;
-    //             this.tempOwnership = true;
-    //         }
-    //     }
-
-    //     const cls = (this.object._getSheetClass ? this.object._getSheetClass() : null);
-    //     if (!cls)
-    //         this.subsheet = new EnhancedJournalSheet(this.object, this.object.options);
-    //     else
-    //         this.subsheet = new cls(this.object, { editable: this.object.isOwner, enhancedjournal: this });
-    //     this.object._sheet = this.subsheet;
-
-    //     this.subsheet.options.popOut = false;
-    //     this.subsheet._state = this.subsheet.constructor.RENDER_STATES.RENDERING;
-
-    //     this.activateFooterListeners(this.element);
-
-    //     if (this.subsheet._getHeaderButtons && this.object.id && !(this.object instanceof JournalEntry)) {
-    //         let buttons = this.subsheet._getHeaderButtons();
-    //         buttons.findSplice(b => b.class == "share-image");
-    //         Hooks.call(`getDocumentSheetHeaderButtons`, this.subsheet, buttons);
-
-    //         $('> header a.subsheet', this.element).remove();
-    //         let first = true;
-    //         let a;
-    //         for (let btn of buttons) {
-    //             if ($('> header a.' + btn.class, this.element).length == 0) {   //don't repeat buttons
-    //                 a = $('<a>').addClass(btn.class).addClass('subsheet').toggleClass('first', first)
-    //                     .append($('<i>').addClass(btn.icon))
-    //                     .append(i18n(btn.label))
-    //                     .click(event => {
-    //                         event.preventDefault();
-    //                         btn.onclick.call(this.subsheet, event);
-    //                     }).insertBefore($('> header a.close', this.element));
-    //                 first = false;
-    //             }
-    //         }
-    //         if (a)
-    //             a.addClass('last');
-    //     }
-
-    //     this.subsheet.enhancedjournal = this;
-
-    //     let templateData = await this.subsheet.getData(options);
-    //     if (this.object instanceof JournalEntry) {
-    //         game.user.setFlag("monks-enhanced-journal", `pagestate.${this.object.id}.pageId`, options?.pageId);
-    //         //game.user.setFlag("monks-enhanced-journal", `pagestate.${this.object.id}.anchor`, options?.anchor);
-
-    //         templateData.mode = (options?.mode || templateData.mode);
-    //         if (templateData.mode == modes.SINGLE) {
-    //             let pageIndex = this.subsheet._pages.findIndex(p => p._id === options?.pageId);
-    //             if (pageIndex == -1) pageIndex = this.subsheet.pageIndex;
-    //             templateData.pages = [templateData.toc[pageIndex]];
-    //             templateData.viewMode = { label: "JOURNAL.ViewMultiple", icon: "fa-solid fa-note", cls: "single-page" };
-    //         } else {
-    //             templateData.pages = templateData.toc;
-    //             templateData.viewMode = { label: "JOURNAL.ViewSingle", icon: "fa-solid fa-notes", cls: "multi-page" };
-    //         }
-
-    //         let collapsed = options?.collapsed ?? this.subsheet.sidebarCollapsed;
-    //         templateData.sidebarClass = collapsed ? "collapsed" : "";
-    //         templateData.collapseMode = collapsed
-    //             ? { label: "JOURNAL.ViewExpand", icon: "fa-solid fa-caret-left" }
-    //             : { label: "JOURNAL.ViewCollapse", icon: "fa-solid fa-caret-right" };
-    //     }
-
-    //     //let defaultOptions = this.subsheet.constructor.defaultOptions;
-    //     await loadTemplates({
-    //         journalEntryPageHeader: "templates/journal/parts/page-header.html",
-    //         journalEntryPageFooter: "templates/journal/parts/page-footer.html"
-    //     });
-    //     if (this.subsheet.sheetTemplates) {
-    //         await loadTemplates(this.subsheet.sheetTemplates);
-    //     }
-    //     let html = await renderTemplate(this.subsheet.template, templateData);
-
-    //     this.subdocument = $(html).get(0);
-    //     this.subsheet.form = (this.subdocument.tagName == 'FORM' ? this.subdocument : $('form:first', this.subdocument).get(0));
-    //     this.subsheet._element = $(this.subdocument);
-
-    //     if (this.subsheet.refresh)
-    //         this.subsheet.refresh();
-    //     else if (this.object instanceof JournalEntry) {
-    //         /*
-    //         let old_render = this.subsheet._render;
-    //         this.subsheet._render = async function (...args) {
-    //             let result = await old_render(...args);
-    //             this._saveScrollPositions();
-    //             return result;
-    //         }*/
-    //         this.subsheet.render(true, options);
-    //         if (templateData.mode != this.subsheet.mode) {
-    //             if (options.anchor) {
-    //                 window.setTimeout(() => {
-    //                     this.subsheet._saveScrollPositions(this.subsheet._element);
-    //                     this.toggleViewMode({ preventDefault: () => { }, currentTarget: { dataset: { action: "toggleView" } } }, options);
-    //                 }, 100);
-    //             } else
-    //                 this.toggleViewMode({ preventDefault: () => { }, currentTarget: { dataset: { action: "toggleView" } } }, options);
-    //         }
-    //     }
-
-    //     $('.window-title', this.element).html((this.subsheet.title || i18n("MonksEnhancedJournal.NewTab")) + ' - ' + i18n("MonksEnhancedJournal.Title"));
-
-    //     if (this.subsheet._createDocumentIdLink)
-    //         this.subsheet._createDocumentIdLink(this.element)
-
-    //     $('.content', this.element).attr('entity-type', this.object.type).attr('entity-id', this.object.id);
-    //     //extract special classes
-    //     if (setting("extract-extra-classes")) {
-    //         let extraClasses = this.subsheet.options.classes.filter(x => !["sheet", "journal-sheet", "journal-entry", "monks-journal-sheet"].includes(x) && !!x);
-    //         if (extraClasses.length) {
-    //             this.element.addClass(extraClasses);
-    //         }
-    //     }
-    //     let classes = this.subsheet.options.classes.join(' ').replace('monks-enhanced-journal', '');
-    //     if (game.system.id == "pf2e")
-    //         classes += " journal-page-content";
-    //     if (!(this.subsheet instanceof ActorSheet)) {
-    //         if (!setting("use-system-tag"))
-    //             classes = classes.replace(game.system.id, '');
-    //     }
-
-    //     if (this.object instanceof JournalEntry) {
-    //         classes += (this.subsheet?.mode === modes.MULTIPLE ? " multiple-pages" : " single-page");
-    //     }
-
-    //     contentform.empty().attr('class', classes).append(this.subdocument); //.concat([`${game.system.id}`]).join(' ')
-
-    //     if (!this.isEditable) {
-    //         this.subsheet._disableFields(contentform[0]);
-    //     }
-
-    //     if (this.subsheet._createSecretHandlers) {
-    //         this._secrets = this.subsheet._createSecretHandlers();
-    //         this._secrets.forEach(secret => secret.bind(this.element[0]));
-    //     }
-
-    //     //connect the tabs to the enhanced journal so that opening the regular document won't try and change tabs on the other window.
-    //     this._tabs = this.subsheet.options.tabs.map(t => {
-    //         t.callback = this.subsheet._onChangeTab.bind(this);
-    //         return new Tabs(t);
-    //     });
-    //     this._tabs.forEach(t => t.bind(this.subdocument));
-
-    //     //reset the original drag drop
-    //     this._dragDrop = this._createDragDropHandlers();
-    //     this._dragDrop.forEach(d => d.bind(this.element[0]));
-
-    //     //add the subsheet drag drop
-    //     let subDragDrop = this.subsheet.options.dragDrop.map(d => {
-    //         d.permissions = {
-    //             dragstart: this._canDragStart.bind(this),
-    //             drop: this._canDragDrop.bind(this)
-    //         };
-    //         d.callbacks = {
-    //             dragstart: this._onDragStart.bind(this),
-    //             dragover: this._onDragOver.bind(this),
-    //             drop: this._onDrop.bind(this)
-    //         };
-    //         return new DragDrop(d);
-    //     });
-    //     subDragDrop.forEach(d => d.bind(contentform[0]));
-    //     this._dragDrop = this._dragDrop.concat(subDragDrop);
-
-    //     this.subsheet.activateListeners($(this.subdocument), this);
-
-    //     $('button[type="submit"]', $(this.subdocument)).attr('type', 'button').on("click", this.subsheet._onSubmit.bind(this.subsheet));
-    //     $('form.journal-header', $(this.subdocument)).on("submit", () => { return false; });
-
-    //     if (this.subsheet.updateStyle && !["blank", "folder"].includes(this.object.type))
-    //         this.subsheet.updateStyle(null, this.subdocument);
-
-    //     let that = this;
-    //     let oldSaveEditor = this.subsheet.saveEditor;
-    //     this.subsheet.saveEditor = function (...args) {
-    //         let result = oldSaveEditor.call(this, ...args);
-    //         that.saveEditor(...args);
-    //         return result;
-    //     }
-
-    //     let oldActivateEditor = this.subsheet.activateEditor;
-    //     this.subsheet.activateEditor = function (...args) {
-    //         that.activateEditor.apply(that, args);
-    //         return oldActivateEditor.call(this, ...args);
-    //     }
-
-    //     if (this.subsheet.goToPage) {
-    //         let oldGoToPage = this.subsheet.goToPage;
-    //         this.subsheet.goToPage = function (...args) {
-    //             let [pageId, anchor] = args;
-    //             game.user.setFlag("monks-enhanced-journal", `pagestate.${that.object.id}.pageId`, pageId);
-    //             //game.user.setFlag("monks-enhanced-journal", `pagestate.${that.object.id}.anchor`, anchor);
-    //             return oldGoToPage.call(this, ...args);
-    //         }
-    //     }
-
-    //     this.object._sheet = null;  // Adding this to prevent Quick Encounters from automatically opening
-
-    //     if (!["blank", "folder"].includes(this.object.type)) {
-    //         Hooks.callAll('renderJournalSheet', this.subsheet, contentform, templateData); //this.object);
-    //         if (this.object._source.type == "text")
-    //             Hooks.callAll('renderJournalTextPageSheet', this.subsheet, contentform, templateData);
-    //         if (this.subsheet.object instanceof JournalEntryPage)
-    //             Hooks.callAll('renderJournalPageSheet', this.subsheet, contentform, Object.assign({ enhancedjournal: this }, templateData));
-    //     }
-
-    //     this.object._sheet = this.subsheet;
-
-    //     if (this.subsheet.options.scrollY && !options.anchor) {
-    //         let resetScrollPos = () => {
-    //             let savedScroll = flattenObject(game.user.getFlag("monks-enhanced-journal", `pagestate.${this.object.id}.scrollPositions`) || {});
-    //             this._scrollPositions = flattenObject(mergeObject(this._scrollPositions || {}, savedScroll));
-    //             /*
-    //             for (let [k, v] of Object.entries(this.subsheet._scrollPositions || {})) {
-    //                 this._scrollPositions[k] = v || this._scrollPositions[k];
-    //             }*/
-    //             let oldScrollY = this.options.scrollY;
-    //             this.options.scrollY = this.options.scrollY.concat(this.subsheet.options.scrollY);
-    //             this._restoreScrollPositions(contentform);
-    //             this.options.scrollY = oldScrollY;
-
-    //             this.subsheet._scrollPositions = this._scrollPositions;
-    //         }
-    //         if (this.subsheet?.mode == modes.SINGLE)
-    //             window.setTimeout(resetScrollPos, 100);
-    //         else
-    //             resetScrollPos();
-    //     }
-
-    //     this._lastentry = this.object.id;
-
-    //     this.activateControls($('#journal-buttons', this.element).empty());
-
-    //     this.object._sheet = null; //set this to null so that other things can open the sheet
-    //     this.subsheet._state = this.subsheet.constructor.RENDER_STATES.RENDERED;
-      
-    // } catch(err) {
-    //     // display an error rendering the subsheet
-    //     error(err);
-    // }
-  }
-
+  
   /*
   _saveScrollPositions(html) {
     super._saveScrollPositions(html);
@@ -700,88 +396,9 @@ export class WorldBuilder extends Application {
     this.open(entity);
   }
 
-  navigateHistory(event) {
-    if (!$(event.currentTarget).hasClass('disabled')) {
-      let dir = event.currentTarget.dataset.history;
-      let tab = this._activeTab();
-
-      if (tab.history.length > 1) {
-        let result = true;
-        let idx = 0;
-        do {
-          idx = ((tab.historyIdx == undefined ? 0 : tab.historyIdx) + (dir == 'back' ? 1 : -1));
-          result = this.changeHistory(idx);
-        } while (!result && idx > 0 && idx < tab.history.length )
-      }
-    }
-    event.preventDefault();
-  }
-
-  async changeHistory(idx) {
-    let tab = this._activeTab();
-    tab.historyIdx = Math.clamped(idx, 0, (tab.history.length - 1));
-
-    tab.entityId = tab.history[tab.historyIdx];
-    tab.entity = await this.findEntity(tab.entityId, tab.text);
-    tab.text = tab.entity.name;
-
-    this.saveTabs();
-
-    this.render(true, { autoPage: true } );
-
-    this.updateRecent(tab.entity);
-
-    //$('.back-button', this.element).toggleClass('disabled', !this.canBack(tab));
-    //$('.forward-button', this.element).toggleClass('disabled', !this.canForward(tab));
-
-    return (tab?.entity?.id != undefined);
-  }
-
-  async getHistory() {
-    let index = 0;
-    let tab = this._activeTab();
-    let menuItems = [];
-
-    if (tab?.history == undefined)
-      return;
-
-    for (let i = 0; i < tab.history.length; i++) {
-      let h = tab.history[i];
-      let entity = await this.findEntity(h, '');
-      if (tab?.entity?.id != undefined) {
-        let type = (entity.getFlag && entity.getFlag('monks-enhanced-journal', 'type'));
-        let icon = MonksEnhancedJournal.getIcon(type);
-        let item = {
-          name: entity.name || i18n("MonksEnhancedJournal.Unknown"),
-          icon: `<i class="fas ${icon}"></i>`,
-          callback: (li) => {
-            let idx = i;
-            this.changeHistory(idx)
-          }
-        }
-        menuItems.push(item);
-      }
-    };
-
-    return menuItems;
-  }
-
 
 
 */
-  expandSidebar() {
-    this._collapsed = false;
-    // $('.enhanced-journal', this.element).removeClass('collapse');
-    // $('#fwb-sidebar-toggle', this.element).attr('data-tooltip', localize("MonksEnhancedJournal.CollapseDirectory"));
-    // $('#fwb-sidebar-toggle i', this.element).removeClass('fa-caret-left').addClass('fa-caret-right');
-  }
-
-  collapseSidebar() {
-    this._collapsed = true;
-    // $('.enhanced-journal', this.element).addClass('collapse');
-    // $('#fwb-sidebar-toggle', this.element).attr('data-tooltip', localize("MonksEnhancedJournal.ExpandDirectory"));
-    // $('#fwb-sidebar-toggle i', this.element).removeClass('fa-caret-right').addClass('fa-caret-left');
-  }
 /*
   _randomizePerson() {
     //randomize first name, last name, race, gender, profession
@@ -968,11 +585,11 @@ export class WorldBuilder extends Application {
   }
 
   findMapEntry(event) {
-    let pageId = $(event.currentTarget).attr('page-id');
+    let journalId = $(event.currentTarget).attr('page-id');
     let journalId = $(event.currentTarget).attr('journal-id');
 
     let note = canvas.notes.placeables.find(n => {
-      return n.document.entryId == pageId || n.document.pageId == pageId || (n.document.entryId == journalId && n.document.pageId == null);
+      return n.document.entryId == journalId || n.document.journalId == journalId || (n.document.entryId == journalId && n.document.journalId == null);
     });
     canvas.notes.panToNote(note);
   }
@@ -1275,13 +892,12 @@ export class WorldBuilder extends Application {
   }
 */
 
-  activateListeners(html) {
+  public activateListeners(html: JQuery<HTMLElement>): void {
     super.activateListeners(html);
 
-    this._WBHeader.activateListeners(html);
-    this._WBFooter.activateListeners(html);
-
-    // let that = this;
+    Object.values(this._partials).forEach((p: HandlebarPartial) => { 
+      p.activateListeners(html); 
+    });
 
     // this._contextMenu(html);
   }
@@ -1347,10 +963,10 @@ export class WorldBuilder extends Application {
     return ctrls;
   }
 
-  openPage(page) {
-    if (!page?.id)
+  openPage(journalToOpen) {
+    if (!journalToOpen?.id)
       return;
-    let journal = game.journal.get(page.id);
+    let journal = game.journal.get(journalToOpen.id);
     if (journal) this.open(journal);
   }
 

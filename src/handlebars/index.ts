@@ -1,8 +1,11 @@
 export function registerHelpers() {
   // register templates parts
   const templatePaths = [
-    "systems/pf2e/templates/actors/main/actor-header.html"
+    'modules/world-builder/templates/WBHeader.hbs',
+    'modules/world-builder/templates/WBFooter.hbs',
+    'modules/world-builder/templates/WBContent.hbs',
   ];
-  
+
+  // @ts-ignore
   return loadTemplates( templatePaths );  
 }

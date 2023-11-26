@@ -1,8 +1,12 @@
 import { SettingKeys, moduleSettings } from "@/settings/ModuleSettings";
 import { getGame, localize } from "@/utils/game";
 
-import '@/../styles/WBHeader.scss';
+import './WBHeader.scss';
 import { WorldBuilder } from "./WorldBuilder";
+import { UserFlagKeys, userFlags } from '@/settings/UserFlags';
+import { Bookmark, HandlebarPartial, WindowTab } from '@/types';
+
+export const WBHEADER_TEMPLATE = 'modules/world-builder/templates/WBHeader.hbs';
 
 type WBHeaderData = {
   tabs: WindowTab[];
@@ -12,34 +16,24 @@ type WBHeaderData = {
   canForward: boolean;
 }
 
-export class WBHeader {
+export class WBHeader implements HandlebarPartial {
   private _parent: WorldBuilder;   // the parent object
-  private _tabs = [] as WindowTab[];  // this is strange object that looks like an array plus an "active"
+  private _tabs = [] as WindowTab[];  
   private _collapsed: boolean;
-  private _bookmarks = [];
+  private _bookmarks = [] as Bookmark[];
 
   constructor(parent: WorldBuilder) {
     this._parent = parent;
 
-    // setup the tabs
-    this._tabs = duplicate(getGame().user?.getFlag('world-builder', 'tabs') || 
-        [{ id: randomID(), text: localize('fwb.labels.newTab'), active: true, history: [] }]) as WindowTab[];
-    this._tabs = this._tabs.map(t => { delete t.entity; return t; })
+    // setup the tabs and bookmarks
+    this._tabs = userFlags.get(UserFlagKeys.tabs) || [];
+    this._bookmarks = userFlags.get(UserFlagKeys.bookmarks) || [];
 
     // get collapsed state
     this._collapsed = moduleSettings.get(SettingKeys.startCollapsed);
-
-    //this._bookmarks = duplicate(getGame().user?.getFlag('world-builder', 'bookmarks') || []);
   }
 
-  public async render(): Promise<void> {
-    // note: new object structure of parameter is OK, despite typescript error
-    await loadTemplates({
-      WBHeader: 'modules/world-builder/templates/WBHeader.hbs'
-    });  
-  }
-
-  public getData(): WBHeaderData {
+  public async getData(): Promise<WBHeaderData> {
     const data = {
       tabs: this._tabs,
       collapsed: this._collapsed,
@@ -59,13 +53,13 @@ export class WBHeader {
     });
 
     // $('.back-button, .forward-button', html).toggle(game.user.isGM || setting('allow-player')).on('click', this.navigateHistory.bind(this));
-    // html.find('.add-bookmark').click(this.addBookmark.bind(this));
+    //html.find('.add-bookmark').on('click', () => { this._addBookmark(); });
     // html.find('.bookmark-button:not(.add-bookmark)').click(this.activateBookmark.bind(this));
 
-    html.find('#fwb-add-tab').click(() => { this._addTab() });
+    html.find('#fwb-add-tab').on('click', () => { this._addTab() });
 
     $('.fwb-tab', html).each((idx, elem) => {
-    		$(elem).on('click', (event: MouseEvent) => { event.preventDefault(); this._activateTab({tabId: $(elem).attr('data-tabid')})});
+    		//$(elem).on('click', (event: MouseEvent) => { event.preventDefault(); this._activateTab({tabId: $(elem).attr('data-tabid')})});
     });
 
     // $('.fwb-tab .close').each(function () {
@@ -85,7 +79,7 @@ export class WBHeader {
     if (!checkTab)
       return false;
 
-    return (checkTab.history?.length > 1) && (!checkTab.historyIdx || (checkTab.historyIdx < tab.history.length - 1));
+    return (checkTab.history?.length > 1) && (!checkTab.historyIdx || (checkTab.historyIdx < checkTab.history.length - 1));
   }
 
   private _canForward(tab?: WindowTab): boolean {
@@ -110,53 +104,53 @@ export class WBHeader {
 
   // activate - switch to the tab after creating
   // refresh = rerender (the parent)
-  // pageId = TODO???
-  // anchor = TODO???
-  private _addTab(options = { activate: true, refresh: true, pageId: any, anchor: any }) {
+  // entry = the entry for the tab  (currently just journal entries)
+  private async _addTab(options = { activate: true, refresh: true, entry: null as JournalEntryPage | null }): Promise<WindowTab> {
     let tab = {
       id: randomID(),
       text: localize('fwb.labels.newTab'),
       active: false,
-      // entityId: entity?.uuid,
-      // entity: entity || { flags: { 'monks-enhanced-journal': { type: 'blank' }, content: localize('fwb.labels.newTab') } },
-      pageId: options.pageId,
-      anchor: options.anchor,
+      entry: options.entry,
       history: [],
       historyIdx: 0,
     } as WindowTab;
-    // if (tab.entityId != undefined)
-    //   tab.history.push(tab.entityId);
-
+    
+    // add to history and the tabs list
     this._tabs.push(tab);
+    if (tab.entry)
+      tab.history.push(tab.entry.uuid);
 
-    if (options.activate)
-      this._activateTab({tab: tab});  //activating the tab should save it
-    else {
-      this._saveTabs();
-      if (options.refresh)
-        this._parent.render(true, { focus: true });
-    }
+    // if (options.activate)
+    //   this._activateTab({tab: tab});  //activating the tab should save it
+    // else {
+    //   this._saveTabs();
+    //       if (options.refresh)
+    //         this._parent.render(true, { focus: true });
+    // }
 
-    this._updateRecent(tab.entity);
-
+    //await this._updateRecent(tab.journal);
     return tab;
   }
 
-  private async _updateRecent(entity) {
-    if (entity.id) {
-      let recent = (getGame().user?.getFlag("monks-enhanced-journal", "_recentlyViewed") || []) as any[];
-      recent.findSplice((e) => e.id === entity.id || typeof e !== 'object');
-      recent.unshift({ id: entity.id, uuid: entity.uuid, name: entity.name, type: entity.getFlag("monks-enhanced-journal", "type") });
+  // add new page to the top of the history
+  /*
+  private async _updateRecent(journal: JournalEntryPage): Promise<void> {
+    let recent = userFlags.get(UserFlagKeys.recentlyViewed) || [] as ViewHistory[];
 
-      if (recent.length > 5)
-        recent = recent.slice(0, 5);
+    // remove any other places in history this already appears
+    recent.findSplice((h) => h.journalId === journal.uuid);
 
-      await getGame().user?.update({
-        flags: { 'monks-enhanced-journal': { '_recentlyViewed': recent } }
-      }, { render: false });
-    }
+    // insert in the front
+    recent.unshift({ journalId: journal.uuid, name: journal.name } as ViewHistory);
+
+    // trim if too long
+    if (recent.length > 5)
+      recent = recent.slice(0, 5);
+
+    userFlags.set(UserFlagKeys.recentlyViewed, recent);
   }
-
+*/
+  /*
   // activate the given tab, first closing the current subsheet
   // if neither tab nor tabID is present, it adds a new one
   async _activateTab(opt: {tab?: WindowTab, tabId?: string | number, options?: any}) {
@@ -242,7 +236,7 @@ export class WBHeader {
       return;
 
     if (entity?.parent) {
-      options.pageId = entity.id;
+      options.journalId = entity.id;
       entity = entity.parent;
     }
 
@@ -251,8 +245,7 @@ export class WBHeader {
         tab.text = entity.name;
         tab.entityId = entity.uuid;
         tab.entity = entity;
-        tab.pageId = options.pageId;
-        tab.anchor = options.anchor;
+        tab.journalId = options.journalId;
 
         if ((game.user.isGM || setting('allow-player')) && tab.entityId != undefined) {    //only save the history if the player is a GM or they get the full journal experience... and if it's not a blank tab
           if (tab.history == undefined)
@@ -277,7 +270,7 @@ export class WBHeader {
       //$('.back-button', this.element).toggleClass('disabled', !this.canBack(tab));
       //$('.forward-button', this.element).toggleClass('disabled', !this.canForward(tab));
       //this.updateHistory();
-      this.updateRecent(tab.entity);
+      this._updateRecent(tab.journal);
     }
 
     if (!this.rendered)
@@ -369,7 +362,7 @@ export class WBHeader {
   }
 
 
-/*
+  // add the current tab as a new bookmark
   addBookmark() {
     //get the current tab and save the entity and name
     let tab = this._activeTab();
@@ -409,7 +402,9 @@ export class WBHeader {
 
     this.saveBookmarks();
   }
+  */
 
+  /*
   async activateBookmark(event) {
     let id = event.currentTarget.dataset.bookmarkId;
     let bookmark = this._bookmarks.find(b => b.id == id);
@@ -431,5 +426,74 @@ export class WBHeader {
     game.user.setFlag('monks-enhanced-journal', 'bookmarks', update);
   }
 */
+
+/*
+navigateHistory(event) {
+  if (!$(event.currentTarget).hasClass('disabled')) {
+    let dir = event.currentTarget.dataset.history;
+    let tab = this._activeTab();
+
+    if (tab.history.length > 1) {
+      let result = true;
+      let idx = 0;
+      do {
+        idx = ((tab.historyIdx == undefined ? 0 : tab.historyIdx) + (dir == 'back' ? 1 : -1));
+        result = this.changeHistory(idx);
+      } while (!result && idx > 0 && idx < tab.history.length )
+    }
+  }
+  event.preventDefault();
+}
+
+async changeHistory(idx) {
+  let tab = this._activeTab();
+  tab.historyIdx = Math.clamped(idx, 0, (tab.history.length - 1));
+
+  tab.entityId = tab.history[tab.historyIdx];
+  tab.entity = await this.findEntity(tab.entityId, tab.text);
+  tab.text = tab.entity.name;
+
+  this.saveTabs();
+
+  this.render(true, { autoPage: true } );
+
+  this._updateRecent(tab.journal);
+
+  //$('.back-button', this.element).toggleClass('disabled', !this.canBack(tab));
+  //$('.forward-button', this.element).toggleClass('disabled', !this.canForward(tab));
+
+  return (tab?.entity?.id != undefined);
+}
+
+async getHistory() {
+  let index = 0;
+  let tab = this._activeTab();
+  let menuItems = [];
+
+  if (tab?.history == undefined)
+    return;
+
+  for (let i = 0; i < tab.history.length; i++) {
+    let h = tab.history[i];
+    let entity = await this.findEntity(h, '');
+    if (tab?.entity?.id != undefined) {
+      let type = (entity.getFlag && entity.getFlag('monks-enhanced-journal', 'type'));
+      let icon = MonksEnhancedJournal.getIcon(type);
+      let item = {
+        name: entity.name || i18n("MonksEnhancedJournal.Unknown"),
+        icon: `<i class="fas ${icon}"></i>`,
+        callback: (li) => {
+          let idx = i;
+          this.changeHistory(idx)
+        }
+      }
+      menuItems.push(item);
+    }
+  };
+
+  return menuItems;
+}
+*/
+
 }
 

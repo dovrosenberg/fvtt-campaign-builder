@@ -19,11 +19,13 @@ async function ready(): Promise<void> {
     );
 
     jQuery(document).on('click', '#fwb-launch', (event) => {
+      if (!worldBuilder) {
+        // create the instance
+        updateWorldBuilder(new WorldBuilder());
+      }
+
       // render the main window
       worldBuilder.render(true);
     });
   }
-
-  // create the instance
-  updateWorldBuilder(new WorldBuilder());
 }

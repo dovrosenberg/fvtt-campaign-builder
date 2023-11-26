@@ -46,7 +46,8 @@ export default defineConfig({
     scss({
       output: 'styles/style.css',
       sourceMap: true,
-      watch: ['src/styles/*.scss'],
+      include: ['src/**/*.scss', 'src/**/*.css'],
+      watch: ['src/styles/*.scss', 'src/**/*.css', 'src/'],
     }),    viteCommonjs(),
     envCompatible(),
     createHtmlPlugin({

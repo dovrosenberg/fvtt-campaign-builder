@@ -25,10 +25,6 @@ export class ModuleSettings {
     this.registerSettings();
   }
 
-  public isSettingValueEmpty(setting: any): boolean {
-    return Object.keys(setting).length === 0 || setting === null || setting === undefined;
-  }
-
   public get<T extends SettingKeys>(setting: T): SettingType<T> {
     return getGame().settings.get(moduleJson.id, setting) as SettingType<T>;
   }
