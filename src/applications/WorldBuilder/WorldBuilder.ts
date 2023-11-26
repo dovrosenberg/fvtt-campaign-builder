@@ -108,6 +108,21 @@ export class WorldBuilder extends Application {
     return data;
   }
 
+  public activateListeners(html: JQuery<HTMLElement>): void {
+    super.activateListeners(html);
+
+    Object.values(this._partials).forEach((p: HandlebarPartial) => { 
+      p.activateListeners(html); 
+    });
+
+    // setup component listeners
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabAdded, ()=> { this.render(); });
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabActivated, ()=> { this.render(); });
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.BookmarkAdded, ()=> { this.render(); });
+
+    // this._contextMenu(html);
+  }
+
   public async render(force?: boolean, options = {}) {
     let retval = await super.render(force, options);
 
@@ -892,15 +907,6 @@ export class WorldBuilder extends Application {
   }
 */
 
-  public activateListeners(html: JQuery<HTMLElement>): void {
-    super.activateListeners(html);
-
-    Object.values(this._partials).forEach((p: HandlebarPartial) => { 
-      p.activateListeners(html); 
-    });
-
-    // this._contextMenu(html);
-  }
 /*
   activateFooterListeners(html) {
     let folder = (this.object.folder || this.object.parent?.folder);

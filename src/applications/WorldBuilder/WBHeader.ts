@@ -21,6 +21,8 @@ export class WBHeader implements HandlebarPartial {
   private _tabs = [] as WindowTab[];  
   private _collapsed: boolean;
   private _bookmarks = [] as Bookmark[];
+  private _callbacks = {} as Record<WBHeader.CallbackType, (...args: any[]) => void>
+
 
   constructor(parent: WorldBuilder) {
     this._parent = parent;
@@ -48,7 +50,7 @@ export class WBHeader implements HandlebarPartial {
 
   public activateListeners(html: JQuery) {  
     $('#fwb-sidebar-toggle').on('click', () => { 
-      this._collapsed = !this._collapsed; 
+      this._collapsed = !this._collapsed;       
       this._parent.render();
     });
 
@@ -67,6 +69,10 @@ export class WBHeader implements HandlebarPartial {
     // 		let tab = that.tabs.find(t => t.id == tabid);
     // 		$(this).click(that.removeTab.bind(that, tab));
     // });
+  }
+
+  public registerCallback(callbackType: WBHeader.CallbackType, callback: (...args: any[]) => void) {
+    this._callbacks[callbackType] = callback;    
   }
 
   public get collapsed(): boolean {
@@ -112,7 +118,7 @@ export class WBHeader implements HandlebarPartial {
       active: false,
       entry: options.entry,
       history: [],
-      historyIdx: 0,
+      historyIdx: -1,
     } as WindowTab;
     
     // add to history and the tabs list
@@ -129,6 +135,8 @@ export class WBHeader implements HandlebarPartial {
     // }
 
     //await this._updateRecent(tab.journal);
+
+    this._callbacks[WBHeader.CallbackType.TabAdded]();
     return tab;
   }
 
@@ -497,3 +505,10 @@ async getHistory() {
 
 }
 
+export namespace WBHeader {
+  export enum CallbackType {
+    TabActivated,
+    TabAdded,
+    BookmarkAdded,
+  }
+}
