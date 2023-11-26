@@ -1,5 +1,3 @@
-import '@/../styles/world-builder.scss';
-
 import { registerForHooks } from '@/hooks';
 
 /**

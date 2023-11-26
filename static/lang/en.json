@@ -2,12 +2,16 @@
   "fwb": {
     "title": "World Builder",
     "settings": {
+      "startCollapsed": "Sidebar starts collapsed?",
+      "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
     },
     "labels": {
       "newTab": "New Tab" 
     },
     "tooltips": {
-      "main-button": "Launch World Builder"
+      "mainButton": "Launch World Builder",
+      "expandDirectory": "Expand Directory",
+      "collapseDirectory": "Collapse Directory"
     }
   }
 }

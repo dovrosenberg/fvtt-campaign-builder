@@ -3,13 +3,13 @@ import moduleJson from '@module';
 
 export enum SettingKeys {
   // displayed in settings
-  resultLength = 'resultLength',
+  startCollapsed = 'startCollapsed',  // should the sidebar start collapsed when we open
 
   // internal only
 }
 
 type SettingType<K extends SettingKeys> =
-    K extends SettingKeys.resultLength ? number :
+    K extends SettingKeys.startCollapsed ? boolean :
     never;  
 
 // the solo instance
@@ -52,17 +52,17 @@ export class ModuleSettings {
   // these are globals shown in the options
   // name and hint should be the id of a localization string
   private displayParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
-    {
-      settingID: SettingKeys.resultLength,
-      name: 'acm.settings.resultLength',
-      hint: 'acm.settings.resultLengthHelp',
-      default: 5,
-      type: Number,
-    },
   ];
 
   // these are client-specific and displayed in settings
   private localDisplayParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
+    {
+      settingID: SettingKeys.startCollapsed,
+      name: 'acm.settings.startCollapsed',
+      hint: 'acm.settings.startCollapsedHelp',
+      default: false,
+      type: Boolean,
+    },
   ];
 
   // these are globals only used internally

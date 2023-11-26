@@ -13,7 +13,7 @@ async function ready(): Promise<void> {
 
   if (getGame().user?.isGM) {  // TODO : decide what the player view should be, if any
     const navToggleButton = jQuery(document).find('#nav-toggle');
-    const toolTip = localize('fwb.tooltips.main-button');
+    const toolTip = localize('fwb.tooltips.mainButton');
     navToggleButton.before(
         `<button id='fwb-launch' type="button" class="nav-item flex0" title="${toolTip}"><i class="fas fa-globe"></i></button>`
     );
