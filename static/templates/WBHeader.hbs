@@ -11,10 +11,10 @@
   <div class="tab-bar flexrow">
     <div class="tab-row flexrow">
       {{#each tabs}}
-      <div class="fwb-tab flexrow{{#if active}} active{{/if}}" title="{{text}}" data-tabid="{{id}}">
-        <div class="tab-content">{{text}}</div>
-        <div class="close"><i class="fas fa-times"></i></div>
-      </div>
+        <div class="fwb-tab flexrow {{#if active}}active{{/if}}" title="{{text}}" data-tabid="{{id}}">
+          <div class="tab-content">{{text}}</div>
+          <div class="close"><i class="fas fa-times"></i></div>
+        </div>
       {{/each}}
 
       <div id="fwb-add-tab" class="tab-button"><i class="fas fa-plus"></i></div>

@@ -9,7 +9,7 @@ import { HandlebarPartial } from '@/types';
 
 export class WorldBuilder extends Application {
   // sub-components
-  private _partials: Record<string, HandlebarPartial>;
+  private _partials: Record<string, HandlebarPartial<any>>;
 
   // state - often tracking state of children
   private _currentJournalId: string;    // uuid of currently displayed page
@@ -111,14 +111,16 @@ export class WorldBuilder extends Application {
   public activateListeners(html: JQuery<HTMLElement>): void {
     super.activateListeners(html);
 
-    Object.values(this._partials).forEach((p: HandlebarPartial) => { 
+    Object.values(this._partials).forEach((p: HandlebarPartial<any>) => { 
       p.activateListeners(html); 
     });
 
     // setup component listeners
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabAdded, ()=> { this.render(); });
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabRemoved, ()=> { this.render(); });
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabActivated, ()=> { this.render(); });
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.BookmarkAdded, ()=> { this.render(); });
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.SidebarToggled, ()=> { this.render(); });
 
     // this._contextMenu(html);
   }

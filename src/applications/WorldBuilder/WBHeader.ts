@@ -2,7 +2,6 @@ import { SettingKeys, moduleSettings } from "@/settings/ModuleSettings";
 import { getGame, localize } from "@/utils/game";
 
 import './WBHeader.scss';
-import { WorldBuilder } from "./WorldBuilder";
 import { UserFlagKeys, userFlags } from '@/settings/UserFlags';
 import { Bookmark, HandlebarPartial, WindowTab } from '@/types';
 
@@ -16,16 +15,13 @@ type WBHeaderData = {
   canForward: boolean;
 }
 
-export class WBHeader implements HandlebarPartial {
-  private _parent: WorldBuilder;   // the parent object
+export class WBHeader extends HandlebarPartial<WBHeader.CallbackType> {
   private _tabs = [] as WindowTab[];  
   private _collapsed: boolean;
   private _bookmarks = [] as Bookmark[];
-  private _callbacks = {} as Record<WBHeader.CallbackType, (...args: any[]) => void>
 
-
-  constructor(parent: WorldBuilder) {
-    this._parent = parent;
+  constructor() {
+    super();
 
     // setup the tabs and bookmarks
     this._tabs = userFlags.get(UserFlagKeys.tabs) || [];
@@ -33,6 +29,10 @@ export class WBHeader implements HandlebarPartial {
 
     // get collapsed state
     this._collapsed = moduleSettings.get(SettingKeys.startCollapsed);
+
+    // if there are no tabs, add one
+    if (!this._tabs.length)
+      this._addTab();
   }
 
   public async getData(): Promise<WBHeaderData> {
@@ -50,8 +50,8 @@ export class WBHeader implements HandlebarPartial {
 
   public activateListeners(html: JQuery) {  
     $('#fwb-sidebar-toggle').on('click', () => { 
-      this._collapsed = !this._collapsed;       
-      this._parent.render();
+      this._collapsed = !this._collapsed;      
+      this._makeCallback(WBHeader.CallbackType.SidebarToggled); 
     });
 
     // $('.back-button, .forward-button', html).toggle(game.user.isGM || setting('allow-player')).on('click', this.navigateHistory.bind(this));
@@ -64,15 +64,16 @@ export class WBHeader implements HandlebarPartial {
     		//$(elem).on('click', (event: MouseEvent) => { event.preventDefault(); this._activateTab({tabId: $(elem).attr('data-tabid')})});
     });
 
-    // $('.fwb-tab .close').each(function () {
-    // 		let tabid = $(this).closest('.fwb-tab')[0].dataset.tabid;
-    // 		let tab = that.tabs.find(t => t.id == tabid);
-    // 		$(this).click(that.removeTab.bind(that, tab));
-    // });
-  }
+    // listeners for the tab close buttons
+    $(html).on('click', '.fwb-tab .close', (event: MouseEvent) => {
+      let tabId;
 
-  public registerCallback(callbackType: WBHeader.CallbackType, callback: (...args: any[]) => void) {
-    this._callbacks[callbackType] = callback;    
+      if (event.target)
+        tabId = ($(event.target)?.closest('.fwb-tab')[0] as HTMLElement).dataset.tabid;
+
+        if (tabId)
+          this._removeTab(tabId);
+    });
   }
 
   public get collapsed(): boolean {
@@ -114,7 +115,7 @@ export class WBHeader implements HandlebarPartial {
   private async _addTab(options = { activate: true, refresh: true, entry: null as JournalEntryPage | null }): Promise<WindowTab> {
     let tab = {
       id: randomID(),
-      text: localize('fwb.labels.newTab'),
+      text: localize('abc'),
       active: false,
       entry: options.entry,
       history: [],
@@ -126,17 +127,15 @@ export class WBHeader implements HandlebarPartial {
     if (tab.entry)
       tab.history.push(tab.entry.uuid);
 
-    // if (options.activate)
-    //   this._activateTab({tab: tab});  //activating the tab should save it
+    if (options.activate)
+      this._activateTab(tab.id);  //activating the tab should save it
     // else {
     //   this._saveTabs();
-    //       if (options.refresh)
-    //         this._parent.render(true, { focus: true });
     // }
 
     //await this._updateRecent(tab.journal);
 
-    this._callbacks[WBHeader.CallbackType.TabAdded]();
+    this._makeCallback(WBHeader.CallbackType.TabAdded);
     return tab;
   }
 
@@ -158,28 +157,16 @@ export class WBHeader implements HandlebarPartial {
     userFlags.set(UserFlagKeys.recentlyViewed, recent);
   }
 */
-  /*
+
   // activate the given tab, first closing the current subsheet
-  // if neither tab nor tabID is present, it adds a new one
-  async _activateTab(opt: {tab?: WindowTab, tabId?: string | number, options?: any}) {
-    const { tab, tabId, options } = opt;
-    let newTab;
+  // tabId must exist
+  async _activateTab(tabId: string): Promise<void> {
+    //this.saveScrollPos();
 
-    this.saveScrollPos();
+    let tab: WindowTab | undefined;
+    if (!tabId || !(tab = this._tabs.find((t)=>(t.id===tabId))))
+      return;
 
-    if (await this?.subsheet?.close() === false)
-      return false;
-
-    if (tab) {
-      newTab = tab;
-    } else if (tabId) {
-      if (typeof tab == 'string')
-        newTab = this._tabs.find(t => t.id == tab);
-      else if (typeof tab == 'number')
-        newTab = this._tabs[tab];
-    } else {
-        newTab = this._addTab();
-    }
 
     // TODO - do we want to enable this?  may need to refactor to handle in the click
     // if (event?.altKey) {
@@ -201,44 +188,27 @@ export class WBHeader implements HandlebarPartial {
     //   }
     // }
 
-    // look for the current tab
+    // see if it's already current
     let currentTab = this._activeTab(false);
-    if (currentTab?.id != tab.id || this.subdocument == undefined) {
-      tab.entity = await this.findEntity(tab.entityId, tab.text);
+    if (currentTab?.id === tabId) {
+      return;
     }
 
-    // if (currentTab?.id == tab.id) {
-    //     this.display(tab.entity);
-    //     this.updateHistory();
-    //     return false;
-    // }
-
-    if (currentTab != undefined)
+    // TODO - if there's an active tab, do we need to clean anything up? save?
+    // 
+    if (currentTab)
       currentTab.active = false;
     tab.active = true;
 
-    this._tabs.active = null;
-
-    //$(`.fwb-tab[data-tabid="${tab.id}"]`, this.element).addClass('active').siblings().removeClass('active');
-
-    //this.display(tab.entity);
-
-    this.saveTabs();
-
+    //this.saveTabs();
     //this.updateHistory();
-    if (this.rendered)
-      this.render(true, options);
-    else {
-      window.setTimeout(() => {
-        $(`.fwb-tab[data-tabid="${tab.id}"]`, this.element).addClass("active").siblings().removeClass("active");
-      }, 100);
-    }
+    //this._updateRecent(tab.entity);
 
-    this._updateRecent(tab.entity);
-
-    return true;
+    this._makeCallback(WBHeader.CallbackType.TabActivated);
+    return;
   }
 
+  /*
   private _updateTab(tab, entity, options = {}) {
     if (!entity)
       return;
@@ -313,31 +283,38 @@ export class WBHeader implements HandlebarPartial {
       }
     }
   }
+*/
 
-  private _removeTab(tab, event) {
-    if (typeof tab == 'string')
-      tab = this._tabList.find(t => t.id == tab);
+  // remove the tab given by the id from the list
+  private _removeTab(tabId: string) {
+    // find the tab
+    let tab = this._tabs.find((t) => (t.id === tabId));
+    let index = this._tabs.findIndex((t) => (t.id === tabId));
 
-    let idx = this._tabList.findIndex(t => t.id == tab.id);
-    if (idx >= 0) {
-      this._tabList.splice(idx, 1);
-      $('.fwb-tab[data-tabid="' + tab.id + '"]', this.element).remove();
-    }
+    if (!tab) return;
 
-    if (this._tabList.length == 0) {
-      this._addTab();
+    // remove it from the array
+    this._tabs.splice(index, 1);
+
+    if (this._tabs.length == 0) {
+      this._addTab();  // make a default tab
     } else {
+      // if it was active, make the one before it active (or after if it was up front)
       if (tab.active) {
-        let nextIdx = (idx >= this._tabList.length ? idx - 1 : idx);
-        if (!this.activateTab(nextIdx))
-          this.saveTabs();
+        if (this._tabs.length===0) {
+          this._addTab();
+        } else {
+          this._activateTab(this._tabs[index-1].id);
+          // if (!this._activateTab(nextIdx))
+          //   this.saveTabs();  
+        }
       }
-    }
 
-    if (event != undefined)
-      event.preventDefault();
+      this._makeCallback(WBHeader.CallbackType.TabRemoved);
+    }
   }
 
+  /*
   private _saveTabs() {
     let update = this._tabList.map(t => {
       let entity = t.entity;
@@ -502,13 +479,14 @@ async getHistory() {
   return menuItems;
 }
 */
-
 }
 
 export namespace WBHeader {
   export enum CallbackType {
     TabActivated,
     TabAdded,
+    TabRemoved,
     BookmarkAdded,
+    SidebarToggled,
   }
 }

@@ -1,17 +1,15 @@
 import { HandlebarPartial } from '@/types';
 import './WBFooter.scss';
-import { WorldBuilder } from './WorldBuilder';
 
 export const WBFOOTER_TEMPLATE = 'modules/world-builder/templates/WBFooter.hbs';
 
 type WBFooterData = {
 }
 
-export class WBFooter implements HandlebarPartial  {
-  private _parent: WorldBuilder;   // the parent object
+export class WBFooter extends HandlebarPartial<WBFooter.CallbackType>  {
 
-  constructor(parent: WorldBuilder) {
-    this._parent = parent;
+  constructor() {
+    super();
   }
 
   public async getData(): Promise<WBFooterData> {
@@ -26,3 +24,8 @@ export class WBFooter implements HandlebarPartial  {
   }
 }
 
+
+export namespace WBFooter {
+  export enum CallbackType {
+  }
+}

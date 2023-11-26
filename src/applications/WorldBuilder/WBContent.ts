@@ -1,6 +1,5 @@
 import { getGame } from '@/utils/game';
 import './WBFooter.scss';
-import { WorldBuilder } from './WorldBuilder';
 import { HandlebarPartial } from '@/types';
 
 export const WBCONTENT_TEMPLATE = 'modules/world-builder/templates/WBContent.hbs';
@@ -9,17 +8,16 @@ export const WBCONTENT_TEMPLATE = 'modules/world-builder/templates/WBContent.hbs
 type WBContentData = {
 }
 
-export class WBContent implements HandlebarPartial  {
-  private _parent: WorldBuilder;   // the parent object
+export class WBContent extends HandlebarPartial<WBContent.CallbackType>  {
   private _entryId: string;    // the entryId to show
 
-  constructor(parent: WorldBuilder, entryId: string, options={}) {
+  constructor(entryId: string, options={}) {
+    super();
+    
     // look up the entry - note could use fromUuid, but it's a bit tricky for compendia and also async
     const journal = getGame().journal?.find((j) => (j.uuid===entryId));
     if (!journal)
       throw new Error(`Attempted to display missing journalId: ${entryId}`);
-
-    this._parent = parent;
   }
 
   public async getData(): Promise<WBContentData> {
@@ -32,6 +30,7 @@ export class WBContent implements HandlebarPartial  {
 
   public activateListeners(html: JQuery) {  
   }
+
 
   // public async _render(force?: boolean, options={}): Promise<void> {
   //   const retval = await super._render(force, options);
@@ -311,3 +310,8 @@ export class WBContent implements HandlebarPartial  {
 
 }
 
+
+export namespace WBContent {
+  export enum CallbackType {
+  }
+}

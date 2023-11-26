@@ -28,8 +28,19 @@ export type ViewHistory = {
 // There should also be a namespace with the same name as the class that contains an enum called CallBacks
 // these classes also generally have other exposed properties that the parent might need and are passed
 //    callbacks for various events the parent might need to know about
-export interface HandlebarPartial {
-  getData(): Promise<Record<string, any>>;
-  activateListeners(html: JQuery<HTMLElement>): void;
-  registerCallback(callbackType: any, callback: (...args: any[])=>void);
+export abstract class HandlebarPartial<CallbackType extends string | number> {
+  protected _callbacks = {} as Record<CallbackType, (...args: any[]) => void>;
+
+  protected _makeCallback(callbackType: CallbackType, ...args: any[]) {
+    let cb = this._callbacks[callbackType];
+    if (cb)
+      cb(args);
+  }
+
+  public registerCallback(callbackType: CallbackType, callback: (...args: any[]) => void) {
+    this._callbacks[callbackType] = callback;    
+  }
+
+  public abstract getData(): Promise<Record<string, any>>;
+  public abstract activateListeners(html: JQuery<HTMLElement>): void;
 };
