@@ -1,5 +1,5 @@
 import { getGame } from '@/utils/game';
-import './WBFooter.scss';
+import './WBContent.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { HOMEPAGE_TEMPLATE, HomePage, } from './HomePage';
 

@@ -41,7 +41,7 @@
       .fwb-footer {
         padding-right: 26px;
       }
-      .directory-sidebar {
+      #fwb-directory-sidebar {
         flex: 0 0 0px;
         width: 0px;
       }
@@ -50,18 +50,46 @@
         top: 4px;
       }
     }
+
+    .fwb-body {
+      height: 100%;
+      /*overflow: hidden; Can't be hidden due to the sidebar toggle*/
+    }
   }
-}
+
+  .fwb-content {
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
   
+}
+
+.fwb {
   // Sidebar 
-/*  .directory-sidebar {
+  #fwb-directory-sidebar {
     flex: 0 0 300px;
     width: 300px;
+    max-width: 30%;
     height: 100%;
     // TODO: REPLACE THESE VARIABLES
     background: var(--mej-sidebar-background);
     border-left: 1px solid var(--mej-header-border-color);
     transition: width 0.5s, flex 0.5s;
+
+    & > section {
+      display: flex !important;
+      height: 100%;
+  
+      .directory-header {
+        background-color: var(--mej-header-background);
+        border-bottom: 1px solid var(--mej-header-border-color);
+        color: var(--mej-sidebar-label-color);
+        margin-bottom: 0px;
+        padding-bottom: 3px;
+      }
+    }
   }
 
   #journal .entry-name > i,
@@ -71,132 +99,120 @@
     flex: 0 0 15px;
   }
 
-  .directory .action-buttons {
-    padding-left: 30px;
+  .directory {
+    .action-buttons {
+      padding-left: 30px;
+    }
+
+    .directory-header {
+      .header-actions.action-buttons button {
+        line-height: 24px;
+        background: var(--mej-sidebar-button-background);
+        border: 2px groove var(--mej-sidebar-button-border);
+      }
+
+      .header-search {
+        input {
+          height: var(--form-field-height);
+          border: 1px solid var(--mej-sidebar-input-border);
+          background: var(--mej-sidebar-input-background);
+        }
+
+        input:hover,
+        input:focus,
+        input:active {
+          background: var(--mej-sidebar-input-background-focus);
+        }
+
+        input::placeholder {
+          color: var(--mej-sidebar-input-placeholder-color);
+        }
+      }
+    }
+
+    .directory-item.active {
+      background: #cfcdc2;
+    }
+  
+    .directory-list .directory-item {
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+  
+    li.folder > .folder-header {
+      border-top: 1px solid var(--mej-sidebar-folder-border-collapsed);
+      border-bottom: none;
+      width: 100%;
+      background: var(--mej-sidebar-folder-background-collapsed);
+      flex: 1;
+      color: var(--color-text-light-highlight);
+    }
+  
+    li.folder:not(.collapsed) > .folder-header {
+      border-top: 1px solid var(--mej-sidebar-folder-border);
+      background: var(--mej-sidebar-folder-background);
+    }
+  
+    li.folder.collapsed > .folder-header:not(.customcolor) {
+      color: var(--mej-sidebar-folder-color-collapsed);
+    }
+  
+    li.folder .folder-header.context {
+      border-top: 1px solid var(--mej-active-color);
+      border-bottom: 1px solid var(--mej-active-color);
+    }
+  
+    li.folder .folder-header.context,
+    li.folder .folder-header.context h3 {
+      color: var(--mej-sidebar-folder-context-color);
+    }
+  
+    .subdirectory {
+      border-left: 4px solid var(--mej-sidebar-subfolder-border);
+      border-bottom: 4px solid var(--mej-sidebar-subfolder-border);
+      margin-bottom: 0px;
+      width: 100%;
+    }    
+  
+    .subdirectory .folder {
+      border-left: 6px solid transparent;
+      border-color: transparent;
+    }
+  
+    li.journalentry,
+    li.journalentrypage {
+      line-height: 32px;
+      border-top: 1px solid var(--mej-sidebar-document-border-top);
+      border-bottom: 1px solid var(--mej-sidebar-document-border-botom);
+      color: var(--mej-sidebar-document-color);
+    }
+
+    .directory.sidebar-tab .directory-list .entry.selected {
+      background: rgba(0, 0, 0, 0.03);
+    }
+  
+    .directory.sidebar-tab .directory-list .entry.selected h4 {
+      font-weight: bold;
+    }    
+  
+    li.journalentry:not(.folder) .entry-name {
+      margin: 0 0.25em;
+    }
+
+    li.journalentry .entry-name {
+      flex-wrap: nowrap;
+      align-items: center;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+    }
   }
 
-  .directory .directory-header .header-actions.action-buttons button {
-    line-height: 24px;
-    background: var(--mej-sidebar-button-background);
-    border: 2px groove var(--mej-sidebar-button-border);
-  }
-
-  .directory .directory-header .header-search input {
-    height: var(--form-field-height);
-    border: 1px solid var(--mej-sidebar-input-border);
-    background: var(--mej-sidebar-input-background);
-  }
-
-  .directory .directory-header .header-search input:hover,
-  .directory .directory-header .header-search input:focus,
-  .directory .directory-header .header-search input:active {
-    background: var(--mej-sidebar-input-background-focus);
-  }
-
-  .directory .directory-header .header-search input::placeholder {
-    color: var(--mej-sidebar-input-placeholder-color);
-  }
-
-  .directory-sidebar > section {
-    display: flex !important;
-    height: 100%;
-  }
-
-  .directory-sidebar > section .directory-header {
-    background-color: var(--mej-header-background);
-    border-bottom: 1px solid var(--mej-header-border-color);
-    color: var(--mej-sidebar-label-color);
-    margin-bottom: 0px;
-    padding-bottom: 3px;
-  }
-
-  .directory .directory-item.active {
-    background: #cfcdc2;
-  }
-
-  .directory .directory-list .directory-item {
-    align-items: flex-start;
-    justify-content: flex-start;
-  }
-
-  .directory li.folder > .folder-header {
-    border-top: 1px solid var(--mej-sidebar-folder-border-collapsed);
-    border-bottom: none;
-    width: 100%;
-    background: var(--mej-sidebar-folder-background-collapsed);
-    flex: 1;
-    color: var(--color-text-light-highlight);
-  }
-
-  .directory li.folder:not(.collapsed) > .folder-header {
-    border-top: 1px solid var(--mej-sidebar-folder-border);
-    background: var(--mej-sidebar-folder-background);
-  }
-
-  .directory li.folder.collapsed > .folder-header:not(.customcolor) {
-    color: var(--mej-sidebar-folder-color-collapsed);
-  }
-
-  .directory li.folder .folder-header.context {
-    border-top: 1px solid var(--mej-active-color);
-    border-bottom: 1px solid var(--mej-active-color);
-  }
-
-  .directory li.folder .folder-header.context,
-  .directory li.folder .folder-header.context h3 {
-    color: var(--mej-sidebar-folder-context-color);
-  }
-
-  .directory .subdirectory {
-    border-left: 4px solid var(--mej-sidebar-subfolder-border);
-    border-bottom: 4px solid var(--mej-sidebar-subfolder-border);
-    margin-bottom: 0px;
-    width: 100%;
-  }
-
- // .directory .journalentry.folder .subdirectory {
- //   border-left-color: rgba(0, 0, 0, 0.1);
- //   border-bottom-color: rgba(0, 0, 0, 0.1);
- // }
-
- // .directory .subdirectory .subdirectory {
- //   margin-bottom: 0px;
- // }
-    
-
-  .directory .subdirectory .folder {
-    border-left: 6px solid transparent;
-    border-color: transparent;
-  }
-
-  .directory li.journalentry,
-  .directory li.journalentrypage {
-    line-height: 32px;
-    border-top: 1px solid var(--mej-sidebar-document-border-top);
-    border-bottom: 1px solid var(--mej-sidebar-document-border-botom);
-    color: var(--mej-sidebar-document-color);
-  }
-
-  #journal li.journalentry .entry-name,
-  .directory li.journalentry .entry-name {
+  #journal li.journalentry .entry-name {
     flex-wrap: nowrap;
     align-items: center;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
   }
-
-  .directory.sidebar-tab .directory-list .entry.selected {
-    background: rgba(0, 0, 0, 0.03);
-  }
-
-  .directory.sidebar-tab .directory-list .entry.selected h4 {
-    font-weight: bold;
-  }
-    
-
-  .directory li.journalentry:not(.folder) .entry-name {
-    margin: 0 0.25em;
-  }
 }
-*/

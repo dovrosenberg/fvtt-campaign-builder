@@ -12,12 +12,10 @@
 <div class="fwb flexrow {{#if collapsed}}collapse{{/if}}">
   <section class="fwb-body flexcol">
     {{> (WBHeader) WBHeaderData }}
-    <div class="content flexcol editable">
-      <section>
-        {{> (WBContent) WBContentData }}
-      </section>
+    <div class="fwb-content flexcol editable">
+      {{> (WBContent) WBContentData }}
     </div>
     {{> (WBFooter) WBFooterData }}
   </section>
-  <div class="directory-sidebar"></div>
+  <div id="fwb-directory-sidebar"></div>
 </div>

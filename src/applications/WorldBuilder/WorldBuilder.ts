@@ -179,7 +179,7 @@ export class WorldBuilder extends Application {
     // let html = await renderTemplate(template, data);
     // html = $(html);
 
-    // $('.directory-sidebar', this.element).empty().append(html);
+    // $('#fwb-directory-sidebar', this.element).empty().append(html);
 
     // folder = game.journal.directory.folders.find(f => (f.name == '_simple_calendar_notes_directory' && f.parent == null));
     // if (folder) {
