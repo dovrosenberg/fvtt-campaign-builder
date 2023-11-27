@@ -1,3 +1,30 @@
+/*
+
+        // note that a pack can be a folder, too???
+
+        // a uuid looks like: 
+        Compendium.world.test-actors.JournalEntry.undefined
+        game.packs.find((p)=>(p.getUuid()==='Compendium.world.test-actors.JournalEntry.undefined')).getUuid()
+
+        // 
+        // creating a compendium
+        metadata: {label: "Places", type: "JournalEntry"}
+        const pack = await CompendiumCollection.createCompendium(metadata);
+        if ( targetFolderId ) await pack.setFolder(targetFolderId);
+
+        // deleting
+        pack.deleteCompendium(),
+
+        // getting a folder
+        folder = Folder.get(targetFolderId)
+        folder.id 
+        folder.uuid = 'Folder.XXXX'
+
+        // creating a folder
+        ???
+*/
+
+
 import { getGame, localize } from '@/utils/game';
 import { WBHEADER_TEMPLATE, WBHeader } from './WBHeader';
 import { WBFOOTER_TEMPLATE, WBFooter } from './WBFooter';
@@ -10,6 +37,9 @@ import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 export class WorldBuilder extends Application {
   // sub-components
   private _partials: Record<string, HandlebarsPartial<any>>;
+
+  // global data
+  private _worldId: string;  // uuid of the world folder
 
   // state - often tracking state of children
   private _currentJournalId: string;    // uuid of currently displayed page
@@ -635,13 +665,6 @@ export class WorldBuilder extends Application {
       this.setPosition({ left: 0, top: 0 });
       this.setPosition({ height: $('body').height(), width: $('body').width() - $('#sidebar').width() });
     }
-  }
-
-  cancelSend(id, showpic) {
-    MonksEnhancedJournal.emit("cancelShow", {
-      showid: id,
-      userId: game.user.id
-    });
   }
 
   _onSelectFile(selection, filePicker, event) {
