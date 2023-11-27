@@ -60,8 +60,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     });
 
     // $('.back-button, .forward-button', html).toggle(game.user.isGM || setting('allow-player')).on('click', this.navigateHistory.bind(this));
-    //html.find('.add-bookmark').on('click', () => { this._addBookmark(); });
-    // html.find('.bookmark-button:not(.add-bookmark)').click(this.activateBookmark.bind(this));
+    html.find('#fwb-add-bookmark').on('click', () => { this._addBookmark(); });
+    // html.find('.bookmark-button:not(#fwb-add-bookmark)').click(this.activateBookmark.bind(this));
 
     html.find('#fwb-add-tab').on('click', () => { this._addTab() });
 
@@ -351,48 +351,38 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     }
   }
 
+*/
 
   // add the current tab as a new bookmark
-  addBookmark() {
+  _addBookmark(): void {
     //get the current tab and save the entity and name
     let tab = this._activeTab();
 
-    if (tab?.entityId == undefined)
-      return;
+    // TODO - should not allow a bookmark for the home page... and, 
+    //    should disable the add button
 
-    if (this._bookmarks.find(b => b.entityId == tab.entityId) != undefined) {
-      ui.notifications.warn(i18n("MonksEnhancedJournal.MsgOnlyOneBookmark"));
+    // see if the bookmark already exists
+    if (this._bookmarks.find((b) => (b.entryId === tab?.entry?.uuid)) != undefined) {
+      ui?.notifications?.warn(localize("fwb.errors.duplicateBookmark"));
       return;
     }
 
-    let entitytype = function(entity) {
-      if (entity instanceof Actor)
-        return 'actor';
-
-      let flags = entity.data?.flags;
-      let type = (flags != undefined ? flags['monks-enhanced-journal']?.type : null) || 'journalentry';
-
-      return type;
-    }
-
+    // TODO: get the type, to set the icon 
+    // TODO: clean this up if we don't allow home to be bookmarked
     let bookmark = {
       id: randomID(),
-      entityId: tab.entityId,
-      text: tab.entity.name,
-      icon: MonksEnhancedJournal.getIcon(entitytype(tab.entity))
+      entryId: tab?.entry?.uuid || 'Sample',
+      text: tab?.entry?.name || 'Sample',
+      icon: 'fa-place-of-worship'  // TODO - get icon based on type
     }
 
     this._bookmarks.push(bookmark);
 
-    $('<div>')
-      .addClass('bookmark-button')
-      .attr({ title: bookmark.text, 'data-bookmark-id': bookmark.id, 'data-entity-id': bookmark.entityId })
-      .html(`<i class="fas ${bookmark.icon}"></i> ${bookmark.text}`)
-      .appendTo('.bookmark-bar', this.element).get(0).click(this.activateBookmark.bind(this));
+    // TODO - need to create the context menu so you can delete the bookmark
 
-    this.saveBookmarks();
+    //this.saveBookmarks();
+    this._makeCallback(WBHeader.CallbackType.BookmarkAdded);
   }
-  */
 
   /*
   async activateBookmark(event) {

@@ -703,7 +703,7 @@ export class WorldBuilder extends Application {
       }
     ]);
 
-    this._tabcontext = new ContextMenu(html, ".tab-bar", [
+    this._tabcontext = new ContextMenu(html, ".fwb-tab-bar", [
       {
         name: "Open outside Enhanced Journal",
         icon: '<i class="fas fa-file-export"></i>',
@@ -742,7 +742,7 @@ export class WorldBuilder extends Application {
         }
       }
     ]);
-    $('.tab-bar', html).on("contextmenu", (event) => {
+    $('.fwb-tab-bar', html).on("contextmenu", (event) => {
       var r = document.querySelector(':root');
       let tab = event.target.closest(".fwb-tab");
       if (!tab) {
@@ -753,10 +753,10 @@ export class WorldBuilder extends Application {
       let x = $(tab).position().left;
       r.style.setProperty('--mej-context-x', x + "px");
     });
-    $('.tab-bar .fwb-tab', html).on("contextmenu", (event) => {
+    $('.fwb-tab-bar .fwb-tab', html).on("contextmenu", (event) => {
       this.contextTab = event.currentTarget.dataset.tabid;
     });
-    $('.bookmark-bar .bookmark-button', html).on("contextmenu", (event) => {
+    $('.fwb-bookmark-bar .bookmark-button', html).on("contextmenu", (event) => {
       this.contextBookmark = event.currentTarget.dataset.bookmarkId;
     });
 

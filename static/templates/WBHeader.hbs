@@ -8,8 +8,8 @@
       }
 }}
 <header class="fwb-header flexcol">
-  <div class="tab-bar flexrow">
-    <div class="tab-row flexrow">
+  <div class="fwb-tab-bar flexrow">
+    <div class="fwb-tab-row flexrow">
       {{#each tabs}}
         <div class="fwb-tab flexrow {{#if active}}active{{/if}}" title="{{text}}" data-tabid="{{id}}">
           <div class="tab-content">{{text}}</div>
@@ -25,8 +25,8 @@
     </div>
   </div>
 
-  <div class="bookmark-bar flexrow">
-    <div class="bookmark-button add-bookmark" title="{{localize 'MonksEnhancedJournal.AddBookmark'}}"><i class="fas fa-star"></i></div>
+  <div class="fwb-bookmark-bar flexrow">
+    <div id="fwb-add-bookmark" class="bookmark-button" title="{{localize 'MonksEnhancedJournal.AddBookmark'}}"><i class="fas fa-star"></i></div>
 
     {{#each bookmarks}}
       <div class="bookmark-button" title="{{text}}" data-bookmark-id="{{id}}" data-document-id="{{entityId}}"><div><i class="fas {{icon}}"></i> {{text}}</div></div>

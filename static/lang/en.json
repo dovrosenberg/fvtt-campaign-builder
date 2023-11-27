@@ -13,6 +13,9 @@
       "mainButton": "Launch World Builder",
       "expandDirectory": "Expand Directory",
       "collapseDirectory": "Collapse Directory"
+    },
+    "errors": {
+      "duplicateBookmark": "Already stored as a bookmark"
     }
   }
 }

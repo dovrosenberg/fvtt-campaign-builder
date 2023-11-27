@@ -11,7 +11,7 @@ export type WindowTab = {
 
 export type Bookmark = {
   id: string,   // id of the bookmark
-  entityId: string,   // uuid of the entity shown
+  entryId: string,   // uuid of the entry shown
   text: string,  // text displayed on the bookmark
   icon: string,  // class of icon to display
 }
