@@ -33,6 +33,11 @@ Players run into an NPC or location you hadn't thought of fleshing out ahead of 
 - Tags
 
 ## Planned features
+- keyboard shortcuts
+  - Quick search - popup just a search box to use fulltext search to try to find something
+  - Quick create - quickly generate NPC/location and interconnect into the world
+- Game notes - take notes during the game 
+  - Allow players to take notes that you can see; auto merge their notes into entities or put into a review queue
 - Create actor with one click from a journal entry character
 - Use GPT to generate the random characters/locations
 - System plugins to specify the bounds of species, classes, etc. to use... will this actually work? Can GPT do it on it's own if you specify the system?
