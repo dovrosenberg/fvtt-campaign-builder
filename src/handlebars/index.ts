@@ -1,13 +1,18 @@
+import { WBCONTENT_TEMPLATE } from "@/applications/WorldBuilder/WBContent";
+import { WBHEADER_TEMPLATE } from "@/applications/WorldBuilder/WBHeader";
+import { WBFOOTER_TEMPLATE } from "@/applications/WorldBuilder/WBFooter";
+import { HOMEPAGE_TEMPLATE } from "@/applications/WorldBuilder/HomePage";
+
 export function registerHelpers() {
   // register templates parts
   const templatePaths = [
     // main window
-    'modules/world-builder/templates/WBHeader.hbs',
-    'modules/world-builder/templates/WBFooter.hbs',
-    'modules/world-builder/templates/WBContent.hbs',
+    WBHEADER_TEMPLATE,
+    WBFOOTER_TEMPLATE,
+    WBCONTENT_TEMPLATE,
 
     // content
-    'modules/world-builder/templates/HomePage.hbs',
+    HOMEPAGE_TEMPLATE
   ];
 
   // @ts-ignore

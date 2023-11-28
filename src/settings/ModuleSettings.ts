@@ -6,10 +6,12 @@ export enum SettingKeys {
   startCollapsed = 'startCollapsed',  // should the sidebar start collapsed when we open
 
   // internal only
+  rootFolderId = 'rootFolderId',  // uuid of the root folder
 }
 
 type SettingType<K extends SettingKeys> =
     K extends SettingKeys.startCollapsed ? boolean :
+    K extends SettingKeys.rootFolderId ? string : 
     never;  
 
 // the solo instance
@@ -63,6 +65,11 @@ export class ModuleSettings {
 
   // these are globals only used internally
   private internalParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
+    {
+      settingID: SettingKeys.rootFolderId,
+      default: null,
+      type: String,
+    },
   ];
   
   // these are client-specfic only used internally

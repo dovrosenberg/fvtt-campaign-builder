@@ -25,13 +25,14 @@
 */
 
 
-import { getGame, localize } from '@/utils/game';
+import './WorldBuilder.scss';
+import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { WBHEADER_TEMPLATE, WBHeader } from './WBHeader';
 import { WBFOOTER_TEMPLATE, WBFooter } from './WBFooter';
-
-import './WorldBuilder.scss';
 import { WBCONTENT_TEMPLATE, WBContent } from './WBContent';
-import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
+
+import { getRootFolder } from '@/compendia';
+import { localize } from '@/utils/game';
 
 
 export class WorldBuilder extends Application {
@@ -39,7 +40,8 @@ export class WorldBuilder extends Application {
   private _partials: Record<string, HandlebarsPartial<any>>;
 
   // global data
-  private _worldId: string;  // uuid of the world folder
+  private _rootFolderId: string;  // uuid of the root folder
+  private _worldId: string;  // uuid of the current world folder
 
   // state - often tracking state of children
   private _currentJournalId: string;    // uuid of currently displayed page
@@ -57,8 +59,13 @@ export class WorldBuilder extends Application {
     this._partials = {
       WBHeader: new WBHeader(),
       WBFooter: new WBFooter(),
-      WBContent: new WBContent(this, this._currentJournalId),
+      WBContent: new WBContent(this._currentJournalId),
     }
+
+    // TODO - what happens if the folder is deleted after this is called?  Do 
+    //    we need to continually check or is the user just stupid?  Also, 
+    //    can we lock it so prevent that?
+    getRootFolder().then((result)=> { this._rootFolderId = result; });
 
     // this._lastentry = null;
 
