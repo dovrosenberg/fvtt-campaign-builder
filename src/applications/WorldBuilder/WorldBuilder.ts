@@ -31,8 +31,10 @@ import { WBHEADER_TEMPLATE, WBHeader } from './WBHeader';
 import { WBFOOTER_TEMPLATE, WBFooter } from './WBFooter';
 import { WBCONTENT_TEMPLATE, WBContent } from './WBContent';
 
-import { getRootFolder } from '@/compendia';
+import { createWorldFolder, getDefaultFolders, getRootFolder } from '@/compendia';
 import { localize } from '@/utils/game';
+import { SettingKeys, moduleSettings } from '@/settings/ModuleSettings';
+import { inputDialog } from '@/dialogs/input';
 
 
 export class WorldBuilder extends Application {
@@ -65,8 +67,13 @@ export class WorldBuilder extends Application {
     // TODO - what happens if the folder is deleted after this is called?  Do 
     //    we need to continually check or is the user just stupid?  Also, 
     //    can we lock it so prevent that?
-    getRootFolder().then((result)=> { this._rootFolderId = result; });
+    getDefaultFolders().then(({ rootId, worldId }) => {
+      this._rootFolderId = rootId;
+      this._worldId = worldId;
+    });
 
+    moduleSettings.get(SettingKeys.defaultWorldId)
+    
     // this._lastentry = null;
 
     // //load up the last entry being shown

@@ -1,7 +1,7 @@
-import { getGame } from '@/utils/game';
 import './WBContent.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { HOMEPAGE_TEMPLATE, HomePage, } from './HomePage';
+import { getGame } from '@/utils/game';
 
 export const WBCONTENT_TEMPLATE = 'modules/world-builder/templates/WBContent.hbs';
 

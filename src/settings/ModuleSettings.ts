@@ -7,11 +7,13 @@ export enum SettingKeys {
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
+  defaultWorldId = 'defaultWorldId',  // uuid of the default world folder
 }
 
 type SettingType<K extends SettingKeys> =
     K extends SettingKeys.startCollapsed ? boolean :
     K extends SettingKeys.rootFolderId ? string : 
+    K extends SettingKeys.defaultWorldId ? string : 
     never;  
 
 // the solo instance
@@ -67,6 +69,11 @@ export class ModuleSettings {
   private internalParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
     {
       settingID: SettingKeys.rootFolderId,
+      default: null,
+      type: String,
+    },
+    {
+      settingID: SettingKeys.defaultWorldId,
       default: null,
       type: String,
     },
