@@ -63,7 +63,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     //             let tab = this._activeTab();
     //             tab.entityId = this.object.uuid;
     //             tab.entity = this.object;
-    //             this.saveTabs();
+    //             this._saveTabs();
     //         }
     //     }
 

@@ -163,7 +163,7 @@ export class WorldBuilder extends Application {
     // when 
     this._partials.Directory.registerCallback(Directory.CallbackType.DirectoryEntrySelected, 
         (entryId: string) => { 
-          (this._partials.WBHeader as WBHeader).openTab({ entryId }); 
+          (this._partials.WBHeader as WBHeader).openTab(entryId); 
         });
 
     // this._contextMenu(html);
@@ -430,7 +430,7 @@ export class WorldBuilder extends Application {
       if (tab.entityId?.startsWith(entityId)) {
         tab.entity = await this.findEntity('', tab.text); //I know this will return a blank one, just want to maintain consistency
         tab.text = i18n("MonksEnhancedJournal.NewTab");
-        $('.fwb-tab[data-tabid="${tab.id}"] .tab-content', this.element).html(tab.text);
+        $('.fwb-tab[data-tab-id="${tab.id}"] .tab-content', this.element).html(tab.text);
       }
 
       //remove it from the history
@@ -440,7 +440,7 @@ export class WorldBuilder extends Application {
         this.render(true);  //if this entity was being shown on the active tab, then refresh the journal
     }
 
-    this.saveTabs();
+    this._saveTabs();
   }
 */
 
@@ -496,126 +496,6 @@ export class WorldBuilder extends Application {
     }
 
     this.splitJournal();
-  }
-
-  _canDragStart(selector) {
-    if (selector == ".fwb-tab") return true;
-
-    if (this.subsheet)
-      return this.subsheet._canDragStart(selector);
-    else
-      return super._canDragStart(selector);
-  }
-
-  _canDragDrop(selector) {
-    if (this.subsheet)
-      return this.subsheet._canDragDrop(selector);
-    else
-      return true;
-  }
-
-  _onDragStart(event) {
-    const target = event.currentTarget;
-
-    if ($(target).hasClass('fwb-tab')) {
-      const dragData = { from: this.object.uuid };
-
-      let tabid = target.dataset.tabid;
-      let tab = this._tabList.find(t => t.id == tabid);
-      dragData.uuid = tab.entityId;
-      dragData.type = "JournalTab";
-      dragData.tabid = tabid;
-
-      log('Drag Start', dragData);
-
-      event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
-    } else if ($(target).hasClass('bookmark-button')) {
-      const dragData = { from: this.object.uuid };
-
-      let bookmarkId = target.dataset.bookmarkId;
-      let bookmark = this._bookmarks.find(t => t.id == bookmarkId);
-      dragData.uuid = bookmark.entityId;
-      dragData.type = "Bookmark";
-      dragData.bookmarkId = bookmarkId;
-
-      log('Drag Start', dragData);
-
-      event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
-    } else
-      return this.subsheet._onDragStart(event);
-  }
-
-  async _onDrop(event) {
-    log('enhanced journal drop', event);
-    let result = $(event.currentTarget).hasClass('enhanced-journal-header') ? false : this.subsheet._onDrop(event);
-
-    if (result instanceof Promise)
-      result = await result;
-
-    if (result === false) {
-      let data;
-      try {
-        data = JSON.parse(event.dataTransfer.getData('text/plain'));
-      }
-      catch (err) {
-        return false;
-      }
-
-      if (data.tabid) {
-        const target = event.target.closest(".fwb-tab") || null;
-        let tabs = duplicate(this._tabList);
-
-        if (data.tabid === target.dataset.tabid) return; // Don't drop on yourself
-
-        let from = tabs.findIndex(a => a.id == data.tabid);
-        let to = tabs.findIndex(a => a.id == target.dataset.tabid);
-        log('moving tab from', from, 'to', to);
-        tabs.splice(to, 0, tabs.splice(from, 1)[0]);
-
-        this._tabList = tabs;
-        if (from < to)
-          $('.fwb-tab[data-tabid="' + data.tabid + '"]', this.element).insertAfter(target);
-        else
-          $('.fwb-tab[data-tabid="' + data.tabid + '"]', this.element).insertBefore(target);
-
-        game.user.update({
-          flags: { 'monks-enhanced-journal': { 'tabs': tabs } }
-        }, { render: false });
-      } else if (data.bookmarkId) {
-        const target = event.target.closest(".bookmark-button") || null;
-        let bookmarks = duplicate(this._bookmarks);
-
-        if (data.bookmarkId === target.dataset.bookmarkId) return; // Don't drop on yourself
-
-        let from = bookmarks.findIndex(a => a.id == data.bookmarkId);
-        let to = bookmarks.findIndex(a => a.id == target.dataset.bookmarkId);
-        log('moving tab from', from, 'to', to);
-        bookmarks.splice(to, 0, bookmarks.splice(from, 1)[0]);
-
-        this._bookmarks = bookmarks;
-        if (from < to)
-          $('.bookmark-button[data-bookmark-id="' + data.bookmarkId + '"]', this.element).insertAfter(target);
-        else
-          $('.bookmark-button[data-bookmark-id="' + data.bookmarkId + '"]', this.element).insertBefore(target);
-
-        game.user.update({
-          flags: { 'monks-enhanced-journal': { 'bookmarks': bookmarks } }
-        }, { render: false });
-      } else if (data.type == 'Actor') {
-        if (data.pack == undefined) {
-          let actor = await fromUuid(data.uuid);
-          if (actor && actor instanceof Actor)
-            this.open(actor, setting("open-new-tab"));
-        }
-      } else if (data.type == 'JournalEntry') {
-        let entity = await fromUuid(data.uuid);
-        if (entity)
-          this.open(entity, setting("open-new-tab"));
-      }     
-      log('drop data', event, data);
-    }
-
-    return result;
   }
 
   async _updateObject(event, formData) {
@@ -766,7 +646,7 @@ export class WorldBuilder extends Application {
         callback: li => {
           let tab = this._tabList.find(t => t.id == this.contextTab);
           if (tab)
-            this.removeTab(tab);
+            this._closeTab(tab);
         }
       },
       {
@@ -774,7 +654,7 @@ export class WorldBuilder extends Application {
         icon: '<i class="fas fa-dumpster"></i>',
         callback: li => {
           this._tabList.splice(0, this._tabList.length);
-          this.saveTabs();
+          this._saveTabs();
           this.openTab();
         }
       }

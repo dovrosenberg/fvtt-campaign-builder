@@ -11,7 +11,7 @@
   <div class="fwb-tab-bar flexrow">
     <div class="fwb-tab-row flexrow">
       {{#each tabs}}
-        <div class="fwb-tab flexrow {{#if active}}active{{/if}}" title="{{text}}" data-tabid="{{id}}">
+        <div class="fwb-tab flexrow {{#if active}}active{{/if}}" title="{{text}}" data-tab-id="{{id}}">
           <div class="tab-content">{{text}}</div>
           <div class="close"><i class="fas fa-times"></i></div>
         </div>
@@ -26,10 +26,10 @@
   </div>
 
   <div class="fwb-bookmark-bar flexrow">
-    <div id="fwb-add-bookmark" class="bookmark-button" title="{{localize 'MonksEnhancedJournal.AddBookmark'}}"><i class="fas fa-star"></i></div>
+    <div id="fwb-add-bookmark" class="bookmark-button" title="{{localize 'fwb.tooltips.addBookmark'}}"><i class="fas fa-star"></i></div>
 
     {{#each bookmarks}}
-      <div class="bookmark-button" title="{{text}}" data-bookmark-id="{{id}}" data-entry-id="{{entityId}}"><div><i class="fas {{icon}}"></i> {{text}}</div></div>
+      <div class="bookmark-button" title="{{text}}" data-bookmark-id="{{id}}"><div><i class="fas {{icon}}"></i> {{text}}</div></div>
     {{/each}}
   </div>
 

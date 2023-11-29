@@ -1,5 +1,5 @@
 import { SettingKeys, moduleSettings } from '@/settings/ModuleSettings';
-import { localize } from '@/utils/game';
+import { getGame, localize } from '@/utils/game';
 
 import './WBHeader.scss';
 import { UserFlagKeys, userFlags } from '@/settings/UserFlags';
@@ -59,25 +59,25 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       this._makeCallback(WBHeader.CallbackType.SidebarToggled); 
     });
 
-    // $('.back-button, .forward-button', html).toggle(game.user.isGM || setting('allow-player')).on('click', this.navigateHistory.bind(this));
-    html.find('#fwb-add-bookmark').on('click', () => { this._addBookmark(); });
-    // html.find('.bookmark-button:not(#fwb-add-bookmark)').click(this.activateBookmark.bind(this));
-
-    html.find('#fwb-add-tab').on('click', () => { this.openTab() });
-
-    $('.fwb-tab', html).each((idx, elem) => {
-    		//$(elem).on('click', (event: MouseEvent) => { event.preventDefault(); this._activateTab({tabId: $(elem).attr('data-tabid')})});
+    // bookmark and tab listeners
+    html.on('click', '#fwb-add-bookmark', (event) => { this._addBookmark(); });
+    html.on('click', '.bookmark-button:not(#fwb-add-bookmark)', (event: MouseEvent): void => { this._activateBookmark((event.currentTarget as HTMLElement).attributes['data-bookmark-id'].value) });
+    html.on('click', '#fwb-add-tab', () => { this.openTab() });
+    html.on('click', '.fwb-tab', (event: MouseEvent): void => {
+      this._activateTab((event.currentTarget as HTMLElement).attributes['data-tab-id'].value);
     });
+
+    // $('.back-button, .forward-button', html).toggle(game.user.isGM || setting('allow-player')).on('click', this.navigateHistory.bind(this));
 
     // listeners for the tab close buttons
     $(html).on('click', '.fwb-tab .close', (event: MouseEvent) => {
       let tabId;
 
-      if (event.target)
-        tabId = ($(event.target)?.closest('.fwb-tab')[0] as HTMLElement).dataset.tabid;
+      if (event.currentTarget)
+        tabId = ($(event.currentTarget)?.closest('.fwb-tab')[0] as HTMLElement).dataset.tabid;
 
         if (tabId)
-          this._removeTab(tabId);
+          this._closeTab(tabId);
     });
   }
 
@@ -87,13 +87,20 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
   // activate - switch to the tab after creating
   // refresh = rerender (the parent)
-  // entryId = the uuid of the entry for the tab  (currently just journal entries)
-  public async openTab(options = { activate: true, refresh: true, entryId: null as string | null }): Promise<WindowTab> {
-    let entry = options.entryId ? await fromUuid(options.entryId) as JournalEntry: null;
+  // entryId = the uuid of the entry for the tab  (currently just journal entries); if missing, open a "New Tab"
+    public async openTab(entryId?: string, options?: { activate?: boolean, refresh?: boolean }): Promise<WindowTab> {
+    // set defaults
+    options = {
+      activate: true,
+      refresh: true,
+      ...options,
+    };
+
+    let entry = entryId ? await fromUuid(entryId) as JournalEntry : null;
 
     let tab = {
       id: randomID(),
-      text: entry?.name !== null ? entry?.name : 'New Tab',
+      text: !!entry ? entry.name : localize('fwb.labels.newTab'),
       active: false,
       entry: entry,
       history: [],
@@ -102,14 +109,14 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     
     // add to history and the tabs list
     this._tabs.push(tab);
-    if (options.entryId)
-      tab.history.push(options.entryId);
+    if (entryId)
+      tab.history.push(entryId);
 
     if (options.activate)
       this._activateTab(tab.id);  //activating the tab should save it
-    // else {
-    //   this._saveTabs();
-    // }
+    else {
+      this._saveTabs();
+    }
 
     //await this._updateRecent(tab.journal);
 
@@ -188,7 +195,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     //   }
     // } else if (event?.shiftKey) {
     //   // Close this tab
-    //   this.removeTab(tab, event);
+    //   this._closeTab(tab, event);
     //   tab = this._activeTab(false);
     //   if (!tab) {
     //     if (this._tabList.length)
@@ -210,7 +217,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       currentTab.active = false;
     tab.active = true;
 
-    //this.saveTabs();
+    this._saveTabs();
     //this.updateHistory();
     //this._updateRecent(tab.entity);
 
@@ -248,9 +255,9 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
             tab.history = tab.history.slice(0, 10);
         }
 
-        this.saveTabs();
+        this._saveTabs();
 
-        //$(`.fwb-tab[data-tabid="${tab.id}"]`, this.element).attr('title', tab.text).find('.tab-content').html(tab.text);
+        //$(`.fwb-tab[data-tab-id="${tab.id}"]`, this.element).attr('title', tab.text).find('.tab-content').html(tab.text);
       } else if (tab.entity == undefined) {
         tab.entity = entity;
       }
@@ -296,7 +303,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 */
 
   // remove the tab given by the id from the list
-  private _removeTab(tabId: string) {
+  private _closeTab(tabId: string) {
     // find the tab
     let tab = this._tabs.find((t) => (t.id === tabId));
     let index = this._tabs.findIndex((t) => (t.id === tabId));
@@ -306,49 +313,42 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     // remove it from the array
     this._tabs.splice(index, 1);
 
-    if (this._tabs.length == 0) {
-      this.openTab();  // make a default tab
-    } else {
+    if (this._tabs.length === 0) {
+      this.openTab();  // make a default tab if that was the last one (will also activate it) and save them
+    } else if (tab.active) {
       // if it was active, make the one before it active (or after if it was up front)
-      if (tab.active) {
-        if (this._tabs.length===0) {
-          this.openTab();
-        } else {
-          this._activateTab(this._tabs[index-1].id);
-          // if (!this._activateTab(nextIdx))
-          //   this.saveTabs();  
-        }
+      if (index===0) {
+        this._activateTab(this._tabs[0].id);  // will also save them
       }
-
-      this._makeCallback(WBHeader.CallbackType.TabRemoved);
+      else {
+        this._activateTab(this._tabs[index-1].id);  // will also save them
+      }
     }
+
+    this._makeCallback(WBHeader.CallbackType.TabRemoved);
+  }
+
+  private _saveTabs() {
+    // get tab structure to save as a flag  (we don't save the history)
+    let update = this._tabs.map((tab): WindowTab => ({
+      id: tab.id, 
+      active: tab.active,
+      entry: tab.entry,
+      text: tab.text,
+      history: [],
+      historyIdx: -1,
+    }));
+
+    userFlags.set(UserFlagKeys.tabs, update);
   }
 
   /*
-  private _saveTabs() {
-    let update = this._tabList.map(t => {
-      let entity = t.entity;
-      delete t.entity;
-      let tab = duplicate(t);
-      t.entity = entity;
-      delete tab.element;
-      delete tab.entity;
-      //delete tab.history;  //technically we could save the history if it's just an array of ids
-      //delete tab.historyIdx;
-      delete tab.userdata;
-      return tab;
-    });
-    game.user.update({
-      flags: { 'monks-enhanced-journal': { 'tabs': update } }
-    }, { render: false });
-  }
-
   private _updateTabNames(uuid, name) {
     for (let tab of this._tabList) {
       if (tab.entityId == uuid) {
-        $(`.fwb-tab[data-tabid="${tab.id}"] .tab-content`, this.element).attr("title", name).html(name);
+        $(`.fwb-tab[data-tab-id="${tab.id}"] .tab-content`, this.element).attr("title", name).html(name);
         tab.text = name;
-        this.saveTabs();
+        this._saveTabs();
         if (tab.active) {
           $('.window-title', this.element).html((tab.text || i18n("MonksEnhancedJournal.NewTab")) + ' - ' + i18n("MonksEnhancedJournal.Title"));
         }
@@ -389,14 +389,15 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     this._makeCallback(WBHeader.CallbackType.BookmarkAdded);
   }
 
-  /*
-  async activateBookmark(event) {
-    let id = event.currentTarget.dataset.bookmarkId;
-    let bookmark = this._bookmarks.find(b => b.id == id);
-    let entity = await this.findEntity(bookmark.entityId, bookmark.text);
-    this.open(entity, setting("open-new-tab"));
+  private async _activateBookmark(bookmarkId: string) {
+    let bookmark = this._bookmarks.find(b => b.id === bookmarkId);
+
+    if (bookmark) {
+      this.openTab(bookmark?.entryId);
+    }
   }
 
+/*
   removeBookmark(bookmark) {
     this._bookmarks.findSplice(b => b.id == bookmark.id);
     $(`.bookmark-button[data-bookmark-id="${bookmark.id}"]`, this.element).remove();
@@ -438,7 +439,7 @@ async changeHistory(idx) {
   tab.entity = await this.findEntity(tab.entityId, tab.text);
   tab.text = tab.entity.name;
 
-  this.saveTabs();
+  this._saveTabs();
 
   this.render(true, { autoPage: true } );
 
@@ -479,7 +480,129 @@ async getHistory() {
   return menuItems;
 }
 */
+
+  // Drag and drop of tabs and bookmarks
+  // _canDragStart(selector) {
+  //   if (selector == ".fwb-tab") return true;
+
+  //   if (this.subsheet)
+  //     return this.subsheet._canDragStart(selector);
+  //   else
+  //     return super._canDragStart(selector);
+  // }
+
+  // _canDragDrop(selector) {
+  //   if (this.subsheet)
+  //     return this.subsheet._canDragDrop(selector);
+  //   else
+  //     return true;
+  // }
+
+  // _onDragStart(event) {
+  //   const target = event.currentTarget;
+
+  //   if ($(target).hasClass('fwb-tab')) {
+  //     const dragData = { from: this.object.uuid };
+
+  //     let tabid = target.dataset.tabid;
+  //     let tab = this._tabList.find(t => t.id == tabid);
+  //     dragData.uuid = tab.entityId;
+  //     dragData.type = "JournalTab";
+  //     dragData.tabid = tabid;
+
+  //     log('Drag Start', dragData);
+
+  //     event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+  //   } else if ($(target).hasClass('bookmark-button')) {
+  //     const dragData = { from: this.object.uuid };
+
+  //     let bookmarkId = target.dataset.bookmarkId;
+  //     let bookmark = this._bookmarks.find(t => t.id == bookmarkId);
+  //     dragData.uuid = bookmark.entityId;
+  //     dragData.type = "Bookmark";
+  //     dragData.bookmarkId = bookmarkId;
+
+  //     log('Drag Start', dragData);
+
+  //     event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+  //   } else
+  //     return this.subsheet._onDragStart(event);
+  // }
+
+  // async _onDrop(event) {
+  //   log('enhanced journal drop', event);
+  //   let result = $(event.currentTarget).hasClass('enhanced-journal-header') ? false : this.subsheet._onDrop(event);
+
+  //   if (result instanceof Promise)
+  //     result = await result;
+
+  //   if (result === false) {
+  //     let data;
+  //     try {
+  //       data = JSON.parse(event.dataTransfer.getData('text/plain'));
+  //     }
+  //     catch (err) {
+  //       return false;
+  //     }
+
+  //     if (data.tabid) {
+  //       const target = event.target.closest(".fwb-tab") || null;
+  //       let tabs = duplicate(this._tabList);
+
+  //       if (data.tabid === target.dataset.tabid) return; // Don't drop on yourself
+
+  //       let from = tabs.findIndex(a => a.id == data.tabid);
+  //       let to = tabs.findIndex(a => a.id == target.dataset.tabid);
+  //       log('moving tab from', from, 'to', to);
+  //       tabs.splice(to, 0, tabs.splice(from, 1)[0]);
+
+  //       this._tabList = tabs;
+  //       if (from < to)
+  //         $('.fwb-tab[data-tab-id="' + data.tabid + '"]', this.element).insertAfter(target);
+  //       else
+  //         $('.fwb-tab[data-tab-id="' + data.tabid + '"]', this.element).insertBefore(target);
+
+  //       game.user.update({
+  //         flags: { 'monks-enhanced-journal': { 'tabs': tabs } }
+  //       }, { render: false });
+  //     } else if (data.bookmarkId) {
+  //       const target = event.target.closest(".bookmark-button") || null;
+  //       let bookmarks = duplicate(this._bookmarks);
+
+  //       if (data.bookmarkId === target.dataset.bookmarkId) return; // Don't drop on yourself
+
+  //       let from = bookmarks.findIndex(a => a.id == data.bookmarkId);
+  //       let to = bookmarks.findIndex(a => a.id == target.dataset.bookmarkId);
+  //       log('moving tab from', from, 'to', to);
+  //       bookmarks.splice(to, 0, bookmarks.splice(from, 1)[0]);
+
+  //       this._bookmarks = bookmarks;
+  //       if (from < to)
+  //         $('.bookmark-button[data-bookmark-id="' + data.bookmarkId + '"]', this.element).insertAfter(target);
+  //       else
+  //         $('.bookmark-button[data-bookmark-id="' + data.bookmarkId + '"]', this.element).insertBefore(target);
+
+  //       game.user.update({
+  //         flags: { 'monks-enhanced-journal': { 'bookmarks': bookmarks } }
+  //       }, { render: false });
+  //     } else if (data.type == 'Actor') {
+  //       if (data.pack == undefined) {
+  //         let actor = await fromUuid(data.uuid);
+  //         if (actor && actor instanceof Actor)
+  //           this.open(actor, setting("open-new-tab"));
+  //       }
+  //     } else if (data.type == 'JournalEntry') {
+  //       let entity = await fromUuid(data.uuid);
+  //       if (entity)
+  //         this.open(entity, setting("open-new-tab"));
+  //     }     
+  //     log('drop data', event, data);
+  //   }
+
+  //   return result;
+  // }
 }
+
 
 export namespace WBHeader {
   export enum CallbackType {

@@ -12,7 +12,8 @@
     "tooltips": {
       "mainButton": "Launch World Builder",
       "expandDirectory": "Expand Directory",
-      "collapseDirectory": "Collapse Directory"
+      "collapseDirectory": "Collapse Directory",
+      "addBookmark": "Add bookmark"
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"
