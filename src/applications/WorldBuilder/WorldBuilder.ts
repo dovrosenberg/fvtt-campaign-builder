@@ -159,11 +159,12 @@ export class WorldBuilder extends Application {
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabActivated, ()=> { this.render(); });
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.BookmarkAdded, ()=> { this.render(); });
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.SidebarToggled, ()=> { this.render(); });
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.HistoryMoved, ()=> { this.render(); });
 
-    // when 
+    // when new entry is selected in directory
     this._partials.Directory.registerCallback(Directory.CallbackType.DirectoryEntrySelected, 
-        (entryId: string) => { 
-          (this._partials.WBHeader as WBHeader).openTab(entryId); 
+        (entryId: string, event: MouseEvent) => { 
+          (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: event.ctrlKey}); 
         });
 
     // this._contextMenu(html);
@@ -655,7 +656,7 @@ export class WorldBuilder extends Application {
         callback: li => {
           this._tabList.splice(0, this._tabList.length);
           this._saveTabs();
-          this.openTab();
+          this.openEntry();
         }
       }
     ]);
@@ -869,7 +870,6 @@ export class WorldBuilder extends Application {
     }
 
     $('.add-page', html).on("click", this.addPage.bind(this));
-    $('.toggle-menu', html).toggle(!(this.object instanceof JournalEntryPage)).on("click", this.toggleMenu.bind(this));
    }
 
   journalEntryDocumentControls() {

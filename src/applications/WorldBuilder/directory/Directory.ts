@@ -43,7 +43,7 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
   public activateListeners(html: JQuery) {  
     html.on('click', '#fwb-directory > .directory-list .directory-item', 
         (event: MouseEvent): void => { 
-          this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, (event?.currentTarget as HTMLElement).attributes['data-entry-id'].value); })
+          this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, (event?.currentTarget as HTMLElement).attributes['data-entry-id'].value, event); })
   }
 }
 

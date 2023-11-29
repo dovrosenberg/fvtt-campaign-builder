@@ -33,7 +33,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     // if there are no tabs, add one
     if (!this._tabs.length)
-      this.openTab();
+      this.openEntry();
   }
 
   protected _createPartials(): void {
@@ -62,19 +62,20 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     // bookmark and tab listeners
     html.on('click', '#fwb-add-bookmark', (event) => { this._addBookmark(); });
     html.on('click', '.bookmark-button:not(#fwb-add-bookmark)', (event: MouseEvent): void => { this._activateBookmark((event.currentTarget as HTMLElement).attributes['data-bookmark-id'].value) });
-    html.on('click', '#fwb-add-tab', () => { this.openTab() });
+    html.on('click', '#fwb-add-tab', () => { this.openEntry() });
     html.on('click', '.fwb-tab', (event: MouseEvent): void => {
       this._activateTab((event.currentTarget as HTMLElement).attributes['data-tab-id'].value);
     });
 
-    // $('.back-button, .forward-button', html).toggle(game.user.isGM || setting('allow-player')).on('click', this.navigateHistory.bind(this));
+    html.on('click', '#fwb-history-back', () => { this._navigateHistory(-1); });
+    html.on('click', '#fwb-history-forward', () => { this._navigateHistory(1); });
 
     // listeners for the tab close buttons
     $(html).on('click', '.fwb-tab .close', (event: MouseEvent) => {
       let tabId;
 
       if (event.currentTarget)
-        tabId = ($(event.currentTarget)?.closest('.fwb-tab')[0] as HTMLElement).dataset.tabid;
+        tabId = ($(event.currentTarget)?.closest('.fwb-tab')[0] as HTMLElement).attributes['data-tab-id'].value;
 
         if (tabId)
           this._closeTab(tabId);
@@ -85,32 +86,53 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     return this._collapsed;
   }
 
-  // activate - switch to the tab after creating
-  // refresh = rerender (the parent)
+  // activate - switch to the tab after creating - defaults to true
+  // newTab - should entry open in current tab or a new one - defaults to true
   // entryId = the uuid of the entry for the tab  (currently just journal entries); if missing, open a "New Tab"
-    public async openTab(entryId?: string, options?: { activate?: boolean, refresh?: boolean }): Promise<WindowTab> {
+  // updateHistory - should history be updated- defaults to true
+  // if not !newTab and entryId is the same as currently active tab, then does nothign
+  public async openEntry(entryId?: string, options?: { activate?: boolean, newTab?: boolean, updateHistory?: boolean }): Promise<WindowTab> {
     // set defaults
     options = {
       activate: true,
-      refresh: true,
+      newTab: true,
+      updateHistory: true,
       ...options,
     };
 
     let entry = entryId ? await fromUuid(entryId) as JournalEntry : null;
 
-    let tab = {
-      id: randomID(),
-      text: !!entry ? entry.name : localize('fwb.labels.newTab'),
-      active: false,
-      entry: entry,
-      history: [],
-      historyIdx: -1,
-    } as WindowTab;
+    // see if we need a new tab
+    let tab;
+    if (options.newTab || !this._activeTab(false)) {
+      tab = {
+        id: randomID(),
+        text: !!entry ? entry.name : localize('fwb.labels.newTab'),
+        active: false,
+        entry: entry,
+        history: [],
+        historyIdx: -1,
+      } as WindowTab;
+
+      //add to tabs list
+      this._tabs.push(tab);
+    } else {
+      tab = this._activeTab(false);
+
+      // if same entry, nothing to do
+      if (tab.entryId === entryId)
+        return tab;
+
+      // otherwise, just swap out the active tab info
+      tab.text = !!entry ? entry.name : localize('fwb.labels.newTab');
+      tab.entry = entry;
+    }
     
-    // add to history and the tabs list
-    this._tabs.push(tab);
-    if (entryId)
+    // add to history 
+    if (entryId && options.updateHistory) {
       tab.history.push(entryId);
+      tab.historyIdx = tab.history.length - 1; 
+    }
 
     if (options.activate)
       this._activateTab(tab.id);  //activating the tab should save it
@@ -133,7 +155,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (!checkTab)
       return false;
 
-    return (checkTab.history?.length > 1) && (!checkTab.historyIdx || (checkTab.historyIdx < checkTab.history.length - 1));
+    return (checkTab.history?.length > 1) && (checkTab.historyIdx > 0 );
   }
 
   private _canForward(tab?: WindowTab): boolean {
@@ -142,7 +164,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (!checkTab)
       return false;
 
-    return (checkTab.history?.length > 1) && !!checkTab.historyIdx && (checkTab.historyIdx > 0);
+    return (checkTab.history?.length > 1) && (checkTab.historyIdx < checkTab.history.length-1);
   }
 
   // get the currently active tab
@@ -278,7 +300,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     //if there are no tabs, then create one
     this._tabs.active = null;
     if (this._tabList.length == 0) {
-      this.openTab(entity);
+      this.openEntry(entity);
     } else {
       if (newtab === true) {
         //the journal is getting created
@@ -287,7 +309,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
         if (tab != undefined)
           this.activateTab(tab, null, options);
         else
-          this.openTab(entity);
+          this.openEntry(entity);
       } else {
         if (await this?.subsheet?.close() !== false) {
           // Check to see if this entity already exists in the tab list
@@ -314,7 +336,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     this._tabs.splice(index, 1);
 
     if (this._tabs.length === 0) {
-      this.openTab();  // make a default tab if that was the last one (will also activate it) and save them
+      this.openEntry();  // make a default tab if that was the last one (will also activate it) and save them
     } else if (tab.active) {
       // if it was active, make the one before it active (or after if it was up front)
       if (index===0) {
@@ -329,17 +351,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   }
 
   private _saveTabs() {
-    // get tab structure to save as a flag  (we don't save the history)
-    let update = this._tabs.map((tab): WindowTab => ({
-      id: tab.id, 
-      active: tab.active,
-      entry: tab.entry,
-      text: tab.text,
-      history: [],
-      historyIdx: -1,
-    }));
-
-    userFlags.set(UserFlagKeys.tabs, update);
+    userFlags.set(UserFlagKeys.tabs, this._tabs);
   }
 
   /*
@@ -393,7 +405,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     let bookmark = this._bookmarks.find(b => b.id === bookmarkId);
 
     if (bookmark) {
-      this.openTab(bookmark?.entryId);
+      this.openEntry(bookmark?.entryId);
     }
   }
 
@@ -413,44 +425,24 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   }
 */
 
-/*
-navigateHistory(event) {
-  if (!$(event.currentTarget).hasClass('disabled')) {
-    let dir = event.currentTarget.dataset.history;
+  // moves forward/back through the history "move" spaces (or less if not possible); negative numbers move back
+  private async _navigateHistory(move: number) {
     let tab = this._activeTab();
 
-    if (tab.history.length > 1) {
-      let result = true;
-      let idx = 0;
-      do {
-        idx = ((tab.historyIdx == undefined ? 0 : tab.historyIdx) + (dir == 'back' ? 1 : -1));
-        result = this.changeHistory(idx);
-      } while (!result && idx > 0 && idx < tab.history.length )
-    }
+    if (!tab) return;
+
+    const newSpot = Math.clamped(tab.historyIdx + move, 0, tab.history.length-1);
+
+    // if we didn't move, return
+    if (newSpot === tab.historyIdx)
+      return;
+
+    tab.historyIdx = newSpot;
+    await this.openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
+
+    this._makeCallback(WBHeader.CallbackType.HistoryMoved);
   }
-  event.preventDefault();
-}
-
-async changeHistory(idx) {
-  let tab = this._activeTab();
-  tab.historyIdx = Math.clamped(idx, 0, (tab.history.length - 1));
-
-  tab.entityId = tab.history[tab.historyIdx];
-  tab.entity = await this.findEntity(tab.entityId, tab.text);
-  tab.text = tab.entity.name;
-
-  this._saveTabs();
-
-  this.render(true, { autoPage: true } );
-
-  this._updateRecent(tab.journal);
-
-  //$('.back-button', this.element).toggleClass('disabled', !this.canBack(tab));
-  //$('.forward-button', this.element).toggleClass('disabled', !this.canForward(tab));
-
-  return (tab?.entity?.id != undefined);
-}
-
+/*
 async getHistory() {
   let index = 0;
   let tab = this._activeTab();
@@ -611,5 +603,6 @@ export namespace WBHeader {
     TabRemoved,
     BookmarkAdded,
     SidebarToggled,
+    HistoryMoved
   }
 }

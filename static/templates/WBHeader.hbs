@@ -34,10 +34,13 @@
   </div>
 
   <div class="navigation flexrow">
-    <div class="nav-button history back-button{{#unless canBack}} disabled{{/unless}}" title="{{localize 'MonksEnhancedJournal.Back'}}" data-history="back"><i class="fas fa-chevron-left"></i></div>
-    <div class="nav-button history forward-button{{#unless canForward}} disabled{{/unless}}" title="{{localize 'MonksEnhancedJournal.Forward'}}" data-history="forward"><i class="fas fa-chevron-right"></i></div>
+    <div id="fwb-history-back" class="nav-button {{#unless canBack}} disabled{{/unless}}" title="{{localize 'fwb.tooltips.historyBack'}}">
+      <i class="fas fa-chevron-left"></i>
+    </div>
+    <div id="fwb-history-forward" class="nav-button {{#unless canForward}} disabled{{/unless}}" title="{{localize 'fwb.tooltips.historyForward'}}">
+      <i class="fas fa-chevron-right"></i>
+    </div>
     <hr class="vertical" />
-    <div class="toggle-menu nav-button" action="toggleCollapse" data-tooltip="{{localize 'JOURNAL.ViewCollapse'}}" style="margin-left: 4px;"><i class="fas fa-list"></i> <span></span></div>
     <div class="button-group flexrow" id="journal-buttons"></div>
   </div>
 </header>
