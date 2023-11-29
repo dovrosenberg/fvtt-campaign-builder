@@ -17,6 +17,7 @@
     "linkdata": "ln -s $PWD/dist ~/foundryData/Data/modules/world-builder",
     "tsc": "tsc --noEmit --skipLibCheck",
     "test": "jest",
+    "coverage": "jest --coverage",
     "unlinkdata": "unlink ~/foundryData/Data/modules/world-builder",
     "buildcopy": "npm run build && npm run copy",
     "foundry": "node ~/foundry/resources/app/main.js",
