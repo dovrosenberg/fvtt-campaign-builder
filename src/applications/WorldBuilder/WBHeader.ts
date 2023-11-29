@@ -20,6 +20,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   private _tabs = [] as WindowTab[];  
   private _collapsed: boolean;
   private _bookmarks = [] as Bookmark[];
+  private _dragDrop: DragDrop;
 
   constructor() {
     super();
@@ -61,10 +62,10 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     // bookmark and tab listeners
     html.on('click', '#fwb-add-bookmark', (event) => { this._addBookmark(); });
-    html.on('click', '.bookmark-button:not(#fwb-add-bookmark)', (event: MouseEvent): void => { this._activateBookmark((event.currentTarget as HTMLElement).attributes['data-bookmark-id'].value) });
+    html.on('click', '.fwb-bookmark-button', (event: MouseEvent): void => { this._activateBookmark((event.currentTarget as HTMLElement).dataset.bookmarkId as string) });
     html.on('click', '#fwb-add-tab', () => { this.openEntry() });
     html.on('click', '.fwb-tab', (event: MouseEvent): void => {
-      this._activateTab((event.currentTarget as HTMLElement).attributes['data-tab-id'].value);
+      this._activateTab((event.currentTarget as HTMLElement).dataset.tabId as string);
     });
 
     html.on('click', '#fwb-history-back', () => { this._navigateHistory(-1); });
@@ -75,11 +76,32 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       let tabId;
 
       if (event.currentTarget)
-        tabId = ($(event.currentTarget)?.closest('.fwb-tab')[0] as HTMLElement).attributes['data-tab-id'].value;
+        tabId = ($(event.currentTarget)?.closest('.fwb-tab')[0] as HTMLElement).dataset.tabId as string;
 
         if (tabId)
           this._closeTab(tabId);
     });
+
+    // set up the drag & drop for tabs and bookmarks
+    this._dragDrop = new DragDrop({
+      dragSelector: '.fwb-tab', 
+      dropSelector: '.fwb-tab',
+      callbacks : {
+        'dragstart': this._onDragStart.bind(this),
+        'drop': this._onDrop.bind(this),
+      }
+    })
+    this._dragDrop.bind(html.get()[0]);
+    this._dragDrop = new DragDrop({
+      dragSelector: '.fwb-bookmark-button', 
+      dropSelector: '.fwb-bookmark-button',
+      callbacks : {
+        'dragstart': this._onDragStart.bind(this),
+        'drop': this._onDrop.bind(this),
+      }
+    })
+    this._dragDrop.bind(html.get()[0]);
+
   }
 
   public get collapsed(): boolean {
@@ -144,7 +166,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (entryId)
       await this._updateRecent(entryId, tab.text);
 
-    this._makeCallback(WBHeader.CallbackType.TabAdded);
+    this._makeCallback(WBHeader.CallbackType.TabsChanged);
     this._makeCallback(WBHeader.CallbackType.EntryChanged, entryId);
 
     return tab;
@@ -355,8 +377,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     // TODO - need to create the context menu so you can delete the bookmark
 
-    //this.saveBookmarks();
-    this._makeCallback(WBHeader.CallbackType.BookmarkAdded);
+    this._saveBookmarks();
+    this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
   }
 
   private async _activateBookmark(bookmarkId: string) {
@@ -367,21 +389,17 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     }
   }
 
-/*
-  removeBookmark(bookmark) {
-    this._bookmarks.findSplice(b => b.id == bookmark.id);
-    $(`.bookmark-button[data-bookmark-id="${bookmark.id}"]`, this.element).remove();
-    this.saveBookmarks();
+  // removes the bookmark with given id
+  private _removeBookmark(id: string) {
+    this._bookmarks.findSplice(b => b.id == id);
+    this._saveBookmarks();
+
+    this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
   }
 
-  saveBookmarks() {
-    let update = this._bookmarks.map(b => {
-      let bookmark = duplicate(b);
-      return bookmark;
-    });
-    game.user.setFlag('monks-enhanced-journal', 'bookmarks', update);
+  private _saveBookmarks() {
+    userFlags.set(UserFlagKeys.bookmarks, this._bookmarks);
   }
-*/
 
   // moves forward/back through the history "move" spaces (or less if not possible); negative numbers move back
   private async _navigateHistory(move: number) {
@@ -448,118 +466,90 @@ async getHistory() {
   //     return true;
   // }
 
-  // _onDragStart(event) {
-  //   const target = event.currentTarget;
+  // handle a bookmark or tab dragging
+  private _onDragStart(event: DragEvent): void {
+    const target = event.currentTarget as HTMLElement;
 
-  //   if ($(target).hasClass('fwb-tab')) {
-  //     const dragData = { from: this.object.uuid };
+    if ($(target).hasClass('fwb-tab')) {
+      const dragData = { 
+        //from: this.object.uuid 
+      };
 
-  //     let tabid = target.dataset.tabid;
-  //     let tab = this._tabList.find(t => t.id == tabid);
-  //     dragData.uuid = tab.entityId;
-  //     dragData.type = "JournalTab";
-  //     dragData.tabid = tabid;
+      let tabId = target.dataset.tabId;
+      let tab = this._tabs.find(t => t.id == tabId);
+      dragData.uuid = tab?.entry?.uuid;
+      dragData.type = "fwb-tab";   // JournalEntry... may want to consider passing a type that other things can do something with
+      dragData.tabId = tabId;
 
-  //     log('Drag Start', dragData);
+      event.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
+    } else if ($(target).hasClass('fwb-bookmark-button')) {
+      const dragData = { 
+        //from: this.object.uuid 
+      };
 
-  //     event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
-  //   } else if ($(target).hasClass('bookmark-button')) {
-  //     const dragData = { from: this.object.uuid };
+      let bookmarkId = target.dataset.bookmarkId;
+      let bookmark = this._bookmarks.find(b => b.id == bookmarkId);
+      dragData.uuid = bookmark?.entryId;
+      dragData.type = "fwb-bookmark";
+      dragData.bookmarkId = bookmarkId;
 
-  //     let bookmarkId = target.dataset.bookmarkId;
-  //     let bookmark = this._bookmarks.find(t => t.id == bookmarkId);
-  //     dragData.uuid = bookmark.entityId;
-  //     dragData.type = "Bookmark";
-  //     dragData.bookmarkId = bookmarkId;
+      event.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
+    } 
+  }
 
-  //     log('Drag Start', dragData);
+  async _onDrop(event: DragEvent) {
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+    }
+    catch (err) {
+      return false;
+    }
 
-  //     event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
-  //   } else
-  //     return this.subsheet._onDragStart(event);
-  // }
+    if (data.type==='fwb-tab') {
+      // where are we droping it?
+      // TODO - also handle off on the right to move to end
+      const target = (event.currentTarget as HTMLElement).closest('.fwb-tab') as HTMLElement;
+      if (!target)
+        return;
 
-  // async _onDrop(event) {
-  //   log('enhanced journal drop', event);
-  //   let result = $(event.currentTarget).hasClass('enhanced-journal-header') ? false : this.subsheet._onDrop(event);
+      if (data.tabId === target.dataset.tabId) return; // Don't drop on yourself
 
-  //   if (result instanceof Promise)
-  //     result = await result;
+      // insert before the drop target
+      let from = this._tabs.findIndex(t => t.id === data.tabId);
+      let to = this._tabs.findIndex(t => t.id === target.dataset.tabId);
+      this._tabs.splice(to, 0, this._tabs.splice(from, 1)[0]);
 
-  //   if (result === false) {
-  //     let data;
-  //     try {
-  //       data = JSON.parse(event.dataTransfer.getData('text/plain'));
-  //     }
-  //     catch (err) {
-  //       return false;
-  //     }
+      // activate the moved one (will also save the tabs)
+      this._activateTab(data.tabId);
+      this._makeCallback(WBHeader.CallbackType.TabsChanged);
+    } else if (data.type==='fwb-bookmark') {
+      const target = (event.currentTarget as HTMLElement).closest('.fwb-bookmark-button') as HTMLElement;
+      if (!target)
+        return;
 
-  //     if (data.tabid) {
-  //       const target = event.target.closest(".fwb-tab") || null;
-  //       let tabs = duplicate(this._tabList);
+      if (data.bookmarkId === target.dataset.bookmarkId) return; // Don't drop on yourself
 
-  //       if (data.tabid === target.dataset.tabid) return; // Don't drop on yourself
+      // insert before the drop target
+      // TODO- ability to move to end
+      let from = this._bookmarks.findIndex(b => b.id == data.bookmarkId);
+      let to = this._bookmarks.findIndex(b => b.id == target.dataset.bookmarkId);
+      this._bookmarks.splice(to, 0, this._bookmarks.splice(from, 1)[0]);
 
-  //       let from = tabs.findIndex(a => a.id == data.tabid);
-  //       let to = tabs.findIndex(a => a.id == target.dataset.tabid);
-  //       log('moving tab from', from, 'to', to);
-  //       tabs.splice(to, 0, tabs.splice(from, 1)[0]);
-
-  //       this._tabList = tabs;
-  //       if (from < to)
-  //         $('.fwb-tab[data-tab-id="' + data.tabid + '"]', this.element).insertAfter(target);
-  //       else
-  //         $('.fwb-tab[data-tab-id="' + data.tabid + '"]', this.element).insertBefore(target);
-
-  //       game.user.update({
-  //         flags: { 'monks-enhanced-journal': { 'tabs': tabs } }
-  //       }, { render: false });
-  //     } else if (data.bookmarkId) {
-  //       const target = event.target.closest(".bookmark-button") || null;
-  //       let bookmarks = duplicate(this._bookmarks);
-
-  //       if (data.bookmarkId === target.dataset.bookmarkId) return; // Don't drop on yourself
-
-  //       let from = bookmarks.findIndex(a => a.id == data.bookmarkId);
-  //       let to = bookmarks.findIndex(a => a.id == target.dataset.bookmarkId);
-  //       log('moving tab from', from, 'to', to);
-  //       bookmarks.splice(to, 0, bookmarks.splice(from, 1)[0]);
-
-  //       this._bookmarks = bookmarks;
-  //       if (from < to)
-  //         $('.bookmark-button[data-bookmark-id="' + data.bookmarkId + '"]', this.element).insertAfter(target);
-  //       else
-  //         $('.bookmark-button[data-bookmark-id="' + data.bookmarkId + '"]', this.element).insertBefore(target);
-
-  //       game.user.update({
-  //         flags: { 'monks-enhanced-journal': { 'bookmarks': bookmarks } }
-  //       }, { render: false });
-  //     } else if (data.type == 'Actor') {
-  //       if (data.pack == undefined) {
-  //         let actor = await fromUuid(data.uuid);
-  //         if (actor && actor instanceof Actor)
-  //           this.open(actor, setting("open-new-tab"));
-  //       }
-  //     } else if (data.type == 'JournalEntry') {
-  //       let entity = await fromUuid(data.uuid);
-  //       if (entity)
-  //         this.open(entity, setting("open-new-tab"));
-  //     }     
-  //     log('drop data', event, data);
-  //   }
-
-  //   return result;
-  // }
+      // save bookmarks (we don't activate anything)
+      this._saveBookmarks();
+      this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
+    } else {
+      return false;
+    } 
+  }
 }
 
 
 export namespace WBHeader {
   export enum CallbackType {
-    TabActivated,
-    TabAdded,
-    TabRemoved,
-    BookmarkAdded,
+    TabsChanged,
+    BookmarksChanged,
     SidebarToggled,
     HistoryMoved,
     EntryChanged,

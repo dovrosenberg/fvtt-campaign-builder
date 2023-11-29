@@ -26,10 +26,10 @@
   </div>
 
   <div class="fwb-bookmark-bar flexrow">
-    <div id="fwb-add-bookmark" class="bookmark-button" title="{{localize 'fwb.tooltips.addBookmark'}}"><i class="fas fa-star"></i></div>
+    <div id="fwb-add-bookmark" title="{{localize 'fwb.tooltips.addBookmark'}}"><i class="fas fa-star"></i></div>
 
     {{#each bookmarks}}
-      <div class="bookmark-button" title="{{text}}" data-bookmark-id="{{id}}"><div><i class="fas {{icon}}"></i> {{text}}</div></div>
+      <div class="fwb-bookmark-button" title="{{text}}" data-bookmark-id="{{id}}"><div><i class="fas {{icon}}"></i> {{text}}</div></div>
     {{/each}}
   </div>
 

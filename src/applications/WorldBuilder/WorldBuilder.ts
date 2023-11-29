@@ -85,7 +85,6 @@ export class WorldBuilder extends Application {
       height: 700,
       resizable: true,
       editable: true,
-      //dragDrop: [{ dragSelector: ".fwb-tab, .bookmark-button", dropSelector: ".enhanced-journal-header" }],
       closeOnSubmit: false,
       submitOnClose: false,
       submitOnChange: true,
@@ -154,10 +153,8 @@ export class WorldBuilder extends Application {
     });
 
     // setup component listeners
-    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabAdded, ()=> { this.render(); });
-    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabRemoved, ()=> { this.render(); });
-    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabActivated, ()=> { this.render(); });
-    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.BookmarkAdded, ()=> { this.render(); });
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabsChanged, ()=> { this.render(); });
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.BookmarksChanged, ()=> { this.render(); });
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.SidebarToggled, ()=> { this.render(); });
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.HistoryMoved, ()=> { this.render(); });
 
@@ -583,7 +580,7 @@ export class WorldBuilder extends Application {
   }
 
   async _contextMenu(html) {
-    this._context = new ContextMenu(html, ".bookmark-button", [
+    this._context = new ContextMenu(html, ".fwb-bookmark-button", [
       {
         name: "Open outside Enhanced Journal",
         icon: '<i class="fas fa-file-export"></i>',
@@ -677,7 +674,7 @@ export class WorldBuilder extends Application {
     $('.fwb-tab-bar .fwb-tab', html).on("contextmenu", (event) => {
       this.contextTab = event.currentTarget.dataset.tabid;
     });
-    $('.fwb-bookmark-bar .bookmark-button', html).on("contextmenu", (event) => {
+    $('.fwb-bookmark-bar .fwb-bookmark-button', html).on("contextmenu", (event) => {
       this.contextBookmark = event.currentTarget.dataset.bookmarkId;
     });
 
