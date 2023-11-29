@@ -1,5 +1,5 @@
-import { SettingKeys, moduleSettings } from "@/settings/ModuleSettings";
-import { getGame, localize } from "@/utils/game";
+import { SettingKeys, moduleSettings } from '@/settings/ModuleSettings';
+import { localize } from '@/utils/game';
 
 import './WBHeader.scss';
 import { UserFlagKeys, userFlags } from '@/settings/UserFlags';

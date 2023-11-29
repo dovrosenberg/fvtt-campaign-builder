@@ -20,7 +20,7 @@ export async function inputDialog(title: string, prompt: string): Promise<string
         callback:  () => {}
       }
     },
-    default: 'OK',
+    default: 'ok',
   };
 
   // @ts-ignore
