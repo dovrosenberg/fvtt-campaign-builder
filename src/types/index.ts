@@ -16,7 +16,7 @@ export type Bookmark = {
   icon: string,  // class of icon to display
 }
 
-export type ViewHistory = {
+export type RecentItem = {
   entryId: string,   // uuid of the entry page
-  name: string,   // name of page to show in history
+  name: string,   // name of page to show 
 }

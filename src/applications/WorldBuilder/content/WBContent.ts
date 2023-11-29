@@ -34,9 +34,9 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
 
   public async getData(): Promise<WBContentData> {
     const data = {
-      showHomePage: (this._entryId===null),
+      showHomePage: (!this._entryId),
       HomePage: () => HOMEPAGE_TEMPLATE,
-      HomePageData: (this._entryId===null ? await this._partials.HomePage.getData() : {}),
+      HomePageData: (!this._entryId ? await this._partials.HomePage.getData() : {}),
     };
 
     // log(false, data);
@@ -44,6 +44,10 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   }
 
   public activateListeners(html: JQuery) {  
+  }
+
+  public set entryId(entryId: string) {
+    this._entryId = entryId;
   }
 
 

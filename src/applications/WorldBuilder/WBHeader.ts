@@ -3,7 +3,7 @@ import { getGame, localize } from '@/utils/game';
 
 import './WBHeader.scss';
 import { UserFlagKeys, userFlags } from '@/settings/UserFlags';
-import { Bookmark, WindowTab } from '@/types';
+import { Bookmark, RecentItem, WindowTab } from '@/types';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 
 export const WBHEADER_TEMPLATE = 'modules/world-builder/templates/WBHeader.hbs';
@@ -140,9 +140,13 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       this._saveTabs();
     }
 
-    //await this._updateRecent(tab.journal);
+    // update the recent list (except for new tabs)
+    if (entryId)
+      await this._updateRecent(entryId, tab.text);
 
     this._makeCallback(WBHeader.CallbackType.TabAdded);
+    this._makeCallback(WBHeader.CallbackType.EntryChanged, entryId);
+
     return tab;
   }
 
@@ -178,16 +182,16 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     return tab || null;
   };  
 
-  // add new page to the top of the history
-  /*
-  private async _updateRecent(journal: JournalEntryPage): Promise<void> {
-    let recent = userFlags.get(UserFlagKeys.recentlyViewed) || [] as ViewHistory[];
+  // add a new entity to the recent list
+  // entryId = uuid of the entry, name = text of the entry of display (typically the name)
+  private async _updateRecent(entryId: string, name: string): Promise<void> {
+    let recent = userFlags.get(UserFlagKeys.recentlyViewed) || [] as RecentItem[];
 
     // remove any other places in history this already appears
-    recent.findSplice((h) => h.journalId === journal.uuid);
+    recent.findSplice((h: RecentItem): boolean => h.entryId === entryId);
 
     // insert in the front
-    recent.unshift({ journalId: journal.uuid, name: journal.name } as ViewHistory);
+    recent.unshift({ entryId: entryId, name: name } as RecentItem);
 
     // trim if too long
     if (recent.length > 5)
@@ -195,7 +199,6 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     userFlags.set(UserFlagKeys.recentlyViewed, recent);
   }
-*/
 
   // activate the given tab, first closing the current subsheet
   // tabId must exist
@@ -206,27 +209,6 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (!tabId || !(tab = this._tabs.find((t)=>(t.id===tabId))))
       return;
 
-
-    // TODO - do we want to enable this?  may need to refactor to handle in the click
-    // if (event?.altKey) {
-    //   // Open this outside of the Enhnaced Journal
-    //   let document = await this.findEntity(tab?.entityId, tab?.text);
-    //   if (document) {
-    //     MonksEnhancedJournal.fixType(document);
-    //     document.sheet.render(true);
-    //   }
-    // } else if (event?.shiftKey) {
-    //   // Close this tab
-    //   this._closeTab(tab, event);
-    //   tab = this._activeTab(false);
-    //   if (!tab) {
-    //     if (this._tabList.length)
-    //       tab = this._tabList[0];
-    //     else
-    //       tab = this._addTab();
-    //   }
-    // }
-
     // see if it's already current
     let currentTab = this._activeTab(false);
     if (currentTab?.id === tabId) {
@@ -234,16 +216,18 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     }
 
     // TODO - if there's an active tab, do we need to clean anything up? save?
-    // 
     if (currentTab)
       currentTab.active = false;
     tab.active = true;
 
     this._saveTabs();
-    //this.updateHistory();
-    //this._updateRecent(tab.entity);
+
+    // add to recent, unless it's a "new tab"
+    if (currentTab?.entry?.uuid)
+      this._updateRecent(currentTab?.entry.uuid, currentTab.text);
 
     this._makeCallback(WBHeader.CallbackType.TabActivated);
+    this._makeCallback(WBHeader.CallbackType.EntryChanged, currentTab?.entry?.uuid || null);
     return;
   }
 
@@ -296,32 +280,6 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     this.render(true, mergeObject({ focus: true }, options));
   }
 
-  private async open(entity, newtab, options) {
-    //if there are no tabs, then create one
-    this._tabs.active = null;
-    if (this._tabList.length == 0) {
-      this.openEntry(entity);
-    } else {
-      if (newtab === true) {
-        //the journal is getting created
-        //lets see if we can find  tab with this entity?
-        let tab = this._tabList.find(t => t.entityId?.endsWith(entity.id));
-        if (tab != undefined)
-          this.activateTab(tab, null, options);
-        else
-          this.openEntry(entity);
-      } else {
-        if (await this?.subsheet?.close() !== false) {
-          // Check to see if this entity already exists in the tab list
-          let tab = this._tabList.find(t => t.entityId?.endsWith(entity.id));
-          if (tab != undefined)
-            this.activateTab(tab, null, options);
-          else
-            this.updateTab(this._activeTab(), entity, options);
-        }
-      }
-    }
-  }
 */
 
   // remove the tab given by the id from the list
@@ -603,6 +561,7 @@ export namespace WBHeader {
     TabRemoved,
     BookmarkAdded,
     SidebarToggled,
-    HistoryMoved
+    HistoryMoved,
+    EntryChanged,
   }
 }

@@ -161,6 +161,9 @@ export class WorldBuilder extends Application {
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.SidebarToggled, ()=> { this.render(); });
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.HistoryMoved, ()=> { this.render(); });
 
+    // when the content needs to be updated
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.EntryChanged, (entryId) => { (this._partials.WBContent as WBContent).entryId = entryId; this.render();});
+
     // when new entry is selected in directory
     this._partials.Directory.registerCallback(Directory.CallbackType.DirectoryEntrySelected, 
         (entryId: string, event: MouseEvent) => { 
