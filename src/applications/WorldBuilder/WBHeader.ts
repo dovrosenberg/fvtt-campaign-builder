@@ -449,23 +449,6 @@ async getHistory() {
 }
 */
 
-  // Drag and drop of tabs and bookmarks
-  // _canDragStart(selector) {
-  //   if (selector == ".fwb-tab") return true;
-
-  //   if (this.subsheet)
-  //     return this.subsheet._canDragStart(selector);
-  //   else
-  //     return super._canDragStart(selector);
-  // }
-
-  // _canDragDrop(selector) {
-  //   if (this.subsheet)
-  //     return this.subsheet._canDragDrop(selector);
-  //   else
-  //     return true;
-  // }
-
   // handle a bookmark or tab dragging
   private _onDragStart(event: DragEvent): void {
     const target = event.currentTarget as HTMLElement;
@@ -477,7 +460,6 @@ async getHistory() {
 
       let tabId = target.dataset.tabId;
       let tab = this._tabs.find(t => t.id == tabId);
-      dragData.uuid = tab?.entry?.uuid;
       dragData.type = "fwb-tab";   // JournalEntry... may want to consider passing a type that other things can do something with
       dragData.tabId = tabId;
 
@@ -489,7 +471,6 @@ async getHistory() {
 
       let bookmarkId = target.dataset.bookmarkId;
       let bookmark = this._bookmarks.find(b => b.id == bookmarkId);
-      dragData.uuid = bookmark?.entryId;
       dragData.type = "fwb-bookmark";
       dragData.bookmarkId = bookmarkId;
 
@@ -511,7 +492,7 @@ async getHistory() {
       // TODO - also handle off on the right to move to end
       const target = (event.currentTarget as HTMLElement).closest('.fwb-tab') as HTMLElement;
       if (!target)
-        return;
+        return false;
 
       if (data.tabId === target.dataset.tabId) return; // Don't drop on yourself
 
@@ -526,7 +507,7 @@ async getHistory() {
     } else if (data.type==='fwb-bookmark') {
       const target = (event.currentTarget as HTMLElement).closest('.fwb-bookmark-button') as HTMLElement;
       if (!target)
-        return;
+      return false;
 
       if (data.bookmarkId === target.dataset.bookmarkId) return; // Don't drop on yourself
 
@@ -542,7 +523,10 @@ async getHistory() {
     } else {
       return false;
     } 
+
+    return true;
   }
+
 }
 
 
