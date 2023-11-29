@@ -29,12 +29,10 @@ import './WorldBuilder.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { WBHEADER_TEMPLATE, WBHeader } from './WBHeader';
 import { WBFOOTER_TEMPLATE, WBFooter } from './WBFooter';
-import { WBCONTENT_TEMPLATE, WBContent } from './WBContent';
+import { WBCONTENT_TEMPLATE, WBContent } from './content/WBContent';
+import { DIRECTORY_TEMPLATE, Directory } from './directory/Directory';
 
-import { createWorldFolder, getDefaultFolders, getRootFolder } from '@/compendia';
 import { localize } from '@/utils/game';
-import { SettingKeys, moduleSettings } from '@/settings/ModuleSettings';
-import { inputDialog } from '@/dialogs/input';
 
 
 export class WorldBuilder extends Application {
@@ -62,6 +60,7 @@ export class WorldBuilder extends Application {
       WBHeader: new WBHeader(),
       WBFooter: new WBFooter(),
       WBContent: new WBContent(this._currentJournalId),
+      Directory: new Directory(), 
     }
 
     this._rootFolderId = rootFolderId;
@@ -138,6 +137,8 @@ export class WorldBuilder extends Application {
       WBFooterData: await this._partials.WBFooter.getData(),
       WBFooter: () => WBFOOTER_TEMPLATE,
       WBContentData: await this._partials.WBContent.getData(),
+      Directory: () => DIRECTORY_TEMPLATE,
+      DirectoryData: await this._partials.Directory.getData(),
       // user: game.user,
     };
 

@@ -1,0 +1,50 @@
+import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
+import './Directory.scss';
+
+export const DIRECTORY_TEMPLATE = 'modules/world-builder/templates/Directory.hbs';
+
+type DirectoryData = {
+}
+
+export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
+  constructor() {
+    super();
+  }
+
+  protected _createPartials(): void {
+    // no subcomponents
+  }
+
+  public async getData(): Promise<DirectoryData> {
+    const data = {
+      tree: ui.journal.collection.tree,
+      canCreateEntry: ui.journal.canCreateEntry,
+      canCreateFolder: ui.journal.canCreateFolder,
+      //sortIcon: ui.journal.collection.sortingMode === "a" ? "fa-arrow-down-a-z" : "fa-arrow-down-short-wide",
+      //sortTooltip: ui.journal.collection.sortingMode === "a" ? "SIDEBAR.SortModeAlpha" : "SIDEBAR.SortModeManual",
+      //searchIcon: ui.journal.collection.searchMode === CONST.DIRECTORY_SEARCH_MODES.NAME ? "fa-search" : "fa-file-magnifying-glass",
+      //searchTooltip: ui.journal.collection.searchMode === CONST.DIRECTORY_SEARCH_MODES.NAME ? "SIDEBAR.SearchModeName" : "SIDEBAR.SearchModeFull",
+      //documentCls: cls.documentName.toLowerCase(),
+      //tabName: cls.metadata.collection,
+      //sidebarIcon: cfg.sidebarIcon,
+      folderIcon: "fas fa-folder",
+      user: game.user,
+      label: i18n("MonksEnhancedJournal.Entry"),
+      labelPlural: 'abc', //i18n(cls.metadata.labelPlural),
+      //unavailable: game.user.isGM ? cfg.collection?.instance?.invalidDocumentIds?.size : 0
+    };
+
+    debugger;
+    // log(false, data);
+    return data;
+  }
+
+  public activateListeners(html: JQuery) {  
+  }
+}
+
+
+export namespace Directory {
+  export enum CallbackType {
+  }
+}

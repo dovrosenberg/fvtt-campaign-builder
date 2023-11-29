@@ -1,7 +1,8 @@
-import { WBCONTENT_TEMPLATE } from "@/applications/WorldBuilder/WBContent";
-import { WBHEADER_TEMPLATE } from "@/applications/WorldBuilder/WBHeader";
-import { WBFOOTER_TEMPLATE } from "@/applications/WorldBuilder/WBFooter";
-import { HOMEPAGE_TEMPLATE } from "@/applications/WorldBuilder/HomePage";
+import { WBCONTENT_TEMPLATE } from '@/applications/WorldBuilder/content/WBContent';
+import { HOMEPAGE_TEMPLATE } from '@/applications/WorldBuilder/content/HomePage';
+import { DIRECTORY_TEMPLATE } from '@/applications/WorldBuilder/directory/Directory';
+import { WBHEADER_TEMPLATE } from '@/applications/WorldBuilder/WBHeader';
+import { WBFOOTER_TEMPLATE } from '@/applications/WorldBuilder/WBFooter';
 
 export function registerHelpers() {
   // register templates parts
@@ -10,6 +11,7 @@ export function registerHelpers() {
     WBHEADER_TEMPLATE,
     WBFOOTER_TEMPLATE,
     WBCONTENT_TEMPLATE,
+    DIRECTORY_TEMPLATE,
 
     // content
     HOMEPAGE_TEMPLATE
