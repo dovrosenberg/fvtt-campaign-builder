@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-//const { pathsToModuleNameMapper } = require('ts-jest/utils');
-//const { compilerOptions } = require('./tsconfig.json');
-
+// const { pathsToModuleNameMapper } = require('ts-jest');
+// const { compilerOptions } = require('./tsconfig.json');
 
 module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'jsdom',
   // roots: [
-  //   '<rootDir>/src'
+  //   '<rootDir>/tests'
   // ],
   // testMatch: [
   //   '**/__tests__/**/*.+(ts|tsx|js)',
@@ -21,9 +20,15 @@ module.exports = {
   // setupFilesAfterEnv: [
   //   'jest-extended/all'
   // ],
-  // moduleNameMapper: {
-  //   '^src/(.*)$': '<rootDir>/src/$1',
-  //   ...pathsToModuleNameMapper(compilerOptions.paths , { prefix: '<rootDir>/' } ),
-  // },
-  testEnvironment: 'jsdom'
+  modulePaths: [
+    '<rootDir>',
+  ],
+  moduleFileExtensions: ['ts', 'js', 'json'],
+  moduleNameMapper: {
+    '^src/(.*)$': '<rootDir>/src/$1',
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@module$': '<rootDir>/static/module.json',
+    '\\.(css|less|scss)$': '<rootDir>/tests/styleMock',   // prevent parsing stylesheets
+    //...pathsToModuleNameMapper(compilerOptions.paths , { prefix: '<rootDir>/src/' } ),
+  },
 };

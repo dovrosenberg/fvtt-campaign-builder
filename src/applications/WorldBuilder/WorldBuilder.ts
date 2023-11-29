@@ -1,30 +1,3 @@
-/*
-
-        // note that a pack can be a folder, too???
-
-        // a uuid looks like: 
-        Compendium.world.test-actors.JournalEntry.undefined
-        game.packs.find((p)=>(p.getUuid()==='Compendium.world.test-actors.JournalEntry.undefined')).getUuid()
-
-        // 
-        // creating a compendium
-        metadata: {label: "Places", type: "JournalEntry"}
-        const pack = await CompendiumCollection.createCompendium(metadata);
-        if ( targetFolderId ) await pack.setFolder(targetFolderId);
-
-        // deleting
-        pack.deleteCompendium(),
-
-        // getting a folder
-        folder = Folder.get(targetFolderId)
-        folder.id 
-        folder.uuid = 'Folder.XXXX'
-
-        // creating a folder
-        ???
-*/
-
-
 import './WorldBuilder.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { WBHEADER_TEMPLATE, WBHeader } from './WBHeader';

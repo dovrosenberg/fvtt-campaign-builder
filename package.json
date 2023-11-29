@@ -28,6 +28,7 @@
     "@league-of-foundry-developers/foundry-vtt-types": "9.280.0",
     "@originjs/vite-plugin-commonjs": "^1.0.1",
     "@types/jest": "^29.5.10",
+    "@types/jquery": "^3.5.29",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "css-loader": "^6.4.0",
