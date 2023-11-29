@@ -33,7 +33,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     // if there are no tabs, add one
     if (!this._tabs.length)
-      this._addTab();
+      this.openTab();
   }
 
   protected _createPartials(): void {
@@ -63,7 +63,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     html.find('#fwb-add-bookmark').on('click', () => { this._addBookmark(); });
     // html.find('.bookmark-button:not(#fwb-add-bookmark)').click(this.activateBookmark.bind(this));
 
-    html.find('#fwb-add-tab').on('click', () => { this._addTab() });
+    html.find('#fwb-add-tab').on('click', () => { this.openTab() });
 
     $('.fwb-tab', html).each((idx, elem) => {
     		//$(elem).on('click', (event: MouseEvent) => { event.preventDefault(); this._activateTab({tabId: $(elem).attr('data-tabid')})});
@@ -85,6 +85,41 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     return this._collapsed;
   }
 
+  // activate - switch to the tab after creating
+  // refresh = rerender (the parent)
+  // entryId = the uuid of the entry for the tab  (currently just journal entries)
+  public async openTab(options = { activate: true, refresh: true, entryId: null as string | null }): Promise<WindowTab> {
+    let entry = options.entryId ? await fromUuid(options.entryId) as JournalEntry: null;
+
+    let tab = {
+      id: randomID(),
+      text: entry?.name !== null ? entry?.name : 'New Tab',
+      active: false,
+      entry: entry,
+      history: [],
+      historyIdx: -1,
+    } as WindowTab;
+    
+    // add to history and the tabs list
+    this._tabs.push(tab);
+    if (options.entryId)
+      tab.history.push(options.entryId);
+
+    if (options.activate)
+      this._activateTab(tab.id);  //activating the tab should save it
+    // else {
+    //   this._saveTabs();
+    // }
+
+    //await this._updateRecent(tab.journal);
+
+    this._makeCallback(WBHeader.CallbackType.TabAdded);
+    return tab;
+  }
+
+  /******************************************************
+   * Private methods
+  */
   private _canBack(tab?: WindowTab): boolean {
     let checkTab = tab || this._activeTab();
 
@@ -113,36 +148,6 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     return tab || null;
   };  
-
-  // activate - switch to the tab after creating
-  // refresh = rerender (the parent)
-  // entry = the entry for the tab  (currently just journal entries)
-  private async _addTab(options = { activate: true, refresh: true, entry: null as JournalEntryPage | null }): Promise<WindowTab> {
-    let tab = {
-      id: randomID(),
-      text: localize('abc'),
-      active: false,
-      entry: options.entry,
-      history: [],
-      historyIdx: -1,
-    } as WindowTab;
-    
-    // add to history and the tabs list
-    this._tabs.push(tab);
-    if (tab.entry)
-      tab.history.push(tab.entry.uuid);
-
-    if (options.activate)
-      this._activateTab(tab.id);  //activating the tab should save it
-    // else {
-    //   this._saveTabs();
-    // }
-
-    //await this._updateRecent(tab.journal);
-
-    this._makeCallback(WBHeader.CallbackType.TabAdded);
-    return tab;
-  }
 
   // add new page to the top of the history
   /*
@@ -266,7 +271,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     //if there are no tabs, then create one
     this._tabs.active = null;
     if (this._tabList.length == 0) {
-      this._addTab(entity);
+      this.openTab(entity);
     } else {
       if (newtab === true) {
         //the journal is getting created
@@ -275,7 +280,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
         if (tab != undefined)
           this.activateTab(tab, null, options);
         else
-          this._addTab(entity);
+          this.openTab(entity);
       } else {
         if (await this?.subsheet?.close() !== false) {
           // Check to see if this entity already exists in the tab list
@@ -302,12 +307,12 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     this._tabs.splice(index, 1);
 
     if (this._tabs.length == 0) {
-      this._addTab();  // make a default tab
+      this.openTab();  // make a default tab
     } else {
       // if it was active, make the one before it active (or after if it was up front)
       if (tab.active) {
         if (this._tabs.length===0) {
-          this._addTab();
+          this.openTab();
         } else {
           this._activateTab(this._tabs[index-1].id);
           // if (!this._activateTab(nextIdx))

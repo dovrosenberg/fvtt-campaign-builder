@@ -29,13 +29,15 @@
     }
   }
 
-  .directory-item.active {
-    background: #cfcdc2;
-  }
+  .directory-list {
+    .directory-item {
+      align-items: flex-start;
+      justify-content: flex-start;
 
-  .directory-list .directory-item {
-    align-items: flex-start;
-    justify-content: flex-start;
+      &.active {
+        background: #cfcdc2;
+      }
+    }
   }
 
   li.folder > .folder-header {

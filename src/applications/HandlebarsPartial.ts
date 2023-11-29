@@ -16,7 +16,7 @@ export abstract class HandlebarsPartial<CallbackType extends string | number> {
   protected _makeCallback(callbackType: CallbackType, ...args: any[]) {
     let cb = this._callbacks[callbackType];
     if (cb)
-      cb(args);
+      cb(...args);
   }
 
   // called by the constructor - should populate _partials

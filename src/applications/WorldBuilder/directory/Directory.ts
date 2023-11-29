@@ -1,5 +1,7 @@
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import './Directory.scss';
+import { localize } from '@/utils/game';
+import { getDataAttribute } from '@/utils/html';
 
 export const DIRECTORY_TEMPLATE = 'modules/world-builder/templates/Directory.hbs';
 
@@ -29,22 +31,25 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
       //sidebarIcon: cfg.sidebarIcon,
       folderIcon: "fas fa-folder",
       user: game.user,
-      label: i18n("MonksEnhancedJournal.Entry"),
+      label: localize("MonksEnhancedJournal.Entry"),
       labelPlural: 'abc', //i18n(cls.metadata.labelPlural),
       //unavailable: game.user.isGM ? cfg.collection?.instance?.invalidDocumentIds?.size : 0
     };
 
-    debugger;
     // log(false, data);
     return data;
   }
 
   public activateListeners(html: JQuery) {  
+    html.on('click', '#fwb-directory > .directory-list .directory-item', 
+        (event: MouseEvent): void => { 
+          this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, (event?.currentTarget as HTMLElement).attributes['data-entry-id'].value); })
   }
 }
 
 
 export namespace Directory {
   export enum CallbackType {
+    DirectoryEntrySelected,
   }
 }

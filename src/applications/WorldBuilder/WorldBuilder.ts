@@ -160,6 +160,12 @@ export class WorldBuilder extends Application {
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.BookmarkAdded, ()=> { this.render(); });
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.SidebarToggled, ()=> { this.render(); });
 
+    // when 
+    this._partials.Directory.registerCallback(Directory.CallbackType.DirectoryEntrySelected, 
+        (entryId: string) => { 
+          (this._partials.WBHeader as WBHeader).openTab({ entryId }); 
+        });
+
     // this._contextMenu(html);
   }
 
@@ -769,7 +775,7 @@ export class WorldBuilder extends Application {
         callback: li => {
           this._tabList.splice(0, this._tabList.length);
           this.saveTabs();
-          this._addTab();
+          this.openTab();
         }
       }
     ]);
