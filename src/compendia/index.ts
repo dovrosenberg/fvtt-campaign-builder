@@ -87,6 +87,9 @@ export async function getDefaultFolders(): Promise<{ rootId: string, worldId: st
   if (!worldId || !(await fromUuid(worldId))) {
     // need to create a world
     let name;
+
+    // TODO - differentiate between a blank name submitted and a cancellation - otherwise
+    //    there's no way to cancel
     do {
       name = await inputDialog('Create World', 'World Name:');
       

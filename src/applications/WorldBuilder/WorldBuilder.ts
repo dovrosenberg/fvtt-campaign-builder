@@ -53,7 +53,7 @@ export class WorldBuilder extends Application {
   lastquery = '';
   _imgcontext = null;
 
-  constructor(options = {}) {
+  constructor(rootFolderId: string, worldId: string, options = {}) {
     super(options);
 
     this._currentJournalId = 'JournalEntry.56SZqpKQIORkR0iq';
@@ -64,16 +64,9 @@ export class WorldBuilder extends Application {
       WBContent: new WBContent(this._currentJournalId),
     }
 
-    // TODO - what happens if the folder is deleted after this is called?  Do 
-    //    we need to continually check or is the user just stupid?  Also, 
-    //    can we lock it so prevent that?
-    getDefaultFolders().then(({ rootId, worldId }) => {
-      this._rootFolderId = rootId;
-      this._worldId = worldId;
-    });
+    this._rootFolderId = rootFolderId;
+    this._worldId = worldId;
 
-    moduleSettings.get(SettingKeys.defaultWorldId)
-    
     // this._lastentry = null;
 
     // //load up the last entry being shown
