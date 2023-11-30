@@ -11,15 +11,21 @@ module.exports = {
   //   '**/__tests__/**/*.+(ts|tsx|js)',
   //   '**/?(*.)+(spec|test).+(ts|tsx|js)'
   // ],
-  // transform: {
-  //   '^.+\\.(ts|tsx)$': 'ts-jest'
-  // },
-  // setupFiles: [
-  //   './tests-setup/foundryClasses.js',
-  // ],
-  // setupFilesAfterEnv: [
-  //   'jest-extended/all'
-  // ],
+  transform: {
+    '^.+\\.(ts|tsx)?$': [
+      'ts-jest',
+      {
+        isolatedModules: true,
+      },
+    ],
+  //  '^.+\\.(js|jsx)$': 'babel-jest',
+  },
+  setupFiles: [
+    '<rootDir>/tests/setup/index.js',
+  ],
+  setupFilesAfterEnv: [
+    'jest-extended/all'
+  ],
   modulePaths: [
     '<rootDir>',
   ],

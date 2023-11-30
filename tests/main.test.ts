@@ -1,4 +1,3 @@
-import '@/types/index';
 import '@/main';
 
 test('demo', () => {
