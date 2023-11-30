@@ -38,13 +38,6 @@ export class WorldBuilder extends Application {
 
     this._rootFolderId = rootFolderId;
     this._worldId = worldId;
-
-    // this._lastentry = null;
-
-    // //load up the last entry being shown
-    // this.object = object;
-    // if (object != undefined)
-    //     this.open(object, options?.newtab, {});
   }
 
   static get defaultOptions() {
