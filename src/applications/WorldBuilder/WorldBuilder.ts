@@ -4,7 +4,6 @@ import { WBHEADER_TEMPLATE, WBHeader } from './WBHeader';
 import { WBFOOTER_TEMPLATE, WBFooter } from './WBFooter';
 import { WBCONTENT_TEMPLATE, WBContent } from './content/WBContent';
 import { DIRECTORY_TEMPLATE, Directory } from './directory/Directory';
-
 import { localize } from '@/utils/game';
 
 

@@ -5,7 +5,7 @@ const messagePrefix = 'autocomplete-mentions | ';
 // log the given text, so long as our current log level is at least the one given
 export function log(force: boolean, ...args): void {
   try {
-    const isDebugging = getGame().modules.get('_dev-mode')?.api?.getPackageDebugValue('autocomplete-mentions') || false;
+    const isDebugging = (getGame().modules.get('_dev-mode') as any)?.api?.getPackageDebugValue('autocomplete-mentions') || false;
 
     if (force || isDebugging) {
       console.log(messagePrefix, ...args);
