@@ -1,12 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-StubApplication = {
-  render: function(arg) { return; }
+class StubApplication {
+  constructor() {}
+
+  render(_arg) { return; }
 }
 
-StubHooks = {
-  on: function (hook, callback) { return; },
-  once: function (hook, callback) { return; }
+class StubHooks {
+  constructor() {}
+
+  on(_hook, _callback) { return; }
+  once(_hook, _callback) { return; }
 }
 
 global.Application = StubApplication;
-global.Hooks = StubHooks;
+global.Hooks = new StubHooks();

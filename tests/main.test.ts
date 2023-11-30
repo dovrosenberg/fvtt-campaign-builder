@@ -1,5 +1,6 @@
+// this ensures typescript passes for entire module
 import '@/main';
 
-test('demo', () => {
+test('build', () => {
   expect(true).toBe(true)
 })
