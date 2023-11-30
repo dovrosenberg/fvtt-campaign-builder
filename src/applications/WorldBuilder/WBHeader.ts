@@ -20,7 +20,6 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   private _tabs = [] as WindowTab[];  
   private _collapsed: boolean;
   private _bookmarks = [] as Bookmark[];
-  private _dragDrop: DragDrop;
 
   constructor() {
     super();
@@ -83,7 +82,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     });
 
     // set up the drag & drop for tabs and bookmarks
-    this._dragDrop = new DragDrop({
+    let dragDrop = new DragDrop({
       dragSelector: '.fwb-tab', 
       dropSelector: '.fwb-tab',
       callbacks : {
@@ -91,8 +90,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
         'drop': this._onDrop.bind(this),
       }
     })
-    this._dragDrop.bind(html.get()[0]);
-    this._dragDrop = new DragDrop({
+    dragDrop.bind(html.get()[0]);
+    dragDrop = new DragDrop({
       dragSelector: '.fwb-bookmark-button', 
       dropSelector: '.fwb-bookmark-button',
       callbacks : {
@@ -100,7 +99,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
         'drop': this._onDrop.bind(this),
       }
     })
-    this._dragDrop.bind(html.get()[0]);
+    dragDrop.bind(html.get()[0]);
 
   }
 

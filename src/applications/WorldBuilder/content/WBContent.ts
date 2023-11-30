@@ -14,15 +14,15 @@ type WBContentData = {
 export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   private _entryId: string | null;    // the entryId to show (will show homepage if null)
 
-  constructor(entryId: string, options={}) {
+  constructor(entryId?: string | null, options={}) {
     super();
     
     // look up the entry - note could use fromUuid, but it's a bit tricky for compendia and also async
-    this._entryId = entryId;
-    const journal = getGame().journal?.find((j) => (j.uuid===entryId));
-    if (!journal) {
+    if (!entryId || !getGame().journal?.find((j) => (j.uuid===entryId))) {
       // show the homepage
       this._entryId = null;
+    } else {
+      this._entryId = entryId;
     }
   }
 
