@@ -59,6 +59,14 @@ const mockBookmarks = [
   }
 ]
 
+const createWBHeader = (): WBHeader => {
+  const retval = new WBHeader();
+  retval['_tabs'] = _.cloneDeep(mockTabs);
+  retval['_bookmarks'] = _.cloneDeep(mockBookmarks);
+
+  return retval;
+}
+
 describe('WBHeader', () => {
   beforeAll(() => {
     fromUuid.mockImplementation((id)=> {
@@ -72,11 +80,16 @@ describe('WBHeader', () => {
   });
 
   describe('constructor', () => {
+    let wbHeader;
+
+    beforeEach(() => {
+      wbHeader = new WBHeader();   // use a clean one
+    })
+
     it('should open one tab from blank slate', () => {
       // pretend they're blank
       userFlags.get.mockImplementation(()=> undefined);
       moduleSettings.get.mockImplementation(()=> undefined);
-      let wbHeader = new WBHeader();
 
       expect(wbHeader['collapsed']).toEqual(false);
       expect(wbHeader['_bookmarks']).toEqual([]);
@@ -112,13 +125,8 @@ describe('WBHeader', () => {
   describe('openEntry', () => {
     let wbHeader;
 
-    beforeAll(() => {
-      wbHeader = new WBHeader();
-    });
     beforeEach(() => {
-      // setup the current tab structure
-      wbHeader['_tabs'] = _.cloneDeep(mockTabs);
-      wbHeader['_bookmarks'] = _.cloneDeep(mockBookmarks);
+      wbHeader = createWBHeader();
     });
     it('should do nothing if entry already active', async () => {
       await wbHeader.openEntry(mockEntries[0].uuid, { newTab: false });
@@ -237,7 +245,6 @@ describe('WBHeader', () => {
 
     describe('should open in a current tab', () => {
       it('should open entry in the active tab', async () => {
-        debugger;
         await wbHeader.openEntry(mockEntries[1].uuid, { newTab: false });
 
         const result = {
@@ -284,7 +291,43 @@ describe('WBHeader', () => {
   });
 
   describe('_updateRecent', () => {
+    let wbHeader;
 
+    beforeEach(() => {
+      wbHeader = createWBHeader();
+    });
+  
+    it('should add the entry', async () => {
+      userFlags.set = jest.fn();
+      userFlags.get.mockImplementation((key) => {
+        return (key===UserFlagKeys.recentlyViewed ? []: null);
+      });
+
+      await wbHeader['_updateRecent'](mockEntries[0].uuid, mockEntries[0].name);
+      expect(userFlags.set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, [{entryId: mockEntries[0].uuid, name: mockEntries[0].name}]);
+    });
+    it('should drop an entry if full', async () => {
+      userFlags.set = jest.fn();
+      userFlags.get.mockImplementation((key) => {
+        return (key===UserFlagKeys.recentlyViewed ? [
+          { entryId: 'abc', name: 'abc' },
+          { entryId: 'def', name: 'def' },
+          { entryId: 'ghi', name: 'ghi' },
+          { entryId: 'jkl', name: 'jkl' },
+          { entryId: 'mno', name: 'mno' },
+        ]: null);
+      });
+
+      await wbHeader['_updateRecent'](mockEntries[0].uuid, mockEntries[0].name);
+      expect(userFlags.set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, 
+        [
+          {entryId: mockEntries[0].uuid, name: mockEntries[0].name},
+          { entryId: 'abc', name: 'abc' },
+          { entryId: 'def', name: 'def' },
+          { entryId: 'ghi', name: 'ghi' },
+          { entryId: 'jkl', name: 'jkl' },
+        ]);
+    });
   });
   describe('_activateTab', () => {
 
