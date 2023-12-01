@@ -32,5 +32,18 @@ global.randomID = function() {
 
   return retval;
 }
+global.fromUuid = jest.fn(); // need to implement when ready to use it
+Array.prototype.findSplice = function(find, replace) {
+    const idx = this.findIndex(find);
+    if ( idx === -1 ) return null;
+    if ( replace !== undefined ) {
+      this.splice(idx, 1, replace);
+      return replace;
+    } else {
+      const item = this[idx];
+      this.splice(idx, 1);
+      return item;
+    }
+  }
 global.Game = StubGame;
 global.game = new global.Game();

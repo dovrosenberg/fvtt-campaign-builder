@@ -142,7 +142,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       tab = this._activeTab(false);
 
       // if same entry, nothing to do
-      if (tab.entryId === entryId)
+      if (tab.entry.uuid === entryId)
         return tab;
 
       // otherwise, just swap out the active tab info
@@ -158,9 +158,10 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     if (options.activate)
       this._activateTab(tab.id);  //activating the tab should save it
-    else {
-      this._saveTabs();
-    }
+
+
+    // activating doesn't always save (ex. if we added a new entry to active tab)
+    this._saveTabs();
 
     // update the recent list (except for new tabs)
     if (entryId)
