@@ -5,7 +5,7 @@ export type WindowTab = {
   id: string,   // unique id
   text: string,   // label on the 
   active: boolean,   // is this the currently active tab
-  history: string[],    // array of the history of pageIds shown in this tab (for the forward/back arrows) 
+  history: string[],    // array of the history of entryIds shown in this tab (for the forward/back arrows) 
   historyIdx: number,   // index of current history point
   entry: JournalEntry,  // reference to journal entry  -- leaving open possibility of expanding this type in the future
 }
