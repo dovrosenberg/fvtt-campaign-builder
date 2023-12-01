@@ -2,6 +2,76 @@ import { WBHeader } from '@/applications/WorldBuilder/WBHeader';
 import { userFlags, UserFlagKeys } from '@/settings/UserFlags';
 import { moduleSettings } from '@/settings/ModuleSettings';
 import { faker } from '@faker-js/faker';
+import _ from 'lodash';
+
+const mockEntries = [
+  {
+    uuid: faker.string.uuid,
+    name: faker.person.fullName,
+  },
+  {
+    uuid: faker.string.uuid,
+    name: faker.person.fullName,
+  },
+  {
+    uuid: faker.string.uuid,
+    name: faker.person.fullName,
+  },
+];
+const mockTabs = [
+  {
+    id: faker.string.uuid,
+    text: 'fwb.labels.newTab',
+    active: false,
+    entry: null,
+    history: [],
+    historyIdx: -1,
+  },
+  {
+    id: mockEntries[0].uuid,
+    text: mockEntries[0].name,
+    active: true,
+    entry: mockEntries[0],
+    history: [
+      {
+        entryId: mockEntries[0].uuid,
+        name: mockEntries[0].name,
+      }
+    ],
+    historyIdx: 0,
+  },
+  {
+    id: mockEntries[1].uuid,
+    text: mockEntries[1].name,
+    active: false,
+    entry: mockEntries[1],
+    history: [
+      {
+        entryId: mockEntries[0].uuid,
+        name: mockEntries[0].name,
+      },
+      {
+        entryId: mockEntries[1].uuid,
+        name: mockEntries[1].name,
+      }
+    ],
+    historyIdx: 1,
+  },
+]
+const mockBookmarks = [
+  {
+    id: faker.string.uuid,
+    entryId: mockEntries[0].uuid,
+    text: mockEntries[0].name,
+    icon: faker.person.firstName
+  },
+  {
+    id: faker.string.uuid,
+    entryId: mockEntries[1].uuid,
+    text: mockEntries[1].name,
+    icon: faker.person.firstName
+  }
+]
 
 describe('WBHeader', () => {
   beforeEach(() => {
@@ -30,39 +100,6 @@ describe('WBHeader', () => {
     });
 
     it('should load tabs, bookmarks, and collapsed', () => {
-      const mockTabs = [
-        {
-          id: faker.string.uuid(),
-          text: faker.person.firstName,
-          active: true,
-          entry: null,
-          history: [],
-          historyIdx: -1,
-        },
-        {
-          id: faker.string.uuid(),
-          text: faker.person.firstName,
-          active: true,
-          entry: null,
-          history: [],
-          historyIdx: -1,
-        },
-      ]
-      const mockBookmarks = [
-        {
-          id: faker.string.uuid,
-          entryId: faker.string.uuid,
-          text: faker.person.firstName,
-          icon: faker.person.firstName
-        },
-        {
-          id: faker.string.uuid,
-          entryId: faker.string.uuid,
-          text: faker.person.firstName,
-          icon: faker.person.firstName
-        }
-      ]
-
       // pretend they have values
       userFlags.get.mockImplementation((flag) => {
         if (flag===UserFlagKeys.tabs)
@@ -81,11 +118,24 @@ describe('WBHeader', () => {
     });
   });
   describe('openEntry', () => {
-    it.skip('should do nothing if entry already visible', () => {
+    let wbHeader;
+
+    beforeAll(() => {
+      wbHeader = new WBHeader();
+    });
+    beforeEach(() => {
+      // setup the current tab structure
+      wbHeader['_tabs'] = _.cloneDeep(mockTabs);
+      wbHeader['_bookmarks'] = _.cloneDeep(mockBookmarks);
+    });
+    it('should do nothing if entry already visible', () => {
+      wbHeader.openEntry(mockEntries[0].uuid, { newTab: false });
+      expect(wbHeader['_tabs']).toEqual(mockTabs);
     });
 
     it.skip('should open a new tab if option is set', () => {
       // test same case as above, but now should open a tab
+      wbHeader.openEntry(mockEntries[0].uuid, { newTab: true });
     });
 
     it.skip('should update the history', () => {
