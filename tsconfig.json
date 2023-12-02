@@ -4,7 +4,7 @@
 		"target": "es2018",
 		"module": "esnext",
 		"lib": [ "es2015", "es2019", "dom" ],
-		"typeRoots": [ "node_modules/@types", "types", "node" ],
+		"typeRoots": [ "node_modules/@types", "./src/types", "node" ],
 		"moduleResolution": "node",
 		"sourceMap": true,
 		"strict": true,
@@ -31,9 +31,11 @@
 
 		"baseUrl": "./",
 		"paths": {
+			"src/*": ["./src/*"],
 			"@/*": ["./src/*"],
 			"@module": ["./static/module.json"]
 		}
 	},
-  "exclude": [ "node_modules", "dist" ]
+	"include": ["tests/**/*.ts", "src/**/*.ts", "src/**/*.d.ts",], 
+	"exclude": [ "node_modules", "dist" ]
 }

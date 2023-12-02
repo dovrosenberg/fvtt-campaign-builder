@@ -1,5 +1,6 @@
 import { registerForHooks } from '@/hooks';
 
+
 /**
 * Register module in Developer Mode module (https://github.com/League-of-Foundry-Developers/foundryvtt-devMode)
 * No need to spam the console more than it already is, we hide them between a flag.

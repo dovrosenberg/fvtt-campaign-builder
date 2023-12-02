@@ -19,7 +19,7 @@ async function ready(): Promise<void> {
         `<button id='fwb-launch' type="button" class="nav-item flex0" title="${toolTip}"><i class="fas fa-globe"></i></button>`
     );
 
-    jQuery(document).on('click', '#fwb-launch', async (event) => {
+    jQuery(document).on('click', '#fwb-launch', async (event: JQuery.ClickEvent): Promise<void> => {
       if (!worldBuilder) {
         // TODO - what happens if the folder is deleted after this is called?  Do 
         //    we need to continually check or is the user just stupid?  Also, 

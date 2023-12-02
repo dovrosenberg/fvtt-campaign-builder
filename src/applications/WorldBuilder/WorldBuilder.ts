@@ -1,37 +1,9 @@
-/*
-
-        // note that a pack can be a folder, too???
-
-        // a uuid looks like: 
-        Compendium.world.test-actors.JournalEntry.undefined
-        game.packs.find((p)=>(p.getUuid()==='Compendium.world.test-actors.JournalEntry.undefined')).getUuid()
-
-        // 
-        // creating a compendium
-        metadata: {label: "Places", type: "JournalEntry"}
-        const pack = await CompendiumCollection.createCompendium(metadata);
-        if ( targetFolderId ) await pack.setFolder(targetFolderId);
-
-        // deleting
-        pack.deleteCompendium(),
-
-        // getting a folder
-        folder = Folder.get(targetFolderId)
-        folder.id 
-        folder.uuid = 'Folder.XXXX'
-
-        // creating a folder
-        ???
-*/
-
-
 import './WorldBuilder.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { WBHEADER_TEMPLATE, WBHeader } from './WBHeader';
 import { WBFOOTER_TEMPLATE, WBFooter } from './WBFooter';
 import { WBCONTENT_TEMPLATE, WBContent } from './content/WBContent';
 import { DIRECTORY_TEMPLATE, Directory } from './directory/Directory';
-
 import { localize } from '@/utils/game';
 
 
@@ -44,7 +16,7 @@ export class WorldBuilder extends Application {
   private _worldId: string;  // uuid of the current world folder
 
   // state - often tracking state of children
-  private _currentJournalId: string;    // uuid of currently displayed page
+  private _currentJournalId: string | null;    // uuid of currently displayed page
 
   searchresults = [];
   searchpos = 0;
@@ -54,24 +26,17 @@ export class WorldBuilder extends Application {
   constructor(rootFolderId: string, worldId: string, options = {}) {
     super(options);
 
-    this._currentJournalId = 'JournalEntry.56SZqpKQIORkR0iq';
+    this._currentJournalId = null;
 
     this._partials = {
       WBHeader: new WBHeader(),
       WBFooter: new WBFooter(),
-      WBContent: new WBContent(this._currentJournalId),
+      WBContent: new WBContent(null),
       Directory: new Directory(), 
     }
 
     this._rootFolderId = rootFolderId;
     this._worldId = worldId;
-
-    // this._lastentry = null;
-
-    // //load up the last entry being shown
-    // this.object = object;
-    // if (object != undefined)
-    //     this.open(object, options?.newtab, {});
   }
 
   static get defaultOptions() {
@@ -163,9 +128,7 @@ export class WorldBuilder extends Application {
 
     // when new entry is selected in directory
     this._partials.Directory.registerCallback(Directory.CallbackType.DirectoryEntrySelected, 
-        (entryId: string, event: MouseEvent) => { 
-          (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: event.ctrlKey}); 
-        });
+      (entryId: string, event: MouseEvent) => { this._onDirectoryEntrySelected(entryId, event); });
 
     // this._contextMenu(html);
   }
@@ -185,61 +148,13 @@ export class WorldBuilder extends Application {
     //     $(this.element).removeAttr("sidebar-image");
     // }
 
-    // if (this.element.length) {
-    //   this.renderDirectory().then((html) => {
-    //     //MonksEnhancedJournal.updateDirectory(html, false);
-    //   })
-
-    //   this.renderSubSheet(force, options); 
-    // }
-
-    return retval;
+        return retval;
   }
 
-    // why not make this a partial?
-  async renderDirectory() {
-    // const cfg = CONFIG["JournalEntry"];
-    // const cls = cfg.documentClass;
-    // let template = "modules/monks-enhanced-journal/templates/directory.html";
-    // let data = {
-    //     tree: ui.journal.collection.tree,
-    //     entryPartial: ui.journal.constructor.entryPartial,
-    //     folderPartial: ui.journal.constructor.folderPartial,
-    //     canCreateEntry: ui.journal.canCreateEntry,
-    //     canCreateFolder: ui.journal.canCreateFolder,
-    //     sortIcon: ui.journal.collection.sortingMode === "a" ? "fa-arrow-down-a-z" : "fa-arrow-down-short-wide",
-    //     sortTooltip: ui.journal.collection.sortingMode === "a" ? "SIDEBAR.SortModeAlpha" : "SIDEBAR.SortModeManual",
-    //     searchIcon: ui.journal.collection.searchMode === CONST.DIRECTORY_SEARCH_MODES.NAME ? "fa-search" : "fa-file-magnifying-glass",
-    //     searchTooltip: ui.journal.collection.searchMode === CONST.DIRECTORY_SEARCH_MODES.NAME ? "SIDEBAR.SearchModeName" : "SIDEBAR.SearchModeFull",
-    //     documentCls: cls.documentName.toLowerCase(),
-    //     tabName: cls.metadata.collection,
-    //     sidebarIcon: cfg.sidebarIcon,
-    //     folderIcon: "fas fa-folder",
-    //     user: game.user,
-    //     label: i18n("MonksEnhancedJournal.Entry"),
-    //     labelPlural: i18n(cls.metadata.labelPlural),
-    //     unavailable: game.user.isGM ? cfg.collection?.instance?.invalidDocumentIds?.size : 0
-    // };
-
-    // let html = await renderTemplate(template, data);
-    // html = $(html);
-
-    // $('#fwb-directory-sidebar', this.element).empty().append(html);
-
-    // folder = game.journal.directory.folders.find(f => (f.name == '_simple_calendar_notes_directory' && f.parent == null));
-    // if (folder) {
-    //     let elem = html.find(`.folder[data-folder-id="${folder.id}"]`);
-    //     elem.remove();
-    // }
-
-    // this.activateDirectoryListeners(html);
-
-    // this._restoreScrollPositions(html);
-
-    // return html;
+  private _onDirectoryEntrySelected(entryId: string, event: MouseEvent): void { 
+     (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: event.ctrlKey}); 
   }
 
-  
   /*
   _saveScrollPositions(html) {
     super._saveScrollPositions(html);
