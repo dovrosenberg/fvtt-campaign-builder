@@ -15,7 +15,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   private _entryType: TopicTypes | null;
   static override _template = 'modules/world-builder/templates/WBContent.hbs';
 
-  constructor(entryId: string, options={}) {
+  constructor(entryId?: string | null, options={}) {
     super();
 
     // we need to setup the type before calling the constructor

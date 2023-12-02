@@ -33,7 +33,7 @@
     }
   ],
 
-  "url": "https://github.com/dovrosenberg/fvt-world-builder",
+  "url": "https://github.com/dovrosenberg/fvtt-world-builder",
   "manifest": "https://github.com/dovrosenberg/fvtt-world-builder/releases/latest/download/module.json",
   "download": "#{DOWNLOAD}#",
   "## version": "will be added when we build",

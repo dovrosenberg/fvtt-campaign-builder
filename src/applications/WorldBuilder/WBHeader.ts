@@ -15,7 +15,7 @@ type WBHeaderData = {
 }
 
 export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
-  private _tabs = [] as WindowTab[];  
+  private _tabs: WindowTab[];  
   private _collapsed: boolean;
   private _bookmarks = [] as Bookmark[];
   static override _template = 'modules/world-builder/templates/WBHeader.hbs';
@@ -29,7 +29,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     this._bookmarks = userFlags.get(UserFlagKeys.bookmarks) || [];
 
     // get collapsed state
-    this._collapsed = moduleSettings.get(SettingKeys.startCollapsed);
+    this._collapsed = moduleSettings.get(SettingKeys.startCollapsed) || false;
 
     // if there are no tabs, add one
     if (!this._tabs.length)
@@ -82,7 +82,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     });
 
     // set up the drag & drop for tabs and bookmarks
-    this._dragDrop = new DragDrop({
+    let dragDrop = new DragDrop({
       dragSelector: '.fwb-tab', 
       dropSelector: '.fwb-tab',
       callbacks : {
@@ -90,8 +90,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
         'drop': this._onDrop.bind(this),
       }
     })
-    this._dragDrop.bind(html.get()[0]);
-    this._dragDrop = new DragDrop({
+    dragDrop.bind(html.get()[0]);
+    dragDrop = new DragDrop({
       dragSelector: '.fwb-bookmark-button', 
       dropSelector: '.fwb-bookmark-button',
       callbacks : {
@@ -99,7 +99,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
         'drop': this._onDrop.bind(this),
       }
     })
-    this._dragDrop.bind(html.get()[0]);
+    dragDrop.bind(html.get()[0]);
 
   }
 
@@ -122,13 +122,14 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     };
 
     let entry = entryId ? await fromUuid(entryId) as JournalEntry : null;
+    let entryName = !!entry ? entry.name : localize('fwb.labels.newTab');
 
     // see if we need a new tab
     let tab;
     if (options.newTab || !this._activeTab(false)) {
       tab = {
         id: randomID(),
-        text: !!entry ? entry.name : localize('fwb.labels.newTab'),
+        text: entryName,
         active: false,
         entry: entry,
         history: [],
@@ -145,7 +146,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
         return tab;
 
       // otherwise, just swap out the active tab info
-      tab.text = !!entry ? entry.name : localize('fwb.labels.newTab');
+      tab.text = entryName;
       tab.entry = entry;
     }
     
@@ -157,9 +158,10 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     if (options.activate)
       this._activateTab(tab.id);  //activating the tab should save it
-    else {
-      this._saveTabs();
-    }
+
+
+    // activating doesn't always save (ex. if we added a new entry to active tab)
+    this._saveTabs();
 
     // update the recent list (except for new tabs)
     if (entryId)
