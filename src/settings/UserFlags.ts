@@ -1,6 +1,6 @@
 import { getGame } from '@/utils/game';
 import moduleJson from '@module';
-import { Bookmark, RecentItem, WindowTab } from 'src/types';
+import { Bookmark, RecentItem, WindowTab } from '@/types';
 
 export enum UserFlagKeys {
   tabs = 'tabs',  // the open tabs

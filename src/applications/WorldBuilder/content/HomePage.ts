@@ -1,17 +1,17 @@
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import './HomePage.scss';
 
-export const HOMEPAGE_TEMPLATE = 'modules/world-builder/templates/HomePage.hbs';
-
 type HomePageData = {
 }
 
 export class HomePage extends HandlebarsPartial<HomePage.CallbackType>  {
+  static override _template = 'modules/world-builder/templates/HomePage.hbs';
+
   constructor() {
     super();
   }
 
-  public async getData(): Promise<HomePageData> {
+    public async getData(): Promise<HomePageData> {
     const data = {
       // NEED TO PASS DOWN THE RECENT LIST FROM THE PARENT???
 

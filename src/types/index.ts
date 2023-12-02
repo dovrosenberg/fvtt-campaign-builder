@@ -21,3 +21,16 @@ export type RecentItem = {
   entryId: string,   // uuid of the entry page
   name: string,   // name of page to show 
 }
+
+export enum TopicTypes {
+  Event,
+  Character,
+  Location,
+  Organization,
+  //Note - maybe the ability to just handle normal journal notes?
+}
+
+// flags that might apply to any topic
+export enum TopicFlags {
+  type = 'type',
+}

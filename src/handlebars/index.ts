@@ -1,20 +1,22 @@
-import { WBCONTENT_TEMPLATE } from '@/applications/WorldBuilder/content/WBContent';
-import { HOMEPAGE_TEMPLATE } from '@/applications/WorldBuilder/content/HomePage';
-import { DIRECTORY_TEMPLATE } from '@/applications/WorldBuilder/directory/Directory';
-import { WBHEADER_TEMPLATE } from '@/applications/WorldBuilder/WBHeader';
-import { WBFOOTER_TEMPLATE } from '@/applications/WorldBuilder/WBFooter';
+import { WBHeader } from '@/applications/WorldBuilder/WBHeader';
+import { WBFooter } from '@/applications/WorldBuilder/WBFooter';
+import { HomePage } from '@/applications/WorldBuilder/content/HomePage';
+import { TopicSheet } from '@/applications/WorldBuilder/content/TopicSheet';
+import { WBContent } from '@/applications/WorldBuilder/content/WBContent';
+import { Directory } from '@/applications/WorldBuilder/directory/Directory';
 
 export function registerHelpers() {
   // register templates parts
   const templatePaths = [
     // main window
-    WBHEADER_TEMPLATE,
-    WBFOOTER_TEMPLATE,
-    WBCONTENT_TEMPLATE,
-    DIRECTORY_TEMPLATE,
+    WBHeader.template,
+    WBFooter.template,
+    WBContent.template,
+    Directory.template,
 
     // content
-    HOMEPAGE_TEMPLATE
+    HomePage.template,
+    TopicSheet.template,
   ];
 
   // @ts-ignore

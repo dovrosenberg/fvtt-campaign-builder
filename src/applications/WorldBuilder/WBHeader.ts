@@ -6,8 +6,6 @@ import { UserFlagKeys, userFlags } from '@/settings/UserFlags';
 import { Bookmark, RecentItem, WindowTab } from '@/types';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 
-export const WBHEADER_TEMPLATE = 'modules/world-builder/templates/WBHeader.hbs';
-
 type WBHeaderData = {
   tabs: WindowTab[];
   collapsed: boolean;
@@ -19,7 +17,9 @@ type WBHeaderData = {
 export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   private _tabs: WindowTab[];  
   private _collapsed: boolean;
-  private _bookmarks: Bookmark[];
+  private _bookmarks = [] as Bookmark[];
+  static override _template = 'modules/world-builder/templates/WBHeader.hbs';
+  private _dragDrop: DragDrop;
 
   constructor() {
     super();
@@ -142,7 +142,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       tab = this._activeTab(false);
 
       // if same entry, nothing to do
-      if (tab.entry.uuid === entryId)
+      if (tab.entry?.uuid === entryId)
         return tab;
 
       // otherwise, just swap out the active tab info
@@ -386,7 +386,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     let bookmark = this._bookmarks.find(b => b.id === bookmarkId);
 
     if (bookmark) {
-      this.openEntry(bookmark?.entryId);
+      this.openEntry(bookmark?.entryId, { newTab: false });
     }
   }
 
@@ -455,23 +455,25 @@ async getHistory() {
     const target = event.currentTarget as HTMLElement;
 
     if ($(target).hasClass('fwb-tab')) {
-      const dragData = {} as Record<string, any>;
+      const dragData = { 
+        //from: this.object.uuid 
+      } as { type: string, tabId?: string};
 
       let tabId = target.dataset.tabId;
-      let tab = this._tabs.find(t => t.id == tabId);
-      dragData.type = "fwb-tab";   // JournalEntry... may want to consider passing a type that other things can do something with
+      dragData.type = 'fwb-tab';   // JournalEntry... may want to consider passing a type that other things can do something with
       dragData.tabId = tabId;
 
-      event.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
+      event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
     } else if ($(target).hasClass('fwb-bookmark-button')) {
-      const dragData = {} as Record<string, any>;
+      const dragData = { 
+        //from: this.object.uuid 
+      } as { type: string, bookmarkId?: string};;
 
       let bookmarkId = target.dataset.bookmarkId;
-      let bookmark = this._bookmarks.find(b => b.id == bookmarkId);
-      dragData.type = "fwb-bookmark";
+      dragData.type = 'fwb-bookmark';
       dragData.bookmarkId = bookmarkId;
 
-      event.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
+      event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
     } 
   }
 

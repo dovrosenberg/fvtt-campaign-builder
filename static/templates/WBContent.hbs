@@ -1,13 +1,8 @@
 {{! Requires:l
 	WBContentData: {
-	  showHomePage: boolean;   // should we show the home page (vs. regular content)
-		homePageData: HomePageData
-	  HomePage: function that returns the template name
 	}
 }}
 
 <section class="sheet journal-sheet journal-entry-page fwb-journal-sheet">
-	{{#if showHomePage}}
-		{{> (HomePage) homePageData }}
-	{{/if}}
+	{{> (sheetTemplate) sheetData }}
 </section>

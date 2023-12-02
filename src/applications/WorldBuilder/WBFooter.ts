@@ -1,12 +1,12 @@
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import './WBFooter.scss';
 
-export const WBFOOTER_TEMPLATE = 'modules/world-builder/templates/WBFooter.hbs';
-
 type WBFooterData = {
 }
 
 export class WBFooter extends HandlebarsPartial<WBFooter.CallbackType>  {
+  static override _template = 'modules/world-builder/templates/WBFooter.hbs';
+
   constructor() {
     super();
   }
