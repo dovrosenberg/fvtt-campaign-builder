@@ -1,42 +1,67 @@
 import './WBContent.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
-import { HOMEPAGE_TEMPLATE, HomePage, } from './HomePage';
+import { HomePage, } from './HomePage';
 import { getGame } from '@/utils/game';
-
-export const WBCONTENT_TEMPLATE = 'modules/world-builder/templates/WBContent.hbs';
-
+import { PersonSheet } from './PersonSheet';
+import { TopicFlags, TopicTypes } from '@/types';
+import { MODULE_ID } from '@/utils/module';
 
 type WBContentData = {
-  showHomePage: boolean;   // should we show the home page (vs. regular content)
-  HomePage: () => string,
+  sheetTemplate: () => string,
 }
 
 export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   private _entryId: string | null;    // the entryId to show (will show homepage if null)
+  private _entryType: TopicTypes | null;
+  static override _template = 'modules/world-builder/templates/WBContent.hbs';
 
   constructor(entryId: string, options={}) {
     super();
-    
+
+    // we need to setup the type before calling the constructor
     // look up the entry - note could use fromUuid, but it's a bit tricky for compendia and also async
-    this._entryId = entryId;
-    const journal = getGame().journal?.find((j) => (j.uuid===entryId));
-    if (!journal) {
-      // show the homepage
+    if (!entryId) {
+      // just show the homepage
       this._entryId = null;
+      this._entryType = null;
+    } else {
+      const entry = getGame().journal?.find((j) => (j.uuid===entryId));
+      const entryType = entry?.getFlag(MODULE_ID, TopicFlags.type);
+
+      if (!entryType) {
+        // show the homepage
+        this._entryId = null;
+        this._entryType = null;
+      } else {
+        // we're going to show a content page
+        this._entryId = entryId;
+      }
     }
   }
 
+  // we will dynamically setup the partials
   protected _createPartials(): void {
-    // we only need HomePage if there's no entry
-    if (!this._entryId)
-      this._partials.HomePage = new HomePage();
+    this._partials.HomePage = new HomePage();
+    this._partials.TopicSheet = new PersonSheet();
+
   }
 
   public async getData(): Promise<WBContentData> {
+    let sheetData;
+
+    if (!this._entryId)
+      sheetData = await this._partials.HomePage.getData();
+    else
+      sheetData = await this._partials.PersonSheet.getData();
+
     const data = {
-      showHomePage: (!this._entryId),
-      HomePage: () => HOMEPAGE_TEMPLATE,
-      HomePageData: (!this._entryId ? await this._partials.HomePage.getData() : {}),
+      sheetTemplate: () => {
+        if (!this._entryId)
+          return HomePage.template;
+        else
+          return PersonSheet.template;
+      },
+      sheetData: sheetData,
     };
 
     // log(false, data);

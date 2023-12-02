@@ -8,6 +8,9 @@
 export abstract class HandlebarsPartial<CallbackType extends string | number> {
   protected _partials = {} as Record<string, HandlebarsPartial<any>>;
   protected _callbacks = {} as Record<CallbackType, (...args: any[]) => void>;
+  protected static _template = 'NEED TO PROVIDE VALUE FOR _template';
+
+  public static get template() { return this._template };
 
   constructor() {
     this._createPartials();

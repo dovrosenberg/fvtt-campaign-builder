@@ -27,11 +27,10 @@
 
 import './WorldBuilder.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
-import { WBHEADER_TEMPLATE, WBHeader } from './WBHeader';
-import { WBFOOTER_TEMPLATE, WBFooter } from './WBFooter';
-import { WBCONTENT_TEMPLATE, WBContent } from './content/WBContent';
-import { DIRECTORY_TEMPLATE, Directory } from './directory/Directory';
-
+import { WBHeader } from './WBHeader';
+import { WBFooter } from './WBFooter';
+import { WBContent } from './content/WBContent';
+import { Directory } from './directory/Directory';
 import { localize } from '@/utils/game';
 
 
@@ -130,13 +129,13 @@ export class WorldBuilder extends Application {
     const data = {
       ...(await super.getData(options)),
       collapsed: (this._partials.WBHeader as unknown as WBHeader).collapsed,
-      WBHeader: () => WBHEADER_TEMPLATE,
+      WBHeader: () => WBHeader.template,
       WBHeaderData: await this._partials.WBHeader.getData(),
-      WBContent: () => WBCONTENT_TEMPLATE,
+      WBContent: () => WBContent.template,
       WBFooterData: await this._partials.WBFooter.getData(),
-      WBFooter: () => WBFOOTER_TEMPLATE,
+      WBFooter: () => WBFooter.template,
       WBContentData: await this._partials.WBContent.getData(),
-      Directory: () => DIRECTORY_TEMPLATE,
+      Directory: () => Directory.template,
       DirectoryData: await this._partials.Directory.getData(),
       // user: game.user,
     };

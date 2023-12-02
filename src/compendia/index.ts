@@ -37,6 +37,7 @@ export async function createRootFolder(name?: string): Promise<Folder> {
   
   const folders = await Folder.createDocuments([{
     name,
+    // @ts-ignore
     type: 'Compendium',
     sorting: 'a',
   }]);
@@ -59,6 +60,7 @@ export async function createWorldFolder(rootFolderId: string, name: string, make
   
   const folders = await Folder.createDocuments([{
     name,
+    // @ts-ignore
     type: 'Compendium',
     folder: rootFolder.id,
     sorting: 'a',
