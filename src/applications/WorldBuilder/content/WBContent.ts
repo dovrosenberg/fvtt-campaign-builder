@@ -37,7 +37,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   // we will dynamically setup the partials
   protected _createPartials(): void {
     this._partials.HomePage = new HomePage();
-    this._partials.TypeTypeAhead = new TypeAhead();
+    this._partials.TypeTypeAhead = new TypeAhead(['PC', 'NPC', 'Shopkeeper', 'king']);
   }
 
   public updateEntry(entryId: string | null) {
@@ -49,7 +49,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._entryType = null;
     } else {
       const entry = getGame().journal?.find((j) => (j.uuid===entryId));
-      const entryType = entry?.getFlag(MODULE_ID, TopicFlags.type) as TopicTypes;
+      const entryType = entry?.getFlag(MODULE_ID, TopicFlags.topicType) as TopicTypes;
 
       if (!entry || entryType===null) {
         // show the homepage
@@ -96,7 +96,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         showHierarchy: [TopicTypes.Location, TopicTypes.Organization].includes(this._entryType),
         relationships: relationships,
         typeAheadTemplate: () => TypeAhead.template,
-        typeAheadData: {}
+        typeAheadData: await this._partials.TypeTypeAhead.getData(),
       };
     }
 
@@ -111,6 +111,14 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     else {
       this._partials.TypeTypeAhead.activateListeners(html);
     }
+
+    this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.ItemAdded, (added)=> {
+      alert('need to update the type settings');
+      this._entry.setFlag(MODULE_ID, TopicFlags.type, added);
+    });
+    this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.SelectionMade, (selection)=> { 
+      this._entry.setFlag(MODULE_ID, TopicFlags.type, selection);
+    });
   }
 
 

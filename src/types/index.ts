@@ -27,5 +27,6 @@ export enum TopicTypes {
 
 // flags that might apply to any topic
 export enum TopicFlags {
-  type = 'type',
+  topicType = 'topicType',
+  type = 'type',  // note that this is the type field not the topic type
 }

@@ -1,3 +1,4 @@
+import './TypeAhead.css';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 
 export type TypeAheadData = {
@@ -5,17 +6,27 @@ export type TypeAheadData = {
 
 export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
   static override _template = 'modules/world-builder/templates/TypeAhead.hbs';
+  private _id: string;
+  private _list = [] as string[];
+  private _idx: number;
 
-  constructor() {
+  constructor(list: string[]) {
     super();
+
+    this._list = list;
+
+    // we create a random ID so we can use multiple instances
+    this._id = 'fwb-ta-' + randomID();
   }
 
   protected _createPartials(): void {
     // no subcomponents
   }
 
+  // takes the current value
   public async getData(): Promise<TypeAheadData> {
     const data = {
+      componentId: this._id,
     };
   
     // log(false, data);
@@ -23,33 +34,38 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
   }
 
   public activateListeners(html: JQuery) {
-    // Sample data for the typeahead
-    var data = ['Apple', 'Banana', 'Cherry', 'Date', 'Grape', 'Lemon'];
+    // find the overall control
+    let control = html.find(`#${this._id}.fwb-typeahead`);
 
     // Get input and dropdown elements
-    var input = document.getElementById('typeaheadInput');
-    var dropdown = document.getElementById('typeaheadDropdown');
+    var input = control.find('#fwb-ta-input');
+    var dropdown = control.find('#fwb-ta-dropdown');
 
     // Event listener for input changes
-    input.addEventListener('input', function () {
-      var inputValue = input.value.toLowerCase();
-      var filteredItems = data.filter(function (item) {
-        return item.toLowerCase().includes(inputValue);
-      });
-
+    input.on('input',  () => {
+      var inputValue = input.val()?.toString().toLowerCase() || '';
+      var filteredItems = this._list.filter((item)=>item.toLowerCase().includes(inputValue));
+ 
       // Render the filtered items - we're not using handlebars because it's overly complicated to pass up a re-render request
       let items = '';
-      for (let i=0; i< filteredItems.length; i++) {
-        items += `<div class="typeahead-item">${filteredItems[i]}</div>`
+      this._idx = 0;
+      for (let i=0; i<filteredItems.length && i<3; i++) {   // max of 3 items at a time
+        items += `<div class="typeahead-entry ${i===this._idx ? 'highlighted' : ''}">${filteredItems[i]}</div>`
+        // TODO - highlighted and handle arrows to move it
       }
-      dropdown.innerHTML = items;      
+      dropdown.html(items);   
     });
 
+    // TODO - need a blur for leaving whole component that records either a selection or an 
+    // TODO - need to style so the div overlaps what's nearby
+
     // Event listener for item clicks
-    dropdown.addEventListener('click', function (event) {
-      if (event.target.classList.contains('typeahead-item')) {
-        input.value = event.target.textContent;
-        dropdown.innerHTML = ''; // Clear the dropdown
+    dropdown.on('click', (event: JQuery.ClickEvent) => {
+      if (event.target.classList.contains('typeahead-entry')) {
+        const selection = event.target.textContent; 
+        input.val(selection);
+        dropdown.html(''); // Clear the dropdown
+        this._makeCallback(TypeAhead.CallbackType.SelectionMade, selection);
       }
     });
   }

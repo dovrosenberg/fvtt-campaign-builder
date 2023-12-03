@@ -1,0 +1,30 @@
+.fwb-typeahead {
+  position: relative;
+  overflow-y: visible;
+  z-index: 1000;
+
+  .fwb-ta-dropdown {
+    position: absolute;
+    margin: 2px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 5px #555555;
+    border-radius: 5px;
+    width: 100%;
+    
+    .typeahead-entry {
+      background: #99999922;
+      padding: 1px 3px;
+      margin: 1px 0;
+      font-size: 1rem;
+      font-weight: normal;
+      font-family: Signika, sans-serif;
+
+      &.highlighted {
+        background: #55559922;
+      }
+    }
+  }
+}
+

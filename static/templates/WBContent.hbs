@@ -27,9 +27,8 @@
 										</h1>
 										<div class="form-group">
 												<label>{{localize 'fwb.labels.fields.type'}}</label>
-												<input type="text" name="flags.fwb.type" value="{{entry.flags.fwb.type}}" />
+												{{> (typeAheadTemplate) data=typeAheadData name=(constant "flags.fwb.type") value=entry.flags.world-builder.type }}
 										</div>
-										{{> (typeAheadTemplate) typeAheadData }}
 
 										{{#if showHierarchy}}
 											Hierarchy

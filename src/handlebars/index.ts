@@ -6,6 +6,9 @@ import { Directory } from '@/applications/WorldBuilder/directory/Directory';
 import { TypeAhead } from '@/components/typeahead';
 
 export function registerHelpers() {
+  // create a "constant" helper for passing constants
+  Handlebars.registerHelper({ constant: (v: string | number)=> (v) });
+
   // register templates parts
   const templatePaths = [
     // main window
