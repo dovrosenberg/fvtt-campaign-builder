@@ -156,7 +156,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     }
 
     if (options.activate)
-      this._activateTab(tab.id);  //activating the tab should save it
+      this._activateTab(tab.id);  
 
 
     // activating doesn't always save (ex. if we added a new entry to active tab)

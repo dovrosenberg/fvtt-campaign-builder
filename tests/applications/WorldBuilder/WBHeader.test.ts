@@ -3,6 +3,7 @@ import { userFlags, UserFlagKeys } from '@/settings/UserFlags';
 import { moduleSettings } from '@/settings/ModuleSettings';
 import { faker } from '@faker-js/faker';
 import _ from 'lodash';
+import { Bookmark, WindowTab } from 'src/types';
 
 const mockEntries = [
   {
@@ -21,15 +22,13 @@ const mockEntries = [
 const mockTabs = [
   {
     id: faker.string.uuid(),
-    text: 'fwb.labels.newTab',
     active: false,
-    entry: null,
+    entry: { uuid: null, name: 'New Tab' },
     history: [],
     historyIdx: -1,
   },
   {
     id: faker.string.uuid(),
-    text: mockEntries[0].name,
     active: true,
     entry: mockEntries[0],
     history: [mockEntries[0].uuid],
@@ -37,27 +36,24 @@ const mockTabs = [
   },
   {
     id: faker.string.uuid(),
-    text: mockEntries[1].name,
     active: false,
     entry: mockEntries[1],
     history: [mockEntries[0].uuid, mockEntries[1].uuid],
     historyIdx: 1,
   },
-]
+] as WindowTab[];
 const mockBookmarks = [
   {
     id: faker.string.uuid(),
-    entryId: mockEntries[0].uuid,
-    text: mockEntries[0].name,
+    entry: mockEntries[0],
     icon: faker.person.firstName()
   },
   {
     id: faker.string.uuid(),
-    entryId: mockEntries[1].uuid,
-    text: mockEntries[1].name,
+    entry: mockEntries[1],
     icon: faker.person.firstName()
   }
-]
+] as Bookmark[];
 
 const createWBHeader = (): WBHeader => {
   const retval = new WBHeader();
@@ -96,9 +92,8 @@ describe('WBHeader', () => {
       expect(wbHeader['_tabs'].length).toEqual(1);
       expect(wbHeader['_tabs'][0]).toEqual({
         id: wbHeader['_tabs'][0].id,
-        text: 'fwb.labels.newTab',
         active: true,
-        entry: null,
+        entry: { uuid: null, name: 'fwb.labels.newTab' },
         history: [],
         historyIdx: -1,
       });
@@ -139,9 +134,8 @@ describe('WBHeader', () => {
         await wbHeader.openEntry(null);
 
         const result = {
-          text: 'fwb.labels.newTab',
           active: true,
-          entry: null,
+          entry: { uuid: null, name: 'fwb.labels.newTab' },
           history: [],
           historyIdx: -1,
         };
@@ -193,7 +187,6 @@ describe('WBHeader', () => {
         await wbHeader.openEntry(mockEntries[0].uuid, { newTab: true });
 
         const result = {
-          text: mockEntries[0].name,
           active: true,
           entry: mockEntries[0],
           history: [mockEntries[0].uuid],
@@ -227,7 +220,7 @@ describe('WBHeader', () => {
         userFlags.get.mockImplementation((key, value) =>[]);
         await wbHeader.openEntry(mockEntries[0].uuid, { newTab: true });
 
-        expect(set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, [{entryId: mockEntries[0].uuid, name: mockEntries[0].name}]);
+        expect(set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, [mockEntries[0]]);
       });
   
       it('should make callbacks to parent', async () => {
@@ -249,7 +242,6 @@ describe('WBHeader', () => {
 
         const result = {
           id: mockTabs[1].id,
-          text: mockEntries[1].name,
           active: true,
           entry: mockEntries[1],
           history: [mockEntries[0].uuid, mockEntries[1].uuid],
@@ -272,7 +264,7 @@ describe('WBHeader', () => {
         userFlags.get.mockImplementation((key, value) =>[]);
         await wbHeader.openEntry(mockEntries[1].uuid, { newTab: false });
 
-        expect(set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, [{entryId: mockEntries[1].uuid, name: mockEntries[1].name}]);
+        expect(set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, [mockEntries[1]]);
       });
   
       it('should make callbacks to parent', async () => {
@@ -310,22 +302,22 @@ describe('WBHeader', () => {
       userFlags.set = jest.fn();
       userFlags.get.mockImplementation((key) => {
         return (key===UserFlagKeys.recentlyViewed ? [
-          { entryId: 'abc', name: 'abc' },
-          { entryId: 'def', name: 'def' },
-          { entryId: 'ghi', name: 'ghi' },
-          { entryId: 'jkl', name: 'jkl' },
-          { entryId: 'mno', name: 'mno' },
+          { uuid: 'abc', name: 'abc' },
+          { uuid: 'def', name: 'def' },
+          { uuid: 'ghi', name: 'ghi' },
+          { uuid: 'jkl', name: 'jkl' },
+          { uuid: 'mno', name: 'mno' },
         ]: null);
       });
 
       await wbHeader['_updateRecent'](mockEntries[0]);
       expect(userFlags.set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, 
         [
-          {entryId: mockEntries[0].uuid, name: mockEntries[0].name},
-          { entryId: 'abc', name: 'abc' },
-          { entryId: 'def', name: 'def' },
-          { entryId: 'ghi', name: 'ghi' },
-          { entryId: 'jkl', name: 'jkl' },
+          mockEntries[0],
+          { uuid: 'abc', name: 'abc' },
+          { uuid: 'def', name: 'def' },
+          { uuid: 'ghi', name: 'ghi' },
+          { uuid: 'jkl', name: 'jkl' },
         ]);
     });
   });
