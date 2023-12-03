@@ -11,8 +11,8 @@
   <div class="fwb-tab-bar flexrow">
     <div class="fwb-tab-row flexrow">
       {{#each tabs}}
-        <div class="fwb-tab flexrow {{#if active}}active{{/if}}" title="{{text}}" data-tab-id="{{id}}">
-          <div class="tab-content">{{text}}</div>
+        <div class="fwb-tab flexrow {{#if active}}active{{/if}}" title="{{entry.name}}" data-tab-id="{{id}}">
+          <div class="tab-content">{{entry.name}}</div>
           <div class="close"><i class="fas fa-times"></i></div>
         </div>
       {{/each}}
@@ -29,7 +29,7 @@
     <div id="fwb-add-bookmark" title="{{localize 'fwb.tooltips.addBookmark'}}"><i class="fas fa-star"></i></div>
 
     {{#each bookmarks}}
-      <div class="fwb-bookmark-button" title="{{text}}" data-bookmark-id="{{id}}"><div><i class="fas {{icon}}"></i> {{text}}</div></div>
+      <div class="fwb-bookmark-button" title="{{entry.name}}" data-bookmark-id="{{id}}"><div><i class="fas {{icon}}"></i> {{entry.name}}</div></div>
     {{/each}}
   </div>
 

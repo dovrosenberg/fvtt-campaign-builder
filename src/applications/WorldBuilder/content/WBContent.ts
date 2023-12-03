@@ -1,23 +1,46 @@
 import './WBContent.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
-import { HomePage, } from './HomePage';
+import { HomePage, HomePageData} from './HomePage';
 import { getGame } from '@/utils/game';
-import { PersonSheet } from './PersonSheet';
 import { TopicFlags, TopicTypes } from '@/types';
-import { MODULE_ID } from '@/utils/module';
+import { MODULE_ID, getIcon } from '@/utils/misc';
+import { TypeAhead, TypeAheadData } from '@/components/typeahead';
 
-type WBContentData = {
-  sheetTemplate: () => string,
+export type WBContentData = {
+  showHomePage: true,
+  homePageTemplate: () => string,
+  homePageData: HomePageData
+} |
+{
+  showHomePage: false,
+  entry: JournalEntry,
+  entryType: TopicTypes,
+  icon: string,
+  showHierarchy: boolean,
+  relationships: { tab: string, label: string }[],
+  typeAheadTemplate: () => string,
+  typeAheadData: TypeAheadData,
 }
 
 export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   private _entryId: string | null;    // the entryId to show (will show homepage if null)
+  private _entry: JournalEntry;
   private _entryType: TopicTypes | null;
   static override _template = 'modules/world-builder/templates/WBContent.hbs';
 
-  constructor(entryId?: string | null, options={}) {
+  constructor(entryId = null as string | null, options={}) {
     super();
 
+    this.updateEntry(entryId);
+  }
+
+  // we will dynamically setup the partials
+  protected _createPartials(): void {
+    this._partials.HomePage = new HomePage();
+    this._partials.TypeTypeAhead = new TypeAhead();
+  }
+
+  public updateEntry(entryId: string | null) {
     // we need to setup the type before calling the constructor
     // look up the entry - note could use fromUuid, but it's a bit tricky for compendia and also async
     if (!entryId) {
@@ -26,53 +49,68 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._entryType = null;
     } else {
       const entry = getGame().journal?.find((j) => (j.uuid===entryId));
-      const entryType = entry?.getFlag(MODULE_ID, TopicFlags.type);
+      const entryType = entry?.getFlag(MODULE_ID, TopicFlags.type) as TopicTypes;
 
-      if (!entryType) {
+      if (!entry || entryType===null) {
         // show the homepage
         this._entryId = null;
         this._entryType = null;
       } else {
         // we're going to show a content page
         this._entryId = entryId;
+        this._entry = entry;
+        this._entryType = entryType;
       }
     }
-  }
-
-  // we will dynamically setup the partials
-  protected _createPartials(): void {
-    this._partials.HomePage = new HomePage();
-    this._partials.TopicSheet = new PersonSheet();
-
   }
 
   public async getData(): Promise<WBContentData> {
     let sheetData;
 
-    if (!this._entryId)
-      sheetData = await this._partials.HomePage.getData();
-    else
-      sheetData = await this._partials.PersonSheet.getData();
+    let data: WBContentData;
 
-    const data = {
-      sheetTemplate: () => {
-        if (!this._entryId)
-          return HomePage.template;
-        else
-          return PersonSheet.template;
-      },
-      sheetData: sheetData,
-    };
+    const relationships = [
+      { tab: "characters", label: "fwb.labels.tabs.characters"},
+      { tab: "locations", label: "fwb.labels.tabs.locations"},
+      { tab: "organizations", label: "fwb.labels.tabs.organizations"},
+      { tab: "events", label: "fwb.labels.tabs.events"},
+    ] as { tab: string, label: string }[];
+
+
+    if (!this._entryId) {
+      // homepage
+      data = {
+        showHomePage: true,
+        homePageTemplate: () => HomePage.template,
+        homePageData: await this._partials.HomePage.getData(),
+      }
+    } else if (!this._entryType) {
+      throw new Error('Invalid entry type in WBContent.getData()');
+    } else {
+      // normal content
+      data = {
+        showHomePage: false,
+        entry: this._entry,
+        entryType: this._entryType,
+        icon: getIcon(this._entryType),
+        showHierarchy: [TopicTypes.Location, TopicTypes.Organization].includes(this._entryType),
+        relationships: relationships,
+        typeAheadTemplate: () => TypeAhead.template,
+        typeAheadData: {}
+      };
+    }
 
     // log(false, data);
     return data;
   }
 
   public activateListeners(html: JQuery) {  
-  }
-
-  public set entryId(entryId: string) {
-    this._entryId = entryId;
+    // handle partials
+    if (!this._entryId)
+      this._partials.HomePage.activateListeners(html);
+    else {
+      this._partials.TypeTypeAhead.activateListeners(html);
+    }
   }
 
 

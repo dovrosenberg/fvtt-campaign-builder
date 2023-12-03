@@ -1,6 +1,6 @@
 import { getGame } from '@/utils/game';
 import moduleJson from '@module';
-import { Bookmark, RecentItem, WindowTab } from '@/types';
+import { Bookmark, EntryHeader, WindowTab } from '@/types';
 
 export enum UserFlagKeys {
   tabs = 'tabs',  // the open tabs
@@ -11,7 +11,7 @@ export enum UserFlagKeys {
 type UserFlagType<K extends UserFlagKeys> =
     K extends UserFlagKeys.tabs ? WindowTab[] :
     K extends UserFlagKeys.bookmarks ? Bookmark[] :
-    K extends UserFlagKeys.recentlyViewed ? RecentItem[] :
+    K extends UserFlagKeys.recentlyViewed ? EntryHeader[] :
     never;  
 
 // the solo instance

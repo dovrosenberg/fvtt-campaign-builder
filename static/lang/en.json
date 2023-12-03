@@ -7,7 +7,26 @@
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?"
     },
     "labels": {
-      "newTab": "New Tab" 
+      "newTab": "New Tab",
+      "fields": {
+        "type": "Type"
+      },
+      "tabs": {
+        "description": "Description",
+        "details": "Details",
+        "locationChildren": "Child locations",
+        "organizationChildren": "Sub-organizations",
+        "events": "Events",
+        "characters": "Characters",
+        "locations": "Locations",
+        "organizations": "Organizations"
+      }
+    },
+    "contextMenus": {
+      "bookmarks": {
+        "openNewTab": "Open in new Tab",
+        "delete": "Delete bookmark"
+      }
     },
     "tooltips": {
       "mainButton": "Launch World Builder",

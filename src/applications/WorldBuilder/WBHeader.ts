@@ -3,7 +3,7 @@ import { getGame, localize } from '@/utils/game';
 
 import './WBHeader.scss';
 import { UserFlagKeys, userFlags } from '@/settings/UserFlags';
-import { Bookmark, RecentItem, WindowTab } from '@/types';
+import { Bookmark, EntryHeader, WindowTab } from '@/types';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 
 type WBHeaderData = {
@@ -101,6 +101,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     })
     dragDrop.bind(html.get()[0]);
 
+    // context menu
+    this._createContextMenus(html);
   }
 
   public get collapsed(): boolean {
@@ -112,7 +114,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   // entryId = the uuid of the entry for the tab  (currently just journal entries); if missing, open a "New Tab"
   // updateHistory - should history be updated- defaults to true
   // if not !newTab and entryId is the same as currently active tab, then does nothign
-  public async openEntry(entryId?: string, options?: { activate?: boolean, newTab?: boolean, updateHistory?: boolean }): Promise<WindowTab> {
+  public async openEntry(entryId = null as string | null, options?: { activate?: boolean, newTab?: boolean, updateHistory?: boolean }): Promise<WindowTab> {
     // set defaults
     options = {
       activate: true,
@@ -121,15 +123,15 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       ...options,
     };
 
-    let entry = entryId ? await fromUuid(entryId) as JournalEntry : null;
-    let entryName = !!entry ? entry.name : localize('fwb.labels.newTab');
+    const journal = entryId ? await fromUuid(entryId) as JournalEntry : null;
+    let entryName = !!journal ? journal.name : localize('fwb.labels.newTab');
+    const entry = { uuid: !!journal ? entryId : null, name: entryName }
 
     // see if we need a new tab
     let tab;
     if (options.newTab || !this._activeTab(false)) {
       tab = {
         id: randomID(),
-        text: entryName,
         active: false,
         entry: entry,
         history: [],
@@ -146,29 +148,28 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
         return tab;
 
       // otherwise, just swap out the active tab info
-      tab.text = entryName;
       tab.entry = entry;
     }
     
     // add to history 
-    if (entryId && options.updateHistory) {
+    if (entry.uuid && options.updateHistory) {
       tab.history.push(entryId);
       tab.historyIdx = tab.history.length - 1; 
     }
 
     if (options.activate)
-      this._activateTab(tab.id);  //activating the tab should save it
+      this._activateTab(tab.id);  
 
 
     // activating doesn't always save (ex. if we added a new entry to active tab)
     this._saveTabs();
 
     // update the recent list (except for new tabs)
-    if (entryId)
-      await this._updateRecent(entryId, tab.text);
+    if (entry.uuid)
+      await this._updateRecent(entry as EntryHeader);
 
     this._makeCallback(WBHeader.CallbackType.TabsChanged);
-    this._makeCallback(WBHeader.CallbackType.EntryChanged, entryId);
+    this._makeCallback(WBHeader.CallbackType.EntryChanged, entry.uuid);
 
     return tab;
   }
@@ -206,15 +207,14 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   };  
 
   // add a new entity to the recent list
-  // entryId = uuid of the entry, name = text of the entry of display (typically the name)
-  private async _updateRecent(entryId: string, name: string): Promise<void> {
-    let recent = userFlags.get(UserFlagKeys.recentlyViewed) || [] as RecentItem[];
+  private async _updateRecent(entry: EntryHeader): Promise<void> {
+    let recent = userFlags.get(UserFlagKeys.recentlyViewed) || [] as EntryHeader[];
 
     // remove any other places in history this already appears
-    recent.findSplice((h: RecentItem): boolean => h.entryId === entryId);
+    recent.findSplice((h: EntryHeader): boolean => h.uuid === entry.uuid);
 
     // insert in the front
-    recent.unshift({ entryId: entryId, name: name } as RecentItem);
+    recent.unshift(entry as EntryHeader);
 
     // trim if too long
     if (recent.length > 5)
@@ -228,8 +228,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   async _activateTab(tabId: string): Promise<void> {
     //this.saveScrollPos();
 
-    let tab: WindowTab | undefined;
-    if (!tabId || !(tab = this._tabs.find((t)=>(t.id===tabId))))
+    let newTab: WindowTab | undefined;
+    if (!tabId || !(newTab = this._tabs.find((t)=>(t.id===tabId))))
       return;
 
     // see if it's already current
@@ -241,16 +241,17 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     // TODO - if there's an active tab, do we need to clean anything up? save?
     if (currentTab)
       currentTab.active = false;
-    tab.active = true;
+    
+    newTab.active = true;
 
     this._saveTabs();
 
     // add to recent, unless it's a "new tab"
-    if (currentTab?.entry?.uuid)
-      this._updateRecent(currentTab?.entry.uuid, currentTab.text);
+    if (newTab?.entry?.uuid)
+      this._updateRecent(newTab.entry);
 
     this._makeCallback(WBHeader.CallbackType.TabsChanged);
-    this._makeCallback(WBHeader.CallbackType.EntryChanged, currentTab?.entry?.uuid || null);
+    this._makeCallback(WBHeader.CallbackType.EntryChanged, newTab.entry.uuid);
     return;
   }
 
@@ -356,21 +357,19 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     //get the current tab and save the entity and name
     let tab = this._activeTab();
 
-    // TODO - should not allow a bookmark for the home page... and, 
-    //    should disable the add button
+    // TODO - should disable the add button in this situation
+    if (!tab?.entry)
+      return;
 
     // see if the bookmark already exists
-    if (this._bookmarks.find((b) => (b.entryId === tab?.entry?.uuid)) != undefined) {
+    if (this._bookmarks.find((b) => (b.entry.uuid === tab?.entry?.uuid)) != undefined) {
       ui?.notifications?.warn(localize("fwb.errors.duplicateBookmark"));
       return;
     }
 
-    // TODO: get the type, to set the icon 
-    // TODO: clean this up if we don't allow home to be bookmarked
     let bookmark = {
       id: randomID(),
-      entryId: tab?.entry?.uuid || 'Sample',
-      text: tab?.entry?.name || 'Sample',
+      entry: tab.entry,
       icon: 'fa-place-of-worship'  // TODO - get icon based on type
     }
 
@@ -386,7 +385,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     let bookmark = this._bookmarks.find(b => b.id === bookmarkId);
 
     if (bookmark) {
-      this.openEntry(bookmark?.entryId, { newTab: false });
+      this.openEntry(bookmark?.entry.uuid, { newTab: false });
     }
   }
 
@@ -526,6 +525,100 @@ async getHistory() {
     return true;
   }
 
+  async _createContextMenus(html) {
+    // bookmarks 
+    new ContextMenu(html, ".fwb-bookmark-button", [
+      {
+        name: "fwb.contextMenus.bookmarks.openNewTab",
+        icon: '<i class="fas fa-file-export"></i>',
+        callback: async (li) => {
+          let bookmark = this._bookmarks.find(b => b.id == li[0].dataset.bookmarkId);
+          if (bookmark)
+            this.openEntry(bookmark.entry.uuid, { newTab: true });
+        }
+      },
+      {
+        name: "fwb.contextMenus.bookmarks.delete",
+        icon: '<i class="fas fa-trash"></i>',
+        callback: li => {
+          const bookmark = this._bookmarks.find(b => b.id === li[0].dataset.bookmarkId);
+          if (bookmark)
+            this._removeBookmark(bookmark.id);
+        }
+      }
+    ]);
+
+    // tabs
+    // new ContextMenu(html, ".fwb-tab-bar", [
+    //   {
+    //     name: "Open outside Enhanced Journal",
+    //     icon: '<i class="fas fa-file-export"></i>',
+    //     condition: (li) => {
+    //       let tab = this._tabList.find(t => t.id == this.contextTab);
+    //       return !["blank", "folder"].includes(tab.type);
+    //     },
+    //     callback: async (li) => {
+    //       let tab = this._tabList.find(t => t.id == this.contextTab);
+    //       let document = tab.entity;
+    //       if (!tab.entity) {
+    //         document = await fromUuid(tab.entityId);
+    //       }
+    //       if (document) {
+    //         MonksEnhancedJournal.fixType(document);
+    //         document.sheet.render(true);
+    //       }
+    //     }
+    //   },
+    //   {
+    //     name: "Close Tab",
+    //     icon: '<i class="fas fa-trash"></i>',
+    //     callback: li => {
+    //       let tab = this._tabList.find(t => t.id == this.contextTab);
+    //       if (tab)
+    //         this._closeTab(tab);
+    //     }
+    //   },
+    //   {
+    //     name: "Close All Tabs",
+    //     icon: '<i class="fas fa-dumpster"></i>',
+    //     callback: li => {
+    //       this._tabList.splice(0, this._tabList.length);
+    //       this._saveTabs();
+    //       this.openEntry();
+    //     }
+    //   }
+    // ]);
+
+    // $('.fwb-tab-bar', html).on("contextmenu", (event) => {
+    //   var r = document.querySelector(':root');
+    //   let tab = event.target.closest(".fwb-tab");
+    //   if (!tab) {
+    //     event.stopPropagation();
+    //     event.preventDefault();
+    //     return false;
+    //   }
+    //   let x = $(tab).position().left;
+    //   r.style.setProperty('--mej-context-x', x + "px");
+    // });
+    // $('.fwb-tab-bar .fwb-tab', html).on("contextmenu", (event) => {
+    //   this.contextTab = event.currentTarget.dataset.tabid;
+    // });
+    // $('.fwb-bookmark-bar .fwb-bookmark-button', html).on("contextmenu", (event) => {
+    //   this.contextBookmark = event.currentTarget.dataset.bookmarkId;
+    // });
+
+    // let history = await this.getHistory();
+    // this._historycontext = new ContextMenu(html, ".mainbar .navigation .nav-button.history", history);
+    // this._imgcontext = new ContextMenu(html, ".journal-body.oldentry .tab.picture", [
+    //   {
+    //     name: "MonksEnhancedJournal.Delete",
+    //     icon: '<i class="fas fa-trash"></i>',
+    //     callback: li => {
+    //       log('Remove image on old entry');
+    //     }
+    //   }
+    // ]);
+  }
 }
 
 
