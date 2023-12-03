@@ -303,8 +303,8 @@ describe('WBHeader', () => {
         return (key===UserFlagKeys.recentlyViewed ? []: null);
       });
 
-      await wbHeader['_updateRecent'](mockEntries[0].uuid, mockEntries[0].name);
-      expect(userFlags.set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, [{entryId: mockEntries[0].uuid, name: mockEntries[0].name}]);
+      await wbHeader['_updateRecent'](mockEntries[0]);
+      expect(userFlags.set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, [mockEntries[0]]);
     });
     it('should drop an entry if full', async () => {
       userFlags.set = jest.fn();
@@ -318,7 +318,7 @@ describe('WBHeader', () => {
         ]: null);
       });
 
-      await wbHeader['_updateRecent'](mockEntries[0].uuid, mockEntries[0].name);
+      await wbHeader['_updateRecent'](mockEntries[0]);
       expect(userFlags.set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, 
         [
           {entryId: mockEntries[0].uuid, name: mockEntries[0].name},
