@@ -1,5 +1,4 @@
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
-import { TopicSheet } from './TopicSheet';
 //import './PersonSheet.scss';
 
 type PersonSheetData = {

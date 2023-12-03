@@ -2,12 +2,12 @@ import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import './Directory.scss';
 import { getGame, localize } from '@/utils/game';
 
-export const DIRECTORY_TEMPLATE = 'modules/world-builder/templates/Directory.hbs';
-
 type DirectoryData = {
 }
 
 export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
+  static override _template = 'modules/world-builder/templates/Directory.hbs';
+  
   constructor() {
     super();
   }

@@ -2,12 +2,13 @@ import './WBContent.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { HomePage, } from './HomePage';
 import { getGame } from '@/utils/game';
-import { PersonSheet } from './PersonSheet';
 import { TopicFlags, TopicTypes } from '@/types';
 import { MODULE_ID } from '@/utils/module';
 
 type WBContentData = {
-  sheetTemplate: () => string,
+  homePageTemplate: () => string,
+  showHomePage: boolean,
+  sheetData: Record<string, any>
 }
 
 export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
@@ -15,9 +16,18 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   private _entryType: TopicTypes | null;
   static override _template = 'modules/world-builder/templates/WBContent.hbs';
 
-  constructor(entryId?: string | null, options={}) {
+  constructor(entryId = null as string | null, options={}) {
     super();
 
+    this.updateEntry(entryId);
+  }
+
+  // we will dynamically setup the partials
+  protected _createPartials(): void {
+    this._partials.HomePage = new HomePage();
+  }
+
+  public updateEntry(entryId: string | null) {
     // we need to setup the type before calling the constructor
     // look up the entry - note could use fromUuid, but it's a bit tricky for compendia and also async
     if (!entryId) {
@@ -26,7 +36,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._entryType = null;
     } else {
       const entry = getGame().journal?.find((j) => (j.uuid===entryId));
-      const entryType = entry?.getFlag(MODULE_ID, TopicFlags.type);
+      const entryType = entry?.getFlag(MODULE_ID, TopicFlags.type) || TopicTypes.Character;  // TODO: get rid of this default - it's only here for testing
 
       if (!entryType) {
         // show the homepage
@@ -39,28 +49,17 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     }
   }
 
-  // we will dynamically setup the partials
-  protected _createPartials(): void {
-    this._partials.HomePage = new HomePage();
-    this._partials.TopicSheet = new PersonSheet();
-
-  }
-
   public async getData(): Promise<WBContentData> {
     let sheetData;
 
     if (!this._entryId)
       sheetData = await this._partials.HomePage.getData();
     else
-      sheetData = await this._partials.PersonSheet.getData();
+      sheetData = {}   // todo
 
     const data = {
-      sheetTemplate: () => {
-        if (!this._entryId)
-          return HomePage.template;
-        else
-          return PersonSheet.template;
-      },
+      showHomePage: !this._entryId,
+      homePageTemplate: () => HomePage.template,
       sheetData: sheetData,
     };
 
@@ -69,10 +68,6 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   }
 
   public activateListeners(html: JQuery) {  
-  }
-
-  public set entryId(entryId: string) {
-    this._entryId = entryId;
   }
 
 

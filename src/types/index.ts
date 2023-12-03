@@ -1,6 +1,3 @@
-// contains typescript types used throughout the application
-import './global.d.ts';
-
 export type WindowTab = {
   id: string,   // unique id
   text: string,   // label on the 
