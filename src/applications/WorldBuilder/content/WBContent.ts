@@ -1,18 +1,30 @@
 import './WBContent.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
-import { HomePage, } from './HomePage';
+import { HomePage, HomePageData} from './HomePage';
 import { getGame } from '@/utils/game';
 import { TopicFlags, TopicTypes } from '@/types';
-import { MODULE_ID } from '@/utils/module';
+import { MODULE_ID, getIcon } from '@/utils/misc';
+import { TypeAhead, TypeAheadData } from '@/components/typeahead';
 
-type WBContentData = {
+export type WBContentData = {
+  showHomePage: true,
   homePageTemplate: () => string,
-  showHomePage: boolean,
-  sheetData: Record<string, any>
+  homePageData: HomePageData
+} |
+{
+  showHomePage: false,
+  entry: JournalEntry,
+  entryType: TopicTypes,
+  icon: string,
+  showHierarchy: boolean,
+  relationships: { tab: string, label: string }[],
+  typeAheadTemplate: () => string,
+  typeAheadData: TypeAheadData,
 }
 
 export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   private _entryId: string | null;    // the entryId to show (will show homepage if null)
+  private _entry: JournalEntry;
   private _entryType: TopicTypes | null;
   static override _template = 'modules/world-builder/templates/WBContent.hbs';
 
@@ -25,6 +37,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   // we will dynamically setup the partials
   protected _createPartials(): void {
     this._partials.HomePage = new HomePage();
+    this._partials.TypeTypeAhead = new TypeAhead();
   }
 
   public updateEntry(entryId: string | null) {
@@ -36,15 +49,17 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._entryType = null;
     } else {
       const entry = getGame().journal?.find((j) => (j.uuid===entryId));
-      const entryType = entry?.getFlag(MODULE_ID, TopicFlags.type) || TopicTypes.Character;  // TODO: get rid of this default - it's only here for testing
+      const entryType = entry?.getFlag(MODULE_ID, TopicFlags.type) as TopicTypes;
 
-      if (!entryType) {
+      if (!entry || entryType===null) {
         // show the homepage
         this._entryId = null;
         this._entryType = null;
       } else {
         // we're going to show a content page
         this._entryId = entryId;
+        this._entry = entry;
+        this._entryType = entryType;
       }
     }
   }
@@ -52,22 +67,50 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   public async getData(): Promise<WBContentData> {
     let sheetData;
 
-    if (!this._entryId)
-      sheetData = await this._partials.HomePage.getData();
-    else
-      sheetData = {}   // todo
+    let data: WBContentData;
 
-    const data = {
-      showHomePage: !this._entryId,
-      homePageTemplate: () => HomePage.template,
-      sheetData: sheetData,
-    };
+    const relationships = [
+      { tab: "characters", label: "fwb.labels.tabs.characters"},
+      { tab: "locations", label: "fwb.labels.tabs.locations"},
+      { tab: "organizations", label: "fwb.labels.tabs.organizations"},
+      { tab: "events", label: "fwb.labels.tabs.events"},
+    ] as { tab: string, label: string }[];
+
+
+    if (!this._entryId) {
+      // homepage
+      data = {
+        showHomePage: true,
+        homePageTemplate: () => HomePage.template,
+        homePageData: await this._partials.HomePage.getData(),
+      }
+    } else if (!this._entryType) {
+      throw new Error('Invalid entry type in WBContent.getData()');
+    } else {
+      // normal content
+      data = {
+        showHomePage: false,
+        entry: this._entry,
+        entryType: this._entryType,
+        icon: getIcon(this._entryType),
+        showHierarchy: [TopicTypes.Location, TopicTypes.Organization].includes(this._entryType),
+        relationships: relationships,
+        typeAheadTemplate: () => TypeAhead.template,
+        typeAheadData: {}
+      };
+    }
 
     // log(false, data);
     return data;
   }
 
   public activateListeners(html: JQuery) {  
+    // handle partials
+    if (!this._entryId)
+      this._partials.HomePage.activateListeners(html);
+    else {
+      this._partials.TypeTypeAhead.activateListeners(html);
+    }
   }
 
 

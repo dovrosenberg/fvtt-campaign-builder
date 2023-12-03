@@ -1,7 +1,7 @@
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import './HomePage.scss';
 
-type HomePageData = {
+export type HomePageData = {
 }
 
 export class HomePage extends HandlebarsPartial<HomePage.CallbackType>  {

@@ -101,6 +101,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     })
     dragDrop.bind(html.get()[0]);
 
+    // context menu
+    this._createContextMenus(html);
   }
 
   public get collapsed(): boolean {
@@ -523,6 +525,100 @@ async getHistory() {
     return true;
   }
 
+  async _createContextMenus(html) {
+    // bookmarks 
+    new ContextMenu(html, ".fwb-bookmark-button", [
+      {
+        name: "fwb.contextMenus.bookmarks.openNewTab",
+        icon: '<i class="fas fa-file-export"></i>',
+        callback: async (li) => {
+          let bookmark = this._bookmarks.find(b => b.id == li[0].dataset.bookmarkId);
+          if (bookmark)
+            this.openEntry(bookmark.entry.uuid, { newTab: true });
+        }
+      },
+      {
+        name: "fwb.contextMenus.bookmarks.delete",
+        icon: '<i class="fas fa-trash"></i>',
+        callback: li => {
+          const bookmark = this._bookmarks.find(b => b.id === li[0].dataset.bookmarkId);
+          if (bookmark)
+            this._removeBookmark(bookmark.id);
+        }
+      }
+    ]);
+
+    // tabs
+    // new ContextMenu(html, ".fwb-tab-bar", [
+    //   {
+    //     name: "Open outside Enhanced Journal",
+    //     icon: '<i class="fas fa-file-export"></i>',
+    //     condition: (li) => {
+    //       let tab = this._tabList.find(t => t.id == this.contextTab);
+    //       return !["blank", "folder"].includes(tab.type);
+    //     },
+    //     callback: async (li) => {
+    //       let tab = this._tabList.find(t => t.id == this.contextTab);
+    //       let document = tab.entity;
+    //       if (!tab.entity) {
+    //         document = await fromUuid(tab.entityId);
+    //       }
+    //       if (document) {
+    //         MonksEnhancedJournal.fixType(document);
+    //         document.sheet.render(true);
+    //       }
+    //     }
+    //   },
+    //   {
+    //     name: "Close Tab",
+    //     icon: '<i class="fas fa-trash"></i>',
+    //     callback: li => {
+    //       let tab = this._tabList.find(t => t.id == this.contextTab);
+    //       if (tab)
+    //         this._closeTab(tab);
+    //     }
+    //   },
+    //   {
+    //     name: "Close All Tabs",
+    //     icon: '<i class="fas fa-dumpster"></i>',
+    //     callback: li => {
+    //       this._tabList.splice(0, this._tabList.length);
+    //       this._saveTabs();
+    //       this.openEntry();
+    //     }
+    //   }
+    // ]);
+
+    // $('.fwb-tab-bar', html).on("contextmenu", (event) => {
+    //   var r = document.querySelector(':root');
+    //   let tab = event.target.closest(".fwb-tab");
+    //   if (!tab) {
+    //     event.stopPropagation();
+    //     event.preventDefault();
+    //     return false;
+    //   }
+    //   let x = $(tab).position().left;
+    //   r.style.setProperty('--mej-context-x', x + "px");
+    // });
+    // $('.fwb-tab-bar .fwb-tab', html).on("contextmenu", (event) => {
+    //   this.contextTab = event.currentTarget.dataset.tabid;
+    // });
+    // $('.fwb-bookmark-bar .fwb-bookmark-button', html).on("contextmenu", (event) => {
+    //   this.contextBookmark = event.currentTarget.dataset.bookmarkId;
+    // });
+
+    // let history = await this.getHistory();
+    // this._historycontext = new ContextMenu(html, ".mainbar .navigation .nav-button.history", history);
+    // this._imgcontext = new ContextMenu(html, ".journal-body.oldentry .tab.picture", [
+    //   {
+    //     name: "MonksEnhancedJournal.Delete",
+    //     icon: '<i class="fas fa-trash"></i>',
+    //     callback: li => {
+    //       log('Remove image on old entry');
+    //     }
+    //   }
+    // ]);
+  }
 }
 
 

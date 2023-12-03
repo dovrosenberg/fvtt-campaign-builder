@@ -1,8 +1,12 @@
 {{! Requires:l
 	WBContentData: {
 	  showHomePage: boolean;   // should we show the home page (vs. regular content)
-		homePageData: HomePageData
 	  homePageTemplate: function that returns the template name
+		homePageData: HomePageData
+
+		// if showHomePage is false:
+		icon
+		entry
 	}
 }}
 
@@ -18,33 +22,35 @@
 								</div>
 								<section class="header-details">
 										<h1 class="personname header-name flexrow">
-												<i class="fas {{data.icon}} sheet-icon"></i>
-												<input name="name" type="text" value="{{data.name}}" placeholder="{{localize 'MonksEnhancedJournal.PersonName'}}">
+												<i class="fas {{icon}} sheet-icon"></i>
+												<input name="name" type="text" value="{{entry.name}}" placeholder="{{localize 'MonksEnhancedJournal.PersonName'}}">
 										</h1>
 										<div class="form-group">
+												<label>{{localize 'fwb.labels.fields.type'}}</label>
+												<input type="text" name="flags.fwb.type" value="{{entry.flags.fwb.type}}" />
+										</div>
+										{{> (typeAheadTemplate) typeAheadData }}
+
+										{{#if showHierarchy}}
+											Hierarchy
+										{{/if}}
+										{{!-- <div class="form-group">
 												<label>{{localize 'MonksEnhancedJournal.Role'}}</label>
 												<input type="text" name="flags.monks-enhanced-journal.role" value="{{data.flags.monks-enhanced-journal.role}}" />
 										</div>
 										<div class="form-group">
 												<label>{{localize 'MonksEnhancedJournal.Location'}}</label>
 												<input type="text" name="flags.monks-enhanced-journal.location" value="{{data.flags.monks-enhanced-journal.location}}" />
-										</div>
+										</div> --}}
 								</section>
-								{{#if (and actor canViewActor)}}
-								<section class="flexcol actor-img-container">
-										<div class="actor-img">
-												<img src="{{actor.img}}" data-uuid="{{actor.uuid}}" data-document="Actor" onerror="$(this).hide();">
-										</div>
-										<div class="actor-img-text">{{actor.name}}</div>
-								</section>
-								{{/if}}
 						</header>
 						<nav class="sheet-navigation tabs" data-group="primary">
-								<a class="item" data-tab="description">{{localize 'MonksEnhancedJournal.Description'}}</a>
-								<a class="item" data-tab="entry-details">{{localize 'MonksEnhancedJournal.Details'}}</a>
-								<a class="item{{#if has.relationships}} hasitems{{/if}}" data-tab="relationships">{{localize 'MonksEnhancedJournal.Relationships'}}</a>
-								<a class="item{{#if has.offerings}} hasitems{{/if}}" data-tab="offerings">{{localize 'MonksEnhancedJournal.Offerings'}}</a>
-								<a class="item" data-tab="notes">{{localize 'MonksEnhancedJournal.Notes'}}</a>
+								<a class="item" data-tab="description">{{localize 'fwb.labels.tabs.description'}}</a>
+								<a class="item" data-tab="entry-details">{{localize 'fwb.labels.tabs.details'}}</a>
+								{{#each relationships}}
+									<a class="item" data-tab="{{tab}}">{{localize label}}</a>
+								{{/each}}
+
 						</nav>
 						<section class="sheet-body">
 								<div class="tab description" data-group="primary" data-tab="description">

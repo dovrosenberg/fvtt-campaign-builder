@@ -3,6 +3,7 @@ import { WBFooter } from '@/applications/WorldBuilder/WBFooter';
 import { HomePage } from '@/applications/WorldBuilder/content/HomePage';
 import { WBContent } from '@/applications/WorldBuilder/content/WBContent';
 import { Directory } from '@/applications/WorldBuilder/directory/Directory';
+import { TypeAhead } from '@/components/typeahead';
 
 export function registerHelpers() {
   // register templates parts
@@ -15,6 +16,9 @@ export function registerHelpers() {
     // content
     WBContent.template,
     HomePage.template,
+
+    // components
+    TypeAhead.template,
   ];
 
   // @ts-ignore
