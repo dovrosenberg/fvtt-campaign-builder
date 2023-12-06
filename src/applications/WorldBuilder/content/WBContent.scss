@@ -102,7 +102,7 @@
     .journal-sheet-header .header-details {
       font-size: var(--font-size-20);
       font-weight: 700;
-      overflow: hidden;
+      //overflow: hidden;
       /*width: calc(100% - 160px);*/
     }
 
@@ -147,6 +147,10 @@
 
     .journal-sheet-header .header-details .form-group select:hover {
       box-shadow: 0 0 8px var(--color-shadow-primary);
+    }
+
+    .fwb-content-header {
+      overflow-y: visible;
     }
 
     .journal-sheet-header .header-details .header-name input[type="text"] {
