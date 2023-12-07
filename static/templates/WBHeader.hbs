@@ -12,6 +12,7 @@
     <div class="fwb-tab-row flexrow">
       {{#each tabs}}
         <div class="fwb-tab flexrow {{#if active}}active{{/if}}" title="{{entry.name}}" data-tab-id="{{id}}">
+          {{#if entry.icon}}<div class="fwb-tab-icon"><i class="fas {{ entry.icon }}"></i></div>{{/if}}
           <div class="tab-content">{{entry.name}}</div>
           <div class="close"><i class="fas fa-times"></i></div>
         </div>

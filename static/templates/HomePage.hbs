@@ -1,5 +1,5 @@
 {{! Requires:
-  recent: ???[] 
+  recent: EntryHeader[] 
 }}
 
 <div class="flexcol journal-subsheet blank blank-body">
@@ -13,7 +13,7 @@
         <div class="recently-viewed">MAKE THIS A SEARCH BAR</div>
         <div class="flexrow">
             {{#each recent}}
-              <div class="recent-link" data-entry-id="{{this.uuid}}"><div><i class="fas {{this.img}}"></i></div>{{this.name}}</div>
+              <div class="recent-link" data-entry-id="{{uuid}}"><div><i class="fas {{icon}}"></i></div>{{name}}</div>
             {{/each}}
         </div>
     </section>

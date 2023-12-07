@@ -51,6 +51,11 @@
           flex: 0 0 150px;
         }
 
+        .fwb-tab-icon {
+          flex: 0 1 0%;
+          margin-right: 6px;
+        }
+        
         .tab-content {
           overflow: hidden;
           text-overflow: ellipsis;

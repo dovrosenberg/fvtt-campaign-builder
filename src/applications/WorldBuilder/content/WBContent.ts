@@ -112,6 +112,9 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._partials.TypeTypeAhead.activateListeners(html);
     }
 
+    this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, (uuid: string)=> {
+      this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
+    });
     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.ItemAdded, (added)=> {
       alert('need to update the type settings');
       this._entry.setFlag(MODULE_ID, TopicFlags.type, added);
@@ -119,6 +122,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.SelectionMade, (selection)=> { 
       this._entry.setFlag(MODULE_ID, TopicFlags.type, selection);
     });
+
   }
 
 
@@ -403,5 +407,6 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
 
 export namespace WBContent {
   export enum CallbackType {
+    RecentClicked,
   }
 }

@@ -9,12 +9,12 @@ export type WindowTab = {
 export type Bookmark = {
   id: string;   // id of the bookmark
   entry: EntryHeader;
-  icon: string;  // class of icon to display
 }
 
 export type EntryHeader = {
   uuid: string | null;   
   name: string;
+  icon: string;  // class of icon to display
 }
 
 export enum TopicTypes {

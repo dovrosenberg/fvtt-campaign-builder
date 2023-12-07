@@ -3,8 +3,9 @@ import { getGame, localize } from '@/utils/game';
 
 import './WBHeader.scss';
 import { UserFlagKeys, userFlags } from '@/settings/UserFlags';
-import { Bookmark, EntryHeader, WindowTab } from '@/types';
+import { Bookmark, EntryHeader, TopicFlags, TopicTypes, WindowTab } from '@/types';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
+import { MODULE_ID, getIcon } from '@/utils/misc';
 
 type WBHeaderData = {
   tabs: WindowTab[];
@@ -124,8 +125,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     };
 
     const journal = entryId ? await fromUuid(entryId) as JournalEntry : null;
-    let entryName = !!journal ? journal.name : localize('fwb.labels.newTab');
-    const entry = { uuid: !!journal ? entryId : null, name: entryName }
+    let entryName = (!!journal ? journal.name : localize('fwb.labels.newTab')) || '';
+    const entry = { uuid: !!journal ? entryId : null, name: entryName, icon: !!journal ? getIcon(journal.getFlag(MODULE_ID, TopicFlags.topicType) as TopicTypes) : '' }
 
     // see if we need a new tab
     let tab;
@@ -166,7 +167,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     // update the recent list (except for new tabs)
     if (entry.uuid)
-      await this._updateRecent(entry as EntryHeader);
+      await this._updateRecent(entry);
 
     this._makeCallback(WBHeader.CallbackType.TabsChanged);
     this._makeCallback(WBHeader.CallbackType.EntryChanged, entry.uuid);
@@ -214,7 +215,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     recent.findSplice((h: EntryHeader): boolean => h.uuid === entry.uuid);
 
     // insert in the front
-    recent.unshift(entry as EntryHeader);
+    recent.unshift(entry);
 
     // trim if too long
     if (recent.length > 5)
@@ -361,7 +362,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (!tab?.entry)
       return;
 
-    // see if the bookmark already exists
+    // see if a bookmark for the entry already exists
     if (this._bookmarks.find((b) => (b.entry.uuid === tab?.entry?.uuid)) != undefined) {
       ui?.notifications?.warn(localize("fwb.errors.duplicateBookmark"));
       return;
@@ -391,7 +392,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
   // removes the bookmark with given id
   private _removeBookmark(id: string) {
-    this._bookmarks.findSplice(b => b.id == id);
+    this._bookmarks.findSplice(b => b.id === id);
     this._saveBookmarks();
 
     this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
@@ -511,8 +512,8 @@ async getHistory() {
 
       // insert before the drop target
       // TODO- ability to move to end
-      let from = this._bookmarks.findIndex(b => b.id == data.bookmarkId);
-      let to = this._bookmarks.findIndex(b => b.id == target.dataset.bookmarkId);
+      let from = this._bookmarks.findIndex(b => b.id === data.bookmarkId);
+      let to = this._bookmarks.findIndex(b => b.id === target.dataset.bookmarkId);
       this._bookmarks.splice(to, 0, this._bookmarks.splice(from, 1)[0]);
 
       // save bookmarks (we don't activate anything)
@@ -532,7 +533,7 @@ async getHistory() {
         name: "fwb.contextMenus.bookmarks.openNewTab",
         icon: '<i class="fas fa-file-export"></i>',
         callback: async (li) => {
-          let bookmark = this._bookmarks.find(b => b.id == li[0].dataset.bookmarkId);
+          let bookmark = this._bookmarks.find(b => b.id === li[0].dataset.bookmarkId);
           if (bookmark)
             this.openEntry(bookmark.entry.uuid, { newTab: true });
         }
@@ -549,64 +550,6 @@ async getHistory() {
     ]);
 
     // tabs
-    // new ContextMenu(html, ".fwb-tab-bar", [
-    //   {
-    //     name: "Open outside Enhanced Journal",
-    //     icon: '<i class="fas fa-file-export"></i>',
-    //     condition: (li) => {
-    //       let tab = this._tabList.find(t => t.id == this.contextTab);
-    //       return !["blank", "folder"].includes(tab.type);
-    //     },
-    //     callback: async (li) => {
-    //       let tab = this._tabList.find(t => t.id == this.contextTab);
-    //       let document = tab.entity;
-    //       if (!tab.entity) {
-    //         document = await fromUuid(tab.entityId);
-    //       }
-    //       if (document) {
-    //         MonksEnhancedJournal.fixType(document);
-    //         document.sheet.render(true);
-    //       }
-    //     }
-    //   },
-    //   {
-    //     name: "Close Tab",
-    //     icon: '<i class="fas fa-trash"></i>',
-    //     callback: li => {
-    //       let tab = this._tabList.find(t => t.id == this.contextTab);
-    //       if (tab)
-    //         this._closeTab(tab);
-    //     }
-    //   },
-    //   {
-    //     name: "Close All Tabs",
-    //     icon: '<i class="fas fa-dumpster"></i>',
-    //     callback: li => {
-    //       this._tabList.splice(0, this._tabList.length);
-    //       this._saveTabs();
-    //       this.openEntry();
-    //     }
-    //   }
-    // ]);
-
-    // $('.fwb-tab-bar', html).on("contextmenu", (event) => {
-    //   var r = document.querySelector(':root');
-    //   let tab = event.target.closest(".fwb-tab");
-    //   if (!tab) {
-    //     event.stopPropagation();
-    //     event.preventDefault();
-    //     return false;
-    //   }
-    //   let x = $(tab).position().left;
-    //   r.style.setProperty('--mej-context-x', x + "px");
-    // });
-    // $('.fwb-tab-bar .fwb-tab', html).on("contextmenu", (event) => {
-    //   this.contextTab = event.currentTarget.dataset.tabid;
-    // });
-    // $('.fwb-bookmark-bar .fwb-bookmark-button', html).on("contextmenu", (event) => {
-    //   this.contextBookmark = event.currentTarget.dataset.bookmarkId;
-    // });
-
     // let history = await this.getHistory();
     // this._historycontext = new ContextMenu(html, ".mainbar .navigation .nav-button.history", history);
     // this._imgcontext = new ContextMenu(html, ".journal-body.oldentry .tab.picture", [

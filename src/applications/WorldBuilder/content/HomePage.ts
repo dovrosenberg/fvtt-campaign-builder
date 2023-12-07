@@ -1,5 +1,6 @@
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import './HomePage.scss';
+import { UserFlagKeys, userFlags } from '@/settings/UserFlags';
 
 export type HomePageData = {
 }
@@ -13,8 +14,7 @@ export class HomePage extends HandlebarsPartial<HomePage.CallbackType>  {
 
     public async getData(): Promise<HomePageData> {
     const data = {
-      // NEED TO PASS DOWN THE RECENT LIST FROM THE PARENT???
-
+      recent: userFlags.get(UserFlagKeys.recentlyViewed),
     };
   
     // log(false, data);
@@ -26,11 +26,16 @@ export class HomePage extends HandlebarsPartial<HomePage.CallbackType>  {
   }
 
   public activateListeners(html: JQuery) {  
+    html.find('.recent-link').on('click', (event: JQuery.ClickEvent)=> {
+      if (event.currentTarget.dataset.entryId)
+        this._makeCallback(HomePage.CallbackType.RecentClicked, event.currentTarget.dataset.entryId);
+    })
   }
 }
 
 
 export namespace HomePage {
   export enum CallbackType {
+    RecentClicked,
   }
 }

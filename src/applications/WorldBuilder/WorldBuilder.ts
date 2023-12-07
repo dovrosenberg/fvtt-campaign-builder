@@ -126,6 +126,9 @@ export class WorldBuilder extends Application {
     // when the content needs to be updated
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.EntryChanged, (entryId) => { (this._partials.WBContent as WBContent).updateEntry(entryId); this.render();});
 
+    // recent item clicked - open it in current tab
+    this._partials.WBContent.registerCallback(WBContent.CallbackType.RecentClicked, (uuid: string) => { (this._partials.WBHeader as WBHeader).openEntry(uuid, { newTab: false }) });
+
     // when new entry is selected in directory
     this._partials.Directory.registerCallback(Directory.CallbackType.DirectoryEntrySelected, 
       (entryId: string, event: MouseEvent) => { this._onDirectoryEntrySelected(entryId, event); });
