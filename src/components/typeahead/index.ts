@@ -8,7 +8,9 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
   static override _template = 'modules/world-builder/templates/TypeAhead.hbs';
   private _id: string;
   private _list = [] as string[];
+  private _filteredItems = [] as string[];
   private _idx: number;
+  private _control: JQuery;
 
   constructor(list: string[]) {
     super();
@@ -35,29 +37,23 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
 
   public activateListeners(html: JQuery) {
     // find the overall control
-    let control = html.find(`#${this._id}.fwb-typeahead`);
+    this._control = html.find(`#${this._id}.fwb-typeahead`);
 
     // Get input and dropdown elements
-    var input = control.find('#fwb-ta-input');
-    var dropdown = control.find('#fwb-ta-dropdown');
+    var input = this._control.find('#fwb-ta-input');
+    var dropdown = this._control.find('#fwb-ta-dropdown');
 
     // Event listener for input changes
     input.on('input',  () => {
       var inputValue = input.val()?.toString().toLowerCase() || '';
-      var filteredItems = this._list.filter((item)=>item.toLowerCase().includes(inputValue));
+      this._filteredItems = this._list.filter((item)=>item.toLowerCase().includes(inputValue));
  
       // Render the filtered items - we're not using handlebars because it's overly complicated to pass up a re-render request
-      let items = '';
       this._idx = 0;
-      for (let i=0; i<filteredItems.length && i<3; i++) {   // max of 3 items at a time
-        items += `<div class="typeahead-entry ${i===this._idx ? 'highlighted' : ''}">${filteredItems[i]}</div>`
-        // TODO - highlighted and handle arrows to move it
-      }
-      dropdown.html(items);   
+      this._refreshList();
     });
 
     // TODO - need a blur for leaving whole component that records either a selection or an 
-    // TODO - need to style so the div overlaps what's nearby
 
     // Event listener for item clicks
     dropdown.on('click', (event: JQuery.ClickEvent) => {
@@ -68,6 +64,57 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
         this._makeCallback(TypeAhead.CallbackType.SelectionMade, selection);
       }
     });
+
+    // capture keydown for up, down, enter
+    this._control.on('keydown', (event: JQuery.KeyDownEvent) => this._onKeydown(event));
+  }
+
+  private _onKeydown(event: JQuery.KeyDownEvent): void {
+    // if no list, don't need to do anything
+    if (!this._filteredItems)
+      return;
+
+    switch (event.key) {
+      case 'ArrowUp':
+        event.preventDefault();
+        this._idx = ((this._idx||0) - 1 + this._filteredItems.length) % this._filteredItems.length;
+        this._refreshList();
+        return;
+
+      case 'ArrowDown':
+        event.preventDefault();
+        this._idx = ((this._idx||0) + 1) % this._filteredItems.length;
+        this._refreshList();
+        return;
+
+      case 'Enter':
+        // fill in the input value
+        let selection = this._filteredItems[this._idx];
+        let input = this._control.find('#fwb-ta-input');
+        input.val(selection);
+  
+        // close the list
+        this._filteredItems = [];
+        this._refreshList();
+
+        this._makeCallback(TypeAhead.CallbackType.SelectionMade, selection);
+
+        return;
+
+      default:
+        return;
+    }
+  }
+
+  private _refreshList(): void {
+    var dropdown = this._control.find('#fwb-ta-dropdown');
+
+    // Render the filtered items - we're not using handlebars because it's overly complicated to pass up a re-render request
+    let itemHTML = '';
+    for (let i=0; i<this._filteredItems.length && i<3; i++) {   // max of 3 items at a time
+      itemHTML += `<div class="typeahead-entry ${i===this._idx ? 'highlighted' : ''}">${this._filteredItems[i]}</div>`
+    }
+    dropdown.html(itemHTML);   
   }
 }
 
