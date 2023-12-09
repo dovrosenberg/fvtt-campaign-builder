@@ -1,5 +1,6 @@
 import { getGame, localize } from '@/utils/game';
 import moduleJson from '@module';
+import { TopicTypes } from '@/types';
 
 export enum SettingKeys {
   // displayed in settings
@@ -8,12 +9,14 @@ export enum SettingKeys {
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   defaultWorldId = 'defaultWorldId',  // uuid of the default world folder
+  types = 'types',  // object where each key is a TopicType and the value is an array of valid types
 }
 
 type SettingType<K extends SettingKeys> =
     K extends SettingKeys.startCollapsed ? boolean :
     K extends SettingKeys.rootFolderId ? string : 
     K extends SettingKeys.defaultWorldId ? string : 
+    K extends SettingKeys.types ? Record<TopicTypes, string[]> :
     never;  
 
 // the solo instance
@@ -77,6 +80,17 @@ export class ModuleSettings {
       default: null,
       type: String,
     },
+    {
+      settingID: SettingKeys.types,
+      default: {
+        [TopicTypes.Character]: [],
+        [TopicTypes.Location]: [],
+        [TopicTypes.Event]: [],
+        [TopicTypes.Organization]: [],
+      },
+      type: Object,
+    },
+
   ];
   
   // these are client-specfic only used internally

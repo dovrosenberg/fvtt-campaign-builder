@@ -15,7 +15,7 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
   constructor(list: string[]) {
     super();
 
-    this._list = list;
+    this.updateList(list);
 
     // we create a random ID so we can use multiple instances
     this._id = 'fwb-ta-' + randomID();
@@ -46,10 +46,13 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
     // Event listener for input changes
     input.on('input',  () => {
       var inputValue = input.val()?.toString().toLowerCase() || '';
-      this._filteredItems = this._list.filter((item)=>item.toLowerCase().includes(inputValue));
+
+      // blank everything out if the string is empty (so box closes)
+      this._filteredItems = !inputValue ? [] : this._list.filter((item)=>item.toLowerCase().indexOf(inputValue)!==-1);
  
       // Render the filtered items - we're not using handlebars because it's overly complicated to pass up a re-render request
-      this._idx = 0;
+      // we clear the index if we're typing
+      this._idx = -1;
       this._refreshList();
     });
 
@@ -69,10 +72,22 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
     this._control.on('keydown', (event: JQuery.KeyDownEvent) => this._onKeydown(event));
   }
 
+  // change the valid item list
+  public updateList(list: string[]) {
+    this._list = list;
+  }
+
   private _onKeydown(event: JQuery.KeyDownEvent): void {
     // if no list, don't need to do anything
     if (!this._filteredItems)
       return;
+
+    // either arrow starts at 0 if we're not highlighting something yet
+    if (['ArrowUp', 'ArrowDown'].includes(event.key) && this._idx===-1) {
+      this._idx = 0;
+      this._refreshList();
+      return;
+    }
 
     switch (event.key) {
       case 'ArrowUp':
@@ -88,10 +103,30 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
         return;
 
       case 'Enter':
-        // fill in the input value
-        let selection = this._filteredItems[this._idx];
+      case 'Tab':
         let input = this._control.find('#fwb-ta-input');
-        input.val(selection);
+        let selection = '';
+
+        // if nothing selected, check for a match or add something new
+        // if box is empty, we don't add a new value, but we still say blank was seleted
+        if (this._idx===-1 && input.val()) {
+          selection = input.val().toString();
+
+          // exact match only to let us add types that are just different cases
+          let match = this._list.find(item=>item===selection.toString());
+          if (match) {
+            // it's match, so we'll select that item but don't need to add anything (we don't use the text
+            //    in the box because it might have different case)
+            selection = match;
+          } else {
+            this._list.push(selection);
+            this._makeCallback(TypeAhead.CallbackType.ItemAdded, selection);
+          }
+        } else if (this._idx!==-1) {
+          // fill in the input value
+          selection = this._filteredItems[this._idx];
+          input.val(selection);
+        }
   
         // close the list
         this._filteredItems = [];

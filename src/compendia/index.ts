@@ -71,7 +71,7 @@ export async function createWorldFolder(rootFolderId: string, name: string, make
 
   // set as the default world
   if (makeDefault) {
-    moduleSettings.set(SettingKeys.defaultWorldId, folders[0].uuid);
+    await moduleSettings.set(SettingKeys.defaultWorldId, folders[0].uuid);
   }
 
   return folders[0];

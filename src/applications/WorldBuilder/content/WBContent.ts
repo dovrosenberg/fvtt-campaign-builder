@@ -5,6 +5,7 @@ import { getGame } from '@/utils/game';
 import { TopicFlags, TopicTypes } from '@/types';
 import { MODULE_ID, getIcon } from '@/utils/misc';
 import { TypeAhead, TypeAheadData } from '@/components/typeahead';
+import { SettingKeys, moduleSettings } from '@/settings/ModuleSettings';
 
 export type WBContentData = {
   showHomePage: true,
@@ -37,7 +38,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   // we will dynamically setup the partials
   protected _createPartials(): void {
     this._partials.HomePage = new HomePage();
-    this._partials.TypeTypeAhead = new TypeAhead(['PC', 'NPC', 'Shopkeeper', 'king']);
+    this._partials.TypeTypeAhead = new TypeAhead([]);
   }
 
   public updateEntry(entryId: string | null) {
@@ -60,6 +61,8 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         this._entryId = entryId;
         this._entry = entry;
         this._entryType = entryType;
+
+        (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKeys.types)[entryType]);
       }
     }
   }
@@ -84,7 +87,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         homePageTemplate: () => HomePage.template,
         homePageData: await this._partials.HomePage.getData(),
       }
-    } else if (!this._entryType) {
+    } else if (this._entryType === null) {
       throw new Error('Invalid entry type in WBContent.getData()');
     } else {
       // normal content
@@ -115,9 +118,20 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, (uuid: string)=> {
       this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
     });
-    this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.ItemAdded, (added)=> {
-      alert('need to update the type settings');
-      this._entry.setFlag(MODULE_ID, TopicFlags.type, added);
+    this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.ItemAdded, async (added)=> {
+      if (this._entryType === null)
+        return;
+
+      const currentTypes = moduleSettings.get(SettingKeys.types);
+
+      // if not a duplicate, add to the valid type lists 
+      if (!currentTypes[this._entryType].includes(added)) {
+        const updatedTypes = {
+          ...moduleSettings.get(SettingKeys.types),
+          [this._entryType]: currentTypes[this._entryType].concat([added]),
+        }
+        await moduleSettings.set(SettingKeys.types, updatedTypes);
+      }
     });
     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.SelectionMade, (selection)=> { 
       this._entry.setFlag(MODULE_ID, TopicFlags.type, selection);
