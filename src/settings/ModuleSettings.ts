@@ -32,8 +32,14 @@ export class ModuleSettings {
     this.registerSettings();
   }
 
+  // note that this returns the object directly, so if it's an object or array, if a reference
   public get<T extends SettingKeys>(setting: T): SettingType<T> {
     return getGame().settings.get(moduleJson.id, setting) as SettingType<T>;
+  }
+
+  // this gets something safe to modify
+  public getClone<T extends SettingKeys>(setting: T): SettingType<T> {
+    return deepClone(this.get(setting));
   }
 
   public async set<T extends SettingKeys>(setting: T, value: SettingType<T>): Promise<void> {

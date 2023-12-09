@@ -62,6 +62,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         this._entry = entry;
         this._entryType = entryType;
 
+        // get() returns the object and we don't want to modify it directly
         (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKeys.types)[entryType]);
       }
     }

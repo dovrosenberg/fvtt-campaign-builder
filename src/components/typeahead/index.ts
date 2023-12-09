@@ -74,7 +74,7 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
 
   // change the valid item list
   public updateList(list: string[]) {
-    this._list = list;
+    this._list = deepClone(list);
   }
 
   private _onKeydown(event: JQuery.KeyDownEvent): void {
