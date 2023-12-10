@@ -7,9 +7,15 @@ type DirectoryData = {
 
 export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
   static override _template = 'modules/world-builder/templates/Directory.hbs';
+
+  private _rootFolderId: string;
+  private _rootFolder: Folder;  
   
-  constructor() {
+  constructor(rootFolderId: string) {
     super();
+
+    this._rootFolderId = rootFolderId;
+    fromUuid(rootFolderId).then((folder) => { this._rootFolder = folder as unknown as Folder; })
   }
 
   protected _createPartials(): void {
@@ -19,15 +25,12 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
   public async getData(): Promise<DirectoryData> {
     const data = {
       // @ts-ignore
-      tree: ui.journal?.collection.tree,
-      //canCreateEntry: ui.journal?.canCreateEntry,
-      //canCreateFolder: ui.journal?.canCreateFolder,
+      tree: this._rootFolder.children,
       //sortIcon: ui.journal.collection.sortingMode === "a" ? "fa-arrow-down-a-z" : "fa-arrow-down-short-wide",
       //sortTooltip: ui.journal.collection.sortingMode === "a" ? "SIDEBAR.SortModeAlpha" : "SIDEBAR.SortModeManual",
       //searchIcon: ui.journal.collection.searchMode === CONST.DIRECTORY_SEARCH_MODES.NAME ? "fa-search" : "fa-file-magnifying-glass",
       //searchTooltip: ui.journal.collection.searchMode === CONST.DIRECTORY_SEARCH_MODES.NAME ? "SIDEBAR.SearchModeName" : "SIDEBAR.SearchModeFull",
       //documentCls: cls.documentName.toLowerCase(),
-      //tabName: cls.metadata.collection,
       //sidebarIcon: cfg.sidebarIcon,
       folderIcon: "fas fa-folder",
       user: getGame().user,
@@ -41,9 +44,18 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
   }
 
   public activateListeners(html: JQuery) {  
-    html.on('click', '#fwb-directory > .directory-list .directory-item', 
+    html.on('click', '#fwb-directory > .fwb-world-list .fwb-world-item', 
         (event: JQuery.ClickEvent): void => { 
           this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, (event?.currentTarget as HTMLElement).dataset.entryId, event); })
+
+    // open/close a folder
+    html.find('.fwb-world-item').on('click', (event: JQuery.ClickEvent) => {
+      const folder = Folder.get(event.currentTarget.dataset.folderId);
+      folder.expanded = !folder.expanded;
+
+      // rather than re-render just for this, update the css
+      jQuery(event.currentTarget).toggleClass('collapsed');
+    });
   }
 }
 

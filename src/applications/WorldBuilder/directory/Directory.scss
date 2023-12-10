@@ -29,8 +29,10 @@
     }
   }
 
-  .directory-list {
-    .directory-item {
+  .fwb-world-list {
+    padding: 0;
+    
+    .fwb-world-item {
       align-items: flex-start;
       justify-content: flex-start;
 
@@ -88,11 +90,11 @@
     color: var(--mej-sidebar-document-color);
   }
 
-  .directory.sidebar-tab .directory-list .entry.selected {
+  .directory.sidebar-tab .fwb-world-list .entry.selected {
     background: rgba(0, 0, 0, 0.03);
   }
 
-  .directory.sidebar-tab .directory-list .entry.selected h4 {
+  .directory.sidebar-tab .fwb-world-list .entry.selected h4 {
     font-weight: bold;
   }    
 

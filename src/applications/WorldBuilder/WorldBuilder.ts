@@ -32,7 +32,7 @@ export class WorldBuilder extends Application {
       WBHeader: new WBHeader(),
       WBFooter: new WBFooter(),
       WBContent: new WBContent(null),
-      Directory: new Directory(), 
+      Directory: new Directory(rootFolderId), 
     }
 
     this._rootFolderId = rootFolderId;
@@ -54,7 +54,7 @@ export class WorldBuilder extends Application {
       submitOnClose: false,
       submitOnChange: true,
       //viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
-      scrollY: ["ol.directory-list"]
+      scrollY: ["ol.fwb-world-list"]
     });
   }
 
@@ -91,10 +91,11 @@ export class WorldBuilder extends Application {
   }
   */
 
-  async getData(options): Promise<Object> {
+  async getData(): Promise<Object> {
     const data = {
-      ...(await super.getData(options)),
+      ...(await super.getData()),
       collapsed: (this._partials.WBHeader as unknown as WBHeader).collapsed,
+      worldId: this._worldId,
       WBHeader: () => WBHeader.template,
       WBHeaderData: await this._partials.WBHeader.getData(),
       WBContent: () => WBContent.template,
@@ -511,8 +512,8 @@ export class WorldBuilder extends Application {
 
     ui.journal._contextMenu.call(ui.journal, html);
 
-    const directory = html.find(".directory-list");
-    const entries = directory.find(".directory-item");
+    const directory = html.find(".fwb-world-list");
+    const entries = directory.find(".fwb-world-item");
 
     // Directory-level events
     html.find(`[data-folder-depth="${this.maxFolderDepth}"] .create-folder`).remove();
@@ -538,7 +539,7 @@ export class WorldBuilder extends Application {
     if (ui.journal.canCreateFolder) html.find(".create-folder").click(ui.journal._onCreateFolder.bind(this));
     if (ui.journal.canCreateEntry) html.find(".create-entry").click(ui.journal._onCreateEntry.bind(this));
 
-    this._searchFilters = [new SearchFilter({ inputSelector: 'input[name="search"]', contentSelector: ".directory-list", callback: ui.journal._onSearchFilter.bind(ui.journal) })];
+    this._searchFilters = [new SearchFilter({ inputSelector: 'input[name="search"]', contentSelector: ".fwb-world-list", callback: ui.journal._onSearchFilter.bind(ui.journal) })];
     this._searchFilters.forEach(f => f.bind(html[0]));
 
     ui.journal._dragDrop.forEach(d => d.bind(html[0]));

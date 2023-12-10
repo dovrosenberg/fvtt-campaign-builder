@@ -4,6 +4,7 @@
   collapsed: boolean
   canBack: boolean
   canForward: boolean
+  worldId: uuid of current world folder
   WBHeader: function that returns the template name
   WBContent: function that returns the template name
   WBFooter: function that returns the template name
@@ -18,6 +19,6 @@
     {{> (WBFooter) WBFooterData }}
   </section>
   <div id="fwb-directory-sidebar">
-    {{> (Directory) DirectoryData }}
+    {{> (Directory) data=DirectoryData currentWorld=worldId }}
   </div>
 </div>
