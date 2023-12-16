@@ -509,7 +509,7 @@ export class WorldBuilder extends Application {
     ui.journal._contextMenu.call(ui.journal, html);
 
     const directory = html.find(".fwb-world-list");
-    const entries = directory.find(".fwb-world-item");
+    const entries = directory.find(".fwb-world-folder");
 
     // Directory-level events
     html.find(`[data-folder-depth="${this.maxFolderDepth}"] .create-folder`).remove();

@@ -19,18 +19,35 @@
 
   {{! these are the worlds }}
   <ol class="fwb-world-list">
-    {{#each data.tree}}
-      <li class="fwb-world-item folder flexcol {{#unless (eq ../currentWorld folder.uuid)}}collapsed{{/unless}}"
-        data-folder-id="{{folder.id}}" data-uuid={{folder.uuid}} data-folder-depth="{{depth}}">
-        <header class="folder-header flexrow{{#if folder.color}} customcolor{{/if}}" {{#if folder.color}} style="background-color: {{folder.color}}" {{/if}}>
-          <h3 class="noborder"><i class="fas fa-folder-open fa-fw"></i>{{folder.name}}</h3>
+    {{#each data.worlds}}
+      <li class="fwb-world-folder folder flexcol {{#unless (eq ../currentWorld id)}}collapsed{{/unless}}"
+        data-world-id={{id}}>
+        <header class="folder-header flexrow">
+          <h3 class="noborder"><i class="fas fa-folder-open fa-fw"></i>{{name}}</h3>
         </header>
 
         {{! These are the topic compendia }}
-        <ol class="subdirectory" {{#if folder.color}} style="border-left-color: {{folder.color}};border-bottom-color: {{folder.color}}" {{/if}}>
-          {{#each entries}}
-            <li class="fwb-world-item entry document journalentry flexrow" data-entry-id="{{metadata.id}}">
-              <h4 class="entry-name"><a>{{metadata.label}}</a></h4>
+        <ol class="world-contents">
+          {{#each compendia}}
+            <li class="fwb-topic-folder folder entry flexcol" data-compendium-id="{{id}}">
+              <header class="folder-header flexrow">
+                <h4 class="noborder" style="margin-bottom:0px">
+                  <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>{{name}}
+                </h4>
+                <a class="create-button create-entry">
+                  <i class="fas fa-atlas"></i>
+                  <i class="fas fa-plus"></i>
+                </a>
+              </header>
+
+              <ol class="topic-contents">
+                {{! These are the journal entries}}
+                {{#each entries}}
+                  <li class="fwb-entry-item flexrow" data-entry-id="{{id}}">
+                      <h4 class="entry-name"><a>{{name}}</a></h4>
+                  </li>
+                {{/each}}
+              </ol>
             </li>
           {{/each}}
         </ol>
@@ -38,6 +55,7 @@
     {{/each~}}
   </ol>
 
+{{!--
   <!-- Directory Footer -->
   <footer class="directory-footer action-buttons {{#if data.unavailable}}warning{{/if}}">
     {{~#if data.unavailable}}
@@ -45,4 +63,5 @@
       <a class="show-issues">{{localize "SUPPORT.UnavailableDocuments" count=data.unavailable document=data.label}}</a>
     {{/if~}}
   </footer>
+  --}}
 </section>

@@ -39,7 +39,7 @@
   .fwb-world-list {
     padding: 0;
 
-    .fwb-world-item {
+    .fwb-world-folder {
       align-items: flex-start;
       justify-content: flex-start;
 
@@ -49,7 +49,7 @@
     }
   }
 
-  li.folder > .folder-header {
+  .fwb-world-folder > .folder-header {
     border-top: 1px solid var(--mej-sidebar-folder-border-collapsed);
     border-bottom: none;
     width: 100%;
@@ -58,39 +58,44 @@
     color: var(--color-text-light-highlight);
   }
 
-  li.folder:not(.collapsed) > .folder-header {
+  .fwb-world-folder:not(.collapsed) > .folder-header {
     border-top: 1px solid var(--mej-sidebar-folder-border);
     background: var(--mej-sidebar-folder-background);
   }
 
-  li.folder.collapsed > .folder-header:not(.customcolor) {
+  .fwb-world-folder.collapsed > .folder-header:not(.customcolor) {
     color: var(--mej-sidebar-folder-color-collapsed);
   }
 
-  li.folder .folder-header.context {
+  .fwb-world-folder .folder-header.context {
     border-top: 1px solid var(--mej-active-color);
     border-bottom: 1px solid var(--mej-active-color);
   }
 
-  li.folder .folder-header.context,
-  li.folder .folder-header.context h3 {
+  .fwb-world-folder .folder-header.context,
+  .fwb-world-folder .folder-header.context h3 {
     color: var(--mej-sidebar-folder-context-color);
   }
 
-  .subdirectory {
-    border-left: 4px solid var(--mej-sidebar-subfolder-border);
-    border-bottom: 4px solid var(--mej-sidebar-subfolder-border);
-    margin-bottom: 0px;
-    width: 100%;
-  }    
-
-  .subdirectory .folder {
-    border-left: 6px solid transparent;
-    border-color: transparent;
+  .fwb-topic-folder .folder-header {
+    background: inherit;
+    border: 0px;
   }
 
-  li.journalentry,
-  li.journalentrypage {
+  .world-contents {
+    border-left: 6px solid var(--mej-sidebar-subfolder-border);
+    border-bottom: 2px solid var(--mej-sidebar-subfolder-border);
+    margin: 0px;
+    width: 100%;
+    padding-left: 10px;
+
+    .topic-contents {
+      padding-left: 20px;
+      margin: 0px;
+    }
+  }    
+
+  li.journalentry {
     line-height: 32px;
     border-top: 1px solid var(--mej-sidebar-document-border-top);
     border-bottom: 1px solid var(--mej-sidebar-document-border-botom);

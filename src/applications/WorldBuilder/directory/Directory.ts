@@ -5,11 +5,15 @@ import { createEntry } from '@/compendia';
 import { Topic } from '@/types';
 
 type DirectoryData = {
-  tree: any,
+  worlds: {
+    world: { name: string, id: string },
+    compendia: { 
+      name: string, 
+      id: string,
+      entries: { name: string, id: string } ,
+    }[],
+  }[],
   folderIcon: string,
-  user: StoredDocument<User>,
-  label: string,
-  labelPlural: string,
 }
 
 export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
@@ -30,7 +34,18 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
   public async getData(): Promise<DirectoryData> {
     const data = {
       // @ts-ignore
-      tree: this._rootFolder.children,
+      worlds: this._rootFolder.children.map((world)=> ({
+        name: world.folder.name,
+        id: world.folder.uuid,
+        compendia: world.entries.map((compendium)=>({
+          name: compendium.metadata.label,
+          id: compendium.metadata.id,
+          entries: compendium.tree.entries.map((entry)=> ({
+            name: entry.name,
+            id: entry.id,
+          }))
+        }))
+      })),
       //sortIcon: ui.journal.collection.sortingMode === "a" ? "fa-arrow-down-a-z" : "fa-arrow-down-short-wide",
       //sortTooltip: ui.journal.collection.sortingMode === "a" ? "SIDEBAR.SortModeAlpha" : "SIDEBAR.SortModeManual",
       //searchIcon: ui.journal.collection.searchMode === CONST.DIRECTORY_SEARCH_MODES.NAME ? "fa-search" : "fa-file-magnifying-glass",
@@ -38,10 +53,6 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
       //documentCls: cls.documentName.toLowerCase(),
       //sidebarIcon: cfg.sidebarIcon,
       folderIcon: 'fas fa-folder',
-      user: getGame().user,
-      label: localize('MonksEnhancedJournal.Entry'),
-      labelPlural: 'abc', //i18n(cls.metadata.labelPlural),
-      //unavailable: game.user.isGM ? cfg.collection?.instance?.invalidDocumentIds?.size : 0
     };
 
     // log(false, data);
@@ -49,18 +60,20 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
   }
 
   public activateListeners(html: JQuery) {  
-    html.on('click', '#fwb-directory > .fwb-world-list .fwb-world-item', 
-      (event: JQuery.ClickEvent): void => { 
-        this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, (event?.currentTarget as HTMLElement).dataset.entryId, event); 
-      });
-
     // open/close a folder
-    html.find('.fwb-world-item').on('click', (event: JQuery.ClickEvent) => {
+    html.find('.fwb-world-folder').on('click', (event: JQuery.ClickEvent) => {
+      // if it was already collapsed, then open it and change worlds
+
+      // otherwise, do nothing
+
+
       const folder = Folder.get(event.currentTarget.dataset.folderId);
       folder.expanded = !folder.expanded;
 
       // rather than re-render just for this, update the css
       jQuery(event.currentTarget).toggleClass('collapsed');
+
+      this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, (event?.currentTarget as HTMLElement).dataset.entryId, event); 
     });
 
     // temp button
