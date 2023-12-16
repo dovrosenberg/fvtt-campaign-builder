@@ -43,8 +43,9 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
 
   public activateListeners(html: JQuery) {  
     html.on('click', '#fwb-directory > .fwb-world-list .fwb-world-item', 
-        (event: JQuery.ClickEvent): void => { 
-          this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, (event?.currentTarget as HTMLElement).dataset.entryId, event); })
+      (event: JQuery.ClickEvent): void => { 
+        this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, (event?.currentTarget as HTMLElement).dataset.entryId, event); 
+      });
 
     // open/close a folder
     html.find('.fwb-world-item').on('click', (event: JQuery.ClickEvent) => {

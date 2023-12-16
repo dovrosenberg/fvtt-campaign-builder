@@ -34,7 +34,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     // if there are no tabs, add one
     if (!this._tabs.length)
-      this.openEntry();
+      void this.openEntry();
   }
 
   protected _createPartials(): void {
@@ -61,25 +61,25 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     });
 
     // bookmark and tab listeners
-    html.on('click', '#fwb-add-bookmark', () => { this._addBookmark(); });
-    html.on('click', '.fwb-bookmark-button', (event: JQuery.ClickEvent): void => { this._activateBookmark((event.currentTarget as HTMLElement).dataset.bookmarkId as string) });
-    html.on('click', '#fwb-add-tab', () => { this.openEntry() });
-    html.on('click', '.fwb-tab', (event: JQuery.ClickEvent): void => {
-      this._activateTab((event.currentTarget as HTMLElement).dataset.tabId as string);
+    html.on('click', '#fwb-add-bookmark', async () => { await this._addBookmark(); });
+    html.on('click', '.fwb-bookmark-button', async (event: JQuery.ClickEvent) => { await this._activateBookmark((event.currentTarget as HTMLElement).dataset.bookmarkId as string); });
+    html.on('click', '#fwb-add-tab', async () => { await this.openEntry(); });
+    html.on('click', '.fwb-tab', async (event: JQuery.ClickEvent) => {
+      void this._activateTab((event.currentTarget as HTMLElement).dataset.tabId as string);
     });
 
-    html.on('click', '#fwb-history-back', () => { this._navigateHistory(-1); });
-    html.on('click', '#fwb-history-forward', () => { this._navigateHistory(1); });
+    html.on('click', '#fwb-history-back', () => { void this._navigateHistory(-1); });
+    html.on('click', '#fwb-history-forward', () => { void this._navigateHistory(1); });
 
     // listeners for the tab close buttons
-    $(html).on('click', '.fwb-tab .close', (event: JQuery.ClickEvent) => {
+    $(html).on('click', '.fwb-tab .close', async (event: JQuery.ClickEvent) => {
       let tabId;
 
       if (event.currentTarget)
         tabId = ($(event.currentTarget)?.closest('.fwb-tab')[0] as HTMLElement).dataset.tabId as string;
 
-        if (tabId)
-          this._closeTab(tabId);
+      if (tabId)
+        await this._closeTab(tabId);
     });
 
     // set up the drag & drop for tabs and bookmarks
@@ -90,7 +90,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
         'dragstart': this._onDragStart.bind(this),
         'drop': this._onDrop.bind(this),
       }
-    })
+    });
     dragDrop.bind(html.get()[0]);
     dragDrop = new DragDrop({
       dragSelector: '.fwb-bookmark-button', 
@@ -99,11 +99,11 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
         'dragstart': this._onDragStart.bind(this),
         'drop': this._onDrop.bind(this),
       }
-    })
+    });
     dragDrop.bind(html.get()[0]);
 
     // context menu
-    this._createContextMenus(html);
+    void this._createContextMenus(html);
   }
 
   public get collapsed(): boolean {
@@ -126,8 +126,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     // TODO - why use fromUuid here b not in WBContnt.updateEntry()?
     const journal = entryId ? await fromUuid(entryId) as JournalEntry : null;
-    let entryName = (!!journal ? journal.name : localize('fwb.labels.newTab')) || '';
-    const entry = { uuid: !!journal ? entryId : null, name: entryName, icon: !!journal ? getIcon(EntryFlags.get(journal, EntryFlagKey.topic)) : '' }
+    const entryName = (journal ? journal.name : localize('fwb.labels.newTab')) || '';
+    const entry = { uuid: journal ? entryId : null, name: entryName, icon: journal ? getIcon(EntryFlags.get(journal, EntryFlagKey.topic)) : '' };
 
     // see if we need a new tab
     let tab;
@@ -160,11 +160,10 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     }
 
     if (options.activate)
-      this._activateTab(tab.id);  
-
+      await this._activateTab(tab.id);  
 
     // activating doesn't always save (ex. if we added a new entry to active tab)
-    this._saveTabs();
+    await this._saveTabs();
 
     // update the recent list (except for new tabs)
     if (entry.uuid)
@@ -180,7 +179,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
    * Private methods
   */
   private _canBack(tab?: WindowTab): boolean {
-    let checkTab = tab || this._activeTab();
+    const checkTab = tab || this._activeTab();
 
     if (!checkTab)
       return false;
@@ -189,7 +188,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   }
 
   private _canForward(tab?: WindowTab): boolean {
-    let checkTab = tab || this._activeTab();
+    const checkTab = tab || this._activeTab();
 
     if (!checkTab)
       return false;
@@ -206,7 +205,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     }
 
     return tab || null;
-  };  
+  }
 
   // add a new entity to the recent list
   private async _updateRecent(entry: EntryHeader): Promise<void> {
@@ -222,7 +221,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (recent.length > 5)
       recent = recent.slice(0, 5);
 
-      UserFlags.set(UserFlagKey.recentlyViewed, recent);
+    await UserFlags.set(UserFlagKey.recentlyViewed, recent);
   }
 
   // activate the given tab, first closing the current subsheet
@@ -235,7 +234,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       return;
 
     // see if it's already current
-    let currentTab = this._activeTab(false);
+    const currentTab = this._activeTab(false);
     if (currentTab?.id === tabId) {
       return;
     }
@@ -246,11 +245,11 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     
     newTab.active = true;
 
-    this._saveTabs();
+    await this._saveTabs();
 
     // add to recent, unless it's a "new tab"
     if (newTab?.entry?.uuid)
-      this._updateRecent(newTab.entry);
+      await this._updateRecent(newTab.entry);
 
     this._makeCallback(WBHeader.CallbackType.TabsChanged);
     this._makeCallback(WBHeader.CallbackType.EntryChanged, newTab.entry.uuid);
@@ -309,10 +308,10 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 */
 
   // remove the tab given by the id from the list
-  private _closeTab(tabId: string) {
+  private async _closeTab(tabId: string) {
     // find the tab
-    let tab = this._tabs.find((t) => (t.id === tabId));
-    let index = this._tabs.findIndex((t) => (t.id === tabId));
+    const tab = this._tabs.find((t) => (t.id === tabId));
+    const index = this._tabs.findIndex((t) => (t.id === tabId));
 
     if (!tab) return;
 
@@ -320,22 +319,22 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     this._tabs.splice(index, 1);
 
     if (this._tabs.length === 0) {
-      this.openEntry();  // make a default tab if that was the last one (will also activate it) and save them
+      await this.openEntry();  // make a default tab if that was the last one (will also activate it) and save them
     } else if (tab.active) {
       // if it was active, make the one before it active (or after if it was up front)
       if (index===0) {
-        this._activateTab(this._tabs[0].id);  // will also save them
+        await this._activateTab(this._tabs[0].id);  // will also save them
       }
       else {
-        this._activateTab(this._tabs[index-1].id);  // will also save them
+        await this._activateTab(this._tabs[index-1].id);  // will also save them
       }
     }
 
     this._makeCallback(WBHeader.CallbackType.TabsChanged);
   }
 
-  private _saveTabs() {
-    UserFlags.set(UserFlagKey.tabs, this._tabs);
+  private async _saveTabs() {
+    await UserFlags.set(UserFlagKey.tabs, this._tabs);
   }
 
   /*
@@ -355,9 +354,9 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 */
 
   // add the current tab as a new bookmark
-  _addBookmark(): void {
+  async _addBookmark(): Promise<void> {
     //get the current tab and save the entity and name
-    let tab = this._activeTab();
+    const tab = this._activeTab();
 
     // TODO - should disable the add button in this situation
     if (!tab?.entry)
@@ -365,47 +364,47 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     // see if a bookmark for the entry already exists
     if (this._bookmarks.find((b) => (b.entry.uuid === tab?.entry?.uuid)) != undefined) {
-      ui?.notifications?.warn(localize("fwb.errors.duplicateBookmark"));
+      ui?.notifications?.warn(localize('fwb.errors.duplicateBookmark'));
       return;
     }
 
-    let bookmark = {
+    const bookmark = {
       id: randomID(),
       entry: tab.entry,
       icon: 'fa-place-of-worship'  // TODO - get icon based on type
-    }
+    };
 
     this._bookmarks.push(bookmark);
 
     // TODO - need to create the context menu so you can delete the bookmark
 
-    this._saveBookmarks();
+    await this._saveBookmarks();
     this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
   }
 
   private async _activateBookmark(bookmarkId: string) {
-    let bookmark = this._bookmarks.find(b => b.id === bookmarkId);
+    const bookmark = this._bookmarks.find(b => b.id === bookmarkId);
 
     if (bookmark) {
-      this.openEntry(bookmark?.entry.uuid, { newTab: false });
+      await this.openEntry(bookmark?.entry.uuid, { newTab: false });
     }
   }
 
   // removes the bookmark with given id
-  private _removeBookmark(id: string) {
+  private async _removeBookmark(id: string) {
     this._bookmarks.findSplice(b => b.id === id);
-    this._saveBookmarks();
+    await this._saveBookmarks();
 
     this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
   }
 
-  private _saveBookmarks() {
-    UserFlags.set(UserFlagKey.bookmarks, this._bookmarks);
+  private async _saveBookmarks() {
+    await UserFlags.set(UserFlagKey.bookmarks, this._bookmarks);
   }
 
   // moves forward/back through the history "move" spaces (or less if not possible); negative numbers move back
   private async _navigateHistory(move: number) {
-    let tab = this._activeTab();
+    const tab = this._activeTab();
 
     if (!tab) return;
 
@@ -420,7 +419,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     this._makeCallback(WBHeader.CallbackType.HistoryMoved);
   }
-/*
+
+  /*
 async getHistory() {
   let index = 0;
   let tab = this._activeTab();
@@ -460,7 +460,7 @@ async getHistory() {
         //from: this.object.uuid 
       } as { type: string, tabId?: string};
 
-      let tabId = target.dataset.tabId;
+      const tabId = target.dataset.tabId;
       dragData.type = 'fwb-tab';   // JournalEntry... may want to consider passing a type that other things can do something with
       dragData.tabId = tabId;
 
@@ -468,9 +468,9 @@ async getHistory() {
     } else if ($(target).hasClass('fwb-bookmark-button')) {
       const dragData = { 
         //from: this.object.uuid 
-      } as { type: string, bookmarkId?: string};;
+      } as { type: string, bookmarkId?: string};
 
-      let bookmarkId = target.dataset.bookmarkId;
+      const bookmarkId = target.dataset.bookmarkId;
       dragData.type = 'fwb-bookmark';
       dragData.bookmarkId = bookmarkId;
 
@@ -497,28 +497,28 @@ async getHistory() {
       if (data.tabId === target.dataset.tabId) return; // Don't drop on yourself
 
       // insert before the drop target
-      let from = this._tabs.findIndex(t => t.id === data.tabId);
-      let to = this._tabs.findIndex(t => t.id === target.dataset.tabId);
+      const from = this._tabs.findIndex(t => t.id === data.tabId);
+      const to = this._tabs.findIndex(t => t.id === target.dataset.tabId);
       this._tabs.splice(to, 0, this._tabs.splice(from, 1)[0]);
 
       // activate the moved one (will also save the tabs)
-      this._activateTab(data.tabId);
-      this._makeCallback(WBHeader.CallbackType.TabsChanged);
+      await this._activateTab(data.tabId);
+      await this._makeCallback(WBHeader.CallbackType.TabsChanged);
     } else if (data.type==='fwb-bookmark') {
       const target = (event.currentTarget as HTMLElement).closest('.fwb-bookmark-button') as HTMLElement;
       if (!target)
-      return false;
+        return false;
 
       if (data.bookmarkId === target.dataset.bookmarkId) return; // Don't drop on yourself
 
       // insert before the drop target
       // TODO- ability to move to end
-      let from = this._bookmarks.findIndex(b => b.id === data.bookmarkId);
-      let to = this._bookmarks.findIndex(b => b.id === target.dataset.bookmarkId);
+      const from = this._bookmarks.findIndex(b => b.id === data.bookmarkId);
+      const to = this._bookmarks.findIndex(b => b.id === target.dataset.bookmarkId);
       this._bookmarks.splice(to, 0, this._bookmarks.splice(from, 1)[0]);
 
       // save bookmarks (we don't activate anything)
-      this._saveBookmarks();
+      await this._saveBookmarks();
       this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
     } else {
       return false;
@@ -529,23 +529,23 @@ async getHistory() {
 
   async _createContextMenus(html) {
     // bookmarks 
-    new ContextMenu(html, ".fwb-bookmark-button", [
+    new ContextMenu(html, '.fwb-bookmark-button', [
       {
-        name: "fwb.contextMenus.bookmarks.openNewTab",
+        name: 'fwb.contextMenus.bookmarks.openNewTab',
         icon: '<i class="fas fa-file-export"></i>',
         callback: async (li) => {
-          let bookmark = this._bookmarks.find(b => b.id === li[0].dataset.bookmarkId);
+          const bookmark = this._bookmarks.find(b => b.id === li[0].dataset.bookmarkId);
           if (bookmark)
-            this.openEntry(bookmark.entry.uuid, { newTab: true });
+            await this.openEntry(bookmark.entry.uuid, { newTab: true });
         }
       },
       {
-        name: "fwb.contextMenus.bookmarks.delete",
+        name: 'fwb.contextMenus.bookmarks.delete',
         icon: '<i class="fas fa-trash"></i>',
-        callback: li => {
+        callback: async (li) => {
           const bookmark = this._bookmarks.find(b => b.id === li[0].dataset.bookmarkId);
           if (bookmark)
-            this._removeBookmark(bookmark.id);
+            await this._removeBookmark(bookmark.id);
         }
       }
     ]);

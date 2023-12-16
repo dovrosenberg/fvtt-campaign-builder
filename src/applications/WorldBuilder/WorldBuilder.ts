@@ -41,8 +41,8 @@ export class WorldBuilder extends Application {
 
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      id: "WorldBuilder",
-      template: "modules/world-builder/templates/WorldBuilder.hbs",
+      id: 'WorldBuilder',
+      template: 'modules/world-builder/templates/WorldBuilder.hbs',
       title: localize('fwb.title'),
       classes: ['fwb-main-window'], 
       popOut: true,
@@ -54,7 +54,7 @@ export class WorldBuilder extends Application {
       submitOnClose: false,
       submitOnChange: true,
       //viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
-      scrollY: ["ol.fwb-world-list"]
+      scrollY: ['ol.fwb-world-list']
     });
   }
 
@@ -115,10 +115,10 @@ export class WorldBuilder extends Application {
     });
 
     // setup component listeners
-    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabsChanged, ()=> { this.render(); });
-    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.BookmarksChanged, ()=> { this.render(); });
-    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.SidebarToggled, ()=> { this.render(); });
-    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.HistoryMoved, ()=> { this.render(); });
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabsChanged, ()=> { void this.render(); });
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.BookmarksChanged, ()=> { void this.render(); });
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.SidebarToggled, ()=> { void this.render(); });
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.HistoryMoved, ()=> { void this.render(); });
 
     // when the content needs to be updated
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.EntryChanged, (entryId) => { (this._partials.WBContent as WBContent).updateEntry(entryId); this.render();});
@@ -132,7 +132,7 @@ export class WorldBuilder extends Application {
   }
 
   public async render(force?: boolean, options = {}) {
-    let retval = await super.render(force, options);
+    const retval = await super.render(force, options);
 
     // if (setting('background-image') != 'none') {
     //     $(this.element).attr("background-image", setting('background-image'));
@@ -146,11 +146,11 @@ export class WorldBuilder extends Application {
     //     $(this.element).removeAttr("sidebar-image");
     // }
 
-        return retval;
+    return retval;
   }
 
   private _onDirectoryEntrySelected(entryId: string, event: MouseEvent): void { 
-     (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: event.ctrlKey}); 
+    void (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: event.ctrlKey}); 
   }
 
   /*
@@ -374,7 +374,7 @@ export class WorldBuilder extends Application {
 
 
 */
-/*
+  /*
   _randomizePerson() {
     //randomize first name, last name, race, gender, profession
     //check first to see if the field needs to be rendomized, or if the fields are filled in
@@ -497,7 +497,7 @@ export class WorldBuilder extends Application {
     return this.subsheet._onChangeInput(event);
   }
 */
-/*    activateDirectoryListeners(html) {   
+  /*    activateDirectoryListeners(html) {   
     $('#fwb-sidebar-toggle', html).on('click', () => {
       if (this._collapsed)
         this.expandSidebar();

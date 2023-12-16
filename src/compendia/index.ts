@@ -8,7 +8,7 @@ import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 // returns the uuid of the root folder
 // if it is not stored in settings, creates a new folder
 export async function getRootFolder(): Promise<Folder> {
-  let rootFolderId = moduleSettings.get(SettingKey.rootFolderId);
+  const rootFolderId = moduleSettings.get(SettingKey.rootFolderId);
   let folder: Folder | null;
 
   if (!rootFolderId) {
@@ -46,7 +46,7 @@ export async function createRootFolder(name?: string): Promise<Folder> {
   }]);
 
   if (!folders)
-    throw new Error('Couldn\'t create root folder')
+    throw new Error('Couldn\'t create root folder');
 
   return folders[0];
 }
@@ -63,7 +63,7 @@ export async function createWorldFolder(rootFolder: Folder, name: string, makeDe
   }]);
 
   if (!folders)
-    throw new Error('Couldn\'t create new folder')
+    throw new Error('Couldn\'t create new folder');
 
   // create the compendia inside
   
@@ -77,11 +77,8 @@ export async function createWorldFolder(rootFolder: Folder, name: string, makeDe
 
 // returns the root and world, creating if needed
 export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFolder: Folder}> {
-  let rootFolder: Folder, worldId: string;
-
-  rootFolder = await getRootFolder(); // will create if needed
-  
-  worldId = moduleSettings.get(SettingKey.defaultWorldId);
+  const rootFolder = await getRootFolder(); // will create if needed
+  const worldId = moduleSettings.get(SettingKey.defaultWorldId);
 
   // make sure we have a default and it exists
   let worldFolder = null as Folder | null;
@@ -122,14 +119,14 @@ async function validateCompendia(worldFolder: Folder): Promise<void> {
     [Topic.Event]: '',
     [Topic.Location]: '',
     [Topic.Organization]: '',
-  }
+  };
    
   const flag = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia); 
 
   if (flag) {
-    compendia = flag
+    compendia = flag;
   } else {
-    updated = true
+    updated = true;
   }
 
   // check them all

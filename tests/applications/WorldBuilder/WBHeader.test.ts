@@ -61,7 +61,7 @@ const createWBHeader = (): WBHeader => {
   retval['_bookmarks'] = _.cloneDeep(mockBookmarks);
 
   return retval;
-}
+};
 
 describe('WBHeader', () => {
   beforeAll(() => {
@@ -80,7 +80,7 @@ describe('WBHeader', () => {
 
     beforeEach(() => {
       wbHeader = new WBHeader();   // use a clean one
-    })
+    });
 
     it('should open one tab from blank slate', () => {
       // pretend they're blank
@@ -156,7 +156,7 @@ describe('WBHeader', () => {
       });
 
       it('should save the new tabs',async () => {
-        const set = UserFlags.set.mockImplementation((key, value) =>{});
+        const set = UserFlags.set.mockImplementation((_key, _value) =>{});
         await wbHeader.openEntry(null);
 
         expect(set).toHaveBeenCalledWith(UserFlagKey.tabs, wbHeader['_tabs']);
@@ -209,7 +209,7 @@ describe('WBHeader', () => {
       });
 
       it('should save the new tabs',async () => {
-        const set = UserFlags.set.mockImplementation((key, value) =>{});
+        const set = UserFlags.set.mockImplementation((_key, _value) =>{});
         await wbHeader.openEntry(mockEntries[0].uuid, { newTab: true });
 
         expect(set).toHaveBeenCalledWith(UserFlagKey.tabs, wbHeader['_tabs']);

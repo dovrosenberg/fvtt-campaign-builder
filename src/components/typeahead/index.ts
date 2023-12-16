@@ -40,12 +40,12 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
     this._control = html.find(`#${this._id}.fwb-typeahead`);
 
     // Get input and dropdown elements
-    var input = this._control.find('#fwb-ta-input');
-    var dropdown = this._control.find('#fwb-ta-dropdown');
+    const input = this._control.find('#fwb-ta-input');
+    const dropdown = this._control.find('#fwb-ta-dropdown');
 
     // Event listener for input changes
     input.on('input',  () => {
-      var inputValue = input.val()?.toString().toLowerCase() || '';
+      const inputValue = input.val()?.toString().toLowerCase() || '';
 
       // blank everything out if the string is empty (so box closes)
       this._filteredItems = !inputValue ? [] : this._list.filter((item)=>item.toLowerCase().indexOf(inputValue)!==-1);
