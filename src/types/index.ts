@@ -18,6 +18,7 @@ export type EntryHeader = {
 }
 
 export enum Topic {
+  None,
   Character,
   Event,
   Location,

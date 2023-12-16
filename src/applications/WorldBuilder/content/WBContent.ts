@@ -1,12 +1,13 @@
 import './WBContent.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { HomePage, HomePageData} from './HomePage';
-import { getGame } from '@/utils/game';
+import { localize } from '@/utils/game';
 import { Topic } from '@/types';
 import { getIcon } from '@/utils/misc';
 import { TypeAhead, TypeAheadData } from '@/components/typeahead';
 import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+import { updateEntry } from '@/compendia';
 
 export type WBContentData = {
   showHomePage: true,
@@ -22,6 +23,7 @@ export type WBContentData = {
   relationships: { tab: string, label: string }[],
   typeAheadTemplate: () => string,
   typeAheadData: TypeAheadData,
+  namePlaceholder: string,
 }
 
 export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
@@ -33,7 +35,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   constructor(entryId = null as string | null) {
     super();
 
-    this.updateEntry(entryId);
+    void this.updateEntry(entryId);
   }
 
   // we will dynamically setup the partials
@@ -42,7 +44,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     this._partials.TypeTypeAhead = new TypeAhead([]);
   }
 
-  public updateEntry(entryId: string | null) {
+  public async updateEntry(entryId: string | null) {
     // we need to setup the type before calling the constructor
     // look up the entry - note could use fromUuid, but it's a bit tricky for compendia and also async
     if (!entryId) {
@@ -50,10 +52,11 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._entryId = null;
       this._topic = null;
     } else {
-      const entry = getGame().journal?.find((j) => (j.uuid===entryId));
+      // we must use fromUuid because these are all in compendia
+      const entry = await fromUuid(entryId) as JournalEntry | null;
       const topic = entry ? EntryFlags.get(entry, EntryFlagKey.topic) : null;
 
-      if (!entry || topic===null) {
+      if (!entry || !topic) {
         // show the homepage
         this._entryId = null;
         this._topic = null;
@@ -72,13 +75,19 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   public async getData(): Promise<WBContentData> {
     let data: WBContentData;
 
-    const relationships = [
-      { tab: 'characters', label: 'fwb.labels.tabs.characters'},
-      { tab: 'locations', label: 'fwb.labels.tabs.locations'},
-      { tab: 'organizations', label: 'fwb.labels.tabs.organizations'},
-      { tab: 'events', label: 'fwb.labels.tabs.events'},
-    ] as { tab: string, label: string }[];
+    const topicData = {
+      [Topic.Character]: { namePlaceholder: 'fwb.placeholders.characterName', },
+      [Topic.Event]: { namePlaceholder: 'fwb.placeholders.characterName', },
+      [Topic.Location]: { namePlaceholder: 'fwb.placeholders.characterName', },
+      [Topic.Organization]: { namePlaceholder: 'fwb.placeholders.characterName', },
+    };
 
+    const relationships = [
+      { tab: 'characters', label: 'fwb.labels.tabs.characters', },
+      { tab: 'locations', label: 'fwb.labels.tabs.locations',},
+      { tab: 'organizations', label: 'fwb.labels.tabs.organizations', },
+      { tab: 'events', label: 'fwb.labels.tabs.events', },
+    ] as { tab: string, label: string, }[];
 
     if (!this._entryId) {
       // homepage
@@ -100,6 +109,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         relationships: relationships,
         typeAheadTemplate: () => TypeAhead.template,
         typeAheadData: await this._partials.TypeTypeAhead.getData(),
+        namePlaceholder: localize(topicData[this._topic].namePlaceholder),
       };
     }
 
@@ -114,6 +124,12 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     else {
       this._partials.TypeTypeAhead.activateListeners(html);
     }
+
+    // watch for edits to name
+    html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
+      await updateEntry(this._entry, { name: jQuery(event.target).val() });
+      this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
+    });
 
     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, (uuid: string)=> {
       this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
@@ -134,7 +150,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       }
     });
     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.SelectionMade, (selection)=> { 
-      EntryFlags.set(this._entry, EntryFlagKey.type, selection);
+      void EntryFlags.set(this._entry, EntryFlagKey.type, selection);
     });
 
   }
@@ -422,5 +438,6 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
 export namespace WBContent {
   export enum CallbackType {
     RecentClicked,
+    NameChanged,
   }
 }

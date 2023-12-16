@@ -4,6 +4,7 @@ import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 import { getGame, localize } from '@/utils/game';
 import { Topic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 
 // returns the uuid of the root folder
 // if it is not stored in settings, creates a new folder
@@ -190,7 +191,7 @@ export async function createEntry(worldFolder: Folder, name: string, topic: Topi
     throw new Error('Missing compendia in createEntry()');
 
   // unlock it to make the change
-  const pack = game.packs.get(compendia[topic]);
+  const pack = getGame().packs.get(compendia[topic]);
   if (!pack)
     throw new Error('Bad compendia in createEntry()');
 
@@ -203,7 +204,27 @@ export async function createEntry(worldFolder: Folder, name: string, topic: Topi
     pack: compendia[topic],
   });
 
+  if (entry)
+    await EntryFlags.set(entry, EntryFlagKey.topic, topic);
+
   await pack.configure({locked:true});
 
   return entry || null;
+}
+
+// updates an entry, unlocking compedium to do it
+export async function updateEntry(entry: JournalEntry, data: any): Promise<JournalEntry | null> {
+  if (!entry.pack)
+    throw new Error('Invalid compedia in updateEntry()');
+
+  // unlock compendium to make the change
+  const pack = getGame().packs.get(entry.pack);
+  if (!pack)
+    throw new Error('Bad compendia in updateEntry()');
+
+  await pack.configure({locked:false});
+  const retval = await entry.update(data) || null;
+  await pack.configure({locked:true});
+
+  return retval;
 }

@@ -22,6 +22,12 @@
         "organizationChildren": "Sub-organizations"
       }
     },
+    "placeholders": {
+      "fwb.placeholders.characterName": "Character Name",
+      "fwb.placeholders.eventName": "Event Name",
+      "fwb.placeholders.locationName": "Location Name",
+      "fwb.placeholders.organizationName": "Organization Name"
+    },
     "topics": {
       "character": "Character",
       "event": "Event",

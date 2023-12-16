@@ -7,6 +7,7 @@ import { Bookmark, EntryHeader, Topic, WindowTab } from '@/types';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { getIcon } from '@/utils/misc';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+import { TEXT_ANCHOR_POINTS } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 
 type WBHeaderData = {
   tabs: WindowTab[];
@@ -175,6 +176,32 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     return tab;
   }
 
+  // when an entry has it's name changed, we need to propogate that through all the saved tabs, etc.
+  public async changeEntryName(entry: JournalEntry) {
+    this._tabs = this._tabs.map((t)=> {
+      if (t.entry.uuid===entry.uuid)
+        t.entry.name = entry.name || '';
+      return t;
+    });
+
+    this._bookmarks = this._bookmarks.map((b)=> {
+      if (b.entry.uuid===entry.uuid)
+        b.entry.name = entry.name || '';
+      return b;
+    });
+
+    let recent = UserFlags.get(UserFlagKey.recentlyViewed) || [];
+    recent = recent.map((r)=> {
+      if (r.uuid===entry.uuid)
+        r.name = entry.name || '';
+      return r;
+    });
+
+    await this._saveTabs();
+    await this._saveBookmarks();
+    await UserFlags.set(UserFlagKey.recentlyViewed, recent);
+  }
+
   /******************************************************
    * Private methods
   */
@@ -255,6 +282,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     this._makeCallback(WBHeader.CallbackType.EntryChanged, newTab.entry.uuid);
     return;
   }
+
 
   /*
   private _updateTab(tab, entity, options = {}) {

@@ -10,10 +10,9 @@ type DirectoryData = {
     compendia: { 
       name: string, 
       id: string,
-      entries: { name: string, id: string } ,
+      entries: { name: string, uuid: string } ,
     }[],
   }[],
-  folderIcon: string,
 }
 
 export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
@@ -42,17 +41,12 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
           id: compendium.metadata.id,
           entries: compendium.tree.entries.map((entry)=> ({
             name: entry.name,
-            id: entry.id,
+            uuid: entry.uuid,
           }))
         }))
       })),
-      //sortIcon: ui.journal.collection.sortingMode === "a" ? "fa-arrow-down-a-z" : "fa-arrow-down-short-wide",
-      //sortTooltip: ui.journal.collection.sortingMode === "a" ? "SIDEBAR.SortModeAlpha" : "SIDEBAR.SortModeManual",
       //searchIcon: ui.journal.collection.searchMode === CONST.DIRECTORY_SEARCH_MODES.NAME ? "fa-search" : "fa-file-magnifying-glass",
       //searchTooltip: ui.journal.collection.searchMode === CONST.DIRECTORY_SEARCH_MODES.NAME ? "SIDEBAR.SearchModeName" : "SIDEBAR.SearchModeFull",
-      //documentCls: cls.documentName.toLowerCase(),
-      //sidebarIcon: cfg.sidebarIcon,
-      folderIcon: 'fas fa-folder',
     };
 
     // log(false, data);
@@ -60,8 +54,9 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
   }
 
   public activateListeners(html: JQuery) {  
-    // open/close a folder
-    html.find('.fwb-world-folder').on('click', (event: JQuery.ClickEvent) => {
+    // change world
+    html.on('click', '.fwb-world-folder', (event: JQuery.ClickEvent) => {
+      event.stopPropagation();
       // if it was already collapsed, then open it and change worlds
 
       // otherwise, do nothing
@@ -72,13 +67,26 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
 
       // rather than re-render just for this, update the css
       jQuery(event.currentTarget).toggleClass('collapsed');
+    });
 
-      this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, (event?.currentTarget as HTMLElement).dataset.entryId, event); 
+    // open/close a topic
+    html.on('click', '.fwb-topic-folder', (event: JQuery.ClickEvent) => {
+      event.stopPropagation();
+      // toggle the collapse
+
+      // rather than re-render just for this, update the css
+      jQuery(event.currentTarget).toggleClass('collapsed');
     });
 
     // temp button
     html.find('#fwb-temp').on('click', () => {
       void createEntry(getGame().folders?.find((f)=>f.name==='World A') as Folder, randomID(), Topic.Character);
+    });
+
+    // select an entry
+    html.on('click', '.fwb-entry-item', (event: JQuery.ClickEvent) => {
+      event.stopPropagation();
+      this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, event.currentTarget.dataset.entryId, event.ctrlKey);
     });
 
   }

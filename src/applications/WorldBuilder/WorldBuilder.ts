@@ -126,9 +126,16 @@ export class WorldBuilder extends Application {
     // recent item clicked - open it in current tab
     this._partials.WBContent.registerCallback(WBContent.CallbackType.RecentClicked, (uuid: string) => { (this._partials.WBHeader as WBHeader).openEntry(uuid, { newTab: false }) });
 
+    // item name changed - rerender
+    this._partials.WBContent.registerCallback(WBContent.CallbackType.NameChanged, async (entry: JournalEntry) => { 
+      // let the header know
+      await (this._partials.WBHeader as WBHeader).changeEntryName(entry);
+      void this.render(); 
+    });
+
     // when new entry is selected in directory
     this._partials.Directory.registerCallback(Directory.CallbackType.DirectoryEntrySelected, 
-      (entryId: string, event: MouseEvent) => { this._onDirectoryEntrySelected(entryId, event); });
+      (entryId: string, newTab: boolean) => { this._onDirectoryEntrySelected(entryId, newTab); });
   }
 
   public async render(force?: boolean, options = {}) {
@@ -149,8 +156,8 @@ export class WorldBuilder extends Application {
     return retval;
   }
 
-  private _onDirectoryEntrySelected(entryId: string, event: MouseEvent): void { 
-    void (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: event.ctrlKey}); 
+  private _onDirectoryEntrySelected(entryId: string, newTab: boolean): void { 
+    void (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: newTab}); 
   }
 
   /*
