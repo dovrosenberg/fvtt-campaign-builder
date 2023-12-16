@@ -531,9 +531,6 @@ export class WorldBuilder extends Application {
     html.find(".folder").on("dragenter", dh).on("dragleave", dh);
     //this._contextMenu(html);
 
-    // Allow folder and entry creation
-    if (ui.journal.canCreateFolder) html.find(".create-folder").click(ui.journal._onCreateFolder.bind(this));
-    if (ui.journal.canCreateEntry) html.find(".create-entry").click(ui.journal._onCreateEntry.bind(this));
 
     this._searchFilters = [new SearchFilter({ inputSelector: 'input[name="search"]', contentSelector: ".fwb-world-list", callback: ui.journal._onSearchFilter.bind(ui.journal) })];
     this._searchFilters.forEach(f => f.bind(html[0]));

@@ -181,3 +181,29 @@ async function createCompendium(worldFolder: Folder, topic: Topic ): Promise<str
   // @ts-ignore
   return compendium.metadata.id;
 }
+
+// creates a new entry in the proper compendium in the given world
+export async function createEntry(worldFolder: Folder, name: string, topic: Topic): Promise<JournalEntry | null> {
+  const compendia = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia);
+
+  if (!compendia || !compendia[topic])
+    throw new Error('Missing compendia in createEntry()');
+
+  // unlock it to make the change
+  const pack = game.packs.get(compendia[topic]);
+  if (!pack)
+    throw new Error('Bad compendia in createEntry()');
+
+  await pack.configure({locked:false});
+
+  const entry = await JournalEntry.create({
+    name,
+    folder: worldFolder.id,
+  },{
+    pack: compendia[topic],
+  });
+
+  await pack.configure({locked:true});
+
+  return entry || null;
+}

@@ -1,8 +1,15 @@
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import './Directory.scss';
 import { getGame, localize } from '@/utils/game';
+import { createEntry } from '@/compendia';
+import { Topic } from '@/types';
 
 type DirectoryData = {
+  tree: any,
+  folderIcon: string,
+  user: StoredDocument<User>,
+  label: string,
+  labelPlural: string,
 }
 
 export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
@@ -55,6 +62,12 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
       // rather than re-render just for this, update the css
       jQuery(event.currentTarget).toggleClass('collapsed');
     });
+
+    // temp button
+    html.find('#fwb-temp').on('click', () => {
+      void createEntry(getGame().folders?.find((f)=>f.name==='World A') as Folder, randomID(), Topic.Character);
+    });
+
   }
 }
 
