@@ -1,9 +1,9 @@
 import { WBHeader } from '@/applications/WorldBuilder/WBHeader';
-import { userFlags, UserFlagKeys } from '@/settings/UserFlags';
+import { UserFlags, UserFlagKey } from '@/settings/UserFlags';
 import { moduleSettings } from '@/settings/ModuleSettings';
 import { faker } from '@faker-js/faker';
 import _ from 'lodash';
-import { Bookmark, WindowTab } from 'src/types';
+import { Bookmark, WindowTab } from '@/types';
 
 const mockEntries = [
   {
@@ -84,7 +84,7 @@ describe('WBHeader', () => {
 
     it('should open one tab from blank slate', () => {
       // pretend they're blank
-      userFlags.get.mockImplementation(()=> undefined);
+      UserFlags.get.mockImplementation(()=> undefined);
       moduleSettings.get.mockImplementation(()=> undefined);
 
       expect(wbHeader['collapsed']).toEqual(false);
@@ -101,8 +101,8 @@ describe('WBHeader', () => {
 
     it('should load tabs, bookmarks, and collapsed', () => {
       // pretend they have values
-      userFlags.get.mockImplementation((flag) => {
-        if (flag===UserFlagKeys.tabs)
+      UserFlags.get.mockImplementation((flag) => {
+        if (flag===UserFlagKey.tabs)
           return mockTabs;
         else  
           return mockBookmarks;
@@ -156,10 +156,10 @@ describe('WBHeader', () => {
       });
 
       it('should save the new tabs',async () => {
-        const set = userFlags.set.mockImplementation((key, value) =>{});
+        const set = UserFlags.set.mockImplementation((key, value) =>{});
         await wbHeader.openEntry(null);
 
-        expect(set).toHaveBeenCalledWith(UserFlagKeys.tabs, wbHeader['_tabs']);
+        expect(set).toHaveBeenCalledWith(UserFlagKey.tabs, wbHeader['_tabs']);
       });
 
       it('should have no history', async () => {
@@ -209,18 +209,18 @@ describe('WBHeader', () => {
       });
 
       it('should save the new tabs',async () => {
-        const set = userFlags.set.mockImplementation((key, value) =>{});
+        const set = UserFlags.set.mockImplementation((key, value) =>{});
         await wbHeader.openEntry(mockEntries[0].uuid, { newTab: true });
 
-        expect(set).toHaveBeenCalledWith(UserFlagKeys.tabs, wbHeader['_tabs']);
+        expect(set).toHaveBeenCalledWith(UserFlagKey.tabs, wbHeader['_tabs']);
       });
   
       it('should update the recent list', async () => {
-        const set = userFlags.set.mockImplementation((key, value) =>{});
-        userFlags.get.mockImplementation((key, value) =>[]);
+        const set = UserFlags.set.mockImplementation((key, value) =>{});
+        UserFlags.get.mockImplementation((key, value) =>[]);
         await wbHeader.openEntry(mockEntries[0].uuid, { newTab: true });
 
-        expect(set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, [mockEntries[0]]);
+        expect(set).toHaveBeenCalledWith(UserFlagKey.recentlyViewed, [mockEntries[0]]);
       });
   
       it('should make callbacks to parent', async () => {
@@ -253,18 +253,18 @@ describe('WBHeader', () => {
       });
 
       it('should save the new tabs', async () => {
-        const set = userFlags.set.mockImplementation((key, value) =>{});
+        const set = UserFlags.set.mockImplementation((key, value) =>{});
         await wbHeader.openEntry(mockEntries[1].uuid, { newTab: false });
 
-        expect(set).toHaveBeenCalledWith(UserFlagKeys.tabs, wbHeader['_tabs']);
+        expect(set).toHaveBeenCalledWith(UserFlagKey.tabs, wbHeader['_tabs']);
       });
   
       it('should update the recent list', async () => {
-        const set = userFlags.set.mockImplementation((key, value) =>{});
-        userFlags.get.mockImplementation((key, value) =>[]);
+        const set = UserFlags.set.mockImplementation((key, value) =>{});
+        UserFlags.get.mockImplementation((key, value) =>[]);
         await wbHeader.openEntry(mockEntries[1].uuid, { newTab: false });
 
-        expect(set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, [mockEntries[1]]);
+        expect(set).toHaveBeenCalledWith(UserFlagKey.recentlyViewed, [mockEntries[1]]);
       });
   
       it('should make callbacks to parent', async () => {
@@ -290,18 +290,18 @@ describe('WBHeader', () => {
     });
   
     it('should add the entry', async () => {
-      userFlags.set = jest.fn();
-      userFlags.get.mockImplementation((key) => {
-        return (key===UserFlagKeys.recentlyViewed ? []: null);
+      UserFlags.set = jest.fn();
+      UserFlags.get.mockImplementation((key) => {
+        return (key===UserFlagKey.recentlyViewed ? []: null);
       });
 
       await wbHeader['_updateRecent'](mockEntries[0]);
-      expect(userFlags.set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, [mockEntries[0]]);
+      expect(UserFlags.set).toHaveBeenCalledWith(UserFlagKey.recentlyViewed, [mockEntries[0]]);
     });
     it('should drop an entry if full', async () => {
-      userFlags.set = jest.fn();
-      userFlags.get.mockImplementation((key) => {
-        return (key===UserFlagKeys.recentlyViewed ? [
+      UserFlags.set = jest.fn();
+      UserFlags.get.mockImplementation((key) => {
+        return (key===UserFlagKey.recentlyViewed ? [
           { uuid: 'abc', name: 'abc' },
           { uuid: 'def', name: 'def' },
           { uuid: 'ghi', name: 'ghi' },
@@ -311,7 +311,7 @@ describe('WBHeader', () => {
       });
 
       await wbHeader['_updateRecent'](mockEntries[0]);
-      expect(userFlags.set).toHaveBeenCalledWith(UserFlagKeys.recentlyViewed, 
+      expect(UserFlags.set).toHaveBeenCalledWith(UserFlagKey.recentlyViewed, 
         [
           mockEntries[0],
           { uuid: 'abc', name: 'abc' },

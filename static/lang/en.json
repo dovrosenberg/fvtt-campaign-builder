@@ -14,13 +14,23 @@
       "tabs": {
         "description": "Description",
         "details": "Details",
-        "locationChildren": "Child locations",
-        "organizationChildren": "Sub-organizations",
-        "events": "Events",
         "characters": "Characters",
+        "events": "Events",
         "locations": "Locations",
-        "organizations": "Organizations"
+        "locationChildren": "Child locations",
+        "organizations": "Organizations",
+        "organizationChildren": "Sub-organizations"
       }
+    },
+    "topics": {
+      "character": "Character",
+      "event": "Event",
+      "location": "Location",
+      "organization": "Organization",
+      "characters": "Characters",
+      "events": "Events",
+      "locations": "Locations",
+      "organizations": "Organizations"
     },
     "contextMenus": {
       "bookmarks": {

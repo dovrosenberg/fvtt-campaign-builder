@@ -2,39 +2,28 @@ import { getGame } from '@/utils/game';
 import moduleJson from '@module';
 import { Bookmark, EntryHeader, WindowTab } from '@/types';
 
-export enum UserFlagKeys {
+export enum UserFlagKey {
   tabs = 'tabs',  // the open tabs
   bookmarks = 'bookmarks',  // stored bookmarks
   recentlyViewed = 'recentlyViewed',    // recent list
 }
 
-type UserFlagType<K extends UserFlagKeys> =
-    K extends UserFlagKeys.tabs ? WindowTab[] :
-    K extends UserFlagKeys.bookmarks ? Bookmark[] :
-    K extends UserFlagKeys.recentlyViewed ? EntryHeader[] :
+type UserFlagType<K extends UserFlagKey> =
+    K extends UserFlagKey.tabs ? WindowTab[] :
+    K extends UserFlagKey.bookmarks ? Bookmark[] :
+    K extends UserFlagKey.recentlyViewed ? EntryHeader[] :
     never;  
 
-// the solo instance
-export let userFlags: UserFlags;
-
-// set the main application; should only be called once
-export function updateUserFlags(newUserFlags: UserFlags): void {
-  userFlags = newUserFlags;
-}
-
-export class UserFlags {
-  constructor() {
-  }
-
-  public get<T extends UserFlagKeys>(flag: T): UserFlagType<T> | null {
+export abstract class UserFlags {
+  public static get<T extends UserFlagKey>(flag: T): UserFlagType<T> | null {
     if (!getGame().user)
       return null;
 
-    return (getGame().user?.getFlag(moduleJson.id, flag) as UserFlagType<T>) || null;
+    return (getGame().user?.getFlag(moduleJson.id, flag) as UserFlagType<T>);
   }
 
   // note - setting a flag to null will delete it
-  public async set<T extends UserFlagKeys>(flag: T, value: UserFlagType<T> | null): Promise<void> {
+  public static async set<T extends UserFlagKey>(flag: T, value: UserFlagType<T> | null): Promise<void> {
     if (!getGame().user)
       return;
 

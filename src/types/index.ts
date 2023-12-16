@@ -17,16 +17,10 @@ export type EntryHeader = {
   icon: string;  // class of icon to display
 }
 
-export enum TopicTypes {
-  Event,
+export enum Topic {
   Character,
+  Event,
   Location,
   Organization,
   //Note - maybe the ability to just handle normal journal notes?
-}
-
-// flags that might apply to any topic
-export enum TopicFlags {
-  topicType = 'topicType',
-  type = 'type',  // note that this is the type field not the topic type
 }

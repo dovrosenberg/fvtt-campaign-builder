@@ -2,10 +2,11 @@ import './WBContent.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { HomePage, HomePageData} from './HomePage';
 import { getGame } from '@/utils/game';
-import { TopicFlags, TopicTypes } from '@/types';
+import { Topic } from '@/types';
 import { MODULE_ID, getIcon } from '@/utils/misc';
 import { TypeAhead, TypeAheadData } from '@/components/typeahead';
-import { SettingKeys, moduleSettings } from '@/settings/ModuleSettings';
+import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
+import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 
 export type WBContentData = {
   showHomePage: true,
@@ -15,7 +16,7 @@ export type WBContentData = {
 {
   showHomePage: false,
   entry: JournalEntry,
-  entryType: TopicTypes,
+  topic: Topic,
   icon: string,
   showHierarchy: boolean,
   relationships: { tab: string, label: string }[],
@@ -26,10 +27,10 @@ export type WBContentData = {
 export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   private _entryId: string | null;    // the entryId to show (will show homepage if null)
   private _entry: JournalEntry;
-  private _entryType: TopicTypes | null;
+  private _topic: Topic | null;
   static override _template = 'modules/world-builder/templates/WBContent.hbs';
 
-  constructor(entryId = null as string | null, options={}) {
+  constructor(entryId = null as string | null) {
     super();
 
     this.updateEntry(entryId);
@@ -47,23 +48,23 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     if (!entryId) {
       // just show the homepage
       this._entryId = null;
-      this._entryType = null;
+      this._topic = null;
     } else {
       const entry = getGame().journal?.find((j) => (j.uuid===entryId));
-      const entryType = entry?.getFlag(MODULE_ID, TopicFlags.topicType) as TopicTypes;
+      const topic = entry ? EntryFlags.get(entry, EntryFlagKey.topic) : null;
 
-      if (!entry || entryType===null) {
+      if (!entry || topic===null) {
         // show the homepage
         this._entryId = null;
-        this._entryType = null;
+        this._topic = null;
       } else {
         // we're going to show a content page
         this._entryId = entryId;
         this._entry = entry;
-        this._entryType = entryType;
+        this._topic = topic;
 
         // get() returns the object and we don't want to modify it directly
-        (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKeys.types)[entryType]);
+        (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKey.types)[topic]);
       }
     }
   }
@@ -88,16 +89,16 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         homePageTemplate: () => HomePage.template,
         homePageData: await this._partials.HomePage.getData(),
       }
-    } else if (this._entryType === null) {
+    } else if (this._topic === null) {
       throw new Error('Invalid entry type in WBContent.getData()');
     } else {
       // normal content
       data = {
         showHomePage: false,
         entry: this._entry,
-        entryType: this._entryType,
-        icon: getIcon(this._entryType),
-        showHierarchy: [TopicTypes.Location, TopicTypes.Organization].includes(this._entryType),
+        topic: this._topic,
+        icon: getIcon(this._topic),
+        showHierarchy: [Topic.Location, Topic.Organization].includes(this._topic),
         relationships: relationships,
         typeAheadTemplate: () => TypeAhead.template,
         typeAheadData: await this._partials.TypeTypeAhead.getData(),
@@ -120,22 +121,22 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
     });
     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.ItemAdded, async (added)=> {
-      if (this._entryType === null)
+      if (this._topic === null)
         return;
 
-      const currentTypes = moduleSettings.get(SettingKeys.types);
+      const currentTypes = moduleSettings.get(SettingKey.types);
 
       // if not a duplicate, add to the valid type lists 
-      if (!currentTypes[this._entryType].includes(added)) {
+      if (!currentTypes[this._topic].includes(added)) {
         const updatedTypes = {
-          ...moduleSettings.get(SettingKeys.types),
-          [this._entryType]: currentTypes[this._entryType].concat([added]),
+          ...moduleSettings.get(SettingKey.types),
+          [this._topic]: currentTypes[this._topic].concat([added]),
         }
-        await moduleSettings.set(SettingKeys.types, updatedTypes);
+        await moduleSettings.set(SettingKey.types, updatedTypes);
       }
     });
     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.SelectionMade, (selection)=> { 
-      this._entry.setFlag(MODULE_ID, TopicFlags.type, selection);
+      EntryFlags.set(this._entry, EntryFlagKey.type, selection);
     });
 
   }

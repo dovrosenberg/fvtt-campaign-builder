@@ -17,7 +17,7 @@
     </div>
   </header>
 
-  <!-- Worlds list -->
+  {{! these are the worlds }}
   <ol class="fwb-world-list">
     {{#each data.tree}}
       <li class="fwb-world-item folder flexcol {{#unless (eq ../currentWorld folder.uuid)}}collapsed{{/unless}}"

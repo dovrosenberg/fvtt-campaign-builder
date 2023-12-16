@@ -1,22 +1,22 @@
 import { getGame, localize } from '@/utils/game';
 import moduleJson from '@module';
-import { TopicTypes } from '@/types';
+import { Topic } from '@/types';
 
-export enum SettingKeys {
+export enum SettingKey {
   // displayed in settings
   startCollapsed = 'startCollapsed',  // should the sidebar start collapsed when we open
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   defaultWorldId = 'defaultWorldId',  // uuid of the default world folder
-  types = 'types',  // object where each key is a TopicType and the value is an array of valid types
+  types = 'types',  // object where each key is a Topic and the value is an array of valid types
 }
 
-type SettingType<K extends SettingKeys> =
-    K extends SettingKeys.startCollapsed ? boolean :
-    K extends SettingKeys.rootFolderId ? string : 
-    K extends SettingKeys.defaultWorldId ? string : 
-    K extends SettingKeys.types ? Record<TopicTypes, string[]> :
+type SettingType<K extends SettingKey> =
+    K extends SettingKey.startCollapsed ? boolean :
+    K extends SettingKey.rootFolderId ? string : 
+    K extends SettingKey.defaultWorldId ? string : 
+    K extends SettingKey.types ? Record<Topic, string[]> :
     never;  
 
 // the solo instance
@@ -33,16 +33,16 @@ export class ModuleSettings {
   }
 
   // note that this returns the object directly, so if it's an object or array, if a reference
-  public get<T extends SettingKeys>(setting: T): SettingType<T> {
+  public get<T extends SettingKey>(setting: T): SettingType<T> {
     return getGame().settings.get(moduleJson.id, setting) as SettingType<T>;
   }
 
   // this gets something safe to modify
-  public getClone<T extends SettingKeys>(setting: T): SettingType<T> {
+  public getClone<T extends SettingKey>(setting: T): SettingType<T> {
     return deepClone(this.get(setting));
   }
 
-  public async set<T extends SettingKeys>(setting: T, value: SettingType<T>): Promise<void> {
+  public async set<T extends SettingKey>(setting: T, value: SettingType<T>): Promise<void> {
     await getGame().settings.set(moduleJson.id, setting, value);
   }
 
@@ -66,7 +66,7 @@ export class ModuleSettings {
   // these are client-specific and displayed in settings
   private localDisplayParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
     {
-      settingID: SettingKeys.startCollapsed,
+      settingID: SettingKey.startCollapsed,
       name: 'acm.settings.startCollapsed',
       hint: 'acm.settings.startCollapsedHelp',
       default: false,
@@ -77,22 +77,22 @@ export class ModuleSettings {
   // these are globals only used internally
   private internalParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
     {
-      settingID: SettingKeys.rootFolderId,
+      settingID: SettingKey.rootFolderId,
       default: null,
       type: String,
     },
     {
-      settingID: SettingKeys.defaultWorldId,
+      settingID: SettingKey.defaultWorldId,
       default: null,
       type: String,
     },
     {
-      settingID: SettingKeys.types,
+      settingID: SettingKey.types,
       default: {
-        [TopicTypes.Character]: [],
-        [TopicTypes.Location]: [],
-        [TopicTypes.Event]: [],
-        [TopicTypes.Organization]: [],
+        [Topic.Character]: [],
+        [Topic.Location]: [],
+        [Topic.Event]: [],
+        [Topic.Organization]: [],
       },
       type: Object,
     },

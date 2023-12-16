@@ -9,7 +9,7 @@ jest.mock('@/settings/UserFlags.ts', () => {
 
   return {
     ...originalModule,
-    userFlags: UserFlagsMock(),
+    UserFlags: UserFlagsMock(),
     UserFlags: UserFlagsMock,
   };
 });

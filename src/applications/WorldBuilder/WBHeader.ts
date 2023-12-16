@@ -1,11 +1,12 @@
-import { SettingKeys, moduleSettings } from '@/settings/ModuleSettings';
-import { getGame, localize } from '@/utils/game';
+import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
+import { localize } from '@/utils/game';
 
 import './WBHeader.scss';
-import { UserFlagKeys, userFlags } from '@/settings/UserFlags';
-import { Bookmark, EntryHeader, TopicFlags, TopicTypes, WindowTab } from '@/types';
+import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
+import { Bookmark, EntryHeader, Topic, WindowTab } from '@/types';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
-import { MODULE_ID, getIcon } from '@/utils/misc';
+import { getIcon } from '@/utils/misc';
+import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 
 type WBHeaderData = {
   tabs: WindowTab[];
@@ -20,17 +21,16 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   private _collapsed: boolean;
   private _bookmarks = [] as Bookmark[];
   static override _template = 'modules/world-builder/templates/WBHeader.hbs';
-  private _dragDrop: DragDrop;
 
   constructor() {
     super();
 
     // setup the tabs and bookmarks
-    this._tabs = userFlags.get(UserFlagKeys.tabs) || [];
-    this._bookmarks = userFlags.get(UserFlagKeys.bookmarks) || [];
+    this._tabs = UserFlags.get(UserFlagKey.tabs) || [];
+    this._bookmarks = UserFlags.get(UserFlagKey.bookmarks) || [];
 
     // get collapsed state
-    this._collapsed = moduleSettings.get(SettingKeys.startCollapsed) || false;
+    this._collapsed = moduleSettings.get(SettingKey.startCollapsed) || false;
 
     // if there are no tabs, add one
     if (!this._tabs.length)
@@ -124,9 +124,10 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       ...options,
     };
 
+    // TODO - why use fromUuid here b not in WBContnt.updateEntry()?
     const journal = entryId ? await fromUuid(entryId) as JournalEntry : null;
     let entryName = (!!journal ? journal.name : localize('fwb.labels.newTab')) || '';
-    const entry = { uuid: !!journal ? entryId : null, name: entryName, icon: !!journal ? getIcon(journal.getFlag(MODULE_ID, TopicFlags.topicType) as TopicTypes) : '' }
+    const entry = { uuid: !!journal ? entryId : null, name: entryName, icon: !!journal ? getIcon(EntryFlags.get(journal, EntryFlagKey.topic)) : '' }
 
     // see if we need a new tab
     let tab;
@@ -209,7 +210,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
   // add a new entity to the recent list
   private async _updateRecent(entry: EntryHeader): Promise<void> {
-    let recent = userFlags.get(UserFlagKeys.recentlyViewed) || [] as EntryHeader[];
+    let recent = UserFlags.get(UserFlagKey.recentlyViewed) || [] as EntryHeader[];
 
     // remove any other places in history this already appears
     recent.findSplice((h: EntryHeader): boolean => h.uuid === entry.uuid);
@@ -221,7 +222,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (recent.length > 5)
       recent = recent.slice(0, 5);
 
-    userFlags.set(UserFlagKeys.recentlyViewed, recent);
+      UserFlags.set(UserFlagKey.recentlyViewed, recent);
   }
 
   // activate the given tab, first closing the current subsheet
@@ -334,7 +335,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   }
 
   private _saveTabs() {
-    userFlags.set(UserFlagKeys.tabs, this._tabs);
+    UserFlags.set(UserFlagKey.tabs, this._tabs);
   }
 
   /*
@@ -399,7 +400,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   }
 
   private _saveBookmarks() {
-    userFlags.set(UserFlagKeys.bookmarks, this._bookmarks);
+    UserFlags.set(UserFlagKey.bookmarks, this._bookmarks);
   }
 
   // moves forward/back through the history "move" spaces (or less if not possible); negative numbers move back

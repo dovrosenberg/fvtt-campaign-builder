@@ -26,9 +26,9 @@ async function ready(): Promise<void> {
         //    can we lock it so prevent that?
         const folders = await getDefaultFolders();
         
-        if (folders?.rootId && folders?.worldId) {
+        if (folders?.rootFolder && folders?.worldFolder) {
           // create the instance
-          updateWorldBuilder(new WorldBuilder(folders.rootId, folders.worldId));
+          updateWorldBuilder(new WorldBuilder(folders.rootFolder, folders.worldFolder));
         } else {
           // we don't have valid folders, so just quit
           return;

@@ -8,14 +8,12 @@ type DirectoryData = {
 export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
   static override _template = 'modules/world-builder/templates/Directory.hbs';
 
-  private _rootFolderId: string;
   private _rootFolder: Folder;  
   
-  constructor(rootFolderId: string) {
+  constructor(rootFolder: Folder) {
     super();
 
-    this._rootFolderId = rootFolderId;
-    fromUuid(rootFolderId).then((folder) => { this._rootFolder = folder as unknown as Folder; })
+    this._rootFolder = rootFolder;
   }
 
   protected _createPartials(): void {
@@ -32,9 +30,9 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
       //searchTooltip: ui.journal.collection.searchMode === CONST.DIRECTORY_SEARCH_MODES.NAME ? "SIDEBAR.SearchModeName" : "SIDEBAR.SearchModeFull",
       //documentCls: cls.documentName.toLowerCase(),
       //sidebarIcon: cfg.sidebarIcon,
-      folderIcon: "fas fa-folder",
+      folderIcon: 'fas fa-folder',
       user: getGame().user,
-      label: localize("MonksEnhancedJournal.Entry"),
+      label: localize('MonksEnhancedJournal.Entry'),
       labelPlural: 'abc', //i18n(cls.metadata.labelPlural),
       //unavailable: game.user.isGM ? cfg.collection?.instance?.invalidDocumentIds?.size : 0
     };

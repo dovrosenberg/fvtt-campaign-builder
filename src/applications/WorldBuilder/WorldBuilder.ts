@@ -12,8 +12,8 @@ export class WorldBuilder extends Application {
   private _partials: Record<string, HandlebarsPartial<any>>;
 
   // global data
-  private _rootFolderId: string;  // uuid of the root folder
-  private _worldId: string;  // uuid of the current world folder
+  private _rootFolder: Folder;  // the root folder
+  private _worldFolder: Folder;  // the current world folder
 
   // state - often tracking state of children
   private _currentJournalId: string | null;    // uuid of currently displayed page
@@ -23,7 +23,7 @@ export class WorldBuilder extends Application {
   lastquery = '';
   _imgcontext = null;
 
-  constructor(rootFolderId: string, worldId: string, options = {}) {
+  constructor(rootFolder: Folder, worldFolder: Folder, options = {}) {
     super(options);
 
     this._currentJournalId = null;
@@ -32,11 +32,11 @@ export class WorldBuilder extends Application {
       WBHeader: new WBHeader(),
       WBFooter: new WBFooter(),
       WBContent: new WBContent(null),
-      Directory: new Directory(rootFolderId), 
+      Directory: new Directory(rootFolder), 
     }
 
-    this._rootFolderId = rootFolderId;
-    this._worldId = worldId;
+    this._rootFolder = rootFolder;
+    this._worldFolder = worldFolder;
   }
 
   static get defaultOptions() {
@@ -59,10 +59,6 @@ export class WorldBuilder extends Application {
   }
 
   /*
-  get entryType() {
-    return ui.journal.collection.documentName;
-  }
-
   get _onCreateDocument() {
     return ui.journal._onCreateDocument;
   }
@@ -95,7 +91,7 @@ export class WorldBuilder extends Application {
     const data = {
       ...(await super.getData()),
       collapsed: (this._partials.WBHeader as unknown as WBHeader).collapsed,
-      worldId: this._worldId,
+      worldId: this._worldFolder.uuid,
       WBHeader: () => WBHeader.template,
       WBHeaderData: await this._partials.WBHeader.getData(),
       WBContent: () => WBContent.template,
