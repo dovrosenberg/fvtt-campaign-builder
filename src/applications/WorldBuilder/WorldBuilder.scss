@@ -81,14 +81,6 @@
     & > section {
       display: flex !important;
       height: 100%;
-  
-      .directory-header {
-        background-color: var(--mej-header-background);
-        border-bottom: 1px solid var(--mej-header-border-color);
-        color: var(--mej-sidebar-label-color);
-        margin-bottom: 0px;
-        padding-bottom: 3px;
-      }
     }
   }
 

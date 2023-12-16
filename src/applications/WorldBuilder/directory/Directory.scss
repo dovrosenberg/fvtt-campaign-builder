@@ -4,6 +4,13 @@
   }
 
   .directory-header {
+    flex: 0;
+    background-color: var(--mej-header-background);
+    border-bottom: 1px solid var(--mej-header-border-color);
+    color: var(--mej-sidebar-label-color);
+    margin-bottom: 0px;
+    padding-bottom: 3px;
+
     .header-actions.action-buttons button {
       line-height: 24px;
       background: var(--mej-sidebar-button-background);
@@ -31,7 +38,7 @@
 
   .fwb-world-list {
     padding: 0;
-    
+
     .fwb-world-item {
       align-items: flex-start;
       justify-content: flex-start;
