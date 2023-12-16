@@ -4,7 +4,8 @@ import { WBHeader } from './WBHeader';
 import { WBFooter } from './WBFooter';
 import { WBContent } from './content/WBContent';
 import { Directory } from './directory/Directory';
-import { localize } from '@/utils/game';
+import { getGame, localize } from '@/utils/game';
+import { validateCompendia } from '@/compendia';
 
 
 export class WorldBuilder extends Application {
@@ -12,11 +13,7 @@ export class WorldBuilder extends Application {
   private _partials: Record<string, HandlebarsPartial<any>>;
 
   // global data
-  private _rootFolder: Folder;  // the root folder
   private _worldFolder: Folder;  // the current world folder
-
-  // state - often tracking state of children
-  private _currentJournalId: string | null;    // uuid of currently displayed page
 
   searchresults = [];
   searchpos = 0;
@@ -26,17 +23,15 @@ export class WorldBuilder extends Application {
   constructor(rootFolder: Folder, worldFolder: Folder, options = {}) {
     super(options);
 
-    this._currentJournalId = null;
-
     this._partials = {
       WBHeader: new WBHeader(),
       WBFooter: new WBFooter(),
       WBContent: new WBContent(null),
       Directory: new Directory(rootFolder), 
-    }
+    };
 
-    this._rootFolder = rootFolder;
     this._worldFolder = worldFolder;
+    void validateCompendia(this._worldFolder);
   }
 
   static get defaultOptions() {
@@ -87,7 +82,7 @@ export class WorldBuilder extends Application {
   }
   */
 
-  async getData(): Promise<Object> {
+  async getData(): Promise<Record<string, any>> {
     const data = {
       ...(await super.getData()),
       collapsed: (this._partials.WBHeader as unknown as WBHeader).collapsed,
@@ -121,21 +116,37 @@ export class WorldBuilder extends Application {
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.HistoryMoved, ()=> { void this.render(); });
 
     // when the content needs to be updated
-    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.EntryChanged, (entryId) => { (this._partials.WBContent as WBContent).updateEntry(entryId); this.render();});
+    this._partials.WBHeader.registerCallback(WBHeader.CallbackType.EntryChanged, async (entryId) => { await (this._partials.WBContent as WBContent).updateEntry(entryId); await this.render();});
 
     // recent item clicked - open it in current tab
-    this._partials.WBContent.registerCallback(WBContent.CallbackType.RecentClicked, (uuid: string) => { (this._partials.WBHeader as WBHeader).openEntry(uuid, { newTab: false }) });
+    this._partials.WBContent.registerCallback(WBContent.CallbackType.RecentClicked, (uuid: string) => { void (this._partials.WBHeader as WBHeader).openEntry(uuid, { newTab: false }) });
 
     // item name changed - rerender
     this._partials.WBContent.registerCallback(WBContent.CallbackType.NameChanged, async (entry: JournalEntry) => { 
       // let the header know
       await (this._partials.WBHeader as WBHeader).changeEntryName(entry);
-      void this.render(); 
+      await this.render(); 
+    });
+
+    // new world selected in directory
+    this._partials.Directory.registerCallback(Directory.CallbackType.WorldSelected, async (worldId: string) => {
+      const folder = getGame().folders?.find((f)=>f.uuid===worldId);
+      if (!folder)
+        throw new Error('Invalid folder id in WorldSelected callaback');
+      this._worldFolder = folder;
+
+      await validateCompendia(this._worldFolder);
+
+      // TODO!!! Need to move the tabs, etc. flags to the world instead of the user, then WBHeader needs to know what world it is
+      await (this._partials.WBHeader as WBHeader).changeWorld();
+      
+      await this.render();
     });
 
     // when new entry is selected in directory
     this._partials.Directory.registerCallback(Directory.CallbackType.DirectoryEntrySelected, 
       (entryId: string, newTab: boolean) => { this._onDirectoryEntrySelected(entryId, newTab); });
+
   }
 
   public async render(force?: boolean, options = {}) {

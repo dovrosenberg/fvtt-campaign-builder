@@ -101,9 +101,6 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFo
     } while (!name);
   }
 
-  // make sure all the compedia exist
-  await validateCompendia(worldFolder as Folder);
-
   return { rootFolder, worldFolder: worldFolder as Folder };
 }
 
@@ -111,11 +108,12 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFo
 // ensure the root folder has all the required topic compendia
 // Note: compendia kind of suck.   You can't rename them or change the label.  And you can't have more than one with the same name/label
 //    in a given world.  So we give them all unique names but then use a flag to display the proper topic
-async function validateCompendia(worldFolder: Folder): Promise<void> {
+export async function validateCompendia(worldFolder: Folder): Promise<void> {
   let updated = false;
 
   // the uuid for the compendia of each topic
   let compendia: Record<Topic, string> = {
+    [Topic.None]: '',
     [Topic.Character]: '',
     [Topic.Event]: '',
     [Topic.Location]: '',
@@ -132,11 +130,14 @@ async function validateCompendia(worldFolder: Folder): Promise<void> {
 
   // check them all
   // Object.keys() on an enum returns an array with all the values followed by all the names
-  for (let i=0; i<Object.keys(Topic).length/2; i++) {
-    // if the key is blank or we can't find the compendia create a new one
-    if (!compendia[i] || !getGame().packs?.get(compendia[i])) {
+  const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization];
+  for (let i=0; i<topics.length; i++) {
+    const t = topics[i];
+
+    // if the value is blank or we can't find the compendia create a new one
+    if (!compendia[t] || !getGame().packs?.get(compendia[t])) {
       // create a new one
-      compendia[i] = await createCompendium(worldFolder, i as Topic);
+      compendia[t] = await createCompendium(worldFolder, t);
       updated = true;
     }
   }

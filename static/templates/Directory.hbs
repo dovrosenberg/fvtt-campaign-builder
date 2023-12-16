@@ -20,37 +20,38 @@
   {{! these are the worlds }}
   <ol class="fwb-world-list">
     {{#each data.worlds}}
-      <li class="fwb-world-folder folder flexcol {{#unless (eq ../currentWorld id)}}collapsed{{/unless}}"
-        data-world-id={{id}}>
+      <li class="fwb-world-folder folder flexcol {{#unless (eq ../currentWorld id)}}collapsed{{/unless}}" data-world-id={{id}}>
         <header class="folder-header flexrow">
           <h3 class="noborder"><i class="fas fa-folder-open fa-fw"></i>{{name}}</h3>
         </header>
 
-        {{! These are the topic compendia }}
-        <ol class="world-contents">
-          {{#each compendia}}
-            <li class="fwb-topic-folder folder entry flexcol" data-compendium-id="{{id}}">
-              <header class="folder-header flexrow">
-                <h4 class="noborder" style="margin-bottom:0px">
-                  <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>{{name}}
-                </h4>
-                <a class="create-button create-entry">
-                  <i class="fas fa-atlas"></i>
-                  <i class="fas fa-plus"></i>
-                </a>
-              </header>
+        {{#if (eq ../currentWorld id)}}
+          {{! These are the topic compendia }}
+          <ol class="world-contents">
+            {{#each compendia}}
+              <li class="fwb-topic-folder folder entry flexcol" data-compendium-id="{{id}}">
+                <header class="folder-header flexrow">
+                  <h4 class="noborder" style="margin-bottom:0px">
+                    <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>{{name}}
+                  </h4>
+                  <a class="create-button create-entry">
+                    <i class="fas fa-atlas"></i>
+                    <i class="fas fa-plus"></i>
+                  </a>
+                </header>
 
-              <ol class="topic-contents">
-                {{! These are the journal entries}}
-                {{#each entries}}
-                  <li class="fwb-entry-item flexrow" data-entry-id="{{uuid}}">
-                      <h4 class="entry-name"><a>{{name}}</a></h4>
-                  </li>
-                {{/each}}
-              </ol>
-            </li>
-          {{/each}}
-        </ol>
+                <ol class="topic-contents">
+                  {{! These are the journal entries}}
+                  {{#each entries}}
+                    <li class="fwb-entry-item flexrow" data-entry-id="{{uuid}}">
+                        <h4 class="entry-name"><a>{{name}}</a></h4>
+                    </li>
+                  {{/each}}
+                </ol>
+              </li>
+            {{/each}}
+          </ol>
+          {{/if}}
       </li>
     {{/each~}}
   </ol>

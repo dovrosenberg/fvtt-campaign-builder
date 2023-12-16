@@ -57,16 +57,9 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
     // change world
     html.on('click', '.fwb-world-folder', (event: JQuery.ClickEvent) => {
       event.stopPropagation();
-      // if it was already collapsed, then open it and change worlds
 
-      // otherwise, do nothing
-
-
-      const folder = Folder.get(event.currentTarget.dataset.folderId);
-      folder.expanded = !folder.expanded;
-
-      // rather than re-render just for this, update the css
-      jQuery(event.currentTarget).toggleClass('collapsed');
+      if (event.currentTarget.dataset.worldId)
+        this._makeCallback(Directory.CallbackType.WorldSelected, event.currentTarget.dataset.worldId);
     });
 
     // open/close a topic
@@ -96,5 +89,6 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
 export namespace Directory {
   export enum CallbackType {
     DirectoryEntrySelected,
+    WorldSelected,
   }
 }
