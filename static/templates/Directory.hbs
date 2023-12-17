@@ -29,7 +29,9 @@
           {{! These are the topic compendia }}
           <ol class="world-contents">
             {{#each compendia}}
-              <li class="fwb-topic-folder folder entry flexcol" data-compendium-id="{{id}}" data-compendium-topic="{{topic}}">
+              <li class="fwb-topic-folder folder entry flexcol {{#if collapsed}}collapsed{{/if}}" 
+                  data-compendium-id="{{id}}" data-compendium-topic="{{topic}}"
+              >
                 <header class="folder-header flexrow">
                   <h4 class="noborder" style="margin-bottom:0px">
                     <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
@@ -42,7 +44,8 @@
                   </a>
                 </header>
 
-                <ol class="topic-contents">
+                {{! css will hide this section if the .fwb-topic-folder is collapsed }}
+                <ol class="fwb-topic-contents">
                   {{! These are the journal entries}}
                   {{#each entries}}
                     <li class="fwb-entry-item flexrow" data-entry-id="{{uuid}}">

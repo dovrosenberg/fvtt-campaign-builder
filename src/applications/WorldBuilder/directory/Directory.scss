@@ -102,7 +102,11 @@
     width: 100%;
     padding-left: 10px;
 
-    .topic-contents {
+    .fwb-topic-folder.collapsed .fwb-topic-contents {
+      display: none;
+    }
+    
+    .fwb-topic-contents {
       padding-left: 20px;
       margin: 0px;
     }

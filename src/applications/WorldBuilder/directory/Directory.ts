@@ -22,6 +22,7 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
   static override _template = 'modules/world-builder/templates/Directory.hbs';
 
   private _rootFolder: Folder;  
+  private _expandedCompendia = {} as Record<string, boolean>;  // basically a list of compendium uuid that are expanded (collapsed by default); if false or not in here, it's expanded
   
   constructor(rootFolder: Folder) {
     super();
@@ -44,6 +45,7 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
           id: compendium.metadata.id,
           topic: compendium.config.topic,
           icon: getIcon(compendium.config.topic),
+          collapsed: !this._expandedCompendia[compendium.metadata.id],
           entries: compendium.tree.entries.map((entry)=> ({
             name: entry.name,
             uuid: entry.uuid,
@@ -70,9 +72,11 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
     // open/close a topic
     html.on('click', '.fwb-topic-folder', (event: JQuery.ClickEvent) => {
       event.stopPropagation();
-      // toggle the collapse
+      // toggle the collapse      
+      const id = event.currentTarget.dataset.compendiumId;
+      this._expandedCompendia[id] = !this._expandedCompendia[id];
 
-      // rather than re-render just for this, update the css
+      // we use css to handle the display update
       jQuery(event.currentTarget).toggleClass('collapsed');
     });
 
