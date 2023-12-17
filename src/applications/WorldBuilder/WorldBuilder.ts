@@ -6,8 +6,6 @@ import { WBContent } from './content/WBContent';
 import { Directory } from './directory/Directory';
 import { getGame, localize } from '@/utils/game';
 import { validateCompendia } from '@/compendia';
-import { update } from 'lodash';
-
 
 export class WorldBuilder extends Application {
   // sub-components
@@ -137,7 +135,7 @@ export class WorldBuilder extends Application {
     this._partials.WBHeader.registerCallback(WBHeader.CallbackType.EntryChanged, async (entryId) => { await (this._partials.WBContent as WBContent).updateEntry(entryId); await this.render();});
 
     // recent item clicked - open it in current tab
-    this._partials.WBContent.registerCallback(WBContent.CallbackType.RecentClicked, (uuid: string) => { void (this._partials.WBHeader as WBHeader).openEntry(uuid, { newTab: false }) });
+    this._partials.WBContent.registerCallback(WBContent.CallbackType.RecentClicked, (uuid: string) => { void (this._partials.WBHeader as WBHeader).openEntry(uuid, { newTab: false }); });
 
     // item name changed - rerender
     this._partials.WBContent.registerCallback(WBContent.CallbackType.NameChanged, async (entry: JournalEntry) => { 
@@ -164,6 +162,13 @@ export class WorldBuilder extends Application {
     this._partials.Directory.registerCallback(Directory.CallbackType.DirectoryEntrySelected, 
       (entryId: string, newTab: boolean) => { this._onDirectoryEntrySelected(entryId, newTab); });
 
+    // new entry is created in directory
+    this._partials.Directory.registerCallback(Directory.CallbackType.EntryCreated, 
+      (entryId: string) => { 
+        // open the entry in a new tab
+        void (this._partials.WBHeader as WBHeader).openEntry(entryId, { newTab: true, activate: true }); 
+      }
+    );
   }
 
   public async render(force?: boolean, options = {}) {

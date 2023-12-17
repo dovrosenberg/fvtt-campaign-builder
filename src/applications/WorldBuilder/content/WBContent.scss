@@ -13,7 +13,6 @@
       height: 100%;
     }
   
-    // TODO: need to test colors, etc. once we pull all these variables out
     .sheet-container {
       height: 100%;
       width: 100%;
@@ -339,7 +338,7 @@
     flex: 0 0 30px;
     line-height: 35px;
     margin-top: 0px;
-    color: var(--mej-sheet-header-input-color);
+    color: #777;
   }
 
   .sheet-container.detailed .journal-sheet-header .sheet-icon {

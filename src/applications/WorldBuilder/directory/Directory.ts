@@ -1,8 +1,9 @@
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import './Directory.scss';
-import { getGame, localize } from '@/utils/game';
+import { getGame } from '@/utils/game';
 import { createEntry } from '@/compendia';
 import { Topic } from '@/types';
+import { getIcon } from '@/utils/misc';
 
 type DirectoryData = {
   worlds: {
@@ -10,6 +11,8 @@ type DirectoryData = {
     compendia: { 
       name: string, 
       id: string,
+      topic: Topic,
+      icon: string,
       entries: { name: string, uuid: string } ,
     }[],
   }[],
@@ -39,6 +42,8 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
         compendia: world.entries.map((compendium)=>({
           name: compendium.metadata.label,
           id: compendium.metadata.id,
+          topic: compendium.config.topic,
+          icon: getIcon(compendium.config.topic),
           entries: compendium.tree.entries.map((entry)=> ({
             name: entry.name,
             uuid: entry.uuid,
@@ -71,24 +76,41 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
       jQuery(event.currentTarget).toggleClass('collapsed');
     });
 
-    // temp button
-    html.find('#fwb-temp').on('click', () => {
-      void createEntry(getGame().folders?.find((f)=>f.name==='World B') as Folder, randomID(), Topic.Character);
-    });
-
     // select an entry
     html.on('click', '.fwb-entry-item', (event: JQuery.ClickEvent) => {
       event.stopPropagation();
       this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, event.currentTarget.dataset.entryId, event.ctrlKey);
     });
 
+    // create entry buttons
+    html.on('click', '.fwb-create-entry', async (event: JQuery.ClickEvent) => {
+      event.stopPropagation();
+
+      // look for nearest parent and get topic and folder
+      const parentHeader = event.currentTarget.closest('.fwb-topic-folder');
+      const worldHeader = event.currentTarget.closest('.fwb-world-folder');
+      const topic = parentHeader.dataset.compendiumTopic;
+      const worldId = worldHeader.dataset.worldId;
+      const worldFolder = getGame().folders?.find((f)=>f.uuid===worldId) as Folder;
+
+      if (!worldFolder || !topic)
+        throw new Error('Invalid header in .fwb-crate-entry.click()');
+
+      // TODO - popup a box asking for the name
+
+      const entry = await createEntry(worldFolder, randomID(), topic);
+
+      if (entry)
+        this._makeCallback(Directory.CallbackType.EntryCreated, entry.uuid);
+    });
+    
   }
 }
-
 
 export namespace Directory {
   export enum CallbackType {
     DirectoryEntrySelected,
     WorldSelected,
+    EntryCreated,
   }
 }

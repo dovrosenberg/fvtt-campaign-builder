@@ -41,6 +41,7 @@
         "@typescript-eslint/no-unused-vars": [1, { "args": "after-used" }],
         "no-debugger": "warn",
         "no-unused-expressions": "warn",
-        "@typescript-eslint/ban-ts-comment": "off"
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-namespace": "off"
     }
 }

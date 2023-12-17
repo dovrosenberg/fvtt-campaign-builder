@@ -80,6 +80,19 @@
   .fwb-topic-folder .folder-header {
     background: inherit;
     border: 0px;
+
+    i.icon {
+      color: #777;
+    }
+  }
+
+  .fwb-create-entry.create-button {
+    i.fa-atlas {
+      color: #555;
+    }
+    i.fa-plus {
+      background: #555;
+    }
   }
 
   .world-contents {

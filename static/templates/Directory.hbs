@@ -6,14 +6,14 @@
 <section id="fwb-directory" class="{{data.cssClass}} tab flexcol journal-directory" data-tab="journal">
   <!-- Directory Header -->
   <header class="directory-header">
-    <div class="header-actions action-buttons flexrow">
-      <button id="fwb-temp" class="create-document create-entry"><i class="{{data.sidebarIcon}}"></i>Temp</button>
-    </div>
     <div class="header-search flexrow">
       <a class="header-control toggle-search-mode" data-tooltip="{{localize searchTooltip}}"><i class="fas {{data.searchIcon}}"></i></a>
       <input type="search" name="search" value="" placeholder="{{localize 'SIDEBAR.Search' types=labelPlural}}" autocomplete="off" />
-      <a class="header-control toggle-sort" data-tooltip="{{localize sortTooltip}}"><i class="fa-solid {{data.sortIcon}}"></i></a>
-      <a class="header-control collapse-all" data-tooltip="{{localize 'FOLDER.Collapse'}}"><i class="fa-duotone fa-folder-tree"></i></a>
+      <a class="header-control create-button" data-tooltip="INSERT TOOLTOP">
+        <i class="fas fa-globe"></i>
+        <i class="fas fa-plus"></i>
+      </a>
+      <a class="header-control collapse-all" data-tooltip="INSErT TOOLTIP"><i class="fa-duotone fa-folder-tree"></i></a>
     </div>
   </header>
 
@@ -29,12 +29,14 @@
           {{! These are the topic compendia }}
           <ol class="world-contents">
             {{#each compendia}}
-              <li class="fwb-topic-folder folder entry flexcol" data-compendium-id="{{id}}">
+              <li class="fwb-topic-folder folder entry flexcol" data-compendium-id="{{id}}" data-compendium-topic="{{topic}}">
                 <header class="folder-header flexrow">
                   <h4 class="noborder" style="margin-bottom:0px">
-                    <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>{{name}}
+                    <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
+                    <i class="icon fas {{icon}}" style="margin-right: 4px;"></i>
+                    {{name}}
                   </h4>
-                  <a class="create-button create-entry">
+                  <a class="fwb-create-entry create-button">
                     <i class="fas fa-atlas"></i>
                     <i class="fas fa-plus"></i>
                   </a>

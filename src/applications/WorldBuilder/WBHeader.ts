@@ -44,6 +44,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       await this.openEntry();
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
+    this._makeCallback(WBHeader.CallbackType.EntryChanged, this.activeEntryId);
   }
 
   public async getData(): Promise<WBHeaderData> {

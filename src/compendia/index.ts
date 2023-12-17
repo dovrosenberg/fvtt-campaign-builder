@@ -179,7 +179,9 @@ async function createCompendium(worldFolder: Folder, topic: Topic ): Promise<str
 
   // @ts-ignore
   await compendium.setFolder(worldFolder.id);
-  await compendium.configure({locked:true});
+
+  // @ts-ignore
+  await compendium.configure({ locked:true, topic: topic });
 
   // @ts-ignore
   return compendium.metadata.id;
