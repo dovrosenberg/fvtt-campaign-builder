@@ -3,11 +3,10 @@ import { localize } from '@/utils/game';
 
 import './WBHeader.scss';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
-import { Bookmark, EntryHeader, Topic, WindowTab } from '@/types';
+import { Bookmark, EntryHeader, WindowTab } from '@/types';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { getIcon } from '@/utils/misc';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-import { TEXT_ANCHOR_POINTS } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 
 type WBHeaderData = {
   tabs: WindowTab[];
@@ -18,28 +17,34 @@ type WBHeaderData = {
 }
 
 export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
+  private _worldId: string;
   private _tabs: WindowTab[];  
   private _collapsed: boolean;
   private _bookmarks = [] as Bookmark[];
   static override _template = 'modules/world-builder/templates/WBHeader.hbs';
 
-  constructor() {
+  constructor(worldId: string) {
     super();
 
     // setup the tabs and bookmarks
-    this._tabs = UserFlags.get(UserFlagKey.tabs) || [];
-    this._bookmarks = UserFlags.get(UserFlagKey.bookmarks) || [];
+    this.changeWorld(worldId);
 
     // get collapsed state
     this._collapsed = moduleSettings.get(SettingKey.startCollapsed) || false;
-
-    // if there are no tabs, add one
-    if (!this._tabs.length)
-      void this.openEntry();
   }
 
   protected _createPartials(): void {
     // no subcomponents
+  }
+
+  public changeWorld(worldId: string) {
+    this._worldId = worldId;
+    this._tabs = UserFlags.get(UserFlagKey.tabs, this._worldId) || [];
+    this._bookmarks = UserFlags.get(UserFlagKey.bookmarks, this._worldId) || [];
+
+    // if there are no tabs, add one
+    if (!this._tabs.length)
+      void this.openEntry();
   }
 
   public async getData(): Promise<WBHeaderData> {
@@ -109,6 +114,10 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
   public get collapsed(): boolean {
     return this._collapsed;
+  }
+
+  public get activeEntryId(): string | null {
+    return this._activeTab()?.entry.uuid || null;
   }
 
   // activate - switch to the tab after creating - defaults to true
@@ -190,7 +199,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       return b;
     });
 
-    let recent = UserFlags.get(UserFlagKey.recentlyViewed) || [];
+    let recent = UserFlags.get(UserFlagKey.recentlyViewed, this._worldId) || [];
     recent = recent.map((r)=> {
       if (r.uuid===entry.uuid)
         r.name = entry.name || '';
@@ -199,7 +208,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
     await this._saveTabs();
     await this._saveBookmarks();
-    await UserFlags.set(UserFlagKey.recentlyViewed, recent);
+    await UserFlags.set(UserFlagKey.recentlyViewed, this._worldId, recent);
   }
 
   /******************************************************
@@ -236,7 +245,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
 
   // add a new entity to the recent list
   private async _updateRecent(entry: EntryHeader): Promise<void> {
-    let recent = UserFlags.get(UserFlagKey.recentlyViewed) || [] as EntryHeader[];
+    let recent = UserFlags.get(UserFlagKey.recentlyViewed, this._worldId) || [] as EntryHeader[];
 
     // remove any other places in history this already appears
     recent.findSplice((h: EntryHeader): boolean => h.uuid === entry.uuid);
@@ -248,7 +257,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (recent.length > 5)
       recent = recent.slice(0, 5);
 
-    await UserFlags.set(UserFlagKey.recentlyViewed, recent);
+    await UserFlags.set(UserFlagKey.recentlyViewed, this._worldId, recent);
   }
 
   // activate the given tab, first closing the current subsheet
@@ -362,7 +371,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   }
 
   private async _saveTabs() {
-    await UserFlags.set(UserFlagKey.tabs, this._tabs);
+    await UserFlags.set(UserFlagKey.tabs, this._worldId, this._tabs);
   }
 
   /*
@@ -427,7 +436,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   }
 
   private async _saveBookmarks() {
-    await UserFlags.set(UserFlagKey.bookmarks, this._bookmarks);
+    await UserFlags.set(UserFlagKey.bookmarks, this._worldId, this._bookmarks);
   }
 
   // moves forward/back through the history "move" spaces (or less if not possible); negative numbers move back

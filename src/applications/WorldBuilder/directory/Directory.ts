@@ -73,7 +73,7 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
 
     // temp button
     html.find('#fwb-temp').on('click', () => {
-      void createEntry(getGame().folders?.find((f)=>f.name==='World A') as Folder, randomID(), Topic.Character);
+      void createEntry(getGame().folders?.find((f)=>f.name==='World B') as Folder, randomID(), Topic.Character);
     });
 
     // select an entry

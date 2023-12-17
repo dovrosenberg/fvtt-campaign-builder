@@ -6,6 +6,7 @@ import { WBContent } from './content/WBContent';
 import { Directory } from './directory/Directory';
 import { getGame, localize } from '@/utils/game';
 import { validateCompendia } from '@/compendia';
+import { update } from 'lodash';
 
 
 export class WorldBuilder extends Application {
@@ -23,12 +24,16 @@ export class WorldBuilder extends Application {
   constructor(rootFolder: Folder, worldFolder: Folder, options = {}) {
     super(options);
 
+    // preload so we can get the active tab
+    const wbHeader = new WBHeader(worldFolder.uuid);
     this._partials = {
-      WBHeader: new WBHeader(),
+      WBHeader: wbHeader,
       WBFooter: new WBFooter(),
-      WBContent: new WBContent(null),
+      WBContent: new WBContent(wbHeader.activeEntryId),
       Directory: new Directory(rootFolder), 
     };
+
+    THE ISSUE IS!!! creation of WBContent calls async function to set it up... the first render is happening before that completes
 
     this._worldFolder = worldFolder;
     void validateCompendia(this._worldFolder);
@@ -137,8 +142,7 @@ export class WorldBuilder extends Application {
 
       await validateCompendia(this._worldFolder);
 
-      // TODO!!! Need to move the tabs, etc. flags to the world instead of the user, then WBHeader needs to know what world it is
-      await (this._partials.WBHeader as WBHeader).changeWorld();
+      await (this._partials.WBHeader as WBHeader).changeWorld(worldId);
       
       await this.render();
     });
