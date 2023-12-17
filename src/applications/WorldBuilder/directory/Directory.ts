@@ -77,6 +77,7 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
       this._expandedCompendia[id] = !this._expandedCompendia[id];
 
       // we use css to handle the display update
+      // note: we don't do this for worlds because when you change worlds the whole app needs to be refreshed anyways
       jQuery(event.currentTarget).toggleClass('collapsed');
     });
 

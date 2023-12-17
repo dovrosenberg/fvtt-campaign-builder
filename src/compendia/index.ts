@@ -80,7 +80,7 @@ export async function createWorldFolder(rootFolder: Folder, name: string, makeCu
 // returns the root and world, creating if needed
 export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFolder: Folder}> {
   const rootFolder = await getRootFolder(); // will create if needed
-  const worldId = UserFlags.get(UserFlagKey.currentWorld);
+  const worldId = UserFlags.get(UserFlagKey.currentWorld);  // this isn't world-specific (obviously)
 
   // make sure we have a default and it exists
   let worldFolder = null as Folder | null;

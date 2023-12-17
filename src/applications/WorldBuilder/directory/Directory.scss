@@ -9,7 +9,9 @@
     border-bottom: 1px solid var(--mej-header-border-color);
     color: var(--mej-sidebar-label-color);
     margin-bottom: 0px;
-    padding-bottom: 3px;
+    padding-top: 3px;
+    padding-bottom: 6px;
+    padding-left: 20px;
 
     .header-actions.action-buttons button {
       line-height: 24px;
@@ -18,20 +20,41 @@
     }
 
     .header-search {
-      input {
+      #fwb-directory-search {
+        flex: 1;
         height: var(--form-field-height);
         border: 1px solid var(--mej-sidebar-input-border);
         background: var(--mej-sidebar-input-background);
+
+        &:hover,
+        &:focus,
+        &:active {
+          background: var(--mej-sidebar-input-background-focus);
+        }
+  
+        &::placeholder {
+          color: var(--mej-sidebar-input-placeholder-color);
+        }
       }
 
-      input:hover,
-      input:focus,
-      input:active {
-        background: var(--mej-sidebar-input-background-focus);
-      }
+      .header-control {
+        flex: 0 0 32px;
+        text-align: center;
+        position: relative;
 
-      input::placeholder {
-        color: var(--mej-sidebar-input-placeholder-color);
+        i {
+          position: absolute;
+
+          &.fa-plus {
+            top: -2px;
+            right: -2px;
+            font-size: 0.5rem;
+            background: black;
+            color: var(--color-text-light-highlight);
+            padding: 1px;
+            border-radius: 4px;
+          }  
+        }
       }
     }
   }
@@ -105,7 +128,7 @@
     .fwb-topic-folder.collapsed .fwb-topic-contents {
       display: none;
     }
-    
+
     .fwb-topic-contents {
       padding-left: 20px;
       margin: 0px;

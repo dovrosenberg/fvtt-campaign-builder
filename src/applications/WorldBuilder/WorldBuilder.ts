@@ -34,7 +34,8 @@ export class WorldBuilder extends Application {
     await wbHeader.changeWorld(worldFolder.uuid);
 
     // wait to load the active entry 
-    const wbContent = new WBContent();    
+    const wbContent = new WBContent(); 
+    wbContent.changeWorld(worldFolder.uuid);   
     await wbContent.updateEntry(wbHeader.activeEntryId);
 
     // ensure the directory is all setup
@@ -154,6 +155,7 @@ export class WorldBuilder extends Application {
       await validateCompendia(this._worldFolder);
 
       await (this._partials.WBHeader as WBHeader).changeWorld(worldId);
+      await (this._partials.WBContent as WBContent).changeWorld(worldId);
       
       await this.render();
     });

@@ -1,12 +1,16 @@
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import './HomePage.scss';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
+import { EntryHeader } from '@/types';
 
 export type HomePageData = {
+  recent: EntryHeader[],
 }
 
 export class HomePage extends HandlebarsPartial<HomePage.CallbackType>  {
   static override _template = 'modules/world-builder/templates/HomePage.hbs';
+
+  private _worldId: string;
 
   constructor() {
     super();
@@ -14,7 +18,7 @@ export class HomePage extends HandlebarsPartial<HomePage.CallbackType>  {
 
   public async getData(): Promise<HomePageData> {
     const data = {
-      recent: UserFlags.get(UserFlagKey.recentlyViewed),
+      recent: UserFlags.get(UserFlagKey.recentlyViewed, this._worldId ) || [],
     };
   
     // log(false, data);
@@ -23,6 +27,10 @@ export class HomePage extends HandlebarsPartial<HomePage.CallbackType>  {
 
   protected _createPartials(): void {
     // no subcomponents
+  }
+
+  public changeWorld(worldId: string): void {
+    this._worldId = worldId;
   }
 
   public activateListeners(html: JQuery) {  

@@ -27,10 +27,12 @@ export type WBContentData = {
 }
 
 export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
+  static override _template = 'modules/world-builder/templates/WBContent.hbs';
+
+  private _worldId: string; 
   private _entryId: string | null;    // the entryId to show (will show homepage if null)
   private _entry: JournalEntry;
   private _topic: Topic | null;
-  static override _template = 'modules/world-builder/templates/WBContent.hbs';
 
   constructor() {
     super();
@@ -40,6 +42,11 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   protected _createPartials(): void {
     this._partials.HomePage = new HomePage();
     this._partials.TypeTypeAhead = new TypeAhead([]);
+  }
+
+  public changeWorld(worldId: string): void {
+    this._worldId = worldId;
+    (this._partials.HomePage as HomePage).changeWorld(worldId);
   }
 
   public async updateEntry(entryId: string | null) {

@@ -17,11 +17,12 @@ type WBHeaderData = {
 }
 
 export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
+  static override _template = 'modules/world-builder/templates/WBHeader.hbs';
+
   private _worldId: string;
   private _tabs: WindowTab[];  
   private _collapsed: boolean;
   private _bookmarks = [] as Bookmark[];
-  static override _template = 'modules/world-builder/templates/WBHeader.hbs';
 
   constructor() {
     super();
