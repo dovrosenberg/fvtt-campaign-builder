@@ -5,6 +5,7 @@ import { getGame, localize } from '@/utils/game';
 import { Topic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 
 // returns the uuid of the root folder
 // if it is not stored in settings, creates a new folder
@@ -54,7 +55,7 @@ export async function createRootFolder(name?: string): Promise<Folder> {
 
 // create a new world folder
 // returns the new folder
-export async function createWorldFolder(rootFolder: Folder, name: string, makeDefault: boolean = false): Promise<Folder> {
+export async function createWorldFolder(rootFolder: Folder, name: string, makeCurrent = false): Promise<Folder> {
   const folders = await Folder.createDocuments([{
     name,
     // @ts-ignore
@@ -69,8 +70,8 @@ export async function createWorldFolder(rootFolder: Folder, name: string, makeDe
   // create the compendia inside
   
   // set as the default world
-  if (makeDefault) {
-    await moduleSettings.set(SettingKey.defaultWorldId, folders[0].uuid);
+  if (makeCurrent) {
+    await UserFlags.set(UserFlagKey.currentWorld, folders[0].uuid);
   }
 
   return folders[0];
@@ -79,7 +80,7 @@ export async function createWorldFolder(rootFolder: Folder, name: string, makeDe
 // returns the root and world, creating if needed
 export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFolder: Folder}> {
   const rootFolder = await getRootFolder(); // will create if needed
-  const worldId = moduleSettings.get(SettingKey.defaultWorldId);
+  const worldId = UserFlags.get(UserFlagKey.currentWorld);
 
   // make sure we have a default and it exists
   let worldFolder = null as Folder | null;

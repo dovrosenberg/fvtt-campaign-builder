@@ -21,22 +21,35 @@ export class WorldBuilder extends Application {
   lastquery = '';
   _imgcontext = null;
 
-  constructor(rootFolder: Folder, worldFolder: Folder, options = {}) {
+  private constructor(partials: any, worldFolder: Folder, options = {}) {
     super(options);
 
+    this._worldFolder = worldFolder;
+    this._partials = partials;
+  }
+
+  // we need the construction to be asynchronous so that we can wait for it all to complete prior to doing the first render
+  // this doesn't return until all of the partials are fully ready to render
+  static async createWorldBuilder(rootFolder: Folder, worldFolder: Folder, options = {}) {
     // preload so we can get the active tab
-    const wbHeader = new WBHeader(worldFolder.uuid);
-    this._partials = {
+    const wbHeader = new WBHeader();
+    await wbHeader.changeWorld(worldFolder.uuid);
+
+    // wait to load the active entry 
+    const wbContent = new WBContent();    
+    await wbContent.updateEntry(wbHeader.activeEntryId);
+
+    // ensure the directory is all setup
+    await validateCompendia(worldFolder);    
+
+    const partials = {
       WBHeader: wbHeader,
       WBFooter: new WBFooter(),
-      WBContent: new WBContent(wbHeader.activeEntryId),
+      WBContent: wbContent,
       Directory: new Directory(rootFolder), 
     };
 
-    THE ISSUE IS!!! creation of WBContent calls async function to set it up... the first render is happening before that completes
-
-    this._worldFolder = worldFolder;
-    void validateCompendia(this._worldFolder);
+    return new WorldBuilder(partials, worldFolder, options);
   }
 
   static get defaultOptions() {

@@ -32,10 +32,8 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   private _topic: Topic | null;
   static override _template = 'modules/world-builder/templates/WBContent.hbs';
 
-  constructor(entryId = null as string | null) {
+  constructor() {
     super();
-
-    void this.updateEntry(entryId);
   }
 
   // we will dynamically setup the partials

@@ -6,19 +6,21 @@ export enum UserFlagKey {
   tabs = 'tabs',  // the open tabs
   bookmarks = 'bookmarks',  // stored bookmarks
   recentlyViewed = 'recentlyViewed',    // recent list
+  currentWorld = 'currentWorld',   // the currently open world
 }
 
 type UserFlagType<K extends UserFlagKey> =
     K extends UserFlagKey.tabs ? WindowTab[] :
     K extends UserFlagKey.bookmarks ? Bookmark[] :
     K extends UserFlagKey.recentlyViewed ? EntryHeader[] :
+    K extends UserFlagKey.currentWorld ? string :
     never;  
 
-// we concatenate the flag and worldId... why? worldId has dots in it, which cannot be used in a key because they
-//    are dereferenced by foundry when saving to the database, making it hard to get back in proper format
-// we could just concatenate in the calling code, but then it would be much harder to type check
 export abstract class UserFlags {
-  public static get<T extends UserFlagKey>(flag: T, worldId: string): UserFlagType<T> | null {
+  // for world-specific settings, we concatenate the flag and worldId... why? worldId has dots in it, which cannot be used in a key because they
+  //    are dereferenced by foundry when saving to the database, making it hard to get back in proper format
+  // we could just concatenate in the calling code, but then it would be much harder to type check
+  public static get<T extends UserFlagKey>(flag: T, worldId = ''): UserFlagType<T> | null {
     if (!getGame().user)
       return null;
 
@@ -26,7 +28,7 @@ export abstract class UserFlags {
   }
 
   // note - setting a flag to null will delete it
-  public static async set<T extends UserFlagKey>(flag: T, worldId: string, value: UserFlagType<T> | null): Promise<void> {
+  public static async set<T extends UserFlagKey>(flag: T, value: UserFlagType<T> | null, worldId = ''): Promise<void> {
     if (!getGame().user)
       return;
 

@@ -8,14 +8,12 @@ export enum SettingKey {
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
-  defaultWorldId = 'defaultWorldId',  // uuid of the default world folder
   types = 'types',  // object where each key is a Topic and the value is an array of valid types
 }
 
 type SettingType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
     K extends SettingKey.rootFolderId ? string : 
-    K extends SettingKey.defaultWorldId ? string : 
     K extends SettingKey.types ? Record<Topic, string[]> :
     never;  
 
@@ -78,11 +76,6 @@ export class ModuleSettings {
   private internalParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
     {
       settingID: SettingKey.rootFolderId,
-      default: null,
-      type: String,
-    },
-    {
-      settingID: SettingKey.defaultWorldId,
       default: null,
       type: String,
     },
