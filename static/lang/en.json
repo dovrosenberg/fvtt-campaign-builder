@@ -46,8 +46,9 @@
     },
     "tooltips": {
       "mainButton": "Launch World Builder",
-      "expandDirectory": "Expand Directory",
-      "collapseDirectory": "Collapse Directory",
+      "expandDirectory": "Expand directory",
+      "collapseDirectory": "Collapse directory",
+      "collapseAllTopics": "Collapse all",
       "addBookmark": "Add bookmark",
       "historyBack": "Back",
       "historyForward": "Forward"

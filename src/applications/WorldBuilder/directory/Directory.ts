@@ -65,6 +65,9 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
     html.on('click', '.fwb-world-folder', (event: JQuery.ClickEvent) => {
       event.stopPropagation();
 
+      // re-collapse everything
+      this._expandedCompendia = {};
+      
       if (event.currentTarget.dataset.worldId)
         this._makeCallback(Directory.CallbackType.WorldSelected, event.currentTarget.dataset.worldId);
     });
@@ -79,6 +82,14 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
       // we use css to handle the display update
       // note: we don't do this for worlds because when you change worlds the whole app needs to be refreshed anyways
       jQuery(event.currentTarget).toggleClass('collapsed');
+    });
+
+    // close all topics
+    html.on('click', '.header-control.collapse-all', (event: JQuery.ClickEvent) => {
+      event.stopPropagation();
+
+      this._expandedCompendia = {};
+      jQuery('.fwb-topic-folder').addClass('collapsed');
     });
 
     // select an entry
