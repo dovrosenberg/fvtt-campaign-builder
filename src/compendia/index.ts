@@ -55,7 +55,9 @@ export async function createRootFolder(name?: string): Promise<Folder> {
 
 // create a new world folder
 // returns the new folder
-export async function createWorldFolder(rootFolder: Folder, name: string, makeCurrent = false): Promise<Folder> {
+export async function createWorldFolder(name: string, makeCurrent = false): Promise<Folder> {
+  const rootFolder = await getRootFolder(); // will create if needed
+
   const folders = await Folder.createDocuments([{
     name,
     // @ts-ignore
@@ -69,7 +71,7 @@ export async function createWorldFolder(rootFolder: Folder, name: string, makeCu
 
   // create the compendia inside
   
-  // set as the default world
+  // set as the current world
   if (makeCurrent) {
     await UserFlags.set(UserFlagKey.currentWorld, folders[0].uuid);
   }
@@ -97,7 +99,7 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFo
       name = await inputDialog('Create World', 'World Name:');
       
       if (name) {
-        worldFolder = await createWorldFolder(rootFolder, name, true);
+        worldFolder = await createWorldFolder(name, true);
       }
     } while (!name);
   }

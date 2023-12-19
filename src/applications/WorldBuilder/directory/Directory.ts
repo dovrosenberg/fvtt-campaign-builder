@@ -1,7 +1,7 @@
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import './Directory.scss';
 import { getGame } from '@/utils/game';
-import { createEntry } from '@/compendia';
+import { createEntry, createWorldFolder } from '@/compendia';
 import { Topic } from '@/types';
 import { getIcon } from '@/utils/misc';
 
@@ -90,6 +90,17 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
 
       this._expandedCompendia = {};
       jQuery('.fwb-topic-folder').addClass('collapsed');
+    });
+
+    // create a world
+    html.on('click', '.header-control.create-world', async (event: JQuery.ClickEvent) => {
+      event.stopPropagation();
+
+      const world = await createWorldFolder('New world', true);
+      if (world) {
+        // rerender
+        this._makeCallback(Directory.CallbackType.WorldSelected, world.uuid);
+      }
     });
 
     // select an entry
