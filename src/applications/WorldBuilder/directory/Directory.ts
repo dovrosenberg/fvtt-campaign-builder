@@ -96,7 +96,7 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
     html.on('click', '.header-control.create-world', async (event: JQuery.ClickEvent) => {
       event.stopPropagation();
 
-      const world = await createWorldFolder('New world', true);
+      const world = await createWorldFolder(true);
       if (world) {
         // rerender
         this._makeCallback(Directory.CallbackType.WorldSelected, world.uuid);

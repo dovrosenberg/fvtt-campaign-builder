@@ -106,7 +106,12 @@
 
     i.icon {
       color: #777;
-    }
+    }  
+  }
+
+  // change icon to closed when collapsed
+  .fwb-topic-folder.collapsed > .folder-header i.fa-folder-open:before {
+    content: "\f07b";
   }
 
   .fwb-create-entry.create-button {

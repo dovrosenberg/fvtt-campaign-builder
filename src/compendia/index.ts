@@ -55,32 +55,43 @@ export async function createRootFolder(name?: string): Promise<Folder> {
 
 // create a new world folder
 // returns the new folder
-export async function createWorldFolder(name: string, makeCurrent = false): Promise<Folder> {
+export async function createWorldFolder(makeCurrent = false): Promise<Folder | null> {
   const rootFolder = await getRootFolder(); // will create if needed
 
-  const folders = await Folder.createDocuments([{
-    name,
-    // @ts-ignore
-    type: 'Compendium',
-    folder: rootFolder.id,
-    sorting: 'a',
-  }]);
+  // get the name
+  let name;
 
-  if (!folders)
-    throw new Error('Couldn\'t create new folder');
-
-  // create the compendia inside
+  do {
+    name = await inputDialog('Create World', 'World Name:');
+    
+    if (name) {
+      // create the folder
+      const folders = await Folder.createDocuments([{
+        name,
+        // @ts-ignore
+        type: 'Compendium',
+        folder: rootFolder.id,
+        sorting: 'a',
+      }]);
   
-  // set as the current world
-  if (makeCurrent) {
-    await UserFlags.set(UserFlagKey.currentWorld, folders[0].uuid);
-  }
+      if (!folders)
+        throw new Error('Couldn\'t create new folder');
+  
+      // set as the current world
+      if (makeCurrent) {
+        await UserFlags.set(UserFlagKey.currentWorld, folders[0].uuid);
+      }
+  
+      return folders[0];
+    }
+  } while (name==='');  // if hit ok, must have a value
 
-  return folders[0];
+  // if name isn't '' and we're here, then we cancelled the dialog
+  return null;
 }
 
 // returns the root and world, creating if needed
-export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFolder: Folder}> {
+export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFolder: Folder | null}> {
   const rootFolder = await getRootFolder(); // will create if needed
   const worldId = UserFlags.get(UserFlagKey.currentWorld);  // this isn't world-specific (obviously)
 
@@ -90,18 +101,7 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFo
     worldFolder = getGame()?.folders?.find((f)=>f.uuid===worldId) || null;
 
   if (!worldId || !worldFolder) {
-    // need to create a world
-    let name;
-
-    // TODO - differentiate between a blank name submitted and a cancellation - otherwise
-    //    there's no way to cancel
-    do {
-      name = await inputDialog('Create World', 'World Name:');
-      
-      if (name) {
-        worldFolder = await createWorldFolder(name, true);
-      }
-    } while (!name);
+    worldFolder = await createWorldFolder(true);
   }
 
   return { rootFolder, worldFolder: worldFolder as Folder };
