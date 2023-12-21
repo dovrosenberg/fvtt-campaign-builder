@@ -12,7 +12,7 @@ async function ready(): Promise<void> {
   // register handlebars helpers
   await registerHelpers();
 
-  if (getGame().user?.isGM) {  // TODO : decide what the player view should be, if any
+  if (getGame().user?.isGM) {  
     const navToggleButton = jQuery(document).find('#nav-toggle');
     const toolTip = localize('fwb.tooltips.mainButton');
     navToggleButton.before(
@@ -23,7 +23,7 @@ async function ready(): Promise<void> {
       if (!worldBuilder) {
         // TODO - what happens if the folder is deleted after this is called?  Do 
         //    we need to continually check or is the user just stupid?  Also, 
-        //    can we lock it so prevent that?
+        //    can we lock it to prevent that?
         const folders = await getDefaultFolders();
         
         if (folders?.rootFolder && folders?.worldFolder) {

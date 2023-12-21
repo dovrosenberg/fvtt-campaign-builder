@@ -11,7 +11,7 @@ import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 type WBHeaderData = {
   tabs: WindowTab[];
   collapsed: boolean;
-  bookmarks: any[];  // TODO
+  bookmarks: Bookmark[];  
   canBack: boolean;
   canForward: boolean;
 }
@@ -135,7 +135,6 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       ...options,
     };
 
-    // TODO - why use fromUuid here b not in WBContnt.updateEntry()?
     const journal = entryId ? await fromUuid(entryId) as JournalEntry : null;
     const entryName = (journal ? journal.name : localize('fwb.labels.newTab')) || '';
     const entry = { uuid: journal ? entryId : null, name: entryName, icon: journal ? getIcon(EntryFlags.get(journal, EntryFlagKey.topic)) : '' };
@@ -276,7 +275,6 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       return;
     }
 
-    // TODO - if there's an active tab, do we need to clean anything up? save?
     if (currentTab)
       currentTab.active = false;
     
@@ -396,7 +394,6 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     //get the current tab and save the entity and name
     const tab = this._activeTab();
 
-    // TODO - should disable the add button in this situation
     if (!tab?.entry)
       return;
 
@@ -409,12 +406,9 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     const bookmark = {
       id: randomID(),
       entry: tab.entry,
-      icon: 'fa-place-of-worship'  // TODO - get icon based on type
-    };
+    } as Bookmark;
 
     this._bookmarks.push(bookmark);
-
-    // TODO - need to create the context menu so you can delete the bookmark
 
     await this._saveBookmarks();
     this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
@@ -527,7 +521,6 @@ async getHistory() {
 
     if (data.type==='fwb-tab') {
       // where are we droping it?
-      // TODO - also handle off on the right to move to end
       const target = (event.currentTarget as HTMLElement).closest('.fwb-tab') as HTMLElement;
       if (!target)
         return false;
@@ -550,7 +543,6 @@ async getHistory() {
       if (data.bookmarkId === target.dataset.bookmarkId) return; // Don't drop on yourself
 
       // insert before the drop target
-      // TODO- ability to move to end
       const from = this._bookmarks.findIndex(b => b.id === data.bookmarkId);
       const to = this._bookmarks.findIndex(b => b.id === target.dataset.bookmarkId);
       this._bookmarks.splice(to, 0, this._bookmarks.splice(from, 1)[0]);

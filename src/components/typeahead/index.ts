@@ -56,8 +56,6 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
       this._refreshList();
     });
 
-    // TODO - need a blur for leaving whole component that records either a selection or an 
-
     // Event listener for item clicks
     dropdown.on('click', (event: JQuery.ClickEvent) => {
       if (event.target.classList.contains('typeahead-entry')) {

@@ -123,8 +123,6 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
       if (!worldFolder || !topic)
         throw new Error('Invalid header in .fwb-crate-entry.click()');
 
-      // TODO - popup a box asking for the name
-
       const entry = await createEntry(worldFolder, randomID(), topic);
 
       if (entry)
