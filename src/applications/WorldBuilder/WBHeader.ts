@@ -53,6 +53,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       tabs: this._tabs,
       collapsed: this._collapsed,
       bookmarks: this._bookmarks,
+      disableAddBookmark: !this._activeTab(false)?.entry?.uuid,
       canBack: this._canBack(),
       canForward: this._canForward(),
     };
@@ -392,9 +393,9 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   // add the current tab as a new bookmark
   async _addBookmark(): Promise<void> {
     //get the current tab and save the entity and name
-    const tab = this._activeTab();
+    const tab = this._activeTab(false);
 
-    if (!tab?.entry)
+    if (!tab?.entry?.uuid)
       return;
 
     // see if a bookmark for the entry already exists

@@ -140,6 +140,11 @@
         border: 1px solid var(--mej-header-add-bookmark-border);
         background: var(--mej-header-add-bookmark-background);
         color: var(--mej-header-add-bookmark-color);
+
+        &.disabled {
+          cursor: default;
+          color: #999;
+        }
       }
 
       & > div {
@@ -158,7 +163,7 @@
         background: var(--mej-header-bookmark-hover);
       }
 
-      &#fwb-add-bookmark:hover {
+      &#fwb-add-bookmark:not(.disabled):hover {
         background: var(--mej-header-add-bookmark-hover);
       }
     }
