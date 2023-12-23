@@ -38,9 +38,12 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   private _entryId: string | null;    // the entryId to show (will show homepage if null)
   private _entry: JournalEntry;
   private _topic: Topic | null;
+  private _tabs: Tabs;
 
   constructor() {
     super();
+
+    this._tabs = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
   }
 
   // we will dynamically setup the partials
@@ -133,6 +136,9 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     else {
       this._partials.TypeTypeAhead.activateListeners(html);
     }
+
+    // bind the tabs
+    this._tabs.bind(html.get()[0]);
 
     // watch for edits to name
     html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
