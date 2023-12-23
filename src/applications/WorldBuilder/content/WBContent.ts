@@ -7,7 +7,7 @@ import { getIcon } from '@/utils/misc';
 import { TypeAhead, TypeAheadData } from '@/components/typeahead';
 import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-import { updateEntry } from '@/compendia';
+import { getCleanEntry, updateEntry } from '@/compendia';
 
 export type WBContentData = {
   showHomePage: true,
@@ -24,6 +24,11 @@ export type WBContentData = {
   typeAheadTemplate: () => string,
   typeAheadData: TypeAheadData,
   namePlaceholder: string,
+  description: {
+    content: any,
+    format: number,
+    markdown: any
+  }
 }
 
 export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
@@ -51,14 +56,12 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
 
   public async updateEntry(entryId: string | null) {
     // we need to setup the type before calling the constructor
-    // look up the entry - note could use fromUuid, but it's a bit tricky for compendia and also async
     if (!entryId) {
       // just show the homepage
       this._entryId = null;
       this._topic = null;
     } else {
-      // we must use fromUuid because these are all in compendia
-      const entry = await fromUuid(entryId) as JournalEntry | null;
+      const entry = await getCleanEntry(entryId);
       const topic = entry ? EntryFlags.get(entry, EntryFlagKey.topic) : null;
 
       if (!entry || !topic) {
@@ -115,6 +118,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         typeAheadTemplate: () => TypeAhead.template,
         typeAheadData: await this._partials.TypeTypeAhead.getData(),
         namePlaceholder: localize(topicData[this._topic].namePlaceholder),
+        description: this._entry.pages.get('description').text, //TODO: use enum
       };
     }
 

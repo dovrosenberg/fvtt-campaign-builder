@@ -6,6 +6,8 @@ import { Topic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
+import EmbeddedCollection from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/embedded-collection.mjs';
+import { JournalEntryData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs';
 
 // returns the uuid of the root folder
 // if it is not stored in settings, creates a new folder
@@ -189,6 +191,19 @@ async function createCompendium(worldFolder: Folder, topic: Topic ): Promise<str
   return compendium.metadata.id;
 }
 
+// gets the entry and cleans it
+export async function getCleanEntry(uuid: string): Promise<JournalEntry | null> {
+  // we must use fromUuid because these are all in compendia
+  const entry = await fromUuid(uuid) as JournalEntry;
+
+  if (entry) {
+    await cleanEntry(entry);
+    return entry;
+  } else {
+    return null;
+  }
+}
+
 // creates a new entry in the proper compendium in the given world
 export async function createEntry(worldFolder: Folder, name: string, topic: Topic): Promise<JournalEntry | null> {
   const compendia = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia);
@@ -210,12 +225,26 @@ export async function createEntry(worldFolder: Folder, name: string, topic: Topi
     pack: compendia[topic],
   });
 
-  if (entry)
+  if (entry) {
     await EntryFlags.set(entry, EntryFlagKey.topic, topic);
+
+    await cleanEntry(entry);
+  }
 
   await pack.configure({locked:true});
 
   return entry || null;
+}
+
+// makes sure that the entry has all the correct pages
+async function cleanEntry(entry: JournalEntry): Promise<void> {
+  if (!entry.pages.get('description')) { // TODO: replace with enum
+    // @ts-ignore
+    const page = entry.pages.createDocument({name:'description'});  // TODO: replace this with an enum
+
+    // @ts-ignore
+    entry.pages.set('description', page);
+  }
 }
 
 // updates an entry, unlocking compedium to do it

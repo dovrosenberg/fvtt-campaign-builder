@@ -7,6 +7,7 @@ import { Bookmark, EntryHeader, WindowTab } from '@/types';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { getIcon } from '@/utils/misc';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+import { getCleanEntry } from '@/compendia';
 
 type WBHeaderData = {
   tabs: WindowTab[];
@@ -135,7 +136,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       ...options,
     };
 
-    const journal = entryId ? await fromUuid(entryId) as JournalEntry : null;
+    const journal = entryId ? await getCleanEntry(entryId) as JournalEntry : null;
     const entryName = (journal ? journal.name : localize('fwb.labels.newTab')) || '';
     const entry = { uuid: journal ? entryId : null, name: entryName, icon: journal ? getIcon(EntryFlags.get(journal, EntryFlagKey.topic)) : '' };
 
