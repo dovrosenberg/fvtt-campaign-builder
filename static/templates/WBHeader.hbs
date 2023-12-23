@@ -27,10 +27,10 @@
   </div>
 
   <div class="fwb-bookmark-bar flexrow">
-    <div id="fwb-add-bookmark" title="{{localize 'fwb.tooltips.addBookmark'}}"><i class="fas fa-star"></i></div>
+    <div id="fwb-add-bookmark" title="{{localize 'fwb.tooltips.addBookmark'}}" {{#if disableAddBookmark}}class="disabled"{{/if}}><i class="fas fa-star"></i></div>
 
     {{#each bookmarks}}
-      <div class="fwb-bookmark-button" title="{{entry.name}}" data-bookmark-id="{{id}}"><div><i class="fas {{icon}}"></i> {{entry.name}}</div></div>
+      <div class="fwb-bookmark-button" title="{{entry.name}}" data-bookmark-id="{{id}}"><div><i class="fas {{entry.icon}}"></i> {{entry.name}}</div></div>
     {{/each}}
   </div>
 

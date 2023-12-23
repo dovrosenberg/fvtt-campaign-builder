@@ -153,25 +153,20 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
   }
 }
 
-async function createCompendium(worldFolder: Folder, topic: Topic ): Promise<string> {
-  let label: string;
-
-  switch (topic) {
-    case Topic.Character:
-      label = localize('fwb.topics.characters');
-      break;
-    case Topic.Event:
-      label = localize('fwb.topics.events');
-      break;
-    case Topic.Location:
-      label = localize('fwb.topics.locations');
-      break;
-    case Topic.Organization:
-      label = localize('fwb.topics.organizations');
-      break;
-    default:
-      throw new Error('Invalid topic in createCompendium');
+function getTopicText(topic: Topic): string {
+  switch (typeof topic === 'string' ? parseInt(topic) as Topic : topic) {
+    case Topic.Character: return localize('fwb.topics.character'); 
+    case Topic.Event: return localize('fwb.topics.event'); 
+    case Topic.Location: return localize('fwb.topics.location'); 
+    case Topic.Organization: return localize('fwb.topics.organization'); 
+    default: 
+      throw new Error('Invalid topic in getTopicText()');
   }
+}
+
+async function createCompendium(worldFolder: Folder, topic: Topic ): Promise<string> {
+  const label = getTopicText(topic);
+
   const metadata = { 
     name: randomID(), 
     label: label,
@@ -205,35 +200,45 @@ export async function getCleanEntry(uuid: string): Promise<JournalEntry | null> 
 }
 
 // creates a new entry in the proper compendium in the given world
-export async function createEntry(worldFolder: Folder, name: string, topic: Topic): Promise<JournalEntry | null> {
-  const compendia = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia);
+export async function createEntry(worldFolder: Folder, topic: Topic): Promise<JournalEntry | null> {
+  let topicText = getTopicText(topic);
 
-  if (!compendia || !compendia[topic])
-    throw new Error('Missing compendia in createEntry()');
+  let name;
+  do {
+    name = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
+    
+    if (name) {
+      // create the entry
+      const compendia = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia);
 
-  // unlock it to make the change
-  const pack = getGame().packs.get(compendia[topic]);
-  if (!pack)
-    throw new Error('Bad compendia in createEntry()');
+      if (!compendia || !compendia[topic])
+        throw new Error('Missing compendia in createEntry()');
+    
+      // unlock it to make the change
+      const pack = getGame().packs.get(compendia[topic]);
+      if (!pack)
+        throw new Error('Bad compendia in createEntry()');
+    
+      await pack.configure({locked:false});
+    
+      const entry = await JournalEntry.create({
+        name,
+        folder: worldFolder.id,
+      },{
+        pack: compendia[topic],
+      });
+    
+      if (entry)
+        await EntryFlags.set(entry, EntryFlagKey.topic, topic);
+    
+      await pack.configure({locked:true});
+    
+      return entry || null;
+    }
+  } while (name==='');  // if hit ok, must have a value
 
-  await pack.configure({locked:false});
-
-  const entry = await JournalEntry.create({
-    name,
-    folder: worldFolder.id,
-  },{
-    pack: compendia[topic],
-  });
-
-  if (entry) {
-    await EntryFlags.set(entry, EntryFlagKey.topic, topic);
-
-    await cleanEntry(entry);
-  }
-
-  await pack.configure({locked:true});
-
-  return entry || null;
+  // if name isn't '' and we're here, then we cancelled the dialog
+  return null;
 }
 
 // makes sure that the entry has all the correct pages
