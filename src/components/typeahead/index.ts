@@ -11,6 +11,7 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
   private _filteredItems = [] as string[];
   private _idx: number;
   private _control: JQuery;
+  private _hasFocus: boolean;
 
   constructor(list: string[]) {
     super();
@@ -19,6 +20,7 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
 
     // we create a random ID so we can use multiple instances
     this._id = 'fwb-ta-' + randomID();
+    this._hasFocus = false;
   }
 
   protected _createPartials(): void {
@@ -45,6 +47,9 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
 
     // Event listener for input changes
     input.on('input',  () => {
+      // note that we have the focus
+      this._hasFocus = true;
+
       const inputValue = input.val()?.toString().toLowerCase() || '';
 
       // blank everything out if the string is empty (so box closes)
@@ -62,12 +67,21 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
         const selection = event.target.textContent; 
         input.val(selection);
         dropdown.html(''); // Clear the dropdown
+        this._hasFocus = false;
         this._makeCallback(TypeAhead.CallbackType.SelectionMade, selection);
       }
     });
 
     // capture keydown for up, down, enter
     this._control.on('keydown', (event: JQuery.KeyDownEvent) => this._onKeydown(event));
+
+    // watch for clicks anywhere outside the control
+    jQuery(document).on('click', (event: JQuery.ClickEvent) => {
+      if (this._hasFocus && !jQuery(event.currentTarget).closest('.fwb-typeahead')[0]) {
+        // we were in it, but now we're not; treat as if we'd tabbed out
+        this._onKeydown({key:'Tab'} as JQuery.KeyDownEvent);
+      }
+    });
   }
 
   // change the valid item list
@@ -101,23 +115,24 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
         return;
 
       case 'Enter':
-      case 'Tab':
-        let input = this._control.find('#fwb-ta-input');
+      case 'Tab': {
+        const input = this._control.find('#fwb-ta-input');
         let selection = '';
 
         // if nothing selected, check for a match or add something new
         // if box is empty, we don't add a new value, but we still say blank was seleted
-        if (this._idx===-1 && input.val()) {
+        if (this._idx===-1 && input?.val()?.toString()) {
           selection = input.val().toString();
 
           // exact match only to let us add types that are just different cases
-          let match = this._list.find(item=>item===selection.toString());
+          const match = this._list.find(item=>item===selection.toString());
           if (match) {
             // it's match, so we'll select that item but don't need to add anything (we don't use the text
             //    in the box because it might have different case)
             selection = match;
           } else {
             this._list.push(selection);
+            this._hasFocus = false;
             this._makeCallback(TypeAhead.CallbackType.ItemAdded, selection);
           }
         } else if (this._idx!==-1) {
@@ -130,9 +145,10 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
         this._filteredItems = [];
         this._refreshList();
 
+        this._hasFocus = false;
         this._makeCallback(TypeAhead.CallbackType.SelectionMade, selection);
-
         return;
+      }
 
       default:
         return;
