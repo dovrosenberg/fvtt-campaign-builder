@@ -13,7 +13,15 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
   private _sheet: EditorJournalPage;
   private _content: string;
   private _page: JournalEntryPage | null;
-  private _editor: TextEditor | null;
+  private _options: any;     //  = options;
+  private _target: string;     // ???
+  private _button: HTMLElement;        // reference to ???
+  private _hasButton: boolean;     // does it have the button to open/close it
+  private _mce: any;
+  private _instance: Editor;   //the editor 
+  private _active: boolean;   // ???
+  private _changed: boolean;   // has it changed
+  private _initial: string;   // initial text
 
   constructor(page: JournalEntryPage | null) {
     super();
@@ -56,7 +64,7 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
     html.find('.editor-content[data-edit]').each((i, div) => this._activateEditor(div));
   }
 
-  private _activateEditor(div) {
+  private _activateEditor(div: HTMLElement) {
     if (!this._page)
       return;
 
@@ -88,23 +96,21 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
       options.plugins = this._configureProseMirrorPlugins(/*{removed:hasButton}*/);
 
     // Define the editor configuration
-    this._editor = {
-      options,
-      target: name,
-      button: button,
-      hasButton: hasButton,
-      mce: null,
-      instance: null,
-      active: !hasButton,
-      changed: false,
-      initial: foundry.utils.getProperty(this._page, name)
-    };
+    this._options = options;
+    this._target = name;
+    this._button = button;
+    this._hasButton = hasButton;
+    this._mce = null;
+    this._instance = null;
+    this._active = !hasButton;
+    this._changed = false;
+    this._initial = '';
 
     // Activate the editor immediately, or upon button click
     const activate = () => {
       debugger;
-      this._editor.initial = this._page.text?.content;
-      this.activateEditor({}, this._editor.initial);
+      this._initial = this._page.text?.content;
+      this.activateEditor({}, this._initial);
     };
     if ( hasButton ) 
       button.onclick = activate;
@@ -120,22 +126,22 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
       }, options.plugins);
     }
 
-    options = foundry.utils.mergeObject(this._editor.options, options);
+    options = foundry.utils.mergeObject(this._options, options);
     if ( !options.fitToSize ) 
       options.height = options.target.offsetHeight;
-    if ( this._editor.hasButton ) 
-      this._editor.button.style.display = 'none';
+    if ( this._hasButton ) 
+      this._button.style.display = 'none';
     
-    const instance = this._editor.instance = this._editor.mce = await TextEditor.create(options, initialContent || this._editor.initial);
+    const instance = this._instance = this._mce = await TextEditor.create(options, initialContent || this._initial);
     
     options.target.closest(".editor")?.classList.add(options.engine ?? "tinymce");
-    this._editor.changed = false;
-    this._editor.active = true;
+    this._changed = false;
+    this._active = true;
 
     /* @deprecated since v10 */
     if ( options.engine !== "prosemirror" ) {
       instance.focus();
-      instance.on("change", () => this._editor.changed = true);
+      instance.on("change", () => this._changed = true);
     }
     return instance;
   }
@@ -156,16 +162,16 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
     debugger;
     // TODO: move all this logic to the parent, because that knows which field it is
 
-    this._editor.active = false;
+    this._active = false;
 
     // save the data
     let content;
-    if ( this._editor.options.engine === "tinymce" ) {
-      const mceContent = this._editor.instance.getContent();
-      this.delete(this._editor.mce.id); // Delete hidden MCE inputs
+    if ( this._options.engine === "tinymce" ) {
+      const mceContent = this._instance.getContent();
+      this.delete(this._mce.id); // Delete hidden MCE inputs
       content = mceContent;
-    } else if ( this._editor.options.engine === "prosemirror" ) {
-      content = ProseMirror.dom.serializeString(this._editor.instance.view.state.doc.content);
+    } else if ( this._options.engine === "prosemirror" ) {
+      content = ProseMirror.dom.serializeString(this._instance.view.state.doc.content);
     }
 
     await this._page?.update({
@@ -174,15 +180,15 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
 
     // Remove the editor
     if ( remove ) {
-      this._editor.instance.destroy();
-      this._editor.instance = this._editor.mce = null;
-      if ( this._editor.hasButton ) 
-        this._editor.button.style.display = 'block';
+      this._instance.destroy();
+      this._instance = this._mce = null;
+      if ( this._hasButton ) 
+        this._button.style.display = 'block';
       
       // tell parent to rerender
       //this.render();
     }
-    this._editor.changed = false;
+    this._changed = false;
   }
 }
 
