@@ -243,12 +243,12 @@ export async function createEntry(worldFolder: Folder, topic: Topic): Promise<Jo
 
 // makes sure that the entry has all the correct pages
 async function cleanEntry(entry: JournalEntry): Promise<void> {
-  if (!entry.pages.get('description')) { // TODO: replace with enum
+  if (!entry.pages.find((p)=>p.name==='description')) { // TODO: replace with enum
     // @ts-ignore
-    const page = entry.pages.createDocument({name:'description'});  // TODO: replace this with an enum
+    const page = entry.pages.createDocument({name:'description', type: 'text', _id: randomID()}, {parent: entry, pack: entry.pack});  // TODO: replace this with an enum
 
     // @ts-ignore
-    entry.pages.set('description', page);
+    entry.pages.set(page._id, page);
   }
 }
 

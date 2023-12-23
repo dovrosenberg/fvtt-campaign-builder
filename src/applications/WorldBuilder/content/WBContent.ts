@@ -84,7 +84,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
 
         // reattach the editor
         // @ts-ignore
-        this._partials.DescriptionEditor = new Editor(entry.pages.get('description'));  // TODO: replace with enum
+        this._partials.DescriptionEditor = new Editor(entry.pages.find((p)=>p.name==='description'));  // TODO: replace with enum
 
         // get() returns the object and we don't want to modify it directly
         (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKey.types)[topic]);
@@ -132,7 +132,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         namePlaceholder: localize(topicData[this._topic].namePlaceholder),
         descriptionTemplate: () => Editor.template,
         descriptionData: await (this._partials.DescriptionEditor as Editor).getData(),
-        description: this._entry.pages.get('description').text, //TODO: use enum
+        description: this._entry.pages.find((p)=>p.name==='description').text, //TODO: use enum
       };
     }
 

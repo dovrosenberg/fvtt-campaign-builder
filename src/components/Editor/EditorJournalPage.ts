@@ -4,7 +4,7 @@ export class EditorJournalPage extends JournalTextPageSheet {
     super(...args);
 
     // whenever we have one of these, treat is as rendered
-    this._state = this.constructor.RENDER_STATES.RENDERED;
+    //this._state = this.constructor.RENDER_STATES.RENDERED;
   }
 
   get isEditable() {
