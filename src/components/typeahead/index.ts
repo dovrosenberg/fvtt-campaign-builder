@@ -12,7 +12,6 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
   private _idx: number;
   private _control: JQuery;
   private _hasFocus: boolean;
-  private _originalValue: string;
 
   constructor(list: string[]) {
     super();
@@ -48,12 +47,8 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
 
     // Event listener for input changes
     input.on('input',  () => {
-      // if we're just getting the focus, store the old value
-      if (!this._hasFocus) {
-        TODO: !!! THIS DOESN'T CAPTURE THE ORIGINAL VALUE... JUST THE FIRST CHANGE
-        this._originalValue = input.val()?.toString() || '';
-        this._hasFocus = true;
-      }
+      // note that we have the focus
+      this._hasFocus = true;
 
       const inputValue = input.val()?.toString().toLowerCase() || '';
 
@@ -83,9 +78,8 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
     // watch for clicks anywhere outside the control
     jQuery(document).on('click', (event: JQuery.ClickEvent) => {
       if (this._hasFocus && !jQuery(event.currentTarget).closest('.fwb-typeahead')[0]) {
-        // we were in it, but now we're not; reset the value
-        input.val(this._originalValue);
-        this._hasFocus = false;
+        // we were in it, but now we're not; treat as if we'd tabbed out
+        this._onKeydown({key:'Tab'} as JQuery.KeyDownEvent);
       }
     });
   }
