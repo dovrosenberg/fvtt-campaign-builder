@@ -4,10 +4,11 @@ import { HomePage, HomePageData} from './HomePage';
 import { localize } from '@/utils/game';
 import { Topic } from '@/types';
 import { getIcon } from '@/utils/misc';
-import { TypeAhead, TypeAheadData } from '@/components/typeahead';
+import { TypeAhead, TypeAheadData } from '@/components/TypeAhead';
 import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { getCleanEntry, updateEntry } from '@/compendia';
+import { Editor, EditorData } from '@/components/Editor';
 
 export type WBContentData = {
   showHomePage: true,
@@ -23,6 +24,8 @@ export type WBContentData = {
   relationships: { tab: string, label: string }[],
   typeAheadTemplate: () => string,
   typeAheadData: TypeAheadData,
+  descriptionTemplate: () => string,
+  descriptionData: EditorData,
   namePlaceholder: string,
   description: {
     content: any,
@@ -50,6 +53,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   protected _createPartials(): void {
     this._partials.HomePage = new HomePage();
     this._partials.TypeTypeAhead = new TypeAhead([]);
+    this._partials.DescriptionEditor = new Editor(null);
   }
 
   public changeWorld(worldId: string): void {
@@ -65,6 +69,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._topic = null;
     } else {
       const entry = await getCleanEntry(entryId);
+
       const topic = entry ? EntryFlags.get(entry, EntryFlagKey.topic) : null;
 
       if (!entry || !topic) {
@@ -76,6 +81,10 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         this._entryId = entryId;
         this._entry = entry;
         this._topic = topic;
+
+        // reattach the editor
+        // @ts-ignore
+        this._partials.DescriptionEditor = new Editor(entry.pages.get('description'));  // TODO: replace with enum
 
         // get() returns the object and we don't want to modify it directly
         (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKey.types)[topic]);
@@ -105,7 +114,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       data = {
         showHomePage: true,
         homePageTemplate: () => HomePage.template,
-        homePageData: await this._partials.HomePage.getData(),
+        homePageData: await (this._partials.HomePage as HomePage).getData(),
       };
     } else if (this._topic === null) {
       throw new Error('Invalid entry type in WBContent.getData()');
@@ -119,8 +128,10 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         showHierarchy: [Topic.Location, Topic.Organization].includes(this._topic),
         relationships: relationships,
         typeAheadTemplate: () => TypeAhead.template,
-        typeAheadData: await this._partials.TypeTypeAhead.getData(),
+        typeAheadData: await (this._partials.TypeTypeAhead as TypeAhead).getData(),
         namePlaceholder: localize(topicData[this._topic].namePlaceholder),
+        descriptionTemplate: () => Editor.template,
+        descriptionData: await (this._partials.DescriptionEditor as Editor).getData(),
         description: this._entry.pages.get('description').text, //TODO: use enum
       };
     }
@@ -135,6 +146,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._partials.HomePage.activateListeners(html);
     else {
       this._partials.TypeTypeAhead.activateListeners(html);
+      this._partials.DescriptionEditor.activateListeners(html);
     }
 
     // bind the tabs
@@ -146,9 +158,12 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
     });
 
+    // home page mode - click on a recent item
     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, (uuid: string)=> {
       this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
     });
+
+    // new type added in the typeahead
     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.ItemAdded, async (added)=> {
       if (this._topic === null)
         return;
@@ -167,7 +182,6 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.SelectionMade, (selection)=> { 
       void EntryFlags.set(this._entry, EntryFlagKey.type, selection);
     });
-
   }
 
 
@@ -447,6 +461,59 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   //   return retval;
   // }
 
+  // private _activateEditor() {
+  //   // Get the editor content div
+  //   const name = div.dataset.edit;
+  //   const engine = div.dataset.engine || "tinymce";
+  //   const collaborate = div.dataset.collaborate === "true";
+  //   const button = div.previousElementSibling;
+  //   const hasButton = button && button.classList.contains("editor-edit");
+  //   const wrap = div.parentElement.parentElement;
+  //   const wc = div.closest(".window-content");
+
+  //   // Determine the preferred editor height
+  //   const heights = [wrap.offsetHeight, wc ? wc.offsetHeight : null];
+  //   if ( div.offsetHeight > 0 ) heights.push(div.offsetHeight);
+  //   const height = Math.min(...heights.filter(h => Number.isFinite(h)));
+
+  //   // Get initial content
+  //   const options = {
+  //     target: div,
+  //     fieldName: name,
+  //     save_onsavecallback: () => this.saveEditor(name),
+  //     height, engine, collaborate
+  //   };
+
+  //   if ( engine === "prosemirror" ) options.plugins = this._configureProseMirrorPlugins(name, {remove: hasButton});
+
+  //   /**
+  //   * Handle legacy data references.
+  //   * @deprecated since v10
+  //   */
+  //   const isDocument = this.object instanceof foundry.abstract.Document;
+  //   const data = (name?.startsWith("data.") && isDocument) ? this.object.data : this.object;
+
+  //   // Define the editor configuration
+  //   const editor = this.editors[name] = {
+  //     options,
+  //     target: name,
+  //     button: button,
+  //     hasButton: hasButton,
+  //     mce: null,
+  //     instance: null,
+  //     active: !hasButton,
+  //     changed: false,
+  //     initial: foundry.utils.getProperty(data, name)
+  //   };
+
+  //   // Activate the editor immediately, or upon button click
+  //   const activate = () => {
+  //     editor.initial = foundry.utils.getProperty(data, name);
+  //     this.activateEditor(name, {}, editor.initial);
+  //   };
+  //   if ( hasButton ) button.onclick = activate;
+  //   else activate();
+  // }
 }
 
 

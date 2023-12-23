@@ -1,4 +1,4 @@
-import './TypeAhead.css';
+import './TypeAhead.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 
 export type TypeAheadData = {

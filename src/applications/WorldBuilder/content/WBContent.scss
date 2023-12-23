@@ -457,7 +457,7 @@
   }
 
   /* Body */
-  .sheet-container .sheet-body {
+  .sheet-container .fwb-tab-body {
     height: 100%;
     overflow: hidden;
     position: relative;
@@ -466,13 +466,13 @@
 
 
   /* Tabs */
-  &.sheet .sheet-body .tab {
+  &.sheet .fwb-tab-body .tab {
     height: 100% !important;
     overflow-y: auto !important;
     align-content: flex-start;
   }
 
-  &.sheet .sheet-body .tab .tab-inner {
+  &.sheet .fwb-tab-body .tab .tab-inner {
     height: 100%;
     overflow-y: auto !important;
     align-content: flex-start;
@@ -501,6 +501,12 @@
 
   .editor-edit {
     z-index: 100;
+
+    &:hover {
+      color: rgb(var(--mej-dark-0));
+      background: var(--mej-cream);
+      box-shadow: 0 0 5px red;
+    }
   }
 
   &.sheet .editor .editor-content {
@@ -536,7 +542,7 @@
     display: none !important;
   }
 
-  .tox.tox-tinymce-aux {
+    .tox.tox-tinymce-aux {
     width: 0px;
   }
 
@@ -867,7 +873,7 @@
   }
 
   /* Additional */
-  .sheet-container .sheet-body .no-character-alert {
+  .sheet-container .fwb-tab-body .no-character-alert {
     background: rgba(214, 150, 0, 0.8);
     border: 1px solid var(--color-level-warning);
     margin-bottom: 0.5em;
@@ -881,7 +887,7 @@
     flex: 0 0 33px;
   }
 
-  .sheet-container .sheet-body .no-character-alert a {
+  .sheet-container .fwb-tab-body .no-character-alert a {
     color: var(--color-text-hyperlink);
   }
 
