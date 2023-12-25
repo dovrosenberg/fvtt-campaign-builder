@@ -145,6 +145,11 @@ export class WorldBuilder extends Application {
       await this.render(); 
     });
 
+    // rerender 
+    this._partials.WBContent.registerCallback(WBContent.CallbackType.ForceRerender, async () => { 
+      await this.render(); 
+    });
+
     // new world selected in directory
     this._partials.Directory.registerCallback(Directory.CallbackType.WorldSelected, async (worldId: string) => {
       const folder = getGame().folders?.find((f)=>f.uuid===worldId);

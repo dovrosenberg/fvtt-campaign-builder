@@ -53,7 +53,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   protected _createPartials(): void {
     this._partials.HomePage = new HomePage();
     this._partials.TypeTypeAhead = new TypeAhead([]);
-    this._partials.DescriptionEditor = new Editor(null);
+    this._partials.DescriptionEditor = null;
   }
 
   public changeWorld(worldId: string): void {
@@ -132,7 +132,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         typeAheadData: await (this._partials.TypeTypeAhead as TypeAhead).getData(),
         namePlaceholder: localize(topicData[this._topic].namePlaceholder),
         descriptionTemplate: () => Editor.template,
-        descriptionData: await (this._partials.DescriptionEditor as Editor).getData(),
+        descriptionData: await (this._partials.DescriptionEditor as Editor)?.getData() ?? {},
         description: this._entry.pages.find((p)=>p.name==='description').text, //TODO: use enum
       };
     }
@@ -147,7 +147,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._partials.HomePage.activateListeners(html);
     else {
       this._partials.TypeTypeAhead.activateListeners(html);
-      this._partials.DescriptionEditor.activateListeners(html);
+      this._partials.DescriptionEditor?.activateListeners(html);
     }
 
     // bind the tabs
@@ -183,6 +183,19 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.SelectionMade, (selection)=> { 
       void EntryFlags.set(this._entry, EntryFlagKey.type, selection);
     });
+
+    // watch for edits to description
+    this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorSaved, async (newContent: string) => {
+      const descriptionPage = this._entry.pages.find((p)=>p.name==='description');  //TODO
+
+      await updateDocument(descriptionPage, {'text.content': newContent });  
+
+      //need to reset
+      this._partials.DescriptionEditor =  new Editor(descriptionPage, 'text.content', newContent);
+
+      this._makeCallback(WBContent.CallbackType.ForceRerender); 
+    });
+    this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorClosed, () => { this._makeCallback(WBContent.CallbackType.ForceRerender); });
   }
 
 
@@ -522,5 +535,6 @@ export namespace WBContent {
   export enum CallbackType {
     RecentClicked,
     NameChanged,
+    ForceRerender,
   }
 }

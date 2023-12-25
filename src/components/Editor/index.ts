@@ -77,7 +77,7 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
       collaborate
     };
 
-    if ( engine === "prosemirror" ) 
+    if (engine === 'prosemirror') 
       options.plugins = this._configureProseMirrorPlugins(/*{removed:hasButton}*/);
 
     // Define the editor configuration
@@ -144,30 +144,26 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
 
     // save the data
     let content;
-    if ( this._options.engine === 'tinymce' ) {
+    if (this._options.engine === 'tinymce') {
       const mceContent = this._instance.getContent();
       this.delete(this._mce.id); // Delete hidden MCE inputs
       content = mceContent;
-    } else if ( this._options.engine === 'prosemirror' ) {
+    } else if (this._options.engine === 'prosemirror') {
       content = ProseMirror.dom.serializeString(this._instance.view.state.doc.content);
     } else {
       throw new Error(`Unrecognized enginer in saveEditor(): ${this._options.engine}`);
     }
 
-    await updateDocument(this._document, {
-      'text.content': content,
-    });
-
-    // Remove the editor
+    // Remove the editor - note... this means that we have to rerender, because it blows up the dom
+    // There doesn't appear to be a way to toggle the editor back to view mode
     if ( remove ) {
       this._instance.destroy();  // don't  it because that blows up the DOM so you can't recreate it without a render
       this._instance = this._mce = null;
       if ( this._hasButton ) 
         this._button.style.display = '';
-      
-      // tell parent to rerender
-      //this.render();  
     }
+    
+    this._makeCallback(Editor.CallbackType.EditorSaved, content);
   }
 }
 
