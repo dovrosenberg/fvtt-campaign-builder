@@ -153,7 +153,7 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
         this._button.style.display = '';
     }
     
-    this._makeCallback(Editor.CallbackType.EditorSaved, content);
+    await this._makeCallback(Editor.CallbackType.EditorSaved, content);
   }
 }
 

@@ -156,12 +156,12 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
     // watch for edits to name
     html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
       await updateDocument(this._entry, { name: jQuery(event.target).val() });
-      this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
+      await this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
     });
 
     // home page mode - click on a recent item
-    this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, (uuid: string)=> {
-      this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
+    this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {
+      await this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
     });
 
     // new type added in the typeahead
@@ -193,7 +193,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       //need to reset
       this._partials.DescriptionEditor =  new Editor(descriptionPage, 'text.content', newContent);
 
-      this._makeCallback(WBContent.CallbackType.ForceRerender); 
+      await this._makeCallback(WBContent.CallbackType.ForceRerender); 
     });
     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorClosed, () => { this._makeCallback(WBContent.CallbackType.ForceRerender); });
   }

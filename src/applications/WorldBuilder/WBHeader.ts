@@ -46,7 +46,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       await this.openEntry();
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
-    this._makeCallback(WBHeader.CallbackType.EntryChanged, this.activeEntryId);
+    await this._makeCallback(WBHeader.CallbackType.EntryChanged, this.activeEntryId);
   }
 
   public async getData(): Promise<WBHeaderData> {
@@ -64,9 +64,9 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   }
 
   public activateListeners(html: JQuery) {  
-    $('#fwb-sidebar-toggle').on('click', () => { 
+    $('#fwb-sidebar-toggle').on('click', async () => { 
       this._collapsed = !this._collapsed;      
-      this._makeCallback(WBHeader.CallbackType.SidebarToggled); 
+      await this._makeCallback(WBHeader.CallbackType.SidebarToggled); 
     });
 
     // bookmark and tab listeners
@@ -181,8 +181,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (entry.uuid)
       await this._updateRecent(entry);
 
-    this._makeCallback(WBHeader.CallbackType.TabsChanged);
-    this._makeCallback(WBHeader.CallbackType.EntryChanged, entry.uuid);
+    //await this._makeCallback(WBHeader.CallbackType.TabsChanged);
+    await this._makeCallback(WBHeader.CallbackType.EntryChanged, entry.uuid);
 
     return tab;
   }
@@ -288,8 +288,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (newTab?.entry?.uuid)
       await this._updateRecent(newTab.entry);
 
-    this._makeCallback(WBHeader.CallbackType.TabsChanged);
-    this._makeCallback(WBHeader.CallbackType.EntryChanged, newTab.entry.uuid);
+    await this._makeCallback(WBHeader.CallbackType.EntryChanged, newTab.entry.uuid);
+    await this._makeCallback(WBHeader.CallbackType.TabsChanged);
     return;
   }
 
@@ -368,7 +368,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       }
     }
 
-    this._makeCallback(WBHeader.CallbackType.TabsChanged);
+    await this._makeCallback(WBHeader.CallbackType.TabsChanged);
   }
 
   private async _saveTabs() {
@@ -413,7 +413,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     this._bookmarks.push(bookmark);
 
     await this._saveBookmarks();
-    this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
+    await this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
   }
 
   private async _activateBookmark(bookmarkId: string) {
@@ -429,7 +429,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     this._bookmarks.findSplice(b => b.id === id);
     await this._saveBookmarks();
 
-    this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
+    await this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
   }
 
   private async _saveBookmarks() {
@@ -451,7 +451,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     tab.historyIdx = newSpot;
     await this.openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
 
-    this._makeCallback(WBHeader.CallbackType.HistoryMoved);
+    await this._makeCallback(WBHeader.CallbackType.HistoryMoved);
   }
 
   /*
@@ -536,7 +536,6 @@ async getHistory() {
 
       // activate the moved one (will also save the tabs)
       await this._activateTab(data.tabId);
-      await this._makeCallback(WBHeader.CallbackType.TabsChanged);
     } else if (data.type==='fwb-bookmark') {
       const target = (event.currentTarget as HTMLElement).closest('.fwb-bookmark-button') as HTMLElement;
       if (!target)
@@ -551,7 +550,7 @@ async getHistory() {
 
       // save bookmarks (we don't activate anything)
       await this._saveBookmarks();
-      this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
+      await this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
     } else {
       return false;
     } 

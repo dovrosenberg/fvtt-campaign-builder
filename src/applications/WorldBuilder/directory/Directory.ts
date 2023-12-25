@@ -62,14 +62,14 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
 
   public activateListeners(html: JQuery) {  
     // change world
-    html.on('click', '.fwb-world-folder', (event: JQuery.ClickEvent) => {
+    html.on('click', '.fwb-world-folder', async (event: JQuery.ClickEvent) => {
       event.stopPropagation();
 
       // re-collapse everything
       this._expandedCompendia = {};
       
       if (event.currentTarget.dataset.worldId)
-        this._makeCallback(Directory.CallbackType.WorldSelected, event.currentTarget.dataset.worldId);
+        await this._makeCallback(Directory.CallbackType.WorldSelected, event.currentTarget.dataset.worldId);
     });
 
     // open/close a topic
@@ -99,14 +99,14 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
       const world = await createWorldFolder(true);
       if (world) {
         // rerender
-        this._makeCallback(Directory.CallbackType.WorldSelected, world.uuid);
+        await this._makeCallback(Directory.CallbackType.WorldSelected, world.uuid);
       }
     });
 
     // select an entry
-    html.on('click', '.fwb-entry-item', (event: JQuery.ClickEvent) => {
+    html.on('click', '.fwb-entry-item', async (event: JQuery.ClickEvent) => {
       event.stopPropagation();
-      this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, event.currentTarget.dataset.entryId, event.ctrlKey);
+      await this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, event.currentTarget.dataset.entryId, event.ctrlKey);
     });
 
     // create entry buttons
@@ -126,7 +126,7 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
       const entry = await createEntry(worldFolder, topic);
 
       if (entry)
-        this._makeCallback(Directory.CallbackType.EntryCreated, entry.uuid);
+        await this._makeCallback(Directory.CallbackType.EntryCreated, entry.uuid);
     });
     
   }

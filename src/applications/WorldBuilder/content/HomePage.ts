@@ -34,9 +34,9 @@ export class HomePage extends HandlebarsPartial<HomePage.CallbackType>  {
   }
 
   public activateListeners(html: JQuery) {  
-    html.find('.recent-link').on('click', (event: JQuery.ClickEvent)=> {
+    html.find('.recent-link').on('click', async (event: JQuery.ClickEvent)=> {
       if (event.currentTarget.dataset.entryId)
-        this._makeCallback(HomePage.CallbackType.RecentClicked, event.currentTarget.dataset.entryId);
+        await this._makeCallback(HomePage.CallbackType.RecentClicked, event.currentTarget.dataset.entryId);
     });
   }
 }
