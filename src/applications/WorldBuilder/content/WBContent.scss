@@ -499,6 +499,7 @@
     min-height: 100%;
   }
 
+  // the button to open the editor
   .editor-edit {
     z-index: 100;
 
@@ -538,11 +539,12 @@
     display: none;
   }
 
-  .journal-subsheet[editable='false'] .editor-edit {
-    display: none !important;
-  }
+  
+  // .journal-subsheet[editable='false'] .editor-edit {
+  //   display: none !important;
+  // }
 
-    .tox.tox-tinymce-aux {
+  .tox.tox-tinymce-aux {
     width: 0px;
   }
 

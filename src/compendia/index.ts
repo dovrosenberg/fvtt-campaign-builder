@@ -6,8 +6,8 @@ import { Topic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
-import EmbeddedCollection from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/embedded-collection.mjs';
-import { JournalEntryData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs';
+import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
+import { AnyDocumentData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/data.mjs';
 
 // returns the uuid of the root folder
 // if it is not stored in settings, creates a new folder
@@ -201,7 +201,7 @@ export async function getCleanEntry(uuid: string): Promise<JournalEntry | null> 
 
 // creates a new entry in the proper compendium in the given world
 export async function createEntry(worldFolder: Folder, topic: Topic): Promise<JournalEntry | null> {
-  let topicText = getTopicText(topic);
+  const topicText = getTopicText(topic);
 
   let name;
   do {
@@ -245,25 +245,23 @@ export async function createEntry(worldFolder: Folder, topic: Topic): Promise<Jo
 async function cleanEntry(entry: JournalEntry): Promise<void> {
   if (!entry.pages.find((p)=>p.name==='description')) { // TODO: replace with enum
     // @ts-ignore
-    const page = entry.pages.createDocument({name:'description', type: 'text', _id: randomID()}, {parent: entry, pack: entry.pack});  // TODO: replace this with an enum
-
-    // @ts-ignore
-    entry.pages.set(page._id, page);
+    // this creates the page and adds to the parent
+    const page = await JournalEntryPage.create({name:'description', type: 'text'}, {parent: entry, pack: entry.pack});  // TODO: replace this with an enum
   }
 }
 
 // updates an entry, unlocking compedium to do it
-export async function updateEntry(entry: JournalEntry, data: any): Promise<JournalEntry | null> {
-  if (!entry.pack)
-    throw new Error('Invalid compedia in updateEntry()');
+export async function updateDocument<T extends AnyDocumentData>(document: Document<T>, data: any): Promise<Document<T> | null> {
+  if (!document.pack)
+    throw new Error('Invalid compedia in updateDocument()');
 
   // unlock compendium to make the change
-  const pack = getGame().packs.get(entry.pack);
+  const pack = getGame().packs.get(document.pack);
   if (!pack)
-    throw new Error('Bad compendia in updateEntry()');
+    throw new Error('Bad compendia in updateDocument()');
 
   await pack.configure({locked:false});
-  const retval = await entry.update(data) || null;
+  const retval = await document.update(data) || null;
   await pack.configure({locked:true});
 
   return retval;

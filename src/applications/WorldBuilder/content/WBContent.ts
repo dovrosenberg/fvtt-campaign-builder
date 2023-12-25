@@ -7,7 +7,7 @@ import { getIcon } from '@/utils/misc';
 import { TypeAhead, TypeAheadData } from '@/components/TypeAhead';
 import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-import { getCleanEntry, updateEntry } from '@/compendia';
+import { getCleanEntry, updateDocument } from '@/compendia';
 import { Editor, EditorData } from '@/components/Editor';
 
 export type WBContentData = {
@@ -84,7 +84,8 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
 
         // reattach the editor
         // @ts-ignore
-        this._partials.DescriptionEditor = new Editor(entry.pages.find((p)=>p.name==='description'));  // TODO: replace with enum
+        const descriptionPage = entry.pages.find((p)=>p.name==='description');
+        this._partials.DescriptionEditor = new Editor(descriptionPage, 'description', descriptionPage.text.content);  // TODO: replace with enum
 
         // get() returns the object and we don't want to modify it directly
         (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKey.types)[topic]);
@@ -154,7 +155,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
 
     // watch for edits to name
     html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
-      await updateEntry(this._entry, { name: jQuery(event.target).val() });
+      await updateDocument(this._entry, { name: jQuery(event.target).val() });
       this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
     });
 

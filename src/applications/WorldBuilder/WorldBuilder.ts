@@ -623,24 +623,7 @@ export class WorldBuilder extends Application {
       $('.page-next', html).hide();
     }
 
-    $('.add-page', html).on("click", this.addPage.bind(this));
    }
-
-  journalEntryDocumentControls() {
-    let ctrls = [
-      { text: '<i class="fas fa-search"></i>', type: 'text' },
-      { id: 'search', type: 'input', text: "Search Journal", callback: this.searchText },
-      { id: 'viewmode', text: "View Single Page", icon: 'fa-notes', callback: this.toggleViewMode.bind(this) },
-      {
-        id: 'add', text: "Add a Page", icon: 'fa-file-plus', conditional: (doc) => {
-          return game.user.isGM || doc.isOwner
-        }, callback: this.addPage
-      },
-      { id: 'show', text: i18n("MonksEnhancedJournal.ShowToPlayers"), icon: 'fa-eye', conditional: game.user.isGM, callback: this.doShowPlayers }
-    ];
-
-    return ctrls;
-  }
 
   openPage(journalToOpen) {
     if (!journalToOpen?.id)
@@ -649,46 +632,5 @@ export class WorldBuilder extends Application {
     if (journal) this.open(journal);
   }
 
-  toggleMenu() {
-    if (this.subsheet.toggleSidebar) this.subsheet.toggleSidebar(event);
-    game.user.setFlag("monks-enhanced-journal", `pagestate.${this.object.id}.collapsed`, this.subsheet.sidebarCollapsed);
-  }
-
-  toggleViewMode(event) {
-    this.subsheet._onAction(event);
-    const modes = JournalSheet.VIEW_MODES;
-    game.user.setFlag("monks-enhanced-journal", `pagestate.${this.object.id}.mode`, this.subsheet.mode);
-    $('.viewmode', this.element).attr("title", this.subsheet.mode === modes.SINGLE ? "View Multiple Pages" : "View Single Page")
-      .find("i")
-      .toggleClass("fa-notes", this.subsheet.mode === modes.SINGLE)
-      .toggleClass("fa-note", this.subsheet.mode !== modes.SINGLE);
-  }
-
-  journalSettings() {
-
-  }
-
-  addPage() {
-    // let journal = this.object.parent || this.object;
-
-    // const options = { parent: journal };
-    // return JournalEntryPage.implementation.createDialog({}, options);
-    this.createPage();
-  }
-
-  previousPage() {
-    if (this.subsheet) {
-      if (this.subsheet.previousPage) this.subsheet.previousPage(event);
-      $('.page-prev', this.element).toggleClass("disabled", !this.subsheet || this.subsheet?.pageIndex < 1);
-      $('.page-next', this.element).toggleClass("disabled", !this.subsheet || this.subsheet?.pageIndex >= this.subsheet?._pages.length - 1);
-    }
-  }
-
-  nextPage() {
-    if (this.subsheet) {
-      if (this.subsheet.nextPage) this.subsheet.nextPage(event);
-      $('.page-prev', this.element).toggleClass("disabled", !this.subsheet || this.subsheet?.pageIndex < 1);
-      $('.page-next', this.element).toggleClass("disabled", !this.subsheet || this.subsheet?.pageIndex >= this.subsheet?._pages.length - 1);
-    }
   }*/
 }
