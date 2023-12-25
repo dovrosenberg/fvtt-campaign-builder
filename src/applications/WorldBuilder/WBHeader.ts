@@ -323,22 +323,6 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     await UserFlags.set(UserFlagKey.tabs, this._tabs, this._worldId);
   }
 
-  /*
-  private _updateTabNames(uuid, name) {
-    for (let tab of this._tabList) {
-      if (tab.entityId == uuid) {
-        $(`.fwb-tab[data-tab-id="${tab.id}"] .tab-content`, this.element).attr("title", name).html(name);
-        tab.text = name;
-        this._saveTabs();
-        if (tab.active) {
-          $('.window-title', this.element).html((tab.text || i18n("MonksEnhancedJournal.NewTab")) + ' - ' + i18n("MonksEnhancedJournal.Title"));
-        }
-      }
-    }
-  }
-
-*/
-
   // add the current tab as a new bookmark
   async _addBookmark(): Promise<void> {
     //get the current tab and save the entity and name
