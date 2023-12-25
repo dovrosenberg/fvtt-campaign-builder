@@ -293,58 +293,6 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     return;
   }
 
-
-  /*
-  private _updateTab(tab, entity, options = {}) {
-    if (!entity)
-      return;
-
-    if (entity?.parent) {
-      options.journalId = entity.id;
-      entity = entity.parent;
-    }
-
-    if (tab != undefined) {
-      if (tab.entityId != entity.uuid) {
-        tab.text = entity.name;
-        tab.entityId = entity.uuid;
-        tab.entity = entity;
-        tab.journalId = options.journalId;
-
-        if ((game.user.isGM || setting('allow-player')) && tab.entityId != undefined) {    //only save the history if the player is a GM or they get the full journal experience... and if it's not a blank tab
-          if (tab.history == undefined)
-            tab.history = [];
-          if (tab.historyIdx != undefined) {
-            tab.history = tab.history.slice(tab.historyIdx);
-            tab.historyIdx = 0;
-          }
-          tab.history.unshift(tab.entityId);
-
-          if (tab.history.length > 10)
-            tab.history = tab.history.slice(0, 10);
-        }
-
-        this._saveTabs();
-
-        //$(`.fwb-tab[data-tab-id="${tab.id}"]`, this.element).attr('title', tab.text).find('.tab-content').html(tab.text);
-      } else if (tab.entity == undefined) {
-        tab.entity = entity;
-      }
-
-      //$('.back-button', this.element).toggleClass('disabled', !this.canBack(tab));
-      //$('.forward-button', this.element).toggleClass('disabled', !this.canForward(tab));
-      //this.updateHistory();
-      this._updateRecent(tab.journal);
-    }
-
-    if (!this.rendered)
-      return;
-
-    this.render(true, mergeObject({ focus: true }, options));
-  }
-
-*/
-
   // remove the tab given by the id from the list
   private async _closeTab(tabId: string) {
     // find the tab
@@ -454,37 +402,6 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     await this._makeCallback(WBHeader.CallbackType.HistoryMoved);
   }
 
-  /*
-async getHistory() {
-  let index = 0;
-  let tab = this._activeTab();
-  let menuItems = [];
-
-  if (tab?.history == undefined)
-    return;
-
-  for (let i = 0; i < tab.history.length; i++) {
-    let h = tab.history[i];
-    let entity = await this.findEntity(h, '');
-    if (tab?.entity?.id != undefined) {
-      let type = (entity.getFlag && entity.getFlag('monks-enhanced-journal', 'type'));
-      let icon = MonksEnhancedJournal.getIcon(type);
-      let item = {
-        name: entity.name || i18n("MonksEnhancedJournal.Unknown"),
-        icon: `<i class="fas ${icon}"></i>`,
-        callback: (li) => {
-          let idx = i;
-          this.changeHistory(idx)
-        }
-      }
-      menuItems.push(item);
-    }
-  };
-
-  return menuItems;
-}
-*/
-
   // handle a bookmark or tab dragging
   private _onDragStart(event: DragEvent): void {
     const target = event.currentTarget as HTMLElement;
@@ -580,19 +497,6 @@ async getHistory() {
         }
       }
     ]);
-
-    // tabs
-    // let history = await this.getHistory();
-    // this._historycontext = new ContextMenu(html, ".mainbar .navigation .nav-button.history", history);
-    // this._imgcontext = new ContextMenu(html, ".journal-body.oldentry .tab.picture", [
-    //   {
-    //     name: "MonksEnhancedJournal.Delete",
-    //     icon: '<i class="fas fa-trash"></i>',
-    //     callback: li => {
-    //       log('Remove image on old entry');
-    //     }
-    //   }
-    // ]);
   }
 }
 
