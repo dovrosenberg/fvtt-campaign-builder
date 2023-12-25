@@ -1,4 +1,3 @@
-import { updateDocument } from '@/compendia';
 import './Editor.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
@@ -55,16 +54,14 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
     const collaborate = div.dataset.collaborate === 'true';
     const button = div.previousElementSibling as HTMLElement;
     const hasButton = true;   //button && button.classList.contains('editor-edit');
-    const wrap = div.parentElement.parentElement;
-    const wc = div.closest(".window-content");
+    const wrap = div.parentElement?.parentElement;
+    const wc = div.closest('.window-content') as HTMLElement;
 
-    if (!name || !button)
+    if (!name || !button || !wrap || !wc)
       throw new Error('Missing name or button in _activateEditor()');
 
     // Determine the preferred editor height
-    const heights = [wrap.offsetHeight, wc ? wc.offsetHeight : null];
-    if (div.offsetHeight > 0) 
-      heights.push(div.offsetHeight);
+    const heights = [wrap.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
     const height = Math.min(...heights.filter(h => Number.isFinite(h)));
 
     // Get initial content
@@ -103,13 +100,6 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
       ...this._options,
     };
 
-    if ( this._editor?.options.engine === "prosemirror" ) {
-      options.plugins = {
-        ...options.plugins,
-        //highlightDocumentMatches: ProseMirror.ProseMirrorHighlightMatchesPlugin.build(ProseMirror.defaultSchema)
-      };
-    }
-
     if (!options.fitToSize) 
       options.height = options.target.offsetHeight;
     if (this._hasButton) 
@@ -126,23 +116,23 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
     }
   }
 
-  private _configureProseMirrorPlugins({remove}={remove:true}) {
+  private _configureProseMirrorPlugins() {
     return {
       menu: ProseMirror.ProseMirrorMenu.build(ProseMirror.defaultSchema, {
-        destroyOnSave: true,  //remove,
-        onSave: () => this.saveEditor({remove})
+        destroyOnSave: true,  // note! this controls whether the save button or save & close button is shown,
+        onSave: () => this.saveEditor()
       }),
       keyMaps: ProseMirror.ProseMirrorKeyMaps.build(ProseMirror.defaultSchema, {
-        onSave: () => this.saveEditor({remove})
+        onSave: () => this.saveEditor()
       })
     };
   }
 
-  private async saveEditor({remove}: {remove:boolean}  ) {
-    // TODO: move all this logic to the parent, because that knows which field it is (and we might
-    //    actually be editing a flag, not a data field)
+  private async saveEditor({remove}={remove:true}) {
+    if (!this._instance)
+      return;
 
-    // save the data
+    // get the new content
     let content;
     if (this._options.engine === 'tinymce') {
       const mceContent = this._instance.getContent();
@@ -155,11 +145,11 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType> {
     }
 
     // Remove the editor - note... this means that we have to rerender, because it blows up the dom
-    // There doesn't appear to be a way to toggle the editor back to view mode
-    if ( remove ) {
-      this._instance.destroy();  // don't  it because that blows up the DOM so you can't recreate it without a render
+    // There doesn't appear to be a way to toggle the editor back to view mode, which would avoid this issue
+    if (remove) {
+      this._instance.destroy();  
       this._instance = this._mce = null;
-      if ( this._hasButton ) 
+      if (this._hasButton) 
         this._button.style.display = '';
     }
     
