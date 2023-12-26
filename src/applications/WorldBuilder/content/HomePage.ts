@@ -7,7 +7,7 @@ export type HomePageData = {
   recent: EntryHeader[],
 }
 
-export class HomePage extends HandlebarsPartial<HomePage.CallbackType>  {
+export class HomePage extends HandlebarsPartial<HomePage.CallbackType, HomePage.CallbackFunctionType<any>>  {
   static override _template = 'modules/world-builder/templates/HomePage.hbs';
 
   private _worldId: string;
@@ -46,4 +46,8 @@ export namespace HomePage {
   export enum CallbackType {
     RecentClicked,
   }
+
+  export type CallbackFunctionType<C extends CallbackType> = 
+  C extends CallbackType.RecentClicked ? (uuid: string) => Promise<void> :
+  never;  
 }

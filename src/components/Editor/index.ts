@@ -6,7 +6,7 @@ export type EditorData = {
   componentId: string;
 }
 
-export class Editor extends HandlebarsPartial<Editor.CallbackType> {
+export class Editor extends HandlebarsPartial<Editor.CallbackType, Editor.CallbackFunctionType<any>> {
   static override _template = 'modules/world-builder/templates/Editor.hbs';
   private _id: string;
 
@@ -163,4 +163,9 @@ export namespace Editor {
     EditorClosed,
     EditorSaved,
   }
+
+  export type CallbackFunctionType<C extends CallbackType> = 
+    C extends CallbackType.EditorClosed ? () => Promise<void> :
+    C extends CallbackType.EditorSaved ? (content: string) => Promise<void> :
+    never;  
 }

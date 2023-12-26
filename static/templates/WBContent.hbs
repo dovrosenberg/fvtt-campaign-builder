@@ -31,7 +31,10 @@
             </div>
 
             {{#if showHierarchy}}
-              Hierarchy
+              <div class="form-group fwb-content-header">
+                {{!--<label>{{localize 'fwb.labels.fields.type'}}</label>--}}
+                {{!--{{> (treeTemplate) data=ancestorTreeData }}--}}
+              </div>
             {{/if}}
             {{!-- <div class="form-group">
               <label>{{localize 'MonksEnhancedJournal.Role'}}</label>
@@ -53,7 +56,7 @@
         <section class="fwb-tab-body">
           <div class="tab description" data-group="primary" data-tab="description">
             <div class="tab-inner flexcol">
-              {{> (descriptionTemplate) data=descriptionData }}
+              {{> (editorTemplate) data=descriptionData }}
             </div>
           </div>
           <div class="tab entry-details" data-group="primary" data-tab="entry-details">

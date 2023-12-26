@@ -5,19 +5,18 @@
 // There should also be a namespace with the same name as the class that contains an enum called CallBacks
 // these classes also generally have other exposed properties that the parent might need and are passed
 //    callbacks for various events the parent might need to know about
-export abstract class HandlebarsPartial<CallbackType extends string | number> {
-  protected _partials = {} as Record<string, HandlebarsPartial<any>>;
-  protected _callbacks = {} as Record<CallbackType, (...args: any[]) => void>;
+export abstract class HandlebarsPartial<CallbackType extends string | number, CallbackFunctionType extends GenericCallbackFunctionType> {
+  protected _partials = {} as Record<string, HandlebarsPartial<any, any>>;
+  protected _callbacks = {} as Record<CallbackType, CallbackFunctionType>;
   protected static _template = 'NEED TO PROVIDE VALUE FOR _template';
 
-  public static get template() { return this._template };
-
+  public static get template() { return this._template; }
   constructor() {
     this._createPartials();
   }
 
-  protected async _makeCallback(callbackType: CallbackType, ...args: any[]) {
-    let cb = this._callbacks[callbackType];
+  protected async _makeCallback(callbackType: CallbackType, ...args: Parameters<CallbackFunctionType>): Promise<void> {
+    const cb = this._callbacks[callbackType];
     if (cb)
       await cb(...args);
   }
@@ -25,10 +24,12 @@ export abstract class HandlebarsPartial<CallbackType extends string | number> {
   // called by the constructor - should populate _partials
   protected abstract _createPartials(): void;
 
-  public registerCallback(callbackType: CallbackType, callback: (...args: any[]) => void) {
+  public registerCallback(callbackType: CallbackType, callback: CallbackFunctionType): void {
     this._callbacks[callbackType] = callback;    
   }
 
   public abstract getData(): Promise<Record<string, any>>;
   public abstract activateListeners(html: JQuery<HTMLElement>): void;
-};
+}
+
+type GenericCallbackFunctionType = (...args: any[]) => Promise<void>;

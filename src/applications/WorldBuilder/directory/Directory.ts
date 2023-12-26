@@ -18,7 +18,7 @@ type DirectoryData = {
   }[],
 }
 
-export class Directory extends HandlebarsPartial<Directory.CallbackType>  {
+export class Directory extends HandlebarsPartial<Directory.CallbackType, Directory.CallbackFunctionType<any>>  {
   static override _template = 'modules/world-builder/templates/Directory.hbs';
 
   private _rootFolder: Folder;  
@@ -138,4 +138,10 @@ export namespace Directory {
     WorldSelected,
     EntryCreated,
   }
+
+  export type CallbackFunctionType<C extends CallbackType> = 
+    C extends CallbackType.DirectoryEntrySelected ? (entryUuid: string, controlHeld: boolean) => Promise<void> :
+    C extends CallbackType.WorldSelected ? (worldUuid: string) => Promise<void> :
+    C extends CallbackType.EntryCreated ? (entryUuid: string) => Promise<void> :
+    never;  
 }

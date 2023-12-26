@@ -2,9 +2,10 @@ import './TypeAhead.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 
 export type TypeAheadData = {
+  componentId: string;
 }
 
-export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
+export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType, TypeAhead.CallbackFunctionType<any>> {
   static override _template = 'modules/world-builder/templates/TypeAhead.hbs';
   private _id: string;
   private _list = [] as string[];
@@ -161,7 +162,7 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
     // Render the filtered items - we're not using handlebars because it's overly complicated to pass up a re-render request
     let itemHTML = '';
     for (let i=0; i<this._filteredItems.length && i<3; i++) {   // max of 3 items at a time
-      itemHTML += `<div class="typeahead-entry ${i===this._idx ? 'highlighted' : ''}">${this._filteredItems[i]}</div>`
+      itemHTML += `<div class="typeahead-entry ${i===this._idx ? 'highlighted' : ''}">${this._filteredItems[i]}</div>`;
     }
     dropdown.html(itemHTML);   
   }
@@ -170,8 +171,12 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
 
 export namespace TypeAhead {
   export enum CallbackType {
-    NeedToRender,
     SelectionMade,
     ItemAdded,
   }
+
+  export type CallbackFunctionType<C extends CallbackType> = 
+    C extends CallbackType.SelectionMade ? (selectionText: string) => Promise<void> :
+    C extends CallbackType.ItemAdded ? (itemText: string) => Promise<void> :
+    never;  
 }

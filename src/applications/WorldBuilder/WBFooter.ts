@@ -1,10 +1,9 @@
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import './WBFooter.scss';
 
-type WBFooterData = {
-}
+type WBFooterData = Record<string, never>;
 
-export class WBFooter extends HandlebarsPartial<WBFooter.CallbackType>  {
+export class WBFooter extends HandlebarsPartial<WBFooter.CallbackType, WBFooter.CallbackFunctionType>  {
   static override _template = 'modules/world-builder/templates/WBFooter.hbs';
 
   constructor() {
@@ -23,12 +22,14 @@ export class WBFooter extends HandlebarsPartial<WBFooter.CallbackType>  {
     return data;
   }
 
-  public activateListeners(html: JQuery) {  
-  }
+  public activateListeners(/*html: JQuery*/) { /* do nothing */ }
 }
 
 
 export namespace WBFooter {
   export enum CallbackType {
   }
+
+  export type CallbackFunctionType/*<C extends CallbackType>*/ = 
+    never;  
 }

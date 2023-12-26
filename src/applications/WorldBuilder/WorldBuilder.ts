@@ -9,7 +9,7 @@ import { validateCompendia } from '@/compendia';
 
 export class WorldBuilder extends Application {
   // sub-components
-  private _partials: Record<string, HandlebarsPartial<any>>;
+  private _partials: Record<string, HandlebarsPartial<any, any>>;
 
   // global data
   private _worldFolder: Folder;  // the current world folder
@@ -122,7 +122,7 @@ export class WorldBuilder extends Application {
   public activateListeners(html: JQuery<HTMLElement>): void {
     super.activateListeners(html);
 
-    Object.values(this._partials).forEach((p: HandlebarsPartial<any>) => { 
+    Object.values(this._partials).forEach((p: HandlebarsPartial<any, any>) => { 
       p.activateListeners(html); 
     });
 

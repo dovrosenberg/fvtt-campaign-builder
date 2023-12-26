@@ -24,7 +24,9 @@ export type WBContentData = {
   relationships: { tab: string, label: string }[],
   typeAheadTemplate: () => string,
   typeAheadData: TypeAheadData,
-  descriptionTemplate: () => string,
+  // treeTemplate: () => string,
+  // ancestorTreeData: () => TreeData,
+  editorTemplate: () => string,
   descriptionData: EditorData,
   namePlaceholder: string,
   description: {
@@ -34,7 +36,7 @@ export type WBContentData = {
   }
 }
 
-export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
+export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBContent.CallbackFunctionType<any>>  {
   static override _template = 'modules/world-builder/templates/WBContent.hbs';
 
   private _worldId: string; 
@@ -131,7 +133,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         typeAheadTemplate: () => TypeAhead.template,
         typeAheadData: await (this._partials.TypeTypeAhead as TypeAhead).getData(),
         namePlaceholder: localize(topicData[this._topic].namePlaceholder),
-        descriptionTemplate: () => Editor.template,
+        editorTemplate: () => Editor.template,
         descriptionData: await (this._partials.DescriptionEditor as Editor)?.getData() ?? {},
         description: this._entry.pages.find((p)=>p.name==='description').text, //TODO: use enum
       };
@@ -195,7 +197,9 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
 
       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
     });
-    this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorClosed, () => { this._makeCallback(WBContent.CallbackType.ForceRerender); });
+    this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorClosed, async () => { 
+      await this._makeCallback(WBContent.CallbackType.ForceRerender); 
+    });
   }
 
 
@@ -537,4 +541,10 @@ export namespace WBContent {
     NameChanged,
     ForceRerender,
   }
+
+  export type CallbackFunctionType<C extends CallbackType> = 
+    C extends CallbackType.RecentClicked ? (uuid: string) => Promise<void> :
+    C extends CallbackType.NameChanged ? (entry: JournalEntry) => Promise<void> :
+    C extends CallbackType.ForceRerender ? () => Promise<void> :
+    never;  
 }

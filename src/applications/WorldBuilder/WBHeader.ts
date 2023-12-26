@@ -17,7 +17,7 @@ type WBHeaderData = {
   canForward: boolean;
 }
 
-export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
+export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType, WBHeader.CallbackFunctionType<any>> {
   static override _template = 'modules/world-builder/templates/WBHeader.hbs';
 
   private _worldId: string;
@@ -493,4 +493,12 @@ export namespace WBHeader {
     HistoryMoved,
     EntryChanged,
   }
+
+  export type CallbackFunctionType<C extends CallbackType> = 
+    C extends CallbackType.TabsChanged ? () => Promise<void> :
+    C extends CallbackType.BookmarksChanged ? () => Promise<void> :
+    C extends CallbackType.SidebarToggled ? () => Promise<void> :
+    C extends CallbackType.HistoryMoved ? () => Promise<void> :
+    C extends CallbackType.EntryChanged ? (newEntryUuid: string | null) => Promise<void> :
+    never;  
 }
