@@ -8,6 +8,7 @@ import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
 import { AnyDocumentData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/data.mjs';
+import { toTopic } from '@/utils/misc';
 
 // returns the uuid of the root folder
 // if it is not stored in settings, creates a new folder
@@ -154,7 +155,7 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
 }
 
 function getTopicText(topic: Topic): string {
-  switch (typeof topic === 'string' ? parseInt(topic) as Topic : topic) {
+  switch (toTopic(topic)) {
     case Topic.Character: return localize('fwb.topics.character'); 
     case Topic.Event: return localize('fwb.topics.event'); 
     case Topic.Location: return localize('fwb.topics.location'); 

@@ -1,13 +1,16 @@
 export { id as MODULE_ID } from '@module';
 import { Topic } from '@/types';
 
-export function getIcon(type: string | number | Topic | null | undefined) {
-  if (!type)
-    return '';
+// sometimes topic ends up as a string (ex. when pulling from DOM), so this makes sure
+//    it can always be compared properly (particuarly for use in switch or [].includes, etc.)
+export function toTopic(topic: string | number | Topic | null | undefined): Topic | null {
+  const castedTopic = typeof topic === 'string' ? parseInt(topic) as Topic : topic;
 
-  const castedType = typeof type === 'string' ? parseInt(type) as Topic : type;
+  return castedTopic ?? null;
+};
 
-  switch (castedType) {
+export function getIcon(topic: string | number | Topic | null | undefined) {
+  switch (toTopic(topic)) {
     case Topic.Character: 
       return 'fa-user';
     case Topic.Location: 

@@ -3,12 +3,13 @@ import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { HomePage, HomePageData} from './HomePage';
 import { localize } from '@/utils/game';
 import { Topic } from '@/types';
-import { getIcon } from '@/utils/misc';
+import { getIcon, toTopic } from '@/utils/misc';
 import { TypeAhead, TypeAheadData } from '@/components/TypeAhead';
 import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { getCleanEntry, updateDocument } from '@/compendia';
 import { Editor, EditorData } from '@/components/Editor';
+import { TreeData, Tree } from '@/components/Tree';
 
 export type WBContentData = {
   showHomePage: true,
@@ -24,8 +25,8 @@ export type WBContentData = {
   relationships: { tab: string, label: string }[],
   typeAheadTemplate: () => string,
   typeAheadData: TypeAheadData,
-  // treeTemplate: () => string,
-  // ancestorTreeData: () => TreeData,
+  treeTemplate: () => string,
+  ancestorTreeData: TreeData,
   editorTemplate: () => string,
   descriptionData: EditorData,
   namePlaceholder: string,
@@ -56,6 +57,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
     this._partials.HomePage = new HomePage();
     this._partials.TypeTypeAhead = new TypeAhead([]);
     this._partials.DescriptionEditor = null;
+    this._partials.AncestorTree = new Tree();
   }
 
   public changeWorld(worldId: string): void {
@@ -72,7 +74,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
     } else {
       const entry = await getCleanEntry(entryId);
 
-      const topic = entry ? EntryFlags.get(entry, EntryFlagKey.topic) : null;
+      const topic = toTopic(entry ? EntryFlags.get(entry, EntryFlagKey.topic) : null);
 
       if (!entry || !topic) {
         // show the homepage
@@ -134,7 +136,9 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
         typeAheadData: await (this._partials.TypeTypeAhead as TypeAhead).getData(),
         namePlaceholder: localize(topicData[this._topic].namePlaceholder),
         editorTemplate: () => Editor.template,
-        descriptionData: await (this._partials.DescriptionEditor as Editor)?.getData() ?? {},
+        descriptionData: await (this._partials.DescriptionEditor as Editor)?.getData(),
+        treeTemplate: () => Tree.template,
+        ancestorTreeData: await (this._partials.AncestorTree as Tree)?.getData(),
         description: this._entry.pages.find((p)=>p.name==='description').text, //TODO: use enum
       };
     }
