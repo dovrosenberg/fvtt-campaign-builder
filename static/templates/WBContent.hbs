@@ -31,7 +31,10 @@
             </div>
 
             {{#if showHierarchy}}
-              Hierarchy
+              <div class="form-group fwb-content-header">
+                {{!--<label>{{localize 'fwb.labels.fields.type'}}</label>--}}
+                {{!--{{> (treeTemplate) data=ancestorTreeData }}--}}
+              </div>
             {{/if}}
             {{!-- <div class="form-group">
               <label>{{localize 'MonksEnhancedJournal.Role'}}</label>
@@ -49,16 +52,16 @@
           {{#each relationships}}
             <a class="item" data-tab="{{tab}}">{{localize label}}</a>
           {{/each}}
-
         </nav>
-        <section class="sheet-body">
+        <section class="fwb-tab-body">
           <div class="tab description" data-group="primary" data-tab="description">
             <div class="tab-inner flexcol">
-              {{!-- {{editor enrichedText target="text.content" editable=true button=true owner=owner}} --}}
+              {{> (editorTemplate) data=descriptionData }}
             </div>
           </div>
           <div class="tab entry-details" data-group="primary" data-tab="entry-details">
             <div class="tab-inner flexcol">
+            {{!--
               <div class="details-section flexrow">
                 <div class="document-details">
                   <ul>
@@ -82,7 +85,7 @@
                 </div>
                 {{/if}}
                 {{/each}}
-              </div>
+              </div>--}}
             </div>
           </div>
           <div class="tab relationships" data-group="primary" data-tab="relationships">

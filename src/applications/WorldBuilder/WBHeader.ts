@@ -7,6 +7,7 @@ import { Bookmark, EntryHeader, WindowTab } from '@/types';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { getIcon } from '@/utils/misc';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+import { getCleanEntry } from '@/compendia';
 
 type WBHeaderData = {
   tabs: WindowTab[];
@@ -16,7 +17,7 @@ type WBHeaderData = {
   canForward: boolean;
 }
 
-export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
+export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType, WBHeader.CallbackFunctionType<any>> {
   static override _template = 'modules/world-builder/templates/WBHeader.hbs';
 
   private _worldId: string;
@@ -45,7 +46,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       await this.openEntry();
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
-    this._makeCallback(WBHeader.CallbackType.EntryChanged, this.activeEntryId);
+    await this._makeCallback(WBHeader.CallbackType.EntryChanged, this.activeEntryId);
   }
 
   public async getData(): Promise<WBHeaderData> {
@@ -63,9 +64,9 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
   }
 
   public activateListeners(html: JQuery) {  
-    $('#fwb-sidebar-toggle').on('click', () => { 
+    $('#fwb-sidebar-toggle').on('click', async () => { 
       this._collapsed = !this._collapsed;      
-      this._makeCallback(WBHeader.CallbackType.SidebarToggled); 
+      await this._makeCallback(WBHeader.CallbackType.SidebarToggled); 
     });
 
     // bookmark and tab listeners
@@ -136,7 +137,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       ...options,
     };
 
-    const journal = entryId ? await fromUuid(entryId) as JournalEntry : null;
+    const journal = entryId ? await getCleanEntry(entryId) as JournalEntry : null;
     const entryName = (journal ? journal.name : localize('fwb.labels.newTab')) || '';
     const entry = { uuid: journal ? entryId : null, name: entryName, icon: journal ? getIcon(EntryFlags.get(journal, EntryFlagKey.topic)) : '' };
 
@@ -180,8 +181,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (entry.uuid)
       await this._updateRecent(entry);
 
-    this._makeCallback(WBHeader.CallbackType.TabsChanged);
-    this._makeCallback(WBHeader.CallbackType.EntryChanged, entry.uuid);
+    //await this._makeCallback(WBHeader.CallbackType.TabsChanged);
+    await this._makeCallback(WBHeader.CallbackType.EntryChanged, entry.uuid);
 
     return tab;
   }
@@ -287,62 +288,10 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     if (newTab?.entry?.uuid)
       await this._updateRecent(newTab.entry);
 
-    this._makeCallback(WBHeader.CallbackType.TabsChanged);
-    this._makeCallback(WBHeader.CallbackType.EntryChanged, newTab.entry.uuid);
+    await this._makeCallback(WBHeader.CallbackType.EntryChanged, newTab.entry.uuid);
+    await this._makeCallback(WBHeader.CallbackType.TabsChanged);
     return;
   }
-
-
-  /*
-  private _updateTab(tab, entity, options = {}) {
-    if (!entity)
-      return;
-
-    if (entity?.parent) {
-      options.journalId = entity.id;
-      entity = entity.parent;
-    }
-
-    if (tab != undefined) {
-      if (tab.entityId != entity.uuid) {
-        tab.text = entity.name;
-        tab.entityId = entity.uuid;
-        tab.entity = entity;
-        tab.journalId = options.journalId;
-
-        if ((game.user.isGM || setting('allow-player')) && tab.entityId != undefined) {    //only save the history if the player is a GM or they get the full journal experience... and if it's not a blank tab
-          if (tab.history == undefined)
-            tab.history = [];
-          if (tab.historyIdx != undefined) {
-            tab.history = tab.history.slice(tab.historyIdx);
-            tab.historyIdx = 0;
-          }
-          tab.history.unshift(tab.entityId);
-
-          if (tab.history.length > 10)
-            tab.history = tab.history.slice(0, 10);
-        }
-
-        this._saveTabs();
-
-        //$(`.fwb-tab[data-tab-id="${tab.id}"]`, this.element).attr('title', tab.text).find('.tab-content').html(tab.text);
-      } else if (tab.entity == undefined) {
-        tab.entity = entity;
-      }
-
-      //$('.back-button', this.element).toggleClass('disabled', !this.canBack(tab));
-      //$('.forward-button', this.element).toggleClass('disabled', !this.canForward(tab));
-      //this.updateHistory();
-      this._updateRecent(tab.journal);
-    }
-
-    if (!this.rendered)
-      return;
-
-    this.render(true, mergeObject({ focus: true }, options));
-  }
-
-*/
 
   // remove the tab given by the id from the list
   private async _closeTab(tabId: string) {
@@ -367,28 +316,12 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
       }
     }
 
-    this._makeCallback(WBHeader.CallbackType.TabsChanged);
+    await this._makeCallback(WBHeader.CallbackType.TabsChanged);
   }
 
   private async _saveTabs() {
     await UserFlags.set(UserFlagKey.tabs, this._tabs, this._worldId);
   }
-
-  /*
-  private _updateTabNames(uuid, name) {
-    for (let tab of this._tabList) {
-      if (tab.entityId == uuid) {
-        $(`.fwb-tab[data-tab-id="${tab.id}"] .tab-content`, this.element).attr("title", name).html(name);
-        tab.text = name;
-        this._saveTabs();
-        if (tab.active) {
-          $('.window-title', this.element).html((tab.text || i18n("MonksEnhancedJournal.NewTab")) + ' - ' + i18n("MonksEnhancedJournal.Title"));
-        }
-      }
-    }
-  }
-
-*/
 
   // add the current tab as a new bookmark
   async _addBookmark(): Promise<void> {
@@ -412,7 +345,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     this._bookmarks.push(bookmark);
 
     await this._saveBookmarks();
-    this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
+    await this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
   }
 
   private async _activateBookmark(bookmarkId: string) {
@@ -428,7 +361,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     this._bookmarks.findSplice(b => b.id === id);
     await this._saveBookmarks();
 
-    this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
+    await this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
   }
 
   private async _saveBookmarks() {
@@ -450,39 +383,8 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType> {
     tab.historyIdx = newSpot;
     await this.openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
 
-    this._makeCallback(WBHeader.CallbackType.HistoryMoved);
+    await this._makeCallback(WBHeader.CallbackType.HistoryMoved);
   }
-
-  /*
-async getHistory() {
-  let index = 0;
-  let tab = this._activeTab();
-  let menuItems = [];
-
-  if (tab?.history == undefined)
-    return;
-
-  for (let i = 0; i < tab.history.length; i++) {
-    let h = tab.history[i];
-    let entity = await this.findEntity(h, '');
-    if (tab?.entity?.id != undefined) {
-      let type = (entity.getFlag && entity.getFlag('monks-enhanced-journal', 'type'));
-      let icon = MonksEnhancedJournal.getIcon(type);
-      let item = {
-        name: entity.name || i18n("MonksEnhancedJournal.Unknown"),
-        icon: `<i class="fas ${icon}"></i>`,
-        callback: (li) => {
-          let idx = i;
-          this.changeHistory(idx)
-        }
-      }
-      menuItems.push(item);
-    }
-  };
-
-  return menuItems;
-}
-*/
 
   // handle a bookmark or tab dragging
   private _onDragStart(event: DragEvent): void {
@@ -535,7 +437,6 @@ async getHistory() {
 
       // activate the moved one (will also save the tabs)
       await this._activateTab(data.tabId);
-      await this._makeCallback(WBHeader.CallbackType.TabsChanged);
     } else if (data.type==='fwb-bookmark') {
       const target = (event.currentTarget as HTMLElement).closest('.fwb-bookmark-button') as HTMLElement;
       if (!target)
@@ -550,7 +451,7 @@ async getHistory() {
 
       // save bookmarks (we don't activate anything)
       await this._saveBookmarks();
-      this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
+      await this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
     } else {
       return false;
     } 
@@ -580,19 +481,6 @@ async getHistory() {
         }
       }
     ]);
-
-    // tabs
-    // let history = await this.getHistory();
-    // this._historycontext = new ContextMenu(html, ".mainbar .navigation .nav-button.history", history);
-    // this._imgcontext = new ContextMenu(html, ".journal-body.oldentry .tab.picture", [
-    //   {
-    //     name: "MonksEnhancedJournal.Delete",
-    //     icon: '<i class="fas fa-trash"></i>',
-    //     callback: li => {
-    //       log('Remove image on old entry');
-    //     }
-    //   }
-    // ]);
   }
 }
 
@@ -605,4 +493,12 @@ export namespace WBHeader {
     HistoryMoved,
     EntryChanged,
   }
+
+  export type CallbackFunctionType<C extends CallbackType> = 
+    C extends CallbackType.TabsChanged ? () => Promise<void> :
+    C extends CallbackType.BookmarksChanged ? () => Promise<void> :
+    C extends CallbackType.SidebarToggled ? () => Promise<void> :
+    C extends CallbackType.HistoryMoved ? () => Promise<void> :
+    C extends CallbackType.EntryChanged ? (newEntryUuid: string | null) => Promise<void> :
+    never;  
 }

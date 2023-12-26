@@ -4,10 +4,11 @@ import { HomePage, HomePageData} from './HomePage';
 import { localize } from '@/utils/game';
 import { Topic } from '@/types';
 import { getIcon } from '@/utils/misc';
-import { TypeAhead, TypeAheadData } from '@/components/typeahead';
+import { TypeAhead, TypeAheadData } from '@/components/TypeAhead';
 import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-import { updateEntry } from '@/compendia';
+import { getCleanEntry, updateDocument } from '@/compendia';
+import { Editor, EditorData } from '@/components/Editor';
 
 export type WBContentData = {
   showHomePage: true,
@@ -23,25 +24,38 @@ export type WBContentData = {
   relationships: { tab: string, label: string }[],
   typeAheadTemplate: () => string,
   typeAheadData: TypeAheadData,
+  // treeTemplate: () => string,
+  // ancestorTreeData: () => TreeData,
+  editorTemplate: () => string,
+  descriptionData: EditorData,
   namePlaceholder: string,
+  description: {
+    content: any,
+    format: number,
+    markdown: any
+  }
 }
 
-export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
+export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBContent.CallbackFunctionType<any>>  {
   static override _template = 'modules/world-builder/templates/WBContent.hbs';
 
   private _worldId: string; 
   private _entryId: string | null;    // the entryId to show (will show homepage if null)
   private _entry: JournalEntry;
   private _topic: Topic | null;
+  private _tabs: Tabs;
 
   constructor() {
     super();
+
+    this._tabs = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
   }
 
   // we will dynamically setup the partials
   protected _createPartials(): void {
     this._partials.HomePage = new HomePage();
     this._partials.TypeTypeAhead = new TypeAhead([]);
+    this._partials.DescriptionEditor = null;
   }
 
   public changeWorld(worldId: string): void {
@@ -51,14 +65,13 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
 
   public async updateEntry(entryId: string | null) {
     // we need to setup the type before calling the constructor
-    // look up the entry - note could use fromUuid, but it's a bit tricky for compendia and also async
     if (!entryId) {
       // just show the homepage
       this._entryId = null;
       this._topic = null;
     } else {
-      // we must use fromUuid because these are all in compendia
-      const entry = await fromUuid(entryId) as JournalEntry | null;
+      const entry = await getCleanEntry(entryId);
+
       const topic = entry ? EntryFlags.get(entry, EntryFlagKey.topic) : null;
 
       if (!entry || !topic) {
@@ -70,6 +83,11 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         this._entryId = entryId;
         this._entry = entry;
         this._topic = topic;
+
+        // reattach the editor
+        // @ts-ignore
+        const descriptionPage = entry.pages.find((p)=>p.name==='description');
+        this._partials.DescriptionEditor = new Editor(descriptionPage, 'description', descriptionPage.text.content);  // TODO: replace with enum
 
         // get() returns the object and we don't want to modify it directly
         (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKey.types)[topic]);
@@ -99,7 +117,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       data = {
         showHomePage: true,
         homePageTemplate: () => HomePage.template,
-        homePageData: await this._partials.HomePage.getData(),
+        homePageData: await (this._partials.HomePage as HomePage).getData(),
       };
     } else if (this._topic === null) {
       throw new Error('Invalid entry type in WBContent.getData()');
@@ -113,8 +131,11 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
         showHierarchy: [Topic.Location, Topic.Organization].includes(this._topic),
         relationships: relationships,
         typeAheadTemplate: () => TypeAhead.template,
-        typeAheadData: await this._partials.TypeTypeAhead.getData(),
+        typeAheadData: await (this._partials.TypeTypeAhead as TypeAhead).getData(),
         namePlaceholder: localize(topicData[this._topic].namePlaceholder),
+        editorTemplate: () => Editor.template,
+        descriptionData: await (this._partials.DescriptionEditor as Editor)?.getData() ?? {},
+        description: this._entry.pages.find((p)=>p.name==='description').text, //TODO: use enum
       };
     }
 
@@ -128,17 +149,24 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       this._partials.HomePage.activateListeners(html);
     else {
       this._partials.TypeTypeAhead.activateListeners(html);
+      this._partials.DescriptionEditor?.activateListeners(html);
     }
+
+    // bind the tabs
+    this._tabs.bind(html.get()[0]);
 
     // watch for edits to name
     html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
-      await updateEntry(this._entry, { name: jQuery(event.target).val() });
-      this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
+      await updateDocument(this._entry, { name: jQuery(event.target).val() });
+      await this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
     });
 
-    this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, (uuid: string)=> {
-      this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
+    // home page mode - click on a recent item
+    this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {
+      await this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
     });
+
+    // new type added in the typeahead
     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.ItemAdded, async (added)=> {
       if (this._topic === null)
         return;
@@ -158,6 +186,20 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
       void EntryFlags.set(this._entry, EntryFlagKey.type, selection);
     });
 
+    // watch for edits to description
+    this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorSaved, async (newContent: string) => {
+      const descriptionPage = this._entry.pages.find((p)=>p.name==='description');  //TODO
+
+      await updateDocument(descriptionPage, {'text.content': newContent });  
+
+      //need to reset
+      this._partials.DescriptionEditor =  new Editor(descriptionPage, 'text.content', newContent);
+
+      await this._makeCallback(WBContent.CallbackType.ForceRerender); 
+    });
+    this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorClosed, async () => { 
+      await this._makeCallback(WBContent.CallbackType.ForceRerender); 
+    });
   }
 
 
@@ -437,6 +479,59 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType>  {
   //   return retval;
   // }
 
+  // private _activateEditor() {
+  //   // Get the editor content div
+  //   const name = div.dataset.edit;
+  //   const engine = div.dataset.engine || "tinymce";
+  //   const collaborate = div.dataset.collaborate === "true";
+  //   const button = div.previousElementSibling;
+  //   const hasButton = button && button.classList.contains("editor-edit");
+  //   const wrap = div.parentElement.parentElement;
+  //   const wc = div.closest(".window-content");
+
+  //   // Determine the preferred editor height
+  //   const heights = [wrap.offsetHeight, wc ? wc.offsetHeight : null];
+  //   if ( div.offsetHeight > 0 ) heights.push(div.offsetHeight);
+  //   const height = Math.min(...heights.filter(h => Number.isFinite(h)));
+
+  //   // Get initial content
+  //   const options = {
+  //     target: div,
+  //     fieldName: name,
+  //     save_onsavecallback: () => this.saveEditor(name),
+  //     height, engine, collaborate
+  //   };
+
+  //   if ( engine === "prosemirror" ) options.plugins = this._configureProseMirrorPlugins(name, {remove: hasButton});
+
+  //   /**
+  //   * Handle legacy data references.
+  //   * @deprecated since v10
+  //   */
+  //   const isDocument = this.object instanceof foundry.abstract.Document;
+  //   const data = (name?.startsWith("data.") && isDocument) ? this.object.data : this.object;
+
+  //   // Define the editor configuration
+  //   const editor = this.editors[name] = {
+  //     options,
+  //     target: name,
+  //     button: button,
+  //     hasButton: hasButton,
+  //     mce: null,
+  //     instance: null,
+  //     active: !hasButton,
+  //     changed: false,
+  //     initial: foundry.utils.getProperty(data, name)
+  //   };
+
+  //   // Activate the editor immediately, or upon button click
+  //   const activate = () => {
+  //     editor.initial = foundry.utils.getProperty(data, name);
+  //     this.activateEditor(name, {}, editor.initial);
+  //   };
+  //   if ( hasButton ) button.onclick = activate;
+  //   else activate();
+  // }
 }
 
 
@@ -444,5 +539,12 @@ export namespace WBContent {
   export enum CallbackType {
     RecentClicked,
     NameChanged,
+    ForceRerender,
   }
+
+  export type CallbackFunctionType<C extends CallbackType> = 
+    C extends CallbackType.RecentClicked ? (uuid: string) => Promise<void> :
+    C extends CallbackType.NameChanged ? (entry: JournalEntry) => Promise<void> :
+    C extends CallbackType.ForceRerender ? () => Promise<void> :
+    never;  
 }

@@ -3,7 +3,8 @@ import { WBFooter } from '@/applications/WorldBuilder/WBFooter';
 import { HomePage } from '@/applications/WorldBuilder/content/HomePage';
 import { WBContent } from '@/applications/WorldBuilder/content/WBContent';
 import { Directory } from '@/applications/WorldBuilder/directory/Directory';
-import { TypeAhead } from '@/components/typeahead';
+import { TypeAhead } from '@/components/TypeAhead';
+import { Editor } from '@/components/Editor';
 
 export function registerHelpers() {
   // create a "constant" helper for passing constants
@@ -22,6 +23,7 @@ export function registerHelpers() {
 
     // components
     TypeAhead.template,
+    Editor.template,
   ];
 
   // @ts-ignore

@@ -163,94 +163,99 @@
     .journal-sheet-header .header-details .header-name input[type="text"]:focus {
       background: var(--mej-sheet-header-name-background-hover);
     }
-    /* Details Section */
-    .sheet-body .details-section {
-      font-family: var(--mej-font-family);
-      font-size: var(--font-size-20);
-      font-weight: 700;
-      padding: 5px 15px;
-      margin: 0px;
-      flex-grow: 0;
-      border-bottom: 2px groove var(--mej-sheet-details-section-border);
-    }
-    .sheet-body .details-section:last-child,
-    .sheet-body .details-section.no-border {
-      border-bottom: 0px;
-    }
-    .sheet-body .details-section.scrollable {
-      flex-grow: 1;
-      overflow-y: auto;
+
+    // the tab content
+    .fwb-tab-body {
+      /* Details Section */
+      .details-section {
+        font-family: var(--mej-font-family);
+        font-size: var(--font-size-20);
+        font-weight: 700;
+        padding: 5px 15px;
+        margin: 0px;
+        flex-grow: 0;
+        border-bottom: 2px groove var(--mej-sheet-details-section-border);
+
+        &:last-child,
+        &.no-border {
+          border-bottom: 0px;
+        }
+        &.scrollable {
+          flex-grow: 1;
+          overflow-y: auto;
+        }
+
+        .form-group {
+          flex-grow: 0 !important;
+          margin: 4px 8px 0px 0px;
+        }
+
+        label {
+          flex: 1;
+          max-width: 175px;
+          color: var(--mej-sheet-color);
+        }
+        input, textarea {
+          border: var(--mej-sheet-input-border);
+          background: var(--mej-sheet-input-background);
+          color: var(--mej-sheet-input-color);
+        }
+
+        select {
+          font-size: var(--font-size-20);
+          height: 24px;
+        }
+
+        button {
+          flex: 0;
+          margin: -2px 0;
+          line-height: 22px;
+        }
+
+        button.append {
+          height: 27px;
+          margin: 0px;
+          border-top-left-radius: 0px;
+          border-bottom-left-radius: 0px;
+          order: 99;
+        }
+
+        button.append + input {
+          border-top-right-radius: 0px;
+          border-bottom-right-radius: 0px;
+        }
+
+        /* Document Details */
+        .document-details {
+          border-radius: 5px;
+          padding: 8px;
+          margin-bottom: 5px;
+          position: relative;
+          flex: 1;
+          font-size: var(--font-size-14);
+
+          ul {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 4px;
+            flex: 1;
+            flex-wrap: wrap;
+            list-style: none;
+
+            li {
+              display: flex;
+              flex: 0 0 215px;
+
+              label {
+                flex: 0 0 60px;
+              }
+            }
+          }
+        }
+      }
     }
 
-    .sheet-body .details-section .form-group {
-      flex-grow: 0 !important;
-      margin: 4px 8px 0px 0px;
-    }
-
-    .sheet-body .details-section label {
-      flex: 1;
-      max-width: 175px;
-      color: var(--mej-sheet-color);
-    }
-    .sheet-body .details-section input,
-    .sheet-body .details-section textarea {
-      border: var(--mej-sheet-input-border);
-      background: var(--mej-sheet-input-background);
-      color: var(--mej-sheet-input-color);
-    }
-
-    .sheet-body .details-section select {
-      font-size: var(--font-size-20);
-      height: 24px;
-    }
-
-    .sheet-body .details-section button {
-      flex: 0;
-      margin: -2px 0;
-      line-height: 22px;
-    }
-
-    .sheet-body .details-section button.append {
-      height: 27px;
-      margin: 0px;
-      border-top-left-radius: 0px;
-      border-bottom-left-radius: 0px;
-      order: 99;
-    }
-
-    .sheet-body .details-section button.append + input {
-      border-top-right-radius: 0px;
-      border-bottom-right-radius: 0px;
-    }
-
-    /* Document Details */
-    .document-details {
-      border-radius: 5px;
-      padding: 8px;
-      margin-bottom: 5px;
-      position: relative;
-      flex: 1;
-      font-size: var(--font-size-14);
-    }
-
-    .document-details ul {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      gap: 4px;
-      flex: 1;
-      flex-wrap: wrap;
-      list-style: none;
-    }
-
-    .document-details ul li {
-      display: flex;
-      flex: 0 0 215px;
-    }
-
-    .sheet-body .details-section .document-details ul li label {
-      flex: 0 0 60px;
-    }
 
     /* Blank */
     .journal-subsheet.blank {
@@ -452,7 +457,7 @@
   }
 
   /* Body */
-  .sheet-container .sheet-body {
+  .sheet-container .fwb-tab-body {
     height: 100%;
     overflow: hidden;
     position: relative;
@@ -461,13 +466,13 @@
 
 
   /* Tabs */
-  &.sheet .sheet-body .tab {
+  &.sheet .fwb-tab-body .tab {
     height: 100% !important;
     overflow-y: auto !important;
     align-content: flex-start;
   }
 
-  &.sheet .sheet-body .tab .tab-inner {
+  &.sheet .fwb-tab-body .tab .tab-inner {
     height: 100%;
     overflow-y: auto !important;
     align-content: flex-start;
@@ -494,8 +499,15 @@
     min-height: 100%;
   }
 
+  // the button to open the editor
   .editor-edit {
     z-index: 100;
+
+    &:hover {
+      color: rgb(var(--mej-dark-0));
+      background: var(--mej-cream);
+      box-shadow: 0 0 5px red;
+    }
   }
 
   &.sheet .editor .editor-content {
@@ -527,9 +539,10 @@
     display: none;
   }
 
-  .journal-subsheet[editable='false'] .editor-edit {
-    display: none !important;
-  }
+  
+  // .journal-subsheet[editable='false'] .editor-edit {
+  //   display: none !important;
+  // }
 
   .tox.tox-tinymce-aux {
     width: 0px;
@@ -862,7 +875,7 @@
   }
 
   /* Additional */
-  .sheet-container .sheet-body .no-character-alert {
+  .sheet-container .fwb-tab-body .no-character-alert {
     background: rgba(214, 150, 0, 0.8);
     border: 1px solid var(--color-level-warning);
     margin-bottom: 0.5em;
@@ -876,7 +889,7 @@
     flex: 0 0 33px;
   }
 
-  .sheet-container .sheet-body .no-character-alert a {
+  .sheet-container .fwb-tab-body .no-character-alert a {
     color: var(--color-text-hyperlink);
   }
 

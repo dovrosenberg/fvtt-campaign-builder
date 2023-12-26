@@ -1,10 +1,11 @@
-import './TypeAhead.css';
+import './TypeAhead.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 
 export type TypeAheadData = {
+  componentId: string;
 }
 
-export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
+export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType, TypeAhead.CallbackFunctionType<any>> {
   static override _template = 'modules/world-builder/templates/TypeAhead.hbs';
   private _id: string;
   private _list = [] as string[];
@@ -62,13 +63,13 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
     });
 
     // Event listener for item clicks
-    dropdown.on('click', (event: JQuery.ClickEvent) => {
+    dropdown.on('click', async (event: JQuery.ClickEvent) => {
       if (event.target.classList.contains('typeahead-entry')) {
         const selection = event.target.textContent; 
         input.val(selection);
         dropdown.html(''); // Clear the dropdown
         this._hasFocus = false;
-        this._makeCallback(TypeAhead.CallbackType.SelectionMade, selection);
+        await this._makeCallback(TypeAhead.CallbackType.SelectionMade, selection);
       }
     });
 
@@ -76,10 +77,10 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
     this._control.on('keydown', (event: JQuery.KeyDownEvent) => this._onKeydown(event));
 
     // watch for clicks anywhere outside the control
-    jQuery(document).on('click', (event: JQuery.ClickEvent) => {
+    jQuery(document).on('click', async (event: JQuery.ClickEvent) => {
       if (this._hasFocus && !jQuery(event.currentTarget).closest('.fwb-typeahead')[0]) {
         // we were in it, but now we're not; treat as if we'd tabbed out
-        this._onKeydown({key:'Tab'} as JQuery.KeyDownEvent);
+        await this._onKeydown({key:'Tab'} as JQuery.KeyDownEvent);
       }
     });
   }
@@ -89,7 +90,7 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
     this._list = deepClone(list);
   }
 
-  private _onKeydown(event: JQuery.KeyDownEvent): void {
+  private async _onKeydown(event: JQuery.KeyDownEvent): Promise<void> {
     // if no list, don't need to do anything
     if (!this._filteredItems)
       return;
@@ -122,7 +123,7 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
         // if nothing selected, check for a match or add something new
         // if box is empty, we don't add a new value, but we still say blank was seleted
         if (this._idx===-1 && input?.val()?.toString()) {
-          selection = input.val().toString();
+          selection = input.val()?.toString() as string;
 
           // exact match only to let us add types that are just different cases
           const match = this._list.find(item=>item===selection.toString());
@@ -133,7 +134,7 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
           } else {
             this._list.push(selection);
             this._hasFocus = false;
-            this._makeCallback(TypeAhead.CallbackType.ItemAdded, selection);
+            await this._makeCallback(TypeAhead.CallbackType.ItemAdded, selection);
           }
         } else if (this._idx!==-1) {
           // fill in the input value
@@ -146,7 +147,7 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
         this._refreshList();
 
         this._hasFocus = false;
-        this._makeCallback(TypeAhead.CallbackType.SelectionMade, selection);
+        await this._makeCallback(TypeAhead.CallbackType.SelectionMade, selection);
         return;
       }
 
@@ -156,12 +157,12 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
   }
 
   private _refreshList(): void {
-    var dropdown = this._control.find('#fwb-ta-dropdown');
+    const dropdown = this._control.find('#fwb-ta-dropdown');
 
     // Render the filtered items - we're not using handlebars because it's overly complicated to pass up a re-render request
     let itemHTML = '';
     for (let i=0; i<this._filteredItems.length && i<3; i++) {   // max of 3 items at a time
-      itemHTML += `<div class="typeahead-entry ${i===this._idx ? 'highlighted' : ''}">${this._filteredItems[i]}</div>`
+      itemHTML += `<div class="typeahead-entry ${i===this._idx ? 'highlighted' : ''}">${this._filteredItems[i]}</div>`;
     }
     dropdown.html(itemHTML);   
   }
@@ -170,8 +171,12 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType> {
 
 export namespace TypeAhead {
   export enum CallbackType {
-    NeedToRender,
     SelectionMade,
     ItemAdded,
   }
+
+  export type CallbackFunctionType<C extends CallbackType> = 
+    C extends CallbackType.SelectionMade ? (selectionText: string) => Promise<void> :
+    C extends CallbackType.ItemAdded ? (itemText: string) => Promise<void> :
+    never;  
 }
