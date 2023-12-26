@@ -1,13 +1,33 @@
 <div id="{{data.componentId}}" class="fwb-tree">
   <ul>
-    <li>First Item
+    <li>
+      <details>
+        <summary>First Item</summary>
         <ul>
           <li>First Subitem</li>
-          <li>Second Subitem</li>
+          <li>
+            <details>
+              <summary>Second Subitem</summary>
+              <ul>
+                <li>First Item
+                    <ul>
+                      <li>First Subitem</li>
+                      <li>Second Subitem</li>
+                      <li>Third Subitem</li>
+                    </ul>
+                </li>
+                <li>Second Item</li>
+                <li>Third Item</li>
+              </ul>
+            </details>
+          </li>
           <li>Third Subitem</li>
         </ul>
+      </details>
     </li>
-    <li>Second Item
+    <li>
+      <details>
+        <summary>Second Item</summary>
         <ul>
           <li>First Item
               <ul>
@@ -19,7 +39,12 @@
           <li>Second Item</li>
           <li>Third Item</li>
         </ul>
+      </details>
     </li>
-    <li>Third Item</li>
+    <li>
+      <details>
+        <summary>Third Item</summary>
+      </details>
+    </li>
   </ul>
 </div>

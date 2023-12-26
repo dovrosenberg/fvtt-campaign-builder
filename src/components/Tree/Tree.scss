@@ -1,4 +1,23 @@
+:root {
+
+}
+
 .fwb-tree {
-  background: red;
+  ul {
+    list-style: none;
+  }
+
+  // the top level
+  & > ul {
+    summary {
+      cursor: pointer;
+      list-style: none; 
+
+      &::marker, &::-webkit-details-marker {
+        display: none !important;
+      }
+    }
+
+  }
 }
 
