@@ -3,6 +3,9 @@
 }
 
 .fwb-tree {
+  // padding: 1em;
+  // margin: 0;
+
   // very first node
   ul.top-node > li {
     &::before, &::after {
@@ -11,12 +14,15 @@
   }
 
   ul {
+    // padding: 0;
+    // margin: 0;
     list-style: none;
     line-height: 2em;   // this makes the horizontal lines centered (when combined with the height on the li::before
 
     li {
       position: relative;
-      margin-top: -0.5em;
+      padding: 0;
+      margin: -0.5em 0 0 0;
 
       // this draws the top-half ot the vertical plus the horizontal tree connector lines
       &::before {
@@ -47,9 +53,18 @@
     // add the little open markers
     summary::before {
       position: absolute;
-      content: "";
-      background: orange;
-
+      content: "+";
+      text-align: center;
+      line-height: 0.80em;
+      color: black;
+      background: lightslategray;
+      display: block;
+      width: 15px;
+      height: 15px;
+      border-radius: 50em;
+      left: -0.85em;
+      top: 0.63em;
+      z-index: 999;
     }
   }
 

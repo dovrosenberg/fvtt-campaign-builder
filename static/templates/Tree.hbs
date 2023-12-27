@@ -4,20 +4,21 @@
       <details>
         <summary>First Item</summary>
         <ul>
-          <li>First Subitem</li>
+          <li>First Subitem</li>  {{!-- if no children, insert a li --}}
           <li>
-            <details>
+            <details>  {{!-- if children, insert a details --}}
               <summary>Second Subitem</summary>
               <ul>
-                <li>First Item
+                <li>
+                  <details>
+                    <summary>First 3 Subitem</summary>
                     <ul>
-                      <li>First Subitem</li>
-                      <li>Second Subitem</li>
-                      <li>Third Subitem</li>
+                      <li>First 4 Item</li>
+                      <li>Second 4 Item</li>
+                      <li>Third 4 Item</li>
                     </ul>
+                  </details>
                 </li>
-                <li>Second Item</li>
-                <li>Third Item</li>
               </ul>
             </details>
           </li>
