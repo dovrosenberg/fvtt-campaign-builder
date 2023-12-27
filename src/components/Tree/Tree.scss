@@ -20,34 +20,35 @@
 
       // this draws the top-half ot the vertical plus the horizontal tree connector lines
       &::before {
-        position: absolute;
-        left: -10px;   // pushes them left of the text
         top: 0px;
-        border-left: 2px solid gray;
         border-bottom: 2px solid gray;
         height: 1em;   // controls vertical position of horizontal lines
-        content: "";
-        width: 8px;   // controls the length of the horizontal lines
       }
 
       // extends the vertical lines down
       &::after {
-        position: absolute;
-        left: -10px;   // pushes them left of the text
         bottom: 0px;
-        border-left: 2px solid gray;
         height: 100%;
-        content: "";
-        width: 8px;   // controls the length of the horizontal lines
       }
 
       &::before, &::after {
+        position: absolute;
+        left: -10px;   // pushes them left of the text
+        border-left: 2px solid gray;
+        content: "";
+        width: 8px;   // controls the length of the horizontal lines
       }
 
       &:last-child::after {
         display: none;   // avoid a little tail at the bottom of the vertical lines
       }
+    }
 
+    // add the little open markers
+    summary::before {
+      position: absolute;
+      content: "";
+      background: orange;
 
     }
   }
