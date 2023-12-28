@@ -40,6 +40,11 @@ export namespace Tree {
     ItemClicked,
   }
 
+  export type TreeNode = {
+    text: string;   // the label
+    children: TreeNode[];   // the children, if any
+  }
+
   export type CallbackFunctionType<C extends CallbackType> = 
     C extends CallbackType.ItemClicked ? (itemId: string) => Promise<void> :
     never;  
