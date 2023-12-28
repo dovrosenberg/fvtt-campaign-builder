@@ -23,27 +23,34 @@ export class Tree extends HandlebarsPartial<Tree.CallbackType, Tree.CallbackFunc
     this._topNodes = [
       {
         text: 'First Item',
+        value: '19',
         children: [
           {
             text: 'First subitem',
+            value: '1',
             children: []
           },
           {
             text: 'Second subitem',
+            value: '2',
             children: [
               {
                 text: 'First 3 subitem',
+                value: '3',
                 children: [
                   {
                     text: 'First 4 item',
+                    value: '4',
                     children: [],
                   },
                   {
                     text: 'Second 4 item',
+                    value: '5',
                     children: [],
                   },
                   {
                     text: 'Third 4 item',
+                    value: '6',
                     children: [],
                   },
                 ]
@@ -52,36 +59,45 @@ export class Tree extends HandlebarsPartial<Tree.CallbackType, Tree.CallbackFunc
           },
           {
             text: 'Third subitem',
+            value: '7',
             children: []
           },
         ]
       },
       {
         text: 'Second Item',
+        value: '7',
         children: [
           {
             text: 'First Item',
+            value: '18',
             children: [
               {
                 text: 'First subitem',
+                value: '8',
                 children: []
               },
               {
                 text: 'Second subitem',
+                value: '9',
                 children: [
                   {
                     text: 'First 3 subitem',
+                    value: '10',
                     children: [
                       {
                         text: 'First 4 item',
+                        value: '11',
                         children: [],
                       },
                       {
                         text: 'Second 4 item',
+                        value: '12',
                         children: [],
                       },
                       {
                         text: 'Third 4 item',
+                        value: '13',
                         children: [],
                       },
                     ]
@@ -90,22 +106,26 @@ export class Tree extends HandlebarsPartial<Tree.CallbackType, Tree.CallbackFunc
               },
               {
                 text: 'Third subitem',
+                value: '14',
                 children: []
               },
             ]
           },
           {
             text: 'Second Item',
+            value: '15',
             children: []
           },
           {
             text: 'Third item',
+            value: '16',
             children: []
           }
         ]
       },
       {
         text: 'Third item',
+        value: '17',
         children: []
       }
     ];
@@ -126,8 +146,12 @@ export class Tree extends HandlebarsPartial<Tree.CallbackType, Tree.CallbackFunc
     return data;
   }
 
-  public activateListeners(/*html: JQuery*/) {
-    console.log('click handlers');
+  public activateListeners(html: JQuery) {
+    html.find('.tree-item').on('click', async (event: JQuery.ClickEvent) => {
+      event.preventDefault();  // stop from expanding
+      const value = event.currentTarget.dataset.value;
+      await this._makeCallback(Tree.CallbackType.ItemClicked, value);
+    });
   }
 }
 
@@ -138,10 +162,11 @@ export namespace Tree {
 
   export type TreeNode = {
     text: string;   // the label
+    value: string;   // a value to be passed up when clicked (ex. a uuid)
     children: TreeNode[];   // the children, if any
   }
 
   export type CallbackFunctionType<C extends CallbackType> = 
-    C extends CallbackType.ItemClicked ? (itemId: string) => Promise<void> :
+    C extends CallbackType.ItemClicked ? (value: string) => Promise<void> :
     never;  
 }

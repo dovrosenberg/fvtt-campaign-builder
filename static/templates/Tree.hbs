@@ -3,14 +3,16 @@
     {{#if children.length}}
       {{>treeNodeWithChildren this}}
     {{else}}
-      {{text}}
+      <div class="tree-item" data-value="{{value}}">{{text}}</div>
     {{/if}}
   </li>
 {{/inline}}
 
 {{#*inline "treeNodeWithChildren"}}
   <details>
-    <summary>{{text}}</summary>
+    <summary>      
+      <div class="tree-item" data-value="{{value}}">{{text}}</div>
+    </summary>
     <ul>
       {{#each children}}
         {{> treeNode}}

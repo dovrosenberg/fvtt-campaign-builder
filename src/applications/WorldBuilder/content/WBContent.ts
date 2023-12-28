@@ -154,6 +154,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
     else {
       this._partials.TypeTypeAhead.activateListeners(html);
       this._partials.DescriptionEditor?.activateListeners(html);
+      this._partials.AncestorTree?.activateListeners(html);
     }
 
     // bind the tabs
@@ -203,6 +204,11 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
     });
     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorClosed, async () => { 
       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
+    });
+
+    // tree node clicked
+    this._partials.AncestorTree.registerCallback(Tree.CallbackType.ItemClicked, async (value: string)=>{
+      alert(value);
     });
   }
 

@@ -1,11 +1,6 @@
-:root {
-
-}
+// https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
 .fwb-tree {
-  // padding: 1em;
-  // margin: 0;
-
   // very first node
   ul.top-node > li {
     &::before, &::after {
@@ -14,8 +9,6 @@
   }
 
   ul {
-    // padding: 0;
-    // margin: 0;
     list-style: none;
     line-height: 2em;   // this makes the horizontal lines centered (when combined with the height on the li::before
 
@@ -42,7 +35,7 @@
         left: -10px;   // pushes them left of the text
         border-left: 2px solid gray;
         content: "";
-        width: 8px;   // controls the length of the horizontal lines
+        width: 10px;   // controls the length of the horizontal lines
       }
 
       &:last-child::after {
@@ -70,7 +63,7 @@
 
   // move the text away from the end of the horizontal lines
   li {
-    padding-left: 2px;
+    padding-left: 3px;
   }
 
   // the top level
