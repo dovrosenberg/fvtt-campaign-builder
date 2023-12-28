@@ -1,57 +1,28 @@
+{{#*inline "treeNode"}}
+  <li>
+    {{#if children.length}}
+      {{>treeNodeWithChildren this}}
+    {{else}}
+      {{text}}
+    {{/if}}
+  </li>
+{{/inline}}
+
+{{#*inline "treeNodeWithChildren"}}
+  <details>
+    <summary>{{text}}</summary>
+    <ul>
+      {{#each children}}
+        {{> treeNode}}
+      {{/each}}
+    </ul>
+  </details>
+{{/inline}}
+
 <div id="{{data.componentId}}" class="fwb-tree">
   <ul class="top-node">
-    <li>
-      <details>
-        <summary>First Item</summary>
-        <ul>
-          <li>First Subitem</li>  {{!-- if no children, insert a li --}}
-          <li>
-            <details>  {{!-- if children, insert a details --}}
-              <summary>Second Subitem</summary>
-              <ul>
-                <li>
-                  <details>
-                    <summary>First 3 Subitem</summary>
-                    <ul>
-                      <li>First 4 Item</li>
-                      <li>Second 4 Item</li>
-                      <li>Third 4 Item</li>
-                    </ul>
-                  </details>
-                </li>
-              </ul>
-            </details>
-          </li>
-          <li>Third Subitem</li>
-        </ul>
-      </details>
-    </li>
-    <li>
-      <details>
-        <summary>Second Item</summary>
-        <ul>
-          <li>First Subitem</li>  {{!-- if no children, insert a li --}}
-          <li>
-            <details>  {{!-- if children, insert a details --}}
-              <summary>Second Subitem</summary>
-              <ul>
-                <li>
-                  <details>
-                    <summary>First 3 Subitem</summary>
-                    <ul>
-                      <li>First 4 Item</li>
-                      <li>Second 4 Item</li>
-                      <li>Third 4 Item</li>
-                    </ul>
-                  </details>
-                </li>
-              </ul>
-            </details>
-          </li>
-          <li>Third Subitem</li>
-        </ul>
-      </details>
-    </li>
-    <li>Third Item</li>
+    {{#each data.topNodes}}
+      {{> treeNode this}}
+    {{/each}}
   </ul>
 </div>
