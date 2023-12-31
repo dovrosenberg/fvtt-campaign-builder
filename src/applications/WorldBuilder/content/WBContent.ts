@@ -99,7 +99,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
         if (hasHierarchy(this._topic)) {
           const pack = getGame().packs.get(this._entry.pack || '');
           if (pack)
-            (this._partials.AncestorTree as Tree).updateTree(getAncestorTree(pack, this._entryId));
+            (this._partials.AncestorTree as Tree).updateTree(await getAncestorTree(pack, this._entry));
         }
       }
     }
