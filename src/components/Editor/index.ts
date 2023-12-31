@@ -19,13 +19,11 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType, Editor.Callba
   private _instance: TextEditor | null;   //the editor 
   private _initialContent: string;   // initial text
 
-  constructor(document: Document<any>, fieldName: string, initialContent: string) {
+  constructor() {
     super();
 
     // we create a random ID so we can use multiple instances
     this._id = 'fwb-editor-' + randomID();
-    this._document = document;
-    this._initialContent = initialContent;
   }
 
   protected _createPartials(): void {
@@ -41,6 +39,11 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType, Editor.Callba
 
     // log(false, data);
     return data;
+  }
+
+  public attachEditor(document: Document<any>, initialContent: string) {
+    this._document = document;
+    this._initialContent = initialContent;
   }
 
   public activateListeners(html: JQuery) {

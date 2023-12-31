@@ -3,7 +3,7 @@ import './Directory.scss';
 import { getGame } from '@/utils/game';
 import { createEntry, createWorldFolder } from '@/compendia';
 import { Topic } from '@/types';
-import { getIcon } from '@/utils/misc';
+import { getIcon, toTopic } from '@/utils/misc';
 
 type DirectoryData = {
   worlds: {
@@ -116,7 +116,7 @@ export class Directory extends HandlebarsPartial<Directory.CallbackType, Directo
       // look for nearest parent and get topic and folder
       const parentHeader = event.currentTarget.closest('.fwb-topic-folder');
       const worldHeader = event.currentTarget.closest('.fwb-world-folder');
-      const topic = parentHeader.dataset.compendiumTopic;
+      const topic = toTopic(parentHeader.dataset.compendiumTopic);
       const worldId = worldHeader.dataset.worldId;
       const worldFolder = getGame().folders?.find((f)=>f.uuid===worldId) as Folder;
 

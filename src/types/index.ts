@@ -17,6 +17,11 @@ export type EntryHeader = {
   icon: string;  // class of icon to display
 }
 
+export type EntrySummary = {
+  uuid: string;   
+  name: string;
+}
+
 export enum Topic {
   None,
   Character,
