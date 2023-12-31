@@ -9,7 +9,7 @@
 {{/inline}}
 
 {{#*inline "treeNodeWithChildren"}}
-  <details>
+  <details {{#if expanded}}open{{/if}}>
     <summary>      
       <div class="tree-item" data-value="{{value}}">{{text}}</div>
     </summary>

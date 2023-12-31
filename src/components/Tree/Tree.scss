@@ -59,6 +59,10 @@
       top: 0.63em;
       z-index: 999;
     }
+
+    details[open] summary::before {
+      content: "-";
+    }
   }
 
   // move the text away from the end of the horizontal lines

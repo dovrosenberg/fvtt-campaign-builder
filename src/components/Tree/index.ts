@@ -5,8 +5,6 @@ export type TreeData = {
   componentId: string,
 }
 
-type TreeNode = Tree.TreeNode;
-
 export class Tree extends HandlebarsPartial<Tree.CallbackType, Tree.CallbackFunctionType<any>> {
   static override _template = 'modules/world-builder/templates/Tree.hbs';
   private _id: string;
@@ -20,119 +18,124 @@ export class Tree extends HandlebarsPartial<Tree.CallbackType, Tree.CallbackFunc
 
     this._topNodes = topNodes;
 
-    this._topNodes = [
-      {
-        text: 'First Item',
-        value: '19',
-        children: [
-          {
-            text: 'First subitem',
-            value: '1',
-            children: []
-          },
-          {
-            text: 'Second subitem',
-            value: '2',
-            children: [
-              {
-                text: 'First 3 subitem',
-                value: '3',
-                children: [
-                  {
-                    text: 'First 4 item',
-                    value: '4',
-                    children: [],
-                  },
-                  {
-                    text: 'Second 4 item',
-                    value: '5',
-                    children: [],
-                  },
-                  {
-                    text: 'Third 4 item',
-                    value: '6',
-                    children: [],
-                  },
-                ]
-              }
-            ]
-          },
-          {
-            text: 'Third subitem',
-            value: '7',
-            children: []
-          },
-        ]
-      },
-      {
-        text: 'Second Item',
-        value: '7',
-        children: [
-          {
-            text: 'First Item',
-            value: '18',
-            children: [
-              {
-                text: 'First subitem',
-                value: '8',
-                children: []
-              },
-              {
-                text: 'Second subitem',
-                value: '9',
-                children: [
-                  {
-                    text: 'First 3 subitem',
-                    value: '10',
-                    children: [
-                      {
-                        text: 'First 4 item',
-                        value: '11',
-                        children: [],
-                      },
-                      {
-                        text: 'Second 4 item',
-                        value: '12',
-                        children: [],
-                      },
-                      {
-                        text: 'Third 4 item',
-                        value: '13',
-                        children: [],
-                      },
-                    ]
-                  }
-                ]
-              },
-              {
-                text: 'Third subitem',
-                value: '14',
-                children: []
-              },
-            ]
-          },
-          {
-            text: 'Second Item',
-            value: '15',
-            children: []
-          },
-          {
-            text: 'Third item',
-            value: '16',
-            children: []
-          }
-        ]
-      },
-      {
-        text: 'Third item',
-        value: '17',
-        children: []
-      }
-    ];
+    // this._topNodes = [
+    //   {
+    //     text: 'First Item',
+    //     value: '19',
+    //     expanded: true,
+    //     children: [
+    //       {
+    //         text: 'First subitem',
+    //         value: '1',
+    //         children: []
+    //       },
+    //       {
+    //         text: 'Second subitem',
+    //         value: '2',
+    //         children: [
+    //           {
+    //             text: 'First 3 subitem',
+    //             value: '3',
+    //             children: [
+    //               {
+    //                 text: 'First 4 item',
+    //                 value: '4',
+    //                 children: [],
+    //               },
+    //               {
+    //                 text: 'Second 4 item',
+    //                 value: '5',
+    //                 children: [],
+    //               },
+    //               {
+    //                 text: 'Third 4 item',
+    //                 value: '6',
+    //                 children: [],
+    //               },
+    //             ]
+    //           }
+    //         ]
+    //       },
+    //       {
+    //         text: 'Third subitem',
+    //         value: '7',
+    //         children: []
+    //       },
+    //     ]
+    //   },
+    //   {
+    //     text: 'Second Item',
+    //     value: '7',
+    //     children: [
+    //       {
+    //         text: 'First Item',
+    //         value: '18',
+    //         children: [
+    //           {
+    //             text: 'First subitem',
+    //             value: '8',
+    //             children: []
+    //           },
+    //           {
+    //             text: 'Second subitem',
+    //             value: '9',
+    //             children: [
+    //               {
+    //                 text: 'First 3 subitem',
+    //                 value: '10',
+    //                 children: [
+    //                   {
+    //                     text: 'First 4 item',
+    //                     value: '11',
+    //                     children: [],
+    //                   },
+    //                   {
+    //                     text: 'Second 4 item',
+    //                     value: '12',
+    //                     children: [],
+    //                   },
+    //                   {
+    //                     text: 'Third 4 item',
+    //                     value: '13',
+    //                     children: [],
+    //                   },
+    //                 ]
+    //               }
+    //             ]
+    //           },
+    //           {
+    //             text: 'Third subitem',
+    //             value: '14',
+    //             children: []
+    //           },
+    //         ]
+    //       },
+    //       {
+    //         text: 'Second Item',
+    //         value: '15',
+    //         children: []
+    //       },
+    //       {
+    //         text: 'Third item',
+    //         value: '16',
+    //         children: []
+    //       }
+    //     ]
+    //   },
+    //   {
+    //     text: 'Third item',
+    //     value: '17',
+    //     children: []
+    //   }
+    // ];
   }
 
   protected _createPartials(): void {
     // no subcomponents
+  }
+
+  public updateTree(topNodes: TreeNode[] ) {
+    this._topNodes = topNodes;
   }
 
   // takes the current value
@@ -155,15 +158,16 @@ export class Tree extends HandlebarsPartial<Tree.CallbackType, Tree.CallbackFunc
   }
 }
 
+export type TreeNode = {
+  text: string;   // the label
+  value: string;   // a value to be passed up when clicked (ex. a uuid)
+  children: TreeNode[];   // the children, if any
+  expanded?: boolean;   // is it expanded
+}
+
 export namespace Tree {
   export enum CallbackType {
     ItemClicked,
-  }
-
-  export type TreeNode = {
-    text: string;   // the label
-    value: string;   // a value to be passed up when clicked (ex. a uuid)
-    children: TreeNode[];   // the children, if any
   }
 
   export type CallbackFunctionType<C extends CallbackType> = 
