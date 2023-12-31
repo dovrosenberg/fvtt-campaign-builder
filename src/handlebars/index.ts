@@ -5,6 +5,7 @@ import { WBContent } from '@/applications/WorldBuilder/content/WBContent';
 import { Directory } from '@/applications/WorldBuilder/directory/Directory';
 import { TypeAhead } from '@/components/TypeAhead';
 import { Editor } from '@/components/Editor';
+import { Tree } from '@/components/Tree';
 
 export function registerHelpers() {
   // create a "constant" helper for passing constants
@@ -24,6 +25,7 @@ export function registerHelpers() {
     // components
     TypeAhead.template,
     Editor.template,
+    Tree.template,
   ];
 
   // @ts-ignore

@@ -13,16 +13,15 @@
   "scripts": {
     "build": "vite build",
     "debug": "vite build --minify=false",
-    "copy": "rm -rf ~/foundryData/Data/modules/world-builder/* && cp -r $(pwd)/dist/* ~/foundryData/Data/modules/world-builder",
-    "linkdata": "ln -s $PWD/dist ~/foundryData/Data/modules/world-builder",
+    "copy": "rm -rf $FOUNDRYVTT_DATA/Data/modules/world-builder/* && cp -r $(pwd)/dist/* $FOUNDRYVTT_DATA/Data/modules/world-builder",
+    "linkdata": "ln -s $PWD/dist $FOUNDRYVTT_DATA/Data/modules/world-builder",
     "tsc": "tsc --noEmit --skipLibCheck",
     "test": "jest",
     "coverage": "jest --coverage",
-    "unlinkdata": "unlink ~/foundryData/Data/modules/world-builder",
+    "unlinkdata": "unlink $FOUNDRYVTT_DATA/Data/modules/world-builder",
     "buildcopy": "npm run build && npm run copy",
-    "foundry": "node ~/foundry/resources/app/main.js",
-    "foundry10": "node ~/foundry10/resources/app/main.js --dataPath=/home/dov/foundry10data",
-    "version": "node ./scripts/increment-version.js"
+    "foundry": "node $FOUNDRYVTT_APP/resources/app/main.js",
+    "foundry10": "node ~/foundry10/resources/app/main.js --dataPath=/home/dov/foundry10data"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",

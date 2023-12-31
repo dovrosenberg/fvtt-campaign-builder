@@ -8,6 +8,8 @@ import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
 import { AnyDocumentData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/data.mjs';
+import { toTopic } from '@/utils/misc';
+import { hasHierarchy } from '@/utils/hierarchy';
 
 // returns the uuid of the root folder
 // if it is not stored in settings, creates a new folder
@@ -154,7 +156,7 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
 }
 
 function getTopicText(topic: Topic): string {
-  switch (typeof topic === 'string' ? parseInt(topic) as Topic : topic) {
+  switch (toTopic(topic)) {
     case Topic.Character: return localize('fwb.topics.character'); 
     case Topic.Event: return localize('fwb.topics.event'); 
     case Topic.Location: return localize('fwb.topics.location'); 
@@ -206,39 +208,48 @@ export async function createEntry(worldFolder: Folder, topic: Topic): Promise<Jo
   let name;
   do {
     name = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
-    
-    if (name) {
-      // create the entry
-      const compendia = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia);
-
-      if (!compendia || !compendia[topic])
-        throw new Error('Missing compendia in createEntry()');
-    
-      // unlock it to make the change
-      const pack = getGame().packs.get(compendia[topic]);
-      if (!pack)
-        throw new Error('Bad compendia in createEntry()');
-    
-      await pack.configure({locked:false});
-    
-      const entry = await JournalEntry.create({
-        name,
-        folder: worldFolder.id,
-      },{
-        pack: compendia[topic],
-      });
-    
-      if (entry)
-        await EntryFlags.set(entry, EntryFlagKey.topic, topic);
-    
-      await pack.configure({locked:true});
-    
-      return entry || null;
-    }
   } while (name==='');  // if hit ok, must have a value
 
-  // if name isn't '' and we're here, then we cancelled the dialog
-  return null;
+  // if name is null, then we cancelled the dialog
+  if (!name)
+    return null;
+
+  // create the entry
+  const compendia = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia);
+
+  if (!compendia || !compendia[topic])
+    throw new Error('Missing compendia in createEntry()');
+
+  // unlock it to make the change
+  const pack = getGame().packs.get(compendia[topic]);
+  if (!pack)
+    throw new Error('Bad compendia in createEntry()');
+
+  await pack.configure({locked:false});
+
+  const entry = await JournalEntry.create({
+    name,
+    folder: worldFolder.id,
+  },{
+    pack: compendia[topic],
+  });
+
+  await pack.configure({locked:true});
+
+  if (entry) {
+    await EntryFlags.set(entry, EntryFlagKey.topic, topic);
+
+    // setup the hierarchy
+    if (hasHierarchy(topic)) {
+      await EntryFlags.set(entry, EntryFlagKey.hierarchy, {
+        parentId: '',
+        ancestors: [],
+        children: [],
+      });
+    }
+  }
+
+  return entry || null;
 }
 
 // makes sure that the entry has all the correct pages
