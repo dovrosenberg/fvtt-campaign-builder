@@ -17,6 +17,10 @@
       padding: 0;
       margin: -0.5em 0 0 0;
 
+      font-family: 'Signika', sans-serif;
+      font-size: var(--font-size-14);
+      font-weight: normal;
+
       // this draws the top-half ot the vertical plus the horizontal tree connector lines
       &::before {
         top: 0px;

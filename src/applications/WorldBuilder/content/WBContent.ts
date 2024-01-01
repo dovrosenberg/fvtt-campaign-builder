@@ -10,7 +10,7 @@ import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { getCleanEntry, updateDocument } from '@/compendia';
 import { Editor, EditorData } from '@/components/Editor';
 import { TreeData, Tree } from '@/components/Tree';
-import { getAncestorTree, hasHierarchy } from '@/utils/hierarchy';
+import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
 
 export type WBContentData = {
   showHomePage: true,
@@ -27,7 +27,7 @@ export type WBContentData = {
   typeAheadTemplate: () => string,
   typeAheadData: TypeAheadData,
   treeTemplate: () => string,
-  ancestorTreeData: TreeData,
+  hierarchyTreeData: TreeData,
   editorTemplate: () => string,
   descriptionData: EditorData,
   namePlaceholder: string,
@@ -58,7 +58,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
     this._partials.HomePage = new HomePage();
     this._partials.TypeTypeAhead = new TypeAhead([]);
     this._partials.DescriptionEditor = new Editor();
-    this._partials.AncestorTree = new Tree([]);
+    this._partials.HierarchyTree = new Tree([]);
   }
 
   public changeWorld(worldId: string): void {
@@ -99,7 +99,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
         if (hasHierarchy(this._topic)) {
           const pack = getGame().packs.get(this._entry.pack || '');
           if (pack)
-            (this._partials.AncestorTree as Tree).updateTree(await getAncestorTree(pack, this._entry));
+            (this._partials.HierarchyTree as Tree).updateTree(await getHierarchyTree(pack, this._entry));
         }
       }
     }
@@ -146,7 +146,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
         editorTemplate: () => Editor.template,
         descriptionData: await (this._partials.DescriptionEditor as Editor)?.getData(),
         treeTemplate: () => Tree.template,
-        ancestorTreeData: await (this._partials.AncestorTree as Tree)?.getData(),
+        hierarchyTreeData: await (this._partials.HierarchyTree as Tree)?.getData(),
         description: this._entry.pages.find((p)=>p.name==='description').text, //TODO: use enum
       };
     }
@@ -162,7 +162,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
     else {
       this._partials.TypeTypeAhead.activateListeners(html);
       this._partials.DescriptionEditor?.activateListeners(html);
-      this._partials.AncestorTree?.activateListeners(html);
+      this._partials.HierarchyTree?.activateListeners(html);
     }
 
     // bind the tabs
@@ -206,7 +206,8 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
       await updateDocument(descriptionPage, {'text.content': newContent });  
 
       //need to reset
-      this._partials.DescriptionEditor =  new Editor(descriptionPage, 'text.content', newContent);
+
+      (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
 
       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
     });
@@ -215,7 +216,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
     });
 
     // tree node clicked
-    this._partials.AncestorTree.registerCallback(Tree.CallbackType.ItemClicked, async (value: string)=>{
+    this._partials.HierarchyTree.registerCallback(Tree.CallbackType.ItemClicked, async (value: string)=>{
       alert(value);
     });
   }

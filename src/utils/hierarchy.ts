@@ -54,10 +54,45 @@ export function validParentItems(pack: CompendiumCollection<any>, entry: Journal
   ).map(mapEntryToSummary);
 }
 
+// get a structure of TreeNode (suitable for passing to a tree) showing the full ancestor history of the passed entry,
+//   the entry itself, and all of the (direct) children of the entry
+// values will be populated with uuid
+export async function getHierarchyTree(pack: CompendiumCollection<any>, entry: JournalEntry): Promise<TreeNode[]> {
+  // first get all the ancestors down to the current entry
+  const ancestorTree = await getAncestorTree(pack, entry);
+
+  // now find the bottom and add the children
+  let node = ancestorTree[0];
+  // note that ancestor tree is only one child per level - it just shows the path from the entry up
+  while (node.children.length!==0) { 
+    node = node.children[0];
+  } 
+
+  // now add all the children, if any
+  const childIds = EntryFlags.get(entry, EntryFlagKey.hierarchy)?.children;
+
+  if (childIds?.length) {
+    const childEntries = await pack.getDocuments({_id__in: childIds});
+
+    node.children = childEntries.map((entry: JournalEntry): TreeNode => {
+      const itemType = EntryFlags.get(entry, EntryFlagKey.type) || '';
+
+      return {
+        text: entry.name + ( itemType ? ' (' + itemType + ')' : ''),
+        value: entry.uuid,
+        children: [],  // we don't want to go further down the tree
+        expanded: false,
+      };
+    });
+  }
+
+  return ancestorTree;
+}
+
 // get a structure of TreeNode (suitable for passing to a tree) showing the full ancestor history of the passed entry
 export async function getAncestorTree(pack: CompendiumCollection<any>, entry: JournalEntry): Promise<TreeNode[]> {
   // build the tree structure 
-  const addNode = function(entryToAdd: JournalEntry): TreeNode | null {
+  const addNode = function(entryToAdd: JournalEntry): TreeNode {
     const children = [] as TreeNode[];
 
     // if we're on the current node, we don't want to add its children (because we don't show it in descendent trees)
@@ -76,6 +111,7 @@ export async function getAncestorTree(pack: CompendiumCollection<any>, entry: Jo
       text: entryToAdd.name + ( itemType ? ' (' + itemType + ')' : ''),
       value: entryToAdd.uuid,
       children: children,
+      expanded: (entryToAdd.uuid!==entry.uuid),  // don't expand the current node
     };
   };  
 
@@ -83,31 +119,27 @@ export async function getAncestorTree(pack: CompendiumCollection<any>, entry: Jo
   let retval = [] as TreeNode[];
   const ancestors = await ancestorItems(pack, entry);
 
-  // loop over all of the ancestors to find the top one
-  for (let i=0; i<Object.values(ancestors).length; i++) {
-    const currentItem = Object.values(ancestors)[i];
-    const parentId = EntryFlags.get(currentItem, EntryFlagKey.hierarchy)?.parentId;
+  if (Object.keys(ancestors).length>0) {
+    // loop over all of the ancestors to find the top one
+    for (let i=0; i<Object.values(ancestors).length; i++) {
+      const currentItem = Object.values(ancestors)[i];
+      const parentId = EntryFlags.get(currentItem, EntryFlagKey.hierarchy)?.parentId;
 
-    // if it has no parent, it's the top node, so we start there and build the tree
-    // but if it's also the current node, then there is no parent, so we shouldn't show a tree at all (i.e. we just return the current [] value)
-    if (!parentId && currentItem.uuid !== entry.uuid) {
-      const node = addNode(currentItem);
-      if (node) {
-        retval = [{
-          ...node,
-          expanded: true,  // default them all to expanded
-        }];
+      // if it has no parent, it's the top node, so we start there and build the tree
+      if (!parentId) {
+        retval = [addNode(currentItem)];
+
+        // there's only one top, so we're done
+        break;
       }
-
-      // there's only one top, so we're done
-      break;
     }
+  } else {
+    // just add the entry
+    retval = [addNode(entry)];
   }
 
   return retval;
 }
-
-
 
 const mapEntryToSummary = (entry: JournalEntry): EntrySummary => ({
   name: entry.name || '',
