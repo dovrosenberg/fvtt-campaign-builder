@@ -8,6 +8,7 @@ import * as fsPromises from 'fs/promises';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs';
 import { defineConfig, Plugin } from 'vite';
+import vue from '@vitejs/plugin-vue';
 
 // to get the verison number
 import npmPackage from './package.json';
@@ -43,6 +44,7 @@ export default defineConfig({
       ],
       hook: 'writeBundle',
     }),
+    vue(),
     scss({
       output: 'styles/style.css',
       sourceMap: true,

@@ -1,11 +1,11 @@
-import { WorldBuilder } from './WorldBuilder';
-export { WorldBuilder } from './WorldBuilder';
+import { OldWorldBuilder } from './OldWorldBuilder';
+export { OldWorldBuilder } from './OldWorldBuilder';
 
 // the solo instance
-export let worldBuilder: WorldBuilder;
+export let oldWorldBuilder: OldWorldBuilder;
 
 // set the main application; should only be called once
-export function updateWorldBuilder(newWorldBuilder: WorldBuilder): void {
-  worldBuilder = newWorldBuilder;
+export function updateWorldBuilder(newWorldBuilder: OldWorldBuilder): void {
+  oldWorldBuilder = newWorldBuilder;
 }
 

@@ -32,6 +32,7 @@
     "@types/lodash": "^4.14.202",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "@vitejs/plugin-vue": "^5.0.5",
     "css-loader": "^6.4.0",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
@@ -54,8 +55,12 @@
     "style-loader": "^3.3.0",
     "ts-jest": "^29.1.1",
     "ts-loader": "^9.2.6",
-    "vite": "^2.7.2",
+    "vite": "^5.2.0",
     "vite-plugin-env-compatible": "^1.1.1",
     "vite-plugin-html": "3.2.0"
+  },
+  "dependencies": {
+    "quasar": "^2.16.4",
+    "vue": "^3.4.31"
   }
 }

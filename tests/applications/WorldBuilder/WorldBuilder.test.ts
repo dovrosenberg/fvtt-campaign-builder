@@ -1,4 +1,4 @@
-import { WorldBuilder } from '@/applications/WorldBuilder/WorldBuilder.ts';
+import { OldWorldBuilder } from 'src/applications/WorldBuilder/OldWorldBuilder';
 
 jest.mock('@/settings/UserFlags.ts', () => {
   const originalModule = jest.requireActual('@/settings/UserFlags.ts');
@@ -30,13 +30,13 @@ jest.mock('@/applications/WorldBuilder/WBHeader.ts', () => {
 });
 
 
-describe('WorldBuilder', () => {
-  let worldBuilder: WorldBuilder;
+describe('OldWorldBuilder', () => {
+  let worldBuilder: OldWorldBuilder;
 
   beforeEach(() => {
     // Clear all instances and calls to constructor and all methods
     jest.clearAllMocks();
-    worldBuilder = new WorldBuilder('rootid', 'worldid');
+    worldBuilder = new OldWorldBuilder('rootid', 'worldid');
   });
 
   describe('constructor', () => {
