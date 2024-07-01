@@ -1,3 +1,5 @@
+export type * from './injection';
+
 export type WindowTab = {
   id: string;   // unique id
   active: boolean;   // is this the currently active tab

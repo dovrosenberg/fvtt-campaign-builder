@@ -20,14 +20,25 @@ const { ApplicationV2 } = foundry.applications.api;
 
 export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = foundry.utils.mergeObject(super.DEFAULT_OPTIONS, {
-    id: `app-${moduleJson.id}-VueExamples`,
+    id: `app-${moduleJson.id}-WorldBuilder`,
+    classes: ['fwb-main-window'], 
     window: {
-      title: `${moduleJson.id}.title`,
-      icon: 'fa-solid fa-triangle-exclamation'
+      title: 'fwb.title',
+      icon: 'fa-solid fa-triangle-exclamation',
+      resizable: true,
+      // popOut: true,
+      // editable: true,
+      // //viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
+      // scrollY: ['ol.fwb-world-list']
     },
     position: {
-      width: 880,
-      height: 'auto'
+      width: 1025,
+      height: 700,
+    },
+    form: {
+      closeOnSubmit: false,
+      submitOnChange: true,
+      // submitOnClose: false,
     },
     actions: {}
   }, { inplace: false });
@@ -41,8 +52,6 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
       id: 'app',
       component: App,
       props: {
-        title: 'sample title',
-        content: 'initial content',
       }
       // use: {
       //   'quasar': { plugin: Quasar }
