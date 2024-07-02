@@ -3,7 +3,8 @@
     :class="'fwb flexrow ' + collapsed ? 'collapse' : ''"
   >
     <section class="fwb-body flexcol">
-      <WBHeader WBHeaderData 
+      <WBHeader 
+        worldId=""
       />
       <!-- <div class="fwb-content flexcol editable">
         {{> (WBContent) WBContentData }}
@@ -12,7 +13,9 @@
     -->
     </section>
     <div id="fwb-directory-sidebar">
-      <!--{{> (Directory) data=DirectoryData currentWorld=worldFolder.uuid }} -->
+      <Directory 
+        worldFolderId=worldFolder.uuid 
+      />
     </div> 
   </div>
 </template> 
