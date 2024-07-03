@@ -49,7 +49,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
 
   static PARTS = {
     app: {
-      id: 'app',
+      id: 'fwb-app',
       component: App,
       props: {
       }

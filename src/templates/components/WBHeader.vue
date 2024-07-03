@@ -6,17 +6,16 @@
     <div class="fwb-tab-bar flexrow">
       <div class="fwb-tab-row flexrow">
         <div v-for="tab in tabs"
-          :class="'fwb-tab flexrow' + active ? 'active' : ''" 
-          :title="entry.name" 
-          :data-tab-id="id"
-          @click="onTabClick(id)"
+          :class="'fwb-tab flexrow' + (active ? 'active' : '')" 
+          :title="tab.entry.name" 
+          @click="onTabClick(tab.id)"
         >
-          <div v-if="entry.icon"
+          <div v-if="tab.entry.icon"
             class="fwb-tab-icon"
           >
-            <i :class="'fas ' + entry.icon"></i>
+            <i :class="'fas ' + tab.entry.icon"></i>
           </div>
-          <div class="tab-content">{{entry.name}}</div>
+          <div class="tab-content">{{tab.entry.name}}</div>
           <div 
             class="close"
             @click="onTabCloseClick"
@@ -38,7 +37,7 @@
         :data-tooltip="collapsed ? localize('fwb.tooltips.expandDirectory') : localize('fwb.tooltips.collapseDirectory')"
         @click="onSidebarToggleClick"
       >
-        <i :class="fas + collapsed ? 'fa-caret-left' : 'fa-caret-right'"></i>
+        <i :class="'fas ' + (collapsed ? 'fa-caret-left' : 'fa-caret-right')"></i>
       </div>
     </div>
 
@@ -54,18 +53,28 @@
       <div 
         v-for="bookmark in bookmarks"
         class="fwb-bookmark-button" 
-        title="{{entry.name}}" 
-        data-bookmark-id="{{id}}"
-        @click="onBookmarkClick"
+        :title="bookmark.entry.name" 
+        @click="onBookmarkClick(bookmark.id)"
       >
-        <div><i :class="'fas '+ entry.icon"></i> {{entry.name}}</div>
+      <div v-if="tab.entry.icon"
+            class="fwb-tab-icon"
+          >
+            <i :class="'fas ' + tab.entry.icon"></i>
+          </div>
+
+        <div>
+          <i v-if="bookmark.entry.icon"
+            :class="'fas '+ bookmark.entry.icon"
+          ></i> 
+          {{bookmark.entry.name}}
+        </div>
       </div>
     </div>
 
     <div class="navigation flexrow">
       <div 
         id="fwb-history-back" 
-        :class="'nav-button ' + canBack ? '' : 'disabled'" 
+        :class="'nav-button ' + (canBack ? '' : 'disabled')" 
         :title="localize('fwb.tooltips.historyBack')"
         @click="onHistoryBackClick"
       >
@@ -73,14 +82,14 @@
       </div>
       <div 
         id="fwb-history-forward" 
-        :class="'nav-button ' + canForward ? '' : 'disabled'" 
+        :class="'nav-button ' + (canForward ? '' : 'disabled')" 
         :title="localize('fwb.tooltips.historyForward')"
         @click="onHistoryForwardClick"
       >
         <i class="fas fa-chevron-right"></i>
       </div>
-      <hr class="vertical" />
-      <div class="button-group flexrow" id="journal-buttons"></div>
+      <!--<hr class="vertical" />
+      <div class="button-group flexrow" id="journal-buttons"></div>-->
     </div>
   </header>
 </template> 
@@ -115,6 +124,9 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'entryChanged', newUuid: string | null): void,
+  }>();
 
   ////////////////////////////////
   // store
@@ -229,8 +241,7 @@
     if (entry.uuid)
       await updateRecent(entry);
 
-    // TODO: convert to emit
-    // await this._makeCallback(WBHeader.CallbackType.EntryChanged, entry.uuid);
+    emit('entryChanged', entry.uuid);
 
     return tab;
   }
@@ -263,7 +274,6 @@
 
     // TODO - emit
     //   await this._makeCallback(WBHeader.CallbackType.EntryChanged, newTab.entry.uuid);
-    // await this._makeCallback(WBHeader.CallbackType.TabsChanged);
     return;
   }
 
@@ -303,10 +313,7 @@
 
     tab.historyIdx = newSpot;
     await openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
-
-    // TODO - emit
-    // await this._makeCallback(WBHeader.CallbackType.HistoryMoved);
-  }
+}
 
   // remove the tab given by the id from the list
   const closeTab = async function (tabId: string) {
@@ -330,9 +337,6 @@
         await activateTab(tabs.value[index-1].id);  // will also save them
       }
     }
-
-    // TODO - emit
-    //await this._makeCallback(WBHeader.CallbackType.TabsChanged);
   }
 
   // removes the bookmark with given id
@@ -341,9 +345,6 @@
     bookmarksValue.findSplice(b => b.id === id);
     bookmarks.value = bookmarksValue;
     await saveBookmarks();
-
-    // TODO = emit
-    //await this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
   }
 
   const activateDragDrop = function () {
@@ -422,14 +423,9 @@
     bookmarks.value.push(bookmark);
 
     await saveBookmarks();
-
-    // TODO - make this an emit (though might not be needed any more?)
-    //await this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
   }
 
-  const onBookmarkClick = async (event: JQuery.ClickEvent) => { 
-    const bookmarkId = (event.currentTarget as HTMLElement).dataset.bookmarkId as string;
-
+  const onBookmarkClick = async (bookmarkId: string) => { 
     const bookmark = bookmarks.value.find(b => b.id === bookmarkId);
 
     if (bookmark) {
@@ -439,9 +435,6 @@
 
   const onSidebarToggleClick = async () => { 
     updateCollapsed(!collapsed);  
-
-    // TODO - emit... actually shouldn't need it because updateCollapsed should handle it
-    // await this._makeCallback(WBHeader.CallbackType.SidebarToggled); 
   };
 
   const onAddTabClick = async () => { await openEntry(); };
@@ -527,9 +520,6 @@
 
       // save bookmarks (we don't activate anything)
       await saveBookmarks();
-
-      // TODO - emit
-      //await this._makeCallback(WBHeader.CallbackType.BookmarksChanged);
     } else {
       return false;
     } 
@@ -783,94 +773,94 @@
     color: var(--mej-header-nav-color);
     background: var(--mej-header-nav-background);
     padding: 2px;
-  }
 
-  .navigation hr.vertical {
-    height: 100%;
-    width: 1px;
-    border-right: 2px groove var(--mej-header-nav-vertical-line);
-    flex: 0 0 1px;
-    margin: 0px 2px;
-  }
+    hr.vertical {
+      height: 100%;
+      width: 1px;
+      border-right: 2px groove var(--mej-header-nav-vertical-line);
+      flex: 0 0 1px;
+      margin: 0px 2px;
+    }
 
-  .navigation .button-group {
-    justify-content: flex-end;
-    flex-wrap: nowrap;
-  }
+    .button-group {
+      justify-content: flex-end;
+      flex-wrap: nowrap;
+    }
 
-  .navigation .nav-button {
-    flex: 0 0 24px;
-    text-align: center;
-    line-height: 24px;
-    font-size: 14px;
-    margin-right: 4px;
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    border: 1px solid var(--mej-header-nav-btn-border);
-    margin-top: 1px;
-    background: var(--mej-header-nav-btn-background);
-  }
+    .nav-button {
+      flex: 0 0 24px;
+      text-align: center;
+      line-height: 24px;
+      font-size: 14px;
+      margin-right: 4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: 1px solid var(--mej-header-nav-btn-border);
+      margin-top: 1px;
+      background: var(--mej-header-nav-btn-background);
+    }
 
-  .navigation .nav-button:not(.disabled):hover {
-    box-shadow: 0 0 5px red;
-    cursor: pointer;
-    background: var(--mej-header-nav-btn-background-hover);
-  }
+    .nav-button:not(.disabled):hover {
+      box-shadow: 0 0 5px red;
+      cursor: pointer;
+      background: var(--mej-header-nav-btn-background-hover);
+    }
 
-  .navigation .nav-button.disabled {
-    color: var(--mej-header-nav-btn-disabled);
-    background: var(--mej-header-nav-btn-background-disabled);
-    border-color: var(--mej-header-nav-btn-border-disabled);
-  }
+    .nav-button.disabled {
+      color: var(--mej-header-nav-btn-disabled);
+      background: var(--mej-header-nav-btn-background-disabled);
+      border-color: var(--mej-header-nav-btn-border-disabled);
+    }
 
-  .navigation .nav-input {
-    margin-right: 4px !important;
-    margin-top: 1px;
-    height: 25px !important;
-    border-radius: 4px;
-    flex: 0 0 200px;
-    border: 1px solid var(--mej-header-nav-input-border);
-    background: var(--mej-header-nav-input-background);
-    color: var(--mej-header-nav-input-color);
-  }
+    .nav-input {
+      margin-right: 4px !important;
+      margin-top: 1px;
+      height: 25px !important;
+      border-radius: 4px;
+      flex: 0 0 200px;
+      border: 1px solid var(--mej-header-nav-input-border);
+      background: var(--mej-header-nav-input-background);
+      color: var(--mej-header-nav-input-color);
+    }
 
-  .navigation .nav-input::placeholder {
-    color: var(--mej-header-nav-input-placeholder-color);
-  }
+    .nav-input::placeholder {
+      color: var(--mej-header-nav-input-placeholder-color);
+    }
 
-  .navigation .nav-input:focus {
-    background: var(--mej-header-nav-input-focus-background);
-    border: 1px solid var(--mej-header-nav-input-focus-border);
-    color: var(--mej-header-nav-input-focus-color);
-  }
+    .nav-input:focus {
+      background: var(--mej-header-nav-input-focus-background);
+      border: 1px solid var(--mej-header-nav-input-focus-border);
+      color: var(--mej-header-nav-input-focus-color);
+    }
 
-  .navigation .nav-text {
-    flex-shrink: 1;
-    flex-basis: auto;
-    flex-grow: 0;
-    padding: 4px;
-    font-size: 12px;
-    line-height: 10px;
-  }
+    .nav-text {
+      flex-shrink: 1;
+      flex-basis: auto;
+      flex-grow: 0;
+      padding: 4px;
+      font-size: 12px;
+      line-height: 10px;
+    }
 
-//  .navigation .title input {
-  //  font-size: 18px;
-   // text-align: center;
-  //  border: 0px;
- //   background: transparent;
-//  }
+  //  .title input {
+    //  font-size: 18px;
+    // text-align: center;
+    //  border: 0px;
+  //   background: transparent;
+  //  }
 
-  .navigation .search.error {
-    background-color: var(--mej-header-nav-input-error-background);
-  }
+    .search.error {
+      background-color: var(--mej-header-nav-input-error-background);
+    }
 
-  .navigation .button-group .nav-text i.fa-search {
-    padding-top: 4px;
-  }
+    .button-group .nav-text i.fa-search {
+      padding-top: 4px;
+    }
 
-  .navigation #context-menu li {
-    text-align: left;
+    #context-menu li {
+      text-align: left;
+    }
   }
 }
 </style>

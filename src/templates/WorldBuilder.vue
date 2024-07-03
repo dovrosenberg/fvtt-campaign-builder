@@ -1,20 +1,21 @@
 <template>
   <div 
-    :class="'fwb flexrow ' + collapsed ? 'collapse' : ''"
+    :class="'fwb flexrow ' + (collapsed ? 'collapse' : '')"
   >
     <section class="fwb-body flexcol">
       <WBHeader 
-        worldId=""
+        :worldId="worldFolder?.uuid"
       />
-      <!-- <div class="fwb-content flexcol editable">
-        {{> (WBContent) WBContentData }}
+      <div class="fwb-content flexcol editable">
+        <WBContent :currentEntryUuid="currentEntryUuid" />
       </div>
-      {{> (WBFooter) WBFooterData }}
+      <!--{{> (WBFooter) WBFooterData }}
     -->
     </section>
     <div id="fwb-directory-sidebar">
       <Directory 
-        worldFolderId=worldFolder.uuid 
+        :rootFolder="rootFolder"
+        :worldFolderId="worldFolder?.uuid"
       />
     </div> 
   </div>
@@ -26,19 +27,23 @@
 
   // local imports
   import { getGame, localize } from '@/utils/game';
-  import { validateCompendia } from '@/compendia';
+  import { getDefaultFolders, getRootFolder, validateCompendia } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 
   // library components
 
   // local components
   import WBHeader from '@/templates/components/WBHeader.vue';
+  import WBContent from '@/templates/components/WBContent.vue';
+  import Directory from '@/templates/components/Directory.vue';
 
   // types
   import { CollapsedInjectionKeyType } from '@/types';
   
   ////////////////////////////////
   // props
+  const props = defineProps({
+  });
 
   ////////////////////////////////
   // emits
@@ -47,6 +52,8 @@
   // data
   const collapsed = ref<boolean>(true);
   const worldFolder = ref<Folder | null>(null);  // the current world folder
+  const currentEntryUuid = ref<string | null>(null);
+  const rootFolder = ref<Folder | null>(null);
 
   ////////////////////////////////
   // provides
@@ -72,15 +79,26 @@
 
   ////////////////////////////////
   // event handlers
+  const onHeaderEntryChanged = async (newEntryId: string) => {
+    currentEntryUuid.value = newEntryId;
+  }
+  
 
   ////////////////////////////////
   // watchers
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(() => {
+  onMounted(async () => {
     collapsed.value = moduleSettings.get(SettingKey.startCollapsed) || false;
-  })
+
+    const folders = await getDefaultFolders();
+
+    if (folders) {
+      rootFolder.value = folders.rootFolder;
+      worldFolder.value = folders.worldFolder;
+    }
+  });
 
   // we need the construction to be asynchronous so that we can wait for it all to complete prior to doing the first render
   // this doesn't return until all of the partials are fully ready to render
@@ -104,19 +122,6 @@
   // public activateListeners(html: JQuery<HTMLElement>): void {
   //   super.activateListeners(html);
 
-  //   Object.values(this._partials).forEach((p: HandlebarsPartial<any, any>) => { 
-  //     p.activateListeners(html); 
-  //   });
-
-  //   // setup component listeners
-  //   this._partials.WBHeader.registerCallback(WBHeader.CallbackType.TabsChanged, ()=> { void this.render(); });
-  //   this._partials.WBHeader.registerCallback(WBHeader.CallbackType.BookmarksChanged, ()=> { void this.render(); });
-  //   this._partials.WBHeader.registerCallback(WBHeader.CallbackType.SidebarToggled, ()=> { void this.render(); });
-  //   this._partials.WBHeader.registerCallback(WBHeader.CallbackType.HistoryMoved, ()=> { void this.render(); });
-
-  //   // when the content needs to be updated
-  //   this._partials.WBHeader.registerCallback(WBHeader.CallbackType.EntryChanged, async (entryId) => { await (this._partials.WBContent as WBContent).updateEntry(entryId); await this.render();});
-
   //   // recent item clicked - open it in current tab
   //   this._partials.WBContent.registerCallback(WBContent.CallbackType.RecentClicked, (uuid: string) => { void (this._partials.WBHeader as WBHeader).openEntry(uuid, { newTab: false }); });
 
@@ -124,11 +129,6 @@
   //   this._partials.WBContent.registerCallback(WBContent.CallbackType.NameChanged, async (entry: JournalEntry) => { 
   //     // let the header know
   //     await (this._partials.WBHeader as WBHeader).changeEntryName(entry);
-  //     await this.render(); 
-  //   });
-
-  //   // rerender 
-  //   this._partials.WBContent.registerCallback(WBContent.CallbackType.ForceRerender, async () => { 
   //     await this.render(); 
   //   });
 
@@ -161,24 +161,6 @@
   // }
 
 
-
-  // public async render(force?: boolean, options = {}) {
-  //   const retval = await super.render(force, options);
-
-  //   // if (setting('background-image') != 'none') {
-  //   //     $(this.element).attr("background-image", setting('background-image'));
-  //   // } else {
-  //   //     $(this.element).removeAttr("background-image");
-  //   // }
-
-  //   // if (setting('sidebar-image') != 'none') {
-  //   //     $(this.element).attr("sidebar-image", setting('sidebar-image'));
-  //   // } else {
-  //   //     $(this.element).removeAttr("sidebar-image");
-  //   // }
-
-  //   return retval;
-  // }
 
   // private _onDirectoryEntrySelected(entryId: string, newTab: boolean): void { 
   //   void (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: newTab}); 

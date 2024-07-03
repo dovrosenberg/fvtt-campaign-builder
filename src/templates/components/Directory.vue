@@ -1,6 +1,8 @@
 <template>
   <!-- The overall directory sidebar -->
-  <section id="fwb-directory" class="{{data.cssClass}} tab flexcol journal-directory" data-tab="journal">
+  <section id="fwb-directory" 
+    class="tab flexcol journal-directory" 
+  >
     <!-- Directory Header -->
     <header class="directory-header">
       <div class="header-search flexrow">
@@ -85,8 +87,8 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed } from 'vue';
-  import { getGame } from '@/utils/game';
+  import { ref, computed, watch, toRaw } from 'vue';
+  import { getGame, localize } from '@/utils/game';
   import { createEntry, createWorldFolder } from '@/compendia';
   import { Topic } from '@/types';
   import { getIcon, toTopic } from '@/utils/misc';
@@ -133,11 +135,11 @@
   const expandedCompendia = ref<Record<string, boolean>>({});  // basically a list of compendium uuid that are expanded (collapsed by default); if false or not in here, it's expanded
   const world = ref<{name: string, id: string} | null>(null);
   
-
   ////////////////////////////////
   // computed data
-  const worlds = computed(() => (
-    rootFolder.children.map((world)=> ({
+  const worlds = computed(() => {
+    return (
+    (toRaw(props.rootFolder) as Folder)?.children?.map((world)=> ({
       name: world.folder.name,
       id: world.folder.uuid,
       compendia: world.entries.map((compendium)=>({
@@ -145,14 +147,14 @@
         id: compendium.metadata.id,
         topic: compendium.config.topic,
         icon: getIcon(compendium.config.topic),
-        collapsed: !expandedCompendia[compendium.metadata.id],
-        entries: compendium.tree.entries.map((entry)=> ({
+        collapsed: !expandedCompendia.value[compendium.metadata.id],
+        entries: compendium.tree?.entries?.map((entry)=> ({
           name: entry.name,
           uuid: entry.uuid,
-        }))
-      }))
-    })),
-  ));
+        })) || [],
+      })),
+    })) || []
+  )});
 
   ////////////////////////////////
   // methods
@@ -188,7 +190,7 @@
   const onCollapseAllClick = (event: JQuery.ClickEvent) => {
     event.stopPropagation();
 
-    this._expandedCompendia = {};
+    expandedCompendia.value = {};
     jQuery('.fwb-topic-folder').addClass('collapsed');
   };
 
@@ -199,7 +201,8 @@
     const world = await createWorldFolder(true);
     if (world) {
       // rerender
-      await this._makeCallback(Directory.CallbackType.WorldSelected, world.uuid);
+      // TODO - emit
+      // await this._makeCallback(Directory.CallbackType.WorldSelected, world.uuid);
     }
   }
 
@@ -235,7 +238,6 @@
 
   ////////////////////////////////
   // lifecycle events
-
 
 </script>
 

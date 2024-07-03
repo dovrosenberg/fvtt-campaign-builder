@@ -1,0 +1,1649 @@
+<template>
+  <!-- {{! Requires:l
+    WBContentData: {
+    showHomePage: boolean;   // should we show the home page (vs. regular content)
+    homePageTemplate: function that returns the template name
+    homePageData: HomePageData
+
+    // if showHomePage is false:
+    icon
+    entry
+    }
+  }} -->
+
+  <section class="sheet journal-sheet journal-entry-page fwb-journal-sheet">
+    content
+    <!-- NOTE: THIS WAS A DYNAMIC COMPONENT...-->
+    
+    <!-- <HomePageTemplate v-if="showHomePage"
+      homePageData 
+    />
+    <form v-else
+      class="flexcol journal-subsheet {{topic}}" editable="{{editable}}"
+    >
+      <div class="sheet-container detailed flexcol">
+        <header class="journal-sheet-header flexrow">
+          <div class="sheet-image">
+            <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }">
+          </div>
+          <section class="header-details fwb-content-header">
+            <h1 class="header-name flexrow">
+              <i class="fas {{icon}} sheet-icon"></i>
+              <input id="fwb-input-name" name="name" type="text" value="{{entry.name}}" placeholder="{{namePlaceholder}}">
+            </h1>
+            <div class="form-group fwb-content-header">
+              <label>{{localize 'fwb.labels.fields.type'}}</label>
+              {{> (typeAheadTemplate) data=typeAheadData name=(constant "flags.fwb.type") value=entry.flags.world-builder.type }}
+            </div>
+
+            {{#if showHierarchy}}
+              <div class="form-group fwb-content-header">
+                {{!--<label>{{localize 'fwb.labels.fields.type'}}</label>--}}
+                {{> (treeTemplate) data=hierarchyTreeData }}
+              </div>
+            {{/if}}
+            {{!-- <div class="form-group">
+              <label>{{localize 'MonksEnhancedJournal.Role'}}</label>
+              <input type="text" name="flags.monks-enhanced-journal.role" value="{{data.flags.monks-enhanced-journal.role}}" />
+            </div>
+            <div class="form-group">
+              <label>{{localize 'MonksEnhancedJournal.Location'}}</label>
+              <input type="text" name="flags.monks-enhanced-journal.location" value="{{data.flags.monks-enhanced-journal.location}}" />
+            </div> --}}
+          </section>
+        </header>
+        <nav class="sheet-navigation tabs" data-group="primary">
+          <a class="item" data-tab="description">{{localize 'fwb.labels.tabs.description'}}</a>
+          <a class="item" data-tab="entry-details">{{localize 'fwb.labels.tabs.details'}}</a>
+          {{#each relationships}}
+            <a class="item" data-tab="{{tab}}">{{localize label}}</a>
+          {{/each}}
+        </nav>
+        <section class="fwb-tab-body">
+          <div class="tab description" data-group="primary" data-tab="description">
+            <div class="tab-inner flexcol">
+              {{> (editorTemplate) data=descriptionData }}
+            </div>
+          </div>
+          <div class="tab entry-details" data-group="primary" data-tab="entry-details">
+            <div class="tab-inner flexcol">
+            {{!--
+              <div class="details-section flexrow">
+                <div class="document-details">
+                  <ul>
+                    {{#each fields}}
+                    {{#unless this.full}}
+                    <li {{#if this.hidden}} style="display:none;" {{/if}}>
+                      <label>{{localize this.name}}</label>
+                      <input type="text" name="flags.monks-enhanced-journal.attributes.{{this.id}}.value" value="{{ this.value }}" />
+                    </li>
+                    {{/unless}}
+                    {{/each}}
+                  </ul>
+                </div>
+              </div>
+              <div class="details-section scrollable flexcol">
+                {{#each fields}}
+                {{#if this.full}}
+                <div class="form-group" {{#if this.hidden}} style="display:none;" {{/if}}>
+                  <label>{{localize this.name}}</label>
+                  <textarea name="flags.monks-enhanced-journal.attributes.{{this.id}}.value">{{this.value}}</textarea>
+                </div>
+                {{/if}}
+                {{/each}}
+              </div>--}}
+            </div>
+          </div>
+          <div class="tab relationships" data-group="primary" data-tab="relationships">
+            <div class="tab-inner flexcol">
+              <div class="relationships flexrow">
+                <div class="items-list">
+                  <ol class="item-list">
+                    {{#each relationships}}
+                    <li class="item-header flexrow">
+                      <h3 class="item-name noborder flexrow">{{this.name}}</h3>
+                      <h3 class="item-name noborder flexrow">{{localize 'MonksEnhancedJournal.Relationship'}}</h3>
+                      {{#if @root.owner}}<div class="item-controls flexrow" buttons="2"></div>{{/if}}
+                    </li>
+                    {{#each documents}}
+                    <li class="item flexrow" data-id="{{this.id}}" data-uuid="{{this.uuid}}" data-container="relationships" data-document="JournalEntry" draggable="false">
+                      <div class="item-name clickable flexrow">
+                        <img class="item-image large actor-icon" src="{{this.img}}" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/{{this.type}}.png' }" />
+                        <h4><a>{{#if this.pack}}<i class="fas fa-atlas" title="{{localize 'MonksEnhancedJournal.FromCompendium'}}"></i> {{/if}}{{this.name}}</a></h4>
+                      </div>
+
+                      <div class="item-name item-relationship flexrow">
+                        <input type="text" class="item-field" name="relationships.{{this.id}}.relationship" value="{{this.relationship}}" />
+                      </div>
+
+                      {{#if @root.owner}}
+                      <div class="item-controls flexrow owner" buttons="2">
+                        <input type="checkbox" name="relationships.{{this.id}}.hidden" {{checked this.hidden}} style="display:none;" />
+                        <a class="item-control item-hide" title="{{localize 'MonksEnhancedJournal.HideShowRelationship'}}"><i class="fas fa-eye-slash"></i></a>
+                        <a class="item-control item-delete" title="{{localize 'MonksEnhancedJournal.RemoveRelationship'}}"><i class="fas fa-trash"></i></a>
+                      </div>
+                      {{/if}}
+                    </li>
+                    {{/each}}
+                    {{else}}
+                    {{#if owner}}
+                    <li class="instruction">{{localize 'MonksEnhancedJournal.msg.DragToMakeRelationship'}}</li>
+                    {{else}}
+                    <li class="instruction">{{localize 'MonksEnhancedJournal.msg.NoRelationshipsAtTheMoment'}}</li>
+                    {{/if}}
+                    {{/each}}
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab offerings" data-group="primary" data-tab="offerings">
+            <div class="tab-inner flexcol">
+              <div class="offering-list">
+                <div class="items-list">
+                  <div class="item-header flexrow">
+                    <h3 class="item-name noborder flexrow">Actor</h3>
+                    <h3 class="item-name noborder flexrow">Items</h3>
+                    <h3 class="item-detail noborder flexrow">Status</h3>
+
+                    {{#if @root.owner}}
+                    <div class="item-controls flexrow" buttons="2">
+                    </div>
+                    {{/if}}
+                    <div class="item-controls flexrow" buttons="2">
+                      <a class="item-control make-offering" title="{{localize 'MonksEnhancedJournal.MakeOffering'}}"><i class="fas fa-hand-holding-usd"></i></a>
+                    </div>
+                  </div>
+                  <ol class="item-list">
+                    {{#each offerings}}
+                    <li class="item flexrow{{#if this.done}} complete{{/if}}" data-id="{{this.id}}" data-actor-id="{{this.actorId}}" data-container="offerings" draggable="false">
+                      <div class="item-name flexrow">
+                        <img class="item-image actor-icon" src="{{this.img}}" />
+                        <span>{{this.name}}</span>
+                      </div>
+
+                      <div class="item-name item-offered flexcol">
+                        {{#each this.items}}
+                        <div class="flexrow" style="width: 100%; line-height: 32px;">
+                          <img class="item-image item-icon" src="{{this.img}}" onerror="if ($(this).attr('src') != 'icons/svg/item-bag.svg') { $(this).attr('src', 'icons/svg/item-bag.svg'); }" />
+                          <span class="tag">{{{this.name}}}</span>
+                        </div>
+                        {{/each}}
+                      </div>
+
+                      <div class="item-detail item-offered">
+                        {{this.stateName}}
+                      </div>
+
+                      {{#if @root.owner}}
+                        <div class="item-controls flexrow owner" buttons="2">
+                          {{#if (eq this.state "offering")}}
+                            <a class="item-control item-accept" title="{{localize 'MonksEnhancedJournal.AcceptOffering'}}"><i class="fas fa-check"></i></a>
+                            <a class="item-control item-reject" title="{{localize 'MonksEnhancedJournal.RejectOffering'}}"><i class="fas fa-times"></i></a>
+                          {{/if}}
+                        </div>
+
+                        <div class="item-controls flexrow owner" buttons="2">
+                          <input type="checkbox" name="offerings.{{this.id}}.hidden" {{checked this.hidden}} style="display:none;" />
+                          <a class="item-control item-private" title="{{localize 'MonksEnhancedJournal.HideShowOffering'}}"><i class="fas fa-eye-slash"></i></a>
+                          <a class="item-control item-delete" title="{{localize 'MonksEnhancedJournal.RemoveOffering'}}"><i class="fas fa-trash"></i></a>
+                        </div>
+                      {{else}}
+                        <div class="item-controls flexrow">
+                          {{#if this.owner}}
+                          {{#if this.hidden}}
+                          <i class="fas fa-eye-slash"></i>
+                          {{/if}}
+                          {{#if (eq this.state "offering")}}
+                          <a class="item-control item-cancel" title="{{localize 'MonksEnhancedJournal.CancelOffering'}}"><i class="fas fa-trash"></i></a>
+                          {{/if}}
+                          {{/if}}
+                        </div>
+                      {{/if}}
+                    </li>
+                    {{/each}}
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab notes" data-group="primary" data-tab="notes">
+            <div class="tab-inner flexcol">
+              <div style="flex-grow: 0;">{{localize 'MonksEnhancedJournal.OnlyViewable'}}{{#unless hasGM}}<span style="color:darkred;font-weight:bold;"> {{localize 'MonksEnhancedJournal.msg.CannotEditNotesWithoutGM'}}</span>{{/unless}}</div>
+              <div class="notes-container">
+                {{!-- {{editor userdata.enrichedText target=notesTarget editable=true button=true owner=owner}} --}}
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </form>	 -->
+  </section>
+</template>
+
+<script setup lang="ts">
+  // library imports
+
+  // local imports
+  // import { HomePage, HomePageData} from './HomePage';
+  // import { getGame, localize } from '@/utils/game';
+  // import { Topic } from '@/types';
+  // import { getIcon, toTopic } from '@/utils/misc';
+  // import { TypeAhead, TypeAheadData } from '@/components/TypeAhead';
+  // import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
+  // import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+  // import { getCleanEntry, updateDocument } from '@/compendia';
+  // import { Editor, EditorData } from '@/components/Editor';
+  // import { TreeData, Tree } from '@/components/Tree';
+  // import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
+
+  // library components
+
+  // local components
+
+  // types
+
+  ////////////////////////////////
+  // props
+
+  ////////////////////////////////
+  // emits
+
+  ////////////////////////////////
+  // store
+
+  ////////////////////////////////
+  // data
+
+  ////////////////////////////////
+  // computed data
+
+  ////////////////////////////////
+  // methods
+
+  ////////////////////////////////
+  // event handlers
+
+  ////////////////////////////////
+  // watchers
+
+  ////////////////////////////////
+  // lifecycle events
+
+
+  // export type WBContentData = {
+  //   showHomePage: true,
+  //   homePageTemplate: () => string,
+  //   homePageData: HomePageData
+  // } |
+  // {
+  //   showHomePage: false,
+  //   entry: JournalEntry,
+  //   topic: Topic,
+  //   icon: string,
+  //   showHierarchy: boolean,
+  //   relationships: { tab: string, label: string }[],
+  //   typeAheadTemplate: () => string,
+  //   typeAheadData: TypeAheadData,
+  //   treeTemplate: () => string,
+  //   hierarchyTreeData: TreeData,
+  //   editorTemplate: () => string,
+  //   descriptionData: EditorData,
+  //   namePlaceholder: string,
+  //   description: {
+  //     content: any,
+  //     format: number,
+  //     markdown: any
+  //   }
+  // }
+
+  //   private _worldId: string; 
+  //   private _entryId: string | null;    // the entryId to show (will show homepage if null)
+  //   private _entry: JournalEntry;
+  //   private _topic: Topic | null;
+  //   private _tabs: Tabs;
+
+  //   constructor() {
+  //     super();
+
+  //     this._tabs = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
+  //   }
+
+  //   // we will dynamically setup the partials
+  //   protected _createPartials(): void {
+  //     this._partials.HomePage = new HomePage();
+  //     this._partials.TypeTypeAhead = new TypeAhead([]);
+  //     this._partials.DescriptionEditor = new Editor();
+  //     this._partials.HierarchyTree = new Tree([]);
+  //   }
+
+  //   public changeWorld(worldId: string): void {
+  //     this._worldId = worldId;
+  //     (this._partials.HomePage as HomePage).changeWorld(worldId);
+  //   }
+
+  //   public async updateEntry(entryId: string | null) {
+  //     // we need to setup the type before calling the constructor
+  //     if (!entryId) {
+  //       // just show the homepage
+  //       this._entryId = null;
+  //       this._topic = null;
+  //     } else {
+  //       const entry = await getCleanEntry(entryId);
+
+  //       const topic = toTopic(entry ? EntryFlags.get(entry, EntryFlagKey.topic) : null);
+
+  //       if (!entry || !topic) {
+  //         // show the homepage
+  //         this._entryId = null;
+  //         this._topic = null;
+  //       } else {
+  //         // we're going to show a content page
+  //         this._entryId = entryId;
+  //         this._entry = entry;
+  //         this._topic = topic;
+
+  //         // reattach the editor
+  //         // @ts-ignore
+  //         const descriptionPage = entry.pages.find((p)=>p.name==='description');
+  //         (this._partials.DescriptionEditor as Editor).attachEditor(descriptionPage, descriptionPage.text.content);  // TODO: replace with enum -- do I even need the fieldname?
+
+  //         // get() returns the object and we don't want to modify it directly
+  //         (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKey.types)[topic]);
+
+  //         // update the tree for things with hierarchies
+  //         if (hasHierarchy(this._topic)) {
+  //           const pack = getGame().packs.get(this._entry.pack || '');
+  //           if (pack)
+  //             (this._partials.HierarchyTree as Tree).updateTree(await getHierarchyTree(pack, this._entry));
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   public async getData(): Promise<WBContentData> {
+  //     let data: WBContentData;
+
+  //     const topicData = {
+  //       [Topic.Character]: { namePlaceholder: 'fwb.placeholders.characterName', },
+  //       [Topic.Event]: { namePlaceholder: 'fwb.placeholders.characterName', },
+  //       [Topic.Location]: { namePlaceholder: 'fwb.placeholders.characterName', },
+  //       [Topic.Organization]: { namePlaceholder: 'fwb.placeholders.characterName', },
+  //     };
+
+  //     const relationships = [
+  //       { tab: 'characters', label: 'fwb.labels.tabs.characters', },
+  //       { tab: 'locations', label: 'fwb.labels.tabs.locations',},
+  //       { tab: 'organizations', label: 'fwb.labels.tabs.organizations', },
+  //       { tab: 'events', label: 'fwb.labels.tabs.events', },
+  //     ] as { tab: string, label: string, }[];
+
+  //     if (!this._entryId) {
+  //       // homepage
+  //       data = {
+  //         showHomePage: true,
+  //         homePageTemplate: () => HomePage.template,
+  //         homePageData: await (this._partials.HomePage as HomePage).getData(),
+  //       };
+  //     } else if (this._topic === null) {
+  //       throw new Error('Invalid entry type in WBContent.getData()');
+  //     } else {
+  //       // normal content
+  //       data = {
+  //         showHomePage: false,
+  //         entry: this._entry,
+  //         topic: this._topic,
+  //         icon: getIcon(this._topic),
+  //         showHierarchy: hasHierarchy(this._topic),
+  //         relationships: relationships,
+  //         typeAheadTemplate: () => TypeAhead.template,
+  //         typeAheadData: await (this._partials.TypeTypeAhead as TypeAhead).getData(),
+  //         namePlaceholder: localize(topicData[this._topic].namePlaceholder),
+  //         editorTemplate: () => Editor.template,
+  //         descriptionData: await (this._partials.DescriptionEditor as Editor)?.getData(),
+  //         treeTemplate: () => Tree.template,
+  //         hierarchyTreeData: await (this._partials.HierarchyTree as Tree)?.getData(),
+  //         description: this._entry.pages.find((p)=>p.name==='description').text, //TODO: use enum
+  //       };
+  //     }
+
+  //     // log(false, data);
+  //     return data;
+  //   }
+
+  //   public activateListeners(html: JQuery) {  
+  //     // handle partials
+  //     if (!this._entryId)
+  //       this._partials.HomePage.activateListeners(html);
+  //     else {
+  //       this._partials.TypeTypeAhead.activateListeners(html);
+  //       this._partials.DescriptionEditor?.activateListeners(html);
+  //       this._partials.HierarchyTree?.activateListeners(html);
+  //     }
+
+  //     // bind the tabs
+  //     this._tabs.bind(html.get()[0]);
+
+  //     // watch for edits to name
+  //     html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
+  //       await updateDocument(this._entry, { name: jQuery(event.target).val() });
+  //       await this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
+  //     });
+
+  //     // home page mode - click on a recent item
+  //     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {
+  //       await this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
+  //     });
+
+  //     // new type added in the typeahead
+  //     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.ItemAdded, async (added)=> {
+  //       if (this._topic === null)
+  //         return;
+
+  //       const currentTypes = moduleSettings.get(SettingKey.types);
+
+  //       // if not a duplicate, add to the valid type lists 
+  //       if (!currentTypes[this._topic].includes(added)) {
+  //         const updatedTypes = {
+  //           ...moduleSettings.get(SettingKey.types),
+  //           [this._topic]: currentTypes[this._topic].concat([added]),
+  //         };
+  //         await moduleSettings.set(SettingKey.types, updatedTypes);
+  //       }
+  //     });
+  //     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.SelectionMade, (selection)=> { 
+  //       void EntryFlags.set(this._entry, EntryFlagKey.type, selection);
+  //     });
+
+  //     // watch for edits to description
+  //     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorSaved, async (newContent: string) => {
+  //       const descriptionPage = this._entry.pages.find((p)=>p.name==='description');  //TODO
+
+  //       await updateDocument(descriptionPage, {'text.content': newContent });  
+
+  //       //need to reset
+
+  //       (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
+
+  //       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
+  //     });
+  //     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorClosed, async () => { 
+  //       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
+  //     });
+
+  //     // tree node clicked
+  //     this._partials.HierarchyTree.registerCallback(Tree.CallbackType.ItemClicked, async (value: string)=>{
+  //       alert(value);
+  //     });
+  //   }
+  // }
+</script>
+
+<style lang="scss">
+  .fwb-journal-sheet {
+    &.sheet {
+      height: 100%;
+    }
+    
+    & > form {
+      padding: 0px;
+      overflow: hidden;
+    }
+    
+    &.sheet {
+      form {
+        height: 100%;
+      }
+    
+      .sheet-container {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        color: var(--mej-sheet-color);
+      }
+      
+      .sheet-container.detailed {
+        padding: 4px;
+      }
+      
+      .sheet-container #context-menu {
+        font-family: var(--font-primary);
+      }
+      
+      .window-resizable-handle {
+        z-index: 100;
+      }
+
+      .journal-sheet-header .sheet-image {
+        flex: 0 0 160px;
+        font-size: 13px;
+        max-width: 160px;
+        height: 160px;
+        position: relative;
+        border-radius: 5px;
+        border: 1px solid var(--mej-icon-outline);
+        margin-right: 6px;
+        overflow: hidden;
+      }
+    
+      .journal-sheet-header .sheet-image img.profile {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        max-width: 100%;
+        border: 0px;
+        background: var(--mej-icon-background);
+        -webkit-box-shadow: 0 0 10px var(--mej-icon-shadow) inset;
+        box-shadow: 0 0 10px var(--mej-icon-shadow) inset;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+      }
+    
+      /* Nav */
+      .sheet-navigation {
+        flex-grow: 0;
+        flex: 0 0 30px !important;
+        background: var(--mej-sheet-tab-background);
+        padding-bottom: 5px;
+        border-bottom: 2px groove var(--mej-sheet-tab-bottom-border);
+        font-family: var(--mej-font-family);
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .sheet-navigation .item {
+        height: 30px !important;
+        line-height: 32px;
+        margin: 0 24px;
+        border-bottom: var(--mej-sheet-tab-border);
+        color: var(--mej-sheet-tab-color);
+        max-width: 150px;
+      }
+
+      .sheet-navigation .item:hover {
+        color: var(--mej-sheet-tab-color-hover);
+      }
+
+      .sheet-navigation .item.hasitems {
+        border-bottom-color: var(--mej-sheet-tab-border-items);
+      }
+
+      .sheet-navigation .item.active {
+        border-bottom-color: var(--mej-sheet-tab-border-active);
+        color: var(--mej-sheet-tab-color-active);
+      }
+
+      /* Dialog */
+      .dialog-content {
+        margin-bottom: 8px;
+      }
+
+      /* Header Details */
+      .journal-sheet-header .header-details {
+        font-size: var(--font-size-20);
+        font-weight: 700;
+        //overflow: hidden;
+        /*width: calc(100% - 160px);*/
+      }
+
+      .journal-sheet-header .header-details input {
+        border: var(--mej-sheet-header-input-border);
+        background: var(--mej-sheet-header-input-background);
+      }
+
+      .journal-sheet-header .header-details .header-name {
+        margin: 0;
+      }
+
+      .journal-sheet-header .header-details .header-name input[type="text"] {
+        font-size: 32px;
+        height: 36px;
+      }
+
+      .journal-sheet-header .header-details .form-group {
+        margin: 4px 8px 0px 0px;
+      }
+      .journal-sheet-header .header-details .form-group label {
+        max-width: 175px;
+        color: var(--mej-sheet-header-label-color);
+        text-align: left;
+        background: none;
+        border: none;
+      }
+      .journal-sheet-header .header-details .form-group input {
+        font-size: var(--font-size-20);
+        color: var(--mej-sheet-header-detail-input-color);
+      }
+
+      .journal-sheet-header .header-details .form-group select {
+        border: var(--mej-sheet-header-input-border);
+        font-size: inherit;
+        font-family: inherit;
+        height: calc(var(--font-size-20) + 6);
+        margin: 0px;
+        color: var(--mej-sheet-header-detail-input-color);
+        background: var(--mej-sheet-header-input-background);
+      }
+
+      .journal-sheet-header .header-details .form-group select:hover {
+        box-shadow: 0 0 8px var(--color-shadow-primary);
+      }
+
+      .fwb-content-header {
+        overflow-y: visible;
+      }
+
+      .journal-sheet-header .header-details .header-name input[type="text"] {
+        background: var(--mej-sheet-header-name-background);
+        border: 1px solid transparent;
+        color: var(--mej-sheet-header-name-color);
+        margin-right: 2px;
+      }
+
+      .journal-sheet-header .header-details .header-name input[type="text"]:hover,
+      .journal-sheet-header .header-details .header-name input[type="text"]:focus {
+        background: var(--mej-sheet-header-name-background-hover);
+      }
+
+      // the tab content
+      .fwb-tab-body {
+        /* Details Section */
+        .details-section {
+          font-family: var(--mej-font-family);
+          font-size: var(--font-size-20);
+          font-weight: 700;
+          padding: 5px 15px;
+          margin: 0px;
+          flex-grow: 0;
+          border-bottom: 2px groove var(--mej-sheet-details-section-border);
+
+          &:last-child,
+          &.no-border {
+            border-bottom: 0px;
+          }
+          &.scrollable {
+            flex-grow: 1;
+            overflow-y: auto;
+          }
+
+          .form-group {
+            flex-grow: 0 !important;
+            margin: 4px 8px 0px 0px;
+          }
+
+          label {
+            flex: 1;
+            max-width: 175px;
+            color: var(--mej-sheet-color);
+          }
+          input, textarea {
+            border: var(--mej-sheet-input-border);
+            background: var(--mej-sheet-input-background);
+            color: var(--mej-sheet-input-color);
+          }
+
+          select {
+            font-size: var(--font-size-20);
+            height: 24px;
+          }
+
+          button {
+            flex: 0;
+            margin: -2px 0;
+            line-height: 22px;
+          }
+
+          button.append {
+            height: 27px;
+            margin: 0px;
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
+            order: 99;
+          }
+
+          button.append + input {
+            border-top-right-radius: 0px;
+            border-bottom-right-radius: 0px;
+          }
+
+          /* Document Details */
+          .document-details {
+            border-radius: 5px;
+            padding: 8px;
+            margin-bottom: 5px;
+            position: relative;
+            flex: 1;
+            font-size: var(--font-size-14);
+
+            ul {
+              margin: 0;
+              padding: 0;
+              display: flex;
+              gap: 4px;
+              flex: 1;
+              flex-wrap: wrap;
+              list-style: none;
+
+              li {
+                display: flex;
+                flex: 0 0 215px;
+
+                label {
+                  flex: 0 0 60px;
+                }
+              }
+            }
+          }
+        }
+      }
+
+
+      /* Blank */
+      .journal-subsheet.blank {
+        display: flex;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-16);
+        color: var(--mej-blank-color);
+        font-weight: bold;
+
+        .message {
+          display: flex;
+          justify-content: center;
+          width: 100%;
+          font-size: var(--font-size-24);
+          font-style: italic;
+        }
+
+        .recently-viewed {
+          margin-bottom: 20px;
+          border-radius: 6px;
+          background-color: var(--mej-blank-recent-background);
+          border: 1px solid var(--mej-blank-recent-border);
+          font-size: 20px;
+          padding: 4px;
+        }
+
+        .recent-link,
+        .new-link {
+          cursor: pointer;
+          padding: 4px;
+        }
+
+        .recent-link:hover,
+        .new-link:hover {
+          color: var(--mej-blank-link-hover);
+        }
+      }
+    }
+
+    .sheet-container a[disabled] {
+      pointer-events: none;
+    }
+
+    .nav-button.convert #context-menu {
+      margin-left: -95px;
+    }
+
+    /* Header */
+    .sheet-container .journal-sheet-header {
+      font-family: var(--mej-font-family);
+      font-size: 24px;
+      flex-grow: 0;
+      border-bottom: 2px solid var(--mej-sheet-header-border);
+      z-index: 1;
+      padding-left: 8px;
+    }
+
+    .sheet-container.detailed .journal-sheet-header {
+      align-items: flex-start;
+      padding-bottom: 4px;
+      /*flex: 0 0 162px;*/
+      border-bottom: 2px groove var(--mej-sheet-detailed-header-border);
+      margin: 0px;
+      padding-left: 0px;
+      position: relative;
+    }
+
+    .journal-sheet-header.header-name input[type="text"] {
+      background: var(--mej-sheet-header-name-background);
+      border: 1px solid transparent;
+      color: var(--mej-sheet-header-name-color);
+      margin-right: 2px;
+      font-size: 28px;
+      height: calc(100% - 2px);
+    }
+
+    .journal-sheet-header.header-name input[type="text"]:hover,
+    .journal-sheet-header.header-name input[type="text"]:focus {
+      background: var(--mej-sheet-header-name-background-hover);
+    }
+
+    .sheet-container .journal-sheet-header .sheet-icon {
+      flex: 0 0 30px;
+      line-height: 35px;
+      margin-top: 0px;
+      color: #777;
+    }
+
+    .sheet-container.detailed .journal-sheet-header .sheet-icon {
+      flex: 0 0 20px;
+      font-size: 20px;
+      height: 20px;
+      margin-top: 12px;
+      margin-left: 5px;
+      line-height: 15px;
+    }
+
+    &.image-popout.dark .journal-sheet-header input[type="text"] {
+      color: #fff;
+    }
+
+    .journal-sheet-header.header-name .header-search {
+      font-size: 14px;
+      flex: 0 0 255px;
+      color: var(--mej-sheet-color);
+
+      i {
+        flex: 0 0 25px;
+        padding-left: 5px;
+        line-height: 35px;
+      }
+
+      input[type="text"] {
+        font-size: var(--font-size-14);
+        height: 25px;
+        margin-top: 6px;
+        margin-right: 4px;
+        border: 1px solid var(--mej-sheet-header-search-border);
+        background: var(--mej-sheet-header-search-background);
+        color: var(--mej-sheet-header-search-color);
+    
+        &::placeholder {
+          color: var(--mej-sheet-header-search-placeholder);
+        }
+      
+        &:hover,
+        &:focus {
+          background: var(--mej-sheet-header-search-background-hover);
+        }
+      }
+    }
+
+    .journal-subsheet:not(.gm) .gm-only {
+      display: none;
+    }
+    
+    .journal-subsheet:not(.owner) .owner-only {
+      display: none;
+    }
+    
+    .journal-sheet-header {
+      button {
+        flex: 0 0 30px;
+        height: 30px;
+        width: 30px;
+        border: none;
+        font-size: 18px;
+        line-height: 28px;
+        padding: 0px 3px;
+        cursor: pointer;
+        box-shadow: none;
+        color: var(--mej-sheet-header-button-color);
+        background: var(--mej-sheet-header-button-background);
+        border-radius: 3px;
+        margin-top: 3px;
+        margin-right: 5px;
+      }
+    
+      .header-details button {
+        margin-right: 4px;
+
+        &:last-child {
+          margin-right: 8px;
+        }
+      }
+
+      button.loading {
+        padding-top: 1px;
+        padding-left: 5px;
+      }
+
+      button.active {
+        border: 1px solid var(--mej-active-color);
+        color: var(--mej-active-color);
+      }
+    }
+
+    /* Page Controls (Mostly for list)*/
+    .page-controls {
+      flex-grow: 0;
+      padding-top: 1px;
+      border-bottom: 2px groove var(--mej-sheet-details-section-border);
+
+      button {
+        flex: 0 0 130px;
+        background: var(--mej-sheet-page-control-background);
+        color: var(--mej-sheet-page-control-color);
+      }
+
+      button:hover {
+        background: var(--mej-sheet-page-control-background-hover);
+      }
+
+      button.header-control {
+        flex: 0 0 30px;
+      }
+    }
+
+    /* Body */
+    .sheet-container .fwb-tab-body {
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+
+
+    /* Tabs */
+    &.sheet .fwb-tab-body .tab {
+      height: 100% !important;
+      overflow-y: auto !important;
+      align-content: flex-start;
+    }
+
+    &.sheet .fwb-tab-body .tab .tab-inner {
+      height: 100%;
+      overflow-y: auto !important;
+      align-content: flex-start;
+      position: relative;
+    }
+
+    .tab.notes .notes-container {
+      overflow: auto;
+      border: var(--mej-sheet-input-border);
+      background: var(--mej-sheet-input-background);
+      color: var(--mej-sheet-input-color);
+      border-radius: 4px;
+      margin-bottom: 3px;
+    }
+
+    .tab.notes .notes-container .editor-content {
+      padding: 0px 6px;
+    }
+
+    /* Editor */
+    &.sheet .editor {
+      overflow: visible;
+      height: 100%;
+      min-height: 100%;
+    }
+
+    // the button to open the editor
+    .editor-edit {
+      z-index: 100;
+
+      &:hover {
+        color: rgb(var(--mej-dark-0));
+        background: var(--mej-cream);
+        box-shadow: 0 0 5px red;
+      }
+    }
+
+    &.sheet .editor .editor-content {
+      overflow-y: visible;
+      height: unset;
+      min-height: calc(100% - 8px);
+      padding: 2px;
+    }
+
+    &.sheet .editor .tox-tinymce {
+      height: 100% !important;
+      border-top-left-radius: 0px;
+      border-top-right-radius: 0px;
+    }
+
+    &.sheet .editor.tinymce {
+      margin: 0px;
+    }
+
+    &.sheet .editor .tox-toolbar-overlord {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    &.sheet .editor .tox-tinymce .tox-menubar button {
+      height: 15px;
+    }
+
+    &.sheet .editor .tox-tinymce .tox-promotion-link {
+      display: none;
+    }
+
+    
+    // .journal-subsheet[editable='false'] .editor-edit {
+    //   display: none !important;
+    // }
+
+    .tox.tox-tinymce-aux {
+      width: 0px;
+    }
+
+    &.sheet .editor-content .polyglot-journal {
+      cursor: help;
+      background-color: rgba(var(--polyglot-journal-color), 0.1);
+    }
+
+    &.sheet .editor-content .polyglot-journal:hover {
+      background-color: rgba(var(--polyglot-journal-color), var(--polyglot-journal-opacity));
+    }
+
+    /* Item List */
+    .items-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      color: var(--mej-itemlist-colour);
+      overflow-y: hidden;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+
+      .item-list {
+        overflow-y: auto;
+        height: 100%; /* Unlocked this for the shop instructions */
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        scrollbar-width: thin;
+        position: relative;
+      }
+      .item-list.min-height {
+        min-height: 80px;
+      }
+
+      .item-list ul {
+        margin: 0px;
+        padding: 0 0 0 5px;
+      }
+
+      .item-header {
+        font-family: var(--mej-font-family);
+        font-size: var(--font-size-14);
+        text-align: center;
+        height: 29px;
+        margin: 2px 0;
+        margin-left: 1px;
+        padding: 0;
+        align-items: center;
+        background: var(--mej-itemlist-background);
+        border: 2px groove var(--mej-itemlist-border);
+        color: var(--mej-sidebar-input-color);
+        font-weight: bold;
+      }
+
+      .item-list .item-header {
+        margin-left: 4px;
+      }
+
+      .item-header h3 {
+        padding-left: 5px;
+        font-family: var(--mej-font-family);
+        font-weight: 700;
+        text-align: left;
+        font-size: var(--font-size-16);
+        margin-bottom: 1px;
+        color: var(--mej-itemlist-header-color);
+      }
+
+      .item-header .collapse-text {
+        display: none;
+        margin-left: 10px;
+        font-size: var(--font-size-14);
+      }
+
+      .item-header.collapsed .collapse-text {
+        display: inline-block;
+      }
+
+      .item-header .button-group {
+        flex-shrink: 1;
+        flex-grow: 0;
+        flex-wrap: nowrap;
+        margin-right: 4px;
+      }
+
+      .item-detail {
+        flex: 0 0 80px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+
+      .item-controls {
+        flex: 0 0 24px;
+        justify-content: space-between;
+        align-items: center;
+        margin-left: 8px;
+      }
+      .item-controls[buttons="2"] {
+        flex: 0 0 48px;
+      }
+      .item-controls[buttons="3"] {
+        flex: 0 0 72px;
+      }
+      .item-controls[buttons="4"] {
+        flex: 0 0 96px;
+      }
+      .item-header .item-controls {
+        justify-content: center;
+      }
+
+      .item-controls *:disabled {
+        cursor: no-drop;
+      }
+
+      .item-controls a {
+        font-size: var(--font-size-12);
+        text-align: center;
+        padding: 0px;
+        margin: 0px;
+        color: var(--mej-itemlist-control-color);
+      }
+
+      .item-list .item-controls {
+        a:hover {
+          color: var(--mej-itemlist-control-color-hover);
+        }
+
+        a.active,
+        input[type='checkbox']:checked + a {
+          color: var(--mej-active-color);
+        }
+      }
+      .item-list .item-detail input[type='checkbox']:checked + a,
+      input[type='checkbox']:checked + a {
+        color: var(--mej-active-color);
+      }
+
+      .item-header .item-control {
+        font-size: var(--font-size-12);
+        text-align: center;
+        padding: 0px;
+        margin: 0px;
+        margin-right: 2px;
+        width: 22px;
+        flex: 0 0 22px;
+        height: 22px;
+        border-radius: 2px;
+        border: 1px solid var(--mej-itemlist-control-border);
+        background: var(--mej-itemlist-control-background);
+        color: var(--mej-itemlist-header-control-color);
+        line-height: 22px;
+      }
+
+      .item-control.text {
+        width: fit-content;
+        white-space: nowrap;
+        padding: 0px 5px;
+      }
+
+      .item {
+        align-items: center;
+        padding: 0 2px;
+        border-bottom: 1px solid var(--mej-itemlist-item-border);
+      }
+
+      .item:last-child {
+        border-bottom: none;
+      }
+
+      .item-name {
+        flex: 2;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: var(--font-size-14);
+        text-align: left;
+        align-items: center;
+        border-bottom: 0px;
+      }
+
+      .item-name h3,
+      .item-name h4 {
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .item .item-name {
+        color: var(--mej-itemlist-item-name);
+      }
+      .item .item-name.item-received {
+        flex: 0 0 auto;
+        color: var(--mej-itemlist-item-disabled);
+      }
+
+      .item .item-name .highlight-text {
+        font-size: var(--font-size-12);
+        font-style: italic;
+      }
+
+      .item .item-name .item-image {
+        flex: 0 0 30px;
+        width: 30px;
+        height: 30px;
+        border: none;
+        border-radius: 2px;
+        margin-right: 5px;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        object-fit: contain;
+      }
+
+      .item .item-name .item-image + .no-actor {
+        font-size: 20px;
+        position: absolute;
+        color: #ee8e26;
+        top: 10px;
+        left: 50px;
+      }
+
+      .item .item-name .item-image.large {
+        flex: 0 0 70px;
+        width: 70px;
+        height: 70px;
+      }
+
+      .item .item-name.clickable .item-image {
+        cursor: pointer;
+      }
+
+      .item.empty .item-name .item-image {
+        filter: grayscale(100%);
+        opacity: 0.7;
+      }
+
+      .item .item-name.rollable:hover .item-image {
+        background-image: url('../../../icons/svg/d20-grey.svg') !important;
+      }
+
+      .item .item-name.rollable .item-image:hover {
+        background-image: url('../../../icons/svg/d20-black.svg') !important;
+      }
+
+      .items-list.alternate-rows li:nth-child(even) {
+        background-color: var(--mej-itemlist-alternate-row);
+      }
+
+      .item input {
+        border-color: var(--mej-itemlist-input-border);
+        color: var(--mej-itemlist-input-color);
+        background-color: var(--mej-itemlist-input-background);
+      }
+
+      .item input:hover  {
+        border-color: unset;
+      }
+
+      .item .item-content {
+        color: var(--mej-itemlist-item-content);
+      }
+
+      .item .item-summary {
+        flex: 0 0 100%;
+        padding: 0.5rem;
+        border-top: 1px solid var(--faint-color);
+        font-size: var(--font-size-12);
+      }
+
+      .item-header .item-from {
+        flex: 0 0 140px;
+        text-align: left;
+      }
+
+      .item .item-from {
+        flex: 0 0 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        align-items: start;
+        text-align: left;
+      }
+
+      .item .item-assigned {
+        text-align: center;
+      }
+    }
+
+    /* Currency Group */
+    .currency-group {
+      font-size: var(--font-size-12);
+      flex: 0 0 64px;
+    }
+
+    .currency-group .form-fields {
+      margin-left: 10px;
+      padding-top: 2px;
+    }
+
+    .currency-group .form-fields label {
+      font-weight: bold;
+      padding-top: 2px;
+      max-width: 75px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 26px;
+    }
+
+    .currency-group .form-fields label:not(:first-child) {
+      padding-left: 10px;
+    }
+
+    .currency-group .form-fields input {
+      flex: 2;
+      text-align: right;
+      max-width: 75px;
+      height: var(--form-field-height);
+      color: var(--color-text-dark-primary);
+      background: var(--mej-sheet-input-background);
+      border: var(--mej-sheet-input-border);
+    }
+
+    /* Additional */
+    .sheet-container .fwb-tab-body .no-character-alert {
+      background: rgba(214, 150, 0, 0.8);
+      border: 1px solid var(--color-level-warning);
+      margin-bottom: 0.5em;
+      padding: 6px 8px;
+      line-height: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px var(--color-shadow-dark);
+      color: var(--color-text-light-1);
+      font-size: var(--font-size-14);
+      text-shadow: 1px 1px black;
+      flex: 0 0 33px;
+    }
+
+    .sheet-container .fwb-tab-body .no-character-alert a {
+      color: var(--color-text-hyperlink);
+    }
+
+    .instruction {
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      top: 0px;
+      width: 100%;
+      pointer-events: none;
+      line-height: 60px;
+      color: var(--mej-instruction);
+      font-size: var(--font-size-16);
+      font-style: italic;
+      height: calc(100% - 50px);
+    }
+
+    .items-list li.instruction {
+      height: calc(100% - 40px);
+      line-height: 100px;
+      background: transparent;
+    }
+
+
+    /* Text Entry */
+    .journal-subsheet div[data-tab='picture'] #context-menu {
+      top: calc(50% - 33px);
+      left: calc(50% - 100px);
+      max-width: 200px;
+    }
+
+    &.sheet .journal-subsheet div[data-tab='picture'].tab {
+      overflow-y: hidden !important;
+      overflow-x: hidden !important;
+    }
+
+    /* List */
+    .list .list-list {
+      padding-left: 0px;
+      margin: 0px;
+      height: 100%;
+      overflow: auto;
+    }
+
+  /*  .list-list .document.item {
+      padding: 6px;
+      line-height: 24px;
+    }
+
+    .list-list .document.item:nth-child(even) {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .list-list .create-entry {
+      flex: 0 0 20px;
+      font-size: var(--font-size-14);
+    }
+
+    .list-list .folder header {
+      border-left: 1px solid #000;
+      border-right: 1px solid #000;
+    }
+
+    .list-list .list-item.document h3 {
+      margin-bottom: 0px;
+      flex-grow: 0;
+      white-space: nowrap;
+    }
+
+    .list-list .list-item h3.progress-title {
+      padding: 4px;
+      border: 1px solid rgb(var(--mej-light-5));
+      background: rgba(var(--mej-light-1), 0.2);
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .list-list .list-item h3.progress-title:empty {
+      display: none;
+    }
+
+    .list-list .list-item.checked h3 {
+      text-decoration: line-through;
+    }
+
+    .list-list .subdirectory .subdirectory {
+      margin-bottom: 2px;
+    }
+
+    .list-list .subdirectory .folder {
+      border-left: 0px;
+    }
+
+    .list-list li.folder > .folder-header {
+      background: rgb(130, 128, 121);
+      color: #fff;
+    }
+
+    .list-list li.folder.collapsed > .folder-header {
+      background: rgb(110, 109, 103);
+    }
+
+    .list-list .subdirectory {
+      padding-left: 10px;
+      border-left: 4px solid #808080;
+      border-bottom: 4px solid #808080;
+    }
+
+    .list-list .item-checked {
+      margin-right: 8px;
+    }
+
+    .monks-enhanced-journal .list #context-menu {
+      max-width: 200px;
+    }
+
+    .list .list-list button {
+      background: var(--mej-sheet-button-background);
+      color: var(--mej-sheet-button-color);
+    }
+
+    .list .list-list button:hover {
+      background: var(--mej-sheet-button-background-hover);
+    }
+
+    .list-list .progress {
+      width: 100%;
+      height: 24px;
+      min-height: 24px;
+      background: rgb(80, 80, 76);
+      border: 2px solid var(--color-border-dark);
+      box-shadow: 0 0 4px #b2c3ff;
+      border-radius: 4px;
+      margin: 0px 4px;
+      position: relative;
+    }
+    .list-list .progress:first-child {
+      margin-left: 0px;
+    }
+    .list-list .progress:last-child {
+      margin-right: 0px;
+    }
+    .list-list .progress-value {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 100%;
+      text-align: center;
+      color: #ffffff;
+    }
+    .list-list .progress-bar {
+      position: relative;
+      margin: 1px;
+      height: calc(100% - 2px);
+      background: var(--mej-list-progress-background);
+      border: 1px solid var(--mej-list-progress-border);
+      border-radius: 2px;
+    }
+
+    .list .list-list .progress-button {
+      height: 25px;
+      flex: 0 0 25px;
+      font-size: 12px;
+      line-height: 23px;
+      padding: 0px 5px;
+      padding-left: 5px;
+      padding-right: 2px;
+    }
+
+    .list .list-list .progress-text {
+      max-height: 200px;
+      -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+      mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+      overflow: hidden;
+    }
+
+    .list .list-list .progress-text.expand {
+      max-height: none;
+      mask-image: none;
+      -webkit-mask-image: none;
+      transition: max-height 1s linear;
+    }
+
+    .list .list-list .progress-expand {
+      flex-grow: 0;
+      color: rgb(var(--mej-dark-6));
+      cursor: pointer;
+    }
+    .list .list-list .progress-expand:hover {
+      color: rgb(var(--mej-dark-4));
+    }
+
+    .list .list-list .progress-container {
+      flex-grow: 0;
+    }
+
+    .list .list-list .vote-button {
+      height: 34px;
+      flex: 0 0 100px;
+    }
+
+    .list .list-list .players-voted {
+      margin: 0px;
+      padding: 0px;
+      line-height: 18px;
+    }
+
+    .list .list-list .players-voted .player-vote {
+      width: 14px;
+      line-height: 12px;
+      font-size: 10px;
+      font-family: var(--font-primary);
+      text-align: center;
+      color: #000;
+      font-weight: 700;
+      background-color: #fff;
+      border: 1px solid #000;
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+    .list .list-list .list-item .poll-toggle {
+      flex: 0 0 19px;
+      padding: 0px 4px;
+      cursor: pointer;
+    }
+
+    .list .list-list .list-item .poll-description {
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .list .list-list .list-item .poll-description.collapsed {
+      display: none;
+    }
+    .list-edit .editor {
+      height: 100%;
+    }
+
+    .list-edit .editor .tox.tox-tinymce {
+      height: 300px !important;
+    }
+
+    .list .list-list .list-item #context-menu {
+      left: var(--mej-context-x);
+      top: var(--mej-context-y);
+    }
+  */
+
+  }
+
+
+  /*
+  body:not(.system-pf2e) .fwb-journal-sheet .sheet-container .tag {
+    display: inline-block;
+    margin: 0 2px 0 0;
+    padding: 0 3px;
+    font-size: var(--font-size-10);
+    line-height: 16px;
+    border: 1px solid #999;
+    border-radius: 3px;
+    background: rgba(var(--mej-dark-0), 0.05);
+    padding: 4px 8px;
+    flex-grow: 0;
+    height: 24px;
+    margin-top: 2px;
+  }
+  */
+</style>
