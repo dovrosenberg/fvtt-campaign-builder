@@ -12,15 +12,11 @@
   }} -->
 
   <section class="sheet journal-sheet journal-entry-page fwb-journal-sheet">
-    content
-    <!-- NOTE: THIS WAS A DYNAMIC COMPONENT...-->
-    
-    <div v-if="showHomePage">
+    <div v-if="!props.entryId || !entry">
       homepage
-
     </div>
       
-    <!-- <HomePageTemplate v-if="showHomePage"
+    <!-- <HomePageTemplate v-if="props.entryId && entry">
       homePageData 
     />
   -->
@@ -31,7 +27,6 @@
       <div class="sheet-container detailed flexcol">
         <header class="journal-sheet-header flexrow">
           <div class="sheet-image">
-            img
             <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
           </div>
           <section class="header-details fwb-content-header">
@@ -152,14 +147,24 @@
                       </div>
 
                       <div class="item-name item-relationship flexrow">
-                        <input type="text" class="item-field" name="relationships.{{this.id}}.relationship" value="{{this.relationship}}" />
+                        <input 
+                          type="text" 
+                          class="item-field" 
+                          :name="`relationships.${document.id}.relationship`" 
+                          :value="document.relationship" 
+                        />
                       </div>
 
                       <div v-if="owner" 
                         class="item-controls flexrow owner" 
                         buttons="2"
                       >
-                        <input type="checkbox" name="relationships.{{this.id}}.hidden" {{checked this.hidden}} style="display:none;" />
+                        <input 
+                          type="checkbox" 
+                          :name="`relationships.${document.id}.hidden`" 
+                          :checked="document.hidden" 
+                          style="display:none;" 
+                        />
                         <a class="item-control item-hide" title="{{localize 'MonksEnhancedJournal.HideShowRelationship'}}"><i class="fas fa-eye-slash"></i></a>
                         <a class="item-control item-delete" title="{{localize 'MonksEnhancedJournal.RemoveRelationship'}}"><i class="fas fa-trash"></i></a>
                       </div>
@@ -263,16 +268,17 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch } from 'vue';
 
   // local imports
+  import { getCleanEntry } from '@/compendia';
+  import { getIcon, toTopic } from '@/utils/misc';
+  import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+  import { getGame, localize } from '@/utils/game';
+  import { hasHierarchy } from '@/utils/hierarchy';
   // import { HomePage, HomePageData} from './HomePage';
-  // import { getGame, localize } from '@/utils/game';
-  // import { Topic } from '@/types';
-  // import { getIcon, toTopic } from '@/utils/misc';
   // import { TypeAhead, TypeAheadData } from '@/components/TypeAhead';
   // import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
-  // import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
   // import { getCleanEntry, updateDocument } from '@/compendia';
   // import { Editor, EditorData } from '@/components/Editor';
   // import { TreeData, Tree } from '@/components/Tree';
@@ -316,16 +322,8 @@
     { tab: 'events', label: 'fwb.labels.tabs.events', },
   ] as { tab: string, label: string, }[];
 
-  const entry = ref<JournalEntry>();
-  const topic = ref<Topic>();
-  const icon = ref<string>();
-  const showHierarchy = ref<boolean>();
-  // const typeAheadTemplate: () => string,
-  // const typeAheadData: TypeAheadData,
-  // const treeTemplate: () => string,
-  // const hierarchyTreeData: TreeData,
-  // const editorTemplate: () => string,
-  // const descriptionData: EditorData,
+  const entry = ref<JournalEntry | null>(null);
+  const topic = ref<Topic | null>(null);
   const namePlaceholder = ref<string>();
   const description = ref<{
       content: any,
@@ -335,7 +333,9 @@
 
   ////////////////////////////////
   // computed data
-  const showHomePage = computed(() => !props.entryId);
+  const icon = computed((): string => (!topic.value ? '' : getIcon(topic.value)));
+  const showHierarchy = computed((): boolean => (!topic.value ? false : hasHierarchy(topic.value)));
+
 
   ////////////////////////////////
   // methods
@@ -345,6 +345,51 @@
 
   ////////////////////////////////
   // watchers
+  watch(() => props.entryId, async (newId: string | undefined): Promise<void> => {
+    if (!newId) {
+      entry.value = null;
+      topic.value = null;
+    } else {
+      const newEntry = await getCleanEntry(newId);
+      let newTopic;
+
+      if (newEntry) {
+        newTopic = toTopic(entry ? EntryFlags.get(newEntry, EntryFlagKey.topic) : null);
+        if (!newTopic) 
+          throw new Error('Invalid entry type in WBContent.getData()');
+      }
+
+      if (!newEntry || !newTopic) {
+        // show the homepage
+        entry.value = null;
+        topic.value = null;
+      } else {
+        // we're going to show a content page
+        entry.value = newEntry;
+        topic.value = newTopic;
+
+        // reattach the editor
+        // @ts-ignore
+        const descriptionPage = newEntry.pages.find((p)=>p.name==='description');
+        // TODO
+        // (this._partials.DescriptionEditor as Editor).attachEditor(descriptionPage, descriptionPage.text.content);  // TODO: replace with enum -- do I even need the fieldname?
+
+        // get() returns the object and we don't want to modify it directly
+        // TODO
+        // (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKey.types)[topic]);
+
+        // update the tree for things with hierarchies
+        if (hasHierarchy(newTopic)) {
+          const pack = getGame().packs.get(newEntry.pack || '');
+
+          // TODO
+          // if (pack)
+          //   (this._partials.HierarchyTree as Tree).updateTree(await getHierarchyTree(pack, this._entry));
+        }
+      }
+    }
+});
+
 
   ////////////////////////////////
   // lifecycle events
@@ -375,66 +420,15 @@
   //     (this._partials.HomePage as HomePage).changeWorld(worldId);
   //   }
 
-  //   public async updateEntry(entryId: string | null) {
-  //     // we need to setup the type before calling the constructor
-  //     if (!entryId) {
-  //       // just show the homepage
-  //       this._entryId = null;
-  //       this._topic = null;
-  //     } else {
-  //       const entry = await getCleanEntry(entryId);
-
-  //       const topic = toTopic(entry ? EntryFlags.get(entry, EntryFlagKey.topic) : null);
-
-  //       if (!entry || !topic) {
-  //         // show the homepage
-  //         this._entryId = null;
-  //         this._topic = null;
-  //       } else {
-  //         // we're going to show a content page
-  //         this._entryId = entryId;
-  //         this._entry = entry;
-  //         this._topic = topic;
-
-  //         // reattach the editor
-  //         // @ts-ignore
-  //         const descriptionPage = entry.pages.find((p)=>p.name==='description');
-  //         (this._partials.DescriptionEditor as Editor).attachEditor(descriptionPage, descriptionPage.text.content);  // TODO: replace with enum -- do I even need the fieldname?
-
-  //         // get() returns the object and we don't want to modify it directly
-  //         (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKey.types)[topic]);
-
-  //         // update the tree for things with hierarchies
-  //         if (hasHierarchy(this._topic)) {
-  //           const pack = getGame().packs.get(this._entry.pack || '');
-  //           if (pack)
-  //             (this._partials.HierarchyTree as Tree).updateTree(await getHierarchyTree(pack, this._entry));
-  //         }
-  //       }
-  //     }
-  //   }
-
   //   public async getData(): Promise<WBContentData> {
   //     let data: WBContentData;
 
 
   //     if (!this._entryId) {
-  //       // homepage
-  //       data = {
-  //         showHomePage: true,
-  //         homePageTemplate: () => HomePage.template,
-  //         homePageData: await (this._partials.HomePage as HomePage).getData(),
-  //       };
   //     } else if (this._topic === null) {
-  //       throw new Error('Invalid entry type in WBContent.getData()');
   //     } else {
   //       // normal content
   //       data = {
-  //         showHomePage: false,
-  //         entry: this._entry,
-  //         topic: this._topic,
-  //         icon: getIcon(this._topic),
-  //         showHierarchy: hasHierarchy(this._topic),
   //         relationships: relationships,
   //         typeAheadTemplate: () => TypeAhead.template,
   //         typeAheadData: await (this._partials.TypeTypeAhead as TypeAhead).getData(),
