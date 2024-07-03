@@ -8,7 +8,10 @@
         @entry-changed="onHeaderEntryChanged"
       />
       <div class="fwb-content flexcol editable">
-        <WBContent :entryId="currentEntryUuid" />
+        <WBContent 
+          :entryId="currentEntryUuid" 
+          @editor-saved="onContentEditorSaved"
+        />
       </div>
       <!--{{> (WBFooter) WBFooterData }}
     -->
@@ -17,6 +20,9 @@
       <Directory 
         :rootFolder="rootFolder"
         :worldFolderId="worldFolder?.uuid"
+        @world-selected="onDirectoryWorldSelected"
+        @entry-selected="onDirectoryEntrySelected"
+        @entry-created="onDirectoryEntryCreated"
       />
     </div> 
   </div>
@@ -29,6 +35,7 @@
   // local imports
   import { getDefaultFolders, getRootFolder, validateCompendia } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
+  import { getGame } from '@/utils/game';
 
   // library components
 
@@ -83,6 +90,28 @@
     currentEntryUuid.value = newEntryId;
   }
 
+  const onDirectoryWorldSelected = async (worldId: string) => {
+    const folder = getGame().folders?.find((f)=>f.uuid===worldId);
+    if (!folder)
+      throw new Error('Invalid folder id in WorldSelected callaback');
+    worldFolder.value = folder;
+
+    await validateCompendia(folder);
+  }
+
+  const onDirectoryEntrySelected = async (entryId: string, ctrlKey: boolean) => {
+    // TODO
+    //void (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: ctrlKey}); 
+  }
+
+  const onDirectoryEntryCreated = (entryId: string) => {
+    // open the entry in a new tab
+    // TODO
+    // void (this._partials.WBHeader as WBHeader).openEntry(entryId, { newTab: true, activate: true }); 
+  }
+  
+
+
   ////////////////////////////////
   // watchers
 
@@ -131,39 +160,7 @@
   //     await this.render(); 
   //   });
 
-  //   // new world selected in directory
-  //   this._partials.Directory.registerCallback(Directory.CallbackType.WorldSelected, async (worldId: string) => {
-  //     const folder = getGame().folders?.find((f)=>f.uuid===worldId);
-  //     if (!folder)
-  //       throw new Error('Invalid folder id in WorldSelected callaback');
-  //     this._worldFolder = folder;
 
-  //     await validateCompendia(this._worldFolder);
-
-  //     await (this._partials.WBHeader as WBHeader).changeWorld(worldId);
-  //     await (this._partials.WBContent as WBContent).changeWorld(worldId);
-      
-  //     await this.render();
-  //   });
-
-  //   // when new entry is selected in directory
-  //   this._partials.Directory.registerCallback(Directory.CallbackType.DirectoryEntrySelected, 
-  //     (entryId: string, newTab: boolean) => { this._onDirectoryEntrySelected(entryId, newTab); });
-
-  //   // new entry is created in directory
-  //   this._partials.Directory.registerCallback(Directory.CallbackType.EntryCreated, 
-  //     (entryId: string) => { 
-  //       // open the entry in a new tab
-  //       void (this._partials.WBHeader as WBHeader).openEntry(entryId, { newTab: true, activate: true }); 
-  //     }
-  //   );
-  // }
-
-
-
-  // private _onDirectoryEntrySelected(entryId: string, newTab: boolean): void { 
-  //   void (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: newTab}); 
-  // }
 
   /*
   _saveScrollPositions(html) {

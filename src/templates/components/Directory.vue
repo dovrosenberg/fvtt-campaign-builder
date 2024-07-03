@@ -28,19 +28,19 @@
     <!-- these are the worlds -->
     <ol class="fwb-world-list">
         <li v-for="world in worlds"
-          :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
+          :class="'fwb-world-folder folder flexcol ' + (props.worldFolderId===world.id ? '' : 'collapsed')" 
           @click="onWorldFolderClick($event, world.id)"
         >
-          <header class="folder-header flexrow">
+        <header class="folder-header flexrow">
             <h3 class="noborder"><i class="fas fa-folder-open fa-fw"></i>{{world.name}}</h3>
           </header>
 
           <!-- These are the topic compendia -->
-          <ol v-if="currentWorldId===world.id"
+          <ol v-if="props.worldFolderId===world.id"
             class="world-contents"
           >
             <li v-for="compendium in world.compendia"
-              :class="'fwb-topic-folder folder entry flexcol ' + (collapsed ? 'collapsed' : '')" 
+              :class="'fwb-topic-folder folder entry flexcol ' + (compendium.collapsed ? 'collapsed' : '')" 
               @click="onTopicFolderClick($event, compendium.id, compendium.topic)"
             >
               <header class="folder-header flexrow">
@@ -126,6 +126,11 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'worldSelected', worldId: string): void,
+    (e: 'entrySelected', entryId: string, ctrlKey: boolean): void,
+    (e: 'entryCreated', entryId: string): void,
+  }>();
 
   ////////////////////////////////
   // store
@@ -133,7 +138,6 @@
   ////////////////////////////////
   // data
   const expandedCompendia = ref<Record<string, boolean>>({});  // basically a list of compendium uuid that are expanded (collapsed by default); if false or not in here, it's expanded
-  const world = ref<{name: string, id: string} | null>(null);
   
   ////////////////////////////////
   // computed data
@@ -169,9 +173,8 @@
     // re-collapse everything
     expandedCompendia.value = {};
 
-    // TODO - emit
-    // if (worldId)
-    //   await this._makeCallback(Directory.CallbackType.WorldSelected, worldId);
+    if (worldId)
+      emit('worldSelected', worldId);
   };
 
   // open/close a topic
@@ -200,9 +203,7 @@
 
     const world = await createWorldFolder(true);
     if (world) {
-      // rerender
-      // TODO - emit
-      // await this._makeCallback(Directory.CallbackType.WorldSelected, world.uuid);
+      emit('worldSelected', world.uuid);
     }
   }
 
@@ -210,8 +211,7 @@
   const onEntryClick = async (event: JQuery.ClickEvent, entryId: string) => {
     event.stopPropagation();
 
-    // TODO - emit
-    // await this._makeCallback(Directory.CallbackType.DirectoryEntrySelected, entryId, event.ctrlKey);
+    emit('entrySelected', entryId, event.ctrlKey);
   }
 
   // create entry buttons
@@ -227,9 +227,8 @@
 
     const entry = await createEntry(worldFolder, topic);
 
-    // TODO - emit
-    // if (entry)
-    //   await this._makeCallback(Directory.CallbackType.EntryCreated, entry.uuid);
+    if (entry)
+      emit('entryCreated', entry.uuid);
   }
     
 

@@ -1,16 +1,4 @@
 <template>
-  <!-- {{! Requires:l
-    WBContentData: {
-    showHomePage: boolean;   // should we show the home page (vs. regular content)
-    homePageTemplate: function that returns the template name
-    homePageData: HomePageData
-
-    // if showHomePage is false:
-    icon
-    entry
-    }
-  }} -->
-
   <section class="sheet journal-sheet journal-entry-page fwb-journal-sheet">
     <div v-if="!props.entryId || !entry">
       homepage
@@ -74,6 +62,10 @@
         <section class="fwb-tab-body">
           <div class="tab description" data-group="primary" data-tab="description">
             <div class="tab-inner flexcol">
+              <Editor 
+                content=""
+                document=""
+              />
               <!-- {{> (editorTemplate) data=descriptionData }} -->
             </div>
           </div>
@@ -268,7 +260,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, ref, watch } from 'vue';
+  import { computed, onMounted, ref, watch } from 'vue';
 
   // local imports
   import { getCleanEntry } from '@/compendia';
@@ -287,9 +279,15 @@
   // library components
 
   // local components
+  import Editor from '@/templates/components/Editor.vue';
 
   // types
   import { Topic } from '@/types';
+  type Description = {
+    content: any,
+    format: number,
+    markdown: any
+  };
 
   ////////////////////////////////
   // props
@@ -322,20 +320,16 @@
     { tab: 'events', label: 'fwb.labels.tabs.events', },
   ] as { tab: string, label: string, }[];
 
+  const tabs = ref<Tabs>();
   const entry = ref<JournalEntry | null>(null);
   const topic = ref<Topic | null>(null);
-  const namePlaceholder = ref<string>();
-  const description = ref<{
-      content: any,
-      format: number,
-      markdown: any
-  }>();
 
   ////////////////////////////////
   // computed data
   const icon = computed((): string => (!topic.value ? '' : getIcon(topic.value)));
   const showHierarchy = computed((): boolean => (!topic.value ? false : hasHierarchy(topic.value)));
-
+  const namePlaceholder = computed((): string => localize(topicData[topic.value]?.namePlaceholder));
+  const description = computed((): Description => entry.value?.pages?.find((p)=>p.name==='description').text); //TODO: use enum
 
   ////////////////////////////////
   // methods
@@ -372,10 +366,12 @@
         // @ts-ignore
         const descriptionPage = newEntry.pages.find((p)=>p.name==='description');
         // TODO
+        // this should just update the params passed to the editor
         // (this._partials.DescriptionEditor as Editor).attachEditor(descriptionPage, descriptionPage.text.content);  // TODO: replace with enum -- do I even need the fieldname?
 
         // get() returns the object and we don't want to modify it directly
         // TODO
+        // TBD
         // (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKey.types)[topic]);
 
         // update the tree for things with hierarchies
@@ -383,6 +379,7 @@
           const pack = getGame().packs.get(newEntry.pack || '');
 
           // TODO
+          // TBD
           // if (pack)
           //   (this._partials.HierarchyTree as Tree).updateTree(await getHierarchyTree(pack, this._entry));
         }
@@ -393,32 +390,67 @@
 
   ////////////////////////////////
   // lifecycle events
+  onMounted(() => {
+    tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
+
+  // bind the tabs
+    tabs.value.bind(html.get()[0]);
+
+    //     // watch for edits to name
+    //     html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
+    //       await updateDocument(this._entry, { name: jQuery(event.target).val() });
+    //       await this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
+    //     });
+
+    //     // home page mode - click on a recent item
+    //     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {
+    //       await this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
+    //     });
+
+    //     // new type added in the typeahead
+    //     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.ItemAdded, async (added)=> {
+    //       if (this._topic === null)
+    //         return;
+
+    //       const currentTypes = moduleSettings.get(SettingKey.types);
+
+    //       // if not a duplicate, add to the valid type lists 
+    //       if (!currentTypes[this._topic].includes(added)) {
+    //         const updatedTypes = {
+    //           ...moduleSettings.get(SettingKey.types),
+    //           [this._topic]: currentTypes[this._topic].concat([added]),
+    //         };
+    //         await moduleSettings.set(SettingKey.types, updatedTypes);
+    //       }
+    //     });
+    //     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.SelectionMade, (selection)=> { 
+    //       void EntryFlags.set(this._entry, EntryFlagKey.type, selection);
+    //     });
+
+    //     // watch for edits to description
+    //     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorSaved, async (newContent: string) => {
+    //       const descriptionPage = this._entry.pages.find((p)=>p.name==='description');  //TODO
+
+    //       await updateDocument(descriptionPage, {'text.content': newContent });  
+
+    //       //need to reset
+
+    //       (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
+
+    //       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
+    //     });
+    //     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorClosed, async () => { 
+    //       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
+    //     });
+
+    //     // tree node clicked
+    //     this._partials.HierarchyTree.registerCallback(Tree.CallbackType.ItemClicked, async (value: string)=>{
+    //       alert(value);
+    //     });
+    //   }
+  });
 
 
-  //   private _worldId: string; 
-  //   private _entryId: string | null;    // the entryId to show (will show homepage if null)
-  //   private _entry: JournalEntry;
-  //   private _topic: Topic | null;
-  //   private _tabs: Tabs;
-
-  //   constructor() {
-  //     super();
-
-  //     this._tabs = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
-  //   }
-
-  //   // we will dynamically setup the partials
-  //   protected _createPartials(): void {
-  //     this._partials.HomePage = new HomePage();
-  //     this._partials.TypeTypeAhead = new TypeAhead([]);
-  //     this._partials.DescriptionEditor = new Editor();
-  //     this._partials.HierarchyTree = new Tree([]);
-  //   }
-
-  //   public changeWorld(worldId: string): void {
-  //     this._worldId = worldId;
-  //     (this._partials.HomePage as HomePage).changeWorld(worldId);
-  //   }
 
   //   public async getData(): Promise<WBContentData> {
   //     let data: WBContentData;
@@ -430,14 +462,6 @@
   //       // normal content
   //       data = {
   //         relationships: relationships,
-  //         typeAheadTemplate: () => TypeAhead.template,
-  //         typeAheadData: await (this._partials.TypeTypeAhead as TypeAhead).getData(),
-  //         namePlaceholder: localize(topicData[this._topic].namePlaceholder),
-  //         editorTemplate: () => Editor.template,
-  //         descriptionData: await (this._partials.DescriptionEditor as Editor)?.getData(),
-  //         treeTemplate: () => Tree.template,
-  //         hierarchyTreeData: await (this._partials.HierarchyTree as Tree)?.getData(),
-  //         description: this._entry.pages.find((p)=>p.name==='description').text, //TODO: use enum
   //       };
   //     }
 
@@ -445,72 +469,6 @@
   //     return data;
   //   }
 
-  //   public activateListeners(html: JQuery) {  
-  //     // handle partials
-  //     if (!this._entryId)
-  //       this._partials.HomePage.activateListeners(html);
-  //     else {
-  //       this._partials.TypeTypeAhead.activateListeners(html);
-  //       this._partials.DescriptionEditor?.activateListeners(html);
-  //       this._partials.HierarchyTree?.activateListeners(html);
-  //     }
-
-  //     // bind the tabs
-  //     this._tabs.bind(html.get()[0]);
-
-  //     // watch for edits to name
-  //     html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
-  //       await updateDocument(this._entry, { name: jQuery(event.target).val() });
-  //       await this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
-  //     });
-
-  //     // home page mode - click on a recent item
-  //     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {
-  //       await this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
-  //     });
-
-  //     // new type added in the typeahead
-  //     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.ItemAdded, async (added)=> {
-  //       if (this._topic === null)
-  //         return;
-
-  //       const currentTypes = moduleSettings.get(SettingKey.types);
-
-  //       // if not a duplicate, add to the valid type lists 
-  //       if (!currentTypes[this._topic].includes(added)) {
-  //         const updatedTypes = {
-  //           ...moduleSettings.get(SettingKey.types),
-  //           [this._topic]: currentTypes[this._topic].concat([added]),
-  //         };
-  //         await moduleSettings.set(SettingKey.types, updatedTypes);
-  //       }
-  //     });
-  //     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.SelectionMade, (selection)=> { 
-  //       void EntryFlags.set(this._entry, EntryFlagKey.type, selection);
-  //     });
-
-  //     // watch for edits to description
-  //     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorSaved, async (newContent: string) => {
-  //       const descriptionPage = this._entry.pages.find((p)=>p.name==='description');  //TODO
-
-  //       await updateDocument(descriptionPage, {'text.content': newContent });  
-
-  //       //need to reset
-
-  //       (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
-
-  //       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
-  //     });
-  //     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorClosed, async () => { 
-  //       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
-  //     });
-
-  //     // tree node clicked
-  //     this._partials.HierarchyTree.registerCallback(Tree.CallbackType.ItemClicked, async (value: string)=>{
-  //       alert(value);
-  //     });
-  //   }
-  // }
 </script>
 
 <style lang="scss">

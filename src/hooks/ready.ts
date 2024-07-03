@@ -40,7 +40,7 @@ async function ready(): Promise<void> {
       }
 
       // render the main window
-      // void oldWorldBuilder.render(true);
+      void oldWorldBuilder.render(true);
     });
   }
 }
