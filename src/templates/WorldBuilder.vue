@@ -5,9 +5,10 @@
     <section class="fwb-body flexcol">
       <WBHeader 
         :worldId="worldFolder?.uuid"
+        @entry-changed="onHeaderEntryChanged"
       />
       <div class="fwb-content flexcol editable">
-        <WBContent :currentEntryUuid="currentEntryUuid" />
+        <WBContent :entryId="currentEntryUuid" />
       </div>
       <!--{{> (WBFooter) WBFooterData }}
     -->
@@ -26,7 +27,6 @@
   import { InjectionKey, onMounted, provide, ref } from 'vue';
 
   // local imports
-  import { getGame, localize } from '@/utils/game';
   import { getDefaultFolders, getRootFolder, validateCompendia } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 
@@ -82,7 +82,6 @@
   const onHeaderEntryChanged = async (newEntryId: string) => {
     currentEntryUuid.value = newEntryId;
   }
-  
 
   ////////////////////////////////
   // watchers

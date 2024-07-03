@@ -15,59 +15,76 @@
     content
     <!-- NOTE: THIS WAS A DYNAMIC COMPONENT...-->
     
+    <div v-if="showHomePage">
+      homepage
+
+    </div>
+      
     <!-- <HomePageTemplate v-if="showHomePage"
       homePageData 
     />
+  -->
     <form v-else
-      class="flexcol journal-subsheet {{topic}}" editable="{{editable}}"
+      :class="'flexcol journal-subsheet ' + topic" 
+      :editable="editable"
     >
       <div class="sheet-container detailed flexcol">
         <header class="journal-sheet-header flexrow">
           <div class="sheet-image">
-            <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }">
+            img
+            <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
           </div>
           <section class="header-details fwb-content-header">
             <h1 class="header-name flexrow">
-              <i class="fas {{icon}} sheet-icon"></i>
-              <input id="fwb-input-name" name="name" type="text" value="{{entry.name}}" placeholder="{{namePlaceholder}}">
+              <i :class="`fas ${icon} sheet-icon`"></i>
+              <input 
+                id="fwb-input-name" 
+                name="name" 
+                type="text" 
+                :value="entry.name" 
+                :placeholder="namePlaceholder"
+              />
             </h1>
             <div class="form-group fwb-content-header">
-              <label>{{localize 'fwb.labels.fields.type'}}</label>
-              {{> (typeAheadTemplate) data=typeAheadData name=(constant "flags.fwb.type") value=entry.flags.world-builder.type }}
+              <label>{{localize('fwb.labels.fields.type')}}</label>
+              <!-- {{> (typeAheadTemplate) data=typeAheadData name=(constant "flags.fwb.type") value=entry.flags.world-builder.type }} -->
             </div>
 
-            {{#if showHierarchy}}
-              <div class="form-group fwb-content-header">
-                {{!--<label>{{localize 'fwb.labels.fields.type'}}</label>--}}
-                {{> (treeTemplate) data=hierarchyTreeData }}
-              </div>
-            {{/if}}
-            {{!-- <div class="form-group">
+            <div v-if="showHierarchy"
+              class="form-group fwb-content-header"
+            >
+              <!-- {{!--<label>{{localize 'fwb.labels.fields.type'}}</label>--}}
+              {{> (treeTemplate) data=hierarchyTreeData }} -->
+            </div>
+
+            <!-- {{!-- <div class="form-group">
               <label>{{localize 'MonksEnhancedJournal.Role'}}</label>
               <input type="text" name="flags.monks-enhanced-journal.role" value="{{data.flags.monks-enhanced-journal.role}}" />
             </div>
             <div class="form-group">
               <label>{{localize 'MonksEnhancedJournal.Location'}}</label>
               <input type="text" name="flags.monks-enhanced-journal.location" value="{{data.flags.monks-enhanced-journal.location}}" />
-            </div> --}}
+            </div> --}} -->
           </section>
         </header>
         <nav class="sheet-navigation tabs" data-group="primary">
-          <a class="item" data-tab="description">{{localize 'fwb.labels.tabs.description'}}</a>
-          <a class="item" data-tab="entry-details">{{localize 'fwb.labels.tabs.details'}}</a>
-          {{#each relationships}}
-            <a class="item" data-tab="{{tab}}">{{localize label}}</a>
-          {{/each}}
+          <a class="item" data-tab="description">{{localize('fwb.labels.tabs.description')}}</a>
+          <a class="item" data-tab="entry-details">{{localize('fwb.labels.tabs.details')}}</a>
+          <a v-for="relationship in relationships"
+            class="item" :data-tab="relationship.tab"
+          >
+            {{localize(relationship.label)}}
+          </a>
         </nav>
         <section class="fwb-tab-body">
           <div class="tab description" data-group="primary" data-tab="description">
             <div class="tab-inner flexcol">
-              {{> (editorTemplate) data=descriptionData }}
+              <!-- {{> (editorTemplate) data=descriptionData }} -->
             </div>
           </div>
           <div class="tab entry-details" data-group="primary" data-tab="entry-details">
             <div class="tab-inner flexcol">
-            {{!--
+            <!-- {{!--
               <div class="details-section flexrow">
                 <div class="document-details">
                   <ul>
@@ -91,7 +108,7 @@
                 </div>
                 {{/if}}
                 {{/each}}
-              </div>--}}
+              </div>--}} -->
             </div>
           </div>
           <div class="tab relationships" data-group="primary" data-tab="relationships">
@@ -99,46 +116,71 @@
               <div class="relationships flexrow">
                 <div class="items-list">
                   <ol class="item-list">
-                    {{#each relationships}}
-                    <li class="item-header flexrow">
-                      <h3 class="item-name noborder flexrow">{{this.name}}</h3>
-                      <h3 class="item-name noborder flexrow">{{localize 'MonksEnhancedJournal.Relationship'}}</h3>
-                      {{#if @root.owner}}<div class="item-controls flexrow" buttons="2"></div>{{/if}}
+                    <li v-for="relationship in relationships" 
+                      class="item-header flexrow"
+                    >
+                      <h3 class="item-name noborder flexrow">{{relationship.name}}</h3>
+                      <h3 class="item-name noborder flexrow">{{localize('MonksEnhancedJournal.Relationship')}}</h3>
+                      <div v-if="owner" 
+                        class="item-controls flexrow" 
+                        buttons="2"
+                      ></div>
                     </li>
-                    {{#each documents}}
-                    <li class="item flexrow" data-id="{{this.id}}" data-uuid="{{this.uuid}}" data-container="relationships" data-document="JournalEntry" draggable="false">
+                    <li v-for="document in documents"
+                      class="item flexrow" 
+                      :data-id="document.id" 
+                      :data-uuid="document.uuid" 
+                      data-container="relationships" 
+                      data-document="JournalEntry" 
+                      draggable="false"
+                    >
                       <div class="item-name clickable flexrow">
-                        <img class="item-image large actor-icon" src="{{this.img}}" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/{{this.type}}.png' }" />
-                        <h4><a>{{#if this.pack}}<i class="fas fa-atlas" title="{{localize 'MonksEnhancedJournal.FromCompendium'}}"></i> {{/if}}{{this.name}}</a></h4>
+                        <img 
+                          class="item-image large actor-icon" 
+                          :src="document.img" 
+                          onerror="if (!document.imgerr) { document.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/{{document.type}}.png' }" 
+                        />
+                        <h4>
+                          <a>
+                            <i v-if="document.pack"
+                              class="fas fa-atlas" 
+                              title="{{localize 'MonksEnhancedJournal.FromCompendium'}}"
+                            ></i>
+                            {{document.name}}
+                          </a>
+                        </h4>
                       </div>
 
                       <div class="item-name item-relationship flexrow">
                         <input type="text" class="item-field" name="relationships.{{this.id}}.relationship" value="{{this.relationship}}" />
                       </div>
 
-                      {{#if @root.owner}}
-                      <div class="item-controls flexrow owner" buttons="2">
+                      <div v-if="owner" 
+                        class="item-controls flexrow owner" 
+                        buttons="2"
+                      >
                         <input type="checkbox" name="relationships.{{this.id}}.hidden" {{checked this.hidden}} style="display:none;" />
                         <a class="item-control item-hide" title="{{localize 'MonksEnhancedJournal.HideShowRelationship'}}"><i class="fas fa-eye-slash"></i></a>
                         <a class="item-control item-delete" title="{{localize 'MonksEnhancedJournal.RemoveRelationship'}}"><i class="fas fa-trash"></i></a>
                       </div>
-                      {{/if}}
                     </li>
-                    {{/each}}
-                    {{else}}
-                    {{#if owner}}
-                    <li class="instruction">{{localize 'MonksEnhancedJournal.msg.DragToMakeRelationship'}}</li>
-                    {{else}}
-                    <li class="instruction">{{localize 'MonksEnhancedJournal.msg.NoRelationshipsAtTheMoment'}}</li>
-                    {{/if}}
-                    {{/each}}
+                    <!-- <li v-else-if="owner" 
+                      class="instruction"
+                    >
+                      {{localize 'MonksEnhancedJournal.msg.DragToMakeRelationship'}}
+                    </li>
+                    <li v-else 
+                      class="instruction"
+                    >
+                      {{localize 'MonksEnhancedJournal.msg.NoRelationshipsAtTheMoment'}}
+                    </li> -->
                   </ol>
                 </div>
               </div>
             </div>
           </div>
           <div class="tab offerings" data-group="primary" data-tab="offerings">
-            <div class="tab-inner flexcol">
+            <!-- <div class="tab-inner flexcol">
               <div class="offering-list">
                 <div class="items-list">
                   <div class="item-header flexrow">
@@ -146,41 +188,37 @@
                     <h3 class="item-name noborder flexrow">Items</h3>
                     <h3 class="item-detail noborder flexrow">Status</h3>
 
-                    {{#if @root.owner}}
-                    <div class="item-controls flexrow" buttons="2">
-                    </div>
-                    {{/if}}
+                    <div v-if="owner" 
+                      class="item-controls flexrow" 
+                      buttons="2"
+                    ></div>
                     <div class="item-controls flexrow" buttons="2">
                       <a class="item-control make-offering" title="{{localize 'MonksEnhancedJournal.MakeOffering'}}"><i class="fas fa-hand-holding-usd"></i></a>
                     </div>
                   </div>
                   <ol class="item-list">
-                    {{#each offerings}}
-                    <li class="item flexrow{{#if this.done}} complete{{/if}}" data-id="{{this.id}}" data-actor-id="{{this.actorId}}" data-container="offerings" draggable="false">
+                    <li v-for="offering in offerings" 
+                      class="item flexrow{{#if this.done}} complete{{/if}}" data-id="{{this.id}}" data-actor-id="{{this.actorId}}" data-container="offerings" draggable="false">
                       <div class="item-name flexrow">
-                        <img class="item-image actor-icon" src="{{this.img}}" />
-                        <span>{{this.name}}</span>
+                        <img class="item-image actor-icon" src="{{offering.img}}" />
+                        <span>{{offering.name}}</span>
                       </div>
 
                       <div class="item-name item-offered flexcol">
-                        {{#each this.items}}
-                        <div class="flexrow" style="width: 100%; line-height: 32px;">
-                          <img class="item-image item-icon" src="{{this.img}}" onerror="if ($(this).attr('src') != 'icons/svg/item-bag.svg') { $(this).attr('src', 'icons/svg/item-bag.svg'); }" />
-                          <span class="tag">{{{this.name}}}</span>
+                        <div v-for="item in offering.items" class="flexrow" style="width: 100%; line-height: 32px;">
+                          <img class="item-image item-icon" src="{{item.img}}" onerror="if ($(this).attr('src') != 'icons/svg/item-bag.svg') { $(this).attr('src', 'icons/svg/item-bag.svg'); }" />
+                          <span class="tag">{{{item.name}}}</span>
                         </div>
-                        {{/each}}
                       </div>
 
                       <div class="item-detail item-offered">
-                        {{this.stateName}}
+                        {{offering.stateName}}
                       </div>
 
-                      {{#if @root.owner}}
-                        <div class="item-controls flexrow owner" buttons="2">
-                          {{#if (eq this.state "offering")}}
-                            <a class="item-control item-accept" title="{{localize 'MonksEnhancedJournal.AcceptOffering'}}"><i class="fas fa-check"></i></a>
-                            <a class="item-control item-reject" title="{{localize 'MonksEnhancedJournal.RejectOffering'}}"><i class="fas fa-times"></i></a>
-                          {{/if}}
+                      <div v-if="owner" class="item-controls flexrow owner" buttons="2">
+                        <div v-if="offering.state==='offering'">
+                          <a class="item-control item-accept" title="{{localize 'MonksEnhancedJournal.AcceptOffering'}}"><i class="fas fa-check"></i></a>
+                          <a class="item-control item-reject" title="{{localize 'MonksEnhancedJournal.RejectOffering'}}"><i class="fas fa-times"></i></a>
                         </div>
 
                         <div class="item-controls flexrow owner" buttons="2">
@@ -188,41 +226,44 @@
                           <a class="item-control item-private" title="{{localize 'MonksEnhancedJournal.HideShowOffering'}}"><i class="fas fa-eye-slash"></i></a>
                           <a class="item-control item-delete" title="{{localize 'MonksEnhancedJournal.RemoveOffering'}}"><i class="fas fa-trash"></i></a>
                         </div>
-                      {{else}}
-                        <div class="item-controls flexrow">
-                          {{#if this.owner}}
-                          {{#if this.hidden}}
-                          <i class="fas fa-eye-slash"></i>
-                          {{/if}}
-                          {{#if (eq this.state "offering")}}
-                          <a class="item-control item-cancel" title="{{localize 'MonksEnhancedJournal.CancelOffering'}}"><i class="fas fa-trash"></i></a>
-                          {{/if}}
-                          {{/if}}
+                      </div>
+                      <div v-else class="item-controls flexrow">
+                        <div v-if="offering.owner">
+                          <div v-if="offering.hidden">
+                            <i class="fas fa-eye-slash"></i>
+                          </div>
+                          <div v-if="offering.state==='offering'">
+                            <a class="item-control item-cancel" title="{{localize 'MonksEnhancedJournal.CancelOffering'}}"><i class="fas fa-trash"></i></a>
+                          </div>
                         </div>
-                      {{/if}}
+                      </div>
                     </li>
-                    {{/each}}
                   </ol>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
           <div class="tab notes" data-group="primary" data-tab="notes">
             <div class="tab-inner flexcol">
-              <div style="flex-grow: 0;">{{localize 'MonksEnhancedJournal.OnlyViewable'}}{{#unless hasGM}}<span style="color:darkred;font-weight:bold;"> {{localize 'MonksEnhancedJournal.msg.CannotEditNotesWithoutGM'}}</span>{{/unless}}</div>
+              <div style="flex-grow: 0;">
+                {{localize('MonksEnhancedJournal.OnlyViewable')}}
+                <span v-if="!hasGM" style="color:darkred;font-weight:bold;">{{localize('MonksEnhancedJournal.msg.CannotEditNotesWithoutGM')}}</span>
+              </div>
               <div class="notes-container">
-                {{!-- {{editor userdata.enrichedText target=notesTarget editable=true button=true owner=owner}} --}}
+                <!-- {{!-- {{editor userdata.enrichedText target=notesTarget editable=true button=true owner=owner}} --}} -->
               </div>
             </div>
           </div>
         </section>
       </div>
-    </form>	 -->
+    </form>	 
   </section>
 </template>
 
 <script setup lang="ts">
+
   // library imports
+  import { computed, ref } from 'vue';
 
   // local imports
   // import { HomePage, HomePageData} from './HomePage';
@@ -242,9 +283,16 @@
   // local components
 
   // types
+  import { Topic } from '@/types';
 
   ////////////////////////////////
   // props
+  const props = defineProps({
+    entryId: {
+      type: String,
+      requited: true,
+    }
+  });
 
   ////////////////////////////////
   // emits
@@ -254,9 +302,40 @@
 
   ////////////////////////////////
   // data
+  const topicData = {
+    [Topic.Character]: { namePlaceholder: 'fwb.placeholders.characterName', },
+    [Topic.Event]: { namePlaceholder: 'fwb.placeholders.characterName', },
+    [Topic.Location]: { namePlaceholder: 'fwb.placeholders.characterName', },
+    [Topic.Organization]: { namePlaceholder: 'fwb.placeholders.characterName', },
+  };
+
+  const relationships = [
+    { tab: 'characters', label: 'fwb.labels.tabs.characters', },
+    { tab: 'locations', label: 'fwb.labels.tabs.locations',},
+    { tab: 'organizations', label: 'fwb.labels.tabs.organizations', },
+    { tab: 'events', label: 'fwb.labels.tabs.events', },
+  ] as { tab: string, label: string, }[];
+
+  const entry = ref<JournalEntry>();
+  const topic = ref<Topic>();
+  const icon = ref<string>();
+  const showHierarchy = ref<boolean>();
+  // const typeAheadTemplate: () => string,
+  // const typeAheadData: TypeAheadData,
+  // const treeTemplate: () => string,
+  // const hierarchyTreeData: TreeData,
+  // const editorTemplate: () => string,
+  // const descriptionData: EditorData,
+  const namePlaceholder = ref<string>();
+  const description = ref<{
+      content: any,
+      format: number,
+      markdown: any
+  }>();
 
   ////////////////////////////////
   // computed data
+  const showHomePage = computed(() => !props.entryId);
 
   ////////////////////////////////
   // methods
@@ -270,32 +349,6 @@
   ////////////////////////////////
   // lifecycle events
 
-
-  // export type WBContentData = {
-  //   showHomePage: true,
-  //   homePageTemplate: () => string,
-  //   homePageData: HomePageData
-  // } |
-  // {
-  //   showHomePage: false,
-  //   entry: JournalEntry,
-  //   topic: Topic,
-  //   icon: string,
-  //   showHierarchy: boolean,
-  //   relationships: { tab: string, label: string }[],
-  //   typeAheadTemplate: () => string,
-  //   typeAheadData: TypeAheadData,
-  //   treeTemplate: () => string,
-  //   hierarchyTreeData: TreeData,
-  //   editorTemplate: () => string,
-  //   descriptionData: EditorData,
-  //   namePlaceholder: string,
-  //   description: {
-  //     content: any,
-  //     format: number,
-  //     markdown: any
-  //   }
-  // }
 
   //   private _worldId: string; 
   //   private _entryId: string | null;    // the entryId to show (will show homepage if null)
@@ -364,19 +417,6 @@
   //   public async getData(): Promise<WBContentData> {
   //     let data: WBContentData;
 
-  //     const topicData = {
-  //       [Topic.Character]: { namePlaceholder: 'fwb.placeholders.characterName', },
-  //       [Topic.Event]: { namePlaceholder: 'fwb.placeholders.characterName', },
-  //       [Topic.Location]: { namePlaceholder: 'fwb.placeholders.characterName', },
-  //       [Topic.Organization]: { namePlaceholder: 'fwb.placeholders.characterName', },
-  //     };
-
-  //     const relationships = [
-  //       { tab: 'characters', label: 'fwb.labels.tabs.characters', },
-  //       { tab: 'locations', label: 'fwb.labels.tabs.locations',},
-  //       { tab: 'organizations', label: 'fwb.labels.tabs.organizations', },
-  //       { tab: 'events', label: 'fwb.labels.tabs.events', },
-  //     ] as { tab: string, label: string, }[];
 
   //     if (!this._entryId) {
   //       // homepage

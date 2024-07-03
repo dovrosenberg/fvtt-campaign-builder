@@ -99,7 +99,6 @@
   import { inject, ref, computed, onMounted, watch, InjectionKey } from 'vue';
 
   // local imports
-  import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   import { localize } from '@/utils/game';
   import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
   import { getIcon } from '@/utils/misc';
@@ -272,8 +271,8 @@
     if (newTab?.entry?.uuid)
       await updateRecent(newTab.entry);
 
-    // TODO - emit
-    //   await this._makeCallback(WBHeader.CallbackType.EntryChanged, newTab.entry.uuid);
+    emit('entryChanged', newTab.entry.uuid);
+
     return;
   }
 
@@ -539,18 +538,17 @@
 
     await UserFlags.set(UserFlagKey.currentWorld, newValue);
 
-    //TODO - replace this with an event passed back up
-    //await this._makeCallback(WBHeader.CallbackType.EntryChanged, this.activeEntryId);
+    emit('entryChanged', activeEntryId.value);
   });
 
   ////////////////////////////////
   // lifecycle events
   onMounted(function () {
-    // load te tabs and bookmarks for the world
-    if (props.worldId) {
-      tabs.value = UserFlags.get(UserFlagKey.tabs, props.worldId) || [];
-      bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, props.worldId) || [];
-    }
+    // // load the tabs and bookmarks for the world
+    // if (props.worldId) {
+    //   tabs.value = UserFlags.get(UserFlagKey.tabs, props.worldId) || [];
+    //   bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, props.worldId) || [];
+    // }
 
     // set up the drag & drop for tabs and bookmarks
     activateDragDrop();
