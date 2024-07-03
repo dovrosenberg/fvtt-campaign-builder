@@ -44,11 +44,11 @@
               @click="onTopicFolderClick($event, compendium.id, compendium.topic)"
             >
               <header class="folder-header flexrow">
-                <h4 class="noborder" style="margin-bottom:0px">
+                <div class="fwb-compendium-label noborder" style="margin-bottom:0px">
                   <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                  <i class="icon fas {{icon}}" style="margin-right: 4px;"></i>
+                  <i :class="'icon fas ' + compendium.icon" style="margin-right: 4px;"></i>
                   {{compendium.name}}
-                </h4>
+                </div>
                 <a 
                   class="fwb-create-entry create-button"
                   @click="onCreateEntryClick($event, compendium.topic, world.id)"
