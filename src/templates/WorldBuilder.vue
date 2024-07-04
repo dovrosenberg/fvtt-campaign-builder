@@ -622,13 +622,36 @@
 */
 
 .fwb-main-window {  
+  min-width: 640px;
+
   .fwb {
     height: 100%;
     width: 100%;
     margin-top: 0px;
     flex-wrap: nowrap;
 
-    // changes when sidebar collapses
+    // Sidebar 
+    #fwb-directory-sidebar {
+      flex: 0 0 250px;
+      height: 100%;
+      background: var(--mej-sidebar-background);
+      border-left: 1px solid var(--mej-header-border-color);
+      transition: width 0.5s, flex 0.5s;
+
+      & > section {
+        display: flex !important;
+        height: 100%;
+      }
+    }
+
+    #journal .entry-name > i,
+    #fwb-directory .entry-name > i {
+      margin-right: 8px;
+      margin-left: 4px;
+      flex: 0 0 15px;
+    }
+
+  // changes when sidebar collapses
     &.collapsed {
       .fwb-header .fwb-tab-bar {
         padding-right: 30px;
@@ -644,6 +667,7 @@
       #fwb-directory-sidebar {
         flex: 0 0 0px;
         width: 0px;
+        overflow: hidden;
       }
       #fwb-sidebar-toggle {
         right: 6px;
@@ -654,7 +678,6 @@
 
     .fwb-body {
       height: 100%;
-      /*overflow: hidden; Can't be hidden due to the sidebar toggle*/
     }
   }
 
@@ -667,28 +690,4 @@
   
 }
 
-.fwb {
-  // Sidebar 
-  #fwb-directory-sidebar {
-    flex: 0 0 300px;
-    width: 300px;
-    max-width: 30%;
-    height: 100%;
-    background: var(--mej-sidebar-background);
-    border-left: 1px solid var(--mej-header-border-color);
-    transition: width 0.5s, flex 0.5s;
-
-    & > section {
-      display: flex !important;
-      height: 100%;
-    }
-  }
-
-  #journal .entry-name > i,
-  #fwb-directory .entry-name > i {
-    margin-right: 8px;
-    margin-left: 4px;
-    flex: 0 0 15px;
-  }
-}
 </style>

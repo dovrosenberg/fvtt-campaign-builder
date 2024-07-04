@@ -44,6 +44,7 @@
       #fwb-directory-sidebar {
         flex: 0 0 0px;
         width: 0px;
+        overflow: hidden;
       }
       #fwb-sidebar-toggle {
         right: 6px;
@@ -54,7 +55,6 @@
 
     .fwb-body {
       height: 100%;
-      /*overflow: hidden; Can't be hidden due to the sidebar toggle*/
     }
   }
 

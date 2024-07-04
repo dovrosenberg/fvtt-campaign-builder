@@ -1,11 +1,11 @@
 <template>
-  <section class="sheet journal-sheet journal-entry-page fwb-journal-sheet">
+  <section class="sheet fwb-journal-sheet">
     <HomePage v-if="!props.entryId || !entry"
       :worldId="props.worldId" 
     />
       
     <form v-else
-      :class="'flexcol journal-subsheet ' + topic" 
+      :class="'flexcol fwb-journal-subsheet ' + topic" 
       :editable="editable"
     >
       <div class="sheet-container detailed flexcol">
@@ -46,7 +46,7 @@
             </div> --}} -->
           </section>
         </header>
-        <nav class="sheet-navigation tabs" data-group="primary">
+        <nav class="fwb-sheet-navigation flexrow fwb-tabs" data-group="primary">
           <a class="item" data-tab="description">{{localize('fwb.labels.tabs.description')}}</a>
           <a class="item" data-tab="entry-details">{{localize('fwb.labels.tabs.details')}}</a>
           <a v-for="relationship in relationships"
@@ -327,8 +327,8 @@
   ////////////////////////////////
   // computed data
   const icon = computed((): string => (!topic.value ? '' : getIcon(topic.value)));
-  const showHierarchy = computed((): boolean => (!topic.value ? false : hasHierarchy(topic.value)));
-  const namePlaceholder = computed((): string => localize(topicData[topic.value]?.namePlaceholder));
+  const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
+  const namePlaceholder = computed((): string => (topic.value===null ? '' : localize(topicData[topic.value]?.namePlaceholder)));
   const description = computed((): Description => entry.value?.pages?.find((p)=>p.name==='description').text); //TODO: use enum
 
   ////////////////////////////////
@@ -533,7 +533,7 @@
       }
     
       /* Nav */
-      .sheet-navigation {
+      .fwb-sheet-navigation {
         flex-grow: 0;
         flex: 0 0 30px !important;
         background: var(--mej-sheet-tab-background);
@@ -542,29 +542,35 @@
         font-family: var(--mej-font-family);
         font-size: 20px;
         font-weight: 700;
+
+        &.fwb-tabs {
+          flex-wrap: wrap;
+
+          .item {
+            flex: 1;
+            height: 30px !important;
+            line-height: 32px;
+            margin: 0 24px;
+            border-bottom: var(--mej-sheet-tab-border);
+            color: var(--mej-sheet-tab-color);
+            max-width: 150px;
+          }
+
+          .item:hover {
+            color: var(--mej-sheet-tab-color-hover);
+          }
+
+          .item.hasitems {
+            border-bottom-color: var(--mej-sheet-tab-border-items);
+          }
+
+          .item.active {
+            border-bottom-color: var(--mej-sheet-tab-border-active);
+            color: var(--mej-sheet-tab-color-active);
+          }
+        }
       }
 
-      .sheet-navigation .item {
-        height: 30px !important;
-        line-height: 32px;
-        margin: 0 24px;
-        border-bottom: var(--mej-sheet-tab-border);
-        color: var(--mej-sheet-tab-color);
-        max-width: 150px;
-      }
-
-      .sheet-navigation .item:hover {
-        color: var(--mej-sheet-tab-color-hover);
-      }
-
-      .sheet-navigation .item.hasitems {
-        border-bottom-color: var(--mej-sheet-tab-border-items);
-      }
-
-      .sheet-navigation .item.active {
-        border-bottom-color: var(--mej-sheet-tab-border-active);
-        color: var(--mej-sheet-tab-color-active);
-      }
 
       /* Dialog */
       .dialog-content {
@@ -732,7 +738,7 @@
 
 
       /* Blank */
-      .journal-subsheet.blank {
+      .fwb-journal-subsheet.blank {
         display: flex;
         text-align: center;
         align-items: center;
@@ -865,11 +871,11 @@
       }
     }
 
-    .journal-subsheet:not(.gm) .gm-only {
+    .fwb-journal-subsheet:not(.gm) .gm-only {
       display: none;
     }
     
-    .journal-subsheet:not(.owner) .owner-only {
+    .fwb-journal-subsheet:not(.owner) .owner-only {
       display: none;
     }
     
@@ -1015,7 +1021,7 @@
     }
 
     
-    // .journal-subsheet[editable='false'] .editor-edit {
+    // .fwb-journal-subsheet[editable='false'] .editor-edit {
     //   display: none !important;
     // }
 
@@ -1392,13 +1398,13 @@
 
 
     /* Text Entry */
-    .journal-subsheet div[data-tab='picture'] #context-menu {
+    .fwb-journal-subsheet div[data-tab='picture'] #context-menu {
       top: calc(50% - 33px);
       left: calc(50% - 100px);
       max-width: 200px;
     }
 
-    &.sheet .journal-subsheet div[data-tab='picture'].tab {
+    &.sheet .fwb-journal-subsheet div[data-tab='picture'].tab {
       overflow-y: hidden !important;
       overflow-x: hidden !important;
     }
