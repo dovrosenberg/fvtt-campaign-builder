@@ -11,6 +11,7 @@
       />
       <div class="fwb-content flexcol editable">
         <WBContent 
+          :worldId="worldFolder?.uuid"
           :entryId="currentEntryUuid" 
           @editor-saved="onContentEditorSaved"
         />

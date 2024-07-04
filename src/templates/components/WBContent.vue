@@ -1,13 +1,9 @@
 <template>
   <section class="sheet journal-sheet journal-entry-page fwb-journal-sheet">
-    <div v-if="!props.entryId || !entry">
-      homepage
-    </div>
-      
-    <!-- <HomePageTemplate v-if="props.entryId && entry">
-      homePageData 
+    <HomePage v-if="!props.entryId || !entry"
+      :worldId="props.worldId" 
     />
-  -->
+      
     <form v-else
       :class="'flexcol journal-subsheet ' + topic" 
       :editable="editable"
@@ -268,11 +264,10 @@
   import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
   import { getGame, localize } from '@/utils/game';
   import { hasHierarchy } from '@/utils/hierarchy';
-  // import { HomePage, HomePageData} from './HomePage';
+
   // import { TypeAhead, TypeAheadData } from '@/components/TypeAhead';
   // import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   // import { getCleanEntry, updateDocument } from '@/compendia';
-  // import { Editor, EditorData } from '@/components/Editor';
   // import { TreeData, Tree } from '@/components/Tree';
   // import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
 
@@ -280,6 +275,7 @@
 
   // local components
   import Editor from '@/templates/components/Editor.vue';
+  import HomePage from '@/templates/components/HomePage.vue';
 
   // types
   import { Topic } from '@/types';
@@ -294,8 +290,12 @@
   const props = defineProps({
     entryId: {
       type: String,
-      requited: true,
-    }
+      required: true,
+    },
+    worldId: {
+      type: String,
+      required: true,
+    },
   });
 
   ////////////////////////////////
@@ -742,6 +742,7 @@
         font-weight: bold;
 
         .message {
+          flex: 1;
           display: flex;
           justify-content: center;
           width: 100%;
