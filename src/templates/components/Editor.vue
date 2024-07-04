@@ -1,25 +1,41 @@
  <template>
-  <div ref="wrapper"
+  <div 
+    ref="wrapperRef"
     :id="editorId" 
     class="fwb-editor flexcol"
   >
-    <!-- this will create the DOM for the editor, the various properties are then read by the code to create the TextEditor component -->
-    <div v-html="editorHelper(props.content, {
-        target: 'content', 
-        editable: true, 
-        button: true,
-        collaborate: false,
-        engine: 'prosemirror'
-      })"
-      style="flex:1;"
-    ></div>
+    <!-- this reproduces the Vue editor() Handlebars helper -->
+     <div 
+      ref="editorRef"
+      :class="'editor ' + props.class"
+      :style="(height ? height + 'px' : '')"
+     >
+      <!-- activation button -->
+      <a v-if="props.hasButton && props.editable"
+        ref="buttonRef"
+        class="editor-edit"
+        :style="`display: ${ buttonDisplay }`"
+        @click="activateEditor"
+      >
+        <i class="fa-solid fa-edit"></i>
+      </a>
+      <div 
+        ref="coreEditorRef"
+        class="editor-content" 
+        v-bind="datasetProperties"
+        v-html="initialContent ?? ''"
+      >
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
+  // !!! TODO - use vue-safe-html instead of v-html!!!
+
   // library imports
-  import { editor as editorHelper } from '@/libs/VueHelpers.mjs';
-  import { PropType, onMounted, ref, watch } from 'vue';
+  import { PropType, computed, onMounted, ref, toRaw, watch } from 'vue';
 
   // local imports
 
@@ -45,7 +61,41 @@
     document: {
       type: Object as PropType<Document<any>>,
       required: true,
-    }
+    }, 
+    class: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    hasButton: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    editable: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    collaborate: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    engine: {
+      type: String,
+      required: false,
+      default: 'prosemirror',
+    },
+    height: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    target: {
+      type: String,
+      required: true,
+    }  
   });
 
   ////////////////////////////////
@@ -59,40 +109,77 @@
 
   ////////////////////////////////
   // data
-  const wrapper = ref(null);
   const editorId = ref<string>();
   const initialContent = ref<string>('');
-  const options = ref<EditorOptions>();
   const editor = ref<TextEditor | null>(null);
-  const button = ref<HTMLElement>();
-  const hasButton = ref<boolean>();
-  const mce = ref<any>();
+  const buttonDisplay = ref<string>('');   // is button currently visible
+
+  const coreEditorRef = ref<HTMLDivElement>();
+  const editorRef = ref<HTMLDivElement>();
+  const wrapperRef = ref<HTMLDivElement>();
+  const buttonRef = ref<HTMLElement>();
 
   //
   ////////////////////////////////
   // computed data
+  const datasetProperties = computed((): Record<string, string> => {
+    const dataset = {
+      engine: props.engine,
+      collaborate: props.collaborate.toString(),
+    } as Record<string, string>;
+
+    if (props.editable) 
+      dataset.edit = props.target;
+
+    return dataset;
+  })
 
   ////////////////////////////////
   // methods
- const activateEditor = async (): Promise<void> => {
-    const optionSet = {
-      ...options.value,
-    } as typeof options.value
-    & {
-      fitToSize?: boolean
+  // shouldn't be called unless there's already a document
+  // this creates the Editor class that converts the div into a 
+  //    functional editor
+  const activateEditor = async (): Promise<void> => {
+    if (!props.document || !coreEditorRef.value)
+      return;
+
+    const fitToSize = false;
+
+    // if the window content is shorter, we want to handle that case (rare)
+    const wc = coreEditorRef.value.closest('.window-content') as HTMLElement;
+
+    if (!props.target || !buttonRef.value || !wrapperRef.value)
+      throw new Error('Missing name or button in activateEditor()');
+
+    // Determine the preferred editor height
+    const heights = [wrapperRef.value.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
+    const height = Math.min(...heights.filter(h => Number.isFinite(h)));
+
+    // Get initial content
+    const options = {
+      document: props.document,
+      target: coreEditorRef.value,
+      fieldName: props.target,
+      height, 
+      engine: props.engine, 
+      collaborate: props.collaborate,
+      plugins: undefined as { menu: any, keyMaps: any } | undefined,
     };
 
-    if (!optionSet.fitToSize) 
-    optionSet.height = optionSet.target.offsetHeight;
-    if (hasButton.value) 
-      (button.value as HTMLElement).style.display = 'none';
+    if (props.engine === 'prosemirror') 
+      options.plugins = configureProseMirrorPlugins(/*{removed:hasButton}*/);
+
+    if (!fitToSize && options.target.offsetHeight) 
+      options.height = options.target.offsetHeight;
     
-    editor.value = mce.value = await TextEditor.create(optionSet, initialContent.value);
+    buttonDisplay.value = 'none';
     
-    optionSet.target.closest('.editor')?.classList.add(optionSet.engine ?? 'tinymce');
+    editor.value = await TextEditor.create(options, initialContent.value);
+    
+    options.target.closest('.editor')?.classList.add(props.engine);
 
     /* @deprecated since v10 */
-    if ( optionSet.engine !== 'prosemirror' ) {
+    if ( props.engine !== 'prosemirror' ) {
       editor.value.focus();
       //editor.value.on("change", () => this._changed = true);
     }
@@ -116,26 +203,38 @@
 
     // get the new content
     let content;
-    if ((options.value as EditorOptions).engine === 'tinymce') {
+    if (props.engine === 'tinymce') {
       const mceContent = editor.value.getContent();
-      //this.delete(mce.value.id); // Delete hidden MCE inputs
+      //this.delete(editor.value.id); // Delete hidden MCE inputs
       content = mceContent;
-    } else if ((options.value as EditorOptions).engine === 'prosemirror') {
-      // TODO
-      content = ProseMirror.dom.serializeString(editor.value.view.state.doc.content);
+    } else if (props.engine === 'prosemirror') {
+      content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
     } else {
-      throw new Error(`Unrecognized enginer in saveEditor(): ${(options.value as EditorOptions).engine}`);
+      throw new Error(`Unrecognized enginer in saveEditor(): ${props.engine}`);
     }
 
-    // Remove the editor - note... this means that we have to rerender, because it blows up the dom
-    // There doesn't appear to be a way to toggle the editor back to view mode, which would avoid this issue
+    // Remove the editor
     if (remove) {
-      editor.value.destroy();  
-      editor.value = mce.value = null;
-      if (hasButton.value) 
-        (button.value as HTMLElement).style.display = '';
+      // this also blows up the DOM... don't think we actually need it
+      toRaw(editor.value).destroy();  
+      editor.value = null;
+
+      buttonDisplay.value = '';   // brings the button back
+
+      // bring back the deleted div
+      let restoredDiv = document.createElement('div');
+      restoredDiv.className = 'editor-content';
+      // attach the data props
+      for (const [key, value] of Object.entries(datasetProperties.value)) {
+        restoredDiv.dataset[key] = value;
+      }
+      restoredDiv.innerHTML = initialContent.value ?? '';
+
+      coreEditorRef.value = restoredDiv;
+      editorRef.value?.append(restoredDiv);
     }
     
+    initialContent.value = content;
     emit('editorSaved', content);
   }
 
@@ -156,56 +255,13 @@
     editorId.value  = 'fwb-editor-' + foundry.utils.randomID();
 
     // initialize the editor
-    if (!wrapper.value)
-      throw new Error('Cannot find wrapper in Editor onMounted()');
+    if (!coreEditorRef.value)
+      return;
 
-    const div: HTMLElement = $(wrapper.value as HTMLElement).find('.editor-content[data-edit]')[0];
-
-    // Get the editor content div
-    const name = div.dataset.edit;
-    const engine = div.dataset.engine || 'tinymce';
-    const collaborate = div.dataset.collaborate === 'true';
-    const wrap = div.parentElement?.parentElement;
-    const wc = div.closest('.window-content') as HTMLElement;
-
-    button.value = div.previousElementSibling as HTMLElement;
-    hasButton.value = true;   //button && button.classList.contains('editor-edit');
-
-    if (!name || !button.value || !wrap || !wc)
-      throw new Error('Missing name or button in activateEditor()');
-
-    // Determine the preferred editor height
-    const heights = [wrap.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
-    const height = Math.min(...heights.filter(h => Number.isFinite(h)));
-
-    // Get initial content
-    const initialOptions = {
-      document: props.document,
-      target: div,
-      fieldName: name,
-      height, 
-      engine, 
-      collaborate,
-    };
-
-    if (engine === 'prosemirror') 
-      initialOptions.plugins = configureProseMirrorPlugins(/*{removed:hasButton}*/);
-
-    // Define the editor configuration
-    options.value = initialOptions;
-
-    mce.value = null;
     editor.value = null;
 
-    // Activate the editor immediately, or upon button click
-    const activate = async () => {
-      activateEditor();
-    };
-    
-    if (hasButton) {
-      button.value.onclick = activate;
-    } else {
-      void activate();
+    if (!props.hasButton) {
+      void activateEditor();
     }
   });
 

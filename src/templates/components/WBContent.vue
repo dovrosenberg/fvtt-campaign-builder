@@ -67,8 +67,10 @@
             <div class="tab-inner flexcol">
               <Editor 
                 :document="editorDocument"
+                hasButton="true"
+                target="content-description"
+                @editorSaved="onDescriptionEditorSaved"
               />
-              <!-- {{> (editorTemplate) data=descriptionData }} -->
             </div>
           </div>
           <div class="tab entry-details" data-group="primary" data-tab="entry-details">
@@ -263,10 +265,10 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
 
   // local imports
-  import { getCleanEntry } from '@/compendia';
+  import { getCleanEntry, updateDocument } from '@/compendia';
   import { getIcon, toTopic } from '@/utils/misc';
   import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
   import { getGame, localize } from '@/utils/game';
@@ -372,7 +374,20 @@
 
   const onTypeSelectionMade = (selection: string) => {
     if (entry.value)
-      EntryFlags.set(entry.value, EntryFlagKey.type, selection);
+      EntryFlags.set(toRaw(entry.value), EntryFlagKey.type, selection);
+  }
+
+  const onDescriptionEditorSaved = async (newContent: string) => {
+    if (!entry.value)
+      return;
+
+    const descriptionPage = toRaw(entry.value).pages.find((p)=>p.name==='description');  //TODO
+
+    await updateDocument(descriptionPage, {'text.content': newContent });  
+
+    //need to reset
+    // if it's not automatic, clear and reset the documentpage
+    // (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
   }
 
   ////////////////////////////////
@@ -449,19 +464,6 @@
     //       await this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
     //     });
 
-
-    //     // watch for edits to description
-    //     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorSaved, async (newContent: string) => {
-    //       const descriptionPage = this._entry.pages.find((p)=>p.name==='description');  //TODO
-
-    //       await updateDocument(descriptionPage, {'text.content': newContent });  
-
-    //       //need to reset
-
-    //       (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
-
-    //       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
-    //     });
     //     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorClosed, async () => { 
     //       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
     //     });
