@@ -1,7 +1,6 @@
 import './WorldBuilder.scss';
 import { HandlebarsPartial } from '@/applications/HandlebarsPartial';
 import { WBHeader } from './WBHeader';
-import { WBFooter } from './WBFooter';
 import { WBContent } from './content/WBContent';
 import { Directory } from './directory/Directory';
 import { getGame, localize } from '@/utils/game';
@@ -43,7 +42,6 @@ export class OldWorldBuilder extends Application {
 
     const partials = {
       WBHeader: wbHeader,
-      WBFooter: new WBFooter(),
       WBContent: wbContent,
       Directory: new Directory(rootFolder), 
     };
@@ -107,8 +105,6 @@ export class OldWorldBuilder extends Application {
       WBHeader: () => WBHeader.template,
       WBHeaderData: await this._partials.WBHeader.getData(),
       WBContent: () => WBContent.template,
-      WBFooterData: await this._partials.WBFooter.getData(),
-      WBFooter: () => WBFooter.template,
       WBContentData: await this._partials.WBContent.getData(),
       Directory: () => Directory.template,
       DirectoryData: await this._partials.Directory.getData(),

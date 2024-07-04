@@ -16,8 +16,6 @@
           @editor-saved="onContentEditorSaved"
         />
       </div>
-      <!--{{> (WBFooter) WBFooterData }}
-    -->
     </section>
     <div id="fwb-directory-sidebar">
       <Directory 
