@@ -87,7 +87,7 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType, TypeAhe
 
   // change the valid item list
   public updateList(list: string[]) {
-    this._list = deepClone(list);
+    this._list = foundry.utils.deepClone(list);
   }
 
   private async _onKeydown(event: JQuery.KeyDownEvent): Promise<void> {

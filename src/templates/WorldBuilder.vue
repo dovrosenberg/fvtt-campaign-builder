@@ -183,7 +183,7 @@
 
       let oldScrollPosition = flattenObject(game.user.getFlag("monks-enhanced-journal", `pagestate.${this.object.id}.scrollPositions`) || {});
 
-      game.user.setFlag("monks-enhanced-journal", `pagestate.${this.object.id}.scrollPositions`, flattenObject(mergeObject(oldScrollPosition, newScrollPositions)));
+      game.user.setFlag("monks-enhanced-journal", `pagestate.${this.object.id}.scrollPositions`, flattenObject(foundry.utils.mergeObject(oldScrollPosition, newScrollPositions)));
     }
   }
 
@@ -243,7 +243,7 @@
           case 'input':
             div = $('<input>')
               .addClass('nav-input ' + ctrl.id)
-              .attr(mergeObject({ 'type': 'text', 'autocomplete': 'off', 'placeholder': ctrl.text }, (ctrl.attributes || {})))
+              .attr(foundry.utils.mergeObject({ 'type': 'text', 'autocomplete': 'off', 'placeholder': ctrl.text }, (ctrl.attributes || {})))
               .on('keyup', function (event) {
                 ctrl.callback.call(that.subsheet, this.value, event);
               });
@@ -273,7 +273,7 @@
   }
 
   get getDocumentTypes() {
-    return mergeObject(MonksEnhancedJournal.getDocumentTypes(), {
+    return foundry.utils.mergeObject(MonksEnhancedJournal.getDocumentTypes(), {
       blank: EnhancedJournalSheet
     });
   }

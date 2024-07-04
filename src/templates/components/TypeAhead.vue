@@ -189,7 +189,7 @@
   ////////////////////////////////
   // watchers
   watch(() => props.initialList, (newList: string[]) => {
-    list.value = deepClone(newList) || [];
+    list.value = foundry.utils.deepClone(newList) || [];
   });
 
   watch(() => props.initialValue, (newValue: string) => {
@@ -208,7 +208,7 @@
     });
 
     // create our working list
-    list.value = deepClone(props.initialList) || [];
+    list.value = foundry.utils.deepClone(props.initialList) || [];
     currentValue.value = props.initialValue;
   })
 

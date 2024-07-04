@@ -39,4 +39,4 @@ Array.prototype.findSplice = function(find, replace) {
   }
 global.Game = StubGame;
 global.game = new global.Game();
-global.deepClone = _.cloneDeep;
+
