@@ -29,5 +29,6 @@ export enum Topic {
   Event,
   Location,
   Organization,
-  //Note - maybe the ability to just handle normal journal notes?
+  Scene,
+  //TODO: Note - maybe the ability to just handle normal journal notes?
 }

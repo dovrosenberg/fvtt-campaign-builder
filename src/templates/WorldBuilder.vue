@@ -96,7 +96,6 @@
   }
 
   const onDirectoryEntryCreated = (entryId: string) => {
-    // open the entry in a new tab
     // TODO
     // void (this._partials.WBHeader as WBHeader).openEntry(entryId, { newTab: true, activate: true }); 
   }

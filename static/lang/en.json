@@ -19,14 +19,16 @@
         "locations": "Locations",
         "locationChildren": "Child locations",
         "organizations": "Organizations",
-        "organizationChildren": "Sub-organizations"
+        "organizationChildren": "Sub-organizations",
+        "scenes": "Scenes"
       }
     },
     "placeholders": {
       "fwb.placeholders.characterName": "Character Name",
       "fwb.placeholders.eventName": "Event Name",
       "fwb.placeholders.locationName": "Location Name",
-      "fwb.placeholders.organizationName": "Organization Name"
+      "fwb.placeholders.organizationName": "Organization Name",
+      "fwb.placeholders.sceneName": "Scene Name"
     },
     "topics": {
       "character": "Character",
@@ -36,7 +38,9 @@
       "characters": "Characters",
       "events": "Events",
       "locations": "Locations",
-      "organizations": "Organizations"
+      "organizations": "Organizations",
+      "scene": "Scene",
+      "scenes": "Scenes"
     },
     "contextMenus": {
       "bookmarks": {

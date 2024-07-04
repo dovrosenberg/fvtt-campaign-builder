@@ -113,6 +113,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
       [Topic.Event]: { namePlaceholder: 'fwb.placeholders.characterName', },
       [Topic.Location]: { namePlaceholder: 'fwb.placeholders.characterName', },
       [Topic.Organization]: { namePlaceholder: 'fwb.placeholders.characterName', },
+      [Topic.Scene]: { namePlaceholder: 'fwb.placeholders.sceneName', },
     };
 
     const relationships = [
@@ -120,6 +121,7 @@ export class WBContent extends HandlebarsPartial<WBContent.CallbackType, WBConte
       { tab: 'locations', label: 'fwb.labels.tabs.locations',},
       { tab: 'organizations', label: 'fwb.labels.tabs.organizations', },
       { tab: 'events', label: 'fwb.labels.tabs.events', },
+      { tab: 'scenes', label: 'fwb.labels.tabs.scenes', },
     ] as { tab: string, label: string, }[];
 
     if (!this._entryId) {
