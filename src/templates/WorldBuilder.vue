@@ -197,7 +197,7 @@
   }
 
   saveEditor(name) {
-    $('.nav-button.edit i', this.element).addClass('fa-pencil-alt').removeClass('fa-download').attr('title', i18n("MonksEnhancedJournal.EditDescription"));
+    $('.nav-button.edit i', this.element).addClass('fa-pencil-alt').removeClass('fa-download').attr('title', i18n("MonksEnhancedJournal.Editwription"));
     $('.nav-button.split', this.element).removeClass('disabled');
     const editor = this.subsheet.editors[name];
     if (editor)
@@ -595,6 +595,15 @@
 </script>
 
 <style lang="scss">
+// this is from the Vue handler, but we need it to be a flexbox so the overall app window controls the size the rest
+//    of the way down
+div[data-application-part] {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+
 // the launch button in the top right corner
 #fwb-launch {
   background-color: rgba(0,0,0,.5);
@@ -679,6 +688,7 @@
   }
 
   .fwb-content {
+    flex: 1;
     height: 100%;
     overflow: hidden;
     position: relative;

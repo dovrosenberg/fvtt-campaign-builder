@@ -20,7 +20,7 @@ export class TypeAhead extends HandlebarsPartial<TypeAhead.CallbackType, TypeAhe
     this.updateList(list);
 
     // we create a random ID so we can use multiple instances
-    this._id = 'fwb-ta-' + randomID();
+    this._id = 'fwb-ta-' + foundry.utils.randomID();
     this._hasFocus = false;
   }
 

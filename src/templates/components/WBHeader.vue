@@ -205,7 +205,7 @@
     let tab;
     if (options.newTab || !getActiveTab(false)) {
       tab = {
-        id: randomID(),
+        id: foundry.utils.randomID(),
         active: false,
         entry: entry,
         history: [],
@@ -416,7 +416,7 @@
     }
 
     const bookmark = {
-      id: randomID(),
+      id: foundry.utils.randomID(),
       entry: tab.entry,
     } as Bookmark;
 

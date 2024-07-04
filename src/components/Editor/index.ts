@@ -23,7 +23,7 @@ export class Editor extends HandlebarsPartial<Editor.CallbackType, Editor.Callba
     super();
 
     // we create a random ID so we can use multiple instances
-    this._id = 'fwb-editor-' + randomID();
+    this._id = 'fwb-editor-' + foundry.utils.randomID();
   }
 
   protected _createPartials(): void {

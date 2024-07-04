@@ -145,7 +145,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType, WBHeader.
     let tab;
     if (options.newTab || !this._activeTab(false)) {
       tab = {
-        id: randomID(),
+        id: foundry.utils.randomID(),
         active: false,
         entry: entry,
         history: [],
@@ -338,7 +338,7 @@ export class WBHeader extends HandlebarsPartial<WBHeader.CallbackType, WBHeader.
     }
 
     const bookmark = {
-      id: randomID(),
+      id: foundry.utils.randomID(),
       entry: tab.entry,
     } as Bookmark;
 

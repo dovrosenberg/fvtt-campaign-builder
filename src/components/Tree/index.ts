@@ -14,7 +14,7 @@ export class Tree extends HandlebarsPartial<Tree.CallbackType, Tree.CallbackFunc
     super();
 
     // we create a random ID so we can use multiple instances
-    this._id = 'fwb-ta-' + randomID();
+    this._id = 'fwb-ta-' + foundry.utils.randomID();
 
     this._topNodes = topNodes;
   }

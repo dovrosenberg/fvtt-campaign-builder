@@ -1,7 +1,7 @@
  <template>
   <div ref="wrapper"
     :id="editorId" 
-    class="fwb-editor"
+    class="fwb-editor flexcol"
   >
     <!-- this will create the DOM for the editor, the various properties are then read by the code to create the TextEditor component -->
     <div v-html="editorHelper(props.content, {
@@ -11,6 +11,7 @@
         collaborate: false,
         engine: 'prosemirror'
       })"
+      style="flex:1;"
     ></div>
   </div>
 </template>
@@ -41,10 +42,6 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    content: {
-      type: String,
-      required: true,
-    },
     document: {
       type: Object as PropType<Document<any>>,
       required: true,
@@ -148,19 +145,15 @@
 
   ////////////////////////////////
   // watchers
-  watch(()=> props.content, () =>{
-
-  });
   watch(()=> props.document, () =>{
-
+    initialContent.value = props.document.text.content;
   });
 
   ////////////////////////////////
   // lifecycle events
   onMounted(() => {
     // we create a random ID so we can use multiple instances
-    editorId.value  = 'fwb-editor-' + randomID();
-    initialContent.value = props.content;
+    editorId.value  = 'fwb-editor-' + foundry.utils.randomID();
 
     // initialize the editor
     if (!wrapper.value)
@@ -219,6 +212,7 @@
 </script>
 
 <style lang="scss">
-  // .fwb-editor {
-  // }
+  .fwb-editor {
+    flex: 1 !important;
+  }
 </style>

@@ -53,7 +53,7 @@
             </div> --}} -->
           </section>
         </header>
-        <nav class="fwb-sheet-navigation flexrow fwb-tabs" data-group="primary">
+        <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
           <a class="item" data-tab="description">{{localize('fwb.labels.tabs.description')}}</a>
           <a class="item" data-tab="entry-details">{{localize('fwb.labels.tabs.details')}}</a>
           <a v-for="relationship in relationships"
@@ -62,18 +62,18 @@
             {{localize(relationship.label)}}
           </a>
         </nav>
-        <section class="fwb-tab-body">
-          <div class="tab description" data-group="primary" data-tab="description">
+        <section class="fwb-tab-body flexcol">
+          <div class="tab description flexcol" data-group="primary" data-tab="description">
             <div class="tab-inner flexcol">
               <Editor 
-                content=""
-                document=""
+                :document="editorDocument"
               />
               <!-- {{> (editorTemplate) data=descriptionData }} -->
             </div>
           </div>
           <div class="tab entry-details" data-group="primary" data-tab="entry-details">
             <div class="tab-inner flexcol">
+              entry-details
             <!-- {{!--
               <div class="details-section flexrow">
                 <div class="document-details">
@@ -263,7 +263,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, onMounted, ref, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
   // local imports
   import { getCleanEntry } from '@/compendia';
@@ -286,6 +286,8 @@
 
   // types
   import { Topic } from '@/types';
+  import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
+
   type Description = {
     content: any,
     format: number,
@@ -332,6 +334,8 @@
   const tabs = ref<Tabs>();
   const entry = ref<JournalEntry | null>(null);
   const topic = ref<Topic | null>(null);
+
+  const editorDocument = ref<Document<any>>();
 
   const contentRef = ref<HTMLElement | null>(null);
 
@@ -396,12 +400,19 @@
         entry.value = newEntry;
         topic.value = newTopic;
 
-        // reattach the editor
+        // bind the tabs (because they don't show on the homepage)
+        if (tabs.value && contentRef.value) {
+          // have to wait until they render
+          await nextTick();
+          tabs.value.bind(contentRef.value);
+        }
+
+      // reattach the editor
         // @ts-ignore
         const descriptionPage = newEntry.pages.find((p)=>p.name==='description');
         // TODO
         // this should just update the params passed to the editor
-        // (this._partials.DescriptionEditor as Editor).attachEditor(descriptionPage, descriptionPage.text.content);  // TODO: replace with enum -- do I even need the fieldname?
+        editorDocument.value = descriptionPage;
 
         // get() returns the object and we don't want to modify it directly
         // TODO
@@ -426,10 +437,6 @@
   // lifecycle events
   onMounted(() => {
     tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
-
-    // bind the tabs
-    if (contentRef.value)
-      tabs.value.bind(contentRef.value);
 
     //     // watch for edits to name
     //     html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
@@ -470,6 +477,7 @@
 </script>
 
 <style lang="scss">
+
   .fwb-journal-sheet {
     &.sheet {
       height: 100%;
@@ -541,9 +549,9 @@
         font-size: 20px;
         font-weight: 700;
 
-        &.fwb-tabs {
+        &.tabs {
           flex-wrap: wrap;
-
+          
           .item {
             flex: 1;
             height: 30px !important;
@@ -565,6 +573,10 @@
           .item.active {
             border-bottom-color: var(--mej-sheet-tab-border-active);
             color: var(--mej-sheet-tab-color-active);
+          }
+
+          .tab {
+            flex: 1;
           }
         }
       }
@@ -644,6 +656,9 @@
 
       // the tab content
       .fwb-tab-body {
+        display: flex;
+        flex: 1;
+
         /* Details Section */
         .details-section {
           font-family: var(--mej-font-family);
@@ -949,6 +964,7 @@
       height: 100% !important;
       overflow-y: auto !important;
       align-content: flex-start;
+      flex: 1;
     }
 
     &.sheet .fwb-tab-body .tab .tab-inner {
@@ -956,6 +972,10 @@
       overflow-y: auto !important;
       align-content: flex-start;
       position: relative;
+
+      &.flexcol {
+        flex:1;
+      }
     }
 
     .tab.notes .notes-container {
