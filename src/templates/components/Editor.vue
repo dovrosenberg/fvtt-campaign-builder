@@ -4,14 +4,14 @@
     class="fwb-editor"
   >
     <!-- this will create the DOM for the editor, the various properties are then read by the code to create the TextEditor component -->
-    {{editorHelper(props.content, {
+    <div v-html="editorHelper(props.content, {
         target: 'content', 
         editable: true, 
         button: true,
         collaborate: false,
         engine: 'prosemirror'
-      })
-    }}
+      })"
+    ></div>
   </div>
 </template>
 
@@ -35,7 +35,7 @@
     height: number, 
     engine: string, 
     collaborate: boolean,
-    plugins: any,
+    plugins?: any,
   };
 
   ////////////////////////////////
@@ -193,7 +193,6 @@
       height, 
       engine, 
       collaborate,
-      plugins: any
     };
 
     if (engine === 'prosemirror') 

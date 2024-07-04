@@ -1,5 +1,7 @@
 <template>
-  <section class="sheet fwb-journal-sheet">
+  <section ref="contentRef"
+    class="sheet fwb-journal-sheet"
+  >
     <HomePage v-if="!props.entryId || !entry"
       :worldId="props.worldId" 
     />
@@ -26,7 +28,12 @@
             </h1>
             <div class="form-group fwb-content-header">
               <label>{{localize('fwb.labels.fields.type')}}</label>
-              <!-- {{> (typeAheadTemplate) data=typeAheadData name=(constant "flags.fwb.type") value=entry.flags.world-builder.type }} -->
+              <TypeAhead 
+                :initialList="typeList"
+                :initialValue="entry.flags[moduleJson.id].type"
+                @itemAdded="onTypeItemAdded"
+                @selectionMade="onTypeSelectionMade"
+              />
             </div>
 
             <div v-if="showHierarchy"
@@ -264,11 +271,10 @@
   import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
   import { getGame, localize } from '@/utils/game';
   import { hasHierarchy } from '@/utils/hierarchy';
+  import moduleJson from '@module';
 
-  // import { TypeAhead, TypeAheadData } from '@/components/TypeAhead';
-  // import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
+  import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   // import { getCleanEntry, updateDocument } from '@/compendia';
-  // import { TreeData, Tree } from '@/components/Tree';
   // import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
 
   // library components
@@ -276,6 +282,7 @@
   // local components
   import Editor from '@/templates/components/Editor.vue';
   import HomePage from '@/templates/components/HomePage.vue';
+  import TypeAhead from '@/templates/components/TypeAhead.vue';
 
   // types
   import { Topic } from '@/types';
@@ -326,18 +333,43 @@
   const entry = ref<JournalEntry | null>(null);
   const topic = ref<Topic | null>(null);
 
+  const contentRef = ref<HTMLElement | null>(null);
+
   ////////////////////////////////
   // computed data
   const icon = computed((): string => (!topic.value ? '' : getIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : localize(topicData[topic.value]?.namePlaceholder)));
   const description = computed((): Description => entry.value?.pages?.find((p)=>p.name==='description').text); //TODO: use enum
+  const typeList = computed((): string[] => (topic.value===null ? [] : moduleSettings.get(SettingKey.types)[topic.value]));
 
   ////////////////////////////////
   // methods
 
   ////////////////////////////////
   // event handlers
+
+  // new type added in the typeahead
+  const onTypeItemAdded = async (added: string) => {
+    if (topic.value === null)
+      return;
+
+    const currentTypes = moduleSettings.get(SettingKey.types);
+
+    // if not a duplicate, add to the valid type lists 
+    if (!currentTypes[topic.value].includes(added)) {
+      const updatedTypes = {
+        ...moduleSettings.get(SettingKey.types),
+        [topic.value]: currentTypes[topic.value].concat([added]),
+      };
+      await moduleSettings.set(SettingKey.types, updatedTypes);
+    }
+  };
+
+  const onTypeSelectionMade = (selection: string) => {
+    if (entry.value)
+      EntryFlags.set(entry.value, EntryFlagKey.type, selection);
+  }
 
   ////////////////////////////////
   // watchers
@@ -395,8 +427,9 @@
   onMounted(() => {
     tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
 
-  // bind the tabs
-    tabs.value.bind(html.get()[0]);
+    // bind the tabs
+    if (contentRef.value)
+      tabs.value.bind(contentRef.value);
 
     //     // watch for edits to name
     //     html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
@@ -409,25 +442,6 @@
     //       await this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
     //     });
 
-    //     // new type added in the typeahead
-    //     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.ItemAdded, async (added)=> {
-    //       if (this._topic === null)
-    //         return;
-
-    //       const currentTypes = moduleSettings.get(SettingKey.types);
-
-    //       // if not a duplicate, add to the valid type lists 
-    //       if (!currentTypes[this._topic].includes(added)) {
-    //         const updatedTypes = {
-    //           ...moduleSettings.get(SettingKey.types),
-    //           [this._topic]: currentTypes[this._topic].concat([added]),
-    //         };
-    //         await moduleSettings.set(SettingKey.types, updatedTypes);
-    //       }
-    //     });
-    //     this._partials.TypeTypeAhead.registerCallback(TypeAhead.CallbackType.SelectionMade, (selection)=> { 
-    //       void EntryFlags.set(this._entry, EntryFlagKey.type, selection);
-    //     });
 
     //     // watch for edits to description
     //     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorSaved, async (newContent: string) => {
@@ -452,24 +466,6 @@
     //   }
   });
 
-
-
-  //   public async getData(): Promise<WBContentData> {
-  //     let data: WBContentData;
-
-
-  //     if (!this._entryId) {
-  //     } else if (this._topic === null) {
-  //     } else {
-  //       // normal content
-  //       data = {
-  //         relationships: relationships,
-  //       };
-  //     }
-
-  //     // log(false, data);
-  //     return data;
-  //   }
 
 </script>
 
