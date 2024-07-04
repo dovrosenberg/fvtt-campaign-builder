@@ -1,4 +1,3 @@
-export type * from './injection';
 
 export type WindowTab = {
   id: string;   // unique id

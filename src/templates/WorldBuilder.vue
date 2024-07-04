@@ -1,11 +1,13 @@
 <template>
   <div 
-    :class="'fwb flexrow ' + (collapsed ? 'collapse' : '')"
+    :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')"
   >
     <section class="fwb-body flexcol">
       <WBHeader 
         :worldId="worldFolder?.uuid"
+        :directoryCollapsed="directoryCollapsed"
         @entry-changed="onHeaderEntryChanged"
+        @directory-collapse-toggle="onDirectoryCollapseToggle"
       />
       <div class="fwb-content flexcol editable">
         <WBContent 
@@ -45,7 +47,6 @@
   import Directory from '@/templates/components/Directory.vue';
 
   // types
-  import { CollapsedInjectionKeyType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -57,21 +58,10 @@
 
   ////////////////////////////////
   // data
-  const collapsed = ref<boolean>(true);
+  const directoryCollapsed = ref<boolean>(false);
   const worldFolder = ref<Folder | null>(null);  // the current world folder
   const currentEntryUuid = ref<string | null>(null);
   const rootFolder = ref<Folder | null>(null);
-
-  ////////////////////////////////
-  // provides
-  provide(Symbol() as InjectionKey<CollapsedInjectionKeyType>,
-    {
-      collapsed: collapsed,
-      updateCollapsed: (value: boolean) => {
-        collapsed.value = value;
-      },
-    }
-  );
 
   let searchresults = [];
   let searchpos = 0;
@@ -110,6 +100,9 @@
     // void (this._partials.WBHeader as WBHeader).openEntry(entryId, { newTab: true, activate: true }); 
   }
   
+  const onDirectoryCollapseToggle = () => {
+    directoryCollapsed.value = !directoryCollapsed.value;
+  }
 
 
   ////////////////////////////////
@@ -118,7 +111,7 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    collapsed.value = moduleSettings.get(SettingKey.startCollapsed) || false;
+    directoryCollapsed.value = moduleSettings.get(SettingKey.startCollapsed) || false;
 
     const folders = await getDefaultFolders();
 
@@ -508,7 +501,7 @@
 */
   /*    activateDirectoryListeners(html) {   
     $('#fwb-sidebar-toggle', html).on('click', () => {
-      if (this._collapsed)
+      if (this.directoryCollapsed)
         this.expandSidebar();
       else
         this.collapseSidebar();
@@ -635,7 +628,7 @@
     flex-wrap: nowrap;
 
     // changes when sidebar collapses
-    &.collapse {
+    &.collapsed {
       .fwb-header .fwb-tab-bar {
         padding-right: 30px;
 

@@ -34,10 +34,10 @@
 
       <div id="fwb-sidebar-toggle" 
         class="tab-button" 
-        :data-tooltip="collapsed ? localize('fwb.tooltips.expandDirectory') : localize('fwb.tooltips.collapseDirectory')"
+        :data-tooltip="directoryCollapsed ? localize('fwb.tooltips.expandDirectory') : localize('fwb.tooltips.collapseDirectory')"
         @click="onSidebarToggleClick"
       >
-        <i :class="'fas ' + (collapsed ? 'fa-caret-left' : 'fa-caret-right')"></i>
+        <i :class="'fas ' + (directoryCollapsed ? 'fa-caret-left' : 'fa-caret-right')"></i>
       </div>
     </div>
 
@@ -110,30 +110,31 @@
   // local components
 
   // types
-  import { Bookmark, EntryHeader, WindowTab, CollapsedInjectionKeyType } from '@/types';
+  import { Bookmark, EntryHeader, WindowTab } from '@/types';
 
   ////////////////////////////////
   // props
   const props = defineProps({
-    worldId: {
+    worldId: {        // currently selected world 
       type: String,
       required: true
     },
+    directoryCollapsed: {      // is the directory collapsed 
+      type: Boolean,
+      required: true
+    }
   })
 
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
     (e: 'entryChanged', newUuid: string | null): void,
+    (e: 'directoryCollapseToggle'): void
   }>();
 
   ////////////////////////////////
   // store
 
-  ////////////////////////////////
-  // injects
-  const collapsedKey = Symbol() as InjectionKey<CollapsedInjectionKeyType>;
-  const { collapsed, updateCollapsed } = inject(collapsedKey, { collapsed: ref(false), updateCollapsed: () => void {} });
 
   ////////////////////////////////
   // data
@@ -433,7 +434,7 @@
   };
 
   const onSidebarToggleClick = async () => { 
-    updateCollapsed(!collapsed);  
+    emit('directoryCollapseToggle')
   };
 
   const onAddTabClick = async () => { await openEntry(); };

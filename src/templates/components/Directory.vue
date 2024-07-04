@@ -61,11 +61,11 @@
               <!-- css will hide this section if the .fwb-topic-folder is collapsed -->
               <ol class="fwb-topic-contents">
                 <!-- These are the journal entries -->
-                <li v-for="entry in entries"
+                <li v-for="entry in compendium.entries"
                   class="fwb-entry-item flexrow" 
                   @click="onEntryClick($event, entry.uuid)"
                 >
-                    <h4 class="entry-name"><a>{{entry.name}}</a></h4>
+                    <div class="fwb-entry-name"><a>{{entry.name}}</a></div>
                 </li>
               </ol>
             </li>
@@ -383,11 +383,19 @@
       }
     }    
 
-    li.journalentry {
+    li.fwb-entry-item {
       line-height: 32px;
       border-top: 1px solid var(--mej-sidebar-document-border-top);
       border-bottom: 1px solid var(--mej-sidebar-document-border-botom);
       color: var(--mej-sidebar-document-color);
+
+      .fwb-entry-name {
+        flex-wrap: nowrap;
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+      }
     }
 
     .directory.sidebar-tab .fwb-world-list .entry.selected {
@@ -398,20 +406,12 @@
       font-weight: bold;
     }    
 
-    li.journalentry:not(.folder) .entry-name {
+    li.fwb-entry-item:not(.folder) .fwb-entry-name {
       margin: 0 0.25em;
-    }
-
-    li.journalentry .entry-name {
-      flex-wrap: nowrap;
-      align-items: center;
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-start;
     }
   }
 
-  #journal li.journalentry .entry-name {
+  #journal li.fwb-entry-item .fwb-entry-name {
     flex-wrap: nowrap;
     align-items: center;
     display: flex;
