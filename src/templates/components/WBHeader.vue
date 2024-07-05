@@ -92,6 +92,7 @@
 <script setup lang="ts">
   // library imports
   import { ref, computed, onMounted, watch } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
   import { localize } from '@/utils/game';
@@ -99,6 +100,7 @@
   import { getIcon } from '@/utils/misc';
   import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
   import { getCleanEntry } from '@/compendia';
+  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
 
   // library components
 
@@ -129,11 +131,12 @@
 
   ////////////////////////////////
   // store
+  const worldBuilderStore = useWorldBuilderStore();
+  const { tabs } = storeToRefs(worldBuilderStore);
 
 
   ////////////////////////////////
   // data
-  const tabs = ref<WindowTab[]>([]);;  
   const bookmarks = ref<Bookmark[]>([]);
   const root = ref<HTMLElement | null>(null);
 
@@ -300,6 +303,7 @@
 
     if (!tab) return;
 
+    // @ts-ignore  -- Math.clamp is syntax for v12
     const newSpot = Math.clamp(tab.historyIdx + move, 0, tab.history.length-1);
 
     // if we didn't move, return

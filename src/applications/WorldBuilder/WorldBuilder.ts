@@ -1,6 +1,6 @@
 import moduleJson from '@module';
 import { VueApplicationMixin } from '@/libs/VueApplicationMixin.mjs';
-
+import { createPinia, setActivePinia } from 'pinia';
 import App from '@/templates/WorldBuilder.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
@@ -17,6 +17,10 @@ const { ApplicationV2 } = foundry.applications.api;
 
 // Import Quasar css
 // import 'quasar/src/css/index.sass';
+
+// setup pinia
+const pinia = createPinia();
+setActivePinia(pinia);
 
 export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = foundry.utils.mergeObject(super.DEFAULT_OPTIONS, {
@@ -51,11 +55,14 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
     app: {
       id: 'fwb-app',
       component: App,
-      props: {
-      }
-      // use: {
+      props: {},
+      use: {
+        pinia: {
+          plugin: pinia,
+          options: {}
+        },
       //   'quasar': { plugin: Quasar }
-      // }
+      }
     }
   };
 }
