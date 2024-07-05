@@ -1,7 +1,6 @@
-import { worldBuilder, updateWorldBuilder, } from '@/applications/WorldBuilder';
+import { worldBuilder, updateWorldBuilder, WorldBuilderApplication} from '@/applications/WorldBuilder';
 import { getDefaultFolders } from '@/compendia';
 import { getGame, localize } from '@/utils/game';
-import { WorldBuilderApplication } from '@/applications/WorldBuilder/WorldBuilder';
 
 export function registerForReadyHook() {
   Hooks.once('ready', ready);
