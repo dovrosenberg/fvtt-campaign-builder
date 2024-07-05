@@ -4,26 +4,18 @@
   >
     <section class="fwb-body flexcol">
       <WBHeader 
-        :worldId="worldFolder?.uuid"
         :directoryCollapsed="directoryCollapsed"
-        @entry-changed="onHeaderEntryChanged"
         @directory-collapse-toggle="onDirectoryCollapseToggle"
       />
       <div class="fwb-content flexcol editable">
         <WBContent 
-          :worldId="worldFolder?.uuid"
-          :entryId="currentEntryUuid" 
           @editor-saved="onContentEditorSaved"
         />
       </div>
     </section>
     <div id="fwb-directory-sidebar">
       <Directory 
-        :rootFolder="rootFolder"
-        :worldFolderId="worldFolder?.uuid"
         @world-selected="onDirectoryWorldSelected"
-        @entry-selected="onDirectoryEntrySelected"
-        @entry-created="onDirectoryEntryCreated"
       />
     </div> 
   </div>
@@ -32,11 +24,13 @@
 <script setup lang="ts">
   // library imports
   import { onMounted, ref } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
   import { getDefaultFolders, validateCompendia } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   import { getGame } from '@/utils/game';
+  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
 
   // library components
 
@@ -56,11 +50,13 @@
   // emits
 
   ////////////////////////////////
+  // store
+  const worldBuilderStore = useWorldBuilderStore();
+  const { currentWorldFolder, currentEntryId, rootFolder } = storeToRefs(worldBuilderStore);
+
+  ////////////////////////////////
   // data
   const directoryCollapsed = ref<boolean>(false);
-  const worldFolder = ref<Folder | null>(null);  // the current world folder
-  const currentEntryUuid = ref<string | null>(null);
-  const rootFolder = ref<Folder | null>(null);
 
   let searchresults = [];
   let searchpos = 0;
@@ -75,31 +71,16 @@
 
   ////////////////////////////////
   // event handlers
-  const onHeaderEntryChanged = async (newEntryId: string) => {
-    currentEntryUuid.value = newEntryId;
-  }
-
   const onDirectoryWorldSelected = async (worldId: string) => {
     const folder = getGame().folders?.find((f)=>f.uuid===worldId);
     if (!folder)
       throw new Error('Invalid folder id in WorldSelected callaback');
-    worldFolder.value = folder;
+    currentWorldFolder.value = folder;
 
     await validateCompendia(folder);
   }
 
-  const onDirectoryEntrySelected = async (entryId: string, ctrlKey: boolean) => {
-    // TODO
-    // need pinia... we can set entryID, but we might also need to open a tab
-    //void (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: ctrlKey}); 
-  }
-
-  const onDirectoryEntryCreated = (entryId: string) => {
-    // TODO
-    // need pinia... we can set entryID, but we might also need to open a tab
-    // void (this._partials.WBHeader as WBHeader).openEntry(entryId, { newTab: true, activate: true }); 
-  }
-  
+ 
   const onDirectoryCollapseToggle = () => {
     directoryCollapsed.value = !directoryCollapsed.value;
   }
@@ -117,7 +98,7 @@
 
     if (folders) {
       rootFolder.value = folders.rootFolder;
-      worldFolder.value = folders.worldFolder;
+      currentWorldFolder.value = folders.worldFolder;
     }
   });
 

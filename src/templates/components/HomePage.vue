@@ -26,10 +26,12 @@
 <script setup lang="ts">
   // library imports
   import { computed } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
   import { localize } from '@/utils/game';
   import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
+  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
 
   // library components
 
@@ -41,11 +43,7 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    worldId: { 
-      type: String,
-      required: true,
-    },
-  })
+  });
 
   ////////////////////////////////
   // emits
@@ -55,13 +53,15 @@
 
   ////////////////////////////////
   // store
+  const worldBuilderStore = useWorldBuilderStore();
+  const { currentWorldId } = storeToRefs(worldBuilderStore);
 
   ////////////////////////////////
   // data
 
   ////////////////////////////////
   // computed data
-  const recent = computed((): EntryHeader[] => (UserFlags.get(UserFlagKey.recentlyViewed, props.worldId) || []));
+  const recent = computed((): EntryHeader[] => (currentWorldId.value ? UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] : []));
 
   ////////////////////////////////
   // methods

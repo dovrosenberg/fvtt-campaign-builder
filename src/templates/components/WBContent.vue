@@ -2,8 +2,7 @@
   <section ref="contentRef"
     class="sheet fwb-journal-sheet"
   >
-    <HomePage v-if="!props.entryId || !entry"
-      :worldId="props.worldId" 
+    <HomePage v-if="!currentEntryId || !entry"
     />
       
     <form v-else
@@ -258,6 +257,7 @@
 
   // library imports
   import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
   import { getCleanEntry, updateDocument } from '@/compendia';
@@ -266,6 +266,7 @@
   import { getGame, localize } from '@/utils/game';
   import { hasHierarchy } from '@/utils/hierarchy';
   import moduleJson from '@module';
+  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
 
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   // import { getCleanEntry, updateDocument } from '@/compendia';
@@ -291,14 +292,6 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    entryId: {
-      type: String,
-      required: true,
-    },
-    worldId: {
-      type: String,
-      required: true,
-    },
   });
 
   ////////////////////////////////
@@ -306,6 +299,8 @@
 
   ////////////////////////////////
   // store
+  const worldBuilderStore = useWorldBuilderStore();
+  const { currentEntryId } = storeToRefs(worldBuilderStore);
 
   ////////////////////////////////
   // data
@@ -384,7 +379,7 @@
 
   ////////////////////////////////
   // watchers
-  watch(() => props.entryId, async (newId: string | undefined): Promise<void> => {
+  watch(currentEntryId, async (newId: string | undefined): Promise<void> => {
     if (!newId) {
       entry.value = null;
       topic.value = null;

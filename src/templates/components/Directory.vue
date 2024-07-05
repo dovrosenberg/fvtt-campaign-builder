@@ -27,8 +27,9 @@
 
     <!-- these are the worlds -->
     <ol class="fwb-world-list">
+        <!-- the folders use .id instead of .uuid but it has a uuid in it -->
         <li v-for="world in worlds"
-          :class="'fwb-world-folder folder flexcol ' + (props.worldFolderId===world.id ? '' : 'collapsed')" 
+          :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
           @click="onWorldFolderClick($event, world.id)"
         >
         <header class="folder-header flexrow">
@@ -36,12 +37,12 @@
           </header>
 
           <!-- These are the topic compendia -->
-          <ol v-if="props.worldFolderId===world.id"
+          <ol v-if="currentWorldId===world.id"
             class="world-contents"
           >
             <li v-for="compendium in world.compendia"
               :class="'fwb-topic-folder folder entry flexcol ' + (compendium.collapsed ? 'collapsed' : '')" 
-              @click="onTopicFolderClick($event, compendium.id, compendium.topic)"
+              @click="onTopicFolderClick($event, compendium.id)"
             >
               <header class="folder-header flexrow">
                 <div class="fwb-compendium-label noborder" style="margin-bottom:0px">
@@ -87,19 +88,21 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, watch, toRaw } from 'vue';
-  import { getGame, localize } from '@/utils/game';
-  import { createEntry, createWorldFolder } from '@/compendia';
-  import { Topic } from '@/types';
-  import { getIcon, toTopic } from '@/utils/misc';
+  import { ref, computed, toRaw } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
+  import { getGame, localize } from '@/utils/game';
+  import { createEntry, createWorldFolder } from '@/compendia';
+  import { getIcon, toTopic } from '@/utils/misc';
+  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
 
   // library components
 
   // local components
 
   // types
+  import { Topic } from '@/types';
   type World = {
     compendia: { 
       name: string, 
@@ -114,26 +117,15 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    rootFolder: {
-      type: Folder,
-      required: true,
-    },
-    worldFolderId: {    // uuid of current world folder
-      type: String,
-      required: true
-    },
   });
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits<{
-    (e: 'worldSelected', worldId: string): void,
-    (e: 'entrySelected', entryId: string, ctrlKey: boolean): void,
-    (e: 'entryCreated', entryId: string): void,
-  }>();
 
   ////////////////////////////////
   // store
+  const worldBuilderStore = useWorldBuilderStore();
+  const { currentWorldFolder, currentWorldId, rootFolder } = storeToRefs(worldBuilderStore);
 
   ////////////////////////////////
   // data
@@ -143,7 +135,7 @@
   // computed data
   const worlds = computed(() => {
     return (
-    (toRaw(props.rootFolder) as Folder)?.children?.map((world)=> ({
+    (toRaw(rootFolder.value) as Folder)?.children?.map((world)=> ({
       name: world.folder.name,
       id: world.folder.uuid,
       compendia: world.entries.map((compendium)=>({
@@ -174,7 +166,7 @@
     expandedCompendia.value = {};
 
     if (worldId)
-      emit('worldSelected', worldId);
+      worldBuilderStore.setNewWorld(worldId);
   };
 
   // open/close a topic
@@ -203,7 +195,7 @@
 
     const world = await createWorldFolder(true);
     if (world) {
-      emit('worldSelected', world.uuid);
+      worldBuilderStore.setNewWorld(world.id);
     }
   }
 
@@ -211,7 +203,12 @@
   const onEntryClick = async (event: JQuery.ClickEvent, entryId: string) => {
     event.stopPropagation();
 
-    emit('entrySelected', entryId, event.ctrlKey);
+  //   const onDirectoryEntrySelected = async (entryId: string, ctrlKey: boolean) => {
+  //   // TODO
+  //   // need pinia... we can set entryID, but we might also need to open a tab
+  //   //void (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: ctrlKey}); 
+  // }
+
   }
 
   // create entry buttons
@@ -227,13 +224,18 @@
 
     const entry = await createEntry(worldFolder, topic);
 
-    if (entry)
-      emit('entryCreated', entry.uuid);
+    if (entry) {
+      // const onDirectoryEntryCreated = (entryId: string) => {
+    // TODO
+    // need pinia... we can set entryID, but we might also need to open a tab
+    // void (this._partials.WBHeader as WBHeader).openEntry(entryId, { newTab: true, activate: true }); 
+    }
   }
     
 
   ////////////////////////////////
   // watchers
+
 
   ////////////////////////////////
   // lifecycle events

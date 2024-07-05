@@ -43,7 +43,7 @@
 
     <div class="fwb-bookmark-bar flexrow">
       <div id="fwb-add-bookmark" 
-        :class="(!getActiveTab(false)?.entry?.uuid ? 'disabled' : '')"
+        :class="(!worldBuilderStore.getActiveTab(false)?.entry?.uuid ? 'disabled' : '')"
         :title="localize('fwb.tooltips.addBookmark')"
         @click="onAddBookmarkClick"
       >
@@ -97,9 +97,6 @@
   // local imports
   import { localize } from '@/utils/game';
   import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
-  import { getIcon } from '@/utils/misc';
-  import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-  import { getCleanEntry } from '@/compendia';
   import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
 
   // library components
@@ -112,10 +109,6 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    worldId: {        // currently selected world 
-      type: String,
-      required: true
-    },
     directoryCollapsed: {      // is the directory collapsed 
       type: Boolean,
       required: true
@@ -125,14 +118,13 @@
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
-    (e: 'entryChanged', newUuid: string | null): void,
     (e: 'directoryCollapseToggle'): void
   }>();
 
   ////////////////////////////////
   // store
   const worldBuilderStore = useWorldBuilderStore();
-  const { tabs } = storeToRefs(worldBuilderStore);
+  const { tabs, currentWorldId, currentEntryId, } = storeToRefs(worldBuilderStore);
 
 
   ////////////////////////////////
@@ -143,14 +135,13 @@
   ////////////////////////////////
   // computed data
   const activeEntryId = computed((): string | null => {
-    return getActiveTab()?.entry.uuid || null;
+    return worldBuilderStore.getActiveTab()?.entry.uuid || null;
   });
-
 
   ////////////////////////////////
   // methods
   const canBack = function (tab?: WindowTab): boolean {
-    const checkTab = tab || getActiveTab();
+    const checkTab = tab || worldBuilderStore.getActiveTab();
 
     if (!checkTab)
       return false;
@@ -159,7 +150,7 @@
   };
 
   const canForward = function (tab?: WindowTab): boolean {
-    const checkTab = tab || getActiveTab();
+    const checkTab = tab || worldBuilderStore.getActiveTab();
 
     if (!checkTab)
       return false;
@@ -167,139 +158,17 @@
     return (checkTab.history?.length > 1) && (checkTab.historyIdx < checkTab.history.length-1);
   };
 
-  const getActiveTab = function (findone = true): WindowTab | null {
-    let tab = tabs.value.find(t => t.active);
-    if (findone) {
-      if (!tab && tabs.value.length > 0)  // nothing was marked as active, just pick the 1st one
-        tab = tabs.value[0];
-    }
-
-    return tab || null;
-  }
 
   const saveBookmarks = async function () {
-    await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, props.worldId);
-  }
-
-  // activate - switch to the tab after creating - defaults to true
-  // newTab - should entry open in current tab or a new one - defaults to true
-  // entryId = the uuid of the entry for the tab  (currently just journal entries); if missing, open a "New Tab"
-  // updateHistory - should history be updated- defaults to true
-  // if not !newTab and entryId is the same as currently active tab, then does nothign
-  const openEntry = async function (entryId = null as string | null, options?: { activate?: boolean, newTab?: boolean, updateHistory?: boolean }): Promise<WindowTab> {
-    // set defaults
-    options = {
-      activate: true,
-      newTab: true,
-      updateHistory: true,
-      ...options,
-    };
-
-    const journal = entryId ? await getCleanEntry(entryId) as JournalEntry : null;
-    const entryName = (journal ? journal.name : localize('fwb.labels.newTab')) || '';
-    const entry = { uuid: journal ? entryId : null, name: entryName, icon: journal ? getIcon(EntryFlags.get(journal, EntryFlagKey.topic)) : '' };
-
-    // see if we need a new tab
-    let tab;
-    if (options.newTab || !getActiveTab(false)) {
-      tab = {
-        id: foundry.utils.randomID(),
-        active: false,
-        entry: entry,
-        history: [],
-        historyIdx: -1,
-      } as WindowTab;
-
-      //add to tabs list
-      tabs.value.push(tab);
-    } else {
-      tab = getActiveTab(false);
-
-      // if same entry, nothing to do
-      if (tab.entry?.uuid === entryId)
-        return tab;
-
-      // otherwise, just swap out the active tab info
-      tab.entry = entry;
-    }
-    
-    // add to history 
-    if (entry.uuid && options.updateHistory) {
-      tab.history.push(entryId);
-      tab.historyIdx = tab.history.length - 1; 
-    }
-
-    if (options.activate)
-      await activateTab(tab.id);  
-
-    // activating doesn't always save (ex. if we added a new entry to active tab)
-    await saveTabs();
-
-    // update the recent list (except for new tabs)
-    if (entry.uuid)
-      await updateRecent(entry);
-
-    emit('entryChanged', entry.uuid);
-
-    return tab;
-  }
-
-    // activate the given tab, first closing the current subsheet
-  // tabId must exist
-  const activateTab = async function (tabId: string): Promise<void> {
-    //this.saveScrollPos();
-
-    let newTab: WindowTab | undefined;
-    if (!tabId || !(newTab = tabs.value.find((t)=>(t.id===tabId))))
+    if (!currentWorldId.value)
       return;
 
-    // see if it's already current
-    const currentTab = getActiveTab(false);
-    if (currentTab?.id === tabId) {
-      return;
-    }
-
-    if (currentTab)
-      currentTab.active = false;
-    
-    newTab.active = true;
-
-    await saveTabs();
-
-    // add to recent, unless it's a "new tab"
-    if (newTab?.entry?.uuid)
-      await updateRecent(newTab.entry);
-
-    emit('entryChanged', newTab.entry.uuid);
-
-    return;
-  }
-
-  // save tabs to database
-  const saveTabs = async function () {
-    await UserFlags.set(UserFlagKey.tabs, tabs.value, props.worldId);
-  }
-
-  // add a new entity to the recent list
-  const updateRecent = async function (entry: EntryHeader): Promise<void> {
-    let recent = UserFlags.get(UserFlagKey.recentlyViewed, props.worldId) || [] as EntryHeader[];
-
-    // remove any other places in history this already appears
-    recent.findSplice((h: EntryHeader): boolean => h.uuid === entry.uuid);
-
-    // insert in the front
-    recent.unshift(entry);
-
-    // trim if too long
-    if (recent.length > 5)
-      recent = recent.slice(0, 5);
-
-    await UserFlags.set(UserFlagKey.recentlyViewed, recent, props.worldId);
+    await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentWorldId.value);
   }
 
   // moves forward/back through the history "move" spaces (or less if not possible); negative numbers move back
   const navigateHistory = async function (move: number) {
-    const tab = getActiveTab();
+    const tab = worldBuilderStore.getActiveTab();
 
     if (!tab) return;
 
@@ -311,7 +180,7 @@
       return;
 
     tab.historyIdx = newSpot;
-    await openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
+    await worldBuilderStore.openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
 }
 
   // remove the tab given by the id from the list
@@ -326,14 +195,14 @@
     tabs.value.splice(index, 1);
 
     if (tabs.value.length === 0) {
-      await openEntry();  // make a default tab if that was the last one (will also activate it) and save them
+      await worldBuilderStore.openEntry();  // make a default tab if that was the last one (will also activate it) and save them
     } else if (tab.active) {
       // if it was active, make the one before it active (or after if it was up front)
       if (index===0) {
-        await activateTab(tabs.value[0].id);  // will also save them
+        await worldBuilderStore.activateTab(tabs.value[0].id);  // will also save them
       }
       else {
-        await activateTab(tabs.value[index-1].id);  // will also save them
+        await worldBuilderStore.activateTab(tabs.value[index-1].id);  // will also save them
       }
     }
   }
@@ -382,7 +251,7 @@
         callback: async (li) => {
           const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
           if (bookmark)
-            await openEntry(bookmark.entry.uuid, { newTab: true });
+            await worldBuilderStore.openEntry(bookmark.entry.uuid, { newTab: true });
         }
       },
       {
@@ -407,7 +276,7 @@
   // add the current tab as a new bookmark
   const onAddBookmarkClick = async (): Promise<void> => {
     //get the current tab and save the entity and name
-    const tab = getActiveTab(false);
+    const tab = worldBuilderStore.getActiveTab(false);
 
     if (!tab?.entry?.uuid)
       return;
@@ -432,7 +301,7 @@
     const bookmark = bookmarks.value.find(b => b.id === bookmarkId);
 
     if (bookmark) {
-      await openEntry(bookmark?.entry.uuid, { newTab: false });
+      await worldBuilderStore.openEntry(bookmark?.entry.uuid, { newTab: false });
     }
   };
 
@@ -440,14 +309,14 @@
     emit('directoryCollapseToggle')
   };
 
-  const onAddTabClick = async () => { await openEntry(); };
+  const onAddTabClick = async () => { await worldBuilderStore.openEntry(); };
 
   const onHistoryBackClick = () => { void navigateHistory(-1); };
   const onHistoryForwardClick = () => { void navigateHistory(1); };
 
   // bookmark and tab listeners
   const onTabClick = async (tabId: string) => {
-    void activateTab(tabId);
+    void worldBuilderStore.activateTab(tabId);
   };
 
   // listener for the tab close buttons
@@ -507,7 +376,7 @@
       tabs.value = tabsValue.splice(to, 0, tabsValue.splice(from, 1)[0]);
 
       // activate the moved one (will also save the tabs)
-      await activateTab(data.tabId);
+      await worldBuilderStore.activateTab(data.tabId);
     } else if (data.type==='fwb-bookmark') {
       const target = (event.currentTarget as HTMLElement).closest('.fwb-bookmark-button') as HTMLElement;
       if (!target)
@@ -532,17 +401,18 @@
 
   ////////////////////////////////
   // watchers
-  watch(() => props.worldId, async (newValue): Promise<void> => {
+  watch(currentWorldId, async (newValue): Promise<void> => {
+    if (!newValue)
+      return;
+
     tabs.value = UserFlags.get(UserFlagKey.tabs, newValue) || [];
     bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, newValue) || [];
 
     // if there are no tabs, add one
     if (!tabs.value.length)
-      await openEntry();
+      await worldBuilderStore.openEntry();
 
-    await UserFlags.set(UserFlagKey.currentWorld, newValue);
-
-    emit('entryChanged', activeEntryId.value);
+    currentEntryId.value = activeEntryId.value;
   });
 
   ////////////////////////////////
