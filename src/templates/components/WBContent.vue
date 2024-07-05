@@ -333,7 +333,6 @@
   const icon = computed((): string => (!topic.value ? '' : getIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : localize(topicData[topic.value]?.namePlaceholder)));
-  const description = computed((): Description => entry.value?.pages?.find((p)=>p.name==='description').text); //TODO: use enum
   const typeList = computed((): string[] => (topic.value===null ? [] : moduleSettings.get(SettingKey.types)[topic.value]));
 
   ////////////////////////////////
@@ -411,11 +410,6 @@
 
         // reattach the editor to the new entry
         editorDocument.value = newEntry.pages.find((p)=>p.name==='description');
-
-        // get() returns the object and we don't want to modify it directly
-        // TODO
-        // TBD
-        // (this._partials.TypeTypeAhead as TypeAhead).updateList(moduleSettings.get(SettingKey.types)[topic]);
 
         // update the tree for things with hierarchies
         if (hasHierarchy(newTopic)) {

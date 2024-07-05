@@ -116,8 +116,6 @@
 
   ////////////////////////////////
   // props
-  const props = defineProps({
-  });
 
   ////////////////////////////////
   // emits
@@ -203,12 +201,7 @@
   const onEntryClick = async (event: JQuery.ClickEvent, entryId: string) => {
     event.stopPropagation();
 
-  //   const onDirectoryEntrySelected = async (entryId: string, ctrlKey: boolean) => {
-  //   // TODO
-  //   // need pinia... we can set entryID, but we might also need to open a tab
-  //   //void (this._partials.WBHeader as WBHeader).openEntry(entryId, {newTab: ctrlKey}); 
-  // }
-
+    worldBuilderStore.openEntry(entryId, {newTab: event.ctrlKey});
   }
 
   // create entry buttons
@@ -225,10 +218,7 @@
     const entry = await createEntry(worldFolder, topic);
 
     if (entry) {
-      // const onDirectoryEntryCreated = (entryId: string) => {
-    // TODO
-    // need pinia... we can set entryID, but we might also need to open a tab
-    // void (this._partials.WBHeader as WBHeader).openEntry(entryId, { newTab: true, activate: true }); 
+      worldBuilderStore.openEntry(entry.uuid, { newTab: true, activate: true }); 
     }
   }
     
