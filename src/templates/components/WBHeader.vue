@@ -57,12 +57,6 @@
         @click="onBookmarkClick(bookmark.id)"
         draggable="true"
       >
-        <div v-if="bookmark.entry.icon"
-            class="fwb-tab-icon"
-          >
-            <i :class="'fas ' + bookmark.entry.icon"></i>
-          </div>
-
         <div>
           <i v-if="bookmark.entry.icon"
             :class="'fas '+ bookmark.entry.icon"

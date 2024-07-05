@@ -43,7 +43,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
     actions: {}
   }, { inplace: false });
 
-  static DEBUG = true;
+  static DEBUG = false;
 
   static SHADOWROOT = false;
 
