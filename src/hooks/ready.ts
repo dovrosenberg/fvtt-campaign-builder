@@ -1,7 +1,5 @@
-import { OldWorldBuilder, updateWorldBuilder } from '@/applications/WorldBuilder';
-import { oldWorldBuilder } from '@/applications/WorldBuilder';
+import { worldBuilder, updateWorldBuilder, } from '@/applications/WorldBuilder';
 import { getDefaultFolders } from '@/compendia';
-import { registerHelpers } from '@/handlebars';
 import { getGame, localize } from '@/utils/game';
 import { WorldBuilderApplication } from '@/applications/WorldBuilder/WorldBuilder';
 
@@ -11,8 +9,6 @@ export function registerForReadyHook() {
 
 async function ready(): Promise<void> {
   // register handlebars helpers
-  await registerHelpers();
-
   if (getGame().user?.isGM) {  
     const navToggleButton = jQuery(document).find('#nav-toggle');
     const toolTip = localize('fwb.tooltips.mainButton');
@@ -21,7 +17,7 @@ async function ready(): Promise<void> {
     );
 
     jQuery(document).on('click', '#fwb-launch', async (): Promise<void> => {
-      if (!oldWorldBuilder) {
+      if (!worldBuilder) {
         // TODO - what happens if the folder is deleted after this is called?  Do 
         //    we need to continually check or is the user just stupid?  Also, 
         //    can we lock it to prevent that?
@@ -29,10 +25,7 @@ async function ready(): Promise<void> {
         
         if (folders?.rootFolder && folders?.worldFolder) {
           // create the instance
-          updateWorldBuilder(await OldWorldBuilder.createWorldBuilder(folders.rootFolder, folders.worldFolder));
-
-          await new WorldBuilderApplication().render(true);
-
+          updateWorldBuilder(await new WorldBuilderApplication().render());
         } else {
           // we don't have valid folders, so just quit
           return;
@@ -40,7 +33,7 @@ async function ready(): Promise<void> {
       }
 
       // render the main window
-      void oldWorldBuilder.render(true);
+      void worldBuilder.render(true);
     });
   }
 }
