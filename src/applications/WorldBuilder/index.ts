@@ -9,7 +9,7 @@ export function updateWorldBuilder(newWorldBuilder: WorldBuilderApplication): vo
 import moduleJson from '@module';
 import { VueApplicationMixin } from '@/libs/VueApplicationMixin.mjs';
 import { createPinia, setActivePinia } from 'pinia';
-import App from '@/templates/WorldBuilder.vue';
+import App from '@/components/WorldBuilder.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
 

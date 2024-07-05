@@ -273,10 +273,10 @@
   // library components
 
   // local components
-  import Editor from '@/templates/components/Editor.vue';
-  import HomePage from '@/templates/components/HomePage.vue';
-  import TypeAhead from '@/templates/components/TypeAhead.vue';
-  import Tree from '@/templates/components/Tree/Tree.vue';
+  import Editor from '@/components/Editor.vue';
+  import HomePage from '@/components/HomePage.vue';
+  import TypeAhead from '@/components/TypeAhead.vue';
+  import Tree from '@/components/Tree/Tree.vue';
 
   // types
   import { Topic, TreeNode } from '@/types';

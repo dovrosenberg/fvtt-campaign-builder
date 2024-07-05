@@ -35,9 +35,9 @@
   // library components
 
   // local components
-  import WBHeader from '@/templates/components/WBHeader.vue';
-  import WBContent from '@/templates/components/WBContent.vue';
-  import Directory from '@/templates/components/Directory.vue';
+  import WBHeader from '@/components/WBHeader.vue';
+  import WBContent from '@/components/WBContent.vue';
+  import Directory from '@/components/Directory.vue';
 
   // types
   
@@ -100,7 +100,7 @@
       rootFolder.value = folders.rootFolder;
       currentWorldFolder.value = folders.worldFolder;
     } else {
-      throw new Error('Failed to load or create folder structure').
+      throw new Error('Failed to load or create folder structure');
     }
   });
 
