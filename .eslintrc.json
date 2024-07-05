@@ -46,6 +46,19 @@
         "no-debugger": "warn",
         "no-unused-expressions": "warn",
         "@typescript-eslint/ban-ts-comment": "off",
-        "@typescript-eslint/no-namespace": "off"
+        "@typescript-eslint/no-namespace": "off",
+        "vue/script-indent": ["warn", 2, {
+            "baseIndent": 1,
+            "switchCase": 1,
+            "ignores": []
+        }]
+    },
+    "overrides": [
+    {
+      "files": ["*.vue"],
+      "rules": {
+        "indent": "off"
+      }
     }
+  ]
 }

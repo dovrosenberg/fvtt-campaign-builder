@@ -6,7 +6,7 @@
     <div class="fwb-tab-bar flexrow">
       <div class="fwb-tab-row flexrow">
         <div v-for="tab in tabs"
-          :class="'fwb-tab flexrow' + (active ? 'active' : '')" 
+          :class="'fwb-tab flexrow ' + (tab.active ? 'active' : '')" 
           :title="tab.entry.name" 
           @click="onTabClick(tab.id)"
         >
@@ -69,7 +69,7 @@
     <div class="navigation flexrow">
       <div 
         id="fwb-history-back" 
-        :class="'nav-button ' + (canBack ? '' : 'disabled')" 
+        :class="'nav-button ' + (canBack() ? '' : 'disabled')" 
         :title="localize('fwb.tooltips.historyBack')"
         @click="onHistoryBackClick"
       >
@@ -77,7 +77,7 @@
       </div>
       <div 
         id="fwb-history-forward" 
-        :class="'nav-button ' + (canForward ? '' : 'disabled')" 
+        :class="'nav-button ' + (canForward() ? '' : 'disabled')" 
         :title="localize('fwb.tooltips.historyForward')"
         @click="onHistoryForwardClick"
       >
@@ -300,7 +300,7 @@
 
     if (!tab) return;
 
-    const newSpot = Math.clamped(tab.historyIdx + move, 0, tab.history.length-1);
+    const newSpot = Math.clamp(tab.historyIdx + move, 0, tab.history.length-1);
 
     // if we didn't move, return
     if (newSpot === tab.historyIdx)
@@ -371,7 +371,7 @@
       return;
 
     // bookmarks 
-    const cm = new ContextMenu(root.value, '.fwb-bookmark-button', [
+    const cm = new ContextMenu($(root.value), '.fwb-bookmark-button', [
       {
         name: 'fwb.contextMenus.bookmarks.openNewTab',
         icon: '<i class="fas fa-file-export"></i>',
@@ -450,7 +450,7 @@
   const onTabCloseClick = async (tabId: string) => {
     if (tabId)
       await closeTab(tabId);
-  }
+  };
 
   // handle a bookmark or tab dragging
   const onDragStart = (event: DragEvent): void => {
@@ -477,7 +477,7 @@
 
       event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
     } 
-  }
+  };
 
   const onDrop = async(event: DragEvent) => {
     let data;
@@ -524,11 +524,11 @@
     } 
 
     return true;
-  }
+  };
 
   ////////////////////////////////
   // watchers
-  watch(() => props.worldId, async (newValue) => {
+  watch(() => props.worldId, async (newValue): Promise<void> => {
     tabs.value = UserFlags.get(UserFlagKey.tabs, newValue) || [];
     bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, newValue) || [];
 
