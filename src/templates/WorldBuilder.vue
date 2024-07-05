@@ -96,9 +96,11 @@
 
     const folders = await getDefaultFolders();
 
-    if (folders) {
+    if (folders && folders.rootFolder && folders.worldFolder) {
       rootFolder.value = folders.rootFolder;
       currentWorldFolder.value = folders.worldFolder;
+    } else {
+      throw new Error('Failed to load or create folder structure').
     }
   });
 
