@@ -4,8 +4,8 @@
   "description": "Create full worlds (like Kanka, WorldAnvil, etc. but simpler) right inside Foundry - as you play.",
 
   "compatibility": {
-    "minimum": "11",
-    "verified": "11.315"
+    "minimum": "12",
+    "verified": "12.324"
   },
 
   "esmodules": [

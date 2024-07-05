@@ -4,7 +4,7 @@
 		"target": "es2018",
 		"module": "esnext",
 		"lib": [ "es2015", "es2019", "dom" ],
-		"typeRoots": [ "node_modules/@types", "./src/types", "node" ],
+		"typeRoots": [ "node_modules/@types", "./src/types", "node", "@league-of-foundry-developers/foundry-vtt-types"],
 		"moduleResolution": "node",
 		"sourceMap": true,
 		"strict": true,
@@ -36,6 +36,6 @@
 			"@module": ["./static/module.json"]
 		}
 	},
-	"include": ["tests/**/*.ts", "src/**/*.ts", "src/**/*.d.ts",], 
+	"include": ["tests/**/*.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue",], 
 	"exclude": [ "node_modules", "dist" ]
 }

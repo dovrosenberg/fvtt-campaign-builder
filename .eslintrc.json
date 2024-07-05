@@ -6,15 +6,18 @@
     },
     "extends": [
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "plugin:vue/vue3-recommended"
     ],
-    "parser": "@typescript-eslint/parser",
+    "parser": "vue-eslint-parser",
     "parserOptions": {
-        "ecmaVersion": 12,
-        "project": ["./tsconfig.json"]
+        "parser": "@typescript-eslint/parser",
+        "ecmaVersion": 2022,
+        "project": ["./tsconfig.json"],
+        "extraFileExtensions": [".vue"]
     },
     "plugins": [
-        "@typescript-eslint"
+        "vue"
     ],
     "rules": {
         "indent": [
@@ -43,6 +46,19 @@
         "no-debugger": "warn",
         "no-unused-expressions": "warn",
         "@typescript-eslint/ban-ts-comment": "off",
-        "@typescript-eslint/no-namespace": "off"
+        "@typescript-eslint/no-namespace": "off",
+        "vue/script-indent": ["warn", 2, {
+            "baseIndent": 1,
+            "switchCase": 1,
+            "ignores": []
+        }]
+    },
+    "overrides": [
+    {
+      "files": ["*.vue"],
+      "rules": {
+        "indent": "off"
+      }
     }
+  ]
 }

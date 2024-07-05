@@ -170,7 +170,7 @@ async function createCompendium(worldFolder: Folder, topic: Topic ): Promise<str
   const label = getTopicText(topic);
 
   const metadata = { 
-    name: randomID(), 
+    name: foundry.utils.randomID(), 
     label: label,
     type: 'JournalEntry', 
   };

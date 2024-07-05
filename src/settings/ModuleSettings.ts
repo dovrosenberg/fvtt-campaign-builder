@@ -37,7 +37,7 @@ export class ModuleSettings {
 
   // this gets something safe to modify
   public getClone<T extends SettingKey>(setting: T): SettingType<T> {
-    return deepClone(this.get(setting));
+    return foundry.utils.deepClone(this.get(setting));
   }
 
   public async set<T extends SettingKey>(setting: T, value: SettingType<T>): Promise<void> {

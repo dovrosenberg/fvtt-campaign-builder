@@ -18,7 +18,7 @@ Players run into an NPC or location you hadn't thought of fleshing out ahead of 
 
 ## Features
 
-## MPV features
+## MVP features
 - Create a (user-specified-name) compendium for storing everything in
 - Journal entry for overall world with key details
 - Create geographical hierarchies (world-continents-countries-regions-towns-etc.)
@@ -31,6 +31,7 @@ Players run into an NPC or location you hadn't thought of fleshing out ahead of 
 - Create characters as journal entry - not necessarily connected to an actor
 - Hierarchy "levels" are customizable
 - Tags
+- Attach associated scenes
 
 ## Planned features
 - keyboard shortcuts
