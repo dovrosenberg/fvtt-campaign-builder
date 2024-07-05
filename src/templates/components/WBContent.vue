@@ -8,7 +8,6 @@
       
     <form v-else
       :class="'flexcol fwb-journal-subsheet ' + topic" 
-      :editable="editable"
     >
       <div class="sheet-container detailed flexcol">
         <header class="journal-sheet-header flexrow">
@@ -39,19 +38,10 @@
             <div v-if="showHierarchy"
               class="form-group fwb-content-header"
             >
-              <Tree
+              <!-- <Tree> use hierarchyTreeData -->
                
-              {{> (treeTemplate) data=hierarchyTreeData }} -->
             </div>
 
-            <!-- {{!-- <div class="form-group">
-              <label>{{localize 'MonksEnhancedJournal.Role'}}</label>
-              <input type="text" name="flags.monks-enhanced-journal.role" value="{{data.flags.monks-enhanced-journal.role}}" />
-            </div>
-            <div class="form-group">
-              <label>{{localize 'MonksEnhancedJournal.Location'}}</label>
-              <input type="text" name="flags.monks-enhanced-journal.location" value="{{data.flags.monks-enhanced-journal.location}}" />
-            </div> --}} -->
           </section>
         </header>
         <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
@@ -68,7 +58,7 @@
             <div class="tab-inner flexcol">
               <Editor 
                 :document="editorDocument"
-                hasButton="true"
+                :hasButton="true"
                 target="content-description"
                 @editorSaved="onDescriptionEditorSaved"
               />
@@ -104,7 +94,7 @@
               </div>--}} -->
             </div>
           </div>
-          <div class="tab relationships" data-group="primary" data-tab="relationships">
+          <!-- <div class="tab relationships" data-group="primary" data-tab="relationships">
             <div class="tab-inner flexcol">
               <div class="relationships flexrow">
                 <div class="items-list">
@@ -167,7 +157,7 @@
                         <a class="item-control item-delete" title="{{localize 'MonksEnhancedJournal.RemoveRelationship'}}"><i class="fas fa-trash"></i></a>
                       </div>
                     </li>
-                    <!-- <li v-else-if="owner" 
+                     <li v-else-if="owner" 
                       class="instruction"
                     >
                       {{localize 'MonksEnhancedJournal.msg.DragToMakeRelationship'}}
@@ -176,14 +166,14 @@
                       class="instruction"
                     >
                       {{localize 'MonksEnhancedJournal.msg.NoRelationshipsAtTheMoment'}}
-                    </li> -->
+                    </li> 
                   </ol>
                 </div>
               </div>
             </div>
-          </div>
+          </div> 
           <div class="tab offerings" data-group="primary" data-tab="offerings">
-            <!-- <div class="tab-inner flexcol">
+            <div class="tab-inner flexcol">
               <div class="offering-list">
                 <div class="items-list">
                   <div class="item-header flexrow">
@@ -244,8 +234,8 @@
                   </ol>
                 </div>
               </div>
-            </div> -->
-          </div>
+            </div> 
+          </div>-->
           <div class="tab notes" data-group="primary" data-tab="notes">
             <div class="tab-inner flexcol">
               <div style="flex-grow: 0;">
@@ -253,6 +243,7 @@
                 <span v-if="!hasGM" style="color:darkred;font-weight:bold;">{{localize('MonksEnhancedJournal.msg.CannotEditNotesWithoutGM')}}</span>
               </div>
               <div class="notes-container">
+
                 <!-- {{!-- {{editor userdata.enrichedText target=notesTarget editable=true button=true owner=owner}} --}} -->
               </div>
             </div>

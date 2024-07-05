@@ -173,5 +173,5 @@ const ancestorItems = async function(pack:CompendiumCollection<any>, entry: Jour
     acc[ancestor.uuid] = ancestor;
     return acc;
   }, {});
-}
+};
 

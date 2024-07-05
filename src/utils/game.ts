@@ -6,7 +6,7 @@ const getGame = function(): Game {
     throw new Error('Game is not initialized yet!');
   }
   return game;
-}
+};
 
 // is the current client the GM?
 const isClientGM = (): boolean => (getGame()?.user?.isGM || false);

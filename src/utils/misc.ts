@@ -7,7 +7,7 @@ export function toTopic(topic: string | number | Topic | null | undefined): Topi
   const castedTopic = typeof topic === 'string' ? parseInt(topic) as Topic : topic;
 
   return castedTopic ?? null;
-};
+}
 
 export function getIcon(topic: string | number | Topic | null | undefined) {
   switch (toTopic(topic)) {

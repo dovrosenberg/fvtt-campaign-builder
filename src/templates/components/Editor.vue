@@ -61,8 +61,8 @@
   // props
   const props = defineProps({
     document: {
-      type: Object as PropType<Document<any>>,
-      required: true,
+      type: Object as PropType<Document<any> | undefined>,
+      required: false,
     }, 
     class: {
       type: String,
@@ -181,11 +181,11 @@
     
     options.target.closest('.editor')?.classList.add(props.engine);
 
-    /* @deprecated since v10 */
-    if ( props.engine !== 'prosemirror' ) {
-      editor.value.focus();
-      //editor.value.on("change", () => this._changed = true);
-    }
+    // /* @deprecated since v10 */
+    // if ( props.engine !== 'prosemirror' ) {
+    //   editor.value.focus();
+    //   //editor.value.on("change", () => this._changed = true);
+    // }
   }
 
   const configureProseMirrorPlugins = () => {
@@ -241,7 +241,8 @@
   ////////////////////////////////
   // watchers
   watch(()=> props.document, () =>{
-    initialContent.value = props.document.text.content;
+    if (props.document)
+      initialContent.value = props.document.text.content;
   });
 
   ////////////////////////////////

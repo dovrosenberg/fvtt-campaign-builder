@@ -6,15 +6,18 @@
     },
     "extends": [
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "plugin:vue/vue3-recommended"
     ],
-    "parser": "@typescript-eslint/parser",
+    "parser": "vue-eslint-parser",
     "parserOptions": {
-        "ecmaVersion": 12,
-        "project": ["./tsconfig.json"]
+        "parser": "@typescript-eslint/parser",
+        "ecmaVersion": 2022,
+        "project": ["./tsconfig.json"],
+        "extraFileExtensions": [".vue"]
     },
     "plugins": [
-        "@typescript-eslint"
+        "vue"
     ],
     "rules": {
         "indent": [
