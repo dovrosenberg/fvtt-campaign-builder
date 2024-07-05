@@ -5,7 +5,9 @@
     class="fwb-editor flexcol"
   >
     <!-- this reproduces the Vue editor() Handlebars helper -->
+     <!-- editorVisible used to reset the DOM by toggling-->
      <div 
+      v-if="editorVisible"  
       ref="editorRef"
       :class="'editor ' + props.class"
       :style="(height ? height + 'px' : '')"
@@ -35,7 +37,7 @@
   // !!! TODO - use vue-safe-html instead of v-html!!!
 
   // library imports
-  import { PropType, computed, onMounted, ref, toRaw, watch } from 'vue';
+  import { PropType, computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
 
   // local imports
 
@@ -113,6 +115,7 @@
   const initialContent = ref<string>('');
   const editor = ref<TextEditor | null>(null);
   const buttonDisplay = ref<string>('');   // is button currently visible
+  const editorVisible = ref<boolean>(true);
 
   const coreEditorRef = ref<HTMLDivElement>();
   const editorRef = ref<HTMLDivElement>();
@@ -221,17 +224,10 @@
 
       buttonDisplay.value = '';   // brings the button back
 
-      // bring back the deleted div
-      let restoredDiv = document.createElement('div');
-      restoredDiv.className = 'editor-content';
-      // attach the data props
-      for (const [key, value] of Object.entries(datasetProperties.value)) {
-        restoredDiv.dataset[key] = value;
-      }
-      restoredDiv.innerHTML = initialContent.value ?? '';
-
-      coreEditorRef.value = restoredDiv;
-      editorRef.value?.append(restoredDiv);
+      // bring back the deleted div by resetting 
+      editorVisible.value = false;
+      await nextTick();
+      editorVisible.value = true;
     }
     
     initialContent.value = content;

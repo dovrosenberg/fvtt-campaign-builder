@@ -422,12 +422,8 @@
           tabs.value.bind(contentRef.value);
         }
 
-      // reattach the editor
-        // @ts-ignore
-        const descriptionPage = newEntry.pages.find((p)=>p.name==='description');
-        // TODO
-        // this should just update the params passed to the editor
-        editorDocument.value = descriptionPage;
+        // reattach the editor to the new entry
+        editorDocument.value = newEntry.pages.find((p)=>p.name==='description');
 
         // get() returns the object and we don't want to modify it directly
         // TODO
@@ -462,10 +458,6 @@
     //     // home page mode - click on a recent item
     //     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {
     //       await this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
-    //     });
-
-    //     this._partials.DescriptionEditor.registerCallback(Editor.CallbackType.EditorClosed, async () => { 
-    //       await this._makeCallback(WBContent.CallbackType.ForceRerender); 
     //     });
 
     //     // tree node clicked
