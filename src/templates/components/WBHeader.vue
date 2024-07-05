@@ -18,7 +18,7 @@
           <div class="tab-content">{{tab.entry.name}}</div>
           <div 
             class="close"
-            @click="onTabCloseClick"
+            @click="onTabCloseClick(tab.id)"
           >
             <i class="fas fa-times"></i>
           </div>
@@ -43,7 +43,7 @@
 
     <div class="fwb-bookmark-bar flexrow">
       <div id="fwb-add-bookmark" 
-        :class="!getActiveTab(false)?.entry?.uuid ? 'disabled' : ''"
+        :class="(!getActiveTab(false)?.entry?.uuid ? 'disabled' : '')"
         :title="localize('fwb.tooltips.addBookmark')"
         @click="onAddBookmarkClick"
       >
@@ -55,11 +55,12 @@
         class="fwb-bookmark-button" 
         :title="bookmark.entry.name" 
         @click="onBookmarkClick(bookmark.id)"
+        draggable="true"
       >
-      <div v-if="tab.entry.icon"
+        <div v-if="bookmark.entry.icon"
             class="fwb-tab-icon"
           >
-            <i :class="'fas ' + tab.entry.icon"></i>
+            <i :class="'fas ' + bookmark.entry.icon"></i>
           </div>
 
         <div>
@@ -96,7 +97,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { inject, ref, computed, onMounted, watch, InjectionKey } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
@@ -324,7 +325,7 @@
     if (!tab) return;
 
     // remove it from the array
-    tabs.value = tabs.value.splice(index, 1);
+    tabs.value.splice(index, 1);
 
     if (tabs.value.length === 0) {
       await openEntry();  // make a default tab if that was the last one (will also activate it) and save them
@@ -376,7 +377,7 @@
       return;
 
     // bookmarks 
-    new ContextMenu($(root.value), '.fwb-bookmark-button', [
+    const cm = new ContextMenu(root.value, '.fwb-bookmark-button', [
       {
         name: 'fwb.contextMenus.bookmarks.openNewTab',
         icon: '<i class="fas fa-file-export"></i>',
@@ -396,6 +397,10 @@
         }
       }
     ]);
+
+    if (cm)
+      cm.bind();
+      
   }
 
 
@@ -545,12 +550,6 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(function () {
-    // // load the tabs and bookmarks for the world
-    // if (props.worldId) {
-    //   tabs.value = UserFlags.get(UserFlagKey.tabs, props.worldId) || [];
-    //   bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, props.worldId) || [];
-    // }
-
     // set up the drag & drop for tabs and bookmarks
     activateDragDrop();
 
@@ -588,9 +587,6 @@
 //     await UserFlags.set(UserFlagKey.recentlyViewed, recent, this._worldId);
 //   }
 
-//   /******************************************************
-//    * Private methods
-//   */
 
 
 </script>
