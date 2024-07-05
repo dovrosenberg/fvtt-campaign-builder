@@ -32,3 +32,10 @@ export enum Topic {
   Scene,
   //TODO: Note - maybe the ability to just handle normal journal notes?
 }
+
+export type TreeNode = {
+  text: string;   // the label
+  value: string;   // a value to be passed up when clicked (ex. a uuid)
+  children: TreeNode[];   // the children, if any
+  expanded?: boolean;   // is it expanded
+}

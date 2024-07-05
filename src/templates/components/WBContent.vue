@@ -39,7 +39,8 @@
             <div v-if="showHierarchy"
               class="form-group fwb-content-header"
             >
-              <!-- {{!--<label>{{localize 'fwb.labels.fields.type'}}</label>--}}
+              <Tree
+               
               {{> (treeTemplate) data=hierarchyTreeData }} -->
             </div>
 
