@@ -1,7 +1,7 @@
 <template>
   <div :id="componentId" class="fwb-tree">
     <ul class="top-node">
-      <TreeNode v-for="node in props.topNodes"
+      <TreeNodeComponent v-for="node in props.topNodes"
         :node="node"
         @itemClicked="onSubItemClick"
       />
@@ -11,13 +11,14 @@
 
 <script setup lang="ts">
   // library imports
+  import { PropType, computed } from 'vue';
 
   // local imports
 
   // library components
 
   // local components
-  import TreeNode from './TreeNode.vue';
+  import TreeNodeComponent from './TreeNode.vue';
 
   // types
   import { TreeNode } from '@/types';
@@ -52,11 +53,6 @@
 
   ////////////////////////////////
   // event handlers
-  const onTreeItemClick = (event: JQuery.ClickEvent, value: string) => {
-    event.preventDefault();  // stop from expanding
-    emit('itemClicked', value);
-  }
-
   const onSubItemClick = (event: JQuery.ClickEvent, value: string) => {
     event.preventDefault();  // stop from expanding
     emit('itemClicked', value);

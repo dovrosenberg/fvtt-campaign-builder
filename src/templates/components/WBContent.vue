@@ -37,8 +37,7 @@
             <div v-if="showHierarchy"
               class="form-group fwb-content-header"
             >
-              <!-- <Tree> use hierarchyTreeData -->
-               
+              <Tree :topNodes="treeNodes" /> 
             </div>
 
           </section>
@@ -264,13 +263,12 @@
   import { getIcon, toTopic } from '@/utils/misc';
   import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
   import { getGame, localize } from '@/utils/game';
-  import { hasHierarchy } from '@/utils/hierarchy';
+  import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
   import moduleJson from '@module';
   import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
 
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   // import { getCleanEntry, updateDocument } from '@/compendia';
-  // import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
 
   // library components
 
@@ -278,9 +276,10 @@
   import Editor from '@/templates/components/Editor.vue';
   import HomePage from '@/templates/components/HomePage.vue';
   import TypeAhead from '@/templates/components/TypeAhead.vue';
+  import Tree from '@/templates/components/Tree/Tree.vue';
 
   // types
-  import { Topic } from '@/types';
+  import { Topic, TreeNode } from '@/types';
   import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
 
   type Description = {
@@ -323,6 +322,7 @@
   const tabs = ref<Tabs>();
   const entry = ref<JournalEntry | null>(null);
   const topic = ref<Topic | null>(null);
+  const treeNodes = ref<TreeNode[]>([]);
 
   const editorDocument = ref<Document<any>>();
 
@@ -415,10 +415,8 @@
         if (hasHierarchy(newTopic)) {
           const pack = getGame().packs.get(newEntry.pack || '');
 
-          // TODO
-          // TBD
-          // if (pack)
-          //   (this._partials.HierarchyTree as Tree).updateTree(await getHierarchyTree(pack, this._entry));
+        if (pack)
+          treeNodes.value = await getHierarchyTree(pack, newEntry);
         }
       }
     }

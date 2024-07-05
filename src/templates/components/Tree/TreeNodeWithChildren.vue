@@ -7,7 +7,7 @@
       >{{props.node.text}}</div>
     </summary>
     <ul>
-      <TreeNode v-for="node in children"
+      <TreeNodeComponent v-for="node in props.node.children"
         :node="node"
         @itemClicked="onSubItemClick"
       />
@@ -17,12 +17,13 @@
 
 <script setup lang="ts">
   // library imports
-
+  import { PropType } from 'vue';
   // local imports
 
   // library components
 
   // local components
+  import TreeNodeComponent from './TreeNode.vue';
 
   // types
   import { TreeNode } from '@/types';

@@ -1,7 +1,7 @@
 <template>
   <li>
     <TreeNodeWithChildren 
-      v-if="children.length" 
+      v-if="props.node.children.length" 
       :node="props.node"
       @itemClicked="onSubItemClick"
     />
@@ -16,13 +16,13 @@
 
 <script setup lang="ts">
   // library imports
+  import { PropType } from 'vue';
 
   // local imports
 
   // library components
 
   // local components
-  import TreeNode from './TreeNode.vue';
   import TreeNodeWithChildren from './TreeNodeWithChildren.vue';
 
   // types
