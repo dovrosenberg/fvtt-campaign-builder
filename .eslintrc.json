@@ -51,6 +51,30 @@
             "baseIndent": 1,
             "switchCase": 1,
             "ignores": []
+        }],
+        "eslint-plugin-vue/first-attribute-linebreak": ["warn", {
+            "singleline": "beside",
+            "multiline": "ignore"
+        }],
+        "vue/max-attributes-per-line": ["error", {
+            "singleline": 3,
+            "multiline": 1
+        }],
+        "vue/html-self-closing": ["error", {
+            "html": {
+                "void": "never",
+                "normal": "any",
+                "component": "always"
+            },
+            "svg": "always",
+            "math": "always"
+        }],
+        "vue/html-indent": ["error", 2, {
+            "attribute": 1,
+            "baseIndent": 1,
+            "closeBracket": 0,
+            "alignAttributesVertically": false,
+            "ignores": []
         }]
     },
     "overrides": [

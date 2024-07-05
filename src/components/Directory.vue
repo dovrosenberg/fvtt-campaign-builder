@@ -1,12 +1,20 @@
 <template>
   <!-- The overall directory sidebar -->
-  <section id="fwb-directory" 
+  <section 
+    id="fwb-directory" 
     class="tab flexcol journal-directory" 
   >
     <!-- Directory Header -->
     <header class="directory-header">
       <div class="header-search flexrow">
-        <input id="fwb-directory-search" type="search" name="search" value="" placeholder="INSERT PLACEHOLDER" autocomplete="off" />
+        <input 
+          id="fwb-directory-search" 
+          type="search" 
+          name="search" 
+          value="" 
+          placeholder="INSERT PLACEHOLDER" 
+          autocomplete="off" 
+        >
         <a 
           class="header-control create-world create-button" 
           data-tooltip="INSERT TOOLTOP"
@@ -27,51 +35,59 @@
 
     <!-- these are the worlds -->
     <ol class="fwb-world-list">
-        <!-- the folders use .id instead of .uuid but it has a uuid in it -->
-        <li v-for="world in worlds"
-          :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
-          @click="onWorldFolderClick($event, world.id)"
-        >
+      <!-- the folders use .id instead of .uuid but it has a uuid in it -->
+      <li v-for="world in worlds"
+        :key="world.id"
+        :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
+        @click="onWorldFolderClick($event, world.id)"
+      >
         <header class="folder-header flexrow">
-            <h3 class="noborder"><i class="fas fa-folder-open fa-fw"></i>{{world.name}}</h3>
-          </header>
+          <h3 class="noborder">
+            <i class="fas fa-folder-open fa-fw"></i>
+            {{ world.name }}
+          </h3>
+        </header>
 
-          <!-- These are the topic compendia -->
-          <ol v-if="currentWorldId===world.id"
-            class="world-contents"
+        <!-- These are the topic compendia -->
+        <ol v-if="currentWorldId===world.id"
+          class="world-contents"
+        >
+          <li v-for="compendium in world.compendia"
+            :key="compendium.id"
+            :class="'fwb-topic-folder folder entry flexcol ' + (compendium.collapsed ? 'collapsed' : '')" 
+            @click="onTopicFolderClick($event, compendium.id)"
           >
-            <li v-for="compendium in world.compendia"
-              :class="'fwb-topic-folder folder entry flexcol ' + (compendium.collapsed ? 'collapsed' : '')" 
-              @click="onTopicFolderClick($event, compendium.id)"
-            >
-              <header class="folder-header flexrow">
-                <div class="fwb-compendium-label noborder" style="margin-bottom:0px">
-                  <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                  <i :class="'icon fas ' + compendium.icon" style="margin-right: 4px;"></i>
-                  {{compendium.name}}
-                </div>
-                <a 
-                  class="fwb-create-entry create-button"
-                  @click="onCreateEntryClick($event, compendium.topic, world.id)"
-                >
-                  <i class="fas fa-atlas"></i>
-                  <i class="fas fa-plus"></i>
-                </a>
-              </header>
+            <header class="folder-header flexrow">
+              <div class="fwb-compendium-label noborder" style="margin-bottom:0px">
+                <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
+                <i :class="'icon fas ' + compendium.icon" style="margin-right: 4px;"></i>
+                {{ compendium.name }}
+              </div>
+              <a 
+                class="fwb-create-entry create-button"
+                @click="onCreateEntryClick($event, compendium.topic, world.id)"
+              >
+                <i class="fas fa-atlas"></i>
+                <i class="fas fa-plus"></i>
+              </a>
+            </header>
 
-              <!-- css will hide this section if the .fwb-topic-folder is collapsed -->
-              <ol class="fwb-topic-contents">
-                <!-- These are the journal entries -->
-                <li v-for="entry in compendium.entries"
-                  class="fwb-entry-item flexrow" 
-                  @click="onEntryClick($event, entry.uuid)"
-                >
-                    <div class="fwb-entry-name"><a>{{entry.name}}</a></div>
-                </li>
-              </ol>
-            </li>
-          </ol>
-        </li>
+            <!-- css will hide this section if the .fwb-topic-folder is collapsed -->
+            <ol class="fwb-topic-contents">
+              <!-- These are the journal entries -->
+              <li v-for="entry in compendium.entries"
+                :key="entry.uuid"
+                class="fwb-entry-item flexrow" 
+                @click="onEntryClick($event, entry.uuid)"
+              >
+                <div class="fwb-entry-name">
+                  <a> {{ entry.name }} </a>
+                </div>
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </li>
     </ol>
 
     <!-- Directory Footer -->
@@ -102,18 +118,7 @@
   // local components
 
   // types
-  import { Topic } from '@/types';
-  type World = {
-    compendia: { 
-      name: string, 
-      id: string,
-      topic: Topic,
-      icon: string,
-      entries: { name: string, uuid: string },
-    }[]
-  };
-
-
+  
   ////////////////////////////////
   // props
 
@@ -123,7 +128,7 @@
   ////////////////////////////////
   // store
   const worldBuilderStore = useWorldBuilderStore();
-  const { currentWorldFolder, currentWorldId, rootFolder } = storeToRefs(worldBuilderStore);
+  const { currentWorldId, rootFolder } = storeToRefs(worldBuilderStore);
 
   ////////////////////////////////
   // data
@@ -133,22 +138,23 @@
   // computed data
   const worlds = computed(() => {
     return (
-    (toRaw(rootFolder.value) as Folder)?.children?.map((world)=> ({
-      name: world.folder.name,
-      id: world.folder.uuid,
-      compendia: world.entries.map((compendium)=>({
-        name: compendium.metadata.label,
-        id: compendium.metadata.id,
-        topic: compendium.config.topic,
-        icon: getIcon(compendium.config.topic),
-        collapsed: !expandedCompendia.value[compendium.metadata.id],
-        entries: compendium.tree?.entries?.map((entry)=> ({
-          name: entry.name,
-          uuid: entry.uuid,
-        })) || [],
-      })),
-    })) || []
-  )});
+      (toRaw(rootFolder.value) as Folder)?.children?.map((world)=> ({
+        name: world.folder.name,
+        id: world.folder.uuid,
+        compendia: world.entries.map((compendium)=>({
+          name: compendium.metadata.label,
+          id: compendium.metadata.id,
+          topic: compendium.config.topic,
+          icon: getIcon(compendium.config.topic),
+          collapsed: !expandedCompendia.value[compendium.metadata.id],
+          entries: compendium.tree?.entries?.map((entry)=> ({
+            name: entry.name,
+            uuid: entry.uuid,
+          })) || [],
+        })),
+      })) || []
+    );
+  });
 
   ////////////////////////////////
   // methods
@@ -157,18 +163,18 @@
   // event handlers
 
   // change world
-  const onWorldFolderClick = async (event: JQuery.ClickEvent, worldId: string) => {
+  const onWorldFolderClick = async (event: MouseEvent, worldId: string) => {
     event.stopPropagation();
 
     // re-collapse everything
     expandedCompendia.value = {};
 
     if (worldId)
-      worldBuilderStore.setNewWorld(worldId);
+      await worldBuilderStore.setNewWorld(worldId);
   };
 
   // open/close a topic
-  const onTopicFolderClick = (event: JQuery.ClickEvent, compendiumId: string) => { 
+  const onTopicFolderClick = (event: MouseEvent, compendiumId: string) => { 
     event.stopPropagation();
 
     // toggle the collapse      
@@ -180,7 +186,7 @@
   };
 
   // close all topics
-  const onCollapseAllClick = (event: JQuery.ClickEvent) => {
+  const onCollapseAllClick = (event: MouseEvent) => {
     event.stopPropagation();
 
     expandedCompendia.value = {};
@@ -188,24 +194,24 @@
   };
 
   // create a world
-  const onCreateWorldClick = async (event: JQuery.ClickEvent) => {
+  const onCreateWorldClick = async (event: MouseEvent) => {
     event.stopPropagation();
 
     const world = await createWorldFolder(true);
     if (world) {
-      worldBuilderStore.setNewWorld(world.id);
+      await worldBuilderStore.setNewWorld(world.id);
     }
-  }
+  };
 
   // select an entry
-  const onEntryClick = async (event: JQuery.ClickEvent, entryId: string) => {
+  const onEntryClick = async (event: MouseEvent, entryId: string) => {
     event.stopPropagation();
 
-    worldBuilderStore.openEntry(entryId, {newTab: event.ctrlKey});
-  }
+    await worldBuilderStore.openEntry(entryId, {newTab: event.ctrlKey});
+  };
 
   // create entry buttons
-  const onCreateEntryClick = async (event: JQuery.ClickEvent, compendiumTopic: string, worldId: string) => {
+  const onCreateEntryClick = async (event: MouseEvent, compendiumTopic: string, worldId: string) => {
     event.stopPropagation();
 
     // look for nearest parent and get topic and folder
@@ -218,9 +224,9 @@
     const entry = await createEntry(worldFolder, topic);
 
     if (entry) {
-      worldBuilderStore.openEntry(entry.uuid, { newTab: true, activate: true }); 
+      await worldBuilderStore.openEntry(entry.uuid, { newTab: true, activate: true }); 
     }
-  }
+  };
     
 
   ////////////////////////////////

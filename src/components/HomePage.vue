@@ -1,25 +1,38 @@
 <template>
-  <div class="flexcol journal-subsheet blank blank-body">
-      <div class="message">
-          <div style="transform: translateY(50%);">{{localize(content)}}</div>
+  <div class="flexcol fwb-journal-subsheet blank blank-body">
+    <div class="message">
+      <div style="transform: translateY(50%);">{{ localize(content) }}</div>
+    </div>
+    <h3>
+      {{ currentWorldFolder?.name }}
+    </h3>
+    <br>
+    <br>
+    <section style="flex:2;">
+      <div 
+        class="flexrow" 
+        style="margin-bottom: 20px;"
+      >
+        <div class="new-link"><div><i class="fas fa-book-open"></i></div>Create New Entry</div>
       </div>
-      SHOW THE WORLD NAME UP HERE
-      <section style="flex:2;">
-          <div class="flexrow" style="margin-bottom: 20px;">
-              <div class="new-link"><div><i class="fas fa-book-open"></i></div>Create New Entry</div>
-          </div>
 
-          <div class="recently-viewed">MAKE THIS A SEARCH BAR</div>
+      <div class="recently-viewed">
+        MAKE THIS A SEARCH BAR
+      </div>
 
-          <div class="flexrow">
-            <div v-for="recentItem in recent"
-              class="recent-link" 
-              @click="onRecentClick($event, recentItem.uuid)"
-            >
-              <div><i :class="`fas ${recentItem.icon}`"></i></div>{{recentItem.name}}
-            </div>
+      <div class="flexrow">
+        <div v-for="recentItem in recent"
+          :key="recentItem.uuid"
+          class="recent-link" 
+          @click="onRecentClick(recentItem?.uuid)"
+        >
+          <div>
+            <i :class="`fas ${recentItem.icon}`"></i>
           </div>
-      </section>
+          {{recentItem.name}}
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -52,7 +65,7 @@
   ////////////////////////////////
   // store
   const worldBuilderStore = useWorldBuilderStore();
-  const { currentWorldId } = storeToRefs(worldBuilderStore);
+  const { currentWorldId, currentWorldFolder } = storeToRefs(worldBuilderStore);
 
   ////////////////////////////////
   // data
@@ -66,9 +79,9 @@
 
   ////////////////////////////////
   // event handlers
-  const onRecentClick = (event: JQuery.ClickEvent, entryId: string) => {
+  const onRecentClick = async (entryId: string | null) => {
     if (entryId)
-      emit('recentClicked', entryId);
+      await worldBuilderStore.openEntry(entryId);
   }
 
   ////////////////////////////////
