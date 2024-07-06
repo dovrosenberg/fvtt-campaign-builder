@@ -12,7 +12,7 @@
           type="search" 
           name="search" 
           value="" 
-          placeholder="INSERT PLACEHOLDER" 
+          :placeholder="localize('fwb.placeholders.search')" 
           autocomplete="off" 
         >
         <a 
@@ -264,18 +264,6 @@
         #fwb-directory-search {
           flex: 1;
           height: var(--form-field-height);
-          border: 1px solid var(--mej-sidebar-input-border);
-          background: var(--mej-sidebar-input-background);
-
-          &:hover,
-          &:focus,
-          &:active {
-            background: var(--mej-sidebar-input-background-focus);
-          }
-    
-          &::placeholder {
-            color: var(--mej-sidebar-input-placeholder-color);
-          }
         }
 
         .header-control {

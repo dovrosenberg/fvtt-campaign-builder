@@ -14,8 +14,8 @@ export type Hierarchy = {
 // does this topic use hierarchy?
 export const hasHierarchy = (topic: Topic): boolean => [Topic.Organization, Topic.Location].includes(topic);
 
-// returns a list of valid possible children for a location
-// this is to populate a list of possible children for a location (ex. a dropdown)
+// returns a list of valid possible children for a node
+// this is to populate a list of possible children for a node (ex. a dropdown)
 // a valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself
 // only works for topics that have hierachy
 export function validChildItems(pack: CompendiumCollection<any>, entry: JournalEntry): EntrySummary[] {
@@ -34,7 +34,7 @@ export function validChildItems(pack: CompendiumCollection<any>, entry: JournalE
   return pack.find((j)=>(j.uuid !== entry.uuid && !ancestors.includes(entry.id!))).map(mapEntryToSummary);
 }
 
-// returns a list of valid possible parents for a location
+// returns a list of valid possible parents for a node
 // a valid parent is anything that does not have this object as an ancestor (to avoid creating loops) 
 // only works for topics that have hierachy
 export function validParentItems(pack: CompendiumCollection<any>, entry: JournalEntry): EntrySummary[] {
@@ -175,3 +175,62 @@ const ancestorItems = async function(pack:CompendiumCollection<any>, entry: Jour
   }, {});
 };
 
+// get a structure of TreeNode (suitable for passing to a tree) showing all of the top-level nodes, along with
+//    all of their ancesors, for a given type of document (i.e. everything in the passed in pack)
+// used to create the directory structure
+// values will be populated with uuid
+// if search is populated, the list will be sorted to only documents with names matching the (case-insensitive) search
+// TODO: need to test this for performance with large collections... otherwise may need to move do a different
+//    way of storing the records because there's no way to effectively search based on flags. It's possible the
+//    type field could be used to store whether it's a top node or not and then use getDocuments({}) to pull only
+//    top nodes, but that seems clunky given that field is used for other things and can be modified by users
+//    if they open as a journal entry. 
+export async function getDocumentTree(pack: CompendiumCollection<any>, search?: string): Promise<TreeNode[]> {
+  const documentTree = [] as TreeNode[];
+
+  // find everything with no parent - those go to the top
+  const allEntries = await pack.getDocuments();
+  allEntries.forEach((e)=> {
+    // TODO - confirm LevelDB sorts 
+    const hierarchy = EntryFlags.get(e, EntryFlagKey.hierarchy);
+    if (hierarchy && hierarchy?.children.length > 0) {
+      documentTree.push({
+        text: entryToAdd.name + ( itemType ? ' (' + itemType + ')' : ''),
+        value: entryToAdd.uuid,
+        children: children,
+        expanded: true   
+      });
+    }
+  });
+
+
+  // first get all the ancestors down to the current entry
+  const ancestorTree = await getAncestorTree(pack, entry);
+
+  // now find the bottom and add the children
+  let node = ancestorTree[0];
+  // note that ancestor tree is only one child per level - it just shows the path from the entry up
+  while (node.children.length!==0) { 
+    node = node.children[0];
+  } 
+
+  // now add all the children, if any
+  const childIds = EntryFlags.get(entry, EntryFlagKey.hierarchy)?.children;
+
+  if (childIds?.length) {
+    const childEntries = await pack.getDocuments({_id__in: childIds});
+
+    node.children = childEntries.map((entry: JournalEntry): TreeNode => {
+      const itemType = EntryFlags.get(entry, EntryFlagKey.type) || '';
+
+      return {
+        text: entry.name + ( itemType ? ' (' + itemType + ')' : ''),
+        value: entry.uuid,
+        children: [],  // we don't want to go further down the tree
+        expanded: false,
+      };
+    });
+  }
+
+  return ancestorTree;
+}
