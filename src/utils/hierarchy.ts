@@ -1,6 +1,6 @@
-import { EntrySummary, Topic } from '@/types';
-import { TreeNode } from '@/components/Tree';
+import { EntrySummary, Topic, TreeNode } from '@/types';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+import { en } from '@faker-js/faker';
 
 // types and functions used to manage topic hierarchies
 // note: this uses ids not uuids because getDocuments can't search by uuid and they're all in the
@@ -90,7 +90,7 @@ export async function getHierarchyTree(pack: CompendiumCollection<any>, entry: J
 }
 
 // get a structure of TreeNode (suitable for passing to a tree) showing the full ancestor history of the passed entry
-export async function getAncestorTree(pack: CompendiumCollection<any>, entry: JournalEntry): Promise<TreeNode[]> {
+export async function getAncestorTree(pack: CompendiumCollection<any>, entry: JournalEntry, withItemType=true): Promise<TreeNode[]> {
   // build the tree structure 
   const addNode = function(entryToAdd: JournalEntry): TreeNode {
     const children = [] as TreeNode[];
@@ -108,7 +108,7 @@ export async function getAncestorTree(pack: CompendiumCollection<any>, entry: Jo
 
     const itemType = EntryFlags.get(entryToAdd, EntryFlagKey.type) || '';
     return {
-      text: entryToAdd.name + ( itemType ? ' (' + itemType + ')' : ''),
+      text: entryToAdd.name + ( withItemType && itemType ? ' (' + itemType + ')' : ''),
       value: entryToAdd.uuid,
       children: children,
       expanded: (entryToAdd.uuid!==entry.uuid),  // don't expand the current node
@@ -147,19 +147,6 @@ const mapEntryToSummary = (entry: JournalEntry): EntrySummary => ({
 });
 
 
-
-// // returns all of the descendents of an item that has an ancestors field (not including the item itself)
-// // only works for types that have ancestor field
-// const descendentItems = async function<T extends DBItemWithTree> (collection: Collection<T>, worldId: ObjectId, _id: ObjectId, context: {userId: string}): Promise<T[]> {
-//   // check authorization
-//   if (!await hasAccessToWorld(context, worldId))
-//     throw new Error('Unauthorized in descendentTree');
-
-//   // pull everything that is below this location
-//   const retval = await (await collection.find({ worldId, ancestors: _id} as unknown as Filter<T>)).toArray()
-//   return retval as T[];
-// }
-
 // returns all of the ancestors of an entry (including the entry itself) as a map from their uuid
 // only works for topics that have hierachy
 const ancestorItems = async function(pack:CompendiumCollection<any>, entry: JournalEntry): Promise<Record<string, JournalEntry>> {
@@ -185,52 +172,52 @@ const ancestorItems = async function(pack:CompendiumCollection<any>, entry: Jour
 //    type field could be used to store whether it's a top node or not and then use getDocuments({}) to pull only
 //    top nodes, but that seems clunky given that field is used for other things and can be modified by users
 //    if they open as a journal entry. 
+// Does not include itemtype in name
 export async function getDocumentTree(pack: CompendiumCollection<any>, search?: string): Promise<TreeNode[]> {
   const documentTree = [] as TreeNode[];
 
-  // find everything with no parent - those go to the top
-  const allEntries = await pack.getDocuments();
+  // load all the entries to memory
+  const allEntries = (await pack.getDocuments());
+  const entryMap = allEntries.reduce((result: Record<string, StoredDocument<any>>, e: StoredDocument<any>) => {
+    result[e.id] = e;
+  }, {} as Record<string, StoredDocument<any>>);
+
+  // returns all of the children TreeNodes of the entry with the given id, along with their full trees (including
+  //    the given node)
+  const getDescendentTree = (id: string): TreeNode => {
+    const entry = entryMap[id];
+
+    const hierarchy = EntryFlags.get(entry, EntryFlagKey.hierarchy);
+    if (hierarchy && hierarchy?.children.length > 0) {
+      const children = [] as TreeNode[];
+      hierarchy.children.forEach((id: string) => {
+        children.push(getDescendentTree(id));
+      });
+
+      return {
+        text: entry.name,
+        value: entry.uuid,
+        children: children,
+        expanded: true, 
+      };
+    } else {
+      return {
+        text: entry.name,
+        value: entry.uuid,
+        children: [],
+        expanded: true   
+      };
+    }
+  };
+
+  // do all the ones with no ancestors, because those are the top
   allEntries.forEach((e)=> {
     // TODO - confirm LevelDB sorts 
     const hierarchy = EntryFlags.get(e, EntryFlagKey.hierarchy);
-    if (hierarchy && hierarchy?.children.length > 0) {
-      documentTree.push({
-        text: entryToAdd.name + ( itemType ? ' (' + itemType + ')' : ''),
-        value: entryToAdd.uuid,
-        children: children,
-        expanded: true   
-      });
+    if (hierarchy && hierarchy?.ancestors.length > 0) {
+      documentTree.push(getDescendentTree(e.uuid));
     }
   });
 
-
-  // first get all the ancestors down to the current entry
-  const ancestorTree = await getAncestorTree(pack, entry);
-
-  // now find the bottom and add the children
-  let node = ancestorTree[0];
-  // note that ancestor tree is only one child per level - it just shows the path from the entry up
-  while (node.children.length!==0) { 
-    node = node.children[0];
-  } 
-
-  // now add all the children, if any
-  const childIds = EntryFlags.get(entry, EntryFlagKey.hierarchy)?.children;
-
-  if (childIds?.length) {
-    const childEntries = await pack.getDocuments({_id__in: childIds});
-
-    node.children = childEntries.map((entry: JournalEntry): TreeNode => {
-      const itemType = EntryFlags.get(entry, EntryFlagKey.type) || '';
-
-      return {
-        text: entry.name + ( itemType ? ' (' + itemType + ')' : ''),
-        value: entry.uuid,
-        children: [],  // we don't want to go further down the tree
-        expanded: false,
-      };
-    });
-  }
-
-  return ancestorTree;
+  return documentTree;
 }
