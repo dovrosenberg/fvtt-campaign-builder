@@ -54,7 +54,7 @@
         }],
         "eslint-plugin-vue/first-attribute-linebreak": ["warn", {
             "singleline": "beside",
-            "multiline": "ignore"
+            "multiline": "below"
         }],
         "vue/max-attributes-per-line": ["error", {
             "singleline": 3,

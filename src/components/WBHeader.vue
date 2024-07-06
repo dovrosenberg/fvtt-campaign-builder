@@ -5,12 +5,18 @@
   >
     <div class="fwb-tab-bar flexrow">
       <div class="fwb-tab-row flexrow">
-        <div v-for="tab in tabs"
+        <div 
+          v-for="tab in tabs"
+          :key="tab.id"
           :class="'fwb-tab flexrow ' + (tab.active ? 'active' : '')" 
+          draggable="true"
           :title="tab.entry.name" 
           @click="onTabClick(tab.id)"
+          @dragstart="onDragStart($event, tab.id)"
+          @drop="onDrop($event, tab.id)"
         >
-          <div v-if="tab.entry.icon"
+          <div 
+            v-if="tab.entry.icon"
             class="fwb-tab-icon"
           >
             <i :class="'fas ' + tab.entry.icon"></i>
@@ -24,7 +30,8 @@
           </div>
         </div>
 
-        <div id="fwb-add-tab" 
+        <div 
+          id="fwb-add-tab" 
           class="tab-button"
           @click="onAddTabClick"
         >
@@ -32,7 +39,8 @@
         </div>
       </div>
 
-      <div id="fwb-sidebar-toggle" 
+      <div 
+        id="fwb-sidebar-toggle" 
         class="tab-button" 
         :data-tooltip="directoryCollapsed ? localize('fwb.tooltips.expandDirectory') : localize('fwb.tooltips.collapseDirectory')"
         @click="onSidebarToggleClick"
@@ -42,7 +50,8 @@
     </div>
 
     <div class="fwb-bookmark-bar flexrow">
-      <div id="fwb-add-bookmark" 
+      <div 
+        id="fwb-add-bookmark" 
         :class="(!worldBuilderStore.getActiveTab(false)?.entry?.uuid ? 'disabled' : '')"
         :title="localize('fwb.tooltips.addBookmark')"
         @click="onAddBookmarkClick"
@@ -52,16 +61,20 @@
 
       <div 
         v-for="bookmark in bookmarks"
+        :key="bookmark.id"
         class="fwb-bookmark-button" 
         :title="bookmark.entry.name" 
-        @click="onBookmarkClick(bookmark.id)"
         draggable="true"
+        @click="onBookmarkClick(bookmark.id)"
+        @dragstart="onDragStart($event, bookmark.id)"
+        @drop="onDrop($event, bookmark.id)"
       >
         <div>
-          <i v-if="bookmark.entry.icon"
+          <i 
+            v-if="bookmark.entry.icon"
             :class="'fas '+ bookmark.entry.icon"
           ></i> 
-          {{bookmark.entry.name}}
+          {{ bookmark.entry.name }}
         </div>
       </div>
     </div>
@@ -215,30 +228,6 @@
     await saveBookmarks();
   }
 
-  const activateDragDrop = function () {
-    if (!root.value)
-      return;
-
-    let dragDrop = new DragDrop({
-      dragSelector: '.fwb-tab', 
-      dropSelector: '.fwb-tab',
-      callbacks : {
-        'dragstart': onDragStart,
-        'drop': onDrop,
-      }
-    });
-    dragDrop.bind(root.value);   //.get()[0]);
-    dragDrop = new DragDrop({
-      dragSelector: '.fwb-bookmark-button', 
-      dropSelector: '.fwb-bookmark-button',
-      callbacks : {
-        'dragstart': onDragStart,
-        'drop': onDrop,
-      }
-    });
-    dragDrop.bind(root.value);   //html.get()[0]);
-  }
-
   const createContextMenus = async function() {
     if (!root.value)
       return;
@@ -268,10 +257,10 @@
     if (cm)
       cm.bind();
       
-  }
+  };
 
 
-////////////////////////////////
+  ////////////////////////////////
   // event handlers
   // add the current tab as a new bookmark
   const onAddBookmarkClick = async (): Promise<void> => {
@@ -326,7 +315,8 @@
   };
 
   // handle a bookmark or tab dragging
-  const onDragStart = (event: DragEvent): void => {
+  const onDragStart = (event: DragEvent, id: string): void => {
+    console.log('ondragstart');
     const target = event.currentTarget as HTMLElement;
 
     if ($(target).hasClass('fwb-tab')) {
@@ -334,9 +324,8 @@
         //from: this.object.uuid 
       } as { type: string, tabId?: string};
 
-      const tabId = target.dataset.tabId;
       dragData.type = 'fwb-tab';   // JournalEntry... may want to consider passing a type that other things can do something with
-      dragData.tabId = tabId;
+      dragData.tabId = id;
 
       event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
     } else if ($(target).hasClass('fwb-bookmark-button')) {
@@ -344,15 +333,15 @@
         //from: this.object.uuid 
       } as { type: string, bookmarkId?: string};
 
-      const bookmarkId = target.dataset.bookmarkId;
       dragData.type = 'fwb-bookmark';
-      dragData.bookmarkId = bookmarkId;
+      dragData.bookmarkId = id;
 
       event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
     } 
   };
 
-  const onDrop = async(event: DragEvent) => {
+  const onDrop = async(event: DragEvent, id: string) => {
+    console.log('ondrop');
     let data;
     try {
       data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
@@ -367,13 +356,14 @@
       if (!target)
         return false;
 
-      if (data.tabId === target.dataset.tabId) return; // Don't drop on yourself
+      if (data.tabId === id) return; // Don't drop on yourself
 
       // insert before the drop target
       const tabsValue = tabs.value;
       const from = tabsValue.findIndex(t => t.id === data.tabId);
-      const to = tabsValue.findIndex(t => t.id === target.dataset.tabId);
-      tabs.value = tabsValue.splice(to, 0, tabsValue.splice(from, 1)[0]);
+      const to = tabsValue.findIndex(t => t.id === id);
+      tabsValue.splice(to, 0, tabsValue.splice(from, 1)[0]);
+      tabs.value = tabsValue;
 
       // activate the moved one (will also save the tabs)
       await worldBuilderStore.activateTab(data.tabId);
@@ -382,13 +372,14 @@
       if (!target)
         return false;
 
-      if (data.bookmarkId === target.dataset.bookmarkId) return; // Don't drop on yourself
+      if (data.bookmarkId === id) return; // Don't drop on yourself
 
       // insert before the drop target
       const bookmarksValue = bookmarks.value;
       const from = bookmarksValue.findIndex(b => b.id === data.bookmarkId);
-      const to = bookmarksValue.findIndex(b => b.id === target.dataset.bookmarkId);
-      bookmarks.value = bookmarksValue.splice(to, 0, bookmarksValue.splice(from, 1)[0]);
+      const to = bookmarksValue.findIndex(b => b.id === id);
+      bookmarksValue.splice(to, 0, bookmarksValue.splice(from, 1)[0]);
+      bookmarks.value = bookmarksValue;
 
       // save bookmarks (we don't activate anything)
       await saveBookmarks();
@@ -418,11 +409,8 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(function () {
-    // set up the drag & drop for tabs and bookmarks
-    activateDragDrop();
-
     // create the context menus
-    createContextMenus();
+    void createContextMenus();
   });
 
 
