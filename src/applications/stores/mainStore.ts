@@ -1,4 +1,4 @@
-// this store handles character-specific functionality
+// this store handles the main state (current world, entry, etc.)
 
 // library imports
 import { defineStore, } from 'pinia';
@@ -29,7 +29,6 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // actions
-  // the ones with an underscore are intended to be called by itemStore
   // set a new world from a uuid
   const setNewWorld = async function (worldId: string | null): Promise<void> {
     if (!worldId)

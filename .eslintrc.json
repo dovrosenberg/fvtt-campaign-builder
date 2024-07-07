@@ -52,7 +52,7 @@
             "switchCase": 1,
             "ignores": []
         }],
-        "eslint-plugin-vue/first-attribute-linebreak": ["warn", {
+        "vue/first-attribute-linebreak": ["warn", {
             "singleline": "beside",
             "multiline": "below"
         }],

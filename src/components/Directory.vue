@@ -37,7 +37,7 @@
     <ol class="fwb-world-list">
       <!-- the folders use .id instead of .uuid but it has a uuid in it -->
       <li 
-        v-for="world in worlds"
+        v-for="world in currentTree"
         :key="world.id"
         :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
         @click="onWorldFolderClick($event, world.id)"
@@ -55,20 +55,20 @@
           class="world-contents"
         >
           <li 
-            v-for="compendium in world.compendia"
-            :key="compendium.id"
-            :class="'fwb-topic-folder folder entry flexcol ' + (compendium.collapsed ? 'collapsed' : '')" 
-            @click="onTopicFolderClick($event, compendium.id)"
+            v-for="pack in world.packs"
+            :key="pack.id"
+            :class="'fwb-topic-folder folder entry flexcol ' + (pack.expanded ? '' : 'collapsed')" 
+            @click="onTopicFolderClick($event, pack)"
           >
             <header class="folder-header flexrow">
               <div class="fwb-compendium-label noborder" style="margin-bottom:0px">
                 <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                <i :class="'icon fas ' + compendium.icon" style="margin-right: 4px;"></i>
-                {{ compendium.name }}
+                <i :class="'icon fas ' + pack.pack.icon" style="margin-right: 4px;"></i>
+                {{ pack.name }}
               </div>
               <a 
                 class="fwb-create-entry create-button"
-                @click="onCreateEntryClick($event, compendium.topic, world.id)"
+                @click="onCreateEntryClick($event, pack.pack.topic, world.id)"
               >
                 <i class="fas fa-atlas"></i>
                 <i class="fas fa-plus"></i>
@@ -79,16 +79,16 @@
             <ol class="fwb-topic-contents">
               <!-- These are the journal entries -->
               <li 
-                v-for="entry in compendium.entries"
-                :key="entry.uuid"
+                v-for="node in pack.loadedTopNodes"
+                :key="node.id"
                 class="fwb-entry-item flexrow" 
                 draggable="true"
-                @click="onEntryClick($event, entry.uuid)"
-                @dragstart="onDragStart($event, entry.uuid)"
-                @drop="onDrop($event, entry.uuid)"
+                @click="onEntryClick($event, node.id)"
+                @dragstart="onDragStart($event, node.id)"
+                @drop="onDrop($event, node.id)"
               >
                 <div class="fwb-entry-name">
-                  <a> {{ entry.name }} </a>
+                  <a> {{ node.name }} </a>
                 </div>
               </li>
             </ol>
@@ -111,14 +111,13 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, toRaw } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { getGame, localize } from '@/utils/game';
   import { createEntry, createWorldFolder } from '@/compendia';
   import { getIcon, toTopic } from '@/utils/misc';
-  import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { DirectoryPack, useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
 
@@ -136,33 +135,15 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId, rootFolder } = storeToRefs(mainStore);
+  const directoryStore = useDirectoryStore();
+  const { currentWorldId } = storeToRefs(mainStore);
+  const { currentTree } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
-  const expandedCompendia = ref<Record<string, boolean>>({});  // basically a list of compendium uuid that are expanded (collapsed by default); if false or not in here, it's expanded
   
   ////////////////////////////////
   // computed data
-  const worlds = computed(() => {
-    return (
-      (toRaw(rootFolder.value) as Folder)?.children?.map((world)=> ({
-        name: world.folder.name,
-        id: world.folder.uuid,
-        compendia: world.entries.map((compendium)=>({
-          name: compendium.metadata.label,
-          id: compendium.metadata.id,
-          topic: compendium.config.topic,
-          icon: getIcon(compendium.config.topic),
-          collapsed: !expandedCompendia.value[compendium.metadata.id],
-          entries: compendium.tree?.entries?.map((entry)=> ({
-            name: entry.name,
-            uuid: entry.uuid,
-          })) || [],
-        })),
-      })) || []
-    );
-  });
 
   ////////////////////////////////
   // methods
@@ -174,31 +155,31 @@
   const onWorldFolderClick = async (event: MouseEvent, worldId: string) => {
     event.stopPropagation();
 
-    // re-collapse everything
-    expandedCompendia.value = {};
-
     if (worldId)
       await mainStore.setNewWorld(worldId);
   };
 
   // open/close a topic
-  const onTopicFolderClick = (event: MouseEvent, compendiumId: string) => { 
+  const onTopicFolderClick = async (event: MouseEvent, directoryPack: DirectoryPack) => { 
     event.stopPropagation();
 
+    await directoryStore.togglePack(directoryPack);
+
     // toggle the collapse      
-    expandedCompendia[compendiumId] = !expandedCompendia[compendiumId];
+    // expandedCompendia[compendiumId] = !expandedCompendia[compendiumId];
 
     // we use css to handle the display update
     // note: we don't do this for worlds because when you change worlds the whole app needs to be refreshed anyways
-    $(event.currentTarget).toggleClass('collapsed');
+    // $(event.currentTarget).toggleClass('collapsed');
   };
 
   // close all topics
   const onCollapseAllClick = (event: MouseEvent) => {
     event.stopPropagation();
 
-    expandedCompendia.value = {};
-    $('.fwb-topic-folder').addClass('collapsed');
+    void directoryStore.collapseAll();
+    // expandedCompendia.value = {};
+    // $('.fwb-topic-folder').addClass('collapsed');
   };
 
   // create a world

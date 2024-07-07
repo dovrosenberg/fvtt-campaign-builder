@@ -1,4 +1,4 @@
-// this store handles character-specific functionality
+// this store handles main navigation (tabs, bookmarks, recent)
 
 // library imports
 import { defineStore, } from 'pinia';
@@ -36,36 +36,6 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   ///////////////////////////////
   // actions
-  // the ones with an underscore are intended to be called by itemStore
-  // save tabs to database
-  const _saveTabs = async function () {
-    if (!currentWorldId.value)
-      return;
-
-    await UserFlags.set(UserFlagKey.tabs, tabs.value, currentWorldId.value);
-  };
-
-  // add a new entity to the recent list
-  const _updateRecent = async function (entry: EntryHeader): Promise<void> {
-    if (!currentWorldId.value)
-      return;
-
-    let recent = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] as EntryHeader[];
-
-    // remove any other places in history this already appears
-    recent.findSplice((h: EntryHeader): boolean => h.uuid === entry.uuid);
-
-    // insert in the front
-    recent.unshift(entry);
-
-    // trim if too long
-    if (recent.length > 5)
-      recent = recent.slice(0, 5);
-
-    await UserFlags.set(UserFlagKey.recentlyViewed, recent, currentWorldId.value);
-  };
-  
-
   // activate - switch to the tab after creating - defaults to true
   // newTab - should entry open in current tab or a new one - defaults to true
   // entryId = the uuid of the entry for the tab  (currently just journal entries); if missing, open a "New Tab"
@@ -178,6 +148,35 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   ///////////////////////////////
   // internal functions
+  // save tabs to database
+  const _saveTabs = async function () {
+    if (!currentWorldId.value)
+      return;
+
+    await UserFlags.set(UserFlagKey.tabs, tabs.value, currentWorldId.value);
+  };
+
+  // add a new entity to the recent list
+  const _updateRecent = async function (entry: EntryHeader): Promise<void> {
+    if (!currentWorldId.value)
+      return;
+
+    let recent = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] as EntryHeader[];
+
+    // remove any other places in history this already appears
+    recent.findSplice((h: EntryHeader): boolean => h.uuid === entry.uuid);
+
+    // insert in the front
+    recent.unshift(entry);
+
+    // trim if too long
+    if (recent.length > 5)
+      recent = recent.slice(0, 5);
+
+    await UserFlags.set(UserFlagKey.recentlyViewed, recent, currentWorldId.value);
+  };
+  
+
 
   ///////////////////////////////
   // lifecycle events
