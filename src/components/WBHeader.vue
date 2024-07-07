@@ -316,7 +316,6 @@
 
   // handle a bookmark or tab dragging
   const onDragStart = (event: DragEvent, id: string): void => {
-    console.log('ondragstart');
     const target = event.currentTarget as HTMLElement;
 
     if ($(target).hasClass('fwb-tab')) {
@@ -341,7 +340,6 @@
   };
 
   const onDrop = async(event: DragEvent, id: string) => {
-    console.log('ondrop');
     let data;
     try {
       data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
