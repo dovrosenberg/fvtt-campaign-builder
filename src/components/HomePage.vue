@@ -1,7 +1,7 @@
 <template>
   <div class="flexcol fwb-journal-subsheet blank blank-body">
     <div class="message">
-      <div style="transform: translateY(50%);">{{ localize(content) }}</div>
+      <div style="transform: translateY(50%);">{{ !message ? '' : localize(message) }}</div>
     </div>
     <h3>
       {{ currentWorldFolder?.name }}
@@ -13,7 +13,10 @@
         class="flexrow" 
         style="margin-bottom: 20px;"
       >
-        <div class="new-link"><div><i class="fas fa-book-open"></i></div>Create New Entry</div>
+        <div class="new-link">
+          <div><i class="fas fa-book-open"></i></div>
+          Create New Entry
+        </div>
       </div>
 
       <div class="recently-viewed">
@@ -21,7 +24,8 @@
       </div>
 
       <div class="flexrow">
-        <div v-for="recentItem in recent"
+        <div 
+          v-for="recentItem in recent"
           :key="recentItem.uuid"
           class="recent-link" 
           @click="onRecentClick(recentItem?.uuid)"
@@ -29,7 +33,7 @@
           <div>
             <i :class="`fas ${recentItem.icon}`"></i>
           </div>
-          {{recentItem.name}}
+          {{ recentItem.name }}
         </div>
       </div>
     </section>
@@ -38,13 +42,13 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed } from 'vue';
+  import { computed, ref } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { localize } from '@/utils/game';
   import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
-  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
+  import { useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
 
@@ -58,17 +62,16 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits<{
-    (e: 'recentClicked', entryId: string): void,
-  }>();
 
   ////////////////////////////////
   // store
-  const worldBuilderStore = useWorldBuilderStore();
-  const { currentWorldId, currentWorldFolder } = storeToRefs(worldBuilderStore);
+  const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
+  const { currentWorldId, currentWorldFolder } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
+  const message = ref<string>('');   // a message to display at the top
 
   ////////////////////////////////
   // computed data
@@ -81,8 +84,8 @@
   // event handlers
   const onRecentClick = async (entryId: string | null) => {
     if (entryId)
-      await worldBuilderStore.openEntry(entryId);
-  }
+      await navigationStore.openEntry(entryId);
+  };
 
   ////////////////////////////////
   // watchers

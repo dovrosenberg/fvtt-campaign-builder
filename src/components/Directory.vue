@@ -36,7 +36,8 @@
     <!-- these are the worlds -->
     <ol class="fwb-world-list">
       <!-- the folders use .id instead of .uuid but it has a uuid in it -->
-      <li v-for="world in worlds"
+      <li 
+        v-for="world in worlds"
         :key="world.id"
         :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
         @click="onWorldFolderClick($event, world.id)"
@@ -49,10 +50,12 @@
         </header>
 
         <!-- These are the topic compendia -->
-        <ol v-if="currentWorldId===world.id"
+        <ol 
+          v-if="currentWorldId===world.id"
           class="world-contents"
         >
-          <li v-for="compendium in world.compendia"
+          <li 
+            v-for="compendium in world.compendia"
             :key="compendium.id"
             :class="'fwb-topic-folder folder entry flexcol ' + (compendium.collapsed ? 'collapsed' : '')" 
             @click="onTopicFolderClick($event, compendium.id)"
@@ -75,10 +78,14 @@
             <!-- css will hide this section if the .fwb-topic-folder is collapsed -->
             <ol class="fwb-topic-contents">
               <!-- These are the journal entries -->
-              <li v-for="entry in compendium.entries"
+              <li 
+                v-for="entry in compendium.entries"
                 :key="entry.uuid"
                 class="fwb-entry-item flexrow" 
+                draggable="true"
                 @click="onEntryClick($event, entry.uuid)"
+                @dragstart="onDragStart($event, entry.uuid)"
+                @drop="onDrop($event, entry.uuid)"
               >
                 <div class="fwb-entry-name">
                   <a> {{ entry.name }} </a>
@@ -111,7 +118,7 @@
   import { getGame, localize } from '@/utils/game';
   import { createEntry, createWorldFolder } from '@/compendia';
   import { getIcon, toTopic } from '@/utils/misc';
-  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
+  import { useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
 
@@ -127,8 +134,9 @@
 
   ////////////////////////////////
   // store
-  const worldBuilderStore = useWorldBuilderStore();
-  const { currentWorldId, rootFolder } = storeToRefs(worldBuilderStore);
+  const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
+  const { currentWorldId, rootFolder } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -170,7 +178,7 @@
     expandedCompendia.value = {};
 
     if (worldId)
-      await worldBuilderStore.setNewWorld(worldId);
+      await mainStore.setNewWorld(worldId);
   };
 
   // open/close a topic
@@ -182,7 +190,7 @@
 
     // we use css to handle the display update
     // note: we don't do this for worlds because when you change worlds the whole app needs to be refreshed anyways
-    jQuery(event.currentTarget).toggleClass('collapsed');
+    $(event.currentTarget).toggleClass('collapsed');
   };
 
   // close all topics
@@ -190,7 +198,7 @@
     event.stopPropagation();
 
     expandedCompendia.value = {};
-    jQuery('.fwb-topic-folder').addClass('collapsed');
+    $('.fwb-topic-folder').addClass('collapsed');
   };
 
   // create a world
@@ -199,7 +207,7 @@
 
     const world = await createWorldFolder(true);
     if (world) {
-      await worldBuilderStore.setNewWorld(world.id);
+      await mainStore.setNewWorld(world.id);
     }
   };
 
@@ -207,7 +215,7 @@
   const onEntryClick = async (event: MouseEvent, entryId: string) => {
     event.stopPropagation();
 
-    await worldBuilderStore.openEntry(entryId, {newTab: event.ctrlKey});
+    await navigationStore.openEntry(entryId, {newTab: event.ctrlKey});
   };
 
   // create entry buttons
@@ -224,10 +232,47 @@
     const entry = await createEntry(worldFolder, topic);
 
     if (entry) {
-      await worldBuilderStore.openEntry(entry.uuid, { newTab: true, activate: true }); 
+      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true }); 
     }
   };
     
+  // handle an entry dragging to another to nest
+  const onDragStart = (event: DragEvent, id: string): void => {
+    // debugger;
+
+    // // need to get the type so we can compare when dropping
+
+    // const target = event.currentTarget as HTMLElement;
+
+    // const dragData = { 
+    //   type:  'sss',
+    //   entry: id,
+    // } as { type: string, tabId?: string};
+
+    // event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+  };
+
+  const onDrop = async(event: DragEvent, id: string) => {
+    // let data;
+    // try {
+    //   data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+    // }
+    // catch (err) {
+    //   return false;
+    // }
+
+    // get the type on the new item
+
+    // if the types don't match, can't drop
+    // if (true)
+    //   return false;
+
+    // is this a legal parent?
+
+    // add the dropped item as a child on the other
+
+    return true;
+  };
 
   ////////////////////////////////
   // watchers

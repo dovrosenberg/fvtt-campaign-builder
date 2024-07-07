@@ -265,7 +265,7 @@
   import { getGame, localize } from '@/utils/game';
   import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
   import moduleJson from '@module';
-  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
+  import { useMainStore } from '@/applications/stores';
 
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   // import { getCleanEntry, updateDocument } from '@/compendia';
@@ -290,16 +290,14 @@
 
   ////////////////////////////////
   // props
-  const props = defineProps({
-  });
 
   ////////////////////////////////
   // emits
 
   ////////////////////////////////
   // store
-  const worldBuilderStore = useWorldBuilderStore();
-  const { currentEntryId } = storeToRefs(worldBuilderStore);
+  const mainStore = useMainStore();
+  const { currentEntryId } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -360,7 +358,7 @@
 
   const onTypeSelectionMade = (selection: string) => {
     if (entry.value)
-      EntryFlags.set(toRaw(entry.value), EntryFlagKey.type, selection);
+      void EntryFlags.set(toRaw(entry.value), EntryFlagKey.type, selection);
   }
 
   const onDescriptionEditorSaved = async (newContent: string) => {
@@ -374,11 +372,11 @@
     //need to reset
     // if it's not automatic, clear and reset the documentpage
     // (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
-  }
+  };
 
   ////////////////////////////////
   // watchers
-  watch(currentEntryId, async (newId: string | undefined): Promise<void> => {
+  watch(currentEntryId, async (newId: string | null): Promise<void> => {
     if (!newId) {
       entry.value = null;
       topic.value = null;
@@ -387,7 +385,7 @@
       let newTopic;
 
       if (newEntry) {
-        newTopic = toTopic(entry ? EntryFlags.get(newEntry, EntryFlagKey.topic) : null);
+        newTopic = toTopic(newEntry ? EntryFlags.get(newEntry, EntryFlagKey.topic) : null);
         if (!newTopic) 
           throw new Error('Invalid entry type in WBContent.getData()');
       }
@@ -415,12 +413,13 @@
         if (hasHierarchy(newTopic)) {
           const pack = getGame().packs.get(newEntry.pack || '');
 
-        if (pack)
-          treeNodes.value = await getHierarchyTree(pack, newEntry);
+          if (pack) {
+            treeNodes.value = await getHierarchyTree(pack, newEntry);
+          }
         }
       }
     }
-});
+  });
 
 
   ////////////////////////////////

@@ -2,35 +2,37 @@
 
 // library imports
 import { defineStore, } from 'pinia';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
+import { storeToRefs } from 'pinia';
 
 // local imports
 import { getCleanEntry } from '@/compendia';
-import { getGame, localize } from '@/utils/game';
+import { localize } from '@/utils/game';
 import { getIcon } from '@/utils/misc';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
+import { useMainStore } from './mainStore';
 
 // types
 import { EntryHeader, WindowTab } from '@/types';
 
 
 // the store definition
-export const useWorldBuilderStore = defineStore('worldBuilder', () => {
+export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // the state
+
+  ///////////////////////////////
+  // other stores
+  const mainStore = useMainStore();
+  const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
 
   ///////////////////////////////
   // external state
-  const rootFolder = ref<Folder | null>(null);
-  const currentWorldFolder = ref<Folder | null>(null);  // the current world folder
-  const currentEntryId = ref<string | null>(null);  // uuid of current entry
   const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of WBHeader)
-
-  const currentWorldId = computed((): string | null => currentWorldFolder.value ? currentWorldFolder.value.uuid : null);
 
   ///////////////////////////////
   // actions
@@ -63,16 +65,6 @@ export const useWorldBuilderStore = defineStore('worldBuilder', () => {
     await UserFlags.set(UserFlagKey.recentlyViewed, recent, currentWorldId.value);
   };
   
-  // set a new world from a uuid
-  const setNewWorld = async function (worldId: string | null): Promise<void> {
-    if (!worldId)
-      return;
-
-    // load the folder
-    currentWorldFolder.value = getGame()?.folders?.find((f)=>f.uuid===worldId) || null;
-
-    await UserFlags.set(UserFlagKey.currentWorld, worldId);
-  };
 
   // activate - switch to the tab after creating - defaults to true
   // newTab - should entry open in current tab or a new one - defaults to true
@@ -195,13 +187,10 @@ export const useWorldBuilderStore = defineStore('worldBuilder', () => {
   return {
     tabs,
     currentWorldId,
-    currentWorldFolder,
     currentEntryId,
-    rootFolder,
 
     openEntry,
     getActiveTab,
     activateTab,
-    setNewWorld,
   };
 });

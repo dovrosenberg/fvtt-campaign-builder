@@ -8,9 +8,7 @@
         @directory-collapse-toggle="onDirectoryCollapseToggle"
       />
       <div class="fwb-content flexcol editable">
-        <WBContent 
-          @editor-saved="onContentEditorSaved"
-        />
+        <WBContent />
       </div>
     </section>
     <div id="fwb-directory-sidebar">
@@ -30,7 +28,7 @@
   import { getDefaultFolders, validateCompendia } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   import { getGame } from '@/utils/game';
-  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
+  import { useMainStore } from '@/applications/stores';
 
   // library components
 
@@ -43,25 +41,18 @@
   
   ////////////////////////////////
   // props
-  const props = defineProps({
-  });
 
   ////////////////////////////////
   // emits
 
   ////////////////////////////////
   // store
-  const worldBuilderStore = useWorldBuilderStore();
-  const { currentWorldFolder, currentEntryId, rootFolder } = storeToRefs(worldBuilderStore);
+  const mainStore = useMainStore();
+  const { currentWorldFolder, rootFolder } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
   const directoryCollapsed = ref<boolean>(false);
-
-  let searchresults = [];
-  let searchpos = 0;
-  let lastquery = '';
-  let _imgcontext = null;
 
   ////////////////////////////////
   // computed data
@@ -78,12 +69,12 @@
     currentWorldFolder.value = folder;
 
     await validateCompendia(folder);
-  }
+  };
 
  
   const onDirectoryCollapseToggle = () => {
     directoryCollapsed.value = !directoryCollapsed.value;
-  }
+  };
 
 
   ////////////////////////////////
