@@ -63,12 +63,12 @@
             <header class="folder-header flexrow">
               <div class="fwb-compendium-label noborder" style="margin-bottom:0px">
                 <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                <i :class="'icon fas ' + getIcon(pack.pack.topic)" style="margin-right: 4px;"></i>
+                <i :class="'icon fas ' + getIcon(pack.topic)" style="margin-right: 4px;"></i>
                 {{ pack.name }}
               </div>
               <a 
                 class="fwb-create-entry create-button"
-                @click="onCreateEntryClick($event, pack.pack.topic, world.id)"
+                @click="onCreateEntryClick($event, pack.topic, world.id)"
               >
                 <i class="fas fa-atlas"></i>
                 <i class="fas fa-plus"></i>
@@ -181,6 +181,12 @@
     void directoryStore.collapseAll();
     // expandedCompendia.value = {};
     // $('.fwb-topic-folder').addClass('collapsed');
+
+    debugger;
+    // nest sam under jim
+
+    // 
+
   };
 
   // create a world
@@ -248,6 +254,9 @@
     // if the types don't match, can't drop
     // if (true)
     //   return false;
+
+    // if the type doesn't have hierarchy, can't drop
+
 
     // is this a legal parent?
 

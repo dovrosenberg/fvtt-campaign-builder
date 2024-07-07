@@ -9,7 +9,7 @@ import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
 import { AnyDocumentData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/data.mjs';
 import { toTopic } from '@/utils/misc';
-import { hasHierarchy } from '@/utils/hierarchy';
+import { hasHierarchy, Hierarchy } from '@/utils/hierarchy';
 
 // returns the uuid of the root folder
 // if it is not stored in settings, creates a new folder
@@ -245,7 +245,7 @@ export async function createEntry(worldFolder: Folder, topic: Topic): Promise<Jo
         parentId: '',
         ancestors: [],
         children: [],
-      });
+      } as Hierarchy);
     }
   }
 
