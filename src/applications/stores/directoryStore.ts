@@ -9,28 +9,8 @@ import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { useMainStore } from './mainStore';
 
 // types
-export type DirectoryNode = {
-  id: string,
-  name: string,
-  children: string[],    // ids of all children (which might not be loaded)
-  loadedChildren: DirectoryNode[],
-  expanded: boolean,    // is the node expanded 
-}
-
-export type DirectoryPack = {
-  pack: CompendiumCollection<any>,
-  id: string,
-  name: string,
-  loadedTopNodes: DirectoryNode[],
-  topNodes: string[],
-  expanded: boolean,
-}
-
-export type DirectoryWorld = {
-  id: string,
-  name: string,
-  packs: DirectoryPack[],
-}
+import { DirectoryWorld, DirectoryPack, DirectoryNode } from '@/types';
+import DirectoryNode from 'src/components/Directory/DirectoryNode.vue';
 
 // the store definition
 export const useDirectoryStore = defineStore('directory', () => {
@@ -153,10 +133,31 @@ export const useDirectoryStore = defineStore('directory', () => {
     }
   };
 
+  const _getPackTopNodes = async (pack: CompendiumCollection<any>) : Promise<DirectoryNode[]> => {
+    // TODO - whenever we add a node to a pack, we need to refresh topNodes
+
+    // if it has the config set, just use that
+    if (pack.config?.topNodes)
+      return pack.config.topNodes;
+
+    // otherwise, find all the top nodes and set the config
+    const topNodes = pack.tree?.entries?.reduce((retval, entry) => {
+      // if it has no ancestors, it's a top node
+      if (!EntryFlags.get(entry, EntryFlagKey.hierarchy)?.ancestors)
+        retval.push(entry.uuid);
+
+      return retval;
+    }, []);
+
+    await pack.configure({topNodes: topNodes});
+
+    return topNodes;
+  };
+
   ///////////////////////////////
   // watchers
   // when the root folder changes, load the top level info (worlds and packs)
-  watch(rootFolder, (newRootFolder: Folder | null): void => {
+  watch(rootFolder, async (newRootFolder: Folder | null): Promise<void> => {
     if (!newRootFolder) {
       currentTree.value = [];
       return;
@@ -169,7 +170,7 @@ export const useDirectoryStore = defineStore('directory', () => {
         pack: compendium,
         id: compendium.metadata.id,
         name: compendium.metadata.label,
-        topNodes: compendium.tree?.entries?.map((entry): string=> entry.uuid) || [],
+        topNodes: await _getPackTopNodes(compendium),
         loadedTopNodes: [],
         // TODO - store and retrieve expanded status
         expanded: false,   //        !expandedCompendia.value[compendium.metadata.id],

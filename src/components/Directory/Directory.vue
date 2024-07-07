@@ -63,7 +63,7 @@
             <header class="folder-header flexrow">
               <div class="fwb-compendium-label noborder" style="margin-bottom:0px">
                 <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                <i :class="'icon fas ' + pack.pack.icon" style="margin-right: 4px;"></i>
+                <i :class="'icon fas ' + getIcon(pack.pack.topic)" style="margin-right: 4px;"></i>
                 {{ pack.name }}
               </div>
               <a 
@@ -117,13 +117,14 @@
   import { getGame, localize } from '@/utils/game';
   import { createEntry, createWorldFolder } from '@/compendia';
   import { getIcon, toTopic } from '@/utils/misc';
-  import { DirectoryPack, useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
 
   // local components
 
   // types
+  import { DirectoryPack, } from '@/types';
   
   ////////////////////////////////
   // props

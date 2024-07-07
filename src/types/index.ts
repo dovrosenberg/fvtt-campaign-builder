@@ -1,3 +1,4 @@
+export * from './directory';
 
 export type WindowTab = {
   id: string;   // unique id

@@ -35,7 +35,7 @@
   // local components
   import WBHeader from '@/components/WBHeader.vue';
   import WBContent from '@/components/WBContent.vue';
-  import Directory from '@/components/Directory.vue';
+  import Directory from '@/components/Directory/Directory.vue';
 
   // types
   
