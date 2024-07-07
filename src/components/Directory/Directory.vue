@@ -75,23 +75,17 @@
               </a>
             </header>
 
-            <!-- css will hide this section if the .fwb-topic-folder is collapsed -->
-            <ol class="fwb-topic-contents">
-              <!-- These are the journal entries -->
-              <li 
-                v-for="node in pack.loadedTopNodes"
-                :key="node.id"
-                class="fwb-entry-item flexrow" 
-                draggable="true"
-                @click="onEntryClick($event, node.id)"
-                @dragstart="onDragStart($event, node.id)"
-                @drop="onDrop($event, node.id)"
-              >
-                <div class="fwb-entry-name">
-                  <a> {{ node.name }} </a>
-                </div>
-              </li>
-            </ol>
+            <div
+              v-for="node in pack.loadedTopNodes"
+              :key="node.id"
+              class="fwb-entry-item flexrow" 
+              draggable="true"
+              @click="onEntryClick($event, node)"
+              @dragstart="onDragStart($event, node.id)"
+              @drop="onDrop($event, node.id)"
+            >
+              <DirectoryNodeComponent :node="node" />
+            </div>
           </li>
         </ol>
       </li>
@@ -122,9 +116,10 @@
   // library components
 
   // local components
+  import DirectoryNodeComponent from './DirectoryNode.vue';
 
   // types
-  import { DirectoryPack, } from '@/types';
+  import { DirectoryNode, DirectoryPack, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -200,10 +195,12 @@
   };
 
   // select an entry
-  const onEntryClick = async (event: MouseEvent, entryId: string) => {
+  const onEntryClick = async (event: MouseEvent, node: DirectoryNode) => {
     event.stopPropagation();
 
-    await navigationStore.openEntry(entryId, {newTab: event.ctrlKey});
+    await directoryStore.toggleNode(node);
+
+//    await navigationStore.openEntry(entryId, {newTab: event.ctrlKey});
   };
 
   // create entry buttons

@@ -70,7 +70,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   // expand the given node, loading the new item data
-  const toggleNode = async(pack: CompendiumCollection<any>, node: DirectoryNode) : Promise<void>=> {
+  const toggleNode = async(node: DirectoryNode) : Promise<void>=> {
     // closing is easy
     if (node.expanded) {
       // TODO - does this trigger reactivity
@@ -137,7 +137,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       return false;
 
     // make sure they share a topic (and so does the pack)
-    if (EntryFlags.get(child, EntryFlagKey.topic)!==EntryFlags.get(parent, EntryFlagKey.topic) ||
+    if (parent && EntryFlags.get(child, EntryFlagKey.topic)!==EntryFlags.get(parent, EntryFlagKey.topic) ||
         EntryFlags.get(child, EntryFlagKey.topic)!==pack.config.topic)
       return false;
      
@@ -204,7 +204,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // if the child doesn't have a parent, make sure it's in the topnode list
     //    and vice versa
-    let topNodes = _getPackTopNodes(pack);
+    let topNodes = await _getPackTopNodes(pack);
 
     if (!parentNode && !topNodes.includes(childId)) {
       topNodes = topNodes.concat([childId]);
@@ -240,8 +240,6 @@ export const useDirectoryStore = defineStore('directory', () => {
   const _getPackTopNodes = async (pack: CompendiumCollection<any>) : Promise<string[]> => {
     // TODO - whenever we add a node to a pack, we need to refresh topNodes
 
-    pack.config.topNodes = null;
-
     // if it has the config set, just use that (note it could be empty, so need to allow for that)
     if (pack.config?.topNodes!==null && pack.config?.topNodes!==undefined)
       return pack.config.topNodes;
@@ -252,7 +250,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (!hasHierarchy(pack.config.topic)) {
       topNodes = pack.tree.entries.map((e)=>e.uuid);
     } else {
-      topNodes = await pack.tree?.entries?.reduce(async (retval: Promise<string[]>, entry: JournalEntry): Promise<string[]> => {
+      topNodes = await toRaw(pack).tree?.entries?.reduce(async (retval: Promise<string[]>, entry: JournalEntry): Promise<string[]> => {
         const newretval = await retval;
 
         // those are just indexes, so have to get the full thing
@@ -317,7 +315,7 @@ export const useDirectoryStore = defineStore('directory', () => {
           topNodes: await _getPackTopNodes(compendium),
           loadedTopNodes: [],
           // TODO - store and retrieve expanded status
-          expanded: false,   //        !expandedCompendia.value[compendium.metadata.id],
+          expanded: true,   //        !expandedCompendia.value[compendium.metadata.id],
         }))),
       };
     })) || [];

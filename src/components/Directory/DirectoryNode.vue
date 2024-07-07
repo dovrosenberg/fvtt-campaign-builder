@@ -5,11 +5,12 @@
       :node="props.node"
       @itemClicked="onSubItemClick"
     />
-    <div v-else
+    <div 
+      v-else
       class="directory-item" 
-      @click="onDirectoryItemClick($event, props.node.value)"
+      @click="onDirectoryItemClick($event, props.node.id)"
     >
-      {{props.node.text}}
+      {{ props.node.name }}
     </div>
   </li>
 </template>

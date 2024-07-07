@@ -2,14 +2,16 @@
   <details :open="props.node.expanded">
     <summary>      
       <div class="directory-item" 
-        @click="onDirectoryItemClick($event, value)"
-      >{{ props.node.name }}</div>
+        @click="onDirectoryItemClick($event, props.node.id)"
+      >
+        {{ props.node.name }}
+      </div>
     </summary>
     <ul>
       <DirectoryNodeComponent 
-        v-for="node in props.node.loadedChildren"
-        :key="node.id"
-        :node="node"
+        v-for="child in props.node.loadedChildren"
+        :key="child.id"
+        :node="child"
         @itemClicked="onSubItemClick"
       />
     </ul>
