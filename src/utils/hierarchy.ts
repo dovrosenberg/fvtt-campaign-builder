@@ -2,8 +2,6 @@ import { EntrySummary, Topic, TreeNode } from '@/types';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 
 // types and functions used to manage topic hierarchies
-// note: this uses ids not uuids because getDocuments can't search by uuid and they're all in the
-//    same compendium regardless
 export type Hierarchy = {
   parentId: string | null;   // id of parent
   ancestors: string[];    // ids of all ancestors

@@ -35,7 +35,6 @@
 
     <!-- these are the worlds -->
     <ol class="fwb-world-list">
-      <!-- the folders use .id instead of .uuid but it has a uuid in it -->
       <li 
         v-for="world in currentTree"
         :key="world.id"
@@ -78,7 +77,7 @@
             <div
               v-for="node in pack.loadedTopNodes"
               :key="node.id"
-              class="fwb-entry-item flexrow" 
+              class="fwb-entry-item flexrow fwb-directory-tree" 
               draggable="true"
               @click="onEntryClick($event, node)"
               @dragstart="onDragStart($event, node.id)"
@@ -119,7 +118,7 @@
   import DirectoryNodeComponent from './DirectoryNode.vue';
 
   // types
-  import { DirectoryNode, DirectoryPack, } from '@/types';
+  import { DirectoryNode, DirectoryPack, Topic, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -204,7 +203,7 @@
   };
 
   // create entry buttons
-  const onCreateEntryClick = async (event: MouseEvent, compendiumTopic: string, worldId: string) => {
+  const onCreateEntryClick = async (event: MouseEvent, compendiumTopic: Topic, worldId: string) => {
     event.stopPropagation();
 
     // look for nearest parent and get topic and folder
@@ -437,4 +436,96 @@
     flex-direction: row;
     justify-content: flex-start;
   }
+
+  // the nested tree structure
+  // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
+
+  .fwb-directory-tree {
+    // very first node
+    ul.top-node > li {
+      &::before, &::after {
+        display:none;   // hide bar on the main level
+      }
+    }
+
+    ul {
+      list-style: none;
+      line-height: 2em;   // this makes the horizontal lines centered (when combined with the height on the li::before
+
+      li {
+        position: relative;
+        padding: 0;
+        margin: -0.5em 0 0 0;
+
+        font-family: 'Signika', sans-serif;
+        font-size: var(--font-size-14);
+        font-weight: normal;
+
+        // this draws the top-half ot the vertical plus the horizontal tree connector lines
+        &::before {
+          top: 0px;
+          border-bottom: 2px solid gray;
+          height: 1em;   // controls vertical position of horizontal lines
+        }
+
+        // extends the vertical lines down
+        &::after {
+          bottom: 0px;
+          height: 100%;
+        }
+
+        &::before, &::after {
+          position: absolute;
+          left: -10px;   // pushes them left of the text
+          border-left: 2px solid gray;
+          content: "";
+          width: 10px;   // controls the length of the horizontal lines
+        }
+
+        &:last-child::after {
+          display: none;   // avoid a little tail at the bottom of the vertical lines
+        }
+      }
+
+      // add the little open markers
+      summary::before {
+        position: absolute;
+        content: "+";
+        text-align: center;
+        line-height: 0.80em;
+        color: black;
+        background: #999;
+        display: block;
+        width: 15px;
+        height: 15px;
+        border-radius: 50em;
+        left: -0.85em;
+        top: 0.63em;
+        z-index: 999;
+      }
+
+      details[open] summary::before {
+        content: "-";
+      }
+    }
+
+    // move the text away from the end of the horizontal lines
+    li {
+      padding-left: 3px;
+    }
+
+    // the top level
+    & > ul {
+      summary {
+        cursor: pointer;
+        list-style: none; 
+
+        &::marker, &::-webkit-details-marker {
+          display: none !important;
+        }
+      }
+
+    }
+  }
+
 </style>

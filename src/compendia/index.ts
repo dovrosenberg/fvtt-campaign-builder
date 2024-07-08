@@ -69,7 +69,7 @@ export async function createWorldFolder(makeCurrent = false): Promise<Folder | n
     name = await inputDialog('Create World', 'World Name:');
     
     if (name) {
-      // create the folder
+      // create the world folder
       const folders = await Folder.createDocuments([{
         name,
         // @ts-ignore
@@ -86,6 +86,9 @@ export async function createWorldFolder(makeCurrent = false): Promise<Folder | n
         await UserFlags.set(UserFlagKey.currentWorld, folders[0].uuid);
       }
   
+      await validateCompendia(folders[0]);
+      await refreshCurrentTree();
+
       return folders[0];
     }
   } while (name==='');  // if hit ok, must have a value
@@ -118,7 +121,7 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFo
 export async function validateCompendia(worldFolder: Folder): Promise<void> {
   let updated = false;
 
-  // the uuid for the compendia of each topic
+  // the id for the compendia of each topic
   let compendia: Record<Topic, string> = {
     [Topic.None]: '',
     [Topic.Character]: '',
@@ -166,7 +169,7 @@ function getTopicText(topic: Topic): string {
   }
 }
 
-async function createCompendium(worldFolder: Folder, topic: Topic ): Promise<string> {
+async function createCompendium(worldFolder: Folder, topic: Topic): Promise<string> {
   const label = getTopicText(topic);
 
   const metadata = { 
@@ -176,16 +179,24 @@ async function createCompendium(worldFolder: Folder, topic: Topic ): Promise<str
   };
 
   // @ts-ignore
-  const compendium = await CompendiumCollection.createCompendium(metadata);
+  const pack = await CompendiumCollection.createCompendium(metadata);
 
   // @ts-ignore
-  await compendium.setFolder(worldFolder.id);
+  await pack.setFolder(worldFolder.id);
 
   // @ts-ignore
-  await compendium.configure({ locked:true, topic: topic });
+  await pack.configure({ locked:true });
+  await setTopic(pack, topic);
 
   // @ts-ignore
-  return compendium.metadata.id;
+  return pack.metadata.id;
+}
+
+async function setTopic(pack: CompendiumCollection<any>, topic: Topic): Promise<void> {
+  const topics = moduleSettings.get(SettingKey.packTopics) || {};
+
+  // @ts-ignore
+  await moduleSettings.set(SettingKey.packTopics, {...topics, [pack.metadata.id]: topic });
 }
 
 // gets the entry and cleans it
@@ -251,6 +262,7 @@ export async function createEntry(worldFolder: Folder, topic: Topic): Promise<Jo
 
   return entry || null;
 }
+
 
 // makes sure that the entry has all the correct pages
 async function cleanEntry(entry: JournalEntry): Promise<void> {

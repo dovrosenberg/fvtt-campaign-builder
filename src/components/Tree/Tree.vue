@@ -1,7 +1,9 @@
 <template>
   <div :id="componentId" class="fwb-tree">
     <ul class="top-node">
-      <TreeNodeComponent v-for="node in props.topNodes"
+      <TreeNodeComponent 
+        v-for="node in props.topNodes"
+        :key="node.id"
         :node="node"
         @itemClicked="onSubItemClick"
       />
