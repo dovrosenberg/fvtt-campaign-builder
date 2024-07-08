@@ -266,6 +266,7 @@
   import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
   import moduleJson from '@module';
   import { useMainStore } from '@/applications/stores';
+  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   // import { getCleanEntry, updateDocument } from '@/compendia';
@@ -297,7 +298,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentEntryId } = storeToRefs(mainStore);
+  const { currentEntryId, currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -331,7 +332,7 @@
   const icon = computed((): string => (!topic.value ? '' : getIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : localize(topicData[topic.value]?.namePlaceholder)));
-  const typeList = computed((): string[] => (topic.value===null ? [] : moduleSettings.get(SettingKey.types)[topic.value]));
+  const typeList = computed((): string[] => (topic.value===null || !currentWorldId.value ? [] : WorldFlags.get(currentWorldId.value, WorldFlagKey.types)[topic.value]));
 
   ////////////////////////////////
   // methods
@@ -340,19 +341,19 @@
   // event handlers
 
   // new type added in the typeahead
-  const onTypeItemAdded = async (added: string) => {
-    if (topic.value === null)
+  const onTypeItemAdded = async (worldId: string, added: string) => {
+    if (topic.value === null || !currentWorldId.value)
       return;
 
-    const currentTypes = moduleSettings.get(SettingKey.types);
+    const currentTypes = WorldFlags.get(currentWorldId.value, WorldFlagKey.types);
 
     // if not a duplicate, add to the valid type lists 
     if (!currentTypes[topic.value].includes(added)) {
       const updatedTypes = {
-        ...moduleSettings.get(SettingKey.types),
+        ...currentTypes,
         [topic.value]: currentTypes[topic.value].concat([added]),
       };
-      await moduleSettings.set(SettingKey.types, updatedTypes);
+      await WorldFlags.set(worldId, WorldFlagKey.types, updatedTypes);
     }
   };
 

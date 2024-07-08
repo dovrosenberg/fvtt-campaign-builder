@@ -8,17 +8,11 @@ export enum SettingKey {
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
-  types = 'types',  // object where each key is a Topic and the value is an array of valid types
-  packTopNodes = 'packTopNodes',  // maps compendium id to array of top-level nodes 
-  packTopics = 'packTopics',    // maps compendium id to the topics it contains
 }
 
 type SettingType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
     K extends SettingKey.rootFolderId ? string : 
-    K extends SettingKey.types ? Record<Topic, string[]> :
-    K extends SettingKey.packTopNodes ? Record<string, string[]> :   // keyed by compendium id
-    K extends SettingKey.packTopics ? Record<string, Topic> :   // keyed by compendium id
     never;  
 
 // the solo instance
@@ -82,26 +76,6 @@ export class ModuleSettings {
       settingID: SettingKey.rootFolderId,
       default: null,
       type: String,
-    },
-    {
-      settingID: SettingKey.types,
-      default: {
-        [Topic.Character]: [],
-        [Topic.Location]: [],
-        [Topic.Event]: [],
-        [Topic.Organization]: [],
-      },
-      type: Object,
-    },
-    {
-      settingID: SettingKey.packTopNodes,
-      default: {},
-      type: Object,
-    },
-    {
-      settingID: SettingKey.packTopics,
-      default: {},
-      type: Object,
     },
 
   ];

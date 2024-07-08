@@ -8,7 +8,7 @@ import { ref, toRaw, watch } from 'vue';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { hasHierarchy, Hierarchy } from '@/utils/hierarchy';
 import { useMainStore } from './mainStore';
-import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
+import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
 // types
 import { DirectoryWorld, DirectoryPack, DirectoryNode } from '@/types';
@@ -119,7 +119,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     };
 
     // topic has to have hierarchy
-    if (!hasHierarchy(moduleSettings.get(SettingKey.packTopics)[pack.metadata.id]))
+    if (!hasHierarchy(WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[pack.metadata.id]))
       return false;
 
     // have to have a child
@@ -139,7 +139,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // make sure they share a topic (and so does the pack)
     if (parent && EntryFlags.get(child, EntryFlagKey.topic)!==EntryFlags.get(parent, EntryFlagKey.topic) ||
-        EntryFlags.get(child, EntryFlagKey.topic)!==moduleSettings.get(SettingKey.packTopics)[pack.metadata.id])
+        EntryFlags.get(child, EntryFlagKey.topic)!==WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[pack.metadata.id])
       return false;
      
     // next, confirm it's a valid target (the child must not be in the parent's ancestor list - or we get loops)
@@ -227,7 +227,7 @@ export const useDirectoryStore = defineStore('directory', () => {
           pack: pack,
           id: pack.metadata.id,
           name: pack.metadata.label,
-          topic: moduleSettings.get(SettingKey.packTopics)[pack.metadata.id],
+          topic: WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[pack.metadata.id],
           topNodes: await _getPackTopNodes(pack),
           loadedTopNodes: [],
           // TODO - store and retrieve expanded status
@@ -257,18 +257,21 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   const _savePackTopNodes = async (pack: CompendiumCollection<any>, topNodes: string[]): Promise<void> => {
+    if (!currentWorldId.value)
+      return;
+
     // get the settings
-    const allTopNodes = (moduleSettings.get(SettingKey.packTopNodes) || {});
+    const allTopNodes = (WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopNodes));
 
     // save back with the new array
-    await moduleSettings.set(SettingKey.packTopNodes, {...allTopNodes, [pack.metadata.id]: topNodes});
+    await WorldFlags.set(currentWorldId.value, WorldFlagKey.packTopNodes, {...allTopNodes, [pack.metadata.id]: topNodes});
   };
 
   const _getPackTopNodes = async (pack: CompendiumCollection<any>) : Promise<string[]> => {
     const packId = pack.metadata.id;
 
     // get the settings
-    const allTopNodes = (moduleSettings.get(SettingKey.packTopNodes) || {});
+    const allTopNodes = (WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopNodes));
 
     // TODO - whenever we add a node to a pack, we need to refresh topNodes
 
@@ -279,7 +282,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     // otherwise, find all the top nodes and set the config
     // if the pack has no hierachy, just made all the nodes top nodes
     let topNodes: string[];
-    if (!hasHierarchy(moduleSettings.get(SettingKey.packTopics)[packId])) {
+    if (!hasHierarchy(WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[packId])) {
       topNodes = pack.tree.entries.map((e)=>e.uuid);
     } else {
       topNodes = await toRaw(pack).tree?.entries?.reduce(async (retval: Promise<string[]>, entry: JournalEntry): Promise<string[]> => {

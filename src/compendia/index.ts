@@ -87,7 +87,8 @@ export async function createWorldFolder(makeCurrent = false): Promise<Folder | n
       }
   
       await validateCompendia(folders[0]);
-      await refreshCurrentTree();
+      await WorldFlags.setDefaults(folders[0].uuid);
+      //await refreshCurrentTree();
 
       return folders[0];
     }
@@ -105,10 +106,16 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFo
   // make sure we have a default and it exists
   let worldFolder = null as Folder | null;
   if (worldId)
-    worldFolder = getGame()?.folders?.find((f)=>f.uuid===worldId) || null;
+    worldFolder = rootFolder.children.find((c)=>c.folder.uuid===worldId) || null;
 
   if (!worldId || !worldFolder) {
-    worldFolder = await createWorldFolder(true);
+    // couldn't find it, default to top if one exists
+    if (rootFolder.children.length>0) {
+      worldFolder = rootFolder.children[0].folder as Folder;
+    } else {
+      // no world folder, so create one
+      worldFolder = await createWorldFolder(true);
+    }
   }
 
   return { rootFolder, worldFolder: worldFolder as Folder };
@@ -151,6 +158,8 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
       updated = true;
     }
   }
+
+  TODO!!!! createTree isn't setting topic correctly... it looks like everything's setup right, though
   
   // if we changed things, save new compendia flag
   if (updated) {
@@ -193,10 +202,10 @@ async function createCompendium(worldFolder: Folder, topic: Topic): Promise<stri
 }
 
 async function setTopic(pack: CompendiumCollection<any>, topic: Topic): Promise<void> {
-  const topics = moduleSettings.get(SettingKey.packTopics) || {};
+  const topics = WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics) || {};
 
   // @ts-ignore
-  await moduleSettings.set(SettingKey.packTopics, {...topics, [pack.metadata.id]: topic });
+  await WorldFlags.set(pack.folder.uuid, WorldFlagKey.packTopics, {...topics, [pack.metadata.id]: topic });
 }
 
 // gets the entry and cleans it
