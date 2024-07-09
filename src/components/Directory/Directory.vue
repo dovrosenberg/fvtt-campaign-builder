@@ -84,7 +84,7 @@
               @dragstart="onDragStart($event, node.id)"
               @drop="onDrop($event, node.id)"
             >
-              <NodeComponent :node="node" />
+              <NodeComponent :node="node" :expanded="node.expanded" />
             </div>
           </li>
         </ol>
@@ -105,7 +105,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, ref, watch } from 'vue';
+  import { onMounted, ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports

@@ -2,7 +2,7 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { ref, toRaw, watch } from 'vue';
+import { reactive, ref, toRaw, watch } from 'vue';
 
 // local imports
 import { getGame } from '@/utils/game';
@@ -199,7 +199,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       return;
 
     // we put in the packs only for the current world
-    let tree = {} as typeof currentTree.value;
+    let tree = [] as DirectoryWorld[];
 
     // populate the world names, and find the current one
     let currentWorld;
@@ -236,81 +236,41 @@ export const useDirectoryStore = defineStore('directory', () => {
         if (!pack.expanded)
           continue;
 
-        // see if we already loaded the children
-        if (pack.topNodes.length!==pack.loadedTopNodes.length) {
-          // need to load them - note: we only go one layer deep
-          for (let i=0; i<pack.topNodes.length; i++) {
-            if (pack.loadedTopNodes.find((n)=>n.id===pack.topNodes[i])) {
-              // this one is already loaded and attached
-              continue;
-            } else if (_loadedNodes[pack.topNodes[i]]) {
-              // it was loaded previously - just reattach it
-              pack.loadedTopNodes.push(_loadedNodes[pack.topNodes[i]]);
-              continue;
-            } else {
-              // need to load it
-              const newNode = await _loadNode(pack.topNodes[i], expandedNodes);
-              if (!newNode)
-                throw new Error('Attempting to load invalid node in directoryStore.refreshCurrentTree(): ' + pack.topNodes[i]);
-
-              pack.loadedTopNodes.push(newNode);
-            }
-
-            // may need to change the expanded state
-            const loadedNode = pack.loadedTopNodes.find((n)=>n.id===pack.topNodes[i]);
-            if (loadedNode)
-              loadedNode.expanded = expandedNodes[pack.topNodes[i]] || false;
-          }  
-          
-          // recurse down the tree loading and expanding needed nodes
-          for (let j=0; j<pack.loadedTopNodes.length; j++) {
-            const node = pack.loadedTopNodes[j];
-
-            if (node.expanded) {
-              await recursivelyLoadNode(node, expandedNodes);
-            }
-          }
-        } 
+        // have to check all children are loaded and expanded properly
+        await recursivelyLoadNode(pack.topNodes, pack.loadedTopNodes, expandedNodes);
       }
     }
 
     currentTree.value = tree;
   };
 
-  const recursivelyLoadNode = async (node: DirectoryNode, expandedNodes: Record<string, boolean | null>): Promise<void> => {
-    // see if we already loaded the children
-    if (node.children.length!==node.loadedChildren.length) {
-      // need to load them - note: we only go one layer deep
-      for (let i=0; i<node.children.length; i++) {
-        if (node.loadedChildren.find((n)=>n.id===node.children[i])) {
-          // this one is already loaded and attached
-          continue;
-        } else if (_loadedNodes[node.children[i]]) {
-          // it was loaded previously - just reattach it
-          node.loadedChildren.push(_loadedNodes[node.children[i]]);
-          continue;
-        } else {
-          // need to load it
-          const newNode = await _loadNode(node.children[i], expandedNodes);
-          if (!newNode)
-            throw new Error('Attempting to load invalid node in directoryStore.recursivelyLoadNode(): ' + node.children[i]);
+  const recursivelyLoadNode = async (children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>): Promise<void> => {
+    // have to check all children loaded and update their expanded states
+    for (let i=0; i<children.length; i++) {
+      let child: DirectoryNode | null = loadedChildren.find((n)=>n.id===children[i]) || null;
 
-          node.loadedChildren.push(newNode);
-        }
+      if (child) {
+        // this one is already loaded and attached
+      } else if (_loadedNodes[children[i]]) {
+        child = _loadedNodes[children[i]];
 
-        // may need to change the expanded state
-        const loadedNode = node.loadedChildren.find((n)=>n.id===node.children[i]);
-        if (loadedNode)
-          loadedNode.expanded = expandedNodes[node.children[i]] || false;
-      }      
+        // it was loaded previously - just reattach it
+        loadedChildren.push(child);
+      } else {
+        // need to load it
+        child = await _loadNode(children[i], expandedNodes);
+        if (!child)
+          throw new Error('Attempting to load invalid node in directoryStore.recursivelyLoadNode(): ' + children[i]);
 
-      // do next level
-      for (let i=0; i<node.loadedChildren.length; i++) {
-        if (node.loadedChildren[i].expanded) {
-          await recursivelyLoadNode(node.loadedChildren[i], expandedNodes);
-        }
+        loadedChildren.push(child);
       }
-    }
+
+      // may need to change the expanded state
+      child.expanded = expandedNodes[child.id] || false;
+
+      if (child.expanded)
+        await recursivelyLoadNode(child.children, child.loadedChildren, expandedNodes);
+    }      
   };
 
   // creates a new entry in the proper compendium in the given world

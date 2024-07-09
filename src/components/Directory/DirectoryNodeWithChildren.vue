@@ -1,5 +1,5 @@
 <template>
-  <details :open="props.node.expanded">
+  <details :open="props.expanded">
     <summary>      
       <div class="directory-item" 
         @click="onDirectoryItemClick($event, props.node.id)"
@@ -12,6 +12,7 @@
         v-for="child in props.node.loadedChildren"
         :key="child.id"
         :node="child"
+        :expanded="child.expanded"
         @itemClicked="onSubItemClick"
       />
     </ul>
@@ -36,6 +37,10 @@
   const props = defineProps({
     node: { 
       type: Object as PropType<DirectoryNode>,
+      required: true,
+    },
+    expanded: { 
+      type: Boolean,
       required: true,
     }
   });

@@ -1,8 +1,9 @@
 <template>
   <li>
     <DirectoryNodeWithChildren 
-      v-if="props.node.children.length && props.node.expanded" 
+      v-if="props.node.children.length && expanded" 
       :node="props.node"
+      :expanded="props.node.expanded"
       @itemClicked="onSubItemClick"
     />
     <div 
@@ -34,6 +35,10 @@
   const props = defineProps({
     node: { 
       type: Object as PropType<DirectoryNode>,
+      required: true,
+    },
+    expanded: { 
+      type: Boolean,
       required: true,
     }
   });
