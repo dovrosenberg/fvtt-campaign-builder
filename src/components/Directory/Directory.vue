@@ -110,7 +110,7 @@
 
   // local imports
   import { getGame, localize } from '@/utils/game';
-  import { createEntry, createWorldFolder } from '@/compendia';
+  import { createEntry, } from '@/compendia';
   import { getIcon, toTopic } from '@/utils/misc';
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
@@ -215,10 +215,7 @@
   const onCreateWorldClick = async (event: MouseEvent) => {
     event.stopPropagation();
 
-    const world = await createWorldFolder(true);
-    if (world) {
-      await mainStore.setNewWorld(world.id);
-    }
+    directoryStore.createWorld();
   };
 
   // select an entry
@@ -241,7 +238,7 @@
     if (!worldFolder || !topic)
       throw new Error('Invalid header in .fwb-crate-entry.click()');
 
-    const entry = await createEntry(worldFolder, topic);
+    const entry = await directoryStore.createEntry(worldFolder, topic);
 
     if (entry) {
       await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true }); 

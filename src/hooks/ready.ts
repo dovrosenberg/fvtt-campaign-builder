@@ -1,5 +1,4 @@
 import { worldBuilder, updateWorldBuilder, WorldBuilderApplication} from '@/applications/WorldBuilder';
-import { getDefaultFolders } from '@/compendia';
 import { getGame, localize } from '@/utils/game';
 
 export function registerForReadyHook() {

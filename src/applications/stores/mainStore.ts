@@ -35,12 +35,17 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // load the folder
-    currentWorldFolder.value = getGame()?.folders?.find((f)=>f.uuid===worldId) || null;
+    const folder = getGame()?.folders?.find((f)=>f.uuid===worldId) || null;
+    
+    if (!folder)
+      throw new Error('Invalid folder id in mainStore.setNewWorld()');
+    
+    currentWorldFolder.value = folder;
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };
 
- 
+
   ///////////////////////////////
   // computed state
 

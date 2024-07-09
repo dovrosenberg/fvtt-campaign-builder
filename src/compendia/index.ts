@@ -88,7 +88,6 @@ export async function createWorldFolder(makeCurrent = false): Promise<Folder | n
   
       await validateCompendia(folders[0]);
       await WorldFlags.setDefaults(folders[0].uuid);
-      //await refreshCurrentTree();
 
       return folders[0];
     }
@@ -99,14 +98,16 @@ export async function createWorldFolder(makeCurrent = false): Promise<Folder | n
 }
 
 // returns the root and world, creating if needed
-export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFolder: Folder | null}> {
+export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFolder: Folder}> {
   const rootFolder = await getRootFolder(); // will create if needed
   const worldId = UserFlags.get(UserFlagKey.currentWorld);  // this isn't world-specific (obviously)
 
   // make sure we have a default and it exists
   let worldFolder = null as Folder | null;
-  if (worldId)
-    worldFolder = rootFolder.children.find((c)=>c.folder.uuid===worldId) || null;
+  if (worldId) {
+    const baseItem = rootFolder.children.find((c)=>c.folder.uuid===worldId);
+    worldFolder = baseItem.folder || null;
+  }    
 
   if (!worldId || !worldFolder) {
     // couldn't find it, default to top if one exists
@@ -115,33 +116,39 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFo
     } else {
       // no world folder, so create one
       worldFolder = await createWorldFolder(true);
+
+      // if we couldn't create one, then throw an error
+      // TODO- handle this more gracefully... allow the dialog to exist without a world, I guess
+      if (!worldFolder)
+        throw new Error('Couldn\'t create world folder in compendia/index.getDefaultFolders()');
     }
   }
 
-  return { rootFolder, worldFolder: worldFolder as Folder };
+  return { rootFolder, worldFolder };
 }
 
 
 // ensure the root folder has all the required topic compendia
 // Note: compendia kind of suck.   You can't rename them or change the label.  And you can't have more than one with the same name/label
-//    in a given world.  So we give them all unique names but then use a flag to display the proper topic
+//    in a given world.  So we give them all unique names but then use a flag to display the proper label (which is the topic)
 export async function validateCompendia(worldFolder: Folder): Promise<void> {
   let updated = false;
 
   // the id for the compendia of each topic
-  let compendia: Record<Topic, string> = {
-    [Topic.None]: '',
-    [Topic.Character]: '',
-    [Topic.Event]: '',
-    [Topic.Location]: '',
-    [Topic.Organization]: '',
-  };
+  let compendia: Record<Topic, string>; 
    
   const flag = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia); 
 
   if (flag) {
     compendia = flag;
   } else {
+    compendia = {
+      [Topic.None]: '',
+      [Topic.Character]: '',
+      [Topic.Event]: '',
+      [Topic.Location]: '',
+      [Topic.Organization]: '',
+    };
     updated = true;
   }
 
@@ -165,7 +172,7 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
   }
 }
 
-function getTopicText(topic: Topic): string {
+export function getTopicText(topic: Topic): string {
   switch (toTopic(topic)) {
     case Topic.Character: return localize('fwb.topics.character'); 
     case Topic.Event: return localize('fwb.topics.event'); 
@@ -206,7 +213,7 @@ async function setTopic(pack: CompendiumCollection<any>, topic: Topic): Promise<
   await WorldFlags.set(pack.folder.uuid, WorldFlagKey.packTopics, {...topics, [pack.metadata.id]: topic });
 }
 
-// gets the entry and cleans it
+// loads the entry into memory and cleans it
 export async function getCleanEntry(uuid: string): Promise<JournalEntry | null> {
   // we must use fromUuid because these are all in compendia
   const entry = await fromUuid(uuid) as JournalEntry;
@@ -218,67 +225,6 @@ export async function getCleanEntry(uuid: string): Promise<JournalEntry | null> 
     return null;
   }
 }
-
-// creates a new entry in the proper compendium in the given world
-export async function createEntry(worldFolder: Folder, topic: Topic): Promise<JournalEntry | null> {
-  const topicText = getTopicText(topic);
-
-  let name;
-  do {
-    name = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
-  } while (name==='');  // if hit ok, must have a value
-
-  // if name is null, then we cancelled the dialog
-  if (!name)
-    return null;
-
-  // create the entry
-  const compendia = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia);
-
-  if (!compendia || !compendia[topic])
-    throw new Error('Missing compendia in createEntry()');
-
-  // unlock it to make the change
-  const pack = getGame().packs.get(compendia[topic]);
-  if (!pack)
-    throw new Error('Bad compendia in createEntry()');
-
-  await pack.configure({locked:false});
-
-  const entry = await JournalEntry.create({
-    name,
-    folder: worldFolder.id,
-  },{
-    pack: compendia[topic],
-  });
-
-  await pack.configure({locked:true});
-
-  if (entry) {
-    await EntryFlags.set(entry, EntryFlagKey.topic, topic);
-
-    // setup the hierarchy
-    if (hasHierarchy(topic)) {
-      await EntryFlags.set(entry, EntryFlagKey.hierarchy, {
-        parentId: '',
-        ancestors: [],
-        children: [],
-      } as Hierarchy);
-    }
-
-    // add as a topNode by default
-    const topNodes = await WorldFlags.get(worldFolder.uuid, WorldFlagKey.packTopNodes);
-    await WorldFlags.set(worldFolder.uuid, WorldFlagKey.packTopNodes, {
-      ...topNodes,
-      [pack.metadata.id]: topNodes[pack.metadata.id].concat([entry.uuid])
-    });
-  }
-
-  // refreshTree
-
-  return entry || null;
-}
-
 
 // makes sure that the entry has all the correct pages
 async function cleanEntry(entry: JournalEntry): Promise<void> {

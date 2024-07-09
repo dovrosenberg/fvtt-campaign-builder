@@ -25,9 +25,8 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { getDefaultFolders, validateCompendia } from '@/compendia';
+  import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
-  import { getGame } from '@/utils/game';
   import { useMainStore } from '@/applications/stores';
 
   // library components
@@ -63,12 +62,7 @@
   ////////////////////////////////
   // event handlers
   const onDirectoryWorldSelected = async (worldId: string) => {
-    const folder = getGame().folders?.find((f)=>f.uuid===worldId);
-    if (!folder)
-      throw new Error('Invalid folder id in WorldSelected callaback');
-    currentWorldFolder.value = folder;
-
-    await validateCompendia(folder);
+    await directoryStore.changeWorld(worldId);
   };
 
  
@@ -88,6 +82,7 @@
     const folders = await getDefaultFolders();
 
     if (folders && folders.rootFolder && folders.worldFolder) {
+      // this will force a refresh of the directory
       rootFolder.value = folders.rootFolder;
       currentWorldFolder.value = folders.worldFolder;
     } else {

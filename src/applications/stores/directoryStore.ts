@@ -10,9 +10,11 @@ import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { hasHierarchy, Hierarchy } from '@/utils/hierarchy';
 import { useMainStore } from './mainStore';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { createWorldFolder, getTopicText, validateCompendia } from '@/compendia';
+import { inputDialog } from '@/dialogs/input';
 
 // types
-import { DirectoryWorld, DirectoryPack, DirectoryNode } from '@/types';
+import { DirectoryWorld, DirectoryPack, DirectoryNode, Topic } from '@/types';
 
 // the store definition
 export const useDirectoryStore = defineStore('directory', () => {
@@ -22,7 +24,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { rootFolder, currentWorldId } = storeToRefs(mainStore); 
+  const { rootFolder, currentWorldId, currentWorldFolder } = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -36,6 +38,13 @@ export const useDirectoryStore = defineStore('directory', () => {
 
   ///////////////////////////////
   // actions
+  const createWorld = async(): Promise<void> => {
+    const world = await createWorldFolder(true);
+    if (world) {
+      await mainStore.setNewWorld(world.id);
+    }
+  };
+
   // expand the given pack, loading the new item data
   const togglePack = async(pack: DirectoryPack) : Promise<void> => {
     // closing is easy
@@ -251,6 +260,64 @@ export const useDirectoryStore = defineStore('directory', () => {
     })) || [];
   };
 
+  // creates a new entry in the proper compendium in the given world
+  const createEntry = async (worldFolder: Folder, topic: Topic): Promise<JournalEntry | null> => {
+    const topicText = getTopicText(topic);
+
+    let name;
+    do {
+      name = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
+    } while (name==='');  // if hit ok, must have a value
+
+    // if name is null, then we cancelled the dialog
+    if (!name)
+      return null;
+
+    // create the entry
+    const compendia = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia);
+
+    if (!compendia || !compendia[topic])
+      throw new Error('Missing compendia in directoryStore.createEntry()');
+
+    // unlock it to make the change
+    const pack = getGame().packs.get(compendia[topic]);
+    if (!pack)
+      throw new Error('Bad compendia in directoryStore.createEntry()');
+
+    await pack.configure({locked:false});
+
+    const entry = await JournalEntry.create({
+      name,
+      folder: worldFolder.id,
+    },{
+      pack: compendia[topic],
+    });
+
+    await pack.configure({locked:true});
+
+    if (entry) {
+      await EntryFlags.set(entry, EntryFlagKey.topic, topic);
+
+      // setup the hierarchy
+      if (hasHierarchy(topic)) {
+        await EntryFlags.set(entry, EntryFlagKey.hierarchy, {
+          parentId: '',
+          ancestors: [],
+          children: [],
+        } as Hierarchy);
+      }
+
+      // add as a topNode by default
+      const topNodes = await WorldFlags.get(worldFolder.uuid, WorldFlagKey.packTopNodes);
+      await WorldFlags.set(worldFolder.uuid, WorldFlagKey.packTopNodes, {
+        ...topNodes,
+        [pack.metadata.id]: topNodes[pack.metadata.id].concat([entry.uuid])
+      });
+    }
+
+    return entry || null;
+  };
+
   ///////////////////////////////
   // computed state
 
@@ -357,17 +424,15 @@ export const useDirectoryStore = defineStore('directory', () => {
   });
 
   // when the world changes, clean out the cache of loaded items
-  watch(currentWorldId, async (newWorldId: string | null): Promise<void> => {
-    if (!newWorldId) {
+  watch(currentWorldFolder, async (newWorldFolder: Folder | null): Promise<void> => {
+    if (!newWorldFolder) {
       return;
     }
 
     _loadedNodes = {};
     
-    // re-collapse everything
-    await collapseAll();
-
-    // TODO - will have to expand down the tree
+    await validateCompendia(newWorldFolder);
+    await refreshCurrentTree();
   });
   
   ///////////////////////////////
@@ -384,5 +449,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     setNodeParent,
     refreshCurrentTree,
     deleteWorld,
+    createWorld,
+    createEntry,
   };
 });
