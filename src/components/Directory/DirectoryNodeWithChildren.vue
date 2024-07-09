@@ -1,14 +1,15 @@
 <template>
   <details :open="props.expanded">
     <summary>      
-      <div class="directory-item" 
+      <div 
+        class="directory-item" 
         @click="onDirectoryItemClick($event, props.node.id)"
       >
         {{ props.node.name }}
       </div>
     </summary>
     <ul>
-      <DirectoryNodeComponent 
+      <NodeComponent 
         v-for="child in props.node.loadedChildren"
         :key="child.id"
         :node="child"
@@ -27,7 +28,7 @@
   // library components
 
   // local components
-  import DirectoryNodeComponent from './DirectoryNode.vue';
+  import NodeComponent from './DirectoryNode.vue';
 
   // types
   import { DirectoryNode } from '@/types';

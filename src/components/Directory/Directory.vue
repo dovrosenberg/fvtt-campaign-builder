@@ -57,7 +57,7 @@
           <li 
             v-for="pack in world.packs"
             :key="pack.id"
-            :class="'fwb-topic-folder folder entry flexcol ' + (pack.expanded ? '' : 'collapsed')" 
+            :class="'fwb-topic-folder folder entry flexcol fwb-directory-tree ' + (pack.expanded ? '' : 'collapsed')" 
             @click="onTopicFolderClick($event, pack)"
           >
             <header class="folder-header flexrow">
@@ -75,17 +75,19 @@
               </a>
             </header>
 
-            <div
-              v-for="node in pack.loadedTopNodes"
-              :key="node.id"
-              class="fwb-entry-item flexrow fwb-directory-tree" 
-              draggable="true"
-              @click="onEntryClick($event, node)"
-              @dragstart="onDragStart($event, node.id)"
-              @drop="onDrop($event, node.id)"
-            >
-              <NodeComponent :node="node" :expanded="node.expanded" />
-            </div>
+            <ul>
+              <NodeComponent 
+                v-for="node in pack.loadedTopNodes"
+                :key="node.id"
+                :node="node" 
+                :expanded="node.expanded" 
+                class="fwb-entry-item" 
+                draggable="true"
+                @click="onEntryClick($event, node)"
+                @dragstart="onDragStart($event, node.id)"
+                @drop="onDrop($event, node.id)"
+              />
+            </ul>
           </li>
         </ol>
       </li>
@@ -419,21 +421,6 @@
       }
     }    
 
-    li.fwb-entry-item {
-      line-height: 32px;
-      border-top: 1px solid var(--mej-sidebar-document-border-top);
-      border-bottom: 1px solid var(--mej-sidebar-document-border-botom);
-      color: var(--mej-sidebar-document-color);
-
-      .fwb-entry-name {
-        flex-wrap: nowrap;
-        align-items: center;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-      }
-    }
-
     .directory.sidebar-tab .fwb-world-list .entry.selected {
       background: rgba(0, 0, 0, 0.03);
     }
@@ -441,10 +428,6 @@
     .directory.sidebar-tab .fwb-world-list .entry.selected h4 {
       font-weight: bold;
     }    
-
-    li.fwb-entry-item:not(.folder) .fwb-entry-name {
-      margin: 0 0.25em;
-    }
   }
 
   #journal li.fwb-entry-item .fwb-entry-name {
@@ -459,6 +442,10 @@
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
   .fwb-directory-tree {
+    .fwb-entry-item {
+      position: relative;
+    }
+
     // very first node
     ul.top-node > li {
       &::before, &::after {

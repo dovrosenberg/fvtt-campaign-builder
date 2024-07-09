@@ -1,18 +1,16 @@
 <template>
-  <li>
-    <DirectoryNodeWithChildren 
-      v-if="props.node.children.length && expanded" 
-      :node="props.node"
-      :expanded="props.node.expanded"
-      @itemClicked="onSubItemClick"
-    />
-    <div 
-      v-else
-      class="directory-item" 
-      @click="onDirectoryItemClick($event, props.node.id)"
-    >
-      {{ props.node.name }}
-    </div>
+  <DirectoryNodeWithChildren 
+    v-if="props.node.children.length && expanded" 
+    :node="props.node"
+    :expanded="props.node.expanded"
+    @itemClicked="onSubItemClick"
+  />
+  <li
+    v-else
+    class="directory-item" 
+    @click="onDirectoryItemClick($event, props.node.id)"
+  >
+    {{ props.node.name }}
   </li>
 </template>
 
