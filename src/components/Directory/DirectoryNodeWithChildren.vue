@@ -63,12 +63,11 @@
   const onDirectoryItemClick = (event: JQuery.ClickEvent, value: string) => {
     event.preventDefault();  // stop from expanding
     emit('itemClicked', value);
-  }
+  };
 
-  const onSubItemClick = (event: JQuery.ClickEvent, value: string) => {
-    event.preventDefault();  // stop from expanding
+  const onSubItemClick = (value: string) => {
     emit('itemClicked', value);
-  }
+  };
 
   ////////////////////////////////
   // watchers

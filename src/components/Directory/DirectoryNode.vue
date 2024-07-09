@@ -1,7 +1,7 @@
 <template>
   <li>
     <DirectoryNodeWithChildren 
-      v-if="props.node.children.length" 
+      v-if="props.node.children.length && props.node.expanded" 
       :node="props.node"
       @itemClicked="onSubItemClick"
     />
@@ -61,12 +61,11 @@
   const onDirectoryItemClick = (event: JQuery.ClickEvent, value: string) => {
     event.preventDefault();  // stop from expanding
     emit('itemClicked', value);
-  }
+  };
 
-  const onSubItemClick = (event: JQuery.ClickEvent, value: string) => {
-    event.preventDefault();  // stop from expanding
+  const onSubItemClick = (value: string) => {
     emit('itemClicked', value);
-  }
+  };
 
 
   ////////////////////////////////

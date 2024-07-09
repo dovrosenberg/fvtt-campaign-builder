@@ -84,7 +84,7 @@
               @dragstart="onDragStart($event, node.id)"
               @drop="onDrop($event, node.id)"
             >
-              <DirectoryNodeComponent :node="node" />
+              <NodeComponent :node="node" />
             </div>
           </li>
         </ol>
@@ -105,19 +105,18 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, ref } from 'vue';
+  import { onMounted, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { getGame, localize } from '@/utils/game';
-  import { createEntry, } from '@/compendia';
   import { getIcon, toTopic } from '@/utils/misc';
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
 
   // local components
-  import DirectoryNodeComponent from './DirectoryNode.vue';
+  import NodeComponent from './DirectoryNode.vue';
 
   // types
   import { DirectoryNode, DirectoryPack, Topic, } from '@/types';
@@ -201,14 +200,6 @@
     event.stopPropagation();
 
     void directoryStore.collapseAll();
-    // expandedCompendia.value = {};
-    // $('.fwb-topic-folder').addClass('collapsed');
-
-    debugger;
-    // nest sam under jim
-
-    // 
-
   };
 
   // create a world
@@ -288,7 +279,6 @@
 
   ////////////////////////////////
   // watchers
-
 
   ////////////////////////////////
   // lifecycle events
