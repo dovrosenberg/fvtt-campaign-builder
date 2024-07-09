@@ -236,10 +236,10 @@
           </div>-->
           <div class="tab notes" data-group="primary" data-tab="notes">
             <div class="tab-inner flexcol">
-              <div style="flex-grow: 0;">
+              <!-- <div style="flex-grow: 0;">
                 {{localize('MonksEnhancedJournal.OnlyViewable')}}
                 <span v-if="!hasGM" style="color:darkred;font-weight:bold;">{{localize('MonksEnhancedJournal.msg.CannotEditNotesWithoutGM')}}</span>
-              </div>
+              </div> -->
               <div class="notes-container">
 
                 <!-- {{!-- {{editor userdata.enrichedText target=notesTarget editable=true button=true owner=owner}} --}} -->

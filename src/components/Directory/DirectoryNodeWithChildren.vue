@@ -1,23 +1,26 @@
 <template>
-  <details :open="props.expanded">
-    <summary>      
-      <div 
-        class="directory-item" 
-        @click="onDirectoryItemClick($event, props.node.id)"
-      >
-        {{ props.node.name }}
-      </div>
-    </summary>
-    <ul>
-      <NodeComponent 
-        v-for="child in props.node.loadedChildren"
-        :key="child.id"
-        :node="child"
-        :expanded="child.expanded"
-        @itemClicked="onSubItemClick"
-      />
-    </ul>
-  </details>
+  <li>
+    <details :open="props.expanded">
+      <summary :class="(props.top ? 'top' : '')">      
+        <div @click="onDirectoryItemClick($event, props.node)">
+          {{ props.node.name }}
+        </div>
+      </summary>
+      <ul>
+        <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
+        <div v-if="props.expanded">
+          <NodeComponent 
+            v-for="child in props.node.loadedChildren"
+            :key="child.id"
+            :node="child"
+            :expanded="child.expanded"
+            :top="false"
+            @itemClicked="onSubItemClick"
+          />
+        </div>
+      </ul>
+    </details>
+  </li>
 </template>
 
 <script setup lang="ts">
@@ -43,13 +46,17 @@
     expanded: { 
       type: Boolean,
       required: true,
+    },
+    top: {    // applies class to top level
+      type: Boolean,
+      required: true,
     }
   });
 
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
-    (e: 'itemClicked', value: string): void,
+    (e: 'itemClicked', node: DirectoryNode, ctrlKey: boolean): void,
   }>();
 
   ////////////////////////////////
@@ -66,13 +73,15 @@
 
   ////////////////////////////////
   // event handlers
-  const onDirectoryItemClick = (event: JQuery.ClickEvent, value: string) => {
+  const onDirectoryItemClick = (event: JQuery.ClickEvent, node: DirectoryNode) => {
     event.preventDefault();  // stop from expanding
-    emit('itemClicked', value);
+    event.stopPropagation();
+
+    emit('itemClicked', node, event.ctrlKey);
   };
 
-  const onSubItemClick = (value: string) => {
-    emit('itemClicked', value);
+  const onSubItemClick = (node: DirectoryNode, ctrlKey: boolean) => {
+    emit('itemClicked', node, ctrlKey);
   };
 
   ////////////////////////////////

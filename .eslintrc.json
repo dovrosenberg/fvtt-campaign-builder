@@ -75,6 +75,10 @@
             "closeBracket": 0,
             "alignAttributesVertically": false,
             "ignores": []
+        }],
+        "vue/v-on-event-hyphenation": ["warn", "never", {
+            "autofix": true,
+            "ignore": []
         }]
     },
     "overrides": [

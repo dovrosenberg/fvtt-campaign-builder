@@ -1,8 +1,8 @@
 <template>
   <!-- The overall directory sidebar -->
   <section 
-    ref="root"
     id="fwb-directory" 
+    ref="root"
     class="tab flexcol journal-directory" 
   >
     <!-- Directory Header -->
@@ -57,7 +57,7 @@
           <li 
             v-for="pack in world.packs"
             :key="pack.id"
-            :class="'fwb-topic-folder folder entry flexcol fwb-directory-tree ' + (pack.expanded ? '' : 'collapsed')" 
+            :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')" 
             @click="onTopicFolderClick($event, pack)"
           >
             <header class="folder-header flexrow">
@@ -75,15 +75,16 @@
               </a>
             </header>
 
-            <ul>
+            <ul class="fwb-directory-tree">
               <NodeComponent 
                 v-for="node in pack.loadedTopNodes"
                 :key="node.id"
                 :node="node" 
                 :expanded="node.expanded" 
+                :top="true"
                 class="fwb-entry-item" 
                 draggable="true"
-                @click="onEntryClick($event, node)"
+                @itemClicked="onEntryClick"
                 @dragstart="onDragStart($event, node.id)"
                 @drop="onDrop($event, node.id)"
               />
@@ -212,12 +213,14 @@
   };
 
   // select an entry
-  const onEntryClick = async (event: MouseEvent, node: DirectoryNode) => {
-    event.stopPropagation();
+  const onEntryClick = async (node: DirectoryNode, ctrlKey: boolean) => {
+    // TODO - in a perfect world, clicking the +/- would toggle but not open the entry
+    // for now, only open the entry when we're expanding, not when we're closing
+    if (!node.expanded) {
+      await navigationStore.openEntry(node.id, {newTab: ctrlKey});
+    }
 
     await directoryStore.toggleEntry(node);
-
-  //    await navigationStore.openEntry(entryId, {newTab: event.ctrlKey});
   };
 
   // create entry buttons
@@ -441,9 +444,11 @@
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  .fwb-directory-tree {
+  .fwb-directory-compendium {
     .fwb-entry-item {
       position: relative;
+      padding-left: 1em;
+      cursor: pointer;
     }
 
     // very first node
@@ -499,18 +504,26 @@
         text-align: center;
         line-height: 0.80em;
         color: black;
-        background: #999;
+        background: #777;
         display: block;
         width: 15px;
         height: 15px;
         border-radius: 50em;
-        left: -0.85em;
-        top: 0.63em;
+        left: -1.2em;
+        top: 0.5em;
         z-index: 999;
       }
 
       details[open] summary::before {
         content: "-";
+      }
+
+      summary.top::before {
+        margin-left: 1em;
+      }
+
+      details {
+        padding-left: 0.5em;
       }
     }
 
@@ -522,7 +535,6 @@
     // the top level
     & > ul {
       summary {
-        cursor: pointer;
         list-style: none; 
 
         &::marker, &::-webkit-details-marker {
@@ -531,6 +543,10 @@
       }
 
     }
+  }
+
+  ul.fwb-directory-tree > li:after, ul.fwb-directory-tree > li:before {
+    display:none;
   }
 
 </style>

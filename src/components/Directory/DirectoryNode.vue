@@ -1,14 +1,15 @@
 <template>
   <DirectoryNodeWithChildren 
-    v-if="props.node.children.length && expanded" 
+    v-if="props.node.children.length" 
     :node="props.node"
     :expanded="props.node.expanded"
+    :top="props.top"
     @itemClicked="onSubItemClick"
   />
   <li
     v-else
-    class="directory-item" 
-    @click="onDirectoryItemClick($event, props.node.id)"
+    :class="(props.top ? 'top' : '')"
+    @click="onDirectoryItemClick($event, props.node)"
   >
     {{ props.node.name }}
   </li>
@@ -38,13 +39,17 @@
     expanded: { 
       type: Boolean,
       required: true,
+    },
+    top: {    // applies special class to top level
+      type: Boolean,
+      required: true,
     }
   });
 
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
-    (e: 'itemClicked', value: string): void,
+    (e: 'itemClicked', node: DirectoryNode, ctrlKey: boolean): void,
   }>();
 
   ////////////////////////////////
@@ -61,13 +66,15 @@
 
   ////////////////////////////////
   // event handlers
-  const onDirectoryItemClick = (event: JQuery.ClickEvent, value: string) => {
+  const onDirectoryItemClick = (event: JQuery.ClickEvent, node: DirectoryNode) => {
     event.preventDefault();  // stop from expanding
-    emit('itemClicked', value);
+    event.stopPropagation();
+
+    emit('itemClicked', node, event.ctrlKey);
   };
 
-  const onSubItemClick = (value: string) => {
-    emit('itemClicked', value);
+  const onSubItemClick = (node: DirectoryNode, ctrlKey: boolean) => {
+    emit('itemClicked', node, ctrlKey);
   };
 
 
