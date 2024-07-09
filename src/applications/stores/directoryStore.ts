@@ -5,6 +5,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { ref, toRaw, watch } from 'vue';
 
 // local imports
+import { getGame } from '@/utils/game';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { hasHierarchy, Hierarchy } from '@/utils/hierarchy';
 import { useMainStore } from './mainStore';
@@ -218,6 +219,19 @@ export const useDirectoryStore = defineStore('directory', () => {
     return true;
   };
 
+  const deleteWorld = async (worldId: string): Promise<void> => {
+    // delete all the compendia
+    const compendia = WorldFlags.get(worldId, WorldFlagKey.compendia);
+
+    for (let i=0; i<Object.keys(compendia).length; i++) {
+      const pack = getGame().packs.get(compendia[Object.keys(compendia)[i]]);
+      if (pack) {
+        await pack.configure({ locked:false });
+        await pack.deleteCompendium();
+      }
+    }
+  };
+
   const refreshCurrentTree = async (): Promise<void> => {
     currentTree.value = await Promise.all((toRaw(rootFolder.value) as Folder)?.children?.map(async (world): Promise<DirectoryWorld> => {
       return {
@@ -369,5 +383,6 @@ export const useDirectoryStore = defineStore('directory', () => {
     collapseAll,
     setNodeParent,
     refreshCurrentTree,
+    deleteWorld,
   };
 });

@@ -1,6 +1,7 @@
 <template>
   <!-- The overall directory sidebar -->
   <section 
+    ref="root"
     id="fwb-directory" 
     class="tab flexcol journal-directory" 
   >
@@ -104,6 +105,7 @@
 
 <script setup lang="ts">
   // library imports
+  import { onMounted, ref } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -136,12 +138,38 @@
 
   ////////////////////////////////
   // data
+  const root = ref<HTMLElement>();
   
   ////////////////////////////////
   // computed data
 
   ////////////////////////////////
   // methods
+  const createContextMenus = function() {
+    if (!root.value)
+      return;
+
+    // worlds 
+    new ContextMenu($(root.value), '.fwb-world-folder', [
+      {
+        name: 'fwb.contextMenus.worldFolder.delete',
+        icon: '<i class="fas fa-trash"></i>',
+        callback: async (li) => {
+          await directoryStore.deleteWorld(li[0].dataset.worldId);
+        }
+      },
+      // {
+      //   name: 'fwb.contextMenus.bookmarks.delete',
+      //   icon: '<i class="fas fa-trash"></i>',
+      //   callback: async (li) => {
+      //     const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
+      //     if (bookmark)
+      //       await removeBookmark(bookmark.id);
+      //   }
+      // }
+    ]).bind();
+    
+  };
 
   ////////////////////////////////
   // event handlers
@@ -199,7 +227,7 @@
 
     await directoryStore.toggleNode(node);
 
-//    await navigationStore.openEntry(entryId, {newTab: event.ctrlKey});
+  //    await navigationStore.openEntry(entryId, {newTab: event.ctrlKey});
   };
 
   // create entry buttons
@@ -267,6 +295,9 @@
 
   ////////////////////////////////
   // lifecycle events
+  onMounted(() => {
+    createContextMenus();
+  });
 
 </script>
 

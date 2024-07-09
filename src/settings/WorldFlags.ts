@@ -23,20 +23,27 @@ type WorldFlagType<K extends WorldFlagKey> =
 type FlagSettings<K extends WorldFlagKey> = {
   flagId: K;
   default: WorldFlagType<K>;
+
+  // needsFlatten determines if flattenObject is called, which is needed when the key is a record with keys that might have '.'
+  //    THIS IS ONLY SAFE SO LONG AS THE VALUES ARE NOT ALSO OBJECTS!!!
+  needsFlatten: boolean;
 };
 
 const flagSetup = [
   {
     flagId: WorldFlagKey.compendia,
     default: {},
+    needsFlatten: false,      
   },
   {
     flagId: WorldFlagKey.packTopNodes,
     default: {},
+    needsFlatten: true,      
   },
   {
     flagId: WorldFlagKey.packTopics,
     default: {},
+    needsFlatten: true,      
   },
   {
     flagId: WorldFlagKey.types,
@@ -46,6 +53,7 @@ const flagSetup = [
       [Topic.Event]: [],
       [Topic.Organization]: [],
     },
+    needsFlatten: false,      
   },
 ] as FlagSettings<any>[];
 
@@ -67,12 +75,17 @@ export abstract class WorldFlags {
   public static get<T extends WorldFlagKey>(worldFolderUuid: string, flag: T): WorldFlagType<T> {
     const f = getGame()?.folders?.find((f)=>f.uuid===worldFolderUuid);
     
+    const config = flagSetup.find((s)=>s.flagId===flag);
+
     if (!f)
-      return flagSetup.find((s)=>s.flagId===flag)?.default as WorldFlagType<T>;
+      return config?.default as WorldFlagType<T>;
 
-    const setting = (f.getFlag(moduleJson.id, flag) || flagSetup.find((s)=>s.flagId===flag)?.default) as WorldFlagType<T>;
+    const setting = (f.getFlag(moduleJson.id, flag) || config?.default) as WorldFlagType<T>;
 
-    return setting;
+    if (config?.needsFlatten)
+      return foundry.utils.flattenObject(setting) as WorldFlagType<T>;
+    else
+      return setting;
   }
 
   // note - setting a flag to null will delete it

@@ -159,8 +159,6 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
     }
   }
 
-  TODO!!!! createTree isn't setting topic correctly... it looks like everything's setup right, though
-  
   // if we changed things, save new compendia flag
   if (updated) {
     await WorldFlags.set(worldFolder.uuid, WorldFlagKey.compendia, compendia);
@@ -202,7 +200,7 @@ async function createCompendium(worldFolder: Folder, topic: Topic): Promise<stri
 }
 
 async function setTopic(pack: CompendiumCollection<any>, topic: Topic): Promise<void> {
-  const topics = WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics) || {};
+  const topics = WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics);
 
   // @ts-ignore
   await WorldFlags.set(pack.folder.uuid, WorldFlagKey.packTopics, {...topics, [pack.metadata.id]: topic });
@@ -267,7 +265,16 @@ export async function createEntry(worldFolder: Folder, topic: Topic): Promise<Jo
         children: [],
       } as Hierarchy);
     }
+
+    // add as a topNode by default
+    const topNodes = await WorldFlags.get(worldFolder.uuid, WorldFlagKey.packTopNodes);
+    await WorldFlags.set(worldFolder.uuid, WorldFlagKey.packTopNodes, {
+      ...topNodes,
+      [pack.metadata.id]: topNodes[pack.metadata.id].concat([entry.uuid])
+    });
   }
+
+  // refreshTree
 
   return entry || null;
 }

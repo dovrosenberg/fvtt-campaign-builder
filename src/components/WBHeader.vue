@@ -230,12 +230,12 @@
     await saveBookmarks();
   }
 
-  const createContextMenus = async function() {
+  const createContextMenus = function() {
     if (!root.value)
       return;
 
     // bookmarks 
-    const cm = new ContextMenu($(root.value), '.fwb-bookmark-button', [
+    new ContextMenu($(root.value), '.fwb-bookmark-button', [
       {
         name: 'fwb.contextMenus.bookmarks.openNewTab',
         icon: '<i class="fas fa-file-export"></i>',
@@ -254,11 +254,8 @@
             await removeBookmark(bookmark.id);
         }
       }
-    ]);
-
-    if (cm)
-      cm.bind();
-      
+    ]).bind();
+    
   };
 
 
@@ -410,7 +407,7 @@
   // lifecycle events
   onMounted(function () {
     // create the context menus
-    void createContextMenus();
+    createContextMenus();
   });
 
 
