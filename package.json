@@ -12,7 +12,7 @@
   "main": "main.ts",
   "scripts": {
     "build": "vite build",
-    "debug": "vite build --minify=false",
+    "debug": "NODE_ENV=development vite build --mode development --minify=false",
     "lint": "eslint --ext .ts,.vue src",
     "copy": "rm -rf $FOUNDRYVTT_DATA/Data/modules/world-builder/* && cp -r $(pwd)/dist/* $FOUNDRYVTT_DATA/Data/modules/world-builder",
     "linkdata": "ln -s $PWD/dist $FOUNDRYVTT_DATA/Data/modules/world-builder",
