@@ -49,70 +49,20 @@ export const useDirectoryStore = defineStore('directory', () => {
   const togglePack = async(pack: DirectoryPack) : Promise<void> => {
     // closing is easy
     if (pack.expanded) {
-      // TODO - does this trigger reactivity
-      pack.expanded = false;
-      return;
+      await _collapseItem(pack.id);
+    } else {
+      await _expandItem(pack.id);
     }
-
-    // see if we already loaded the children
-    if (pack.topNodes.length!==pack.loadedTopNodes.length) {
-      // need to load them - note: we only go one layer deep
-      for (let i=0; i<pack.topNodes.length; i++) {
-        if (pack.loadedTopNodes.find((n)=>n.id===pack.topNodes[i])) {
-          // this one is already loaded and attached
-          continue;
-        } else if (_loadedNodes[pack.topNodes[i]]) {
-          // it was loaded previously - just reattach it
-          pack.loadedTopNodes.push(_loadedNodes[pack.topNodes[i]]);
-          continue;
-        } else {
-          // need to load it
-          const newNode = await _loadNode(pack.topNodes[i]);
-          if (!newNode)
-            throw new Error('Attempting to load invalid node in directoryStore.toggleNode(): ' + pack.topNodes[i]);
-
-          pack.loadedTopNodes.push(newNode);
-        }
-      }      
-    } 
-    
-    // TODO - does this trigger reactivity if node is already expanded?
-    pack.expanded = true;
   };
 
-  // expand the given node, loading the new item data
-  const toggleNode = async(node: DirectoryNode) : Promise<void>=> {
+  // expand the given entry, loading the new item data
+  const toggleEntry = async(node: DirectoryNode) : Promise<void>=> {
     // closing is easy
     if (node.expanded) {
-      // TODO - does this trigger reactivity
-      node.expanded = false;
-      return;
+      await _collapseItem(node.id);
+    } else {
+      await _expandItem(node.id);
     }
-
-    // see if we already loaded the children
-    if (node.children.length!==node.loadedChildren.length) {
-      // need to load them - note: we only go one layer deep
-      for (let i=0; i<node.children.length; i++) {
-        if (node.loadedChildren.find((n)=>n.id===node.children[i])) {
-          // this one is already loaded and attached
-          continue;
-        } else if (_loadedNodes[node.children[i]]) {
-          // it was loaded previously - just reattach it
-          node.loadedChildren.push(_loadedNodes[node.children[i]]);
-          continue;
-        } else {
-          // need to load it
-          const newNode = await _loadNode(node.children[i]);
-          if (!newNode)
-            throw new Error('Attempting to load invalid node in directoryStore.toggleNode(): ' + node.children[i]);
-
-          node.loadedChildren.push(newNode);
-        }
-      }      
-    } 
-    
-    // TODO - does this trigger reactivity if node is already expanded?
-    node.expanded = true;
   };
 
   const collapseAll = async(): Promise<void> => {
@@ -225,6 +175,8 @@ export const useDirectoryStore = defineStore('directory', () => {
       await _savePackTopNodes(pack, topNodes);
     }
 
+    await refreshCurrentTree();
+
     return true;
   };
 
@@ -242,22 +194,123 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   const refreshCurrentTree = async (): Promise<void> => {
-    currentTree.value = await Promise.all((toRaw(rootFolder.value) as Folder)?.children?.map(async (world): Promise<DirectoryWorld> => {
+    // need to have a current world
+    if (!currentWorldId.value)
+      return;
+
+    // we put in the packs only for the current world
+    let tree = {} as typeof currentTree.value;
+
+    // populate the world names, and find the current one
+    let currentWorld;
+    tree = (toRaw(rootFolder.value) as Folder)?.children?.map((world): DirectoryWorld => {
+      if (world.folder.uuid===currentWorldId.value)
+        currentWorld = world;
+
       return {
         name: world.folder.name as string,
         id: world.folder.uuid as string,
-        packs: await Promise.all(world.entries.map(async (pack: CompendiumCollection<any>): Promise<DirectoryPack> =>({
-          pack: pack,
-          id: pack.metadata.id,
-          name: pack.metadata.label,
-          topic: WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[pack.metadata.id],
-          topNodes: await _getPackTopNodes(pack),
-          loadedTopNodes: [],
-          // TODO - store and retrieve expanded status
-          expanded: true,   //        !expandedCompendia.value[pack.metadata.id],
-        }))),
-      };
-    })) || [];
+        packs: []
+      }
+    }) || [];
+
+    // find the record for the current world and set the packs
+    const currentWorldBlock = tree.find((w)=>w.id===currentWorldId.value);
+    if (currentWorldBlock && currentWorld) {
+      const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || [];
+
+      currentWorldBlock.packs = await Promise.all(currentWorld.entries.map(async (pack: CompendiumCollection<any>): Promise<DirectoryPack> =>({
+        pack: pack,
+        id: pack.metadata.id,
+        name: pack.metadata.label,
+        topic: WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[pack.metadata.id],
+        topNodes: await _getPackTopNodes(pack),
+        loadedTopNodes: [],
+        expanded: expandedNodes[pack.metadata.id] || false,
+      })));
+
+      // load any open packs
+      for (let i=0; i<currentWorldBlock?.packs.length; i++) {
+        const pack = currentWorldBlock.packs[i];
+
+        if (!pack.expanded)
+          continue;
+
+        // see if we already loaded the children
+        if (pack.topNodes.length!==pack.loadedTopNodes.length) {
+          // need to load them - note: we only go one layer deep
+          for (let i=0; i<pack.topNodes.length; i++) {
+            if (pack.loadedTopNodes.find((n)=>n.id===pack.topNodes[i])) {
+              // this one is already loaded and attached
+              continue;
+            } else if (_loadedNodes[pack.topNodes[i]]) {
+              // it was loaded previously - just reattach it
+              pack.loadedTopNodes.push(_loadedNodes[pack.topNodes[i]]);
+              continue;
+            } else {
+              // need to load it
+              const newNode = await _loadNode(pack.topNodes[i], expandedNodes);
+              if (!newNode)
+                throw new Error('Attempting to load invalid node in directoryStore.refreshCurrentTree(): ' + pack.topNodes[i]);
+
+              pack.loadedTopNodes.push(newNode);
+            }
+
+            // may need to change the expanded state
+            const loadedNode = pack.loadedTopNodes.find((n)=>n.id===pack.topNodes[i]);
+            if (loadedNode)
+              loadedNode.expanded = expandedNodes[pack.topNodes[i]] || false;
+          }  
+          
+          // recurse down the tree loading and expanding needed nodes
+          for (let j=0; j<pack.loadedTopNodes.length; j++) {
+            const node = pack.loadedTopNodes[j];
+
+            if (node.expanded) {
+              await recursivelyLoadNode(node, expandedNodes);
+            }
+          }
+        } 
+      }
+    }
+
+    currentTree.value = tree;
+  };
+
+  const recursivelyLoadNode = async (node: DirectoryNode, expandedNodes: Record<string, boolean | null>): Promise<void> => {
+    // see if we already loaded the children
+    if (node.children.length!==node.loadedChildren.length) {
+      // need to load them - note: we only go one layer deep
+      for (let i=0; i<node.children.length; i++) {
+        if (node.loadedChildren.find((n)=>n.id===node.children[i])) {
+          // this one is already loaded and attached
+          continue;
+        } else if (_loadedNodes[node.children[i]]) {
+          // it was loaded previously - just reattach it
+          node.loadedChildren.push(_loadedNodes[node.children[i]]);
+          continue;
+        } else {
+          // need to load it
+          const newNode = await _loadNode(node.children[i], expandedNodes);
+          if (!newNode)
+            throw new Error('Attempting to load invalid node in directoryStore.recursivelyLoadNode(): ' + node.children[i]);
+
+          node.loadedChildren.push(newNode);
+        }
+
+        // may need to change the expanded state
+        const loadedNode = node.loadedChildren.find((n)=>n.id===node.children[i]);
+        if (loadedNode)
+          loadedNode.expanded = expandedNodes[node.children[i]] || false;
+      }      
+
+      // do next level
+      for (let i=0; i<node.loadedChildren.length; i++) {
+        if (node.loadedChildren[i].expanded) {
+          await recursivelyLoadNode(node.loadedChildren[i], expandedNodes);
+        }
+      }
+    }
   };
 
   // creates a new entry in the proper compendium in the given world
@@ -313,6 +366,8 @@ export const useDirectoryStore = defineStore('directory', () => {
         ...topNodes,
         [pack.metadata.id]: topNodes[pack.metadata.id].concat([entry.uuid])
       });
+
+      await refreshCurrentTree();
     }
 
     return entry || null;
@@ -323,13 +378,15 @@ export const useDirectoryStore = defineStore('directory', () => {
 
   ///////////////////////////////
   // internal functions
-  const _loadNode = async(id: string): Promise<DirectoryNode | null> => {
+  // NOTE: DOES NOT CHECK EXPANDED STATE
+  const _loadNode = async(id: string, expandedIds: Record<string, boolean | null>): Promise<DirectoryNode | null> => {
     const entry = await fromUuid(id) as JournalEntry;
 
     if (!entry)
       return null;
     else {
       const newNode = _convertEntryToNode(entry);
+      newNode.expanded = expandedIds[newNode.id] || false;
 
       _loadedNodes[newNode.id] = newNode;
 
@@ -347,6 +404,29 @@ export const useDirectoryStore = defineStore('directory', () => {
     // save back with the new array
     await WorldFlags.set(currentWorldId.value, WorldFlagKey.packTopNodes, {...allTopNodes, [pack.metadata.id]: topNodes});
   };
+
+  // used to toggle entries and compendia (not worlds)
+  const _collapseItem = async(id: string): Promise<void> => {
+    if (!currentWorldId.value)
+      return;
+
+    //const expandedIds = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
+    //delete expandedIds[id];
+    await WorldFlags.set(currentWorldId.value, WorldFlagKey.expandedIds, {[`-=${id}`]: null});
+
+    await refreshCurrentTree();
+  };
+
+  const _expandItem = async(id: string): Promise<void> => {
+    if (!currentWorldId.value)
+      return;
+
+    const expandedIds = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
+    await WorldFlags.set(currentWorldId.value, WorldFlagKey.expandedIds, {...expandedIds, [id]: true});
+
+    await refreshCurrentTree();
+  };
+
 
   const _getPackTopNodes = async (pack: CompendiumCollection<any>) : Promise<string[]> => {
     const packId = pack.metadata.id;
@@ -443,7 +523,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   return {
     currentTree,
 
-    toggleNode,
+    toggleEntry,
     togglePack,
     collapseAll,
     setNodeParent,

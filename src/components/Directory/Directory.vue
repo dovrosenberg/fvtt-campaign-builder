@@ -215,14 +215,14 @@
   const onCreateWorldClick = async (event: MouseEvent) => {
     event.stopPropagation();
 
-    directoryStore.createWorld();
+    await directoryStore.createWorld();
   };
 
   // select an entry
   const onEntryClick = async (event: MouseEvent, node: DirectoryNode) => {
     event.stopPropagation();
 
-    await directoryStore.toggleNode(node);
+    await directoryStore.toggleEntry(node);
 
   //    await navigationStore.openEntry(entryId, {newTab: event.ctrlKey});
   };
