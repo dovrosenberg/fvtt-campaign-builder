@@ -54,10 +54,12 @@
           v-if="currentWorldId===world.id"
           class="world-contents"
         >
+          <!-- data-pack-id is used by drag and drop-->
           <li 
             v-for="pack in world.packs"
             :key="pack.id"
-            :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')" 
+            :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')"
+            :data-pack-id="pack.id" 
             @click="onTopicFolderClick($event, pack)"
           >
             <header class="folder-header flexrow">
@@ -84,9 +86,6 @@
                 :top="true"
                 class="fwb-entry-item" 
                 draggable="true"
-                @itemClicked="onEntryClick"
-                @dragstart="onDragStart($event, node.id)"
-                @drop="onDrop($event, node.id)"
               />
             </ul>
           </li>
@@ -122,7 +121,7 @@
   import NodeComponent from './DirectoryNode.vue';
 
   // types
-  import { DirectoryNode, DirectoryPack, Topic, } from '@/types';
+  import { DirectoryPack, Topic, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -212,27 +211,16 @@
     await directoryStore.createWorld();
   };
 
-  // select an entry
-  const onEntryClick = async (node: DirectoryNode, ctrlKey: boolean) => {
-    // TODO - in a perfect world, clicking the +/- would toggle but not open the entry
-    // for now, only open the entry when we're expanding, not when we're closing
-    if (!node.expanded) {
-      await navigationStore.openEntry(node.id, {newTab: ctrlKey});
-    }
-
-    await directoryStore.toggleEntry(node);
-  };
-
   // create entry buttons
   const onCreateEntryClick = async (event: MouseEvent, compendiumTopic: Topic, worldId: string) => {
     event.stopPropagation();
 
-    // look for nearest parent and get topic and folder
+    // get the right folder
     const topic = toTopic(compendiumTopic);
     const worldFolder = getGame().folders?.find((f)=>f.uuid===worldId) as Folder;
 
     if (!worldFolder || !topic)
-      throw new Error('Invalid header in .fwb-crate-entry.click()');
+      throw new Error('Invalid header in Directory.onCreateEntryClick');
 
     const entry = await directoryStore.createEntry(worldFolder, topic);
 
@@ -241,47 +229,6 @@
     }
   };
     
-  // handle an entry dragging to another to nest
-  const onDragStart = (event: DragEvent, id: string): void => {
-    // debugger;
-
-    // // need to get the type so we can compare when dropping
-
-    // const target = event.currentTarget as HTMLElement;
-
-    // const dragData = { 
-    //   type:  'sss',
-    //   entry: id,
-    // } as { type: string, tabId?: string};
-
-    // event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
-  };
-
-  const onDrop = async(event: DragEvent, id: string) => {
-    // let data;
-    // try {
-    //   data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
-    // }
-    // catch (err) {
-    //   return false;
-    // }
-
-    // get the type on the new item
-
-    // if the types don't match, can't drop
-    // if (true)
-    //   return false;
-
-    // if the type doesn't have hierarchy, can't drop
-
-
-    // is this a legal parent?
-
-    // add the dropped item as a child on the other
-
-    return true;
-  };
-
   ////////////////////////////////
   // watchers
 

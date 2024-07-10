@@ -2,7 +2,12 @@
   <li>
     <details :open="props.expanded">
       <summary :class="(props.top ? 'top' : '')">      
-        <div @click="onDirectoryItemClick($event, props.node)">
+        <div 
+          draggable="true"
+          @click="onDirectoryItemClick($event, props.node)"
+          @dragstart="onDragStart($event, node.id)"
+          @drop="onDrop($event, node.id)"
+        >
           {{ props.node.name }}
         </div>
       </summary>
@@ -26,7 +31,13 @@
 <script setup lang="ts">
   // library imports
   import { PropType } from 'vue';
+  import { storeToRefs } from 'pinia';
+
   // local imports
+  import { useDirectoryStore, useMainStore } from '@/applications/stores';
+  import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
+  import { getGame } from '@/utils/game';
+  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
   // library components
 
@@ -34,7 +45,7 @@
   import NodeComponent from './DirectoryNode.vue';
 
   // types
-  import { DirectoryNode } from '@/types';
+  import { DirectoryNode, Topic } from '@/types';
 
   ////////////////////////////////
   // props
@@ -61,6 +72,9 @@
 
   ////////////////////////////////
   // store
+  const directoryStore = useDirectoryStore();
+  const mainStore = useMainStore();
+  const { currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -73,7 +87,7 @@
 
   ////////////////////////////////
   // event handlers
-  const onDirectoryItemClick = (event: JQuery.ClickEvent, node: DirectoryNode) => {
+  const onDirectoryItemClick = (event: MouseEvent, node: DirectoryNode) => {
     event.preventDefault();  // stop from expanding
     event.stopPropagation();
 
@@ -83,6 +97,82 @@
   const onSubItemClick = (node: DirectoryNode, ctrlKey: boolean) => {
     emit('itemClicked', node, ctrlKey);
   };
+
+  // handle an entry dragging to another to nest
+  const onDragStart = (event: DragEvent, id: string): void => {
+    if (!currentWorldId.value) { 
+      event.preventDefault();
+      return;
+    }
+
+    // need to get the type so we can compare when dropping
+    const packElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
+    if (!packElement || !packElement.dataset.packId) {
+      event.preventDefault();
+      return;
+    }
+
+    const topic = WorldFlags.get(currentWorldId.value, WorldFlagKey.packTopics)[packElement.dataset.packId];
+    const dragData = { 
+      topic:  topic,
+      childId: id,
+    } as { topic: Topic, childId: string};
+
+    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+  };
+
+  const onDrop = async (event: DragEvent, parentId: string): Promise<boolean> => {
+    if (!currentWorldId.value)
+      return false;
+
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+    }
+    catch (err) {
+      return false;
+    }
+
+    // make sure it's not the same item
+    if (data.childId===parentId)
+      return false;
+
+    // get the type on the new item
+    const packElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
+    if (!packElement || !packElement.dataset.packId) {
+      return false;
+    }
+
+    const topic = WorldFlags.get(currentWorldId.value, WorldFlagKey.packTopics)[packElement.dataset.packId];
+
+    // if the types don't match or don't have hierarchy, can't drop
+    if (data.topic!==topic || !hasHierarchy(topic))
+      return false;
+
+    // get the pack
+    const packId = WorldFlags.get(currentWorldId.value, WorldFlagKey.compendia)[topic];
+    const pack = getGame().packs.get(packId);
+
+    if (!pack)
+      return false;
+
+    // is this a legal parent?
+    const childEntry = await fromUuid(data.childId) as JournalEntry | null;
+
+    if (!childEntry)
+      return false;
+
+    if (!(await validParentItems(pack, childEntry)).includes(parentId))
+      return false;
+
+    // add the dropped item as a child on the other
+    await directoryStore.setNodeParent(pack, data.childId, parentId);
+
+    await directoryStore.refreshCurrentTree();
+
+    return true;
+  };
+
 
   ////////////////////////////////
   // watchers

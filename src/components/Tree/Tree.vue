@@ -55,7 +55,7 @@
 
   ////////////////////////////////
   // event handlers
-  const onSubItemClick = (event: JQuery.ClickEvent, value: string) => {
+  const onSubItemClick = (event: MouseEvent, value: string) => {
     event.preventDefault();  // stop from expanding
     emit('itemClicked', value);
   }

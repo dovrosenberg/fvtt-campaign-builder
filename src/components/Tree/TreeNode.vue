@@ -57,12 +57,12 @@
 
   ////////////////////////////////
   // event handlers
-  const onTreeItemClick = (event: JQuery.ClickEvent, value: string) => {
+  const onTreeItemClick = (event: MouseEvent, value: string) => {
     event.preventDefault();  // stop from expanding
     emit('itemClicked', value);
   }
 
-  const onSubItemClick = (event: JQuery.ClickEvent, value: string) => {
+  const onSubItemClick = (event: MouseEvent, value: string) => {
     event.preventDefault();  // stop from expanding
     emit('itemClicked', value);
   }

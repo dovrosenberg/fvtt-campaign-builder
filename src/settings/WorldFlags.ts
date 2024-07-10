@@ -7,7 +7,7 @@ import moduleJson from '@module';
 import { Topic } from '@/types';
 
 export enum WorldFlagKey {
-  compendia = 'compendia',   // ids of the contained compendia
+  compendia = 'compendia',   // ids of the contained compendia (keyed by topic)
   packTopNodes = 'packTopNodes',  // maps compendium id to array of top-level nodes 
   packTopics = 'packTopics',    // maps compendium id to the topics it contains
   types = 'types',  // object where each key is a Topic and the value is an array of valid types
