@@ -7,7 +7,7 @@ export function updateWorldBuilder(newWorldBuilder: WorldBuilderApplication): vo
 }
 
 import moduleJson from '@module';
-import { VueApplicationMixin } from '@/libs/VueApplicationMixin.mjs';
+import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
 import { createPinia, setActivePinia } from 'pinia';
 import App from '@/components/WorldBuilder.vue';
 
