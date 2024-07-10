@@ -264,8 +264,8 @@ div[data-application-part] {
     #fwb-directory-sidebar {
       flex: 0 0 250px;
       height: 100%;
-      background: var(--mej-sidebar-background);
-      border-left: 1px solid var(--mej-header-border-color);
+      background: var(--fwb-sidebar-background);
+      border-left: 1px solid var(--fwb-header-border-color);
       transition: width 0.5s, flex 0.5s;
 
       & > section {

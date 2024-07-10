@@ -96,4 +96,43 @@
 </script>
 
 <style lang="scss">
+  /* Blank */
+  .fwb-journal-subsheet.blank {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-16);
+    color: var(--fwb-blank-color);
+    font-weight: bold;
+
+    .message {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      font-size: var(--font-size-24);
+      font-style: italic;
+    }
+
+    .recently-viewed {
+      margin-bottom: 20px;
+      border-radius: 6px;
+      background-color: var(--fwb-blank-recent-background);
+      border: 1px solid var(--fwb-blank-recent-border);
+      font-size: 20px;
+      padding: 4px;
+    }
+
+    .recent-link,
+    .new-link {
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .recent-link:hover,
+    .new-link:hover {
+      color: var(--fwb-blank-link-hover);
+    }
+  }
 </style>

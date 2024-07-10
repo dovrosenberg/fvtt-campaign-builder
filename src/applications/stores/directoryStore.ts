@@ -43,6 +43,8 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (world) {
       await mainStore.setNewWorld(world.id);
     }
+
+    await refreshCurrentTree();
   };
 
   // expand the given pack, loading the new item data

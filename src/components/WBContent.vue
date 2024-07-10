@@ -470,7 +470,7 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
-        color: var(--mej-sheet-color);
+        color: var(--fwb-sheet-color);
       }
       
       .sheet-container.detailed {
@@ -515,9 +515,9 @@
       .fwb-sheet-navigation {
         flex-grow: 0;
         flex: 0 0 30px !important;
-        background: var(--mej-sheet-tab-background);
+        background: var(--fwb-sheet-tab-background);
         padding-bottom: 5px;
-        border-bottom: 2px groove var(--mej-sheet-tab-bottom-border);
+        border-bottom: 2px groove var(--fwb-sheet-tab-bottom-border);
         font-family: var(--mej-font-family);
         font-size: 20px;
         font-weight: 700;
@@ -530,22 +530,22 @@
             height: 30px !important;
             line-height: 32px;
             margin: 0 24px;
-            border-bottom: var(--mej-sheet-tab-border);
-            color: var(--mej-sheet-tab-color);
+            border-bottom: var(--fwb-sheet-tab-border);
+            color: var(--fwb-sheet-tab-color);
             max-width: 150px;
           }
 
           .item:hover {
-            color: var(--mej-sheet-tab-color-hover);
+            color: var(--fwb-sheet-tab-color-hover);
           }
 
           .item.hasitems {
-            border-bottom-color: var(--mej-sheet-tab-border-items);
+            border-bottom-color: var(--fwb-sheet-tab-border-items);
           }
 
           .item.active {
-            border-bottom-color: var(--mej-sheet-tab-border-active);
-            color: var(--mej-sheet-tab-color-active);
+            border-bottom-color: var(--fwb-sheet-tab-border-active);
+            color: var(--fwb-sheet-tab-color-active);
           }
 
           .tab {
@@ -569,8 +569,8 @@
       }
 
       .journal-sheet-header .header-details input {
-        border: var(--mej-sheet-header-input-border);
-        background: var(--mej-sheet-header-input-background);
+        border: var(--fwb-sheet-header-input-border);
+        background: var(--fwb-sheet-header-input-background);
       }
 
       .journal-sheet-header .header-details .header-name {
@@ -587,24 +587,24 @@
       }
       .journal-sheet-header .header-details .form-group label {
         max-width: 175px;
-        color: var(--mej-sheet-header-label-color);
+        color: var(--fwb-sheet-header-label-color);
         text-align: left;
         background: none;
         border: none;
       }
       .journal-sheet-header .header-details .form-group input {
         font-size: var(--font-size-20);
-        color: var(--mej-sheet-header-detail-input-color);
+        color: var(--fwb-sheet-header-detail-input-color);
       }
 
       .journal-sheet-header .header-details .form-group select {
-        border: var(--mej-sheet-header-input-border);
+        border: var(--fwb-sheet-header-input-border);
         font-size: inherit;
         font-family: inherit;
         height: calc(var(--font-size-20) + 6);
         margin: 0px;
-        color: var(--mej-sheet-header-detail-input-color);
-        background: var(--mej-sheet-header-input-background);
+        color: var(--fwb-sheet-header-detail-input-color);
+        background: var(--fwb-sheet-header-input-background);
       }
 
       .journal-sheet-header .header-details .form-group select:hover {
@@ -616,15 +616,15 @@
       }
 
       .journal-sheet-header .header-details .header-name input[type="text"] {
-        background: var(--mej-sheet-header-name-background);
+        background: var(--fwb-sheet-header-name-background);
         border: 1px solid transparent;
-        color: var(--mej-sheet-header-name-color);
+        color: var(--fwb-sheet-header-name-color);
         margin-right: 2px;
       }
 
       .journal-sheet-header .header-details .header-name input[type="text"]:hover,
       .journal-sheet-header .header-details .header-name input[type="text"]:focus {
-        background: var(--mej-sheet-header-name-background-hover);
+        background: var(--fwb-sheet-header-name-background-hover);
       }
 
       // the tab content
@@ -640,7 +640,7 @@
           padding: 5px 15px;
           margin: 0px;
           flex-grow: 0;
-          border-bottom: 2px groove var(--mej-sheet-details-section-border);
+          border-bottom: 2px groove var(--fwb-sheet-details-section-border);
 
           &:last-child,
           &.no-border {
@@ -659,12 +659,12 @@
           label {
             flex: 1;
             max-width: 175px;
-            color: var(--mej-sheet-color);
+            color: var(--fwb-sheet-color);
           }
           input, textarea {
-            border: var(--mej-sheet-input-border);
-            background: var(--mej-sheet-input-background);
-            color: var(--mej-sheet-input-color);
+            border: var(--fwb-sheet-input-border);
+            background: var(--fwb-sheet-input-background);
+            color: var(--fwb-sheet-input-color);
           }
 
           select {
@@ -721,47 +721,6 @@
           }
         }
       }
-
-
-      /* Blank */
-      .fwb-journal-subsheet.blank {
-        display: flex;
-        text-align: center;
-        align-items: center;
-        justify-content: center;
-        font-size: var(--font-size-16);
-        color: var(--mej-blank-color);
-        font-weight: bold;
-
-        .message {
-          flex: 1;
-          display: flex;
-          justify-content: center;
-          width: 100%;
-          font-size: var(--font-size-24);
-          font-style: italic;
-        }
-
-        .recently-viewed {
-          margin-bottom: 20px;
-          border-radius: 6px;
-          background-color: var(--mej-blank-recent-background);
-          border: 1px solid var(--mej-blank-recent-border);
-          font-size: 20px;
-          padding: 4px;
-        }
-
-        .recent-link,
-        .new-link {
-          cursor: pointer;
-          padding: 4px;
-        }
-
-        .recent-link:hover,
-        .new-link:hover {
-          color: var(--mej-blank-link-hover);
-        }
-      }
     }
 
     .sheet-container a[disabled] {
@@ -777,7 +736,7 @@
       font-family: var(--mej-font-family);
       font-size: 24px;
       flex-grow: 0;
-      border-bottom: 2px solid var(--mej-sheet-header-border);
+      border-bottom: 2px solid var(--fwb-sheet-header-border);
       z-index: 1;
       padding-left: 8px;
     }
@@ -786,16 +745,16 @@
       align-items: flex-start;
       padding-bottom: 4px;
       /*flex: 0 0 162px;*/
-      border-bottom: 2px groove var(--mej-sheet-detailed-header-border);
+      border-bottom: 2px groove var(--fwb-sheet-detailed-header-border);
       margin: 0px;
       padding-left: 0px;
       position: relative;
     }
 
     .journal-sheet-header.header-name input[type="text"] {
-      background: var(--mej-sheet-header-name-background);
+      background: var(--fwb-sheet-header-name-background);
       border: 1px solid transparent;
-      color: var(--mej-sheet-header-name-color);
+      color: var(--fwb-sheet-header-name-color);
       margin-right: 2px;
       font-size: 28px;
       height: calc(100% - 2px);
@@ -803,7 +762,7 @@
 
     .journal-sheet-header.header-name input[type="text"]:hover,
     .journal-sheet-header.header-name input[type="text"]:focus {
-      background: var(--mej-sheet-header-name-background-hover);
+      background: var(--fwb-sheet-header-name-background-hover);
     }
 
     .sheet-container .journal-sheet-header .sheet-icon {
@@ -829,7 +788,7 @@
     .journal-sheet-header.header-name .header-search {
       font-size: 14px;
       flex: 0 0 255px;
-      color: var(--mej-sheet-color);
+      color: var(--fwb-sheet-color);
 
       i {
         flex: 0 0 25px;
@@ -842,17 +801,17 @@
         height: 25px;
         margin-top: 6px;
         margin-right: 4px;
-        border: 1px solid var(--mej-sheet-header-search-border);
-        background: var(--mej-sheet-header-search-background);
-        color: var(--mej-sheet-header-search-color);
+        border: 1px solid var(--fwb-sheet-header-search-border);
+        background: var(--fwb-sheet-header-search-background);
+        color: var(--fwb-sheet-header-search-color);
     
         &::placeholder {
-          color: var(--mej-sheet-header-search-placeholder);
+          color: var(--fwb-sheet-header-search-placeholder);
         }
       
         &:hover,
         &:focus {
-          background: var(--mej-sheet-header-search-background-hover);
+          background: var(--fwb-sheet-header-search-background-hover);
         }
       }
     }
@@ -876,8 +835,8 @@
         padding: 0px 3px;
         cursor: pointer;
         box-shadow: none;
-        color: var(--mej-sheet-header-button-color);
-        background: var(--mej-sheet-header-button-background);
+        color: var(--fwb-sheet-header-button-color);
+        background: var(--fwb-sheet-header-button-background);
         border-radius: 3px;
         margin-top: 3px;
         margin-right: 5px;
@@ -906,16 +865,16 @@
     .page-controls {
       flex-grow: 0;
       padding-top: 1px;
-      border-bottom: 2px groove var(--mej-sheet-details-section-border);
+      border-bottom: 2px groove var(--fwb-sheet-details-section-border);
 
       button {
         flex: 0 0 130px;
-        background: var(--mej-sheet-page-control-background);
-        color: var(--mej-sheet-page-control-color);
+        background: var(--fwb-sheet-page-control-background);
+        color: var(--fwb-sheet-page-control-color);
       }
 
       button:hover {
-        background: var(--mej-sheet-page-control-background-hover);
+        background: var(--fwb-sheet-page-control-background-hover);
       }
 
       button.header-control {
@@ -953,9 +912,9 @@
 
     .tab.notes .notes-container {
       overflow: auto;
-      border: var(--mej-sheet-input-border);
-      background: var(--mej-sheet-input-background);
-      color: var(--mej-sheet-input-color);
+      border: var(--fwb-sheet-input-border);
+      background: var(--fwb-sheet-input-background);
+      color: var(--fwb-sheet-input-color);
       border-radius: 4px;
       margin-bottom: 3px;
     }
@@ -976,8 +935,8 @@
       z-index: 100;
 
       &:hover {
-        color: rgb(var(--mej-dark-0));
-        background: var(--mej-cream);
+        color: green;
+        background: orange;
         box-shadow: 0 0 5px red;
       }
     }
@@ -1027,323 +986,6 @@
 
     &.sheet .editor-content .polyglot-journal:hover {
       background-color: rgba(var(--polyglot-journal-color), var(--polyglot-journal-opacity));
-    }
-
-    /* Item List */
-    .items-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      color: var(--mej-itemlist-colour);
-      overflow-y: hidden;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      flex-wrap: nowrap;
-      justify-content: flex-start;
-
-      .item-list {
-        overflow-y: auto;
-        height: 100%; /* Unlocked this for the shop instructions */
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        scrollbar-width: thin;
-        position: relative;
-      }
-      .item-list.min-height {
-        min-height: 80px;
-      }
-
-      .item-list ul {
-        margin: 0px;
-        padding: 0 0 0 5px;
-      }
-
-      .item-header {
-        font-family: var(--mej-font-family);
-        font-size: var(--font-size-14);
-        text-align: center;
-        height: 29px;
-        margin: 2px 0;
-        margin-left: 1px;
-        padding: 0;
-        align-items: center;
-        background: var(--mej-itemlist-background);
-        border: 2px groove var(--mej-itemlist-border);
-        color: var(--mej-sidebar-input-color);
-        font-weight: bold;
-      }
-
-      .item-list .item-header {
-        margin-left: 4px;
-      }
-
-      .item-header h3 {
-        padding-left: 5px;
-        font-family: var(--mej-font-family);
-        font-weight: 700;
-        text-align: left;
-        font-size: var(--font-size-16);
-        margin-bottom: 1px;
-        color: var(--mej-itemlist-header-color);
-      }
-
-      .item-header .collapse-text {
-        display: none;
-        margin-left: 10px;
-        font-size: var(--font-size-14);
-      }
-
-      .item-header.collapsed .collapse-text {
-        display: inline-block;
-      }
-
-      .item-header .button-group {
-        flex-shrink: 1;
-        flex-grow: 0;
-        flex-wrap: nowrap;
-        margin-right: 4px;
-      }
-
-      .item-detail {
-        flex: 0 0 80px;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-      }
-
-      .item-controls {
-        flex: 0 0 24px;
-        justify-content: space-between;
-        align-items: center;
-        margin-left: 8px;
-      }
-      .item-controls[buttons="2"] {
-        flex: 0 0 48px;
-      }
-      .item-controls[buttons="3"] {
-        flex: 0 0 72px;
-      }
-      .item-controls[buttons="4"] {
-        flex: 0 0 96px;
-      }
-      .item-header .item-controls {
-        justify-content: center;
-      }
-
-      .item-controls *:disabled {
-        cursor: no-drop;
-      }
-
-      .item-controls a {
-        font-size: var(--font-size-12);
-        text-align: center;
-        padding: 0px;
-        margin: 0px;
-        color: var(--mej-itemlist-control-color);
-      }
-
-      .item-list .item-controls {
-        a:hover {
-          color: var(--mej-itemlist-control-color-hover);
-        }
-
-        a.active,
-        input[type='checkbox']:checked + a {
-          color: var(--mej-active-color);
-        }
-      }
-      .item-list .item-detail input[type='checkbox']:checked + a,
-      input[type='checkbox']:checked + a {
-        color: var(--mej-active-color);
-      }
-
-      .item-header .item-control {
-        font-size: var(--font-size-12);
-        text-align: center;
-        padding: 0px;
-        margin: 0px;
-        margin-right: 2px;
-        width: 22px;
-        flex: 0 0 22px;
-        height: 22px;
-        border-radius: 2px;
-        border: 1px solid var(--mej-itemlist-control-border);
-        background: var(--mej-itemlist-control-background);
-        color: var(--mej-itemlist-header-control-color);
-        line-height: 22px;
-      }
-
-      .item-control.text {
-        width: fit-content;
-        white-space: nowrap;
-        padding: 0px 5px;
-      }
-
-      .item {
-        align-items: center;
-        padding: 0 2px;
-        border-bottom: 1px solid var(--mej-itemlist-item-border);
-      }
-
-      .item:last-child {
-        border-bottom: none;
-      }
-
-      .item-name {
-        flex: 2;
-        margin: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: var(--font-size-14);
-        text-align: left;
-        align-items: center;
-        border-bottom: 0px;
-      }
-
-      .item-name h3,
-      .item-name h4 {
-        margin: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .item .item-name {
-        color: var(--mej-itemlist-item-name);
-      }
-      .item .item-name.item-received {
-        flex: 0 0 auto;
-        color: var(--mej-itemlist-item-disabled);
-      }
-
-      .item .item-name .highlight-text {
-        font-size: var(--font-size-12);
-        font-style: italic;
-      }
-
-      .item .item-name .item-image {
-        flex: 0 0 30px;
-        width: 30px;
-        height: 30px;
-        border: none;
-        border-radius: 2px;
-        margin-right: 5px;
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
-        object-fit: contain;
-      }
-
-      .item .item-name .item-image + .no-actor {
-        font-size: 20px;
-        position: absolute;
-        color: #ee8e26;
-        top: 10px;
-        left: 50px;
-      }
-
-      .item .item-name .item-image.large {
-        flex: 0 0 70px;
-        width: 70px;
-        height: 70px;
-      }
-
-      .item .item-name.clickable .item-image {
-        cursor: pointer;
-      }
-
-      .item.empty .item-name .item-image {
-        filter: grayscale(100%);
-        opacity: 0.7;
-      }
-
-      .item .item-name.rollable:hover .item-image {
-        background-image: url('../../../icons/svg/d20-grey.svg') !important;
-      }
-
-      .item .item-name.rollable .item-image:hover {
-        background-image: url('../../../icons/svg/d20-black.svg') !important;
-      }
-
-      .items-list.alternate-rows li:nth-child(even) {
-        background-color: var(--mej-itemlist-alternate-row);
-      }
-
-      .item input {
-        border-color: var(--mej-itemlist-input-border);
-        color: var(--mej-itemlist-input-color);
-        background-color: var(--mej-itemlist-input-background);
-      }
-
-      .item input:hover  {
-        border-color: unset;
-      }
-
-      .item .item-content {
-        color: var(--mej-itemlist-item-content);
-      }
-
-      .item .item-summary {
-        flex: 0 0 100%;
-        padding: 0.5rem;
-        border-top: 1px solid var(--faint-color);
-        font-size: var(--font-size-12);
-      }
-
-      .item-header .item-from {
-        flex: 0 0 140px;
-        text-align: left;
-      }
-
-      .item .item-from {
-        flex: 0 0 150px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        align-items: start;
-        text-align: left;
-      }
-
-      .item .item-assigned {
-        text-align: center;
-      }
-    }
-
-    /* Currency Group */
-    .currency-group {
-      font-size: var(--font-size-12);
-      flex: 0 0 64px;
-    }
-
-    .currency-group .form-fields {
-      margin-left: 10px;
-      padding-top: 2px;
-    }
-
-    .currency-group .form-fields label {
-      font-weight: bold;
-      padding-top: 2px;
-      max-width: 75px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 26px;
-    }
-
-    .currency-group .form-fields label:not(:first-child) {
-      padding-left: 10px;
-    }
-
-    .currency-group .form-fields input {
-      flex: 2;
-      text-align: right;
-      max-width: 75px;
-      height: var(--form-field-height);
-      color: var(--color-text-dark-primary);
-      background: var(--mej-sheet-input-background);
-      border: var(--mej-sheet-input-border);
     }
 
     /* Additional */
@@ -1481,12 +1123,12 @@
     }
 
     .list .list-list button {
-      background: var(--mej-sheet-button-background);
-      color: var(--mej-sheet-button-color);
+      background: var(--fwb-sheet-button-background);
+      color: var(--fwb-sheet-button-color);
     }
 
     .list .list-list button:hover {
-      background: var(--mej-sheet-button-background-hover);
+      background: var(--fwb-sheet-button-background-hover);
     }
 
     .list-list .progress {
@@ -1611,10 +1253,6 @@
       height: 300px !important;
     }
 
-    .list .list-list .list-item #context-menu {
-      left: var(--mej-context-x);
-      top: var(--mej-context-y);
-    }
   */
 
   }

@@ -248,9 +248,9 @@
 
     .directory-header {
       flex: 0;
-      background-color: var(--mej-header-background);
-      border-bottom: 1px solid var(--mej-header-border-color);
-      color: var(--mej-sidebar-label-color);
+      background-color: var(--fwb-header-background);
+      border-bottom: 1px solid var(--fwb-header-border-color);
+      color: var(--fwb-sidebar-label-color);
       margin-bottom: 0px;
       padding-top: 3px;
       padding-bottom: 6px;
@@ -258,8 +258,8 @@
 
       .header-actions.action-buttons button {
         line-height: 24px;
-        background: var(--mej-sidebar-button-background);
-        border: 2px groove var(--mej-sidebar-button-border);
+        background: var(--fwb-sidebar-button-background);
+        border: 2px groove var(--fwb-sidebar-button-border);
       }
 
       .header-search {
@@ -304,31 +304,30 @@
     }
 
     .fwb-world-folder > .folder-header {
-      border-top: 1px solid var(--mej-sidebar-folder-border-collapsed);
       border-bottom: none;
       width: 100%;
-      background: var(--mej-sidebar-folder-background-collapsed);
       flex: 1;
-      color: var(--color-text-light-highlight);
+
+      h3 {
+        color: inherit;   // reset the default from foundry            
+      }
     }
 
     .fwb-world-folder:not(.collapsed) > .folder-header {
-      border-top: 1px solid var(--mej-sidebar-folder-border);
-      background: var(--mej-sidebar-folder-background);
+      border-top: 1px solid var(--fwb-sidebar-world-border);
+      background: var(--fwb-sidebar-world-background);
+      color: var(--fwb-sidebar-world-color);
     }
 
-    .fwb-world-folder.collapsed > .folder-header:not(.customcolor) {
-      color: var(--mej-sidebar-folder-color-collapsed);
+    .fwb-world-folder.collapsed > .folder-header {
+      border-top: 1px solid var(--fwb-sidebar-world-border-collapsed);
+      background: var(--fwb-sidebar-world-background-collapsed);
+      color: var(--fwb-sidebar-world-color-collapsed);
     }
 
     .fwb-world-folder .folder-header.context {
       border-top: 1px solid var(--mej-active-color);
       border-bottom: 1px solid var(--mej-active-color);
-    }
-
-    .fwb-world-folder .folder-header.context,
-    .fwb-world-folder .folder-header.context h3 {
-      color: var(--mej-sidebar-folder-context-color);
     }
 
     .fwb-topic-folder .folder-header {
@@ -355,8 +354,8 @@
     }
 
     .world-contents {
-      border-left: 6px solid var(--mej-sidebar-subfolder-border);
-      border-bottom: 2px solid var(--mej-sidebar-subfolder-border);
+      border-left: 6px solid var(--fwb-sidebar-subfolder-border);
+      border-bottom: 2px solid var(--fwb-sidebar-subfolder-border);
       margin: 0px;
       width: 100%;
       padding-left: 10px;
