@@ -287,7 +287,7 @@ div[data-application-part] {
         padding-right: 30px;
 
         #context-menu {
-          left: var(--mej-context-x);
+          left: var(--fwb-context-x);
           width: 225px;
         }
       }

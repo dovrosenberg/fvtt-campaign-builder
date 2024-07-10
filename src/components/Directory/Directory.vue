@@ -310,6 +310,7 @@
 
       h3 {
         color: inherit;   // reset the default from foundry            
+        text-shadow: inherit;
       }
     }
 
@@ -323,6 +324,7 @@
       border-top: 1px solid var(--fwb-sidebar-world-border-collapsed);
       background: var(--fwb-sidebar-world-background-collapsed);
       color: var(--fwb-sidebar-world-color-collapsed);
+      text-shadow: none;
     }
 
     .fwb-world-folder .folder-header.context {
@@ -333,6 +335,8 @@
     .fwb-topic-folder .folder-header {
       background: inherit;
       border: 0px;
+      text-shadow: none;   // override foundry default
+      cursor: pointer;
 
       i.icon {
         color: #777;
@@ -346,10 +350,10 @@
 
     .fwb-create-entry.create-button {
       i.fa-atlas {
-        color: #555;
+        color: var(--fwb-sidebar-create-entry-color);
       }
       i.fa-plus {
-        background: #555;
+        background: var(--fwb-sidebar-create-entry-secondary-color);
       }
     }
 

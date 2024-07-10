@@ -15,6 +15,17 @@
   --fwb-dark-2: var(--color-text-dark-2);
   --fwb-dark-1: var(--color-text-dark-1);
   --fwb-dark-0: var(--color-text-dark-0);
+  --fwb-cream: rgba(255, 255, 240, 0.8);
+
+  --fwb-font-family: 'Modesto Condensed', 'Palatino Linotype', serif;
+
+  // context menu offsets
+  --fwb-context-x: 0px;
+  --fwb-context-y: 0px;
+}
+
+// themed variables
+:root {
   --fwb-header-border-color: rgb(192, 192, 192);
   --fwb-header-background: rgb(220, 220, 220);
   --fwb-header-color: var(--color-text-dark-primary);
@@ -35,7 +46,7 @@
   --fwb-header-add-bookmark-hover: var(--fwb-header-bookmark-hover);
   --fwb-header-nav-color: var(--fwb-header-color);
   --fwb-header-nav-background: rgb(233, 231, 225);
-  --fwb-header-nav-btn-background: var(--mej-cream);
+  --fwb-header-nav-btn-background: var(--fwb-cream);
   --fwb-header-nav-btn-border: rgb(192, 192, 192);
   --fwb-header-nav-btn-disabled: rgb(136, 136, 136);
   --fwb-header-nav-btn-background-disabled: inherit;
@@ -83,46 +94,144 @@
   --fwb-sheet-input-border: 1px solid rgb(122, 121, 113);
   --fwb-sheet-input-background: rgba(0, 0, 0, 0.05);
   --fwb-sheet-input-color: var(--color-text-dark-primary);
-  --mej-list-progress-border: rgb(178, 195, 255);
-  --mej-list-progress-background: rgb(93, 73, 255);
-  --mej-active-color: rgb(255, 100, 0);
-  --mej-instruction: rgb(128, 128, 128);
-  --mej-icon-background: rgba(236, 233, 223, 1);
-  --mej-icon-shadow: rgba(0, 0, 0, 0.4);
+  --fwb-sheet-button-background: rgb(192, 192, 192);
+  --fwb-sheet-button-background-hover: var(--fwb-sheet-button-background);
+  --fwb-sheet-button-color: var(--fwb-sheet-color);
+  --fwb-active-color: rgb(255, 100, 0);
+  --fwb-icon-background: rgba(236, 233, 223, 1);
+  --fwb-icon-shadow: rgba(0, 0, 0, 0.4);
   --fwb-icon-outline: rgba(0, 0, 0, 0.4);
   --fwb-blank-color: rgba(0, 0, 0, 0.5);
   --fwb-blank-recent-background: rgba(255, 255, 255, 0.3);
   --fwb-blank-recent-border: rgba(255, 255, 255, 0.5);
   --fwb-blank-link-hover: rgba(0, 0, 0, 0.8);
+  
   --fwb-sidebar-background: url(../../../ui/parchment.jpg) repeat;
   --fwb-sidebar-button-background: rgba(0, 0, 0, 0.1);
   --fwb-sidebar-button-border: rgb(238, 237, 224);
   --fwb-sidebar-input-border: rgb(192, 192, 192);
-  --fwb-sidebar-input-background: var(--mej-cream);
-  --fwb-sidebar-input-background-focus: var(--mej-cream);
+  --fwb-sidebar-input-background: var(--fwb-cream);
+  --fwb-sidebar-input-background-focus: var(--fwb-cream);
   --fwb-sidebar-input-color: var(--color-text-dark-primary);
   --fwb-sidebar-input-placeholder-color: var(--color-text-dark-secondary);
   --fwb-sidebar-label-color: var(--fwb-sheet-color);
   --fwb-sidebar-world-color: var(--color-text-light-highlight);
   --fwb-sidebar-world-background: rgb(133, 131, 124);
   --fwb-sidebar-world-border: rgb(116, 115, 109);
-  --fwb-sidebar-world-color-collapsed: green;  //var(--color-text-light-highlight);
-  --fwb-sidebar-world-background-collapsed: orange; //rgb(154, 154, 147);
+  --fwb-sidebar-world-color-collapsed: var(--fwb-dark-2);
+  --fwb-sidebar-world-background-collapsed: var(--fwb-light-5);
   --fwb-sidebar-world-border-collapsed: rgb(139, 138, 131);
   --fwb-sidebar-world-context-color: var(--color-text-dark-primary);
+  --fwb-sidebar-create-entry-color: var(--fwb-dark-3);
+  --fwb-sidebar-create-entry-secondary-color: var(--fwb-dark-5);
   --fwb-sidebar-subfolder-border: rgb(156, 154, 148);
   --fwb-sidebar-document-color: var(--color-text-dark-primary);
   --fwb-sidebar-document-border-top: rgb(195, 193, 182);
   --fwb-sidebar-document-border-botom: rgb(154, 152, 144);
+}
+
+.theme-dark {
+  --fwb-header-border-color: rgb(192, 192, 192);//
+  --fwb-header-background: rgb(220, 220, 220);//
+  --fwb-header-color: var(--color-text-light-primary);//
+  --fwb-header-tab-color: var(--fwb-header-color);
+  --fwb-header-tab-btn-color: rgb(103, 102, 99);//
+  --fwb-header-tab-background: rgba(255, 255, 240, 0.5);//
+  --fwb-header-tab-border: 1px solid rgb(181, 179, 164);//
+  --fwb-header-tab-active: rgba(255, 255, 255, 0.9);//
+  --fwb-header-tab-hover: inherit;//
+  --fwb-header-tab-active-hover: inherit;//
+  --fwb-header-bookmark-color: var(--fwb-header-color);
+  --fwb-header-bookmark-background: rgba(255, 255, 255, 0.3);//
+  --fwb-header-bookmark-border: rgb(192, 192, 192);//
+  --fwb-header-bookmark-hover: rgba(0, 0, 0, 0.1);//
+  --fwb-header-add-bookmark-background: var(--fwb-header-bookmark-background);
+  --fwb-header-add-bookmark-border: var(--fwb-header-bookmark-border);
+  --fwb-header-add-bookmark-color: var(--fwb-header-bookmark-color);
+  --fwb-header-add-bookmark-hover: var(--fwb-header-bookmark-hover);
+  --fwb-header-nav-color: var(--fwb-header-color);//
+  --fwb-header-nav-background: rgb(233, 231, 225);//
+  --fwb-header-nav-btn-background: var(--fwb-cream);//
+  --fwb-header-nav-btn-border: rgb(192, 192, 192);//
+  --fwb-header-nav-btn-disabled: rgb(136, 136, 136);//
+  --fwb-header-nav-btn-background-disabled: inherit;//
+  --fwb-header-nav-btn-border-disabled: inherit;//
+  --fwb-header-nav-btn-background-hover: var(--fwb-header-nav-btn-background);
+  --fwb-header-nav-input-border: rgb(122, 121, 113);//
+  --fwb-header-nav-input-background: rgba(0, 0, 0, 0.05);//
+  --fwb-header-nav-input-color: rgb(25, 24, 19);//
+  --fwb-header-nav-input-placeholder-color: var(--color-text-light-secondary);
+  --fwb-header-nav-input-focus-background: rgba(255, 255, 250, 0.4);//
+  --fwb-header-nav-input-focus-border: rgb(192, 192, 192);///
+  --fwb-header-nav-input-focus-color: var(--fwb-header-nav-input-color);
+  --fwb-header-nav-input-error-background: rgba(255, 0, 0, 0.1);//
+  --fwb-header-nav-vertical-line: rgb(238, 237, 224);//
+  --fwb-sheet-color: var(--color-text-dark-primary);
+  --fwb-sheet-header-border: rgb(120, 46, 34);//
+  --fwb-sheet-header-name-color: var(--fwb-sheet-header-input-color);
+  --fwb-sheet-header-name-background: none;//
+  --fwb-sheet-header-name-background-hover: none;//
+  --fwb-sheet-header-input-color: var(--color-text-light-primary);
+  --fwb-sheet-header-input-border: 1px solid rgb(122, 121, 113);//
+  --fwb-sheet-header-input-background: rgba(0, 0, 0, 0.05);//
+  --fwb-sheet-header-label-color: rgb(75, 74, 68);//
+  --fwb-sheet-header-button-color: var(--primary-font);//
+  --fwb-sheet-header-button-background: rgba(0, 0, 0, 0.1);//
+  --fwb-sheet-header-detail-input-color: rgb(25, 24, 19);//
+  --fwb-sheet-header-search-color: var(--fwb-sheet-header-input-color);
+  --fwb-sheet-header-search-placeholder: var(--color-text-light-secondary);
+  --fwb-sheet-header-search-background: var(--fwb-sheet-header-input-background);
+  --fwb-sheet-header-search-background-hover: var(--fwb-sheet-header-input-background);
+  --fwb-sheet-header-search-border: --fwb-sheet-header-input-border;//
+  --fwb-sheet-detailed-header-border: rgb(238, 237, 224);//
+  --fwb-sheet-tab-color: var(--fwb-sheet-color);
+  --fwb-sheet-tab-color-hover: inherit;//
+  --fwb-sheet-tab-color-active: var(--fwb-sheet-tab-color);//
+  --fwb-sheet-tab-background: rgba(255, 255, 255, 0.3);//
+  --fwb-sheet-tab-bottom-border: rgb(238, 237, 224);//
+  --fwb-sheet-tab-border: 3px solid rgb(181, 179, 164);//
+  --fwb-sheet-tab-border-active: rgb(68, 25, 26);//
+  --fwb-sheet-tab-border-items: rgb(187, 178, 114);//
+  --fwb-sheet-page-control-color: var(--fwb-sheet-color);
+  --fwb-sheet-page-control-background: rgb(192, 192, 192);//
+  --fwb-sheet-page-control-background-hover: var(--fwb-sheet-page-control-background);
+  --fwb-sheet-details-section-border: rgb(238, 237, 224);//
+  --fwb-sheet-input-border: 1px solid rgb(122, 121, 113);//
+  --fwb-sheet-input-background: rgba(0, 0, 0, 0.05);//
+  --fwb-sheet-input-color: var(--color-text-light-primary);
   --fwb-sheet-button-background: rgb(192, 192, 192);
   --fwb-sheet-button-background-hover: var(--fwb-sheet-button-background);
   --fwb-sheet-button-color: var(--fwb-sheet-color);
 
-  // context menu offsets
-  --fwb-context-x: 0px;
-  --fwb-context-y: 0px;
-}
-
-.theme-dark {
-  --fwb-icon-outline: rgba(255, 255, 255 0.4);
+  --fwb-active-color: rgb(255, 100, 0);//
+  --fwb-icon-background: rgba(236, 233, 223, 1);//
+  --fwb-icon-shadow: rgba(0, 0, 0, 0.4);//
+  --fwb-icon-outline: rgba(0, 0, 0, 0.4);//
+  --fwb-blank-color: rgba(0, 0, 0, 0.5);//
+  --fwb-blank-recent-background: rgba(255, 255, 255, 0.3);//
+  --fwb-blank-recent-border: rgba(255, 255, 255, 0.5);//
+  --fwb-blank-link-hover: rgba(0, 0, 0, 0.8);//
+  
+  --fwb-sidebar-background: black;
+  --fwb-sidebar-button-background: rgba(0, 0, 0, 0.1);  //
+  --fwb-sidebar-button-border: rgb(238, 237, 224);//
+  --fwb-sidebar-input-border: rgb(192, 192, 192);//
+  --fwb-sidebar-input-background: black;
+  --fwb-sidebar-input-background-focus: black;
+  --fwb-sidebar-input-color: var(--color-text-light-primary);
+  --fwb-sidebar-input-placeholder-color: var(--color-text-light-secondary);
+  --fwb-sidebar-label-color: var(--fwb-sheet-color);//
+  --fwb-sidebar-world-color: var(--color-text-dark-highlight);
+  --fwb-sidebar-world-background: rgb(133, 131, 124);//
+  --fwb-sidebar-world-border: rgb(116, 115, 109);//
+  --fwb-sidebar-world-color-collapsed: var(--fwb-light-2);
+  --fwb-sidebar-world-background-collapsed: var(--fwb-dark-2);
+  --fwb-sidebar-world-border-collapsed: rgb(139, 138, 131);//
+  --fwb-sidebar-world-context-color: var(--color-text-light-primary);
+  --fwb-sidebar-create-entry-color: var(--fwb-light-3);
+  --fwb-sidebar-create-entry-secondary-color: var(--fwb-light-5);
+  --fwb-sidebar-subfolder-border: rgb(156, 154, 148);//
+  --fwb-sidebar-document-color: var(--color-text-light-primary);
+  --fwb-sidebar-document-border-top: rgb(195, 193, 182);//
+  --fwb-sidebar-document-border-botom: rgb(154, 152, 144);//
 }

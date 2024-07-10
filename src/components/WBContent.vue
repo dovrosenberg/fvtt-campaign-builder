@@ -492,7 +492,7 @@
         height: 160px;
         position: relative;
         border-radius: 5px;
-        border: 1px solid var(--mej-icon-outline);
+        border: 1px solid var(--fwb-icon-outline);
         margin-right: 6px;
         overflow: hidden;
       }
@@ -503,9 +503,9 @@
         object-fit: contain;
         max-width: 100%;
         border: 0px;
-        background: var(--mej-icon-background);
-        -webkit-box-shadow: 0 0 10px var(--mej-icon-shadow) inset;
-        box-shadow: 0 0 10px var(--mej-icon-shadow) inset;
+        background: var(--fwb-icon-background);
+        -webkit-box-shadow: 0 0 10px var(--fwb-icon-shadow) inset;
+        box-shadow: 0 0 10px var(--fwb-icon-shadow) inset;
         background-repeat: no-repeat;
         background-position: center;
         background-size: contain;
@@ -518,7 +518,7 @@
         background: var(--fwb-sheet-tab-background);
         padding-bottom: 5px;
         border-bottom: 2px groove var(--fwb-sheet-tab-bottom-border);
-        font-family: var(--mej-font-family);
+        font-family: var(--fwb-font-family);
         font-size: 20px;
         font-weight: 700;
 
@@ -634,7 +634,7 @@
 
         /* Details Section */
         .details-section {
-          font-family: var(--mej-font-family);
+          font-family: var(--fwb-font-family);
           font-size: var(--font-size-20);
           font-weight: 700;
           padding: 5px 15px;
@@ -733,7 +733,7 @@
 
     /* Header */
     .sheet-container .journal-sheet-header {
-      font-family: var(--mej-font-family);
+      font-family: var(--fwb-font-family);
       font-size: 24px;
       flex-grow: 0;
       border-bottom: 2px solid var(--fwb-sheet-header-border);
@@ -856,8 +856,8 @@
       }
 
       button.active {
-        border: 1px solid var(--mej-active-color);
-        color: var(--mej-active-color);
+        border: 1px solid var(--fwb-active-color);
+        color: var(--fwb-active-color);
       }
     }
 
@@ -1007,29 +1007,6 @@
       color: var(--color-text-hyperlink);
     }
 
-    .instruction {
-      text-align: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: absolute;
-      top: 0px;
-      width: 100%;
-      pointer-events: none;
-      line-height: 60px;
-      color: var(--mej-instruction);
-      font-size: var(--font-size-16);
-      font-style: italic;
-      height: calc(100% - 50px);
-    }
-
-    .items-list li.instruction {
-      height: calc(100% - 40px);
-      line-height: 100px;
-      background: transparent;
-    }
-
-
     /* Text Entry */
     .fwb-journal-subsheet div[data-tab='picture'] #context-menu {
       top: calc(50% - 33px);
@@ -1041,237 +1018,6 @@
       overflow-y: hidden !important;
       overflow-x: hidden !important;
     }
-
-    /* List */
-    .list .list-list {
-      padding-left: 0px;
-      margin: 0px;
-      height: 100%;
-      overflow: auto;
-    }
-
-  /*  .list-list .document.item {
-      padding: 6px;
-      line-height: 24px;
-    }
-
-    .list-list .document.item:nth-child(even) {
-      background-color: rgba(0, 0, 0, 0.1);
-    }
-
-    .list-list .create-entry {
-      flex: 0 0 20px;
-      font-size: var(--font-size-14);
-    }
-
-    .list-list .folder header {
-      border-left: 1px solid #000;
-      border-right: 1px solid #000;
-    }
-
-    .list-list .list-item.document h3 {
-      margin-bottom: 0px;
-      flex-grow: 0;
-      white-space: nowrap;
-    }
-
-    .list-list .list-item h3.progress-title {
-      padding: 4px;
-      border: 1px solid rgb(var(--mej-light-5));
-      background: rgba(var(--mej-light-1), 0.2);
-      border-radius: 4px;
-      text-align: center;
-    }
-
-    .list-list .list-item h3.progress-title:empty {
-      display: none;
-    }
-
-    .list-list .list-item.checked h3 {
-      text-decoration: line-through;
-    }
-
-    .list-list .subdirectory .subdirectory {
-      margin-bottom: 2px;
-    }
-
-    .list-list .subdirectory .folder {
-      border-left: 0px;
-    }
-
-    .list-list li.folder > .folder-header {
-      background: rgb(130, 128, 121);
-      color: #fff;
-    }
-
-    .list-list li.folder.collapsed > .folder-header {
-      background: rgb(110, 109, 103);
-    }
-
-    .list-list .subdirectory {
-      padding-left: 10px;
-      border-left: 4px solid #808080;
-      border-bottom: 4px solid #808080;
-    }
-
-    .list-list .item-checked {
-      margin-right: 8px;
-    }
-
-    .monks-enhanced-journal .list #context-menu {
-      max-width: 200px;
-    }
-
-    .list .list-list button {
-      background: var(--fwb-sheet-button-background);
-      color: var(--fwb-sheet-button-color);
-    }
-
-    .list .list-list button:hover {
-      background: var(--fwb-sheet-button-background-hover);
-    }
-
-    .list-list .progress {
-      width: 100%;
-      height: 24px;
-      min-height: 24px;
-      background: rgb(80, 80, 76);
-      border: 2px solid var(--color-border-dark);
-      box-shadow: 0 0 4px #b2c3ff;
-      border-radius: 4px;
-      margin: 0px 4px;
-      position: relative;
-    }
-    .list-list .progress:first-child {
-      margin-left: 0px;
-    }
-    .list-list .progress:last-child {
-      margin-right: 0px;
-    }
-    .list-list .progress-value {
-      position: absolute;
-      top: 0px;
-      left: 0px;
-      width: 100%;
-      text-align: center;
-      color: #ffffff;
-    }
-    .list-list .progress-bar {
-      position: relative;
-      margin: 1px;
-      height: calc(100% - 2px);
-      background: var(--mej-list-progress-background);
-      border: 1px solid var(--mej-list-progress-border);
-      border-radius: 2px;
-    }
-
-    .list .list-list .progress-button {
-      height: 25px;
-      flex: 0 0 25px;
-      font-size: 12px;
-      line-height: 23px;
-      padding: 0px 5px;
-      padding-left: 5px;
-      padding-right: 2px;
-    }
-
-    .list .list-list .progress-text {
-      max-height: 200px;
-      -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-      mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-      overflow: hidden;
-    }
-
-    .list .list-list .progress-text.expand {
-      max-height: none;
-      mask-image: none;
-      -webkit-mask-image: none;
-      transition: max-height 1s linear;
-    }
-
-    .list .list-list .progress-expand {
-      flex-grow: 0;
-      color: rgb(var(--mej-dark-6));
-      cursor: pointer;
-    }
-    .list .list-list .progress-expand:hover {
-      color: rgb(var(--mej-dark-4));
-    }
-
-    .list .list-list .progress-container {
-      flex-grow: 0;
-    }
-
-    .list .list-list .vote-button {
-      height: 34px;
-      flex: 0 0 100px;
-    }
-
-    .list .list-list .players-voted {
-      margin: 0px;
-      padding: 0px;
-      line-height: 18px;
-    }
-
-    .list .list-list .players-voted .player-vote {
-      width: 14px;
-      line-height: 12px;
-      font-size: 10px;
-      font-family: var(--font-primary);
-      text-align: center;
-      color: #000;
-      font-weight: 700;
-      background-color: #fff;
-      border: 1px solid #000;
-      border-radius: 8px;
-      display: inline-block;
-    }
-
-    .list .list-list .list-item .poll-toggle {
-      flex: 0 0 19px;
-      padding: 0px 4px;
-      cursor: pointer;
-    }
-
-    .list .list-list .list-item .poll-description {
-      padding: 4px 8px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(0, 0, 0, 0.2);
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .list .list-list .list-item .poll-description.collapsed {
-      display: none;
-    }
-    .list-edit .editor {
-      height: 100%;
-    }
-
-    .list-edit .editor .tox.tox-tinymce {
-      height: 300px !important;
-    }
-
-  */
-
   }
 
-
-  /*
-  body:not(.system-pf2e) .fwb-journal-sheet .sheet-container .tag {
-    display: inline-block;
-    margin: 0 2px 0 0;
-    padding: 0 3px;
-    font-size: var(--font-size-10);
-    line-height: 16px;
-    border: 1px solid #999;
-    border-radius: 3px;
-    background: rgba(var(--mej-dark-0), 0.05);
-    padding: 4px 8px;
-    flex-grow: 0;
-    height: 24px;
-    margin-top: 2px;
-  }
-  */
 </style>
