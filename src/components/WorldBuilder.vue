@@ -8,9 +8,7 @@
         @directory-collapse-toggle="onDirectoryCollapseToggle"
       />
       <div class="fwb-content flexcol editable">
-        <WBContent 
-          @editor-saved="onContentEditorSaved"
-        />
+        <WBContent />
       </div>
     </section>
     <div id="fwb-directory-sidebar">
@@ -27,41 +25,33 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { getDefaultFolders, validateCompendia } from '@/compendia';
+  import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
-  import { getGame } from '@/utils/game';
-  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
+  import { useMainStore } from '@/applications/stores';
 
   // library components
 
   // local components
   import WBHeader from '@/components/WBHeader.vue';
   import WBContent from '@/components/WBContent.vue';
-  import Directory from '@/components/Directory.vue';
+  import Directory from '@/components/Directory/Directory.vue';
 
   // types
   
   ////////////////////////////////
   // props
-  const props = defineProps({
-  });
 
   ////////////////////////////////
   // emits
 
   ////////////////////////////////
   // store
-  const worldBuilderStore = useWorldBuilderStore();
-  const { currentWorldFolder, currentEntryId, rootFolder } = storeToRefs(worldBuilderStore);
+  const mainStore = useMainStore();
+  const { currentWorldFolder, rootFolder } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
   const directoryCollapsed = ref<boolean>(false);
-
-  let searchresults = [];
-  let searchpos = 0;
-  let lastquery = '';
-  let _imgcontext = null;
 
   ////////////////////////////////
   // computed data
@@ -72,18 +62,13 @@
   ////////////////////////////////
   // event handlers
   const onDirectoryWorldSelected = async (worldId: string) => {
-    const folder = getGame().folders?.find((f)=>f.uuid===worldId);
-    if (!folder)
-      throw new Error('Invalid folder id in WorldSelected callaback');
-    currentWorldFolder.value = folder;
-
-    await validateCompendia(folder);
-  }
+    await directoryStore.changeWorld(worldId);
+  };
 
  
   const onDirectoryCollapseToggle = () => {
     directoryCollapsed.value = !directoryCollapsed.value;
-  }
+  };
 
 
   ////////////////////////////////
@@ -97,6 +82,7 @@
     const folders = await getDefaultFolders();
 
     if (folders && folders.rootFolder && folders.worldFolder) {
+      // this will force a refresh of the directory
       rootFolder.value = folders.rootFolder;
       currentWorldFolder.value = folders.worldFolder;
     } else {

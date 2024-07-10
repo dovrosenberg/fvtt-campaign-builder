@@ -52,7 +52,7 @@
             "switchCase": 1,
             "ignores": []
         }],
-        "eslint-plugin-vue/first-attribute-linebreak": ["warn", {
+        "vue/first-attribute-linebreak": ["warn", {
             "singleline": "beside",
             "multiline": "below"
         }],
@@ -75,6 +75,10 @@
             "closeBracket": 0,
             "alignAttributesVertically": false,
             "ignores": []
+        }],
+        "vue/v-on-event-hyphenation": ["warn", "never", {
+            "autofix": true,
+            "ignore": []
         }]
     },
     "overrides": [

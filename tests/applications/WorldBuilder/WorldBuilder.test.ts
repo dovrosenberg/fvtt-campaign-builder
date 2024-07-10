@@ -1,4 +1,4 @@
-import { OldWorldBuilder } from 'src/applications/WorldBuilder/OldWorldBuilder';
+import { OldWorldBuilder } from '@/applications/WorldBuilder/OldWorldBuilder';
 
 jest.mock('@/settings/UserFlags.ts', () => {
   const originalModule = jest.requireActual('@/settings/UserFlags.ts');

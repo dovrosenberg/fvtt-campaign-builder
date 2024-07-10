@@ -8,13 +8,11 @@ export enum SettingKey {
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
-  types = 'types',  // object where each key is a Topic and the value is an array of valid types
 }
 
 type SettingType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
     K extends SettingKey.rootFolderId ? string : 
-    K extends SettingKey.types ? Record<Topic, string[]> :
     never;  
 
 // the solo instance
@@ -78,16 +76,6 @@ export class ModuleSettings {
       settingID: SettingKey.rootFolderId,
       default: null,
       type: String,
-    },
-    {
-      settingID: SettingKey.types,
-      default: {
-        [Topic.Character]: [],
-        [Topic.Location]: [],
-        [Topic.Event]: [],
-        [Topic.Organization]: [],
-      },
-      type: Object,
     },
 
   ];

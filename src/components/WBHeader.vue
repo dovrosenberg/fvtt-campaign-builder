@@ -52,7 +52,7 @@
     <div class="fwb-bookmark-bar flexrow">
       <div 
         id="fwb-add-bookmark" 
-        :class="(!worldBuilderStore.getActiveTab(false)?.entry?.uuid ? 'disabled' : '')"
+        :class="(!navigationStore.getActiveTab(false)?.entry?.uuid ? 'disabled' : '')"
         :title="localize('fwb.tooltips.addBookmark')"
         @click="onAddBookmarkClick"
       >
@@ -110,14 +110,14 @@
   // local imports
   import { localize } from '@/utils/game';
   import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
-  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
+  import { useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
 
   // local components
 
   // types
-  import { Bookmark, EntryHeader, WindowTab } from '@/types';
+  import { Bookmark, WindowTab } from '@/types';
 
   ////////////////////////////////
   // props
@@ -126,7 +126,7 @@
       type: Boolean,
       required: true
     }
-  })
+  });
 
   ////////////////////////////////
   // emits
@@ -136,8 +136,10 @@
 
   ////////////////////////////////
   // store
-  const worldBuilderStore = useWorldBuilderStore();
-  const { tabs, currentWorldId, currentEntryId, } = storeToRefs(worldBuilderStore);
+  const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
+  const { currentWorldId, currentEntryId, } = storeToRefs(mainStore);
+  const { tabs, } = storeToRefs(navigationStore);
 
 
   ////////////////////////////////
@@ -148,13 +150,13 @@
   ////////////////////////////////
   // computed data
   const activeEntryId = computed((): string | null => {
-    return worldBuilderStore.getActiveTab()?.entry.uuid || null;
+    return navigationStore.getActiveTab()?.entry.uuid || null;
   });
 
   ////////////////////////////////
   // methods
   const canBack = function (tab?: WindowTab): boolean {
-    const checkTab = tab || worldBuilderStore.getActiveTab();
+    const checkTab = tab || navigationStore.getActiveTab();
 
     if (!checkTab)
       return false;
@@ -163,7 +165,7 @@
   };
 
   const canForward = function (tab?: WindowTab): boolean {
-    const checkTab = tab || worldBuilderStore.getActiveTab();
+    const checkTab = tab || navigationStore.getActiveTab();
 
     if (!checkTab)
       return false;
@@ -181,7 +183,7 @@
 
   // moves forward/back through the history "move" spaces (or less if not possible); negative numbers move back
   const navigateHistory = async function (move: number) {
-    const tab = worldBuilderStore.getActiveTab();
+    const tab = navigationStore.getActiveTab();
 
     if (!tab) return;
 
@@ -193,7 +195,7 @@
       return;
 
     tab.historyIdx = newSpot;
-    await worldBuilderStore.openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
+    await navigationStore.openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
 }
 
   // remove the tab given by the id from the list
@@ -208,14 +210,14 @@
     tabs.value.splice(index, 1);
 
     if (tabs.value.length === 0) {
-      await worldBuilderStore.openEntry();  // make a default tab if that was the last one (will also activate it) and save them
+      await navigationStore.openEntry();  // make a default tab if that was the last one (will also activate it) and save them
     } else if (tab.active) {
       // if it was active, make the one before it active (or after if it was up front)
       if (index===0) {
-        await worldBuilderStore.activateTab(tabs.value[0].id);  // will also save them
+        await navigationStore.activateTab(tabs.value[0].id);  // will also save them
       }
       else {
-        await worldBuilderStore.activateTab(tabs.value[index-1].id);  // will also save them
+        await navigationStore.activateTab(tabs.value[index-1].id);  // will also save them
       }
     }
   }
@@ -228,19 +230,19 @@
     await saveBookmarks();
   }
 
-  const createContextMenus = async function() {
+  const createContextMenus = function() {
     if (!root.value)
       return;
 
     // bookmarks 
-    const cm = new ContextMenu($(root.value), '.fwb-bookmark-button', [
+    new ContextMenu($(root.value), '.fwb-bookmark-button', [
       {
         name: 'fwb.contextMenus.bookmarks.openNewTab',
         icon: '<i class="fas fa-file-export"></i>',
         callback: async (li) => {
           const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
           if (bookmark)
-            await worldBuilderStore.openEntry(bookmark.entry.uuid, { newTab: true });
+            await navigationStore.openEntry(bookmark.entry.uuid, { newTab: true });
         }
       },
       {
@@ -252,11 +254,8 @@
             await removeBookmark(bookmark.id);
         }
       }
-    ]);
-
-    if (cm)
-      cm.bind();
-      
+    ]).bind();
+    
   };
 
 
@@ -265,7 +264,7 @@
   // add the current tab as a new bookmark
   const onAddBookmarkClick = async (): Promise<void> => {
     //get the current tab and save the entity and name
-    const tab = worldBuilderStore.getActiveTab(false);
+    const tab = navigationStore.getActiveTab(false);
 
     if (!tab?.entry?.uuid)
       return;
@@ -290,7 +289,7 @@
     const bookmark = bookmarks.value.find(b => b.id === bookmarkId);
 
     if (bookmark) {
-      await worldBuilderStore.openEntry(bookmark?.entry.uuid, { newTab: false });
+      await navigationStore.openEntry(bookmark?.entry.uuid, { newTab: false });
     }
   };
 
@@ -298,14 +297,14 @@
     emit('directoryCollapseToggle')
   };
 
-  const onAddTabClick = async () => { await worldBuilderStore.openEntry(); };
+  const onAddTabClick = async () => { await navigationStore.openEntry(); };
 
   const onHistoryBackClick = () => { void navigateHistory(-1); };
   const onHistoryForwardClick = () => { void navigateHistory(1); };
 
   // bookmark and tab listeners
   const onTabClick = async (tabId: string) => {
-    void worldBuilderStore.activateTab(tabId);
+    void navigationStore.activateTab(tabId);
   };
 
   // listener for the tab close buttons
@@ -316,7 +315,6 @@
 
   // handle a bookmark or tab dragging
   const onDragStart = (event: DragEvent, id: string): void => {
-    console.log('ondragstart');
     const target = event.currentTarget as HTMLElement;
 
     if ($(target).hasClass('fwb-tab')) {
@@ -341,7 +339,6 @@
   };
 
   const onDrop = async(event: DragEvent, id: string) => {
-    console.log('ondrop');
     let data;
     try {
       data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
@@ -366,7 +363,7 @@
       tabs.value = tabsValue;
 
       // activate the moved one (will also save the tabs)
-      await worldBuilderStore.activateTab(data.tabId);
+      await navigationStore.activateTab(data.tabId);
     } else if (data.type==='fwb-bookmark') {
       const target = (event.currentTarget as HTMLElement).closest('.fwb-bookmark-button') as HTMLElement;
       if (!target)
@@ -401,7 +398,7 @@
 
     // if there are no tabs, add one
     if (!tabs.value.length)
-      await worldBuilderStore.openEntry();
+      await navigationStore.openEntry();
 
     currentEntryId.value = activeEntryId.value;
   });
@@ -410,7 +407,7 @@
   // lifecycle events
   onMounted(function () {
     // create the context menus
-    void createContextMenus();
+    createContextMenus();
   });
 
 

@@ -1,12 +1,9 @@
 import { EntrySummary, Topic, TreeNode } from '@/types';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-import { en } from '@faker-js/faker';
 
 // types and functions used to manage topic hierarchies
-// note: this uses ids not uuids because getDocuments can't search by uuid and they're all in the
-//    same compendium regardless
 export type Hierarchy = {
-  parentId: string;   // id of parent
+  parentId: string | null;   // id of parent
   ancestors: string[];    // ids of all ancestors
   children: string[];    // ids of all direct children
 }
@@ -37,7 +34,7 @@ export function validChildItems(pack: CompendiumCollection<any>, entry: JournalE
 // returns a list of valid possible parents for a node
 // a valid parent is anything that does not have this object as an ancestor (to avoid creating loops) 
 // only works for topics that have hierachy
-export function validParentItems(pack: CompendiumCollection<any>, entry: JournalEntry): EntrySummary[] {
+export function validParentItems(pack: CompendiumCollection<any>, entry: JournalEntry): string[] {
   if (!entry.id)
     return [];
 
@@ -47,11 +44,11 @@ export function validParentItems(pack: CompendiumCollection<any>, entry: Journal
   if (!child)
     return [];
 
-  // get the list - every entry in the pack that is not one and does not have it as an ancestor
-  return pack.find((j: JournalEntry)=>(
+  // get the list - every entry in the pack that is not this one and does not have it as an ancestor
+  return pack.filter((j: JournalEntry)=>(
     j.uuid !== entry.uuid && 
     !(EntryFlags.get(j, EntryFlagKey.hierarchy)?.ancestors || []).includes(entry.id!))
-  ).map(mapEntryToSummary);
+  ).map((e)=>e.uuid);
 }
 
 // get a structure of TreeNode (suitable for passing to a tree) showing the full ancestor history of the passed entry,

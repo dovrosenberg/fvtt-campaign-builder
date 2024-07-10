@@ -1,7 +1,9 @@
 <template>
   <div :id="componentId" class="fwb-tree">
     <ul class="top-node">
-      <TreeNodeComponent v-for="node in props.topNodes"
+      <TreeNodeComponent 
+        v-for="node in props.topNodes"
+        :key="node.id"
         :node="node"
         @itemClicked="onSubItemClick"
       />
@@ -53,7 +55,7 @@
 
   ////////////////////////////////
   // event handlers
-  const onSubItemClick = (event: JQuery.ClickEvent, value: string) => {
+  const onSubItemClick = (event: MouseEvent, value: string) => {
     event.preventDefault();  // stop from expanding
     emit('itemClicked', value);
   }

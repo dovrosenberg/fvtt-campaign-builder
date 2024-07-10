@@ -236,10 +236,10 @@
           </div>-->
           <div class="tab notes" data-group="primary" data-tab="notes">
             <div class="tab-inner flexcol">
-              <div style="flex-grow: 0;">
+              <!-- <div style="flex-grow: 0;">
                 {{localize('MonksEnhancedJournal.OnlyViewable')}}
                 <span v-if="!hasGM" style="color:darkred;font-weight:bold;">{{localize('MonksEnhancedJournal.msg.CannotEditNotesWithoutGM')}}</span>
-              </div>
+              </div> -->
               <div class="notes-container">
 
                 <!-- {{!-- {{editor userdata.enrichedText target=notesTarget editable=true button=true owner=owner}} --}} -->
@@ -265,7 +265,8 @@
   import { getGame, localize } from '@/utils/game';
   import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
   import moduleJson from '@module';
-  import { useWorldBuilderStore } from '@/applications/stores/worldBuilderStore';
+  import { useMainStore } from '@/applications/stores';
+  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   // import { getCleanEntry, updateDocument } from '@/compendia';
@@ -290,16 +291,14 @@
 
   ////////////////////////////////
   // props
-  const props = defineProps({
-  });
 
   ////////////////////////////////
   // emits
 
   ////////////////////////////////
   // store
-  const worldBuilderStore = useWorldBuilderStore();
-  const { currentEntryId } = storeToRefs(worldBuilderStore);
+  const mainStore = useMainStore();
+  const { currentEntryId, currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -333,7 +332,7 @@
   const icon = computed((): string => (!topic.value ? '' : getIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : localize(topicData[topic.value]?.namePlaceholder)));
-  const typeList = computed((): string[] => (topic.value===null ? [] : moduleSettings.get(SettingKey.types)[topic.value]));
+  const typeList = computed((): string[] => (topic.value===null || !currentWorldId.value ? [] : WorldFlags.get(currentWorldId.value, WorldFlagKey.types)[topic.value]));
 
   ////////////////////////////////
   // methods
@@ -342,25 +341,25 @@
   // event handlers
 
   // new type added in the typeahead
-  const onTypeItemAdded = async (added: string) => {
-    if (topic.value === null)
+  const onTypeItemAdded = async (worldId: string, added: string) => {
+    if (topic.value === null || !currentWorldId.value)
       return;
 
-    const currentTypes = moduleSettings.get(SettingKey.types);
+    const currentTypes = WorldFlags.get(currentWorldId.value, WorldFlagKey.types);
 
     // if not a duplicate, add to the valid type lists 
     if (!currentTypes[topic.value].includes(added)) {
       const updatedTypes = {
-        ...moduleSettings.get(SettingKey.types),
+        ...currentTypes,
         [topic.value]: currentTypes[topic.value].concat([added]),
       };
-      await moduleSettings.set(SettingKey.types, updatedTypes);
+      await WorldFlags.set(worldId, WorldFlagKey.types, updatedTypes);
     }
   };
 
   const onTypeSelectionMade = (selection: string) => {
     if (entry.value)
-      EntryFlags.set(toRaw(entry.value), EntryFlagKey.type, selection);
+      void EntryFlags.set(toRaw(entry.value), EntryFlagKey.type, selection);
   }
 
   const onDescriptionEditorSaved = async (newContent: string) => {
@@ -374,11 +373,11 @@
     //need to reset
     // if it's not automatic, clear and reset the documentpage
     // (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
-  }
+  };
 
   ////////////////////////////////
   // watchers
-  watch(currentEntryId, async (newId: string | undefined): Promise<void> => {
+  watch(currentEntryId, async (newId: string | null): Promise<void> => {
     if (!newId) {
       entry.value = null;
       topic.value = null;
@@ -387,7 +386,7 @@
       let newTopic;
 
       if (newEntry) {
-        newTopic = toTopic(entry ? EntryFlags.get(newEntry, EntryFlagKey.topic) : null);
+        newTopic = toTopic(newEntry ? EntryFlags.get(newEntry, EntryFlagKey.topic) : null);
         if (!newTopic) 
           throw new Error('Invalid entry type in WBContent.getData()');
       }
@@ -415,12 +414,13 @@
         if (hasHierarchy(newTopic)) {
           const pack = getGame().packs.get(newEntry.pack || '');
 
-        if (pack)
-          treeNodes.value = await getHierarchyTree(pack, newEntry);
+          if (pack) {
+            treeNodes.value = await getHierarchyTree(pack, newEntry);
+          }
         }
       }
     }
-});
+  });
 
 
   ////////////////////////////////

@@ -1,3 +1,4 @@
+export * from './directory';
 
 export type WindowTab = {
   id: string;   // unique id
@@ -29,7 +30,6 @@ export enum Topic {
   Event,
   Location,
   Organization,
-  Scene,
   //TODO: Note - maybe the ability to just handle normal journal notes?
 }
 

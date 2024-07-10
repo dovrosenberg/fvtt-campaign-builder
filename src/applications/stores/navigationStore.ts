@@ -1,79 +1,41 @@
-// this store handles character-specific functionality
+// this store handles main navigation (tabs, bookmarks, recent)
 
 // library imports
 import { defineStore, } from 'pinia';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
+import { storeToRefs } from 'pinia';
 
 // local imports
 import { getCleanEntry } from '@/compendia';
-import { getGame, localize } from '@/utils/game';
+import { localize } from '@/utils/game';
 import { getIcon } from '@/utils/misc';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
+import { useMainStore } from './mainStore';
 
 // types
 import { EntryHeader, WindowTab } from '@/types';
 
 
 // the store definition
-export const useWorldBuilderStore = defineStore('worldBuilder', () => {
+export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // the state
+
+  ///////////////////////////////
+  // other stores
+  const mainStore = useMainStore();
+  const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
 
   ///////////////////////////////
   // external state
-  const rootFolder = ref<Folder | null>(null);
-  const currentWorldFolder = ref<Folder | null>(null);  // the current world folder
-  const currentEntryId = ref<string | null>(null);  // uuid of current entry
   const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of WBHeader)
-
-  const currentWorldId = computed((): string | null => currentWorldFolder.value ? currentWorldFolder.value.uuid : null);
 
   ///////////////////////////////
   // actions
-  // the ones with an underscore are intended to be called by itemStore
-  // save tabs to database
-  const _saveTabs = async function () {
-    if (!currentWorldId.value)
-      return;
-
-    await UserFlags.set(UserFlagKey.tabs, tabs.value, currentWorldId.value);
-  };
-
-  // add a new entity to the recent list
-  const _updateRecent = async function (entry: EntryHeader): Promise<void> {
-    if (!currentWorldId.value)
-      return;
-
-    let recent = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] as EntryHeader[];
-
-    // remove any other places in history this already appears
-    recent.findSplice((h: EntryHeader): boolean => h.uuid === entry.uuid);
-
-    // insert in the front
-    recent.unshift(entry);
-
-    // trim if too long
-    if (recent.length > 5)
-      recent = recent.slice(0, 5);
-
-    await UserFlags.set(UserFlagKey.recentlyViewed, recent, currentWorldId.value);
-  };
-  
-  // set a new world from a uuid
-  const setNewWorld = async function (worldId: string | null): Promise<void> {
-    if (!worldId)
-      return;
-
-    // load the folder
-    currentWorldFolder.value = getGame()?.folders?.find((f)=>f.uuid===worldId) || null;
-
-    await UserFlags.set(UserFlagKey.currentWorld, worldId);
-  };
-
   // activate - switch to the tab after creating - defaults to true
   // newTab - should entry open in current tab or a new one - defaults to true
   // entryId = the uuid of the entry for the tab  (currently just journal entries); if missing, open a "New Tab"
@@ -186,6 +148,35 @@ export const useWorldBuilderStore = defineStore('worldBuilder', () => {
 
   ///////////////////////////////
   // internal functions
+  // save tabs to database
+  const _saveTabs = async function () {
+    if (!currentWorldId.value)
+      return;
+
+    await UserFlags.set(UserFlagKey.tabs, tabs.value, currentWorldId.value);
+  };
+
+  // add a new entity to the recent list
+  const _updateRecent = async function (entry: EntryHeader): Promise<void> {
+    if (!currentWorldId.value)
+      return;
+
+    let recent = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] as EntryHeader[];
+
+    // remove any other places in history this already appears
+    recent.findSplice((h: EntryHeader): boolean => h.uuid === entry.uuid);
+
+    // insert in the front
+    recent.unshift(entry);
+
+    // trim if too long
+    if (recent.length > 5)
+      recent = recent.slice(0, 5);
+
+    await UserFlags.set(UserFlagKey.recentlyViewed, recent, currentWorldId.value);
+  };
+  
+
 
   ///////////////////////////////
   // lifecycle events
@@ -195,13 +186,10 @@ export const useWorldBuilderStore = defineStore('worldBuilder', () => {
   return {
     tabs,
     currentWorldId,
-    currentWorldFolder,
     currentEntryId,
-    rootFolder,
 
     openEntry,
     getActiveTab,
     activateTab,
-    setNewWorld,
   };
 });
