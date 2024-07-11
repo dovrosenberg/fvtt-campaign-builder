@@ -401,6 +401,11 @@
       cursor: pointer;
     }
 
+    // bold the active one
+    .fwb-current-directory-entry {
+      font-weight: bold;
+    }
+
     // very first node
     ul.top-node > li {
       &::before, &::after {

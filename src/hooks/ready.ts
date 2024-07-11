@@ -1,4 +1,4 @@
-import { worldBuilder, updateWorldBuilder, WorldBuilderApplication} from '@/applications/WorldBuilder';
+import { WorldBuilderApplication} from '@/applications/WorldBuilder';
 import { getGame, localize } from '@/utils/game';
 
 export function registerForReadyHook() {
@@ -17,13 +17,8 @@ async function ready(): Promise<void> {
     );
 
     jQuery(document).on('click', '#fwb-launch', async (): Promise<void> => {
-      if (!worldBuilder) {
-        // create the instance
-        updateWorldBuilder(await new WorldBuilderApplication());
-      }
-
-      // render the main window
-      void worldBuilder.render(true);
+      // create the instance and render 
+      await (await new WorldBuilderApplication()).render(true);
     });
   }
 }

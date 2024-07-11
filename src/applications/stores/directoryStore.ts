@@ -36,6 +36,9 @@ export const useDirectoryStore = defineStore('directory', () => {
   // the top-level folder structure
   const currentTree = ref<DirectoryWorld[]>([]);
 
+  // current sidebar collapsed state
+  const directoryCollapsed = ref<boolean>(false);
+
   ///////////////////////////////
   // actions
   const createWorld = async(): Promise<void> => {
@@ -484,6 +487,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   // return the public interface
   return {
     currentTree,
+    directoryCollapsed,
 
     toggleEntry,
     togglePack,
