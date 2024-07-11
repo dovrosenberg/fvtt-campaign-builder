@@ -2,7 +2,7 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { reactive, ref, toRaw, watch } from 'vue';
+import { ref, toRaw, watch } from 'vue';
 
 // local imports
 import { getGame } from '@/utils/game';
@@ -230,7 +230,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (currentWorldBlock && currentWorld) {
       const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || [];
 
-      currentWorldBlock.packs = await Promise.all(currentWorld.entries.map(async (pack: CompendiumCollection<any>): Promise<DirectoryPack> =>({
+      currentWorldBlock.packs = (await Promise.all(currentWorld.entries.map(async (pack: CompendiumCollection<any>): Promise<DirectoryPack> =>({
         pack: pack,
         id: pack.metadata.id,
         name: pack.metadata.label,
@@ -238,7 +238,7 @@ export const useDirectoryStore = defineStore('directory', () => {
         topNodes: await _getPackTopNodes(pack),
         loadedTopNodes: [],
         expanded: expandedNodes[pack.metadata.id] || false,
-      })));
+      })))).sort((a: DirectoryPack, b: DirectoryPack): number => a.topic - b.topic);
 
       // load any open packs
       for (let i=0; i<currentWorldBlock?.packs.length; i++) {

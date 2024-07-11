@@ -22,7 +22,8 @@
                 type="text" 
                 :value="entry.name" 
                 :placeholder="namePlaceholder"
-              />
+                @change="(event) => onNameChange(event)"
+              >
             </h1>
             <div class="form-group fwb-content-header">
               <label>{{localize('fwb.labels.fields.type')}}</label>
@@ -44,7 +45,6 @@
         </header>
         <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
           <a class="item" data-tab="description">{{localize('fwb.labels.tabs.description')}}</a>
-          <a class="item" data-tab="entry-details">{{localize('fwb.labels.tabs.details')}}</a>
           <a v-for="relationship in relationships"
             class="item" :data-tab="relationship.tab"
           >
@@ -60,36 +60,6 @@
                 target="content-description"
                 @editorSaved="onDescriptionEditorSaved"
               />
-            </div>
-          </div>
-          <div class="tab entry-details" data-group="primary" data-tab="entry-details">
-            <div class="tab-inner flexcol">
-              entry-details
-            <!-- {{!--
-              <div class="details-section flexrow">
-                <div class="document-details">
-                  <ul>
-                    {{#each fields}}
-                    {{#unless this.full}}
-                    <li {{#if this.hidden}} style="display:none;" {{/if}}>
-                      <label>{{localize this.name}}</label>
-                      <input type="text" name="flags.monks-enhanced-journal.attributes.{{this.id}}.value" value="{{ this.value }}" />
-                    </li>
-                    {{/unless}}
-                    {{/each}}
-                  </ul>
-                </div>
-              </div>
-              <div class="details-section scrollable flexcol">
-                {{#each fields}}
-                {{#if this.full}}
-                <div class="form-group" {{#if this.hidden}} style="display:none;" {{/if}}>
-                  <label>{{localize this.name}}</label>
-                  <textarea name="flags.monks-enhanced-journal.attributes.{{this.id}}.value">{{this.value}}</textarea>
-                </div>
-                {{/if}}
-                {{/each}}
-              </div>--}} -->
             </div>
           </div>
           <!-- <div class="tab relationships" data-group="primary" data-tab="relationships">
@@ -265,11 +235,8 @@
   import { getGame, localize } from '@/utils/game';
   import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
   import moduleJson from '@module';
-  import { useMainStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore } from '@/applications/stores';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-
-  import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
-  // import { getCleanEntry, updateDocument } from '@/compendia';
 
   // library components
 
@@ -277,7 +244,6 @@
   import Editor from '@/components/Editor.vue';
   import HomePage from '@/components/HomePage.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
-  import Tree from '@/components/Tree/Tree.vue';
 
   // types
   import { Topic, TreeNode } from '@/types';
@@ -298,6 +264,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
+  const directoryStore = useDirectoryStore();
   const { currentEntryId, currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
@@ -339,6 +306,12 @@
 
   ////////////////////////////////
   // event handlers
+
+  const onNameChange = async (event: JQuery.ChangeEvent)=> {
+    await updateDocument(await fromUuid(currentEntryId.value), { name: jQuery(event.target).val() });
+
+    await directoryStore.refreshCurrentTree();
+  };
 
   // new type added in the typeahead
   const onTypeItemAdded = async (worldId: string, added: string) => {
@@ -428,11 +401,6 @@
   onMounted(() => {
     tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
 
-    //     // watch for edits to name
-    //     html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
-    //       await updateDocument(this._entry, { name: jQuery(event.target).val() });
-    //       await this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
-    //     });
 
     //     // home page mode - click on a recent item
     //     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {
