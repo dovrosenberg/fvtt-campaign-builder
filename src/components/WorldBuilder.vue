@@ -132,6 +132,11 @@
 </script>
 
 <style lang="scss">
+// use the quasar style, but only in the vue app
+.fwb {
+  @import 'node_modules/quasar/src/css/index.sass';
+}
+
 // this is from the Vue handler, but we need it to be a flexbox so the overall app window controls the size the rest
 //    of the way down
 div[data-application-part] {

@@ -437,7 +437,7 @@
 </script>
 
 <style lang="scss">
-  .fwb-header {
+.fwb-header {
   color: var(--fwb-header-color);
   background-color: var(--fwb-header-background);
   flex-grow: 0;
