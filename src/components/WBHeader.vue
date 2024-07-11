@@ -76,6 +76,27 @@
           ></i> 
           {{ bookmark.entry.name }}
         </div>
+
+        <q-menu touchPosition contextMenu>
+          <q-list dense style="min-width: 100px">
+            <q-item v-close-popup clickable>
+              <q-item-section avatar>
+                <i class="fas fa-file-export"></i>
+              </q-item-section>              
+              <q-item-section>
+                {{ localize('fwb.contextMenus.bookmarks.openNewTab') }}
+              </q-item-section>
+            </q-item>
+            <q-item v-close-popup clickable>
+              <q-item-section avatar>
+                <i class="fas fa-trash"></i>
+              </q-item-section>              
+              <q-item-section>
+                {{ localize('fwb.contextMenus.bookmarks.delete') }}
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
       </div>
     </div>
 
@@ -110,9 +131,10 @@
   // local imports
   import { localize } from '@/utils/game';
   import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
-  import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
+  import { QMenu } from 'quasar';
 
   // local components
 
@@ -121,25 +143,18 @@
 
   ////////////////////////////////
   // props
-  const props = defineProps({
-    directoryCollapsed: {      // is the directory collapsed 
-      type: Boolean,
-      required: true
-    }
-  });
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits<{
-    (e: 'directoryCollapseToggle'): void
-  }>();
 
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
+  const directoryStore = useDirectoryStore();
   const { currentWorldId, currentEntryId, } = storeToRefs(mainStore);
   const { tabs, } = storeToRefs(navigationStore);
+  const { directoryCollapsed } = storeToRefs(directoryStore);
 
 
   ////////////////////////////////
@@ -233,28 +248,28 @@
   const createContextMenus = function() {
     if (!root.value)
       return;
-
+      
     // bookmarks 
-    new ContextMenu($(root.value), '.fwb-bookmark-button', [
-      {
-        name: 'fwb.contextMenus.bookmarks.openNewTab',
-        icon: '<i class="fas fa-file-export"></i>',
-        callback: async (li) => {
-          const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
-          if (bookmark)
-            await navigationStore.openEntry(bookmark.entry.uuid, { newTab: true });
-        }
-      },
-      {
-        name: 'fwb.contextMenus.bookmarks.delete',
-        icon: '<i class="fas fa-trash"></i>',
-        callback: async (li) => {
-          const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
-          if (bookmark)
-            await removeBookmark(bookmark.id);
-        }
-      }
-    ]).bind();
+    // new ContextMenu($(root.value), '.fwb-bookmark-button', [
+    //   {
+    //     name: 'fwb.contextMenus.bookmarks.openNewTab',
+    //     icon: '<i class="fas fa-file-export"></i>',
+    //     callback: async (li) => {
+    //       const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
+    //       if (bookmark)
+    //         await navigationStore.openEntry(bookmark.entry.uuid, { newTab: true });
+    //     }
+    //   },
+    //   {
+    //     name: 'fwb.contextMenus.bookmarks.delete',
+    //     icon: '<i class="fas fa-trash"></i>',
+    //     callback: async (li) => {
+    //       const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
+    //       if (bookmark)
+    //         await removeBookmark(bookmark.id);
+    //     }
+    //   }
+    // ]).bind();
     
   };
 
@@ -294,7 +309,7 @@
   };
 
   const onSidebarToggleClick = async () => { 
-    emit('directoryCollapseToggle')
+    directoryCollapsed.value = !directoryCollapsed.value;
   };
 
   const onAddTabClick = async () => { await navigationStore.openEntry(); };
@@ -445,7 +460,7 @@
 </script>
 
 <style lang="scss">
-.fwb-header {
+  .fwb-header {
   color: var(--fwb-header-color);
   background-color: var(--fwb-header-background);
   flex-grow: 0;
