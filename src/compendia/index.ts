@@ -105,8 +105,8 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFo
   // make sure we have a default and it exists
   let worldFolder = null as Folder | null;
   if (worldId) {
-    const baseItem = rootFolder.children.find((c)=>c.folder.uuid===worldId);
-    worldFolder = baseItem.folder || null;
+    const baseItem = rootFolder.children.find((c)=>c.folder.uuid===worldId) || null;
+    worldFolder = baseItem?.folder || null;
   }   
 
   if (!worldId || !worldFolder) {
