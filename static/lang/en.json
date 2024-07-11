@@ -47,6 +47,9 @@
       "bookmarks": {
         "openNewTab": "Open in new Tab",
         "delete": "Delete bookmark"
+      },
+      "worldFolder": {
+        "delete": "Delete world"
       }
     },
     "tooltips": {

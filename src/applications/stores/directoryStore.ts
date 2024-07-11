@@ -36,6 +36,9 @@ export const useDirectoryStore = defineStore('directory', () => {
   // the top-level folder structure
   const currentTree = ref<DirectoryWorld[]>([]);
 
+  // current sidebar collapsed state
+  const directoryCollapsed = ref<boolean>(false);
+
   ///////////////////////////////
   // actions
   const createWorld = async(): Promise<void> => {
@@ -43,6 +46,8 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (world) {
       await mainStore.setNewWorld(world.id);
     }
+
+    await refreshCurrentTree();
   };
 
   // expand the given pack, loading the new item data
@@ -184,13 +189,19 @@ export const useDirectoryStore = defineStore('directory', () => {
     // delete all the compendia
     const compendia = WorldFlags.get(worldId, WorldFlagKey.compendia);
 
-    for (let i=0; i<Object.keys(compendia).length; i++) {
-      const pack = getGame().packs.get(compendia[Object.keys(compendia)[i]]);
+    for (let i=0; i<Object.values(compendia).length; i++) {
+      const pack = getGame().packs.get(Object.values(compendia)[i]);
       if (pack) {
         await pack.configure({ locked:false });
         await pack.deleteCompendium();
       }
     }
+
+    // delete the world folder
+    const worldFolder = await fromUuid(worldId) as Folder;
+    await worldFolder.delete();
+
+    await refreshCurrentTree();
   };
 
   const refreshCurrentTree = async (): Promise<void> => {
@@ -482,6 +493,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   // return the public interface
   return {
     currentTree,
+    directoryCollapsed,
 
     toggleEntry,
     togglePack,

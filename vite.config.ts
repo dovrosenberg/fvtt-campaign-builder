@@ -35,6 +35,13 @@ export default defineConfig({
       '.vue'
     ]
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@import "@/components/styles/styles.scss";`,
+      }
+    }
+  },
   plugins: [
     // copy the static module file
     copy({
@@ -48,9 +55,10 @@ export default defineConfig({
     scss({
       output: 'styles/style.css',
       sourceMap: true,
-      include: ['src/**/*.scss', 'src/**/*.css'],
+      include: ['src/**/*.scss', 'src/**/*.css', 'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css'],
       watch: ['src/styles/*.scss', 'src/**/*.css', 'src/'],
-    }),    viteCommonjs(),
+    }),
+    viteCommonjs(),
     envCompatible(),
     createHtmlPlugin({
       inject: {

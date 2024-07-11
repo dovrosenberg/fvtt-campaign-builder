@@ -1,11 +1,3 @@
-// the solo instance
-export let worldBuilder: WorldBuilderApplication;
-
-// set the main application; should only be called once
-export function updateWorldBuilder(newWorldBuilder: WorldBuilderApplication): void {
-  worldBuilder = newWorldBuilder;
-}
-
 import moduleJson from '@module';
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
 import { createPinia, setActivePinia } from 'pinia';
@@ -13,18 +5,16 @@ import App from '@/components/WorldBuilder.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
 
-// // Setup Vuetify
-// const vuetify = createVuetify({
-// 	components,
-// 	directives,
-// })
-
 /////////////////
-// Quasar UI
-// import { Quasar } from 'quasar';
+// Vuetify
+// import { createVuetify } from 'vuetify';
 
-// Import Quasar css
-// import 'quasar/src/css/index.sass';
+// const vuetify = createVuetify({
+//   // components,
+//   // directives,
+// });
+
+import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 
 // setup pinia
 const pinia = createPinia();
@@ -36,7 +26,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
     classes: ['fwb-main-window'], 
     window: {
       title: 'fwb.title',
-      icon: 'fa-solid fa-triangle-exclamation',
+      icon: 'fa-solid fa-globe',
       resizable: true,
       // popOut: true,
       // editable: true,
@@ -48,7 +38,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
       height: 700,
     },
     form: {
-      closeOnSubmit: false,
+      // closeOnSubmit: false,
       submitOnChange: true,
       // submitOnClose: false,
     },
@@ -69,7 +59,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
           plugin: pinia,
           options: {}
         },
-      //   'quasar': { plugin: Quasar }
+        // vuetify: { plugin: vuetify }
       }
     }
   };

@@ -1,5 +1,6 @@
 <template>
-  <div class="fwb-typeahead"
+  <div 
+    class="fwb-typeahead"
     @keydown="onKeyDown"
   >
     <input 
@@ -9,8 +10,9 @@
       placeholder="Search..."
       @input="onInput"
     >
-    <div ref="dropdownRef"
+    <div 
       id="fwb-ta-dropdown" 
+      ref="dropdownRef"
       class="fwb-ta-dropdown"
       @click="onDropdownClick"
     ></div>
@@ -71,14 +73,14 @@
     if (!dropdownRef.value)
       return;
 
-      // Render the filtered items - we're not using handlebars because it's overly complicated to pass up a re-render request
+    // Render the filtered items - we're not using handlebars because it's overly complicated to pass up a re-render request
     let itemHTML = '';
     for (let i=0; i<filteredItems.value.length && i<3; i++) {   // max of 3 items at a time
       itemHTML += `<div class="typeahead-entry ${i===idx.value ? 'highlighted' : ''}">${filteredItems.value[i]}</div>`;
     }
 
     dropdownRef.value.innerHTML = itemHTML;   
-  }
+  };
 
   ////////////////////////////////
   // event handlers
@@ -102,7 +104,7 @@
   };
 
   // Event listener for item clicks
-  const onDropdownClick = async (event: JQuery.ClickEvent) => {
+  const onDropdownClick = async (event: MouseEvent) => {
     if (!inputRef.value || !dropdownRef.value)
       return;
 

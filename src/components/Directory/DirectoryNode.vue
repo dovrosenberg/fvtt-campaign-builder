@@ -6,11 +6,9 @@
     :top="props.top"
     @itemClicked="onSubItemClick"
   />
-  <li
-    v-else
-    :class="(props.top ? 'top' : '')"
-  >
+  <li v-else>
     <div 
+      :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
       draggable="true"
       @click="onDirectoryItemClick($event, props.node)"
       @dragstart="onDragStart($event, node.id)"
@@ -65,7 +63,7 @@
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
   const mainStore = useMainStore();
-  const { currentWorldId } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -186,5 +184,4 @@
 </script>
 
 <style lang="scss">
-
 </style>

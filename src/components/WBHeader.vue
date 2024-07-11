@@ -65,7 +65,8 @@
         class="fwb-bookmark-button" 
         :title="bookmark.entry.name" 
         draggable="true"
-        @click="onBookmarkClick(bookmark.id)"
+        @click.left="onBookmarkClick(bookmark.id)"
+        @contextmenu="onBookmarkContextMenu($event, bookmark.entry.uuid)"
         @dragstart="onDragStart($event, bookmark.id)"
         @drop="onDrop($event, bookmark.id)"
       >
@@ -104,15 +105,16 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, onMounted, watch } from 'vue';
+  import { ref, computed, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { localize } from '@/utils/game';
   import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
-  import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
 
@@ -121,32 +123,24 @@
 
   ////////////////////////////////
   // props
-  const props = defineProps({
-    directoryCollapsed: {      // is the directory collapsed 
-      type: Boolean,
-      required: true
-    }
-  });
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits<{
-    (e: 'directoryCollapseToggle'): void
-  }>();
 
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
+  const directoryStore = useDirectoryStore();
   const { currentWorldId, currentEntryId, } = storeToRefs(mainStore);
   const { tabs, } = storeToRefs(navigationStore);
-
+  const { directoryCollapsed } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
   const bookmarks = ref<Bookmark[]>([]);
   const root = ref<HTMLElement | null>(null);
-
+  
   ////////////////////////////////
   // computed data
   const activeEntryId = computed((): string | null => {
@@ -172,8 +166,6 @@
 
     return (checkTab.history?.length > 1) && (checkTab.historyIdx < checkTab.history.length-1);
   };
-
-
   const saveBookmarks = async function () {
     if (!currentWorldId.value)
       return;
@@ -196,7 +188,7 @@
 
     tab.historyIdx = newSpot;
     await navigationStore.openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
-}
+  };
 
   // remove the tab given by the id from the list
   const closeTab = async function (tabId: string) {
@@ -228,36 +220,40 @@
     bookmarksValue.findSplice(b => b.id === id);
     bookmarks.value = bookmarksValue;
     await saveBookmarks();
-  }
-
-  const createContextMenus = function() {
-    if (!root.value)
-      return;
-
-    // bookmarks 
-    new ContextMenu($(root.value), '.fwb-bookmark-button', [
-      {
-        name: 'fwb.contextMenus.bookmarks.openNewTab',
-        icon: '<i class="fas fa-file-export"></i>',
-        callback: async (li) => {
-          const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
-          if (bookmark)
-            await navigationStore.openEntry(bookmark.entry.uuid, { newTab: true });
-        }
-      },
-      {
-        name: 'fwb.contextMenus.bookmarks.delete',
-        icon: '<i class="fas fa-trash"></i>',
-        callback: async (li) => {
-          const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
-          if (bookmark)
-            await removeBookmark(bookmark.id);
-        }
-      }
-    ]).bind();
-    
   };
 
+  const onBookmarkContextMenu = (event: MouseEvent, entryId: string | null): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fwb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-file-export',
+          iconFontClass: 'fas',
+          label: localize('fwb.contextMenus.bookmarks.openNewTab'), 
+          onClick: async () => {
+            if (entryId)
+              await navigationStore.openEntry(entryId, { newTab: true });
+          }
+        },
+        { 
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('fwb.contextMenus.bookmarks.delete'), 
+          onClick: async () => {
+            if (entryId)
+              await removeBookmark(entryId);
+          }
+        },
+      ]
+    });
+  };
 
   ////////////////////////////////
   // event handlers
@@ -294,7 +290,7 @@
   };
 
   const onSidebarToggleClick = async () => { 
-    emit('directoryCollapseToggle')
+    directoryCollapsed.value = !directoryCollapsed.value;
   };
 
   const onAddTabClick = async () => { await navigationStore.openEntry(); };
@@ -405,10 +401,6 @@
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(function () {
-    // create the context menus
-    createContextMenus();
-  });
 
 
 // TODO - need someway to trigger this from outside... it feels like maybe the tabs  need to be maintained from
@@ -445,13 +437,14 @@
 </script>
 
 <style lang="scss">
-.fwb-header {
-    background-color: var(--mej-header-background);
-    flex-grow: 0;
+  .fwb-header {
+  color: var(--fwb-header-color);
+  background-color: var(--fwb-header-background);
+  flex-grow: 0;
 
   & > * {
     flex: 0 0 30px;
-    border-bottom: 1px solid var(--mej-header-border-color);
+    border-bottom: 1px solid var(--fwb-header-border-color);
   }
 
   // tab bar
@@ -460,7 +453,7 @@
     transition: padding-right 0.5s;
     padding: 4px 2px 0px 4px;
     flex: 0 0 34px;
-    color: var(--mej-header-tab-color);
+    color: var(--fwb-header-tab-color);
 
     #fwb-sidebar-toggle {
       float: left;
@@ -483,8 +476,8 @@
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
         line-height: 20px;
-        background: var(--mej-header-tab-background);
-        border: var(--mej-header-tab-border);
+        background: var(--fwb-header-tab-background);
+        border: var(--fwb-header-tab-border);
         position: relative;
         font-family: 'Signika', sans-serif;
         overflow: hidden;
@@ -511,13 +504,13 @@
 
         &.active {
           font-weight: bold;
-          background-color: var(--mej-header-tab-active);
+          background-color: var(--fwb-header-tab-active);
           outline: none;
         }
 
         &:hover {
           box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-          background-color: var(--mej-header-tab-hover);
+          background-color: var(--fwb-header-tab-hover);
         }
 
         .close {
@@ -541,7 +534,7 @@
         font-weight: bold;
         cursor: pointer;
         font-size: 18px;
-        color: var(--mej-header-tab-btn-color);
+        color: var(--fwb-header-tab-btn-color);
 
         &:hover {
           opacity: 0.9;
@@ -556,7 +549,7 @@
   .fwb-bookmark-bar {
     padding-left: 2px;
     flex: 0 0 36px;
-    color: var(--mej-header-bookmark-color);
+    color: var(--fwb-header-bookmark-color);
 
     .fwb-bookmark-button, #fwb-add-bookmark {
       height: 28px;
@@ -570,8 +563,8 @@
       flex-wrap: nowrap;
       flex-grow: 0;
       white-space: nowrap;
-      border: 1px solid var(--mej-header-bookmark-border);
-      background: var(--mej-header-bookmark-background);
+      border: 1px solid var(--fwb-header-bookmark-border);
+      background: var(--fwb-header-bookmark-background);
 
       &#fwb-add-bookmark {
         border-radius: 4px;
@@ -584,9 +577,9 @@
         text-overflow: clip;
         margin-left: 2px;
         overflow: hidden;
-        border: 1px solid var(--mej-header-add-bookmark-border);
-        background: var(--mej-header-add-bookmark-background);
-        color: var(--mej-header-add-bookmark-color);
+        border: 1px solid var(--fwb-header-add-bookmark-border);
+        background: var(--fwb-header-add-bookmark-background);
+        color: var(--fwb-header-add-bookmark-color);
 
         &.disabled {
           cursor: default;
@@ -607,25 +600,25 @@
       }
 
       &:hover {
-        background: var(--mej-header-bookmark-hover);
+        background: var(--fwb-header-bookmark-hover);
       }
 
       &#fwb-add-bookmark:not(.disabled):hover {
-        background: var(--mej-header-add-bookmark-hover);
+        background: var(--fwb-header-add-bookmark-hover);
       }
     }
   }
 
   // Navigation bar 
   .navigation {
-    color: var(--mej-header-nav-color);
-    background: var(--mej-header-nav-background);
+    color: var(--fwb-header-nav-color);
+    background: var(--fwb-header-nav-background);
     padding: 2px;
 
     hr.vertical {
       height: 100%;
       width: 1px;
-      border-right: 2px groove var(--mej-header-nav-vertical-line);
+      border-right: 2px groove var(--fwb-header-nav-vertical-line);
       flex: 0 0 1px;
       margin: 0px 2px;
     }
@@ -644,21 +637,21 @@
       width: 24px;
       height: 24px;
       border-radius: 4px;
-      border: 1px solid var(--mej-header-nav-btn-border);
+      border: 1px solid var(--fwb-header-nav-btn-border);
       margin-top: 1px;
-      background: var(--mej-header-nav-btn-background);
+      background: var(--fwb-header-nav-btn-background);
     }
 
     .nav-button:not(.disabled):hover {
       box-shadow: 0 0 5px red;
       cursor: pointer;
-      background: var(--mej-header-nav-btn-background-hover);
+      background: var(--fwb-header-nav-btn-background-hover);
     }
 
     .nav-button.disabled {
-      color: var(--mej-header-nav-btn-disabled);
-      background: var(--mej-header-nav-btn-background-disabled);
-      border-color: var(--mej-header-nav-btn-border-disabled);
+      color: var(--fwb-header-nav-btn-disabled);
+      background: var(--fwb-header-nav-btn-background-disabled);
+      border-color: var(--fwb-header-nav-btn-border-disabled);
     }
 
     .nav-input {
@@ -667,19 +660,19 @@
       height: 25px !important;
       border-radius: 4px;
       flex: 0 0 200px;
-      border: 1px solid var(--mej-header-nav-input-border);
-      background: var(--mej-header-nav-input-background);
-      color: var(--mej-header-nav-input-color);
+      border: 1px solid var(--fwb-header-nav-input-border);
+      background: var(--fwb-header-nav-input-background);
+      color: var(--fwb-header-nav-input-color);
     }
 
     .nav-input::placeholder {
-      color: var(--mej-header-nav-input-placeholder-color);
+      color: var(--fwb-header-nav-input-placeholder-color);
     }
 
     .nav-input:focus {
-      background: var(--mej-header-nav-input-focus-background);
-      border: 1px solid var(--mej-header-nav-input-focus-border);
-      color: var(--mej-header-nav-input-focus-color);
+      background: var(--fwb-header-nav-input-focus-background);
+      border: 1px solid var(--fwb-header-nav-input-focus-border);
+      color: var(--fwb-header-nav-input-focus-color);
     }
 
     .nav-text {
@@ -699,7 +692,7 @@
   //  }
 
     .search.error {
-      background-color: var(--mej-header-nav-input-error-background);
+      background-color: var(--fwb-header-nav-input-error-background);
     }
 
     .button-group .nav-text i.fa-search {

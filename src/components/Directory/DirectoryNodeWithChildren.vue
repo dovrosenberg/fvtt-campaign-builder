@@ -3,6 +3,7 @@
     <details :open="props.expanded">
       <summary :class="(props.top ? 'top' : '')">      
         <div 
+          :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
           draggable="true"
           @click="onDirectoryItemClick($event, props.node)"
           @dragstart="onDragStart($event, node.id)"
@@ -74,7 +75,7 @@
   // store
   const directoryStore = useDirectoryStore();
   const mainStore = useMainStore();
-  const { currentWorldId } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data

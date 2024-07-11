@@ -1,33 +1,26 @@
 <template>
-  <div 
-    :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')"
-  >
+  <div :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')">
     <section class="fwb-body flexcol">
-      <WBHeader 
-        :directoryCollapsed="directoryCollapsed"
-        @directory-collapse-toggle="onDirectoryCollapseToggle"
-      />
+      <WBHeader />
       <div class="fwb-content flexcol editable">
         <WBContent />
       </div>
     </section>
     <div id="fwb-directory-sidebar">
-      <Directory 
-        @world-selected="onDirectoryWorldSelected"
-      />
+      <Directory @worldSelected="onDirectoryWorldSelected" />
     </div> 
   </div>
 </template> 
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, ref } from 'vue';
+  import { onMounted, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
-  import { useMainStore } from '@/applications/stores';
+  import { useMainStore, useDirectoryStore } from '@/applications/stores';
 
   // library components
 
@@ -47,11 +40,12 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
+  const directoryStore = useDirectoryStore();
   const { currentWorldFolder, rootFolder } = storeToRefs(mainStore);
+  const { directoryCollapsed } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
-  const directoryCollapsed = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
@@ -64,12 +58,6 @@
   const onDirectoryWorldSelected = async (worldId: string) => {
     await directoryStore.changeWorld(worldId);
   };
-
- 
-  const onDirectoryCollapseToggle = () => {
-    directoryCollapsed.value = !directoryCollapsed.value;
-  };
-
 
   ////////////////////////////////
   // watchers
@@ -91,83 +79,8 @@
   });
 
 
-
-  // public activateListeners(html: JQuery<HTMLElement>): void {
-  //   super.activateListeners(html);
-
-  //   // recent item clicked - open it in current tab
-  //   this._partials.WBContent.registerCallback(WBContent.CallbackType.RecentClicked, (uuid: string) => { void (this._partials.WBHeader as WBHeader).openEntry(uuid, { newTab: false }); });
-
-  //   // item name changed - rerender
-  //   this._partials.WBContent.registerCallback(WBContent.CallbackType.NameChanged, async (entry: JournalEntry) => { 
-  //     // let the header know
-  //     await (this._partials.WBHeader as WBHeader).changeEntryName(entry);
-  //     await this.render(); 
-  //   });
-
-
-
-  /*
-  _saveScrollPositions(html) {
-    super._saveScrollPositions(html);
-    if (this.subsheet && this.subsheet.rendered && this.subsheet.options.scrollY && this.subsheet.object.id == this.object.id) {   //only save if we're refreshing the sheet
-      const selectors = this.subsheet.options.scrollY || [];
-
-      this._scrollPositions = selectors.reduce((pos, sel) => {
-        //const el = $(sel, this.subdocument);
-        //if (el.length === 1) pos[sel] = Array.from(el).map(el => el[0].scrollTop);
-        const el = $(this.subdocument).find(sel);
-        pos[sel] = Array.from(el).map(el => el.scrollTop);
-        return pos;
-      }, (this._scrollPositions || {}));
-
-      game.user.setFlag("monks-enhanced-journal", `pagestate.${this.object.id}.scrollPositions`, flattenObject(this._scrollPositions));
-    }
-  }
-
-  saveScrollPos() {
-    if (this?.subsheet && this.subsheet.options.scrollY && this.subsheet.object.id == this.object.id) {   //only save if we're refreshing the sheet
-      const selectors = this.subsheet.options.scrollY || [];
-
-      let newScrollPositions = selectors.reduce((pos, sel) => {
-        const el = $(this.subdocument).find(sel);
-        pos[sel] = Array.from(el).map(el => el.scrollTop);
-        return pos;
-      }, {});
-
-      let oldScrollPosition = flattenObject(game.user.getFlag("monks-enhanced-journal", `pagestate.${this.object.id}.scrollPositions`) || {});
-
-      game.user.setFlag("monks-enhanced-journal", `pagestate.${this.object.id}.scrollPositions`, flattenObject(foundry.utils.mergeObject(oldScrollPosition, newScrollPositions)));
-    }
-  }
-
-*/
-
   /*
 
-  async deleteEntity(entityId){
-    //an entity has been deleted, what do we do?
-    for (let tab of this._tabList) {
-      if (tab.entityId?.startsWith(entityId)) {
-        tab.entity = await this.findEntity('', tab.text); //I know this will return a blank one, just want to maintain consistency
-        tab.text = i18n("MonksEnhancedJournal.NewTab");
-        $('.fwb-tab[data-tab-id="${tab.id}"] .tab-content', this.element).html(tab.text);
-      }
-
-      //remove it from the history
-      tab.history = tab.history.filter(h => h != entityId);
-
-      if (tab.active && this.rendered)
-        this.render(true);  //if this entity was being shown on the active tab, then refresh the journal
-    }
-
-    this._saveTabs();
-  }
-
-  _randomizePerson() {
-    //randomize first name, last name, race, gender, profession
-    //check first to see if the field needs to be rendomized, or if the fields are filled in
-  }
 
   searchText(query) {
     let that = this;
@@ -264,8 +177,8 @@ div[data-application-part] {
     #fwb-directory-sidebar {
       flex: 0 0 250px;
       height: 100%;
-      background: var(--mej-sidebar-background);
-      border-left: 1px solid var(--mej-header-border-color);
+      background: var(--fwb-sidebar-background);
+      border-left: 1px solid var(--fwb-header-border-color);
       transition: width 0.5s, flex 0.5s;
 
       & > section {
@@ -287,7 +200,7 @@ div[data-application-part] {
         padding-right: 30px;
 
         #context-menu {
-          left: var(--mej-context-x);
+          left: var(--fwb-context-x);
           width: 225px;
         }
       }

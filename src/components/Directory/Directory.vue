@@ -41,6 +41,7 @@
         :key="world.id"
         :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
         @click="onWorldFolderClick($event, world.id)"
+        @contextmenu="onWorldContextMenu($event, world.id)"
       >
         <header class="folder-header flexrow">
           <h3 class="noborder">
@@ -107,7 +108,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, ref, } from 'vue';
+  import { ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -116,6 +117,7 @@
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
   import NodeComponent from './DirectoryNode.vue';
@@ -146,31 +148,6 @@
 
   ////////////////////////////////
   // methods
-  const createContextMenus = function() {
-    if (!root.value)
-      return;
-
-    // worlds 
-    new ContextMenu($(root.value), '.fwb-world-folder', [
-      {
-        name: 'fwb.contextMenus.worldFolder.delete',
-        icon: '<i class="fas fa-trash"></i>',
-        callback: async (li) => {
-          await directoryStore.deleteWorld(li[0].dataset.worldId);
-        }
-      },
-      // {
-      //   name: 'fwb.contextMenus.bookmarks.delete',
-      //   icon: '<i class="fas fa-trash"></i>',
-      //   callback: async (li) => {
-      //     const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
-      //     if (bookmark)
-      //       await removeBookmark(bookmark.id);
-      //   }
-      // }
-    ]).bind();
-    
-  };
 
   ////////////////////////////////
   // event handlers
@@ -181,6 +158,30 @@
 
     if (worldId)
       await mainStore.setNewWorld(worldId);
+  };
+
+  const onWorldContextMenu = (event: MouseEvent, worldId: string | null): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fwb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('fwb.contextMenus.worldFolder.delete'), 
+          onClick: async () => {
+            if (worldId)
+              await directoryStore.deleteWorld(worldId);
+          }
+        },
+      ]
+    });
   };
 
   // open/close a topic
@@ -234,9 +235,6 @@
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(() => {
-    createContextMenus();
-  });
 
 </script>
 
@@ -248,9 +246,9 @@
 
     .directory-header {
       flex: 0;
-      background-color: var(--mej-header-background);
-      border-bottom: 1px solid var(--mej-header-border-color);
-      color: var(--mej-sidebar-label-color);
+      background-color: var(--fwb-header-background);
+      border-bottom: 1px solid var(--fwb-header-border-color);
+      color: var(--fwb-sidebar-label-color);
       margin-bottom: 0px;
       padding-top: 3px;
       padding-bottom: 6px;
@@ -258,8 +256,8 @@
 
       .header-actions.action-buttons button {
         line-height: 24px;
-        background: var(--mej-sidebar-button-background);
-        border: 2px groove var(--mej-sidebar-button-border);
+        background: var(--fwb-sidebar-button-background);
+        border: 2px groove var(--fwb-sidebar-button-border);
       }
 
       .header-search {
@@ -304,21 +302,27 @@
     }
 
     .fwb-world-folder > .folder-header {
-      border-top: 1px solid var(--mej-sidebar-folder-border-collapsed);
       border-bottom: none;
       width: 100%;
-      background: var(--mej-sidebar-folder-background-collapsed);
       flex: 1;
-      color: var(--color-text-light-highlight);
+
+      h3 {
+        color: inherit;   // reset the default from foundry            
+        text-shadow: inherit;
+      }
     }
 
     .fwb-world-folder:not(.collapsed) > .folder-header {
-      border-top: 1px solid var(--mej-sidebar-folder-border);
-      background: var(--mej-sidebar-folder-background);
+      border-top: 1px solid var(--fwb-sidebar-world-border);
+      background: var(--fwb-sidebar-world-background);
+      color: var(--fwb-sidebar-world-color);
     }
 
-    .fwb-world-folder.collapsed > .folder-header:not(.customcolor) {
-      color: var(--mej-sidebar-folder-color-collapsed);
+    .fwb-world-folder.collapsed > .folder-header {
+      border-top: 1px solid var(--fwb-sidebar-world-border-collapsed);
+      background: var(--fwb-sidebar-world-background-collapsed);
+      color: var(--fwb-sidebar-world-color-collapsed);
+      text-shadow: none;
     }
 
     .fwb-world-folder .folder-header.context {
@@ -326,14 +330,11 @@
       border-bottom: 1px solid var(--mej-active-color);
     }
 
-    .fwb-world-folder .folder-header.context,
-    .fwb-world-folder .folder-header.context h3 {
-      color: var(--mej-sidebar-folder-context-color);
-    }
-
     .fwb-topic-folder .folder-header {
       background: inherit;
       border: 0px;
+      text-shadow: none;   // override foundry default
+      cursor: pointer;
 
       i.icon {
         color: #777;
@@ -347,16 +348,16 @@
 
     .fwb-create-entry.create-button {
       i.fa-atlas {
-        color: #555;
+        color: var(--fwb-sidebar-create-entry-color);
       }
       i.fa-plus {
-        background: #555;
+        background: var(--fwb-sidebar-create-entry-secondary-color);
       }
     }
 
     .world-contents {
-      border-left: 6px solid var(--mej-sidebar-subfolder-border);
-      border-bottom: 2px solid var(--mej-sidebar-subfolder-border);
+      border-left: 6px solid var(--fwb-sidebar-subfolder-border);
+      border-bottom: 2px solid var(--fwb-sidebar-subfolder-border);
       margin: 0px;
       width: 100%;
       padding-left: 10px;
@@ -396,6 +397,11 @@
       position: relative;
       padding-left: 1em;
       cursor: pointer;
+    }
+
+    // bold the active one
+    .fwb-current-directory-entry {
+      font-weight: bold;
     }
 
     // very first node
