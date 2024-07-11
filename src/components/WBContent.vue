@@ -37,7 +37,7 @@
             <div v-if="showHierarchy"
               class="form-group fwb-content-header"
             >
-              <Tree :topNodes="treeNodes" /> 
+              <!-- <Tree :topNodes="treeNodes" />  -->
             </div>
 
           </section>

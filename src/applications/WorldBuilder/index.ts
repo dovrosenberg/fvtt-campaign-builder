@@ -6,11 +6,13 @@ import App from '@/components/WorldBuilder.vue';
 const { ApplicationV2 } = foundry.applications.api;
 
 /////////////////
-// Quasar UI
-import { Quasar } from 'quasar';
+// Vuetify
+import { createVuetify } from 'vuetify';
 
-// Import Quasar css
-//import 'quasar/src/css/index.sass';
+const vuetify = createVuetify({
+  // components,
+  // directives,
+});
 
 // setup pinia
 const pinia = createPinia();
@@ -55,13 +57,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
           plugin: pinia,
           options: {}
         },
-        quasar: { plugin: Quasar, options: {
-          config: {
-            globalNode: {
-              className: 'fwb',
-            }
-          }
-        }}
+        vuetify: { plugin: vuetify }
       }
     }
   };

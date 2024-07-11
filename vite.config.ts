@@ -9,7 +9,6 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs';
 import { defineConfig, Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { quasar } from '@quasar/vite-plugin';
 
 // to get the verison number
 import npmPackage from './package.json';
@@ -58,8 +57,6 @@ export default defineConfig({
       sourceMap: true,
       include: ['src/**/*.scss', 'src/**/*.css'],
       watch: ['src/styles/*.scss', 'src/**/*.css', 'src/'],
-    }),
-    quasar({
     }),
     viteCommonjs(),
     envCompatible(),

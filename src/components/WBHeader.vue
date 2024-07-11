@@ -65,7 +65,8 @@
         class="fwb-bookmark-button" 
         :title="bookmark.entry.name" 
         draggable="true"
-        @click="onBookmarkClick(bookmark.id)"
+        @click.left="onBookmarkClick(bookmark.id)"
+        @contextmenu.prevent="showContextMenu($event, bookmark.id)"
         @dragstart="onDragStart($event, bookmark.id)"
         @drop="onDrop($event, bookmark.id)"
       >
@@ -77,26 +78,41 @@
           {{ bookmark.entry.name }}
         </div>
 
-        <q-menu touchPosition contextMenu>
-          <q-list dense style="min-width: 100px">
-            <q-item v-close-popup clickable>
+        <!-- Overlay to close the menu -->
+        <div class="overlay" @click="closeContextMenu" v-if="showBookmarkMenu" ></div>
+
+        <ContextMenu
+          v-if="showBookmarkMenu"
+          :actions="contextMenuActions"
+          :x="menuX"
+          :y="menuY"
+          @actionClicked="handleActionClick"
+        />
+            <!-- <v-menu
+          v-model="showBookmarkMenu"
+          :closeOnContentClick="true"
+          location="end"
+          activator="parent"
+        >
+          <v-list dense>
+            <v-list-item>
               <q-item-section avatar>
                 <i class="fas fa-file-export"></i>
               </q-item-section>              
               <q-item-section>
                 {{ localize('fwb.contextMenus.bookmarks.openNewTab') }}
               </q-item-section>
-            </q-item>
-            <q-item v-close-popup clickable>
+            </v-list-item>
+            <v-list-item v-close-popup clickable>
               <q-item-section avatar>
                 <i class="fas fa-trash"></i>
               </q-item-section>              
               <q-item-section>
                 {{ localize('fwb.contextMenus.bookmarks.delete') }}
               </q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
+            </v-list-item>
+          </v-list>
+        </v-menu> -->
       </div>
     </div>
 
@@ -134,9 +150,9 @@
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
-  import { QMenu } from 'quasar';
 
   // local components
+  import ContextMenu from '@/components/ContextMenu.vue';
 
   // types
   import { Bookmark, WindowTab } from '@/types';
@@ -161,6 +177,16 @@
   // data
   const bookmarks = ref<Bookmark[]>([]);
   const root = ref<HTMLElement | null>(null);
+  const showBookmarkMenu = ref<boolean>(false);
+
+  const showMenu = ref(false);
+  const menuX = ref(0);
+  const menuY = ref(0);
+  const targetRow = ref({});
+  const contextMenuActions = ref([
+    { label: 'Edit', action: 'edit' },
+    { label: 'Delete', action: 'delete' },
+  ]);
 
   ////////////////////////////////
   // computed data
@@ -188,6 +214,22 @@
     return (checkTab.history?.length > 1) && (checkTab.historyIdx < checkTab.history.length-1);
   };
 
+  const showContextMenu = (event, bookmarkId) => {
+    event.preventDefault();
+    showBookmarkMenu.value = true;
+    targetRow.value = bookmarkId;
+    menuX.value = event.clientX;
+    menuY.value = event.clientY;
+  };
+
+  const closeContextMenu = () => {
+    showBookmarkMenu.value = false;
+  };
+
+  function handleActionClick(action){
+    console.log(action);
+    console.log(targetRow.value);
+  }
 
   const saveBookmarks = async function () {
     if (!currentWorldId.value)
