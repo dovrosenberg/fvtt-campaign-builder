@@ -41,6 +41,7 @@
         :key="world.id"
         :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
         @click="onWorldFolderClick($event, world.id)"
+        @contextmenu="onWorldContextMenu($event, world.id)"
       >
         <header class="folder-header flexrow">
           <h3 class="noborder">
@@ -107,7 +108,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, ref, } from 'vue';
+  import { ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -116,6 +117,7 @@
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
   import NodeComponent from './DirectoryNode.vue';
@@ -146,31 +148,6 @@
 
   ////////////////////////////////
   // methods
-  const createContextMenus = function() {
-    if (!root.value)
-      return;
-
-    // worlds 
-    new ContextMenu($(root.value), '.fwb-world-folder', [
-      {
-        name: 'fwb.contextMenus.worldFolder.delete',
-        icon: '<i class="fas fa-trash"></i>',
-        callback: async (li) => {
-          await directoryStore.deleteWorld(li[0].dataset.worldId);
-        }
-      },
-      // {
-      //   name: 'fwb.contextMenus.bookmarks.delete',
-      //   icon: '<i class="fas fa-trash"></i>',
-      //   callback: async (li) => {
-      //     const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
-      //     if (bookmark)
-      //       await removeBookmark(bookmark.id);
-      //   }
-      // }
-    ]).bind();
-    
-  };
 
   ////////////////////////////////
   // event handlers
@@ -181,6 +158,30 @@
 
     if (worldId)
       await mainStore.setNewWorld(worldId);
+  };
+
+  const onWorldContextMenu = (event: MouseEvent, worldId: string | null): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fwb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('fwb.contextMenus.worldFolder.delete'), 
+          onClick: async () => {
+            if (worldId)
+              await directoryStore.deleteWorld(worldId);
+          }
+        },
+      ]
+    });
   };
 
   // open/close a topic
@@ -234,9 +235,6 @@
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(() => {
-    createContextMenus();
-  });
 
 </script>
 

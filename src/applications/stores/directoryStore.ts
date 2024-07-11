@@ -189,13 +189,19 @@ export const useDirectoryStore = defineStore('directory', () => {
     // delete all the compendia
     const compendia = WorldFlags.get(worldId, WorldFlagKey.compendia);
 
-    for (let i=0; i<Object.keys(compendia).length; i++) {
-      const pack = getGame().packs.get(compendia[Object.keys(compendia)[i]]);
+    for (let i=0; i<Object.values(compendia).length; i++) {
+      const pack = getGame().packs.get(Object.values(compendia)[i]);
       if (pack) {
         await pack.configure({ locked:false });
         await pack.deleteCompendium();
       }
     }
+
+    // delete the world folder
+    const worldFolder = await fromUuid(worldId) as Folder;
+    await worldFolder.delete();
+
+    await refreshCurrentTree();
   };
 
   const refreshCurrentTree = async (): Promise<void> => {

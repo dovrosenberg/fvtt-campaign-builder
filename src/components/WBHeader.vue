@@ -66,7 +66,7 @@
         :title="bookmark.entry.name" 
         draggable="true"
         @click.left="onBookmarkClick(bookmark.id)"
-        @contextmenu.prevent="showContextMenu($event, bookmark.id)"
+        @contextmenu="onBookmarkContextMenu($event, bookmark.entry.uuid)"
         @dragstart="onDragStart($event, bookmark.id)"
         @drop="onDrop($event, bookmark.id)"
       >
@@ -77,42 +77,6 @@
           ></i> 
           {{ bookmark.entry.name }}
         </div>
-
-        <!-- Overlay to close the menu -->
-        <div class="overlay" @click="closeContextMenu" v-if="showBookmarkMenu" ></div>
-
-        <ContextMenu
-          v-if="showBookmarkMenu"
-          :actions="contextMenuActions"
-          :x="menuX"
-          :y="menuY"
-          @actionClicked="handleActionClick"
-        />
-            <!-- <v-menu
-          v-model="showBookmarkMenu"
-          :closeOnContentClick="true"
-          location="end"
-          activator="parent"
-        >
-          <v-list dense>
-            <v-list-item>
-              <q-item-section avatar>
-                <i class="fas fa-file-export"></i>
-              </q-item-section>              
-              <q-item-section>
-                {{ localize('fwb.contextMenus.bookmarks.openNewTab') }}
-              </q-item-section>
-            </v-list-item>
-            <v-list-item v-close-popup clickable>
-              <q-item-section avatar>
-                <i class="fas fa-trash"></i>
-              </q-item-section>              
-              <q-item-section>
-                {{ localize('fwb.contextMenus.bookmarks.delete') }}
-              </q-item-section>
-            </v-list-item>
-          </v-list>
-        </v-menu> -->
       </div>
     </div>
 
@@ -141,7 +105,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, onMounted, watch } from 'vue';
+  import { ref, computed, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -150,9 +114,9 @@
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import ContextMenu from '@/components/ContextMenu.vue';
 
   // types
   import { Bookmark, WindowTab } from '@/types';
@@ -172,22 +136,11 @@
   const { tabs, } = storeToRefs(navigationStore);
   const { directoryCollapsed } = storeToRefs(directoryStore);
 
-
   ////////////////////////////////
   // data
   const bookmarks = ref<Bookmark[]>([]);
   const root = ref<HTMLElement | null>(null);
-  const showBookmarkMenu = ref<boolean>(false);
-
-  const showMenu = ref(false);
-  const menuX = ref(0);
-  const menuY = ref(0);
-  const targetRow = ref({});
-  const contextMenuActions = ref([
-    { label: 'Edit', action: 'edit' },
-    { label: 'Delete', action: 'delete' },
-  ]);
-
+  
   ////////////////////////////////
   // computed data
   const activeEntryId = computed((): string | null => {
@@ -213,24 +166,6 @@
 
     return (checkTab.history?.length > 1) && (checkTab.historyIdx < checkTab.history.length-1);
   };
-
-  const showContextMenu = (event, bookmarkId) => {
-    event.preventDefault();
-    showBookmarkMenu.value = true;
-    targetRow.value = bookmarkId;
-    menuX.value = event.clientX;
-    menuY.value = event.clientY;
-  };
-
-  const closeContextMenu = () => {
-    showBookmarkMenu.value = false;
-  };
-
-  function handleActionClick(action){
-    console.log(action);
-    console.log(targetRow.value);
-  }
-
   const saveBookmarks = async function () {
     if (!currentWorldId.value)
       return;
@@ -253,7 +188,7 @@
 
     tab.historyIdx = newSpot;
     await navigationStore.openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
-}
+  };
 
   // remove the tab given by the id from the list
   const closeTab = async function (tabId: string) {
@@ -285,36 +220,40 @@
     bookmarksValue.findSplice(b => b.id === id);
     bookmarks.value = bookmarksValue;
     await saveBookmarks();
-  }
-
-  const createContextMenus = function() {
-    if (!root.value)
-      return;
-      
-    // bookmarks 
-    // new ContextMenu($(root.value), '.fwb-bookmark-button', [
-    //   {
-    //     name: 'fwb.contextMenus.bookmarks.openNewTab',
-    //     icon: '<i class="fas fa-file-export"></i>',
-    //     callback: async (li) => {
-    //       const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
-    //       if (bookmark)
-    //         await navigationStore.openEntry(bookmark.entry.uuid, { newTab: true });
-    //     }
-    //   },
-    //   {
-    //     name: 'fwb.contextMenus.bookmarks.delete',
-    //     icon: '<i class="fas fa-trash"></i>',
-    //     callback: async (li) => {
-    //       const bookmark = bookmarks.value.find(b => b.id === li[0].dataset.bookmarkId);
-    //       if (bookmark)
-    //         await removeBookmark(bookmark.id);
-    //     }
-    //   }
-    // ]).bind();
-    
   };
 
+  const onBookmarkContextMenu = (event: MouseEvent, entryId: string | null): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fwb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-file-export',
+          iconFontClass: 'fas',
+          label: localize('fwb.contextMenus.bookmarks.openNewTab'), 
+          onClick: async () => {
+            if (entryId)
+              await navigationStore.openEntry(entryId, { newTab: true });
+          }
+        },
+        { 
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('fwb.contextMenus.bookmarks.delete'), 
+          onClick: async () => {
+            if (entryId)
+              await removeBookmark(entryId);
+          }
+        },
+      ]
+    });
+  };
 
   ////////////////////////////////
   // event handlers
@@ -462,10 +401,6 @@
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(function () {
-    // create the context menus
-    createContextMenus();
-  });
 
 
 // TODO - need someway to trigger this from outside... it feels like maybe the tabs  need to be maintained from
