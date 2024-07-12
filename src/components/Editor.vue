@@ -25,7 +25,7 @@
         ref="coreEditorRef"
         class="editor-content" 
         v-bind="datasetProperties"
-        v-html="initialContent ?? ''"
+        v-html="enrichedInitialContent"
       >
       </div>
     </div>
@@ -113,6 +113,7 @@
   // data
   const editorId = ref<string>();
   const initialContent = ref<string>('');
+  const enrichedInitialContent = ref<string>('');
   const editor = ref<TextEditor | null>(null);
   const buttonDisplay = ref<string>('');   // is button currently visible
   const editorVisible = ref<boolean>(true);
@@ -135,7 +136,7 @@
       dataset.edit = props.target;
 
     return dataset;
-  })
+  });
 
   ////////////////////////////////
   // methods
@@ -178,7 +179,7 @@
     buttonDisplay.value = 'none';
     
     editor.value = await TextEditor.create(options, initialContent.value);
-    
+   
     options.target.closest('.editor')?.classList.add(props.engine);
 
     // /* @deprecated since v10 */
@@ -240,14 +241,20 @@
 
   ////////////////////////////////
   // watchers
-  watch(()=> props.document, () =>{
-    if (props.document)
+  watch(()=> props.document, async () =>{
+    if (props.document) {
       initialContent.value = props.document.text.content;
+
+      enrichedInitialContent.value = await TextEditor.enrichHTML(initialContent.value || '', {
+        secrets: true,    //this.document.isOwner,
+        async: true
+      });    
+    }
   });
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(() => {
+  onMounted(async () => {
     // we create a random ID so we can use multiple instances
     editorId.value  = 'fwb-editor-' + foundry.utils.randomID();
 
@@ -256,6 +263,12 @@
       return;
 
     editor.value = null;
+
+    // show the pretty text
+    enrichedInitialContent.value = await TextEditor.enrichHTML(initialContent.value || '', {
+      secrets: true,    //this.document.isOwner,
+      async: true
+    });
 
     if (!props.hasButton) {
       void activateEditor();
