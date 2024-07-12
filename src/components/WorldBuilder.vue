@@ -1,5 +1,8 @@
 <template>
-  <div :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')">
+  <div  
+    :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')"
+    @click="onClickApplication($event)"
+  >
     <section class="fwb-body flexcol">
       <WBHeader />
       <div class="fwb-content flexcol editable">
@@ -58,6 +61,28 @@
   const onDirectoryWorldSelected = async (worldId: string) => {
     await directoryStore.changeWorld(worldId);
   };
+
+  // whenever we click on a link inside the application that is a link to a document (these are inserted by TextEditor.enrichHTML)
+  //    if it's a document in world builder, open in here instead of the default functionality
+  const onClickApplication = (event: JQuery.ClickEvent) => {
+    // ignore anything that's not an <a> with class 'content-link'
+    if (event.target.tagName!=='A')
+      return;
+
+    let found=false;
+    for (let i=0; i< event.target.classList.length; i++) {
+      if (event.target.classList[i]==='content-link') {
+        found=true; 
+        break;
+      }
+    }
+    if (!found)
+      return;
+
+    // see if it's something in world builder 
+
+    debugger;
+  }
 
   ////////////////////////////////
   // watchers

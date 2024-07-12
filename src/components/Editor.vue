@@ -38,8 +38,11 @@
 
   // library imports
   import { PropType, computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
+  import { enrichFwbHTML } from './Editor/helpers';
+  import { useMainStore } from '@/applications/stores';
 
   // library components
 
@@ -47,6 +50,7 @@
 
   // types
   import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
+
   type EditorOptions = {
     document: Document<any>,
     target: HTMLElement,
@@ -108,6 +112,8 @@
 
   ////////////////////////////////
   // store
+  const mainStore = useMainStore();
+  const { currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -245,10 +251,7 @@
     if (props.document) {
       initialContent.value = props.document.text.content;
 
-      enrichedInitialContent.value = await TextEditor.enrichHTML(initialContent.value || '', {
-        secrets: true,    //this.document.isOwner,
-        async: true
-      });    
+      enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, initialContent.value || '');
     }
   });
 
@@ -265,10 +268,7 @@
     editor.value = null;
 
     // show the pretty text
-    enrichedInitialContent.value = await TextEditor.enrichHTML(initialContent.value || '', {
-      secrets: true,    //this.document.isOwner,
-      async: true
-    });
+    enrichedInitialContent.value = await enrichFwbHTML(initialContent.value || '');
 
     if (!props.hasButton) {
       void activateEditor();
