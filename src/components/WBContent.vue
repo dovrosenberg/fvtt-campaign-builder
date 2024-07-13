@@ -60,7 +60,7 @@
                 :document="editorDocument"
                 :has-button="true"
                 target="content-description"
-                @editorsaved="onDescriptionEditorSaved"
+                @editor-saved="onDescriptionEditorSaved"
               />
             </div>
           </div>
