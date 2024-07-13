@@ -160,6 +160,11 @@
 </script>
 
 <style lang="scss">
+// include quasar css, but only inside the app
+// .fwb {
+//   @import 'node_modules/quasar/dist/quasar.sass';
+// }
+
 // this is from the Vue handler, but we need it to be a flexbox so the overall app window controls the size the rest
 //    of the way down
 div[data-application-part] {

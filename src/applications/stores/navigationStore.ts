@@ -25,7 +25,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
+  const { currentWorldId, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -94,7 +94,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (entry.uuid)
       await _updateRecent(entry);
 
-    currentEntryId.value = entry.uuid;
+    await mainStore.setNewEntry(entry.uuid);
 
     return tab;
   };
@@ -137,7 +137,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (newTab?.entry?.uuid)
       await _updateRecent(newTab.entry);
 
-    currentEntryId.value = newTab.entry.uuid;
+    await mainStore.setNewEntry(newTab.entry.uuid);
 
     return;
   };
@@ -186,7 +186,6 @@ export const useNavigationStore = defineStore('navigation', () => {
   return {
     tabs,
     currentWorldId,
-    currentEntryId,
 
     openEntry,
     getActiveTab,

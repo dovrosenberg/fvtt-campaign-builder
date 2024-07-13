@@ -2,8 +2,7 @@
   <section ref="contentRef"
     class="sheet fwb-journal-sheet"
   >
-    <HomePage v-if="!currentEntryId || !entry"
-    />
+    <HomePage v-if="!currentEntry" />
       
     <form v-else
       :class="'flexcol fwb-journal-subsheet ' + topic" 
@@ -16,20 +15,17 @@
           <section class="header-details fwb-content-header">
             <h1 class="header-name flexrow">
               <i :class="`fas ${icon} sheet-icon`"></i>
-              <input 
+              <v-text-field 
                 id="fwb-input-name" 
-                name="name" 
-                type="text" 
-                :value="entry.name" 
-                :placeholder="namePlaceholder"
-                @change="(event) => onNameChange(event)"
-              >
+                v-model="name"
+                :label="namePlaceholder"                
+              />
             </h1>
             <div class="form-group fwb-content-header">
               <label>{{localize('fwb.labels.fields.type')}}</label>
               <TypeAhead 
                 :initialList="typeList"
-                :initialValue="entry.flags[moduleJson.id].type"
+                :initialValue="currentEntry?.flags[moduleJson.id]?.type"
                 @itemAdded="onTypeItemAdded"
                 @selectionMade="onTypeSelectionMade"
               />
@@ -40,7 +36,6 @@
             >
               <!-- <Tree :topNodes="treeNodes" />  -->
             </div>
-
           </section>
         </header>
         <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
@@ -249,12 +244,6 @@
   import { Topic, TreeNode } from '@/types';
   import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
 
-  type Description = {
-    content: any,
-    format: number,
-    markdown: any
-  };
-
   ////////////////////////////////
   // props
 
@@ -265,7 +254,7 @@
   // store
   const mainStore = useMainStore();
   const directoryStore = useDirectoryStore();
-  const { currentEntryId, currentWorldId } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -274,7 +263,6 @@
     [Topic.Event]: { namePlaceholder: 'fwb.placeholders.characterName', },
     [Topic.Location]: { namePlaceholder: 'fwb.placeholders.characterName', },
     [Topic.Organization]: { namePlaceholder: 'fwb.placeholders.characterName', },
-    [Topic.Scene]: { namePlaceholder: 'fwb.placeholders.sceneName', },
   };
 
   const relationships = [
@@ -286,9 +274,9 @@
   ] as { tab: string, label: string, }[];
 
   const tabs = ref<Tabs>();
-  const entry = ref<JournalEntry | null>(null);
   const topic = ref<Topic | null>(null);
   const treeNodes = ref<TreeNode[]>([]);
+  const name = ref<string>('');
 
   const editorDocument = ref<Document<any>>();
 
@@ -307,14 +295,8 @@
   ////////////////////////////////
   // event handlers
 
-  const onNameChange = async (event: JQuery.ChangeEvent)=> {
-    await updateDocument(await fromUuid(currentEntryId.value), { name: jQuery(event.target).val() });
-
-    await directoryStore.refreshCurrentTree();
-  };
-
   // new type added in the typeahead
-  const onTypeItemAdded = async (worldId: string, added: string) => {
+  const onTypeItemAdded = async (added: string) => {
     if (topic.value === null || !currentWorldId.value)
       return;
 
@@ -326,20 +308,20 @@
         ...currentTypes,
         [topic.value]: currentTypes[topic.value].concat([added]),
       };
-      await WorldFlags.set(worldId, WorldFlagKey.types, updatedTypes);
+      await WorldFlags.set(currentWorldId.value, WorldFlagKey.types, updatedTypes);
     }
   };
 
   const onTypeSelectionMade = (selection: string) => {
-    if (entry.value)
-      void EntryFlags.set(toRaw(entry.value), EntryFlagKey.type, selection);
+    if (currentEntry.value)
+      void EntryFlags.set(toRaw(currentEntry.value), EntryFlagKey.type, selection);
   }
 
   const onDescriptionEditorSaved = async (newContent: string) => {
-    if (!entry.value)
+    if (!currentEntry.value)
       return;
 
-    const descriptionPage = toRaw(entry.value).pages.find((p)=>p.name==='description');  //TODO
+    const descriptionPage = toRaw(currentEntry.value).pages.find((p)=>p.name==='description');  //TODO
 
     await updateDocument(descriptionPage, {'text.content': newContent });  
 
@@ -350,51 +332,50 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentEntryId, async (newId: string | null): Promise<void> => {
-    if (!newId) {
-      entry.value = null;
+  watch(currentEntry, async (newEntry: JournalEntry | null): Promise<void> => {
+    if (!newEntry) {
       topic.value = null;
     } else {
-      const newEntry = await getCleanEntry(newId);
       let newTopic;
 
-      if (newEntry) {
-        newTopic = toTopic(newEntry ? EntryFlags.get(newEntry, EntryFlagKey.topic) : null);
-        if (!newTopic) 
-          throw new Error('Invalid entry type in WBContent.getData()');
+      newTopic = toTopic(newEntry ? EntryFlags.get(newEntry, EntryFlagKey.topic) : null);
+      if (!newTopic) 
+        throw new Error('Invalid entry type in WBContent.getData()');
+
+      // we're going to show a content page
+      topic.value = newTopic;
+
+      // load starting data values
+      name.value = currentEntry.name.value;
+
+      // bind the tabs (because they don't show on the homepage)
+      if (tabs.value && contentRef.value) {
+        // have to wait until they render
+        await nextTick();
+        tabs.value.bind(contentRef.value);
       }
 
-      if (!newEntry || !newTopic) {
-        // show the homepage
-        entry.value = null;
-        topic.value = null;
-      } else {
-        // we're going to show a content page
-        entry.value = newEntry;
-        topic.value = newTopic;
+      // reattach the editor to the new entry
+      editorDocument.value = newEntry.pages.find((p)=>p.name==='description');
 
-        // bind the tabs (because they don't show on the homepage)
-        if (tabs.value && contentRef.value) {
-          // have to wait until they render
-          await nextTick();
-          tabs.value.bind(contentRef.value);
-        }
+      // update the tree for things with hierarchies
+      if (hasHierarchy(newTopic)) {
+        const pack = getGame().packs.get(newEntry.pack || '');
 
-        // reattach the editor to the new entry
-        editorDocument.value = newEntry.pages.find((p)=>p.name==='description');
-
-        // update the tree for things with hierarchies
-        if (hasHierarchy(newTopic)) {
-          const pack = getGame().packs.get(newEntry.pack || '');
-
-          if (pack) {
-            treeNodes.value = await getHierarchyTree(pack, newEntry);
-          }
+        if (pack) {
+          treeNodes.value = await getHierarchyTree(pack, newEntry);
         }
       }
     }
   });
 
+  watch(name, async (newValue: string)=> {
+    if (currentEntry.value) {
+      await updateDocument(currentEntry.value, { name: newValue });
+
+      await directoryStore.refreshCurrentTree();
+    }
+  });
 
   ////////////////////////////////
   // lifecycle events
