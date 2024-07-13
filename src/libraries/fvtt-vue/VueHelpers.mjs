@@ -35,7 +35,6 @@ const concat = (...values) => Handlebars.helpers.concat(...values);
  * @returns {Handlebars.SafeString} - The rendered editor HTML
  */
 const editor = (content, options) => {
-	debugger;
 	return Handlebars.helpers.editor(content, { hash: options })};
 
 /**

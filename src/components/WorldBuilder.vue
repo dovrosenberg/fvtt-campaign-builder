@@ -1,5 +1,8 @@
 <template>
-  <div :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')">
+  <div  
+    :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')"
+    @click="onClickApplication($event)"
+  >
     <section class="fwb-body flexcol">
       <WBHeader />
       <div class="fwb-content flexcol editable">
@@ -20,7 +23,7 @@
   // local imports
   import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
-  import { useMainStore, useDirectoryStore } from '@/applications/stores';
+  import { useMainStore, useDirectoryStore, useNavigationStore } from '@/applications/stores';
 
   // library components
 
@@ -41,9 +44,10 @@
   // store
   const mainStore = useMainStore();
   const directoryStore = useDirectoryStore();
+  const navigationStore = useNavigationStore();
   const { currentWorldFolder, rootFolder } = storeToRefs(mainStore);
   const { directoryCollapsed } = storeToRefs(directoryStore);
-
+  
   ////////////////////////////////
   // data
 
@@ -57,6 +61,30 @@
   // event handlers
   const onDirectoryWorldSelected = async (worldId: string) => {
     await directoryStore.changeWorld(worldId);
+  };
+
+  // whenever we click on a link inside the application that is a link to a document (these are inserted by TextEditor.enrichHTML)
+  //    if it's a document in world builder, open in here instead of the default functionality
+  const onClickApplication = (event: JQuery.ClickEvent) => {
+    // ignore anything that's not an <a> with class 'content-link'
+    if (event.target.tagName!=='A')
+      return;
+
+    let found=false;
+    for (let i=0; i< event.target.classList.length; i++) {
+      if (event.target.classList[i]==='fwb-content-link' && event.target.dataset.uuid) {
+        found=true; 
+        break;
+      }
+    }
+    if (!found)
+      return;
+
+    // cancel any other actions
+    event.stopPropagation();
+    
+    // the only things tagged fwb-content-link are ones for the world we're looking at, so just need to open it
+    void navigationStore.openEntry(event.target.dataset.uuid, { newTab: event.ctrlKey});
   };
 
   ////////////////////////////////
