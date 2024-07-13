@@ -2,7 +2,7 @@
 
 // library imports
 import { defineStore, } from 'pinia';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
 // local imports
@@ -25,7 +25,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorldId, } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntry } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -142,6 +142,19 @@ export const useNavigationStore = defineStore('navigation', () => {
     return;
   };
 
+  const propogateNameChange = async(entryId: string, newName: string):Promise<void> => {
+    // update the tabs here and on disk
+    let updated = false;
+    tabs.value.forEach((t: WindowTab): void => {
+      if (t.entry.uuid===entryId) {
+        t.entry.name = newName;
+        updated = true;
+      }
+    });
+
+    if (updated)
+      await _saveTabs();
+  };
  
   ///////////////////////////////
   // computed state
@@ -177,6 +190,8 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
   
 
+  ///////////////////////////////
+  // watchers
 
   ///////////////////////////////
   // lifecycle events
@@ -190,5 +205,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     openEntry,
     getActiveTab,
     activateTab,
+    propogateNameChange,
   };
 });

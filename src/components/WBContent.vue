@@ -237,7 +237,7 @@
   import { getGame, localize } from '@/utils/game';
   import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
   import moduleJson from '@module';
-  import { useDirectoryStore, useMainStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
   // library components
@@ -261,6 +261,7 @@
   // store
   const mainStore = useMainStore();
   const directoryStore = useDirectoryStore();
+  const navigationStore = useNavigationStore();
   const { currentEntry, currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
@@ -381,6 +382,7 @@
       await updateDocument(currentEntry.value, { name: newValue });
 
       await directoryStore.refreshCurrentTree([currentEntry.value.uuid]);
+      await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue || '');
     }
   });
 
