@@ -395,8 +395,6 @@
     // if there are no tabs, add one
     if (!tabs.value.length)
       await navigationStore.openEntry();
-
-    await mainStore.setNewEntry(activeEntryId.value);
   });
 
   ////////////////////////////////

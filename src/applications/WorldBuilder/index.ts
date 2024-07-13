@@ -7,12 +7,21 @@ const { ApplicationV2 } = foundry.applications.api;
 
 /////////////////
 // Vuetify
-import { createVuetify } from 'vuetify';
+// import { createVuetify } from 'vuetify';
 
-const vuetify = createVuetify({
-  // components,
-  // directives,
-});
+// const vuetify = createVuetify({
+//   // components,
+//   // directives,
+// });
+
+/////////////////
+// Quasar
+import { Quasar } from 'quasar';
+
+// const vuetify = createVuetify({
+//   // components,
+//   // directives,
+// });
 
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 
@@ -59,7 +68,8 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
           plugin: pinia,
           options: {}
         },
-        vuetify: { plugin: vuetify }
+        // vuetify: { plugin: vuetify }
+        quasar: { plugin: Quasar }
       }
     }
   };

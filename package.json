@@ -28,6 +28,7 @@
     "@faker-js/faker": "^8.3.1",
     "@league-of-foundry-developers/foundry-vtt-types": "9.280.0",
     "@originjs/vite-plugin-commonjs": "^1.0.1",
+    "@quasar/vite-plugin": "^1.7.0",
     "@types/jest": "^29.5.10",
     "@types/jquery": "^3.5.29",
     "@types/lodash": "^4.14.202",
@@ -59,14 +60,13 @@
     "ts-loader": "^9.2.6",
     "vite": "^5.2.0",
     "vite-plugin-env-compatible": "^1.1.1",
-    "vite-plugin-html": "3.2.0",
-    "vite-plugin-vuetify": "^2.0.3"
+    "vite-plugin-html": "3.2.0"
   },
   "dependencies": {
     "@imengyu/vue3-context-menu": "^1.4.1",
     "pinia": "^2.1.7",
+    "quasar": "^2.16.6",
     "vue": "^3.4.31",
-    "vue-eslint-parser": "^9.4.3",
-    "vuetify": "^3.6.12"
+    "vue-eslint-parser": "^9.4.3"
   }
 }

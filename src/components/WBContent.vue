@@ -15,23 +15,27 @@
           <section class="header-details fwb-content-header">
             <h1 class="header-name flexrow">
               <i :class="`fas ${icon} sheet-icon`"></i>
-              <v-text-field 
+              <q-input
                 id="fwb-input-name" 
                 v-model="name"
-                :label="namePlaceholder"                
+                input-class="full-height"
+                debounce="500"
+                :bottom-slots="false"
+                :placeholder="namePlaceholder"                
               />
             </h1>
             <div class="form-group fwb-content-header">
-              <label>{{localize('fwb.labels.fields.type')}}</label>
+              <label>{{ localize('fwb.labels.fields.type') }}</label>
               <TypeAhead 
-                :initialList="typeList"
-                :initialValue="currentEntry?.flags[moduleJson.id]?.type"
-                @itemAdded="onTypeItemAdded"
-                @selectionMade="onTypeSelectionMade"
+                :initial-list="typeList"
+                :initial-value="currentEntry?.flags[moduleJson.id]?.type"
+                @item-added="onTypeItemAdded"
+                @selection-made="onTypeSelectionMade"
               />
             </div>
 
-            <div v-if="showHierarchy"
+            <div 
+              v-if="showHierarchy"
               class="form-group fwb-content-header"
             >
               <!-- <Tree :topNodes="treeNodes" />  -->
@@ -346,7 +350,7 @@
       topic.value = newTopic;
 
       // load starting data values
-      name.value = currentEntry.name.value;
+      name.value = newEntry.name || '';
 
       // bind the tabs (because they don't show on the homepage)
       if (tabs.value && contentRef.value) {
@@ -356,7 +360,7 @@
       }
 
       // reattach the editor to the new entry
-      editorDocument.value = newEntry.pages.find((p)=>p.name==='description');
+      editorDocument.value = toRaw(newEntry).pages.find((p)=>p.name==='description');
 
       // update the tree for things with hierarchies
       if (hasHierarchy(newTopic)) {
@@ -370,10 +374,10 @@
   });
 
   watch(name, async (newValue: string)=> {
-    if (currentEntry.value) {
+    if (currentEntry.value && currentEntry.value.name!==newValue) {
       await updateDocument(currentEntry.value, { name: newValue });
 
-      await directoryStore.refreshCurrentTree();
+      await directoryStore.refreshCurrentTree([currentEntry.value.uuid]);
     }
   });
 

@@ -42,9 +42,9 @@ export const useDirectoryStore = defineStore('directory', () => {
   ///////////////////////////////
   // actions
   const createWorld = async(): Promise<void> => {
-    const world = await createWorldFolder(true);
-    if (world) {
-      await mainStore.setNewWorld(world.id);
+    const worldFolder = await createWorldFolder(true);
+    if (worldFolder) {
+      await mainStore.setNewWorld(worldFolder.uuid);
     }
 
     await refreshCurrentTree();
@@ -97,9 +97,10 @@ export const useDirectoryStore = defineStore('directory', () => {
     const parent = parentId ? await fromUuid(parentId) as JournalEntry: null;
     const parentNode = parent ? _convertEntryToNode(parent) : null;
     const childNode =  _convertEntryToNode(child);
+    const oldParentId = childNode.parentId;
 
     // make sure it's not already in the right place
-    if (parentId===childNode.parentId)
+    if (parentId===oldParentId)
       return false;
 
     // make sure they share a topic (and so does the pack)
@@ -180,7 +181,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       await _savePackTopNodes(pack, topNodes);
     }
 
-    await refreshCurrentTree();
+    await refreshCurrentTree([parentId, oldParentId].filter((id)=>id!==null));
 
     return true;
   };
@@ -204,7 +205,11 @@ export const useDirectoryStore = defineStore('directory', () => {
     await refreshCurrentTree();
   };
 
-  const refreshCurrentTree = async (): Promise<void> => {
+  // refreshes the directory tree
+  // we try to keep it fast by not reloading from disk nodes that we've already loaded before,
+  //    but that means that when names change or children change, we're not refreshing them properly
+  // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
+  const refreshCurrentTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world
     if (!currentWorldId.value)
       return;
@@ -248,21 +253,21 @@ export const useDirectoryStore = defineStore('directory', () => {
           continue;
 
         // have to check all children are loaded and expanded properly
-        await recursivelyLoadNode(pack.topNodes, pack.loadedTopNodes, expandedNodes);
+        await recursivelyLoadNode(pack.topNodes, pack.loadedTopNodes, expandedNodes, updateEntryIds);
       }
     }
 
     currentTree.value = tree;
   };
 
-  const recursivelyLoadNode = async (children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>): Promise<void> => {
+  const recursivelyLoadNode = async (children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
     // have to check all children loaded and update their expanded states
     for (let i=0; i<children.length; i++) {
       let child: DirectoryNode | null = loadedChildren.find((n)=>n.id===children[i]) || null;
 
-      if (child) {
-        // this one is already loaded and attached
-      } else if (_loadedNodes[children[i]]) {
+      if (child && !updateEntryIds.includes(child.id)) {
+        // this one is already loaded and attached (and not a forced update)
+      } else if (_loadedNodes[children[i]] && !updateEntryIds.includes(children[i])) {
         child = _loadedNodes[children[i]];
 
         // it was loaded previously - just reattach it
@@ -280,7 +285,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       child.expanded = expandedNodes[child.id] || false;
 
       if (child.expanded)
-        await recursivelyLoadNode(child.children, child.loadedChildren, expandedNodes);
+        await recursivelyLoadNode(child.children, child.loadedChildren, expandedNodes, updateEntryIds);
     }      
   };
 
@@ -338,7 +343,7 @@ export const useDirectoryStore = defineStore('directory', () => {
         [pack.metadata.id]: topNodes[pack.metadata.id].concat([entry.uuid])
       });
 
-      await refreshCurrentTree();
+      await refreshCurrentTree([entry.uuid]);
     }
 
     return entry || null;
@@ -349,7 +354,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
   ///////////////////////////////
   // internal functions
-  // NOTE: DOES NOT CHECK EXPANDED STATE
+  // load an entry from disk and convert it to a node
   const _loadNode = async(id: string, expandedIds: Record<string, boolean | null>): Promise<DirectoryNode | null> => {
     const entry = await fromUuid(id) as JournalEntry;
 
