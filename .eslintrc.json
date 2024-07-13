@@ -76,11 +76,11 @@
             "alignAttributesVertically": false,
             "ignores": []
         }],
-        "vue/v-on-event-hyphenation": ["warn", "never", {
+        "vue/v-on-event-hyphenation": ["warn", "always", {
             "autofix": true,
             "ignore": []
         }],
-        "vue/attribute-hyphenation": ["warn", "never", {
+        "vue/attribute-hyphenation": ["warn", "always", {
             "ignore": []
         }]    
     },

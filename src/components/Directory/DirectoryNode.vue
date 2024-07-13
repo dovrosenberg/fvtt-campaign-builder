@@ -4,7 +4,6 @@
     :node="props.node"
     :expanded="props.node.expanded"
     :top="props.top"
-    @itemClicked="onSubItemClick"
   />
   <li v-else>
     <div 
@@ -91,11 +90,8 @@
     event.preventDefault();  // stop from expanding
     event.stopPropagation();
 
+    console.log('main dir item:' + node.name);
     await itemClicked(node, event.ctrlKey);
-  };
-
-  const onSubItemClick = async (node: DirectoryNode, ctrlKey: boolean) => {
-    await itemClicked(node, ctrlKey);
   };
 
   // handle an entry dragging to another to nest
