@@ -20,7 +20,7 @@ let enricherConfig: {
 
 export const setupEnricher = (): void => {
   const documentTypes = CONST.DOCUMENT_LINK_TYPES.concat(['Compendium', 'UUID']);
-  const rgx = new RegExp(`@(${documentTypes.join("|")})\\[([^#\\]]+)(?:#([^\\]]+))?](?:{([^}]+)})?`, 'g');
+  const rgx = new RegExp(`@(${documentTypes.join('|')})\\[([^#\\]]+)(?:#([^\\]]+))?](?:{([^}]+)})?`, 'g');
 
   enricherConfig = { 
     pattern: rgx,
@@ -50,7 +50,7 @@ export const enrichFwbHTML = async(worldId: string | null, text: string): Promis
   CONFIG.TextEditor.enrichers.filter((f): boolean => (f!=enricherConfig));
 
   return retval;
-}
+};
 
 // most of this is from TextEditor._createContentLink
 /**
@@ -122,7 +122,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
     data.classes.push('broken');
   }
   return TextEditor.createAnchor(data);
-}
+};
 
 /**
    * Create a dynamic document link from an old-form document link expression.
@@ -153,7 +153,7 @@ function createLegacyContentLink (type: string, target: string, name: string, da
 
   // Get a matched PlaylistSound
   else if ( type === 'PlaylistSound' ) {
-    const [, playlistId, , soundId] = target.split(".");
+    const [, playlistId, , soundId] = target.split('.');
     const playlist = game.playlists.get(playlistId);
     const sound = playlist?.sounds.get(soundId);
     if ( !playlist || !sound ) broken = true;
