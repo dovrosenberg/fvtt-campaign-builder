@@ -247,11 +247,13 @@
 
   ////////////////////////////////
   // watchers
+  watch(initialContent, async () =>{
+    enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, initialContent.value || '');
+  });
+
   watch(()=> props.document, async () =>{
     if (props.document) {
       initialContent.value = props.document.text.content;
-
-      enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, initialContent.value || '');
     }
   });
 

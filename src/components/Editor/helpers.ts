@@ -1,6 +1,7 @@
 // helper functions for the Editor component
 
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { getIcon } from '@/utils/misc';
 
 // types
 import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
@@ -82,19 +83,20 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
   else 
     broken = createLegacyContentLink(type, target, name, data);
 
+  // for now, we only care about the ones in the current world (for performance purposes and because
+  //    I don't think you should be referencing across worlds (and we don't make that easy to do, in any case))
   if (doc) {
     if (doc.documentName) {
       // handle the ones we don't care about; note worldId won't be present if this is called outside of our code
-      if (!doc.pack || !worldId || !WorldFlags.get(worldId, WorldFlagKey.packTopics)[doc.pack]===undefined)
+      if (!doc.pack || !worldId || WorldFlags.get(worldId, WorldFlagKey.packTopics)[doc.pack]===undefined) {
+        // this is not an fwb item
         return doc.toAnchor({ name: data.name, dataset: { hash } });
-
-      // for now, we only care about the ones in the current world (for performance purposes and because
-      //    I don't think you should be referencing across worlds (and we don't make that easy to do, in any case))
-      debugger;
-
-
-
-      // toAnchor({attrs={}, dataset={}, classes=[], name, icon}=
+      } else {
+        return doc.toAnchor({ 
+          name: data.name, dataset: { hash }, classes: ['fwb-content-link'], 
+          icon: `fas ${getIcon(WorldFlags.get(worldId, WorldFlagKey.packTopics)[doc.pack])}` 
+        });
+      }
     }
     
     data.name = data.name || doc.name || target;
@@ -131,7 +133,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
    * @returns {boolean}      Whether the resulting link is broken or not.
    * @private
    */
-const createLegacyContentLink = (type: string, target: string, name: string, data: any): boolean => {
+function createLegacyContentLink (type: string, target: string, name: string, data: any): boolean {
   let broken = false;
 
   // Get a matched World document
@@ -189,4 +191,4 @@ const createLegacyContentLink = (type: string, target: string, name: string, dat
     else broken = true;
   }
   return broken;
-};
+}

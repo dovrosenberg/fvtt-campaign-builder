@@ -23,7 +23,7 @@
   // local imports
   import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
-  import { useMainStore, useDirectoryStore } from '@/applications/stores';
+  import { useMainStore, useDirectoryStore, useNavigationStore } from '@/applications/stores';
 
   // library components
 
@@ -44,9 +44,10 @@
   // store
   const mainStore = useMainStore();
   const directoryStore = useDirectoryStore();
+  const navigationStore = useNavigationStore();
   const { currentWorldFolder, rootFolder } = storeToRefs(mainStore);
   const { directoryCollapsed } = storeToRefs(directoryStore);
-
+  
   ////////////////////////////////
   // data
 
@@ -71,7 +72,7 @@
 
     let found=false;
     for (let i=0; i< event.target.classList.length; i++) {
-      if (event.target.classList[i]==='content-link') {
+      if (event.target.classList[i]==='fwb-content-link' && event.target.dataset.uuid) {
         found=true; 
         break;
       }
@@ -79,10 +80,12 @@
     if (!found)
       return;
 
-    // see if it's something in world builder 
-
-    debugger;
-  }
+    // cancel any other actions
+    event.stopPropagation();
+    
+    // the only things tagged fwb-content-link are ones for the world we're looking at, so just need to open it
+    void navigationStore.openEntry(event.target.dataset.uuid, { newTab: event.ctrlKey});
+  };
 
   ////////////////////////////////
   // watchers
