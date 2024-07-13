@@ -227,7 +227,7 @@ export const useDirectoryStore = defineStore('directory', () => {
         name: world.folder.name as string,
         id: world.folder.uuid as string,
         packs: []
-      }
+      };
     }) || [];
 
     // find the record for the current world and set the packs
@@ -455,7 +455,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       ancestors: EntryFlags.get(entry, EntryFlagKey.hierarchy)?.ancestors || [],
       loadedChildren: [],
       expanded: false,  // TODO- load this, too
-    }
+    };
   };
 
   // converts a DirectoryNode to a Hierarchy object
@@ -464,7 +464,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       parentId: node.parentId,
       children: node.children,
       ancestors: node.ancestors,
-    }
+    };
   };
 
   ///////////////////////////////

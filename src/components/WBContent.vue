@@ -1,10 +1,12 @@
 <template>
-  <section ref="contentRef"
+  <section 
+    ref="contentRef"
     class="sheet fwb-journal-sheet"
   >
     <HomePage v-if="!currentEntry" />
       
-    <form v-else
+    <form 
+      v-else
       :class="'flexcol fwb-journal-subsheet ' + topic" 
     >
       <div class="sheet-container detailed flexcol">
@@ -43,11 +45,12 @@
           </section>
         </header>
         <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
-          <a class="item" data-tab="description">{{localize('fwb.labels.tabs.description')}}</a>
-          <a v-for="relationship in relationships"
+          <a class="item" data-tab="description">{{ localize('fwb.labels.tabs.description') }}</a>
+          <a 
+            v-for="relationship in relationships"
             class="item" :data-tab="relationship.tab"
           >
-            {{localize(relationship.label)}}
+            {{ localize(relationship.label) }}
           </a>
         </nav>
         <section class="fwb-tab-body flexcol">
@@ -55,9 +58,9 @@
             <div class="tab-inner flexcol">
               <Editor 
                 :document="editorDocument"
-                :hasButton="true"
+                :has-button="true"
                 target="content-description"
-                @editorSaved="onDescriptionEditorSaved"
+                @editorsaved="onDescriptionEditorSaved"
               />
             </div>
           </div>

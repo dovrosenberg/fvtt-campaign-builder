@@ -1,6 +1,7 @@
 import moduleJson from '@module';
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
 import { createPinia, setActivePinia } from 'pinia';
+import { Quasar } from 'quasar';
 import App from '@/components/WorldBuilder.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
@@ -14,14 +15,6 @@ const { ApplicationV2 } = foundry.applications.api;
 //   // directives,
 // });
 
-/////////////////
-// Quasar
-import { Quasar } from 'quasar';
-
-// const vuetify = createVuetify({
-//   // components,
-//   // directives,
-// });
 
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 
