@@ -25,7 +25,7 @@
         ref="coreEditorRef"
         class="editor-content" 
         v-bind="datasetProperties"
-        v-html="initialContent ?? ''"
+        v-html="enrichedInitialContent"
       >
       </div>
     </div>
@@ -38,8 +38,11 @@
 
   // library imports
   import { PropType, computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
+  import { enrichFwbHTML } from './Editor/helpers';
+  import { useMainStore } from '@/applications/stores';
 
   // library components
 
@@ -47,6 +50,7 @@
 
   // types
   import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
+
   type EditorOptions = {
     document: Document<any>,
     target: HTMLElement,
@@ -108,11 +112,14 @@
 
   ////////////////////////////////
   // store
+  const mainStore = useMainStore();
+  const { currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
   const editorId = ref<string>();
   const initialContent = ref<string>('');
+  const enrichedInitialContent = ref<string>('');
   const editor = ref<TextEditor | null>(null);
   const buttonDisplay = ref<string>('');   // is button currently visible
   const editorVisible = ref<boolean>(true);
@@ -135,7 +142,7 @@
       dataset.edit = props.target;
 
     return dataset;
-  })
+  });
 
   ////////////////////////////////
   // methods
@@ -178,7 +185,7 @@
     buttonDisplay.value = 'none';
     
     editor.value = await TextEditor.create(options, initialContent.value);
-    
+   
     options.target.closest('.editor')?.classList.add(props.engine);
 
     // /* @deprecated since v10 */
@@ -240,14 +247,19 @@
 
   ////////////////////////////////
   // watchers
-  watch(()=> props.document, () =>{
-    if (props.document)
+  watch(initialContent, async () =>{
+    enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, initialContent.value || '');
+  });
+
+  watch(()=> props.document, async () =>{
+    if (props.document) {
       initialContent.value = props.document.text.content;
+    }
   });
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(() => {
+  onMounted(async () => {
     // we create a random ID so we can use multiple instances
     editorId.value  = 'fwb-editor-' + foundry.utils.randomID();
 
@@ -256,6 +268,9 @@
       return;
 
     editor.value = null;
+
+    // show the pretty text
+    enrichedInitialContent.value = await enrichFwbHTML(initialContent.value || '');
 
     if (!props.hasButton) {
       void activateEditor();

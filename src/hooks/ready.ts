@@ -1,5 +1,6 @@
 import { WorldBuilderApplication} from '@/applications/WorldBuilder';
 import { getGame, localize } from '@/utils/game';
+import { setupEnricher } from '@/components/Editor/helpers';
 
 export function registerForReadyHook() {
   Hooks.once('ready', ready);
@@ -21,4 +22,7 @@ async function ready(): Promise<void> {
       await (await new WorldBuilderApplication()).render(true);
     });
   }
+
+  // setup the enricher
+  setupEnricher();
 }

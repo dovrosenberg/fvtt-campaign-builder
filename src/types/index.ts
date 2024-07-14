@@ -24,6 +24,7 @@ export type EntrySummary = {
   name: string;
 }
 
+// this oder is also the order that they get sorted in
 export enum Topic {
   None,
   Character,

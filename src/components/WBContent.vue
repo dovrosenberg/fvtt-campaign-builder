@@ -1,11 +1,12 @@
 <template>
-  <section ref="contentRef"
+  <section 
+    ref="contentRef"
     class="sheet fwb-journal-sheet"
   >
-    <HomePage v-if="!currentEntryId || !entry"
-    />
+    <HomePage v-if="!currentEntry" />
       
-    <form v-else
+    <form 
+      v-else
       :class="'flexcol fwb-journal-subsheet ' + topic" 
     >
       <div class="sheet-container detailed flexcol">
@@ -16,39 +17,40 @@
           <section class="header-details fwb-content-header">
             <h1 class="header-name flexrow">
               <i :class="`fas ${icon} sheet-icon`"></i>
-              <input 
+              <q-input
                 id="fwb-input-name" 
-                name="name" 
-                type="text" 
-                :value="entry.name" 
-                :placeholder="namePlaceholder"
+                v-model="name"
+                input-class="full-height"
+                debounce="500"
+                :bottom-slots="false"
+                :placeholder="namePlaceholder"                
               />
             </h1>
             <div class="form-group fwb-content-header">
-              <label>{{localize('fwb.labels.fields.type')}}</label>
+              <label>{{ localize('fwb.labels.fields.type') }}</label>
               <TypeAhead 
-                :initialList="typeList"
-                :initialValue="entry.flags[moduleJson.id].type"
-                @itemAdded="onTypeItemAdded"
-                @selectionMade="onTypeSelectionMade"
+                :initial-list="typeList"
+                :initial-value="currentEntry?.flags[moduleJson.id]?.type"
+                @item-added="onTypeItemAdded"
+                @selection-made="onTypeSelectionMade"
               />
             </div>
 
-            <div v-if="showHierarchy"
+            <div 
+              v-if="showHierarchy"
               class="form-group fwb-content-header"
             >
               <!-- <Tree :topNodes="treeNodes" />  -->
             </div>
-
           </section>
         </header>
         <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
-          <a class="item" data-tab="description">{{localize('fwb.labels.tabs.description')}}</a>
-          <a class="item" data-tab="entry-details">{{localize('fwb.labels.tabs.details')}}</a>
-          <a v-for="relationship in relationships"
+          <a class="item" data-tab="description">{{ localize('fwb.labels.tabs.description') }}</a>
+          <a 
+            v-for="relationship in relationships"
             class="item" :data-tab="relationship.tab"
           >
-            {{localize(relationship.label)}}
+            {{ localize(relationship.label) }}
           </a>
         </nav>
         <section class="fwb-tab-body flexcol">
@@ -56,40 +58,10 @@
             <div class="tab-inner flexcol">
               <Editor 
                 :document="editorDocument"
-                :hasButton="true"
+                :has-button="true"
                 target="content-description"
-                @editorSaved="onDescriptionEditorSaved"
+                @editor-saved="onDescriptionEditorSaved"
               />
-            </div>
-          </div>
-          <div class="tab entry-details" data-group="primary" data-tab="entry-details">
-            <div class="tab-inner flexcol">
-              entry-details
-            <!-- {{!--
-              <div class="details-section flexrow">
-                <div class="document-details">
-                  <ul>
-                    {{#each fields}}
-                    {{#unless this.full}}
-                    <li {{#if this.hidden}} style="display:none;" {{/if}}>
-                      <label>{{localize this.name}}</label>
-                      <input type="text" name="flags.monks-enhanced-journal.attributes.{{this.id}}.value" value="{{ this.value }}" />
-                    </li>
-                    {{/unless}}
-                    {{/each}}
-                  </ul>
-                </div>
-              </div>
-              <div class="details-section scrollable flexcol">
-                {{#each fields}}
-                {{#if this.full}}
-                <div class="form-group" {{#if this.hidden}} style="display:none;" {{/if}}>
-                  <label>{{localize this.name}}</label>
-                  <textarea name="flags.monks-enhanced-journal.attributes.{{this.id}}.value">{{this.value}}</textarea>
-                </div>
-                {{/if}}
-                {{/each}}
-              </div>--}} -->
             </div>
           </div>
           <!-- <div class="tab relationships" data-group="primary" data-tab="relationships">
@@ -265,10 +237,8 @@
   import { getGame, localize } from '@/utils/game';
   import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
   import moduleJson from '@module';
-  import { useMainStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-
-  // import { getCleanEntry, updateDocument } from '@/compendia';
 
   // library components
 
@@ -276,17 +246,10 @@
   import Editor from '@/components/Editor.vue';
   import HomePage from '@/components/HomePage.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
-  import Tree from '@/components/Tree/Tree.vue';
 
   // types
   import { Topic, TreeNode } from '@/types';
   import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
-
-  type Description = {
-    content: any,
-    format: number,
-    markdown: any
-  };
 
   ////////////////////////////////
   // props
@@ -297,7 +260,9 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentEntryId, currentWorldId } = storeToRefs(mainStore);
+  const directoryStore = useDirectoryStore();
+  const navigationStore = useNavigationStore();
+  const { currentEntry, currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -306,7 +271,6 @@
     [Topic.Event]: { namePlaceholder: 'fwb.placeholders.characterName', },
     [Topic.Location]: { namePlaceholder: 'fwb.placeholders.characterName', },
     [Topic.Organization]: { namePlaceholder: 'fwb.placeholders.characterName', },
-    [Topic.Scene]: { namePlaceholder: 'fwb.placeholders.sceneName', },
   };
 
   const relationships = [
@@ -318,9 +282,9 @@
   ] as { tab: string, label: string, }[];
 
   const tabs = ref<Tabs>();
-  const entry = ref<JournalEntry | null>(null);
   const topic = ref<Topic | null>(null);
   const treeNodes = ref<TreeNode[]>([]);
+  const name = ref<string>('');
 
   const editorDocument = ref<Document<any>>();
 
@@ -340,7 +304,7 @@
   // event handlers
 
   // new type added in the typeahead
-  const onTypeItemAdded = async (worldId: string, added: string) => {
+  const onTypeItemAdded = async (added: string) => {
     if (topic.value === null || !currentWorldId.value)
       return;
 
@@ -352,20 +316,20 @@
         ...currentTypes,
         [topic.value]: currentTypes[topic.value].concat([added]),
       };
-      await WorldFlags.set(worldId, WorldFlagKey.types, updatedTypes);
+      await WorldFlags.set(currentWorldId.value, WorldFlagKey.types, updatedTypes);
     }
   };
 
   const onTypeSelectionMade = (selection: string) => {
-    if (entry.value)
-      void EntryFlags.set(toRaw(entry.value), EntryFlagKey.type, selection);
+    if (currentEntry.value)
+      void EntryFlags.set(toRaw(currentEntry.value), EntryFlagKey.type, selection);
   }
 
   const onDescriptionEditorSaved = async (newContent: string) => {
-    if (!entry.value)
+    if (!currentEntry.value)
       return;
 
-    const descriptionPage = toRaw(entry.value).pages.find((p)=>p.name==='description');  //TODO
+    const descriptionPage = toRaw(currentEntry.value).pages.find((p)=>p.name==='description');  //TODO
 
     await updateDocument(descriptionPage, {'text.content': newContent });  
 
@@ -376,62 +340,57 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentEntryId, async (newId: string | null): Promise<void> => {
-    if (!newId) {
-      entry.value = null;
+  watch(currentEntry, async (newEntry: JournalEntry | null): Promise<void> => {
+    if (!newEntry) {
       topic.value = null;
     } else {
-      const newEntry = await getCleanEntry(newId);
       let newTopic;
 
-      if (newEntry) {
-        newTopic = toTopic(newEntry ? EntryFlags.get(newEntry, EntryFlagKey.topic) : null);
-        if (!newTopic) 
-          throw new Error('Invalid entry type in WBContent.getData()');
+      newTopic = toTopic(newEntry ? EntryFlags.get(newEntry, EntryFlagKey.topic) : null);
+      if (!newTopic) 
+        throw new Error('Invalid entry type in WBContent.getData()');
+
+      // we're going to show a content page
+      topic.value = newTopic;
+
+      // load starting data values
+      name.value = newEntry.name || '';
+
+      // bind the tabs (because they don't show on the homepage)
+      if (tabs.value && contentRef.value) {
+        // have to wait until they render
+        await nextTick();
+        tabs.value.bind(contentRef.value);
       }
 
-      if (!newEntry || !newTopic) {
-        // show the homepage
-        entry.value = null;
-        topic.value = null;
-      } else {
-        // we're going to show a content page
-        entry.value = newEntry;
-        topic.value = newTopic;
+      // reattach the editor to the new entry
+      editorDocument.value = toRaw(newEntry).pages.find((p)=>p.name==='description');
 
-        // bind the tabs (because they don't show on the homepage)
-        if (tabs.value && contentRef.value) {
-          // have to wait until they render
-          await nextTick();
-          tabs.value.bind(contentRef.value);
-        }
+      // update the tree for things with hierarchies
+      if (hasHierarchy(newTopic)) {
+        const pack = getGame().packs.get(newEntry.pack || '');
 
-        // reattach the editor to the new entry
-        editorDocument.value = newEntry.pages.find((p)=>p.name==='description');
-
-        // update the tree for things with hierarchies
-        if (hasHierarchy(newTopic)) {
-          const pack = getGame().packs.get(newEntry.pack || '');
-
-          if (pack) {
-            treeNodes.value = await getHierarchyTree(pack, newEntry);
-          }
+        if (pack) {
+          treeNodes.value = await getHierarchyTree(pack, newEntry);
         }
       }
     }
   });
 
+  watch(name, async (newValue: string)=> {
+    if (currentEntry.value && currentEntry.value.name!==newValue) {
+      await updateDocument(currentEntry.value, { name: newValue });
+
+      await directoryStore.refreshCurrentTree([currentEntry.value.uuid]);
+      await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue || '');
+    }
+  });
 
   ////////////////////////////////
   // lifecycle events
   onMounted(() => {
     tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
 
-    //     // watch for edits to name
-    //     html.on('change', '#fwb-input-name', async (event: JQuery.ChangeEvent)=> {
-    //       await updateDocument(this._entry, { name: jQuery(event.target).val() });
-    //       await this._makeCallback(WBContent.CallbackType.NameChanged, this._entry);
-    //     });
 
     //     // home page mode - click on a recent item
     //     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {

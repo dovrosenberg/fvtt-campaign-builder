@@ -14,7 +14,7 @@ export function getIcon(topic: string | number | Topic | null | undefined) {
     case Topic.Character: 
       return 'fa-user';
     case Topic.Location: 
-      return 'fa-place-of-worship';
+      return 'fa-location-dot';   //'fa-place-of-worship';
     case Topic.Organization: 
       return 'fa-flag';
     case Topic.Event: 

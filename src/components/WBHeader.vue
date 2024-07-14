@@ -132,7 +132,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
-  const { currentWorldId, currentEntryId, } = storeToRefs(mainStore);
+  const { currentWorldId, } = storeToRefs(mainStore);
   const { tabs, } = storeToRefs(navigationStore);
   const { directoryCollapsed } = storeToRefs(directoryStore);
 
@@ -395,8 +395,6 @@
     // if there are no tabs, add one
     if (!tabs.value.length)
       await navigationStore.openEntry();
-
-    currentEntryId.value = activeEntryId.value;
   });
 
   ////////////////////////////////

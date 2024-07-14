@@ -156,10 +156,8 @@
     if (!(await validParentItems(pack, childEntry)).includes(parentId))
       return false;
 
-    // add the dropped item as a child on the other
+    // add the dropped item as a child on the other  (will also refresh the tree)
     await directoryStore.setNodeParent(pack, data.childId, parentId);
-
-    await directoryStore.refreshCurrentTree();
 
     return true;
   };

@@ -7,6 +7,7 @@ import { computed, ref } from 'vue';
 // local imports
 import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
+import { getCleanEntry } from '@/compendia';
 
 // types
 
@@ -18,14 +19,16 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // internal state
+  const _currentEntry = ref<JournalEntry | null>(null);  // uuid of current entry
 
   ///////////////////////////////
   // external state
   const rootFolder = ref<Folder | null>(null);
   const currentWorldFolder = ref<Folder | null>(null);  // the current world folder
-  const currentEntryId = ref<string | null>(null);  // uuid of current entry
 
   const currentWorldId = computed((): string | null => currentWorldFolder.value ? currentWorldFolder.value.uuid : null);
+  const currentEntryId = computed((): string | null => _currentEntry?.value?.uuid || null);
+  const currentEntry = computed((): JournalEntry | null => _currentEntry?.value || null);
 
   ///////////////////////////////
   // actions
@@ -45,6 +48,17 @@ export const useMainStore = defineStore('main', () => {
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };
 
+  const setNewEntry = async function (entry: string | null | JournalEntry): Promise<void> {
+    if (typeof entry === 'string')
+      _currentEntry.value = await getCleanEntry(entry);
+    else if (entry == null)
+      throw new Error('Attempted to setNewEntry with null uuid');
+    else
+      _currentEntry.value = entry;
+
+    if (!_currentEntry.value)
+      throw new Error('Attempted to setNewEntry with invalid uuid');
+  };
 
   ///////////////////////////////
   // computed state
@@ -60,9 +74,11 @@ export const useMainStore = defineStore('main', () => {
   return {
     currentWorldId,
     currentWorldFolder,
+    currentEntry,
     currentEntryId,
     rootFolder,
 
     setNewWorld,
+    setNewEntry,
   };
 });
