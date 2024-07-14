@@ -18,7 +18,7 @@
         >
         <a 
           class="header-control create-world create-button" 
-          data-tooltip="localize('fwb.tooltips.createWorld')"
+          :data-tooltip="localize('fwb.tooltips.createWorld')"
           @click="onCreateWorldClick"
         >
           <i class="fas fa-globe"></i>
@@ -452,7 +452,7 @@
       }
 
       // add the little open markers
-      summary::before {
+      div.summary::before {
         position: absolute;
         content: "+";
         text-align: center;
@@ -468,15 +468,15 @@
         z-index: 999;
       }
 
-      details[open]>summary::before {
+      div.details[open]>div.summary::before {
         content: "-";
       }
 
-      summary.top::before {
+      div.summary.top::before {
         margin-left: 1em;
       }
 
-      details {
+      div.details {
         padding-left: 0.5em;
       }
     }
@@ -488,7 +488,7 @@
 
     // the top level
     & > ul {
-      summary {
+      div.summary {
         list-style: none; 
 
         &::marker, &::-webkit-details-marker {

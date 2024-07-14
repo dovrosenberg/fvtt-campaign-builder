@@ -1,11 +1,12 @@
 <template>
   <li>
-    <details 
+    <div 
+      class="details"
       :open="props.node.expanded"
       @click="onClickDetails"
       @toggle="onToggleDetails($event, props.node)"
     >
-      <summary :class="(props.top ? 'top' : '')">      
+      <div :class="'summary ' + (props.top ? 'top' : '')">      
         <div 
           :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
           draggable="true"
@@ -15,7 +16,7 @@
         >
           {{ props.node.name }}
         </div>
-      </summary>
+      </div>
       <ul>
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
         <div v-show="props.node.expanded">
@@ -27,7 +28,7 @@
           />
         </div>
       </ul>
-    </details>
+    </div>
   </li>
 </template>
 
@@ -88,9 +89,8 @@
 
   ////////////////////////////////
   // event handlers
-  // prevent the base toggle functionality
-  const onClickDetails = () => { 
-    return false;
+  const onClickDetails = async () => { 
+    await directoryStore.toggleEntry(props.node, !props.node.expanded);
   };
 
   // we're toggling - make sure to load the kids nowprevent the base toggle functionality
@@ -192,10 +192,10 @@
 </script>
 
 <style lang="scss" scoped>
-  details {
+  div.details {
     pointer-events: none;
 
-    summary {
+    div.summary {
       pointer-events: none;  // we block click on this element so that we can tell when the click is on the open/close circle
 
       &::before {
