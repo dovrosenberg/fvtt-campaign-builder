@@ -37,7 +37,7 @@
     <!-- these are the worlds -->
     <ol class="fwb-world-list">
       <li 
-        v-for="world in currentTree"
+        v-for="world in directoryStore.currentTree.value"
         :key="world.id"
         :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
         @click="onWorldFolderClick($event, world.id)"
@@ -86,7 +86,6 @@
                 v-for="node in pack.loadedTopNodes"
                 :key="node.id"
                 :node="node" 
-                :expanded="node.expanded" 
                 :top="true"
                 class="fwb-entry-item" 
                 draggable="true"
@@ -140,7 +139,6 @@
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
   const { currentWorldId } = storeToRefs(mainStore);
-  const { currentTree } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
@@ -191,7 +189,6 @@
   const onTopicFolderClick = async (event: MouseEvent, directoryPack: DirectoryPack) => { 
     event.stopPropagation();
 
-    console.log('topic folder click');
     await directoryStore.togglePack(directoryPack);
 
     // toggle the collapse      

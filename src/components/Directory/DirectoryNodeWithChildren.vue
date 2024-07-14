@@ -1,28 +1,28 @@
 <template>
   <li>
     <details 
-      :open="props.expanded"
+      :open="props.node.expanded"
       @click="onClickDetails"
+      @toggle="onToggleDetails($event, props.node)"
     >
       <summary :class="(props.top ? 'top' : '')">      
         <div 
           :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
           draggable="true"
           @click="onDirectoryItemClick($event, props.node)"
-          @dragstart="onDragStart($event, node.id)"
-          @drop="onDrop($event, node.id)"
+          @dragstart="onDragStart($event, props.node.id)"
+          @drop="onDrop($event, props.node.id)"
         >
           {{ props.node.name }}
         </div>
       </summary>
       <ul>
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
-        <div v-if="props.expanded">
-          <NodeComponent 
+        <div v-show="props.node.expanded">
+          <DirectoryNodeComponent 
             v-for="child in props.node.loadedChildren"
             :key="child.id"
             :node="child"
-            :expanded="child.expanded"
             :top="false"
           />
         </div>
@@ -45,7 +45,7 @@
   // library components
 
   // local components
-  import NodeComponent from './DirectoryNode.vue';
+  import DirectoryNodeComponent from './DirectoryNode.vue';
 
   // types
   import { DirectoryNode, Topic } from '@/types';
@@ -57,10 +57,6 @@
       type: Object as PropType<DirectoryNode>,
       required: true,
     },
-    expanded: { 
-      type: Boolean,
-      required: true,
-    },
     top: {    // applies class to top level
       type: Boolean,
       required: true,
@@ -69,10 +65,7 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits<{
-    (e: 'itemClicked', node: DirectoryNode, ctrlKey: boolean): void,
-  }>();
-
+  
   ////////////////////////////////
   // store
   const directoryStore = useDirectoryStore();
@@ -92,11 +85,18 @@
     await navigationStore.openEntry(node.id, {newTab: ctrlKey});
   };
 
+
   ////////////////////////////////
   // event handlers
   // prevent the base toggle functionality
   const onClickDetails = () => { 
     return false;
+  };
+
+  // we're toggling - make sure to load the kids nowprevent the base toggle functionality
+  const onToggleDetails = async (event: ToggleEvent, node: DirectoryNode) => { 
+    event.stopImmediatePropagation();
+    await directoryStore.toggleEntry(node, event.newState==='open');
   };
 
   // this is only called by summary::before (i.e. the little circle) because other clicks
@@ -105,7 +105,6 @@
     event.stopPropagation();
     event.preventDefault();
     
-    console.log('child dir item:' + node.name);
     await itemClicked(node, event.ctrlKey);
   };
 

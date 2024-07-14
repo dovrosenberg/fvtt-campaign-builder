@@ -15,6 +15,7 @@ import { inputDialog } from '@/dialogs/input';
 
 // types
 import { DirectoryWorld, DirectoryPack, DirectoryNode, Topic } from '@/types';
+import { reactive } from 'vue';
 
 // the store definition
 export const useDirectoryStore = defineStore('directory', () => {
@@ -34,7 +35,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   // external state
   
   // the top-level folder structure
-  const currentTree = ref<DirectoryWorld[]>([]);
+  const currentTree = reactive<{value: DirectoryWorld[]}>({value:[]});
 
   // current sidebar collapsed state
   const directoryCollapsed = ref<boolean>(false);
@@ -54,19 +55,23 @@ export const useDirectoryStore = defineStore('directory', () => {
   const togglePack = async(pack: DirectoryPack) : Promise<void> => {
     // closing is easy
     if (pack.expanded) {
-      await _collapseItem(pack.id);
+      await _collapseItem(pack, pack.id);
     } else {
-      await _expandItem(pack.id);
+      await _expandItem(pack, pack.id);
     }
   };
 
-  // expand the given entry, loading the new item data
-  const toggleEntry = async(node: DirectoryNode) : Promise<void>=> {
-    // closing is easy
+  // expand/contract  the given entry, loading the new item data
+  // we don't actually do a toggle because when we change the open state on the html element
+  //    that triggers another toggle event
+  const toggleEntry = async(node: DirectoryNode, expanded: boolean) : Promise<void>=> {
+    if (node.expanded===expanded)
+      return;
+    
     if (node.expanded) {
-      await _collapseItem(node.id);
+      await _collapseItem(node, node.id);
     } else {
-      await _expandItem(node.id);
+      await _expandItem(node, node.id);
     }
   };
 
@@ -268,7 +273,8 @@ export const useDirectoryStore = defineStore('directory', () => {
       if (child && !updateEntryIds.includes(child.id)) {
         // this one is already loaded and attached (and not a forced update)
       } else if (_loadedNodes[children[i]] && !updateEntryIds.includes(children[i])) {
-        child = _loadedNodes[children[i]];
+        // without a deep clone, the reactivity down the tree on node.expanded isn't working... so doing this for now unless it creates performance issues
+        child = foundry.utils.deepClone(_loadedNodes[children[i]]);
 
         // it was loaded previously - just reattach it
         loadedChildren.push(child);
@@ -278,6 +284,7 @@ export const useDirectoryStore = defineStore('directory', () => {
         if (!child)
           throw new Error('Attempting to load invalid node in directoryStore.recursivelyLoadNode(): ' + children[i]);
 
+        _loadedNodes[child.id] = child;  // add to cache
         loadedChildren.push(child);
       }
 
@@ -381,19 +388,21 @@ export const useDirectoryStore = defineStore('directory', () => {
     await WorldFlags.set(currentWorldId.value, WorldFlagKey.packTopNodes, {...allTopNodes, [pack.metadata.id]: topNodes});
   };
 
+  const isDirectoryPack = (node: DirectoryNode | DirectoryPack): node is DirectoryPack => {
+    return (<DirectoryPack>node).pack !== undefined;
+  }
+
   // used to toggle entries and compendia (not worlds)
-  const _collapseItem = async(id: string): Promise<void> => {
+  const _collapseItem = async(node: DirectoryNode | DirectoryPack, id: string): Promise<void> => {
     if (!currentWorldId.value)
       return;
 
-    //const expandedIds = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
-    //delete expandedIds[id];
     await WorldFlags.set(currentWorldId.value, WorldFlagKey.expandedIds, {[`-=${id}`]: null});
 
     await refreshCurrentTree();
   };
 
-  const _expandItem = async(id: string): Promise<void> => {
+  const _expandItem = async(node: DirectoryNode | DirectoryPack, id: string): Promise<void> => {
     if (!currentWorldId.value)
       return;
 

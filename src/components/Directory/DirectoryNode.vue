@@ -2,7 +2,6 @@
   <DirectoryNodeWithChildren 
     v-if="props.node.children.length" 
     :node="props.node"
-    :expanded="props.node.expanded"
     :top="props.top"
   />
   <li v-else>
@@ -11,8 +10,8 @@
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick($event, props.node)"
-      @dragstart="onDragStart($event, node.id)"
-      @drop="onDrop($event, node.id)"
+      @dragstart="onDragStart($event, props.node.id)"
+      @drop="onDrop($event, props.node.id)"
     >
       {{ props.node.name }}
     </div>
@@ -43,10 +42,6 @@
   const props = defineProps({
     node: { 
       type: Object as PropType<DirectoryNode>,
-      required: true,
-    },
-    expanded: { 
-      type: Boolean,
       required: true,
     },
     top: {    // applies special class to top level
@@ -85,7 +80,6 @@
     event.stopPropagation();
     event.preventDefault();
     
-    console.log('node dir item:' + node.name);
     await itemClicked(node, event.ctrlKey);
   };
 
