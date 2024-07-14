@@ -268,7 +268,6 @@
   import { useMainStore } from '@/applications/stores';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
-  import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   // import { getCleanEntry, updateDocument } from '@/compendia';
 
   // library components

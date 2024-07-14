@@ -89,13 +89,7 @@
   ////////////////////////////////
   // methods
   const itemClicked = async (node: DirectoryNode, ctrlKey: boolean): Promise<void> => {
-    // TODO - in a perfect world, clicking the +/- would toggle but not open the entry
-    // for now, only open the entry when we're expanding, not when we're closing
-    if (!node.expanded) {
-      await navigationStore.openEntry(node.id, {newTab: ctrlKey});
-    }
-
-    await directoryStore.toggleEntry(node);
+    await navigationStore.openEntry(node.id, {newTab: ctrlKey});
   };
 
   ////////////////////////////////
@@ -105,10 +99,12 @@
     return false;
   };
 
+  // this is only called by summary::before (i.e. the little circle) because other clicks
+  //    are ignored on the summary
   const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryNode) => {
-    event.preventDefault();  // stop from expanding
     event.stopPropagation();
-
+    event.preventDefault();
+    
     console.log('child dir item:' + node.name);
     await itemClicked(node, event.ctrlKey);
   };
@@ -198,6 +194,20 @@
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+  details {
+    pointer-events: none;
 
+    summary {
+      pointer-events: none;  // we block click on this element so that we can tell when the click is on the open/close circle
+
+      &::before {
+        pointer-events: auto;
+      }
+
+      div {
+        pointer-events: auto;
+      }
+    }
+  }
 </style>

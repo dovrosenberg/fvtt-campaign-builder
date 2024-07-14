@@ -27,10 +27,9 @@ export type EntrySummary = {
 export enum Topic {
   None,
   Character,
-  Event,
   Location,
   Organization,
-  //TODO: Note - maybe the ability to just handle normal journal notes?
+  Event,
 }
 
 export type TreeNode = {
