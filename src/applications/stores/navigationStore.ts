@@ -114,8 +114,6 @@ export const useNavigationStore = defineStore('navigation', () => {
   // activate the given tab, first closing the current subsheet
   // tabId must exist
   const activateTab = async function (tabId: string): Promise<void> {
-    //this.saveScrollPos();
-
     let newTab: WindowTab | undefined;
     if (!tabId || !(newTab = tabs.value.find((t)=>(t.id===tabId))))
       return;

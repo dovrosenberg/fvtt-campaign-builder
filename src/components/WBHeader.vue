@@ -105,7 +105,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, watch, } from 'vue';
+  import { ref, computed, watch, onMounted, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -399,6 +399,12 @@
 
   ////////////////////////////////
   // lifecycle events
+  onMounted(async () => {
+    // set the active tab
+    const tab = navigationStore.getActiveTab();
+    if (tab)
+      await navigationStore.activateTab(tab.id);
+  });
 
 
 // TODO - need someway to trigger this from outside... it feels like maybe the tabs  need to be maintained from
