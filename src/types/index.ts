@@ -31,7 +31,6 @@ export enum Topic {
   Location,
   Organization,
   Event,
-  //TODO: Note - maybe the ability to just handle normal journal notes?
 }
 
 export type TreeNode = {

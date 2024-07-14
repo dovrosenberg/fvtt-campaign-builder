@@ -1,8 +1,10 @@
 <template>
   <details 
-    :open="props.node.expanded">
+    :open="props.node.expanded"
+    @toggle="onDetailsToggle">
     <summary>      
-      <div class="tree-item" 
+      <div 
+        class="tree-item" 
         @click="onTreeItemClick($event, value)"
       >{{props.node.text}}</div>
     </summary>
@@ -60,12 +62,18 @@
   const onTreeItemClick = (event: MouseEvent, value: string) => {
     event.preventDefault();  // stop from expanding
     emit('itemClicked', value);
-  }
+    console.log('onTreeItemClik');
+  };
 
   const onSubItemClick = (event: MouseEvent, value: string) => {
     event.preventDefault();  // stop from expanding
     emit('itemClicked', value);
-  }
+    console.log('onsubitemclick');
+  };
+
+  const onDetailsToggle = (event: ToggleEvent) => {
+    console.log('ontoggle');
+  };
 
   ////////////////////////////////
   // watchers

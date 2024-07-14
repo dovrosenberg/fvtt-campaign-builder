@@ -18,7 +18,7 @@
         >
         <a 
           class="header-control create-world create-button" 
-          data-tooltip="INSERT TOOLTOP"
+          data-tooltip="localize('fwb.tooltips.createWorld')"
           @click="onCreateWorldClick"
         >
           <i class="fas fa-globe"></i>
@@ -61,10 +61,13 @@
             :key="pack.id"
             :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')"
             :data-pack-id="pack.id" 
-            @click="onTopicFolderClick($event, pack)"
           >
             <header class="folder-header flexrow">
-              <div class="fwb-compendium-label noborder" style="margin-bottom:0px">
+              <div 
+                class="fwb-compendium-label noborder" 
+                style="margin-bottom:0px"
+                @click="onTopicFolderClick($event, pack)"
+              >
                 <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
                 <i :class="'icon fas ' + getIcon(pack.topic)" style="margin-right: 4px;"></i>
                 {{ pack.name }}
@@ -188,6 +191,7 @@
   const onTopicFolderClick = async (event: MouseEvent, directoryPack: DirectoryPack) => { 
     event.stopPropagation();
 
+    console.log('topic folder click');
     await directoryStore.togglePack(directoryPack);
 
     // toggle the collapse      
@@ -467,7 +471,7 @@
         z-index: 999;
       }
 
-      details[open] summary::before {
+      details[open]>summary::before {
         content: "-";
       }
 

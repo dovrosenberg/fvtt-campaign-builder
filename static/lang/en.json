@@ -53,6 +53,7 @@
     },
     "tooltips": {
       "mainButton": "Launch World Builder",
+      "createWorld": "Create world",
       "expandDirectory": "Expand directory",
       "collapseDirectory": "Collapse directory",
       "collapseAllTopics": "Collapse all",

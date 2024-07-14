@@ -137,7 +137,7 @@
         z-index: 999;
       }
 
-      details[open] summary::before {
+      details[open]>summary::before {
         content: "-";
       }
     }

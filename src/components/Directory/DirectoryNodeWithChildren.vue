@@ -1,6 +1,9 @@
 <template>
   <li>
-    <details :open="props.expanded">
+    <details 
+      :open="props.expanded"
+      @click="onClickDetails"
+    >
       <summary :class="(props.top ? 'top' : '')">      
         <div 
           :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
@@ -21,7 +24,6 @@
             :node="child"
             :expanded="child.expanded"
             :top="false"
-            @itemClicked="onSubItemClick"
           />
         </div>
       </ul>
@@ -35,7 +37,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useDirectoryStore, useMainStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getGame } from '@/utils/game';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
@@ -75,6 +77,7 @@
   // store
   const directoryStore = useDirectoryStore();
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
   const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
 
   ////////////////////////////////
@@ -85,18 +88,25 @@
 
   ////////////////////////////////
   // methods
+  const itemClicked = async (node: DirectoryNode, ctrlKey: boolean): Promise<void> => {
+    await navigationStore.openEntry(node.id, {newTab: ctrlKey});
+  };
 
   ////////////////////////////////
   // event handlers
-  const onDirectoryItemClick = (event: MouseEvent, node: DirectoryNode) => {
-    event.preventDefault();  // stop from expanding
-    event.stopPropagation();
-
-    emit('itemClicked', node, event.ctrlKey);
+  // prevent the base toggle functionality
+  const onClickDetails = () => { 
+    return false;
   };
 
-  const onSubItemClick = (node: DirectoryNode, ctrlKey: boolean) => {
-    emit('itemClicked', node, ctrlKey);
+  // this is only called by summary::before (i.e. the little circle) because other clicks
+  //    are ignored on the summary
+  const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryNode) => {
+    event.stopPropagation();
+    event.preventDefault();
+    
+    console.log('child dir item:' + node.name);
+    await itemClicked(node, event.ctrlKey);
   };
 
   // handle an entry dragging to another to nest
@@ -182,6 +192,20 @@
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+  details {
+    pointer-events: none;
 
+    summary {
+      pointer-events: none;  // we block click on this element so that we can tell when the click is on the open/close circle
+
+      &::before {
+        pointer-events: auto;
+      }
+
+      div {
+        pointer-events: auto;
+      }
+    }
+  }
 </style>

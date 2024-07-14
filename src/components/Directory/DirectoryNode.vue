@@ -4,11 +4,11 @@
     :node="props.node"
     :expanded="props.node.expanded"
     :top="props.top"
-    @itemClicked="onSubItemClick"
   />
   <li v-else>
     <div 
       :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
+      style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick($event, props.node)"
       @dragstart="onDragStart($event, node.id)"
@@ -76,26 +76,17 @@
 
   // select an entry
   const itemClicked = async (node: DirectoryNode, ctrlKey: boolean): Promise<void> => {
-    // TODO - in a perfect world, clicking the +/- would toggle but not open the entry
-    // for now, only open the entry when we're expanding, not when we're closing
-    if (!node.expanded) {
-      await navigationStore.openEntry(node.id, {newTab: ctrlKey});
-    }
-
-    await directoryStore.toggleEntry(node);
+    await navigationStore.openEntry(node.id, {newTab: ctrlKey});
   };
 
   ////////////////////////////////
   // event handlers
   const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryNode) => {
-    event.preventDefault();  // stop from expanding
     event.stopPropagation();
-
+    event.preventDefault();
+    
+    console.log('node dir item:' + node.name);
     await itemClicked(node, event.ctrlKey);
-  };
-
-  const onSubItemClick = async (node: DirectoryNode, ctrlKey: boolean) => {
-    await itemClicked(node, ctrlKey);
   };
 
   // handle an entry dragging to another to nest
