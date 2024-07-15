@@ -270,6 +270,9 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   const recursivelyLoadNode = async (children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
+    // TODO - load all children not in loadednodes
+    // pack.getDocuments({_id__in: array})
+
     // have to check all children loaded and update their expanded states
     for (let i=0; i<children.length; i++) {
       let child: DirectoryNode | null = loadedChildren.find((n)=>n.id===children[i]) || null;
