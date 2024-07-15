@@ -3,14 +3,14 @@
     :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')"
     @click="onClickApplication($event)"
   >
-    <section class="fwb-body flexcol">
+    <div class="fwb-body flexcol">
       <WBHeader />
       <div class="fwb-content flexcol editable">
         <WBContent />
       </div>
-    </section>
-    <div id="fwb-directory-sidebar">
-      <Directory @worldSelected="onDirectoryWorldSelected" />
+    </div>
+    <div id="fwb-directory-sidebar" class="flexcol">
+      <Directory @world-selected="onDirectoryWorldSelected" />
     </div> 
   </div>
 </template> 
@@ -195,6 +195,10 @@ div[data-application-part] {
 .fwb-main-window {  
   min-width: 640px;
 
+  .window-content > div {
+    overflow: hidden;
+  }
+
   .fwb {
     height: 100%;
     width: 100%;
@@ -203,13 +207,14 @@ div[data-application-part] {
 
     // Sidebar 
     #fwb-directory-sidebar {
+      display: flex;
       flex: 0 0 250px;
       height: 100%;
       background: var(--fwb-sidebar-background);
       border-left: 1px solid var(--fwb-header-border-color);
       transition: width 0.5s, flex 0.5s;
 
-      & > section {
+      & > div {
         display: flex !important;
         height: 100%;
       }

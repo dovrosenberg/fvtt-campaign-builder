@@ -1,6 +1,6 @@
 <template>
   <!-- The overall directory sidebar -->
-  <section 
+  <div 
     id="fwb-directory" 
     ref="root"
     class="tab flexcol journal-directory" 
@@ -34,68 +34,69 @@
       </div>
     </header>
 
-    <!-- these are the worlds -->
-    <ol class="fwb-world-list">
-      <li 
-        v-for="world in directoryStore.currentTree.value"
-        :key="world.id"
-        :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
-        @click="onWorldFolderClick($event, world.id)"
-        @contextmenu="onWorldContextMenu($event, world.id)"
-      >
-        <header class="folder-header flexrow">
-          <h3 class="noborder">
-            <i class="fas fa-folder-open fa-fw"></i>
-            {{ world.name }}
-          </h3>
-        </header>
-
-        <!-- These are the topic compendia -->
-        <ol 
-          v-if="currentWorldId===world.id"
-          class="world-contents"
+    <div>
+      <!-- these are the worlds -->
+      <ol class="fwb-world-list">
+        <li 
+          v-for="world in directoryStore.currentTree.value"
+          :key="world.id"
+          :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
+          @click="onWorldFolderClick($event, world.id)"
+          @contextmenu="onWorldContextMenu($event, world.id)"
         >
-          <!-- data-pack-id is used by drag and drop-->
-          <li 
-            v-for="pack in world.packs"
-            :key="pack.id"
-            :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')"
-            :data-pack-id="pack.id" 
+          <header class="folder-header flexrow">
+            <h3 class="noborder">
+              <i class="fas fa-folder-open fa-fw"></i>
+              {{ world.name }}
+            </h3>
+          </header>
+
+          <!-- These are the topic compendia -->
+          <ol 
+            v-if="currentWorldId===world.id"
+            class="world-contents"
           >
-            <header class="folder-header flexrow">
-              <div 
-                class="fwb-compendium-label noborder" 
-                style="margin-bottom:0px"
-                @click="onTopicFolderClick($event, pack)"
-              >
-                <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                <i :class="'icon fas ' + getIcon(pack.topic)" style="margin-right: 4px;"></i>
-                {{ pack.name }}
-              </div>
-              <a 
-                class="fwb-create-entry create-button"
-                @click="onCreateEntryClick($event, pack.topic, world.id)"
-              >
-                <i class="fas fa-atlas"></i>
-                <i class="fas fa-plus"></i>
-              </a>
-            </header>
+            <!-- data-pack-id is used by drag and drop-->
+            <li 
+              v-for="pack in world.packs"
+              :key="pack.id"
+              :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')"
+              :data-pack-id="pack.id" 
+            >
+              <header class="folder-header flexrow">
+                <div 
+                  class="fwb-compendium-label noborder" 
+                  style="margin-bottom:0px"
+                  @click="onTopicFolderClick($event, pack)"
+                >
+                  <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
+                  <i :class="'icon fas ' + getIcon(pack.topic)" style="margin-right: 4px;"></i>
+                  {{ pack.name }}
+                </div>
+                <a 
+                  class="fwb-create-entry create-button"
+                  @click="onCreateEntryClick($event, pack.topic, world.id)"
+                >
+                  <i class="fas fa-atlas"></i>
+                  <i class="fas fa-plus"></i>
+                </a>
+              </header>
 
-            <ul class="fwb-directory-tree">
-              <NodeComponent 
-                v-for="node in pack.loadedTopNodes"
-                :key="node.id"
-                :node="node" 
-                :top="true"
-                class="fwb-entry-item" 
-                draggable="true"
-              />
-            </ul>
-          </li>
-        </ol>
-      </li>
-    </ol>
-
+              <ul class="fwb-directory-tree">
+                <NodeComponent 
+                  v-for="node in pack.loadedTopNodes"
+                  :key="node.id"
+                  :node="node" 
+                  :top="true"
+                  class="fwb-entry-item" 
+                  draggable="true"
+                />
+              </ul>
+            </li>
+          </ol>
+        </li>
+      </ol>
+    </div>
     <!-- Directory Footer -->
     <!--
       <footer class="directory-footer action-buttons {{#if data.unavailable}}warning{{/if}}">
@@ -105,7 +106,7 @@
         {{/if~}}
       </footer>
     -->
-  </section>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -210,7 +211,15 @@
   const onCreateWorldClick = async (event: MouseEvent) => {
     event.stopPropagation();
 
-    await directoryStore.createWorld();
+    // // add 400 entries
+    // const wf = getGame().folders?.find((f)=>f.id==='jVnAMlVHnCaHxvbi');
+    // if (wf) {
+    //   for (let i=0; i<400; i++) {
+    //     await directoryStore.createEntry(wf, Topic.Location, foundry.utils.randomID());
+    //   }
+    // }
+
+    //await directoryStore.createWorld();
   };
 
   // create entry buttons
@@ -289,90 +298,99 @@
       }
     }
 
-    .fwb-world-list {
-      padding: 0;
+    // the world list section
+    &>div {
+      display: flex;
+      flex: 0 1 100%;
+      overflow: hidden;
 
-      .fwb-world-folder {
-        align-items: flex-start;
-        justify-content: flex-start;
+      .fwb-world-list {
+        padding: 0;
+        flex-grow: 1;
+        overflow: auto;
 
-        &.active {
-          background: #cfcdc2;
+        .fwb-world-folder {
+          align-items: flex-start;
+          justify-content: flex-start;
+
+          &.active {
+            background: #cfcdc2;
+          }
         }
       }
-    }
 
-    .fwb-world-folder > .folder-header {
-      border-bottom: none;
-      width: 100%;
-      flex: 1;
+      .fwb-world-folder > .folder-header {
+        border-bottom: none;
+        width: 100%;
+        flex: 1;
 
-      h3 {
-        color: inherit;   // reset the default from foundry            
-        text-shadow: inherit;
-      }
-    }
-
-    .fwb-world-folder:not(.collapsed) > .folder-header {
-      border-top: 1px solid var(--fwb-sidebar-world-border);
-      background: var(--fwb-sidebar-world-background);
-      color: var(--fwb-sidebar-world-color);
-    }
-
-    .fwb-world-folder.collapsed > .folder-header {
-      border-top: 1px solid var(--fwb-sidebar-world-border-collapsed);
-      background: var(--fwb-sidebar-world-background-collapsed);
-      color: var(--fwb-sidebar-world-color-collapsed);
-      text-shadow: none;
-    }
-
-    .fwb-world-folder .folder-header.context {
-      border-top: 1px solid var(--mej-active-color);
-      border-bottom: 1px solid var(--mej-active-color);
-    }
-
-    .fwb-topic-folder .folder-header {
-      background: inherit;
-      border: 0px;
-      text-shadow: none;   // override foundry default
-      cursor: pointer;
-
-      i.icon {
-        color: #777;
-      }  
-    }
-
-    // change icon to closed when collapsed
-    .fwb-topic-folder.collapsed > .folder-header i.fa-folder-open:before {
-      content: "\f07b";
-    }
-
-    .fwb-create-entry.create-button {
-      i.fa-atlas {
-        color: var(--fwb-sidebar-create-entry-color);
-      }
-      i.fa-plus {
-        background: var(--fwb-sidebar-create-entry-secondary-color);
-      }
-    }
-
-    .world-contents {
-      border-left: 6px solid var(--fwb-sidebar-subfolder-border);
-      border-bottom: 2px solid var(--fwb-sidebar-subfolder-border);
-      margin: 0px;
-      width: 100%;
-      padding-left: 10px;
-
-      .fwb-topic-folder.collapsed .fwb-topic-contents {
-        display: none;
+        h3 {
+          color: inherit;   // reset the default from foundry            
+          text-shadow: inherit;
+        }
       }
 
-      .fwb-topic-contents {
-        padding-left: 20px;
+      .fwb-world-folder:not(.collapsed) > .folder-header {
+        border-top: 1px solid var(--fwb-sidebar-world-border);
+        background: var(--fwb-sidebar-world-background);
+        color: var(--fwb-sidebar-world-color);
+      }
+
+      .fwb-world-folder.collapsed > .folder-header {
+        border-top: 1px solid var(--fwb-sidebar-world-border-collapsed);
+        background: var(--fwb-sidebar-world-background-collapsed);
+        color: var(--fwb-sidebar-world-color-collapsed);
+        text-shadow: none;
+      }
+
+      .fwb-world-folder .folder-header.context {
+        border-top: 1px solid var(--mej-active-color);
+        border-bottom: 1px solid var(--mej-active-color);
+      }
+
+      .fwb-topic-folder .folder-header {
+        background: inherit;
+        border: 0px;
+        text-shadow: none;   // override foundry default
+        cursor: pointer;
+
+        i.icon {
+          color: #777;
+        }  
+      }
+
+      // change icon to closed when collapsed
+      .fwb-topic-folder.collapsed > .folder-header i.fa-folder-open:before {
+        content: "\f07b";
+      }
+
+      .fwb-create-entry.create-button {
+        i.fa-atlas {
+          color: var(--fwb-sidebar-create-entry-color);
+        }
+        i.fa-plus {
+          background: var(--fwb-sidebar-create-entry-secondary-color);
+        }
+      }
+
+      .world-contents {
+        border-left: 6px solid var(--fwb-sidebar-subfolder-border);
+        border-bottom: 2px solid var(--fwb-sidebar-subfolder-border);
         margin: 0px;
-      }
-    }    
+        width: 100%;
+        padding-left: 10px;
 
+        .fwb-topic-folder.collapsed .fwb-topic-contents {
+          display: none;
+        }
+
+        .fwb-topic-contents {
+          padding-left: 20px;
+          margin: 0px;
+        }
+      }    
+    }
+    
     .directory.sidebar-tab .fwb-world-list .entry.selected {
       background: rgba(0, 0, 0, 0.03);
     }

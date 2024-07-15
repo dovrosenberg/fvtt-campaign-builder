@@ -1,5 +1,5 @@
 <template>
-  <section 
+  <div 
     ref="contentRef"
     class="sheet fwb-journal-sheet"
   >
@@ -14,7 +14,7 @@
           <div class="sheet-image">
             <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
           </div>
-          <section class="header-details fwb-content-header">
+          <div class="header-details fwb-content-header">
             <h1 class="header-name flexrow">
               <i :class="`fas ${icon} sheet-icon`"></i>
               <q-input
@@ -42,7 +42,7 @@
             >
               <!-- <Tree :topNodes="treeNodes" />  -->
             </div>
-          </section>
+          </div>
         </header>
         <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
           <a class="item" data-tab="description">{{ localize('fwb.labels.tabs.description') }}</a>
@@ -53,7 +53,7 @@
             {{ localize(relationship.label) }}
           </a>
         </nav>
-        <section class="fwb-tab-body flexcol">
+        <div class="fwb-tab-body flexcol">
           <div class="tab description flexcol" data-group="primary" data-tab="description">
             <div class="tab-inner flexcol">
               <Editor 
@@ -218,10 +218,10 @@
               </div>
             </div>
           </div>
-        </section>
+        </div>
       </div>
     </form>	 
-  </section>
+  </div>
 </template>
 
 <script setup lang="ts">

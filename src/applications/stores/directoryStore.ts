@@ -297,16 +297,17 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   // creates a new entry in the proper compendium in the given world
-  const createEntry = async (worldFolder: Folder, topic: Topic): Promise<JournalEntry | null> => {
+  // if name is populated will skip the dialog
+  const createEntry = async (worldFolder: Folder, topic: Topic, name?: string): Promise<JournalEntry | null> => {
     const topicText = getTopicText(topic);
 
-    let name;
-    do {
-      name = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
-    } while (name==='');  // if hit ok, must have a value
+    let nameTouse = name || '' as string | null;
+    while (nameTouse==='') {  // if hit ok, must have a value
+      nameTouse = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
+    }  
 
     // if name is null, then we cancelled the dialog
-    if (!name)
+    if (!nameTouse)
       return null;
 
     // create the entry
@@ -323,7 +324,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     await pack.configure({locked:false});
 
     const entry = await JournalEntry.create({
-      name,
+      name: nameTouse,
       folder: worldFolder.id,
     },{
       pack: compendia[topic],

@@ -8,7 +8,7 @@
     </h3>
     <br>
     <br>
-    <section style="flex:2;">
+    <div style="flex:2;">
       <div 
         class="flexrow" 
         style="margin-bottom: 20px;"
@@ -36,7 +36,7 @@
           {{ recentItem.name }}
         </div>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
