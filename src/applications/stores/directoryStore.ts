@@ -36,6 +36,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   
   // the top-level folder structure
   const currentTree = reactive<{value: DirectoryWorld[]}>({value:[]});
+  const isTreeRefreshing = ref<boolean>(false);
 
   // current sidebar collapsed state
   const directoryCollapsed = ref<boolean>(false);
@@ -219,6 +220,8 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (!currentWorldId.value)
       return;
 
+    isTreeRefreshing.value = true;
+
     // we put in the packs only for the current world
     let tree = [] as DirectoryWorld[];
 
@@ -263,6 +266,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     }
 
     currentTree.value = tree;
+    isTreeRefreshing.value = false;
   };
 
   const recursivelyLoadNode = async (children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
@@ -505,6 +509,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   return {
     currentTree,
     directoryCollapsed,
+    isTreeRefreshing,
 
     toggleEntry,
     togglePack,
