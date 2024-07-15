@@ -452,9 +452,8 @@
       }
 
       // add the little open markers
-      div.summary::before {
+      div.summary .fwb-directory-expand-button {
         position: absolute;
-        content: "+";
         text-align: center;
         line-height: 0.80em;
         color: black;
@@ -468,11 +467,7 @@
         z-index: 999;
       }
 
-      div.details[open]>div.summary::before {
-        content: "-";
-      }
-
-      div.summary.top::before {
+      div.summary.top .fwb-directory-expand-button {
         margin-left: 1em;
       }
 

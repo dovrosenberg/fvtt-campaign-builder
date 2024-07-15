@@ -3,10 +3,14 @@
     <div 
       class="details"
       :open="props.node.expanded"
-      @click="onClickDetails"
-      @toggle="onToggleDetails($event, props.node)"
     >
       <div :class="'summary ' + (props.top ? 'top' : '')">      
+        <div 
+          class="fwb-directory-expand-button"
+          @click="onEntryToggleClick()"
+        >
+          <span v-if="props.node.expanded">-</span><span v-else>+</span>
+        </div>
         <div 
           :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
           draggable="true"
@@ -19,7 +23,7 @@
       </div>
       <ul>
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
-        <div v-show="props.node.expanded">
+        <div v-if="props.node.expanded">
           <DirectoryNodeComponent 
             v-for="child in props.node.loadedChildren"
             :key="child.id"
@@ -89,14 +93,8 @@
 
   ////////////////////////////////
   // event handlers
-  const onClickDetails = async () => { 
+  const onEntryToggleClick = async () => {
     await directoryStore.toggleEntry(props.node, !props.node.expanded);
-  };
-
-  // we're toggling - make sure to load the kids nowprevent the base toggle functionality
-  const onToggleDetails = async (event: ToggleEvent, node: DirectoryNode) => { 
-    event.stopImmediatePropagation();
-    await directoryStore.toggleEntry(node, event.newState==='open');
   };
 
   // this is only called by summary::before (i.e. the little circle) because other clicks
@@ -192,19 +190,5 @@
 </script>
 
 <style lang="scss" scoped>
-  div.details {
-    pointer-events: none;
 
-    div.summary {
-      pointer-events: none;  // we block click on this element so that we can tell when the click is on the open/close circle
-
-      &::before {
-        pointer-events: auto;
-      }
-
-      div {
-        pointer-events: auto;
-      }
-    }
-  }
 </style>

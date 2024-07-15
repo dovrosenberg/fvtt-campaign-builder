@@ -388,16 +388,12 @@ export const useDirectoryStore = defineStore('directory', () => {
     await WorldFlags.set(currentWorldId.value, WorldFlagKey.packTopNodes, {...allTopNodes, [pack.metadata.id]: topNodes});
   };
 
-  const isDirectoryPack = (node: DirectoryNode | DirectoryPack): node is DirectoryPack => {
-    return (<DirectoryPack>node).pack !== undefined;
-  }
-
   // used to toggle entries and compendia (not worlds)
   const _collapseItem = async(node: DirectoryNode | DirectoryPack, id: string): Promise<void> => {
     if (!currentWorldId.value)
       return;
 
-    await WorldFlags.set(currentWorldId.value, WorldFlagKey.expandedIds, {[`-=${id}`]: null});
+    await WorldFlags.unset(currentWorldId.value, WorldFlagKey.expandedIds, id);
 
     await refreshCurrentTree();
   };
