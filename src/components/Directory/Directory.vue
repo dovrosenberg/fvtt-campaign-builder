@@ -34,73 +34,71 @@
       </div>
     </header>
 
-    <div>
-      <div v-if="isTreeRefreshing">
-        <q-inner-loading :showing="isTreeRefreshing" /> 
-      </div>
-      <div v-else>
-        <!-- these are the worlds -->
-        <ol class="fwb-world-list">
-          <li 
-            v-for="world in directoryStore.currentTree.value"
-            :key="world.id"
-            :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
-            @click="onWorldFolderClick($event, world.id)"
-            @contextmenu="onWorldContextMenu($event, world.id)"
+    <div v-if="isTreeRefreshing">
+      <q-inner-loading :showing="isTreeRefreshing" /> 
+    </div>
+    <div v-else class="fwb-world-list-wrapper">
+      <!-- these are the worlds -->
+      <ol class="fwb-world-list">
+        <li 
+          v-for="world in directoryStore.currentTree.value"
+          :key="world.id"
+          :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
+          @click="onWorldFolderClick($event, world.id)"
+          @contextmenu="onWorldContextMenu($event, world.id)"
+        >
+          <header class="folder-header flexrow">
+            <h3 class="noborder">
+              <i class="fas fa-folder-open fa-fw"></i>
+              {{ world.name }}
+            </h3>
+          </header>
+
+          <!-- These are the topic compendia -->
+          <ol 
+            v-if="currentWorldId===world.id"
+            class="world-contents"
           >
-            <header class="folder-header flexrow">
-              <h3 class="noborder">
-                <i class="fas fa-folder-open fa-fw"></i>
-                {{ world.name }}
-              </h3>
-            </header>
-
-            <!-- These are the topic compendia -->
-            <ol 
-              v-if="currentWorldId===world.id"
-              class="world-contents"
+            <!-- data-pack-id is used by drag and drop-->
+            <li 
+              v-for="pack in world.packs"
+              :key="pack.id"
+              :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')"
+              :data-pack-id="pack.id" 
             >
-              <!-- data-pack-id is used by drag and drop-->
-              <li 
-                v-for="pack in world.packs"
-                :key="pack.id"
-                :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')"
-                :data-pack-id="pack.id" 
-              >
-                <header class="folder-header flexrow">
-                  <div 
-                    class="fwb-compendium-label noborder" 
-                    style="margin-bottom:0px"
-                    @click="onTopicFolderClick($event, pack)"
-                  >
-                    <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                    <i :class="'icon fas ' + getIcon(pack.topic)" style="margin-right: 4px;"></i>
-                    {{ pack.name }}
-                  </div>
-                  <a 
-                    class="fwb-create-entry create-button"
-                    @click="onCreateEntryClick($event, pack.topic, world.id)"
-                  >
-                    <i class="fas fa-atlas"></i>
-                    <i class="fas fa-plus"></i>
-                  </a>
-                </header>
+              <header class="folder-header flexrow">
+                <div 
+                  class="fwb-compendium-label noborder" 
+                  style="margin-bottom:0px"
+                  @click="onTopicFolderClick($event, pack)"
+                >
+                  <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
+                  <i :class="'icon fas ' + getIcon(pack.topic)" style="margin-right: 4px;"></i>
+                  {{ pack.name }}
+                </div>
+                <a 
+                  class="fwb-create-entry create-button"
+                  @click="onCreateEntryClick($event, pack.topic, world.id)"
+                >
+                  <i class="fas fa-atlas"></i>
+                  <i class="fas fa-plus"></i>
+                </a>
+              </header>
 
-                <ul class="fwb-directory-tree">
-                  <NodeComponent 
-                    v-for="node in pack.loadedTopNodes"
-                    :key="node.id"
-                    :node="node" 
-                    :top="true"
-                    class="fwb-entry-item" 
-                    draggable="true"
-                  />
-                </ul>
-              </li>
-            </ol>
-          </li>
-        </ol>
-      </div>
+              <ul class="fwb-directory-tree">
+                <NodeComponent 
+                  v-for="node in pack.loadedTopNodes"
+                  :key="node.id"
+                  :node="node" 
+                  :top="true"
+                  class="fwb-entry-item" 
+                  draggable="true"
+                />
+              </ul>
+            </li>
+          </ol>
+        </li>
+      </ol>
     </div>
     <!-- Directory Footer -->
     <!--
@@ -305,7 +303,7 @@
     }
 
     // the world list section
-    &>div {
+    .fwb-world-list-wrapper {
       display: flex;
       flex: 0 1 100%;
       overflow: hidden;
