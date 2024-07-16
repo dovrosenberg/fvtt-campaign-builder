@@ -261,7 +261,7 @@ export const useDirectoryStore = defineStore('directory', () => {
           continue;
 
         // have to check all children are loaded and expanded properly
-        await recursivelyLoadNode(pack.topNodes, pack.loadedTopNodes, expandedNodes, updateEntryIds);
+        await _recursivelyLoadNode(pack.pack, pack.topNodes, pack.loadedTopNodes, expandedNodes, updateEntryIds);
       }
     }
 
@@ -269,34 +269,38 @@ export const useDirectoryStore = defineStore('directory', () => {
     isTreeRefreshing.value = false;
   };
 
-  const recursivelyLoadNode = async (children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
+  const _recursivelyLoadNode = async (pack: CompendiumCollection, children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
+    // load any children that haven't been loaded before
+    // this guarantees all children are at least in _loadedNodes and updateEntryIds ones have been refreshed
+    const nodesToLoad = children.filter((id)=>!loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id));
+
+    if (nodesToLoad.length>0)
+      await _loadNodeList(pack, nodesToLoad, expandedNodes);
+
     // have to check all children loaded and update their expanded states
     for (let i=0; i<children.length; i++) {
       let child: DirectoryNode | null = loadedChildren.find((n)=>n.id===children[i]) || null;
 
       if (child && !updateEntryIds.includes(child.id)) {
         // this one is already loaded and attached (and not a forced update)
-      } else if (_loadedNodes[children[i]] && !updateEntryIds.includes(children[i])) {
+      } else if (_loadedNodes[children[i]]) {
+        // it was loaded previously - just reattach it
         // without a deep clone, the reactivity down the tree on node.expanded isn't working... so doing this for now unless it creates performance issues
+        // TODO - don't need to clone the 1st time we load from disk... it should ba  load or a clone, not both
         child = foundry.utils.deepClone(_loadedNodes[children[i]]);
 
-        // it was loaded previously - just reattach it
         loadedChildren.push(child);
       } else {
-        // need to load it
-        child = await _loadNode(children[i], expandedNodes);
-        if (!child)
-          throw new Error('Attempting to load invalid node in directoryStore.recursivelyLoadNode(): ' + children[i]);
-
-        _loadedNodes[child.id] = child;  // add to cache
-        loadedChildren.push(child);
+        // should never happen because everything should be in _loadedNodes
+        throw new Error('Entry failed to load properly in directoryStore._recursivelyLoadNode() ');
       }
 
       // may need to change the expanded state
       child.expanded = expandedNodes[child.id] || false;
 
-      if (child.expanded)
-        await recursivelyLoadNode(child.children, child.loadedChildren, expandedNodes, updateEntryIds);
+      if (child.expanded) {
+        await _recursivelyLoadNode(pack, child.children, child.loadedChildren, expandedNodes, updateEntryIds);
+      }
     }      
   };
 
@@ -379,6 +383,23 @@ export const useDirectoryStore = defineStore('directory', () => {
       _loadedNodes[newNode.id] = newNode;
 
       return newNode;
+    }
+  };
+
+  // loads a set of nodes, including expanded status
+  const _loadNodeList = async(pack: CompendiumCollection, ids: string[], updateEntryIds: string[] ): Promise<void> => {
+
+    // we only want to load ones not already in _loadedNodes, unless its in updateEntryIds
+    const uuidsToLoad = ids.filter((id)=>!_loadedNodes[id] || updateEntryIds.includes(id));
+
+    // convert uuids to ids
+    const convertedIds = uuidsToLoad.map((uuid)=>foundry.utils.parseUuid(uuid).id);
+
+    const entries = await pack.getDocuments({ _id__in: convertedIds }) as JournalEntry[];
+
+    for (let i=0; i<entries.length; i++) {
+      const newNode = _convertEntryToNode(entries[i]);
+      _loadedNodes[newNode.id] = newNode;
     }
   };
 
