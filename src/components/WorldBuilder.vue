@@ -210,6 +210,7 @@ div[data-application-part] {
       display: flex;
       flex: 0 0 250px;
       height: 100%;
+      overflow: hidden;
       background: var(--fwb-sidebar-background);
       border-left: 1px solid var(--fwb-header-border-color);
       transition: width 0.5s, flex 0.5s;

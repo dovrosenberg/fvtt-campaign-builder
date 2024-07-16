@@ -275,7 +275,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     const nodesToLoad = children.filter((id)=>!loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id));
 
     if (nodesToLoad.length>0)
-      await _loadNodeList(pack, nodesToLoad, expandedNodes);
+      await _loadNodeList(pack, nodesToLoad, updateEntryIds);
 
     // have to check all children loaded and update their expanded states
     for (let i=0; i<children.length; i++) {
