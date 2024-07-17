@@ -169,6 +169,7 @@
   const onWorldContextMenu = (event: MouseEvent, worldId: string | null): void => {
     //prevent the browser's default menu
     event.preventDefault();
+    event.stopPropagation();
 
     //show our menu
     ContextMenu.showContextMenu({

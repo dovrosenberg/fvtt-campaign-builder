@@ -60,20 +60,41 @@ export const useDirectoryStore = defineStore('directory', () => {
     } else {
       await _expandItem(pack, pack.id);
     }
+
+    await refreshCurrentTree();
   };
 
   // expand/contract  the given entry, loading the new item data
   // we don't actually do a toggle because when we change the open state on the html element
   //    that triggers another toggle event
-  const toggleEntry = async(node: DirectoryNode, expanded: boolean) : Promise<void>=> {
-    if (node.expanded===expanded)
-      return;
+  // return the new node
+  const toggleEntry = async(node: DirectoryNode, expanded: boolean) : Promise<DirectoryNode>=> {
+    if (node.expanded===expanded || !currentWorldId.value)
+      return node;
     
     if (node.expanded) {
       await _collapseItem(node, node.id);
     } else {
       await _expandItem(node, node.id);
     }
+
+    // instead of refreshing the whole tree, we can just update the node
+    const updatedNode = foundry.utils.deepClone(node);
+    updatedNode.expanded = expanded;
+
+    // make sure all children are properly loaded (if it's being opened)
+    if (expanded) {
+      const expandedIds = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
+      const pack = getGame().packs.get((await fromUuid(updatedNode.id))?.pack || '');
+
+      if (pack) {
+        await _recursivelyLoadNode(pack, updatedNode.children, updatedNode.loadedChildren, expandedIds);
+      } else {
+        throw new Error('Could load pack in directoryStore.toggleEntry()');
+      }
+    }
+    
+    return updatedNode;
   };
 
   const collapseAll = async(): Promise<void> => {
@@ -420,8 +441,6 @@ export const useDirectoryStore = defineStore('directory', () => {
       return;
 
     await WorldFlags.unset(currentWorldId.value, WorldFlagKey.expandedIds, id);
-
-    await refreshCurrentTree();
   };
 
   const _expandItem = async(node: DirectoryNode | DirectoryPack, id: string): Promise<void> => {
@@ -430,8 +449,6 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     const expandedIds = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
     await WorldFlags.set(currentWorldId.value, WorldFlagKey.expandedIds, {...expandedIds, [id]: true});
-
-    await refreshCurrentTree();
   };
 
 

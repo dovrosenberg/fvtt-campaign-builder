@@ -2,30 +2,30 @@
   <li>
     <div 
       class="details"
-      :open="props.node.expanded"
+      :open="currentNode.expanded"
     >
       <div :class="'summary ' + (props.top ? 'top' : '')">      
         <div 
           class="fwb-directory-expand-button"
-          @click="onEntryToggleClick()"
+          @click="onEntryToggleClick"
         >
-          <span v-if="props.node.expanded">-</span><span v-else>+</span>
+          <span v-if="currentNode.expanded">-</span><span v-else>+</span>
         </div>
         <div 
-          :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
+          :class="`${currentNode.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
           draggable="true"
-          @click="onDirectoryItemClick($event, props.node)"
-          @dragstart="onDragStart($event, props.node.id)"
-          @drop="onDrop($event, props.node.id)"
+          @click="onDirectoryItemClick($event, currentNode)"
+          @dragstart="onDragStart($event, currentNode.id)"
+          @drop="onDrop($event, currentNode.id)"
         >
-          {{ props.node.name }}
+          {{ currentNode.name }}
         </div>
       </div>
       <ul>
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
-        <div v-if="props.node.expanded">
+        <div v-if="currentNode.expanded">
           <DirectoryNodeComponent 
-            v-for="child in props.node.loadedChildren"
+            v-for="child in currentNode.loadedChildren"
             :key="child.id"
             :node="child"
             :top="false"
@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { PropType } from 'vue';
+  import { onMounted, PropType, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -80,6 +80,9 @@
 
   ////////////////////////////////
   // data
+  // we don't just use props node because in toggleEntry we want to swap it out without rebuilding
+  //   the whole tree
+  const currentNode = ref<DirectoryNode>(props.node);
 
   ////////////////////////////////
   // computed data
@@ -94,7 +97,7 @@
   ////////////////////////////////
   // event handlers
   const onEntryToggleClick = async () => {
-    await directoryStore.toggleEntry(props.node, !props.node.expanded);
+    currentNode.value = await directoryStore.toggleEntry(currentNode.value, !currentNode.value.expanded);
   };
 
   // this is only called by summary::before (i.e. the little circle) because other clicks
@@ -182,9 +185,15 @@
 
   ////////////////////////////////
   // watchers
+  watch(()=> props.node, (newValue: DirectoryNode) => {
+    currentNode.value = newValue;
+  });
 
   ////////////////////////////////
   // lifecycle events
+  onMounted(() => {
+    currentNode.value = props.node;
+  });
 
 
 </script>
