@@ -68,7 +68,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   // we don't actually do a toggle because when we change the open state on the html element
   //    that triggers another toggle event
   // return the new node
-  const toggleEntry = async(node: DirectoryNode, expanded: boolean) : Promise<DirectoryNode>=> {
+  const toggleEntry = async(packId: string, node: DirectoryNode, expanded: boolean) : Promise<DirectoryNode>=> {
     if (node.expanded===expanded || !currentWorldId.value)
       return node;
     
@@ -85,7 +85,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     // make sure all children are properly loaded (if it's being opened)
     if (expanded) {
       const expandedIds = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
-      const pack = getGame().packs.get((await fromUuid(updatedNode.id))?.pack || '');
+      const pack = getGame().packs.get(packId);
 
       if (pack) {
         await _recursivelyLoadNode(pack, updatedNode.children, updatedNode.loadedChildren, expandedIds);

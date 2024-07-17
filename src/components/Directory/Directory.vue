@@ -71,7 +71,7 @@
             v-if="currentWorldId===world.id"
             class="world-contents"
           >
-            <!-- data-pack-id is used by drag and drop-->
+            <!-- data-pack-id is used by drag and drop and toggleEntry-->
             <li 
               v-for="pack in world.packs"
               :key="pack.id"
@@ -126,7 +126,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, ref, watch, } from 'vue';
+  import { onMounted, ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -211,13 +211,6 @@
     event.stopPropagation();
 
     await directoryStore.togglePack(directoryPack);
-
-    // toggle the collapse      
-    // expandedCompendia[compendiumId] = !expandedCompendia[compendiumId];
-
-    // we use css to handle the display update
-    // note: we don't do this for worlds because when you change worlds the whole app needs to be refreshed anyways
-    // $(event.currentTarget).toggleClass('collapsed');
   };
 
   // close all topics

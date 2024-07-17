@@ -96,8 +96,11 @@
 
   ////////////////////////////////
   // event handlers
-  const onEntryToggleClick = async () => {
-    currentNode.value = await directoryStore.toggleEntry(currentNode.value, !currentNode.value.expanded);
+  const onEntryToggleClick = async (event: MouseEvent) => {
+    // get the pack id
+    const packId = event.target?.closest('.fwb-topic-folder').dataset.packId;
+
+    currentNode.value = await directoryStore.toggleEntry(packId, currentNode.value, !currentNode.value.expanded);
   };
 
   // this is only called by summary::before (i.e. the little circle) because other clicks
