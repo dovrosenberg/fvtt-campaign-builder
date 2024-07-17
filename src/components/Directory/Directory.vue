@@ -97,16 +97,10 @@
                 </a>
               </header>
 
-              <ul class="fwb-directory-tree">
-                <NodeComponent 
-                  v-for="node in pack.loadedTopNodes"
-                  :key="node.id"
-                  :node="node" 
-                  :top="true"
-                  class="fwb-entry-item" 
-                  draggable="true"
-                />
-              </ul>
+              <DirectoryNestedTree 
+                :pack="pack"
+                :searchText="searchText"
+              />
             </li>
           </ol>
         </li>
@@ -139,8 +133,8 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import NodeComponent from './DirectoryNode.vue';
-
+  import DirectoryNestedTree from './DirectoryNestedTree.vue';
+ 
   // types
   import { DirectoryPack, Topic, } from '@/types';
   
