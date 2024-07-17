@@ -14,7 +14,7 @@ import { createWorldFolder, getTopicText, validateCompendia } from '@/compendia'
 import { inputDialog } from '@/dialogs/input';
 
 // types
-import { DirectoryWorld, DirectoryPack, DirectoryNode, Topic } from '@/types';
+import { DirectoryWorld, DirectoryPack, DirectoryNode, Topic, DirectoryTypeNode, DirectoryEntryNode } from '@/types';
 import { reactive } from 'vue';
 
 // the store definition
@@ -65,8 +65,6 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   // expand/contract  the given entry, loading the new item data
-  // we don't actually do a toggle because when we change the open state on the html element
-  //    that triggers another toggle event
   // return the new node
   const toggleEntry = async(packId: string, node: DirectoryNode, expanded: boolean) : Promise<DirectoryNode>=> {
     if (node.expanded===expanded || !currentWorldId.value)
@@ -94,6 +92,26 @@ export const useDirectoryStore = defineStore('directory', () => {
       }
     }
     
+    return updatedNode;
+  };
+
+  // expand/contract the given type node, loading the new item data
+  // return the new node
+  const toggleType = async(packId: string, node: DirectoryTypeNode, expanded: boolean) : Promise<DirectoryTypeNode>=> {
+    if (node.expanded===expanded || !currentWorldId.value)
+      return node;
+    
+    if (node.expanded) {
+      await _collapseItem(node, node.id);
+    } else {
+      await _expandItem(node, node.id);
+    }
+
+    // instead of refreshing the whole tree, we can just update the node
+    const updatedNode = foundry.utils.deepClone(node);
+    updatedNode.expanded = expanded;
+
+    // everything is loaded, so we don't need to do anything else
     return updatedNode;
   };
 
@@ -262,17 +280,24 @@ export const useDirectoryStore = defineStore('directory', () => {
     // find the record for the current world and set the packs
     const currentWorldBlock = tree.find((w)=>w.id===currentWorldId.value);
     if (currentWorldBlock && currentWorld) {
-      const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || [];
+      const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds);
+      const types = WorldFlags.get(currentWorldId.value, WorldFlagKey.types);
 
-      currentWorldBlock.packs = (await Promise.all(currentWorld.entries.map(async (pack: CompendiumCollection<any>): Promise<DirectoryPack> =>({
-        pack: pack,
-        id: pack.metadata.id,
-        name: pack.metadata.label,
-        topic: WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[pack.metadata.id],
-        topNodes: await _getPackTopNodes(pack),
-        loadedTopNodes: [],
-        expanded: expandedNodes[pack.metadata.id] || false,
-      })))).sort((a: DirectoryPack, b: DirectoryPack): number => a.topic - b.topic);
+      currentWorldBlock.packs = (await Promise.all(currentWorld.entries.map(async (pack: CompendiumCollection<any>): Promise<DirectoryPack> => {
+        const topic = WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[pack.metadata.id];
+        
+        return {
+          pack: pack,
+          id: pack.metadata.id,
+          name: pack.metadata.label,
+          topic: topic,
+          topNodes: await _getPackTopNodes(pack),
+          loadedTopNodes: [],
+          types: types[topic].concat(['(none)']).sort(),
+          loadedTypes: [],
+          expanded: expandedNodes[pack.metadata.id] || false,
+        };
+      }))).sort((a: DirectoryPack, b: DirectoryPack): number => a.topic - b.topic);
 
       // load any open packs
       for (let i=0; i<currentWorldBlock?.packs.length; i++) {
@@ -283,6 +308,8 @@ export const useDirectoryStore = defineStore('directory', () => {
 
         // have to check all children are loaded and expanded properly
         await _recursivelyLoadNode(pack.pack, pack.topNodes, pack.loadedTopNodes, expandedNodes, updateEntryIds);
+
+        await _loadTypeEntries(pack, types);
       }
     }
 
@@ -325,6 +352,25 @@ export const useDirectoryStore = defineStore('directory', () => {
     }      
   };
 
+  const _loadTypeEntries = async (pack: DirectoryPack, worldTypes: Record<Topic, string []>): Promise<void> => {
+    // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
+    //    type on the pack or world, which is a lot of extra data
+    const allEntries = await pack.pack.getDocuments({}) as JournalEntry[];
+    
+    pack.loadedTypes = worldTypes[pack.topic].map((type: string): DirectoryTypeNode => ({
+      name: type,
+      id: pack.id + ':' + type,
+      expanded: true,   // TODO - store in flags
+      loadedChildren: allEntries.filter((e: JournalEntry)=> {
+        const entryType = EntryFlags.get(e, EntryFlagKey.type);
+        return (!entryType && type==='(none)') || (entryType && entryType===type);
+      }).map((entry: JournalEntry): DirectoryEntryNode=> ({
+        id: entry.uuid,
+        name: entry.name || '<Blank>',
+      })).sort((a, b) => ((a.name ?? '') > (b.name ?? '') ? -1 : ((b.name ?? '') > (a.name ?? '') ? 1 : 0 )))      
+    }));
+  };
+  
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
   const createEntry = async (worldFolder: Folder, topic: Topic, name?: string): Promise<JournalEntry | null> => {
@@ -436,14 +482,14 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   // used to toggle entries and compendia (not worlds)
-  const _collapseItem = async(node: DirectoryNode | DirectoryPack, id: string): Promise<void> => {
+  const _collapseItem = async(node: DirectoryNode | DirectoryPack | DirectoryTypeNode, id: string): Promise<void> => {
     if (!currentWorldId.value)
       return;
 
     await WorldFlags.unset(currentWorldId.value, WorldFlagKey.expandedIds, id);
   };
 
-  const _expandItem = async(node: DirectoryNode | DirectoryPack, id: string): Promise<void> => {
+  const _expandItem = async(node: DirectoryNode | DirectoryPack | DirectoryTypeNode, id: string): Promise<void> => {
     if (!currentWorldId.value)
       return;
 
@@ -551,6 +597,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     toggleEntry,
     togglePack,
+    toggleType,
     collapseAll,
     setNodeParent,
     refreshCurrentTree,

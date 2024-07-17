@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, PropType, ref, watch } from 'vue';
+  import { PropType, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -89,10 +89,6 @@
 
   ////////////////////////////////
   // methods
-  const itemClicked = async (node: DirectoryNode, ctrlKey: boolean): Promise<void> => {
-    await navigationStore.openEntry(node.id, {newTab: ctrlKey});
-  };
-
 
   ////////////////////////////////
   // event handlers
@@ -103,13 +99,11 @@
     currentNode.value = await directoryStore.toggleEntry(packId, currentNode.value, !currentNode.value.expanded);
   };
 
-  // this is only called by summary::before (i.e. the little circle) because other clicks
-  //    are ignored on the summary
   const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryNode) => {
     event.stopPropagation();
     event.preventDefault();
     
-    await itemClicked(node, event.ctrlKey);
+    await navigationStore.openEntry(node.id, {newTab: event.ctrlKey});
   };
 
   // handle an entry dragging to another to nest
@@ -194,9 +188,6 @@
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(() => {
-    currentNode.value = props.node;
-  });
 
 
 </script>

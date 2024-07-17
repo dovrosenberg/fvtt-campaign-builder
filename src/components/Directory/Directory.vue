@@ -73,7 +73,7 @@
           >
             <!-- data-pack-id is used by drag and drop and toggleEntry-->
             <li 
-              v-for="pack in world.packs"
+              v-for="pack in world.packs.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
               :key="pack.id"
               :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')"
               :data-pack-id="pack.id" 
@@ -97,13 +97,13 @@
                 </a>
               </header>
 
-              <DirectoryNestedTree
+              <DirectoryGroupedTree
                 v-if="isGroupedByType" 
                 :pack="pack"
                 :search-text="searchText"
               />
 
-              <DirectoryGroupedTree
+              <DirectoryNestedTree
                 v-else 
                 :pack="pack"
                 :search-text="searchText"
@@ -433,19 +433,19 @@
     }    
   }
 
-  #journal li.fwb-entry-item .fwb-entry-name {
-    flex-wrap: nowrap;
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-  }
+  // #journal li.fwb-entry-item .fwb-entry-name, #journal li.fwb-type-item .fwb-entry-name {
+  //   flex-wrap: nowrap;
+  //   align-items: center;
+  //   display: flex;
+  //   flex-direction: row;
+  //   justify-content: flex-start;
+  // }
 
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
   .fwb-directory-compendium {
-    .fwb-entry-item {
+    .fwb-entry-item, .fwb-type-item {
       position: relative;
       padding-left: 1em;
       cursor: pointer;
@@ -454,13 +454,6 @@
     // bold the active one
     .fwb-current-directory-entry {
       font-weight: bold;
-    }
-
-    // very first node
-    ul.top-node > li {
-      &::before, &::after {
-        display:none;   // hide bar on the main level
-      }
     }
 
     ul {
@@ -490,10 +483,10 @@
         }
 
         &::before, &::after {
+          content: "";
           position: absolute;
           left: -10px;   // pushes them left of the text
           border-left: 2px solid gray;
-          content: "";
           width: 10px;   // controls the length of the horizontal lines
         }
 
