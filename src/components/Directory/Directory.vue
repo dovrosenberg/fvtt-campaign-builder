@@ -8,14 +8,15 @@
     <!-- Directory Header -->
     <header class="directory-header">
       <div class="header-search flexrow">
-        <input 
-          id="fwb-directory-search" 
-          type="search" 
-          name="search" 
-          value="" 
-          :placeholder="localize('fwb.placeholders.search')" 
+        <q-input 
+          v-model="searchText"
+          for="fwb-directory-search" 
+          debounce="500"
+          :bottom-slots="false"
+          :placeholder="localize('fwb.placeholders.search')"                
+          input-class="full-height"
           autocomplete="off" 
-        >
+        />
         <a 
           class="header-control create-world create-button" 
           :data-tooltip="localize('fwb.tooltips.createWorld')"
@@ -31,6 +32,17 @@
         >
           <i class="fa-duotone fa-folder-tree"></i>
         </a>
+      </div>
+      <div class="header-group-type flexrow">
+        <input
+          id="fwb-group-by-type"
+          type="checkbox"
+          :checked="isGroupedByType"
+          @change="onGroupTypeChange"
+        >
+        <label for="fwb-group-by-type">
+          {{ localize('fwb.labels.groupTree') }}
+        </label>
       </div>
     </header>
 
@@ -114,13 +126,14 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, } from 'vue';
+  import { onMounted, ref, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { getGame, localize } from '@/utils/game';
   import { getIcon, toTopic } from '@/utils/misc';
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -148,6 +161,8 @@
   ////////////////////////////////
   // data
   const root = ref<HTMLElement>();
+  const searchText = ref<string>('');
+  const isGroupedByType = ref<boolean>(false);
   
   ////////////////////////////////
   // computed data
@@ -245,11 +260,20 @@
     }
   };
     
+  // save grouping to settings
+  const onGroupTypeChange = async (event: Event) => {
+    isGroupedByType.value = (event.currentTarget as HTMLInputElement)?.checked || false;
+    await moduleSettings.set(SettingKey.groupTreeByType, isGroupedByType.value);
+  };
+
   ////////////////////////////////
   // watchers
 
   ////////////////////////////////
   // lifecycle events
+  onMounted(() => {
+    isGroupedByType.value = moduleSettings.get(SettingKey.groupTreeByType);
+  });
 
 </script>
 
@@ -299,6 +323,15 @@
               border-radius: 4px;
             }  
           }
+        }
+      }
+
+      .header-group-type {
+        flex: 1;
+        height: var(--form-field-height);
+
+        #fwb-group-by-type {
+          flex: 0;
         }
       }
     }
