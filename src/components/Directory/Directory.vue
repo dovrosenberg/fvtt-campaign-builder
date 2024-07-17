@@ -97,9 +97,16 @@
                 </a>
               </header>
 
-              <DirectoryNestedTree 
+              <DirectoryNestedTree
+                v-if="isGroupedByType" 
                 :pack="pack"
-                :searchText="searchText"
+                :search-text="searchText"
+              />
+
+              <DirectoryGroupedTree
+                v-else 
+                :pack="pack"
+                :search-text="searchText"
               />
             </li>
           </ol>
@@ -134,7 +141,8 @@
 
   // local components
   import DirectoryNestedTree from './DirectoryNestedTree.vue';
- 
+  import DirectoryGroupedTree from './DirectoryGroupedTree.vue';
+  
   // types
   import { DirectoryPack, Topic, } from '@/types';
   
