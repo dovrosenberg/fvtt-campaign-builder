@@ -231,6 +231,27 @@ export const useDirectoryStore = defineStore('directory', () => {
     return true;
   };
 
+  const updateEntryType = async (entryId: string, typeName: string): Promise<void> => {
+    const entry = await fromUuid(entryId) as JournalEntry;
+    const oldType = EntryFlags.get(entry, EntryFlagKey.type);
+    await EntryFlags.set(entry, EntryFlagKey.type, typeName);
+
+    // remove from the old one
+    const currentWorldNode = currentTree.value.find((w)=>w.id===currentWorldId.value) || null;
+    const packNode = currentWorldNode?.packs.find((p)=>p.id===entry.pack) || null;
+    const oldTypeNode = packNode?.loadedTypes.find((t) => t.name===oldType);
+    if (oldTypeNode) {
+      oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entryId);
+    }
+
+    // add to the new one
+    const newTypeNode = packNode?.loadedTypes.find((t) => t.name===typeName);
+    if (newTypeNode) {
+      newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([{ id: entryId, name: entry.name || '<Blank>'}]).sort((a,b)=>a.name.localeCompare(b.name));
+    }
+
+  };
+
   const deleteWorld = async (worldId: string): Promise<void> => {
     // delete all the compendia
     const compendia = WorldFlags.get(worldId, WorldFlagKey.compendia);
@@ -367,7 +388,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       }).map((entry: JournalEntry): DirectoryEntryNode=> ({
         id: entry.uuid,
         name: entry.name || '<Blank>',
-      })).sort((a, b) => ((a.name ?? '') > (b.name ?? '') ? -1 : ((b.name ?? '') > (a.name ?? '') ? 1 : 0 )))      
+      })).sort((a, b) => a.name.localeCompare(b.name))      
     }));
   };
   
@@ -601,6 +622,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     collapseAll,
     setNodeParent,
     refreshCurrentTree,
+    updateEntryType,
     deleteWorld,
     createWorld,
     createEntry,

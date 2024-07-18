@@ -16,7 +16,7 @@
           draggable="true"
           @click="onDirectoryItemClick($event, currentNode)"
           @dragstart="onDragStart($event, currentNode.id)"
-          @drop="onDrop($event, currentNode.id)"
+          @drop="onDrop($event)"
         >
           {{ currentNode.name }}
         </div>
@@ -129,7 +129,7 @@
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
 
-  const onDrop = async (event: DragEvent, parentId: string): Promise<boolean> => {
+  const onDrop = async (event: DragEvent): Promise<boolean> => {
     if (!currentWorldId.value)
       return false;
 
@@ -142,6 +142,7 @@
     }
 
     // make sure it's not the same item
+    const parentId = currentNode.value.id;
     if (data.childId===parentId)
       return false;
 
@@ -178,7 +179,6 @@
 
     return true;
   };
-
 
   ////////////////////////////////
   // watchers

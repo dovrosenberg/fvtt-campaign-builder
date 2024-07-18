@@ -26,7 +26,10 @@
             v-for="node in currentType.loadedChildren"
             :key="node.id"
           >
-            <DirectoryGroupedNode :node="node" />
+            <DirectoryGroupedNode 
+              :node="node" 
+              :type-name="currentType.name"
+            />
           </div>
         </div>
       </ul>
@@ -37,9 +40,11 @@
 <script setup lang="ts">
   // library imports
   import { PropType, ref, watch } from 'vue';
+  import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useDirectoryStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore } from '@/applications/stores';
+  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
   // library components
 
@@ -72,6 +77,8 @@
   ////////////////////////////////
   // store
   const directoryStore = useDirectoryStore();
+  const mainStore = useMainStore();
+  const { currentWorldId } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -88,6 +95,42 @@
   const onTypeToggleClick = async () => {
     currentType.value = await directoryStore.toggleType(props.pack.id, currentType.value, !currentType.value.expanded);
   };
+
+  // you can drop an item on a type and it should reassign the type
+  const onDrop = async (event: DragEvent): Promise<boolean> => {
+    if (!currentWorldId.value)
+      return false;
+
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+    }
+    catch (err) {
+      return false;
+    }
+
+    // make sure it's not already set
+    if (!data.typeName || data.typeName===currentType.value.name)
+      return false;
+
+    // get the pack on the new item
+    const packElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
+    if (!packElement || !packElement.dataset.packId) {
+      return false;
+    }
+
+    const topic = WorldFlags.get(currentWorldId.value, WorldFlagKey.packTopics)[packElement.dataset.packId];
+
+    // if the topics don't match, can't drop
+    if (data.topic!==topic)
+      return false;
+
+    // set the new type
+    await directoryStore.updateEntryType(data.id, currentType.value.name);
+
+    return true;
+  };
+
 
   ////////////////////////////////
   // watchers
