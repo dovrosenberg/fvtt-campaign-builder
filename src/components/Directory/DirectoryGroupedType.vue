@@ -3,14 +3,14 @@
     <!-- TODO: track expanded state-->
     <div 
       class="details"
-      :open="props.pack.expanded"
+      :open="currentType.expanded"
     >
       <div class="summary top">      
         <div 
           class="fwb-directory-expand-button"
           @click="onTypeToggleClick"
         >
-          <span v-if="props.pack.expanded">-</span><span v-else>+</span>
+          <span v-if="currentType.expanded">-</span><span v-else>+</span>
         </div>
         <div 
           class="fwb-current-directory-type"
@@ -21,7 +21,7 @@
       </div>
       <ul>
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
-        <div v-if="currentType && currentType.expanded">
+        <div v-if="currentType.expanded">
           <div 
             v-for="node in currentType.loadedChildren"
             :key="node.id"

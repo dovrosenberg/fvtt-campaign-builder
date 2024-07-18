@@ -134,7 +134,6 @@
   import { getGame, localize } from '@/utils/game';
   import { getIcon, toTopic } from '@/utils/misc';
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
-  import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -158,13 +157,12 @@
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
   const { currentWorldId } = storeToRefs(mainStore);
-  const { isTreeRefreshing } = storeToRefs(directoryStore);
+  const { isTreeRefreshing, isGroupedByType } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
   const root = ref<HTMLElement>();
   const searchText = ref<string>('');
-  const isGroupedByType = ref<boolean>(false);
   
   ////////////////////////////////
   // computed data
@@ -258,7 +256,6 @@
   // save grouping to settings
   const onGroupTypeChange = async (event: Event) => {
     isGroupedByType.value = (event.currentTarget as HTMLInputElement)?.checked || false;
-    await moduleSettings.set(SettingKey.groupTreeByType, isGroupedByType.value);
   };
 
   ////////////////////////////////
@@ -266,9 +263,6 @@
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(() => {
-    isGroupedByType.value = moduleSettings.get(SettingKey.groupTreeByType);
-  });
 
 </script>
 

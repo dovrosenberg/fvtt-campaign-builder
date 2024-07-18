@@ -105,11 +105,11 @@ export abstract class WorldFlags {
   }
 
   // remove a key from an object flag
-  public static async unset<T extends WorldFlagKey>(worldFolderUuid: string, flag: T, key: string): Promise<void> {
+  public static async unset<T extends WorldFlagKey>(worldFolderUuid: string, flag: T, key?: string): Promise<void> {
     const f = getGame()?.folders?.find((f)=>f.uuid===worldFolderUuid);
     if (!f)
       return;
 
-    await f.unsetFlag(moduleJson.id, `${flag}.${key}`);
+    await f.unsetFlag(moduleJson.id, `${flag}${key ? '.' + key : ''}`);
   }
 }

@@ -2,7 +2,7 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { ref, toRaw, watch } from 'vue';
+import { reactive, onMounted, ref, toRaw, watch } from 'vue';
 
 // local imports
 import { getGame } from '@/utils/game';
@@ -12,10 +12,10 @@ import { useMainStore } from './mainStore';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { createWorldFolder, getTopicText, validateCompendia } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
+import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 
 // types
 import { DirectoryWorld, DirectoryPack, DirectoryNode, Topic, DirectoryTypeNode, DirectoryEntryNode } from '@/types';
-import { reactive } from 'vue';
 
 // the store definition
 export const useDirectoryStore = defineStore('directory', () => {
@@ -36,7 +36,12 @@ export const useDirectoryStore = defineStore('directory', () => {
   
   // the top-level folder structure
   const currentTree = reactive<{value: DirectoryWorld[]}>({value:[]});
+  
+  // tree currently refreshing
   const isTreeRefreshing = ref<boolean>(false);
+
+  // which mode are we un
+  const isGroupedByType = ref<boolean>(false);
 
   // current sidebar collapsed state
   const directoryCollapsed = ref<boolean>(false);
@@ -116,7 +121,12 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   const collapseAll = async(): Promise<void> => {
-    // TODO
+    if (!currentWorldId.value)
+      return;
+
+    await WorldFlags.unset(currentWorldId.value, WorldFlagKey.expandedIds);
+
+    await refreshCurrentTree();
   };
  
   // set the parent for a node, cleaning up all associated relationships/records
@@ -330,7 +340,7 @@ export const useDirectoryStore = defineStore('directory', () => {
         // have to check all children are loaded and expanded properly
         await _recursivelyLoadNode(pack.pack, pack.topNodes, pack.loadedTopNodes, expandedNodes, updateEntryIds);
 
-        await _loadTypeEntries(pack, types);
+        await _loadTypeEntries(pack, types, expandedNodes);
       }
     }
 
@@ -373,7 +383,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     }      
   };
 
-  const _loadTypeEntries = async (pack: DirectoryPack, worldTypes: Record<Topic, string []>): Promise<void> => {
+  const _loadTypeEntries = async (pack: DirectoryPack, worldTypes: Record<Topic, string []>, expandedIds: Record<string, boolean | null>): Promise<void> => {
     // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
     //    type on the pack or world, which is a lot of extra data
     const allEntries = await pack.pack.getDocuments({}) as JournalEntry[];
@@ -381,7 +391,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     pack.loadedTypes = worldTypes[pack.topic].map((type: string): DirectoryTypeNode => ({
       name: type,
       id: pack.id + ':' + type,
-      expanded: true,   // TODO - store in flags
+      expanded: expandedIds[pack.id + ':' + type] || false,   
       loadedChildren: allEntries.filter((e: JournalEntry)=> {
         const entryType = EntryFlags.get(e, EntryFlagKey.type);
         return (!entryType && type==='(none)') || (entryType && entryType===type);
@@ -606,8 +616,17 @@ export const useDirectoryStore = defineStore('directory', () => {
     await refreshCurrentTree();
   });
   
+  // save grouping to settings
+  watch(isGroupedByType, async (newSetting: boolean) => {
+    isGroupedByType.value = newSetting;
+    await moduleSettings.set(SettingKey.groupTreeByType, isGroupedByType.value);
+  });
+  
   ///////////////////////////////
   // lifecycle events
+  onMounted(async () => {
+    isGroupedByType.value = moduleSettings.get(SettingKey.groupTreeByType);
+  });
 
   ///////////////////////////////
   // return the public interface
@@ -615,6 +634,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     currentTree,
     directoryCollapsed,
     isTreeRefreshing,
+    isGroupedByType,
 
     toggleEntry,
     togglePack,
