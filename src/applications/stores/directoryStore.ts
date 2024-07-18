@@ -404,14 +404,15 @@ export const useDirectoryStore = defineStore('directory', () => {
   
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
-  const createEntry = async (worldFolder: Folder, topic: Topic, name?: string): Promise<JournalEntry | null> => {
+  type CreateEntryOptions = { name?: string, type?: string, parentId?: string}
+  const createEntry = async (worldFolder: Folder, topic: Topic, options: CreateEntryOptions): Promise<JournalEntry | null> => {
     const topicText = getTopicText(topic);
 
-    let nameTouse = name || '' as string | null;
+    let nameTouse = options.name || '' as string | null;
     while (nameTouse==='') {  // if hit ok, must have a value
       nameTouse = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
     }  
-
+    
     // if name is null, then we cancelled the dialog
     if (!nameTouse)
       return null;
@@ -441,21 +442,32 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (entry) {
       await EntryFlags.set(entry, EntryFlagKey.topic, topic);
 
-      // setup the hierarchy
-      if (hasHierarchy(topic)) {
-        await EntryFlags.set(entry, EntryFlagKey.hierarchy, {
-          parentId: '',
-          ancestors: [],
-          children: [],
-        } as Hierarchy);
-      }
+      if (options.type!==undefined)
+        await EntryFlags.set(entry, EntryFlagKey.type, options.type);
 
-      // add as a topNode by default
-      const topNodes = await WorldFlags.get(worldFolder.uuid, WorldFlagKey.packTopNodes);
-      await WorldFlags.set(worldFolder.uuid, WorldFlagKey.packTopNodes, {
-        ...topNodes,
-        [pack.metadata.id]: topNodes[pack.metadata.id].concat([entry.uuid])
-      });
+      // set parent if specified
+      if (options.parentId==undefined) {
+        // no parent - set as a top node
+        const topNodes = await WorldFlags.get(worldFolder.uuid, WorldFlagKey.packTopNodes);
+        await WorldFlags.set(worldFolder.uuid, WorldFlagKey.packTopNodes, {
+          ...topNodes,
+          [pack.metadata.id]: topNodes[pack.metadata.id].concat([entry.uuid])
+        });
+
+        // set the blank hierarchy
+        if (hasHierarchy(topic)) {
+          await EntryFlags.set(entry, EntryFlagKey.hierarchy, {
+            parentId: '',
+            ancestors: [],
+            children: [],
+          } as Hierarchy);
+        }
+      } else {
+        // add to the tree
+        if (hasHierarchy(topic)) {
+          await setNodeParent(pack, entry.uuid, options.parentId);
+        }
+      }
 
       await refreshCurrentTree([entry.uuid]);
     }

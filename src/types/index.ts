@@ -26,11 +26,11 @@ export type EntrySummary = {
 
 // this oder is also the order that they get sorted in
 export enum Topic {
-  None,
-  Character,
-  Location,
-  Organization,
-  Event,
+  None = 0,
+  Character = 1,
+  Location = 2,
+  Organization = 3,
+  Event = 4,
 }
 
 export type TreeNode = {

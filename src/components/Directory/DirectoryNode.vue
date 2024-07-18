@@ -2,6 +2,9 @@
   <DirectoryNodeWithChildren 
     v-if="props.node.children.length" 
     :node="props.node"
+    :world-id="props.worldId"
+    :topic="props.topic"
+    :search-text="props.searchText"
     :top="props.top"
   />
   <li v-else>
@@ -9,9 +12,10 @@
       :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
-      @click="onDirectoryItemClick($event, props.node)"
-      @dragstart="onDragStart($event, props.node.id)"
-      @drop="onDrop($event, props.node.id)"
+      @click="onDirectoryItemClick($event)"
+      @dragstart="onDragStart($event)"
+      @drop="onDrop($event)"
+      @contextmenu="onEntryContextMenu($event)"
     >
       {{ props.node.name }}
     </div>
@@ -25,11 +29,12 @@
 
   // local imports
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
-  import { getGame } from '@/utils/game';
+  import { getGame, localize } from '@/utils/game';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
 
   // library components
+  import { ContextMenu } from '@imengyu/vue3-context-menu';
 
   // local components
   import DirectoryNodeWithChildren from './DirectoryNodeWithChildren.vue';
@@ -40,6 +45,18 @@
   ////////////////////////////////
   // props
   const props = defineProps({
+    worldId: {
+      type: String,
+      required: true
+    },
+    topic: {
+      type: Object as PropType<Topic>,
+      required: true
+    },
+    searchText: {
+      type: String,
+      required: true
+    },
     node: { 
       type: Object as PropType<DirectoryNode>,
       required: true,
@@ -73,16 +90,15 @@
 
   ////////////////////////////////
   // event handlers
-  const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryNode) => {
+  const onDirectoryItemClick = async (event: MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
     
-    await itemClicked(node, event.ctrlKey);
-    await navigationStore.openEntry(node.id, {newTab: event.ctrlKey});
+    await navigationStore.openEntry(props.node.id, {newTab: event.ctrlKey});
   };
 
   // handle an entry dragging to another to nest
-  const onDragStart = (event: DragEvent, id: string): void => {
+  const onDragStart = (event: DragEvent): void => {
     if (!currentWorldId.value) { 
       event.preventDefault();
       return;
@@ -98,13 +114,13 @@
     const topic = WorldFlags.get(currentWorldId.value, WorldFlagKey.packTopics)[packElement.dataset.packId];
     const dragData = { 
       topic:  topic,
-      childId: id,
+      childId: props.node.id,
     } as { topic: Topic, childId: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
 
-  const onDrop = async (event: DragEvent, parentId: string): Promise<boolean> => {
+  const onDrop = async (event: DragEvent): Promise<boolean> => {
     if (!currentWorldId.value)
       return false;
 
@@ -117,6 +133,7 @@
     }
 
     // make sure it's not the same item
+    const parentId = props.node.id;
     if (data.childId===parentId)
       return false;
 
@@ -152,6 +169,40 @@
     await directoryStore.setNodeParent(pack, data.childId, parentId);
 
     return true;
+  };
+
+  const onEntryContextMenu = (event: MouseEvent): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+    event.stopPropagation();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fwb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-atlas',
+          iconFontClass: 'fas',
+          label: localize(`fwb.contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
+          onClick: async () => {
+            // get the right folder
+            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as Folder;
+
+            if (!worldFolder || !props.topic)
+              throw new Error('Invalid header in DirectoryNode.onEntryContextMenu.onClick');
+
+            const entry = await directoryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
+
+            if (entry) {
+              await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+            }
+          }
+        },
+      ]
+    });
   };
 
 

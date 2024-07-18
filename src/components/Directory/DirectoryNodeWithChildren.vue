@@ -17,6 +17,7 @@
           @click="onDirectoryItemClick($event, currentNode)"
           @dragstart="onDragStart($event, currentNode.id)"
           @drop="onDrop($event)"
+          @contextmenu="onEntryContextMenu2"
         >
           {{ currentNode.name }}
         </div>
@@ -28,6 +29,9 @@
             v-for="child in currentNode.loadedChildren"
             :key="child.id"
             :node="child"
+            :world-id="props.worldId"
+            :topic="props.topic"
+            :search-text="props.searchText"
             :top="false"
           />
         </div>
@@ -44,10 +48,11 @@
   // local imports
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
-  import { getGame } from '@/utils/game';
+  import { getGame, localize } from '@/utils/game';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
   // library components
+  import { ContextMenu } from '@imengyu/vue3-context-menu';
 
   // local components
   import DirectoryNodeComponent from './DirectoryNode.vue';
@@ -61,6 +66,18 @@
     node: { 
       type: Object as PropType<DirectoryNode>,
       required: true,
+    },
+    worldId: {
+      type: String,
+      required: true
+    },
+    topic: {
+      type: Object as PropType<Topic>,
+      required: true
+    },
+    searchText: {
+      type: String,
+      required: true
     },
     top: {    // applies class to top level
       type: Boolean,
@@ -104,6 +121,10 @@
     event.preventDefault();
     
     await navigationStore.openEntry(node.id, {newTab: event.ctrlKey});
+  };
+
+  const onEntryContextMenu2 = ():void => {
+    alert('here');
   };
 
   // handle an entry dragging to another to nest
@@ -178,6 +199,40 @@
     await directoryStore.setNodeParent(pack, data.childId, parentId);
 
     return true;
+  };
+
+  const onEntryContextMenu = (event: MouseEvent): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+    event.stopPropagation();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fwb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-atlas',
+          iconFontClass: 'fas',
+          label: localize(`fwb.contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
+          onClick: async () => {
+            // get the right folder
+            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as Folder;
+
+            if (!worldFolder || !props.topic)
+              throw new Error('Invalid header in DirectoryNode.onEntryContextMenu.onClick');
+
+            const entry = await directoryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
+
+            if (entry) {
+              await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+            }
+          }
+        },
+      ]
+    });
   };
 
   ////////////////////////////////

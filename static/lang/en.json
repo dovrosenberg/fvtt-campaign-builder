@@ -50,6 +50,14 @@
       },
       "worldFolder": {
         "delete": "Delete world"
+      },
+      "topicFolder": {
+        "create": {
+          "1": "Create new character",
+          "2": "Create new location",
+          "3": "Create new organization",
+          "4": "Create new event"
+        }
       }
     },
     "tooltips": {
