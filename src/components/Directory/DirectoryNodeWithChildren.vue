@@ -17,7 +17,7 @@
           @click="onDirectoryItemClick($event, currentNode)"
           @dragstart="onDragStart($event, currentNode.id)"
           @drop="onDrop($event)"
-          @contextmenu="onEntryContextMenu2"
+          @contextmenu="onEntryContextMenu"
         >
           {{ currentNode.name }}
         </div>
@@ -52,7 +52,7 @@
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
   // library components
-  import { ContextMenu } from '@imengyu/vue3-context-menu';
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
   import DirectoryNodeComponent from './DirectoryNode.vue';
@@ -72,7 +72,7 @@
       required: true
     },
     topic: {
-      type: Object as PropType<Topic>,
+      type: Number as PropType<Topic>,
       required: true
     },
     searchText: {
@@ -123,10 +123,7 @@
     await navigationStore.openEntry(node.id, {newTab: event.ctrlKey});
   };
 
-  const onEntryContextMenu2 = ():void => {
-    alert('here');
-  };
-
+  
   // handle an entry dragging to another to nest
   const onDragStart = (event: DragEvent, id: string): void => {
     if (!currentWorldId.value) { 

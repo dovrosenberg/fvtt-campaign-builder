@@ -129,7 +129,7 @@
 
   // local imports
   import { getGame, localize } from '@/utils/game';
-  import { getIcon, toTopic } from '@/utils/misc';
+  import { getIcon, } from '@/utils/misc';
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components

@@ -34,7 +34,7 @@
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
 
   // library components
-  import { ContextMenu } from '@imengyu/vue3-context-menu';
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
   import DirectoryNodeWithChildren from './DirectoryNodeWithChildren.vue';
@@ -50,7 +50,7 @@
       required: true
     },
     topic: {
-      type: Object as PropType<Topic>,
+      type: Number as PropType<Topic>,
       required: true
     },
     searchText: {
