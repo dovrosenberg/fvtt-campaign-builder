@@ -16,7 +16,7 @@
           draggable="true"
           @click="onDirectoryItemClick($event, currentNode)"
           @dragstart="onDragStart($event, currentNode.id)"
-          @drop="onDrop($event, currentNode.id)"
+          @drop="onDrop($event)"
         >
           {{ currentNode.name }}
         </div>
@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, PropType, ref, watch } from 'vue';
+  import { PropType, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -89,24 +89,21 @@
 
   ////////////////////////////////
   // methods
-  const itemClicked = async (node: DirectoryNode, ctrlKey: boolean): Promise<void> => {
-    await navigationStore.openEntry(node.id, {newTab: ctrlKey});
-  };
-
 
   ////////////////////////////////
   // event handlers
-  const onEntryToggleClick = async () => {
-    currentNode.value = await directoryStore.toggleEntry(currentNode.value, !currentNode.value.expanded);
+  const onEntryToggleClick = async (event: MouseEvent) => {
+    // get the pack id
+    const packId = event.target?.closest('.fwb-topic-folder').dataset.packId;
+
+    currentNode.value = await directoryStore.toggleEntry(packId, currentNode.value, !currentNode.value.expanded);
   };
 
-  // this is only called by summary::before (i.e. the little circle) because other clicks
-  //    are ignored on the summary
   const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryNode) => {
     event.stopPropagation();
     event.preventDefault();
     
-    await itemClicked(node, event.ctrlKey);
+    await navigationStore.openEntry(node.id, {newTab: event.ctrlKey});
   };
 
   // handle an entry dragging to another to nest
@@ -132,7 +129,7 @@
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
 
-  const onDrop = async (event: DragEvent, parentId: string): Promise<boolean> => {
+  const onDrop = async (event: DragEvent): Promise<boolean> => {
     if (!currentWorldId.value)
       return false;
 
@@ -145,6 +142,7 @@
     }
 
     // make sure it's not the same item
+    const parentId = currentNode.value.id;
     if (data.childId===parentId)
       return false;
 
@@ -182,7 +180,6 @@
     return true;
   };
 
-
   ////////////////////////////////
   // watchers
   watch(()=> props.node, (newValue: DirectoryNode) => {
@@ -191,9 +188,6 @@
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(() => {
-    currentNode.value = props.node;
-  });
 
 
 </script>

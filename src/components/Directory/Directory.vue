@@ -8,14 +8,15 @@
     <!-- Directory Header -->
     <header class="directory-header">
       <div class="header-search flexrow">
-        <input 
-          id="fwb-directory-search" 
-          type="search" 
-          name="search" 
-          value="" 
-          :placeholder="localize('fwb.placeholders.search')" 
+        <q-input 
+          v-model="searchText"
+          for="fwb-directory-search" 
+          debounce="500"
+          :bottom-slots="false"
+          :placeholder="localize('fwb.placeholders.search')"                
+          input-class="full-height"
           autocomplete="off" 
-        >
+        />
         <a 
           class="header-control create-world create-button" 
           :data-tooltip="localize('fwb.tooltips.createWorld')"
@@ -31,6 +32,17 @@
         >
           <i class="fa-duotone fa-folder-tree"></i>
         </a>
+      </div>
+      <div class="header-group-type flexrow">
+        <input
+          id="fwb-group-by-type"
+          type="checkbox"
+          :checked="isGroupedByType"
+          @change="onGroupTypeChange"
+        >
+        <label for="fwb-group-by-type">
+          {{ localize('fwb.labels.groupTree') }}
+        </label>
       </div>
     </header>
 
@@ -59,9 +71,9 @@
             v-if="currentWorldId===world.id"
             class="world-contents"
           >
-            <!-- data-pack-id is used by drag and drop-->
+            <!-- data-pack-id is used by drag and drop and toggleEntry-->
             <li 
-              v-for="pack in world.packs"
+              v-for="pack in world.packs.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
               :key="pack.id"
               :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')"
               :data-pack-id="pack.id" 
@@ -85,16 +97,17 @@
                 </a>
               </header>
 
-              <ul class="fwb-directory-tree">
-                <NodeComponent 
-                  v-for="node in pack.loadedTopNodes"
-                  :key="node.id"
-                  :node="node" 
-                  :top="true"
-                  class="fwb-entry-item" 
-                  draggable="true"
-                />
-              </ul>
+              <DirectoryGroupedTree
+                v-if="isGroupedByType" 
+                :pack="pack"
+                :search-text="searchText"
+              />
+
+              <DirectoryNestedTree
+                v-else 
+                :pack="pack"
+                :search-text="searchText"
+              />
             </li>
           </ol>
         </li>
@@ -114,7 +127,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, } from 'vue';
+  import { onMounted, ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -126,8 +139,9 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import NodeComponent from './DirectoryNode.vue';
-
+  import DirectoryNestedTree from './DirectoryNestedTree.vue';
+  import DirectoryGroupedTree from './DirectoryGroupedTree.vue';
+  
   // types
   import { DirectoryPack, Topic, } from '@/types';
   
@@ -143,11 +157,12 @@
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
   const { currentWorldId } = storeToRefs(mainStore);
-  const { isTreeRefreshing } = storeToRefs(directoryStore);
+  const { isTreeRefreshing, isGroupedByType } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
   const root = ref<HTMLElement>();
+  const searchText = ref<string>('');
   
   ////////////////////////////////
   // computed data
@@ -196,13 +211,6 @@
     event.stopPropagation();
 
     await directoryStore.togglePack(directoryPack);
-
-    // toggle the collapse      
-    // expandedCompendia[compendiumId] = !expandedCompendia[compendiumId];
-
-    // we use css to handle the display update
-    // note: we don't do this for worlds because when you change worlds the whole app needs to be refreshed anyways
-    // $(event.currentTarget).toggleClass('collapsed');
   };
 
   // close all topics
@@ -245,6 +253,11 @@
     }
   };
     
+  // save grouping to settings
+  const onGroupTypeChange = async (event: Event) => {
+    isGroupedByType.value = (event.currentTarget as HTMLInputElement)?.checked || false;
+  };
+
   ////////////////////////////////
   // watchers
 
@@ -299,6 +312,15 @@
               border-radius: 4px;
             }  
           }
+        }
+      }
+
+      .header-group-type {
+        flex: 1;
+        height: var(--form-field-height);
+
+        #fwb-group-by-type {
+          flex: 0;
         }
       }
     }
@@ -405,19 +427,19 @@
     }    
   }
 
-  #journal li.fwb-entry-item .fwb-entry-name {
-    flex-wrap: nowrap;
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-  }
+  // #journal li.fwb-entry-item .fwb-entry-name, #journal li.fwb-type-item .fwb-entry-name {
+  //   flex-wrap: nowrap;
+  //   align-items: center;
+  //   display: flex;
+  //   flex-direction: row;
+  //   justify-content: flex-start;
+  // }
 
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
   .fwb-directory-compendium {
-    .fwb-entry-item {
+    .fwb-entry-item, .fwb-type-item {
       position: relative;
       padding-left: 1em;
       cursor: pointer;
@@ -426,13 +448,6 @@
     // bold the active one
     .fwb-current-directory-entry {
       font-weight: bold;
-    }
-
-    // very first node
-    ul.top-node > li {
-      &::before, &::after {
-        display:none;   // hide bar on the main level
-      }
     }
 
     ul {
@@ -462,10 +477,10 @@
         }
 
         &::before, &::after {
+          content: "";
           position: absolute;
           left: -10px;   // pushes them left of the text
           border-left: 2px solid gray;
-          content: "";
           width: 10px;   // controls the length of the horizontal lines
         }
 

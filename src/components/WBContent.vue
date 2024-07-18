@@ -18,8 +18,8 @@
             <h1 class="header-name flexrow">
               <i :class="`fas ${icon} sheet-icon`"></i>
               <q-input
-                id="fwb-input-name" 
                 v-model="name"
+                for="fwb-input-name" 
                 input-class="full-height"
                 debounce="500"
                 :bottom-slots="false"
@@ -231,7 +231,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { getCleanEntry, updateDocument } from '@/compendia';
+  import { updateDocument } from '@/compendia';
   import { getIcon, toTopic } from '@/utils/misc';
   import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
   import { getGame, localize } from '@/utils/game';
@@ -320,10 +320,10 @@
     }
   };
 
-  const onTypeSelectionMade = (selection: string) => {
+  const onTypeSelectionMade = async (selection: string) => {
     if (currentEntry.value)
-      void EntryFlags.set(toRaw(currentEntry.value), EntryFlagKey.type, selection);
-  }
+      await directoryStore.updateEntryType(currentEntry.value.uuid, selection);
+  };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
     if (!currentEntry.value)

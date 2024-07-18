@@ -70,9 +70,6 @@
   // methods
 
   // select an entry
-  const itemClicked = async (node: DirectoryNode, ctrlKey: boolean): Promise<void> => {
-    await navigationStore.openEntry(node.id, {newTab: ctrlKey});
-  };
 
   ////////////////////////////////
   // event handlers
@@ -81,6 +78,7 @@
     event.preventDefault();
     
     await itemClicked(node, event.ctrlKey);
+    await navigationStore.openEntry(node.id, {newTab: event.ctrlKey});
   };
 
   // handle an entry dragging to another to nest

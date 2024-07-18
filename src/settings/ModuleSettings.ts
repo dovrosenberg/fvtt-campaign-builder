@@ -1,6 +1,5 @@
 import { getGame, localize } from '@/utils/game';
 import moduleJson from '@module';
-import { Topic } from '@/types';
 
 export enum SettingKey {
   // displayed in settings
@@ -8,11 +7,13 @@ export enum SettingKey {
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
+  groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
 }
 
 type SettingType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
     K extends SettingKey.rootFolderId ? string : 
+    K extends SettingKey.groupTreeByType ? boolean : 
     never;  
 
 // the solo instance
@@ -82,6 +83,11 @@ export class ModuleSettings {
   
   // these are client-specfic only used internally
   private localInternalParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
+    {
+      settingID: SettingKey.groupTreeByType,
+      default: false,
+      type: Boolean,
+    },
   ];
 
   private registerSettings(): void {

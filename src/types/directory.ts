@@ -1,5 +1,20 @@
-import { Topic } from '.'
+import { Topic } from '.';
 
+// a type "group"
+export type DirectoryTypeNode = {
+  id: string,   // id is the pack id plus the string type
+  name: string,
+  loadedChildren: DirectoryEntryNode[],
+  expanded: boolean,    // is the node expanded 
+}
+
+// represents an entry in the type-grouped structure
+export type DirectoryEntryNode = {
+  id: string,   // id is the pack id plus the string type
+  name: string,
+}
+
+// an entry (which might have children) in the tree structure
 export type DirectoryNode = {
   id: string,
   name: string,
@@ -17,6 +32,7 @@ export type DirectoryPack = {
   topic: Topic,
   loadedTopNodes: DirectoryNode[],
   topNodes: string[],
+  loadedTypes: DirectoryTypeNode[],
   expanded: boolean,
 }
 
