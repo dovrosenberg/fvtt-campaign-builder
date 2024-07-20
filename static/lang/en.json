@@ -58,6 +58,9 @@
           "3": "Create new organization",
           "4": "Create new event"
         }
+      },
+      "typeFolder": {
+        "create": "Create new"
       }
     },
     "tooltips": {

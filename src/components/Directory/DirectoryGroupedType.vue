@@ -15,6 +15,7 @@
         <div 
           class="fwb-current-directory-type"
           @drop="onDrop($event)"
+          @contextmenu="onTypeContextMenu($event)"
         >
           {{ currentType?.name }}
         </div>
@@ -43,10 +44,12 @@
   import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useDirectoryStore, useMainStore } from '@/applications/stores';
+  import { useNavigationStore, useDirectoryStore, useMainStore } from '@/applications/stores';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+  import { getGame, localize } from '@/utils/game';
 
   // library components
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
   import DirectoryGroupedNode from './DirectoryGroupedNode.vue';
@@ -59,6 +62,10 @@
   const props = defineProps({
     type: {
       type: Object as PropType<DirectoryTypeNode>,
+      required: true,
+    },
+    worldId: {
+      type: String,
       required: true,
     },
     pack: {
@@ -78,6 +85,7 @@
   // store
   const directoryStore = useDirectoryStore();
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
   const { currentWorldId } = storeToRefs(mainStore);
   
   ////////////////////////////////
@@ -129,6 +137,40 @@
     await directoryStore.updateEntryType(data.id, currentType.value.name);
 
     return true;
+  };
+
+  const onTypeContextMenu = (event: MouseEvent): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+    event.stopPropagation();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fwb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-atlas',
+          iconFontClass: 'fas',
+          label: `${localize('fwb.contextMenus.typeFolder.create')} ${props.type.name}`, 
+          onClick: async () => {
+            // get the right topic
+            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as Folder;
+            
+            if (!worldFolder)
+              throw new Error('Invalid header in DirectoryGroupedType.onTypeContextMenu.onClick');
+
+            const entry = await directoryStore.createEntry(worldFolder, props.pack.topic, { type: props.type.name } );
+
+            if (entry) {
+              await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+            }
+          }
+        },
+      ]
+    });
   };
 
 

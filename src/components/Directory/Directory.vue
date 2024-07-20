@@ -96,6 +96,7 @@
               <DirectoryGroupedTree
                 v-if="isGroupedByType" 
                 :pack="pack"
+                :world-id="world.id"
                 :search-text="searchText"
               />
 

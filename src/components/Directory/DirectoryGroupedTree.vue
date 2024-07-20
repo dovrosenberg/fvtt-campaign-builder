@@ -4,6 +4,7 @@
       v-for="type in props.pack.loadedTypes"
       :key="type.id"
       :type="type"
+      :world-id="props.worldId"
       :pack="props.pack"
       :search-text="props.searchText"
     />
@@ -31,6 +32,10 @@
       type: Object as PropType<DirectoryPack>,
       required: true,
     }, 
+    worldId: {
+      type: String,
+      required: true,
+    },
     searchText: {
       type: String,
       required: true,
