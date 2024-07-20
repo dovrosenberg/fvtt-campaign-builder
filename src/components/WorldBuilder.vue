@@ -45,7 +45,7 @@
   const mainStore = useMainStore();
   const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldFolder, rootFolder } = storeToRefs(mainStore);
+  const { currentWorldFolder, rootFolder, } = storeToRefs(mainStore);
   const { directoryCollapsed } = storeToRefs(directoryStore);
   
   ////////////////////////////////
@@ -60,19 +60,21 @@
   ////////////////////////////////
   // event handlers
   const onDirectoryWorldSelected = async (worldId: string) => {
-    await directoryStore.changeWorld(worldId);
+    await mainStore.setNewWorld(worldId);
   };
 
   // whenever we click on a link inside the application that is a link to a document (these are inserted by TextEditor.enrichHTML)
   //    if it's a document in world builder, open in here instead of the default functionality
-  const onClickApplication = (event: JQuery.ClickEvent) => {
+  const onClickApplication = (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+
     // ignore anything that's not an <a> with class 'content-link'
-    if (event.target.tagName!=='A')
+    if (target.tagName!=='A')
       return;
 
     let found=false;
-    for (let i=0; i< event.target.classList.length; i++) {
-      if (event.target.classList[i]==='fwb-content-link' && event.target.dataset.uuid) {
+    for (let i=0; i< target.classList.length; i++) {
+      if (target.classList[i]==='fwb-content-link' && target.dataset.uuid) {
         found=true; 
         break;
       }
@@ -84,7 +86,7 @@
     event.stopPropagation();
     
     // the only things tagged fwb-content-link are ones for the world we're looking at, so just need to open it
-    void navigationStore.openEntry(event.target.dataset.uuid, { newTab: event.ctrlKey});
+    void navigationStore.openEntry(target.dataset.uuid, { newTab: event.ctrlKey});
   };
 
   ////////////////////////////////
