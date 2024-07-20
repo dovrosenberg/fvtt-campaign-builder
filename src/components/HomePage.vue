@@ -1,7 +1,9 @@
 <template>
   <div class="flexcol fwb-journal-subsheet blank blank-body">
     <div class="message">
-      <div style="transform: translateY(50%);">{{ !message ? '' : localize(message) }}</div>
+      <div style="transform: translateY(50%);">
+        {{ !message ? '' : localize(message) }}
+      </div>
     </div>
     <h3>
       {{ currentWorldFolder?.name }}
@@ -25,8 +27,8 @@
 
       <div class="flexrow">
         <div 
-          v-for="recentItem in recent"
-          :key="recentItem.uuid"
+          v-for="recentItem, idx in recent"
+          :key="idx"
           class="recent-link" 
           @click="onRecentClick(recentItem?.uuid)"
         >

@@ -119,7 +119,7 @@
   };
 
   // capture keydown for up, down, enter
-  const onKeyDown = async (event: JQuery.KeyDownEvent): Promise<void> => {
+  const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
     // if no list, don't need to do anything
     if (!filteredItems.value || !inputRef.value)
       return;
@@ -202,10 +202,10 @@
   // lifecycle events
   onMounted(() => {
     // watch for clicks anywhere outside the control
-    $(document).on('click', async (event: JQuery.ClickEvent) => {
-      if (hasFocus.value && !jQuery(event.currentTarget).closest('.fwb-typeahead')[0]) {
+    $(document).on('click', async (event: MouseEvent) => {
+      if (hasFocus.value && event.currentTarget && !(event.currentTarget as HTMLElement)?.closest('.fwb-typeahead')) {
         // we were in it, but now we're not; treat as if we'd tabbed out
-        await onKeyDown({key:'Tab'} as JQuery.KeyDownEvent);
+        await onKeyDown({key:'Tab'} as KeyboardEvent);
       }
     });
 

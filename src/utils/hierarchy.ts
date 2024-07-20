@@ -163,7 +163,7 @@ const ancestorItems = async function(pack:CompendiumCollection<any>, entry: Jour
 //    all of their ancesors, for a given type of document (i.e. everything in the passed in pack)
 // used to create the directory structure
 // values will be populated with uuid
-// if search is populated, the list will be sorted to only documents with names matching the (case-insensitive) search
+// if search is populated, the list will be filtered to only documents with names matching the (case-insensitive) search
 // TODO: need to test this for performance with large collections... otherwise may need to move do a different
 //    way of storing the records because there's no way to effectively search based on flags. It's possible the
 //    type field could be used to store whether it's a top node or not and then use getDocuments({}) to pull only

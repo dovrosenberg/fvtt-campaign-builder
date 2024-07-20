@@ -21,7 +21,9 @@
           >
             <i :class="'fas ' + tab.entry.icon"></i>
           </div>
-          <div class="tab-content">{{tab.entry.name}}</div>
+          <div class="tab-content">
+            {{ tab.entry.name }}
+          </div>
           <div 
             class="close"
             @click="onTabCloseClick(tab.id)"
@@ -105,7 +107,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, watch, onMounted, } from 'vue';
+  import { ref, watch, onMounted, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -143,9 +145,6 @@
   
   ////////////////////////////////
   // computed data
-  const activeEntryId = computed((): string | null => {
-    return navigationStore.getActiveTab()?.entry.uuid || null;
-  });
 
   ////////////////////////////////
   // methods
@@ -171,7 +170,7 @@
       return;
 
     await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentWorldId.value);
-  }
+  };
 
   // moves forward/back through the history "move" spaces (or less if not possible); negative numbers move back
   const navigateHistory = async function (move: number) {
@@ -212,7 +211,7 @@
         await navigationStore.activateTab(tabs.value[index-1].id);  // will also save them
       }
     }
-  }
+  };
 
   // removes the bookmark with given id
   const removeBookmark = async function (id: string) {
@@ -267,19 +266,19 @@
 
     // see if a bookmark for the entry already exists
     if (bookmarks.value.find((b) => (b.entry.uuid === tab?.entry?.uuid)) != undefined) {
-      ui?.notifications?.warn(localize('fwb.errors.duplicateBookmark'));
+      globalThis.ui?.notifications?.warn(localize('fwb.errors.duplicateBookmark'));
       return;
     }
 
     const bookmark = {
-      id: foundry.utils.randomID(),
+      id: globalThis.foundry.utils.randomID(),
       entry: tab.entry,
     } as Bookmark;
 
     bookmarks.value.push(bookmark);
 
     await saveBookmarks();
-  }
+  };
 
   const onBookmarkClick = async (bookmarkId: string) => { 
     const bookmark = bookmarks.value.find(b => b.id === bookmarkId);
@@ -313,7 +312,7 @@
   const onDragStart = (event: DragEvent, id: string): void => {
     const target = event.currentTarget as HTMLElement;
 
-    if ($(target).hasClass('fwb-tab')) {
+    if (target.classList.contains('fwb-tab')) {
       const dragData = { 
         //from: this.object.uuid 
       } as { type: string, tabId?: string};
@@ -322,7 +321,7 @@
       dragData.tabId = id;
 
       event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
-    } else if ($(target).hasClass('fwb-bookmark-button')) {
+    } else if (target.classList.contains('fwb-bookmark-button')) {
       const dragData = { 
         //from: this.object.uuid 
       } as { type: string, bookmarkId?: string};

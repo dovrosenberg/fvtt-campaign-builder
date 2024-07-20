@@ -324,7 +324,6 @@ export const useDirectoryStore = defineStore('directory', () => {
           topic: topic,
           topNodes: await _getPackTopNodes(pack),
           loadedTopNodes: [],
-          types: types[topic].concat(['(none)']).sort(),
           loadedTypes: [],
           expanded: expandedNodes[pack.metadata.id] || false,
         };
@@ -348,7 +347,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     isTreeRefreshing.value = false;
   };
 
-  const _recursivelyLoadNode = async (pack: CompendiumCollection, children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
+  const _recursivelyLoadNode = async (pack: CompendiumCollection<any>, children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
     // load any children that haven't been loaded before
     // this guarantees all children are at least in _loadedNodes and updateEntryIds ones have been refreshed
     const nodesToLoad = children.filter((id)=>!loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id));

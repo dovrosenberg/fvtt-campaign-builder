@@ -40,7 +40,7 @@
               v-if="showHierarchy"
               class="form-group fwb-content-header"
             >
-              <!-- <Tree :topNodes="treeNodes" />  -->
+              SHOW PARENT HERE AND ALLOW TO CHANGE
             </div>
           </div>
         </header>
@@ -48,6 +48,7 @@
           <a class="item" data-tab="description">{{ localize('fwb.labels.tabs.description') }}</a>
           <a 
             v-for="relationship in relationships"
+            :key="relationship.label"
             class="item" :data-tab="relationship.tab"
           >
             {{ localize(relationship.label) }}
@@ -213,7 +214,6 @@
                 <span v-if="!hasGM" style="color:darkred;font-weight:bold;">{{localize('MonksEnhancedJournal.msg.CannotEditNotesWithoutGM')}}</span>
               </div> -->
               <div class="notes-container">
-
                 <!-- {{!-- {{editor userdata.enrichedText target=notesTarget editable=true button=true owner=owner}} --}} -->
               </div>
             </div>
@@ -249,7 +249,8 @@
 
   // types
   import { Topic, TreeNode } from '@/types';
-  import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
+  import type Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.d.mts';
+  import type JournalEntry from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/documents/journal-entry.d.mts';
 
   ////////////////////////////////
   // props
