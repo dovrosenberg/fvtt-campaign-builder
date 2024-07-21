@@ -1,5 +1,6 @@
 import { EntrySummary, Topic, TreeNode } from '@/types';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
 
 // types and functions used to manage topic hierarchies
 export type Hierarchy = {
@@ -25,7 +26,7 @@ export function validChildItems(pack: CompendiumCollection<any>, entry: JournalE
   if (!parent)
     return [];
 
-  const ancestors = EntryFlags.get(parent, EntryFlagKey.hierarchy)?.ancestors || [];
+  const ancestors = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid]?.ancestors || [];
 
   // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
   return pack.find((j)=>(j.uuid !== entry.uuid && !ancestors.includes(entry.id!))).map(mapEntryToSummary);
@@ -44,10 +45,12 @@ export function validParentItems(pack: CompendiumCollection<any>, entry: Journal
   if (!child)
     return [];
 
+  const hierarchies = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies);
+
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
   return pack.filter((j: JournalEntry)=>(
     j.uuid !== entry.uuid && 
-    !(EntryFlags.get(j, EntryFlagKey.hierarchy)?.ancestors || []).includes(entry.id!))
+    !(hierarchies[j.uuid]?.ancestors || []).includes(entry.id!))
   ).map((e)=>e.uuid);
 }
 
@@ -66,7 +69,7 @@ export async function getHierarchyTree(pack: CompendiumCollection<any>, entry: J
   } 
 
   // now add all the children, if any
-  const childIds = EntryFlags.get(entry, EntryFlagKey.hierarchy)?.children;
+  const childIds = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid]?.children;
 
   if (childIds?.length) {
     const childEntries = await pack.getDocuments({_id__in: childIds});
@@ -94,7 +97,7 @@ export async function getAncestorTree(pack: CompendiumCollection<any>, entry: Jo
 
     // if we're on the current node, we don't want to add its children (because we don't show it in descendent trees)
     if (entryToAdd.uuid !== entry.uuid) {
-      EntryFlags.get(entryToAdd, EntryFlagKey.hierarchy)?.children.forEach((childId: string) => {
+      PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid]?.children.forEach((childId: string) => {
         const descendents = addNode(pack.find((j)=>(j.id===childId)));
 
         if (descendents) {
@@ -116,11 +119,13 @@ export async function getAncestorTree(pack: CompendiumCollection<any>, entry: Jo
   let retval = [] as TreeNode[];
   const ancestors = await ancestorItems(pack, entry);
 
+  const hierarchy = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid];
+
   if (Object.keys(ancestors).length>0) {
     // loop over all of the ancestors to find the top one
     for (let i=0; i<Object.values(ancestors).length; i++) {
       const currentItem = Object.values(ancestors)[i];
-      const parentId = EntryFlags.get(currentItem, EntryFlagKey.hierarchy)?.parentId;
+      const parentId = hierarchy?.parentId;
 
       // if it has no parent, it's the top node, so we start there and build the tree
       if (!parentId) {
@@ -148,7 +153,7 @@ const mapEntryToSummary = (entry: JournalEntry): EntrySummary => ({
 // only works for topics that have hierachy
 const ancestorItems = async function(pack:CompendiumCollection<any>, entry: JournalEntry): Promise<Record<string, JournalEntry>> {
   // get the list of ancestors
-  const ancestors = EntryFlags.get(entry, EntryFlagKey.hierarchy)?.ancestors || [];
+  const ancestors = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid]?.ancestors || [];
 
   // convert to a map
   const entries = (await pack.getDocuments({ _id__in: ancestors })) as JournalEntry[];
@@ -184,7 +189,7 @@ export async function getDocumentTree(pack: CompendiumCollection<any>, search?: 
   const getDescendentTree = (id: string): TreeNode => {
     const entry = entryMap[id];
 
-    const hierarchy = EntryFlags.get(entry, EntryFlagKey.hierarchy);
+    const hierarchy = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid];
     if (hierarchy && hierarchy?.children.length > 0) {
       const children = [] as TreeNode[];
       hierarchy.children.forEach((id: string) => {
@@ -208,9 +213,11 @@ export async function getDocumentTree(pack: CompendiumCollection<any>, search?: 
   };
 
   // do all the ones with no ancestors, because those are the top
+  const hierarchies = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies);
+
   allEntries.forEach((e)=> {
     // TODO - confirm LevelDB sorts 
-    const hierarchy = EntryFlags.get(e, EntryFlagKey.hierarchy);
+    const hierarchy = hierarchies[e.uuid];
     if (hierarchy && hierarchy?.ancestors.length > 0) {
       documentTree.push(getDescendentTree(e.uuid));
     }
@@ -223,32 +230,33 @@ export async function getDocumentTree(pack: CompendiumCollection<any>, search?: 
 // after we delete an item, we need to remove it from any trees where it is a child or ancestor,
 //    along with all of the items that are now orphaned
 export const cleanTrees = async function(entry: JournalEntry): Promise<void> {
-  const deletedItemId = entry.uuid;
+//   const deletedItemId = entry.uuid;
 
-  if (ancestors && ancestors.length) {
-    const itemsToRemove = [deletedItemId, ...ancestors];
+//   if (ancestors && ancestors.length) {
+//     const itemsToRemove = [deletedItemId, ...ancestors];
 
-    // find all of the items that had deleted item as an ancestor
-    // remove deleted item from their ancestors list, along with all of the deleted item's ancestors
-    // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
-    //    so we can just remove all of the deleted item's ancestors from the ancestors list
+//     // find all of the items that had deleted item as an ancestor
+//     // remove deleted item from their ancestors list, along with all of the deleted item's ancestors
+//     // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
+//     //    so we can just remove all of the deleted item's ancestors from the ancestors list
 
-    // QUESTION: should we store the entire hierarchy on the pack so we don't have to read and write all of the documents?
-    // that would be a lot of data, but it would be faster; on the other hand, how many descendents can a single item 
-    // have?  it could be a lot - imagine a continent... basically every location could be a descendent of it
+//     // QUESTION: should we store the entire hierarchy on the pack so we don't have to read and write all of the documents?
+//     // that would be a lot of data, but it would be faster; on the other hand, how many descendents can a single item 
+//     // have?  it could be a lot - imagine a continent... basically every location could be a descendent of it
      
 
-    // we have to go down the trees to do this because we don't have a great way to query for ancestors
-    const getAllChildren = 
+//     // we have to go down the trees to do this because we don't have a great way to query for ancestors
+//     const getAllChildren = 
 
-    // pull everything in deletedItem.ancestors out of the ancestors list of every item
-    await collection.updateMany({ worldId: worldId, ancestors: {$elemMatch: { $in: itemsToRemove }}} as Filter<T>, 
-      { $pull: { ancestors: { $in: itemsToRemove }}} as unknown as UpdateFilter<T>);
-  }
+//     // pull everything in deletedItem.ancestors out of the ancestors list of every item
+//     await collection.updateMany({ worldId: worldId, ancestors: {$elemMatch: { $in: itemsToRemove }}} as Filter<T>, 
+//       { $pull: { ancestors: { $in: itemsToRemove }}} as unknown as UpdateFilter<T>);
+//   }
 
-  // remove it from the children list of its parent
-  if (parent) {
-    await collection.updateOne({ worldId: worldId, _id: parent } as Filter<T>,
-      { $pull: { children: deletedItemId }} as unknown as UpdateFilter<T>);
-  }
+//   // remove it from the children list of its parent
+//   if (parent) {
+//     await collection.updateOne({ worldId: worldId, _id: parent } as Filter<T>,
+//       { $pull: { children: deletedItemId }} as unknown as UpdateFilter<T>);
+//   }
 }
+

@@ -49,15 +49,13 @@ export const useMainStore = defineStore('main', () => {
   };
 
   const setNewEntry = async function (entry: string | null | JournalEntry): Promise<void> {
-    if (typeof entry === 'string')
+    if (typeof entry === 'string') {
       _currentEntry.value = await getCleanEntry(entry);
-    else if (entry == null)
-      throw new Error('Attempted to setNewEntry with null uuid');
-    else
-      _currentEntry.value = entry;
 
-    if (!_currentEntry.value)
-      throw new Error('Attempted to setNewEntry with invalid uuid');
+      if (!_currentEntry.value)
+        throw new Error('Attempted to setNewEntry with invalid uuid');
+    } else
+      _currentEntry.value = entry;
   };
 
   ///////////////////////////////

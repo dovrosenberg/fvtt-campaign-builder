@@ -1,6 +1,6 @@
 // helper functions for the Editor component
 
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
 import { getIcon } from '@/utils/misc';
 
 // types
@@ -88,13 +88,13 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
   if (doc) {
     if (doc.documentName) {
       // handle the ones we don't care about; note worldId won't be present if this is called outside of our code
-      if (!doc.pack || !worldId || WorldFlags.get(worldId, WorldFlagKey.packTopics)[doc.pack]===undefined) {
+      if (!doc.pack || !worldId) {
         // this is not an fwb item
         return doc.toAnchor({ name: data.name, dataset: { hash } });
       } else {
         return doc.toAnchor({ 
           name: data.name, dataset: { hash }, classes: ['fwb-content-link'], 
-          icon: `fas ${getIcon(WorldFlags.get(worldId, WorldFlagKey.packTopics)[doc.pack])}` 
+          icon: `fas ${getIcon(PackFlags.get(doc.pack, PackFlagKey.topic))}` 
         });
       }
     }
