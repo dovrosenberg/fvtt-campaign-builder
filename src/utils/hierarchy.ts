@@ -227,7 +227,6 @@ export async function getDocumentTree(pack: CompendiumCollection<any>, search?: 
   return documentTree;
 }
 
-
 // after we delete an item, we need to remove it from any trees where it is a child or ancestor,
 //    along with all of the items that are now orphaned
 export const cleanTrees = async function(packId: string, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
@@ -240,13 +239,20 @@ export const cleanTrees = async function(packId: string, deletedItemId: string, 
 
   const newTopNodes: string[] = [];
   for (let i=0; i<Object.keys(hierarchies).length; i++) {
-    // if it has one ancestor that's about to be deleted, make it a topNode
-    if (hierarchies[Object.keys(hierarchies)[i]].ancestors.length===1 && hierarchies[Object.keys(hierarchies)[i]].ancestors[0]===deletedItemId)
-      newTopNodes.push(Object.keys(hierarchies)[i]);
+    // if it's the one being deleted, skip it
+    if (Object.keys(hierarchies)[i]===deletedItemId)
+      continue;
 
     // if its parent is being removed, move it up one 
-    if (hierarchies[Object.keys(hierarchies)[i]].parentId===deletedItemId)
+    if (hierarchies[Object.keys(hierarchies)[i]].parentId===deletedItemId) {
       hierarchies[Object.keys(hierarchies)[i]].parentId=deletedHierarchy.parentId;
+
+      // and add to children of new parent or make a topnode
+      if (deletedHierarchy.parentId) 
+        hierarchies[deletedHierarchy.parentId].children.push(Object.keys(hierarchies)[i]);
+      else
+        newTopNodes.push(Object.keys(hierarchies)[i]);
+    }
 
     // remove all the elements
     hierarchies[Object.keys(hierarchies)[i]].ancestors = hierarchies[Object.keys(hierarchies)[i]].ancestors.filter((s: string)=>!itemsToRemove.includes(s));
@@ -256,6 +262,9 @@ export const cleanTrees = async function(packId: string, deletedItemId: string, 
   if (deletedHierarchy.parentId) {
     hierarchies[deletedHierarchy.parentId].children = hierarchies[deletedHierarchy.parentId].children.filter((s:string)=>s!=deletedItemId);
   }
+
+  // delete the item from hierarchy
+  delete hierarchies[deletedItemId];
 
   // store updated hierarchy
   await PackFlags.set(packId, PackFlagKey.hierarchies, hierarchies);
