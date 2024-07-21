@@ -7,7 +7,7 @@ import { reactive, onMounted, ref, toRaw, watch } from 'vue';
 // local imports
 import { getGame } from '@/utils/game';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-import { hasHierarchy, Hierarchy } from '@/utils/hierarchy';
+import { cleanTrees, hasHierarchy, Hierarchy } from '@/utils/hierarchy';
 import { useMainStore } from './mainStore';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { createWorldFolder, getTopicText, validateCompendia } from '@/compendia';
@@ -474,6 +474,36 @@ export const useDirectoryStore = defineStore('directory', () => {
     return entry || null;
   };
 
+  // delete an entry from the world
+  const deleteEntry = async (entryId: string) => {
+    const entry = await fromUuid(entryId) as JournalEntry;
+
+    // have to unlock the pack
+    if (entry && entry.pack) {
+      const pack = getGame().packs.get(entry.pack);
+      if (pack) {
+        await pack.configure({locked:false});
+
+        const hierachy = EntryFlags.get(entry, EntryFlagKey.hierarchy);
+
+        // delete from any trees
+        if (hierachy?.ancestors || hierachy?.children) {
+          await cleanTrees(entry);
+        }
+
+        await entry.delete();
+
+        await pack.configure({locked:false});
+
+        // TODO - remove from any relationships
+        // TODO - remove from search
+
+        await refreshCurrentTree();
+      }
+    }
+  };
+
+
   ///////////////////////////////
   // computed state
 
@@ -657,5 +687,6 @@ export const useDirectoryStore = defineStore('directory', () => {
     deleteWorld,
     createWorld,
     createEntry,
+    deleteEntry,
   };
 });

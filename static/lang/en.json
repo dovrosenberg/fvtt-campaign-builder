@@ -59,6 +59,9 @@
           "4": "Create new event"
         }
       },
+      "directoryEntry": {
+        "delete": "Delete entry"
+      },
       "typeFolder": {
         "create": "Create new"
       }

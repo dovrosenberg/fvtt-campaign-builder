@@ -218,3 +218,37 @@ export async function getDocumentTree(pack: CompendiumCollection<any>, search?: 
 
   return documentTree;
 }
+
+
+// after we delete an item, we need to remove it from any trees where it is a child or ancestor,
+//    along with all of the items that are now orphaned
+export const cleanTrees = async function(entry: JournalEntry): Promise<void> {
+  const deletedItemId = entry.uuid;
+
+  if (ancestors && ancestors.length) {
+    const itemsToRemove = [deletedItemId, ...ancestors];
+
+    // find all of the items that had deleted item as an ancestor
+    // remove deleted item from their ancestors list, along with all of the deleted item's ancestors
+    // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
+    //    so we can just remove all of the deleted item's ancestors from the ancestors list
+
+    // QUESTION: should we store the entire hierarchy on the pack so we don't have to read and write all of the documents?
+    // that would be a lot of data, but it would be faster; on the other hand, how many descendents can a single item 
+    // have?  it could be a lot - imagine a continent... basically every location could be a descendent of it
+     
+
+    // we have to go down the trees to do this because we don't have a great way to query for ancestors
+    const getAllChildren = 
+
+    // pull everything in deletedItem.ancestors out of the ancestors list of every item
+    await collection.updateMany({ worldId: worldId, ancestors: {$elemMatch: { $in: itemsToRemove }}} as Filter<T>, 
+      { $pull: { ancestors: { $in: itemsToRemove }}} as unknown as UpdateFilter<T>);
+  }
+
+  // remove it from the children list of its parent
+  if (parent) {
+    await collection.updateOne({ worldId: worldId, _id: parent } as Filter<T>,
+      { $pull: { children: deletedItemId }} as unknown as UpdateFilter<T>);
+  }
+}

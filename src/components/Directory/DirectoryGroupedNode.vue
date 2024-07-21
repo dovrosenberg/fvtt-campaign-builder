@@ -7,6 +7,7 @@
       @click="onDirectoryItemClick($event)"
       @dragstart="onDragStart($event)"
       @drop="()=>false"
+      @contextmenu="onEntryContextMenu($event)"
     >
       {{ props.node.name }}
     </div>
@@ -19,10 +20,12 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+  import { localize } from '@/utils/game';
 
   // library components
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
 
@@ -41,7 +44,7 @@
       required: true,
     }
   });
-  
+
   ////////////////////////////////
   // emits
 
@@ -49,6 +52,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
+  const directoryStore = useDirectoryStore();
   const { currentEntryId, currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
@@ -91,6 +95,30 @@
     } as { topic: Topic, typeName: string, id: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+  };
+
+  const onEntryContextMenu = (event: MouseEvent): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+    event.stopPropagation();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fwb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('fwb.contextMenus.directoryEntry.delete'), 
+          onClick: async () => {
+            await directoryStore.deleteEntry(props.node.id);
+          }
+        },
+      ]
+    });
   };
 
   ////////////////////////////////
