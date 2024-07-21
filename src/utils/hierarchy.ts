@@ -229,34 +229,40 @@ export async function getDocumentTree(pack: CompendiumCollection<any>, search?: 
 
 // after we delete an item, we need to remove it from any trees where it is a child or ancestor,
 //    along with all of the items that are now orphaned
-export const cleanTrees = async function(entry: JournalEntry): Promise<void> {
-//   const deletedItemId = entry.uuid;
+export const cleanTrees = async function(packId: string, deletedItemId: string, ancestors: string[], parentId: string | null): Promise<void> {
+  const hierarchies = PackFlags.get(packId, PackFlagKey.hierarchies);
 
-//   if (ancestors && ancestors.length) {
-//     const itemsToRemove = [deletedItemId, ...ancestors];
+  // remove deleted item and all its ancestors from any object who had them as ancestors previously
+  // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
+  //    so we can just remove all of the deleted item's ancestors from the ancestors list
+  const itemsToRemove = [deletedItemId, ...ancestors];
 
-//     // find all of the items that had deleted item as an ancestor
-//     // remove deleted item from their ancestors list, along with all of the deleted item's ancestors
-//     // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
-//     //    so we can just remove all of the deleted item's ancestors from the ancestors list
+  const newTopNodes: string[] = [];
+  for (let i=0; i<Object.keys(hierarchies).length; i++) {
+    // if it has one ancestor that's about to be deleted, make it a topNode
+    if (hierarchies[Object.keys(hierarchies)[i]].ancestors.length===1 && hierarchies[Object.keys(hierarchies)[i]].ancestors[0]===deletedItemId)
+      newTopNodes.push(Object.keys(hierarchies)[i]);
 
-//     // QUESTION: should we store the entire hierarchy on the pack so we don't have to read and write all of the documents?
-//     // that would be a lot of data, but it would be faster; on the other hand, how many descendents can a single item 
-//     // have?  it could be a lot - imagine a continent... basically every location could be a descendent of it
-     
+    // if its parent is being removed, move it up one 
+    if (hierarchies[Object.keys(hierarchies)[i]].parentId===deletedItemId)
+      hierarchies[Object.keys(hierarchies)[i]].parentId=parentId;
 
-//     // we have to go down the trees to do this because we don't have a great way to query for ancestors
-//     const getAllChildren = 
+    // remove all the elements
+    hierarchies[Object.keys(hierarchies)[i]].ancestors = hierarchies[Object.keys(hierarchies)[i]].ancestors.filter((s: string)=>!itemsToRemove.includes(s));
+  }
 
-//     // pull everything in deletedItem.ancestors out of the ancestors list of every item
-//     await collection.updateMany({ worldId: worldId, ancestors: {$elemMatch: { $in: itemsToRemove }}} as Filter<T>, 
-//       { $pull: { ancestors: { $in: itemsToRemove }}} as unknown as UpdateFilter<T>);
-//   }
+  // remove it from the children list of its parent
+  if (parentId) {
+    hierarchies[parentId].children = hierarchies[parentId].children.filter((s:string)=>s!=deletedItemId);
+  }
 
-//   // remove it from the children list of its parent
-//   if (parent) {
-//     await collection.updateOne({ worldId: worldId, _id: parent } as Filter<T>,
-//       { $pull: { children: deletedItemId }} as unknown as UpdateFilter<T>);
-//   }
-}
+  // store updated hierarchy
+  // XXX
+  await PackFlags.set(packId, PackFlagKey.hierarchies, hierarchies);
+
+  // update topNodes
+  let topNodes = PackFlags.get(packId, PackFlagKey.topNodes);
+  topNodes = topNodes.filter((s: string)=>s!=deletedItemId).concat(newTopNodes);
+  await PackFlags.set(packId, PackFlagKey.topNodes, topNodes);
+};
 

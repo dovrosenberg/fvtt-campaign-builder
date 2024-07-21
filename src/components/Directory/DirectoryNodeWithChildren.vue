@@ -229,6 +229,14 @@
             }
           }
         },
+        { 
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('fwb.contextMenus.directoryEntry.delete'), 
+          onClick: async () => {
+            await directoryStore.deleteEntry(props.node.id);
+          }
+        },
       ]
     });
   };

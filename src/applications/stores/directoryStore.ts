@@ -136,6 +136,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   const setNodeParent = async function(pack: CompendiumCollection<any>, childId: string, parentId: string | null): Promise<boolean> {
     // we're going to use this to simplify syntax below
     const saveHierarchyToEntryFromNode = async (entry: JournalEntry, node: DirectoryNode) : Promise<void> => {
+      // XXX
       await PackFlags.setHierarchy(pack.metadata.id, entry.uuid, _convertNodeToHierarchy(node));
     };
 
@@ -452,6 +453,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
         // set the blank hierarchy
         if (hasHierarchy(topic)) {
+          // XXX
           await PackFlags.setHierarchy(pack.metadata.id, entry.uuid, {
             parentId: '',
             ancestors: [],
@@ -485,7 +487,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
         // delete from any trees
         if (hierachy?.ancestors || hierachy?.children) {
-          //await cleanTrees(entry);
+          await cleanTrees(pack.metadata.id, entry.uuid, hierachy.ancestors, hierachy.parentId);
         }
 
         await entry.delete();

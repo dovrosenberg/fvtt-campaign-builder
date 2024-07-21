@@ -163,5 +163,31 @@ export abstract class PackFlags {
     await PackFlags.set(packId, PackFlagKey.hierarchies, hierarchies);
   }
 
+  /**
+   * Remove an entry from hierarchy
+   *
+   * @static
+   * @param {string} packId
+   * @param {string} entryId
+   * @param {Hierarchy} hierarchy
+   * @return {*}  {Promise<void>}
+   * @memberof PackFlags
+   */
+  public static async unsetHierarchy(packId: string, entryId: string): Promise<void> {
+    const p = getGame()?.packs?.find((p)=>p?.metadata.id===packId);
+    
+    if (!p)
+      throw new Error('Invalid packId in PackFlags.setHierarchy()');
+
+    const wf = p.folder as Folder;
+    if (!wf)
+      throw new Error('Bad folder in PackFlags.setHierarchy()');
+
+    // pull the full structure
+    const hierarchies = PackFlags.get(packId, PackFlagKey.hierarchies);
+    delete hierarchies[entryId];
+
+    await PackFlags.set(packId, PackFlagKey.hierarchies, hierarchies);
+  }
 }
 

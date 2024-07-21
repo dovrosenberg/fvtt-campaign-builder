@@ -264,7 +264,7 @@
     //   }
     // }
 
-    //await directoryStore.createWorld();
+    await directoryStore.createWorld();
   };
 
   // save grouping to settings
