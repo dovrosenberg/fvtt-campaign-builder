@@ -45,7 +45,7 @@
   
   // local imports
   import { useNavigationStore, useDirectoryStore, useMainStore } from '@/applications/stores';
-  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+  import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
   import { getGame, localize } from '@/utils/game';
 
   // library components
@@ -127,7 +127,7 @@
       return false;
     }
 
-    const topic = WorldFlags.get(currentWorldId.value, WorldFlagKey.packTopics)[packElement.dataset.packId];
+    const topic = PackFlags.get(packElement.dataset.packId, PackFlagKey.topic);
 
     // if the topics don't match, can't drop
     if (data.topic!==topic)

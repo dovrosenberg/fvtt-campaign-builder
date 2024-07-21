@@ -3,18 +3,15 @@
 import moduleJson from '@module';
 import { Topic } from '@/types';
 import { getGame } from '@/utils/game';
-import { Hierarchy } from '@/utils/hierarchy';
 
 export enum EntryFlagKey {
   topic = 'topic',   // is it a character, location, etc.
   type = 'type',  // note that this is the type field not the topic type
-  hierarchy = 'hierarchy',   // describes the hierarchy elements associated with this entry
 }
 
 type EntryFlagType<K extends EntryFlagKey> =
     K extends EntryFlagKey.topic ? Topic :
     K extends EntryFlagKey.type ? string :
-    K extends EntryFlagKey.hierarchy ? Hierarchy :
     never;  
 
 export abstract class EntryFlags {

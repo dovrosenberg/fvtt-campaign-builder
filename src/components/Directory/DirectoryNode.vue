@@ -31,6 +31,7 @@
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { getGame, localize } from '@/utils/game';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+  import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
 
   // library components
@@ -111,7 +112,7 @@
       return;
     }
 
-    const topic = WorldFlags.get(currentWorldId.value, WorldFlagKey.packTopics)[packElement.dataset.packId];
+    const topic = PackFlags.get(packElement.dataset.packId, PackFlagKey.topic);
     const dragData = { 
       topic:  topic,
       childId: props.node.id,
@@ -143,7 +144,7 @@
       return false;
     }
 
-    const topic = WorldFlags.get(currentWorldId.value, WorldFlagKey.packTopics)[packElement.dataset.packId];
+    const topic = PackFlags.get(packElement.dataset.packId, PackFlagKey.topic);
 
     // if the types don't match or don't have hierarchy, can't drop
     if (data.topic!==topic || !hasHierarchy(topic))

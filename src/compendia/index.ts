@@ -4,12 +4,11 @@ import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 import { getGame, localize } from '@/utils/game';
 import { Topic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
 import { AnyDocumentData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/data.mjs';
 import { toTopic } from '@/utils/misc';
-import { hasHierarchy, Hierarchy } from '@/utils/hierarchy';
+import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
 
 // returns the uuid of the root folder
 // if it is not stored in settings, creates a new folder
@@ -192,25 +191,16 @@ async function createCompendium(worldFolder: Folder, topic: Topic): Promise<stri
     type: 'JournalEntry', 
   };
 
-  // @ts-ignore
   const pack = await CompendiumCollection.createCompendium(metadata);
 
-  // @ts-ignore
   await pack.setFolder(worldFolder.id);
 
-  // @ts-ignore
   await pack.configure({ locked:true });
-  await setTopic(pack, topic);
+
+  await PackFlags.set(pack.metadata.id, PackFlagKey.topic, topic);
 
   // @ts-ignore
   return pack.metadata.id;
-}
-
-async function setTopic(pack: CompendiumCollection<any>, topic: Topic): Promise<void> {
-  const topics = WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics);
-
-  // @ts-ignore
-  await WorldFlags.set(pack.folder.uuid, WorldFlagKey.packTopics, {...topics, [pack.metadata.id]: topic });
 }
 
 // loads the entry into memory and cleans it
@@ -231,7 +221,7 @@ async function cleanEntry(entry: JournalEntry): Promise<void> {
   if (!entry.pages.find((p)=>p.name==='description')) { // TODO: replace with enum
     // @ts-ignore
     // this creates the page and adds to the parent
-    const page = await JournalEntryPage.create({name:'description', type: 'text'}, {parent: entry, pack: entry.pack});  // TODO: replace this with an enum
+    await JournalEntryPage.create({name:'description', type: 'text'}, {parent: entry, pack: entry.pack});  // TODO: replace this with an enum
   }
 }
 
