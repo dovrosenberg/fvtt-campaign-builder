@@ -68,7 +68,7 @@
         :title="bookmark.entry.name" 
         draggable="true"
         @click.left="onBookmarkClick(bookmark.id)"
-        @contextmenu="onBookmarkContextMenu($event, bookmark.entry.uuid)"
+        @contextmenu="onBookmarkContextMenu($event, bookmark)"
         @dragstart="onDragStart($event, bookmark.id)"
         @drop="onDrop($event, bookmark.id)"
       >
@@ -135,12 +135,11 @@
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
   const { currentWorldId, } = storeToRefs(mainStore);
-  const { tabs, } = storeToRefs(navigationStore);
+  const { tabs, bookmarks } = storeToRefs(navigationStore);
   const { directoryCollapsed } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
-  const bookmarks = ref<Bookmark[]>([]);
   const root = ref<HTMLElement | null>(null);
   
   ////////////////////////////////
@@ -164,12 +163,6 @@
       return false;
 
     return (checkTab.history?.length > 1) && (checkTab.historyIdx < checkTab.history.length-1);
-  };
-  const saveBookmarks = async function () {
-    if (!currentWorldId.value)
-      return;
-
-    await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentWorldId.value);
   };
 
   // moves forward/back through the history "move" spaces (or less if not possible); negative numbers move back
@@ -213,15 +206,8 @@
     }
   };
 
-  // removes the bookmark with given id
-  const removeBookmark = async function (id: string) {
-    const bookmarksValue = bookmarks.value;
-    bookmarksValue.findSplice(b => b.id === id);
-    bookmarks.value = bookmarksValue;
-    await saveBookmarks();
-  };
 
-  const onBookmarkContextMenu = (event: MouseEvent, entryId: string | null): void => {
+  const onBookmarkContextMenu = (event: MouseEvent, bookmark: Bookmark): void => {
     //prevent the browser's default menu
     event.preventDefault();
 
@@ -237,8 +223,8 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.bookmarks.openNewTab'), 
           onClick: async () => {
-            if (entryId)
-              await navigationStore.openEntry(entryId, { newTab: true });
+            if (bookmark.entry.uuid)
+              await navigationStore.openEntry(bookmark.entry.uuid, { newTab: true });
           }
         },
         { 
@@ -246,8 +232,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.bookmarks.delete'), 
           onClick: async () => {
-            if (entryId)
-              await removeBookmark(entryId);
+            await navigationStore.removeBookmark(bookmark.id);
           }
         },
       ]
@@ -275,9 +260,7 @@
       entry: tab.entry,
     } as Bookmark;
 
-    bookmarks.value.push(bookmark);
-
-    await saveBookmarks();
+    await navigationStore.addBookmark(bookmark);
   };
 
   const onBookmarkClick = async (bookmarkId: string) => { 
@@ -370,11 +353,7 @@
       const bookmarksValue = bookmarks.value;
       const from = bookmarksValue.findIndex(b => b.id === data.bookmarkId);
       const to = bookmarksValue.findIndex(b => b.id === id);
-      bookmarksValue.splice(to, 0, bookmarksValue.splice(from, 1)[0]);
-      bookmarks.value = bookmarksValue;
-
-      // save bookmarks (we don't activate anything)
-      await saveBookmarks();
+      await navigationStore.changeBookmarkPosition(from, to);
     } else {
       return false;
     } 
@@ -404,37 +383,6 @@
     if (tab)
       await navigationStore.activateTab(tab.id);
   });
-
-
-// TODO - need someway to trigger this from outside... it feels like maybe the tabs  need to be maintained from
-//    outside and just passed in as a prop???  Or we need to keep all the entries in a store, but that's way too
-//    much overhead
-//   // when an entry has it's name changed, we need to propogate that through all the saved tabs, etc.
-//   public async changeEntryName(entry: JournalEntry) {
-//     this._tabs = this._tabs.map((t)=> {
-//       if (t.entry.uuid===entry.uuid)
-//         t.entry.name = entry.name || '';
-//       return t;
-//     });
-
-//     this._bookmarks = this._bookmarks.map((b)=> {
-//       if (b.entry.uuid===entry.uuid)
-//         b.entry.name = entry.name || '';
-//       return b;
-//     });
-
-//     let recent = UserFlags.get(UserFlagKey.recentlyViewed, this._worldId) || [];
-//     recent = recent.map((r)=> {
-//       if (r.uuid===entry.uuid)
-//         r.name = entry.name || '';
-//       return r;
-//     });
-
-//     await this._saveTabs();
-//     await this._saveBookmarks();
-//     await UserFlags.set(UserFlagKey.recentlyViewed, recent, this._worldId);
-//   }
-
 
 
 </script>

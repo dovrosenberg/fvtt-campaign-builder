@@ -8,8 +8,9 @@ import { reactive, onMounted, ref, toRaw, watch } from 'vue';
 import { getGame } from '@/utils/game';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
-import { cleanTrees, getHierarchyTree, hasHierarchy, Hierarchy } from '@/utils/hierarchy';
+import { cleanTrees, hasHierarchy, Hierarchy } from '@/utils/hierarchy';
 import { useMainStore } from './mainStore';
+import { useNavigationStore } from './navigationStore';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { createWorldFolder, getTopicText, validateCompendia } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
@@ -26,6 +27,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
   const { rootFolder, currentWorldId, currentWorldFolder } = storeToRefs(mainStore); 
 
   ///////////////////////////////
@@ -496,6 +498,9 @@ export const useDirectoryStore = defineStore('directory', () => {
 
       // TODO - remove from any relationships
       // TODO - remove from search
+
+      // update tabs
+      await navigationStore.cleanupDeletedEntry(entry.uuid);
 
       // refresh and force its parent to update
       await refreshCurrentTree(hierarchy.parentId ? [hierarchy.parentId] : []);
