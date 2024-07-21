@@ -1,6 +1,7 @@
 import { EntrySummary, Topic, TreeNode } from '@/types';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
+import { getTransitionRawChildren } from 'vue';
 
 // types and functions used to manage topic hierarchies
 export type Hierarchy = {
@@ -229,13 +230,13 @@ export async function getDocumentTree(pack: CompendiumCollection<any>, search?: 
 
 // after we delete an item, we need to remove it from any trees where it is a child or ancestor,
 //    along with all of the items that are now orphaned
-export const cleanTrees = async function(packId: string, deletedItemId: string, ancestors: string[], parentId: string | null): Promise<void> {
+export const cleanTrees = async function(packId: string, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
   const hierarchies = PackFlags.get(packId, PackFlagKey.hierarchies);
 
   // remove deleted item and all its ancestors from any object who had them as ancestors previously
   // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
   //    so we can just remove all of the deleted item's ancestors from the ancestors list
-  const itemsToRemove = [deletedItemId, ...ancestors];
+  const itemsToRemove = [deletedItemId, ...deletedHierarchy.ancestors];
 
   const newTopNodes: string[] = [];
   for (let i=0; i<Object.keys(hierarchies).length; i++) {
@@ -245,19 +246,18 @@ export const cleanTrees = async function(packId: string, deletedItemId: string, 
 
     // if its parent is being removed, move it up one 
     if (hierarchies[Object.keys(hierarchies)[i]].parentId===deletedItemId)
-      hierarchies[Object.keys(hierarchies)[i]].parentId=parentId;
+      hierarchies[Object.keys(hierarchies)[i]].parentId=deletedHierarchy.parentId;
 
     // remove all the elements
     hierarchies[Object.keys(hierarchies)[i]].ancestors = hierarchies[Object.keys(hierarchies)[i]].ancestors.filter((s: string)=>!itemsToRemove.includes(s));
   }
 
   // remove it from the children list of its parent
-  if (parentId) {
-    hierarchies[parentId].children = hierarchies[parentId].children.filter((s:string)=>s!=deletedItemId);
+  if (deletedHierarchy.parentId) {
+    hierarchies[deletedHierarchy.parentId].children = hierarchies[deletedHierarchy.parentId].children.filter((s:string)=>s!=deletedItemId);
   }
 
   // store updated hierarchy
-  // XXX
   await PackFlags.set(packId, PackFlagKey.hierarchies, hierarchies);
 
   // update topNodes

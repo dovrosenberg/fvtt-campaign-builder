@@ -197,7 +197,8 @@ async function createCompendium(worldFolder: Folder, topic: Topic): Promise<stri
 
   await pack.configure({ locked:true });
 
-  await PackFlags.set(pack.metadata.id, PackFlagKey.topic, topic);
+  await PackFlags.setDefaults(pack.metadata.id, topic);
+
 
   // @ts-ignore
   return pack.metadata.id;

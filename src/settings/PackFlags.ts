@@ -54,7 +54,7 @@ export abstract class PackFlags {
     
     for (let i=0; i<flagSetup.length; i++) {
       if (!wf.getFlag(moduleJson.id, `packFlags.${packId}.${flagSetup[i].flagId}`)) {
-        const value = (typeof flagSetup[i].default==='function' ? (flagSetup[i].default as (topic:Topic)=> unknown)(topic) : flagSetup[i].default);
+        const value = (typeof flagSetup[i].default==='function' ? (flagSetup[i].default as (topic:Topic)=> unknown)(topic) : foundry.utils.deepClone(flagSetup[i].default));
 
         if (flagSetup[i].clean) {
           flagSetup[i].clean(value);
@@ -83,8 +83,12 @@ export abstract class PackFlags {
 
     let setting = wf.getFlag(moduleJson.id, `packFlags.${packId}.${config.flagId}`) as PackFlagType<T> | null | undefined;
     if (!setting) {
-      const topic = PackFlags.get(packId, PackFlagKey.topic);
-      setting = (typeof config.default==='function' ? (config.default as (topic:Topic)=> unknown)(topic) : config.default) as PackFlagType<T>;
+      const topic = wf.getFlag(moduleJson.id, `packFlags.${packId}.${config}.${PackFlagKey.topic}`) as Topic | null | undefined;
+
+      if (!topic)
+        throw new Error('Attempt to get a package flag before package topic set in PackFlags.get()'); 
+
+      setting = (typeof config.default==='function' ? (config.default as (topic:Topic)=> unknown)(topic) : foundry.utils.deepClone(config.default)) as PackFlagType<T>;
     }
 
     return setting;

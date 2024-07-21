@@ -58,7 +58,7 @@ export abstract class WorldFlags {
 
     for (let i=0; i<flagSetup.length; i++) {
       if (!f.getFlag(moduleJson.id, flagSetup[i].flagId)) {
-        await f.setFlag(moduleJson.id, flagSetup[i].flagId, flagSetup[i].default);
+        await f.setFlag(moduleJson.id, flagSetup[i].flagId, foundry.utils.deepClone(flagSetup[i].default));
       }
     }
 
@@ -73,7 +73,7 @@ export abstract class WorldFlags {
     if (!f)
       return config?.default as WorldFlagType<T>;
 
-    const setting = (f.getFlag(moduleJson.id, flag) || config?.default) as WorldFlagType<T>;
+    const setting = (f.getFlag(moduleJson.id, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T>;
 
     if (config?.needsFlatten)
       return foundry.utils.flattenObject(setting) as WorldFlagType<T>;
