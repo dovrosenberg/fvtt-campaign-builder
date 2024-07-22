@@ -112,31 +112,6 @@
   /*
 
 
-  searchText(query) {
-    let that = this;
-    $('.editor .editor-content,.journal-entry-content', this.element).unmark().mark(query, {
-      wildcards: 'enabled',
-      accuracy: "complementary",
-      separateWordSearch: false,
-      noMatch: function () {
-        if (query != '')
-          $('.mainbar .navigation .search', that.element).addClass('error');
-      },
-      done: function (total) {
-        if (query == '')
-          $('.mainbar .navigation .search', that.element).removeClass('error');
-        if (total > 0) {
-          $('.mainbar .navigation .search', that.element).removeClass('error');
-          let first = $('.editor .editor-content mark:first,.journal-entry-content .scrollable mark:first', that.element);
-          $('.editor', that.element).parent().scrollTop(first.position().top - 10);
-          $('.scrollable', that.element).scrollTop(first.position().top - 10);
-        }
-      }
-    });
-  }
-
-
-
   findMapEntry(event) {
     let journalId = $(event.currentTarget).attr('page-id');
     let journalId = $(event.currentTarget).attr('journal-id');
@@ -145,16 +120,6 @@
       return n.document.entryId == journalId || n.document.journalId == journalId || (n.document.entryId == journalId && n.document.journalId == null);
     });
     canvas.notes.panToNote(note);
-  }
-
-  doShowPlayers(event) {
-    if (event.shiftKey)
-      this._onShowPlayers({ data: { users: null, object: this.object, options: { showpic: false } } });
-    else if (event.ctrlKey)
-      this._onShowPlayers({ data: { users: null, object: this.object, options: { showpic: true } } });
-    else {
-      this._onShowPlayers(event);
-    }
   }
 
   }*/

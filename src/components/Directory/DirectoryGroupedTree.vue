@@ -6,7 +6,6 @@
       :type="type"
       :world-id="props.worldId"
       :pack="props.pack"
-      :search-text="props.searchText"
     />
   </ul>
 </template>
@@ -33,10 +32,6 @@
       required: true,
     }, 
     worldId: {
-      type: String,
-      required: true,
-    },
-    searchText: {
       type: String,
       required: true,
     },

@@ -1,5 +1,9 @@
 <template>
-  <li class="fwb-type-item">
+  <!-- note that filtering by filterNodes will hide unused types even if there's no search filter -->
+  <li 
+    v-if="filterNodes[props.pack.id].includes(currentType?.name)"
+    class="fwb-type-item"
+  >
     <!-- TODO: track expanded state-->
     <div 
       class="details"
@@ -29,6 +33,7 @@
           >
             <DirectoryGroupedNode 
               :node="node" 
+              :pack-id="props.pack.id"
               :type-name="currentType.name"
             />
           </div>
@@ -47,7 +52,8 @@
   import { useNavigationStore, useDirectoryStore, useMainStore } from '@/applications/stores';
   import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
   import { getGame, localize } from '@/utils/game';
-
+  import { NO_TYPE_STRING } from '@/utils/hierarchy';
+  
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
 
@@ -56,6 +62,7 @@
 
   // types
   import { DirectoryPack, DirectoryTypeNode, } from '@/types';
+
   
   ////////////////////////////////
   // props
@@ -72,10 +79,6 @@
       type: Object as PropType<DirectoryPack>,
       required: true,
     }, 
-    searchText: {
-      type: String,
-      required: true,
-    },
   });
   
   ////////////////////////////////
@@ -87,6 +90,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const { currentWorldId } = storeToRefs(mainStore);
+  const { filterNodes } = storeToRefs(directoryStore);
   
   ////////////////////////////////
   // data
@@ -157,7 +161,7 @@
           label: `${localize('fwb.contextMenus.typeFolder.create')} ${props.type.name}`, 
           onClick: async () => {
             // get the right topic
-            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as Folder;
+            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
             
             if (!worldFolder)
               throw new Error('Invalid header in DirectoryGroupedType.onTypeContextMenu.onClick');
@@ -177,7 +181,7 @@
   ////////////////////////////////
   // watchers
   watch(() => props.type, (newValue) => {
-    currentType.value = newValue;
+    currentType.value = newValue || NO_TYPE_STRING;
   });
 
   ////////////////////////////////

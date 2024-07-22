@@ -1,5 +1,5 @@
 <template>
-  <li>
+  <li v-if="filterNodes[props.packId].includes(props.node.id)">
     <div 
       :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
@@ -42,6 +42,10 @@
     typeName: {
       type: String,
       required: true,
+    },
+    packId: {
+      type: String,
+      required: true,
     }
   });
 
@@ -54,13 +58,14 @@
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
   const { currentEntryId, currentWorldId } = storeToRefs(mainStore);
+  const { filterNodes } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
   
   ////////////////////////////////
   // computed data
-
+  
   ////////////////////////////////
   // methods
   

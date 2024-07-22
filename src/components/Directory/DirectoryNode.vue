@@ -4,10 +4,10 @@
     :node="props.node"
     :world-id="props.worldId"
     :topic="props.topic"
-    :search-text="props.searchText"
+    :pack-id="props.packId"
     :top="props.top"
   />
-  <li v-else>
+  <li v-else-if="filterNodes[packId].includes(props.node.id)">
     <div 
       :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
@@ -54,7 +54,7 @@
       type: Number as PropType<Topic>,
       required: true
     },
-    searchText: {
+    packId: {
       type: String,
       required: true
     },
@@ -77,6 +77,7 @@
   const directoryStore = useDirectoryStore();
   const mainStore = useMainStore();
   const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
+  const { filterNodes } = storeToRefs(directoryStore);
   
   ////////////////////////////////
   // data
@@ -158,7 +159,7 @@
       return false;
 
     // is this a legal parent?
-    const childEntry = await fromUuid(data.childId) as JournalEntry | null;
+    const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntry | null;
 
     if (!childEntry)
       return false;
@@ -190,7 +191,7 @@
           label: localize(`fwb.contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
           onClick: async () => {
             // get the right folder
-            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as Folder;
+            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
             if (!worldFolder || !props.topic)
               throw new Error('Invalid header in DirectoryNode.onEntryContextMenu.onClick');
@@ -207,7 +208,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await directoryStore.deleteEntry(props.node.id)
+            await directoryStore.deleteEntry(props.node.id);
           }
         },
       ]

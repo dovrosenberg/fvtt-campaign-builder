@@ -2,13 +2,13 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { reactive, onMounted, ref, toRaw, watch } from 'vue';
+import { reactive, onMounted, ref, toRaw, watch, computed, } from 'vue';
 
 // local imports
 import { getGame } from '@/utils/game';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
-import { cleanTrees, hasHierarchy, Hierarchy } from '@/utils/hierarchy';
+import { cleanTrees, hasHierarchy, Hierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore } from './mainStore';
 import { useNavigationStore } from './navigationStore';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
@@ -18,6 +18,7 @@ import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 
 // types
 import { DirectoryWorld, DirectoryPack, DirectoryNode, Topic, DirectoryTypeNode, DirectoryEntryNode } from '@/types';
+import { StoredDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs';
 
 // the store definition
 export const useDirectoryStore = defineStore('directory', () => {
@@ -46,8 +47,12 @@ export const useDirectoryStore = defineStore('directory', () => {
   // which mode are we un
   const isGroupedByType = ref<boolean>(false);
 
-  // current sidebar collapsed state
+  // current sidebar collapsed state 
   const directoryCollapsed = ref<boolean>(false);
+
+  // current search text
+  const filterText = ref<string>('');
+
 
   ///////////////////////////////
   // actions
@@ -254,16 +259,24 @@ export const useDirectoryStore = defineStore('directory', () => {
     const currentWorldNode = currentTree.value.find((w)=>w.id===currentWorldId.value) || null;
     const packNode = currentWorldNode?.packs.find((p)=>p.id===entry.pack) || null;
     const oldTypeNode = packNode?.loadedTypes.find((t) => t.name===oldType);
-    if (oldTypeNode) {
-      oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entryId);
-    }
+    if (!currentWorldNode || !packNode || !oldTypeNode) 
+      throw new Error('Failed to load node in directoryStore.updateEntryType()');
+
+    oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entryId);
 
     // add to the new one
     const newTypeNode = packNode?.loadedTypes.find((t) => t.name===typeName);
     if (newTypeNode) {
-      newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([{ id: entryId, name: entry.name || '<Blank>'}]).sort((a,b)=>a.name.localeCompare(b.name));
+      newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([{ id: entryId, name: entry.name || NO_NAME_STRING}]).sort((a,b)=>a.name.localeCompare(b.name));
     }
 
+    // update the hierarchy
+    const hierarchy = PackFlags.get(packNode?.id, PackFlagKey.hierarchies)?.[entryId];
+    if (!hierarchy)
+      throw new Error(`Could not find hierarchy for ${entryId} in directoryStore.updateEntryType()`);
+
+    hierarchy.type = typeName;
+    await PackFlags.setHierarchy(packNode?.id, entryId, hierarchy);
   };
 
   const deleteWorld = async (worldId: string): Promise<void> => {
@@ -395,10 +408,10 @@ export const useDirectoryStore = defineStore('directory', () => {
       expanded: expandedIds[pack.id + ':' + type] || false,   
       loadedChildren: allEntries.filter((e: JournalEntry)=> {
         const entryType = EntryFlags.get(e, EntryFlagKey.type);
-        return (!entryType && type==='(none)') || (entryType && entryType===type);
+        return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type);
       }).map((entry: JournalEntry): DirectoryEntryNode=> ({
         id: entry.uuid,
-        name: entry.name || '<Blank>',
+        name: entry.name || NO_NAME_STRING,
       })).sort((a, b) => a.name.localeCompare(b.name))      
     }));
   };
@@ -458,6 +471,7 @@ export const useDirectoryStore = defineStore('directory', () => {
             parentId: '',
             ancestors: [],
             children: [],
+            type: '',
           } as Hierarchy);
         }
       } else {
@@ -510,27 +524,72 @@ export const useDirectoryStore = defineStore('directory', () => {
 
   ///////////////////////////////
   // computed state
+  // a list of all the nodes that should be shown in the current tree
+  // this includes: all nodes matching the filterText, all of their ancestors, and
+  //    all of their types (we also ways leave the packs)
+  // it's an object keyed by packId with a list of all the ids to include
+  const filterNodes = computed((): Record<string, string[]> => {
+    const retval: Record<string, string[]> = {};
+
+    if (!currentWorldId.value)
+      return {};
+
+    // iterate over the packs
+    const compendia = WorldFlags.get(currentWorldId.value, WorldFlagKey.compendia);
+    for (let i=0; i<Object.keys(compendia).length; i++) {
+      const packId = compendia[Object.keys(compendia)[i]] as string;
+      if (packId) {
+        const pack = getGame().packs.get(packId);
+        if (!pack)
+          continue;
+
+        const hierarchies = PackFlags.get(packId, PackFlagKey.hierarchies);
+
+        const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
+        let matchedEntries = pack.filter((e: StoredDocument<JournalEntry>)=>( filterText.value === '' || regex.test( e.name || '' )))
+          .map((e: StoredDocument<JournalEntry>): string=>e.uuid);
+    
+        // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding
+        for (let j=matchedEntries.length-1; j>=0; j--) {
+          if (hierarchies[matchedEntries[j]] && hierarchies[matchedEntries[j]].ancestors) {
+            matchedEntries = matchedEntries.concat(hierarchies[matchedEntries[j]].ancestors);
+          }
+
+          // type 
+          // note: we add the blank type, even though we don't currently show them in
+          //    the grouped tree,
+          matchedEntries.push(hierarchies[matchedEntries[j]]?.type || NO_TYPE_STRING);
+        }
+
+        // eliminate duplicates
+        retval[packId] = [...new Set(matchedEntries)];
+      }
+    }
+
+    return retval;
+  });
+
 
   ///////////////////////////////
   // internal functions
   // load an entry from disk and convert it to a node
-  const _loadNode = async(id: string, expandedIds: Record<string, boolean | null>): Promise<DirectoryNode | null> => {
-    const entry = await fromUuid(id) as JournalEntry;
+  // const _loadNode = async(id: string, expandedIds: Record<string, boolean | null>): Promise<DirectoryNode | null> => {
+  //   const entry = await fromUuid(id) as JournalEntry;
 
-    if (!entry)
-      return null;
-    else {
-      const newNode = _convertEntryToNode(entry);
-      newNode.expanded = expandedIds[newNode.id] || false;
+  //   if (!entry)
+  //     return null;
+  //   else {
+  //     const newNode = _convertEntryToNode(entry);
+  //     newNode.expanded = expandedIds[newNode.id] || false;
 
-      _loadedNodes[newNode.id] = newNode;
+  //     _loadedNodes[newNode.id] = newNode;
 
-      return newNode;
-    }
-  };
+  //     return newNode;
+  //   }
+  // };
 
   // loads a set of nodes, including expanded status
-  const _loadNodeList = async(pack: CompendiumCollection, ids: string[], updateEntryIds: string[] ): Promise<void> => {
+  const _loadNodeList = async(pack: CompendiumCollection<any>, ids: string[], updateEntryIds: string[] ): Promise<void> => {
 
     // we only want to load ones not already in _loadedNodes, unless its in updateEntryIds
     const uuidsToLoad = ids.filter((id)=>!_loadedNodes[id] || updateEntryIds.includes(id));
@@ -572,11 +631,12 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     return {
       id: entry.uuid,
-      name: entry.name || '<Blank>',
+      name: entry.name || NO_NAME_STRING,
       parentId: hierachy?.parentId || null,
       children: hierachy?.children || [],
       ancestors: hierachy?.ancestors || [],
       loadedChildren: [],
+      type: EntryFlags.get(entry, EntryFlagKey.type) || NO_TYPE_STRING,
       expanded: false,  // TODO- load this, too
     };
   };
@@ -587,6 +647,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       parentId: node.parentId,
       children: node.children,
       ancestors: node.ancestors,
+      type: node.type,
     };
   };
 
@@ -633,6 +694,8 @@ export const useDirectoryStore = defineStore('directory', () => {
     directoryCollapsed,
     isTreeRefreshing,
     isGroupedByType,
+    filterText,
+    filterNodes,
 
     toggleEntry,
     togglePack,

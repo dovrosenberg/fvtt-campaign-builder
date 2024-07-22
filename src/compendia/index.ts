@@ -8,7 +8,7 @@ import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
 import { AnyDocumentData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/data.mjs';
 import { toTopic } from '@/utils/misc';
-import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
+import { PackFlags } from '@/settings/PackFlags';
 
 // returns the uuid of the root folder
 // if it is not stored in settings, creates a new folder
