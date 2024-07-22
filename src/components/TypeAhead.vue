@@ -42,7 +42,7 @@
       type: Array as PropType<string[]>,
       required: true,
     }
-  })
+  });
 
   ////////////////////////////////
   // emits
@@ -105,11 +105,13 @@
 
   // Event listener for item clicks
   const onDropdownClick = async (event: MouseEvent) => {
-    if (!inputRef.value || !dropdownRef.value)
+    const target = event.target as HTMLElement;
+
+    if (!inputRef.value || !dropdownRef.value || !target)
       return;
 
-    if (event.target.classList.contains('typeahead-entry')) {
-      const selection = event.target.textContent; 
+    if (target.classList.contains('typeahead-entry')) {
+      const selection = target.textContent || ''; 
       inputRef.value.value = selection;
       dropdownRef.value.innerHTML = ''; // Clear the dropdown
 
@@ -119,7 +121,7 @@
   };
 
   // capture keydown for up, down, enter
-  const onKeyDown = async (event: JQuery.KeyDownEvent): Promise<void> => {
+  const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
     // if no list, don't need to do anything
     if (!filteredItems.value || !inputRef.value)
       return;
@@ -185,13 +187,12 @@
       default:
         return;
     }
-  }
-
+  };
 
   ////////////////////////////////
   // watchers
   watch(() => props.initialList, (newList: string[]) => {
-    list.value = foundry.utils.deepClone(newList) || [];
+    list.value = globalThis.foundry.utils.deepClone(newList) || [];
   });
 
   watch(() => props.initialValue, (newValue: string) => {
@@ -202,17 +203,17 @@
   // lifecycle events
   onMounted(() => {
     // watch for clicks anywhere outside the control
-    $(document).on('click', async (event: JQuery.ClickEvent) => {
-      if (hasFocus.value && !jQuery(event.currentTarget).closest('.fwb-typeahead')[0]) {
+    document.addEventListener('click', async (event: MouseEvent) => {
+      if (hasFocus.value && event.currentTarget && !(event.currentTarget as HTMLElement)?.closest('.fwb-typeahead')) {
         // we were in it, but now we're not; treat as if we'd tabbed out
-        await onKeyDown({key:'Tab'} as JQuery.KeyDownEvent);
+        await onKeyDown({key:'Tab'} as KeyboardEvent);
       }
     });
 
     // create our working list
-    list.value = foundry.utils.deepClone(props.initialList) || [];
+    list.value = globalThis.foundry.utils.deepClone(props.initialList) || [];
     currentValue.value = props.initialValue;
-  })
+  });
 
 
 </script>

@@ -8,16 +8,12 @@ import { Topic } from '@/types';
 
 export enum WorldFlagKey {
   compendia = 'compendia',   // ids of the contained compendia (keyed by topic)
-  packTopNodes = 'packTopNodes',  // maps compendium id to array of top-level nodes 
-  packTopics = 'packTopics',    // maps compendium id to the topics it contains
   types = 'types',  // object where each key is a Topic and the value is an array of valid types
   expandedIds = 'expandedIds',   // ids of nodes that are expanded in the tree (could be compendia or entries or subentries)
 }
 
 type WorldFlagType<K extends WorldFlagKey> =
     K extends WorldFlagKey.compendia ? Record<Topic, string> :
-    K extends WorldFlagKey.packTopNodes ? Record<string, string[]> :   // keyed by compendium id
-    K extends WorldFlagKey.packTopics ? Record<string, Topic> :   // keyed by compendium id
     K extends WorldFlagKey.types ? Record<Topic, string[]> :
     K extends WorldFlagKey.expandedIds ? Record<string, boolean | null> :  // keyed by uuid (id for compendium); can be false or missing to represent false; we allow null only because of the strange foundry syntax for removing a key
     never;  
@@ -36,16 +32,6 @@ const flagSetup = [
     flagId: WorldFlagKey.compendia,
     default: {},
     needsFlatten: false,      
-  },
-  {
-    flagId: WorldFlagKey.packTopNodes,
-    default: {},
-    needsFlatten: true,      
-  },
-  {
-    flagId: WorldFlagKey.packTopics,
-    default: {},
-    needsFlatten: true,      
   },
   {
     flagId: WorldFlagKey.types,
@@ -72,7 +58,7 @@ export abstract class WorldFlags {
 
     for (let i=0; i<flagSetup.length; i++) {
       if (!f.getFlag(moduleJson.id, flagSetup[i].flagId)) {
-        await f.setFlag(moduleJson.id, flagSetup[i].flagId, flagSetup[i].default);
+        await f.setFlag(moduleJson.id, flagSetup[i].flagId, foundry.utils.deepClone(flagSetup[i].default));
       }
     }
 
@@ -87,7 +73,7 @@ export abstract class WorldFlags {
     if (!f)
       return config?.default as WorldFlagType<T>;
 
-    const setting = (f.getFlag(moduleJson.id, flag) || config?.default) as WorldFlagType<T>;
+    const setting = (f.getFlag(moduleJson.id, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T>;
 
     if (config?.needsFlatten)
       return foundry.utils.flattenObject(setting) as WorldFlagType<T>;
@@ -95,7 +81,6 @@ export abstract class WorldFlags {
       return setting;
   }
 
-  // note - setting a flag to null will delete it
   public static async set<T extends WorldFlagKey>(worldFolderUuid: string, flag: T, value: WorldFlagType<T> | null): Promise<void> {
     const f = getGame()?.folders?.find((f)=>f.uuid===worldFolderUuid);
     if (!f)

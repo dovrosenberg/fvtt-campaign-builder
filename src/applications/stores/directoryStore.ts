@@ -7,8 +7,10 @@ import { reactive, onMounted, ref, toRaw, watch } from 'vue';
 // local imports
 import { getGame } from '@/utils/game';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-import { hasHierarchy, Hierarchy } from '@/utils/hierarchy';
+import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
+import { cleanTrees, hasHierarchy, Hierarchy } from '@/utils/hierarchy';
 import { useMainStore } from './mainStore';
+import { useNavigationStore } from './navigationStore';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { createWorldFolder, getTopicText, validateCompendia } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
@@ -25,6 +27,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
   const { rootFolder, currentWorldId, currentWorldFolder } = storeToRefs(mainStore); 
 
   ///////////////////////////////
@@ -135,11 +138,11 @@ export const useDirectoryStore = defineStore('directory', () => {
   const setNodeParent = async function(pack: CompendiumCollection<any>, childId: string, parentId: string | null): Promise<boolean> {
     // we're going to use this to simplify syntax below
     const saveHierarchyToEntryFromNode = async (entry: JournalEntry, node: DirectoryNode) : Promise<void> => {
-      await EntryFlags.set(entry, EntryFlagKey.hierarchy, _convertNodeToHierarchy(node));
+      await PackFlags.setHierarchy(pack.metadata.id, entry.uuid, _convertNodeToHierarchy(node));
     };
 
     // topic has to have hierarchy
-    if (!hasHierarchy(WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[pack.metadata.id]))
+    if (!hasHierarchy(PackFlags.get(pack.metadata.id, PackFlagKey.topic)))
       return false;
 
     // have to have a child
@@ -160,7 +163,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // make sure they share a topic (and so does the pack)
     if (parent && EntryFlags.get(child, EntryFlagKey.topic)!==EntryFlags.get(parent, EntryFlagKey.topic) ||
-        EntryFlags.get(child, EntryFlagKey.topic)!==WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[pack.metadata.id])
+        EntryFlags.get(child, EntryFlagKey.topic)!==PackFlags.get(pack.metadata.id, PackFlagKey.topic))
       return false;
      
     // next, confirm it's a valid target (the child must not be in the parent's ancestor list - or we get loops)
@@ -203,9 +206,11 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // then, update all of the child's descendents ancestor fields with that set of changes
     if (ancestorsToAdd || ancestorsToRemove) {
+      const hierarchies = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies);
+
       // we switch to entries because of all the data retrieval
       const doUpdateOnDescendents = async (entry: JournalEntry): Promise<void> => {
-        const children = EntryFlags.get(entry, EntryFlagKey.hierarchy)?.children || [];
+        const children = hierarchies[entry.uuid]?.children || [];
 
         // this seems safe, despite 
         for (let i=0; i<children?.length; i++) {
@@ -226,15 +231,14 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // if the child doesn't have a parent, make sure it's in the topnode list
     //    and vice versa
-    let topNodes = await _getPackTopNodes(pack);
+    let topNodes = PackFlags.get(pack.metadata.id, PackFlagKey.topNodes);
 
     if (!parentNode && !topNodes.includes(childId)) {
       topNodes = topNodes.concat([childId]);
-      await _savePackTopNodes(pack, topNodes);
     } else if (parentNode && topNodes.includes(childId)) {
       topNodes = topNodes.filter((n)=>n!==childId);
-      await _savePackTopNodes(pack, topNodes);
     }
+    await PackFlags.set(pack.metadata.id, PackFlagKey.topNodes, topNodes);
 
     await refreshCurrentTree([parentId, oldParentId].filter((id)=>id!==null));
 
@@ -315,16 +319,13 @@ export const useDirectoryStore = defineStore('directory', () => {
       const types = WorldFlags.get(currentWorldId.value, WorldFlagKey.types);
 
       currentWorldBlock.packs = (await Promise.all(currentWorld.entries.map(async (pack: CompendiumCollection<any>): Promise<DirectoryPack> => {
-        const topic = WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[pack.metadata.id];
-        
         return {
           pack: pack,
           id: pack.metadata.id,
           name: pack.metadata.label,
-          topic: topic,
-          topNodes: await _getPackTopNodes(pack),
+          topic: PackFlags.get(pack.metadata.id, PackFlagKey.topic),
+          topNodes: PackFlags.get(pack.metadata.id, PackFlagKey.topNodes),
           loadedTopNodes: [],
-          types: types[topic].concat(['(none)']).sort(),
           loadedTypes: [],
           expanded: expandedNodes[pack.metadata.id] || false,
         };
@@ -348,7 +349,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     isTreeRefreshing.value = false;
   };
 
-  const _recursivelyLoadNode = async (pack: CompendiumCollection, children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
+  const _recursivelyLoadNode = async (pack: CompendiumCollection<any>, children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
     // load any children that haven't been loaded before
     // this guarantees all children are at least in _loadedNodes and updateEntryIds ones have been refreshed
     const nodesToLoad = children.filter((id)=>!loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id));
@@ -404,14 +405,15 @@ export const useDirectoryStore = defineStore('directory', () => {
   
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
-  const createEntry = async (worldFolder: Folder, topic: Topic, name?: string): Promise<JournalEntry | null> => {
+  type CreateEntryOptions = { name?: string, type?: string, parentId?: string}
+  const createEntry = async (worldFolder: Folder, topic: Topic, options: CreateEntryOptions): Promise<JournalEntry | null> => {
     const topicText = getTopicText(topic);
 
-    let nameTouse = name || '' as string | null;
+    let nameTouse = options.name || '' as string | null;
     while (nameTouse==='') {  // if hit ok, must have a value
       nameTouse = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
     }  
-
+    
     // if name is null, then we cancelled the dialog
     if (!nameTouse)
       return null;
@@ -441,27 +443,70 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (entry) {
       await EntryFlags.set(entry, EntryFlagKey.topic, topic);
 
-      // setup the hierarchy
-      if (hasHierarchy(topic)) {
-        await EntryFlags.set(entry, EntryFlagKey.hierarchy, {
-          parentId: '',
-          ancestors: [],
-          children: [],
-        } as Hierarchy);
-      }
+      if (options.type!==undefined)
+        await EntryFlags.set(entry, EntryFlagKey.type, options.type);
 
-      // add as a topNode by default
-      const topNodes = await WorldFlags.get(worldFolder.uuid, WorldFlagKey.packTopNodes);
-      await WorldFlags.set(worldFolder.uuid, WorldFlagKey.packTopNodes, {
-        ...topNodes,
-        [pack.metadata.id]: topNodes[pack.metadata.id].concat([entry.uuid])
-      });
+      // set parent if specified
+      if (options.parentId==undefined) {
+        // no parent - set as a top node
+        const topNodes = PackFlags.get(pack.metadata.id, PackFlagKey.topNodes);
+        await PackFlags.set(pack.metadata.id, PackFlagKey.topNodes, topNodes.concat([entry.uuid]));
+
+        // set the blank hierarchy
+        if (hasHierarchy(topic)) {
+          await PackFlags.setHierarchy(pack.metadata.id, entry.uuid, {
+            parentId: '',
+            ancestors: [],
+            children: [],
+          } as Hierarchy);
+        }
+      } else {
+        // add to the tree
+        if (hasHierarchy(topic)) {
+          await setNodeParent(pack, entry.uuid, options.parentId);
+        }
+      }
 
       await refreshCurrentTree([entry.uuid]);
     }
 
     return entry || null;
   };
+
+  // delete an entry from the world
+  const deleteEntry = async (entryId: string) => {
+    const entry = await fromUuid(entryId) as JournalEntry;
+
+    if (!entry || !entry.pack)
+      return;
+
+    const hierarchy = PackFlags.get(entry.pack, PackFlagKey.hierarchies)[entry.uuid];
+
+    // have to unlock the pack
+    const pack = getGame().packs.get(entry.pack);
+    if (pack) {
+      await pack.configure({locked:false});
+
+      // delete from any trees
+      if (hierarchy?.ancestors || hierarchy?.children) {
+        await cleanTrees(pack.metadata.id, entry.uuid, hierarchy);
+      }
+
+      await entry.delete();
+
+      await pack.configure({locked:false});
+
+      // TODO - remove from any relationships
+      // TODO - remove from search
+
+      // update tabs
+      await navigationStore.cleanupDeletedEntry(entry.uuid);
+
+      // refresh and force its parent to update
+      await refreshCurrentTree(hierarchy.parentId ? [hierarchy.parentId] : []);
+    }
+  };
+
 
   ///////////////////////////////
   // computed state
@@ -501,17 +546,6 @@ export const useDirectoryStore = defineStore('directory', () => {
     }
   };
 
-  const _savePackTopNodes = async (pack: CompendiumCollection<any>, topNodes: string[]): Promise<void> => {
-    if (!currentWorldId.value)
-      return;
-
-    // get the settings
-    const allTopNodes = (WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopNodes));
-
-    // save back with the new array
-    await WorldFlags.set(currentWorldId.value, WorldFlagKey.packTopNodes, {...allTopNodes, [pack.metadata.id]: topNodes});
-  };
-
   // used to toggle entries and compendia (not worlds)
   const _collapseItem = async(node: DirectoryNode | DirectoryPack | DirectoryTypeNode, id: string): Promise<void> => {
     if (!currentWorldId.value)
@@ -529,55 +563,19 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
 
-  const _getPackTopNodes = async (pack: CompendiumCollection<any>) : Promise<string[]> => {
-    const packId = pack.metadata.id;
-
-    // get the settings
-    const allTopNodes = (WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopNodes));
-
-    // TODO - whenever we add a node to a pack, we need to refresh topNodes
-
-    // if it has the config set, just use that (note it could be empty, so need to allow for that)
-    if (allTopNodes[packId]!==null && allTopNodes[packId]!==undefined)
-      return allTopNodes[packId];
-
-    // otherwise, find all the top nodes and set the config
-    // if the pack has no hierachy, just made all the nodes top nodes
-    let topNodes: string[];
-    if (!hasHierarchy(WorldFlags.get(pack.folder.uuid, WorldFlagKey.packTopics)[packId])) {
-      topNodes = pack.tree.entries.map((e)=>e.uuid);
-    } else {
-      topNodes = await toRaw(pack).tree?.entries?.reduce(async (retval: Promise<string[]>, entry: JournalEntry): Promise<string[]> => {
-        const newretval = await retval;
-
-        // those are just indexes, so have to get the full thing
-        const fullEntry = await fromUuid(entry.uuid) as JournalEntry;
-
-        // if the pack has no hierarchy or the node has no ancestors, it's a top node
-        const hierarchy = EntryFlags.get(fullEntry, EntryFlagKey.hierarchy);
-        if (!hierarchy || !hierarchy.ancestors)
-          throw new Error('Missing hierarchy in directoryStore._getPackTopNodes()) for uuid: ' + entry.uuid);
-        else if (hierarchy.ancestors.length===0)
-          newretval.push(fullEntry.uuid);
-
-        return newretval;
-      }, Promise.resolve([] as string[]));
-    }
-
-    // save the results back to the settings
-    await _savePackTopNodes(pack, topNodes);
-
-    return topNodes;
-  };
-
   // converts the entry to a DirectoryNode for cleaner interface
   const _convertEntryToNode = (entry: JournalEntry): DirectoryNode => {
+    if (!entry.pack)
+      throw new Error('entry missing pack in directoryStore._convertEntryToNode()');
+
+    const hierachy = PackFlags.get(entry.pack, PackFlagKey.hierarchies)[entry.uuid];
+
     return {
       id: entry.uuid,
       name: entry.name || '<Blank>',
-      parentId: EntryFlags.get(entry, EntryFlagKey.hierarchy)?.parentId || null,
-      children: EntryFlags.get(entry, EntryFlagKey.hierarchy)?.children || [],
-      ancestors: EntryFlags.get(entry, EntryFlagKey.hierarchy)?.ancestors || [],
+      parentId: hierachy?.parentId || null,
+      children: hierachy?.children || [],
+      ancestors: hierachy?.ancestors || [],
       loadedChildren: [],
       expanded: false,  // TODO- load this, too
     };
@@ -646,5 +644,6 @@ export const useDirectoryStore = defineStore('directory', () => {
     deleteWorld,
     createWorld,
     createEntry,
+    deleteEntry,
   };
 });

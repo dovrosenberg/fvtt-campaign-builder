@@ -4,6 +4,9 @@
       v-for="node in props.pack.loadedTopNodes"
       :key="node.id"
       :node="node" 
+      :world-id="props.worldId"
+      :topic="props.pack.topic"
+      :search-text="props.searchText"
       :top="true"
       class="fwb-entry-item" 
       draggable="true"
@@ -23,7 +26,7 @@
   import NodeComponent from './DirectoryNode.vue';
 
   // types
-  import { DirectoryPack, } from '@/types';
+  import { DirectoryPack, Topic, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -32,6 +35,10 @@
       type: Object as PropType<DirectoryPack>,
       required: true,
     }, 
+    worldId: {
+      type: String,
+      required: true
+    },
     searchText: {
       type: String,
       required: true,

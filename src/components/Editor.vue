@@ -1,19 +1,20 @@
- <template>
+<template>
   <div 
-    ref="wrapperRef"
     :id="editorId" 
+    ref="wrapperRef"
     class="fwb-editor flexcol"
   >
     <!-- this reproduces the Vue editor() Handlebars helper -->
-     <!-- editorVisible used to reset the DOM by toggling-->
-     <div 
+    <!-- editorVisible used to reset the DOM by toggling-->
+    <div 
       v-if="editorVisible"  
       ref="editorRef"
       :class="'editor ' + props.class"
       :style="(height ? height + 'px' : '')"
-     >
+    >
       <!-- activation button -->
-      <a v-if="props.hasButton && props.editable"
+      <a 
+        v-if="props.hasButton && props.editable"
         ref="buttonRef"
         class="editor-edit"
         :style="`display: ${ buttonDisplay }`"
@@ -29,7 +30,6 @@
       >
       </div>
     </div>
-
   </div>
 </template>
 
@@ -67,6 +67,7 @@
     document: {
       type: Object as PropType<Document<any> | undefined>,
       required: false,
+      default: undefined,
     }, 
     class: {
       type: String,
@@ -120,7 +121,7 @@
   const editorId = ref<string>();
   const initialContent = ref<string>('');
   const enrichedInitialContent = ref<string>('');
-  const editor = ref<TextEditor | null>(null);
+  const editor = ref<globalThis.TextEditor | null>(null);
   const buttonDisplay = ref<string>('');   // is button currently visible
   const editorVisible = ref<boolean>(true);
 

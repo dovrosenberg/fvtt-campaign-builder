@@ -21,7 +21,9 @@
           >
             <i :class="'fas ' + tab.entry.icon"></i>
           </div>
-          <div class="tab-content">{{tab.entry.name}}</div>
+          <div class="tab-content">
+            {{ tab.entry.name }}
+          </div>
           <div 
             class="close"
             @click="onTabCloseClick(tab.id)"
@@ -66,7 +68,7 @@
         :title="bookmark.entry.name" 
         draggable="true"
         @click.left="onBookmarkClick(bookmark.id)"
-        @contextmenu="onBookmarkContextMenu($event, bookmark.entry.uuid)"
+        @contextmenu="onBookmarkContextMenu($event, bookmark)"
         @dragstart="onDragStart($event, bookmark.id)"
         @drop="onDrop($event, bookmark.id)"
       >
@@ -105,7 +107,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, watch, onMounted, } from 'vue';
+  import { ref, watch, onMounted, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -133,19 +135,15 @@
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
   const { currentWorldId, } = storeToRefs(mainStore);
-  const { tabs, } = storeToRefs(navigationStore);
+  const { tabs, bookmarks } = storeToRefs(navigationStore);
   const { directoryCollapsed } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
-  const bookmarks = ref<Bookmark[]>([]);
   const root = ref<HTMLElement | null>(null);
   
   ////////////////////////////////
   // computed data
-  const activeEntryId = computed((): string | null => {
-    return navigationStore.getActiveTab()?.entry.uuid || null;
-  });
 
   ////////////////////////////////
   // methods
@@ -166,12 +164,6 @@
 
     return (checkTab.history?.length > 1) && (checkTab.historyIdx < checkTab.history.length-1);
   };
-  const saveBookmarks = async function () {
-    if (!currentWorldId.value)
-      return;
-
-    await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentWorldId.value);
-  }
 
   // moves forward/back through the history "move" spaces (or less if not possible); negative numbers move back
   const navigateHistory = async function (move: number) {
@@ -212,17 +204,10 @@
         await navigationStore.activateTab(tabs.value[index-1].id);  // will also save them
       }
     }
-  }
-
-  // removes the bookmark with given id
-  const removeBookmark = async function (id: string) {
-    const bookmarksValue = bookmarks.value;
-    bookmarksValue.findSplice(b => b.id === id);
-    bookmarks.value = bookmarksValue;
-    await saveBookmarks();
   };
 
-  const onBookmarkContextMenu = (event: MouseEvent, entryId: string | null): void => {
+
+  const onBookmarkContextMenu = (event: MouseEvent, bookmark: Bookmark): void => {
     //prevent the browser's default menu
     event.preventDefault();
 
@@ -238,8 +223,8 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.bookmarks.openNewTab'), 
           onClick: async () => {
-            if (entryId)
-              await navigationStore.openEntry(entryId, { newTab: true });
+            if (bookmark.entry.uuid)
+              await navigationStore.openEntry(bookmark.entry.uuid, { newTab: true });
           }
         },
         { 
@@ -247,8 +232,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.bookmarks.delete'), 
           onClick: async () => {
-            if (entryId)
-              await removeBookmark(entryId);
+            await navigationStore.removeBookmark(bookmark.id);
           }
         },
       ]
@@ -267,19 +251,17 @@
 
     // see if a bookmark for the entry already exists
     if (bookmarks.value.find((b) => (b.entry.uuid === tab?.entry?.uuid)) != undefined) {
-      ui?.notifications?.warn(localize('fwb.errors.duplicateBookmark'));
+      globalThis.ui?.notifications?.warn(localize('fwb.errors.duplicateBookmark'));
       return;
     }
 
     const bookmark = {
-      id: foundry.utils.randomID(),
+      id: globalThis.foundry.utils.randomID(),
       entry: tab.entry,
     } as Bookmark;
 
-    bookmarks.value.push(bookmark);
-
-    await saveBookmarks();
-  }
+    await navigationStore.addBookmark(bookmark);
+  };
 
   const onBookmarkClick = async (bookmarkId: string) => { 
     const bookmark = bookmarks.value.find(b => b.id === bookmarkId);
@@ -313,7 +295,7 @@
   const onDragStart = (event: DragEvent, id: string): void => {
     const target = event.currentTarget as HTMLElement;
 
-    if ($(target).hasClass('fwb-tab')) {
+    if (target.classList.contains('fwb-tab')) {
       const dragData = { 
         //from: this.object.uuid 
       } as { type: string, tabId?: string};
@@ -322,7 +304,7 @@
       dragData.tabId = id;
 
       event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
-    } else if ($(target).hasClass('fwb-bookmark-button')) {
+    } else if (target.classList.contains('fwb-bookmark-button')) {
       const dragData = { 
         //from: this.object.uuid 
       } as { type: string, bookmarkId?: string};
@@ -371,11 +353,7 @@
       const bookmarksValue = bookmarks.value;
       const from = bookmarksValue.findIndex(b => b.id === data.bookmarkId);
       const to = bookmarksValue.findIndex(b => b.id === id);
-      bookmarksValue.splice(to, 0, bookmarksValue.splice(from, 1)[0]);
-      bookmarks.value = bookmarksValue;
-
-      // save bookmarks (we don't activate anything)
-      await saveBookmarks();
+      await navigationStore.changeBookmarkPosition(from, to);
     } else {
       return false;
     } 
@@ -405,37 +383,6 @@
     if (tab)
       await navigationStore.activateTab(tab.id);
   });
-
-
-// TODO - need someway to trigger this from outside... it feels like maybe the tabs  need to be maintained from
-//    outside and just passed in as a prop???  Or we need to keep all the entries in a store, but that's way too
-//    much overhead
-//   // when an entry has it's name changed, we need to propogate that through all the saved tabs, etc.
-//   public async changeEntryName(entry: JournalEntry) {
-//     this._tabs = this._tabs.map((t)=> {
-//       if (t.entry.uuid===entry.uuid)
-//         t.entry.name = entry.name || '';
-//       return t;
-//     });
-
-//     this._bookmarks = this._bookmarks.map((b)=> {
-//       if (b.entry.uuid===entry.uuid)
-//         b.entry.name = entry.name || '';
-//       return b;
-//     });
-
-//     let recent = UserFlags.get(UserFlagKey.recentlyViewed, this._worldId) || [];
-//     recent = recent.map((r)=> {
-//       if (r.uuid===entry.uuid)
-//         r.name = entry.name || '';
-//       return r;
-//     });
-
-//     await this._saveTabs();
-//     await this._saveBookmarks();
-//     await UserFlags.set(UserFlagKey.recentlyViewed, recent, this._worldId);
-//   }
-
 
 
 </script>

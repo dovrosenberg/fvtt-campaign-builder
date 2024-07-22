@@ -57,9 +57,11 @@
           :key="world.id"
           :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
           @click="onWorldFolderClick($event, world.id)"
-          @contextmenu="onWorldContextMenu($event, world.id)"
         >
-          <header class="folder-header flexrow">
+          <header 
+            class="folder-header flexrow"
+            @contextmenu="onWorldContextMenu($event, world.id)"
+          >
             <h3 class="noborder">
               <i class="fas fa-folder-open fa-fw"></i>
               {{ world.name }}
@@ -83,29 +85,25 @@
                   class="fwb-compendium-label noborder" 
                   style="margin-bottom:0px"
                   @click="onTopicFolderClick($event, pack)"
+                  @contextmenu="onTopicContextMenu($event, world.id, pack.topic)"
                 >
                   <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
                   <i :class="'icon fas ' + getIcon(pack.topic)" style="margin-right: 4px;"></i>
                   {{ pack.name }}
                 </div>
-                <a 
-                  class="fwb-create-entry create-button"
-                  @click="onCreateEntryClick($event, pack.topic, world.id)"
-                >
-                  <i class="fas fa-atlas"></i>
-                  <i class="fas fa-plus"></i>
-                </a>
               </header>
 
               <DirectoryGroupedTree
                 v-if="isGroupedByType" 
                 :pack="pack"
+                :world-id="world.id"
                 :search-text="searchText"
               />
 
               <DirectoryNestedTree
                 v-else 
                 :pack="pack"
+                :world-id="world.id"
                 :search-text="searchText"
               />
             </li>
@@ -127,12 +125,12 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, ref, } from 'vue';
+  import { ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { getGame, localize } from '@/utils/game';
-  import { getIcon, toTopic } from '@/utils/misc';
+  import { getIcon, } from '@/utils/misc';
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
@@ -206,6 +204,40 @@
     });
   };
 
+  const onTopicContextMenu = (event: MouseEvent, worldId: string, topic: Topic): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+    event.stopPropagation();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fwb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-atlas',
+          iconFontClass: 'fas',
+          label: localize(`fwb.contextMenus.topicFolder.create.${topic}`), 
+          onClick: async () => {
+            // get the right folder
+            const worldFolder = getGame().folders?.find((f)=>f.uuid===worldId) as Folder;
+
+            if (!worldFolder || !topic)
+              throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
+
+            const entry = await directoryStore.createEntry(worldFolder, topic, {} );
+
+            if (entry) {
+              await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+            }
+          }
+        },
+      ]
+    });
+  };
+
   // open/close a topic
   const onTopicFolderClick = async (event: MouseEvent, directoryPack: DirectoryPack) => { 
     event.stopPropagation();
@@ -228,31 +260,13 @@
     // const wf = getGame().folders?.find((f)=>f.id==='jVnAMlVHnCaHxvbi');
     // if (wf) {
     //   for (let i=0; i<400; i++) {
-    //     await directoryStore.createEntry(wf, Topic.Location, foundry.utils.randomID());
+    //     await directoryStore.createEntry(wf, Topic.Location, { name: foundry.utils.randomID() });
     //   }
     // }
 
-    //await directoryStore.createWorld();
+    await directoryStore.createWorld();
   };
 
-  // create entry buttons
-  const onCreateEntryClick = async (event: MouseEvent, compendiumTopic: Topic, worldId: string) => {
-    event.stopPropagation();
-
-    // get the right folder
-    const topic = toTopic(compendiumTopic);
-    const worldFolder = getGame().folders?.find((f)=>f.uuid===worldId) as Folder;
-
-    if (!worldFolder || !topic)
-      throw new Error('Invalid header in Directory.onCreateEntryClick');
-
-    const entry = await directoryStore.createEntry(worldFolder, topic);
-
-    if (entry) {
-      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true }); 
-    }
-  };
-    
   // save grouping to settings
   const onGroupTypeChange = async (event: Event) => {
     isGroupedByType.value = (event.currentTarget as HTMLInputElement)?.checked || false;

@@ -1,5 +1,4 @@
-import { BaseActor } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/documents.mjs';
-import '@league-of-foundry-developers/foundry-vtt-types/src/index';
+import '@league-of-foundry-developers/foundry-vtt-types/src/index.d.mts';
 
 declare global {
    interface JournalPageSheet extends DocumentSheet {
@@ -9,8 +8,9 @@ declare global {
     onNewSteps(): void;
   }
 
-  // not quite right, but close enough
-  interface JournalEntryPage extends JournalEntry {
+  interface xyz {
+    a: number;
+    b: ()=>number;
   }
 }
 

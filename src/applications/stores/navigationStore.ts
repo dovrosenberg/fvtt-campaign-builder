@@ -2,7 +2,7 @@
 
 // library imports
 import { defineStore, } from 'pinia';
-import { ref, watch } from 'vue';
+import { ref, } from 'vue';
 import { storeToRefs } from 'pinia';
 
 // local imports
@@ -14,7 +14,7 @@ import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { useMainStore } from './mainStore';
 
 // types
-import { EntryHeader, WindowTab } from '@/types';
+import { Bookmark, EntryHeader, WindowTab } from '@/types';
 
 
 // the store definition
@@ -25,7 +25,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorldId, currentEntry } = storeToRefs(mainStore);
+  const { currentWorldId, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -33,6 +33,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // external state
   const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of WBHeader)
+  const bookmarks = ref<Bookmark[]>([]);
 
   ///////////////////////////////
   // actions
@@ -131,7 +132,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     await _saveTabs();
 
-    // add to recent, unless it's a "new tab"
+    // add to recent, unless it's a "home page"
     if (newTab?.entry?.uuid)
       await _updateRecent(newTab.entry);
 
@@ -141,7 +142,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
 
   const propogateNameChange = async(entryId: string, newName: string):Promise<void> => {
-    // update the tabs here and on disk
+    // update the tabs 
     let updated = false;
     tabs.value.forEach((t: WindowTab): void => {
       if (t.entry.uuid===entryId) {
@@ -154,6 +155,57 @@ export const useNavigationStore = defineStore('navigation', () => {
       await _saveTabs();
   };
  
+  const cleanupDeletedEntry = async(entryId: string): Promise<void> => {
+    let activeTabId = '';
+
+    // remove any matching tabs
+    for (let i=tabs.value.length-1; i>=0; i--) {
+      if (tabs.value[i].entry.uuid===entryId) {
+        // if it's active, we need to move active to prior tab
+        if (tabs.value[i].active)
+          activeTabId = tabs.value[i-1].id;
+
+        tabs.value.splice(i, 1);
+      }
+    }
+
+    // reset active tab if needed
+    if (activeTabId!=='')
+      await activateTab(activeTabId);
+
+    // remove any matching bookmarks
+    for (let i=bookmarks.value.length-1; i>=0; i--) {
+      if (bookmarks.value[i].entry.uuid===entryId) {
+        bookmarks.value.splice(i, 1);
+      }
+    }
+
+  };
+
+  // removes the bookmark with given id
+  const removeBookmark = async function (bookmarkId: string) {
+    const bookmarksValue = bookmarks.value;
+    bookmarksValue.findSplice(b => b.id === bookmarkId);
+    bookmarks.value = bookmarksValue;
+    await _saveBookmarks();
+  };
+
+  const addBookmark = async (bookmark: Bookmark) => {
+    bookmarks.value.push(bookmark);
+
+    await _saveBookmarks();
+  };
+
+  const changeBookmarkPosition = async(from: number, to: number) => {
+    const bookmarksValue = bookmarks.value;
+    bookmarksValue.splice(to, 0, bookmarksValue.splice(from, 1)[0]);
+    bookmarks.value = bookmarksValue;
+
+    // save bookmarks (we don't activate anything)
+    await _saveBookmarks();
+  };
+  
+
   ///////////////////////////////
   // computed state
 
@@ -165,6 +217,13 @@ export const useNavigationStore = defineStore('navigation', () => {
       return;
 
     await UserFlags.set(UserFlagKey.tabs, tabs.value, currentWorldId.value);
+  };
+
+  const _saveBookmarks = async function () {
+    if (!currentWorldId.value)
+      return;
+
+    await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentWorldId.value);
   };
 
   // add a new entity to the recent list
@@ -198,11 +257,17 @@ export const useNavigationStore = defineStore('navigation', () => {
   // return the public interface
   return {
     tabs,
+    bookmarks,
     currentWorldId,
+    
 
     openEntry,
     getActiveTab,
     activateTab,
+    removeBookmark,
+    addBookmark,
+    changeBookmarkPosition,
     propogateNameChange,
+    cleanupDeletedEntry,
   };
 });

@@ -1,5 +1,7 @@
 import { EntrySummary, Topic, TreeNode } from '@/types';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
+import { getTransitionRawChildren } from 'vue';
 
 // types and functions used to manage topic hierarchies
 export type Hierarchy = {
@@ -25,7 +27,7 @@ export function validChildItems(pack: CompendiumCollection<any>, entry: JournalE
   if (!parent)
     return [];
 
-  const ancestors = EntryFlags.get(parent, EntryFlagKey.hierarchy)?.ancestors || [];
+  const ancestors = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid]?.ancestors || [];
 
   // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
   return pack.find((j)=>(j.uuid !== entry.uuid && !ancestors.includes(entry.id!))).map(mapEntryToSummary);
@@ -44,10 +46,12 @@ export function validParentItems(pack: CompendiumCollection<any>, entry: Journal
   if (!child)
     return [];
 
+  const hierarchies = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies);
+
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
   return pack.filter((j: JournalEntry)=>(
     j.uuid !== entry.uuid && 
-    !(EntryFlags.get(j, EntryFlagKey.hierarchy)?.ancestors || []).includes(entry.id!))
+    !(hierarchies[j.uuid]?.ancestors || []).includes(entry.id!))
   ).map((e)=>e.uuid);
 }
 
@@ -66,7 +70,7 @@ export async function getHierarchyTree(pack: CompendiumCollection<any>, entry: J
   } 
 
   // now add all the children, if any
-  const childIds = EntryFlags.get(entry, EntryFlagKey.hierarchy)?.children;
+  const childIds = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid]?.children;
 
   if (childIds?.length) {
     const childEntries = await pack.getDocuments({_id__in: childIds});
@@ -94,7 +98,7 @@ export async function getAncestorTree(pack: CompendiumCollection<any>, entry: Jo
 
     // if we're on the current node, we don't want to add its children (because we don't show it in descendent trees)
     if (entryToAdd.uuid !== entry.uuid) {
-      EntryFlags.get(entryToAdd, EntryFlagKey.hierarchy)?.children.forEach((childId: string) => {
+      PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid]?.children.forEach((childId: string) => {
         const descendents = addNode(pack.find((j)=>(j.id===childId)));
 
         if (descendents) {
@@ -116,11 +120,13 @@ export async function getAncestorTree(pack: CompendiumCollection<any>, entry: Jo
   let retval = [] as TreeNode[];
   const ancestors = await ancestorItems(pack, entry);
 
+  const hierarchy = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid];
+
   if (Object.keys(ancestors).length>0) {
     // loop over all of the ancestors to find the top one
     for (let i=0; i<Object.values(ancestors).length; i++) {
       const currentItem = Object.values(ancestors)[i];
-      const parentId = EntryFlags.get(currentItem, EntryFlagKey.hierarchy)?.parentId;
+      const parentId = hierarchy?.parentId;
 
       // if it has no parent, it's the top node, so we start there and build the tree
       if (!parentId) {
@@ -148,7 +154,7 @@ const mapEntryToSummary = (entry: JournalEntry): EntrySummary => ({
 // only works for topics that have hierachy
 const ancestorItems = async function(pack:CompendiumCollection<any>, entry: JournalEntry): Promise<Record<string, JournalEntry>> {
   // get the list of ancestors
-  const ancestors = EntryFlags.get(entry, EntryFlagKey.hierarchy)?.ancestors || [];
+  const ancestors = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid]?.ancestors || [];
 
   // convert to a map
   const entries = (await pack.getDocuments({ _id__in: ancestors })) as JournalEntry[];
@@ -163,7 +169,7 @@ const ancestorItems = async function(pack:CompendiumCollection<any>, entry: Jour
 //    all of their ancesors, for a given type of document (i.e. everything in the passed in pack)
 // used to create the directory structure
 // values will be populated with uuid
-// if search is populated, the list will be sorted to only documents with names matching the (case-insensitive) search
+// if search is populated, the list will be filtered to only documents with names matching the (case-insensitive) search
 // TODO: need to test this for performance with large collections... otherwise may need to move do a different
 //    way of storing the records because there's no way to effectively search based on flags. It's possible the
 //    type field could be used to store whether it's a top node or not and then use getDocuments({}) to pull only
@@ -184,7 +190,7 @@ export async function getDocumentTree(pack: CompendiumCollection<any>, search?: 
   const getDescendentTree = (id: string): TreeNode => {
     const entry = entryMap[id];
 
-    const hierarchy = EntryFlags.get(entry, EntryFlagKey.hierarchy);
+    const hierarchy = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid];
     if (hierarchy && hierarchy?.children.length > 0) {
       const children = [] as TreeNode[];
       hierarchy.children.forEach((id: string) => {
@@ -208,9 +214,11 @@ export async function getDocumentTree(pack: CompendiumCollection<any>, search?: 
   };
 
   // do all the ones with no ancestors, because those are the top
+  const hierarchies = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies);
+
   allEntries.forEach((e)=> {
     // TODO - confirm LevelDB sorts 
-    const hierarchy = EntryFlags.get(e, EntryFlagKey.hierarchy);
+    const hierarchy = hierarchies[e.uuid];
     if (hierarchy && hierarchy?.ancestors.length > 0) {
       documentTree.push(getDescendentTree(e.uuid));
     }
@@ -218,3 +226,52 @@ export async function getDocumentTree(pack: CompendiumCollection<any>, search?: 
 
   return documentTree;
 }
+
+// after we delete an item, we need to remove it from any trees where it is a child or ancestor,
+//    along with all of the items that are now orphaned
+export const cleanTrees = async function(packId: string, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
+  const hierarchies = PackFlags.get(packId, PackFlagKey.hierarchies);
+
+  // remove deleted item and all its ancestors from any object who had them as ancestors previously
+  // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
+  //    so we can just remove all of the deleted item's ancestors from the ancestors list
+  const itemsToRemove = [deletedItemId, ...deletedHierarchy.ancestors];
+
+  const newTopNodes: string[] = [];
+  for (let i=0; i<Object.keys(hierarchies).length; i++) {
+    // if it's the one being deleted, skip it
+    if (Object.keys(hierarchies)[i]===deletedItemId)
+      continue;
+
+    // if its parent is being removed, move it up one 
+    if (hierarchies[Object.keys(hierarchies)[i]].parentId===deletedItemId) {
+      hierarchies[Object.keys(hierarchies)[i]].parentId=deletedHierarchy.parentId;
+
+      // and add to children of new parent or make a topnode
+      if (deletedHierarchy.parentId) 
+        hierarchies[deletedHierarchy.parentId].children.push(Object.keys(hierarchies)[i]);
+      else
+        newTopNodes.push(Object.keys(hierarchies)[i]);
+    }
+
+    // remove all the elements
+    hierarchies[Object.keys(hierarchies)[i]].ancestors = hierarchies[Object.keys(hierarchies)[i]].ancestors.filter((s: string)=>!itemsToRemove.includes(s));
+  }
+
+  // remove it from the children list of its parent
+  if (deletedHierarchy.parentId) {
+    hierarchies[deletedHierarchy.parentId].children = hierarchies[deletedHierarchy.parentId].children.filter((s:string)=>s!=deletedItemId);
+  }
+
+  // delete the item from hierarchy
+  delete hierarchies[deletedItemId];
+
+  // store updated hierarchy
+  await PackFlags.set(packId, PackFlagKey.hierarchies, hierarchies);
+
+  // update topNodes
+  let topNodes = PackFlags.get(packId, PackFlagKey.topNodes);
+  topNodes = topNodes.filter((s: string)=>s!=deletedItemId).concat(newTopNodes);
+  await PackFlags.set(packId, PackFlagKey.topNodes, topNodes);
+};
+
