@@ -50,7 +50,6 @@
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getGame, localize } from '@/utils/game';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-  import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -104,7 +103,7 @@
 
   ////////////////////////////////
   // computed data
-
+  
   ////////////////////////////////
   // methods
 
@@ -132,16 +131,8 @@
       return;
     }
 
-    // need to get the type so we can compare when dropping
-    const packElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
-    if (!packElement || !packElement.dataset.packId) {
-      event.preventDefault();
-      return;
-    }
-
-    const topic = PackFlags.get(packElement.dataset.packId, PackFlagKey.topic);
     const dragData = { 
-      topic:  topic,
+      topic:  props.topic,
       childId: id,
     } as { topic: Topic, childId: string};
 
@@ -165,20 +156,12 @@
     if (data.childId===parentId)
       return false;
 
-    // get the type on the new item
-    const packElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
-    if (!packElement || !packElement.dataset.packId) {
-      return false;
-    }
-
-    const topic = PackFlags.get(packElement.dataset.packId, PackFlagKey.topic);
-
     // if the types don't match or don't have hierarchy, can't drop
-    if (data.topic!==topic || !hasHierarchy(topic))
+    if (data.topic!==props.topic || !hasHierarchy(props.topic))
       return false;
 
     // get the pack
-    const packId = WorldFlags.get(currentWorldId.value, WorldFlagKey.compendia)[topic];
+    const packId = WorldFlags.get(currentWorldId.value, WorldFlagKey.compendia)[props.topic];
     const pack = getGame().packs.get(packId);
 
     if (!pack)
@@ -237,7 +220,10 @@
             await directoryStore.deleteEntry(props.node.id);
           }
         },
-      ]
+      ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))
+      // the line above is to remove the "add child" option from entries that don't have hierarchy
+      // not really ideal but a bit cleaner than having two separate arrays and concatening
+
     });
   };
 
