@@ -23,6 +23,7 @@ export type DirectoryNode = {
   ancestors: string[],    // ids of all ancestors
   loadedChildren: DirectoryNode[],
   expanded: boolean,    // is the node expanded 
+  type: string,    // the type of the entry
 }
 
 export type DirectoryPack = {

@@ -1,5 +1,8 @@
 <template>
-  <li class="fwb-type-item">
+  <li 
+    v-if="filterNodes[props.pack.id].includes(currentType?.name)"
+    class="fwb-type-item"
+  >
     <!-- TODO: track expanded state-->
     <div 
       class="details"
@@ -29,6 +32,7 @@
           >
             <DirectoryGroupedNode 
               :node="node" 
+              :pack-id="props.pack.id"
               :type-name="currentType.name"
             />
           </div>
@@ -72,10 +76,6 @@
       type: Object as PropType<DirectoryPack>,
       required: true,
     }, 
-    searchText: {
-      type: String,
-      required: true,
-    },
   });
   
   ////////////////////////////////
@@ -87,6 +87,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const { currentWorldId } = storeToRefs(mainStore);
+  const { filterNodes } = storeToRefs(directoryStore);
   
   ////////////////////////////////
   // data
@@ -157,7 +158,7 @@
           label: `${localize('fwb.contextMenus.typeFolder.create')} ${props.type.name}`, 
           onClick: async () => {
             // get the right topic
-            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as Folder;
+            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
             
             if (!worldFolder)
               throw new Error('Invalid header in DirectoryGroupedType.onTypeContextMenu.onClick');

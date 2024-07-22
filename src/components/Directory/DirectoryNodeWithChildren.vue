@@ -29,9 +29,9 @@
             v-for="child in currentNode.loadedChildren"
             :key="child.id"
             :node="child"
+            :pack-id="props.packId"
             :world-id="props.worldId"
             :topic="props.topic"
-            :search-text="props.searchText"
             :top="false"
           />
         </div>
@@ -72,12 +72,12 @@
       type: String,
       required: true
     },
+    packId: {
+      type: String,
+      required: true,
+    },
     topic: {
       type: Number as PropType<Topic>,
-      required: true
-    },
-    searchText: {
-      type: String,
       required: true
     },
     top: {    // applies class to top level
@@ -185,7 +185,7 @@
       return false;
 
     // is this a legal parent?
-    const childEntry = await fromUuid(data.childId) as JournalEntry | null;
+    const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntry | null;
 
     if (!childEntry)
       return false;
@@ -217,7 +217,7 @@
           label: localize(`fwb.contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
           onClick: async () => {
             // get the right folder
-            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as Folder;
+            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
             if (!worldFolder || !props.topic)
               throw new Error('Invalid header in DirectoryNode.onEntryContextMenu.onClick');

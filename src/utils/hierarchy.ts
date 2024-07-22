@@ -1,13 +1,19 @@
 import { EntrySummary, Topic, TreeNode } from '@/types';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
-import { getTransitionRawChildren } from 'vue';
+
+// the string to show for items with no type
+export const NO_TYPE_STRING = '(none)';
+
+// the string to show for items with no name
+export const NO_NAME_STRING = '<Blank>';
 
 // types and functions used to manage topic hierarchies
 export type Hierarchy = {
   parentId: string | null;   // id of parent
   ancestors: string[];    // ids of all ancestors
   children: string[];    // ids of all direct children
+  type: string;    // the type of the entry
 }
 
 // does this topic use hierarchy?
@@ -176,7 +182,7 @@ const ancestorItems = async function(pack:CompendiumCollection<any>, entry: Jour
 //    top nodes, but that seems clunky given that field is used for other things and can be modified by users
 //    if they open as a journal entry. 
 // Does not include itemtype in name
-export async function getDocumentTree(pack: CompendiumCollection<any>, search?: string): Promise<TreeNode[]> {
+export async function getDocumentTree(pack: CompendiumCollection<any>): Promise<TreeNode[]> {
   const documentTree = [] as TreeNode[];
 
   // load all the entries to memory

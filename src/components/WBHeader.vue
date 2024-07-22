@@ -635,17 +635,6 @@
       line-height: 10px;
     }
 
-  //  .title input {
-    //  font-size: 18px;
-    // text-align: center;
-    //  border: 0px;
-  //   background: transparent;
-  //  }
-
-    .search.error {
-      background-color: var(--fwb-header-nav-input-error-background);
-    }
-
     .button-group .nav-text i.fa-search {
       padding-top: 4px;
     }

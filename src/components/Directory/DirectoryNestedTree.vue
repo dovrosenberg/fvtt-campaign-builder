@@ -6,7 +6,7 @@
       :node="node" 
       :world-id="props.worldId"
       :topic="props.pack.topic"
-      :search-text="props.searchText"
+      :pack-id="props.pack.id"
       :top="true"
       class="fwb-entry-item" 
       draggable="true"
@@ -26,7 +26,7 @@
   import NodeComponent from './DirectoryNode.vue';
 
   // types
-  import { DirectoryPack, Topic, } from '@/types';
+  import { DirectoryPack,  } from '@/types';
   
   ////////////////////////////////
   // props
@@ -38,10 +38,6 @@
     worldId: {
       type: String,
       required: true
-    },
-    searchText: {
-      type: String,
-      required: true,
     },
   });
   

@@ -51,15 +51,15 @@
   // types
   import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
 
-  type EditorOptions = {
-    document: Document<any>,
-    target: HTMLElement,
-    fieldName: string,
-    height: number, 
-    engine: string, 
-    collaborate: boolean,
-    plugins?: any,
-  };
+  // type EditorOptions = {
+  //   document: Document<any>,
+  //   target: HTMLElement,
+  //   fieldName: string,
+  //   height: number, 
+  //   engine: string, 
+  //   collaborate: boolean,
+  //   plugins?: any,
+  // };
 
   ////////////////////////////////
   // props
@@ -185,7 +185,7 @@
     
     buttonDisplay.value = 'none';
     
-    editor.value = await TextEditor.create(options, initialContent.value);
+    editor.value = await globalThis.TextEditor.create(options, initialContent.value);
    
     options.target.closest('.editor')?.classList.add(props.engine);
 
@@ -194,19 +194,19 @@
     //   editor.value.focus();
     //   //editor.value.on("change", () => this._changed = true);
     // }
-  }
+  };
 
   const configureProseMirrorPlugins = () => {
     return {
-      menu: ProseMirror.ProseMirrorMenu.build(ProseMirror.defaultSchema, {
+      menu: globalThis.ProseMirror.ProseMirrorMenu.build(globalThis.ProseMirror.defaultSchema, {
         destroyOnSave: true,  // note! this controls whether the save button or save & close button is shown,
         onSave: () => saveEditor()
       }),
-      keyMaps: ProseMirror.ProseMirrorKeyMaps.build(ProseMirror.defaultSchema, {
+      keyMaps: globalThis.ProseMirror.ProseMirrorKeyMaps.build(globalThis.ProseMirror.defaultSchema, {
         onSave: () => saveEditor()
       })
     };
-  }
+  };
 
   const saveEditor = async ({remove}={remove:true}) => {
     if (!editor.value)
@@ -219,7 +219,7 @@
       //this.delete(editor.value.id); // Delete hidden MCE inputs
       content = mceContent;
     } else if (props.engine === 'prosemirror') {
-      content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
+      content = globalThis.ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
     } else {
       throw new Error(`Unrecognized enginer in saveEditor(): ${props.engine}`);
     }
@@ -240,7 +240,7 @@
     
     initialContent.value = content;
     emit('editorSaved', content);
-  }
+  };
 
   
   ////////////////////////////////
@@ -262,7 +262,7 @@
   // lifecycle events
   onMounted(async () => {
     // we create a random ID so we can use multiple instances
-    editorId.value  = 'fwb-editor-' + foundry.utils.randomID();
+    editorId.value  = 'fwb-editor-' + globalThis.foundry.utils.randomID();
 
     // initialize the editor
     if (!coreEditorRef.value)
@@ -271,7 +271,7 @@
     editor.value = null;
 
     // show the pretty text
-    enrichedInitialContent.value = await enrichFwbHTML(initialContent.value || '');
+    enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, initialContent.value || '');
 
     if (!props.hasButton) {
       void activateEditor();

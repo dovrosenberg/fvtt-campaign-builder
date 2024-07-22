@@ -9,7 +9,7 @@
     <header class="directory-header">
       <div class="header-search flexrow">
         <q-input 
-          v-model="searchText"
+          v-model="filterText"
           for="fwb-directory-search" 
           debounce="500"
           :bottom-slots="false"
@@ -97,14 +97,11 @@
                 v-if="isGroupedByType" 
                 :pack="pack"
                 :world-id="world.id"
-                :search-text="searchText"
               />
-
               <DirectoryNestedTree
                 v-else 
                 :pack="pack"
                 :world-id="world.id"
-                :search-text="searchText"
               />
             </li>
           </ol>
@@ -155,12 +152,11 @@
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
   const { currentWorldId } = storeToRefs(mainStore);
-  const { isTreeRefreshing, isGroupedByType } = storeToRefs(directoryStore);
+  const { filterText, isTreeRefreshing, isGroupedByType } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
   const root = ref<HTMLElement>();
-  const searchText = ref<string>('');
   
   ////////////////////////////////
   // computed data
@@ -222,7 +218,7 @@
           label: localize(`fwb.contextMenus.topicFolder.create.${topic}`), 
           onClick: async () => {
             // get the right folder
-            const worldFolder = getGame().folders?.find((f)=>f.uuid===worldId) as Folder;
+            const worldFolder = getGame().folders?.find((f)=>f.uuid===worldId) as globalThis.Folder;
 
             if (!worldFolder || !topic)
               throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');

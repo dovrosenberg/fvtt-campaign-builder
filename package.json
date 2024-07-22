@@ -22,7 +22,6 @@
     "unlinkdata": "unlink $FOUNDRYVTT_DATA/Data/modules/world-builder",
     "buildcopy": "npm run build && npm run copy",
     "foundry": "node $FOUNDRYVTT_APP/resources/app/main.js",
-    "foundrydebug": "node $FOUNDRYVTT_APP/resources/app/main.js --debug",
     "foundry10": "node ~/foundry10/resources/app/main.js --dataPath=/home/dov/foundry10data"
   },
   "devDependencies": {

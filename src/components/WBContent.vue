@@ -49,7 +49,8 @@
           <a 
             v-for="relationship in relationships"
             :key="relationship.label"
-            class="item" :data-tab="relationship.tab"
+            class="item" 
+            :data-tab="relationship.tab"
           >
             {{ localize(relationship.label) }}
           </a>
