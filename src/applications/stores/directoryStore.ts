@@ -259,9 +259,10 @@ export const useDirectoryStore = defineStore('directory', () => {
     const currentWorldNode = currentTree.value.find((w)=>w.id===currentWorldId.value) || null;
     const packNode = currentWorldNode?.packs.find((p)=>p.id===entry.pack) || null;
     const oldTypeNode = packNode?.loadedTypes.find((t) => t.name===oldType);
-    if (oldTypeNode) {
-      oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entryId);
-    }
+    if (!currentWorldNode || !packNode || !oldTypeNode) 
+      throw new Error('Failed to load node in directoryStore.updateEntryType()');
+
+    oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entryId);
 
     // add to the new one
     const newTypeNode = packNode?.loadedTypes.find((t) => t.name===typeName);
@@ -269,6 +270,13 @@ export const useDirectoryStore = defineStore('directory', () => {
       newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([{ id: entryId, name: entry.name || NO_NAME_STRING}]).sort((a,b)=>a.name.localeCompare(b.name));
     }
 
+    // update the hierarchy
+    const hierarchy = PackFlags.get(packNode?.id, PackFlagKey.hierarchies)?.[entryId];
+    if (!hierarchy)
+      throw new Error(`Could not find hierarchy for ${entryId} in directoryStore.updateEntryType()`);
+
+    hierarchy.type = typeName;
+    await PackFlags.setHierarchy(packNode?.id, entryId, hierarchy);
   };
 
   const deleteWorld = async (worldId: string): Promise<void> => {
