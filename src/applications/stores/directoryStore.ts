@@ -556,7 +556,9 @@ export const useDirectoryStore = defineStore('directory', () => {
           }
 
           // type 
-          matchedEntries.push(hierarchies[matchedEntries[j]]?.type);
+          // note: we add the blank type, even though we don't currently show them in
+          //    the grouped tree,
+          matchedEntries.push(hierarchies[matchedEntries[j]]?.type || NO_TYPE_STRING);
         }
 
         // eliminate duplicates

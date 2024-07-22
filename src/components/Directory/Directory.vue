@@ -11,7 +11,7 @@
         <q-input 
           v-model="filterText"
           for="fwb-directory-search" 
-          debounce="500"
+          debounce="300"
           :bottom-slots="false"
           :placeholder="localize('fwb.placeholders.search')"                
           input-class="full-height"
@@ -253,7 +253,7 @@
     event.stopPropagation();
 
     // // add 400 entries
-    // const wf = getGame().folders?.find((f)=>f.id==='jVnAMlVHnCaHxvbi');
+    // const wf = getGame().folders?.find((f)=>f.id==='IAAEn25ebbVZXL9V');
     // if (wf) {
     //   for (let i=0; i<400; i++) {
     //     await directoryStore.createEntry(wf, Topic.Location, { name: foundry.utils.randomID() });

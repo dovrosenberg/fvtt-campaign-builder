@@ -1,4 +1,5 @@
 <template>
+  <!-- note that filtering by filterNodes will hide unused types even if there's no search filter -->
   <li 
     v-if="filterNodes[props.pack.id].includes(currentType?.name)"
     class="fwb-type-item"
@@ -51,7 +52,8 @@
   import { useNavigationStore, useDirectoryStore, useMainStore } from '@/applications/stores';
   import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
   import { getGame, localize } from '@/utils/game';
-
+  import { NO_TYPE_STRING } from '@/utils/hierarchy';
+  
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
 
@@ -60,6 +62,7 @@
 
   // types
   import { DirectoryPack, DirectoryTypeNode, } from '@/types';
+
   
   ////////////////////////////////
   // props
@@ -178,7 +181,7 @@
   ////////////////////////////////
   // watchers
   watch(() => props.type, (newValue) => {
-    currentType.value = newValue;
+    currentType.value = newValue || NO_TYPE_STRING;
   });
 
   ////////////////////////////////
