@@ -1,7 +1,7 @@
 <template>
   <!-- note that filtering by filterNodes will hide unused types even if there's no search filter -->
   <li 
-    v-if="filterNodes[props.pack.id].includes(currentType?.name)"
+    v-if="filterNodes[props.pack.id]?.includes(currentType?.name)"
     class="fwb-type-item"
   >
     <!-- TODO: track expanded state-->

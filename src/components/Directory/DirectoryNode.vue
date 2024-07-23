@@ -7,7 +7,7 @@
     :pack-id="props.packId"
     :top="props.top"
   />
-  <li v-else-if="filterNodes[packId].includes(props.node.id)">
+  <li v-else-if="filterNodes[packId]?.includes(props.node.id)">
     <div 
       :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"

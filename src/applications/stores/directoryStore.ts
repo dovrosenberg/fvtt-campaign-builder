@@ -53,7 +53,9 @@ export const useDirectoryStore = defineStore('directory', () => {
   // current search text
   const filterText = ref<string>('');
 
-
+  // currently displayed nodes and types
+  const filterNodes = ref<Record<string, string[]>>({});
+   
   ///////////////////////////////
   // actions
   const createWorld = async(): Promise<void> => {
@@ -481,8 +483,9 @@ export const useDirectoryStore = defineStore('directory', () => {
         }
       }
 
+      await _updateFilterNodes();  // otherwise the new item will be hidden
       await refreshCurrentTree(options.parentId ? [options.parentId, entry.uuid] : [entry.uuid]);
-    }
+  }
 
     return entry || null;
   };
@@ -524,15 +527,34 @@ export const useDirectoryStore = defineStore('directory', () => {
 
   ///////////////////////////////
   // computed state
+
+  ///////////////////////////////
+  // internal functions
+  // load an entry from disk and convert it to a node
+  // const _loadNode = async(id: string, expandedIds: Record<string, boolean | null>): Promise<DirectoryNode | null> => {
+  //   const entry = await fromUuid(id) as JournalEntry;
+
+  //   if (!entry)
+  //     return null;
+  //   else {
+  //     const newNode = _convertEntryToNode(entry);
+  //     newNode.expanded = expandedIds[newNode.id] || false;
+
+  //     _loadedNodes[newNode.id] = newNode;
+
+  //     return newNode;
+  //   }
+  // };
+
   // a list of all the nodes that should be shown in the current tree
   // this includes: all nodes matching the filterText, all of their ancestors, and
   //    all of their types (we also ways leave the packs)
   // it's an object keyed by packId with a list of all the ids to include
-  const filterNodes = computed((): Record<string, string[]> => {
+  const _updateFilterNodes = (): void => {
     const retval: Record<string, string[]> = {};
 
     if (!currentWorldId.value)
-      return {};
+      return;
 
     // iterate over the packs
     const compendia = WorldFlags.get(currentWorldId.value, WorldFlagKey.compendia);
@@ -566,27 +588,9 @@ export const useDirectoryStore = defineStore('directory', () => {
       }
     }
 
-    return retval;
-  });
+    filterNodes.value = retval;
+  };
 
-
-  ///////////////////////////////
-  // internal functions
-  // load an entry from disk and convert it to a node
-  // const _loadNode = async(id: string, expandedIds: Record<string, boolean | null>): Promise<DirectoryNode | null> => {
-  //   const entry = await fromUuid(id) as JournalEntry;
-
-  //   if (!entry)
-  //     return null;
-  //   else {
-  //     const newNode = _convertEntryToNode(entry);
-  //     newNode.expanded = expandedIds[newNode.id] || false;
-
-  //     _loadedNodes[newNode.id] = newNode;
-
-  //     return newNode;
-  //   }
-  // };
 
   // loads a set of nodes, including expanded status
   const _loadNodeList = async(pack: CompendiumCollection<any>, ids: string[], updateEntryIds: string[] ): Promise<void> => {
@@ -673,12 +677,18 @@ export const useDirectoryStore = defineStore('directory', () => {
     
     await validateCompendia(newWorldFolder);
     await refreshCurrentTree();
+    await _updateFilterNodes();  // otherwise the new item will be hidden; we have to refresh the tree first or the packs won't be indexed
   });
   
   // save grouping to settings
   watch(isGroupedByType, async (newSetting: boolean) => {
     isGroupedByType.value = newSetting;
     await moduleSettings.set(SettingKey.groupTreeByType, isGroupedByType.value);
+  });
+
+  // update the filter when text changes
+  watch(filterText, async () => {
+    await _updateFilterNodes();
   });
   
   ///////////////////////////////

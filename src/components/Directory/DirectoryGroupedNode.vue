@@ -1,5 +1,5 @@
 <template>
-  <li v-if="filterNodes[props.packId].includes(props.node.id)">
+  <li v-if="filterNodes[props.packId]?.includes(props.node.id)">
     <div 
       :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
