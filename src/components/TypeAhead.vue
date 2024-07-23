@@ -47,8 +47,8 @@
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
-    (e: 'itemAdded', newValue: string): void,
-    (e: 'selectionMade', selectedValue: string): void,
+    (e: 'itemAdded', newValue: string): void;
+    (e: 'selectionMade', selectedValue: string): void;
   }>();
 
   ////////////////////////////////

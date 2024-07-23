@@ -298,7 +298,7 @@
     if (target.classList.contains('fwb-tab')) {
       const dragData = { 
         //from: this.object.uuid 
-      } as { type: string, tabId?: string};
+      } as { type: string; tabId?: string};
 
       dragData.type = 'fwb-tab';   // JournalEntry... may want to consider passing a type that other things can do something with
       dragData.tabId = id;
@@ -307,7 +307,7 @@
     } else if (target.classList.contains('fwb-bookmark-button')) {
       const dragData = { 
         //from: this.object.uuid 
-      } as { type: string, bookmarkId?: string};
+      } as { type: string; bookmarkId?: string};
 
       dragData.type = 'fwb-bookmark';
       dragData.bookmarkId = id;

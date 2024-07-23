@@ -108,7 +108,7 @@
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
-    (e: 'editorSaved', content: string): void,
+    (e: 'editorSaved', content: string): void;
   }>();
 
   ////////////////////////////////
@@ -174,7 +174,7 @@
       height, 
       engine: props.engine, 
       collaborate: props.collaborate,
-      plugins: undefined as { menu: any, keyMaps: any } | undefined,
+      plugins: undefined as { menu: any; keyMaps: any } | undefined,
     };
 
     if (props.engine === 'prosemirror') 

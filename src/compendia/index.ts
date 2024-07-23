@@ -97,7 +97,7 @@ export async function createWorldFolder(makeCurrent = false): Promise<Folder | n
 }
 
 // returns the root and world, creating if needed
-export async function getDefaultFolders(): Promise<{ rootFolder: Folder, worldFolder: Folder}> {
+export async function getDefaultFolders(): Promise<{ rootFolder: Folder; worldFolder: Folder}> {
   const rootFolder = await getRootFolder(); // will create if needed
   const worldId = UserFlags.get(UserFlagKey.currentWorld);  // this isn't world-specific (obviously)
 

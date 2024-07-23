@@ -134,7 +134,7 @@
     const dragData = { 
       topic:  props.topic,
       childId: id,
-    } as { topic: Topic, childId: string};
+    } as { topic: Topic; childId: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };

@@ -13,9 +13,9 @@ import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundr
 //   the special 'inside worldbuilder' class is there - see https://stackoverflow.com/questions/17352104/multiple-js-event-handlers-on-single-element
 
 let enricherConfig: {
-  pattern: RegExp,
-  enricher: (match: RegExpMatchArray, options: Record<string, any>)=>Promise<HTMLElement | null>
-  replaceParent: boolean,
+  pattern: RegExp;
+  enricher: (match: RegExpMatchArray, options: Record<string, any>)=>Promise<HTMLElement | null>;
+  replaceParent: boolean;
 };
 
 export const setupEnricher = (): void => {
@@ -62,7 +62,7 @@ export const enrichFwbHTML = async(worldId: string | null, text: string): Promis
    * @protected
    */
 
-const customEnrichContentLinks = async (match: RegExpMatchArray, options: {worldId?: string, relativeTo?: Document<any>}): Promise<HTMLElement | null> => {
+const customEnrichContentLinks = async (match: RegExpMatchArray, options: {worldId?: string; relativeTo?: Document<any>}): Promise<HTMLElement | null> => {
   const [type, target, hash, name] = match.slice(1, 5);
   const { relativeTo, worldId } = options;
 

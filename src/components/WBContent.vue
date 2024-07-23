@@ -281,7 +281,7 @@
     { tab: 'organizations', label: 'fwb.labels.tabs.organizations', },
     { tab: 'events', label: 'fwb.labels.tabs.events', },
     { tab: 'scenes', label: 'fwb.labels.tabs.scenes', },
-  ] as { tab: string, label: string, }[];
+  ] as { tab: string; label: string }[];
 
   const tabs = ref<Tabs>();
   const topic = ref<Topic | null>(null);

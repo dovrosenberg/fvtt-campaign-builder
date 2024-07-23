@@ -97,7 +97,7 @@
       topic: topic,
       typeName: props.typeName,
       id: props.node.id,
-    } as { topic: Topic, typeName: string, id: string};
+    } as { topic: Topic; typeName: string; id: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };

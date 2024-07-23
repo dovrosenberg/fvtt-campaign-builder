@@ -42,7 +42,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   // entryId = the uuid of the entry for the tab  (currently just journal entries); if missing, open a "New Tab"
   // updateHistory - should history be updated- defaults to true
   // if not !newTab and entryId is the same as currently active tab, then does nothign
-  const openEntry = async function (entryId = null as string | null, options?: { activate?: boolean, newTab?: boolean, updateHistory?: boolean }): Promise<WindowTab> {
+  const openEntry = async function (entryId = null as string | null, options?: { activate?: boolean; newTab?: boolean; updateHistory?: boolean }): Promise<WindowTab> {
     // set defaults
     options = {
       activate: true,
