@@ -47,6 +47,7 @@
         "no-unused-expressions": "warn",
         "@typescript-eslint/ban-ts-comment": "off",
         "@typescript-eslint/no-namespace": "off",
+        "@typescript-eslint/member-delimiter-style": "warn",
         "vue/script-indent": ["warn", 2, {
             "baseIndent": 1,
             "switchCase": 1,

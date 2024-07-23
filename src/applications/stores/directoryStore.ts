@@ -391,7 +391,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       // may need to change the expanded state
       child.expanded = expandedNodes[child.id] || false;
 
-      if (child.expanded) {
+      if (child.expanded || updateEntryIds.includes(child.id)) {
         await _recursivelyLoadNode(pack, child.children, child.loadedChildren, expandedNodes, updateEntryIds);
       }
     }      
@@ -418,7 +418,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
-  type CreateEntryOptions = { name?: string, type?: string, parentId?: string}
+  type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
   const createEntry = async (worldFolder: Folder, topic: Topic, options: CreateEntryOptions): Promise<JournalEntry | null> => {
     const topicText = getTopicText(topic);
 
@@ -481,7 +481,7 @@ export const useDirectoryStore = defineStore('directory', () => {
         }
       }
 
-      await refreshCurrentTree([entry.uuid]);
+      await refreshCurrentTree(options.parentId ? [options.parentId, entry.uuid] : [entry.uuid]);
     }
 
     return entry || null;
