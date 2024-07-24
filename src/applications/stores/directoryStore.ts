@@ -401,7 +401,8 @@ export const useDirectoryStore = defineStore('directory', () => {
 
   const _loadTypeEntries = async (pack: DirectoryPack, worldTypes: Record<Topic, string []>, expandedIds: Record<string, boolean | null>): Promise<void> => {
     // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
-    //    type on the pack or world, which is a lot of extra data
+    //    type on the pack or world, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
+    //    that is also in the index)
     const allEntries = await pack.pack.getDocuments({}) as JournalEntry[];
     
     pack.loadedTypes = worldTypes[pack.topic].map((type: string): DirectoryTypeNode => ({
@@ -568,8 +569,8 @@ export const useDirectoryStore = defineStore('directory', () => {
         const hierarchies = PackFlags.get(packId, PackFlagKey.hierarchies);
 
         const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
-        let matchedEntries = pack.filter((e: StoredDocument<JournalEntry>)=>( filterText.value === '' || regex.test( e.name || '' )))
-          .map((e: StoredDocument<JournalEntry>): string=>e.uuid);
+        let matchedEntries = pack.index.filter((i: CompendiumCollection.Metadata)=>( filterText.value === '' || regex.test( i.name || '' )))
+          .map((i: CompendiumCollection.Metadata): string=>i.uuid);
     
         // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding
         for (let j=matchedEntries.length-1; j>=0; j--) {
@@ -676,8 +677,8 @@ export const useDirectoryStore = defineStore('directory', () => {
     _loadedNodes = {};
     
     await validateCompendia(newWorldFolder);
+    await _updateFilterNodes();  
     await refreshCurrentTree();
-    await _updateFilterNodes();  // otherwise the new item will be hidden; we have to refresh the tree first or the packs won't be indexed
   });
   
   // save grouping to settings
