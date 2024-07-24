@@ -285,7 +285,6 @@
 
   const tabs = ref<Tabs>();
   const topic = ref<Topic | null>(null);
-  const treeNodes = ref<TreeNode[]>([]);
   const name = ref<string>('');
 
   const editorDocument = ref<Document<any>>();
@@ -367,15 +366,6 @@
 
       // reattach the editor to the new entry
       editorDocument.value = toRaw(newEntry).pages.find((p)=>p.name==='description');
-
-      // update the tree for things with hierarchies
-      if (hasHierarchy(newTopic)) {
-        const pack = getGame().packs.get(newEntry.pack || '');
-
-        if (pack) {
-          treeNodes.value = await getHierarchyTree(pack, newEntry);
-        }
-      }
     }
   });
 
