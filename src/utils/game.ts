@@ -12,7 +12,7 @@ const getGame = function(): Game {
 const isClientGM = (): boolean => (getGame()?.user?.isGM || false);
 
 // localize a string
-const localize = (stringId: string) => getGame().i18n.localize(stringId);
+const localize = (stringId: string) => getGame().i18n?.localize(stringId);
 
 export { 
   getGame,

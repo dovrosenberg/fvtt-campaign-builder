@@ -235,8 +235,8 @@
   import { updateDocument } from '@/compendia';
   import { getIcon, toTopic } from '@/utils/misc';
   import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-  import { getGame, localize } from '@/utils/game';
-  import { getHierarchyTree, hasHierarchy } from '@/utils/hierarchy';
+  import { localize } from '@/utils/game';
+  import { hasHierarchy } from '@/utils/hierarchy';
   import moduleJson from '@module';
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';

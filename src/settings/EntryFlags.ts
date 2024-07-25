@@ -22,7 +22,7 @@ export abstract class EntryFlags {
   // note - setting a flag to null will delete it
   public static async set<T extends EntryFlagKey>(entry: JournalEntry, flag: T, value: EntryFlagType<T> | null): Promise<void> {
     // unlock it to make the change
-    const pack = getGame().packs.get(entry.pack || '');
+    const pack = getGame().packs?.get(entry.pack || '');
     if (!pack)
       throw new Error('Bad compendia in EntryFlags.set()');
   

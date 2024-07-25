@@ -162,7 +162,7 @@
 
     // get the pack
     const packId = WorldFlags.get(currentWorldId.value, WorldFlagKey.compendia)[props.topic];
-    const pack = getGame().packs.get(packId);
+    const pack = getGame().packs?.get(packId);
 
     if (!pack)
       return false;

@@ -232,7 +232,7 @@ export async function updateDocument<T extends AnyDocumentData>(document: Docume
     throw new Error('Invalid compedia in updateDocument()');
 
   // unlock compendium to make the change
-  const pack = getGame().packs.get(document.pack);
+  const pack = getGame().packs?.get(document.pack);
   if (!pack)
     throw new Error('Bad compendia in updateDocument()');
 

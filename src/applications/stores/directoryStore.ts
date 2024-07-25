@@ -98,7 +98,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     // make sure all children are properly loaded (if it's being opened)
     if (expanded) {
       const expandedIds = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
-      const pack = getGame().packs.get(packId);
+      const pack = getGame().packs?.get(packId);
 
       if (pack) {
         await _recursivelyLoadNode(pack, updatedNode.children, updatedNode.loadedChildren, expandedIds);
@@ -286,7 +286,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     const compendia = WorldFlags.get(worldId, WorldFlagKey.compendia);
 
     for (let i=0; i<Object.values(compendia).length; i++) {
-      const pack = getGame().packs.get(Object.values(compendia)[i]);
+      const pack = getGame().packs?.get(Object.values(compendia)[i]);
       if (pack) {
         await pack.configure({ locked:false });
         await pack.deleteCompendium();
@@ -441,7 +441,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       throw new Error('Missing compendia in directoryStore.createEntry()');
 
     // unlock it to make the change
-    const pack = getGame().packs.get(compendia[topic]);
+    const pack = getGame().packs?.get(compendia[topic]);
     if (!pack)
       throw new Error('Bad compendia in directoryStore.createEntry()');
 
@@ -501,7 +501,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     const hierarchy = PackFlags.get(entry.pack, PackFlagKey.hierarchies)[entry.uuid];
 
     // have to unlock the pack
-    const pack = getGame().packs.get(entry.pack);
+    const pack = getGame().packs?.get(entry.pack);
     if (pack) {
       await pack.configure({locked:false});
 
@@ -562,7 +562,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     for (let i=0; i<Object.keys(compendia).length; i++) {
       const packId = compendia[Object.keys(compendia)[i]] as string;
       if (packId) {
-        const pack = getGame().packs.get(packId);
+        const pack = getGame().packs?.get(packId);
         if (!pack)
           continue;
 
