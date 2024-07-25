@@ -35,12 +35,17 @@
   // props
   const props = defineProps({
     initialValue: {         // the current value of the input
-      type: String,
+      type: Object as PropType<string | { id: string, text: string }>,
       required: true,
     },
     initialList: {   // the initial list of items to include
       type: Array as PropType<string[]>,
       required: true,
+    },
+    allowNewItems: {
+      type: Boolean,
+      required: false,
+      default: true,
     }
   });
 
@@ -162,10 +167,12 @@
             //    in the box because it might have different case)
             selection = match;
           } else {
-            list.value.push(selection);
-            hasFocus.value = false;
+            if (props.allowNewItems) {
+              list.value.push(selection);
+              hasFocus.value = false;
 
-            emit('itemAdded', selection);
+              emit('itemAdded', selection);
+            }
           }
         } else if (idx.value!==-1) {
           // fill in the input value

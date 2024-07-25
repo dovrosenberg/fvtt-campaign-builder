@@ -9,7 +9,8 @@
     "labels": {
       "newTab": "New Tab",
       "fields": {
-        "type": "Type"
+        "type": "Type",
+        "parent": "Parent"
       },
       "groupTree": "Group tree by type",
       "tabs": {

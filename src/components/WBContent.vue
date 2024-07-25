@@ -30,7 +30,7 @@
               <label>{{ localize('fwb.labels.fields.type') }}</label>
               <TypeAhead 
                 :initial-list="typeList"
-                :initial-value="currentEntry?.flags[moduleJson.id]?.type"
+                :initial-value="EntryFlags.get(currentEntry, EntryFlagKey.type) || ''"
                 @item-added="onTypeItemAdded"
                 @selection-made="onTypeSelectionMade"
               />
@@ -40,7 +40,10 @@
               v-if="showHierarchy"
               class="form-group fwb-content-header"
             >
-              SHOW PARENT HERE AND ALLOW TO CHANGE
+              <label>{{ localize('fwb.labels.fields.parent') }}</label>
+              <ParentTypeAhead 
+                @selection-made="onParentSelectionMade"
+              />
             </div>
           </div>
         </header>
@@ -235,24 +238,23 @@
   import { updateDocument } from '@/compendia';
   import { getIcon, toTopic } from '@/utils/misc';
   import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-  import { localize } from '@/utils/game';
-  import { hasHierarchy } from '@/utils/hierarchy';
-  import moduleJson from '@module';
-  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-
+  import { localize } from '@/utils/game';
+  import { hasHierarchy, } from '@/utils/hierarchy';
+  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  
   // library components
 
   // local components
   import Editor from '@/components/Editor.vue';
   import HomePage from '@/components/HomePage.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
+  import ParentTypeAhead from '@/components/ParentTypeAhead.vue';
 
   // types
-  import { Topic, TreeNode } from '@/types';
+  import { Topic, } from '@/types';
   import type Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.d.mts';
-  import type JournalEntry from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/documents/journal-entry.d.mts';
-
+  
   ////////////////////////////////
   // props
 
@@ -295,7 +297,7 @@
   // computed data
   const icon = computed((): string => (!topic.value ? '' : getIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
-  const namePlaceholder = computed((): string => (topic.value===null ? '' : localize(topicData[topic.value]?.namePlaceholder)));
+  const namePlaceholder = computed((): string => (topic.value===null ? '' : localize(topicData[topic.value]?.namePlaceholder || '')));
   const typeList = computed((): string[] => (topic.value===null || !currentWorldId.value ? [] : WorldFlags.get(currentWorldId.value, WorldFlagKey.types)[topic.value]));
 
   ////////////////////////////////
