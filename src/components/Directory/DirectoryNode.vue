@@ -147,7 +147,7 @@
     if (!childEntry)
       return false;
 
-    if (!(await validParentItems(pack, childEntry)).includes(parentId))
+    if (!(await validParentItems(childEntry)).includes(parentId))
       return false;
 
     // add the dropped item as a child on the other  (will also refresh the tree)

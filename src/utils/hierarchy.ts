@@ -1,5 +1,6 @@
 import { EntrySummary, Topic, } from '@/types';
 import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
+import { getGame } from './game';
 
 // the string to show for items with no type
 export const NO_TYPE_STRING = '(none)';
@@ -41,8 +42,12 @@ export function validChildItems(pack: CompendiumCollection<any>, entry: JournalE
 // returns a list of valid possible parents for a node
 // a valid parent is anything that does not have this object as an ancestor (to avoid creating loops) 
 // only works for topics that have hierachy
-export function validParentItems(pack: CompendiumCollection<any>, entry: JournalEntry): string[] {
-  if (!entry.id)
+export function validParentItems(entry: JournalEntry): string[] {
+  if (!entry.id || !entry.pack)
+    return [];
+
+  const pack = getGame().packs?.get(entry.pack) as CompendiumCollection<any>;
+  if (!pack)
     return [];
 
   // look up the item

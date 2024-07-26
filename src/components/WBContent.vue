@@ -41,7 +41,9 @@
               class="form-group fwb-content-header"
             >
               <label>{{ localize('fwb.labels.fields.parent') }}</label>
-              <ParentTypeAhead 
+              <TypeAhead 
+                :initial-list="validParents"
+                :initial-value="parentId || ''"
                 @selection-made="onParentSelectionMade"
               />
             </div>
@@ -238,9 +240,10 @@
   import { updateDocument } from '@/compendia';
   import { getIcon, toTopic } from '@/utils/misc';
   import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+  import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-  import { localize } from '@/utils/game';
-  import { hasHierarchy, } from '@/utils/hierarchy';
+  import { getGame, localize } from '@/utils/game';
+  import { hasHierarchy, Hierarchy, validParentItems, } from '@/utils/hierarchy';
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   
   // library components
@@ -249,7 +252,6 @@
   import Editor from '@/components/Editor.vue';
   import HomePage from '@/components/HomePage.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
-  import ParentTypeAhead from '@/components/ParentTypeAhead.vue';
 
   // types
   import { Topic, } from '@/types';
@@ -292,6 +294,8 @@
   const editorDocument = ref<Document<any>>();
 
   const contentRef = ref<HTMLElement | null>(null);
+  const parentId = ref<string | null>(null);
+  const validParents = ref<{id: string; label: string}[]>([]);
 
   ////////////////////////////////
   // computed data
@@ -326,6 +330,9 @@
   const onTypeSelectionMade = async (selection: string) => {
     if (currentEntry.value)
       await directoryStore.updateEntryType(currentEntry.value.uuid, selection);
+  };
+
+  const onParentSelectionMade = async (selection: string) => {
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
@@ -366,6 +373,20 @@
         tabs.value.bind(contentRef.value);
       }
 
+      // set the parent and valid parents
+      if (!newEntry.pack || !newEntry.uuid) {
+        parentId.value = null;
+        validParents.value = [];
+      } else {
+        parentId.value = PackFlags.get(newEntry.pack, PackFlagKey.hierarchies)[newEntry.uuid]?.parentId || null;
+    
+        // TODO - need to refresh this somehow if things are moved around in the directory
+        validParents.value = validParentItems(newEntry).map((id)=> ({
+          id: id,
+          label: getGame()?.packs?.get(newEntry.pack || '')?.index?.find((e)=>e.uuid===id)?.name || '',
+        }));
+      }
+  
       // reattach the editor to the new entry
       editorDocument.value = toRaw(newEntry).pages.find((p)=>p.name==='description');
     }

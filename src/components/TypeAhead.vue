@@ -7,7 +7,7 @@
       ref="inputRef"
       type="text" 
       :value="currentValue" 
-      placeholder="Search..."
+      :placeholder="`${localize('fwb.placeholders.search')}...`"
       @input="onInput"
     >
     <div 
@@ -19,34 +19,37 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string | { id: string; label: string}">
   // library imports
-  import { PropType, onMounted, ref, watch } from 'vue';
+  import { PropType, computed, onMounted, ref, watch } from 'vue';
 
   // local imports
+  import { localize } from '@/utils/game';
+import { initial } from 'lodash';
 
   // library components
 
   // local components
 
   // types
+  type ListItem = {id: string; label: string;};
 
   ////////////////////////////////
   // props
   const props = defineProps({
-    initialValue: {         // the current value of the input
-      type: Object as PropType<string | { id: string, text: string }>,
+    initialValue: {         // the current value of the input (string or id)
+      type: String,
       required: true,
     },
     initialList: {   // the initial list of items to include
-      type: Array as PropType<string[]>,
+      type: Array as PropType<T[]>,
       required: true,
     },
-    allowNewItems: {
+    allowNewItems: {   // can we add new items?  can't be used if the items are objects
       type: Boolean,
       required: false,
       default: true,
-    }
+    },
   });
 
   ////////////////////////////////
@@ -64,27 +67,39 @@
   const inputRef = ref<HTMLInputElement | null>(null);
   const dropdownRef = ref<HTMLSelectElement | null>(null);
   const hasFocus = ref<boolean>(false);
-  const currentValue = ref<string>('');
+  const currentValue = ref<string>('');   // the string or the id
   const idx = ref<number>(-1);   // selected index in the list (-1 for none)
-  const filteredItems = ref<string[]>([]);
-  const list = ref<string[]>([]);
+  const filteredItems = ref<T[]>([]);
+  const list = ref<T[]>([]);
 
   ////////////////////////////////
   // computed data
+  const objectMode = computed(() => props.initialList.length>0 && isObject(props.initialList[0]));
 
   ////////////////////////////////
   // methods
+  function isObject(value: unknown): value is { id: string; label: string } {
+    return typeof value === 'object' && value !== null && 'id' in value && 'label' in value;
+  }
+
+  const getLabel = (i: number) => (objectMode.value ? (filteredItems.value[i] as ListItem).label : (filteredItems.value[i] as string));
+
   const refreshList = (): void => {
     if (!dropdownRef.value)
       return;
 
-    // Render the filtered items - we're not using handlebars because it's overly complicated to pass up a re-render request
+    // Render the filtered items
     let itemHTML = '';
-    for (let i=0; i<filteredItems.value.length && i<3; i++) {   // max of 3 items at a time
-      itemHTML += `<div class="typeahead-entry ${i===idx.value ? 'highlighted' : ''}">${filteredItems.value[i]}</div>`;
+    for (let i=0; i<filteredItems.value.length && i<3; i++) {   // max of 3 items at a time.value
+      itemHTML += `<div class="typeahead-entry ${i===idx.value ? 'highlighted' : ''}" ${objectMode.value  ? 'data-id="' + (filteredItems.value as ListItem[])[i].id + '"' : ''}}>${getLabel(0)}</div>`;
     }
 
     dropdownRef.value.innerHTML = itemHTML;   
+
+    // if we're not allowed to add items, set the index
+    if (!props.allowNewItems || objectMode.value) {
+      idx.value = filteredItems.value.length ? 0 : -1;
+    }
   };
 
   ////////////////////////////////
@@ -100,7 +115,11 @@
     const inputValue = inputRef.value.value?.toString().toLowerCase() || '';
 
     // blank everything out if the string is empty (so box closes)
-    filteredItems.value = !inputValue ? [] : list.value.filter((item)=>item.toLowerCase().indexOf(inputValue)!==-1);
+    if (objectMode.value) {
+      filteredItems.value = !inputValue ? [] : list.value.filter((item)=>(item as ListItem).label.toLowerCase().indexOf(inputValue)!==-1);
+    } else {
+      filteredItems.value = !inputValue ? [] : list.value.filter((item)=>(item as string).toLowerCase().indexOf(inputValue)!==-1);
+    }
 
     // Render the filtered items
     // we clear the index if we're typing
@@ -116,8 +135,9 @@
       return;
 
     if (target.classList.contains('typeahead-entry')) {
-      const selection = target.textContent || ''; 
-      inputRef.value.value = selection;
+      const selection = (objectMode.value ? target.dataset.id : target.textContent) || ''; 
+
+      inputRef.value.value = objectMode.value ? target.textContent || '' : selection;
       dropdownRef.value.innerHTML = ''; // Clear the dropdown
 
       hasFocus.value = false;
@@ -160,24 +180,22 @@
         if (idx.value===-1 && inputRef.value?.value?.toString()) {
           selection = inputRef.value.value?.toString() as string;
 
-          // exact match only to let us add types that are just different cases
-          const match = list.value.find(item=>item===selection.toString());
+          // exact match only to let us add values that are just different cases
+          const match = objectMode.value ? (list.value as ListItem[]).find(item=>item.label===selection.toString())?.id : (list.value as string[]).find(item=>item===selection.toString());
           if (match) {
             // it's match, so we'll select that item but don't need to add anything (we don't use the text
             //    in the box because it might have different case)
             selection = match;
-          } else {
-            if (props.allowNewItems) {
-              list.value.push(selection);
-              hasFocus.value = false;
+          } else if (props.allowNewItems && !objectMode.value) {
+            list.value.push(selection);
+            hasFocus.value = false;
 
-              emit('itemAdded', selection);
-            }
+            emit('itemAdded', selection);
           }
         } else if (idx.value!==-1) {
           // fill in the input value
-          selection = filteredItems.value[idx.value];
-          inputRef.value.value = selection;
+          selection = objectMode.value ? (filteredItems.value as ListItem[])[idx.value].id : (filteredItems.value as string[])[idx.value];
+          inputRef.value.value = getLabel(idx.value);
         }
   
         // close the list
@@ -198,12 +216,12 @@
 
   ////////////////////////////////
   // watchers
-  watch(() => props.initialList, (newList: string[]) => {
+  watch(() => props.initialList, (newList: T[]) => {
     list.value = globalThis.foundry.utils.deepClone(newList) || [];
   });
 
   watch(() => props.initialValue, (newValue: string) => {
-    currentValue.value = newValue;
+    currentValue.value = objectMode.value ? (props.initialList.find((item)=>(item as ListItem).id===newValue) as ListItem).label : newValue;
   });
 
   ////////////////////////////////
@@ -218,8 +236,8 @@
     });
 
     // create our working list
-    list.value = globalThis.foundry.utils.deepClone(props.initialList) || [];
-    currentValue.value = props.initialValue;
+    list.value = globalThis.foundry.utils.deepClone(props.initialList) as T[] || [] as T[];
+    currentValue.value = objectMode.value ? (props.initialList.find((id)=>id===props.initialValue) as ListItem).label : props.initialValue;
   });
 
 
