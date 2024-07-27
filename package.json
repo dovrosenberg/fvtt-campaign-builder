@@ -60,7 +60,7 @@
     "ts-loader": "^9.2.6",
     "vite": "^5.2.0",
     "vite-plugin-env-compatible": "^1.1.1",
-    "vite-plugin-html": "3.2.0"
+    "vite-plugin-html": "3.2.2"
   },
   "dependencies": {
     "@imengyu/vue3-context-menu": "^1.4.1",
