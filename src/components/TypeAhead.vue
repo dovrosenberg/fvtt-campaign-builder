@@ -4,9 +4,8 @@
     @keydown="onKeyDown"
   >
     <input 
-      ref="inputRef"
-      type="text" 
-      :value="currentValue" 
+      v-model="currentValue" 
+      type="text"
       :placeholder="`${localize('fwb.placeholders.search')}...`"
       @input="onInput"
     >
@@ -15,7 +14,16 @@
       ref="dropdownRef"
       class="fwb-ta-dropdown"
       @click="onDropdownClick"
-    ></div>
+    >
+      <div
+        v-for="(item, i) in filteredItems"
+        :key="i"
+        :class="`typeahead-entry ${i===idx ? 'highlighted' : ''}`" 
+        :data-id="objectMode ? (item as ListItem).id : item"
+      >
+        {{ objectMode ? (item as ListItem).label : item }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -25,7 +33,6 @@
 
   // local imports
   import { localize } from '@/utils/game';
-import { initial } from 'lodash';
 
   // library components
 
@@ -64,7 +71,6 @@ import { initial } from 'lodash';
 
   ////////////////////////////////
   // data
-  const inputRef = ref<HTMLInputElement | null>(null);
   const dropdownRef = ref<HTMLSelectElement | null>(null);
   const hasFocus = ref<boolean>(false);
   const currentValue = ref<string>('');   // the string or the id
@@ -88,14 +94,6 @@ import { initial } from 'lodash';
     if (!dropdownRef.value)
       return;
 
-    // Render the filtered items
-    let itemHTML = '';
-    for (let i=0; i<filteredItems.value.length && i<3; i++) {   // max of 3 items at a time.value
-      itemHTML += `<div class="typeahead-entry ${i===idx.value ? 'highlighted' : ''}" ${objectMode.value  ? 'data-id="' + (filteredItems.value as ListItem[])[i].id + '"' : ''}}>${getLabel(0)}</div>`;
-    }
-
-    dropdownRef.value.innerHTML = itemHTML;   
-
     // if we're not allowed to add items, set the index
     if (!props.allowNewItems || objectMode.value) {
       idx.value = filteredItems.value.length ? 0 : -1;
@@ -106,13 +104,10 @@ import { initial } from 'lodash';
   // event handlers
   // listen for input changes
   const onInput = () => {
-    if (!inputRef.value)
-      return;
-
     // note that we have the focus
     hasFocus.value = true;
 
-    const inputValue = inputRef.value.value?.toString().toLowerCase() || '';
+    const inputValue = currentValue.value.toLowerCase() || '';
 
     // blank everything out if the string is empty (so box closes)
     if (objectMode.value) {
@@ -131,13 +126,13 @@ import { initial } from 'lodash';
   const onDropdownClick = async (event: MouseEvent) => {
     const target = event.target as HTMLElement;
 
-    if (!inputRef.value || !dropdownRef.value || !target)
+    if (!dropdownRef.value || !target)
       return;
 
     if (target.classList.contains('typeahead-entry')) {
       const selection = (objectMode.value ? target.dataset.id : target.textContent) || ''; 
 
-      inputRef.value.value = objectMode.value ? target.textContent || '' : selection;
+      currentValue.value = objectMode.value ? target.textContent || '' : selection;
       dropdownRef.value.innerHTML = ''; // Clear the dropdown
 
       hasFocus.value = false;
@@ -148,7 +143,7 @@ import { initial } from 'lodash';
   // capture keydown for up, down, enter
   const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
     // if no list, don't need to do anything
-    if (!filteredItems.value || !inputRef.value)
+    if (!filteredItems.value)
       return;
 
     // either arrow starts at 0 if we're not highlighting something yet
@@ -177,8 +172,8 @@ import { initial } from 'lodash';
 
         // if nothing selected, check for a match or add something new
         // if box is empty, we don't add a new value, but we still say blank was seleted
-        if (idx.value===-1 && inputRef.value?.value?.toString()) {
-          selection = inputRef.value.value?.toString() as string;
+        if (idx.value===-1 && currentValue.value) {
+          selection = currentValue.value;
 
           // exact match only to let us add values that are just different cases
           const match = objectMode.value ? (list.value as ListItem[]).find(item=>item.label===selection.toString())?.id : (list.value as string[]).find(item=>item===selection.toString());
@@ -187,15 +182,15 @@ import { initial } from 'lodash';
             //    in the box because it might have different case)
             selection = match;
           } else if (props.allowNewItems && !objectMode.value) {
-            list.value.push(selection);
+            list.value.push(selection as string);
             hasFocus.value = false;
 
-            emit('itemAdded', selection);
+            // emit('itemAdded', selection);
           }
         } else if (idx.value!==-1) {
           // fill in the input value
           selection = objectMode.value ? (filteredItems.value as ListItem[])[idx.value].id : (filteredItems.value as string[])[idx.value];
-          inputRef.value.value = getLabel(idx.value);
+          currentValue.value = getLabel(idx.value);
         }
   
         // close the list
@@ -229,7 +224,7 @@ import { initial } from 'lodash';
   onMounted(() => {
     // watch for clicks anywhere outside the control
     document.addEventListener('click', async (event: MouseEvent) => {
-      if (hasFocus.value && event.currentTarget && !(event.currentTarget as HTMLElement)?.closest('.fwb-typeahead')) {
+      if (hasFocus.value && event.currentTarget && (!event.currentTarget.closest || !(event.currentTarget as HTMLElement)?.closest('.fwb-typeahead'))) {
         // we were in it, but now we're not; treat as if we'd tabbed out
         await onKeyDown({key:'Tab'} as KeyboardEvent);
       }

@@ -261,10 +261,11 @@ export const useDirectoryStore = defineStore('directory', () => {
     const currentWorldNode = currentTree.value.find((w)=>w.id===currentWorldId.value) || null;
     const packNode = currentWorldNode?.packs.find((p)=>p.id===entry.pack) || null;
     const oldTypeNode = packNode?.loadedTypes.find((t) => t.name===oldType);
-    if (!currentWorldNode || !packNode || !oldTypeNode) 
+    if (!currentWorldNode || !packNode) 
       throw new Error('Failed to load node in directoryStore.updateEntryType()');
 
-    oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entryId);
+    if (oldTypeNode)
+      oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entryId);
 
     // add to the new one
     const newTypeNode = packNode?.loadedTypes.find((t) => t.name===typeName);
