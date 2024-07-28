@@ -11,7 +11,6 @@
     >
     <div 
       id="fwb-ta-dropdown" 
-      ref="dropdownRef"
       class="fwb-ta-dropdown"
       @click="onDropdownClick"
     >
@@ -71,7 +70,6 @@
 
   ////////////////////////////////
   // data
-  const dropdownRef = ref<HTMLSelectElement | null>(null);
   const hasFocus = ref<boolean>(false);
   const currentValue = ref<string>('');   // the string or the id
   const idx = ref<number>(-1);   // selected index in the list (-1 for none)
@@ -90,16 +88,6 @@
 
   const getLabel = (i: number) => (objectMode.value ? (filteredItems.value[i] as ListItem).label : (filteredItems.value[i] as string));
 
-  const refreshList = (): void => {
-    if (!dropdownRef.value)
-      return;
-
-    // if we're not allowed to add items, set the index
-    if (!props.allowNewItems || objectMode.value) {
-      idx.value = filteredItems.value.length ? 0 : -1;
-    }
-  };
-
   ////////////////////////////////
   // event handlers
   // listen for input changes
@@ -107,33 +95,36 @@
     // note that we have the focus
     hasFocus.value = true;
 
-    const inputValue = currentValue.value.toLowerCase() || '';
-
     // blank everything out if the string is empty (so box closes)
-    if (objectMode.value) {
-      filteredItems.value = !inputValue ? [] : list.value.filter((item)=>(item as ListItem).label.toLowerCase().indexOf(inputValue)!==-1);
+    if (!currentValue.value) {
+      filteredItems.value = [];
     } else {
-      filteredItems.value = !inputValue ? [] : list.value.filter((item)=>(item as string).toLowerCase().indexOf(inputValue)!==-1);
+      // filter
+      const inputValue = currentValue.value.toLowerCase() || '';
+      if (objectMode.value) {
+        filteredItems.value = !inputValue ? [] : list.value.filter((item)=>(item as ListItem).label.toLowerCase().indexOf(inputValue)!==-1);
+      } else {
+        filteredItems.value = !inputValue ? [] : list.value.filter((item)=>(item as string).toLowerCase().indexOf(inputValue)!==-1);
+      }
     }
 
     // Render the filtered items
     // we clear the index if we're typing
     idx.value = -1;
-    refreshList();
   };
 
   // Event listener for item clicks
   const onDropdownClick = async (event: MouseEvent) => {
     const target = event.target as HTMLElement;
 
-    if (!dropdownRef.value || !target)
+    if (!target)
       return;
 
     if (target.classList.contains('typeahead-entry')) {
       const selection = (objectMode.value ? target.dataset.id : target.textContent) || ''; 
 
       currentValue.value = objectMode.value ? target.textContent || '' : selection;
-      dropdownRef.value.innerHTML = ''; // Clear the dropdown
+      filteredItems.value = [];
 
       hasFocus.value = false;
       emit('selectionMade', selection);
@@ -148,22 +139,22 @@
 
     // either arrow starts at 0 if we're not highlighting something yet
     if (['ArrowUp', 'ArrowDown'].includes(event.key) && idx.value===-1) {
-      idx.value = 0;
-      refreshList();
+      if (filteredItems.value.length>0) 
+        idx.value = 0;
       return;
     }
 
     switch (event.key) {
       case 'ArrowUp':
         event.preventDefault();
-        idx.value = ((idx.value || 0) - 1 + filteredItems.value.length) % filteredItems.value.length;
-        refreshList();
+        if (filteredItems.value.length>0) 
+          idx.value = ((idx.value || 0) - 1 + filteredItems.value.length) % filteredItems.value.length;
         return;
 
       case 'ArrowDown':
         event.preventDefault();
-        idx.value = ((idx.value || 0) + 1) % filteredItems.value.length;
-        refreshList();
+        if (filteredItems.value.length>0)
+          idx.value = ((idx.value || 0) + 1) % filteredItems.value.length;
         return;
 
       case 'Enter':
@@ -194,8 +185,8 @@
         }
   
         // close the list
+        idx.value = -1;
         filteredItems.value = [];
-        refreshList();
 
         hasFocus.value = false;
 
