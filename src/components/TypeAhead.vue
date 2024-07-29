@@ -43,7 +43,7 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    initialValue: {         // the current value of the input (string or id)
+    initialValue: {         // the initial value (string or id)
       type: String,
       required: true,
     },
@@ -71,7 +71,7 @@
   ////////////////////////////////
   // data
   const hasFocus = ref<boolean>(false);
-  const currentValue = ref<string>('');   // the string or the id
+  const currentValue = ref<string>('');   // the current value of the input text
   const idx = ref<number>(-1);   // selected index in the list (-1 for none)
   const filteredItems = ref<T[]>([]);
   const list = ref<T[]>([]);
@@ -164,8 +164,6 @@
         // if nothing selected, check for a match or add something new
         // if box is empty, we don't add a new value, but we still say blank was seleted
         if (idx.value===-1 && currentValue.value) {
-          selection = currentValue.value;
-
           // exact match only to let us add values that are just different cases
           const match = objectMode.value ? (list.value as ListItem[]).find(item=>item.label===selection.toString())?.id : (list.value as string[]).find(item=>item===selection.toString());
           if (match) {
@@ -173,10 +171,20 @@
             //    in the box because it might have different case)
             selection = match;
           } else if (props.allowNewItems && !objectMode.value) {
-            list.value.push(selection as string);
+            selection = currentValue.value;
+            list.value.push(selection);
             hasFocus.value = false;
 
-            // emit('itemAdded', selection);
+            emit('itemAdded', selection);
+          } else {
+            // there's no match but we're not allowed to add - reset back to the original
+            // find the initial item
+            const initialItem = objectMode.value ? props.initialList.find((item: ListItem)=>item.id===props.initialValue) as ListItem : props.initialValue;
+
+            currentValue.value = objectMode.value ? initialItem.label : initialItem;
+
+            // set the selection to be the id of the current item (this assumes there is only 1 valid match)
+            selection = objectMode.value ? initialItem.id : initialItem;
           }
         } else if (idx.value!==-1) {
           // fill in the input value
@@ -187,7 +195,6 @@
         // close the list
         idx.value = -1;
         filteredItems.value = [];
-
         hasFocus.value = false;
 
         emit('selectionMade', selection);
@@ -215,7 +222,7 @@
   onMounted(() => {
     // watch for clicks anywhere outside the control
     document.addEventListener('click', async (event: MouseEvent) => {
-      if (hasFocus.value && event.currentTarget && (!event.currentTarget.closest || !(event.currentTarget as HTMLElement)?.closest('.fwb-typeahead'))) {
+      if (hasFocus.value && event.target && (!event.target.closest || !(event.target as HTMLElement)?.closest('.fwb-typeahead'))) {
         // we were in it, but now we're not; treat as if we'd tabbed out
         await onKeyDown({key:'Tab'} as KeyboardEvent);
       }
@@ -246,7 +253,7 @@
       width: calc(100% - 2px);
       
       .typeahead-entry {
-        background: #99999922;
+        background-color: var(--fwb-header-tab-background);
         padding: 1px 3px;
         margin: 1px 0;
         font-size: 1rem;

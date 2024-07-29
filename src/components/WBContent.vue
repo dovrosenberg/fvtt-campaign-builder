@@ -243,7 +243,7 @@
   import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { getGame, localize } from '@/utils/game';
-  import { hasHierarchy, Hierarchy, validParentItems, } from '@/utils/hierarchy';
+  import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   
   // library components
@@ -333,6 +333,11 @@
   };
 
   const onParentSelectionMade = async (selection: string) => {
+    const pack = getGame().packs?.get(currentEntry.value.pack);
+    if (!pack)
+      return;
+
+    await directoryStore.setNodeParent(pack, currentEntry.value.uuid, selection || null);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
