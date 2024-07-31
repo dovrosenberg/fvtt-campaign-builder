@@ -244,7 +244,7 @@
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { getGame, localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
-  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore, useEntryStore } from '@/applications/stores';
   
   // library components
 
@@ -268,6 +268,7 @@
   const mainStore = useMainStore();
   const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
+  const entryStore = useEntryStore();
   const { currentEntry, currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
@@ -329,7 +330,7 @@
 
   const onTypeSelectionMade = async (selection: string) => {
     if (currentEntry.value)
-      await directoryStore.updateEntryType(currentEntry.value.uuid, selection);
+      await entryStore.updateEntryType(currentEntry.value.uuid, selection);
   };
 
   const onParentSelectionMade = async (selection: string) => {

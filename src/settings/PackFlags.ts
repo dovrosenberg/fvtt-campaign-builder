@@ -21,13 +21,12 @@ type PackFlagType<K extends PackFlagKey> =
     K extends PackFlagKey.topNodes ? string[] :   
     never;  
 
-type FlagSettings<K extends PackFlagKey> = {
+type FlagSettings<K extends PackFlagKey, T extends PackFlagType<any>> = {
   flagId: K;
-  clean?: (value: PackFlagType<T>)=>void;
+  clean?: (value: T)=>void;  // clean converts the object to a "complex object" so that flatten/expand don't act on it
   default: PackFlagType<K> | ((topic: Topic)=>PackFlagType<K>);
 };
 
-// clean converts the object to a "complex object" so that flatten/expand don't act on it
 const flagSetup = [
   {
     flagId: PackFlagKey.hierarchies,
@@ -42,15 +41,15 @@ const flagSetup = [
     flagId: PackFlagKey.topNodes,
     default: [],
   },
-] as FlagSettings<any>[];
+] as FlagSettings<any, any>[];
 
 export abstract class PackFlags {
-  public static async setDefaults(packId: string, topic: Topic): Promise<void> {
-    const p = getGame()?.packs?.find((p)=>p.metadata.id===packId);
-    if (!p)
+  public static async setDefaults(pack: CompendiumCollection<any>, topic: Topic): Promise<void> {
+    if (!pack)
       return;
 
-    const wf = p.folder as Folder;
+    const packId = pack.metadata.id;
+    const wf = pack.folder as Folder;
     
     for (let i=0; i<flagSetup.length; i++) {
       if (!wf.getFlag(moduleJson.id, `packFlags.${packId}.${flagSetup[i].flagId}`)) {

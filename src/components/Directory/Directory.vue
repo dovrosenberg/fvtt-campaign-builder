@@ -128,7 +128,7 @@
   // local imports
   import { getGame, localize } from '@/utils/game';
   import { getIcon, } from '@/utils/misc';
-  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore, useEntryStore } from '@/applications/stores';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -151,6 +151,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
+  const entryStore = useEntryStore();
   const { currentWorldId } = storeToRefs(mainStore);
   const { filterText, isTreeRefreshing, isGroupedByType } = storeToRefs(directoryStore);
 
@@ -223,7 +224,7 @@
             if (!worldFolder || !topic)
               throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
-            const entry = await directoryStore.createEntry(worldFolder, topic, {} );
+            const entry = await entryStore.createEntry(worldFolder, topic, {} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -256,7 +257,7 @@
     // const wf = getGame().folders?.find((f)=>f.id==='IAAEn25ebbVZXL9V');
     // if (wf) {
     //   for (let i=0; i<400; i++) {
-    //     await directoryStore.createEntry(wf, Topic.Location, { name: foundry.utils.randomID() });
+    //     await entryStore.createEntry(wf, Topic.Location, { name: foundry.utils.randomID() });
     //   }
     // }
 

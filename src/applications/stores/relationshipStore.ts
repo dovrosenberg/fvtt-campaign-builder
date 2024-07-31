@@ -9,6 +9,7 @@ import { reactive } from 'vue';
 
 // types
 import { Topic } from '@/types';
+import { EntryFlags } from 'src/settings/EntryFlags';
 
 
 // the store definition
@@ -24,7 +25,27 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
   ///////////////////////////////
   // actions
-  // set a new world from a uuid
+  // add a relationship
+  // reverse role is the 
+  async function addRelationship(entry1Id: string, entry1Topic: Topic, entry1Type: string, entry2Topic: Topic, relationship: RelatedItem, reverseRole=''): Promise<void> {
+    // create the relationship on item1
+    const entry1 = await fromUuid(entry1Id);
+    const entry2 = await fromUuid(relationship.uuid);
+
+    if (!entry1 || !entry2)
+      throw new Error('Invalid entry in relationshipStore.addRelationship()');
+
+    // create the reverse item
+    const reverseRelatedItem = {
+      uuid: entry1Id,
+      type: entry1Type,
+      role: reverseRole,
+    };
+
+    // update the entries
+    await EntryFlags.setRelationship(entry1Id, entry2Topic, relationship);
+    await EntryFlags.setRelationship(relationship.uuid, entry1Topic, reverseRelatedItem);
+  }
 
   ///////////////////////////////
   // computed state
@@ -38,5 +59,6 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // return the public interface
   return {
+    addRelationship,
   };
 });

@@ -2,23 +2,20 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { reactive, onMounted, ref, toRaw, watch, computed, } from 'vue';
+import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 
 // local imports
 import { getGame } from '@/utils/game';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
-import { cleanTrees, hasHierarchy, Hierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
-import { useMainStore } from './mainStore';
-import { useNavigationStore } from './navigationStore';
+import { hasHierarchy, Hierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
+import { useMainStore } from '@/applications/stores';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { createWorldFolder, getTopicText, validateCompendia } from '@/compendia';
-import { inputDialog } from '@/dialogs/input';
+import { createWorldFolder, validateCompendia } from '@/compendia';
 import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 
 // types
 import { DirectoryWorld, DirectoryPack, DirectoryNode, Topic, DirectoryTypeNode, DirectoryEntryNode } from '@/types';
-import { StoredDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs';
 
 // the store definition
 export const useDirectoryStore = defineStore('directory', () => {
@@ -28,7 +25,6 @@ export const useDirectoryStore = defineStore('directory', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const navigationStore = useNavigationStore();
   const { rootFolder, currentWorldId, currentWorldFolder } = storeToRefs(mainStore); 
 
   ///////////////////////////////
@@ -77,6 +73,33 @@ export const useDirectoryStore = defineStore('directory', () => {
     }
 
     await refreshCurrentTree();
+  };
+
+  // move the entry to a new type (doesn't update the entry itself)
+  const updateEntryType = async (entry: JournalEntry, oldType: string, newType: string): Promise<void> => {
+    // remove from the old one
+    const currentWorldNode = currentTree.value.find((w)=>w.id===currentWorldId.value) || null;
+    const packNode = currentWorldNode?.packs.find((p)=>p.id===entry.pack) || null;
+    const oldTypeNode = packNode?.loadedTypes.find((t) => t.name===oldType);
+    if (!currentWorldNode || !packNode) 
+      throw new Error('Failed to load node in entryStore.updateEntryType()');
+
+    if (oldTypeNode)
+      oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entry.uuid);
+
+    // add to the new one
+    const newTypeNode = packNode?.loadedTypes.find((t) => t.name===newType);
+    if (newTypeNode) {
+      newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([{ id: entry.uuid, name: entry.name || NO_NAME_STRING}]).sort((a,b)=>a.name.localeCompare(b.name));
+    }
+
+    // update the hierarchy
+    const hierarchy = PackFlags.get(packNode?.id, PackFlagKey.hierarchies)?.[entry.uuid];
+    if (!hierarchy)
+      throw new Error(`Could not find hierarchy for ${entry.uuid} in entryStore.updateEntryType()`);
+
+    hierarchy.type = newType;
+    await PackFlags.setHierarchy(packNode?.id, entry.uuid, hierarchy);
   };
 
   // expand/contract  the given entry, loading the new item data
@@ -252,36 +275,6 @@ export const useDirectoryStore = defineStore('directory', () => {
     return true;
   };
 
-  const updateEntryType = async (entryId: string, typeName: string): Promise<void> => {
-    const entry = await fromUuid(entryId) as JournalEntry;
-    const oldType = EntryFlags.get(entry, EntryFlagKey.type);
-    await EntryFlags.set(entry, EntryFlagKey.type, typeName);
-
-    // remove from the old one
-    const currentWorldNode = currentTree.value.find((w)=>w.id===currentWorldId.value) || null;
-    const packNode = currentWorldNode?.packs.find((p)=>p.id===entry.pack) || null;
-    const oldTypeNode = packNode?.loadedTypes.find((t) => t.name===oldType);
-    if (!currentWorldNode || !packNode) 
-      throw new Error('Failed to load node in directoryStore.updateEntryType()');
-
-    if (oldTypeNode)
-      oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entryId);
-
-    // add to the new one
-    const newTypeNode = packNode?.loadedTypes.find((t) => t.name===typeName);
-    if (newTypeNode) {
-      newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([{ id: entryId, name: entry.name || NO_NAME_STRING}]).sort((a,b)=>a.name.localeCompare(b.name));
-    }
-
-    // update the hierarchy
-    const hierarchy = PackFlags.get(packNode?.id, PackFlagKey.hierarchies)?.[entryId];
-    if (!hierarchy)
-      throw new Error(`Could not find hierarchy for ${entryId} in directoryStore.updateEntryType()`);
-
-    hierarchy.type = typeName;
-    await PackFlags.setHierarchy(packNode?.id, entryId, hierarchy);
-  };
-
   const deleteWorld = async (worldId: string): Promise<void> => {
     // delete all the compendia
     const compendia = WorldFlags.get(worldId, WorldFlagKey.compendia);
@@ -420,113 +413,6 @@ export const useDirectoryStore = defineStore('directory', () => {
     }));
   };
   
-  // creates a new entry in the proper compendium in the given world
-  // if name is populated will skip the dialog
-  type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
-  const createEntry = async (worldFolder: Folder, topic: Topic, options: CreateEntryOptions): Promise<JournalEntry | null> => {
-    const topicText = getTopicText(topic);
-
-    let nameTouse = options.name || '' as string | null;
-    while (nameTouse==='') {  // if hit ok, must have a value
-      nameTouse = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
-    }  
-    
-    // if name is null, then we cancelled the dialog
-    if (!nameTouse)
-      return null;
-
-    // create the entry
-    const compendia = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia);
-
-    if (!compendia || !compendia[topic])
-      throw new Error('Missing compendia in directoryStore.createEntry()');
-
-    // unlock it to make the change
-    const pack = getGame().packs?.get(compendia[topic]);
-    if (!pack)
-      throw new Error('Bad compendia in directoryStore.createEntry()');
-
-    await pack.configure({locked:false});
-
-    const entry = await JournalEntry.create({
-      name: nameTouse,
-      folder: worldFolder.id,
-    },{
-      pack: compendia[topic],
-    });
-
-    await pack.configure({locked:true});
-
-    if (entry) {
-      await EntryFlags.set(entry, EntryFlagKey.topic, topic);
-
-      if (options.type!==undefined)
-        await EntryFlags.set(entry, EntryFlagKey.type, options.type);
-
-      // set parent if specified
-      if (options.parentId==undefined) {
-        // no parent - set as a top node
-        const topNodes = PackFlags.get(pack.metadata.id, PackFlagKey.topNodes);
-        await PackFlags.set(pack.metadata.id, PackFlagKey.topNodes, topNodes.concat([entry.uuid]));
-
-        // set the blank hierarchy
-        if (hasHierarchy(topic)) {
-          await PackFlags.setHierarchy(pack.metadata.id, entry.uuid, {
-            parentId: '',
-            ancestors: [],
-            children: [],
-            type: '',
-          } as Hierarchy);
-        }
-      } else {
-        // add to the tree
-        if (hasHierarchy(topic)) {
-          await setNodeParent(pack, entry.uuid, options.parentId);
-        }
-      }
-
-      await _updateFilterNodes();  // otherwise the new item will be hidden
-      await refreshCurrentTree(options.parentId ? [options.parentId, entry.uuid] : [entry.uuid]);
-  }
-
-    return entry || null;
-  };
-
-  // delete an entry from the world
-  const deleteEntry = async (entryId: string) => {
-    const entry = await fromUuid(entryId) as JournalEntry;
-
-    if (!entry || !entry.pack)
-      return;
-
-    const hierarchy = PackFlags.get(entry.pack, PackFlagKey.hierarchies)[entry.uuid];
-
-    // have to unlock the pack
-    const pack = getGame().packs?.get(entry.pack);
-    if (pack) {
-      await pack.configure({locked:false});
-
-      // delete from any trees
-      if (hierarchy?.ancestors || hierarchy?.children) {
-        await cleanTrees(pack.metadata.id, entry.uuid, hierarchy);
-      }
-
-      await entry.delete();
-
-      await pack.configure({locked:false});
-
-      // TODO - remove from any relationships
-      // TODO - remove from search
-
-      // update tabs
-      await navigationStore.cleanupDeletedEntry(entry.uuid);
-
-      // refresh and force its parent to update
-      await refreshCurrentTree(hierarchy.parentId ? [hierarchy.parentId] : []);
-    }
-  };
-
-
   ///////////////////////////////
   // computed state
 
@@ -552,7 +438,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   // this includes: all nodes matching the filterText, all of their ancestors, and
   //    all of their types (we also ways leave the packs)
   // it's an object keyed by packId with a list of all the ids to include
-  const _updateFilterNodes = (): void => {
+  const updateFilterNodes = (): void => {
     const retval: Record<string, string[]> = {};
 
     if (!currentWorldId.value)
@@ -678,7 +564,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     _loadedNodes = {};
     
     await validateCompendia(newWorldFolder);
-    await _updateFilterNodes();  
+    await updateFilterNodes();  
     await refreshCurrentTree();
   });
   
@@ -690,7 +576,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
   // update the filter when text changes
   watch(filterText, async () => {
-    await _updateFilterNodes();
+    await updateFilterNodes();
   });
   
   ///////////////////////////////
@@ -716,9 +602,8 @@ export const useDirectoryStore = defineStore('directory', () => {
     setNodeParent,
     refreshCurrentTree,
     updateEntryType,
+    updateFilterNodes,
     deleteWorld,
     createWorld,
-    createEntry,
-    deleteEntry,
   };
 });
