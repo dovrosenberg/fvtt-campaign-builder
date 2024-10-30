@@ -310,7 +310,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // populate the world names, and find the current one
     let currentWorld;
-    tree = (toRaw(rootFolder.value) as Folder)?.children?.map((world): DirectoryWorld => {
+    tree = (toRaw(rootFolder.value) as Folder)?.children?.map((world: Folder): DirectoryWorld => {
       if (world.folder.uuid===currentWorldId.value)
         currentWorld = world;
 
