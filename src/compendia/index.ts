@@ -45,7 +45,6 @@ export async function createRootFolder(name?: string): Promise<Folder> {
   
   const folders = await Folder.createDocuments([{
     name,
-    // @ts-ignore
     type: 'Compendium',
     sorting: 'a',
   }]);
@@ -71,7 +70,6 @@ export async function createWorldFolder(makeCurrent = false): Promise<Folder | n
       // create the world folder
       const folders = await Folder.createDocuments([{
         name,
-        // @ts-ignore
         type: 'Compendium',
         folder: rootFolder.id,
         sorting: 'a',
@@ -199,8 +197,6 @@ async function createCompendium(worldFolder: Folder, topic: Topic): Promise<stri
 
   await PackFlags.setDefaults(pack, topic);
 
-
-  // @ts-ignore
   return pack.metadata.id;
 }
 
@@ -220,7 +216,6 @@ export async function getCleanEntry(uuid: string): Promise<JournalEntry | null> 
 // makes sure that the entry has all the correct pages
 async function cleanEntry(entry: JournalEntry): Promise<void> {
   if (!entry.pages.find((p)=>p.name==='description')) { // TODO: replace with enum
-    // @ts-ignore
     // this creates the page and adds to the parent
     await JournalEntryPage.create({name:'description', type: 'text'}, {parent: entry, pack: entry.pack});  // TODO: replace this with an enum
   }

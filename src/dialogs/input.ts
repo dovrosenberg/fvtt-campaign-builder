@@ -22,7 +22,6 @@ export async function inputDialog(title: string, prompt: string): Promise<string
     default: 'ok',
   };
 
-  // @ts-ignore
   await Dialog.wait(dialog);
 
   return response;

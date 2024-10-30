@@ -171,7 +171,6 @@
 
     if (!tab) return;
 
-    // @ts-ignore  -- Math.clamp is syntax for v12
     const newSpot = Math.clamp(tab.historyIdx + move, 0, tab.history.length-1);
 
     // if we didn't move, return
