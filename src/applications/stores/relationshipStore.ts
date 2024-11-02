@@ -23,11 +23,22 @@ export const useRelationshipStore = defineStore('relationship', () => {
     [ValidTopic.Location]: { rowsAvailable:0, rows:[] as LocationRow[]},
     [ValidTopic.Organization]: { rowsAvailable:0, rows:[] as OrganizationRow[]},
   } as Record<ValidTopic, AnyPaginationResult>);
+
+  // we store the pagination info for each type like a preference
+  const defaultPagination: TablePagination = {
+    sortField: 'name', 
+    sortOrder: 1, 
+    first: 0,
+    rowsPerPage: 10, 
+    totalRecords: undefined, 
+    filters: {},
+  };
+
   const relatedItemPagination = reactive({
-    [ValidTopic.Character]: ref<TablePagination>({ sortBy: 'name', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: ''} as TablePagination),
-    [ValidTopic.Event]: ref<TablePagination>({ sortBy: 'date', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: '' } as TablePagination),
-    [ValidTopic.Location]: ref<TablePagination>({ sortBy: 'name', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: '' } as TablePagination),
-    [ValidTopic.Organization]: ref<TablePagination>({ sortBy: 'name', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: '' } as TablePagination),
+    [ValidTopic.Character]: ref<TablePagination>(defaultPagination),
+    [ValidTopic.Event]: ref<TablePagination>(defaultPagination),
+    [ValidTopic.Location]: ref<TablePagination>(defaultPagination),
+    [ValidTopic.Organization]: ref<TablePagination>(defaultPagination),
   } as Record<ValidTopic, Ref<TablePagination>>);
 
   // keyed by main entry topic, then the relationship topic
@@ -110,7 +121,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   }
 
   // return all of the related items to this one for a given topic
-  async function getRelationships(topic: Topic): Promise<RelatedItemDetails[]> {
+  async function getRelationships(topic: ValidTopic): Promise<RelatedItemDetails[]> {
     const retval = [] as RelatedItemDetails[];
     if (!currentEntry.value)
       throw new Error('Invalid current entry in relationshipStore.getRelationships()');
@@ -127,7 +138,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
         
         retval.push({
           ...relatedItem,
-          name: JournalEntry.get(relatedDocId)?.name,
+          name: JournalEntry.get(relatedDocId, {})?.name,
         });
       }
     }
@@ -137,13 +148,14 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
   // refresh the the related items rows and pagination for the current entry and given topic
   async function refreshRelatedItems(topic: ValidTopic): Promise<void> {
+    // get current pagination state
     const pagination = relatedItemPagination[topic];
 
     if (!currentEntry|| !topic) {
       relatedItemRows[topic] = { rowsAvailable: 0, rows: [], };
-      pagination.value = {
-        ...pagination.value,
-        rowsNumber: 0
+      relatedItemPagination[topic] = {
+        ...pagination,
+        totalRecords: 0
       };
       return;
     }
@@ -153,28 +165,33 @@ export const useRelationshipStore = defineStore('relationship', () => {
     const relatedItemsAvailable = relatedItems.length;
 
     // filter the list
-    relatedItems = relatedItems.filter((relatedItem) => relatedItem.name.toLowerCase().includes(pagination.value.filter.toLowerCase()));
+    for (const key in Object.keys(pagination.filters)) {
+      relatedItems = relatedItems.filter((relatedItem) => relatedItem[key].toLowerCase().includes(pagination.filters[key].toLowerCase()));
+    }
 
     // sort the list
-    relatedItems = relatedItems.sort((a, b) => {
-      if (pagination.value.descending)
-        return a.name.localeCompare(b.name);
-      else
-        return b.name.localeCompare(a.name);
-    });
+    if (pagination.sortField && pagination.sortOrder) {
+      relatedItems = relatedItems.sort((a, b) => {
+        if (pagination.sortOrder > 1)
+          return a[pagination.sortField].localeCompare(b[pagination.sortField]);
+        else
+          return b[pagination.sortField].localeCompare(a[pagination.sortField]);
+      });
+    }
 
     // paginate the list
-    const start = (pagination.value.page - 1) * pagination.value.rowsPerPage;
-    const end = pagination.value.page * pagination.value.rowsPerPage;
+    const start = (pagination.page - 1) * pagination.rowsPerPage;
+    const end = pagination.page * pagination.rowsPerPage;
     relatedItems = relatedItems.slice(start, end);
 
     relatedItemRows[topic] = {
       rows: relatedItems,
       rowsAvailable: relatedItemsAvailable
     };
-    pagination.value = {
-      ...pagination.value,
-      rowsNumber: relatedItemRows[topic].rowsAvailable
+    relatedItemPagination[topic] = {
+      ...pagination,
+      first: start,
+      totalRecords: relatedItemRows[topic].rowsAvailable,
     };
   }
 

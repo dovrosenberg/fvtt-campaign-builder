@@ -9,7 +9,6 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs';
 import { defineConfig, Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { quasar } from '@quasar/vite-plugin';
 
 // to get the verison number
 import npmPackage from './package.json';
@@ -53,13 +52,10 @@ export default defineConfig({
       hook: 'writeBundle',
     }),
     vue(),
-    quasar({
-      sassVariables: 'src/components/styles/quasar.variables.scss'
-    }),
     scss({
       output: 'styles/style.css',
       sourceMap: true,
-      include: ['src/**/*.scss', 'src/**/*.css', 'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css', 'src/components/styles/quasar.sass'],
+      include: ['src/**/*.scss', 'src/**/*.css', 'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css'],
       watch: ['src/**/*.scss', 'src/**/*.css', 'src/'],
     }),
     viteCommonjs(),

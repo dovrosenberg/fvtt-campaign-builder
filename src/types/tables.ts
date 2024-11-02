@@ -1,12 +1,13 @@
 import { Topic } from '.';
 
 export type TablePagination = {
-  page: number;
+  first: number;   // the cardinal number of the first included row (=rowsPerPage*page)
+  page: number;    // the current page
   rowsPerPage: number;
-  rowsNumber?: number;  // total number of rows available (not populated if rows not coming from the server)
-  sortBy: string;  // field to sort by
-  descending: boolean;  // sort direction
-  filter: string;
+  totalRecords?: number | unknown;  // total number of rows available (not populated if rows not coming from the server)
+  sortField: string;  // field to sort by
+  sortOrder: 1 | -1 | null;  // sort direction
+  filters: Record<string, string>;   // maps field name to filter value applied to it
 }
 
 export type CharacterRow = {

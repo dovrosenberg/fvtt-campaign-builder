@@ -28,7 +28,6 @@
     "@faker-js/faker": "^8.3.1",
     "@league-of-foundry-developers/foundry-vtt-types": "dovrosenberg/foundry-vtt-types#97594bc",
     "@originjs/vite-plugin-commonjs": "^1.0.1",
-    "@quasar/vite-plugin": "^1.7.0",
     "@types/jest": "^29.5.10",
     "@types/jquery": "^3.5.29",
     "@types/lodash": "^4.14.202",
@@ -65,7 +64,7 @@
   "dependencies": {
     "@imengyu/vue3-context-menu": "^1.4.1",
     "pinia": "^2.1.7",
-    "quasar": "^2.16.6",
+    "primevue": "^4.2.1",
     "vue": "^3.4.31",
     "vue-eslint-parser": "^9.4.3"
   }
