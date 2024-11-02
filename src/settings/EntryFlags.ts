@@ -67,12 +67,12 @@ export abstract class EntryFlags {
     return;
   }
 
-  public static get<T extends EntryFlagKey>(entry: JournalEntry, flag: T): EntryFlagType<T> | null {
+  public static get<T extends EntryFlagKey>(entry: JournalEntry, flag: T): EntryFlagType<T>  {
     return (entry.getFlag(moduleJson.id, flag) as EntryFlagType<T>);
   }
 
   // note - setting a flag to null will delete it
-  public static async set<T extends EntryFlagKey>(entry: JournalEntry, flag: T, value: EntryFlagType<T> | null): Promise<void> {
+  public static async set<T extends EntryFlagKey>(entry: JournalEntry, flag: T, value: EntryFlagType<T>): Promise<void> {
     // unlock it to make the change
     const pack = getGame().packs?.get(entry.pack || '');
     if (!pack)

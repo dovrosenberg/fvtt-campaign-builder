@@ -1,4 +1,5 @@
 export * from './directory';
+export * from './tables';
 
 export type WindowTab = {
   id: string;   // unique id
@@ -27,6 +28,14 @@ export type EntrySummary = {
 // this oder is also the order that they get sorted in
 export enum Topic {
   None = 0,
+  Character = 1,
+  Location = 2,
+  Organization = 3,
+  Event = 4,
+}
+
+// topics except None
+export enum ValidTopic {
   Character = 1,
   Location = 2,
   Organization = 3,

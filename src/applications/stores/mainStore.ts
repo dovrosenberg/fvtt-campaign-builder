@@ -8,6 +8,7 @@ import { computed, ref } from 'vue';
 import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { getCleanEntry } from '@/compendia';
+import { EntryFlags } from 'src/settings/EntryFlags';
 
 // types
 
@@ -60,6 +61,12 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // computed state
+  const currentEntryTopic = computed((): Topic => {
+    if (!currentEntry.value)
+      return Topic.None;
+
+    return EntryFlags.get(currentEntry.value, EntryFlagKey.topic);
+  })
 
   ///////////////////////////////
   // internal functions
@@ -73,6 +80,7 @@ export const useMainStore = defineStore('main', () => {
     currentWorldId,
     currentWorldFolder,
     currentEntry,
+    currentEntryTopic,
     currentEntryId,
     rootFolder,
 

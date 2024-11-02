@@ -23,7 +23,7 @@ const pinia = createPinia();
 setActivePinia(pinia);
 
 export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = foundry.utils.mergeObject(super.DEFAULT_OPTIONS, {
+  static DEFAULT_OPTIONS = {
     id: `app-${moduleJson.id}-WorldBuilder`,
     classes: ['fwb-main-window'], 
     window: {
@@ -45,7 +45,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
       // submitOnClose: false,
     },
     actions: {}
-  }, { inplace: false });
+  };
 
   static DEBUG = false;
 

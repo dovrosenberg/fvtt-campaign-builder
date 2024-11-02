@@ -5,3 +5,8 @@ export type RelatedItem = {
   role: string;   // optional role describing the relationship (ex. 'Mayor' or 'Sister' or 'Capital')
 };
 
+
+// includes additional details
+export type RelatedItemDetails = RelatedItem & {
+  name: string;
+}
