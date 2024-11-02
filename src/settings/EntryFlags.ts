@@ -68,7 +68,11 @@ export abstract class EntryFlags {
   }
 
   public static get<T extends EntryFlagKey>(entry: JournalEntry, flag: T): EntryFlagType<T>  {
-    return (entry.getFlag(moduleJson.id, flag) as EntryFlagType<T>);
+    let val = (entry.getFlag(moduleJson.id, flag) as EntryFlagType<T>);
+    if (val === undefined)
+      val = flagSetup.find((f)=>f.flagId===flag)?.default as EntryFlagType<T>;
+
+    return val;
   }
 
   // note - setting a flag to null will delete it

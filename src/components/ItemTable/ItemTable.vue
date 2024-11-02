@@ -80,7 +80,7 @@
   // local components
 
   // types
-  import { FieldUsedIn, TablePagination } from '@/types';
+  import { ValidTopic, TablePagination } from '@/types';
 
   type ExtraColumn = { name: string; label: string };
   type ItemRow = Record<string, string>;
@@ -88,8 +88,8 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    itemType: { 
-      type: String as PropType<FieldUsedIn>, 
+    topic: { 
+      type: Number as PropType<ValidTopic>, 
       required: true,
     },
     globalMode: {
@@ -143,15 +143,13 @@
     const prefix = props.globalMode ? 'New ' : 'Add ';
 
     const labels = {
-      [FieldUsedIn.Event]: 'Event',
-      [FieldUsedIn.Character]: 'Character',
-      [FieldUsedIn.Location]: 'Location',
-      [FieldUsedIn.Organization]: 'Organization',
-      [FieldUsedIn.Species]: 'Species',
-      [FieldUsedIn.Note]: 'Note',
-    } as {[key in FieldUsedIn]: string};
+      [ValidTopic.Event]: 'Event',
+      [ValidTopic.Character]: 'Character',
+      [ValidTopic.Location]: 'Location',
+      [ValidTopic.Organization]: 'Organization',
+    } as Record<ValidTopic, string>;
 
-    return prefix + labels[props.itemType];
+    return prefix + labels[props.topic];
   });
 
   const columns = computed((): quasar.QTableColumn[] => {
@@ -162,41 +160,31 @@
     const dateColumn = { name: 'date', align: 'left', label: 'Date', field: 'date', format: (val: string) => (dateText(calendar.value, val)), sortable: true}; 
 
     const columns = {
-      [FieldUsedIn.Event]: [
+      [ValidTopic.Event]: [
         actionColumn,
         nameColumn,
         dateColumn,
       ],
-      [FieldUsedIn.Character]: [
+      [ValidTopic.Character]: [
         actionColumn,
         nameColumn,
         typeColumn,
       ],
-      [FieldUsedIn.Location]: [
+      [ValidTopic.Location]: [
         actionColumn,
         nameColumn,
         typeColumn,
       ],
-      [FieldUsedIn.Organization]: [
+      [ValidTopic.Organization]: [
         actionColumn,
         nameColumn,
         typeColumn,
       ],
-      [FieldUsedIn.Species]: [
-        actionColumn,
-        nameColumn,
-        typeColumn,
-      ],
-      [FieldUsedIn.Note]: [
-        actionColumn,
-        nameColumn,
-        typeColumn,
-      ],
-    } as {[key in FieldUsedIn]: QTableProps['columns']};
+    } as Record<ValidTopic, QTableProps['columns']>;
 
     if (props.extraColumns.length > 0) {
       // add the extra fields
-      columns[props.itemType] = (columns[props.itemType] || []).concat(props.extraColumns.map((field) => ({
+      columns[props.topic] = (columns[props.topic] || []).concat(props.extraColumns.map((field) => ({
         name: field.name, 
         align: 'left', 
         label: field.label, 
@@ -206,7 +194,7 @@
       ));
     }
 
-    return columns[props.itemType] || [];
+    return columns[props.topic] || [];
   });
 
   ////////////////////////////////
@@ -216,7 +204,7 @@
   // event handlers
   const onRowClick = async function (_evt: unknown, row: { _id: string }) { 
     alert('do something when row is clicked');
-    // await router.push({ name: 'ViewItem', params: { section: props.itemType, itemId: row._id }});
+    // await router.push({ name: 'ViewItem', params: { section: props.topic, itemId: row._id }});
   };
 
   // want to delete an item

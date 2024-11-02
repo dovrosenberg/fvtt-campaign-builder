@@ -53,12 +53,14 @@ export default defineConfig({
       hook: 'writeBundle',
     }),
     vue(),
-    quasar(),
+    quasar({
+      sassVariables: 'src/components/styles/quasar.variables.scss'
+    }),
     scss({
       output: 'styles/style.css',
       sourceMap: true,
-      include: ['src/**/*.scss', 'src/**/*.css', 'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css'],
-      watch: ['src/styles/*.scss', 'src/**/*.css', 'src/'],
+      include: ['src/**/*.scss', 'src/**/*.css', 'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css', 'src/components/styles/quasar.sass'],
+      watch: ['src/**/*.scss', 'src/**/*.css', 'src/'],
     }),
     viteCommonjs(),
     envCompatible(),

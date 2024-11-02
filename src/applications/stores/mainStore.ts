@@ -8,7 +8,8 @@ import { computed, ref } from 'vue';
 import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { getCleanEntry } from '@/compendia';
-import { EntryFlags } from 'src/settings/EntryFlags';
+import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+import { Topic } from '@/types';
 
 // types
 

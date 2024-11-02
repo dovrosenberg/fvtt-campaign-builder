@@ -3,7 +3,7 @@
     <q-card style="min-width: 350px">
       <q-card-section>
         <div class="text-h6">
-          {{ itemTypeDetails[props.itemType].title }}
+          {{ itemTypeDetails[props.topic].title }}
         </div>
       </q-card-section>
 
@@ -42,7 +42,7 @@
         />
         <q-btn 
           flat 
-          :label="itemTypeDetails[props.itemType].buttonTitle" 
+          :label="itemTypeDetails[props.topic].buttonTitle" 
           :disable="!isAddFormValid"
           @click="onAddClick"
         />
@@ -56,14 +56,14 @@
   import { ref, computed, PropType, watch, onMounted, nextTick } from 'vue';
 
   // local imports
+  import { useRelationshipStore } from '@/applications/stores/relationshipStore';
 
   // library components
 
   // local components
 
   // types
-  import { FieldUsedIn, ItemFieldUsedIn, } from '@/types';
-  import { useItemStore } from '@/stores/itemStore';
+  import { ValidTopic, } from '@/types';
   import { Loading, QSelect } from 'quasar';
   type ItemTypeDetail = {
     title: string;
@@ -74,8 +74,8 @@
   // props
   const props = defineProps({
     modelValue: Boolean,  // show/hide dialog
-    itemType: { // this is the type of the item that we're adding
-      type: String as PropType<ItemFieldUsedIn>, 
+    topic: { // this is the type of the item that we're adding
+      type: Number as PropType<ValidTopic>, 
       required: true,
     },
   });
@@ -86,7 +86,7 @@
 
   ////////////////////////////////
   // store
-  const itemStore = useItemStore();
+  const relationshipStore = useRelationshipStore();
 
   ////////////////////////////////
   // data
@@ -95,31 +95,23 @@
   const options = ref<{ label: string, value: string }[]>([]);
   const extraFieldValues = ref<Record<string, string>>({});
   const itemTypeDetails = {
-    [FieldUsedIn.Event]: {
+    [ValidTopic.Event]: {
       title: 'Add an event',
       buttonTitle: 'Add event',
     },
-    [FieldUsedIn.Character]: {
+    [ValidTopic.Character]: {
       title: 'Add a character',
       buttonTitle: 'Add character',
     },
-    [FieldUsedIn.Location]: {
+    [ValidTopic.Location]: {
       title: 'Add a location',
       buttonTitle: 'Add location',
     },
-    [FieldUsedIn.Organization]: {
+    [ValidTopic.Organization]: {
       title: 'Add an organization',
       buttonTitle: 'Add organization',
     },
-    [FieldUsedIn.Species]: {
-      title: 'Add a species',
-      buttonTitle: 'Add species',
-    },
-    [FieldUsedIn.Note]: {
-      title: 'Add a note',
-      buttonTitle: 'Add note',
-    },
-  } as Record<ItemFieldUsedIn, ItemTypeDetail>;
+  } as Record<ValidTopic, ItemTypeDetail>;
   const selectItems = ref<{ label: string, value: string }[]>([]);
   const extraFields = ref<{name:string, label:string}[]>([]);
   const nameSelectRef = ref<QSelect | null>(null);
@@ -170,7 +162,7 @@
   const onAddClick = async function() {
     Loading.show({group: 'AddRelatedItemDialog.onAddClick'});
 
-    // note that this naming is a bit backward - itemType is the type of the related table, so it's not the current item
+    // note that this naming is a bit backward - topic is the type of the related table, so it's not the current item
     let result = false;
 
     if (itemId.value) {
@@ -180,7 +172,7 @@
         return acc;
       }, {} as Record<string, string>);
 
-      result = await itemStore.addRelatedItem(props.itemType, itemId.value.value, extraFieldsToSend);
+      result = await relationshipStore.addRelatedItem(props.topic, itemId.value.value, extraFieldsToSend);
     }
 
     if (result) {
@@ -214,10 +206,10 @@
   });
 
   // when the item type changes, reload it 
-  watch(() => props.itemType,  async () => {
+  watch(() => props.topic,  async () => {
     // get the list of items for the dropdown
-    selectItems.value = await itemStore.getItemList(props.itemType, true);
-    extraFields.value = itemStore.getRelatedItemExtraFields(props.itemType);
+    selectItems.value = await itemStore.getItemList(props.topic, true);
+    extraFields.value = relationshipStore.extraFields.value[props.topic];
   });
 
 
@@ -225,8 +217,8 @@
   // lifecycle events
   onMounted(async () => {
     // get the list of items for the dropdown
-    selectItems.value = await itemStore.getItemList(props.itemType, true);
-    extraFields.value = itemStore.getRelatedItemExtraFields(props.itemType);
+    selectItems.value = await itemStore.getItemList(props.topic, true);
+    extraFields.value = relationshipStore.extraFields.value[props.topic];
 
     await nextTick();
     nameSelectRef.value?.focus();

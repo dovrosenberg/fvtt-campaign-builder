@@ -1,31 +1,39 @@
 <template>
-  <ItemTable 
-    :item-type="topic"
-    :global-mode="false"
-    :rows="(relationshipStore.relatedItemRows[topic].rows as ItemRow[])"
-    :pagination="(relationshipStore.relatedItemPagination[topic])"
-    :filter="relationshipStore.relatedItemPagination[topic].filter"
-    :extra-columns="extraColumns"
-    @add-item-click="addDialogShow=true"
-    @edit-item-click="onEditItemClick"
-    @delete-item-click="onDeleteItemClick"
-    @pagination-changed="onPaginationChanged"
-  />
+  <div class="fwb-quasar">
+    <q-layout>
+      <q-page-container>
+        <div class="row q-pa-xs"><div class="col-12">
+          <ItemTable 
+            :topic="topic"
+            :global-mode="false"
+            :rows="(relationshipStore.relatedItemRows[topic].rows as ItemRow[])"
+            :pagination="(relationshipStore.relatedItemPagination[topic])"
+            :filter="relationshipStore.relatedItemPagination[topic].filter"
+            :extra-columns="extraColumns"
+            @add-item-click="addDialogShow=true"
+            @edit-item-click="onEditItemClick"
+            @delete-item-click="onDeleteItemClick"
+            @pagination-changed="onPaginationChanged"
+          />
 
-  <EditRelatedItemDialog 
-    v-if="extraColumns.length>0"
-    v-model="editDialogShow"
-    :item-id="editItem.itemId"
-    :item-name="editItem.itemName"
-    :extra-field-values="editItem.extraFields"
-    :item-type="(topic as Topic.Character | Topic.Location | Topic.Organization)"
-    @item-edited="onItemEdited"
-  />
-  <AddRelatedItemDialog 
-    v-model="addDialogShow"
-    :item-type="topic"
-    @item-added="onItemAdded"
-  />
+          <!-- <EditRelatedItemDialog 
+            v-if="extraColumns.length>0"
+            v-model="editDialogShow"
+            :item-id="editItem.itemId"
+            :item-name="editItem.itemName"
+            :extra-field-values="editItem.extraFields"
+            :topic="(topic as ValidTopic.Character | ValidTopic.Location | ValidTopic.Organization)"
+            @item-edited="onItemEdited"
+          />
+          <AddRelatedItemDialog 
+            v-model="addDialogShow"
+            :topic="topic"
+            @item-added="onItemAdded"
+          /> -->
+        </div></div>
+      </q-page-container>
+    </q-layout>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -54,7 +62,7 @@
   // props
   const props = defineProps({
     topic: { 
-      type:Number as PropType<Topic>, 
+      type:Number as PropType<ValidTopic>, 
       required: true,
     },
   });
@@ -68,52 +76,24 @@
   const mainStore = useMainStore();
 
   const { currentEntryTopic } = storeToRefs(mainStore);
+  const { extraFields } = storeToRefs(relationshipStore);
 
   ////////////////////////////////
   // data
   const addDialogShow = ref(false);   // should we pop up the add dialog?
   const editDialogShow = ref(false);   // should we pop up the add dialog?
   const editItem = ref({
-    topic: Topic.Character,
+    topic: ValidTopic.Character,
     itemId: '',
     itemName: '',
     extraFields: [],
-  } as { topic: Topic; itemId: Id; itemName: string; extraFields: {name: string; label: string; value: string}[] });
+  } as { topic: ValidTopic; itemId: string; itemName: string; extraFields: {name: string; label: string; value: string}[] });
   
-  // keyed by main entry topic, then the relationship topic
-  const extraFields = {
-    [ValidTopic.Character]: {
-      [ValidTopic.Character]: [{name:'role', label:'Role'}],
-      [ValidTopic.Event]: [],
-      [ValidTopic.Location]: [{name:'role', label:'Role'}],
-      [ValidTopic.Organization]: [],
-    },
-    [ValidTopic.Event]: {
-      [ValidTopic.Character]: [],
-      [ValidTopic.Event]: [],
-      [ValidTopic.Location]: [],
-      [ValidTopic.Organization]: [],
-    },
-    [ValidTopic.Location]: {
-      [ValidTopic.Character]: [{name:'role', label:'Role'}],
-      [ValidTopic.Event]: [],
-      [ValidTopic.Location]: [],
-      [ValidTopic.Organization]: [],
-    },
-    [ValidTopic.Organization]: {
-      [ValidTopic.Character]: [{name:'role', label:'Role'}],
-      [ValidTopic.Event]: [],
-      [ValidTopic.Location]: [],
-      [ValidTopic.Organization]: [],
-    },    
-  } as Record<ValidTopic, Record<ValidTopic, {name: string; label: string; }[]>>; 
-  
-  //const router = useRouter();
 
   ////////////////////////////////
   // computed data
   const extraColumns = computed(() => {
-    return extraFields[currentEntryTopic.value][props.topic];
+    return extraFields.value[currentEntryTopic.value][props.topic];
   });
 
   ////////////////////////////////
@@ -130,12 +110,12 @@
   ////////////////////////////////
   // event handlers
   // show the edit dialog
-  const onEditItemClick = function(_id: string, name: string, extraFields: {name: string; label: string; value: string}[]) {
+  const onEditItemClick = function(_id: string, name: string, fieldsToAdd: {name: string; label: string; value: string}[]) {
     editItem.value = {
       topic: props.topic,
       itemId: _id,
       itemName: name,
-      extraFields: clone(extraFields),
+      extraFields: clone(fieldsToAdd),
     };
     editDialogShow.value = true;
   };
@@ -176,7 +156,7 @@
 
   ////////////////////////////////
   // watchers
-  // reload when itemtype changes
+  // reload when topic changes
   watch(() => [props.topic], async () => {
     await refreshQuery();
   });

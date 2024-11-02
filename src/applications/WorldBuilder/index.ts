@@ -17,6 +17,7 @@ const { ApplicationV2 } = foundry.applications.api;
 
 
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
+import '@/components/styles/quasar.sass';
 
 // setup pinia
 const pinia = createPinia();

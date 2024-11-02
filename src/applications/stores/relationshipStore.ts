@@ -8,7 +8,7 @@ import { RelatedItem, RelatedItemDetails } from '@/utils/relationships';
 import { useMainStore } from './mainStore';
 
 // types
-import { Topic, TablePagination, AnyPaginationResult, CharacterRow, EventRow, LocationRow, OrganizationRow } from '@/types';
+import { Topic, TablePagination, AnyPaginationResult, CharacterRow, EventRow, LocationRow, OrganizationRow, ValidTopic } from '@/types';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { reactive, Ref } from 'vue';
 import { ref } from 'vue';
@@ -18,18 +18,46 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // the state
   const relatedItemRows = reactive({
-    [Topic.Character]: { rowsAvailable:0, rows:[] as CharacterRow[]},
-    [Topic.Event]: { rowsAvailable:0, rows:[] as EventRow[]},
-    [Topic.Location]: { rowsAvailable:0, rows:[] as LocationRow[]},
-    [Topic.Organization]: { rowsAvailable:0, rows:[] as OrganizationRow[]},
-  } as Record<Topic, AnyPaginationResult>);
-  const relatedItemPagination = {
-    [Topic.Character]: ref<TablePagination>({ sortBy: 'name', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: ''} as TablePagination),
-    [Topic.Event]: ref<TablePagination>({ sortBy: 'date', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: '' } as TablePagination),
-    [Topic.Location]: ref<TablePagination>({ sortBy: 'name', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: '' } as TablePagination),
-    [Topic.Organization]: ref<TablePagination>({ sortBy: 'name', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: '' } as TablePagination),
-  } as Record<Topic, Ref<TablePagination>>;
+    [ValidTopic.Character]: { rowsAvailable:0, rows:[] as CharacterRow[]},
+    [ValidTopic.Event]: { rowsAvailable:0, rows:[] as EventRow[]},
+    [ValidTopic.Location]: { rowsAvailable:0, rows:[] as LocationRow[]},
+    [ValidTopic.Organization]: { rowsAvailable:0, rows:[] as OrganizationRow[]},
+  } as Record<ValidTopic, AnyPaginationResult>);
+  const relatedItemPagination = reactive({
+    [ValidTopic.Character]: ref<TablePagination>({ sortBy: 'name', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: ''} as TablePagination),
+    [ValidTopic.Event]: ref<TablePagination>({ sortBy: 'date', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: '' } as TablePagination),
+    [ValidTopic.Location]: ref<TablePagination>({ sortBy: 'name', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: '' } as TablePagination),
+    [ValidTopic.Organization]: ref<TablePagination>({ sortBy: 'name', descending: false, page: 1, rowsPerPage: 10, rowsNumber: undefined, filter: '' } as TablePagination),
+  } as Record<ValidTopic, Ref<TablePagination>>);
 
+  // keyed by main entry topic, then the relationship topic
+  const extraFields = reactive({
+    [ValidTopic.Character]: {
+      [ValidTopic.Character]: [{name:'role', label:'Role'}],
+      [ValidTopic.Event]: [],
+      [ValidTopic.Location]: [{name:'role', label:'Role'}],
+      [ValidTopic.Organization]: [],
+    },
+    [ValidTopic.Event]: {
+      [ValidTopic.Character]: [],
+      [ValidTopic.Event]: [],
+      [ValidTopic.Location]: [],
+      [ValidTopic.Organization]: [],
+    },
+    [ValidTopic.Location]: {
+      [ValidTopic.Character]: [{name:'role', label:'Role'}],
+      [ValidTopic.Event]: [],
+      [ValidTopic.Location]: [],
+      [ValidTopic.Organization]: [],
+    },
+    [ValidTopic.Organization]: {
+      [ValidTopic.Character]: [{name:'role', label:'Role'}],
+      [ValidTopic.Event]: [],
+      [ValidTopic.Location]: [],
+      [ValidTopic.Organization]: [],
+    },    
+  } as Record<ValidTopic, Record<ValidTopic, {name: string; label: string; }[]>>); 
+  
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
@@ -108,7 +136,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   }
 
   // refresh the the related items rows and pagination for the current entry and given topic
-  async function refreshRelatedItems(topic: Topic): Promise<void> {
+  async function refreshRelatedItems(topic: ValidTopic): Promise<void> {
     const pagination = relatedItemPagination[topic];
 
     if (!currentEntry|| !topic) {
@@ -164,6 +192,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   return {
     relatedItemRows,
     relatedItemPagination,
+    extraFields,
 
     addRelationship,
     deleteRelationship,

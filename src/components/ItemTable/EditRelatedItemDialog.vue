@@ -4,7 +4,7 @@
     <q-card style="min-width: 350px">
       <q-card-section>
         <div class="text-h6">
-          {{ `${itemTypeDetails[props.itemType].title}: ${props.itemName}` }}
+          {{ `${itemTypeDetails[props.topic].title}: ${props.itemName}` }}
         </div>
       </q-card-section>
       <q-card-section class="q-pt-none">
@@ -25,7 +25,7 @@
         <q-btn 
           v-close-popup 
           flat 
-          :label="itemTypeDetails[props.itemType].buttonTitle" 
+          :label="itemTypeDetails[props.topic].buttonTitle" 
           @click="onEditClick"
         />
       </q-card-actions>
@@ -37,23 +37,18 @@
   // library imports
   import { ref, computed, PropType, watch } from 'vue';
   import { Loading } from 'quasar';
-  import { TypedDocumentNode } from '@urql/vue';
-  import { storeToRefs } from 'pinia';
-  import router from '@/router';
   import { cloneDeep } from 'lodash';
 
   // local imports
-  import { useItemStore } from '@/stores/itemStore';
-  import { urqlClient } from '@/database';
-  import { GQL_UPDATE_CHARACTER_LOCATION_ROLE, GQL_UPDATE_CHARACTER_ORGANIZATION_ROLE } from '@/database/gql';
 
   // library components
 
   // local components
 
   // types
-  import { FieldUsedIn, Id } from '@/types';
-  type ValidFieldUsedIn = FieldUsedIn.Character | FieldUsedIn.Organization | FieldUsedIn.Location;
+  import { ValidTopic } from '@/types';
+  type AllowedTopic = ValidTopic.Character | ValidTopic.Organization | ValidTopic.Location;
+  
   type ItemTypeDetail = {
     title: string;
     buttonTitle: string;
@@ -67,8 +62,8 @@
     modelValue: Boolean,  // show/hide dialog
     // the type of item we're editing (ex. organization if we're editing the role of a character in an organization from the character's page)
     // the type of the other side of the relationship comes from the page route
-    itemType: { 
-      type: String as PropType<ValidFieldUsedIn>, 
+    topic: { 
+      type: Number as PropType<ValidTopic>, 
       required: true,
     },
     // the _id of that item (ex. the organization)
@@ -96,39 +91,31 @@
 
   ////////////////////////////////
   // store
-  const itemStore = useItemStore();
-  const mainItem = storeToRefs(itemStore).item;
 
   ////////////////////////////////
   // data
   const show = ref(props.modelValue);
   const extraFieldValues = ref(cloneDeep(props.extraFieldValues));
   const itemTypeDetails = {
-    [FieldUsedIn.Character]: {
+    [ValidTopic.Character]: {
       title: 'Edit character',
       buttonTitle: 'Save character',
-      queryName: 'updateCharacterOrganizationRole',
-      editMutation: GQL_UPDATE_CHARACTER_ORGANIZATION_ROLE,
     },
-    [FieldUsedIn.Organization]: {
+    [ValidTopic.Organization]: {
       title: 'Edit organization',
       buttonTitle: 'Save organization',
-      queryName: 'updateCharacterOrganizationRole',
-      editMutation: GQL_UPDATE_CHARACTER_ORGANIZATION_ROLE,
     },
-    [FieldUsedIn.Location]: {
+    [ValidTopic.Location]: {
       title: 'Edit location',
       buttonTitle: 'Save location',
-      queryName: 'updateCharacterLocationRole',
-      editMutation: GQL_UPDATE_CHARACTER_LOCATION_ROLE,
     },
-  } as Record<ValidFieldUsedIn, ItemTypeDetail>;
+  } as Record<AllowedTopic, ItemTypeDetail>;
 
   ////////////////////////////////
   // computed data
   // find the type of the other side of the relationship from the route
-  const masterItemType = computed((): FieldUsedIn => {
-    return router.currentRoute.value.params.section as unknown as FieldUsedIn;
+  const masterItemType = computed((): ValidTopic => {
+    //return router.currentRoute.value.params.section as unknown as ValidTopic;
   });
 
   ////////////////////////////////
@@ -147,8 +134,8 @@
       throw new Error('EditRelatedItemDialog.mutationData: no item selected');
 
     // no matter which way the relationship exists, we can add both with the same call
-    if (props.itemType == FieldUsedIn.Character && masterItemType.value == FieldUsedIn.Organization || 
-          props.itemType == FieldUsedIn.Organization && masterItemType.value == FieldUsedIn.Character) {
+    if (props.topic == ValidTopic.Character && masterItemType.value == ValidTopic.Organization || 
+        props.topic == ValidTopic.Organization && masterItemType.value == ValidTopic.Character) {
       const role = extraFieldValues.value?.find((val) => (val.name==='role'))?.value;
       if (!role) {
         throw new Error('EditRelatedItemDialog.mutationData: no role selected');
@@ -157,12 +144,12 @@
       mutation = GQL_UPDATE_CHARACTER_ORGANIZATION_ROLE;
       variables = { 
         worldId: itemStore.worldId, 
-        characterId: props.itemType == FieldUsedIn.Character ? props.itemId : mainItem.value._id, 
-        organizationId: props.itemType == FieldUsedIn.Organization ? props.itemId : mainItem.value._id, 
+        characterId: props.topic == ValidTopic.Character ? props.itemId : mainItem.value._id, 
+        organizationId: props.topic == ValidTopic.Organization ? props.itemId : mainItem.value._id, 
         role: role,
       };
-    } else if (props.itemType == FieldUsedIn.Character && masterItemType.value == FieldUsedIn.Location || 
-          props.itemType == FieldUsedIn.Location && masterItemType.value == FieldUsedIn.Character) {
+    } else if (props.topic == ValidTopic.Character && masterItemType.value == ValidTopic.Location || 
+        props.topic == ValidTopic.Location && masterItemType.value == ValidTopic.Character) {
       const role = extraFieldValues.value?.find((val) => (val.name==='role'))?.value;
       if (!role) {
         throw new Error('EditRelatedItemDialog.mutationData: no role selected');
@@ -171,12 +158,12 @@
       mutation = GQL_UPDATE_CHARACTER_LOCATION_ROLE;
       variables = { 
         worldId: itemStore.worldId, 
-        characterId: props.itemType == FieldUsedIn.Character ? props.itemId : mainItem.value._id, 
-        locationId: props.itemType == FieldUsedIn.Location ? props.itemId : mainItem.value._id, 
+        characterId: props.topic == ValidTopic.Character ? props.itemId : mainItem.value._id, 
+        locationId: props.topic == ValidTopic.Location ? props.itemId : mainItem.value._id, 
         role: role,
       };
     } else {
-      throw new Error('EditRelatedItemDialog.mutationData: unsupported relationship type: ' + props.itemType + ' ' + masterItemType.value);
+      throw new Error('EditRelatedItemDialog.mutationData: unsupported relationship type: ' + props.topic + ' ' + masterItemType.value);
     }
 
     return {

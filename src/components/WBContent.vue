@@ -71,157 +71,9 @@
               />
             </div>
           </div>
-          <!-- <div class="tab relationships" data-group="primary" data-tab="relationships">
+          <div class="tab description flexcol" data-group="primary" data-tab="characters">
             <div class="tab-inner flexcol">
-              <div class="relationships flexrow">
-                <div class="items-list">
-                  <ol class="item-list">
-                    <li v-for="relationship in relationships" 
-                      class="item-header flexrow"
-                    >
-                      <h3 class="item-name noborder flexrow">{{relationship.name}}</h3>
-                      <h3 class="item-name noborder flexrow">{{localize('MonksEnhancedJournal.Relationship')}}</h3>
-                      <div v-if="owner" 
-                        class="item-controls flexrow" 
-                        buttons="2"
-                      ></div>
-                    </li>
-                    <li v-for="document in documents"
-                      class="item flexrow" 
-                      :data-id="document.id" 
-                      :data-uuid="document.uuid" 
-                      data-container="relationships" 
-                      data-document="JournalEntry" 
-                      draggable="false"
-                    >
-                      <div class="item-name clickable flexrow">
-                        <img 
-                          class="item-image large actor-icon" 
-                          :src="document.img" 
-                          onerror="if (!document.imgerr) { document.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/{{document.type}}.png' }" 
-                        />
-                        <h4>
-                          <a>
-                            <i v-if="document.pack"
-                              class="fas fa-atlas" 
-                              title="{{localize 'MonksEnhancedJournal.FromCompendium'}}"
-                            ></i>
-                            {{document.name}}
-                          </a>
-                        </h4>
-                      </div>
-
-                      <div class="item-name item-relationship flexrow">
-                        <input 
-                          type="text" 
-                          class="item-field" 
-                          :name="`relationships.${document.id}.relationship`" 
-                          :value="document.relationship" 
-                        />
-                      </div>
-
-                      <div v-if="owner" 
-                        class="item-controls flexrow owner" 
-                        buttons="2"
-                      >
-                        <input 
-                          type="checkbox" 
-                          :name="`relationships.${document.id}.hidden`" 
-                          :checked="document.hidden" 
-                          style="display:none;" 
-                        />
-                        <a class="item-control item-hide" title="{{localize 'MonksEnhancedJournal.HideShowRelationship'}}"><i class="fas fa-eye-slash"></i></a>
-                        <a class="item-control item-delete" title="{{localize 'MonksEnhancedJournal.RemoveRelationship'}}"><i class="fas fa-trash"></i></a>
-                      </div>
-                    </li>
-                     <li v-else-if="owner" 
-                      class="instruction"
-                    >
-                      {{localize 'MonksEnhancedJournal.msg.DragToMakeRelationship'}}
-                    </li>
-                    <li v-else 
-                      class="instruction"
-                    >
-                      {{localize 'MonksEnhancedJournal.msg.NoRelationshipsAtTheMoment'}}
-                    </li> 
-                  </ol>
-                </div>
-              </div>
-            </div>
-          </div> 
-          <div class="tab offerings" data-group="primary" data-tab="offerings">
-            <div class="tab-inner flexcol">
-              <div class="offering-list">
-                <div class="items-list">
-                  <div class="item-header flexrow">
-                    <h3 class="item-name noborder flexrow">Actor</h3>
-                    <h3 class="item-name noborder flexrow">Items</h3>
-                    <h3 class="item-detail noborder flexrow">Status</h3>
-
-                    <div v-if="owner" 
-                      class="item-controls flexrow" 
-                      buttons="2"
-                    ></div>
-                    <div class="item-controls flexrow" buttons="2">
-                      <a class="item-control make-offering" title="{{localize 'MonksEnhancedJournal.MakeOffering'}}"><i class="fas fa-hand-holding-usd"></i></a>
-                    </div>
-                  </div>
-                  <ol class="item-list">
-                    <li v-for="offering in offerings" 
-                      class="item flexrow{{#if this.done}} complete{{/if}}" data-id="{{this.id}}" data-actor-id="{{this.actorId}}" data-container="offerings" draggable="false">
-                      <div class="item-name flexrow">
-                        <img class="item-image actor-icon" src="{{offering.img}}" />
-                        <span>{{offering.name}}</span>
-                      </div>
-
-                      <div class="item-name item-offered flexcol">
-                        <div v-for="item in offering.items" class="flexrow" style="width: 100%; line-height: 32px;">
-                          <img class="item-image item-icon" src="{{item.img}}" onerror="if ($(this).attr('src') != 'icons/svg/item-bag.svg') { $(this).attr('src', 'icons/svg/item-bag.svg'); }" />
-                          <span class="tag">{{{item.name}}}</span>
-                        </div>
-                      </div>
-
-                      <div class="item-detail item-offered">
-                        {{offering.stateName}}
-                      </div>
-
-                      <div v-if="owner" class="item-controls flexrow owner" buttons="2">
-                        <div v-if="offering.state==='offering'">
-                          <a class="item-control item-accept" title="{{localize 'MonksEnhancedJournal.AcceptOffering'}}"><i class="fas fa-check"></i></a>
-                          <a class="item-control item-reject" title="{{localize 'MonksEnhancedJournal.RejectOffering'}}"><i class="fas fa-times"></i></a>
-                        </div>
-
-                        <div class="item-controls flexrow owner" buttons="2">
-                          <input type="checkbox" name="offerings.{{this.id}}.hidden" {{checked this.hidden}} style="display:none;" />
-                          <a class="item-control item-private" title="{{localize 'MonksEnhancedJournal.HideShowOffering'}}"><i class="fas fa-eye-slash"></i></a>
-                          <a class="item-control item-delete" title="{{localize 'MonksEnhancedJournal.RemoveOffering'}}"><i class="fas fa-trash"></i></a>
-                        </div>
-                      </div>
-                      <div v-else class="item-controls flexrow">
-                        <div v-if="offering.owner">
-                          <div v-if="offering.hidden">
-                            <i class="fas fa-eye-slash"></i>
-                          </div>
-                          <div v-if="offering.state==='offering'">
-                            <a class="item-control item-cancel" title="{{localize 'MonksEnhancedJournal.CancelOffering'}}"><i class="fas fa-trash"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                  </ol>
-                </div>
-              </div>
-            </div> 
-          </div>-->
-          <div class="tab notes" data-group="primary" data-tab="notes">
-            <div class="tab-inner flexcol">
-              <!-- <div style="flex-grow: 0;">
-                {{localize('MonksEnhancedJournal.OnlyViewable')}}
-                <span v-if="!hasGM" style="color:darkred;font-weight:bold;">{{localize('MonksEnhancedJournal.msg.CannotEditNotesWithoutGM')}}</span>
-              </div> -->
-              <div class="notes-container">
-                <!-- {{!-- {{editor userdata.enrichedText target=notesTarget editable=true button=true owner=owner}} --}} -->
-              </div>
+              <RelatedItemTable :topic="Topic.Character" />
             </div>
           </div>
         </div>
@@ -252,7 +104,7 @@
   import Editor from '@/components/Editor.vue';
   import HomePage from '@/components/HomePage.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
-
+  import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
   // types
   import { Topic, } from '@/types';
   import type Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.d.mts';
