@@ -260,7 +260,7 @@ export function VueApplicationMixin(BaseApplication) {
 
         // Get the form data and call the handler function
         const { handler, closeOnSubmit } = formConfig;
-        const formData = new FormDataExtended(form);
+        const formData = new globalThis.FormDataExtended(form);
         if (handler instanceof Function) await handler.call(this, event, form, formData);
         // Close the form if closeOnSubmit is true
         if (closeOnSubmit) await this.close();

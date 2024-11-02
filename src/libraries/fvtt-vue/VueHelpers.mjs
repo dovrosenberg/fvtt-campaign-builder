@@ -34,8 +34,7 @@ const concat = (...values) => Handlebars.helpers.concat(...values);
  * @param {boolean} [options.collaborate=false] - Whether to turn on collaborative editing features for ProseMirror.
  * @returns {Handlebars.SafeString} - The rendered editor HTML
  */
-const editor = (content, options) => {
-	return Handlebars.helpers.editor(content, { hash: options })};
+const editor = (content, options) => Handlebars.helpers.editor(content, { hash: options });
 
 /**
  * A ternary expression that allows inserting A or B depending on the value of C.

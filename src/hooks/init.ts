@@ -12,7 +12,7 @@ async function init(): Promise<void> {
 
   // set up custom journal entry types
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
-    [moduleJson.id + '.quest.session']: SessionModel
+    [`${moduleJson.id}.session`]: SessionModel
   });
   DocumentSheetConfig.registerSheet(JournalEntryPage, moduleJson.id, SessionSheet, {
     types: [`${moduleJson.id}.session`],
