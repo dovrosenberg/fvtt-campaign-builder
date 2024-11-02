@@ -50,6 +50,7 @@
 
   // types
   import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
+  const ProseMirror = globalThis.foundry.prosemirror;
 
   // type EditorOptions = {
   //   document: Document<any>,
@@ -198,11 +199,11 @@
 
   const configureProseMirrorPlugins = () => {
     return {
-      menu: globalThis.ProseMirror.ProseMirrorMenu.build(globalThis.ProseMirror.defaultSchema, {
+      menu: ProseMirror.ProseMirrorMenu.build(ProseMirror.defaultSchema, {
         destroyOnSave: true,  // note! this controls whether the save button or save & close button is shown,
         onSave: () => saveEditor()
       }),
-      keyMaps: globalThis.ProseMirror.ProseMirrorKeyMaps.build(globalThis.ProseMirror.defaultSchema, {
+      keyMaps: ProseMirror.ProseMirrorKeyMaps.build(ProseMirror.defaultSchema, {
         onSave: () => saveEditor()
       })
     };
@@ -219,7 +220,7 @@
       //this.delete(editor.value.id); // Delete hidden MCE inputs
       content = mceContent;
     } else if (props.engine === 'prosemirror') {
-      content = globalThis.ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
+      content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
     } else {
       throw new Error(`Unrecognized enginer in saveEditor(): ${props.engine}`);
     }
