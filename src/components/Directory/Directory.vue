@@ -8,14 +8,16 @@
     <!-- Directory Header -->
     <header class="directory-header">
       <div class="header-search flexrow">
-        <q-input 
+        <InputText 
           v-model="filterText"
           for="fwb-directory-search" 
-          debounce="300"
-          :bottom-slots="false"
           :placeholder="localize('fwb.placeholders.search')"                
-          input-class="full-height"
-          autocomplete="off" 
+          autocomplete="off"
+          :pt="{
+            root: {
+              class: 'full-height',
+            }
+          }"
         />
         <a 
           class="header-control create-world create-button" 
@@ -47,7 +49,7 @@
     </header>
 
     <div v-if="isTreeRefreshing">
-      <q-inner-loading :showing="isTreeRefreshing" /> 
+      <ProgressSpinner v-if="isTreeRefreshing" />
     </div>
     <div v-else class="fwb-world-list-wrapper">
       <!-- these are the worlds -->
@@ -124,6 +126,7 @@
   // library imports
   import { ref, } from 'vue';
   import { storeToRefs } from 'pinia';
+  import ProgressSpinner from 'primevue/progressspinner';
 
   // local imports
   import { getGame, localize } from '@/utils/game';
@@ -132,6 +135,7 @@
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
+  import InputText from 'primevue/inputtext';
 
   // local components
   import DirectoryNestedTree from './DirectoryNestedTree.vue';

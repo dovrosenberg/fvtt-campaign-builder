@@ -17,13 +17,14 @@
           <div class="header-details fwb-content-header">
             <h1 class="header-name flexrow">
               <i :class="`fas ${icon} sheet-icon`"></i>
-              <q-input
+              <InputText
                 v-model="name"
                 for="fwb-input-name" 
-                input-class="full-height"
-                debounce="500"
-                :bottom-slots="false"
                 :placeholder="namePlaceholder"                
+                :pt="{
+                  root: { class: 'full-height' } 
+                }" 
+                @update:model-value="onNameUpdate"
               />
             </h1>
             <div class="form-group fwb-content-header">
@@ -99,6 +100,7 @@
   import { useDirectoryStore, useMainStore, useNavigationStore, useEntryStore } from '@/applications/stores';
   
   // library components
+  import InputText from 'primevue/inputtext';
 
   // local components
   import Editor from '@/components/Editor.vue';
@@ -162,6 +164,25 @@
 
   ////////////////////////////////
   // event handlers
+
+  // debounce changes to name
+  let debounceTimer: NodeJS.Timeout | undefined = undefined;
+
+  const onNameUpdate = (newName: string | undefined) => {
+    const debounceTime = 500;
+  
+    clearTimeout(debounceTimer);
+    
+    debounceTimer = setTimeout(async () => {
+      const newValue = newName || '';
+      if (currentEntry.value && currentEntry.value.name!==newValue) {
+        await updateDocument(currentEntry.value, { name: newValue });
+
+        await directoryStore.refreshCurrentTree([currentEntry.value.uuid]);
+        await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue);
+      }
+    }, debounceTime);
+  };
 
   // new type added in the typeahead
   const onTypeItemAdded = async (added: string) => {
@@ -247,15 +268,6 @@
   
       // reattach the editor to the new entry
       editorDocument.value = toRaw(newEntry).pages.find((p)=>p.name==='description');
-    }
-  });
-
-  watch(name, async (newValue: string)=> {
-    if (currentEntry.value && currentEntry.value.name!==newValue) {
-      await updateDocument(currentEntry.value, { name: newValue });
-
-      await directoryStore.refreshCurrentTree([currentEntry.value.uuid]);
-      await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue || '');
     }
   });
 
