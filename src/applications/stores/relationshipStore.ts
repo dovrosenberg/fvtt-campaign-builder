@@ -44,9 +44,9 @@ export const useRelationshipStore = defineStore('relationship', () => {
   // keyed by main entry topic, then the relationship topic
   const extraFields = reactive({
     [ValidTopic.Character]: {
-      [ValidTopic.Character]: [{name:'role', label:'Role'}],
+      [ValidTopic.Character]: [{field:'role', header:'Role'}],
       [ValidTopic.Event]: [],
-      [ValidTopic.Location]: [{name:'role', label:'Role'}],
+      [ValidTopic.Location]: [{field:'role', header:'Role'}],
       [ValidTopic.Organization]: [],
     },
     [ValidTopic.Event]: {
@@ -56,18 +56,18 @@ export const useRelationshipStore = defineStore('relationship', () => {
       [ValidTopic.Organization]: [],
     },
     [ValidTopic.Location]: {
-      [ValidTopic.Character]: [{name:'role', label:'Role'}],
+      [ValidTopic.Character]: [{field:'role', header:'Role'}],
       [ValidTopic.Event]: [],
       [ValidTopic.Location]: [],
       [ValidTopic.Organization]: [],
     },
     [ValidTopic.Organization]: {
-      [ValidTopic.Character]: [{name:'role', label:'Role'}],
+      [ValidTopic.Character]: [{field:'role', header:'Role'}],
       [ValidTopic.Event]: [],
       [ValidTopic.Location]: [],
       [ValidTopic.Organization]: [],
     },    
-  } as Record<ValidTopic, Record<ValidTopic, {name: string; label: string; }[]>>); 
+  } as Record<ValidTopic, Record<ValidTopic, {field: string; header: string; }[]>>); 
   
   ///////////////////////////////
   // other stores

@@ -3,35 +3,48 @@
     :value="props.rows"
     size="small"
     paginator
+    paginator-position="bottom"
     lazy
+    :sort-field="pagination.sortField"
+    :sort-order="pagination.sortOrder"
+    :default-sort-order="1"
     :total-records="pagination.totalRecords"
+    :filters="pagination.filters"
     :rows="10"
     filter-display="row"
+    :pt="{
+      header: { style: 'border: none' },
+    }"
     @page="onTablePage($event)"
     @sort="onTableSort($event)"
     @filter="onTableFilter($event)"
   >
     <template #header>
-      <div class="flex justify-content-between">
-        <div class="">
-          <Button
-            color="primary" 
-            icon="o_add_circle" 
-            :label="newItemLabel" 
-            @click="onAddItemClick"
-          />
-          <!-- <q-btn v-if="showGenerate"
-            color="primary" 
-            icon="psychology" 
-            label="Generate" 
-            @click=""
-          /> -->
-        </div>
-        <IconField>
+      <div style="display: flex; justify-content: space-between;">
+        <Button
+          color="primary" 
+          :label="newItemLabel" 
+          style="flex: initial; width:auto;"
+          @click="onAddItemClick"
+        >
+          <template #icon>
+            <!-- icon="o_add_circle"  -->
+            <i class="fas fa-plus"></i>
+          </template>
+        </Button>
+        <!-- <q-btn v-if="showGenerate"
+          color="primary" 
+          icon="psychology" 
+          label="Generate" 
+          @click=""
+        /> -->
+        <IconField icon-position="left">
           <InputIcon>
-            <i class="pi pi-search" />
+            <i class="fas fa-search"></i>
           </InputIcon>
-          <InputText /> <!--v-model="filters['global'].value" placeholder="Keyword Search" /> -->
+          <InputText 
+            placeholder="Keyword Search"
+          /> <!--v-model="filters['global'].value"  /> -->
         </IconField>
       </div>
     </template>
@@ -134,6 +147,7 @@
   import { useMainStore } from '@/applications/stores';
 
   // library components
+  import { Button, DataTable, Column, InputText, IconField, InputIcon } from 'primevue';
 
   // local components
   // import AddRelatedItemDialog from './AddRelatedItemDialog.vue';
@@ -178,6 +192,7 @@
     sortField: 'name', 
     sortOrder: 1, 
     first: 0,
+    page: 1,
     rowsPerPage: 10, 
     totalRecords: undefined, 
     filters: {},
@@ -236,11 +251,10 @@
     if (extraColumns.value.length > 0) {
       // add the extra fields
       columns[props.topic] = (columns[props.topic] || []).concat(extraColumns.value.map((field) => ({
-        name: field.name, 
-        align: 'left', 
-        label: field.label, 
-        field: field.name, 
-        sortable: true 
+        field: field.field, 
+        style: 'text-align:left',
+        header: field.header, 
+        sortable: true, 
       })
       ));
     }
@@ -264,16 +278,16 @@
   const onAddItemClick = () => {
     debugger;
   }
-  const onTablePage = (event) => {
-    debugger;
+  const onTablePage = async () => {
+    await refreshQuery();
   }
 
-  const onTableSort = (event) => {
-    debugger;
+  const onTableSort = async () => {
+    await refreshQuery();
   }
 
-  const onTableFilter = (event) => {
-    debugger;
+  const onTableFilter = async () => {
+    await refreshQuery();
   }
 
   const onRowClick = async function (_evt: unknown, row: { _id: string }) { 
@@ -338,7 +352,7 @@
 
   const onEditClick = function (row: Record<string, string>) {
     // assemble the extra field data
-    const extraFields = props.extraColumns.reduce((accum, col) => {
+    const fieldsToAdd = extraColumns.value.reduce((accum, col) => {
       accum.push({
         name: col.name,
         label:col.label,
@@ -347,7 +361,7 @@
       return accum;
     }, [] as {name: string; label: string; value: string}[]);
 
-    emit('editItemClick', row._id, row.name, extraFields);
+    emit('editItemClick', row._id, row.name, fieldsToAdd);
   };
 
   ////////////////////////////////
