@@ -60,10 +60,10 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
               preset: FWBTheme,
               options: {
                 prefix: 'fwb-p',
-                cssLayer: {
-                  name: 'fwb-p',
-                  order: 'fwb-p',
-                },
+                // cssLayer: {
+                //   name: 'fwb-p',
+                //   order: 'fwb-p',
+                // },
                 darkModeSelector: '.theme-dark'
               }
             }

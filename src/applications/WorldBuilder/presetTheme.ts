@@ -5,6 +5,11 @@ export default definePreset(Aura, {
   components: {
     datatable: {
       headerBackground: 'inherit',
+      headerCellBackground: 'inherit',
+      rowBackground: 'inherit',
+      rowStripedBackground: 'inherit',
+      footerCellBackground: 'inherit',
+      footerBackground: 'inherit',
     }
   }
 });

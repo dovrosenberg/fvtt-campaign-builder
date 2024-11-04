@@ -1,83 +1,86 @@
 <template>
-  <DataTable
-    :value="props.rows"
-    size="small"
-    paginator
-    paginator-position="bottom"
-    lazy
-    :sort-field="pagination.sortField"
-    :sort-order="pagination.sortOrder"
-    :default-sort-order="1"
-    :total-records="pagination.totalRecords"
-    :filters="pagination.filters"
-    :rows="10"
-    filter-display="row"
-    :pt="{
-      header: { style: 'border: none' },
-      thead: { style: 'font-family: var(--font-primary); text-shadow: none;' },
-      pcPaginator: { 
-        // these are needed to override the foundry button styling
-        first: {
-          style: 'width: auto', 
+  <div class="primevue-only">
+    <DataTable
+      :value="props.rows"
+      size="small"
+      paginator
+      paginator-position="bottom"
+      lazy
+      :sort-field="pagination.sortField"
+      :sort-order="pagination.sortOrder"
+      :default-sort-order="1"
+      :total-records="pagination.totalRecords"
+      :filters="pagination.filters"
+      :rows="10"
+      filter-display="row"
+      :pt="{
+        header: { style: 'border: none' },
+        thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
+        row: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
+        pcPaginator: { 
+          // these are needed to override the foundry button styling
+          first: {
+            style: 'width: auto', 
+          }
         }
-      }
-    }"
-    @page="onTablePage($event)"
-    @sort="onTableSort($event)"
-    @filter="onTableFilter($event)"
-  >
-    <template #header>
-      <div style="display: flex; justify-content: space-between;">
-        <Button
-          color="primary" 
-          :label="newItemLabel" 
-          style="flex: initial; width:auto;"
-          @click="onAddItemClick"
-        >
-          <template #icon>
-            <!-- icon="o_add_circle"  -->
-            <i class="fas fa-plus"></i>
-          </template>
-        </Button>
-        <!-- <q-btn v-if="showGenerate"
-          color="primary" 
-          icon="psychology" 
-          label="Generate" 
-          @click=""
-        /> -->
-        <IconField icon-position="left">
-          <InputIcon>
-            <i class="fas fa-search"></i>
-          </InputIcon>
-          <InputText 
-            placeholder="Keyword Search"
-          /> <!--v-model="filters['global'].value"  /> -->
-        </IconField>
-      </div>
-    </template>
-    <template #empty>
-      Nothing here
-    </template>
-    <template #loading>
-      Loading...
-    </template>
-      
-    <Column 
-      v-for="col of columns" 
-      :key="col.field" 
-      :field="col.field" 
-      :header="col.header" 
-      :body-style="col.style"
-      :sortable="col.sortable"
+      }"
+      @page="onTablePage($event)"
+      @sort="onTableSort($event)"
+      @filter="onTableFilter($event)"
     >
-      <template
-        v-if="!!col.format"
-        #body="slotProps"
-      >
-        {{ col.format(slotProps.data[col.field as keyof typeof slotProps.data]) }}
+      <template #header>
+        <div style="display: flex; justify-content: space-between;">
+          <Button
+            color="primary" 
+            :label="newItemLabel" 
+            style="flex: initial; width:auto;"
+            @click="onAddItemClick"
+          >
+            <template #icon>
+              <!-- icon="o_add_circle"  -->
+              <i class="fas fa-plus"></i>
+            </template>
+          </Button>
+          <!-- <q-btn v-if="showGenerate"
+            color="primary" 
+            icon="psychology" 
+            label="Generate" 
+            @click=""
+          /> -->
+          <IconField icon-position="left">
+            <InputIcon>
+              <i class="fas fa-search"></i>
+            </InputIcon>
+            <InputText 
+              placeholder="Keyword Search"
+            /> <!--v-model="filters['global'].value"  /> -->
+          </IconField>
+        </div>
       </template>
-    </Column>
-  </DataTable>
+      <template #empty>
+        Nothing here
+      </template>
+      <template #loading>
+        Loading...
+      </template>
+        
+      <Column 
+        v-for="col of columns" 
+        :key="col.field" 
+        :field="col.field" 
+        :header="col.header" 
+        :body-style="col.style"
+        :sortable="col.sortable"
+      >
+        <template
+          v-if="!!col.format"
+          #body="slotProps"
+        >
+          {{ col.format(slotProps.data[col.field as keyof typeof slotProps.data]) }}
+        </template>
+      </Column>
+    </DataTable>
+  </div>
 <!-- 
   <template #top-left>
       </template>

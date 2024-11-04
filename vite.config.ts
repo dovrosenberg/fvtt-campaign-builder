@@ -37,13 +37,6 @@ export default defineConfig({
       '.vue'
     ]
   },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@import "@/components/styles/styles.scss";`,
-      },
-    }
-  },
   plugins: [
     // copy the static module file
     copy({
