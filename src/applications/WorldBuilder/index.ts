@@ -2,19 +2,11 @@ import moduleJson from '@module';
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
 import { createPinia, setActivePinia } from 'pinia';
 import PrimeVue from 'primevue/config';
+import FWBTheme from './presetTheme';
+
 import App from '@/components/WorldBuilder.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
-
-/////////////////
-// Vuetify
-// import { createVuetify } from 'vuetify';
-
-// const vuetify = createVuetify({
-//   // components,
-//   // directives,
-// });
-
 
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 
@@ -61,8 +53,22 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
           plugin: pinia,
           options: {}
         },
-        // vuetify: { plugin: vuetify }
-        primevue: { plugin: PrimeVue, theme: 'none' },
+        primevue: { 
+          plugin: PrimeVue, 
+          options: {
+            theme: { 
+              preset: FWBTheme,
+              options: {
+                prefix: 'fwb-p',
+                cssLayer: {
+                  name: 'fwb-p',
+                  order: 'fwb-p',
+                },
+                darkModeSelector: '.theme-dark'
+              }
+            }
+          }
+        },
       }
     }
   };

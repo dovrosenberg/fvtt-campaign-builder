@@ -14,6 +14,13 @@
     filter-display="row"
     :pt="{
       header: { style: 'border: none' },
+      thead: { style: 'font-family: var(--font-primary); text-shadow: none;' },
+      pcPaginator: { 
+        // these are needed to override the foundry button styling
+        first: {
+          style: 'width: auto', 
+        }
+      }
     }"
     @page="onTablePage($event)"
     @sort="onTableSort($event)"
@@ -147,7 +154,12 @@
   import { useMainStore } from '@/applications/stores';
 
   // library components
-  import { Button, DataTable, Column, InputText, IconField, InputIcon } from 'primevue';
+  import Button from 'primevue/button';
+  import DataTable from 'primevue/datatable';
+  import Column from 'primevue/column';
+  import InputText from 'primevue/inputtext';
+  import IconField from 'primevue/iconfield';
+  import InputIcon from 'primevue/inputicon';
 
   // local components
   // import AddRelatedItemDialog from './AddRelatedItemDialog.vue';

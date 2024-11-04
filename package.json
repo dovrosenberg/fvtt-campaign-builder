@@ -28,6 +28,7 @@
     "@faker-js/faker": "^8.3.1",
     "@league-of-foundry-developers/foundry-vtt-types": "dovrosenberg/foundry-vtt-types#97594bc",
     "@originjs/vite-plugin-commonjs": "^1.0.1",
+    "@primevue/auto-import-resolver": "^4.2.1",
     "@types/jest": "^29.5.10",
     "@types/jquery": "^3.5.29",
     "@types/lodash": "^4.14.202",
@@ -57,12 +58,14 @@
     "style-loader": "^3.3.0",
     "ts-jest": "^29.1.1",
     "ts-loader": "^9.2.6",
+    "unplugin-vue-components": "^0.27.4",
     "vite": "^5.2.0",
     "vite-plugin-env-compatible": "^1.1.1",
     "vite-plugin-html": "3.2.2"
   },
   "dependencies": {
     "@imengyu/vue3-context-menu": "^1.4.1",
+    "@primevue/themes": "^4.2.1",
     "pinia": "^2.1.7",
     "primevue": "^4.2.1",
     "vue": "^3.4.31",

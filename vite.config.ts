@@ -9,6 +9,8 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs';
 import { defineConfig, Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
+// import Components from 'unplugin-vue-components/vite';
+// import { PrimeVueResolver } from '@primevue/auto-import-resolver';
 
 // to get the verison number
 import npmPackage from './package.json';
@@ -39,7 +41,7 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         additionalData: `@import "@/components/styles/styles.scss";`,
-      }
+      },
     }
   },
   plugins: [
@@ -52,10 +54,17 @@ export default defineConfig({
       hook: 'writeBundle',
     }),
     vue(),
+    // Components({
+    //   resolvers: [
+    //     PrimeVueResolver()
+    //   ]
+    // }),
+    // combine all the scss output into one file
     scss({
       output: 'styles/style.css',
       sourceMap: true,
       include: ['src/**/*.scss', 'src/**/*.css', 'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css'],
+      // include: ['node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css'],  //'src/**/*.scss', 'src/**/*.css',
       watch: ['src/**/*.scss', 'src/**/*.css', 'src/'],
     }),
     viteCommonjs(),
@@ -75,6 +84,7 @@ export default defineConfig({
     rollupOptions: {
       input: 'src/main.ts',
       output: {
+        // rename output.css to world-builder.css
         assetFileNames: (assetInfo): string => {
           if (assetInfo.name === 'output.css') 
             return 'styles/world-builder.css';
