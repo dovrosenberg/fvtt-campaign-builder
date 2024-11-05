@@ -34,7 +34,7 @@
             color="primary" 
             :label="newItemLabel" 
             style="flex: initial; width:auto;"
-            @click="onAddItemClick"
+            @click="addDialogShow=true"
           >
             <template #icon>
               <!-- icon="o_add_circle"  -->
@@ -136,14 +136,15 @@
     :item-id="editItem.itemId"
     :item-name="editItem.itemName"
     :extra-field-values="editItem.extraFields"
-    :topic="(topic as ValidTopic.Character | ValidTopic.Location | ValidTopic.Organization)"
+    :topic="(topic as Topic.Character | Topic.Location | Topic.Organization)"
     @item-edited="onItemEdited"
-  />
+  /> -->
   <AddRelatedItemDialog 
     v-model="addDialogShow"
     :topic="topic"
     @item-added="onItemAdded"
-  /> -->
+    @close-dialog="addDialogShow=false"
+  /> 
 </template>
 
 <script setup lang="ts">
@@ -165,7 +166,7 @@
   import InputIcon from 'primevue/inputicon';
 
   // local components
-  // import AddRelatedItemDialog from './AddRelatedItemDialog.vue';
+  import AddRelatedItemDialog from './AddRelatedItemDialog.vue';
   // import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
 
   // types
@@ -198,7 +199,7 @@
   const addDialogShow = ref(false);   // should we pop up the add dialog?
   const editDialogShow = ref(false);   // should we pop up the add dialog?
   const editItem = ref({
-    topic: ValidTopic.Character,
+    topic: Topic.Character,
     itemId: '',
     itemName: '',
     extraFields: [],
@@ -220,10 +221,10 @@
     const prefix = 'Add ';
 
     const labels = {
-      [ValidTopic.Event]: 'Event',
-      [ValidTopic.Character]: 'Character',
-      [ValidTopic.Location]: 'Location',
-      [ValidTopic.Organization]: 'Organization',
+      [Topic.Event]: 'Event',
+      [Topic.Character]: 'Character',
+      [Topic.Location]: 'Location',
+      [Topic.Organization]: 'Organization',
     } as Record<ValidTopic, string>;
 
     return prefix + labels[props.topic];
@@ -241,22 +242,22 @@
     const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (dateText(calendar.value, val)), sortable: true}; 
 
     const columns = {
-      [ValidTopic.Event]: [
+      [Topic.Event]: [
         actionColumn,
         nameColumn,
         dateColumn,
       ],
-      [ValidTopic.Character]: [
+      [Topic.Character]: [
         actionColumn,
         nameColumn,
         typeColumn,
       ],
-      [ValidTopic.Location]: [
+      [Topic.Location]: [
         actionColumn,
         nameColumn,
         typeColumn,
       ],
-      [ValidTopic.Organization]: [
+      [Topic.Organization]: [
         actionColumn,
         nameColumn,
         typeColumn,

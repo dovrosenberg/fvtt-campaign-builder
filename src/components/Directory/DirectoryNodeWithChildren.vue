@@ -46,7 +46,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useDirectoryStore, useMainStore, useNavigationStore, useEntryStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getGame, localize } from '@/utils/game';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
@@ -93,7 +93,7 @@
   const directoryStore = useDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const entryStore = useEntryStore();
+  const currentEntryStore = useCurrentEntryStore();
   const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
 
   ////////////////////////////////
@@ -206,7 +206,7 @@
             if (!worldFolder || !props.topic)
               throw new Error('Invalid header in DirectoryNode.onEntryContextMenu.onClick');
 
-            const entry = await entryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
+            const entry = await currentEntryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -218,7 +218,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await entryStore.deleteEntry(props.node.id);
+            await currentEntryStore.deleteEntry(props.node.id);
           }
         },
       ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))

@@ -35,12 +35,7 @@ export enum Topic {
 }
 
 // topics except None
-export enum ValidTopic {
-  Character = 1,
-  Location = 2,
-  Organization = 3,
-  Event = 4,
-}
+export type ValidTopic = Exclude<Topic, Topic.None>;
 
 export type TreeNode = {
   text: string;   // the label

@@ -12,16 +12,17 @@ import { Topic, TablePagination, AnyPaginationResult, CharacterRow, EventRow, Lo
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { reactive, Ref } from 'vue';
 import { ref } from 'vue';
+import { getGame } from 'src/utils/game';
 
 // the store definition
 export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // the state
   const relatedItemRows = reactive({
-    [ValidTopic.Character]: { rowsAvailable:0, rows:[] as CharacterRow[]},
-    [ValidTopic.Event]: { rowsAvailable:0, rows:[] as EventRow[]},
-    [ValidTopic.Location]: { rowsAvailable:0, rows:[] as LocationRow[]},
-    [ValidTopic.Organization]: { rowsAvailable:0, rows:[] as OrganizationRow[]},
+    [Topic.Character]: { rowsAvailable:0, rows:[] as CharacterRow[]},
+    [Topic.Event]: { rowsAvailable:0, rows:[] as EventRow[]},
+    [Topic.Location]: { rowsAvailable:0, rows:[] as LocationRow[]},
+    [Topic.Organization]: { rowsAvailable:0, rows:[] as OrganizationRow[]},
   } as Record<ValidTopic, AnyPaginationResult>);
 
   // we store the pagination info for each type like a preference
@@ -29,43 +30,44 @@ export const useRelationshipStore = defineStore('relationship', () => {
     sortField: 'name', 
     sortOrder: 1, 
     first: 0,
+    page: 0,
     rowsPerPage: 10, 
     totalRecords: undefined, 
     filters: {},
   };
 
   const relatedItemPagination = reactive({
-    [ValidTopic.Character]: ref<TablePagination>(defaultPagination),
-    [ValidTopic.Event]: ref<TablePagination>(defaultPagination),
-    [ValidTopic.Location]: ref<TablePagination>(defaultPagination),
-    [ValidTopic.Organization]: ref<TablePagination>(defaultPagination),
+    [Topic.Character]: ref<TablePagination>(defaultPagination),
+    [Topic.Event]: ref<TablePagination>(defaultPagination),
+    [Topic.Location]: ref<TablePagination>(defaultPagination),
+    [Topic.Organization]: ref<TablePagination>(defaultPagination),
   } as Record<ValidTopic, Ref<TablePagination>>);
 
   // keyed by main entry topic, then the relationship topic
   const extraFields = reactive({
-    [ValidTopic.Character]: {
-      [ValidTopic.Character]: [{field:'role', header:'Role'}],
-      [ValidTopic.Event]: [],
-      [ValidTopic.Location]: [{field:'role', header:'Role'}],
-      [ValidTopic.Organization]: [],
+    [Topic.Character]: {
+      [Topic.Character]: [{field:'role', header:'Role'}],
+      [Topic.Event]: [],
+      [Topic.Location]: [{field:'role', header:'Role'}],
+      [Topic.Organization]: [],
     },
-    [ValidTopic.Event]: {
-      [ValidTopic.Character]: [],
-      [ValidTopic.Event]: [],
-      [ValidTopic.Location]: [],
-      [ValidTopic.Organization]: [],
+    [Topic.Event]: {
+      [Topic.Character]: [],
+      [Topic.Event]: [],
+      [Topic.Location]: [],
+      [Topic.Organization]: [],
     },
-    [ValidTopic.Location]: {
-      [ValidTopic.Character]: [{field:'role', header:'Role'}],
-      [ValidTopic.Event]: [],
-      [ValidTopic.Location]: [],
-      [ValidTopic.Organization]: [],
+    [Topic.Location]: {
+      [Topic.Character]: [{field:'role', header:'Role'}],
+      [Topic.Event]: [],
+      [Topic.Location]: [],
+      [Topic.Organization]: [],
     },
-    [ValidTopic.Organization]: {
-      [ValidTopic.Character]: [{field:'role', header:'Role'}],
-      [ValidTopic.Event]: [],
-      [ValidTopic.Location]: [],
-      [ValidTopic.Organization]: [],
+    [Topic.Organization]: {
+      [Topic.Character]: [{field:'role', header:'Role'}],
+      [Topic.Event]: [],
+      [Topic.Location]: [],
+      [Topic.Organization]: [],
     },    
   } as Record<ValidTopic, Record<ValidTopic, {field: string; header: string; }[]>>); 
   
@@ -172,10 +174,9 @@ export const useRelationshipStore = defineStore('relationship', () => {
     // sort the list
     if (pagination.sortField && pagination.sortOrder) {
       relatedItems = relatedItems.sort((a, b) => {
-        if (pagination.sortOrder > 1)
-          return a[pagination.sortField].localeCompare(b[pagination.sortField]);
-        else
-          return b[pagination.sortField].localeCompare(a[pagination.sortField]);
+        // negative means a comes before b so we want to return negative if localeCompare does and sortOrder is ascending (1) (or positive/negative)
+        //    or positive in the opposite cases (both positive, both negative)
+        return a[pagination.sortField].localeCompare(b[pagination.sortField]) * (pagination.sortOrder as number);
       });
     }
 

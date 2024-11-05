@@ -14,7 +14,7 @@ export enum EntryFlagKey {
 type EntryFlagType<K extends EntryFlagKey> =
     K extends EntryFlagKey.topic ? Topic :
     K extends EntryFlagKey.type ? string :
-    K extends EntryFlagKey.relationships ? Record<Topic, Record<string, RelatedItem>> :
+    K extends EntryFlagKey.relationships ? Record<Topic, Record<string, RelatedItem>> :  // internal record is keyed by uuid
     never;  
 
 

@@ -67,7 +67,7 @@ export const useMainStore = defineStore('main', () => {
       return Topic.None;
 
     return EntryFlags.get(currentEntry.value, EntryFlagKey.topic);
-  })
+  });
 
   ///////////////////////////////
   // internal functions

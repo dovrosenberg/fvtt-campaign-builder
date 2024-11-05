@@ -76,13 +76,13 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   // move the entry to a new type (doesn't update the entry itself)
-  const updateEntryType = async (entry: JournalEntry, oldType: string, newType: string): Promise<void> => {
+  const updateEntryTopic = async (entry: JournalEntry, oldType: string, newType: string): Promise<void> => {
     // remove from the old one
     const currentWorldNode = currentTree.value.find((w)=>w.id===currentWorldId.value) || null;
     const packNode = currentWorldNode?.packs.find((p)=>p.id===entry.pack) || null;
     const oldTypeNode = packNode?.loadedTypes.find((t) => t.name===oldType);
     if (!currentWorldNode || !packNode) 
-      throw new Error('Failed to load node in entryStore.updateEntryType()');
+      throw new Error('Failed to load node in directoryStore.updateEntryTopic()');
 
     if (oldTypeNode)
       oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entry.uuid);
@@ -96,7 +96,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     // update the hierarchy
     const hierarchy = PackFlags.get(packNode?.id, PackFlagKey.hierarchies)?.[entry.uuid];
     if (!hierarchy)
-      throw new Error(`Could not find hierarchy for ${entry.uuid} in entryStore.updateEntryType()`);
+      throw new Error(`Could not find hierarchy for ${entry.uuid} in directoryStore.updateEntryTopic()`);
 
     hierarchy.type = newType;
     await PackFlags.setHierarchy(packNode?.id, entry.uuid, hierarchy);
@@ -601,7 +601,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     collapseAll,
     setNodeParent,
     refreshCurrentTree,
-    updateEntryType,
+    updateEntryTopic,
     updateFilterNodes,
     deleteWorld,
     createWorld,

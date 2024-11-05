@@ -47,7 +47,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  type AllowedTopic = ValidTopic.Character | ValidTopic.Organization | ValidTopic.Location;
+  type AllowedTopic = Topic.Character | Topic.Organization | Topic.Location;
   
   type ItemTypeDetail = {
     title: string;
@@ -97,15 +97,15 @@
   const show = ref(props.modelValue);
   const extraFieldValues = ref(cloneDeep(props.extraFieldValues));
   const itemTypeDetails = {
-    [ValidTopic.Character]: {
+    [Topic.Character]: {
       title: 'Edit character',
       buttonTitle: 'Save character',
     },
-    [ValidTopic.Organization]: {
+    [Topic.Organization]: {
       title: 'Edit organization',
       buttonTitle: 'Save organization',
     },
-    [ValidTopic.Location]: {
+    [Topic.Location]: {
       title: 'Edit location',
       buttonTitle: 'Save location',
     },
@@ -134,8 +134,8 @@
       throw new Error('EditRelatedItemDialog.mutationData: no item selected');
 
     // no matter which way the relationship exists, we can add both with the same call
-    if (props.topic == ValidTopic.Character && masterItemType.value == ValidTopic.Organization || 
-        props.topic == ValidTopic.Organization && masterItemType.value == ValidTopic.Character) {
+    if (props.topic == Topic.Character && masterItemType.value == Topic.Organization || 
+        props.topic == Topic.Organization && masterItemType.value == Topic.Character) {
       const role = extraFieldValues.value?.find((val) => (val.name==='role'))?.value;
       if (!role) {
         throw new Error('EditRelatedItemDialog.mutationData: no role selected');
@@ -144,12 +144,12 @@
       mutation = GQL_UPDATE_CHARACTER_ORGANIZATION_ROLE;
       variables = { 
         worldId: itemStore.worldId, 
-        characterId: props.topic == ValidTopic.Character ? props.itemId : mainItem.value._id, 
-        organizationId: props.topic == ValidTopic.Organization ? props.itemId : mainItem.value._id, 
+        characterId: props.topic == Topic.Character ? props.itemId : mainItem.value._id, 
+        organizationId: props.topic == Topic.Organization ? props.itemId : mainItem.value._id, 
         role: role,
       };
-    } else if (props.topic == ValidTopic.Character && masterItemType.value == ValidTopic.Location || 
-        props.topic == ValidTopic.Location && masterItemType.value == ValidTopic.Character) {
+    } else if (props.topic == Topic.Character && masterItemType.value == Topic.Location || 
+        props.topic == Topic.Location && masterItemType.value == Topic.Character) {
       const role = extraFieldValues.value?.find((val) => (val.name==='role'))?.value;
       if (!role) {
         throw new Error('EditRelatedItemDialog.mutationData: no role selected');
@@ -158,8 +158,8 @@
       mutation = GQL_UPDATE_CHARACTER_LOCATION_ROLE;
       variables = { 
         worldId: itemStore.worldId, 
-        characterId: props.topic == ValidTopic.Character ? props.itemId : mainItem.value._id, 
-        locationId: props.topic == ValidTopic.Location ? props.itemId : mainItem.value._id, 
+        characterId: props.topic == Topic.Character ? props.itemId : mainItem.value._id, 
+        locationId: props.topic == Topic.Location ? props.itemId : mainItem.value._id, 
         role: role,
       };
     } else {

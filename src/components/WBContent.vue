@@ -97,7 +97,7 @@
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { getGame, localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
-  import { useDirectoryStore, useMainStore, useNavigationStore, useEntryStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -122,7 +122,7 @@
   const mainStore = useMainStore();
   const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
-  const entryStore = useEntryStore();
+  const currentEntryStore = useCurrentEntryStore();
   const { currentEntry, currentWorldId } = storeToRefs(mainStore);
 
   ////////////////////////////////
@@ -203,11 +203,14 @@
 
   const onTypeSelectionMade = async (selection: string) => {
     if (currentEntry.value)
-      await entryStore.updateEntryType(currentEntry.value.uuid, selection);
+      await currentEntryStore.updateEntryTopic(currentEntry.value.uuid, selection);
   };
 
   const onParentSelectionMade = async (selection: string) => {
-    const pack = getGame().packs?.get(currentEntry.value.pack);
+    if (!currentEntry.value?.pack || !currentEntry.value?.uuid)
+      return;
+
+    const pack = getGame().packs?.get(currentEntry?.value?.pack || '');
     if (!pack)
       return;
 
@@ -219,6 +222,9 @@
       return;
 
     const descriptionPage = toRaw(currentEntry.value).pages.find((p)=>p.name==='description');  //TODO
+
+    if (!descriptionPage)
+      return;
 
     await updateDocument(descriptionPage, {'text.content': newContent });  
 

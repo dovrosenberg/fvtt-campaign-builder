@@ -59,7 +59,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
             theme: { 
               preset: FWBTheme,
               options: {
-                prefix: 'fwb-p',
+                // prefix: 'fwb-p',
                 // cssLayer: {
                 //   name: 'fwb-p',
                 //   order: 'fwb-p',

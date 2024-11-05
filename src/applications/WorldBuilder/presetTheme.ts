@@ -10,6 +10,26 @@ export default definePreset(Aura, {
       rowStripedBackground: 'inherit',
       footerCellBackground: 'inherit',
       footerBackground: 'inherit',
+    },
+    button: {
+      colorScheme: { 
+        light: {
+          primaryHoverBackground: 'inherit',
+          primaryHoverBorderColor: 'inherit',
+          primaryHoverColor: 'inherit',
+          primaryActiveBackground: 'inherit',
+          primaryAcriveBorderColor: 'inherit',
+          primaryActiveColor: 'inherit',
+        },
+        dark: {
+          primaryHoverBackground: 'inherit',
+          primaryHoverBorderColor: 'inherit',
+          primaryHoverColor: 'inherit',
+          primaryActiveBackground: 'inherit',
+          primaryAcriveBorderColor: 'inherit',
+          primaryActiveColor: 'inherit',
+        },
+      }
     }
   }
 });

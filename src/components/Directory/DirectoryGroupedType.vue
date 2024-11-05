@@ -49,7 +49,7 @@
   import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useNavigationStore, useDirectoryStore, useMainStore, useEntryStore } from '@/applications/stores';
+  import { useNavigationStore, useDirectoryStore, useMainStore, useCurrentEntryStore } from '@/applications/stores';
   import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
   import { getGame, localize } from '@/utils/game';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
@@ -89,7 +89,7 @@
   const directoryStore = useDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const entryStore = useEntryStore();
+  const currentEntryStore = useCurrentEntryStore();
   const { currentWorldId } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(directoryStore);
   
@@ -139,7 +139,7 @@
       return false;
 
     // set the new type
-    await entryStore.updateEntryType(data.id, currentType.value.name);
+    await currentEntryStore.updateEntryTopic(data.id, currentType.value.name);
 
     return true;
   };
@@ -167,7 +167,7 @@
             if (!worldFolder)
               throw new Error('Invalid header in DirectoryGroupedType.onTypeContextMenu.onClick');
 
-            const entry = await entryStore.createEntry(worldFolder, props.pack.topic, { type: props.type.name } );
+            const entry = await currentEntryStore.createEntry(worldFolder, props.pack.topic, { type: props.type.name } );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

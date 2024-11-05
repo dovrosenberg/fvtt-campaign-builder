@@ -1,70 +1,79 @@
 <template>
-  <q-dialog v-model="show">
-    <q-card style="min-width: 350px">
-      <q-card-section>
-        <div class="text-h6">
-          {{ itemTypeDetails[props.topic].title }}
-        </div>
-      </q-card-section>
+  <Dialog 
+    v-model="show" 
+    style="min-width: 350px;"
+  >
+    <template #header>
+      <div class="text-h6">
+        {{ itemTypeDetails[props.topic].title }}
+      </div>
+    </template>
 
-      <q-card-section v-if="selectItems.length>0"
-        class="q-pt-none q-gutter-sm"
-      >
-        <q-select v-model="itemId"
-          ref="nameSelectRef"
-          :options="options"
-          label="Name"
-          outlined 
-          fill-input
-          use-input
-          input-debounce="0"
-          hide-selected
-          clearable
-          @filter="filterFnAutoselect"
-          @keydown.enter.stop="onAddClick"
-        />
-        <q-input v-for="field in extraFields"
-          :key="field.name"
-          v-model="extraFieldValues[field.name]"
-          :label="field.label"
-          outlined
-        />
-      </q-card-section>
-      <q-card-section v-else>
-        All possible related items are already connected.
-      </q-card-section>
-      <q-card-actions align="right" class="text-primary">
-        <q-btn 
-          v-close-popup 
-          flat 
-          label="Cancel" 
-          @click="onAddCancelClick"
-        />
-        <q-btn 
-          flat 
-          :label="itemTypeDetails[props.topic].buttonTitle" 
-          :disable="!isAddFormValid"
-          @click="onAddClick"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
+    <div 
+      v-if="selectItems.length>0"
+      class="q-pt-none q-gutter-sm"
+    >
+      <!-- <q-select v-model="itemId"
+        ref="nameSelectRef"
+        :options="options"
+        label="Name"
+        outlined 
+        fill-input
+        use-input
+        input-debounce="0"
+        hide-selected
+        clearable
+        @filter="filterFnAutoselect"
+        @keydown.enter.stop="onAddClick"
+      />
+      <q-input 
+        v-for="field in extraFields"
+        :key="field.name"
+        v-model="extraFieldValues[field.name]"
+        :label="field.label"
+        outlined
+      /> -->
+    </div>
+    <div v-else>
+      All possible related items are already connected.
+    </div>
+    <template #footer>
+      <Button 
+        label="Cancel"
+        text
+        severity="secondary"
+        autofocus
+        @click="emit('update:modelValue', false);"
+      />
+      <Button
+        :label="itemTypeDetails[props.topic].buttonTitle" 
+        :disable="!isAddFormValid"
+        text
+        severity="secondary"
+        autofocus
+        @click="onAddClick"
+      />
+    </template>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
   // library imports
   import { ref, computed, PropType, watch, onMounted, nextTick } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useRelationshipStore } from '@/applications/stores/relationshipStore';
+  import { useMainStore, useRelationshipStore, useEntryStore, } from '@/applications/stores';
 
   // library components
+  import Dialog from 'primevue/dialog';
+  import Button from 'primevue/button';
 
   // local components
 
   // types
-  import { ValidTopic, } from '@/types';
-  import { Loading, QSelect } from 'quasar';
+  import { Topic, ValidTopic, } from '@/types';
+
   type ItemTypeDetail = {
     title: string;
     buttonTitle: string;
@@ -82,11 +91,14 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['itemAdded', 'update:modelValue']);
+  const emit = defineEmits(['itemAdded', 'update:modelValue', 'closeDialog']);
 
   ////////////////////////////////
   // store
   const relationshipStore = useRelationshipStore();
+  const entryStore = useEntryStore();
+  const mainStore = useMainStore();
+  const { currentEntry, currentEntryTopic } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -95,25 +107,25 @@
   const options = ref<{ label: string, value: string }[]>([]);
   const extraFieldValues = ref<Record<string, string>>({});
   const itemTypeDetails = {
-    [ValidTopic.Event]: {
+    [Topic.Event]: {
       title: 'Add an event',
       buttonTitle: 'Add event',
     },
-    [ValidTopic.Character]: {
+    [Topic.Character]: {
       title: 'Add a character',
       buttonTitle: 'Add character',
     },
-    [ValidTopic.Location]: {
+    [Topic.Location]: {
       title: 'Add a location',
       buttonTitle: 'Add location',
     },
-    [ValidTopic.Organization]: {
+    [Topic.Organization]: {
       title: 'Add an organization',
       buttonTitle: 'Add organization',
     },
   } as Record<ValidTopic, ItemTypeDetail>;
-  const selectItems = ref<{ label: string, value: string }[]>([]);
-  const extraFields = ref<{name:string, label:string}[]>([]);
+  const selectItems = ref<JournalEntry[]>([]);
+  const extraFields = ref<{field:string, header:string}[]>([]);
   const nameSelectRef = ref<QSelect | null>(null);
 
   ////////////////////////////////
@@ -185,7 +197,7 @@
   
   const onAddCancelClick = function() {
     resetDialog();
-  }
+  };
   
   ////////////////////////////////
   // watchers
@@ -208,8 +220,11 @@
   // when the item type changes, reload it 
   watch(() => props.topic,  async () => {
     // get the list of items for the dropdown
-    selectItems.value = await itemStore.getItemList(props.topic, true);
-    extraFields.value = relationshipStore.extraFields.value[props.topic];
+    if (!currentEntry.value || !currentEntryTopic.value || currentEntryTopic.value===Topic.None)
+      return;
+
+    selectItems.value = await entryStore.getEntriesForTopic(props.topic, true);
+    extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
   });
 
 
@@ -217,8 +232,11 @@
   // lifecycle events
   onMounted(async () => {
     // get the list of items for the dropdown
-    selectItems.value = await itemStore.getItemList(props.topic, true);
-    extraFields.value = relationshipStore.extraFields.value[props.topic];
+    if (!currentEntry.value || !currentEntryTopic.value || currentEntryTopic.value===Topic.None)
+      return;
+
+    selectItems.value = await entryStore.getEntriesForTopic(props.topic, true);
+    extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
 
     await nextTick();
     nameSelectRef.value?.focus();
