@@ -2,13 +2,17 @@
 import { inputDialog } from '@/dialogs/input';
 import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 import { getGame, localize } from '@/utils/game';
-import { Topic } from '@/types';
+import { Topic, ValidTopic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
 import { AnyDocumentData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/data.mjs';
 import { toTopic } from '@/utils/misc';
 import { PackFlags } from '@/settings/PackFlags';
+import { TopicCompendium } from './TopicCompendium';
+
+// these are effectively the database tables
+export let topicCompendia: Record<ValidTopic, TopicCompendium>;
 
 // returns the uuid of the root folder
 // if it is not stored in settings, creates a new folder
@@ -126,6 +130,7 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder; worldFo
 
 
 // ensure the root folder has all the required topic compendia
+// also populated topicCompendia
 // Note: compendia kind of suck.   You can't rename them or change the label.  And you can't have more than one with the same name/label
 //    in a given world.  So we give them all unique names but then use a flag to display the proper label (which is the topic)
 export async function validateCompendia(worldFolder: Folder): Promise<void> {
@@ -151,16 +156,22 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
 
   // check them all
   // Object.keys() on an enum returns an array with all the values followed by all the names
+  topicCompendia = {};
   const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization];
   for (let i=0; i<topics.length; i++) {
     const t = topics[i];
 
     // if the value is blank or we can't find the compendia create a new one
+    let compendium;
     if (!compendia[t] || !getGame().packs?.get(compendia[t])) {
       // create a new one
-      compendia[t] = await createCompendium(worldFolder, t);
+      compendium = await createCompendium(worldFolder, t);
+      compendia[t] = compendium.metadata.id;
       updated = true;
     }
+
+    // add to our map
+    topicCompendia[topics[t]] = new TopicCompendium(topics[t], compendium);
   }
 
   // if we changed things, save new compendia flag
@@ -171,16 +182,17 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
 
 export function getTopicText(topic: Topic): string {
   switch (toTopic(topic)) {
-    case Topic.Character: return localize('fwb.topics.character'); 
-    case Topic.Event: return localize('fwb.topics.event'); 
-    case Topic.Location: return localize('fwb.topics.location'); 
-    case Topic.Organization: return localize('fwb.topics.organization'); 
+    case Topic.Character: return localize('fwb.topics.character') || ''; 
+    case Topic.Event: return localize('fwb.topics.event') || ''; 
+    case Topic.Location: return localize('fwb.topics.location') || ''; 
+    case Topic.Organization: return localize('fwb.topics.organization') || ''; 
     default: 
       throw new Error('Invalid topic in getTopicText()');
   }
 }
 
-async function createCompendium(worldFolder: Folder, topic: Topic): Promise<string> {
+// returns the compendium
+async function createCompendium(worldFolder: Folder, topic: Topic): Promise<CompendiumCollection<any>> {
   const label = getTopicText(topic);
 
   const metadata = { 
@@ -197,7 +209,7 @@ async function createCompendium(worldFolder: Folder, topic: Topic): Promise<stri
 
   await PackFlags.setDefaults(pack, topic);
 
-  return pack.metadata.id;
+  return pack;
 }
 
 // loads the entry into memory and cleans it

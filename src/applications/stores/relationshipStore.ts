@@ -2,17 +2,19 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { RelatedItem, RelatedItemDetails } from '@/utils/relationships';
 
 // local imports
 import { useMainStore } from './mainStore';
 
 // types
-import { Topic, TablePagination, AnyPaginationResult, CharacterRow, EventRow, LocationRow, OrganizationRow, ValidTopic } from '@/types';
+import { 
+  Topic, TablePagination, AnyPaginationResult, CharacterRow, EventRow, LocationRow, OrganizationRow, ValidTopic,
+  ExtraFields, RelatedItem, RelatedItemDetails,
+  FieldDataByTopic,
+ } from '@/types';
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { reactive, Ref } from 'vue';
 import { ref } from 'vue';
-import { getGame } from 'src/utils/game';
 
 // the store definition
 export const useRelationshipStore = defineStore('relationship', () => {
@@ -43,13 +45,12 @@ export const useRelationshipStore = defineStore('relationship', () => {
     [Topic.Organization]: ref<TablePagination>(defaultPagination),
   } as Record<ValidTopic, Ref<TablePagination>>);
 
-  // keyed by main entry topic, then the relationship topic
-  const extraFields = reactive({
+  const extraFields = {
     [Topic.Character]: {
-      [Topic.Character]: [{field:'role', header:'Role'}],
+      [Topic.Character]: [],
       [Topic.Event]: [],
       [Topic.Location]: [{field:'role', header:'Role'}],
-      [Topic.Organization]: [],
+      [Topic.Organization]: [{field:'role', header:'Role'}],
     },
     [Topic.Event]: {
       [Topic.Character]: [],
@@ -69,7 +70,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       [Topic.Location]: [],
       [Topic.Organization]: [],
     },    
-  } as Record<ValidTopic, Record<ValidTopic, {field: string; header: string; }[]>>); 
+  } as FieldDataByTopic;
   
   ///////////////////////////////
   // other stores
@@ -86,7 +87,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   // actions
   // add a relationship to the current entry
   // reverse role is the 
-  async function addRelationship(relatedItemTopic: Topic, relatedItem: RelatedItem, reverseRole=''): Promise<void> {
+  async function addRelationship(relatedItemTopic: Topic, relatedItem: RelatedItem, extraFields: Record<string, string>): Promise<void> {
     // create the relationship on current entry
     const entry1 = currentEntry.value;
     const entry2 = await fromUuid(relatedItem.uuid);
@@ -100,16 +101,9 @@ export const useRelationshipStore = defineStore('relationship', () => {
     if (!entry1Topic || !entry1Type)
       throw new Error('Invalid current entry in relationshipStore.addRelationship()');
 
-    // create the reverse item
-    const reverseRelatedItem = {
-      uuid: entry1.uuid,
-      type: entry1Type,
-      role: reverseRole,
-    };
-
     // update the entries
-    await EntryFlags.setRelationship(entry1.uuid, relatedItemTopic, relatedItem);
-    await EntryFlags.setRelationship(entry2.uuid, entry1Topic, reverseRelatedItem);
+    await EntryFlags.setRelationship(entry1.uuid, relatedItemTopic, { uuid: entry2.uuid, extraFields });
+    await EntryFlags.setRelationship(entry2.uuid, entry1Topic, { uuid: entry1.uuid, extraFields });
   }
 
   // remove a relationship to the current entry

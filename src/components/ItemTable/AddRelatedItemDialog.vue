@@ -1,60 +1,65 @@
 <template>
-  <Dialog 
-    v-model="show" 
-    style="min-width: 350px;"
+  <div 
+    v-if="loading"
   >
-    <template #header>
-      <div class="text-h6">
-        {{ itemTypeDetails[props.topic].title }}
-      </div>
-    </template>
-
-    <div 
-      v-if="selectItems.length>0"
-      class="q-pt-none q-gutter-sm"
+    <ProgressSpinner v-show="loading" />
+  </div>
+  <div v-else>
+    <Dialog 
+      v-model="show" 
+      style="min-width: 350px;"
     >
-      <!-- <q-select v-model="itemId"
-        ref="nameSelectRef"
-        :options="options"
-        label="Name"
-        outlined 
-        fill-input
-        use-input
-        input-debounce="0"
-        hide-selected
-        clearable
-        @filter="filterFnAutoselect"
-        @keydown.enter.stop="onAddClick"
-      />
-      <q-input 
-        v-for="field in extraFields"
-        :key="field.name"
-        v-model="extraFieldValues[field.name]"
-        :label="field.label"
-        outlined
-      /> -->
-    </div>
-    <div v-else>
-      All possible related items are already connected.
-    </div>
-    <template #footer>
-      <Button 
-        label="Cancel"
-        text
-        severity="secondary"
-        autofocus
-        @click="emit('update:modelValue', false);"
-      />
-      <Button
-        :label="itemTypeDetails[props.topic].buttonTitle" 
-        :disable="!isAddFormValid"
-        text
-        severity="secondary"
-        autofocus
-        @click="onAddClick"
-      />
-    </template>
-  </Dialog>
+      <template #header>
+        <div class="text-h6">
+          {{ topicDetails[props.topic].title }}
+        </div>
+      </template>
+
+      <div 
+        v-if="selectItems.length>0"
+        class="q-pt-none q-gutter-sm"
+      >
+        <Select 
+          ref="nameSelectRef"
+          v-model="itemId"
+          :options="options"
+          optionLabel="name"
+          optionValue="uuid"
+          variant="outlined"
+          showClear
+          @filter="filterFnAutoselect"
+          @keydown.enter.stop="onAddClick"
+        />
+        <InputText
+          v-for="field in extraFields"
+          :key="field.field"
+          v-model="extraFieldValues[field.field]"
+          :label="field.header"
+          variant="outlined"
+        /> 
+      </div>
+      <div v-else>
+        All possible related items are already connected.
+      </div>
+      <template #footer>
+        <Button 
+          label="Cancel"
+          text
+          severity="secondary"
+          autofocus
+          @click="emit('update:modelValue', false);"
+        />
+        <Button
+          :label="topicDetails[props.topic].buttonTitle" 
+          :disable="!isAddFormValid"
+          text
+          severity="secondary"
+          autofocus
+          @click="onAddClick"
+        />
+      </template>
+    </Dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -68,16 +73,14 @@
   // library components
   import Dialog from 'primevue/dialog';
   import Button from 'primevue/button';
+  import ProgressSpinner from 'primevue/progressspinner';
+  import Select from 'primevue/select';
+  import InputText from 'primevue/inputtext';
 
   // local components
 
   // types
   import { Topic, ValidTopic, } from '@/types';
-
-  type ItemTypeDetail = {
-    title: string;
-    buttonTitle: string;
-  };
 
   ////////////////////////////////
   // props
@@ -102,11 +105,12 @@
 
   ////////////////////////////////
   // data
+  const loading = ref(false);
   const show = ref(props.modelValue);
   const itemId = ref<{ label: string, value: string } | null>(null);  // the selected item from the dropdown
-  const options = ref<{ label: string, value: string }[]>([]);
+  const options = ref<{ name: string, uuid: string }[]>([]);
   const extraFieldValues = ref<Record<string, string>>({});
-  const itemTypeDetails = {
+  const topicDetails = {
     [Topic.Event]: {
       title: 'Add an event',
       buttonTitle: 'Add event',
@@ -123,10 +127,10 @@
       title: 'Add an organization',
       buttonTitle: 'Add organization',
     },
-  } as Record<ValidTopic, ItemTypeDetail>;
+  } as Record<ValidTopic, { title: string; buttonTitle: string }>;
   const selectItems = ref<JournalEntry[]>([]);
   const extraFields = ref<{field:string, header:string}[]>([]);
-  const nameSelectRef = ref<QSelect | null>(null);
+  const nameSelectRef = ref<Select | null>(null);
 
   ////////////////////////////////
   // computed data
@@ -143,7 +147,7 @@
     emit('update:modelValue', false);
   }
 
-  const filterFnAutoselect = function(value: string, update: (callbackFn: () => void, afterFn?: ((ref: QSelect) => void) | undefined) => void, /*abort*/) {
+  const filterFnAutoselect = function(value: string, update: (callbackFn: () => void, afterFn?: ((ref: Select) => void) | undefined) => void, /*abort*/) {
     // call abort() at any time if you can't retrieve data somehow
 
     setTimeout(() => {
@@ -158,8 +162,8 @@
           }
         },
 
-        // "ref" is the Vue reference to the QSelect
-        (ref: QSelect) => {
+        // "ref" is the Vue reference to the Select
+        (ref: Select) => {
           if (value !== '' && ref.options?.length && ref.options.length > 0 && ref.getOptionIndex() === -1) {
             ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
             ref.toggleOption(ref.options[ ref.getOptionIndex() ], true) // toggle the focused option
@@ -172,7 +176,7 @@
   ////////////////////////////////
   // event handlers
   const onAddClick = async function() {
-    Loading.show({group: 'AddRelatedItemDialog.onAddClick'});
+    loading.value = true;
 
     // note that this naming is a bit backward - topic is the type of the related table, so it's not the current item
     let result = false;
@@ -180,11 +184,11 @@
     if (itemId.value) {
       // replace nulls with empty strings
       const extraFieldsToSend = extraFields.value.reduce((acc, field) => {
-        acc[field.name] = extraFieldValues.value[field.name] || '';
+        acc[field.field] = extraFieldValues.value[field.field] || '';
         return acc;
       }, {} as Record<string, string>);
 
-      result = await relationshipStore.addRelatedItem(props.topic, itemId.value.value, extraFieldsToSend);
+      result = await relationshipStore.addRelationship(props.topic, itemId.value.value, extraFieldsToSend);
     }
 
     if (result) {
@@ -192,7 +196,7 @@
       resetDialog();
     }
 
-    Loading.hide('AddRelatedItemDialog.onAddClick');
+    loading.value = false;
   }
   
   const onAddCancelClick = function() {

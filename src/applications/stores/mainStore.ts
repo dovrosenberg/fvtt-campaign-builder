@@ -32,6 +32,7 @@ export const useMainStore = defineStore('main', () => {
   const currentEntryId = computed((): string | null => _currentEntry?.value?.uuid || null);
   const currentEntry = computed((): JournalEntry | null => _currentEntry?.value || null);
 
+
   ///////////////////////////////
   // actions
   // set a new world from a uuid
@@ -66,7 +67,7 @@ export const useMainStore = defineStore('main', () => {
     if (!currentEntry.value)
       return Topic.None;
 
-    return EntryFlags.get(currentEntry.value, EntryFlagKey.topic);
+    return EntryFlags.get(currentEntry.value, EntryFlagKey.topic) || Topic.None;
   });
 
   ///////////////////////////////

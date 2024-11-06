@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
-    "@league-of-foundry-developers/foundry-vtt-types": "dovrosenberg/foundry-vtt-types#97594bc",
+    "@league-of-foundry-developers/foundry-vtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "@originjs/vite-plugin-commonjs": "^1.0.1",
     "@primevue/auto-import-resolver": "^4.2.1",
     "@types/jest": "^29.5.10",

@@ -1,5 +1,6 @@
 export * from './directory';
 export * from './tables';
+export * from './relationships';
 
 export type WindowTab = {
   id: string;   // unique id
@@ -37,6 +38,7 @@ export enum Topic {
 // topics except None
 export type ValidTopic = Exclude<Topic, Topic.None>;
 
+// relationships
 export type TreeNode = {
   text: string;   // the label
   value: string;   // a value to be passed up when clicked (ex. a uuid)

@@ -185,6 +185,7 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits(['deleteItemClick', 'editItemClick',]);
 
   ////////////////////////////////
   // store
@@ -192,7 +193,7 @@
   const mainStore = useMainStore();
 
   const { currentEntryTopic } = storeToRefs(mainStore);
-  const { extraFields } = storeToRefs(relationshipStore);
+  const extraFields = relationshipStore.extraFields;
 
   ////////////////////////////////
   // data
@@ -231,7 +232,7 @@
   });
 
   const extraColumns = computed(() => {
-    return extraFields.value[currentEntryTopic.value][props.topic];
+    return extraFields[currentEntryTopic.value][props.topic];
   });
 
   const columns = computed((): any[] => {

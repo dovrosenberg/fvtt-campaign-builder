@@ -24,6 +24,15 @@
     }
    ],
 
+   "documentTypes": {
+    "JournalEntryPage": {
+      "entry": {
+        // "htmlFields": [],
+        // "filePathFields": {}
+      }
+    }
+  },
+
   "authors": [
     {
       "name": "Dov Rosenberg",
