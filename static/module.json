@@ -26,10 +26,7 @@
 
    "documentTypes": {
     "JournalEntryPage": {
-      "entry": {
-        // "htmlFields": [],
-        // "filePathFields": {}
-      }
+      "entry": {}
     }
   },
 

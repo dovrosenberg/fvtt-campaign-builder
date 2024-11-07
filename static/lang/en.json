@@ -12,6 +12,11 @@
         "type": "Type",
         "parent": "Parent"
       },
+      "entry": {
+        "topic": "Topic",
+        "type": "Type",
+        "relationships": "Relationshipa"
+      },
       "groupTree": "Group tree by type",
       "tabs": {
         "description": "Description",

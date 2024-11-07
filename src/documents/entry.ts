@@ -1,19 +1,15 @@
-// @todo 
-// NEEDS TO BE IN A JOURNALENTRYPAGE! MAYBE ONE JOURNAL ENTRY FOR EACH TOPIC?  THOSE COULD GET REALLY BIG BUT IT WOULD MAKE SEARCHING BY TOPIC EASIER
-// BUT THINK ABOUT A FULL TEXT SEARCH - YOU'D HAVE TO DO ACROSS ALL THE TOPICS?
-
+import { Topic } from 'src/types';
 
 const fields = foundry.data.fields;
 const entrySchema = {
-  // @todo localize label
-  topic: new fields.NumberField({ required: true, nullable: false, label: 'Topic', validate: (value: number) => { return value >= 0 && value <= Topic.organization; }, textSearch: true, }),
+  topic: new fields.NumberField({ required: true, nullable: false, validate: (value: number) => { return Object.values(Topic).includes(value); }, textSearch: true, }),
 
   // @todo localize label
-  type: new fields.StringField({ required: true, nullable: false, label: 'Type', textSearch: true, }),
+  type: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
 
   // @todo localize label
   // @todo - should it be JSON?
-  relationships: new fields.ObjectField({ required: true, nullable: false, label: 'Relationships', }),
+  relationships: new fields.ObjectField({ required: true, nullable: false, initial: {}}),
 
   // description: new fields.SchemaField({
   //   short: new fields.HTMLField({required: false, blank: true})
