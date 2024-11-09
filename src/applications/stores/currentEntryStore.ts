@@ -1,21 +1,18 @@
 // this store handles the the entry currently being displayed
 
 // library imports
-import { defineStore, } from 'pinia';
+import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { getGame } from '@/utils/game';
-import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
+import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
 import { cleanTrees, hasHierarchy, Hierarchy, } from '@/utils/hierarchy';
-import { useDirectoryStore, useNavigationStore } from '@/applications/stores';
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { useDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
 import { getTopicText, } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
+import { DocumentTypes } from '@/documents';
 
 // types
-import { Topic } from '@/types';
-import { computed } from 'vue';
+import { ValidTopic } from '@/types';
 
 // the store definition
 export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
@@ -26,6 +23,8 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   // other stores
   const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
+  const mainStore = useMainStore();
+  const { currentWorldId, currentJournals, currentWorldCompendium } = storeToRefs(mainStore);
   
   ///////////////////////////////
   // internal state
@@ -35,18 +34,18 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
    
   ///////////////////////////////
   // actions
-  const updateEntryTopic = async (entryId: string, typeName: string): Promise<void> => {
-    const entry = await fromUuid(entryId) as JournalEntry;
-    const oldType = EntryFlags.get(entry, EntryFlagKey.type) || '';
-    await EntryFlags.set(entry, EntryFlagKey.type, typeName);
+  const updateEntryType = async (entryId: string, typeName: string): Promise<void> => {
+    const entry = await fromUuid(entryId) as JournalEntryPage;
+    const oldType = (entry.system.type as string | null | undefined) || '';
+    await entry.update({ 'system.type': typeName });
 
-    await directoryStore.updateEntryTopic(entry, oldType, typeName);
+    await directoryStore.updateEntryType(entry, oldType, typeName);
   };
 
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
   type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
-  const createEntry = async (worldFolder: Folder, topic: Topic, options: CreateEntryOptions): Promise<JournalEntry | null> => {
+  const createEntry = async (worldFolder: Folder, topic: ValidTopic, options: CreateEntryOptions): Promise<JournalEntryPage | null> => {
     const topicText = getTopicText(topic);
 
     let nameTouse = options.name || '' as string | null;
@@ -58,40 +57,33 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
     if (!nameTouse)
       return null;
 
-    // create the entry
-    const compendia = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia);
-
-    if (!compendia || !compendia[topic])
-      throw new Error('Missing compendia in currentEntryStore.createEntry()');
-
     // unlock it to make the change
-    const pack = getGame().packs?.get(compendia[topic]);
-    if (!pack)
-      throw new Error('Bad compendia in currentEntryStore.createEntry()');
+    await currentWorldCompendium.value.configure({locked:false});
 
-    await pack.configure({locked:false});
-
-    const entry = await JournalEntry.create({
+    // create the entry
+    const entry = await currentJournals.value[topic]?.pages.createDocument({
+      type: DocumentTypes.Entry,
       name: nameTouse,
       folder: worldFolder.id,
+      system: {
+        type: options.type || '',
+      }
     },{
-      pack: compendia[topic],
+      pack: currentWorldCompendium.value.metadata.id,
     });
 
-    await pack.configure({locked:true});
+    await currentWorldCompendium.value.configure({locked:true});
 
     if (entry) {
-      await EntryFlags.setDefaults(entry, topic, options.type || '');
-
       // set parent if specified
       if (options.parentId==undefined) {
         // no parent - set as a top node
-        const topNodes = PackFlags.get(pack.metadata.id, PackFlagKey.topNodes);
-        await PackFlags.set(pack.metadata.id, PackFlagKey.topNodes, topNodes.concat([entry.uuid]));
+        const topNodes = WorldFlags.getTopicFlag(worldFolder.uuid, WorldFlagKey.topNodes, topic);
+        await WorldFlags.setTopicFlag(worldFolder.uuid, WorldFlagKey.topNodes, topic, topNodes.concat([entry.uuid]));
 
         // set the blank hierarchy
         if (hasHierarchy(topic)) {
-          await PackFlags.setHierarchy(pack.metadata.id, entry.uuid, {
+          await WorldFlags.setHierarchy(worldFolder.uuid, entry.uuid, {
             parentId: '',
             ancestors: [],
             children: [],
@@ -101,7 +93,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
       } else {
         // add to the tree
         if (hasHierarchy(topic)) {
-          await directoryStore.setNodeParent(pack, entry.uuid, options.parentId);
+          await directoryStore.setNodeParent(topic, entry.uuid, options.parentId);
         }
       }
 
@@ -114,48 +106,39 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
 
   // delete an entry from the world
   const deleteEntry = async (entryId: string) => {
-    const entry = await fromUuid(entryId) as JournalEntry;
+    const entry = await fromUuid(entryId) as JournalEntryPage;
 
-    if (!entry || !entry.pack)
+    if (!entry || !currentWorldId.value)
       return;
 
-    const hierarchy = PackFlags.get(entry.pack, PackFlagKey.hierarchies)[entry.uuid];
+    const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entry.uuid);
 
     // have to unlock the pack
-    const pack = getGame().packs?.get(entry.pack);
-    if (pack) {
-      await pack.configure({locked:false});
+    await currentWorldCompendium.value.configure({locked:false});
 
-      // delete from any trees
-      if (hierarchy?.ancestors || hierarchy?.children) {
-        await cleanTrees(pack.metadata.id, entry.uuid, hierarchy);
-      }
-
-      await entry.delete();
-
-      await pack.configure({locked:false});
-
-      // TODO - remove from any relationships
-      // TODO - remove from search
-
-      // update tabs
-      await navigationStore.cleanupDeletedEntry(entry.uuid);
-
-      // refresh and force its parent to update
-      await directoryStore.refreshCurrentTree(hierarchy.parentId ? [hierarchy.parentId] : []);
+    // delete from any trees
+    if (hierarchy?.ancestors || hierarchy?.children) {
+      await cleanTrees(currentWorldCompendium.value.metadata.id, entry.uuid, hierarchy);
     }
+
+    await entry.delete();
+
+    await currentWorldCompendium.value.configure({locked:true});
+
+    // TODO - remove from any relationships
+    // TODO - remove from search
+
+    // update tabs
+    await navigationStore.cleanupDeletedEntry(entry.uuid);
+
+    // refresh and force its parent to update
+    await directoryStore.refreshCurrentTree(hierarchy.parentId ? [hierarchy.parentId] : []);
   };
 
 
   ///////////////////////////////
   // computed state
-  const currentEntryTopic = computed((): Topic => {
-    if (!currentEntry.value)
-      return Topic.None;
-    
-    return EntryFlags.get(currentEntry.value, EntryFlagKey.topic) || Topic.None;
-  })
-
+  
   ///////////////////////////////
   // internal functions
 
@@ -168,7 +151,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   ///////////////////////////////
   // return the public interface
   return {
-    updateEntryTopic,
+    updateEntryType,
     createEntry,
     deleteEntry,
   };

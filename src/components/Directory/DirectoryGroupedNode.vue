@@ -21,7 +21,7 @@
 
   // local imports
   import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
-  import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
+  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { localize } from '@/utils/game';
 
   // library components
@@ -92,7 +92,7 @@
       return;
     }
 
-    const topic = PackFlags.get(packElement.dataset.packId, PackFlagKey.topic);
+    const topic = TopicFlags.get(packElement.dataset.packId, TopicFlagKey.topic);
 
     const dragData = { 
       topic: topic,

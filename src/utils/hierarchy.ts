@@ -1,5 +1,4 @@
 import { EntrySummary, Topic, } from '@/types';
-import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
 import { getGame } from './game';
 
 // the string to show for items with no type
@@ -33,7 +32,7 @@ export function validChildItems(pack: CompendiumCollection<any>, entry: JournalE
   if (!parent)
     return [];
 
-  const ancestors = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid]?.ancestors || [];
+  const ancestors = WorldFlags.get(pack.metadata.id, WorldFlagKey.hierarchies)[entry.uuid]?.ancestors || [];
 
   // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
   return pack.find((j)=>(j.uuid !== entry.uuid && !ancestors.includes(entry.id!))).map(mapEntryToSummary);
@@ -56,7 +55,7 @@ export function validParentItems(entry: JournalEntry): string[] {
   if (!child)
     return [];
 
-  const hierarchies = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies);
+  const hierarchies = TopicFlags.get(pack.metadata.id, TopicFlagKey.hierarchies);
 
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
   return pack.filter((j: JournalEntry)=>(
@@ -73,7 +72,7 @@ const mapEntryToSummary = (entry: JournalEntry): EntrySummary => ({
 // after we delete an item, we need to remove it from any trees where it is a child or ancestor,
 //    along with all of the items that are now orphaned
 export const cleanTrees = async function(packId: string, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
-  const hierarchies = PackFlags.get(packId, PackFlagKey.hierarchies);
+  const hierarchies = TopicFlags.get(packId, TopicFlagKey.hierarchies);
 
   // remove deleted item and all its ancestors from any object who had them as ancestors previously
   // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
@@ -110,11 +109,11 @@ export const cleanTrees = async function(packId: string, deletedItemId: string, 
   delete hierarchies[deletedItemId];
 
   // store updated hierarchy
-  await PackFlags.set(packId, PackFlagKey.hierarchies, hierarchies);
+  await TopicFlags.set(packId, TopicFlagKey.hierarchies, hierarchies);
 
   // update topNodes
-  let topNodes = PackFlags.get(packId, PackFlagKey.topNodes);
+  let topNodes = TopicFlags.get(packId, TopicFlagKey.topNodes);
   topNodes = topNodes.filter((s: string)=>s!=deletedItemId).concat(newTopNodes);
-  await PackFlags.set(packId, PackFlagKey.topNodes, topNodes);
+  await TopicFlags.set(packId, TopicFlagKey.topNodes, topNodes);
 };
 

@@ -50,7 +50,6 @@
   
   // local imports
   import { useNavigationStore, useDirectoryStore, useMainStore, useCurrentEntryStore } from '@/applications/stores';
-  import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
   import { getGame, localize } from '@/utils/game';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   
@@ -61,7 +60,7 @@
   import DirectoryGroupedNode from './DirectoryGroupedNode.vue';
 
   // types
-  import { DirectoryPack, DirectoryTypeNode, } from '@/types';
+  import { DirectoryTopic, DirectoryTypeNode, } from '@/types';
 
   
   ////////////////////////////////
@@ -75,8 +74,8 @@
       type: String,
       required: true,
     },
-    pack: {
-      type: Object as PropType<DirectoryPack>,
+    topic: {
+      type: Object as PropType<DirectoryTopic>,
       required: true,
     }, 
   });
@@ -132,7 +131,7 @@
       return false;
     }
 
-    const topic = PackFlags.get(packElement.dataset.packId, PackFlagKey.topic);
+    const topic = TopicFlags.get(packElement.dataset.packId, TopicFlagKey.topic);
 
     // if the topics don't match, can't drop
     if (data.topic!==topic)

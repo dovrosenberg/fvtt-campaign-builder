@@ -6,7 +6,6 @@ import { defineStore, storeToRefs, } from 'pinia';
 // local imports
 import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { useMainStore } from './mainStore';
-import { topicCompendia } from '@/compendia';
 
 // types
 import { Topic } from '@/types';
@@ -19,7 +18,7 @@ export const useEntryStore = defineStore('entry', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorldFolder, currentEntry, } = storeToRefs(mainStore);
+  const { currentWorldFolder, currentEntry, currentWorldCompendium } = storeToRefs(mainStore);
   
   ///////////////////////////////
   // internal state
@@ -41,9 +40,7 @@ export const useEntryStore = defineStore('entry', () => {
    */
   const getEntriesForTopic = async function(topic: Topic, uniqueOnly = false): Promise<JournalEntry[]> {
     // we find all journal entries with this topic
-    debugger;
-    
-    console.log(currentWorldFolder.value);
+    throw new error('getEntriesfortopic() needs to be fixed to use journalentrypage')
     let journalEntries = await topicCompendia[topic].find((j: JournalEntry) => EntryFlags.get(j, EntryFlagKey.topic) === topic);
 
     // filter unique ones if needed

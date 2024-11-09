@@ -1,5 +1,3 @@
-import { Topic } from '.';
-
 export type TablePagination = {
   first: number;   // the cardinal number of the first included row (=rowsPerPage*page)
   page: number;    // the current page

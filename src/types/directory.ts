@@ -1,4 +1,4 @@
-import { Topic } from '.';
+import { Topic, ValidTopic } from '.';
 
 // a type "group"
 export type DirectoryTypeNode = {
@@ -26,11 +26,10 @@ export type DirectoryNode = {
   type: string;    // the type of the entry
 }
 
-export type DirectoryPack = {
-  pack: CompendiumCollection<any>;
+export type DirectoryTopic = {
   id: string;
   name: string;
-  topic: Topic;
+  topic: ValidTopic;
   loadedTopNodes: DirectoryNode[];
   topNodes: string[];
   loadedTypes: DirectoryTypeNode[];
@@ -38,7 +37,7 @@ export type DirectoryPack = {
 }
 
 export type DirectoryWorld = {
-  id: string;
+  id: string;   // the world folder ID
   name: string;
-  packs: DirectoryPack[];
+  topics: DirectoryTopic[];
 }

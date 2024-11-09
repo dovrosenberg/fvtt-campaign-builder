@@ -77,32 +77,32 @@
           >
             <!-- data-pack-id is used by drag and drop and toggleEntry-->
             <li 
-              v-for="pack in world.packs.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
-              :key="pack.id"
-              :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')"
-              :data-pack-id="pack.id" 
+              v-for="topic in world.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
+              :key="topic.id"
+              :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
+              :data-pack-id="topic.id" 
             >
               <header class="folder-header flexrow">
                 <div 
                   class="fwb-compendium-label noborder" 
                   style="margin-bottom:0px"
-                  @click="onTopicFolderClick($event, pack)"
-                  @contextmenu="onTopicContextMenu($event, world.id, pack.topic)"
+                  @click="onTopicFolderClick($event, topic)"
+                  @contextmenu="onTopicContextMenu($event, world.id, topic.topic)"
                 >
                   <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                  <i :class="'icon fas ' + getIcon(pack.topic)" style="margin-right: 4px;"></i>
-                  {{ pack.name }}
+                  <i :class="'icon fas ' + getIcon(topic.topic)" style="margin-right: 4px;"></i>
+                  {{ topic.name }}
                 </div>
               </header>
 
               <DirectoryGroupedTree
                 v-if="isGroupedByType" 
-                :pack="pack"
+                :topic="topic"
                 :world-id="world.id"
               />
               <DirectoryNestedTree
                 v-else 
-                :pack="pack"
+                :topic="topic"
                 :world-id="world.id"
               />
             </li>
@@ -142,7 +142,7 @@
   import DirectoryGroupedTree from './DirectoryGroupedTree.vue';
   
   // types
-  import { DirectoryPack, Topic, } from '@/types';
+  import { DirectoryTopic, Topic, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -240,10 +240,10 @@
   };
 
   // open/close a topic
-  const onTopicFolderClick = async (event: MouseEvent, directoryPack: DirectoryPack) => { 
+  const onTopicFolderClick = async (event: MouseEvent, directoryTopic: DirectoryTopic) => { 
     event.stopPropagation();
 
-    await directoryStore.togglePack(directoryPack);
+    await directoryStore.toggleTopic(directoryTopic);
   };
 
   // close all topics

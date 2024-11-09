@@ -37,6 +37,10 @@
       "organizationName": "Organization Name",
       "sceneName": "Scene Name"
     },
+    "compendia": {
+      "entry": "Entries",
+      "session": "Sessions"
+    },
     "topics": {
       "character": "Character",
       "event": "Event",

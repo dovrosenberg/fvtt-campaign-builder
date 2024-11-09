@@ -1,6 +1,6 @@
 import moduleJson from '@module';
 import { ModuleSettings, updateModuleSettings } from '@/settings/ModuleSettings';
-import { EntryModel } from '@/documents/entry';
+import { DocumentTypes, EntryDataModel } from '@/documents';
 
 export function registerForInitHook() {
   Hooks.once('init', init);
@@ -12,11 +12,11 @@ async function init(): Promise<void> {
 
   // register the data models
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
-    [`${moduleJson.id}.entry`]: EntryModel
+    [`${moduleJson.id}.${DocumentTypes.Entry}`]: EntryDataModel
   });
 
   DocumentSheetConfig.registerSheet(JournalEntryPage, moduleJson.id, JournalPageSheet, {
-    types: [`${moduleJson.id}.entry`],
+    types: [`${moduleJson.id}.${DocumentTypes.Entry}`],
     makeDefault: true
   });
 }

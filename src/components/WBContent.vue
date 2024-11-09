@@ -93,7 +93,6 @@
   import { updateDocument } from '@/compendia';
   import { getIcon, toTopic } from '@/utils/misc';
   import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-  import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { getGame, localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
@@ -236,7 +235,7 @@
   ////////////////////////////////
   // watchers
   watch(currentEntry, async (newEntry: JournalEntry | null): Promise<void> => {
-    if (!newEntry) {
+    if (!newEntry || !currentWorldId.value) {
       topic.value = null;
     } else {
       let newTopic;
@@ -263,7 +262,7 @@
         parentId.value = null;
         validParents.value = [];
       } else {
-        parentId.value = PackFlags.get(newEntry.pack, PackFlagKey.hierarchies)[newEntry.uuid]?.parentId || null;
+        parentId.value = WorldFlags.getTopicFlag(currentWorldId.value, WorldFlagKey.hierarchies, topic.value)[newEntry.uuid]?.parentId || null;
     
         // TODO - need to refresh this somehow if things are moved around in the directory
         validParents.value = validParentItems(newEntry).map((id)=> ({
