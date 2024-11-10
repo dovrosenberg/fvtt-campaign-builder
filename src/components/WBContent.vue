@@ -176,7 +176,7 @@ import { DocumentTypes } from 'src/documents';
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
       if (currentEntry.value && currentEntry.value.name!==newValue) {
-        await updateEntry(currentWorldCompendium.value, currentEntry.value, { name: newValue });
+        await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), { name: newValue });
 
         await directoryStore.refreshCurrentTree([currentEntry.value.uuid]);
         await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue);
@@ -217,7 +217,7 @@ import { DocumentTypes } from 'src/documents';
     if (!currentEntry.value)
       return;
 
-    await updateEntry(currentWorldCompendium.value, currentEntry.value, {'text.content': newContent });  
+    await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), {'text.content': newContent });  
 
     //need to reset
     // if it's not automatic, clear and reset the documentpage

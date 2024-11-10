@@ -258,6 +258,7 @@ export async function getCleanEntry(uuid: string): Promise<JournalEntryPage | nu
 }
 
 // updates an entry, unlocking compedium to do it
+// note: make sure to pass in the raw entry using vue's toRaw() if calling on a proxy
 export async function updateEntry(currentCompendium: CompendiumCollection<Any>, entry: JournalEntryPage, data: Record<string, any>): Promise<JournalEntryPage | null> {
   // unlock compendium to make the change
   await currentCompendium.configure({locked:false});
