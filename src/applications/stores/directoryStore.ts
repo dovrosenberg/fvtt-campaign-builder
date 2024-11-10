@@ -396,11 +396,11 @@ export const useDirectoryStore = defineStore('directory', () => {
   /**
    * This function is used to load all of the type entries for a particular topic.
    * @param topicNode the DirectoryTopicNode to load
-   * @param worldTypes the types of each topic in the world
+   * @param types the types for this topic
    * @param expandedIds the ids that are currently expanded
    * @returns a promise that resolves when the entries are loaded
    */
-  const _loadTypeEntries = async (topicNode: DirectoryTopicNode, worldTypes: Record<Topic, string []>, expandedIds: Record<string, boolean | null>): Promise<void> => {
+  const _loadTypeEntries = async (topicNode: DirectoryTopicNode, types: string [], expandedIds: Record<string, boolean | null>): Promise<void> => {
     // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
     //    type on the journalentry, or pack or world, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
     //    that is also in the index)
@@ -409,7 +409,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     const allEntries = await currentJournals.value[topicNode.topic].collections.pages.toObject() as JournalEntryPage[];
     
-    topicNode.loadedTypes = worldTypes[topicNode.topic].map((type: string): DirectoryTypeNode => ({
+    topicNode.loadedTypes = types.map((type: string): DirectoryTypeNode => ({
       name: type,
       id: topicNode.id + ':' + type,
       expanded: expandedIds[topicNode.id + ':' + type] || false,   
@@ -466,9 +466,9 @@ export const useDirectoryStore = defineStore('directory', () => {
     const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
-      const journal = toRaw(currentJournals.value[topics[i]]);
+      const journal = currentJournals.value[topics[i]];
 
-      let matchedEntries = journal.pages.filter((e: JournalEntryPage)=>( filterText.value === '' || regex.test( e.name || '' )))
+      let matchedEntries = journal.collections.pages.filter((e: JournalEntryPage)=>( filterText.value === '' || regex.test( e.name || '' )))
         .map((e: JournalEntryPage): string=>e.uuid);
   
       // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding
@@ -505,10 +505,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     // we only want to load ones not already in _loadedNodes, unless its in updateEntryIds
     const uuidsToLoad = ids.filter((id)=>!_loadedNodes[id] || updateEntryIds.includes(id));
 
-    // convert uuids to ids
-    const convertedIds = uuidsToLoad.map((uuid)=>foundry.utils.parseUuid(uuid).id);
-
-    const entries = await currentWorldCompendium.value.getDocuments({ _id__in: convertedIds }) as JournalEntryPage[];
+    const entries = currentJournals.value[topic].collections.pages.filter((e: JournalEntryPage)=>uuidsToLoad.includes(e.uuid));
 
     for (let i=0; i<entries.length; i++) {
       const newNode = _convertEntryToNode(entries[i]);

@@ -234,7 +234,7 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentEntry, async (newEntry: JournalEntry | null): Promise<void> => {
+  watch(currentEntry, async (newEntry: JournalEntryPage | null): Promise<void> => {
     if (!newEntry || !currentWorldId.value) {
       topic.value = null;
     } else {

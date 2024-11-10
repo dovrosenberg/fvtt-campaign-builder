@@ -250,24 +250,11 @@ async function createCompendium(worldFolder: Folder): Promise<CompendiumCollecti
 }
 
 // loads the entry into memory and cleans it
-export async function getCleanEntry(uuid: string): Promise<JournalEntry | null> {
+export async function getCleanEntry(uuid: string): Promise<JournalEntryPage | null> {
   // we must use fromUuid because these are all in compendia
-  const entry = await fromUuid(uuid) as JournalEntry;
+  const entry = await fromUuid(uuid) as JournalEntryPage;
 
-  if (entry) {
-    await cleanEntry(entry);
-    return entry;
-  } else {
-    return null;
-  }
-}
-
-// makes sure that the entry has all the correct pages
-async function cleanEntry(entry: JournalEntry): Promise<void> {
-  if (!entry.pages.find((p)=>p.name==='description')) { // TODO: replace with enum
-    // this creates the page and adds to the parent
-    await JournalEntryPage.create({name:'description', type: 'text'}, {parent: entry, pack: entry.pack});  // TODO: replace this with an enum
-  }
+  return entry ? entry : null;
 }
 
 // updates an entry, unlocking compedium to do it
