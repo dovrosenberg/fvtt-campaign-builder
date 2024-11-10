@@ -5,17 +5,14 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 
 // local imports
-import { getGame } from '@/utils/game';
-import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
+import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { hasHierarchy, Hierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore } from '@/applications/stores';
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { createWorldFolder, validateCompendia } from '@/compendia';
+import { createWorldFolder, getTopicText, validateCompendia } from '@/compendia';
 import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 
 // types
-import { DirectoryWorld, DirectoryPack, DirectoryNode, Topic, DirectoryTypeNode, DirectoryEntryNode } from '@/types';
+import { DirectoryWorld, DirectoryTopicNode, DirectoryEntryNode, Topic, DirectoryTypeNode, DirectoryTypeEntryNode, ValidTopic } from '@/types';
 
 // the store definition
 export const useDirectoryStore = defineStore('directory', () => {
@@ -25,11 +22,11 @@ export const useDirectoryStore = defineStore('directory', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { rootFolder, currentWorldId, currentWorldFolder } = storeToRefs(mainStore); 
+  const { rootFolder, currentWorldId, currentWorldFolder, currentJournals, currentWorldCompendium } = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
-  let _loadedNodes = {} as Record<string, DirectoryNode>;   // maps uuid to the node for easy lookup
+  let _loadedNodes = {} as Record<string, DirectoryEntryNode>;   // maps uuid to the node for easy lookup
 
   ///////////////////////////////
   // external state
@@ -50,7 +47,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   const filterText = ref<string>('');
 
   // currently displayed nodes and types
-  const filterNodes = ref<Record<string, string[]>>({});
+  const filterNodes = ref<Record<ValidTopic, string[]>>({});
    
   ///////////////////////////////
   // actions
@@ -63,26 +60,29 @@ export const useDirectoryStore = defineStore('directory', () => {
     await refreshCurrentTree();
   };
 
-  // expand the given pack, loading the new item data
-  const togglePack = async(pack: DirectoryPack) : Promise<void> => {
+  // expand the given topic, loading the new item data
+  const toggleTopic = async(topic: DirectoryTopicNode) : Promise<void> => {
     // closing is easy
-    if (pack.expanded) {
-      await _collapseItem(pack, pack.id);
+    if (topic.expanded) {
+      await _collapseItem(topic, topic.id);
     } else {
-      await _expandItem(pack, pack.id);
+      await _expandItem(topic, topic.id);
     }
 
     await refreshCurrentTree();
   };
 
   // move the entry to a new type (doesn't update the entry itself)
-  const updateEntryTopic = async (entry: JournalEntry, oldType: string, newType: string): Promise<void> => {
+  const updateEntryType = async (entry: JournalEntryPage, oldType: string, newType: string): Promise<void> => {
+    if (!currentWorldId.value)
+      return;
+
     // remove from the old one
     const currentWorldNode = currentTree.value.find((w)=>w.id===currentWorldId.value) || null;
-    const packNode = currentWorldNode?.packs.find((p)=>p.id===entry.pack) || null;
+    const packNode = currentWorldNode?.topics.find((p)=>p.topic===entry.system.topic) || null;
     const oldTypeNode = packNode?.loadedTypes.find((t) => t.name===oldType);
     if (!currentWorldNode || !packNode) 
-      throw new Error('Failed to load node in directoryStore.updateEntryTopic()');
+      throw new Error('Failed to load node in directoryStore.updateEntryType()');
 
     if (oldTypeNode)
       oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entry.uuid);
@@ -93,18 +93,20 @@ export const useDirectoryStore = defineStore('directory', () => {
       newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([{ id: entry.uuid, name: entry.name || NO_NAME_STRING}]).sort((a,b)=>a.name.localeCompare(b.name));
     }
 
-    // update the hierarchy
-    const hierarchy = PackFlags.get(packNode?.id, PackFlagKey.hierarchies)?.[entry.uuid];
-    if (!hierarchy)
-      throw new Error(`Could not find hierarchy for ${entry.uuid} in directoryStore.updateEntryTopic()`);
+    // update the hierarchy, if applicable
+    const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entry.uuid);
+    if (hasHierarchy(entry.system.topic as ValidTopic)) {
+      if(!hierarchy)
+        throw new Error(`Could not find hierarchy for ${entry.uuid} in directoryStore.updateEntryType()`);
 
-    hierarchy.type = newType;
-    await PackFlags.setHierarchy(packNode?.id, entry.uuid, hierarchy);
+      hierarchy.type = newType;
+      await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, hierarchy);
+    }
   };
 
   // expand/contract  the given entry, loading the new item data
   // return the new node
-  const toggleEntry = async(packId: string, node: DirectoryNode, expanded: boolean) : Promise<DirectoryNode>=> {
+  const toggleEntry = async(topic: ValidTopic, node: DirectoryEntryNode, expanded: boolean) : Promise<DirectoryEntryNode>=> {
     if (node.expanded===expanded || !currentWorldId.value)
       return node;
     
@@ -121,13 +123,8 @@ export const useDirectoryStore = defineStore('directory', () => {
     // make sure all children are properly loaded (if it's being opened)
     if (expanded) {
       const expandedIds = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
-      const pack = getGame().packs?.get(packId);
 
-      if (pack) {
-        await _recursivelyLoadNode(pack, updatedNode.children, updatedNode.loadedChildren, expandedIds);
-      } else {
-        throw new Error('Could load pack in directoryStore.toggleEntry()');
-      }
+      await _recursivelyLoadNode(topic, updatedNode.children, updatedNode.loadedChildren, expandedIds);
     }
     
     return updatedNode;
@@ -135,7 +132,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
   // expand/contract the given type node, loading the new item data
   // return the new node
-  const toggleType = async(packId: string, node: DirectoryTypeNode, expanded: boolean) : Promise<DirectoryTypeNode>=> {
+  const toggleType = async(node: DirectoryTypeNode, expanded: boolean) : Promise<DirectoryTypeNode>=> {
     if (node.expanded===expanded || !currentWorldId.value)
       return node;
     
@@ -165,24 +162,30 @@ export const useDirectoryStore = defineStore('directory', () => {
   // set the parent for a node, cleaning up all associated relationships/records
   // pass a null parent to make it a top node
   // returns wheether it was successful
-  const setNodeParent = async function(pack: CompendiumCollection<any>, childId: string, parentId: string | null): Promise<boolean> {
+  const setNodeParent = async function(topic: Topic, childId: string, parentId: string | null): Promise<boolean> {
+    if (!currentWorldId.value)
+      return false;
+
     // we're going to use this to simplify syntax below
-    const saveHierarchyToEntryFromNode = async (entry: JournalEntry, node: DirectoryNode) : Promise<void> => {
-      await PackFlags.setHierarchy(pack.metadata.id, entry.uuid, _convertNodeToHierarchy(node));
+    const saveHierarchyToEntryFromNode = async (entry: JournalEntryPage, node: DirectoryEntryNode) : Promise<void> => {
+      if (!currentWorldId.value)
+        return;
+
+      await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, _convertNodeToHierarchy(node));
     };
 
     // topic has to have hierarchy
-    if (!hasHierarchy(PackFlags.get(pack.metadata.id, PackFlagKey.topic)))
+    if (!hasHierarchy(topic))
       return false;
 
     // have to have a child
-    const child = await fromUuid(childId) as JournalEntry;
+    const child = await fromUuid(childId) as JournalEntryPage;
 
     if (!child)
       return false;
 
     // get the parent, if any, and create the nodes for simpler syntax 
-    const parent = parentId ? await fromUuid(parentId) as JournalEntry: null;
+    const parent = parentId ? await fromUuid(parentId) as JournalEntryPage: null;
     const parentNode = parent ? _convertEntryToNode(parent) : null;
     const childNode =  _convertEntryToNode(child);
     const oldParentId = childNode.parentId;
@@ -191,9 +194,8 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (parentId===oldParentId)
       return false;
 
-    // make sure they share a topic (and so does the pack)
-    if (parent && EntryFlags.get(child, EntryFlagKey.topic)!==EntryFlags.get(parent, EntryFlagKey.topic) ||
-        EntryFlags.get(child, EntryFlagKey.topic)!==PackFlags.get(pack.metadata.id, PackFlagKey.topic))
+    // make sure they share a topic 
+    if (parent && child.system.topic !== parent.system.topic)
       return false;
      
     // next, confirm it's a valid target (the child must not be in the parent's ancestor list - or we get loops)
@@ -202,7 +204,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // if the child already has a parent, remove it from that parent's children
     if (childNode.parentId) {
-      const oldParent = await fromUuid(childNode.parentId) as JournalEntry;
+      const oldParent = await fromUuid(childNode.parentId) as JournalEntryPage;
       const oldParentNode = oldParent ? _convertEntryToNode(oldParent) : null;
       if (oldParentNode) {
         oldParentNode.children = oldParentNode.children.filter((c)=>c!==childId);
@@ -215,7 +217,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (parentNode) {   
       // add the child to the children list of the parent (if it has a parent)
       parentNode.children = [...parentNode.children, childId];
-      await saveHierarchyToEntryFromNode(parent as JournalEntry, parentNode);
+      await saveHierarchyToEntryFromNode(parent as JournalEntryPage, parentNode);
 
       // set the parent and the ancestors of the child (ancestors = parent + parent's ancestors)
       childNode.parentId = parentId;
@@ -236,15 +238,15 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // then, update all of the child's descendents ancestor fields with that set of changes
     if (ancestorsToAdd || ancestorsToRemove) {
-      const hierarchies = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies);
+      const hierarchies = WorldFlags.get(currentWorldId.value, WorldFlagKey.hierarchies);
 
       // we switch to entries because of all the data retrieval
-      const doUpdateOnDescendents = async (entry: JournalEntry): Promise<void> => {
+      const doUpdateOnDescendents = async (entry: JournalEntryPage): Promise<void> => {
         const children = hierarchies[entry.uuid]?.children || [];
 
         // this seems safe, despite 
         for (let i=0; i<children?.length; i++) {
-          const child = await fromUuid(children[i]) as JournalEntry;
+          const child = await fromUuid(children[i]) as JournalEntryPage;
           const childNode = _convertEntryToNode(child);
           childNode.ancestors = childNode.ancestors.filter(a => !ancestorsToRemove.includes(a));
           childNode.ancestors = childNode.ancestors.concat(ancestorsToAdd);
@@ -261,14 +263,14 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // if the child doesn't have a parent, make sure it's in the topnode list
     //    and vice versa
-    let topNodes = PackFlags.get(pack.metadata.id, PackFlagKey.topNodes);
+    let topNodes = WorldFlags.getTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic) || [];
 
     if (!parentNode && !topNodes.includes(childId)) {
       topNodes = topNodes.concat([childId]);
     } else if (parentNode && topNodes.includes(childId)) {
       topNodes = topNodes.filter((n)=>n!==childId);
     }
-    await PackFlags.set(pack.metadata.id, PackFlagKey.topNodes, topNodes);
+    await WorldFlags.setTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic, topNodes);
 
     await refreshCurrentTree([parentId, oldParentId].filter((id)=>id!==null));
 
@@ -277,14 +279,9 @@ export const useDirectoryStore = defineStore('directory', () => {
 
   const deleteWorld = async (worldId: string): Promise<void> => {
     // delete all the compendia
-    const compendia = WorldFlags.get(worldId, WorldFlagKey.compendia);
-
-    for (let i=0; i<Object.values(compendia).length; i++) {
-      const pack = getGame().packs?.get(Object.values(compendia)[i]);
-      if (pack) {
-        await pack.configure({ locked:false });
-        await pack.deleteCompendium();
-      }
+    if (currentWorldCompendium.value) {
+      await currentWorldCompendium.value.configure({ locked:false });
+      await currentWorldCompendium.value.deleteCompendium();
     }
 
     // delete the world folder
@@ -299,8 +296,8 @@ export const useDirectoryStore = defineStore('directory', () => {
   //    but that means that when names change or children change, we're not refreshing them properly
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshCurrentTree = async (updateEntryIds?: string[]): Promise<void> => {
-    // need to have a current world
-    if (!currentWorldId.value)
+    // need to have a current world and journals loaded
+    if (!currentWorldId.value || !currentJournals.value)
       return;
 
     isTreeRefreshing.value = true;
@@ -309,15 +306,18 @@ export const useDirectoryStore = defineStore('directory', () => {
     let tree = [] as DirectoryWorld[];
 
     // populate the world names, and find the current one
-    let currentWorld;
+    let currentWorld;    // the folder of the currently selected world
     tree = (toRaw(rootFolder.value) as Folder)?.children?.map((world: Folder): DirectoryWorld => {
+      if (!world.folder)
+        throw new Error('World without folder in refreshCurrentTree()');
+
       if (world.folder.uuid===currentWorldId.value)
         currentWorld = world;
 
       return {
         name: world.folder.name as string,
         id: world.folder.uuid as string,
-        packs: []
+        topics: []
       };
     }) || [];
 
@@ -327,30 +327,31 @@ export const useDirectoryStore = defineStore('directory', () => {
       const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds);
       const types = WorldFlags.get(currentWorldId.value, WorldFlagKey.types);
 
-      currentWorldBlock.packs = (await Promise.all(currentWorld.entries.map(async (pack: CompendiumCollection<any>): Promise<DirectoryPack> => {
+      const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization] as ValidTopic[];
+      currentWorldBlock.topics = topics.map((topic: ValidTopic): DirectoryTopicNode => {
+        const id = `${currentWorldId.value}.topic.${topic}`;
         return {
-          pack: pack,
-          id: pack.metadata.id,
-          name: pack.metadata.label,
-          topic: PackFlags.get(pack.metadata.id, PackFlagKey.topic),
-          topNodes: PackFlags.get(pack.metadata.id, PackFlagKey.topNodes),
+          id: id,
+          name: getTopicText(topic),
+          topic: topic,
+          topNodes: WorldFlags.getTopicFlag(currentWorldId.value as string, WorldFlagKey.topNodes, topic),
           loadedTopNodes: [],
           loadedTypes: [],
-          expanded: expandedNodes[pack.metadata.id] || false,
+          expanded: expandedNodes[id] || false,
         };
-      }))).sort((a: DirectoryPack, b: DirectoryPack): number => a.topic - b.topic);
+      }).sort((a: DirectoryTopicNode, b: DirectoryTopicNode): number => a.topic - b.topic);
 
-      // load any open packs
-      for (let i=0; i<currentWorldBlock?.packs.length; i++) {
-        const pack = currentWorldBlock.packs[i];
+      // load any open topics
+      for (let i=0; i<currentWorldBlock?.topics.length; i++) {
+        const directoryTopicNode = currentWorldBlock.topics[i];
 
-        if (!pack.expanded)
+        if (!directoryTopicNode.expanded)
           continue;
 
         // have to check all children are loaded and expanded properly
-        await _recursivelyLoadNode(pack.pack, pack.topNodes, pack.loadedTopNodes, expandedNodes, updateEntryIds);
+        await _recursivelyLoadNode(directoryTopicNode.topic, directoryTopicNode.topNodes, directoryTopicNode.loadedTopNodes, expandedNodes, updateEntryIds);
 
-        await _loadTypeEntries(pack, types, expandedNodes);
+        await _loadTypeEntries(directoryTopicNode, types[directoryTopicNode.topic], expandedNodes);
       }
     }
 
@@ -358,17 +359,17 @@ export const useDirectoryStore = defineStore('directory', () => {
     isTreeRefreshing.value = false;
   };
 
-  const _recursivelyLoadNode = async (pack: CompendiumCollection<any>, children: string[], loadedChildren: DirectoryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
+  const _recursivelyLoadNode = async (topic: ValidTopic, children: string[], loadedChildren: DirectoryEntryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
     // load any children that haven't been loaded before
     // this guarantees all children are at least in _loadedNodes and updateEntryIds ones have been refreshed
     const nodesToLoad = children.filter((id)=>!loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id));
 
     if (nodesToLoad.length>0)
-      await _loadNodeList(pack, nodesToLoad, updateEntryIds);
+      await _loadNodeList(topic, nodesToLoad, updateEntryIds);
 
     // have to check all children loaded and update their expanded states
     for (let i=0; i<children.length; i++) {
-      let child: DirectoryNode | null = loadedChildren.find((n)=>n.id===children[i]) || null;
+      let child: DirectoryEntryNode | null = loadedChildren.find((n)=>n.id===children[i]) || null;
 
       if (child && !updateEntryIds.includes(child.id)) {
         // this one is already loaded and attached (and not a forced update)
@@ -388,25 +389,35 @@ export const useDirectoryStore = defineStore('directory', () => {
       child.expanded = expandedNodes[child.id] || false;
 
       if (child.expanded || updateEntryIds.includes(child.id)) {
-        await _recursivelyLoadNode(pack, child.children, child.loadedChildren, expandedNodes, updateEntryIds);
+        await _recursivelyLoadNode(topic, child.children, child.loadedChildren, expandedNodes, updateEntryIds);
       }
     }      
   };
 
-  const _loadTypeEntries = async (pack: DirectoryPack, worldTypes: Record<Topic, string []>, expandedIds: Record<string, boolean | null>): Promise<void> => {
+  /**
+   * This function is used to load all of the type entries for a particular topic.
+   * @param topicNode the DirectoryTopicNode to load
+   * @param types the types for this topic
+   * @param expandedIds the ids that are currently expanded
+   * @returns a promise that resolves when the entries are loaded
+   */
+  const _loadTypeEntries = async (topicNode: DirectoryTopicNode, types: string [], expandedIds: Record<string, boolean | null>): Promise<void> => {
     // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
-    //    type on the pack or world, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
+    //    type on the journalentry, or pack or world, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
     //    that is also in the index)
-    const allEntries = await pack.pack.getDocuments({}) as JournalEntry[];
+    if (!currentJournals.value)
+      return;
+
+    const allEntries = await currentJournals.value[topicNode.topic].collections.pages.toObject() as JournalEntryPage[];
     
-    pack.loadedTypes = worldTypes[pack.topic].map((type: string): DirectoryTypeNode => ({
+    topicNode.loadedTypes = types.map((type: string): DirectoryTypeNode => ({
       name: type,
-      id: pack.id + ':' + type,
-      expanded: expandedIds[pack.id + ':' + type] || false,   
-      loadedChildren: allEntries.filter((e: JournalEntry)=> {
-        const entryType = EntryFlags.get(e, EntryFlagKey.type);
+      id: topicNode.id + ':' + type,
+      expanded: expandedIds[topicNode.id + ':' + type] || false,   
+      loadedChildren: allEntries.filter((e: JournalEntryPage)=> {
+        const entryType = e.system.type;
         return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type);
-      }).map((entry: JournalEntry): DirectoryEntryNode=> ({
+      }).map((entry: JournalEntryPage): DirectoryTypeEntryNode=> ({
         id: entry.uuid,
         name: entry.name || NO_NAME_STRING,
       })).sort((a, b) => a.name.localeCompare(b.name))      
@@ -419,8 +430,8 @@ export const useDirectoryStore = defineStore('directory', () => {
   ///////////////////////////////
   // internal functions
   // load an entry from disk and convert it to a node
-  // const _loadNode = async(id: string, expandedIds: Record<string, boolean | null>): Promise<DirectoryNode | null> => {
-  //   const entry = await fromUuid(id) as JournalEntry;
+  // const _loadNode = async(id: string, expandedIds: Record<string, boolean | null>): Promise<DirectoryEntryNode | null> => {
+  //   const entry = await fromUuid(id) as JournalEntryPage;
 
   //   if (!entry)
   //     return null;
@@ -434,62 +445,68 @@ export const useDirectoryStore = defineStore('directory', () => {
   //   }
   // };
 
-  // a list of all the nodes that should be shown in the current tree
+  // populates filterNodes with a list of all the nodes that should be shown in the current tree
   // this includes: all nodes matching the filterText, all of their ancestors, and
   //    all of their types (we also ways leave the packs)
-  // it's an object keyed by packId with a list of all the ids to include
+  // it's an object keyed by topic with a list of all the ids to include
+  // TODO - a checkbox option that uses search to filter by all searchable fields vs just name
   const updateFilterNodes = (): void => {
-    const retval: Record<string, string[]> = {};
+    const retval: Record<ValidTopic, string[]> = {
+      [Topic.Character]: [],
+      [Topic.Event]: [],
+      [Topic.Location]: [],
+      [Topic.Organization]: [],
+    };
 
-    if (!currentWorldId.value)
+    if (!currentWorldId.value || !currentJournals.value)
       return;
 
-    // iterate over the packs
-    const compendia = WorldFlags.get(currentWorldId.value, WorldFlagKey.compendia);
-    for (let i=0; i<Object.keys(compendia).length; i++) {
-      const packId = compendia[Object.keys(compendia)[i]] as string;
-      if (packId) {
-        const pack = getGame().packs?.get(packId);
-        if (!pack)
-          continue;
+    const hierarchies = WorldFlags.get(currentWorldId.value, WorldFlagKey.hierarchies);
 
-        const hierarchies = PackFlags.get(packId, PackFlagKey.hierarchies);
+    const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
+    const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization] as ValidTopic[];
 
-        const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
-        let matchedEntries = pack.index.filter((i: CompendiumCollection.Metadata)=>( filterText.value === '' || regex.test( i.name || '' )))
-          .map((i: CompendiumCollection.Metadata): string=>i.uuid);
-    
-        // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding
-        for (let j=matchedEntries.length-1; j>=0; j--) {
-          if (hierarchies[matchedEntries[j]] && hierarchies[matchedEntries[j]].ancestors) {
-            matchedEntries = matchedEntries.concat(hierarchies[matchedEntries[j]].ancestors);
-          }
+    for (let i=0; i<topics.length; i++) {
+      const journal = currentJournals.value[topics[i]];
 
-          // type 
-          // note: we add the blank type, even though we don't currently show them in
-          //    the grouped tree,
-          matchedEntries.push(hierarchies[matchedEntries[j]]?.type || NO_TYPE_STRING);
+      let matchedEntries = journal.collections.pages.filter((e: JournalEntryPage)=>( filterText.value === '' || regex.test( e.name || '' )))
+        .map((e: JournalEntryPage): string=>e.uuid);
+  
+      // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding
+      for (let j=matchedEntries.length-1; j>=0; j--) {
+        if (hierarchies[matchedEntries[j]] && hierarchies[matchedEntries[j]].ancestors) {
+          matchedEntries = matchedEntries.concat(hierarchies[matchedEntries[j]].ancestors);
         }
-
-        // eliminate duplicates
-        retval[packId] = [...new Set(matchedEntries)];
+  
+        // type 
+        // note: we add the blank type, even though we don't currently show them in
+        //    the grouped tree,
+        matchedEntries.push(hierarchies[matchedEntries[j]]?.type || NO_TYPE_STRING);
       }
+  
+      // eliminate duplicates
+      retval[topics[i]] = [...new Set(matchedEntries)];
     }
 
     filterNodes.value = retval;
   };
 
-
-  // loads a set of nodes, including expanded status
-  const _loadNodeList = async(pack: CompendiumCollection<any>, ids: string[], updateEntryIds: string[] ): Promise<void> => {
+  /**
+   * loads a set of nodes, including expanded status
+   * @param ids uuids of the nodes to load
+   * @param updateEntryIds uuids of the nodes that should be refreshed
+   */
+  const _loadNodeList = async(topic: ValidTopic, ids: string[], updateEntryIds: string[] ): Promise<void> => {
+    // make sure we've loaded what we need
+    if (!currentJournals.value) {
+      _loadedNodes = {};
+      return;
+    }
 
     // we only want to load ones not already in _loadedNodes, unless its in updateEntryIds
     const uuidsToLoad = ids.filter((id)=>!_loadedNodes[id] || updateEntryIds.includes(id));
 
-    // convert uuids to ids
-    const convertedIds = uuidsToLoad.map((uuid)=>foundry.utils.parseUuid(uuid).id);
-
-    const entries = await pack.getDocuments({ _id__in: convertedIds }) as JournalEntry[];
+    const entries = currentJournals.value[topic].collections.pages.filter((e: JournalEntryPage)=>uuidsToLoad.includes(e.uuid));
 
     for (let i=0; i<entries.length; i++) {
       const newNode = _convertEntryToNode(entries[i]);
@@ -498,14 +515,14 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   // used to toggle entries and compendia (not worlds)
-  const _collapseItem = async(node: DirectoryNode | DirectoryPack | DirectoryTypeNode, id: string): Promise<void> => {
+  const _collapseItem = async(node: DirectoryEntryNode | DirectoryTopicNode | DirectoryTypeNode, id: string): Promise<void> => {
     if (!currentWorldId.value)
       return;
 
     await WorldFlags.unset(currentWorldId.value, WorldFlagKey.expandedIds, id);
   };
 
-  const _expandItem = async(node: DirectoryNode | DirectoryPack | DirectoryTypeNode, id: string): Promise<void> => {
+  const _expandItem = async(node: DirectoryEntryNode | DirectoryTopicNode | DirectoryTypeNode, id: string): Promise<void> => {
     if (!currentWorldId.value)
       return;
 
@@ -514,12 +531,12 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
 
-  // converts the entry to a DirectoryNode for cleaner interface
-  const _convertEntryToNode = (entry: JournalEntry): DirectoryNode => {
-    if (!entry.pack)
-      throw new Error('entry missing pack in directoryStore._convertEntryToNode()');
+  // converts the entry to a DirectoryEntryNode for cleaner interface
+  const _convertEntryToNode = (entry: JournalEntryPage): DirectoryEntryNode => {
+    if (!currentWorldId.value)
+      throw new Error('No currentWorldId in directoryStore._convertEntryToNode()');
 
-    const hierachy = PackFlags.get(entry.pack, PackFlagKey.hierarchies)[entry.uuid];
+    const hierachy = WorldFlags.getHierarchy(currentWorldId.value, entry.uuid);
 
     return {
       id: entry.uuid,
@@ -528,13 +545,13 @@ export const useDirectoryStore = defineStore('directory', () => {
       children: hierachy?.children || [],
       ancestors: hierachy?.ancestors || [],
       loadedChildren: [],
-      type: EntryFlags.get(entry, EntryFlagKey.type) || NO_TYPE_STRING,
+      type: entry.system.type || NO_TYPE_STRING,
       expanded: false,  // TODO- load this, too
     };
   };
 
-  // converts a DirectoryNode to a Hierarchy object
-  const _convertNodeToHierarchy = (node: DirectoryNode): Hierarchy => {
+  // converts a DirectoryEntryNode to a Hierarchy object
+  const _convertNodeToHierarchy = (node: DirectoryEntryNode): Hierarchy => {
     return {
       parentId: node.parentId,
       children: node.children,
@@ -568,6 +585,16 @@ export const useDirectoryStore = defineStore('directory', () => {
     await refreshCurrentTree();
   });
   
+  // when the current journal set is updated, refresh the tree
+  watch(currentJournals, async (currentJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
+    if (!currentJournals) {
+      return;
+    }
+
+    await updateFilterNodes();  
+    await refreshCurrentTree();
+  });
+  
   // save grouping to settings
   watch(isGroupedByType, async (newSetting: boolean) => {
     isGroupedByType.value = newSetting;
@@ -596,12 +623,12 @@ export const useDirectoryStore = defineStore('directory', () => {
     filterNodes,
 
     toggleEntry,
-    togglePack,
+    toggleTopic,
     toggleType,
     collapseAll,
     setNodeParent,
     refreshCurrentTree,
-    updateEntryTopic,
+    updateEntryType,
     updateFilterNodes,
     deleteWorld,
     createWorld,

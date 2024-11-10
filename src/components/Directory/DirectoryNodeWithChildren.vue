@@ -29,7 +29,6 @@
             v-for="child in currentNode.loadedChildren"
             :key="child.id"
             :node="child"
-            :pack-id="props.packId"
             :world-id="props.worldId"
             :topic="props.topic"
             :top="false"
@@ -49,7 +48,6 @@
   import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getGame, localize } from '@/utils/game';
-  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -58,25 +56,21 @@
   import DirectoryNodeComponent from './DirectoryNode.vue';
 
   // types
-  import { DirectoryNode, Topic } from '@/types';
+  import { DirectoryEntryNode, ValidTopic } from '@/types';
 
   ////////////////////////////////
   // props
   const props = defineProps({
     node: { 
-      type: Object as PropType<DirectoryNode>,
+      type: Object as PropType<DirectoryEntryNode>,
       required: true,
     },
     worldId: {
       type: String,
       required: true
     },
-    packId: {
-      type: String,
-      required: true,
-    },
     topic: {
-      type: Number as PropType<Topic>,
+      type: Number as PropType<ValidTopic>,
       required: true
     },
     top: {    // applies class to top level
@@ -94,13 +88,13 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntryId, currentJournals } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
   // we don't just use props node because in toggleEntry we want to swap it out without rebuilding
   //   the whole tree
-  const currentNode = ref<DirectoryNode>(props.node);
+  const currentNode = ref<DirectoryEntryNode>(props.node);
 
   ////////////////////////////////
   // computed data
@@ -111,13 +105,12 @@
   ////////////////////////////////
   // event handlers
   const onEntryToggleClick = async (event: MouseEvent) => {
-    // get the pack id
-    const packId = event.target?.closest('.fwb-topic-folder').dataset.packId;
+    const topic = event.target?.closest('.fwb-topic-folder').dataset.topic;
 
-    currentNode.value = await directoryStore.toggleEntry(packId, currentNode.value, !currentNode.value.expanded);
+    currentNode.value = await directoryStore.toggleEntry(topic, currentNode.value, !currentNode.value.expanded);
   };
 
-  const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryNode) => {
+  const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryEntryNode) => {
     event.stopPropagation();
     event.preventDefault();
     
@@ -135,13 +128,13 @@
     const dragData = { 
       topic:  props.topic,
       childId: id,
-    } as { topic: Topic; childId: string};
+    } as { topic: ValidTopic; childId: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value)
+    if (!currentWorldId.value || !currentJournals.value || !currentJournals.value[props.topic])
       return false;
 
     let data;
@@ -161,24 +154,17 @@
     if (data.topic!==props.topic || !hasHierarchy(props.topic))
       return false;
 
-    // get the pack
-    const packId = WorldFlags.get(currentWorldId.value, WorldFlagKey.compendia)[props.topic];
-    const pack = getGame().packs?.get(packId);
-
-    if (!pack)
-      return false;
-
     // is this a legal parent?
-    const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntry | null;
+    const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntryPage | null;
 
     if (!childEntry)
       return false;
 
-    if (!(await validParentItems(childEntry)).includes(parentId))
+    if (!(await validParentItems(currentWorldId.value, currentJournals.value[props.topic], childEntry)).find(e=>e.id===parentId))
       return false;
 
     // add the dropped item as a child on the other (will also refresh the tree)
-    await directoryStore.setNodeParent(pack, data.childId, parentId);
+    await directoryStore.setNodeParent(props.topic, data.childId, parentId);
 
     return true;
   };
@@ -204,7 +190,7 @@
             const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
             if (!worldFolder || !props.topic)
-              throw new Error('Invalid header in DirectoryNode.onEntryContextMenu.onClick');
+              throw new Error('Invalid header in DirectoryEntryNode.onEntryContextMenu.onClick');
 
             const entry = await currentEntryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
 
@@ -218,7 +204,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await currentEntryStore.deleteEntry(props.node.id);
+            await currentEntryStore.deleteEntry(props.topic, props.node.id);
           }
         },
       ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))
@@ -230,7 +216,7 @@
 
   ////////////////////////////////
   // watchers
-  watch(()=> props.node, (newValue: DirectoryNode) => {
+  watch(()=> props.node, (newValue: DirectoryEntryNode) => {
     currentNode.value = newValue;
   });
 

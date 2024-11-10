@@ -1,11 +1,11 @@
 <template>
   <ul class="fwb-directory-tree">
     <DirectoryGroupedType
-      v-for="type in props.pack.loadedTypes"
+      v-for="type in props.topic.loadedTypes"
       :key="type.id"
       :type="type"
       :world-id="props.worldId"
-      :pack="props.pack"
+      :topic="props.topic"
     />
   </ul>
 </template>
@@ -22,13 +22,13 @@
   import DirectoryGroupedType from './DirectoryGroupedType.vue';
 
   // types
-  import { DirectoryPack, } from '@/types';
+  import { DirectoryTopicNode, } from '@/types';
   
   ////////////////////////////////
   // props
   const props = defineProps({
-    pack: {
-      type: Object as PropType<DirectoryPack>,
+    topic: {
+      type: Object as PropType<DirectoryTopicNode>,
       required: true,
     }, 
     worldId: {
