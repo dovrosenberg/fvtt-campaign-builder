@@ -18,7 +18,7 @@ export const useEntryStore = defineStore('entry', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorldFolder, currentEntry, currentWorldCompendium } = storeToRefs(mainStore);
+  const { currentEntry, currentJournals } = storeToRefs(mainStore);
   
   ///////////////////////////////
   // internal state
@@ -38,10 +38,12 @@ export const useEntryStore = defineStore('entry', () => {
    * @param uniqueOnly if true, only return entries that are not already linked to the current entry
    * @returns a list of journal entries
    */
-  const getEntriesForTopic = async function(topic: Topic, uniqueOnly = false): Promise<JournalEntry[]> {
+  const getEntriesForTopic = async function(topic: Topic, uniqueOnly = false): Promise<JournalEntryPage[]> {
+    if (!currentJournals.value || !currentJournals.value[topic])
+      return [];
+
     // we find all journal entries with this topic
-    throw new error('getEntriesfortopic() needs to be fixed to use journalentrypage')
-    let journalEntries = await topicCompendia[topic].find((j: JournalEntry) => EntryFlags.get(j, EntryFlagKey.topic) === topic);
+    let journalEntries = await currentJournals.value[topic].collections.pages.toObject() as JournalEntryPage[];
 
     // filter unique ones if needed
     if (uniqueOnly && currentEntry.value) {
@@ -59,6 +61,8 @@ export const useEntryStore = defineStore('entry', () => {
    * @returns An array of related uuids. Returns an empty array if there is no current entry.
    */
   const getAllRelatedEntries = function(topic: Topic): string[] {
+    return [];   // for now
+
     // make sure there's a current item
     if (!currentEntry.value)
       return [];

@@ -1,7 +1,7 @@
 <template>
   <!-- note that filtering by filterNodes will hide unused types even if there's no search filter -->
   <li 
-    v-if="filterNodes[props.pack.id]?.includes(currentType?.name)"
+    v-if="filterNodes[props.topic]?.includes(currentType?.name)"
     class="fwb-type-item"
   >
     <!-- TODO: track expanded state-->
@@ -33,7 +33,7 @@
           >
             <DirectoryGroupedNode 
               :node="node" 
-              :pack-id="props.pack.id"
+              :topic="props.topic"
               :type-name="currentType.name"
             />
           </div>
@@ -60,7 +60,7 @@
   import DirectoryGroupedNode from './DirectoryGroupedNode.vue';
 
   // types
-  import { DirectoryTopicNode, DirectoryTypeNode, } from '@/types';
+  import { DirectoryTypeNode, ValidTopic, } from '@/types';
 
   
   ////////////////////////////////
@@ -75,7 +75,7 @@
       required: true,
     },
     topic: {
-      type: Object as PropType<DirectoryTopicNode>,
+      type: Object as PropType<ValidTopic>,
       required: true,
     }, 
   });
@@ -166,7 +166,7 @@
             if (!worldFolder)
               throw new Error('Invalid header in DirectoryGroupedType.onTypeContextMenu.onClick');
 
-            const entry = await currentEntryStore.createEntry(worldFolder, props.pack.topic, { type: props.type.name } );
+            const entry = await currentEntryStore.createEntry(worldFolder, props.topic, { type: props.type.name } );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

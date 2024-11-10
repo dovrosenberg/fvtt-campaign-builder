@@ -109,7 +109,7 @@
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value)
+    if (!currentWorldId.value || !currentJournals.value || !currentJournals.value[props.topic])
       return false;
 
     let data;
@@ -130,12 +130,12 @@
       return false;
 
     // is this a legal parent?
-    const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntry | null;
+    const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntryPage | null;
 
     if (!childEntry)
       return false;
 
-    if (!(await validParentItems(currentWorldId.value, currentJournals.value[props.topic], childEntry)).includes(parentId))
+    if (!(await validParentItems(currentWorldId.value, currentJournals.value[props.topic], childEntry)).find(e=>e.id===parentId))
       return false;
 
     // add the dropped item as a child on the other  (will also refresh the tree)

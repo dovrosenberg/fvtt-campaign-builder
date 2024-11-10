@@ -31,7 +31,7 @@ export type DirectoryTopicNode = {
   name: string;
   topic: ValidTopic;
   loadedTopNodes: DirectoryEntryNode[];
-  topNodes: string[];
+  topNodes: string[];  // ids of all the top items
   loadedTypes: DirectoryTypeNode[];
   expanded: boolean;
 }

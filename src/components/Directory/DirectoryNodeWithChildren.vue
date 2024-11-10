@@ -155,12 +155,12 @@
       return false;
 
     // is this a legal parent?
-    const childEntry = await globalThis.fromUuid(data.childId) as JournalEntryPage | null;
+    const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntryPage | null;
 
     if (!childEntry)
       return false;
 
-    if (!(await validParentItems(currentWorldId.value, currentJournals.value[props.topic], childEntry)).includes(parentId))
+    if (!(await validParentItems(currentWorldId.value, currentJournals.value[props.topic], childEntry)).find(e=>e.id===parentId))
       return false;
 
     // add the dropped item as a child on the other (will also refresh the tree)

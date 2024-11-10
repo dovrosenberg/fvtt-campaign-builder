@@ -172,19 +172,23 @@
             selection = match;
           } else if (props.allowNewItems && !objectMode.value) {
             selection = currentValue.value;
-            list.value.push(selection);
+            (list.value as string[]).push(selection);
             hasFocus.value = false;
 
             emit('itemAdded', selection);
           } else {
             // there's no match but we're not allowed to add - reset back to the original
             // find the initial item
-            const initialItem = objectMode.value ? props.initialList.find((item: ListItem)=>item.id===props.initialValue) as ListItem : props.initialValue;
+            if (objectMode.value) {
+              const initialItem = (props.initialList as { id: string; label: string}[]).find((item: ListItem)=>item.id===props.initialValue) as ListItem;
+              currentValue.value = initialItem.label;
 
-            currentValue.value = objectMode.value ? initialItem.label : initialItem;
-
-            // set the selection to be the id of the current item (this assumes there is only 1 valid match)
-            selection = objectMode.value ? initialItem.id : initialItem;
+              // set the selection to be the id of the current item (this assumes there is only 1 valid match)
+              selection = initialItem.id;
+            } else {
+              selection = props.initialValue;
+              currentValue.value = selection;
+            }
           }
         } else if (idx.value!==-1) {
           // fill in the input value
@@ -214,7 +218,7 @@
   });
 
   watch(() => props.initialValue, (newValue: string) => {
-    currentValue.value = objectMode.value ? (props.initialList.find((item)=>(item as ListItem).id===newValue) as ListItem).label : newValue;
+    currentValue.value = objectMode.value ? (props.initialList.find((item)=>(item as ListItem).id===newValue) as ListItem)?.label || '' : newValue;
   });
 
   ////////////////////////////////
@@ -229,10 +233,9 @@
     });
 
     // create our working list
-    list.value = globalThis.foundry.utils.deepClone(props.initialList) as T[] || [] as T[];
-    currentValue.value = objectMode.value ? (props.initialList.find((id)=>id===props.initialValue) as ListItem).label : props.initialValue;
+    list.value = globalThis.foundry.utils.deepClone(props.initialList) || [];
+    currentValue.value = objectMode.value ? (props.initialList.find((item)=>(item as ListItem).id===props.initialValue) as ListItem)?.label || '' : props.initialValue;
   });
-
 
 </script>
 

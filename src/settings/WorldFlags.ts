@@ -85,8 +85,8 @@ const flagSetup = [
 ] as FlagSettings<any>[];
 
 export abstract class WorldFlags {
-  public static async setDefaults(worldFolderUuid: string): Promise<void> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldFolderUuid);
+  public static async setDefaults(worldId: string): Promise<void> {
+    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
     if (!f)
       return;
 
@@ -105,8 +105,8 @@ export abstract class WorldFlags {
     return;
   }
 
-  public static get<T extends WorldFlagKey>(worldFolderUuid: string, flag: T): WorldFlagType<T> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldFolderUuid);
+  public static get<T extends WorldFlagKey>(worldId: string, flag: T): WorldFlagType<T> {
+    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
     
     const config = flagSetup.find((s)=>s.flagId===flag);
 
@@ -121,8 +121,8 @@ export abstract class WorldFlags {
       return setting;
   }
 
-  public static async set<T extends WorldFlagKey>(worldFolderUuid: string, flag: T, value: WorldFlagType<T> | null): Promise<void> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldFolderUuid);
+  public static async set<T extends WorldFlagKey>(worldId: string, flag: T, value: WorldFlagType<T> | null): Promise<void> {
+    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
     if (!f)
       return;
 
@@ -138,8 +138,8 @@ export abstract class WorldFlags {
   }
 
   // remove a key from an object flag
-  public static async unset<T extends RequiresNoTopic>(worldFolderUuid: string, flag: T, key?: string): Promise<void> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldFolderUuid);
+  public static async unset<T extends RequiresNoTopic>(worldId: string, flag: T, key?: string): Promise<void> {
+    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
     if (!f)
       return;
 
@@ -155,12 +155,12 @@ export abstract class WorldFlags {
    * @param {Hierarchy} hierarchy
    * @return {*}  {Promise<void>}
    */
-  public static async setHierarchy(worldFolderUuid: string,entryId: string, hierarchy: Hierarchy): Promise<void> {
+  public static async setHierarchy(worldId: string, entryId: string, hierarchy: Hierarchy): Promise<void> {
     // pull the full structure
-    const hierarchies = WorldFlags.get(worldFolderUuid, WorldFlagKey.hierarchies);
+    const hierarchies = WorldFlags.get(worldId, WorldFlagKey.hierarchies);
     hierarchies[entryId] = hierarchy;
 
-    await WorldFlags.set(worldFolderUuid, WorldFlagKey.hierarchies, hierarchies);
+    await WorldFlags.set(worldId, WorldFlagKey.hierarchies, hierarchies);
   }
 
   /**
@@ -170,11 +170,11 @@ export abstract class WorldFlags {
    * @param {string} entryId
    * @return {*}  {Promise<void>}
    */
-  public static getHierarchy(worldFolderUuid: string, entryId: string): Hierarchy {
+  public static getHierarchy(worldId: string, entryId: string): Hierarchy | null {
     // pull the full structure
-    const hierarchies = WorldFlags.get(worldFolderUuid, WorldFlagKey.hierarchies);
+    const hierarchies = WorldFlags.get(worldId, WorldFlagKey.hierarchies);
 
-    return hierarchies[entryId];
+    return hierarchies[entryId] || null;
   }
 
   /**
@@ -185,17 +185,17 @@ export abstract class WorldFlags {
    * @param {Hierarchy} hierarchy
    * @return {*}  {Promise<void>}
    */
-  public static async unsetHierarchy(worldFolderUuid: string, entryId: string): Promise<void> {
+  public static async unsetHierarchy(worldId: string, entryId: string): Promise<void> {
     // pull the full structure
-    const hierarchies = WorldFlags.get(worldFolderUuid, WorldFlagKey.hierarchies);
+    const hierarchies = WorldFlags.get(worldId, WorldFlagKey.hierarchies);
     delete hierarchies[entryId];
 
-    await WorldFlags.set(worldFolderUuid, WorldFlagKey.hierarchies, hierarchies);
+    await WorldFlags.set(worldId, WorldFlagKey.hierarchies, hierarchies);
   }
 
   // special cases because of indexes
-  public static getTopicFlag<T extends RequiresTopic>(worldFolderUuid: string, flag: T, topic: Topic): WorldFlagType<T>[keyof WorldFlagType<T>] {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldFolderUuid);
+  public static getTopicFlag<T extends RequiresTopic>(worldId: string, flag: T, topic: Topic): WorldFlagType<T>[keyof WorldFlagType<T>] {
+    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
     
     const config = flagSetup.find((s)=>s.flagId===flag);
 
@@ -210,8 +210,8 @@ export abstract class WorldFlags {
       return setting[topic] as WorldFlagType<T>[keyof WorldFlagType<T>];
   }
 
-  public static async setTopicFlag<T extends RequiresTopic>(worldFolderUuid: string, flag: T, topic: Topic, value: WorldFlagType<T>[keyof WorldFlagType<T>]): Promise<void> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldFolderUuid);
+  public static async setTopicFlag<T extends RequiresTopic>(worldId: string, flag: T, topic: Topic, value: WorldFlagType<T>[keyof WorldFlagType<T>]): Promise<void> {
+    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
     if (!f)
       return;
 
@@ -220,13 +220,13 @@ export abstract class WorldFlags {
       throw new Error('Bad flag in WorldFlags.set()');
 
     // get the current value
-    const currentValue = WorldFlags.get(worldFolderUuid, flag) as WorldFlagType<T>;
+    const currentValue = WorldFlags.get(worldId, flag) as WorldFlagType<T>;
     currentValue[topic] = value;
 
     if (config.clean) {
       config.clean(currentValue[topic]);
     }
 
-    await WorldFlags.set(worldFolderUuid, flag, currentValue as unknown as WorldFlagType<T>);
+    await WorldFlags.set(worldId, flag, currentValue as unknown as WorldFlagType<T>);
   }
 }

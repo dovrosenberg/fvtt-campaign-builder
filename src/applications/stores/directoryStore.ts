@@ -94,13 +94,15 @@ export const useDirectoryStore = defineStore('directory', () => {
       newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([{ id: entry.uuid, name: entry.name || NO_NAME_STRING}]).sort((a,b)=>a.name.localeCompare(b.name));
     }
 
-    // update the hierarchy
+    // update the hierarchy, if applicable
     const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entry.uuid);
-    if (!hierarchy)
-      throw new Error(`Could not find hierarchy for ${entry.uuid} in directoryStore.updateEntryType()`);
+    if (hasHierarchy(entry.system.topic as ValidTopic)) {
+      if(!hierarchy)
+        throw new Error(`Could not find hierarchy for ${entry.uuid} in directoryStore.updateEntryType()`);
 
-    hierarchy.type = newType;
-    await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, hierarchy);
+      hierarchy.type = newType;
+      await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, hierarchy);
+    }
   };
 
   // expand/contract  the given entry, loading the new item data
@@ -194,7 +196,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       return false;
 
     // make sure they share a topic 
-    if (parent && EntryFlags.get(child, EntryFlagKey.topic)!==EntryFlags.get(parent, EntryFlagKey.topic))
+    if (parent && child.system.topic !== parent.system.topic)
       return false;
      
     // next, confirm it's a valid target (the child must not be in the parent's ancestor list - or we get loops)
@@ -262,14 +264,14 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // if the child doesn't have a parent, make sure it's in the topnode list
     //    and vice versa
-    let topNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.topNodes)[topic] || [];
+    let topNodes = WorldFlags.getTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic) || [];
 
     if (!parentNode && !topNodes.includes(childId)) {
       topNodes = topNodes.concat([childId]);
     } else if (parentNode && topNodes.includes(childId)) {
       topNodes = topNodes.filter((n)=>n!==childId);
     }
-    await WorldFlags.set(currentWorldId.value, WorldFlagKey.topNodes, topNodes);
+    await WorldFlags.setTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic, topNodes);
 
     await refreshCurrentTree([parentId, oldParentId].filter((id)=>id!==null));
 
@@ -333,7 +335,7 @@ export const useDirectoryStore = defineStore('directory', () => {
           id: id,
           name: getTopicText(topic),
           topic: topic,
-          topNodes: WorldFlags.get(currentWorldId.value as string, WorldFlagKey.topNodes)[topic],
+          topNodes: WorldFlags.getTopicFlag(currentWorldId.value as string, WorldFlagKey.topNodes, topic),
           loadedTopNodes: [],
           loadedTypes: [],
           expanded: expandedNodes[id] || false,

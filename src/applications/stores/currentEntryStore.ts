@@ -24,7 +24,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
-  const { currentWorldId, currentJournals, currentWorldCompendium, currentWorldFolderId } = storeToRefs(mainStore);
+  const { currentWorldId, currentJournals, currentWorldCompendium, } = storeToRefs(mainStore);
   
   ///////////////////////////////
   // internal state
@@ -115,14 +115,16 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
     if (!entry || !currentWorldId.value)
       return;
 
-    const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entry.uuid);
-
     // have to unlock the pack
     await currentWorldCompendium.value.configure({locked:false});
 
-    // delete from any trees
-    if (hierarchy?.ancestors || hierarchy?.children) {
-      await cleanTrees(currentWorldFolderId.value, topic, entry.uuid, hierarchy);
+    const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entry.uuid);
+
+    if (hierarchy) {
+      // delete from any trees
+      if (hierarchy?.ancestors || hierarchy?.children) {
+        await cleanTrees(currentWorldId.value, topic, entry.uuid, hierarchy);
+      }
     }
 
     await entry.delete();
@@ -136,7 +138,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
     await navigationStore.cleanupDeletedEntry(entry.uuid);
 
     // refresh and force its parent to update
-    await directoryStore.refreshCurrentTree(hierarchy.parentId ? [hierarchy.parentId] : []);
+    await directoryStore.refreshCurrentTree(hierarchy?.parentId ? [hierarchy?.parentId] : []);
   };
 
 

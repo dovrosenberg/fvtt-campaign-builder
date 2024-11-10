@@ -109,6 +109,7 @@
   // types
   import { ValidTopic, Topic } from '@/types';
   import type Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.d.mts';
+import { DocumentTypes } from 'src/documents';
   
   ////////////////////////////////
   // props
@@ -205,27 +206,18 @@
       await currentEntryStore.updateEntryType(currentEntry.value.uuid, selection);
   };
 
-  const onParentSelectionMade = async (selection: string) => {
-    if (!currentEntry.value?.pack || !currentEntry.value?.uuid)
+  const onParentSelectionMade = async (selection: string): Promise<void> => {
+    if (!currentEntry.value?.system?.topic || !currentEntry.value?.uuid)
       return;
 
-    const pack = getGame().packs?.get(currentEntry?.value?.pack || '');
-    if (!pack)
-      return;
-
-    await directoryStore.setNodeParent(pack, currentEntry.value.uuid, selection || null);
+    await directoryStore.setNodeParent(currentEntry.value.system.topic, currentEntry.value.uuid, selection || null);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
     if (!currentEntry.value)
       return;
 
-    const descriptionPage = currentEntry.value.collections.pages.find((p)=>p.name==='description');  //TODO
-
-    if (!descriptionPage)
-      return;
-
-    await updateEntry(currentWorldCompendium.value, descriptionPage, {'text.content': newContent });  
+    await updateEntry(currentWorldCompendium.value, currentEntry.value, {'text.content': newContent });  
 
     //need to reset
     // if it's not automatic, clear and reset the documentpage
@@ -235,7 +227,7 @@
   ////////////////////////////////
   // watchers
   watch(currentEntry, async (newEntry: JournalEntryPage | null): Promise<void> => {
-    if (!newEntry || !currentWorldId.value) {
+    if (!newEntry || !currentWorldId.value || !currentJournals.value) {
       topic.value = null;
     } else {
       let newTopic;
@@ -258,21 +250,21 @@
       }
 
       // set the parent and valid parents
-      if (!newEntry.pack || !newEntry.uuid) {
+      if (!newEntry.uuid) {
         parentId.value = null;
         validParents.value = [];
       } else {
         parentId.value = WorldFlags.getHierarchy(currentWorldId.value, newEntry.uuid)?.parentId || null;
     
         // TODO - need to refresh this somehow if things are moved around in the directory
-        validParents.value = validParentItems(currentWorldId.value, currentJournals.value[newTopic], newEntry).map((id)=> ({
-          id: id,
-          label: getGame()?.packs?.get(newEntry.pack || '')?.index?.find((e)=>e.uuid===id)?.name || '',
+        validParents.value = validParentItems(currentWorldId.value, currentJournals.value[newTopic], newEntry).map((e)=> ({
+          id: e.id,
+          label: e.name || '',
         }));
       }
   
       // reattach the editor to the new entry
-      editorDocument.value = newEntry.collections.pages.find((p)=>p.name==='description');
+      editorDocument.value = newEntry;
     }
   });
 
