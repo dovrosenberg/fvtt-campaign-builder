@@ -142,7 +142,7 @@
   import DirectoryGroupedTree from './DirectoryGroupedTree.vue';
   
   // types
-  import { DirectoryTopic, Topic, } from '@/types';
+  import { DirectoryTopicNode, Topic, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -240,7 +240,7 @@
   };
 
   // open/close a topic
-  const onTopicFolderClick = async (event: MouseEvent, directoryTopic: DirectoryTopic) => { 
+  const onTopicFolderClick = async (event: MouseEvent, directoryTopic: DirectoryTopicNode) => { 
     event.stopPropagation();
 
     await directoryStore.toggleTopic(directoryTopic);

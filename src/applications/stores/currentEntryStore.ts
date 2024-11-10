@@ -46,30 +46,33 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   // if name is populated will skip the dialog
   type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
   const createEntry = async (worldFolder: Folder, topic: ValidTopic, options: CreateEntryOptions): Promise<JournalEntryPage | null> => {
+    if (!currentJournals.value[topic])
+      return null;
+
     const topicText = getTopicText(topic);
 
-    let nameTouse = options.name || '' as string | null;
-    while (nameTouse==='') {  // if hit ok, must have a value
-      nameTouse = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
+    let nameToUse = options.name || '' as string | null;
+    while (nameToUse==='') {  // if hit ok, must have a value
+      nameToUse = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
     }  
     
     // if name is null, then we cancelled the dialog
-    if (!nameTouse)
+    if (!nameToUse)
       return null;
 
     // unlock it to make the change
     await currentWorldCompendium.value.configure({locked:false});
 
     // create the entry
-    const entry = await currentJournals.value[topic]?.pages.createDocument({
+    const entry = await JournalEntryPage.createDocuments([{
       type: DocumentTypes.Entry,
-      name: nameTouse,
-      folder: worldFolder.id,
+      name: nameToUse,
       system: {
         type: options.type || '',
       }
-    },{
-      pack: currentWorldCompendium.value.metadata.id,
+    }],{
+      parent: currentJournals.value[topic],
+      // pack: currentWorldCompendium.value.metadata.id,
     });
 
     await currentWorldCompendium.value.configure({locked:true});
@@ -79,11 +82,11 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
       if (options.parentId==undefined) {
         // no parent - set as a top node
         const topNodes = WorldFlags.getTopicFlag(worldFolder.uuid, WorldFlagKey.topNodes, topic);
-        await WorldFlags.setTopicFlag(worldFolder.uuid, WorldFlagKey.topNodes, topic, topNodes.concat([entry.uuid]));
+        await WorldFlags.setTopicFlag(worldFolder.uuid, WorldFlagKey.topNodes, topic, topNodes.concat([entry[0].uuid]));
 
         // set the blank hierarchy
         if (hasHierarchy(topic)) {
-          await WorldFlags.setHierarchy(worldFolder.uuid, entry.uuid, {
+          await WorldFlags.setHierarchy(worldFolder.uuid, entry[0].uuid, {
             parentId: '',
             ancestors: [],
             children: [],
@@ -93,15 +96,15 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
       } else {
         // add to the tree
         if (hasHierarchy(topic)) {
-          await directoryStore.setNodeParent(topic, entry.uuid, options.parentId);
+          await directoryStore.setNodeParent(topic, entry[0].uuid, options.parentId);
         }
       }
 
       await directoryStore.updateFilterNodes();  // otherwise the new item will be hidden
-      await directoryStore.refreshCurrentTree(options.parentId ? [options.parentId, entry.uuid] : [entry.uuid]);
+      await directoryStore.refreshCurrentTree(options.parentId ? [options.parentId, entry[0].uuid] : [entry[0].uuid]);
     }
    
-    return entry || null;
+    return entry ? entry[0] : null;
   };
 
   // delete an entry from the world

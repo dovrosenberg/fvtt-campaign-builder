@@ -109,10 +109,13 @@ export const useMainStore = defineStore('main', () => {
     } as Record<ValidTopic, JournalEntry | null>;
 
     for (let i=0; i<topics.length; i++) {
-      retval[topics[i]] = currentWorldCompendium.value.find((j) => j.uuid===topicEntries[topics[i]]) as JournalEntry | null;
+      const t = topics[i];
 
-      if (!retval[topics[i]])
-        throw new Error(`Could not find journal for topic ${topics[i]} in world ${currentWorldId.value}`);
+      // we need to load the actual entries - not just the index headers
+      retval[t] = await(fromUuid(topicEntries[t])) as JournalEntry | null;
+
+      if (!retval[t])
+        throw new Error(`Could not find journal for topic ${t} in world ${currentWorldId.value}`);
     }
 
     _currentJournals.value = retval as Record<ValidTopic, JournalEntry>;

@@ -30,13 +30,13 @@
   // local components
 
   // types
-  import { DirectoryEntryNode, Topic, } from '@/types';
+  import { DirectoryTypeEntryNode, Topic, } from '@/types';
   
   ////////////////////////////////
   // props
   const props = defineProps({
     node: {
-      type: Object as PropType<DirectoryEntryNode>,
+      type: Object as PropType<DirectoryTypeEntryNode>,
       required: true,
     },
     typeName: {

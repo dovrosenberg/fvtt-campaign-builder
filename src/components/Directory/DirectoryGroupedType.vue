@@ -60,7 +60,7 @@
   import DirectoryGroupedNode from './DirectoryGroupedNode.vue';
 
   // types
-  import { DirectoryTopic, DirectoryTypeNode, } from '@/types';
+  import { DirectoryTopicNode, DirectoryTypeNode, } from '@/types';
 
   
   ////////////////////////////////
@@ -75,7 +75,7 @@
       required: true,
     },
     topic: {
-      type: Object as PropType<DirectoryTopic>,
+      type: Object as PropType<DirectoryTopicNode>,
       required: true,
     }, 
   });

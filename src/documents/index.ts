@@ -1,6 +1,6 @@
 export * from './entry';
 
 export enum DocumentTypes {
-  Entry = 'entry',
-  Session = 'session'
+  Entry = 'world-builder.entry',
+  Session = 'world-builder.session'
 }

@@ -58,13 +58,13 @@
   import DirectoryNodeComponent from './DirectoryNode.vue';
 
   // types
-  import { DirectoryNode, Topic } from '@/types';
+  import { DirectoryEntryNode, Topic } from '@/types';
 
   ////////////////////////////////
   // props
   const props = defineProps({
     node: { 
-      type: Object as PropType<DirectoryNode>,
+      type: Object as PropType<DirectoryEntryNode>,
       required: true,
     },
     worldId: {
@@ -100,7 +100,7 @@
   // data
   // we don't just use props node because in toggleEntry we want to swap it out without rebuilding
   //   the whole tree
-  const currentNode = ref<DirectoryNode>(props.node);
+  const currentNode = ref<DirectoryEntryNode>(props.node);
 
   ////////////////////////////////
   // computed data
@@ -117,7 +117,7 @@
     currentNode.value = await directoryStore.toggleEntry(packId, currentNode.value, !currentNode.value.expanded);
   };
 
-  const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryNode) => {
+  const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryEntryNode) => {
     event.stopPropagation();
     event.preventDefault();
     
@@ -204,7 +204,7 @@
             const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
             if (!worldFolder || !props.topic)
-              throw new Error('Invalid header in DirectoryNode.onEntryContextMenu.onClick');
+              throw new Error('Invalid header in DirectoryEntryNode.onEntryContextMenu.onClick');
 
             const entry = await currentEntryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
 
@@ -230,7 +230,7 @@
 
   ////////////////////////////////
   // watchers
-  watch(()=> props.node, (newValue: DirectoryNode) => {
+  watch(()=> props.node, (newValue: DirectoryEntryNode) => {
     currentNode.value = newValue;
   });
 

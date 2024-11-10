@@ -192,7 +192,7 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
     if (!entry) {
       // create the missing one
       entry = await JournalEntry.create({
-        name: `${worldFolder.uuid}.topic.${t}`,
+        name: getTopicText(t),
         folder: worldFolder.id,
       },{
         pack: compendiumId,
