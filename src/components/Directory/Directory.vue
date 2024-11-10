@@ -8,14 +8,16 @@
     <!-- Directory Header -->
     <header class="directory-header">
       <div class="header-search flexrow">
-        <q-input 
+        <InputText 
           v-model="filterText"
           for="fwb-directory-search" 
-          debounce="300"
-          :bottom-slots="false"
           :placeholder="localize('fwb.placeholders.search')"                
-          input-class="full-height"
-          autocomplete="off" 
+          autocomplete="off"
+          :pt="{
+            root: {
+              class: 'full-height',
+            }
+          }"
         />
         <a 
           class="header-control create-world create-button" 
@@ -47,7 +49,7 @@
     </header>
 
     <div v-if="isTreeRefreshing">
-      <q-inner-loading :showing="isTreeRefreshing" /> 
+      <ProgressSpinner v-if="isTreeRefreshing" />
     </div>
     <div v-else class="fwb-world-list-wrapper">
       <!-- these are the worlds -->
@@ -73,34 +75,34 @@
             v-if="currentWorldId===world.id"
             class="world-contents"
           >
-            <!-- data-pack-id is used by drag and drop and toggleEntry-->
+            <!-- data-topic-id is used by drag and drop and toggleEntry-->
             <li 
-              v-for="pack in world.packs.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
-              :key="pack.id"
-              :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (pack.expanded ? '' : 'collapsed')"
-              :data-pack-id="pack.id" 
+              v-for="topic in world.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
+              :key="topic.topic"
+              :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
+              :data-topic="topic.topic" 
             >
               <header class="folder-header flexrow">
                 <div 
                   class="fwb-compendium-label noborder" 
                   style="margin-bottom:0px"
-                  @click="onTopicFolderClick($event, pack)"
-                  @contextmenu="onTopicContextMenu($event, world.id, pack.topic)"
+                  @click="onTopicFolderClick($event, topic)"
+                  @contextmenu="onTopicContextMenu($event, world.id, topic.topic)"
                 >
                   <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                  <i :class="'icon fas ' + getIcon(pack.topic)" style="margin-right: 4px;"></i>
-                  {{ pack.name }}
+                  <i :class="'icon fas ' + getIcon(topic.topic)" style="margin-right: 4px;"></i>
+                  {{ topic.name }}
                 </div>
               </header>
 
               <DirectoryGroupedTree
                 v-if="isGroupedByType" 
-                :pack="pack"
+                :topic="topic"
                 :world-id="world.id"
               />
               <DirectoryNestedTree
                 v-else 
-                :pack="pack"
+                :topic="topic"
                 :world-id="world.id"
               />
             </li>
@@ -124,21 +126,23 @@
   // library imports
   import { ref, } from 'vue';
   import { storeToRefs } from 'pinia';
+  import ProgressSpinner from 'primevue/progressspinner';
 
   // local imports
   import { getGame, localize } from '@/utils/game';
   import { getIcon, } from '@/utils/misc';
-  import { useDirectoryStore, useMainStore, useNavigationStore, useEntryStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
+  import InputText from 'primevue/inputtext';
 
   // local components
   import DirectoryNestedTree from './DirectoryNestedTree.vue';
   import DirectoryGroupedTree from './DirectoryGroupedTree.vue';
   
   // types
-  import { DirectoryPack, Topic, } from '@/types';
+  import { DirectoryTopicNode, Topic, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -151,7 +155,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
-  const entryStore = useEntryStore();
+  const currentEntryStore = useCurrentEntryStore();
   const { currentWorldId } = storeToRefs(mainStore);
   const { filterText, isTreeRefreshing, isGroupedByType } = storeToRefs(directoryStore);
 
@@ -224,7 +228,7 @@
             if (!worldFolder || !topic)
               throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
-            const entry = await entryStore.createEntry(worldFolder, topic, {} );
+            const entry = await currentEntryStore.createEntry(worldFolder, topic, {} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -236,10 +240,10 @@
   };
 
   // open/close a topic
-  const onTopicFolderClick = async (event: MouseEvent, directoryPack: DirectoryPack) => { 
+  const onTopicFolderClick = async (event: MouseEvent, directoryTopic: DirectoryTopicNode) => { 
     event.stopPropagation();
 
-    await directoryStore.togglePack(directoryPack);
+    await directoryStore.toggleTopic(directoryTopic);
   };
 
   // close all topics
@@ -257,7 +261,7 @@
     // const wf = getGame().folders?.find((f)=>f.id==='IAAEn25ebbVZXL9V');
     // if (wf) {
     //   for (let i=0; i<400; i++) {
-    //     await entryStore.createEntry(wf, Topic.Location, { name: foundry.utils.randomID() });
+    //     await currentEntryStore.createEntry(wf, Topic.Location, { name: foundry.utils.randomID() });
     //   }
     // }
 

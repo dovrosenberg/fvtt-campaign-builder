@@ -1,6 +1,6 @@
 // helper functions for the Editor component
 
-import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
+import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { getIcon } from '@/utils/misc';
 
 // types
@@ -94,7 +94,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
       } else {
         return doc.toAnchor({ 
           name: data.name, dataset: { hash }, classes: ['fwb-content-link'], 
-          icon: `fas ${getIcon(PackFlags.get(doc.pack, PackFlagKey.topic))}` 
+          icon: `fas ${getIcon(TopicFlags.get(doc.pack, TopicFlagKey.topic))}` 
         });
       }
     }

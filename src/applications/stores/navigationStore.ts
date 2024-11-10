@@ -51,7 +51,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       ...options,
     };
 
-    const journal = entryId ? await getCleanEntry(entryId) as JournalEntry : null;
+    const journal = entryId ? await getCleanEntry(entryId) as JournalEntryPage : null;
     const entryName = (journal ? journal.name : localize('fwb.labels.newTab')) || '';
     const entry = { uuid: journal ? entryId : null, name: entryName, icon: journal ? getIcon(EntryFlags.get(journal, EntryFlagKey.topic)) : '' };
 

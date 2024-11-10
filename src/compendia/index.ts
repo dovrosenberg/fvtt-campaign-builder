@@ -2,16 +2,19 @@
 import { inputDialog } from '@/dialogs/input';
 import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 import { getGame, localize } from '@/utils/game';
-import { Topic } from '@/types';
+import { Topic, } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
-import { AnyDocumentData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/data.mjs';
 import { toTopic } from '@/utils/misc';
-import { PackFlags } from '@/settings/PackFlags';
 
-// returns the uuid of the root folder
-// if it is not stored in settings, creates a new folder
+
+/**
+ * Gets the root folder.
+ * If it is not stored in settings, creates a new folder and saves it to settings.
+ * If there is a setting but the folder doesn't exist, creates a new one and saves it to settings.
+ * @returns The root folder.
+ */
 export async function getRootFolder(): Promise<Folder> {
   const rootFolderId = moduleSettings.get(SettingKey.rootFolderId);
   let folder: Folder | null;
@@ -38,7 +41,12 @@ export async function getRootFolder(): Promise<Folder> {
   return folder;
 }
 
-// create a new root folder
+
+/**
+ * Create a new root folder.
+ * @param {string} [name] The name for the folder. If not provided, uses the default root folder name in the localization.
+ * @returns The new folder.
+ */
 export async function createRootFolder(name?: string): Promise<Folder> {
   if (!name)
     name = localize('fwb.defaultRootFolderName');
@@ -55,8 +63,11 @@ export async function createRootFolder(name?: string): Promise<Folder> {
   return folders[0];
 }
 
-// create a new world folder
-// returns the new folder
+/**
+ * Create a new world folder.
+ * @param {boolean} [makeCurrent=false] If true, sets the new folder as the current world.
+ * @returns The new folder, or null if the user cancelled the dialog.
+ */
 export async function createWorldFolder(makeCurrent = false): Promise<Folder | null> {
   const rootFolder = await getRootFolder(); // will create if needed
 
@@ -94,7 +105,11 @@ export async function createWorldFolder(makeCurrent = false): Promise<Folder | n
   return null;
 }
 
-// returns the root and world, creating if needed
+/**
+ * Gets the root and world folders.
+ * Will create new folders if missing.
+ * @returns The root and world folders.
+ */
 export async function getDefaultFolders(): Promise<{ rootFolder: Folder; worldFolder: Folder}> {
   const rootFolder = await getRootFolder(); // will create if needed
   const worldId = UserFlags.get(UserFlagKey.currentWorld);  // this isn't world-specific (obviously)
@@ -125,67 +140,103 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder; worldFo
 }
 
 
-// ensure the root folder has all the required topic compendia
-// Note: compendia kind of suck.   You can't rename them or change the label.  And you can't have more than one with the same name/label
-//    in a given world.  So we give them all unique names but then use a flag to display the proper label (which is the topic)
+// ensure the root folder has all the required compendia
+
+/**
+ * Makes sure that the world folder has a compendium and that the compendium id is stored in the settings
+ * If any are missing, creates them.
+ * Note: compendia kind of suck.   You can't rename them or change the label.  And you can't have more than one with the same name/label
+ * in a given world.  So we give them all unique names but then use a flag to display the proper label (which is the topic)
+ * @param worldFolder The folder to check.
+ */
 export async function validateCompendia(worldFolder: Folder): Promise<void> {
   let updated = false;
 
-  // the id for the compendia of each topic
-  let compendia: Record<Topic, string>; 
-   
-  const flag = WorldFlags.get(worldFolder.uuid, WorldFlagKey.compendia); 
+  // the id for the compendia 
+  let compendiumId: string = '';
+  let compendium: CompendiumCollection<Any> | undefined | null;
 
-  if (flag) {
-    compendia = flag;
+  const setting = WorldFlags.get(worldFolder.uuid, WorldFlagKey.worldCompendium); 
+
+  if (setting) {
+    compendiumId = setting;
+    compendium = getGame().packs?.get(compendiumId);
   } else {
-    compendia = {
-      [Topic.None]: '',
-      [Topic.Character]: '',
-      [Topic.Event]: '',
-      [Topic.Location]: '',
-      [Topic.Organization]: '',
-    };
     updated = true;
   }
 
+  // check it
+  // if the value is blank or we can't find the compendia create a new one
+  if (!getGame().packs?.get(compendiumId)) {
+    // create a new one
+    compendium = await createCompendium(worldFolder);
+    compendiumId = compendium.metadata.id;
+  }
+
+  if (!compendium)
+    throw new Error('Failed to create compendium in validateCompendia()');
+
+  // also need to create the journal entries
   // check them all
   // Object.keys() on an enum returns an array with all the values followed by all the names
   const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization];
+  const topicEntries = WorldFlags.get(worldFolder.uuid, WorldFlagKey.topicEntries);
+
+  await compendium.configure({ locked:false });
+
   for (let i=0; i<topics.length; i++) {
     const t = topics[i];
 
-    // if the value is blank or we can't find the compendia create a new one
-    if (!compendia[t] || !getGame().packs?.get(compendia[t])) {
-      // create a new one
-      compendia[t] = await createCompendium(worldFolder, t);
+    // if the value is blank or we can't find the entry create a new one
+    let entry = compendium.index.find((e)=> e.uuid===topicEntries[t]);
+    if (!entry) {
+      // create the missing one
+      entry = await JournalEntry.create({
+        name: getTopicText(t),
+        folder: worldFolder.id,
+      },{
+        pack: compendiumId,
+      });
+
+      topicEntries[t] = entry.uuid;  
+    
       updated = true;
     }
   }
 
+  await compendium.configure({ locked:true });
+
   // if we changed things, save new compendia flag
   if (updated) {
-    await WorldFlags.set(worldFolder.uuid, WorldFlagKey.compendia, compendia);
+    await WorldFlags.set(worldFolder.uuid, WorldFlagKey.worldCompendium, compendiumId);
+    await WorldFlags.set(worldFolder.uuid, WorldFlagKey.topicEntries, topicEntries);
   }
 }
 
+/**
+ * Returns a localized string representing the name of a given topic.
+ * 
+ * @param {Topic} topic - The topic for which to retrieve the text.
+ * @returns {string} A localized string for the topic.
+ * @throws {Error} If the topic is invalid.
+ */
 export function getTopicText(topic: Topic): string {
   switch (toTopic(topic)) {
-    case Topic.Character: return localize('fwb.topics.character'); 
-    case Topic.Event: return localize('fwb.topics.event'); 
-    case Topic.Location: return localize('fwb.topics.location'); 
-    case Topic.Organization: return localize('fwb.topics.organization'); 
+    case Topic.Character: return localize('fwb.topics.character') || ''; 
+    case Topic.Event: return localize('fwb.topics.event') || ''; 
+    case Topic.Location: return localize('fwb.topics.location') || ''; 
+    case Topic.Organization: return localize('fwb.topics.organization') || ''; 
+    case Topic.None:
     default: 
       throw new Error('Invalid topic in getTopicText()');
   }
 }
 
-async function createCompendium(worldFolder: Folder, topic: Topic): Promise<string> {
-  const label = getTopicText(topic);
-
+// returns the compendium
+async function createCompendium(worldFolder: Folder): Promise<CompendiumCollection<any>> {
   const metadata = { 
     name: foundry.utils.randomID(), 
-    label: label,
+    label: worldFolder.name,
     type: 'JournalEntry', 
   };
 
@@ -195,45 +246,24 @@ async function createCompendium(worldFolder: Folder, topic: Topic): Promise<stri
 
   await pack.configure({ locked:true });
 
-  await PackFlags.setDefaults(pack, topic);
-
-  return pack.metadata.id;
+  return pack;
 }
 
 // loads the entry into memory and cleans it
-export async function getCleanEntry(uuid: string): Promise<JournalEntry | null> {
+export async function getCleanEntry(uuid: string): Promise<JournalEntryPage | null> {
   // we must use fromUuid because these are all in compendia
-  const entry = await fromUuid(uuid) as JournalEntry;
+  const entry = await fromUuid(uuid) as JournalEntryPage;
 
-  if (entry) {
-    await cleanEntry(entry);
-    return entry;
-  } else {
-    return null;
-  }
-}
-
-// makes sure that the entry has all the correct pages
-async function cleanEntry(entry: JournalEntry): Promise<void> {
-  if (!entry.pages.find((p)=>p.name==='description')) { // TODO: replace with enum
-    // this creates the page and adds to the parent
-    await JournalEntryPage.create({name:'description', type: 'text'}, {parent: entry, pack: entry.pack});  // TODO: replace this with an enum
-  }
+  return entry ? entry : null;
 }
 
 // updates an entry, unlocking compedium to do it
-export async function updateDocument<T extends AnyDocumentData>(document: Document<T>, data: any): Promise<Document<T> | null> {
-  if (!document.pack)
-    throw new Error('Invalid compedia in updateDocument()');
-
+// note: make sure to pass in the raw entry using vue's toRaw() if calling on a proxy
+export async function updateEntry(currentCompendium: CompendiumCollection<Any>, entry: JournalEntryPage, data: Record<string, any>): Promise<JournalEntryPage | null> {
   // unlock compendium to make the change
-  const pack = getGame().packs?.get(document.pack);
-  if (!pack)
-    throw new Error('Bad compendia in updateDocument()');
-
-  await pack.configure({locked:false});
-  const retval = await document.update(data) || null;
-  await pack.configure({locked:true});
+  await currentCompendium.configure({locked:false});
+  const retval = await entry.update(data) || null;
+  await currentCompendium.configure({locked:true});
 
   return retval;
 }

@@ -4,10 +4,9 @@
     :node="props.node"
     :world-id="props.worldId"
     :topic="props.topic"
-    :pack-id="props.packId"
     :top="props.top"
   />
-  <li v-else-if="filterNodes[packId]?.includes(props.node.id)">
+  <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
       :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
@@ -28,9 +27,8 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useDirectoryStore, useMainStore, useNavigationStore, useEntryStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   import { getGame, localize } from '@/utils/game';
-  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
 
   // library components
@@ -40,7 +38,7 @@
   import DirectoryNodeWithChildren from './DirectoryNodeWithChildren.vue';
 
   // types
-  import { DirectoryNode, Topic } from '@/types';
+  import { DirectoryEntryNode, ValidTopic } from '@/types';
 
   ////////////////////////////////
   // props
@@ -50,15 +48,11 @@
       required: true
     },
     topic: {
-      type: Number as PropType<Topic>,
-      required: true
-    },
-    packId: {
-      type: String,
+      type: Number as PropType<ValidTopic>,
       required: true
     },
     node: { 
-      type: Object as PropType<DirectoryNode>,
+      type: Object as PropType<DirectoryEntryNode>,
       required: true,
     },
     top: {    // applies special class to top level
@@ -75,8 +69,8 @@
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
   const mainStore = useMainStore();
-  const entryStore = useEntryStore();
-  const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
+  const currentEntryStore = useCurrentEntryStore();
+  const { currentWorldId, currentEntryId, currentJournals } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(directoryStore);
   
   ////////////////////////////////
@@ -109,13 +103,13 @@
     const dragData = { 
       topic:  props.topic,
       childId: props.node.id,
-    } as { topic: Topic; childId: string};
+    } as { topic: ValidTopic; childId: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value)
+    if (!currentWorldId.value || !currentJournals.value || !currentJournals.value[props.topic])
       return false;
 
     let data;
@@ -135,24 +129,17 @@
     if (data.topic!==props.topic || !hasHierarchy(props.topic))
       return false;
 
-    // get the pack
-    const packId = WorldFlags.get(currentWorldId.value, WorldFlagKey.compendia)[props.topic];
-    const pack = getGame().packs?.get(packId);
-
-    if (!pack)
-      return false;
-
     // is this a legal parent?
-    const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntry | null;
+    const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntryPage | null;
 
     if (!childEntry)
       return false;
 
-    if (!(await validParentItems(childEntry)).includes(parentId))
+    if (!(await validParentItems(currentWorldId.value, currentJournals.value[props.topic], childEntry)).find(e=>e.id===parentId))
       return false;
 
     // add the dropped item as a child on the other  (will also refresh the tree)
-    await directoryStore.setNodeParent(pack, data.childId, parentId);
+    await directoryStore.setNodeParent(props.topic, data.childId, parentId);
 
     return true;
   };
@@ -178,9 +165,9 @@
             const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
             if (!worldFolder || !props.topic)
-              throw new Error('Invalid header in DirectoryNode.onEntryContextMenu.onClick');
+              throw new Error('Invalid header in DirectoryEntryNode.onEntryContextMenu.onClick');
 
-            const entry = await entryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
+            const entry = await currentEntryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -192,7 +179,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await entryStore.deleteEntry(props.node.id);
+            await currentEntryStore.deleteEntry(props.topic, props.node.id);
           }
         },
       ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))

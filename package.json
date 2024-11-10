@@ -21,14 +21,13 @@
     "coverage": "jest --coverage",
     "unlinkdata": "unlink $FOUNDRYVTT_DATA/Data/modules/world-builder",
     "buildcopy": "npm run build && npm run copy",
-    "foundry": "node $FOUNDRYVTT_APP/resources/app/main.js",
-    "foundry10": "node ~/foundry10/resources/app/main.js --dataPath=/home/dov/foundry10data"
+    "foundry": "node $FOUNDRYVTT_APP/resources/app/main.js"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
-    "@league-of-foundry-developers/foundry-vtt-types": "dovrosenberg/foundry-vtt-types#97594bc",
+    "@league-of-foundry-developers/foundry-vtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "@originjs/vite-plugin-commonjs": "^1.0.1",
-    "@quasar/vite-plugin": "^1.7.0",
+    "@primevue/auto-import-resolver": "^4.2.1",
     "@types/jest": "^29.5.10",
     "@types/jquery": "^3.5.29",
     "@types/lodash": "^4.14.202",
@@ -58,14 +57,16 @@
     "style-loader": "^3.3.0",
     "ts-jest": "^29.1.1",
     "ts-loader": "^9.2.6",
+    "unplugin-vue-components": "^0.27.4",
     "vite": "^5.2.0",
     "vite-plugin-env-compatible": "^1.1.1",
     "vite-plugin-html": "3.2.2"
   },
   "dependencies": {
     "@imengyu/vue3-context-menu": "^1.4.1",
+    "@primevue/themes": "^4.2.1",
     "pinia": "^2.1.7",
-    "quasar": "^2.16.6",
+    "primevue": "^4.2.1",
     "vue": "^3.4.31",
     "vue-eslint-parser": "^9.4.3"
   }

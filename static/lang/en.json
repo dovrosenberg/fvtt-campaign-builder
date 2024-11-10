@@ -12,6 +12,11 @@
         "type": "Type",
         "parent": "Parent"
       },
+      "entry": {
+        "topic": "Topic",
+        "type": "Type",
+        "relationships": "Relationshipa"
+      },
       "groupTree": "Group tree by type",
       "tabs": {
         "description": "Description",
@@ -31,6 +36,10 @@
       "locationName": "Location Name",
       "organizationName": "Organization Name",
       "sceneName": "Scene Name"
+    },
+    "compendia": {
+      "entry": "Entries",
+      "session": "Sessions"
     },
     "topics": {
       "character": "Character",

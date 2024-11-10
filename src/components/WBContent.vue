@@ -17,20 +17,21 @@
           <div class="header-details fwb-content-header">
             <h1 class="header-name flexrow">
               <i :class="`fas ${icon} sheet-icon`"></i>
-              <q-input
+              <InputText
                 v-model="name"
                 for="fwb-input-name" 
-                input-class="full-height"
-                debounce="500"
-                :bottom-slots="false"
                 :placeholder="namePlaceholder"                
+                :pt="{
+                  root: { class: 'full-height' } 
+                }" 
+                @update:model-value="onNameUpdate"
               />
             </h1>
             <div class="form-group fwb-content-header">
               <label>{{ localize('fwb.labels.fields.type') }}</label>
               <TypeAhead 
                 :initial-list="typeList"
-                :initial-value="EntryFlags.get(currentEntry, EntryFlagKey.type) || ''"
+                :initial-value="currentEntry.system.type as string || ''"
                 @item-added="onTypeItemAdded"
                 @selection-made="onTypeSelectionMade"
               />
@@ -71,157 +72,9 @@
               />
             </div>
           </div>
-          <!-- <div class="tab relationships" data-group="primary" data-tab="relationships">
+          <div class="tab description flexcol" data-group="primary" data-tab="characters">
             <div class="tab-inner flexcol">
-              <div class="relationships flexrow">
-                <div class="items-list">
-                  <ol class="item-list">
-                    <li v-for="relationship in relationships" 
-                      class="item-header flexrow"
-                    >
-                      <h3 class="item-name noborder flexrow">{{relationship.name}}</h3>
-                      <h3 class="item-name noborder flexrow">{{localize('MonksEnhancedJournal.Relationship')}}</h3>
-                      <div v-if="owner" 
-                        class="item-controls flexrow" 
-                        buttons="2"
-                      ></div>
-                    </li>
-                    <li v-for="document in documents"
-                      class="item flexrow" 
-                      :data-id="document.id" 
-                      :data-uuid="document.uuid" 
-                      data-container="relationships" 
-                      data-document="JournalEntry" 
-                      draggable="false"
-                    >
-                      <div class="item-name clickable flexrow">
-                        <img 
-                          class="item-image large actor-icon" 
-                          :src="document.img" 
-                          onerror="if (!document.imgerr) { document.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/{{document.type}}.png' }" 
-                        />
-                        <h4>
-                          <a>
-                            <i v-if="document.pack"
-                              class="fas fa-atlas" 
-                              title="{{localize 'MonksEnhancedJournal.FromCompendium'}}"
-                            ></i>
-                            {{document.name}}
-                          </a>
-                        </h4>
-                      </div>
-
-                      <div class="item-name item-relationship flexrow">
-                        <input 
-                          type="text" 
-                          class="item-field" 
-                          :name="`relationships.${document.id}.relationship`" 
-                          :value="document.relationship" 
-                        />
-                      </div>
-
-                      <div v-if="owner" 
-                        class="item-controls flexrow owner" 
-                        buttons="2"
-                      >
-                        <input 
-                          type="checkbox" 
-                          :name="`relationships.${document.id}.hidden`" 
-                          :checked="document.hidden" 
-                          style="display:none;" 
-                        />
-                        <a class="item-control item-hide" title="{{localize 'MonksEnhancedJournal.HideShowRelationship'}}"><i class="fas fa-eye-slash"></i></a>
-                        <a class="item-control item-delete" title="{{localize 'MonksEnhancedJournal.RemoveRelationship'}}"><i class="fas fa-trash"></i></a>
-                      </div>
-                    </li>
-                     <li v-else-if="owner" 
-                      class="instruction"
-                    >
-                      {{localize 'MonksEnhancedJournal.msg.DragToMakeRelationship'}}
-                    </li>
-                    <li v-else 
-                      class="instruction"
-                    >
-                      {{localize 'MonksEnhancedJournal.msg.NoRelationshipsAtTheMoment'}}
-                    </li> 
-                  </ol>
-                </div>
-              </div>
-            </div>
-          </div> 
-          <div class="tab offerings" data-group="primary" data-tab="offerings">
-            <div class="tab-inner flexcol">
-              <div class="offering-list">
-                <div class="items-list">
-                  <div class="item-header flexrow">
-                    <h3 class="item-name noborder flexrow">Actor</h3>
-                    <h3 class="item-name noborder flexrow">Items</h3>
-                    <h3 class="item-detail noborder flexrow">Status</h3>
-
-                    <div v-if="owner" 
-                      class="item-controls flexrow" 
-                      buttons="2"
-                    ></div>
-                    <div class="item-controls flexrow" buttons="2">
-                      <a class="item-control make-offering" title="{{localize 'MonksEnhancedJournal.MakeOffering'}}"><i class="fas fa-hand-holding-usd"></i></a>
-                    </div>
-                  </div>
-                  <ol class="item-list">
-                    <li v-for="offering in offerings" 
-                      class="item flexrow{{#if this.done}} complete{{/if}}" data-id="{{this.id}}" data-actor-id="{{this.actorId}}" data-container="offerings" draggable="false">
-                      <div class="item-name flexrow">
-                        <img class="item-image actor-icon" src="{{offering.img}}" />
-                        <span>{{offering.name}}</span>
-                      </div>
-
-                      <div class="item-name item-offered flexcol">
-                        <div v-for="item in offering.items" class="flexrow" style="width: 100%; line-height: 32px;">
-                          <img class="item-image item-icon" src="{{item.img}}" onerror="if ($(this).attr('src') != 'icons/svg/item-bag.svg') { $(this).attr('src', 'icons/svg/item-bag.svg'); }" />
-                          <span class="tag">{{{item.name}}}</span>
-                        </div>
-                      </div>
-
-                      <div class="item-detail item-offered">
-                        {{offering.stateName}}
-                      </div>
-
-                      <div v-if="owner" class="item-controls flexrow owner" buttons="2">
-                        <div v-if="offering.state==='offering'">
-                          <a class="item-control item-accept" title="{{localize 'MonksEnhancedJournal.AcceptOffering'}}"><i class="fas fa-check"></i></a>
-                          <a class="item-control item-reject" title="{{localize 'MonksEnhancedJournal.RejectOffering'}}"><i class="fas fa-times"></i></a>
-                        </div>
-
-                        <div class="item-controls flexrow owner" buttons="2">
-                          <input type="checkbox" name="offerings.{{this.id}}.hidden" {{checked this.hidden}} style="display:none;" />
-                          <a class="item-control item-private" title="{{localize 'MonksEnhancedJournal.HideShowOffering'}}"><i class="fas fa-eye-slash"></i></a>
-                          <a class="item-control item-delete" title="{{localize 'MonksEnhancedJournal.RemoveOffering'}}"><i class="fas fa-trash"></i></a>
-                        </div>
-                      </div>
-                      <div v-else class="item-controls flexrow">
-                        <div v-if="offering.owner">
-                          <div v-if="offering.hidden">
-                            <i class="fas fa-eye-slash"></i>
-                          </div>
-                          <div v-if="offering.state==='offering'">
-                            <a class="item-control item-cancel" title="{{localize 'MonksEnhancedJournal.CancelOffering'}}"><i class="fas fa-trash"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                  </ol>
-                </div>
-              </div>
-            </div> 
-          </div>-->
-          <div class="tab notes" data-group="primary" data-tab="notes">
-            <div class="tab-inner flexcol">
-              <!-- <div style="flex-grow: 0;">
-                {{localize('MonksEnhancedJournal.OnlyViewable')}}
-                <span v-if="!hasGM" style="color:darkred;font-weight:bold;">{{localize('MonksEnhancedJournal.msg.CannotEditNotesWithoutGM')}}</span>
-              </div> -->
-              <div class="notes-container">
-                <!-- {{!-- {{editor userdata.enrichedText target=notesTarget editable=true button=true owner=owner}} --}} -->
-              </div>
+              <RelatedItemTable :topic="Topic.Character" />
             </div>
           </div>
         </div>
@@ -237,25 +90,26 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { updateDocument } from '@/compendia';
-  import { getIcon, toTopic } from '@/utils/misc';
-  import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-  import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
+  import { updateEntry } from '@/compendia';
+  import { getIcon, } from '@/utils/misc';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { getGame, localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
-  import { useDirectoryStore, useMainStore, useNavigationStore, useEntryStore } from '@/applications/stores';
+  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   
   // library components
+  import InputText from 'primevue/inputtext';
 
   // local components
   import Editor from '@/components/Editor.vue';
   import HomePage from '@/components/HomePage.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
-
+  import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
+  
   // types
-  import { Topic, } from '@/types';
+  import { ValidTopic, Topic } from '@/types';
   import type Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.d.mts';
+import { DocumentTypes } from 'src/documents';
   
   ////////////////////////////////
   // props
@@ -268,8 +122,8 @@
   const mainStore = useMainStore();
   const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
-  const entryStore = useEntryStore();
-  const { currentEntry, currentWorldId } = storeToRefs(mainStore);
+  const currentEntryStore = useCurrentEntryStore();
+  const { currentEntry, currentWorldId, currentJournals, currentWorldCompendium } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -311,6 +165,25 @@
   ////////////////////////////////
   // event handlers
 
+  // debounce changes to name
+  let debounceTimer: NodeJS.Timeout | undefined = undefined;
+
+  const onNameUpdate = (newName: string | undefined) => {
+    const debounceTime = 500;
+  
+    clearTimeout(debounceTimer);
+    
+    debounceTimer = setTimeout(async () => {
+      const newValue = newName || '';
+      if (currentEntry.value && currentEntry.value.name!==newValue) {
+        await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), { name: newValue });
+
+        await directoryStore.refreshCurrentTree([currentEntry.value.uuid]);
+        await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue);
+      }
+    }, debounceTime);
+  };
+
   // new type added in the typeahead
   const onTypeItemAdded = async (added: string) => {
     if (topic.value === null || !currentWorldId.value)
@@ -330,24 +203,21 @@
 
   const onTypeSelectionMade = async (selection: string) => {
     if (currentEntry.value)
-      await entryStore.updateEntryType(currentEntry.value.uuid, selection);
+      await currentEntryStore.updateEntryType(currentEntry.value.uuid, selection);
   };
 
-  const onParentSelectionMade = async (selection: string) => {
-    const pack = getGame().packs?.get(currentEntry.value.pack);
-    if (!pack)
+  const onParentSelectionMade = async (selection: string): Promise<void> => {
+    if (!currentEntry.value?.system?.topic || !currentEntry.value?.uuid)
       return;
 
-    await directoryStore.setNodeParent(pack, currentEntry.value.uuid, selection || null);
+    await directoryStore.setNodeParent(currentEntry.value.system.topic, currentEntry.value.uuid, selection || null);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
     if (!currentEntry.value)
       return;
 
-    const descriptionPage = toRaw(currentEntry.value).pages.find((p)=>p.name==='description');  //TODO
-
-    await updateDocument(descriptionPage, {'text.content': newContent });  
+    await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), {'text.content': newContent });  
 
     //need to reset
     // if it's not automatic, clear and reset the documentpage
@@ -356,15 +226,15 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentEntry, async (newEntry: JournalEntry | null): Promise<void> => {
-    if (!newEntry) {
+  watch(currentEntry, async (newEntry: JournalEntryPage | null): Promise<void> => {
+    if (!newEntry || !currentWorldId.value || !currentJournals.value) {
       topic.value = null;
     } else {
       let newTopic;
 
-      newTopic = toTopic(newEntry ? EntryFlags.get(newEntry, EntryFlagKey.topic) : null);
+      newTopic = newEntry ? newEntry.system.topic as ValidTopic : null;
       if (!newTopic) 
-        throw new Error('Invalid entry type in WBContent.getData()');
+        throw new Error('Invalid entry type in WBContent.watch-currenEntry');
 
       // we're going to show a content page
       topic.value = newTopic;
@@ -380,30 +250,21 @@
       }
 
       // set the parent and valid parents
-      if (!newEntry.pack || !newEntry.uuid) {
+      if (!newEntry.uuid) {
         parentId.value = null;
         validParents.value = [];
       } else {
-        parentId.value = PackFlags.get(newEntry.pack, PackFlagKey.hierarchies)[newEntry.uuid]?.parentId || null;
+        parentId.value = WorldFlags.getHierarchy(currentWorldId.value, newEntry.uuid)?.parentId || null;
     
         // TODO - need to refresh this somehow if things are moved around in the directory
-        validParents.value = validParentItems(newEntry).map((id)=> ({
-          id: id,
-          label: getGame()?.packs?.get(newEntry.pack || '')?.index?.find((e)=>e.uuid===id)?.name || '',
+        validParents.value = validParentItems(currentWorldId.value, currentJournals.value[newTopic], newEntry).map((e)=> ({
+          id: e.id,
+          label: e.name || '',
         }));
       }
   
       // reattach the editor to the new entry
-      editorDocument.value = toRaw(newEntry).pages.find((p)=>p.name==='description');
-    }
-  });
-
-  watch(name, async (newValue: string)=> {
-    if (currentEntry.value && currentEntry.value.name!==newValue) {
-      await updateDocument(currentEntry.value, { name: newValue });
-
-      await directoryStore.refreshCurrentTree([currentEntry.value.uuid]);
-      await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue || '');
+      editorDocument.value = newEntry;
     }
   });
 

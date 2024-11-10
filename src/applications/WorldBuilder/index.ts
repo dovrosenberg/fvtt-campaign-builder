@@ -1,20 +1,12 @@
 import moduleJson from '@module';
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
 import { createPinia, setActivePinia } from 'pinia';
-import { Quasar } from 'quasar';
+import PrimeVue from 'primevue/config';
+import FWBTheme from './presetTheme';
+
 import App from '@/components/WorldBuilder.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
-
-/////////////////
-// Vuetify
-// import { createVuetify } from 'vuetify';
-
-// const vuetify = createVuetify({
-//   // components,
-//   // directives,
-// });
-
 
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 
@@ -23,7 +15,7 @@ const pinia = createPinia();
 setActivePinia(pinia);
 
 export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = foundry.utils.mergeObject(super.DEFAULT_OPTIONS, {
+  static DEFAULT_OPTIONS = {
     id: `app-${moduleJson.id}-WorldBuilder`,
     classes: ['fwb-main-window'], 
     window: {
@@ -45,7 +37,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
       // submitOnClose: false,
     },
     actions: {}
-  }, { inplace: false });
+  };
 
   static DEBUG = false;
 
@@ -61,8 +53,22 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
           plugin: pinia,
           options: {}
         },
-        // vuetify: { plugin: vuetify }
-        quasar: { plugin: Quasar }
+        primevue: { 
+          plugin: PrimeVue, 
+          options: {
+            theme: { 
+              preset: FWBTheme,
+              options: {
+                // prefix: 'fwb-p',
+                // cssLayer: {
+                //   name: 'fwb-p',
+                //   order: 'fwb-p',
+                // },
+                darkModeSelector: '.theme-dark'
+              }
+            }
+          }
+        },
       }
     }
   };

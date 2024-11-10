@@ -14,7 +14,7 @@ export enum EntryFlagKey {
 type EntryFlagType<K extends EntryFlagKey> =
     K extends EntryFlagKey.topic ? Topic :
     K extends EntryFlagKey.type ? string :
-    K extends EntryFlagKey.relationships ? Record<Topic, Record<string, RelatedItem>> :
+    K extends EntryFlagKey.relationships ? Record<Topic, Record<string, RelatedItem>> :  // internal record is keyed by uuid
     never;  
 
 
@@ -67,12 +67,16 @@ export abstract class EntryFlags {
     return;
   }
 
-  public static get<T extends EntryFlagKey>(entry: JournalEntry, flag: T): EntryFlagType<T> | null {
-    return (entry.getFlag(moduleJson.id, flag) as EntryFlagType<T>);
+  public static get<T extends EntryFlagKey>(entry: JournalEntry, flag: T): EntryFlagType<T>  {
+    let val = (entry.getFlag(moduleJson.id, flag) as EntryFlagType<T>);
+    if (val === undefined)
+      val = flagSetup.find((f)=>f.flagId===flag)?.default as EntryFlagType<T>;
+
+    return val;
   }
 
   // note - setting a flag to null will delete it
-  public static async set<T extends EntryFlagKey>(entry: JournalEntry, flag: T, value: EntryFlagType<T> | null): Promise<void> {
+  public static async set<T extends EntryFlagKey>(entry: JournalEntry, flag: T, value: EntryFlagType<T>): Promise<void> {
     // unlock it to make the change
     const pack = getGame().packs?.get(entry.pack || '');
     if (!pack)

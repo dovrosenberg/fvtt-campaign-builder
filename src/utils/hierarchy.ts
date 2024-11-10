@@ -1,6 +1,6 @@
-import { EntrySummary, Topic, } from '@/types';
-import { PackFlagKey, PackFlags } from '@/settings/PackFlags';
+import { EntrySummary, Topic, ValidTopic, } from '@/types';
 import { getGame } from './game';
+import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
 // the string to show for items with no type
 export const NO_TYPE_STRING = '(none)';
@@ -23,46 +23,30 @@ export const hasHierarchy = (topic: Topic): boolean => [Topic.Organization, Topi
 // this is to populate a list of possible children for a node (ex. a dropdown)
 // a valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself
 // only works for topics that have hierachy
-export function validChildItems(pack: CompendiumCollection<any>, entry: JournalEntry): EntrySummary[] {
-  if (!entry.id)
+export function validChildItems(currentWorldId: string, topicJournal: JournalEntry, entry: JournalEntryPage): EntrySummary[] {
+  if (!entry.uuid)
     return [];
 
-  // look up the item
-  const parent = pack.find((j)=>(j.uuid === entry.uuid));
-
-  if (!parent)
-    return [];
-
-  const ancestors = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies)[entry.uuid]?.ancestors || [];
+  const ancestors = WorldFlags.getHierarchy(currentWorldId, entry.uuid)?.ancestors || [];
 
   // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
-  return pack.find((j)=>(j.uuid !== entry.uuid && !ancestors.includes(entry.id!))).map(mapEntryToSummary);
+  // TODO: need to change find to forEach to populate an array
+  return topicJournal.collections.pages.find((j)=>(j.uuid !== entry.uuid && !ancestors.includes(entry.uuid!)))?.map(mapEntryToSummary) || [];
 }
 
 // returns a list of valid possible parents for a node
 // a valid parent is anything that does not have this object as an ancestor (to avoid creating loops) 
 // only works for topics that have hierachy
-export function validParentItems(entry: JournalEntry): string[] {
-  if (!entry.id || !entry.pack)
+export function validParentItems(currentWorldId: string, topicJournal: JournalEntry, entry: JournalEntryPage): {name: string; id: string}[] {
+  if (!entry.id)
     return [];
 
-  const pack = getGame().packs?.get(entry.pack) as CompendiumCollection<any>;
-  if (!pack)
-    return [];
-
-  // look up the item
-  const child = pack.find((j)=>(j.uuid === entry.uuid));
-
-  if (!child)
-    return [];
-
-  const hierarchies = PackFlags.get(pack.metadata.id, PackFlagKey.hierarchies);
+  const hierarchies = WorldFlags.get(currentWorldId, WorldFlagKey.hierarchies);
 
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
-  return pack.filter((j: JournalEntry)=>(
-    j.uuid !== entry.uuid && 
-    !(hierarchies[j.uuid]?.ancestors || []).includes(entry.id!))
-  ).map((e)=>e.uuid);
+  return topicJournal.collections.pages.filter((e: JournalEntryPage)=>(
+    e.uuid !== entry.uuid && 
+    !(hierarchies[e.uuid]?.ancestors || []).includes(entry.id!))).map((e: JournalEntryPage)=>({ name: e.name, id: e.uuid}));
 }
 
 const mapEntryToSummary = (entry: JournalEntry): EntrySummary => ({
@@ -72,9 +56,9 @@ const mapEntryToSummary = (entry: JournalEntry): EntrySummary => ({
 
 // after we delete an item, we need to remove it from any trees where it is a child or ancestor,
 //    along with all of the items that are now orphaned
-export const cleanTrees = async function(packId: string, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
-  const hierarchies = PackFlags.get(packId, PackFlagKey.hierarchies);
-
+export const cleanTrees = async function(currentWorldId: string, topic: ValidTopic, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
+  const hierarchies = WorldFlags.get(currentWorldId, WorldFlagKey.hierarchies); 
+  
   // remove deleted item and all its ancestors from any object who had them as ancestors previously
   // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
   //    so we can just remove all of the deleted item's ancestors from the ancestors list
@@ -110,11 +94,11 @@ export const cleanTrees = async function(packId: string, deletedItemId: string, 
   delete hierarchies[deletedItemId];
 
   // store updated hierarchy
-  await PackFlags.set(packId, PackFlagKey.hierarchies, hierarchies);
+  await WorldFlags.set(currentWorldId, WorldFlagKey.hierarchies, hierarchies);
 
   // update topNodes
-  let topNodes = PackFlags.get(packId, PackFlagKey.topNodes);
+  let topNodes = WorldFlags.getTopicFlag(currentWorldId, WorldFlagKey.topNodes, topic);
   topNodes = topNodes.filter((s: string)=>s!=deletedItemId).concat(newTopNodes);
-  await PackFlags.set(packId, PackFlagKey.topNodes, topNodes);
+  await WorldFlags.setTopicFlag(currentWorldId, WorldFlagKey.topNodes, topic, topNodes);
 };
 

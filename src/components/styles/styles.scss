@@ -1,3 +1,22 @@
 // by including these files globally we don't have to worry about including in each file
 // this is using the additionalData field in vite.config.js
 @forward "variables";
+
+// @layer fwb-p;
+
+// use this class to clear off any needed foundry styles
+.primevue-only, .application .primevue-only, .application .primevue-only * {
+  // all: unset;
+  // display: revert;
+  // font: inherit;
+  // margin: 0;
+  // padding: auto;
+  
+  button {
+    width: auto;
+  }
+
+  table {
+    // --table-background-color: none;
+  }
+}

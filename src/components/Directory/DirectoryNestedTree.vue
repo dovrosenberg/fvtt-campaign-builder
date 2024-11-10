@@ -1,12 +1,12 @@
 <template>
   <ul class="fwb-directory-tree">
     <NodeComponent 
-      v-for="node in props.pack.loadedTopNodes"
+      v-for="node in props.topic.loadedTopNodes"
       :key="node.id"
       :node="node" 
       :world-id="props.worldId"
-      :topic="props.pack.topic"
-      :pack-id="props.pack.id"
+      :topic="props.topic.topic"
+      :pack-id="props.topic.id"
       :top="true"
       class="fwb-entry-item" 
       draggable="true"
@@ -26,13 +26,13 @@
   import NodeComponent from './DirectoryNode.vue';
 
   // types
-  import { DirectoryPack,  } from '@/types';
+  import { DirectoryTopicNode, } from '@/types';
   
   ////////////////////////////////
   // props
   const props = defineProps({
-    pack: {
-      type: Object as PropType<DirectoryPack>,
+    topic: {
+      type: Object as PropType<DirectoryTopicNode>,
       required: true,
     }, 
     worldId: {
