@@ -29,7 +29,6 @@
   // local imports
   import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   import { getGame, localize } from '@/utils/game';
-  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
 
   // library components
@@ -39,7 +38,7 @@
   import DirectoryNodeWithChildren from './DirectoryNodeWithChildren.vue';
 
   // types
-  import { DirectoryEntryNode, Topic } from '@/types';
+  import { DirectoryEntryNode, ValidTopic } from '@/types';
 
   ////////////////////////////////
   // props
@@ -71,7 +70,7 @@
   const directoryStore = useDirectoryStore();
   const mainStore = useMainStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntryId, currentJournals } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(directoryStore);
   
   ////////////////////////////////
@@ -136,7 +135,7 @@
     if (!childEntry)
       return false;
 
-    if (!(await validParentItems(childEntry)).includes(parentId))
+    if (!(await validParentItems(currentWorldId.value, currentJournals.value[props.topic], childEntry)).includes(parentId))
       return false;
 
     // add the dropped item as a child on the other  (will also refresh the tree)

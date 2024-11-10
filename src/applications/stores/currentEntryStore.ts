@@ -46,7 +46,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   // if name is populated will skip the dialog
   type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
   const createEntry = async (worldFolder: Folder, topic: ValidTopic, options: CreateEntryOptions): Promise<JournalEntryPage | null> => {
-    if (!currentJournals.value[topic])
+    if (!currentJournals.value || !currentJournals.value[topic])
       return null;
 
     const topicText = getTopicText(topic);
@@ -69,6 +69,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
       name: nameToUse,
       system: {
         type: options.type || '',
+        topic: topic,
       }
     }],{
       parent: currentJournals.value[topic],

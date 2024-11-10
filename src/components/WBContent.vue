@@ -31,7 +31,7 @@
               <label>{{ localize('fwb.labels.fields.type') }}</label>
               <TypeAhead 
                 :initial-list="typeList"
-                :initial-value="EntryFlags.get(currentEntry, EntryFlagKey.type) || ''"
+                :initial-value="currentEntry.system.type as string || ''"
                 @item-added="onTypeItemAdded"
                 @selection-made="onTypeSelectionMade"
               />
@@ -90,9 +90,8 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { updateDocument } from '@/compendia';
-  import { getIcon, toTopic } from '@/utils/misc';
-  import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+  import { updateEntry } from '@/compendia';
+  import { getIcon, } from '@/utils/misc';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { getGame, localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
@@ -106,8 +105,9 @@
   import HomePage from '@/components/HomePage.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
   import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
+  
   // types
-  import { Topic, } from '@/types';
+  import { ValidTopic, Topic } from '@/types';
   import type Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.d.mts';
   
   ////////////////////////////////
@@ -122,7 +122,7 @@
   const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentEntry, currentWorldId } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldId, currentJournals, currentWorldCompendium } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -175,7 +175,7 @@
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
       if (currentEntry.value && currentEntry.value.name!==newValue) {
-        await updateDocument(currentEntry.value, { name: newValue });
+        await updateEntry(currentWorldCompendium.value, currentEntry.value, { name: newValue });
 
         await directoryStore.refreshCurrentTree([currentEntry.value.uuid]);
         await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue);
@@ -220,12 +220,12 @@
     if (!currentEntry.value)
       return;
 
-    const descriptionPage = toRaw(currentEntry.value).pages.find((p)=>p.name==='description');  //TODO
+    const descriptionPage = currentEntry.value.collections.pages.find((p)=>p.name==='description');  //TODO
 
     if (!descriptionPage)
       return;
 
-    await updateDocument(descriptionPage, {'text.content': newContent });  
+    await updateEntry(currentWorldCompendium.value, descriptionPage, {'text.content': newContent });  
 
     //need to reset
     // if it's not automatic, clear and reset the documentpage
@@ -240,9 +240,9 @@
     } else {
       let newTopic;
 
-      newTopic = toTopic(newEntry ? EntryFlags.get(newEntry, EntryFlagKey.topic) : null);
+      newTopic = newEntry ? newEntry.system.topic as ValidTopic : null;
       if (!newTopic) 
-        throw new Error('Invalid entry type in WBContent.getData()');
+        throw new Error('Invalid entry type in WBContent.watch-currenEntry');
 
       // we're going to show a content page
       topic.value = newTopic;
@@ -262,17 +262,17 @@
         parentId.value = null;
         validParents.value = [];
       } else {
-        parentId.value = WorldFlags.getTopicFlag(currentWorldId.value, WorldFlagKey.hierarchies, topic.value)[newEntry.uuid]?.parentId || null;
+        parentId.value = WorldFlags.getHierarchy(currentWorldId.value, newEntry.uuid)?.parentId || null;
     
         // TODO - need to refresh this somehow if things are moved around in the directory
-        validParents.value = validParentItems(newEntry).map((id)=> ({
+        validParents.value = validParentItems(currentWorldId.value, currentJournals.value[newTopic], newEntry).map((id)=> ({
           id: id,
           label: getGame()?.packs?.get(newEntry.pack || '')?.index?.find((e)=>e.uuid===id)?.name || '',
         }));
       }
   
       // reattach the editor to the new entry
-      editorDocument.value = toRaw(newEntry).pages.find((p)=>p.name==='description');
+      editorDocument.value = newEntry.collections.pages.find((p)=>p.name==='description');
     }
   });
 

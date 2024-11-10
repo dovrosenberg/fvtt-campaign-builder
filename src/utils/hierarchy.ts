@@ -23,7 +23,7 @@ export const hasHierarchy = (topic: Topic): boolean => [Topic.Organization, Topi
 // this is to populate a list of possible children for a node (ex. a dropdown)
 // a valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself
 // only works for topics that have hierachy
-export function validChildItems(currentWorldFolderId: string, topicJournal: JournalEntry, pack: JournalEntry[], entry: JournalEntryPage): EntrySummary[] {
+export function validChildItems(currentWorldFolderId: string, topicJournal: JournalEntry, entry: JournalEntryPage): EntrySummary[] {
   if (!entry.uuid)
     return [];
 
@@ -31,33 +31,22 @@ export function validChildItems(currentWorldFolderId: string, topicJournal: Jour
 
   // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
   // TODO: need to change find to forEach to populate an array
-  return topicJournal.pages.find((j)=>(j.uuid !== entry.uuid && !ancestors.includes(entry.uuid!)))?.map(mapEntryToSummary) || [];
+  return topicJournal.collections.pages.find((j)=>(j.uuid !== entry.uuid && !ancestors.includes(entry.uuid!)))?.map(mapEntryToSummary) || [];
 }
 
 // returns a list of valid possible parents for a node
 // a valid parent is anything that does not have this object as an ancestor (to avoid creating loops) 
 // only works for topics that have hierachy
-export function validParentItems(entry: JournalEntry): string[] {
-  if (!entry.id || !entry.pack)
+export function validParentItems(currentWorldId: string, topicJournal: JournalEntry, entry: JournalEntryPage): string[] {
+  if (!entry.id)
     return [];
 
-  const pack = getGame().packs?.get(entry.pack) as CompendiumCollection<any>;
-  if (!pack)
-    return [];
-
-  // look up the item
-  const child = pack.find((j)=>(j.uuid === entry.uuid));
-
-  if (!child)
-    return [];
-
-  const hierarchies = WorldFlags.get(currentWorldFolderId, WorldFlagKey.hierarchies);
+  const hierarchies = WorldFlags.get(currentWorldId, WorldFlagKey.hierarchies);
 
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
-  return pack.filter((j: JournalEntry)=>(
-    j.uuid !== entry.uuid && 
-    !(hierarchies[j.uuid]?.ancestors || []).includes(entry.id!))
-  ).map((e)=>e.uuid);
+  return topicJournal.collections.pages.filter((e: JournalEntryPage)=>(
+    e.uuid !== entry.uuid && 
+    !(hierarchies[e.uuid]?.ancestors || []).includes(entry.id!))).map((e: JournalEntryPage): string=>e.uuid);
 }
 
 const mapEntryToSummary = (entry: JournalEntry): EntrySummary => ({

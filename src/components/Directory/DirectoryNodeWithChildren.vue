@@ -48,7 +48,6 @@
   import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getGame, localize } from '@/utils/game';
-  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -89,7 +88,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentWorldId, currentEntryId } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntryId, currentJournals } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -129,13 +128,13 @@
     const dragData = { 
       topic:  props.topic,
       childId: id,
-    } as { topic: Topic; childId: string};
+    } as { topic: ValidTopic; childId: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value)
+    if (!currentWorldId.value || !currentJournals.value || !currentJournals.value[props.topic])
       return false;
 
     let data;
@@ -156,12 +155,12 @@
       return false;
 
     // is this a legal parent?
-    const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntry | null;
+    const childEntry = await globalThis.fromUuid(data.childId) as JournalEntryPage | null;
 
     if (!childEntry)
       return false;
 
-    if (!(await validParentItems(childEntry)).includes(parentId))
+    if (!(await validParentItems(currentWorldId.value, currentJournals.value[props.topic], childEntry)).includes(parentId))
       return false;
 
     // add the dropped item as a child on the other (will also refresh the tree)

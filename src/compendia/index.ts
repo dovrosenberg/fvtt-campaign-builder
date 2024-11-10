@@ -258,18 +258,11 @@ export async function getCleanEntry(uuid: string): Promise<JournalEntryPage | nu
 }
 
 // updates an entry, unlocking compedium to do it
-export async function updateDocument<T extends AnyDocumentData>(document: Document<T>, data: any): Promise<Document<T> | null> {
-  if (!document.pack)
-    throw new Error('Invalid compedia in updateDocument()');
-
+export async function updateEntry(currentCompendium: CompendiumCollection<Any>, entry: JournalEntryPage, data: Record<string, any>): Promise<JournalEntryPage | null> {
   // unlock compendium to make the change
-  const pack = getGame().packs?.get(document.pack);
-  if (!pack)
-    throw new Error('Bad compendia in updateDocument()');
-
-  await pack.configure({locked:false});
-  const retval = await document.update(data) || null;
-  await pack.configure({locked:true});
+  await currentCompendium.configure({locked:false});
+  const retval = await entry.update(data) || null;
+  await currentCompendium.configure({locked:true});
 
   return retval;
 }
