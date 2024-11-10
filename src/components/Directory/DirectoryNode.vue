@@ -4,10 +4,9 @@
     :node="props.node"
     :world-id="props.worldId"
     :topic="props.topic"
-    :pack-id="props.packId"
     :top="props.top"
   />
-  <li v-else-if="filterNodes[packId]?.includes(props.node.id)">
+  <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
       :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
@@ -50,11 +49,7 @@
       required: true
     },
     topic: {
-      type: Number as PropType<Topic>,
-      required: true
-    },
-    packId: {
-      type: String,
+      type: Number as PropType<ValidTopic>,
       required: true
     },
     node: { 
@@ -109,7 +104,7 @@
     const dragData = { 
       topic:  props.topic,
       childId: props.node.id,
-    } as { topic: Topic; childId: string};
+    } as { topic: ValidTopic; childId: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
@@ -135,13 +130,6 @@
     if (data.topic!==props.topic || !hasHierarchy(props.topic))
       return false;
 
-    // get the pack
-    const packId = WorldFlags.get(currentWorldId.value, WorldFlagKey.compendia)[props.topic];
-    const pack = getGame().packs?.get(packId);
-
-    if (!pack)
-      return false;
-
     // is this a legal parent?
     const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntry | null;
 
@@ -152,7 +140,7 @@
       return false;
 
     // add the dropped item as a child on the other  (will also refresh the tree)
-    await directoryStore.setNodeParent(pack, data.childId, parentId);
+    await directoryStore.setNodeParent(props.topic, data.childId, parentId);
 
     return true;
   };
@@ -192,7 +180,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await currentEntryStore.deleteEntry(props.node.id);
+            await currentEntryStore.deleteEntry(props.topic, props.node.id);
           }
         },
       ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))

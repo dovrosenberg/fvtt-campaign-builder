@@ -41,9 +41,6 @@ export const useMainStore = defineStore('main', () => {
 
     return pack;
   });
-  const currentWorldCompendiumId = computed((): string => {
-    return currentWorldCompendium.value.metadata.id;
-  });
 
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
   const currentJournals = computed((): Record<ValidTopic, JournalEntry> | null => _currentJournals?.value || null);
@@ -135,8 +132,7 @@ export const useMainStore = defineStore('main', () => {
     currentEntryId,
     rootFolder,
     currentWorldCompendium,
-    currentWorldCompendiumId,
-
+   
     setNewWorld,
     setNewEntry,
   };

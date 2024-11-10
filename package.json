@@ -21,8 +21,7 @@
     "coverage": "jest --coverage",
     "unlinkdata": "unlink $FOUNDRYVTT_DATA/Data/modules/world-builder",
     "buildcopy": "npm run build && npm run copy",
-    "foundry": "node $FOUNDRYVTT_APP/resources/app/main.js",
-    "foundry10": "node ~/foundry10/resources/app/main.js --dataPath=/home/dov/foundry10data"
+    "foundry": "node $FOUNDRYVTT_APP/resources/app/main.js"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",

@@ -1,5 +1,5 @@
 <template>
-  <li v-if="filterNodes[props.packId]?.includes(props.node.id)">
+  <li v-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
       :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
@@ -30,7 +30,7 @@
   // local components
 
   // types
-  import { DirectoryTypeEntryNode, Topic, } from '@/types';
+  import { DirectoryTypeEntryNode, Topic, ValidTopic } from '@/types';
   
   ////////////////////////////////
   // props
@@ -43,8 +43,8 @@
       type: String,
       required: true,
     },
-    packId: {
-      type: String,
+    topic: {
+      type: Number as PropType<ValidTopic>,
       required: true,
     }
   });
@@ -86,13 +86,13 @@
     }
 
     // need to get the type and topic so we can compare when dropping
-    const packElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
-    if (!packElement || !packElement.dataset.packId) {
+    const topicElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
+    if (!topicElement || !topicElement.dataset.topic) {
       event.preventDefault();
       return;
     }
 
-    const topic = TopicFlags.get(packElement.dataset.packId, TopicFlagKey.topic);
+    const topic = topicElement.dataset.topic;
 
     const dragData = { 
       topic: topic,
@@ -120,7 +120,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await currentEntryStore.deleteEntry(props.node.id);
+            await currentEntryStore.deleteEntry(props.topic, props.node.id);
           }
         },
       ]

@@ -75,12 +75,12 @@
             v-if="currentWorldId===world.id"
             class="world-contents"
           >
-            <!-- data-pack-id is used by drag and drop and toggleEntry-->
+            <!-- data-topic-id is used by drag and drop and toggleEntry-->
             <li 
               v-for="topic in world.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
-              :key="topic.id"
+              :key="topic.topic"
               :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
-              :data-pack-id="topic.id" 
+              :data-topic="topic.topic" 
             >
               <header class="folder-header flexrow">
                 <div 

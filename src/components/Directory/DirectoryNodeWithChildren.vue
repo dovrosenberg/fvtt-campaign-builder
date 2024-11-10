@@ -29,7 +29,6 @@
             v-for="child in currentNode.loadedChildren"
             :key="child.id"
             :node="child"
-            :pack-id="props.packId"
             :world-id="props.worldId"
             :topic="props.topic"
             :top="false"
@@ -58,7 +57,7 @@
   import DirectoryNodeComponent from './DirectoryNode.vue';
 
   // types
-  import { DirectoryEntryNode, Topic } from '@/types';
+  import { DirectoryEntryNode, ValidTopic } from '@/types';
 
   ////////////////////////////////
   // props
@@ -71,12 +70,8 @@
       type: String,
       required: true
     },
-    packId: {
-      type: String,
-      required: true,
-    },
     topic: {
-      type: Number as PropType<Topic>,
+      type: Number as PropType<ValidTopic>,
       required: true
     },
     top: {    // applies class to top level
@@ -111,10 +106,9 @@
   ////////////////////////////////
   // event handlers
   const onEntryToggleClick = async (event: MouseEvent) => {
-    // get the pack id
-    const packId = event.target?.closest('.fwb-topic-folder').dataset.packId;
+    const topic = event.target?.closest('.fwb-topic-folder').dataset.topic;
 
-    currentNode.value = await directoryStore.toggleEntry(packId, currentNode.value, !currentNode.value.expanded);
+    currentNode.value = await directoryStore.toggleEntry(topic, currentNode.value, !currentNode.value.expanded);
   };
 
   const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryEntryNode) => {
@@ -161,13 +155,6 @@
     if (data.topic!==props.topic || !hasHierarchy(props.topic))
       return false;
 
-    // get the pack
-    const packId = WorldFlags.get(currentWorldId.value, WorldFlagKey.compendia)[props.topic];
-    const pack = getGame().packs?.get(packId);
-
-    if (!pack)
-      return false;
-
     // is this a legal parent?
     const childEntry = await globalThis.fromUuid(data.childId) as globalThis.JournalEntry | null;
 
@@ -178,7 +165,7 @@
       return false;
 
     // add the dropped item as a child on the other (will also refresh the tree)
-    await directoryStore.setNodeParent(pack, data.childId, parentId);
+    await directoryStore.setNodeParent(props.topic, data.childId, parentId);
 
     return true;
   };
@@ -218,7 +205,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await currentEntryStore.deleteEntry(props.node.id);
+            await currentEntryStore.deleteEntry(props.topic, props.node.id);
           }
         },
       ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))

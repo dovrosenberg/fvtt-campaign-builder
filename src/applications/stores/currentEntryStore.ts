@@ -24,7 +24,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
-  const { currentWorldId, currentJournals, currentWorldCompendium } = storeToRefs(mainStore);
+  const { currentWorldId, currentJournals, currentWorldCompendium, currentWorldFolderId } = storeToRefs(mainStore);
   
   ///////////////////////////////
   // internal state
@@ -108,7 +108,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   };
 
   // delete an entry from the world
-  const deleteEntry = async (entryId: string) => {
+  const deleteEntry = async (topic: ValidTopic, entryId: string) => {
     const entry = await fromUuid(entryId) as JournalEntryPage;
 
     if (!entry || !currentWorldId.value)
@@ -121,7 +121,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
 
     // delete from any trees
     if (hierarchy?.ancestors || hierarchy?.children) {
-      await cleanTrees(currentWorldCompendium.value.metadata.id, entry.uuid, hierarchy);
+      await cleanTrees(currentWorldFolderId.value, topic, entry.uuid, hierarchy);
     }
 
     await entry.delete();

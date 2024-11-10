@@ -202,7 +202,7 @@
 
   const onTypeSelectionMade = async (selection: string) => {
     if (currentEntry.value)
-      await currentEntryStore.updateEntryTopic(currentEntry.value.uuid, selection);
+      await currentEntryStore.updateEntryType(currentEntry.value.uuid, selection);
   };
 
   const onParentSelectionMade = async (selection: string) => {

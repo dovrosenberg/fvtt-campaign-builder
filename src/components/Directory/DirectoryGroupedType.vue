@@ -105,7 +105,7 @@
   ////////////////////////////////
   // event handlers
   const onTypeToggleClick = async () => {
-    currentType.value = await directoryStore.toggleType(props.pack.id, currentType.value, !currentType.value.expanded);
+    currentType.value = await directoryStore.toggleType(currentType.value, !currentType.value.expanded);
   };
 
   // you can drop an item on a type and it should reassign the type
@@ -126,19 +126,19 @@
       return false;
 
     // get the pack on the new item
-    const packElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
-    if (!packElement || !packElement.dataset.packId) {
+    const topicElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
+    if (!topicElement || !topicElement.dataset.topic) {
       return false;
     }
 
-    const topic = TopicFlags.get(packElement.dataset.packId, TopicFlagKey.topic);
+    const topic = topicElement.dataset.topic;
 
     // if the topics don't match, can't drop
     if (data.topic!==topic)
       return false;
 
     // set the new type
-    await currentEntryStore.updateEntryTopic(data.id, currentType.value.name);
+    await currentEntryStore.updateEntryType(data.id, currentType.value.name);
 
     return true;
   };
