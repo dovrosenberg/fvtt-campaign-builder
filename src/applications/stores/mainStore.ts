@@ -9,11 +9,10 @@ import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
 import { getCleanEntry } from '@/compendia';
-import { Topic } from '@/types';
 
 // types
 import { Topic, ValidTopic } from '@/types';
-
+import { Entry } from '@/documents/Entry';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
@@ -23,7 +22,7 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // internal state
   const _currentJournals = ref<Record<ValidTopic, JournalEntry> | null>(null);  // current journals (by topic)
-  const _currentEntry = ref<JournalEntryPage | null>(null);  // current entry
+  const _currentEntry = ref<Entry | null>(null);  // current entry
 
   ///////////////////////////////
   // external state
@@ -46,7 +45,7 @@ export const useMainStore = defineStore('main', () => {
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
   const currentJournals = computed((): Record<ValidTopic, JournalEntry> | null => _currentJournals?.value || null);
   const currentEntryId = computed((): string | null => _currentEntry?.value?.uuid || null);
-  const currentEntry = computed((): JournalEntryPage | null => _currentEntry?.value || null);
+  const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
 
 
 
@@ -69,7 +68,7 @@ export const useMainStore = defineStore('main', () => {
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };
 
-  const setNewEntry = async function (entry: string | null | JournalEntryPage): Promise<void> {
+  const setNewEntry = async function (entry: string | null | Entry): Promise<void> {
     if (typeof entry === 'string') {
       _currentEntry.value = await getCleanEntry(entry);
 

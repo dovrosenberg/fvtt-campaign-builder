@@ -1,4 +1,4 @@
-import { Topic } from '@/types';
+import { RelatedItem, Topic, ValidTopic } from '@/types';
 
 const fields = foundry.data.fields;
 const entrySchema = {
@@ -22,4 +22,17 @@ export class EntryDataModel<Schema extends EntrySchemaType, ParentNode extends J
   }
 
   // prepareDerivedData() {}
+}
+
+
+export interface Entry extends JournalEntryPage {
+  system: {
+    topic: ValidTopic | undefined;
+    type: string | undefined;
+
+    /** 
+     * Keyed by topic, then entryId 
+     */ 
+    relationships: Record<Topic, Record<string, RelatedItem<any, any>[]>> | undefined;  
+  }
 }

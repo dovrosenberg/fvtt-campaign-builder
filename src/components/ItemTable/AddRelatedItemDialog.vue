@@ -28,13 +28,19 @@
           @filter="filterFnAutoselect"
           @keydown.enter.stop="onAddClick"
         />
-        <InputText
+        <InputGroup 
           v-for="field in extraFields"
           :key="field.field"
-          v-model="extraFieldValues[field.field]"
-          :label="field.header"
-          variant="outlined"
-        /> 
+        >
+          <FloatLabel>
+            <InputText 
+              :id="field.field"
+              v-model="extraFieldValues[field.field]"
+              variant="outlined"
+            />
+            <label :for="field.field">{{field.header}}</label>
+          </FloatLabel>
+        </InputGroup>
       </div>
       <div v-else>
         All possible related items are already connected.
@@ -74,6 +80,8 @@
   import ProgressSpinner from 'primevue/progressspinner';
   import Select from 'primevue/select';
   import InputText from 'primevue/inputtext';
+  import InputGroup from 'primevue/inputgroup';
+  import FloatLabel from 'primevue/floatlabel';
 
   // local components
 

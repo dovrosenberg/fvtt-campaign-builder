@@ -6,6 +6,7 @@ import { Topic, } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { toTopic } from '@/utils/misc';
+import { Entry } from '@/documents';
 
 
 /**
@@ -249,16 +250,16 @@ async function createCompendium(worldFolder: Folder): Promise<CompendiumCollecti
 }
 
 // loads the entry into memory and cleans it
-export async function getCleanEntry(uuid: string): Promise<JournalEntryPage | null> {
+export async function getCleanEntry(uuid: string): Promise<Entry | null> {
   // we must use fromUuid because these are all in compendia
-  const entry = await fromUuid(uuid) as JournalEntryPage;
+  const entry = await fromUuid(uuid) as Entry;
 
   return entry ? entry : null;
 }
 
 // updates an entry, unlocking compedium to do it
 // note: make sure to pass in the raw entry using vue's toRaw() if calling on a proxy
-export async function updateEntry(currentCompendium: CompendiumCollection<Any>, entry: JournalEntryPage, data: Record<string, any>): Promise<JournalEntryPage | null> {
+export async function updateEntry(currentCompendium: CompendiumCollection<any>, entry: Entry, data: Record<string, any>): Promise<Entry | null> {
   // unlock compendium to make the change
   await currentCompendium.configure({locked:false});
   const retval = await entry.update(data) || null;

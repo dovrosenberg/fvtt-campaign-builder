@@ -20,8 +20,11 @@ We store a bunch of indexing data in flags the world folder to make it faster to
 
 # Topic entries
 
-* `class Entry extends JournalEntryPage`
-  * Description (or can we use a field on JournalEntryPage)
+* `interface Entry extends JournalEntryPage`
+  * system variable inclues:
+    * topic
+    * type
+    * relationships
 
 # Interacting with Entries
 

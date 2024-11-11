@@ -13,6 +13,7 @@ import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 
 // types
 import { DirectoryWorld, DirectoryTopicNode, DirectoryEntryNode, Topic, DirectoryTypeNode, DirectoryTypeEntryNode, ValidTopic } from '@/types';
+import { Entry } from '@/documents';
 
 // the store definition
 export const useDirectoryStore = defineStore('directory', () => {
@@ -47,7 +48,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   const filterText = ref<string>('');
 
   // currently displayed nodes and types
-  const filterNodes = ref<Record<ValidTopic, string[]>>({});
+  const filterNodes = ref<Record<ValidTopic, string[]>>({} as Record<ValidTopic, string[]>);
    
   ///////////////////////////////
   // actions
@@ -73,7 +74,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   // move the entry to a new type (doesn't update the entry itself)
-  const updateEntryType = async (entry: JournalEntryPage, oldType: string, newType: string): Promise<void> => {
+  const updateEntryType = async (entry: Entry, oldType: string, newType: string): Promise<void> => {
     if (!currentWorldId.value)
       return;
 
@@ -167,7 +168,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       return false;
 
     // we're going to use this to simplify syntax below
-    const saveHierarchyToEntryFromNode = async (entry: JournalEntryPage, node: DirectoryEntryNode) : Promise<void> => {
+    const saveHierarchyToEntryFromNode = async (entry: Entry, node: DirectoryEntryNode) : Promise<void> => {
       if (!currentWorldId.value)
         return;
 
@@ -179,13 +180,13 @@ export const useDirectoryStore = defineStore('directory', () => {
       return false;
 
     // have to have a child
-    const child = await fromUuid(childId) as JournalEntryPage;
+    const child = await fromUuid(childId) as Entry;
 
     if (!child)
       return false;
 
     // get the parent, if any, and create the nodes for simpler syntax 
-    const parent = parentId ? await fromUuid(parentId) as JournalEntryPage: null;
+    const parent = parentId ? await fromUuid(parentId) as Entry: null;
     const parentNode = parent ? _convertEntryToNode(parent) : null;
     const childNode =  _convertEntryToNode(child);
     const oldParentId = childNode.parentId;
@@ -204,7 +205,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // if the child already has a parent, remove it from that parent's children
     if (childNode.parentId) {
-      const oldParent = await fromUuid(childNode.parentId) as JournalEntryPage;
+      const oldParent = await fromUuid(childNode.parentId) as Entry;
       const oldParentNode = oldParent ? _convertEntryToNode(oldParent) : null;
       if (oldParentNode) {
         oldParentNode.children = oldParentNode.children.filter((c)=>c!==childId);
@@ -217,7 +218,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (parentNode) {   
       // add the child to the children list of the parent (if it has a parent)
       parentNode.children = [...parentNode.children, childId];
-      await saveHierarchyToEntryFromNode(parent as JournalEntryPage, parentNode);
+      await saveHierarchyToEntryFromNode(parent as Entry, parentNode);
 
       // set the parent and the ancestors of the child (ancestors = parent + parent's ancestors)
       childNode.parentId = parentId;
@@ -241,12 +242,12 @@ export const useDirectoryStore = defineStore('directory', () => {
       const hierarchies = WorldFlags.get(currentWorldId.value, WorldFlagKey.hierarchies);
 
       // we switch to entries because of all the data retrieval
-      const doUpdateOnDescendents = async (entry: JournalEntryPage): Promise<void> => {
+      const doUpdateOnDescendents = async (entry: Entry): Promise<void> => {
         const children = hierarchies[entry.uuid]?.children || [];
 
         // this seems safe, despite 
         for (let i=0; i<children?.length; i++) {
-          const child = await fromUuid(children[i]) as JournalEntryPage;
+          const child = await fromUuid(children[i]) as Entry;
           const childNode = _convertEntryToNode(child);
           childNode.ancestors = childNode.ancestors.filter(a => !ancestorsToRemove.includes(a));
           childNode.ancestors = childNode.ancestors.concat(ancestorsToAdd);
@@ -408,16 +409,16 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (!currentJournals.value)
       return;
 
-    const allEntries = await currentJournals.value[topicNode.topic].collections.pages.toObject() as JournalEntryPage[];
+    const allEntries = await currentJournals.value[topicNode.topic].collections.pages.toObject() as Entry[];
     
     topicNode.loadedTypes = types.map((type: string): DirectoryTypeNode => ({
       name: type,
       id: topicNode.id + ':' + type,
       expanded: expandedIds[topicNode.id + ':' + type] || false,   
-      loadedChildren: allEntries.filter((e: JournalEntryPage)=> {
+      loadedChildren: allEntries.filter((e: Entry)=> {
         const entryType = e.system.type;
         return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type);
-      }).map((entry: JournalEntryPage): DirectoryTypeEntryNode=> ({
+      }).map((entry: Entry): DirectoryTypeEntryNode=> ({
         id: entry.uuid,
         name: entry.name || NO_NAME_STRING,
       })).sort((a, b) => a.name.localeCompare(b.name))      
@@ -431,7 +432,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   // internal functions
   // load an entry from disk and convert it to a node
   // const _loadNode = async(id: string, expandedIds: Record<string, boolean | null>): Promise<DirectoryEntryNode | null> => {
-  //   const entry = await fromUuid(id) as JournalEntryPage;
+  //   const entry = await fromUuid(id) as Entry;
 
   //   if (!entry)
   //     return null;
@@ -469,8 +470,8 @@ export const useDirectoryStore = defineStore('directory', () => {
     for (let i=0; i<topics.length; i++) {
       const journal = currentJournals.value[topics[i]];
 
-      let matchedEntries = journal.collections.pages.filter((e: JournalEntryPage)=>( filterText.value === '' || regex.test( e.name || '' )))
-        .map((e: JournalEntryPage): string=>e.uuid);
+      let matchedEntries = journal.collections.pages.filter((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' )))
+        .map((e: Entry): string=>e.uuid) as string[];
   
       // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding
       for (let j=matchedEntries.length-1; j>=0; j--) {
@@ -485,7 +486,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       }
   
       // eliminate duplicates
-      retval[topics[i]] = [...new Set(matchedEntries)];
+      retval[topics[i]] = [...new Set(matchedEntries)] as string[];
     }
 
     filterNodes.value = retval;
@@ -506,7 +507,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     // we only want to load ones not already in _loadedNodes, unless its in updateEntryIds
     const uuidsToLoad = ids.filter((id)=>!_loadedNodes[id] || updateEntryIds.includes(id));
 
-    const entries = currentJournals.value[topic].collections.pages.filter((e: JournalEntryPage)=>uuidsToLoad.includes(e.uuid));
+    const entries = currentJournals.value[topic].collections.pages.filter((e: Entry)=>uuidsToLoad.includes(e.uuid));
 
     for (let i=0; i<entries.length; i++) {
       const newNode = _convertEntryToNode(entries[i]);
@@ -532,7 +533,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
 
   // converts the entry to a DirectoryEntryNode for cleaner interface
-  const _convertEntryToNode = (entry: JournalEntryPage): DirectoryEntryNode => {
+  const _convertEntryToNode = (entry: Entry): DirectoryEntryNode => {
     if (!currentWorldId.value)
       throw new Error('No currentWorldId in directoryStore._convertEntryToNode()');
 

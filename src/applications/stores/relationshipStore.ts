@@ -14,6 +14,7 @@ import {
 import { reactive, Ref } from 'vue';
 import { ref } from 'vue';
 import { updateEntry } from '@/compendia';
+import { Entry } from '@/documents';
 
 // the store definition
 export const useRelationshipStore = defineStore('relationship', () => {
@@ -94,7 +95,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   async function addRelationship(relatedItem: string, extraFields: Record<string, string>): Promise<boolean> {
     // create the relationship on current entry
     const entry1 = currentEntry.value;
-    const entry2 = await fromUuid(relatedItem) as JournalEntryPage;
+    const entry2 = await fromUuid(relatedItem) as Entry;
 
     if (!entry1 || !entry2)
       throw new Error('Invalid entry in relationshipStore.addRelationship()');
@@ -142,7 +143,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     if (!currentEntry.value)
       throw new Error('Invalid entry in relationshipStore.deleteRelationship()');
 
-    const relatedEntry = await fromUuid(relatedItemId) as JournalEntryPage;
+    const relatedEntry = await fromUuid(relatedItemId) as Entry;
 
     // update the entries
     await updateEntry(currentWorldCompendium.value, currentEntry.value, {

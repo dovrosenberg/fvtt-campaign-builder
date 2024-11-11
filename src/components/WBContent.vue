@@ -93,7 +93,7 @@
   import { updateEntry } from '@/compendia';
   import { getIcon, } from '@/utils/misc';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-  import { getGame, localize } from '@/utils/game';
+  import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   
@@ -108,7 +108,7 @@
   
   // types
   import { ValidTopic, Topic } from '@/types';
-  import type Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.d.mts';
+  import { Entry } from '@/documents';
   
   ////////////////////////////////
   // props
@@ -145,7 +145,7 @@
   const topic = ref<Topic | null>(null);
   const name = ref<string>('');
 
-  const editorDocument = ref<Document<any>>();
+  const editorDocument = ref<Entry<any>>();
 
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
@@ -225,7 +225,7 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentEntry, async (newEntry: JournalEntryPage | null): Promise<void> => {
+  watch(currentEntry, async (newEntry: Entry | null): Promise<void> => {
     if (!newEntry || !currentWorldId.value || !currentJournals.value) {
       topic.value = null;
     } else {

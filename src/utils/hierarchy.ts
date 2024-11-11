@@ -1,6 +1,6 @@
 import { EntrySummary, Topic, ValidTopic, } from '@/types';
-import { getGame } from './game';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { Entry } from '@/documents';
 
 // the string to show for items with no type
 export const NO_TYPE_STRING = '(none)';
@@ -23,7 +23,7 @@ export const hasHierarchy = (topic: Topic): boolean => [Topic.Organization, Topi
 // this is to populate a list of possible children for a node (ex. a dropdown)
 // a valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself
 // only works for topics that have hierachy
-export function validChildItems(currentWorldId: string, topicJournal: JournalEntry, entry: JournalEntryPage): EntrySummary[] {
+export function validChildItems(currentWorldId: string, topicJournal: JournalEntry, entry: Entry): EntrySummary[] {
   if (!entry.uuid)
     return [];
 
@@ -37,16 +37,16 @@ export function validChildItems(currentWorldId: string, topicJournal: JournalEnt
 // returns a list of valid possible parents for a node
 // a valid parent is anything that does not have this object as an ancestor (to avoid creating loops) 
 // only works for topics that have hierachy
-export function validParentItems(currentWorldId: string, topicJournal: JournalEntry, entry: JournalEntryPage): {name: string; id: string}[] {
+export function validParentItems(currentWorldId: string, topicJournal: JournalEntry, entry: Entry): {name: string; id: string}[] {
   if (!entry.id)
     return [];
 
   const hierarchies = WorldFlags.get(currentWorldId, WorldFlagKey.hierarchies);
 
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
-  return topicJournal.collections.pages.filter((e: JournalEntryPage)=>(
+  return topicJournal.collections.pages.filter((e: Entry)=>(
     e.uuid !== entry.uuid && 
-    !(hierarchies[e.uuid]?.ancestors || []).includes(entry.id!))).map((e: JournalEntryPage)=>({ name: e.name, id: e.uuid}));
+    !(hierarchies[e.uuid]?.ancestors || []).includes(entry.id!))).map((e: Entry)=>({ name: e.name, id: e.uuid}));
 }
 
 const mapEntryToSummary = (entry: JournalEntry): EntrySummary => ({

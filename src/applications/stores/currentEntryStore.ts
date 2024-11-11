@@ -9,10 +9,10 @@ import { cleanTrees, hasHierarchy, Hierarchy, } from '@/utils/hierarchy';
 import { useDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
 import { getTopicText, } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
-import { DocumentTypes } from '@/documents';
+import { DocumentTypes, Entry } from '@/documents';
 
 // types
-import { ValidTopic } from '@/types';
+import { Topic, ValidTopic } from '@/types';
 
 // the store definition
 export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
@@ -35,7 +35,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   ///////////////////////////////
   // actions
   const updateEntryType = async (entryId: string, typeName: string): Promise<void> => {
-    const entry = await fromUuid(entryId) as JournalEntryPage;
+    const entry = await fromUuid(entryId) as Entry;
     const oldType = (entry.system.type as string | null | undefined) || '';
     await entry.update({ 'system.type': typeName });
 
@@ -45,7 +45,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
   type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
-  const createEntry = async (worldFolder: Folder, topic: ValidTopic, options: CreateEntryOptions): Promise<JournalEntryPage | null> => {
+  const createEntry = async (worldFolder: Folder, topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> => {
     if (!currentJournals.value || !currentJournals.value[topic])
       return null;
 
@@ -116,7 +116,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
 
   // delete an entry from the world
   const deleteEntry = async (topic: ValidTopic, entryId: string) => {
-    const entry = await fromUuid(entryId) as JournalEntryPage;
+    const entry = await fromUuid(entryId) as Entry;
 
     if (!entry || !currentWorldId.value)
       return;
