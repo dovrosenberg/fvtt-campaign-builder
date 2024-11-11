@@ -178,7 +178,6 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
   // also need to create the journal entries
   // check them all
   // Object.keys() on an enum returns an array with all the values followed by all the names
-  topicCompendia = {};
   const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization];
   const topicEntries = WorldFlags.get(worldFolder.uuid, WorldFlagKey.topicEntries);
 
@@ -202,9 +201,6 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
     
       updated = true;
     }
-
-    // add to our map
-    topicCompendia[topics[t]] = new TopicCompendium(topics[t], compendium);
   }
 
   await compendium.configure({ locked:true });

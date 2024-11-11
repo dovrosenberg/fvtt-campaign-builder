@@ -1,12 +1,10 @@
 <template>
-  <div 
-    v-if="loading"
-  >
+  <div v-if="loading">
     <ProgressSpinner v-show="loading" />
   </div>
   <div v-else>
     <Dialog 
-      v-model="show" 
+      v-model:visible="show" 
       style="min-width: 350px;"
     >
       <template #header>

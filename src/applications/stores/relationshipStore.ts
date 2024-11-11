@@ -9,12 +9,11 @@ import { useMainStore } from './mainStore';
 // types
 import { 
   Topic, TablePagination, AnyPaginationResult, CharacterRow, EventRow, LocationRow, OrganizationRow, ValidTopic,
-  ExtraFields, RelatedItem, RelatedItemDetails,
-  FieldDataByTopic,
- } from '@/types';
-import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
+  RelatedItemDetails, FieldDataByTopic,
+} from '@/types';
 import { reactive, Ref } from 'vue';
 import { ref } from 'vue';
+import { updateEntry } from '@/compendia';
 
 // the store definition
 export const useRelationshipStore = defineStore('relationship', () => {
@@ -75,7 +74,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentEntryTopic} = storeToRefs(mainStore);
+  const { currentEntry, currentEntryTopic, currentWorldCompendium } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -85,25 +84,57 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
   ///////////////////////////////
   // actions
-  // add a relationship to the current entry
-  // reverse role is the 
-  async function addRelationship(relatedItemTopic: Topic, relatedItem: RelatedItem, extraFields: Record<string, string>): Promise<void> {
+  /**
+   * Add a relationship to the current entry
+   * @param relatedItemTopic The topic of the other entry
+   * @param relatedItem The other entry id
+   * @param extraFields Extra fields to save with the relationship
+   * @returns whether the relationship was successfully added
+   */
+  async function addRelationship(relatedItem: string, extraFields: Record<string, string>): Promise<boolean> {
     // create the relationship on current entry
     const entry1 = currentEntry.value;
-    const entry2 = await fromUuid(relatedItem.uuid);
+    const entry2 = await fromUuid(relatedItem) as JournalEntryPage;
 
     if (!entry1 || !entry2)
       throw new Error('Invalid entry in relationshipStore.addRelationship()');
 
-    const entry1Topic = currentEntryTopic.value;
-    const entry1Type = EntryFlags.get(entry1, EntryFlagKey.type);
-
-    if (!entry1Topic || !entry1Type)
-      throw new Error('Invalid current entry in relationshipStore.addRelationship()');
+    // create the relationship items
+    const relatedItem1 = {
+      uuid: relatedItem,
+      name: entry2.name,
+      topic: entry2.system.topic,
+      type: entry2.system.type,
+      extraFields: extraFields,
+    };
+    const relatedItem2 = {
+      uuid: entry1.uuid,
+      name: entry1.name,
+      topic: entry1.system.topic,
+      type: entry1.system.type,
+      extraFields: extraFields,
+    };
 
     // update the entries
-    await EntryFlags.setRelationship(entry1.uuid, relatedItemTopic, { uuid: entry2.uuid, extraFields });
-    await EntryFlags.setRelationship(entry2.uuid, entry1Topic, { uuid: entry1.uuid, extraFields });
+    if (!entry1.system.relationships[relatedItemTopic]) {
+      entry1.system.relationships[relatedItemTopic] = {
+        [relatedItem]: relatedItem2
+      };
+    } else {
+      entry1.system.relationships[entry2.system.topic][relatedItem] = relatedItem2;
+    }
+    if (!entry2.system.relationships[entry1Topic]) {
+      entry2.system.relationships[entry1Topic] = {
+        [entry1.uuid]: relatedItem1
+      };
+    } else {
+      entry2.system.relationships[entry1.system.topic][entry1.uuid] = relatedItem1;
+    }
+
+    await updateEntry(currentWorldCompendium.value, entry1, entry1);
+    await updateEntry(currentWorldCompendium.value, entry2, entry2);
+
+    return true;
   }
 
   // remove a relationship to the current entry
@@ -111,32 +142,31 @@ export const useRelationshipStore = defineStore('relationship', () => {
     if (!currentEntry.value)
       throw new Error('Invalid entry in relationshipStore.deleteRelationship()');
 
+    const relatedEntry = await fromUuid(relatedItemId) as JournalEntryPage;
+
     // update the entries
-    await EntryFlags.unsetRelationship(currentEntry.value.uuid, relatedItemTopic, relatedItemId);
-    await EntryFlags.unsetRelationship(relatedItemId, currentEntryTopic.value, currentEntry.value.uuid);
+    await updateEntry(currentWorldCompendium.value, currentEntry.value, {
+      [`system.relationships.${relatedItemTopic}`]: { [`-=${relatedItemId}`]: null }
+    });
+    await updateEntry(currentWorldCompendium.value, relatedEntry, {
+      [`system.relationships.${currentEntry.value.system.topic}`]: { [`-=${currentEntry.value.uuid}`]: null }
+    });
   }
 
   // return all of the related items to this one for a given topic
-  async function getRelationships(topic: ValidTopic): Promise<RelatedItemDetails[]> {
-    const retval = [] as RelatedItemDetails[];
+  async function getRelationships<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic>(topic: RelatedTopic): 
+      Promise<RelatedItemDetails<PrimaryTopic, RelatedTopic>[]> {
+    const retval = [] as RelatedItemDetails<PrimaryTopic, RelatedTopic>[];
+
     if (!currentEntry.value)
       throw new Error('Invalid current entry in relationshipStore.getRelationships()');
 
-    const relatedItems = (EntryFlags.get(currentEntry.value, EntryFlagKey.relationships))[topic];
+    const relatedItems = (currentEntry.value.system.relationships ? currentEntry.value.system.relationships[topic] || {} : {}) as Record<string, RelatedItemDetails<PrimaryTopic, RelatedTopic>>;
 
     // convert the map to an array and add the names
-    if (relatedItems) {
-      for (const relatedItem of Object.values(relatedItems)) {
-        const relatedDocId = foundry.utils.parseUuid(relatedItem.uuid)?.documentId || '';
-
-        if (!relatedDocId)
-          throw new Error('Invalid related item in relationshipStore.getRelationships(): ' + relatedItem.uuid);
-        
-        retval.push({
-          ...relatedItem,
-          name: JournalEntry.get(relatedDocId, {})?.name,
-        });
-      }
+    for (const relatedItem of Object.values(relatedItems)) {
+      if (relatedItem)
+        retval.push(relatedItem as RelatedItemDetails<PrimaryTopic, RelatedTopic>);
     }
    
     return retval;

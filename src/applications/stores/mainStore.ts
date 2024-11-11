@@ -9,7 +9,6 @@ import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
 import { getCleanEntry } from '@/compendia';
-import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { Topic } from '@/types';
 
 // types
@@ -132,7 +131,6 @@ export const useMainStore = defineStore('main', () => {
     currentEntryTopic,
     currentJournals,
     currentEntry,
-    currentEntryTopic,
     currentEntryId,
     rootFolder,
     currentWorldCompendium,

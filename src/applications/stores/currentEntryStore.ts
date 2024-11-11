@@ -70,6 +70,12 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
       system: {
         type: options.type || '',
         topic: topic,
+      },
+      relationships: {
+        [Topic.Character]: {},
+        [Topic.Event]: {},
+        [Topic.Location]: {},
+        [Topic.Organization]: {},
       }
     }],{
       parent: currentJournals.value[topic],

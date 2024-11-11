@@ -6,7 +6,7 @@ const entrySchema = {
   type: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
 
   // @todo - should it be JSON?
-  relationships: new fields.ObjectField({ required: true, nullable: false, initial: {}}),
+  relationships: new fields.ObjectField({ required: true, nullable: false, initial: {}}),  // Record<Topic, Record<string,RelatedItem[]>> keyed by topic, then entryId
 
   // description: new fields.SchemaField({
   //   short: new fields.HTMLField({required: false, blank: true})
