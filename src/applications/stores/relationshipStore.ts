@@ -11,7 +11,7 @@ import {
   Topic, TablePagination, AnyPaginationResult, CharacterRow, EventRow, LocationRow, OrganizationRow, ValidTopic,
   RelatedItemDetails, FieldDataByTopic,
 } from '@/types';
-import { reactive, Ref } from 'vue';
+import { reactive, Ref, toRaw } from 'vue';
 import { ref } from 'vue';
 import { updateEntry } from '@/compendia';
 import { Entry } from '@/documents';
@@ -75,7 +75,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentEntryTopic, currentWorldCompendium } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldCompendium } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -92,20 +92,24 @@ export const useRelationshipStore = defineStore('relationship', () => {
    * @param extraFields Extra fields to save with the relationship
    * @returns whether the relationship was successfully added
    */
-  async function addRelationship(relatedItem: string, extraFields: Record<string, string>): Promise<boolean> {
+  async function addRelationship(relatedItem: Entry, extraFields: Record<string, string>): Promise<boolean> {
     // create the relationship on current entry
     const entry1 = currentEntry.value;
-    const entry2 = await fromUuid(relatedItem) as Entry;
 
-    if (!entry1 || !entry2)
+    if (!entry1 || !relatedItem)
       throw new Error('Invalid entry in relationshipStore.addRelationship()');
+    if (!entry1.system.relationships || !relatedItem.system.relationships || !entry1.system.topic || !relatedItem.system.topic)
+      throw new Error('Missing system variable in relationshipStore.addRelationship()');
+
+    const entry1Topic = entry1.system.topic;
+    const relatedItemTopic = relatedItem.system.topic;
 
     // create the relationship items
     const relatedItem1 = {
-      uuid: relatedItem,
-      name: entry2.name,
-      topic: entry2.system.topic,
-      type: entry2.system.type,
+      uuid: relatedItem.uuid,
+      name: relatedItem.name,
+      topic: relatedItem.system.topic,
+      type: relatedItem.system.type,
       extraFields: extraFields,
     };
     const relatedItem2 = {
@@ -119,21 +123,21 @@ export const useRelationshipStore = defineStore('relationship', () => {
     // update the entries
     if (!entry1.system.relationships[relatedItemTopic]) {
       entry1.system.relationships[relatedItemTopic] = {
-        [relatedItem]: relatedItem2
+        [relatedItem.uuid]: relatedItem2
       };
     } else {
-      entry1.system.relationships[entry2.system.topic][relatedItem] = relatedItem2;
+      entry1.system.relationships[relatedItemTopic][relatedItem.uuid] = relatedItem1;
     }
-    if (!entry2.system.relationships[entry1Topic]) {
-      entry2.system.relationships[entry1Topic] = {
-        [entry1.uuid]: relatedItem1
+    if (!relatedItem.system.relationships[entry1Topic]) {
+      relatedItem.system.relationships[entry1Topic] = {
+        [entry1.uuid]: relatedItem2
       };
     } else {
-      entry2.system.relationships[entry1.system.topic][entry1.uuid] = relatedItem1;
+      relatedItem.system.relationships[entry1Topic][entry1.uuid] = relatedItem2;
     }
 
-    await updateEntry(currentWorldCompendium.value, entry1, entry1);
-    await updateEntry(currentWorldCompendium.value, entry2, entry2);
+    await updateEntry(currentWorldCompendium.value, toRaw(entry1), { system: { relationships: entry1.system.relationships }}, true);
+    await updateEntry(currentWorldCompendium.value, toRaw(relatedItem), { system: {relationships: relatedItem.system.relationships }}, true);
 
     return true;
   }

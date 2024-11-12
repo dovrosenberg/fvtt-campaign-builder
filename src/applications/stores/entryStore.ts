@@ -44,12 +44,14 @@ export const useEntryStore = defineStore('entry', () => {
       return [];
 
     // we find all journal entries with this topic
-    let journalEntries = await currentJournals.value[topic].collections.pages.toObject() as Entry[];
+    let journalEntries = await currentJournals.value[topic].collections.pages.contents as Entry[];
 
     // filter unique ones if needed
     if (uniqueOnly && currentEntry.value) {
       const relatedEntries = getAllRelatedEntries(topic);
-      journalEntries = journalEntries.filter((entry) => !relatedEntries.includes(entry.uuid));
+
+      // also remove the current one
+      journalEntries = journalEntries.filter((entry) => !relatedEntries.includes(entry.uuid) && entry.uuid !== currentEntry.value.uuid);
     }
 
     return journalEntries;
@@ -62,14 +64,12 @@ export const useEntryStore = defineStore('entry', () => {
    * @returns An array of related uuids. Returns an empty array if there is no current entry.
    */
   const getAllRelatedEntries = function(topic: ValidTopic): string[] {
-    return [];   // for now
-
     // make sure there's a current item
     if (!currentEntry.value)
       return [];
 
     // get relationships
-    const relationships = EntryFlags.get(currentEntry.value, EntryFlagKey.relationships);
+    const relationships = currentEntry.value.system.relationships || {};
 
     if (!relationships[topic])
       return [];

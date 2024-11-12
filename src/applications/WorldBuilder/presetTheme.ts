@@ -30,6 +30,9 @@ export default definePreset(Aura, {
           primaryActiveColor: 'inherit',
         },
       }
+    },
+    dialog: {
+      borderRadius: '6px',
     }
   }
 });

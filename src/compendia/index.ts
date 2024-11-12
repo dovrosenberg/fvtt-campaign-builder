@@ -6,7 +6,7 @@ import { Topic, } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { toTopic } from '@/utils/misc';
-import { Entry } from '@/documents';
+import { Entry, relationshipKeyReplace } from '@/documents';
 
 
 /**
@@ -257,12 +257,27 @@ export async function getCleanEntry(uuid: string): Promise<Entry | null> {
   return entry ? entry : null;
 }
 
-// updates an entry, unlocking compedium to do it
-// note: make sure to pass in the raw entry using vue's toRaw() if calling on a proxy
+
+/**
+ * Updates an entry in the compendium.
+ * Unlocks the compendium to perform the update and then locks it again.
+ * 
+ * @param {CompendiumCollection<any>} currentCompendium - The compendium containing the entry to update.
+ * @param {Entry} entry - The entry to be updated.  Make sure to pass in the raw entry using vue's toRaw() if calling on a proxy
+ * @param {Record<string, any>} data - The data to update the entry with.
+ * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
+ */
 export async function updateEntry(currentCompendium: CompendiumCollection<any>, entry: Entry, data: Record<string, any>): Promise<Entry | null> {
   // unlock compendium to make the change
   await currentCompendium.configure({locked:false});
+
+  // do the serialization of the relationships field
+  const oldRelationships = entry.system.relationships;
+
+  entry.system.relationships = relationshipKeyReplace(entry.system.relationships || {}, true);
   const retval = await entry.update(data) || null;
+  entry.system.relationships = oldRelationships;
+
   await currentCompendium.configure({locked:true});
 
   return retval;

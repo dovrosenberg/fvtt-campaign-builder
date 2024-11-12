@@ -409,7 +409,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (!currentJournals.value)
       return;
 
-    const allEntries = await currentJournals.value[topicNode.topic].collections.pages.toObject() as Entry[];
+    const allEntries = await currentJournals.value[topicNode.topic].collections.pages.contents as Entry[];
     
     topicNode.loadedTypes = types.map((type: string): DirectoryTypeNode => ({
       name: type,

@@ -12,7 +12,7 @@ import { getCleanEntry } from '@/compendia';
 
 // types
 import { Topic, ValidTopic } from '@/types';
-import { Entry } from '@/documents/Entry';
+import { Entry } from '@/documents/entry';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {

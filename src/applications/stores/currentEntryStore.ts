@@ -70,12 +70,12 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
       system: {
         type: options.type || '',
         topic: topic,
-      },
-      relationships: {
-        [Topic.Character]: {},
-        [Topic.Event]: {},
-        [Topic.Location]: {},
-        [Topic.Organization]: {},
+        relationships: {
+          [Topic.Character]: {},
+          [Topic.Event]: {},
+          [Topic.Location]: {},
+          [Topic.Organization]: {},
+        }
       }
     }],{
       parent: currentJournals.value[topic],
@@ -132,6 +132,10 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
         await cleanTrees(currentWorldId.value, topic, entry.uuid, hierarchy);
       }
     }
+
+    // remove from the top nodes
+    const topNodes = WorldFlags.getTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic);
+    await WorldFlags.setTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entry.uuid));
 
     await entry.delete();
 
