@@ -170,13 +170,6 @@
       const needle = query.toLowerCase()
       options.value = selectItems.value.filter((item) => (item.name.toLowerCase().indexOf(needle) > -1));
     }
-
-    // // "ref" is the Vue reference to the Select
-    // (ref: Select) => {
-    //   if (value !== '' && ref.options?.length && ref.options.length > 0 && ref.getOptionIndex() === -1) {
-    //     ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
-    //     ref.toggleOption(ref.options[ ref.getOptionIndex() ], true) // toggle the focused option
-    //   }
   };
 
   const onAddClick = async function() {

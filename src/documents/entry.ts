@@ -25,14 +25,14 @@ type EntrySchemaType = typeof entrySchema;
 type RelationshipFieldType = Record<Topic, Record<string,RelatedItem<any, any>[]>>; 
 
 export class EntryDataModel<Schema extends EntrySchemaType, ParentNode extends JournalEntry> extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
-  static defineSchema = function(): EntrySchemaType {
+  static defineSchema(): EntrySchemaType {
     return entrySchema;
-  };
+  }
 
   /** @override */
-  prepareBaseData = function(): void {
-    this.data.relationships = relationshipKeyReplace(this.data.relationships, true);
-  };
+  prepareBaseData(): void {
+    this.relationships = relationshipKeyReplace(this.relationships, false);
+  }
 }
 
 

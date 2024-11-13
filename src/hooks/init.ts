@@ -11,6 +11,8 @@ async function init(): Promise<void> {
   updateModuleSettings(new ModuleSettings());  
 
   // register the data models
+  console.log(`${moduleJson.id}.${DocumentTypes.Entry}`);
+  
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
     [`${moduleJson.id}.${DocumentTypes.Entry}`]: EntryDataModel
   });

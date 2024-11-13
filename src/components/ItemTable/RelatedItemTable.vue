@@ -170,10 +170,8 @@
   // import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
 
   // types
-  import { Topic, TablePagination, ValidTopic } from '@/types';
+  import { Topic, TablePagination, ValidTopic, RelatedItemDetails } from '@/types';
   
-  type ItemRow = Record<string, any>;
-
   ////////////////////////////////
   // props
   const props = defineProps({
@@ -277,6 +275,10 @@
     }
 
     return columns[props.topic] || [];
+  });
+
+  const rows = computed(async (): Promise<RelatedItemDetails<any, any>[]> => {
+    return await relationshipStore.getRelationships(props.topic) || [] as RelatedItemDetails<any, any>[];
   });
 
   ////////////////////////////////

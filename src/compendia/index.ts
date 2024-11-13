@@ -271,12 +271,25 @@ export async function updateEntry(currentCompendium: CompendiumCollection<any>, 
   // unlock compendium to make the change
   await currentCompendium.configure({locked:false});
 
-  // do the serialization of the relationships field
-  const oldRelationships = entry.system.relationships;
+  let oldRelationships;
 
-  entry.system.relationships = relationshipKeyReplace(entry.system.relationships || {}, true);
+  if (data?.system?.relationships) {
+    // do the serialization of the relationships field
+    oldRelationships = data.system.relationships;
+
+    data.system.relationships = relationshipKeyReplace(data.system.relationships || {}, true);
+  }
+
   const retval = await entry.update(data) || null;
-  entry.system.relationships = oldRelationships;
+
+  // swap back
+  if (data?.system?.relationships) {
+    data.system.relationships = oldRelationships;
+    entry.system.relationships = oldRelationships;
+
+    if (retval)
+      retval.system.relationships = oldRelationships;
+  }
 
   await currentCompendium.configure({locked:true});
 
