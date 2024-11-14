@@ -122,7 +122,7 @@
   const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentEntry, currentWorldId, currentJournals, currentWorldCompendium } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldId, currentJournals, currentWorldCompendium, currentTopicTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -272,6 +272,11 @@
   onMounted(() => {
     tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
 
+    // update the store when tab changes
+    tabs.value.callback = () => {
+      currentTopicTab.value = tabs.value?.active || null;
+      console.log('tabs.callback', tabs.value?.active || 'null');
+    };
 
     //     // home page mode - click on a recent item
     //     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {

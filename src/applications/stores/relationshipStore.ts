@@ -8,10 +8,11 @@ import { useMainStore } from './mainStore';
 
 // types
 import { 
-  Topic, TablePagination, AnyPaginationResult, CharacterRow, EventRow, LocationRow, OrganizationRow, ValidTopic,
+  Topic, CharacterRow, EventRow, LocationRow, OrganizationRow, ValidTopic,
   RelatedItemDetails, FieldDataByTopic,
+  TablePagination,
 } from '@/types';
-import { reactive, Ref, toRaw } from 'vue';
+import { reactive, Ref, toRaw, watch } from 'vue';
 import { ref } from 'vue';
 import { updateEntry } from '@/compendia';
 import { Entry } from '@/documents';
@@ -20,12 +21,7 @@ import { Entry } from '@/documents';
 export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // the state
-  const relatedItemRows = reactive({
-    [Topic.Character]: { rowsAvailable:0, rows:[] as CharacterRow[]},
-    [Topic.Event]: { rowsAvailable:0, rows:[] as EventRow[]},
-    [Topic.Location]: { rowsAvailable:0, rows:[] as LocationRow[]},
-    [Topic.Organization]: { rowsAvailable:0, rows:[] as OrganizationRow[]},
-  } as Record<ValidTopic, AnyPaginationResult>);
+  const relatedItemRows = ref<RelatedItemDetails<any, any>[]>([]);
 
   // we store the pagination info for each type like a preference
   const defaultPagination: TablePagination = {
@@ -75,7 +71,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentWorldCompendium } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldCompendium, currentTopicTab } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -177,54 +173,6 @@ export const useRelationshipStore = defineStore('relationship', () => {
     return retval;
   }
 
-  // refresh the the related items rows and pagination for the current entry and given topic
-  async function refreshRelatedItems(topic: ValidTopic): Promise<void> {
-    // get current pagination state
-    const pagination = relatedItemPagination[topic];
-
-    if (!currentEntry|| !topic) {
-      relatedItemRows[topic] = { rowsAvailable: 0, rows: [], };
-      relatedItemPagination[topic] = {
-        ...pagination,
-        totalRecords: 0
-      };
-      return;
-    }
-
-    // get all the related items
-    let relatedItems = await getRelationships(topic);
-    const relatedItemsAvailable = relatedItems.length;
-
-    // filter the list
-    for (const key in Object.keys(pagination.filters)) {
-      relatedItems = relatedItems.filter((relatedItem) => relatedItem[key].toLowerCase().includes(pagination.filters[key].toLowerCase()));
-    }
-
-    // sort the list
-    if (pagination.sortField && pagination.sortOrder) {
-      relatedItems = relatedItems.sort((a, b) => {
-        // negative means a comes before b so we want to return negative if localeCompare does and sortOrder is ascending (1) (or positive/negative)
-        //    or positive in the opposite cases (both positive, both negative)
-        return a[pagination.sortField].localeCompare(b[pagination.sortField]) * (pagination.sortOrder as number);
-      });
-    }
-
-    // paginate the list
-    const start = (pagination.page - 1) * pagination.rowsPerPage;
-    const end = pagination.page * pagination.rowsPerPage;
-    relatedItems = relatedItems.slice(start, end);
-
-    relatedItemRows[topic] = {
-      rows: relatedItems,
-      rowsAvailable: relatedItemsAvailable
-    };
-    relatedItemPagination[topic] = {
-      ...pagination,
-      first: start,
-      totalRecords: relatedItemRows[topic].rowsAvailable,
-    };
-  }
-
   ///////////////////////////////
   // computed state
 
@@ -232,18 +180,30 @@ export const useRelationshipStore = defineStore('relationship', () => {
   // internal functions
 
   ///////////////////////////////
-  // lifecycle events
+  // watchers
+  watch(()=> currentEntry.value, (newEntry: Entry | null) => {
+    if (!newEntry || !currentTopicTab.value)
+      relatedItemRows.value = [];
+    else
+      relatedItemRows.value = newEntry.system.relationships ? newEntry.system.relationships[currentTopicTab.value] || []: [];
+  });
+
+  watch(()=> currentTopicTab.value, (newTab: string | null) => {
+    debugger;
+    // relatedItemRows.value = currentEntry.value.system.?relationships[newTab] || [];
+  });
+
+  ///////////////////////////////
+  // lifecycle events 
 
   ///////////////////////////////
   // return the public interface
   return {
     relatedItemRows,
-    relatedItemPagination,
     extraFields,
 
     addRelationship,
     deleteRelationship,
     getRelationships,
-    refreshRelatedItems,
   };
 });

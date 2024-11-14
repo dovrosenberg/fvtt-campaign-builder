@@ -18,6 +18,7 @@ import { Entry } from '@/documents/entry';
 export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // the state
+  const currentTopicTab = ref<string | null>(null);
 
   ///////////////////////////////
   // internal state
@@ -128,6 +129,7 @@ export const useMainStore = defineStore('main', () => {
     currentWorldId,
     currentWorldFolder,
     currentEntryTopic,
+    currentTopicTab,
     currentJournals,
     currentEntry,
     currentEntryId,
