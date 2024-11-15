@@ -1,7 +1,7 @@
 <template>
   <div class="primevue-only">
     <DataTable
-      :value="relatedItemRows"
+      :value="rows"
       size="small"
       paginator
       paginator-position="bottom"
@@ -22,11 +22,9 @@
           first: {
             style: 'width: auto', 
           }
-        }
+        },
+        table: { style: 'margin: 0px;'}
       }"
-      @page="onTablePage($event)"
-      @sort="onTableSort($event)"
-      @filter="onTableFilter($event)"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -170,7 +168,7 @@
   // import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
 
   // types
-  import { Topic, TablePagination, ValidTopic } from '@/types';
+  import { Topic, TablePagination, ValidTopic, RelatedItemDetails } from '@/types';
   
   ////////////////////////////////
   // props
@@ -229,6 +227,18 @@
 
     return prefix + labels[props.topic];
   });
+
+  const rows = computed(() => 
+    relatedItemRows.value.map((item: RelatedItemDetails<any, any>) => {
+      const base = { uuid: item.uuid, name: item.name, type: item.type };
+
+      extraColumns.value.forEach((field) => {
+        base[field.field] = item.extraFields[field.field];
+      });
+
+      return base;
+    })
+  );
 
   const extraColumns = computed(() => {
     return extraFields[currentEntryTopic.value][props.topic];

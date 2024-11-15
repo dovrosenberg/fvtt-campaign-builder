@@ -9,7 +9,7 @@ import { cleanTrees, hasHierarchy, Hierarchy, } from '@/utils/hierarchy';
 import { useDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
 import { getTopicText, } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
-import { DocumentTypes, Entry } from '@/documents';
+import { DOCUMENT_TYPES, Entry } from '@/documents';
 
 // types
 import { Topic, ValidTopic } from '@/types';
@@ -65,7 +65,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
 
     // create the entry
     const entry = await JournalEntryPage.createDocuments([{
-      type: DocumentTypes.Entry,
+      type: DOCUMENT_TYPES.Entry,
       name: nameToUse,
       system: {
         type: options.type || '',

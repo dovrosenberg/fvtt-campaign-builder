@@ -1,6 +1,7 @@
 export * from './entry';
+import moduleJson from '@module';
 
-export enum DocumentTypes {
-  Entry = 'entry',
-  Session = 'session'
-}
+export const DOCUMENT_TYPES = {
+  Entry: `${moduleJson.id}.entry`,
+  Session: `${moduleJson.id}.session`,
+};
