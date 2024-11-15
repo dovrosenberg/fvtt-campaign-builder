@@ -77,6 +77,21 @@
               <RelatedItemTable :topic="Topic.Character" />
             </div>
           </div>
+          <div class="tab description flexcol" data-group="primary" data-tab="locations">
+            <div class="tab-inner flexcol">
+              <RelatedItemTable :topic="Topic.Location" />
+            </div>
+          </div>
+          <div class="tab description flexcol" data-group="primary" data-tab="organizations">
+            <div class="tab-inner flexcol">
+              <RelatedItemTable :topic="Topic.Organization" />
+            </div>
+          </div>
+          <div class="tab description flexcol" data-group="primary" data-tab="events">
+            <div class="tab-inner flexcol">
+              <RelatedItemTable :topic="Topic.Event" />
+            </div>
+          </div>
         </div>
       </div>
     </form>	 
