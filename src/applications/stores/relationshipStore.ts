@@ -8,7 +8,7 @@ import { useMainStore } from './mainStore';
 
 // types
 import { 
-  Topic, CharacterRow, EventRow, LocationRow, OrganizationRow, ValidTopic,
+  Topic, ValidTopic,
   RelatedItemDetails, FieldDataByTopic,
   TablePagination,
 } from '@/types';
@@ -178,19 +178,40 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
   ///////////////////////////////
   // internal functions
+  const _refreshRows = () => {
+    if (!currentEntry.value || !currentTopicTab.value) {
+      relatedItemRows.value = [];
+    } else {
+      let topic: Topic;
+      switch (currentTopicTab.value) {
+        case 'characters':
+          topic = Topic.Character;
+          break;
+        case 'events':
+          topic = Topic.Event;
+          break;
+        case 'locations':
+          topic = Topic.Location;
+          break;
+        case 'organizations':
+          topic = Topic.Organization;
+          break;
+        default:
+          topic = Topic.None;
+      }
+
+      relatedItemRows.value = currentEntry.value.system.relationships && topic!==Topic.None ? Object.values(currentEntry.value.system.relationships[topic]) || []: [];
+    }
+  };
 
   ///////////////////////////////
   // watchers
-  watch(()=> currentEntry.value, (newEntry: Entry | null) => {
-    if (!newEntry || !currentTopicTab.value)
-      relatedItemRows.value = [];
-    else
-      relatedItemRows.value = newEntry.system.relationships ? newEntry.system.relationships[currentTopicTab.value] || []: [];
+  watch(()=> currentEntry.value, () => {
+    _refreshRows();
   });
 
-  watch(()=> currentTopicTab.value, (newTab: string | null) => {
-    debugger;
-    // relatedItemRows.value = currentEntry.value.system.?relationships[newTab] || [];
+  watch(()=> currentTopicTab.value, () => {
+    _refreshRows();
   });
 
   ///////////////////////////////

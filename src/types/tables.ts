@@ -8,21 +8,6 @@ export type TablePagination = {
   filters: Record<string, string>;   // maps field name to filter value applied to it
 }
 
-export type CharacterRow = {
-
-};
-export type EventRow = {
-
-};
-export type LocationRow = {
-
-};
-export type OrganizationRow = {
-
-};
-
-export type AnyRow = CharacterRow | EventRow | LocationRow | OrganizationRow;
-
 export type PaginationResult<T extends AnyRow> = {
   rows: T[];
   rowsAvailable: number;

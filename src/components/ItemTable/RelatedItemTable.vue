@@ -1,7 +1,7 @@
 <template>
   <div class="primevue-only">
     <DataTable
-      :value="props.rows"
+      :value="relatedItemRows"
       size="small"
       paginator
       paginator-position="bottom"
@@ -149,7 +149,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch, onMounted } from 'vue';
+  import { ref, computed, PropType, } from 'vue';
   import { clone } from 'lodash';
   import { storeToRefs } from 'pinia';
 
@@ -170,7 +170,7 @@
   // import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
 
   // types
-  import { Topic, TablePagination, ValidTopic, RelatedItemDetails } from '@/types';
+  import { Topic, TablePagination, ValidTopic } from '@/types';
   
   ////////////////////////////////
   // props
@@ -191,6 +191,7 @@
   const mainStore = useMainStore();
 
   const { currentEntryTopic } = storeToRefs(mainStore);
+  const { relatedItemRows, } = storeToRefs(relationshipStore);
   const extraFields = relationshipStore.extraFields;
 
   ////////////////////////////////
@@ -277,36 +278,13 @@
     return columns[props.topic] || [];
   });
 
-  const rows = computed(async (): Promise<RelatedItemDetails<any, any>[]> => {
-    return await relationshipStore.getRelationships(props.topic) || [] as RelatedItemDetails<any, any>[];
-  });
-
   ////////////////////////////////
   // methods
-  const refreshQuery = async function() {
-    if (!props.topic) {
-      return;
-    }
-    
-    // load the query
-    await relationshipStore.refreshRelatedItems(props.topic);
-  };
 
   ////////////////////////////////
   // event handlers
   const onAddItemClick = () => {
     debugger;
-  }
-  const onTablePage = async () => {
-    await refreshQuery();
-  }
-
-  const onTableSort = async () => {
-    await refreshQuery();
-  }
-
-  const onTableFilter = async () => {
-    await refreshQuery();
   }
 
   const onRowClick = async function (_evt: unknown, row: { _id: string }) { 
@@ -338,17 +316,12 @@
     // });
 
     await relationshipStore.deleteRelationship(props.topic, _id); 
-
-    // refresh the table
-    await refreshQuery();
   };
   
   const onItemAdded = async function () { 
-    await refreshQuery();
   };
 
   const onItemEdited = async function (_id: string) { 
-    await refreshQuery();
   };
 
   const onPaginationChanged = async function (newPagination: TablePagination | { filter: string; pagination: TablePagination }) {
@@ -364,9 +337,6 @@
         filter: relationshipStore.relatedItemPagination[props.topic].filter,
       };
     }
-
-    // refresh the table
-    await refreshQuery();
   };
 
   const onEditClick = function (row: Record<string, string>) {
@@ -386,15 +356,9 @@
   ////////////////////////////////
   // watchers
   // reload when topic changes
-  watch(() => [props.topic], async () => {
-    await refreshQuery();
-  });
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(async () => {
-    await refreshQuery();
-  });
 
 
 </script>

@@ -1,4 +1,4 @@
-import { RelatedItem, Topic, ValidTopic } from '@/types';
+import { RelatedItemDetails, Topic, ValidTopic } from '@/types';
 
 const fields = foundry.data.fields;
 const entrySchema = {
@@ -11,7 +11,8 @@ const entrySchema = {
     [Topic.Event]: {},
     [Topic.Location]: {},
     [Topic.Organization]: {},
-  }}),  // Record<Topic, Record<string,RelatedItem[]>> keyed by topic, then entryId
+  } as Record<Topic, Record<string, RelatedItemDetails<any, any>>>   // all the things related to this item, grouped by topic
+  }),    // keyed by topic, then entryId
 
   // description: new fields.SchemaField({
   //   short: new fields.HTMLField({required: false, blank: true})
@@ -22,7 +23,7 @@ const entrySchema = {
 
 type EntrySchemaType = typeof entrySchema;
 
-type RelationshipFieldType = Record<Topic, Record<string,RelatedItem<any, any>[]>>; 
+type RelationshipFieldType = Record<Topic, Record<string,RelatedItemDetails<any, any>>>; 
 
 export class EntryDataModel<Schema extends EntrySchemaType, ParentNode extends JournalEntry> extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
   static defineSchema(): EntrySchemaType {
@@ -66,6 +67,6 @@ export interface Entry extends JournalEntryPage {
     /** 
      * Keyed by topic, then entryId 
      */ 
-    relationships: Record<Topic, Record<string, RelatedItem<any, any>[]>> | undefined;  
-  }
+    relationships: Record<Topic, Record<string, RelatedItemDetails<any, any>>> | undefined;  // keyed by topic then by entryId
+  };
 }
