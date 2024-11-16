@@ -32,7 +32,7 @@
             color="primary" 
             :label="newItemLabel" 
             style="flex: initial; width:auto;"
-            @click="addDialogShow=true"
+            @click="onAddItemClick"
           >
             <template #icon>
               <!-- icon="o_add_circle"  -->
@@ -141,7 +141,6 @@
     v-model="addDialogShow"
     :topic="topic"
     @item-added="onItemAdded"
-    @close-dialog="addDialogShow=false"
   /> 
 </template>
 
@@ -240,16 +239,21 @@
     })
   );
 
-  const extraColumns = computed(() => {
-    return extraFields[currentEntryTopic.value][props.topic];
-  });
+  // map the extra fields to columns, adding style and sortable if not present in the field
+  const extraColumns = computed(() => 
+    extraFields[currentEntryTopic.value][props.topic].map((field) => ({
+      style: 'text-align: left',
+      sortable: true,
+      ...field,
+    })),
+  );
 
   const columns = computed((): any[] => {
     // they all have some standard columns
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px', header: 'Actions' };
     const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
     const typeColumn = { field: 'type', style: 'text-align: left', header: 'Type', sortable: true }; 
-    const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (dateText(calendar.value, val)), sortable: true}; 
+    const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 
 
     const columns = {
       [Topic.Event]: [
@@ -294,8 +298,8 @@
   ////////////////////////////////
   // event handlers
   const onAddItemClick = () => {
-    debugger;
-  }
+    addDialogShow.value = true;
+  };
 
   const onRowClick = async function (_evt: unknown, row: { _id: string }) { 
     alert('do something when row is clicked');

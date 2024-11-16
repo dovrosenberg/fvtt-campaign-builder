@@ -76,7 +76,7 @@
             <div class="tab-inner flexcol">
               <RelatedItemTable :topic="Topic.Character" />
             </div>
-          </div>
+          </div> 
           <div class="tab description flexcol" data-group="primary" data-tab="locations">
             <div class="tab-inner flexcol">
               <RelatedItemTable :topic="Topic.Location" />
@@ -290,7 +290,6 @@
     // update the store when tab changes
     tabs.value.callback = () => {
       currentTopicTab.value = tabs.value?.active || null;
-      console.log('tabs.callback', tabs.value?.active || 'null');
     };
 
     //     // home page mode - click on a recent item

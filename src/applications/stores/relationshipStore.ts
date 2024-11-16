@@ -84,56 +84,61 @@ export const useRelationshipStore = defineStore('relationship', () => {
   /**
    * Add a relationship to the current entry
    * @param relatedItemTopic The topic of the other entry
-   * @param relatedItem The other entry id
+   * @param relatedEntry The other entry id
    * @param extraFields Extra fields to save with the relationship
    * @returns whether the relationship was successfully added
    */
-  async function addRelationship(relatedItem: Entry, extraFields: Record<string, string>): Promise<boolean> {
+  async function addRelationship(relatedEntry: Entry, extraFields: Record<string, string>): Promise<boolean> {
     // create the relationship on current entry
-    const entry1 = currentEntry.value;
+    const entry = currentEntry.value;
 
-    if (!entry1 || !relatedItem)
+    if (!entry || !relatedEntry)
       throw new Error('Invalid entry in relationshipStore.addRelationship()');
-    if (!entry1.system.relationships || !relatedItem.system.relationships || !entry1.system.topic || !relatedItem.system.topic)
+    if (!entry.system.relationships || !relatedEntry.system.relationships || !entry.system.topic || !relatedEntry.system.topic)
       throw new Error('Missing system variable in relationshipStore.addRelationship()');
 
-    const entry1Topic = entry1.system.topic;
-    const relatedItemTopic = relatedItem.system.topic;
+    const entryTopic = entry.system.topic;
+    const relatedEntryTopic = relatedEntry.system.topic;
 
     // create the relationship items
     const relatedItem1 = {
-      uuid: relatedItem.uuid,
-      name: relatedItem.name,
-      topic: relatedItem.system.topic,
-      type: relatedItem.system.type,
+      uuid: relatedEntry.uuid,
+      name: relatedEntry.name,
+      topic: relatedEntry.system.topic,
+      type: relatedEntry.system.type || '',
       extraFields: extraFields,
     };
     const relatedItem2 = {
-      uuid: entry1.uuid,
-      name: entry1.name,
-      topic: entry1.system.topic,
-      type: entry1.system.type,
+      uuid: entry.uuid,
+      name: entry.name,
+      topic: entry.system.topic,
+      type: entry.system.type || '',
       extraFields: extraFields,
     };
 
     // update the entries
-    if (!entry1.system.relationships[relatedItemTopic]) {
-      entry1.system.relationships[relatedItemTopic] = {
-        [relatedItem.uuid]: relatedItem2
+    const entryRelationships = foundry.utils.deepClone(entry.system.relationships);
+    const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.system.relationships);
+
+    if (!entryRelationships[relatedEntryTopic]) {
+      entryRelationships[relatedEntryTopic] = {
+        [relatedEntry.uuid]: relatedItem1
       };
     } else {
-      entry1.system.relationships[relatedItemTopic][relatedItem.uuid] = relatedItem1;
+      entryRelationships[relatedEntryTopic][relatedEntry.uuid] = relatedItem1;
     }
-    if (!relatedItem.system.relationships[entry1Topic]) {
-      relatedItem.system.relationships[entry1Topic] = {
-        [entry1.uuid]: relatedItem2
+    if (!relatedEntryRelationships[entryTopic]) {
+      relatedEntryRelationships[entryTopic] = {
+        [entry.uuid]: relatedItem2
       };
     } else {
-      relatedItem.system.relationships[entry1Topic][entry1.uuid] = relatedItem2;
+      relatedEntryRelationships[entryTopic][entry.uuid] = relatedItem2;
     }
 
-    await updateEntry(currentWorldCompendium.value, toRaw(entry1), { system: { relationships: entry1.system.relationships }}, true);
-    await updateEntry(currentWorldCompendium.value, toRaw(relatedItem), { system: {relationships: relatedItem.system.relationships }}, true);
+    await updateEntry(currentWorldCompendium.value, toRaw(entry), { system: { relationships: entryRelationships }});
+    await updateEntry(currentWorldCompendium.value, toRaw(relatedEntry), { system: {relationships: relatedEntryRelationships }});
+
+    mainStore.refreshEntry();
 
     return true;
   }

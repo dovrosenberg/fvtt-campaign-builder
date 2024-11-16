@@ -6,6 +6,9 @@
     <Dialog 
       v-model:visible="show" 
       style="min-width: 350px;"
+      dismissable-mask
+      block-scroll
+      @hide="onClose"
     >
       <template #header>
         <div class="text-h6">
@@ -55,7 +58,7 @@
           text
           severity="secondary"
           autofocus
-          @click="onAddCancelClick"
+          @click="show=false;"
         />
         <Button
           :label="topicDetails[props.topic].buttonTitle" 
@@ -72,7 +75,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch, onMounted, nextTick } from 'vue';
+  import { ref, computed, PropType, watch, nextTick, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -196,7 +199,7 @@
     loading.value = false;
   }
   
-  const onAddCancelClick = function() {
+  const onClose = function() {
     resetDialog();
   };
   
@@ -212,38 +215,20 @@
     show.value = newValue; 
 
     if (newValue) {
+      if (!currentEntry.value || !currentEntryTopic.value)
+        throw new Error('Trying to show AddRelatedItemDialog without a current entry');
+
+      selectItems.value = await entryStore.getEntriesForTopic(props.topic, true);
+      extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
+
       // focus on the input
       await nextTick();
       nameSelectRef.value?.$el?.querySelector('input')?.focus();
     }
   });
 
-  // when the item type changes, reload it 
-  watch(() => [props.topic, currentEntry.value], async () => {
-    // get the list of items for the dropdown
-    if (!currentEntry.value || !currentEntryTopic.value)
-      return;
-
-    selectItems.value = await entryStore.getEntriesForTopic(props.topic, true);
-    extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
-  });
-
-
   ////////////////////////////////
   // lifecycle events
-  onMounted(async () => {
-    // get the list of items for the dropdown
-    if (!currentEntry.value || !currentEntryTopic.value)
-      return;
-
-    selectItems.value = await entryStore.getEntriesForTopic(props.topic, true);
-    extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
-
-    if (props.modelValue) {
-      await nextTick();
-      nameSelectRef.value?.$el?.querySelector('input')?.focus();
-    }
-  });
 
 </script>
 
