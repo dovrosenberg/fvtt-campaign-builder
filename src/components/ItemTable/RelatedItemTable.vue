@@ -56,10 +56,10 @@
         </div>
       </template>
       <template #empty>
-        Nothing here
+        {{ localize('fwb.labels.noResults') }} 
       </template>
       <template #loading>
-        Loading...
+        {{ localize('fwb.labels.loading') }}...
       </template>
         
       <Column 
@@ -71,10 +71,30 @@
         :sortable="col.sortable"
       >
         <template
-          v-if="!!col.format"
-          #body="slotProps"
+          v-if="col.field==='actions'"
+          #body="{ data }"
         >
-          {{ col.format(slotProps.data[col.field as keyof typeof slotProps.data]) }}
+          <a 
+            class="" 
+            :data-tooltip="localize('fwb.tooltips.deleteRelationship')"
+            @click.stop="onDeleteItemClick(data.uuid)" 
+          >
+            <i class="fas fa-trash"></i>
+          </a>
+          <a 
+            v-if="extraColumns.length>0"
+            class="" 
+            :data-tooltip="localize('fwb.tooltips.editRelationship')"
+            @click.stop="onEditClick(data.uuid)" 
+          >
+            <i class="fas fa-pen"></i>
+          </a>
+        </template>
+        <template
+          v-else-if="!!col.format"
+          #body="{ data }"
+        >
+          {{ col.format(data[col.field as keyof typeof data]) }}
         </template>
       </Column>
     </DataTable>
@@ -83,23 +103,6 @@
   <template #top-left>
       </template>
       
-      <template #body-cell-actions="cellProps">
-        <q-td :auto-width="true">
-          <q-icon
-            class="action-icon"
-            name="delete" 
-            size="xs" 
-            @click.stop="onDeleteItemClick(cellProps.row._id)"
-          />
-          <q-icon v-if="!props.globalMode && props.extraColumns.length>0"
-            class="action-icon"
-            name="edit" 
-            size="xs" 
-            @click.stop="onEditClick(cellProps.row)"
-          />
-        </q-td>
-      </template>
-
       <template #top-right>
         <q-input 
           v-model="filter" 
@@ -153,6 +156,7 @@
   // local imports
   import { useRelationshipStore } from '@/applications/stores/relationshipStore';
   import { useMainStore } from '@/applications/stores';
+  import { localize } from '@/utils/game';
 
   // library components
   import Button from 'primevue/button';
@@ -320,16 +324,12 @@
   // call mutation to remove item  from relationship
   const onDeleteItemClick = async function(_id: string) {
     // show the confirmation dialog 
-    // quasar.dialog({
-    //   title: props.globalMode ? 'Delete Item?': 'Remove from Relationship?',
-    //   message: props.globalMode? 'Are you sure you want to delete this item?' : 'Are you sure you want to remove the relationship to this item?',
-    //   cancel: true,
-    //   persistent: true,
-    // }).onOk(async () => {
-    //   emit('deleteItemClick', _id);
-    // });
-
-    await relationshipStore.deleteRelationship(props.topic, _id); 
+    await Dialog.confirm({
+      title: 'Remove from relationship?',
+      content: 'Are you sure you want to remove the relationship to this item?',
+      yes: () => { void relationshipStore.deleteRelationship(props.topic, _id); },
+      no: () => {},
+    });
   };
   
   const onItemAdded = async function () { 

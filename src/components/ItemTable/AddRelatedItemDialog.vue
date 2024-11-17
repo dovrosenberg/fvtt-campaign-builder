@@ -18,7 +18,7 @@
 
       <div 
         v-if="selectItems.length>0"
-        class="q-pt-none q-gutter-sm"
+        class="flexcol"
       >
         <AutoComplete 
           ref="nameSelectRef"
@@ -170,7 +170,7 @@
       options.value = selectItems.value;
     }
     else {
-      const needle = query.toLowerCase()
+      const needle = query.toLowerCase();
       options.value = selectItems.value.filter((item) => (item.name.toLowerCase().indexOf(needle) > -1));
     }
   };

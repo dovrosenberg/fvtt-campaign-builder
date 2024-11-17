@@ -27,7 +27,9 @@
         "organizations": "Organizations",
         "organizationChildren": "Sub-organizations",
         "scenes": "Scenes"
-      }
+      },
+      "noResults": "Nothing here",
+      "loading": "Loading"
     },
     "placeholders": {
       "search": "Search",
@@ -84,7 +86,9 @@
       "collapseAllTopics": "Collapse all",
       "addBookmark": "Add bookmark",
       "historyBack": "Back",
-      "historyForward": "Forward"
+      "historyForward": "Forward",
+      "editRelationship": "Edit relationship",
+      "deleteRelationship": "Delete relationship"
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"

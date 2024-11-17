@@ -88,7 +88,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
    * @param extraFields Extra fields to save with the relationship
    * @returns whether the relationship was successfully added
    */
-  async function addRelationship(relatedEntry: Entry, extraFields: Record<string, string>): Promise<boolean> {
+  async function addRelationship(relatedEntry: Entry, extraFields: Record<string, string>): Promise<void> {
     // create the relationship on current entry
     const entry = currentEntry.value;
 
@@ -139,8 +139,6 @@ export const useRelationshipStore = defineStore('relationship', () => {
     await updateEntry(currentWorldCompendium.value, toRaw(relatedEntry), { system: {relationships: relatedEntryRelationships }});
 
     mainStore.refreshEntry();
-
-    return true;
   }
 
   // remove a relationship to the current entry
@@ -148,15 +146,41 @@ export const useRelationshipStore = defineStore('relationship', () => {
     if (!currentEntry.value)
       throw new Error('Invalid entry in relationshipStore.deleteRelationship()');
 
+    const entry = currentEntry.value;
     const relatedEntry = await fromUuid(relatedItemId) as Entry;
 
+    const entryTopic = entry.system.topic;
+    const relatedEntryTopic = relatedEntry.system.topic;
+
+    if (!entryTopic || !relatedEntryTopic)
+      throw new Error('Missing topic in relationshipStore.deleteRelationship()');
+
     // update the entries
-    await updateEntry(currentWorldCompendium.value, currentEntry.value, {
-      [`system.relationships.${relatedItemTopic}`]: { [`-=${relatedItemId}`]: null }
-    });
-    await updateEntry(currentWorldCompendium.value, relatedEntry, {
-      [`system.relationships.${currentEntry.value.system.topic}`]: { [`-=${currentEntry.value.uuid}`]: null }
-    });
+    const entryRelationships = foundry.utils.deepClone(currentEntry.value.system.relationships);
+    const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.system.relationships);
+
+    if (entryRelationships && entryRelationships[relatedEntryTopic] && entryRelationships[relatedEntryTopic][relatedEntry.uuid]) {
+      delete entryRelationships[relatedItemTopic][relatedEntry.uuid];
+
+      // @ts-ignore - foundry code to delete the key
+      entryRelationships[relatedItemTopic][`-=${relatedItemId}`] = null;
+      await updateEntry(currentWorldCompendium.value, toRaw(entry), { system: {relationships: entryRelationships }});
+
+      // clean out the entry that tells foundry to delete the key
+      delete entryRelationships[relatedItemTopic][`-=${relatedItemId}`];
+    }
+    if (relatedEntryRelationships && relatedEntryRelationships[entryTopic] && relatedEntryRelationships[entryTopic][entry.uuid]) {
+      delete relatedEntryRelationships[entryTopic][entry.uuid];
+
+      // @ts-ignore - foundry code to delete the key
+      relatedEntryRelationships[entryTopic][`-=${entry.uuid}`] = null;
+      await updateEntry(currentWorldCompendium.value, toRaw(relatedEntry), { system: {relationships: relatedEntryRelationships }});
+
+      // clean out the entry that tells foundry to delete the key
+      delete relatedEntryRelationships[entryTopic][`-=${entry.uuid}`];
+    }
+
+    mainStore.refreshEntry();
   }
 
   // return all of the related items to this one for a given topic

@@ -33,6 +33,9 @@ export default definePreset(Aura, {
     },
     dialog: {
       borderRadius: '6px',
+      header: {
+        padding: '0 .5rem',
+      }
     }
   }
 });
