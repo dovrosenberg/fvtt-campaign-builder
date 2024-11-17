@@ -1,17 +1,20 @@
 <template>
   <div class="primevue-only">
     <DataTable
+      v-model:filters="pagination.filters"
       :value="rows"
       size="small"
       paginator
       paginator-position="bottom"
+      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      current-page-report-template="{first} to {last} of {totalRecords}"
       lazy
       :sort-field="pagination.sortField"
       :sort-order="pagination.sortOrder"
       :default-sort-order="1"
-      :total-records="pagination.totalRecords"
-      :filters="pagination.filters"
-      :rows="10"
+      :total-records="rows.length"
+      :global-filter-fields="filterFields"
+      :rows="pagination.rowsPerPage"
       filter-display="row"
       :pt="{
         header: { style: 'border: none' },
@@ -49,8 +52,10 @@
             <InputIcon>
               <i class="fas fa-search"></i>
             </InputIcon>
-            <InputText placeholder="Keyword Search"
-            /> <!--v-model="filters['global'].value"  /> -->
+            <InputText 
+              v-model="pagination.filters.global.value"  
+              placeholder="Keyword Search"
+            />
           </IconField>
         </div>
       </template>
@@ -95,6 +100,17 @@
         >
           {{ col.format(data[col.field as keyof typeof data]) }}
         </template>
+        <template 
+          v-if="['name', 'type', 'role'].includes(col.field)"
+          #filter="{ filterModel, filterCallback }"
+        >
+          <InputText 
+            v-model="filterModel.value" 
+            type="text" 
+            placeholder="Search by XXX" 
+            @input="filterCallback()" 
+          />
+        </template>
       </Column>
     </DataTable>
   </div>
@@ -126,8 +142,6 @@
     :filter="relationshipStore.relatedItemPagination[topic].filter"
     :extra-columns="extraColumns"
     @add-item-click="addDialogShow=true"
-    @edit-item-click="onEditItemClick"
-    @delete-item-click="onDeleteItemClick"
     @pagination-changed="onPaginationChanged"
   /> -->
 
@@ -150,6 +164,7 @@
   import { ref, computed, PropType } from 'vue';
   import { clone } from 'lodash';
   import { storeToRefs } from 'pinia';
+  import { FilterMatchMode } from '@primevue/core/api';
 
   // local imports
   import { useRelationshipStore } from '@/applications/stores/relationshipStore';
@@ -182,7 +197,6 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['deleteItemClick', 'editItemClick',]);
 
   ////////////////////////////////
   // store
@@ -197,6 +211,8 @@
   // data
   const addDialogShow = ref(false);   // should we pop up the add dialog?
   const editDialogShow = ref(false);   // should we pop up the edit dialog?
+    
+  ref<string>('');   // text to filter the table rows
   const editItem = ref({
     itemId: '',
     itemName: '',
@@ -207,14 +223,28 @@
     sortOrder: 1, 
     first: 0,
     page: 1,
-    rowsPerPage: 10, 
-    totalRecords: undefined, 
-    filters: {},
+    rowsPerPage: 5, 
+    filters: {
+      global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      type: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      role: { value: null, matchMode: FilterMatchMode.CONTAINS },  // TODO: support any extra columns
+    },
   });
 
 
   ////////////////////////////////
   // computed data
+  const filterFields = computed(() => {
+    let base = ['name', 'type'];
+
+    extraColumns.value.forEach((field) => {
+      base = base.concat([field.field]);
+    });
+
+    return base;
+  });
+
   const newItemLabel = computed(() => {
     const prefix = 'Add ';
 
@@ -335,7 +365,7 @@
     // show the confirmation dialog 
     await Dialog.confirm({
       title: localize('fwb.dialogs.confirmDeleteRelationship.title'),
-      content: localize('fwb.dialogs.confirmDeleteRelationship.message') + '<br/>',
+      content: localize('fwb.dialogs.confirmDeleteRelationship.message'),
       yes: () => { void relationshipStore.deleteRelationship(props.topic, _id); },
       no: () => {},
     });
