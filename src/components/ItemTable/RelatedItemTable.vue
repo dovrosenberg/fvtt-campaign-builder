@@ -146,8 +146,7 @@
   import { FilterMatchMode } from '@primevue/core/api';
 
   // local imports
-  import { useRelationshipStore } from '@/applications/stores/relationshipStore';
-  import { useMainStore } from '@/applications/stores';
+  import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // library components
@@ -181,6 +180,7 @@
   // store
   const relationshipStore = useRelationshipStore();
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
 
   const { currentEntryTopic } = storeToRefs(mainStore);
   const { relatedItemRows, } = storeToRefs(relationshipStore);
@@ -313,7 +313,8 @@
   };
 
   const onRowSelect = async function (event: { data: GridRow} ) { 
-    await mainStore.setNewEntry(event.data.uuid);
+    // TODO - hold down control to open in a new tab
+    await navigationStore.openEntry(event.data.uuid, { newTab: false });
   };
 
   // show the edit dialog
