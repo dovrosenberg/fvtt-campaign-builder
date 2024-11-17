@@ -2,6 +2,7 @@
   <div class="primevue-only">
     <DataTable
       v-model:filters="pagination.filters"
+      data-key="uuid"
       :value="rows"
       size="small"
       paginator
@@ -15,6 +16,7 @@
       :global-filter-fields="filterFields"
       :rows="pagination.rowsPerPage"
       filter-display="row"
+      selection-mode="single" 
       :pt="{
         header: { style: 'border: none' },
         thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
@@ -27,6 +29,7 @@
         },
         table: { style: 'margin: 0px;'}
       }"
+      @rowSelect="onRowSelect"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -309,9 +312,8 @@
     addDialogShow.value = true;
   };
 
-  const onRowClick = async function (_evt: unknown, row: { _id: string }) { 
-    alert('do something when row is clicked');
-    // await router.push({ name: 'ViewItem', params: { section: props.topic, itemId: row._id }});
+  const onRowSelect = async function (event: { data: GridRow} ) { 
+    await mainStore.setNewEntry(event.data.uuid);
   };
 
   // show the edit dialog
