@@ -8,7 +8,6 @@
       paginator-position="bottom"
       paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
       current-page-report-template="{first} to {last} of {totalRecords}"
-      lazy
       :sort-field="pagination.sortField"
       :sort-order="pagination.sortOrder"
       :default-sort-order="1"
@@ -65,7 +64,7 @@
       <template #loading>
         {{ localize('fwb.labels.loading') }}...
       </template>
-        
+
       <Column 
         v-for="col of columns" 
         :key="col.field" 
@@ -107,7 +106,7 @@
           <InputText 
             v-model="filterModel.value" 
             type="text" 
-            placeholder="Search by XXX" 
+            :placeholder="`Search by ${col.header}`" 
             @input="filterCallback()" 
           />
         </template>
@@ -115,33 +114,10 @@
     </DataTable>
   </div>
 
-  <!-- 
-  <template #top-left>
-      </template>
-      
-      <template #top-right>
-        <q-input 
-          v-model="filter" 
-          borderless 
-          dense 
-          debounce="300" 
-          placeholder="Search"
-        >
-          <template #append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template>
-    </q-table> -->
 
   <!-- <ItemTable 
-    :topic="topic"
-    :global-mode="false"
-    :rows="(relationshipStore.relatedItemRows[topic].rows as ItemRow[])"
     :pagination="(relationshipStore.relatedItemPagination[topic])"
     :filter="relationshipStore.relatedItemPagination[topic].filter"
-    :extra-columns="extraColumns"
-    @add-item-click="addDialogShow=true"
     @pagination-changed="onPaginationChanged"
   /> -->
 
@@ -231,7 +207,6 @@
       role: { value: null, matchMode: FilterMatchMode.CONTAINS },  // TODO: support any extra columns
     },
   });
-
 
   ////////////////////////////////
   // computed data
