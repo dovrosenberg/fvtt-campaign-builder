@@ -1,59 +1,84 @@
 <template>
   <!-- Used for editing the "extra fields" present on the relationships between two items (ex. the role for a character in an organization)-->
-  <q-dialog v-model="show" persistent>
-    <q-card style="min-width: 350px">
-      <q-card-section>
+  <div v-if="loading">
+    <ProgressSpinner v-show="loading" />
+  </div>
+  <div v-else>
+    <Dialog 
+      v-model:visible="show" 
+      style="min-width: 350px;"
+      dismissable-mask
+      block-scroll
+      @hide="onClose"
+    >
+      <template #header>
         <div class="text-h6">
-          {{ `${itemTypeDetails[props.topic].title}: ${props.itemName}` }}
+          {{ `${topicDetails[props.topic].title}: ${props.itemName}` }}
         </div>
-      </q-card-section>
-      <q-card-section class="q-pt-none">
-        <q-input v-for="field in extraFieldValues"
-          :key="field.name"
-          v-model="field.value"
-          :label="field.label"
-          outlined
+      </template>
+
+      <div 
+        v-if="props.extraFieldValues.length>0"
+        class="flexcol"
+      >
+        <InputGroup 
+          v-for="field in extraFieldValues"
+          :key="field.field"
+        >
+          <FloatLabel>
+            <InputText 
+              :id="field.field"
+              v-model="extraFieldValues[field.field]"
+              variant="outlined"
+            />
+            <label :for="field.field">{{ field.header }}</label>
+          </FloatLabel>
+        </InputGroup>
+      </div>
+
+      <template #footer>
+        <Button 
+          label="Cancel"
+          text
+          severity="secondary"
+          autofocus
+          @click="show=false;"
         />
-      </q-card-section>
-      <q-card-actions align="right" class="text-primary">
-        <q-btn 
-          v-close-popup 
-          flat 
-          label="Cancel" 
-          @click="onEditCancelClick"
-        />
-        <q-btn 
-          v-close-popup 
-          flat 
-          :label="itemTypeDetails[props.topic].buttonTitle" 
+        <Button
+          :label="topicDetails[props.topic].buttonTitle" 
+          text
+          severity="secondary"
+          autofocus
           @click="onEditClick"
         />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
+      </template>
+    </Dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch } from 'vue';
-  import { Loading } from 'quasar';
-  import { cloneDeep } from 'lodash';
-
+  import { ref, PropType, watch } from 'vue';
+  
   // local imports
+  import { useRelationshipStore } from '@/applications/stores';
 
   // library components
+  import Dialog from 'primevue/dialog';
+  import Button from 'primevue/button';
+  import ProgressSpinner from 'primevue/progressspinner';
+  import InputText from 'primevue/inputtext';
+  import InputGroup from 'primevue/inputgroup';
+  import FloatLabel from 'primevue/floatlabel';
 
   // local components
 
   // types
-  import { ValidTopic } from '@/types';
-  type AllowedTopic = Topic.Character | Topic.Organization | Topic.Location;
+  import { Topic, ValidTopic } from '@/types';
   
   type ItemTypeDetail = {
     title: string;
     buttonTitle: string;
-    queryName: string;
-    editMutation: TypedDocumentNode;
   };
 
   ////////////////////////////////
@@ -61,25 +86,23 @@
   const props = defineProps({
     modelValue: Boolean,  // show/hide dialog
     // the type of item we're editing (ex. organization if we're editing the role of a character in an organization from the character's page)
-    // the type of the other side of the relationship comes from the page route
     topic: { 
       type: Number as PropType<ValidTopic>, 
       required: true,
     },
-    // the _id of that item (ex. the organization)
-    // the id of the other side of the relationship comes from the page route
+    // the uuid of that item (ex. the organization)
     itemId: { 
-      type: String as PropType<Id>, 
+      type: String as PropType<string>, 
       required: true,
     },
     // the name of that item (ex. the organization)
     itemName: { 
-      type: String as PropType<Id>, 
+      type: String as PropType<string>, 
       required: true,
     },
     // values of extra (text) fields that we want to edit on the item (keyed by field name)
     extraFieldValues: { 
-      type: Array as PropType<{name: string, label: string, value: string}[]>, 
+      type: Array as PropType<{field: string; header: string; value: string}[]>, 
       required: false,
       default: () => ([]),
     },
@@ -87,16 +110,18 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['itemEdited', 'update:modelValue']);
+  const emit = defineEmits(['update:modelValue']);
 
   ////////////////////////////////
   // store
+  const relationshipStore = useRelationshipStore();
 
   ////////////////////////////////
   // data
+  const loading = ref(false);
   const show = ref(props.modelValue);
-  const extraFieldValues = ref(cloneDeep(props.extraFieldValues));
-  const itemTypeDetails = {
+  const extraFieldValues = ref(globalThis.foundry.utils.deepClone(props.extraFieldValues));
+  const topicDetails = {
     [Topic.Character]: {
       title: 'Edit character',
       buttonTitle: 'Save character',
@@ -109,14 +134,14 @@
       title: 'Edit location',
       buttonTitle: 'Save location',
     },
-  } as Record<AllowedTopic, ItemTypeDetail>;
+    [Topic.Event]: {
+      title: 'Edit event',
+      buttonTitle: 'Save event',
+    },
+  } as Record<ValidTopic, ItemTypeDetail>;
 
   ////////////////////////////////
   // computed data
-  // find the type of the other side of the relationship from the route
-  const masterItemType = computed((): ValidTopic => {
-    //return router.currentRoute.value.params.section as unknown as ValidTopic;
-  });
 
   ////////////////////////////////
   // methods
@@ -125,75 +150,27 @@
     emit('update:modelValue', false);
   }
 
-  const mutationData = function(): { mutation: TypedDocumentNode<any, any>, variables: Record<string, string>} {
-    let mutation;
-    let variables: Record<string, string>;
-
-    // confirm we have an item
-    if (!props.itemId || !mainItem.value?._id)
-      throw new Error('EditRelatedItemDialog.mutationData: no item selected');
-
-    // no matter which way the relationship exists, we can add both with the same call
-    if (props.topic == Topic.Character && masterItemType.value == Topic.Organization || 
-        props.topic == Topic.Organization && masterItemType.value == Topic.Character) {
-      const role = extraFieldValues.value?.find((val) => (val.name==='role'))?.value;
-      if (!role) {
-        throw new Error('EditRelatedItemDialog.mutationData: no role selected');
-      }
-
-      mutation = GQL_UPDATE_CHARACTER_ORGANIZATION_ROLE;
-      variables = { 
-        worldId: itemStore.worldId, 
-        characterId: props.topic == Topic.Character ? props.itemId : mainItem.value._id, 
-        organizationId: props.topic == Topic.Organization ? props.itemId : mainItem.value._id, 
-        role: role,
-      };
-    } else if (props.topic == Topic.Character && masterItemType.value == Topic.Location || 
-        props.topic == Topic.Location && masterItemType.value == Topic.Character) {
-      const role = extraFieldValues.value?.find((val) => (val.name==='role'))?.value;
-      if (!role) {
-        throw new Error('EditRelatedItemDialog.mutationData: no role selected');
-      }
-
-      mutation = GQL_UPDATE_CHARACTER_LOCATION_ROLE;
-      variables = { 
-        worldId: itemStore.worldId, 
-        characterId: props.topic == Topic.Character ? props.itemId : mainItem.value._id, 
-        locationId: props.topic == Topic.Location ? props.itemId : mainItem.value._id, 
-        role: role,
-      };
-    } else {
-      throw new Error('EditRelatedItemDialog.mutationData: unsupported relationship type: ' + props.topic + ' ' + masterItemType.value);
-    }
-
-    return {
-      mutation,
-      variables,
-    };
-  };
-
   ////////////////////////////////
   // event handlers
   const onEditClick = async function() {
-    Loading.show();
+    loading.value = true;
 
-    // create the update object by combining all the field names and values
-    const mutation = mutationData();
-    const result = await urqlClient.mutation(mutation.mutation, mutation.variables).toPromise();
-    if (result.error)
-      throw result.error;
+    // replace nulls with empty strings
+    const extraFieldsToSend = props.extraFieldValues.reduce((acc, field) => {
+      acc[field.field] = extraFieldValues.value[field.field] || '';
+      return acc;
+    }, {} as Record<string, string>);
 
+    await relationshipStore.editRelationship(props.itemId, extraFieldsToSend);
+    
     resetDialog();
 
-    if (result.data)
-      emit('itemEdited');
-
-    Loading.hide();
-  }
+    loading.value = false;
+  };
   
-  const onEditCancelClick = function() {
+  const onClose = function() {
     resetDialog();
-  }
+  };
   
   ////////////////////////////////
   // watchers
@@ -208,7 +185,7 @@
 
     // if we're now visible, update the extra field values
     if (show.value)
-      extraFieldValues.value = cloneDeep(props.extraFieldValues);
+      extraFieldValues.value = globalThis.foundry.utils.deepClone(props.extraFieldValues);
   });
 
   // make sure to update the 

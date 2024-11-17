@@ -108,7 +108,7 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['itemAdded', 'update:modelValue', 'closeDialog']);
+  const emit = defineEmits(['update:modelValue']);
 
   ////////////////////////////////
   // store
@@ -178,9 +178,6 @@
   const onAddClick = async function() {
     loading.value = true;
 
-    // note that this naming is a bit backward - topic is the type of the related table, so it's not the current item
-    let result = false;
-
     if (entry.value) {
       // replace nulls with empty strings
       const extraFieldsToSend = extraFields.value.reduce((acc, field) => {
@@ -188,13 +185,10 @@
         return acc;
       }, {} as Record<string, string>);
 
-      result = await relationshipStore.addRelationship(entry.value, extraFieldsToSend);
+      await relationshipStore.addRelationship(entry.value, extraFieldsToSend);
     }
 
-    if (result) {
-      emit('itemAdded');
-      resetDialog();
-    }
+    resetDialog();
 
     loading.value = false;
   }

@@ -49,8 +49,7 @@
             <InputIcon>
               <i class="fas fa-search"></i>
             </InputIcon>
-            <InputText 
-              placeholder="Keyword Search"
+            <InputText placeholder="Keyword Search"
             /> <!--v-model="filters['global'].value"  /> -->
           </IconField>
         </div>
@@ -85,7 +84,7 @@
             v-if="extraColumns.length>0"
             class="" 
             :data-tooltip="localize('fwb.tooltips.editRelationship')"
-            @click.stop="onEditClick(data.uuid)" 
+            @click.stop="onEditItemClick(data)" 
           >
             <i class="fas fa-pen"></i>
           </a>
@@ -99,7 +98,8 @@
       </Column>
     </DataTable>
   </div>
-<!-- 
+
+  <!-- 
   <template #top-left>
       </template>
       
@@ -131,25 +131,23 @@
     @pagination-changed="onPaginationChanged"
   /> -->
 
-  <!-- <EditRelatedItemDialog 
+  <EditRelatedItemDialog 
     v-if="extraColumns.length>0"
     v-model="editDialogShow"
     :item-id="editItem.itemId"
     :item-name="editItem.itemName"
     :extra-field-values="editItem.extraFields"
-    :topic="(topic as Topic.Character | Topic.Location | Topic.Organization)"
-    @item-edited="onItemEdited"
-  /> -->
+    :topic="props.topic"
+  />
   <AddRelatedItemDialog 
     v-model="addDialogShow"
-    :topic="topic"
-    @item-added="onItemAdded"
+    :topic="props.topic"
   /> 
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, } from 'vue';
+  import { ref, computed, PropType } from 'vue';
   import { clone } from 'lodash';
   import { storeToRefs } from 'pinia';
 
@@ -168,7 +166,7 @@
 
   // local components
   import AddRelatedItemDialog from './AddRelatedItemDialog.vue';
-  // import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
+  import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
 
   // types
   import { Topic, TablePagination, ValidTopic, RelatedItemDetails } from '@/types';
@@ -198,13 +196,12 @@
   ////////////////////////////////
   // data
   const addDialogShow = ref(false);   // should we pop up the add dialog?
-  const editDialogShow = ref(false);   // should we pop up the add dialog?
+  const editDialogShow = ref(false);   // should we pop up the edit dialog?
   const editItem = ref({
-    topic: Topic.Character,
     itemId: '',
     itemName: '',
     extraFields: [],
-  } as { topic: ValidTopic; itemId: string; itemName: string; extraFields: {name: string; label: string; value: string}[] });
+  } as { itemId: string; itemName: string; extraFields: {field: string; header: string; value: string}[] });
   const pagination = ref<TablePagination>({
     sortField: 'name', 
     sortOrder: 1, 
@@ -231,7 +228,9 @@
     return prefix + labels[props.topic];
   });
 
-  const rows = computed(() => 
+  type GridRow = { uuid: string; name: string; type: string } & Record<string, string>;
+
+  const rows = computed((): GridRow[] => 
     relatedItemRows.value.map((item: RelatedItemDetails<any, any>) => {
       const base = { uuid: item.uuid, name: item.name, type: item.type };
 
@@ -311,11 +310,21 @@
   };
 
   // show the edit dialog
-  const onEditItemClick = function(_id: string, name: string, fieldsToAdd: {name: string; label: string; value: string}[]) {
+  const onEditItemClick = function(row: GridRow) {
+    // assemble the extra field data
+    const fieldsToAdd = extraColumns.value.reduce((accum, col) => {
+      accum.push({
+        field: col.field,
+        header:col.header,
+        value: row[col.field as keyof typeof row]
+      });
+      return accum;
+    }, [] as {field: string; header: string; value: string}[]);
+
+    // set up the parameter and open the dialog
     editItem.value = {
-      topic: props.topic,
-      itemId: _id,
-      itemName: name,
+      itemId: row.uuid,
+      itemName: row.name,
       extraFields: clone(fieldsToAdd),
     };
     editDialogShow.value = true;
@@ -325,19 +334,13 @@
   const onDeleteItemClick = async function(_id: string) {
     // show the confirmation dialog 
     await Dialog.confirm({
-      title: 'Remove from relationship?',
-      content: 'Are you sure you want to remove the relationship to this item?',
+      title: localize('fwb.dialogs.confirmDeleteRelationship.title'),
+      content: localize('fwb.dialogs.confirmDeleteRelationship.message') + '<br/>',
       yes: () => { void relationshipStore.deleteRelationship(props.topic, _id); },
       no: () => {},
     });
   };
   
-  const onItemAdded = async function () { 
-  };
-
-  const onItemEdited = async function (_id: string) { 
-  };
-
   const onPaginationChanged = async function (newPagination: TablePagination | { filter: string; pagination: TablePagination }) {
     // this gets called for filter changes and pagination changes, but with a different argument !?
     if (Object.keys(newPagination).includes('pagination')) {
@@ -351,20 +354,6 @@
         filter: relationshipStore.relatedItemPagination[props.topic].filter,
       };
     }
-  };
-
-  const onEditClick = function (row: Record<string, string>) {
-    // assemble the extra field data
-    const fieldsToAdd = extraColumns.value.reduce((accum, col) => {
-      accum.push({
-        name: col.name,
-        label:col.label,
-        value: row[col.name as keyof typeof row]
-      });
-      return accum;
-    }, [] as {name: string; label: string; value: string}[]);
-
-    emit('editItemClick', row._id, row.name, fieldsToAdd);
   };
 
   ////////////////////////////////

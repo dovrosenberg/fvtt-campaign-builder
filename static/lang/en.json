@@ -55,6 +55,12 @@
       "scene": "Scene",
       "scenes": "Scenes"
     },
+    "dialogs": {
+      "confirmDeleteRelationship": {
+        "title": "Remove from relationship?",
+        "message": "Are you sure you want to delete this relationship?"
+      }
+    },
     "contextMenus": {
       "bookmarks": {
         "openNewTab": "Open in new Tab",
