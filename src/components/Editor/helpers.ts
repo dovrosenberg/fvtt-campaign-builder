@@ -78,20 +78,20 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
     broken = createLegacyContentLink(type, target, name, data);
   }
 
-  // if we're not in a world builder app, just do the default
-  if (!worldId)
-    return entry.toAnchor({ name: data.name, dataset: { hash } });
-
   // for now, we only care about the ones in the current world (for performance purposes and because
   //    I don't think you should be referencing across worlds (and we don't make that easy to do, in any case))
   if (entry) {
-    if (entry.documentName) {
+    // if we're not in a world builder app, just do the default
+    if (!worldId)
+      return entry.toAnchor({ name: data.name, dataset: { hash } });
+
+    if (entry.documentName && entry.system?.topic) {
       // check the pack to see if it's cross-world by seeing if the parent journal entry matches the 
       //    main one for the current world
-      const correctPack = WorldFlags.get(worldId, WorldFlagKey.topicEntries)?.[entry?.system?.topic];
+      const correctPack = WorldFlags.get(worldId, WorldFlagKey.topicEntries)?.[entry.system?.topic];
 
       // handle the ones we don't care about
-      if (correctPack !== entry.parent.uuid) {
+      if (correctPack !== entry.parent?.uuid) {
         // we're in the wrong world
         // this is a cross-world item; basically treat it like broken
         delete data.dataset.link;
@@ -108,7 +108,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
         });
       }
     } else {
-      throw new Error(`Document missing type in customEnrichContentLinks()`);
+      throw new Error('Document missing type in customEnrichContentLinks()');
     }    
   }
 
@@ -143,8 +143,15 @@ function createLegacyContentLink (type: string, target: string, name: string, da
     // Get the linked Document
     const config = CONFIG[type];
     const collection = game.collections.get(type);
-    const document = foundry.data.validators.isValidId(target) ? collection.get(target) : collection.getName(target);
-    if ( !document ) broken = true;
+    let document;
+
+    if (!collection) {
+      broken = true;
+    } else {
+      document = foundry.data.validators.isValidId(target) ? collection.get(target) : collection.getName(target);
+      if (!document) 
+        broken = true;
+    }
 
     // Update link data
     data.name = data.name || (broken ? target : document.name);
