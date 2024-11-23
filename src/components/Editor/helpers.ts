@@ -1,20 +1,14 @@
 // helper functions for the Editor component
 
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { getIcon } from '@/utils/misc';
 
 // types
-import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
-
-// TODO - make this look for the replaced content links and replace them with a different link that instead calls
-//    openEntry (maybe add a custom click handler - including ctrlkey) 
-
-// set the click handler to be at the app level (so only happens inside the app) - then stop progration if
-//   the special 'inside worldbuilder' class is there - see https://stackoverflow.com/questions/17352104/multiple-js-event-handlers-on-single-element
+import { Entry } from '@/documents';
+import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
 let enricherConfig: {
   pattern: RegExp;
-  enricher: (match: RegExpMatchArray, options: Record<string, any>)=>Promise<HTMLElement | null>;
+  enricher: (match: RegExpMatchArray, options: Record<string, any> | undefined)=>Promise<HTMLElement | null>;
   replaceParent: boolean;
 };
 
@@ -62,7 +56,7 @@ export const enrichFwbHTML = async(worldId: string | null, text: string): Promis
    * @protected
    */
 
-const customEnrichContentLinks = async (match: RegExpMatchArray, options: {worldId?: string; relativeTo?: Document<any>}): Promise<HTMLElement | null> => {
+const customEnrichContentLinks = async (match: RegExpMatchArray, options: {worldId?: string; relativeTo?: Entry}): Promise<HTMLElement | null> => {
   const [type, target, hash, name] = match.slice(1, 5);
   const { relativeTo, worldId } = options;
 
@@ -74,41 +68,48 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
     name
   };
 
-  let doc;
+  let entry: Entry | null = null;
   let broken = false;
   if ( type === 'UUID' ) {
     Object.assign(data.dataset, {link: '', uuid: target});
-    doc = await fromUuid(target, {relative: relativeTo});
+    entry = await fromUuid(target, {relative: relativeTo}) as Entry;
   }
-  else 
+  else {
     broken = createLegacyContentLink(type, target, name, data);
+  }
+
+  // if we're not in a world builder app, just do the default
+  if (!worldId)
+    return entry.toAnchor({ name: data.name, dataset: { hash } });
 
   // for now, we only care about the ones in the current world (for performance purposes and because
   //    I don't think you should be referencing across worlds (and we don't make that easy to do, in any case))
-  if (doc) {
-    if (doc.documentName) {
-      // handle the ones we don't care about; note worldId won't be present if this is called outside of our code
-      if (!doc.pack || !worldId) {
-        // this is not an fwb item
-        return doc.toAnchor({ name: data.name, dataset: { hash } });
-      } else {
-        return doc.toAnchor({ 
-          name: data.name, dataset: { hash }, classes: ['fwb-content-link'], 
-          icon: `fas ${getIcon(TopicFlags.get(doc.pack, TopicFlagKey.topic))}` 
+  if (entry) {
+    if (entry.documentName) {
+      // check the pack to see if it's cross-world by seeing if the parent journal entry matches the 
+      //    main one for the current world
+      const correctPack = WorldFlags.get(worldId, WorldFlagKey.topicEntries)?.[entry?.system?.topic];
+
+      // handle the ones we don't care about
+      if (correctPack !== entry.parent.uuid) {
+        // we're in the wrong world
+        // this is a cross-world item; basically treat it like broken
+        delete data.dataset.link;
+        delete data.attrs.draggable;
+        data.icon = 'fas fa-unlink';
+        data.name = 'Cross-world links are not supported';
+        data.classes.push('broken');
+
+        return TextEditor.createAnchor(data);
+      } else {  // this is an fwb item for this world
+        return entry.toAnchor({ 
+          name: data.name, dataset: { hash }, classes: ['fwb-content-link'],   // clicks on this class are handled 
+          icon: `fas ${getIcon(entry.system.topic)}` 
         });
       }
-    }
-    
-    data.name = data.name || doc.name || target;
-    const type = game.packs.get(doc.pack)?.documentName;
-    Object.assign(data.dataset, {type, id: doc._id, pack: doc.pack});
-    if (hash) 
-      data.dataset.hash = hash;
-
-    // TODO - see if the document is in one of the fwb compendia
-
-    // TODO - put in the right icons
-    data.icon = CONFIG[type].sidebarIcon;
+    } else {
+      throw new Error(`Document missing type in customEnrichContentLinks()`);
+    }    
   }
 
   // The UUID lookup failed so this is a broken link.
@@ -162,7 +163,7 @@ function createLegacyContentLink (type: string, target: string, name: string, da
     data.icon = CONFIG.Playlist.sidebarIcon;
     Object.assign(data.dataset, {type, uuid: sound?.uuid});
     if ( sound?.playing ) data.cls.push('playing');
-    if ( !game.user.isGM ) data.cls.push('disabled');
+    if ( !game?.user?.isGM ) data.cls.push('disabled');
   }
 
   // Get a matched Compendium document
