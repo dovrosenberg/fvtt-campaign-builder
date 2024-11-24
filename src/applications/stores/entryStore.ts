@@ -8,7 +8,8 @@ import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { useMainStore } from './mainStore';
 
 // types
-import { Topic } from '@/types';
+import { ValidTopic } from '@/types';
+import { Entry } from '@/documents';
 
 // the store definition
 export const useEntryStore = defineStore('entry', () => {
@@ -38,17 +39,19 @@ export const useEntryStore = defineStore('entry', () => {
    * @param uniqueOnly if true, only return entries that are not already linked to the current entry
    * @returns a list of journal entries
    */
-  const getEntriesForTopic = async function(topic: Topic, uniqueOnly = false): Promise<JournalEntryPage[]> {
+  const getEntriesForTopic = async function(topic: ValidTopic, uniqueOnly = false): Promise<Entry[]> {
     if (!currentJournals.value || !currentJournals.value[topic])
       return [];
 
     // we find all journal entries with this topic
-    let journalEntries = await currentJournals.value[topic].collections.pages.toObject() as JournalEntryPage[];
+    let journalEntries = await currentJournals.value[topic].collections.pages.contents as Entry[];
 
     // filter unique ones if needed
     if (uniqueOnly && currentEntry.value) {
       const relatedEntries = getAllRelatedEntries(topic);
-      journalEntries = journalEntries.filter((entry) => !relatedEntries.includes(entry.uuid));
+
+      // also remove the current one
+      journalEntries = journalEntries.filter((entry) => !relatedEntries.includes(entry.uuid) && entry.uuid !== currentEntry.value.uuid);
     }
 
     return journalEntries;
@@ -60,15 +63,13 @@ export const useEntryStore = defineStore('entry', () => {
    * @param topic - The topic for which to retrieve related items.
    * @returns An array of related uuids. Returns an empty array if there is no current entry.
    */
-  const getAllRelatedEntries = function(topic: Topic): string[] {
-    return [];   // for now
-
+  const getAllRelatedEntries = function(topic: ValidTopic): string[] {
     // make sure there's a current item
     if (!currentEntry.value)
       return [];
 
     // get relationships
-    const relationships = EntryFlags.get(currentEntry.value, EntryFlagKey.relationships);
+    const relationships = currentEntry.value.system.relationships || {};
 
     if (!relationships[topic])
       return [];

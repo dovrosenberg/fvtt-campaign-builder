@@ -1,13 +1,14 @@
 <template>
-  <div 
-    v-if="loading"
-  >
+  <div v-if="loading">
     <ProgressSpinner v-show="loading" />
   </div>
   <div v-else>
     <Dialog 
-      v-model="show" 
+      v-model:visible="show" 
       style="min-width: 350px;"
+      dismissable-mask
+      block-scroll
+      @hide="onClose"
     >
       <template #header>
         <div class="text-h6">
@@ -17,26 +18,36 @@
 
       <div 
         v-if="selectItems.length>0"
-        class="q-pt-none q-gutter-sm"
+        class="flexcol"
       >
-        <Select 
+        <AutoComplete 
           ref="nameSelectRef"
-          v-model="itemId"
-          :options="options"
-          optionLabel="name"
-          optionValue="uuid"
+          v-model="entry"
+          :dropdown="true"
+          :typeahead="true"
+          :force-selection="true"
+          :suggestions="options"
+          :placeholder="topicDetails[props.topic].title"
+          option-label="name"
+          data-key="uuid"
           variant="outlined"
-          showClear
-          @filter="filterFnAutoselect"
+          show-clear
+          @complete="onSearch"
           @keydown.enter.stop="onAddClick"
         />
-        <InputText
+        <InputGroup 
           v-for="field in extraFields"
           :key="field.field"
-          v-model="extraFieldValues[field.field]"
-          :label="field.header"
-          variant="outlined"
-        /> 
+        >
+          <FloatLabel>
+            <InputText 
+              :id="field.field"
+              v-model="extraFieldValues[field.field]"
+              variant="outlined"
+            />
+            <label :for="field.field">{{ field.header }}</label>
+          </FloatLabel>
+        </InputGroup>
       </div>
       <div v-else>
         All possible related items are already connected.
@@ -47,7 +58,7 @@
           text
           severity="secondary"
           autofocus
-          @click="emit('update:modelValue', false);"
+          @click="show=false;"
         />
         <Button
           :label="topicDetails[props.topic].buttonTitle" 
@@ -64,7 +75,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch, onMounted, nextTick } from 'vue';
+  import { ref, computed, PropType, watch, nextTick, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -74,13 +85,16 @@
   import Dialog from 'primevue/dialog';
   import Button from 'primevue/button';
   import ProgressSpinner from 'primevue/progressspinner';
-  import Select from 'primevue/select';
+  import AutoComplete from 'primevue/autocomplete';
   import InputText from 'primevue/inputtext';
+  import InputGroup from 'primevue/inputgroup';
+  import FloatLabel from 'primevue/floatlabel';
 
   // local components
 
   // types
   import { Topic, ValidTopic, } from '@/types';
+  import { Entry } from '@/documents';
 
   ////////////////////////////////
   // props
@@ -94,7 +108,7 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['itemAdded', 'update:modelValue', 'closeDialog']);
+  const emit = defineEmits(['update:modelValue']);
 
   ////////////////////////////////
   // store
@@ -107,8 +121,7 @@
   // data
   const loading = ref(false);
   const show = ref(props.modelValue);
-  const itemId = ref<{ label: string, value: string } | null>(null);  // the selected item from the dropdown
-  const options = ref<{ name: string, uuid: string }[]>([]);
+  const entry = ref<Entry | null>(null);  // the selected item from the dropdown
   const extraFieldValues = ref<Record<string, string>>({});
   const topicDetails = {
     [Topic.Event]: {
@@ -128,123 +141,88 @@
       buttonTitle: 'Add organization',
     },
   } as Record<ValidTopic, { title: string; buttonTitle: string }>;
-  const selectItems = ref<JournalEntry[]>([]);
-  const extraFields = ref<{field:string, header:string}[]>([]);
-  const nameSelectRef = ref<Select | null>(null);
+  const selectItems = ref<Entry[]>([]);
+  const options = ref<Entry[]>([]);
+  const extraFields = ref<{field:string; header:string}[]>([]);
+  const nameSelectRef = ref<typeof AutoComplete | null>(null);
 
   ////////////////////////////////
   // computed data
   const isAddFormValid = computed((): boolean => {
-    return (!!itemId.value);
+    return (!!entry.value);
   });
 
   ////////////////////////////////
   // methods
   const resetDialog = function() {
-    itemId.value = null;
+    entry.value = null;
     extraFieldValues.value = {};
     show.value = false;
     emit('update:modelValue', false);
-  }
-
-  const filterFnAutoselect = function(value: string, update: (callbackFn: () => void, afterFn?: ((ref: Select) => void) | undefined) => void, /*abort*/) {
-    // call abort() at any time if you can't retrieve data somehow
-
-    setTimeout(() => {
-      update(
-        () => {
-          if (value === '') {
-            options.value = selectItems.value;
-          }
-          else {
-            const needle = value.toLowerCase()
-            options.value = selectItems.value.filter((item) => (item.label.toLowerCase().indexOf(needle) > -1));
-          }
-        },
-
-        // "ref" is the Vue reference to the Select
-        (ref: Select) => {
-          if (value !== '' && ref.options?.length && ref.options.length > 0 && ref.getOptionIndex() === -1) {
-            ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
-            ref.toggleOption(ref.options[ ref.getOptionIndex() ], true) // toggle the focused option
-          }
-        }
-      )
-    }, 200)
   };
 
   ////////////////////////////////
   // event handlers
+  const onSearch = (event: {query: string}) => {
+    const { query } = event;
+
+    if (query === '') {
+      options.value = selectItems.value;
+    }
+    else {
+      const needle = query.toLowerCase();
+      options.value = selectItems.value.filter((item) => (item.name.toLowerCase().indexOf(needle) > -1));
+    }
+  };
+
   const onAddClick = async function() {
     loading.value = true;
 
-    // note that this naming is a bit backward - topic is the type of the related table, so it's not the current item
-    let result = false;
-
-    if (itemId.value) {
+    if (entry.value) {
       // replace nulls with empty strings
       const extraFieldsToSend = extraFields.value.reduce((acc, field) => {
         acc[field.field] = extraFieldValues.value[field.field] || '';
         return acc;
       }, {} as Record<string, string>);
 
-      result = await relationshipStore.addRelationship(props.topic, itemId.value.value, extraFieldsToSend);
+      await relationshipStore.addRelationship(entry.value, extraFieldsToSend);
     }
 
-    if (result) {
-      emit('itemAdded');
-      resetDialog();
-    }
+    resetDialog();
 
     loading.value = false;
   }
   
-  const onAddCancelClick = function() {
+  const onClose = function() {
     resetDialog();
   };
   
   ////////////////////////////////
   // watchers
   // when the addDialog changes state, alert parent (so v-model works)
-  watch(() => show,  async (newValue) => {
+  watch(() => show, async (newValue) => {
     emit('update:modelValue', newValue);
   });
 
   // when the prop changes state, update internal value
-  watch(() => props.modelValue,  async (newValue) => {
+  watch(() => props.modelValue, async (newValue) => {
     show.value = newValue; 
 
     if (newValue) {
+      if (!currentEntry.value || !currentEntryTopic.value)
+        throw new Error('Trying to show AddRelatedItemDialog without a current entry');
+
+      selectItems.value = await entryStore.getEntriesForTopic(props.topic, true);
+      extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
+
       // focus on the input
       await nextTick();
-      nameSelectRef.value?.focus();
+      nameSelectRef.value?.$el?.querySelector('input')?.focus();
     }
   });
 
-  // when the item type changes, reload it 
-  watch(() => props.topic,  async () => {
-    // get the list of items for the dropdown
-    if (!currentEntry.value || !currentEntryTopic.value || currentEntryTopic.value===Topic.None)
-      return;
-
-    selectItems.value = await entryStore.getEntriesForTopic(props.topic, true);
-    extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
-  });
-
-
   ////////////////////////////////
   // lifecycle events
-  onMounted(async () => {
-    // get the list of items for the dropdown
-    if (!currentEntry.value || !currentEntryTopic.value || currentEntryTopic.value===Topic.None)
-      return;
-
-    selectItems.value = await entryStore.getEntriesForTopic(props.topic, true);
-    extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
-
-    await nextTick();
-    nameSelectRef.value?.focus();
-  });
 
 </script>
 

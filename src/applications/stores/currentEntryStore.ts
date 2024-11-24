@@ -9,10 +9,10 @@ import { cleanTrees, hasHierarchy, Hierarchy, } from '@/utils/hierarchy';
 import { useDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
 import { getTopicText, } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
-import { DocumentTypes } from '@/documents';
+import { DOCUMENT_TYPES, Entry } from '@/documents';
 
 // types
-import { ValidTopic } from '@/types';
+import { Topic, ValidTopic } from '@/types';
 
 // the store definition
 export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
@@ -35,7 +35,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   ///////////////////////////////
   // actions
   const updateEntryType = async (entryId: string, typeName: string): Promise<void> => {
-    const entry = await fromUuid(entryId) as JournalEntryPage;
+    const entry = await fromUuid(entryId) as Entry;
     const oldType = (entry.system.type as string | null | undefined) || '';
     await entry.update({ 'system.type': typeName });
 
@@ -45,7 +45,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
   type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
-  const createEntry = async (worldFolder: Folder, topic: ValidTopic, options: CreateEntryOptions): Promise<JournalEntryPage | null> => {
+  const createEntry = async (worldFolder: Folder, topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> => {
     if (!currentJournals.value || !currentJournals.value[topic])
       return null;
 
@@ -65,11 +65,17 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
 
     // create the entry
     const entry = await JournalEntryPage.createDocuments([{
-      type: DocumentTypes.Entry,
+      type: DOCUMENT_TYPES.Entry,
       name: nameToUse,
       system: {
         type: options.type || '',
         topic: topic,
+        relationships: {
+          [Topic.Character]: {},
+          [Topic.Event]: {},
+          [Topic.Location]: {},
+          [Topic.Organization]: {},
+        }
       }
     }],{
       parent: currentJournals.value[topic],
@@ -110,7 +116,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
 
   // delete an entry from the world
   const deleteEntry = async (topic: ValidTopic, entryId: string) => {
-    const entry = await fromUuid(entryId) as JournalEntryPage;
+    const entry = await fromUuid(entryId) as Entry;
 
     if (!entry || !currentWorldId.value)
       return;
@@ -126,6 +132,10 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
         await cleanTrees(currentWorldId.value, topic, entry.uuid, hierarchy);
       }
     }
+
+    // remove from the top nodes
+    const topNodes = WorldFlags.getTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic);
+    await WorldFlags.setTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entry.uuid));
 
     await entry.delete();
 

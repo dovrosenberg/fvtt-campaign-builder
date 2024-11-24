@@ -12,17 +12,18 @@ import { getCleanEntry } from '@/compendia';
 
 // types
 import { Topic, ValidTopic } from '@/types';
-
+import { Entry } from '@/documents/entry';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // the state
+  const currentTopicTab = ref<string | null>(null);
 
   ///////////////////////////////
   // internal state
   const _currentJournals = ref<Record<ValidTopic, JournalEntry> | null>(null);  // current journals (by topic)
-  const _currentEntry = ref<JournalEntryPage | null>(null);  // current entry
+  const _currentEntry = ref<Entry | null>(null);  // current entry
 
   ///////////////////////////////
   // external state
@@ -45,7 +46,7 @@ export const useMainStore = defineStore('main', () => {
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
   const currentJournals = computed((): Record<ValidTopic, JournalEntry> | null => _currentJournals?.value || null);
   const currentEntryId = computed((): string | null => _currentEntry?.value?.uuid || null);
-  const currentEntry = computed((): JournalEntryPage | null => _currentEntry?.value || null);
+  const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
 
 
   ///////////////////////////////
@@ -67,7 +68,7 @@ export const useMainStore = defineStore('main', () => {
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };
 
-  const setNewEntry = async function (entry: string | null | JournalEntryPage): Promise<void> {
+  const setNewEntry = async function (entry: string | null | Entry): Promise<void> {
     if (typeof entry === 'string') {
       _currentEntry.value = await getCleanEntry(entry);
 
@@ -75,6 +76,16 @@ export const useMainStore = defineStore('main', () => {
         throw new Error('Attempted to setNewEntry with invalid uuid');
     } else
       _currentEntry.value = entry;
+  };
+
+/**
+ * Refreshes the current entry by forcing all reactive properties to update.
+ * This is achieved by creating a shallow copy of the current entry, which triggers
+ * reactivity updates throughout the application.
+ */
+  const refreshEntry = function (): void {
+    // just force all reactivity to update
+    _currentEntry.value = { ..._currentEntry.value };
   };
 
   ///////////////////////////////
@@ -127,6 +138,7 @@ export const useMainStore = defineStore('main', () => {
     currentWorldId,
     currentWorldFolder,
     currentEntryTopic,
+    currentTopicTab,
     currentJournals,
     currentEntry,
     currentEntryId,
@@ -135,5 +147,6 @@ export const useMainStore = defineStore('main', () => {
    
     setNewWorld,
     setNewEntry,
+    refreshEntry,
   };
 });

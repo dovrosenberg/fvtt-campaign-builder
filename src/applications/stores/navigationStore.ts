@@ -9,12 +9,12 @@ import { storeToRefs } from 'pinia';
 import { getCleanEntry } from '@/compendia';
 import { localize } from '@/utils/game';
 import { getIcon } from '@/utils/misc';
-import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { useMainStore } from './mainStore';
 
 // types
 import { Bookmark, EntryHeader, WindowTab } from '@/types';
+import { Entry } from '@/documents';
 
 
 // the store definition
@@ -37,11 +37,17 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   ///////////////////////////////
   // actions
-  // activate - switch to the tab after creating - defaults to true
-  // newTab - should entry open in current tab or a new one - defaults to true
-  // entryId = the uuid of the entry for the tab  (currently just journal entries); if missing, open a "New Tab"
-  // updateHistory - should history be updated- defaults to true
-  // if not !newTab and entryId is the same as currently active tab, then does nothign
+ 
+  /**
+   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and entryId is the same as currently active tab, then does nothing
+   * 
+   * @param entryId The uuid of the entry to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the entry open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @returns The newly opened tab.
+   */
   const openEntry = async function (entryId = null as string | null, options?: { activate?: boolean; newTab?: boolean; updateHistory?: boolean }): Promise<WindowTab> {
     // set defaults
     options = {
@@ -51,9 +57,9 @@ export const useNavigationStore = defineStore('navigation', () => {
       ...options,
     };
 
-    const journal = entryId ? await getCleanEntry(entryId) as JournalEntryPage : null;
-    const entryName = (journal ? journal.name : localize('fwb.labels.newTab')) || '';
-    const entry = { uuid: journal ? entryId : null, name: entryName, icon: journal ? getIcon(EntryFlags.get(journal, EntryFlagKey.topic)) : '' };
+    const entry = entryId ? await getCleanEntry(entryId) as Entry : null;
+    const entryName = (entry ? entry.name : localize('fwb.labels.newTab')) || '';
+    const entryData: EntryHeader = { uuid: entry ? entryId : null, name: entryName, icon: entry ? getIcon(entry.system.topic) : '' };
 
     // see if we need a new tab
     let tab;
@@ -61,7 +67,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       tab = {
         id: foundry.utils.randomID(),
         active: false,
-        entry: entry,
+        entry: entryData,
         history: [],
         historyIdx: -1,
       } as WindowTab;
@@ -76,11 +82,11 @@ export const useNavigationStore = defineStore('navigation', () => {
         return tab;
 
       // otherwise, just swap out the active tab info
-      tab.entry = entry;
+      tab.entry = entryData;
     }
     
     // add to history 
-    if (entry.uuid && options.updateHistory) {
+    if (entryData.uuid && options.updateHistory) {
       tab.history.push(entryId);
       tab.historyIdx = tab.history.length - 1; 
     }
@@ -92,10 +98,10 @@ export const useNavigationStore = defineStore('navigation', () => {
     await _saveTabs();
 
     // update the recent list (except for new tabs)
-    if (entry.uuid)
-      await _updateRecent(entry);
+    if (entryData.uuid)
+      await _updateRecent(entryData);
 
-    await mainStore.setNewEntry(entry.uuid);
+    await mainStore.setNewEntry(entryData.uuid);
 
     return tab;
   };

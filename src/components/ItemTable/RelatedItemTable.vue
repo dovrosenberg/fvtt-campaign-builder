@@ -1,18 +1,22 @@
 <template>
   <div class="primevue-only">
     <DataTable
-      :value="props.rows"
+      v-model:filters="pagination.filters"
+      data-key="uuid"
+      :value="rows"
       size="small"
       paginator
       paginator-position="bottom"
-      lazy
+      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      current-page-report-template="{first} to {last} of {totalRecords}"
       :sort-field="pagination.sortField"
       :sort-order="pagination.sortOrder"
       :default-sort-order="1"
-      :total-records="pagination.totalRecords"
-      :filters="pagination.filters"
-      :rows="10"
+      :total-records="rows.length"
+      :global-filter-fields="filterFields"
+      :rows="pagination.rowsPerPage"
       filter-display="row"
+      selection-mode="single" 
       :pt="{
         header: { style: 'border: none' },
         thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
@@ -22,11 +26,10 @@
           first: {
             style: 'width: auto', 
           }
-        }
+        },
+        table: { style: 'margin: 0px;'}
       }"
-      @page="onTablePage($event)"
-      @sort="onTableSort($event)"
-      @filter="onTableFilter($event)"
+      @rowSelect="onRowSelect"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -34,7 +37,7 @@
             color="primary" 
             :label="newItemLabel" 
             style="flex: initial; width:auto;"
-            @click="addDialogShow=true"
+            @click="onAddItemClick"
           >
             <template #icon>
               <!-- icon="o_add_circle"  -->
@@ -52,18 +55,19 @@
               <i class="fas fa-search"></i>
             </InputIcon>
             <InputText 
+              v-model="pagination.filters.global.value"  
               placeholder="Keyword Search"
-            /> <!--v-model="filters['global'].value"  /> -->
+            />
           </IconField>
         </div>
       </template>
       <template #empty>
-        Nothing here
+        {{ localize('fwb.labels.noResults') }} 
       </template>
       <template #loading>
-        Loading...
+        {{ localize('fwb.labels.loading') }}...
       </template>
-        
+
       <Column 
         v-for="col of columns" 
         :key="col.field" 
@@ -73,89 +77,77 @@
         :sortable="col.sortable"
       >
         <template
-          v-if="!!col.format"
-          #body="slotProps"
+          v-if="col.field==='actions'"
+          #body="{ data }"
         >
-          {{ col.format(slotProps.data[col.field as keyof typeof slotProps.data]) }}
+          <a 
+            class="" 
+            :data-tooltip="localize('fwb.tooltips.deleteRelationship')"
+            @click.stop="onDeleteItemClick(data.uuid)" 
+          >
+            <i class="fas fa-trash"></i>
+          </a>
+          <a 
+            v-if="extraColumns.length>0"
+            class="" 
+            :data-tooltip="localize('fwb.tooltips.editRelationship')"
+            @click.stop="onEditItemClick(data)" 
+          >
+            <i class="fas fa-pen"></i>
+          </a>
+        </template>
+        <template
+          v-else-if="!!col.format"
+          #body="{ data }"
+        >
+          {{ col.format(data[col.field as keyof typeof data]) }}
+        </template>
+        <template 
+          v-if="['name', 'type', 'role'].includes(col.field)"
+          #filter="{ filterModel, filterCallback }"
+        >
+          <InputText 
+            v-model="filterModel.value" 
+            type="text" 
+            :placeholder="`Search by ${col.header}`" 
+            @input="filterCallback()" 
+          />
         </template>
       </Column>
     </DataTable>
   </div>
-<!-- 
-  <template #top-left>
-      </template>
-      
-      <template #body-cell-actions="cellProps">
-        <q-td :auto-width="true">
-          <q-icon
-            class="action-icon"
-            name="delete" 
-            size="xs" 
-            @click.stop="onDeleteItemClick(cellProps.row._id)"
-          />
-          <q-icon v-if="!props.globalMode && props.extraColumns.length>0"
-            class="action-icon"
-            name="edit" 
-            size="xs" 
-            @click.stop="onEditClick(cellProps.row)"
-          />
-        </q-td>
-      </template>
 
-      <template #top-right>
-        <q-input 
-          v-model="filter" 
-          borderless 
-          dense 
-          debounce="300" 
-          placeholder="Search"
-        >
-          <template #append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template>
-    </q-table> -->
 
   <!-- <ItemTable 
-    :topic="topic"
-    :global-mode="false"
-    :rows="(relationshipStore.relatedItemRows[topic].rows as ItemRow[])"
     :pagination="(relationshipStore.relatedItemPagination[topic])"
     :filter="relationshipStore.relatedItemPagination[topic].filter"
-    :extra-columns="extraColumns"
-    @add-item-click="addDialogShow=true"
-    @edit-item-click="onEditItemClick"
-    @delete-item-click="onDeleteItemClick"
     @pagination-changed="onPaginationChanged"
   /> -->
 
-  <!-- <EditRelatedItemDialog 
+  <EditRelatedItemDialog 
     v-if="extraColumns.length>0"
     v-model="editDialogShow"
     :item-id="editItem.itemId"
     :item-name="editItem.itemName"
     :extra-field-values="editItem.extraFields"
-    :topic="(topic as Topic.Character | Topic.Location | Topic.Organization)"
-    @item-edited="onItemEdited"
-  /> -->
+    :topic="props.topic"
+  />
   <AddRelatedItemDialog 
     v-model="addDialogShow"
-    :topic="topic"
-    @item-added="onItemAdded"
-    @close-dialog="addDialogShow=false"
+    :topic="props.topic"
   /> 
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch, onMounted } from 'vue';
+  import { ref, computed, PropType } from 'vue';
   import { clone } from 'lodash';
   import { storeToRefs } from 'pinia';
+  import { FilterMatchMode } from '@primevue/core/api';
 
   // local imports
-  import { useRelationshipStore } from '@/applications/stores/relationshipStore';
-  import { useMainStore } from '@/applications/stores';
+  import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
+  import { localize } from '@/utils/game';
 
   // library components
   import Button from 'primevue/button';
@@ -167,13 +159,11 @@
 
   // local components
   import AddRelatedItemDialog from './AddRelatedItemDialog.vue';
-  // import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
+  import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
 
   // types
-  import { Topic, TablePagination, ValidTopic } from '@/types';
+  import { Topic, TablePagination, ValidTopic, RelatedItemDetails } from '@/types';
   
-  type ItemRow = Record<string, any>;
-
   ////////////////////////////////
   // props
   const props = defineProps({
@@ -185,39 +175,54 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['deleteItemClick', 'editItemClick',]);
 
   ////////////////////////////////
   // store
   const relationshipStore = useRelationshipStore();
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
 
   const { currentEntryTopic } = storeToRefs(mainStore);
+  const { relatedItemRows, } = storeToRefs(relationshipStore);
   const extraFields = relationshipStore.extraFields;
 
   ////////////////////////////////
   // data
   const addDialogShow = ref(false);   // should we pop up the add dialog?
-  const editDialogShow = ref(false);   // should we pop up the add dialog?
+  const editDialogShow = ref(false);   // should we pop up the edit dialog?
+    
+  ref<string>('');   // text to filter the table rows
   const editItem = ref({
-    topic: Topic.Character,
     itemId: '',
     itemName: '',
     extraFields: [],
-  } as { topic: ValidTopic; itemId: string; itemName: string; extraFields: {name: string; label: string; value: string}[] });
+  } as { itemId: string; itemName: string; extraFields: {field: string; header: string; value: string}[] });
   const pagination = ref<TablePagination>({
     sortField: 'name', 
     sortOrder: 1, 
     first: 0,
     page: 1,
-    rowsPerPage: 10, 
-    totalRecords: undefined, 
-    filters: {},
+    rowsPerPage: 5, 
+    filters: {
+      global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      type: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      role: { value: null, matchMode: FilterMatchMode.CONTAINS },  // TODO: support any extra columns
+    },
   });
-
 
   ////////////////////////////////
   // computed data
+  const filterFields = computed(() => {
+    let base = ['name', 'type'];
+
+    extraColumns.value.forEach((field) => {
+      base = base.concat([field.field]);
+    });
+
+    return base;
+  });
+
   const newItemLabel = computed(() => {
     const prefix = 'Add ';
 
@@ -231,16 +236,35 @@
     return prefix + labels[props.topic];
   });
 
-  const extraColumns = computed(() => {
-    return extraFields[currentEntryTopic.value][props.topic];
-  });
+  type GridRow = { uuid: string; name: string; type: string } & Record<string, string>;
+
+  const rows = computed((): GridRow[] => 
+    relatedItemRows.value.map((item: RelatedItemDetails<any, any>) => {
+      const base = { uuid: item.uuid, name: item.name, type: item.type };
+
+      extraColumns.value.forEach((field) => {
+        base[field.field] = item.extraFields[field.field];
+      });
+
+      return base;
+    })
+  );
+
+  // map the extra fields to columns, adding style and sortable if not present in the field
+  const extraColumns = computed(() => 
+    extraFields[currentEntryTopic.value][props.topic].map((field) => ({
+      style: 'text-align: left',
+      sortable: true,
+      ...field,
+    })),
+  );
 
   const columns = computed((): any[] => {
     // they all have some standard columns
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px', header: 'Actions' };
     const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
     const typeColumn = { field: 'type', style: 'text-align: left', header: 'Type', sortable: true }; 
-    const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (dateText(calendar.value, val)), sortable: true}; 
+    const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 
 
     const columns = {
       [Topic.Event]: [
@@ -281,43 +305,34 @@
 
   ////////////////////////////////
   // methods
-  const refreshQuery = async function() {
-    if (!props.topic) {
-      return;
-    }
-    
-    // load the query
-    await relationshipStore.refreshRelatedItems(props.topic);
-  };
 
   ////////////////////////////////
   // event handlers
   const onAddItemClick = () => {
-    debugger;
-  }
-  const onTablePage = async () => {
-    await refreshQuery();
-  }
+    addDialogShow.value = true;
+  };
 
-  const onTableSort = async () => {
-    await refreshQuery();
-  }
-
-  const onTableFilter = async () => {
-    await refreshQuery();
-  }
-
-  const onRowClick = async function (_evt: unknown, row: { _id: string }) { 
-    alert('do something when row is clicked');
-    // await router.push({ name: 'ViewItem', params: { section: props.topic, itemId: row._id }});
+  const onRowSelect = async function (event: { data: GridRow} ) { 
+    // TODO - hold down control to open in a new tab
+    await navigationStore.openEntry(event.data.uuid, { newTab: false });
   };
 
   // show the edit dialog
-  const onEditItemClick = function(_id: string, name: string, fieldsToAdd: {name: string; label: string; value: string}[]) {
+  const onEditItemClick = function(row: GridRow) {
+    // assemble the extra field data
+    const fieldsToAdd = extraColumns.value.reduce((accum, col) => {
+      accum.push({
+        field: col.field,
+        header:col.header,
+        value: row[col.field as keyof typeof row]
+      });
+      return accum;
+    }, [] as {field: string; header: string; value: string}[]);
+
+    // set up the parameter and open the dialog
     editItem.value = {
-      topic: props.topic,
-      itemId: _id,
-      itemName: name,
+      itemId: row.uuid,
+      itemName: row.name,
       extraFields: clone(fieldsToAdd),
     };
     editDialogShow.value = true;
@@ -326,29 +341,14 @@
   // call mutation to remove item  from relationship
   const onDeleteItemClick = async function(_id: string) {
     // show the confirmation dialog 
-    // quasar.dialog({
-    //   title: props.globalMode ? 'Delete Item?': 'Remove from Relationship?',
-    //   message: props.globalMode? 'Are you sure you want to delete this item?' : 'Are you sure you want to remove the relationship to this item?',
-    //   cancel: true,
-    //   persistent: true,
-    // }).onOk(async () => {
-    //   emit('deleteItemClick', _id);
-    // });
-
-    await relationshipStore.deleteRelationship(props.topic, _id); 
-
-    // refresh the table
-    await refreshQuery();
+    await Dialog.confirm({
+      title: localize('fwb.dialogs.confirmDeleteRelationship.title'),
+      content: localize('fwb.dialogs.confirmDeleteRelationship.message'),
+      yes: () => { void relationshipStore.deleteRelationship(props.topic, _id); },
+      no: () => {},
+    });
   };
   
-  const onItemAdded = async function () { 
-    await refreshQuery();
-  };
-
-  const onItemEdited = async function (_id: string) { 
-    await refreshQuery();
-  };
-
   const onPaginationChanged = async function (newPagination: TablePagination | { filter: string; pagination: TablePagination }) {
     // this gets called for filter changes and pagination changes, but with a different argument !?
     if (Object.keys(newPagination).includes('pagination')) {
@@ -362,37 +362,14 @@
         filter: relationshipStore.relatedItemPagination[props.topic].filter,
       };
     }
-
-    // refresh the table
-    await refreshQuery();
-  };
-
-  const onEditClick = function (row: Record<string, string>) {
-    // assemble the extra field data
-    const fieldsToAdd = extraColumns.value.reduce((accum, col) => {
-      accum.push({
-        name: col.name,
-        label:col.label,
-        value: row[col.name as keyof typeof row]
-      });
-      return accum;
-    }, [] as {name: string; label: string; value: string}[]);
-
-    emit('editItemClick', row._id, row.name, fieldsToAdd);
   };
 
   ////////////////////////////////
   // watchers
   // reload when topic changes
-  watch(() => [props.topic], async () => {
-    await refreshQuery();
-  });
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(async () => {
-    await refreshQuery();
-  });
 
 
 </script>

@@ -5,8 +5,8 @@ import { getGame, localize } from '@/utils/game';
 import { Topic, } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
-import { Document } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/module.mjs';
 import { toTopic } from '@/utils/misc';
+import { Entry, relationshipKeyReplace } from '@/documents';
 
 
 /**
@@ -250,19 +250,47 @@ async function createCompendium(worldFolder: Folder): Promise<CompendiumCollecti
 }
 
 // loads the entry into memory and cleans it
-export async function getCleanEntry(uuid: string): Promise<JournalEntryPage | null> {
+export async function getCleanEntry(uuid: string): Promise<Entry | null> {
   // we must use fromUuid because these are all in compendia
-  const entry = await fromUuid(uuid) as JournalEntryPage;
+  const entry = await fromUuid(uuid) as Entry;
 
   return entry ? entry : null;
 }
 
-// updates an entry, unlocking compedium to do it
-// note: make sure to pass in the raw entry using vue's toRaw() if calling on a proxy
-export async function updateEntry(currentCompendium: CompendiumCollection<Any>, entry: JournalEntryPage, data: Record<string, any>): Promise<JournalEntryPage | null> {
+
+/**
+ * Updates an entry in the compendium.
+ * Unlocks the compendium to perform the update and then locks it again.
+ * 
+ * @param {CompendiumCollection<any>} currentCompendium - The compendium containing the entry to update.
+ * @param {Entry} entry - The entry to be updated.  Make sure to pass in the raw entry using vue's toRaw() if calling on a proxy
+ * @param {Record<string, any>} data - The data to update the entry with.
+ * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
+ */
+export async function updateEntry(currentCompendium: CompendiumCollection<any>, entry: Entry, data: Record<string, any>): Promise<Entry | null> {
   // unlock compendium to make the change
   await currentCompendium.configure({locked:false});
+
+  let oldRelationships;
+
+  if (data?.system?.relationships) {
+    // do the serialization of the relationships field
+    oldRelationships = data.system.relationships;
+
+    data.system.relationships = relationshipKeyReplace(data.system.relationships || {}, true);
+  }
+
   const retval = await entry.update(data) || null;
+
+  // swap back
+  if (data?.system?.relationships) {
+    data.system.relationships = oldRelationships;
+    entry.system.relationships = oldRelationships;
+
+    if (retval)
+      retval.system.relationships = oldRelationships;
+  }
+
   await currentCompendium.configure({locked:true});
 
   return retval;

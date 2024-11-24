@@ -76,6 +76,21 @@
             <div class="tab-inner flexcol">
               <RelatedItemTable :topic="Topic.Character" />
             </div>
+          </div> 
+          <div class="tab description flexcol" data-group="primary" data-tab="locations">
+            <div class="tab-inner flexcol">
+              <RelatedItemTable :topic="Topic.Location" />
+            </div>
+          </div>
+          <div class="tab description flexcol" data-group="primary" data-tab="organizations">
+            <div class="tab-inner flexcol">
+              <RelatedItemTable :topic="Topic.Organization" />
+            </div>
+          </div>
+          <div class="tab description flexcol" data-group="primary" data-tab="events">
+            <div class="tab-inner flexcol">
+              <RelatedItemTable :topic="Topic.Event" />
+            </div>
           </div>
         </div>
       </div>
@@ -93,7 +108,7 @@
   import { updateEntry } from '@/compendia';
   import { getIcon, } from '@/utils/misc';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-  import { getGame, localize } from '@/utils/game';
+  import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   
@@ -108,8 +123,7 @@
   
   // types
   import { ValidTopic, Topic } from '@/types';
-  import type Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.d.mts';
-import { DocumentTypes } from 'src/documents';
+  import { Entry } from '@/documents';
   
   ////////////////////////////////
   // props
@@ -123,7 +137,7 @@ import { DocumentTypes } from 'src/documents';
   const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentEntry, currentWorldId, currentJournals, currentWorldCompendium } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldId, currentJournals, currentWorldCompendium, currentTopicTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -146,7 +160,7 @@ import { DocumentTypes } from 'src/documents';
   const topic = ref<Topic | null>(null);
   const name = ref<string>('');
 
-  const editorDocument = ref<Document<any>>();
+  const editorDocument = ref<Entry<any>>();
 
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
@@ -226,7 +240,7 @@ import { DocumentTypes } from 'src/documents';
 
   ////////////////////////////////
   // watchers
-  watch(currentEntry, async (newEntry: JournalEntryPage | null): Promise<void> => {
+  watch(currentEntry, async (newEntry: Entry | null): Promise<void> => {
     if (!newEntry || !currentWorldId.value || !currentJournals.value) {
       topic.value = null;
     } else {
@@ -273,6 +287,10 @@ import { DocumentTypes } from 'src/documents';
   onMounted(() => {
     tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
 
+    // update the store when tab changes
+    tabs.value.callback = () => {
+      currentTopicTab.value = tabs.value?.active || null;
+    };
 
     //     // home page mode - click on a recent item
     //     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {

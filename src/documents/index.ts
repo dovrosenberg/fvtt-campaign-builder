@@ -1,6 +1,8 @@
 export * from './entry';
+export * from './session';
+import moduleJson from '@module';
 
-export enum DocumentTypes {
-  Entry = 'world-builder.entry',
-  Session = 'world-builder.session'
-}
+export const DOCUMENT_TYPES = {
+  Entry: `${moduleJson.id}.entry`,
+  Session: `${moduleJson.id}.session`,
+};
