@@ -10,6 +10,7 @@ import { Hierarchy } from '@/utils/hierarchy';
 export enum WorldFlagKey {
   worldCompendium = 'worldCompendium',   // the uuid for the world compendium 
   topicEntries = 'topicEntries',   // the JournalEntry uuid for each topic
+  campaignEntries = 'campaignEntries',   // the JournalEntry uuid for each campaign
   types = 'types',  // object where each key is a Topic and the value is an array of valid types
   expandedIds = 'expandedIds',   // ids of nodes that are expanded in the tree (could be compendia or entries or subentries)
   hierarchies = 'hierarchies',   // the full tree hierarchy or null for topics without hierarchy
@@ -19,6 +20,7 @@ export enum WorldFlagKey {
 export type WorldFlagType<K extends WorldFlagKey> =
     K extends WorldFlagKey.worldCompendium ? string :
     K extends WorldFlagKey.topicEntries ? Record<ValidTopic, string> : // keyed by topic 
+    K extends WorldFlagKey.campaignEntries ? string[] : 
     K extends WorldFlagKey.types ? Record<ValidTopic, string[]> :
     K extends WorldFlagKey.expandedIds ? Record<string, boolean | null> :  // keyed by uuid (id for compendium); can be false or missing to represent false; we allow null only because of the strange foundry syntax for removing a key
     K extends WorldFlagKey.topNodes ? Record<ValidTopic, string[]> :    // keyed by topic
@@ -49,6 +51,11 @@ const flagSetup = [
   {
     flagId: WorldFlagKey.topicEntries,
     default: {} as Record<Topic, string>,
+    needsFlatten: false,      
+  },
+  {
+    flagId: WorldFlagKey.campaignEntries,
+    default: [] as string[],
     needsFlatten: false,      
   },
   {

@@ -10,7 +10,7 @@
       </div>
     </div>
     <div id="fwb-directory-sidebar" class="flexcol">
-      <TopicDirectory @world-selected="onDirectoryWorldSelected" />
+      <Directory @world-selected="onDirectoryWorldSelected" />
     </div> 
   </div>
 </template> 
@@ -30,7 +30,7 @@
   // local components
   import WBHeader from '@/components/WBHeader.vue';
   import WBContent from '@/components/WBContent.vue';
-  import TopicDirectory from '@/components/Directory/TopicDirectory/TopicDirectory.vue';
+  import Directory from '@/components/Directory/Directory.vue';
 
   // types
   
