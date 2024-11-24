@@ -22,7 +22,8 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // internal state
-  const _currentJournals = ref<Record<ValidTopic, JournalEntry> | null>(null);  // current journals (by topic)
+  const _currentTopicJournals = ref<Record<ValidTopic, JournalEntry> | null>(null);  // current journals (by topic)
+  const _currentCampaignJournals = ref<JournalEntry[] | null>(null);  // current campaign journals 
   const _currentEntry = ref<Entry | null>(null);  // current entry
 
   ///////////////////////////////
@@ -44,7 +45,8 @@ export const useMainStore = defineStore('main', () => {
   });
 
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
-  const currentJournals = computed((): Record<ValidTopic, JournalEntry> | null => _currentJournals?.value || null);
+  const currentTopicJournals = computed((): Record<ValidTopic, JournalEntry> | null => _currentTopicJournals?.value || null);
+  const currentCampaignJournals = computed((): JournalEntry[] | null => _currentCampaignJournals?.value || null);
   const currentEntryId = computed((): string | null => _currentEntry?.value?.uuid || null);
   const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
 
@@ -62,7 +64,7 @@ export const useMainStore = defineStore('main', () => {
     if (!folder)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');
 
-    // this will also trigger the _currentJournals to be updated
+    // this will also trigger the _currentTopicJournals/_currentCampaignJournals to be updated
     currentWorldFolder.value = folder;
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
@@ -108,25 +110,35 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     const topicEntries = WorldFlags.get(newValue.uuid, WorldFlagKey.topicEntries);
+    const campaignEntries = WorldFlags.get(newValue.uuid, WorldFlagKey.campaignEntries);
     const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];
-    const retval = {
+    const topicJournals = {
       [Topic.Character]: null,
       [Topic.Event]: null,
       [Topic.Location]: null,
       [Topic.Organization]: null,
     } as Record<ValidTopic, JournalEntry | null>;
+    const campaignJournals = [] as JournalEntry[];
 
     for (let i=0; i<topics.length; i++) {
       const t = topics[i];
 
       // we need to load the actual entries - not just the index headers
-      retval[t] = await(fromUuid(topicEntries[t])) as JournalEntry | null;
+      topicJournals[t] = await(fromUuid(topicEntries[t])) as JournalEntry | null;
 
-      if (!retval[t])
+      if (!topicJournals[t])
         throw new Error(`Could not find journal for topic ${t} in world ${currentWorldId.value}`);
     }
 
-    _currentJournals.value = retval as Record<ValidTopic, JournalEntry>;
+    for (let i=0; i<campaignEntries.length; i++) {
+      // we need to load the actual entries - not just the index headers
+      const j = await(fromUuid(topicEntries[t])) as JournalEntry | null;
+      if (j)
+        campaignJournals.push(j);
+    }
+
+    _currentTopicJournals.value = topicJournals as Record<ValidTopic, JournalEntry>;
+    _currentCampaignJournals.value = retval as JournalEntry[];
   });
 
   ///////////////////////////////
@@ -139,7 +151,8 @@ export const useMainStore = defineStore('main', () => {
     currentWorldFolder,
     currentEntryTopic,
     currentTopicTab,
-    currentJournals,
+    currentTopicJournals,
+    currentCampaignJournals,
     currentEntry,
     currentEntryId,
     rootFolder,

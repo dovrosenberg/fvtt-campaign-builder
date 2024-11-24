@@ -18,7 +18,7 @@ export const useEntryStore = defineStore('entry', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentJournals } = storeToRefs(mainStore);
+  const { currentEntry, currentTopicJournals } = storeToRefs(mainStore);
   
   ///////////////////////////////
   // internal state
@@ -39,11 +39,11 @@ export const useEntryStore = defineStore('entry', () => {
    * @returns a list of journal entries
    */
   const getEntriesForTopic = async function(topic: ValidTopic, uniqueOnly = false): Promise<Entry[]> {
-    if (!currentJournals.value || !currentJournals.value[topic])
+    if (!currentTopicJournals.value || !currentTopicJournals.value[topic])
       return [];
 
     // we find all journal entries with this topic
-    let journalEntries = await currentJournals.value[topic].collections.pages.contents as Entry[];
+    let journalEntries = await currentTopicJournals.value[topic].collections.pages.contents as Entry[];
 
     // filter unique ones if needed
     if (uniqueOnly && currentEntry.value) {

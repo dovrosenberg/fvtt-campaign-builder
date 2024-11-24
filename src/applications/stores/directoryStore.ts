@@ -23,7 +23,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { rootFolder, currentWorldId, currentWorldFolder, currentJournals, currentWorldCompendium } = storeToRefs(mainStore); 
+  const { rootFolder, currentWorldId, currentWorldFolder, currentTopicJournals, currentWorldCompendium } = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -299,7 +299,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshCurrentTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world and journals loaded
-    if (!currentWorldId.value || !currentJournals.value)
+    if (!currentWorldId.value || !currentTopicJournals.value)
       return;
 
     isTreeRefreshing.value = true;
@@ -407,10 +407,10 @@ export const useDirectoryStore = defineStore('directory', () => {
     // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
     //    type on the journalentry, or pack or world, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
     //    that is also in the index)
-    if (!currentJournals.value)
+    if (!currentTopicJournals.value)
       return;
 
-    const allEntries = await currentJournals.value[topicNode.topic].collections.pages.contents as Entry[];
+    const allEntries = await currentTopicJournals.value[topicNode.topic].collections.pages.contents as Entry[];
     
     topicNode.loadedTypes = types.map((type: string): DirectoryTypeNode => ({
       name: type,
@@ -460,7 +460,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       [Topic.Organization]: [],
     };
 
-    if (!currentWorldId.value || !currentJournals.value)
+    if (!currentWorldId.value || !currentTopicJournals.value)
       return;
 
     const hierarchies = WorldFlags.get(currentWorldId.value, WorldFlagKey.hierarchies);
@@ -469,7 +469,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
-      const journal = currentJournals.value[topics[i]];
+      const journal = currentTopicJournals.value[topics[i]];
 
       let matchedEntries = journal.collections.pages.filter((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' )))
         .map((e: Entry): string=>e.uuid) as string[];
@@ -500,7 +500,7 @@ export const useDirectoryStore = defineStore('directory', () => {
    */
   const _loadNodeList = async(topic: ValidTopic, ids: string[], updateEntryIds: string[] ): Promise<void> => {
     // make sure we've loaded what we need
-    if (!currentJournals.value) {
+    if (!currentTopicJournals.value) {
       _loadedNodes = {};
       return;
     }
@@ -508,7 +508,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     // we only want to load ones not already in _loadedNodes, unless its in updateEntryIds
     const uuidsToLoad = ids.filter((id)=>!_loadedNodes[id] || updateEntryIds.includes(id));
 
-    const entries = currentJournals.value[topic].collections.pages.filter((e: Entry)=>uuidsToLoad.includes(e.uuid));
+    const entries = currentTopicJournals.value[topic].collections.pages.filter((e: Entry)=>uuidsToLoad.includes(e.uuid));
 
     for (let i=0; i<entries.length; i++) {
       const newNode = _convertEntryToNode(entries[i]);
@@ -588,8 +588,8 @@ export const useDirectoryStore = defineStore('directory', () => {
   });
   
   // when the current journal set is updated, refresh the tree
-  watch(currentJournals, async (currentJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
-    if (!currentJournals) {
+  watch(currentTopicJournals, async (currentTopicJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
+    if (!currentTopicJournals) {
       return;
     }
 

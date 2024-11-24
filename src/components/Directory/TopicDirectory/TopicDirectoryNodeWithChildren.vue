@@ -89,7 +89,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentWorldId, currentEntryId, currentJournals } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntryId, currentTopicJournals } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -135,7 +135,7 @@
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value || !currentJournals.value || !currentJournals.value[props.topic])
+    if (!currentWorldId.value || !currentTopicJournals.value || !currentTopicJournals.value[props.topic])
       return false;
 
     let data;
@@ -161,7 +161,7 @@
     if (!childEntry)
       return false;
 
-    if (!(await validParentItems(currentWorldId.value, currentJournals.value[props.topic], childEntry)).find(e=>e.id===parentId))
+    if (!(await validParentItems(currentWorldId.value, currentTopicJournals.value[props.topic], childEntry)).find(e=>e.id===parentId))
       return false;
 
     // add the dropped item as a child on the other (will also refresh the tree)

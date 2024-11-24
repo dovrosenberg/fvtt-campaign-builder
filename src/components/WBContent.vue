@@ -137,7 +137,7 @@
   const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentEntry, currentWorldId, currentJournals, currentWorldCompendium, currentTopicTab } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldId, currentTopicJournals, currentWorldCompendium, currentTopicTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -241,7 +241,7 @@
   ////////////////////////////////
   // watchers
   watch(currentEntry, async (newEntry: Entry | null): Promise<void> => {
-    if (!newEntry || !currentWorldId.value || !currentJournals.value) {
+    if (!newEntry || !currentWorldId.value || !currentTopicJournals.value) {
       topic.value = null;
     } else {
       let newTopic;
@@ -271,7 +271,7 @@
         parentId.value = WorldFlags.getHierarchy(currentWorldId.value, newEntry.uuid)?.parentId || null;
     
         // TODO - need to refresh this somehow if things are moved around in the directory
-        validParents.value = validParentItems(currentWorldId.value, currentJournals.value[newTopic], newEntry).map((e)=> ({
+        validParents.value = validParentItems(currentWorldId.value, currentTopicJournals.value[newTopic], newEntry).map((e)=> ({
           id: e.id,
           label: e.name || '',
         }));
