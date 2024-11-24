@@ -12,7 +12,7 @@ import { createWorldFolder, getTopicText, validateCompendia } from '@/compendia'
 import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 
 // types
-import { DirectoryWorld, DirectoryTopicNode, DirectoryEntryNode, Topic, DirectoryTypeNode, DirectoryTypeEntryNode, ValidTopic } from '@/types';
+import { DirectoryWorld, DirectoryTopicNode, DirectoryEntryNode, Topic, DirectoryTypeNode, DirectoryTypeEntryNode, ValidTopic, DirectoryCampaign } from '@/types';
 import { Entry } from '@/documents';
 
 // the store definition
@@ -33,8 +33,9 @@ export const useDirectoryStore = defineStore('directory', () => {
   // external state
   
   // the top-level folder structure
-  const currentTree = reactive<{value: DirectoryWorld[]}>({value:[]});
-  
+  const currentWorldTree = reactive<{value: DirectoryWorld[]}>({value:[]});
+  const currentCampaignTree = reactive<{value: DirectoryCampaign[]}>({value:[]});
+
   // tree currently refreshing
   const isTreeRefreshing = ref<boolean>(false);
 
@@ -79,7 +80,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       return;
 
     // remove from the old one
-    const currentWorldNode = currentTree.value.find((w)=>w.id===currentWorldId.value) || null;
+    const currentWorldNode = currentWorldTree.value.find((w)=>w.id===currentWorldId.value) || null;
     const packNode = currentWorldNode?.topics.find((p)=>p.topic===entry.system.topic) || null;
     const oldTypeNode = packNode?.loadedTypes.find((t) => t.name===oldType);
     if (!currentWorldNode || !packNode) 
@@ -356,7 +357,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       }
     }
 
-    currentTree.value = tree;
+    currentWorldTree.value = tree;
     isTreeRefreshing.value = false;
   };
 
@@ -566,7 +567,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   // when the root folder changes, load the top level info (worlds and packs)
   watch(rootFolder, async (newRootFolder: Folder | null): Promise<void> => {
     if (!newRootFolder) {
-      currentTree.value = [];
+      currentWorldTree.value = [];
       return;
     }
 
@@ -616,7 +617,8 @@ export const useDirectoryStore = defineStore('directory', () => {
   ///////////////////////////////
   // return the public interface
   return {
-    currentTree,
+    currentWorldTree,
+    currentCampaignTree,
     directoryCollapsed,
     isTreeRefreshing,
     isGroupedByType,

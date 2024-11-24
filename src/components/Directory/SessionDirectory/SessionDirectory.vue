@@ -1,125 +1,59 @@
-<template>
-  <!-- The overall directory sidebar -->
-  <div 
-    id="fwb-directory" 
-    ref="root"
-    class="tab flexcol journal-directory" 
-  >
-    <!-- Directory Header -->
-    <header class="directory-header">
-      <div class="header-search flexrow">
-        <InputText 
-          v-model="filterText"
-          for="fwb-directory-search" 
-          :placeholder="localize('fwb.placeholders.search')"                
-          autocomplete="off"
-          :pt="{
-            root: {
-              class: 'full-height',
-            }
-          }"
-        />
-        <a 
-          class="header-control create-world create-button" 
-          :data-tooltip="localize('fwb.tooltips.createWorld')"
-          @click="onCreateWorldClick"
-        >
-          <i class="fas fa-globe"></i>
-          <i class="fas fa-plus"></i>
-        </a>
-        <a 
-          class="header-control collapse-all" 
-          :data-tooltip="localize('fwb.tooltips.collapseAllTopics')"
-          @click="onCollapseAllClick"
-        >
-          <i class="fa-duotone fa-folder-tree"></i>
-        </a>
-      </div>
-      <div class="header-group-type flexrow">
-        <input
-          id="fwb-group-by-type"
-          type="checkbox"
-          :checked="isGroupedByType"
-          @change="onGroupTypeChange"
-        >
-        <label for="fwb-group-by-type">
-          {{ localize('fwb.labels.groupTree') }}
-        </label>
-      </div>
-    </header>
 
-    <div v-if="isTreeRefreshing">
-      <ProgressSpinner v-if="isTreeRefreshing" />
-    </div>
-    <div v-else class="fwb-world-list-wrapper">
-      <!-- these are the worlds -->
-      <ol class="fwb-world-list">
-        <li 
-          v-for="world in directoryStore.currentTree.value"
-          :key="world.id"
-          :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
-          @click="onWorldFolderClick($event, world.id)"
-        >
-          <header 
-            class="folder-header flexrow"
-            @contextmenu="onWorldContextMenu($event, world.id)"
-          >
-            <h3 class="noborder">
-              <i class="fas fa-folder-open fa-fw"></i>
-              {{ world.name }}
-            </h3>
-          </header>
-
-          <!-- These are the topic compendia -->
-          <ol 
-            v-if="currentWorldId===world.id"
-            class="world-contents"
-          >
-            <!-- data-topic-id is used by drag and drop and toggleEntry-->
-            <li 
-              v-for="topic in world.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
-              :key="topic.topic"
-              :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
-              :data-topic="topic.topic" 
-            >
-              <header class="folder-header flexrow">
-                <div 
-                  class="fwb-compendium-label noborder" 
-                  style="margin-bottom:0px"
-                  @click="onTopicFolderClick($event, topic)"
-                  @contextmenu="onTopicContextMenu($event, world.id, topic.topic)"
-                >
-                  <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                  <i :class="'icon fas ' + getIcon(topic.topic)" style="margin-right: 4px;"></i>
-                  {{ topic.name }}
-                </div>
-              </header>
-
-              <DirectoryGroupedTree
-                v-if="isGroupedByType" 
-                :topic="topic"
-                :world-id="world.id"
-              />
-              <DirectoryNestedTree
-                v-else 
-                :topic="topic"
-                :world-id="world.id"
-              />
-            </li>
-          </ol>
-        </li>
-      </ol>
-    </div>
-    <!-- Directory Footer -->
-    <!--
-      <footer class="directory-footer action-buttons {{#if data.unavailable}}warning{{/if}}">
-        {{~#if data.unavailable}}
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          <a class="show-issues">{{localize "SUPPORT.UnavailableDocuments" count=data.unavailable document=data.label}}</a>
-        {{/if~}}
-      </footer>
-    -->
+  <div v-if="isTreeRefreshing">
+    <ProgressSpinner v-if="isTreeRefreshing" />
   </div>
+  <div v-else class="fwb-campaign-list-wrapper">
+    <!-- these are the campaigns -->
+    <ol class="fwb-campaign-list">
+      <li 
+        v-for="campaign in directoryStore.currentCampaignTree.value"
+        :key="campaign.id"
+        :class="'fwb-campaign-folder folder flexcol ' + (currentCampaignId===campaign.id ? '' : 'collapsed')" 
+        @click="onCampaignFolderClick($event, campaign.id)"
+      >
+        <header 
+          class="folder-header flexrow"
+          @contextmenu="onCampaignContextMenu($event, campaign.id)"
+        >
+          <h3 class="noborder">
+            <i class="fas fa-folder-open fa-fw"></i>
+            {{ campaign.name }}
+          </h3>
+        </header>
+
+        <!-- These are the sessions -->
+        <ol 
+          v-if="currentCampaignId===campaign.id"
+          class="campaign-contents"
+        >
+          <!-- data-topic-id is used by drag and drop and toggleEntry-->
+          <li 
+            v-for="topic in campaign.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
+            :key="topic.topic"
+            :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
+            :data-topic="topic.topic" 
+          >
+            <header class="folder-header flexrow">
+              <div 
+                class="fwb-compendium-label noborder" 
+                style="margin-bottom:0px"
+                @click="onTopicFolderClick($event, topic)"
+                @contextmenu="onTopicContextMenu($event, campaign.id, topic.topic)"
+              >
+                <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
+                <i :class="'icon fas ' + getIcon(topic.topic)" style="margin-right: 4px;"></i>
+                {{ topic.name }}
+              </div>
+            </header>
+
+            <TopicDirectoryGroupedTree
+              :topic="topic"
+              :campaign-id="campaign.id"
+            />
+          </li>
+        </ol>
+      </li>
+    </ol>
 </template>
 
 <script setup lang="ts">
@@ -138,8 +72,7 @@
   import InputText from 'primevue/inputtext';
 
   // local components
-  import DirectoryNestedTree from './DirectoryNestedTree.vue';
-  import DirectoryGroupedTree from './DirectoryGroupedTree.vue';
+  import SessionDirectoryNode from './SessionDirectoryNode.vue';
   
   // types
   import { DirectoryTopicNode, Topic, } from '@/types';
@@ -156,7 +89,7 @@
   const navigationStore = useNavigationStore();
   const directoryStore = useDirectoryStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentWorldId } = storeToRefs(mainStore);
+  const { currentCampaignId } = storeToRefs(mainStore);
   const { filterText, isTreeRefreshing, isGroupedByType } = storeToRefs(directoryStore);
 
   ////////////////////////////////
@@ -172,15 +105,15 @@
   ////////////////////////////////
   // event handlers
 
-  // change world
-  const onWorldFolderClick = async (event: MouseEvent, worldId: string) => {
+  // change campaign
+  const onCampaignFolderClick = async (event: MouseEvent, campaignId: string) => {
     event.stopPropagation();
 
-    if (worldId)
-      await mainStore.setNewWorld(worldId);
+    if (campaignId)
+      await mainStore.setNewCampaign(campaignId);
   };
 
-  const onWorldContextMenu = (event: MouseEvent, worldId: string | null): void => {
+  const onCampaignContextMenu = (event: MouseEvent, campaignId: string | null): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();
@@ -195,17 +128,17 @@
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.worldFolder.delete'), 
+          label: localize('fwb.contextMenus.campaignFolder.delete'), 
           onClick: async () => {
-            if (worldId)
-              await directoryStore.deleteWorld(worldId);
+            if (campaignId)
+              await directoryStore.deleteCampaign(campaignId);
           }
         },
       ]
     });
   };
 
-  const onTopicContextMenu = (event: MouseEvent, worldId: string, topic: Topic): void => {
+  const onTopicContextMenu = (event: MouseEvent, campaignId: string, topic: Topic): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();
@@ -223,12 +156,12 @@
           label: localize(`fwb.contextMenus.topicFolder.create.${topic}`), 
           onClick: async () => {
             // get the right folder
-            const worldFolder = getGame().folders?.find((f)=>f.uuid===worldId) as globalThis.Folder;
+            const campaignFolder = getGame().folders?.find((f)=>f.uuid===campaignId) as globalThis.Folder;
 
-            if (!worldFolder || !topic)
-              throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
+            if (!campaignFolder || !topic)
+              throw new Error('Invalid header in TopicDirectory.onTopicContextMenu.onClick');
 
-            const entry = await currentEntryStore.createEntry(worldFolder, topic, {} );
+            const entry = await currentEntryStore.createEntry(campaignFolder, topic, {} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -253,8 +186,8 @@
     void directoryStore.collapseAll();
   };
 
-  // create a world
-  const onCreateWorldClick = async (event: MouseEvent) => {
+  // create a campaign
+  const onCreateCampaignClick = async (event: MouseEvent) => {
     event.stopPropagation();
 
     // // add 400 entries
@@ -265,7 +198,7 @@
     //   }
     // }
 
-    await directoryStore.createWorld();
+    await directoryStore.createCampaign();
   };
 
   // save grouping to settings
@@ -340,18 +273,18 @@
       }
     }
 
-    // the world list section
-    .fwb-world-list-wrapper {
+    // the campaign list section
+    .fwb-campaign-list-wrapper {
       display: flex;
       flex: 0 1 100%;
       overflow: hidden;
 
-      .fwb-world-list {
+      .fwb-campaign-list {
         padding: 0;
         flex-grow: 1;
         overflow: auto;
 
-        .fwb-world-folder {
+        .fwb-campaign-folder {
           align-items: flex-start;
           justify-content: flex-start;
 
@@ -361,7 +294,7 @@
         }
       }
 
-      .fwb-world-folder > .folder-header {
+      .fwb-campaign-folder > .folder-header {
         border-bottom: none;
         width: 100%;
         flex: 1;
@@ -372,20 +305,20 @@
         }
       }
 
-      .fwb-world-folder:not(.collapsed) > .folder-header {
-        border-top: 1px solid var(--fwb-sidebar-world-border);
-        background: var(--fwb-sidebar-world-background);
-        color: var(--fwb-sidebar-world-color);
+      .fwb-campaign-folder:not(.collapsed) > .folder-header {
+        border-top: 1px solid var(--fwb-sidebar-campaign-border);
+        background: var(--fwb-sidebar-campaign-background);
+        color: var(--fwb-sidebar-campaign-color);
       }
 
-      .fwb-world-folder.collapsed > .folder-header {
-        border-top: 1px solid var(--fwb-sidebar-world-border-collapsed);
-        background: var(--fwb-sidebar-world-background-collapsed);
-        color: var(--fwb-sidebar-world-color-collapsed);
+      .fwb-campaign-folder.collapsed > .folder-header {
+        border-top: 1px solid var(--fwb-sidebar-campaign-border-collapsed);
+        background: var(--fwb-sidebar-campaign-background-collapsed);
+        color: var(--fwb-sidebar-campaign-color-collapsed);
         text-shadow: none;
       }
 
-      .fwb-world-folder .folder-header.context {
+      .fwb-campaign-folder .folder-header.context {
         border-top: 1px solid var(--mej-active-color);
         border-bottom: 1px solid var(--mej-active-color);
       }
@@ -415,7 +348,7 @@
         }
       }
 
-      .world-contents {
+      .campaign-contents {
         border-left: 6px solid var(--fwb-sidebar-subfolder-border);
         border-bottom: 2px solid var(--fwb-sidebar-subfolder-border);
         margin: 0px;
@@ -433,11 +366,11 @@
       }    
     }
 
-    .directory.sidebar-tab .fwb-world-list .entry.selected {
+    .directory.sidebar-tab .fwb-campaign-list .entry.selected {
       background: rgba(0, 0, 0, 0.03);
     }
 
-    .directory.sidebar-tab .fwb-world-list .entry.selected h4 {
+    .directory.sidebar-tab .fwb-campaign-list .entry.selected h4 {
       font-weight: bold;
     }    
   }

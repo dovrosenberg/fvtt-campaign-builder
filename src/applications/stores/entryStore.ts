@@ -4,7 +4,6 @@
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
 import { useMainStore } from './mainStore';
 
 // types

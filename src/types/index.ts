@@ -1,6 +1,7 @@
 export * from './directory';
 export * from './tables';
 export * from './relationships';
+export * from './global';
 
 export type WindowTab = {
   id: string;   // unique id

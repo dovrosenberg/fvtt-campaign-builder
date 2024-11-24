@@ -21,7 +21,6 @@
 
   // local imports
   import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
-  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { localize } from '@/utils/game';
 
   // library components

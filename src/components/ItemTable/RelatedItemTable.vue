@@ -29,7 +29,7 @@
         },
         table: { style: 'margin: 0px;'}
       }"
-      @rowSelect="onRowSelect"
+      @row-select="onRowSelect"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">

@@ -56,8 +56,8 @@ export const relationshipKeyReplace = (relationships: RelationshipFieldType, ser
 };
 
 
-const serializeEntryId = (entryId: string): string => { return entryId.replace(/\./g, '_'); }
-const deserializeEntryId = (entryId: string): string => { return entryId.replace(/_/g, '.'); }
+const serializeEntryId = (entryId: string): string => { return entryId.replace(/\./g, '_'); };
+const deserializeEntryId = (entryId: string): string => { return entryId.replace(/_/g, '.'); };
 
 export interface Entry extends JournalEntryPage {
   system: {

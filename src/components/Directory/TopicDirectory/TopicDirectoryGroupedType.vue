@@ -31,7 +31,7 @@
             v-for="node in currentType.loadedChildren"
             :key="node.id"
           >
-            <DirectoryGroupedNode 
+            <TopicDirectoryGroupedNode 
               :node="node" 
               :topic="props.topic"
               :type-name="currentType.name"
@@ -57,7 +57,7 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import DirectoryGroupedNode from './DirectoryGroupedNode.vue';
+  import TopicDirectoryGroupedNode from './TopicDirectoryGroupedNode.vue';
 
   // types
   import { DirectoryTypeNode, ValidTopic, } from '@/types';
@@ -164,7 +164,7 @@
             const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
             
             if (!worldFolder)
-              throw new Error('Invalid header in DirectoryGroupedType.onTypeContextMenu.onClick');
+              throw new Error('Invalid header in TopicDirectoryGroupedType.onTypeContextMenu.onClick');
 
             const entry = await currentEntryStore.createEntry(worldFolder, props.topic, { type: props.type.name } );
 

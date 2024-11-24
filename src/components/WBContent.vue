@@ -122,7 +122,7 @@
   import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
   
   // types
-  import { ValidTopic, Topic } from '@/types';
+  import { ValidTopic, Topic, Tabs } from '@/types';
   import { Entry } from '@/documents';
   
   ////////////////////////////////

@@ -25,7 +25,7 @@
       <ul>
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
         <div v-if="currentNode.expanded">
-          <DirectoryNodeComponent 
+          <TopicDirectoryNodeComponent 
             v-for="child in currentNode.loadedChildren"
             :key="child.id"
             :node="child"
@@ -53,7 +53,7 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import DirectoryNodeComponent from './DirectoryNode.vue';
+  import TopicDirectoryNodeComponent from './TopicDirectoryNode.vue';
 
   // types
   import { DirectoryEntryNode, ValidTopic } from '@/types';

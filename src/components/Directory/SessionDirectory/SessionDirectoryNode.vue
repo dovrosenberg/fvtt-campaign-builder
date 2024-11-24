@@ -1,5 +1,5 @@
 <template>
-  <DirectoryNodeWithChildren 
+  <TopicDirectoryNodeWithChildren 
     v-if="props.node.children.length" 
     :node="props.node"
     :world-id="props.worldId"
@@ -35,7 +35,7 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import DirectoryNodeWithChildren from './DirectoryNodeWithChildren.vue';
+  import TopicDirectoryNodeWithChildren from './TopicDirectoryNodeWithChildren.vue';
 
   // types
   import { DirectoryEntryNode, ValidTopic } from '@/types';

@@ -78,11 +78,11 @@ export const useMainStore = defineStore('main', () => {
       _currentEntry.value = entry;
   };
 
-/**
- * Refreshes the current entry by forcing all reactive properties to update.
- * This is achieved by creating a shallow copy of the current entry, which triggers
- * reactivity updates throughout the application.
- */
+  /**
+   * Refreshes the current entry by forcing all reactive properties to update.
+   * This is achieved by creating a shallow copy of the current entry, which triggers
+   * reactivity updates throughout the application.
+   */
   const refreshEntry = function (): void {
     // just force all reactivity to update
     _currentEntry.value = { ..._currentEntry.value };

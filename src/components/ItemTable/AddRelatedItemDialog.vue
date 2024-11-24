@@ -191,7 +191,7 @@
     resetDialog();
 
     loading.value = false;
-  }
+  };
   
   const onClose = function() {
     resetDialog();

@@ -1,6 +1,6 @@
 <template>
   <ul class="fwb-directory-tree">
-    <DirectoryGroupedType
+    <TopicDirectoryGroupedType
       v-for="type in props.topic.loadedTypes"
       :key="type.id"
       :type="type"
@@ -19,7 +19,7 @@
   // library components
 
   // local components
-  import DirectoryGroupedType from './DirectoryGroupedType.vue';
+  import TopicDirectoryGroupedType from './TopicDirectoryGroupedType.vue';
 
   // types
   import { DirectoryTopicNode, } from '@/types';
