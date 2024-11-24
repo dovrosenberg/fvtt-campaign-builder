@@ -117,7 +117,7 @@ export const useMainStore = defineStore('main', () => {
       [Topic.Event]: null,
       [Topic.Location]: null,
       [Topic.Organization]: null,
-    } as Record<ValidTopic, JournalEntry | null>;
+    } as Record<ValidTopic, JournalEntry | null> | null;
     const campaignJournals = [] as JournalEntry[];
 
     for (let i=0; i<topics.length; i++) {
@@ -130,15 +130,15 @@ export const useMainStore = defineStore('main', () => {
         throw new Error(`Could not find journal for topic ${t} in world ${currentWorldId.value}`);
     }
 
-    for (let i=0; i<campaignEntries.length; i++) {
+    for (let i=0; i<Object.keys(campaignEntries).length; i++) {
       // we need to load the actual entries - not just the index headers
-      const j = await(fromUuid(topicEntries[t])) as JournalEntry | null;
+      const j = await(fromUuid(Object.keys(campaignEntries)[i])) as JournalEntry | null;
       if (j)
         campaignJournals.push(j);
     }
 
     _currentTopicJournals.value = topicJournals as Record<ValidTopic, JournalEntry>;
-    _currentCampaignJournals.value = retval as JournalEntry[];
+    _currentCampaignJournals.value = campaignJournals;
   });
 
   ///////////////////////////////

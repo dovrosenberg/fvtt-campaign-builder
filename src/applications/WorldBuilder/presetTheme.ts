@@ -36,6 +36,19 @@ export default definePreset(Aura, {
       header: {
         padding: '0 .5rem',
       }
+    },
+    splitter: {
+      root: {
+        background: 'inherit',
+        borderColor: 'none',
+        color: 'inherit',
+      }
+    },
+    splitterPanel: {
+      borderRadius: '0',
+      background: 'inherit',
+      color: 'inherit',
+      borderColor: 'none',
     }
   }
 });

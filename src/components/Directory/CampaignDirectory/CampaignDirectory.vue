@@ -8,7 +8,7 @@
       <li 
         v-for="campaign in directoryStore.currentCampaignTree.value"
         :key="campaign.id"
-        :class="'fwb-campaign-folder folder flexcol ' + (currentCampaignId===campaign.id ? '' : 'collapsed')" 
+        :class="'fwb-campaign-folder folder flexcol ' + (campaign.expanded ? '' : 'collapsed')" 
         @click="onCampaignFolderClick($event, campaign.id)"
       >
         <header 
@@ -23,7 +23,7 @@
 
         <!-- These are the sessions -->
         <ol 
-          v-if="currentCampaignId===campaign.id"
+          v-if="campaign.expanded"
           class="campaign-contents"
         >
           <!-- data-topic-id is used by drag and drop and toggleEntry-->
@@ -54,6 +54,7 @@
         </ol>
       </li>
     </ol>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -69,8 +70,7 @@
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
-  import InputText from 'primevue/inputtext';
-
+  
   // local components
   import SessionDirectoryNode from './SessionDirectoryNode.vue';
   
@@ -364,14 +364,6 @@
         }
       }    
     }
-
-    .directory.sidebar-tab .fwb-campaign-list .entry.selected {
-      background: rgba(0, 0, 0, 0.03);
-    }
-
-    .directory.sidebar-tab .fwb-campaign-list .entry.selected h4 {
-      font-weight: bold;
-    }    
   }
 
   // #journal li.fwb-entry-item .fwb-entry-name, #journal li.fwb-type-item .fwb-entry-name {

@@ -108,7 +108,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
       }
 
       await directoryStore.updateFilterNodes();  // otherwise the new item will be hidden
-      await directoryStore.refreshCurrentTree(options.parentId ? [options.parentId, entry[0].uuid] : [entry[0].uuid]);
+      await directoryStore.refreshCurrentTrees(options.parentId ? [options.parentId, entry[0].uuid] : [entry[0].uuid]);
     }
    
     return entry ? entry[0] : null;
@@ -148,7 +148,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
     await navigationStore.cleanupDeletedEntry(entry.uuid);
 
     // refresh and force its parent to update
-    await directoryStore.refreshCurrentTree(hierarchy?.parentId ? [hierarchy?.parentId] : []);
+    await directoryStore.refreshCurrentTrees(hierarchy?.parentId ? [hierarchy?.parentId] : []);
   };
 
 

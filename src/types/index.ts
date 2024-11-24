@@ -1,7 +1,7 @@
-export * from './directory';
-export * from './tables';
-export * from './relationships';
-export * from './global';
+export type * from './directory.d.ts';
+export type * from './tables.d.ts';
+export type * from './relationships.d.ts';
+export type * from './global.d.ts';
 
 export type WindowTab = {
   id: string;   // unique id

@@ -145,7 +145,7 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder; worldFo
 /**
  * Makes sure that the world folder has a compendium and that the compendium id is stored in the settings
  * If any are missing, creates them.
- * Note: compendia kind of suck.   You can't rename them or change the label.  And you can't have more than one with the same name/label
+ * @privateRemarks  Note: compendia kind of suck.   You can't rename them or change the label.  And you can't have more than one with the same name/label
  * in a given world.  So we give them all unique names but then use a flag to display the proper label (which is the topic)
  * @param worldFolder The folder to check.
  */
@@ -192,7 +192,7 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
     if (!entry) {
       // create the missing one
       entry = await JournalEntry.create({
-        name: getTopicText(t),
+        name: getTopicTextPlural(t),
         folder: worldFolder.id,
       },{
         pack: compendiumId,
@@ -229,6 +229,25 @@ export function getTopicText(topic: Topic): string {
     case Topic.None:
     default: 
       throw new Error('Invalid topic in getTopicText()');
+  }
+}
+
+/**
+ * Returns a localized string representing the name of a given topic in plural form.
+ * 
+ * @param {Topic} topic - The topic for which to retrieve the text.
+ * @returns {string} A localized string for the topic.
+ * @throws {Error} If the topic is invalid.
+ */
+export function getTopicTextPlural(topic: Topic): string {
+  switch (toTopic(topic)) {
+    case Topic.Character: return localize('fwb.topics.characters') || ''; 
+    case Topic.Event: return localize('fwb.topics.events') || ''; 
+    case Topic.Location: return localize('fwb.topics.locations') || ''; 
+    case Topic.Organization: return localize('fwb.topics.organizations') || ''; 
+    case Topic.None:
+    default: 
+      throw new Error('Invalid topic in getTopicTextPlural()');
   }
 }
 
@@ -295,3 +314,53 @@ export async function updateEntry(currentCompendium: CompendiumCollection<any>, 
 
   return retval;
 }
+
+/**
+   * Creates a new campaign inside the given world.  Prompts for a name.
+   * 
+   * @param worldId - The UUID of the world in which to create the campaign.
+   * @returns A promise that resolves when the campaign has been created.
+   */
+export const createCampaign = async(worldId: string): Promise<JournalEntry | null> => {
+  // get the compendium
+  const compendiumId = WorldFlags.get(worldId, WorldFlagKey.worldCompendium);
+  const compendium = getGame().packs?.get(compendiumId) as CompendiumCollection<any> | null;
+
+  if (!compendium)
+    return null;
+
+  // get the name
+  let name;
+
+  do {
+    name = await inputDialog('Create Campaign', 'Campaign Name:');
+    
+    if (name) {
+      // unlock compendium to make the change
+      await compendium.configure({locked:false});
+
+      // create a journal entry for the campaign
+      const entry = await JournalEntry.create({
+        name: name,
+      },{
+        pack: compendiumId,
+      });  
+
+      // unlock compendium to make the change
+      await compendium.configure({locked:true});
+
+      if (!entry)
+        throw new Error('Couldn\'t create new campaign');
+
+      // update the list of campaigns
+      const campaigns = WorldFlags.get(worldId, WorldFlagKey.campaignEntries);
+      campaigns[entry.uuid] = name;
+      await WorldFlags.set(worldId, WorldFlagKey.campaignEntries, campaigns);
+      
+      return entry;
+    }
+  } while (name==='');  // if hit ok, must have a value
+
+  // if name isn't '' and we're here, then we cancelled the dialog
+  return null;
+};

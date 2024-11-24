@@ -122,7 +122,7 @@
   import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
   
   // types
-  import { ValidTopic, Topic, Tabs } from '@/types';
+  import { ValidTopic, Topic, } from '@/types';
   import { Entry } from '@/documents';
   
   ////////////////////////////////
@@ -160,7 +160,7 @@
   const topic = ref<Topic | null>(null);
   const name = ref<string>('');
 
-  const editorDocument = ref<Entry<any>>();
+  const editorDocument = ref<Entry>();
 
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
@@ -192,7 +192,7 @@
       if (currentEntry.value && currentEntry.value.name!==newValue) {
         await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), { name: newValue });
 
-        await directoryStore.refreshCurrentTree([currentEntry.value.uuid]);
+        await directoryStore.refreshCurrentTrees([currentEntry.value.uuid]);
         await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue);
       }
     }, debounceTime);

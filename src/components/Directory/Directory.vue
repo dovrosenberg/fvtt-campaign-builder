@@ -48,68 +48,76 @@
       </div>
     </header>
 
-    <div v-if="isTreeRefreshing">
-      <ProgressSpinner v-if="isTreeRefreshing" />
-    </div>
-    <div v-else class="fwb-world-list-wrapper">
-      <!-- these are the worlds -->
-      <ol class="fwb-world-list">
-        <li 
-          v-for="world in directoryStore.currentWorldTree.value"
-          :key="world.id"
-          :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
-          @click="onWorldFolderClick($event, world.id)"
-        >
-          <header 
-            class="folder-header flexrow"
-            @contextmenu="onWorldContextMenu($event, world.id)"
-          >
-            <h3 class="noborder">
-              <i class="fas fa-folder-open fa-fw"></i>
-              {{ world.name }}
-            </h3>
-          </header>
-
-          <!-- These are the topic compendia -->
-          <ol 
-            v-if="currentWorldId===world.id"
-            class="world-contents"
-          >
-            <!-- data-topic-id is used by drag and drop and toggleEntry-->
+    <Splitter layout="vertical">
+      <SplitterPanel :size="60"> 
+        <div v-if="isTreeRefreshing">
+          <ProgressSpinner v-if="isTreeRefreshing" />
+        </div>
+        <div v-else class="fwb-world-list-wrapper">
+          <!-- these are the worlds -->
+          <ol class="fwb-world-list">
             <li 
-              v-for="topic in world.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
-              :key="topic.topic"
-              :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
-              :data-topic="topic.topic" 
+              v-for="world in directoryStore.currentWorldTree.value"
+              :key="world.id"
+              :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
+              @click="onWorldFolderClick($event, world.id)"
             >
-              <header class="folder-header flexrow">
-                <div 
-                  class="fwb-compendium-label noborder" 
-                  style="margin-bottom:0px"
-                  @click="onTopicFolderClick($event, topic)"
-                  @contextmenu="onTopicContextMenu($event, world.id, topic.topic)"
-                >
-                  <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                  <i :class="'icon fas ' + getIcon(topic.topic)" style="margin-right: 4px;"></i>
-                  {{ topic.name }}
-                </div>
+              <header 
+                class="folder-header flexrow"
+                @contextmenu="onWorldContextMenu($event, world.id)"
+              >
+                <h3 class="noborder">
+                  <i class="fas fa-folder-open fa-fw"></i>
+                  {{ world.name }}
+                </h3>
               </header>
 
-              <TopicDirectoryGroupedTree
-                v-if="isGroupedByType" 
-                :topic="topic"
-                :world-id="world.id"
-              />
-              <TopicDirectoryNestedTree
-                v-else 
-                :topic="topic"
-                :world-id="world.id"
-              />
+              <!-- These are the topic compendia -->
+              <ol 
+                v-if="currentWorldId===world.id"
+                class="world-contents"
+              >
+                <!-- data-topic-id is used by drag and drop and toggleEntry-->
+                <li 
+                  v-for="topic in world.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
+                  :key="topic.topic"
+                  :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
+                  :data-topic="topic.topic" 
+                >
+                  <header class="folder-header flexrow">
+                    <div 
+                      class="fwb-compendium-label noborder" 
+                      style="margin-bottom:0px"
+                      @click="onTopicFolderClick($event, topic)"
+                      @contextmenu="onTopicContextMenu($event, world.id, topic.topic)"
+                    >
+                      <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
+                      <i :class="'icon fas ' + getIcon(topic.topic)" style="margin-right: 4px;"></i>
+                      {{ topic.name }}
+                    </div>
+                  </header>
+
+                  <TopicDirectoryGroupedTree
+                    v-if="isGroupedByType" 
+                    :topic="topic"
+                    :world-id="world.id"
+                  />
+                  <TopicDirectoryNestedTree
+                    v-else 
+                    :topic="topic"
+                    :world-id="world.id"
+                  />
+                </li>
+              </ol>
             </li>
           </ol>
-        </li>
-      </ol>
-    </div>
+        </div>
+      </SplitterPanel>
+      <SplitterPanel class="flex items-center justify-center"> 
+        <CampaignDirectory />
+      </SplitterPanel>
+    </Splitter>
+
     <!-- Directory Footer -->
     <!--
       <footer class="directory-footer action-buttons {{#if data.unavailable}}warning{{/if}}">
@@ -132,14 +140,18 @@
   import { getGame, localize } from '@/utils/game';
   import { getIcon, } from '@/utils/misc';
   import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { createCampaign } from '@/compendia';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
   import InputText from 'primevue/inputtext';
+  import Splitter from 'primevue/splitter';
+  import SplitterPanel from 'primevue/splitterpanel';
 
   // local components
-  import TopicDirectoryNestedTree from './TopicDirectoryNestedTree.vue';
-  import TopicDirectoryGroupedTree from './TopicDirectoryGroupedTree.vue';
+  import TopicDirectoryNestedTree from './TopicDirectory/TopicDirectoryNestedTree.vue';
+  import TopicDirectoryGroupedTree from './TopicDirectory/TopicDirectoryGroupedTree.vue';
+  import CampaignDirectory from './CampaignDirectory/CampaignDirectory.vue';
   
   // types
   import { DirectoryTopicNode, Topic, } from '@/types';
@@ -199,6 +211,15 @@
           onClick: async () => {
             if (worldId)
               await directoryStore.deleteWorld(worldId);
+          }
+        },
+        { 
+          icon: 'fa-signs-post',
+          iconFontClass: 'fas',
+          label: localize('fwb.contextMenus.worldFolder.createCampaign'), 
+          onClick: async () => {
+            if (worldId)
+              await createCampaign(worldId);
           }
         },
       ]
@@ -344,7 +365,8 @@
     .fwb-world-list-wrapper {
       display: flex;
       flex: 0 1 100%;
-      overflow: hidden;
+      overflow: auto;
+      height: 100%;
 
       .fwb-world-list {
         padding: 0;
@@ -432,14 +454,6 @@
         }
       }    
     }
-
-    .directory.sidebar-tab .fwb-world-list .entry.selected {
-      background: rgba(0, 0, 0, 0.03);
-    }
-
-    .directory.sidebar-tab .fwb-world-list .entry.selected h4 {
-      font-weight: bold;
-    }    
   }
 
   // #journal li.fwb-entry-item .fwb-entry-name, #journal li.fwb-type-item .fwb-entry-name {

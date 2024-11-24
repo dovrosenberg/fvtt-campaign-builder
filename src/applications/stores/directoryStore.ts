@@ -8,7 +8,7 @@ import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { hasHierarchy, Hierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore } from '@/applications/stores';
-import { createWorldFolder, getTopicText, validateCompendia } from '@/compendia';
+import { createWorldFolder, getTopicTextPlural, validateCompendia } from '@/compendia';
 import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 
 // types
@@ -59,10 +59,15 @@ export const useDirectoryStore = defineStore('directory', () => {
       await mainStore.setNewWorld(worldFolder.uuid);
     }
 
-    await refreshCurrentTree();
+    await refreshCurrentTrees();
   };
 
-  // expand the given topic, loading the new item data
+  /**
+   * Toggles the expansion state of the given topic node.
+   * 
+   * @param topic - The topic node to be toggled.
+   * @returns A promise that resolves when the topic has been toggled.
+   */
   const toggleTopic = async(topic: DirectoryTopicNode) : Promise<void> => {
     // closing is easy
     if (topic.expanded) {
@@ -71,7 +76,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       await _expandItem(topic, topic.id);
     }
 
-    await refreshCurrentTree();
+    await refreshCurrentTrees();
   };
 
   // move the entry to a new type (doesn't update the entry itself)
@@ -158,7 +163,7 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     await WorldFlags.unset(currentWorldId.value, WorldFlagKey.expandedIds);
 
-    await refreshCurrentTree();
+    await refreshCurrentTrees();
   };
  
   // set the parent for a node, cleaning up all associated relationships/records
@@ -274,30 +279,43 @@ export const useDirectoryStore = defineStore('directory', () => {
     }
     await WorldFlags.setTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic, topNodes);
 
-    await refreshCurrentTree([parentId, oldParentId].filter((id)=>id!==null));
+    await refreshCurrentTrees([parentId, oldParentId].filter((id)=>id!==null));
 
     return true;
   };
 
+/**
+ * Deletes a world identified by the given worldId.
+ * This includes deleting all associated compendia and the world folder itself.
+ * After deletion, the directory tree is refreshed.
+ * 
+ * @param worldId - The UUID of the world to be deleted.
+ * @returns A promise that resolves when the world and its compendia are deleted.
+ */
   const deleteWorld = async (worldId: string): Promise<void> => {
-    // delete all the compendia
-    if (currentWorldCompendium.value) {
-      await currentWorldCompendium.value.configure({ locked:false });
-      await currentWorldCompendium.value.deleteCompendium();
+    const worldFolder = await fromUuid(worldId) as Folder;
+
+    // get the compendium
+    const compendium = await fromUuid(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) as CompendiumCollection<any>;
+
+    if (compendium) {
+      await compendium.configure({ locked:false });
+      await compendium.deleteCompendium();
     }
 
     // delete the world folder
-    const worldFolder = await fromUuid(worldId) as Folder;
     await worldFolder.delete();
 
-    await refreshCurrentTree();
+    await refreshCurrentTrees();
   };
 
-  // refreshes the directory tree
+  
+ 
+  // refreshes the directory tree and campaign tree
   // we try to keep it fast by not reloading from disk nodes that we've already loaded before,
   //    but that means that when names change or children change, we're not refreshing them properly
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
-  const refreshCurrentTree = async (updateEntryIds?: string[]): Promise<void> => {
+  const refreshCurrentTrees = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world and journals loaded
     if (!currentWorldId.value || !currentTopicJournals.value)
       return;
@@ -311,7 +329,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     let currentWorld;    // the folder of the currently selected world
     tree = (toRaw(rootFolder.value) as Folder)?.children?.map((world: Folder): DirectoryWorld => {
       if (!world.folder)
-        throw new Error('World without folder in refreshCurrentTree()');
+        throw new Error('World without folder in refreshCurrentTrees()');
 
       if (world.folder.uuid===currentWorldId.value)
         currentWorld = world;
@@ -334,7 +352,7 @@ export const useDirectoryStore = defineStore('directory', () => {
         const id = `${currentWorldId.value}.topic.${topic}`;
         return {
           id: id,
-          name: getTopicText(topic),
+          name: getTopicTextPlural(topic),
           topic: topic,
           topNodes: WorldFlags.getTopicFlag(currentWorldId.value as string, WorldFlagKey.topNodes, topic),
           loadedTopNodes: [],
@@ -358,6 +376,39 @@ export const useDirectoryStore = defineStore('directory', () => {
     }
 
     currentWorldTree.value = tree;
+
+    // now do the campaign tree
+    let campaigns = WorldFlags.get(currentWorldId.value, WorldFlagKey.campaignEntries) || {};  
+
+    let updateCampaigns = false;
+    if (Object.keys(campaigns).length != currentCampaignTree.value.length) {
+      updateCampaigns = true;
+    } else if (currentCampaignTree.value.length > 0) {
+      // same length - make sure they all match
+      for (let i=0; i<currentCampaignTree.value.length; i++) {
+        // see if it's in there; if not, we need to update
+        if (!campaigns[currentCampaignTree.value[i].id]) {
+          updateCampaigns = true;
+          break;
+        }
+      }
+    }
+
+    if (updateCampaigns) {
+      currentCampaignTree.value = [];
+      
+      // get the all the entries 
+      for (let i=0; i<Object.keys(campaigns).length; i++) {
+        const id = Object.keys(campaigns)[i];
+
+        currentCampaignTree.value.push({
+          id: id,
+          name: campaigns[id],
+          expanded: false,
+        });
+      }
+    }
+
     isTreeRefreshing.value = false;
   };
 
@@ -568,10 +619,11 @@ export const useDirectoryStore = defineStore('directory', () => {
   watch(rootFolder, async (newRootFolder: Folder | null): Promise<void> => {
     if (!newRootFolder) {
       currentWorldTree.value = [];
+      currentCampaignTree.value = [];
       return;
     }
 
-    await refreshCurrentTree();
+    await refreshCurrentTrees();
   });
 
   // when the world changes, clean out the cache of loaded items
@@ -584,7 +636,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     
     await validateCompendia(newWorldFolder);
     await updateFilterNodes();  
-    await refreshCurrentTree();
+    await refreshCurrentTrees();
   });
   
   // when the current journal set is updated, refresh the tree
@@ -594,7 +646,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     }
 
     await updateFilterNodes();  
-    await refreshCurrentTree();
+    await refreshCurrentTrees();
   });
   
   // save grouping to settings
@@ -630,7 +682,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     toggleType,
     collapseAll,
     setNodeParent,
-    refreshCurrentTree,
+    refreshCurrentTrees,
     updateEntryType,
     updateFilterNodes,
     deleteWorld,

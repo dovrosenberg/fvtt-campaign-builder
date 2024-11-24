@@ -67,7 +67,8 @@
         "delete": "Delete bookmark"
       },
       "worldFolder": {
-        "delete": "Delete world"
+        "delete": "Delete world",
+        "createCampaign": "Create campaign"
       },
       "topicFolder": {
         "create": {
