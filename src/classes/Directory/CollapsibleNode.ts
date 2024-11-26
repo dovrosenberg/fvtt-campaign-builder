@@ -1,0 +1,156 @@
+import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { DirectoryEntryNode, ValidTopic } from '..';
+import { Entry } from '@/documents';
+
+export abstract class CollapsibleNode {
+  protected static _currentTopicJournals: Record<ValidTopic, JournalEntry> = {};   
+  protected static _currentWorldId: string | null = null;
+  protected static _loadedNodes = {} as Record<string, DirectoryEntryNode>;   // maps uuid to the node for easy lookup
+
+  id: string;
+  parentId: string | null;
+  children: string[];    // ids of all children (which might not be loaded)
+  ancestors: string[];    // ids of all ancestors
+  loadedChildren: DirectoryEntryNode[];
+  expanded: boolean;
+  topic: ValidTopic;
+  
+  constructor(id: string, topic: ValidTopic, expanded: boolean = false, parentId: string | null = null,
+    children: string[] = [], loadedChildren: DirectoryEntryNode[] = [], ancestors: string[] = []
+  ) {
+    this.id = id; 
+    this.expanded = expanded;
+    this.topic = topic;
+    this.parentId = parentId;
+    this.children = children;
+    this.loadedChildren = loadedChildren;
+    this.ancestors = ancestors;
+  }
+
+  public static set currentWorldId(worldId: string | null) {
+    CollapsibleNode._currentWorldId = worldId;
+    CollapsibleNode._loadedNodes = {};
+  }
+
+  public static set currentTopicJournals(journals: Record<ValidTopic, JournalEntry>) {
+    CollapsibleNode._currentTopicJournals = journals;
+  }
+
+  /**
+   * Toggles the expansion state of the node.
+   * 
+   * @returns A promise that resolves when the topic has been toggled.
+   */
+  public async toggle() : Promise<void> {
+    // closing is easy
+    if (this.expanded) {
+      await this.collapse();
+    } else {
+      await this.expand();
+    }
+  }
+
+  // used to toggle entries and compendia (not worlds)
+  public async collapse(): Promise<void> {
+    if (!CollapsibleNode._currentWorldId)
+      return;
+
+    await WorldFlags.unset(CollapsibleNode._currentWorldId, WorldFlagKey.expandedIds, this.id);
+  }
+
+  public async expand(): Promise<void> {
+    if (!CollapsibleNode._currentWorldId)
+      return;
+
+    const expandedIds = WorldFlags.get(CollapsibleNode._currentWorldId, WorldFlagKey.expandedIds) || {};
+    await WorldFlags.set(CollapsibleNode._currentWorldId, WorldFlagKey.expandedIds, {...expandedIds, [this.id]: true});
+  } 
+ 
+  // expand/contract  the given entry, loading the new item data
+  // return the new node
+  public async toggleWithLoad(expanded: boolean) : Promise<typeof this> {
+    if (this.expanded===expanded || !CollapsibleNode._currentWorldId)
+      return this;
+    
+    if (this.expanded) {
+      await this.collapse();
+    } else {
+      await this.expand();
+    }
+
+    // instead of refreshing the whole tree, we can just update the node
+    const updatedNode = foundry.utils.deepClone(this);
+    updatedNode.expanded = expanded;
+
+    // make sure all children are properly loaded (if it's being opened)
+    if (expanded) {
+      const expandedIds = WorldFlags.get(CollapsibleNode._currentWorldId, WorldFlagKey.expandedIds) || {};
+
+      await updatedNode.recursivelyLoadNode(expandedIds);
+    }
+    
+    return updatedNode;
+  }
+
+  /**
+   * loads a set of nodes, including expanded status
+   * @param ids uuids of the nodes to load
+   * @param updateEntryIds uuids of the nodes that should be refreshed
+   */
+  private static _loadNodeList = async(topic: ValidTopic, ids: string[], updateEntryIds: string[] ): Promise<void> => {
+    // make sure we've loaded what we need
+    if (!CollapsibleNode._currentTopicJournals) {
+      CollapsibleNode._loadedNodes = {};
+      return;
+    }
+
+    // we only want to load ones not already in _loadedNodes, unless its in updateEntryIds
+    const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateEntryIds.includes(id));
+
+    const entries = CollapsibleNode._currentTopicJournals[topic].collections.pages.filter((e: Entry)=>uuidsToLoad.includes(e.uuid));
+
+    for (let i=0; i<entries.length; i++) {
+      const newNode = DirectoryEntryNode.fromEntry(entries[i]);
+      CollapsibleNode._loadedNodes[newNode.id] = newNode;
+    }
+  };
+  
+  public async recursivelyLoadNode(expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> {
+    // load any children that haven't been loaded before
+    // this guarantees all children are at least in CollapsibleNode._loadedNodes and updateEntryIds ones have been refreshed
+    const nodesToLoad = this.children.filter((id)=>!this.loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id));
+
+    if (nodesToLoad.length>0)
+      await CollapsibleNode._loadNodeList(this.topic, nodesToLoad, updateEntryIds);
+
+    // have to check all children loaded and update their expanded states
+    for (let i=0; i<this.children.length; i++) {
+      let child: DirectoryEntryNode | null = this.loadedChildren.find((n)=>n.id===this.children[i]) || null;
+
+      if (child && !updateEntryIds.includes(child.id)) {
+        // this one is already loaded and attached (and not a forced update)
+      } else if (CollapsibleNode._loadedNodes[this.children[i]]) {
+        // it was loaded previously - just reattach it
+        // without a deep clone, the reactivity down the tree on node.expanded isn't working... so doing this for now unless it creates performance issues
+        // TODO - don't need to clone the 1st time we load from disk... it should ba  load or a clone, not both
+        child = foundry.utils.deepClone(CollapsibleNode._loadedNodes[this.children[i]]);
+
+        if (!child)
+          throw new Error('Child failed to load properly in CollapsibleNode.recursivelyLoadNode() ');
+
+        this.loadedChildren.push(child);
+      } else {
+        // should never happen because everything should be in _loadedNodes
+        throw new Error('Entry failed to load properly in CollapsibleNode.recursivelyLoadNode() ');
+      }
+
+      // may need to change the expanded state
+      child.expanded = expandedNodes[child.id] || false;
+
+      if (child.expanded || updateEntryIds.includes(child.id)) {
+        await child.recursivelyLoadNode(expandedNodes, updateEntryIds);
+      }
+    }      
+  }
+  
+}

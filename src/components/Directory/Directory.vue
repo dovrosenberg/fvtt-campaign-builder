@@ -154,7 +154,8 @@
   import CampaignDirectory from './CampaignDirectory/CampaignDirectory.vue';
   
   // types
-  import { DirectoryTopicNode, Topic, } from '@/types';
+  import { Topic, } from '@/types';
+  import { DirectoryTopicNode, } from '@/classes';
   
   ////////////////////////////////
   // props

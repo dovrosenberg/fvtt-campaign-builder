@@ -1,7 +1,7 @@
 <template>
   <ul class="fwb-directory-tree">
     <NodeComponent 
-      v-for="node in props.topic.loadedTopNodes"
+      v-for="node in props.topic.loadedChildren"
       :key="node.id"
       :node="node" 
       :world-id="props.worldId"
@@ -26,7 +26,7 @@
   import NodeComponent from './TopicDirectoryNode.vue';
 
   // types
-  import { DirectoryTopicNode, } from '@/types';
+  import { DirectoryTopicNode, } from '@/classes';
   
   ////////////////////////////////
   // props

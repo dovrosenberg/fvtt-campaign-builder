@@ -34,7 +34,7 @@ type FlagSettings<K extends WorldFlagKey> = {
   flagId: K;
   default: WorldFlagType<K>;
 
-  clean?: (value: T)=>void;  // clean converts the object to a "complex object" so that flatten/expand don't act on it
+  clean?: (value: WorldFlagType<K>)=>void;  // clean converts the object to a "complex object" so that flatten/expand don't act on it
 
   // needsFlatten determines if flattenObject is called, which is needed when the key is a record with keys that might have '.'
   //    THIS IS ONLY SAFE SO LONG AS THE VALUES ARE NOT ALSO OBJECTS!!!

@@ -29,7 +29,8 @@
   // local components
 
   // types
-  import { DirectoryTypeEntryNode, Topic, ValidTopic } from '@/types';
+  import { Topic, ValidTopic } from '@/types';
+  import { DirectoryTypeEntryNode, } from '@/classes';
   
   ////////////////////////////////
   // props

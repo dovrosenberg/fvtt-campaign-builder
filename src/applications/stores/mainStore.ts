@@ -9,6 +9,7 @@ import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
 import { getCleanEntry } from '@/compendia';
+import { CollapsibleNode } from '@/classes';
 
 // types
 import { Topic, ValidTopic } from '@/types';
@@ -117,7 +118,7 @@ export const useMainStore = defineStore('main', () => {
       [Topic.Event]: null,
       [Topic.Location]: null,
       [Topic.Organization]: null,
-    } as Record<ValidTopic, JournalEntry | null> | null;
+    } as Record<ValidTopic, JournalEntry | null>;
     const campaignJournals = [] as JournalEntry[];
 
     for (let i=0; i<topics.length; i++) {
@@ -139,6 +140,9 @@ export const useMainStore = defineStore('main', () => {
 
     _currentTopicJournals.value = topicJournals as Record<ValidTopic, JournalEntry>;
     _currentCampaignJournals.value = campaignJournals;
+
+    CollapsibleNode.currentWorldId = newValue.uuid;
+    CollapsibleNode.currentTopicJournals = topicJournals;
   });
 
   ///////////////////////////////
