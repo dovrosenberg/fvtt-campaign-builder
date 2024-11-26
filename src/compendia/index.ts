@@ -154,7 +154,7 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
 
   // the id for the compendia 
   let compendiumId: string = '';
-  let compendium: CompendiumCollection<Any> | undefined | null;
+  let compendium: CompendiumCollection<any> | undefined | null;
 
   const setting = WorldFlags.get(worldFolder.uuid, WorldFlagKey.worldCompendium); 
 

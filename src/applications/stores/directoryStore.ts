@@ -6,13 +6,15 @@ import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 
 // local imports
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { hasHierarchy, Hierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
+import { hasHierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore } from '@/applications/stores';
 import { createWorldFolder, getTopicTextPlural, validateCompendia } from '@/compendia';
 import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
+import { getGame } from '@/utils/game';
 
 // types
-import { DirectoryWorld, DirectoryTopicNode, DirectoryEntryNode, Topic, DirectoryTypeNode, DirectoryTypeEntryNode, ValidTopic, DirectoryCampaign } from '@/types';
+import { DirectoryTopicNode, DirectoryEntryNode, CollapsibleNode } from '@/classes';
+import { DirectoryWorld, Topic, ValidTopic, DirectoryCampaign } from '@/types';
 import { Entry } from '@/documents';
 
 // the store definition
@@ -23,11 +25,10 @@ export const useDirectoryStore = defineStore('directory', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { rootFolder, currentWorldId, currentWorldFolder, currentTopicJournals, currentWorldCompendium } = storeToRefs(mainStore); 
+  const { rootFolder, currentWorldId, currentWorldFolder, currentTopicJournals,} = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
-  let _loadedNodes = {} as Record<string, DirectoryEntryNode>;   // maps uuid to the node for easy lookup
 
   ///////////////////////////////
   // external state
@@ -69,13 +70,7 @@ export const useDirectoryStore = defineStore('directory', () => {
    * @returns A promise that resolves when the topic has been toggled.
    */
   const toggleTopic = async(topic: DirectoryTopicNode) : Promise<void> => {
-    // closing is easy
-    if (topic.expanded) {
-      await _collapseItem(topic, topic.id);
-    } else {
-      await _expandItem(topic, topic.id);
-    }
-
+    await topic.toggleWithLoad(!topic.expanded);
     await refreshCurrentTrees();
   };
 
@@ -113,49 +108,10 @@ export const useDirectoryStore = defineStore('directory', () => {
 
   // expand/contract  the given entry, loading the new item data
   // return the new node
-  const toggleEntry = async(topic: ValidTopic, node: DirectoryEntryNode, expanded: boolean) : Promise<DirectoryEntryNode>=> {
-    if (node.expanded===expanded || !currentWorldId.value)
-      return node;
-    
-    if (node.expanded) {
-      await _collapseItem(node, node.id);
-    } else {
-      await _expandItem(node, node.id);
-    }
-
-    // instead of refreshing the whole tree, we can just update the node
-    const updatedNode = foundry.utils.deepClone(node);
-    updatedNode.expanded = expanded;
-
-    // make sure all children are properly loaded (if it's being opened)
-    if (expanded) {
-      const expandedIds = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
-
-      await _recursivelyLoadNode(topic, updatedNode.children, updatedNode.loadedChildren, expandedIds);
-    }
-    
-    return updatedNode;
+  const toggleWithLoad = async(node: DirectoryEntryNode, expanded: boolean) : Promise<DirectoryEntryNode>=> {
+    return await node.toggleWithLoad(expanded);
   };
 
-  // expand/contract the given type node, loading the new item data
-  // return the new node
-  const toggleType = async(node: DirectoryTypeNode, expanded: boolean) : Promise<DirectoryTypeNode>=> {
-    if (node.expanded===expanded || !currentWorldId.value)
-      return node;
-    
-    if (node.expanded) {
-      await _collapseItem(node, node.id);
-    } else {
-      await _expandItem(node, node.id);
-    }
-
-    // instead of refreshing the whole tree, we can just update the node
-    const updatedNode = foundry.utils.deepClone(node);
-    updatedNode.expanded = expanded;
-
-    // everything is loaded, so we don't need to do anything else
-    return updatedNode;
-  };
 
   const collapseAll = async(): Promise<void> => {
     if (!currentWorldId.value)
@@ -178,7 +134,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       if (!currentWorldId.value)
         return;
 
-      await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, _convertNodeToHierarchy(node));
+      await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, node.convertToHierarchy());
     };
 
     // topic has to have hierarchy
@@ -193,8 +149,8 @@ export const useDirectoryStore = defineStore('directory', () => {
 
     // get the parent, if any, and create the nodes for simpler syntax 
     const parent = parentId ? await fromUuid(parentId) as Entry: null;
-    const parentNode = parent ? _convertEntryToNode(parent) : null;
-    const childNode =  _convertEntryToNode(child);
+    const parentNode = parent ? DirectoryEntryNode.fromEntry(parent) : null;
+    const childNode =  DirectoryEntryNode.fromEntry(child);
     const oldParentId = childNode.parentId;
 
     // make sure it's not already in the right place
@@ -212,7 +168,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     // if the child already has a parent, remove it from that parent's children
     if (childNode.parentId) {
       const oldParent = await fromUuid(childNode.parentId) as Entry;
-      const oldParentNode = oldParent ? _convertEntryToNode(oldParent) : null;
+      const oldParentNode = oldParent ? DirectoryEntryNode.fromEntry(oldParent) : null;
       if (oldParentNode) {
         oldParentNode.children = oldParentNode.children.filter((c)=>c!==childId);
         await saveHierarchyToEntryFromNode(oldParent, oldParentNode);
@@ -254,7 +210,7 @@ export const useDirectoryStore = defineStore('directory', () => {
         // this seems safe, despite 
         for (let i=0; i<children?.length; i++) {
           const child = await fromUuid(children[i]) as Entry;
-          const childNode = _convertEntryToNode(child);
+          const childNode = DirectoryEntryNode.fromEntry(child);
           childNode.ancestors = childNode.ancestors.filter(a => !ancestorsToRemove.includes(a));
           childNode.ancestors = childNode.ancestors.concat(ancestorsToAdd);
 
@@ -284,20 +240,20 @@ export const useDirectoryStore = defineStore('directory', () => {
     return true;
   };
 
-/**
- * Deletes a world identified by the given worldId.
- * This includes deleting all associated compendia and the world folder itself.
- * After deletion, the directory tree is refreshed.
- * 
- * @param worldId - The UUID of the world to be deleted.
- * @returns A promise that resolves when the world and its compendia are deleted.
- */
+  /**
+   * Deletes a world identified by the given worldId.
+   * This includes deleting all associated compendia and the world folder itself.
+   * After deletion, the directory tree is refreshed.
+   * 
+   * @param worldId - The UUID of the world to be deleted.
+   * @returns A promise that resolves when the world and its compendia are deleted.
+   */
   const deleteWorld = async (worldId: string): Promise<void> => {
     const worldFolder = await fromUuid(worldId) as Folder;
 
     // get the compendium
-    const compendium = await fromUuid(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) as CompendiumCollection<any>;
-
+    const compendium = getGame().packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
+     
     if (compendium) {
       await compendium.configure({ locked:false });
       await compendium.deleteCompendium();
@@ -350,15 +306,15 @@ export const useDirectoryStore = defineStore('directory', () => {
       const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization] as ValidTopic[];
       currentWorldBlock.topics = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${currentWorldId.value}.topic.${topic}`;
-        return {
-          id: id,
-          name: getTopicTextPlural(topic),
-          topic: topic,
-          topNodes: WorldFlags.getTopicFlag(currentWorldId.value as string, WorldFlagKey.topNodes, topic),
-          loadedTopNodes: [],
-          loadedTypes: [],
-          expanded: expandedNodes[id] || false,
-        };
+        return new DirectoryTopicNode(
+          id,
+          getTopicTextPlural(topic),
+          topic,
+          WorldFlags.getTopicFlag(currentWorldId.value as string, WorldFlagKey.topNodes, topic),
+          [],
+          [],
+          expandedNodes[id] || false,
+        )
       }).sort((a: DirectoryTopicNode, b: DirectoryTopicNode): number => a.topic - b.topic);
 
       // load any open topics
@@ -369,16 +325,16 @@ export const useDirectoryStore = defineStore('directory', () => {
           continue;
 
         // have to check all children are loaded and expanded properly
-        await _recursivelyLoadNode(directoryTopicNode.topic, directoryTopicNode.topNodes, directoryTopicNode.loadedTopNodes, expandedNodes, updateEntryIds);
+        await directoryTopicNode.recursivelyLoadNode(expandedNodes, updateEntryIds);
 
-        await _loadTypeEntries(directoryTopicNode, types[directoryTopicNode.topic], expandedNodes);
+        await directoryTopicNode.loadTypeEntries(currentTopicJournals.value, types[directoryTopicNode.topic], expandedNodes);
       }
     }
 
     currentWorldTree.value = tree;
 
     // now do the campaign tree
-    let campaigns = WorldFlags.get(currentWorldId.value, WorldFlagKey.campaignEntries) || {};  
+    const campaigns = WorldFlags.get(currentWorldId.value, WorldFlagKey.campaignEntries) || {};  
 
     let updateCampaigns = false;
     if (Object.keys(campaigns).length != currentCampaignTree.value.length) {
@@ -404,77 +360,14 @@ export const useDirectoryStore = defineStore('directory', () => {
         currentCampaignTree.value.push({
           id: id,
           name: campaigns[id],
+          sessions: [],
+          loadedSessions: [],
           expanded: false,
         });
       }
     }
 
     isTreeRefreshing.value = false;
-  };
-
-  const _recursivelyLoadNode = async (topic: ValidTopic, children: string[], loadedChildren: DirectoryEntryNode[], expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> => {
-    // load any children that haven't been loaded before
-    // this guarantees all children are at least in _loadedNodes and updateEntryIds ones have been refreshed
-    const nodesToLoad = children.filter((id)=>!loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id));
-
-    if (nodesToLoad.length>0)
-      await _loadNodeList(topic, nodesToLoad, updateEntryIds);
-
-    // have to check all children loaded and update their expanded states
-    for (let i=0; i<children.length; i++) {
-      let child: DirectoryEntryNode | null = loadedChildren.find((n)=>n.id===children[i]) || null;
-
-      if (child && !updateEntryIds.includes(child.id)) {
-        // this one is already loaded and attached (and not a forced update)
-      } else if (_loadedNodes[children[i]]) {
-        // it was loaded previously - just reattach it
-        // without a deep clone, the reactivity down the tree on node.expanded isn't working... so doing this for now unless it creates performance issues
-        // TODO - don't need to clone the 1st time we load from disk... it should ba  load or a clone, not both
-        child = foundry.utils.deepClone(_loadedNodes[children[i]]);
-
-        loadedChildren.push(child);
-      } else {
-        // should never happen because everything should be in _loadedNodes
-        throw new Error('Entry failed to load properly in directoryStore._recursivelyLoadNode() ');
-      }
-
-      // may need to change the expanded state
-      child.expanded = expandedNodes[child.id] || false;
-
-      if (child.expanded || updateEntryIds.includes(child.id)) {
-        await _recursivelyLoadNode(topic, child.children, child.loadedChildren, expandedNodes, updateEntryIds);
-      }
-    }      
-  };
-
-  /**
-   * This function is used to load all of the type entries for a particular topic.
-   * @param topicNode the DirectoryTopicNode to load
-   * @param types the types for this topic
-   * @param expandedIds the ids that are currently expanded
-   * @returns a promise that resolves when the entries are loaded
-   */
-  const _loadTypeEntries = async (topicNode: DirectoryTopicNode, types: string [], expandedIds: Record<string, boolean | null>): Promise<void> => {
-    // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
-    //    type on the journalentry, or pack or world, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
-    //    that is also in the index)
-    if (!currentTopicJournals.value)
-      return;
-
-    const allEntries = await currentTopicJournals.value[topicNode.topic].collections.pages.contents as Entry[];
-    
-    topicNode.loadedTypes = types.map((type: string): DirectoryTypeNode => ({
-      name: type,
-      id: topicNode.id + ':' + type,
-      expanded: expandedIds[topicNode.id + ':' + type] || false,   
-      loadedChildren: allEntries.filter((e: Entry)=> {
-        const entryType = e.system.type;
-        return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type);
-      }).map((entry: Entry): DirectoryTypeEntryNode=> ({
-        id: entry.uuid,
-        name: entry.name || NO_NAME_STRING,
-      })).sort((a, b) => a.name.localeCompare(b.name))      
-    }));
   };
   
   ///////////////////////////////
@@ -489,7 +382,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   //   if (!entry)
   //     return null;
   //   else {
-  //     const newNode = _convertEntryToNode(entry);
+  //     const newNode = DirectoryEntryNode.fromEntry(entry);
   //     newNode.expanded = expandedIds[newNode.id] || false;
 
   //     _loadedNodes[newNode.id] = newNode;
@@ -544,75 +437,7 @@ export const useDirectoryStore = defineStore('directory', () => {
     filterNodes.value = retval;
   };
 
-  /**
-   * loads a set of nodes, including expanded status
-   * @param ids uuids of the nodes to load
-   * @param updateEntryIds uuids of the nodes that should be refreshed
-   */
-  const _loadNodeList = async(topic: ValidTopic, ids: string[], updateEntryIds: string[] ): Promise<void> => {
-    // make sure we've loaded what we need
-    if (!currentTopicJournals.value) {
-      _loadedNodes = {};
-      return;
-    }
-
-    // we only want to load ones not already in _loadedNodes, unless its in updateEntryIds
-    const uuidsToLoad = ids.filter((id)=>!_loadedNodes[id] || updateEntryIds.includes(id));
-
-    const entries = currentTopicJournals.value[topic].collections.pages.filter((e: Entry)=>uuidsToLoad.includes(e.uuid));
-
-    for (let i=0; i<entries.length; i++) {
-      const newNode = _convertEntryToNode(entries[i]);
-      _loadedNodes[newNode.id] = newNode;
-    }
-  };
-
-  // used to toggle entries and compendia (not worlds)
-  const _collapseItem = async(node: DirectoryEntryNode | DirectoryTopicNode | DirectoryTypeNode, id: string): Promise<void> => {
-    if (!currentWorldId.value)
-      return;
-
-    await WorldFlags.unset(currentWorldId.value, WorldFlagKey.expandedIds, id);
-  };
-
-  const _expandItem = async(node: DirectoryEntryNode | DirectoryTopicNode | DirectoryTypeNode, id: string): Promise<void> => {
-    if (!currentWorldId.value)
-      return;
-
-    const expandedIds = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
-    await WorldFlags.set(currentWorldId.value, WorldFlagKey.expandedIds, {...expandedIds, [id]: true});
-  };
-
-
-  // converts the entry to a DirectoryEntryNode for cleaner interface
-  const _convertEntryToNode = (entry: Entry): DirectoryEntryNode => {
-    if (!currentWorldId.value)
-      throw new Error('No currentWorldId in directoryStore._convertEntryToNode()');
-
-    const hierachy = WorldFlags.getHierarchy(currentWorldId.value, entry.uuid);
-
-    return {
-      id: entry.uuid,
-      name: entry.name || NO_NAME_STRING,
-      parentId: hierachy?.parentId || null,
-      children: hierachy?.children || [],
-      ancestors: hierachy?.ancestors || [],
-      loadedChildren: [],
-      type: entry.system.type || NO_TYPE_STRING,
-      expanded: false,  // TODO- load this, too
-    };
-  };
-
-  // converts a DirectoryEntryNode to a Hierarchy object
-  const _convertNodeToHierarchy = (node: DirectoryEntryNode): Hierarchy => {
-    return {
-      parentId: node.parentId,
-      children: node.children,
-      ancestors: node.ancestors,
-      type: node.type,
-    };
-  };
-
+  
   ///////////////////////////////
   // watchers
   // when the root folder changes, load the top level info (worlds and packs)
@@ -632,7 +457,7 @@ export const useDirectoryStore = defineStore('directory', () => {
       return;
     }
 
-    _loadedNodes = {};
+    CollapsibleNode.currentWorldId = newWorldFolder.uuid;
     
     await validateCompendia(newWorldFolder);
     await updateFilterNodes();  
@@ -640,10 +465,12 @@ export const useDirectoryStore = defineStore('directory', () => {
   });
   
   // when the current journal set is updated, refresh the tree
-  watch(currentTopicJournals, async (currentTopicJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
-    if (!currentTopicJournals) {
+  watch(currentTopicJournals, async (newJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
+    if (!newJournals) {
       return;
     }
+
+    CollapsibleNode.currentTopicJournals = newJournals;
 
     await updateFilterNodes();  
     await refreshCurrentTrees();
@@ -677,9 +504,8 @@ export const useDirectoryStore = defineStore('directory', () => {
     filterText,
     filterNodes,
 
-    toggleEntry,
     toggleTopic,
-    toggleType,
+    toggleWithLoad,
     collapseAll,
     setNodeParent,
     refreshCurrentTrees,

@@ -75,7 +75,8 @@
   import SessionDirectoryNode from './SessionDirectoryNode.vue';
   
   // types
-  import { DirectoryTopicNode, Topic, } from '@/types';
+  import { Topic, } from '@/types';
+  import { DirectoryTopicNode,  } from '@/classes';
   
   ////////////////////////////////
   // props

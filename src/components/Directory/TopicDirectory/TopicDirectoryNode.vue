@@ -38,7 +38,8 @@
   import TopicDirectoryNodeWithChildren from './TopicDirectoryNodeWithChildren.vue';
 
   // types
-  import { DirectoryEntryNode, ValidTopic } from '@/types';
+  import { ValidTopic } from '@/types';
+  import { DirectoryEntryNode, } from '@/classes';
   import { Entry } from '@/documents';
 
   ////////////////////////////////
@@ -166,7 +167,7 @@
             const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
             if (!worldFolder || !props.topic)
-              throw new Error('Invalid header in DirectoryEntryNode.onEntryContextMenu.onClick');
+              throw new Error('Invalid header in TopicDirectoryNode.onEntryContextMenu.onClick');
 
             const entry = await currentEntryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
 

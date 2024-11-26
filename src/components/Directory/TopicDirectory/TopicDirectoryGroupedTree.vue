@@ -22,7 +22,7 @@
   import TopicDirectoryGroupedType from './TopicDirectoryGroupedType.vue';
 
   // types
-  import { DirectoryTopicNode, } from '@/types';
+  import { DirectoryTopicNode, } from '@/classes';
   
   ////////////////////////////////
   // props

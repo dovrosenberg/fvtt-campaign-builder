@@ -60,7 +60,8 @@
   import TopicDirectoryGroupedNode from './TopicDirectoryGroupedNode.vue';
 
   // types
-  import { DirectoryTypeNode, ValidTopic, } from '@/types';
+  import { ValidTopic, } from '@/types';
+  import { DirectoryTypeNode, } from '@/classes';
 
   
   ////////////////////////////////
@@ -105,7 +106,7 @@
   ////////////////////////////////
   // event handlers
   const onTypeToggleClick = async () => {
-    currentType.value = await directoryStore.toggleType(currentType.value, !currentType.value.expanded);
+    currentType.value = await directoryStore.toggleWithLoad(currentType.value, !currentType.value.expanded);
   };
 
   // you can drop an item on a type and it should reassign the type
