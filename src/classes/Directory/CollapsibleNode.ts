@@ -1,26 +1,24 @@
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { DirectoryEntryNode, ValidTopic } from '..';
-import { Entry } from '@/documents';
+import { DirectoryEntryNode, DirectoryTypeEntryNode, } from '@/classes';
+import { ValidTopic } from '@/types';
 
-export abstract class CollapsibleNode {
+export abstract class CollapsibleNode<ChildType extends DirectoryEntryNode | DirectoryTypeEntryNode | never> {
   protected static _currentTopicJournals: Record<ValidTopic, JournalEntry> = {};   
   protected static _currentWorldId: string | null = null;
-  protected static _loadedNodes = {} as Record<string, DirectoryEntryNode>;   // maps uuid to the node for easy lookup
+  protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode>;   // maps uuid to the node for easy lookup
 
   id: string;
   parentId: string | null;
   children: string[];    // ids of all children (which might not be loaded)
   ancestors: string[];    // ids of all ancestors
-  loadedChildren: DirectoryEntryNode[];
+  loadedChildren: ChildType[];
   expanded: boolean;
-  topic: ValidTopic;
   
-  constructor(id: string, topic: ValidTopic, expanded: boolean = false, parentId: string | null = null,
-    children: string[] = [], loadedChildren: DirectoryEntryNode[] = [], ancestors: string[] = []
+  constructor(id: string, expanded: boolean = false, parentId: string | null = null,
+    children: string[] = [], loadedChildren: ChildType[] = [], ancestors: string[] = []
   ) {
     this.id = id; 
     this.expanded = expanded;
-    this.topic = topic;
     this.parentId = parentId;
     this.children = children;
     this.loadedChildren = loadedChildren;
@@ -39,7 +37,7 @@ export abstract class CollapsibleNode {
   /**
    * Toggles the expansion state of the node.
    * 
-   * @returns A promise that resolves when the topic has been toggled.
+   * @returns A promise that resolves when the node has been toggled.
    */
   public async toggle() : Promise<void> {
     // closing is easy
@@ -93,27 +91,11 @@ export abstract class CollapsibleNode {
   }
 
   /**
-   * loads a set of nodes, including expanded status
+   * loads a set of nodes of the proper type into _loadedNodes, including expanded status
    * @param ids uuids of the nodes to load
-   * @param updateEntryIds uuids of the nodes that should be refreshed
+   * @param updateEntryIds uuids of the nodes that should be refreshed (i.e. load them even if present)
    */
-  private static _loadNodeList = async(topic: ValidTopic, ids: string[], updateEntryIds: string[] ): Promise<void> => {
-    // make sure we've loaded what we need
-    if (!CollapsibleNode._currentTopicJournals) {
-      CollapsibleNode._loadedNodes = {};
-      return;
-    }
-
-    // we only want to load ones not already in _loadedNodes, unless its in updateEntryIds
-    const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateEntryIds.includes(id));
-
-    const entries = CollapsibleNode._currentTopicJournals[topic].collections.pages.filter((e: Entry)=>uuidsToLoad.includes(e.uuid));
-
-    for (let i=0; i<entries.length; i++) {
-      const newNode = DirectoryEntryNode.fromEntry(entries[i]);
-      CollapsibleNode._loadedNodes[newNode.id] = newNode;
-    }
-  };
+  protected abstract _loadNodeList(ids: string[], updateEntryIds: string[] ): Promise<void>;
   
   public async recursivelyLoadNode(expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> {
     // load any children that haven't been loaded before
@@ -121,19 +103,18 @@ export abstract class CollapsibleNode {
     const nodesToLoad = this.children.filter((id)=>!this.loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id));
 
     if (nodesToLoad.length>0)
-      await CollapsibleNode._loadNodeList(this.topic, nodesToLoad, updateEntryIds);
+      await this._loadNodeList(nodesToLoad, updateEntryIds);
 
     // have to check all children loaded and update their expanded states
     for (let i=0; i<this.children.length; i++) {
-      let child: DirectoryEntryNode | null = this.loadedChildren.find((n)=>n.id===this.children[i]) || null;
+      let child: ChildType | null = this.loadedChildren.find((childNode)=>childNode.id===this.children[i]) || null;
 
       if (child && !updateEntryIds.includes(child.id)) {
         // this one is already loaded and attached (and not a forced update)
       } else if (CollapsibleNode._loadedNodes[this.children[i]]) {
         // it was loaded previously - just reattach it
         // without a deep clone, the reactivity down the tree on node.expanded isn't working... so doing this for now unless it creates performance issues
-        // TODO - don't need to clone the 1st time we load from disk... it should ba  load or a clone, not both
-        child = foundry.utils.deepClone(CollapsibleNode._loadedNodes[this.children[i]]);
+        child = foundry.utils.deepClone(CollapsibleNode._loadedNodes[this.children[i]]) as ChildType | null;
 
         if (!child)
           throw new Error('Child failed to load properly in CollapsibleNode.recursivelyLoadNode() ');

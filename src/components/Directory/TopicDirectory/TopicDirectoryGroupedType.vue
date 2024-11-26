@@ -76,7 +76,7 @@
       required: true,
     },
     topic: {
-      type: Object as PropType<ValidTopic>,
+      type: Number as PropType<ValidTopic>,
       required: true,
     }, 
   });

@@ -85,24 +85,23 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
     await currentWorldCompendium.value.configure({locked:true});
 
     if (entry) {
+      // we always add a hierarchy, because we use it for filtering
+      await WorldFlags.setHierarchy(worldFolder.uuid, entry[0].uuid, {
+        parentId: '',
+        ancestors: [],
+        children: [],
+        type: '',
+      } as Hierarchy);
+
       // set parent if specified
       if (options.parentId==undefined) {
         // no parent - set as a top node
         const topNodes = WorldFlags.getTopicFlag(worldFolder.uuid, WorldFlagKey.topNodes, topic);
         await WorldFlags.setTopicFlag(worldFolder.uuid, WorldFlagKey.topNodes, topic, topNodes.concat([entry[0].uuid]));
-
-        // set the blank hierarchy
-        if (hasHierarchy(topic)) {
-          await WorldFlags.setHierarchy(worldFolder.uuid, entry[0].uuid, {
-            parentId: '',
-            ancestors: [],
-            children: [],
-            type: '',
-          } as Hierarchy);
-        }
       } else {
         // add to the tree
         if (hasHierarchy(topic)) {
+          // this creates the proper hierarchy
           await directoryStore.setNodeParent(topic, entry[0].uuid, options.parentId);
         }
       }

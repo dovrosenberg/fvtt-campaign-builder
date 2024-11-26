@@ -1,11 +1,12 @@
 <template>
+  <!-- this is just a <ul> wrapper around the a type node in the type-grouped tree-->
   <ul class="fwb-directory-tree">
     <TopicDirectoryGroupedType
-      v-for="type in props.topic.loadedTypes"
+      v-for="type in props.topicNode.loadedTypes"
       :key="type.id"
       :type="type"
       :world-id="props.worldId"
-      :topic="props.topic"
+      :topic="props.topicNode.topic"
     />
   </ul>
 </template>
@@ -27,7 +28,7 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    topic: {
+    topicNode: {
       type: Object as PropType<DirectoryTopicNode>,
       required: true,
     }, 

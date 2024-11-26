@@ -1,11 +1,11 @@
 import { ValidTopic, } from '@/types';
-import { CollapsibleNode } from './CollapsibleNode';
+import { CollapsibleNode, DirectoryTopicTreeNode } from '@/classes';
 import { Entry } from '@/documents';
 import { WorldFlags } from '@/settings/WorldFlags';
 import { Hierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 
 // an entry (which might have children) in the tree structure
-export class DirectoryEntryNode extends CollapsibleNode{
+export class DirectoryEntryNode extends DirectoryTopicTreeNode {
   name: string;
   type: string;    // the type of the entry
   
@@ -50,5 +50,4 @@ export class DirectoryEntryNode extends CollapsibleNode{
       type: this.type,
     };
   };
-
 }

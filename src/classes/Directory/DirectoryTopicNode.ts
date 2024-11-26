@@ -1,9 +1,9 @@
 import { ValidTopic, } from '@/types';
-import { CollapsibleNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode } from '@/classes';
+import { DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, CollapsibleNode } from '@/classes';
 import { Entry } from '@/documents';
 import { NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 
-export class DirectoryTopicNode extends CollapsibleNode{
+export class DirectoryTopicNode extends DirectoryTopicTreeNode {
   name: string;
   loadedTypes: DirectoryTypeNode[];
   
@@ -25,20 +25,19 @@ export class DirectoryTopicNode extends CollapsibleNode{
    * @param expandedIds the ids that are currently expanded
    * @returns a promise that resolves when the entries are loaded
    */
-  public async loadTypeEntries (currentTopicJournals: JournalEntry[], types: string [], expandedIds: Record<string, boolean | null>): Promise<void> {
+  public async loadTypeEntries (types: string [], expandedIds: Record<string, boolean | null>): Promise<void> {
     // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
     //    type on the journalentry, or pack or world, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
     //    that is also in the index)
-    if (!currentTopicJournals)
+    if (!CollapsibleNode._currentTopicJournals)
       return;
 
-    const allEntries = await currentTopicJournals[this.topic].collections.pages.contents as Entry[];
+    const allEntries = await CollapsibleNode._currentTopicJournals[this.topic].collections.pages.contents as Entry[];
 
     // create the loadedType nodes then populate their children
     this.loadedTypes = types.map((type: string): DirectoryTypeNode => new DirectoryTypeNode(
       this.id + ':' + type,
       type,
-      this.topic,
       [],
       [],
       expandedIds[this.id + ':' + type] || false,   
@@ -47,16 +46,15 @@ export class DirectoryTopicNode extends CollapsibleNode{
     for (let i=0; i<this.loadedTypes.length; i++) {
       const type = this.loadedTypes[i].name;
 
-      this.loadedTypes[i].children = allEntries.filter((e: Entry)=> {
+      this.loadedTypes[i].loadedChildren = allEntries.filter((e: Entry)=> {
         const entryType = e.system.type;
         return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type);
       }).map((entry: Entry): DirectoryTypeEntryNode=> new DirectoryTypeEntryNode(
         entry.uuid,
-        this.topic,
         entry.name || NO_NAME_STRING,
         this.id + ':' + type,
       )).sort((a, b) => a.name.localeCompare(b.name));
-      this.loadedTypes[i].loadedChildren = this.loadedTypes[i].children;
+      this.loadedTypes[i].children = this.loadedTypes[i].loadedChildren.map((n: DirectoryTypeEntryNode) => n.id);
     }
   }
 }

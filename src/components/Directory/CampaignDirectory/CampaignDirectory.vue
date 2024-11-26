@@ -47,7 +47,7 @@
             </header>
 
             <TopicDirectoryGroupedTree
-              :topic="topic"
+              :topic-node="topic"
               :campaign-id="campaign.id"
             />
           </li>

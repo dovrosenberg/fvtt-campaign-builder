@@ -99,7 +99,7 @@
 
                   <TopicDirectoryGroupedTree
                     v-if="isGroupedByType" 
-                    :topic="topic"
+                    :topic-node="topic"
                     :world-id="world.id"
                   />
                   <TopicDirectoryNestedTree

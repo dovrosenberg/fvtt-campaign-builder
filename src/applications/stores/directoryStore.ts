@@ -13,7 +13,7 @@ import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 import { getGame } from '@/utils/game';
 
 // types
-import { DirectoryTopicNode, DirectoryEntryNode, CollapsibleNode } from '@/classes';
+import { DirectoryTopicNode, DirectoryEntryNode, } from '@/classes';
 import { DirectoryWorld, Topic, ValidTopic, DirectoryCampaign } from '@/types';
 import { Entry } from '@/documents';
 
@@ -95,15 +95,13 @@ export const useDirectoryStore = defineStore('directory', () => {
       newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([{ id: entry.uuid, name: entry.name || NO_NAME_STRING}]).sort((a,b)=>a.name.localeCompare(b.name));
     }
 
-    // update the hierarchy, if applicable
+    // update the hierarchy (even for entries without hierarchy, we still need it for filtering)
     const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entry.uuid);
-    if (hasHierarchy(entry.system.topic as ValidTopic)) {
-      if(!hierarchy)
-        throw new Error(`Could not find hierarchy for ${entry.uuid} in directoryStore.updateEntryType()`);
+    if(!hierarchy)
+      throw new Error(`Could not find hierarchy for ${entry.uuid} in directoryStore.updateEntryType()`);
 
-      hierarchy.type = newType;
-      await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, hierarchy);
-    }
+    hierarchy.type = newType;
+    await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, hierarchy);
   };
 
   // expand/contract  the given entry, loading the new item data
@@ -327,7 +325,7 @@ export const useDirectoryStore = defineStore('directory', () => {
         // have to check all children are loaded and expanded properly
         await directoryTopicNode.recursivelyLoadNode(expandedNodes, updateEntryIds);
 
-        await directoryTopicNode.loadTypeEntries(currentTopicJournals.value, types[directoryTopicNode.topic], expandedNodes);
+        await directoryTopicNode.loadTypeEntries(types[directoryTopicNode.topic], expandedNodes);
       }
     }
 
@@ -415,7 +413,8 @@ export const useDirectoryStore = defineStore('directory', () => {
     for (let i=0; i<topics.length; i++) {
       const journal = currentTopicJournals.value[topics[i]];
 
-      let matchedEntries = journal.collections.pages.filter((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' )))
+      // filter on name and type
+      let matchedEntries = journal.collections.pages.filter((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.system.type || '' )))
         .map((e: Entry): string=>e.uuid) as string[];
   
       // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding
@@ -424,9 +423,8 @@ export const useDirectoryStore = defineStore('directory', () => {
           matchedEntries = matchedEntries.concat(hierarchies[matchedEntries[j]].ancestors);
         }
   
-        // type 
-        // note: we add the blank type, even though we don't currently show them in
-        //    the grouped tree,
+        // add the type
+        // note: we add the blank type, even though we don't currently show them in the grouped tree
         matchedEntries.push(hierarchies[matchedEntries[j]]?.type || NO_TYPE_STRING);
       }
   
@@ -457,8 +455,6 @@ export const useDirectoryStore = defineStore('directory', () => {
       return;
     }
 
-    CollapsibleNode.currentWorldId = newWorldFolder.uuid;
-    
     await validateCompendia(newWorldFolder);
     await updateFilterNodes();  
     await refreshCurrentTrees();
@@ -469,8 +465,6 @@ export const useDirectoryStore = defineStore('directory', () => {
     if (!newJournals) {
       return;
     }
-
-    CollapsibleNode.currentTopicJournals = newJournals;
 
     await updateFilterNodes();  
     await refreshCurrentTrees();

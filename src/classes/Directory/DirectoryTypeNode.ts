@@ -1,20 +1,24 @@
 import { ValidTopic, } from '@/types';
 import { CollapsibleNode, DirectoryTypeEntryNode } from '@/classes';
 
-// a type "group"
-// export type DirectoryTypeNode = {
-//   loadedChildren: DirectoryTypeEntryNode[];
-// }
-export class DirectoryTypeNode extends CollapsibleNode{
+// a type "group"; used when showing the tree grouped by type
+// its children are DirectoryTypeEntryNodes (which are like regular entries but they can't have children)
+export class DirectoryTypeNode extends CollapsibleNode<DirectoryTypeEntryNode> {
   name: string;
   
   // children are for the entries; 
-  constructor(id: string, name: string, topic: ValidTopic, children: string[] = [], loadedChildren: DirectoryTypeEntryNode[] = [], 
+  constructor(id: string, name: string, children: string[] = [], loadedChildren: DirectoryTypeEntryNode[] = [], 
     expanded: boolean = false
   ) {
 
-    super(id, topic, expanded, null, children, loadedChildren, []);
+    super(id, expanded, null, children, loadedChildren, []);
 
     this.name = name;
   }
+
+  /**
+    * all type nodes are loaded at the topic level, so no need to do anything here
+    * @override
+    */
+  override async _loadNodeList(): Promise<void> {}  
 }
