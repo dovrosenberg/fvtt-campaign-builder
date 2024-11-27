@@ -22,6 +22,7 @@
   // local imports
   import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import { toTopic } from '@/utils/misc';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -95,7 +96,7 @@
     const topic = topicElement.dataset.topic;
 
     const dragData = { 
-      topic: topic,
+      topic: toTopic(topic),
       typeName: props.typeName,
       id: props.node.id,
     } as { topic: Topic; typeName: string; id: string};

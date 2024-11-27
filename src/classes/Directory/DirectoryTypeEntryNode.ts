@@ -26,5 +26,5 @@ export class DirectoryTypeEntryNode extends CollapsibleNode<never> {
     * all type nodes are loaded at the topic level, so no need to do anything here
     * @override
     */
-  override async _loadNodeList(): Promise<void> {}  
+  override async _loadNodeList(_ids: string[], _updateEntryIds: string[] ): Promise<void> {}
 }

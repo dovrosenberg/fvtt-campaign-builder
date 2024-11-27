@@ -4,7 +4,7 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectoryEntryNode> {
   name: string;
   
   // children are for the entries; loadedTypes is for the type nodes
-  constructor(id: string, name: string, expanded: boolean | null = false,
+  constructor(id: string, name: string, expanded: boolean = false,
     children: string[] = [], loadedChildren: DirectoryEntryNode[] = [], 
   ) {
 
@@ -16,8 +16,6 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectoryEntryNode> {
   /**
    * loads a set of nodes, including expanded status
    * @override
-   * @param ids uuids of the nodes to load
-   * @param updateEntryIds uuids of the nodes that should be refreshed
    */
-  override async _loadNodeList(ids: string[], updateEntryIds: string[] ): Promise<void> {}
+  override async _loadNodeList(_ids: string[], _updateEntryIds: string[] ): Promise<void> {}
 }

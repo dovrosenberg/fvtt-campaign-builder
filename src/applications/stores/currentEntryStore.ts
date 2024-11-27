@@ -80,7 +80,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
     }],{
       parent: currentTopicJournals.value[topic],
       // pack: currentWorldCompendium.value.metadata.id,
-    });
+    }) as Entry;
 
     await currentWorldCompendium.value.configure({locked:true});
 

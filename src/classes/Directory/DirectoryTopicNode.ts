@@ -1,7 +1,7 @@
 import { ValidTopic, } from '@/types';
 import { DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, CollapsibleNode } from '@/classes';
 import { Entry } from '@/documents';
-import { NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
+import { NO_TYPE_STRING } from '@/utils/hierarchy';
 
 export class DirectoryTopicNode extends DirectoryTopicTreeNode {
   name: string;
