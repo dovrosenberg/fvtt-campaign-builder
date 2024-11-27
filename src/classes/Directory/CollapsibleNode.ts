@@ -4,6 +4,7 @@ import { ValidTopic } from '@/types';
 
 export abstract class CollapsibleNode<ChildType extends DirectoryEntryNode | DirectoryTypeEntryNode | never> {
   protected static _currentTopicJournals: Record<ValidTopic, JournalEntry> = {};   
+  protected static _currentCampaignJournals: JournalEntry[] = [];   
   protected static _currentWorldId: string | null = null;
   protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode>;   // maps uuid to the node for easy lookup
 
@@ -30,8 +31,12 @@ export abstract class CollapsibleNode<ChildType extends DirectoryEntryNode | Dir
     CollapsibleNode._loadedNodes = {};
   }
 
-  public static set currentTopicJournals(journals: Record<ValidTopic, JournalEntry>) {
+  public static set c(journals: Record<ValidTopic, JournalEntry>) {
     CollapsibleNode._currentTopicJournals = journals;
+  }
+
+  public static set currentCampaignJournals(journals: JournalEntry[]) {
+    CollapsibleNode._currentCampaignJournals = journals;
   }
 
   /**

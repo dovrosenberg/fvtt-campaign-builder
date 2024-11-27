@@ -143,6 +143,7 @@ export const useMainStore = defineStore('main', () => {
 
     CollapsibleNode.currentWorldId = newValue.uuid;
     CollapsibleNode.currentTopicJournals = topicJournals;
+    CollapsibleNode.currentCampaignJournals = campaignJournals;
   });
 
   ///////////////////////////////

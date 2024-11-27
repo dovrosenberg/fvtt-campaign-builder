@@ -6,3 +6,4 @@ export * from './DirectoryTopicTreeNode';
 export * from './DirectoryEntryNode';
 export * from './DirectoryTopicNode';
 export * from './DirectoryCampaignNode';
+export * from './DirectorySessionNode';
