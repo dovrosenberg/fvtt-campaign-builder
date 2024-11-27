@@ -20,7 +20,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { toTopic } from '@/utils/misc';
 
@@ -57,7 +57,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const directoryStore = useDirectoryStore();
+  const directoryStore = useTopicDirectoryStore();
   const currentEntryStore = useCurrentEntryStore();
   const { currentEntryId, currentWorldId } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(directoryStore);

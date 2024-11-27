@@ -23,7 +23,7 @@
   // local imports
   import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
-  import { useMainStore, useDirectoryStore, useNavigationStore } from '@/applications/stores';
+  import { useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
 
@@ -43,10 +43,8 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldFolder, rootFolder, } = storeToRefs(mainStore);
-  const { directoryCollapsed } = storeToRefs(directoryStore);
+  const { currentWorldFolder, rootFolder, directoryCollapsed } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data

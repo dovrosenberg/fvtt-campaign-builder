@@ -113,7 +113,7 @@
   // local imports
   import { localize } from '@/utils/game';
   import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
-  import { useDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -133,10 +133,8 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const directoryStore = useDirectoryStore();
-  const { currentWorldId, } = storeToRefs(mainStore);
+  const { currentWorldId, directoryCollapsed } = storeToRefs(mainStore);
   const { tabs, bookmarks } = storeToRefs(navigationStore);
-  const { directoryCollapsed } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data

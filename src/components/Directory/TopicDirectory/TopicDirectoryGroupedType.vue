@@ -50,7 +50,7 @@
   import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useNavigationStore, useDirectoryStore, useMainStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useNavigationStore, useTopicDirectoryStore, useMainStore, useCurrentEntryStore } from '@/applications/stores';
   import { getGame, localize } from '@/utils/game';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   
@@ -87,7 +87,7 @@
 
   ////////////////////////////////
   // store
-  const directoryStore = useDirectoryStore();
+  const directoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();

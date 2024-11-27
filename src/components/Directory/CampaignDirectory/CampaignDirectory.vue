@@ -1,8 +1,5 @@
 <template>
-  <div v-if="isTreeRefreshing">
-    <ProgressSpinner v-if="isTreeRefreshing" />
-  </div>
-  <div v-else class="fwb-campaign-list-wrapper">
+  <div class="fwb-campaign-list-wrapper">
     <!-- these are the campaigns -->
     <ol class="fwb-campaign-list">
       <li 
@@ -61,12 +58,11 @@
   // library imports
   import { ref, } from 'vue';
   import { storeToRefs } from 'pinia';
-  import ProgressSpinner from 'primevue/progressspinner';
 
   // local imports
   import { getGame, localize } from '@/utils/game';
   import { getIcon, } from '@/utils/misc';
-  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -88,9 +84,9 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const directoryStore = useDirectoryStore();
+  const directoryStore = useCampaignDirectoryStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { filterText, isTreeRefreshing, isGroupedByType } = storeToRefs(directoryStore);
+  const { filterText, isGroupedByType } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
@@ -179,14 +175,7 @@
     await directoryStore.toggleTopic(directoryTopic);
   };
 
-  // close all topics
-  const onCollapseAllClick = (event: MouseEvent) => {
-    event.stopPropagation();
-
-    void directoryStore.collapseAll();
-  };
-
-  // create a campaign
+    // create a campaign
   const onCreateCampaignClick = async (event: MouseEvent) => {
     event.stopPropagation();
 
@@ -201,10 +190,6 @@
     await directoryStore.createCampaign();
   };
 
-  // save grouping to settings
-  const onGroupTypeChange = async (event: Event) => {
-    isGroupedByType.value = (event.currentTarget as HTMLInputElement)?.checked || false;
-  };
 
   ////////////////////////////////
   // watchers
@@ -218,59 +203,6 @@
   #fwb-directory {
     .action-buttons {
       padding-left: 30px;
-    }
-
-    .directory-header {
-      flex: 0;
-      background-color: var(--fwb-header-background);
-      border-bottom: 1px solid var(--fwb-header-border-color);
-      color: var(--fwb-sidebar-label-color);
-      margin-bottom: 0px;
-      padding-top: 3px;
-      padding-bottom: 6px;
-      padding-left: 20px;
-
-      .header-actions.action-buttons button {
-        line-height: 24px;
-        background: var(--fwb-sidebar-button-background);
-        border: 2px groove var(--fwb-sidebar-button-border);
-      }
-
-      .header-search {
-        #fwb-directory-search {
-          flex: 1;
-          height: var(--form-field-height);
-        }
-
-        .header-control {
-          flex: 0 0 32px;
-          text-align: center;
-          position: relative;
-
-          i {
-            position: absolute;
-
-            &.fa-plus {
-              top: -2px;
-              right: -2px;
-              font-size: 0.5rem;
-              background: black;
-              color: var(--color-text-light-highlight);
-              padding: 1px;
-              border-radius: 4px;
-            }  
-          }
-        }
-      }
-
-      .header-group-type {
-        flex: 1;
-        height: var(--form-field-height);
-
-        #fwb-group-by-type {
-          flex: 0;
-        }
-      }
     }
 
     // the campaign list section

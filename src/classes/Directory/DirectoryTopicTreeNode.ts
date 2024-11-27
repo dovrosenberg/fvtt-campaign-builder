@@ -1,6 +1,7 @@
 import { CollapsibleNode, DirectoryEntryNode, } from '@/classes';
 import { ValidTopic } from '@/types';
 import { Entry } from '@/documents';
+import { WorldFlagKey } from '@/settings/WorldFlags';
 
 export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEntryNode> {
   topic: ValidTopic;
@@ -8,7 +9,7 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
   constructor(id: string, topic: ValidTopic, expanded: boolean = false, parentId: string | null = null,
     children: string[] = [], loadedChildren: DirectoryEntryNode[] = [], ancestors: string[] = []
   ) {
-    super(id, expanded, parentId, children, loadedChildren, ancestors);
+    super(id, expanded, WorldFlagKey.expandedIds, parentId, children, loadedChildren, ancestors);
 
     this.topic = topic;
   }

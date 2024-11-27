@@ -1,13 +1,21 @@
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { DirectoryEntryNode, DirectoryTypeEntryNode, } from '@/classes';
-import { ValidTopic } from '@/types';
+import { ValidTopic, Topic } from '@/types';
+
+type ExpandedIdsFlags = WorldFlagKey.expandedIds | WorldFlagKey.expandedCampaignIds;
 
 export abstract class CollapsibleNode<ChildType extends DirectoryEntryNode | DirectoryTypeEntryNode | never> {
-  protected static _currentTopicJournals: Record<ValidTopic, JournalEntry> = {};   
+  protected static _currentTopicJournals: Record<ValidTopic, JournalEntry | null> = {
+    [Topic.Character]: null,
+    [Topic.Event]: null,
+    [Topic.Location]: null,
+    [Topic.Organization]: null
+  };   
   protected static _currentCampaignJournals: JournalEntry[] = [];   
   protected static _currentWorldId: string | null = null;
   protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode>;   // maps uuid to the node for easy lookup
 
+  _expandedFlagKey: ExpandedIdsFlags;    // the WorldFlagKey for this type (regular or campaign)
   id: string;
   parentId: string | null;
   children: string[];    // ids of all children (which might not be loaded)
@@ -15,11 +23,12 @@ export abstract class CollapsibleNode<ChildType extends DirectoryEntryNode | Dir
   loadedChildren: ChildType[];
   expanded: boolean;
   
-  constructor(id: string, expanded: boolean = false, parentId: string | null = null,
+  constructor(id: string, expanded: boolean = false, expandedFlagKey: ExpandedIdsFlags, parentId: string | null = null,
     children: string[] = [], loadedChildren: ChildType[] = [], ancestors: string[] = []
   ) {
     this.id = id; 
     this.expanded = expanded;
+    this._expandedFlagKey = expandedFlagKey;
     this.parentId = parentId;
     this.children = children;
     this.loadedChildren = loadedChildren;
@@ -58,15 +67,15 @@ export abstract class CollapsibleNode<ChildType extends DirectoryEntryNode | Dir
     if (!CollapsibleNode._currentWorldId)
       return;
 
-    await WorldFlags.unset(CollapsibleNode._currentWorldId, WorldFlagKey.expandedIds, this.id);
+    await WorldFlags.unset(CollapsibleNode._currentWorldId, this._expandedFlagKey, this.id);
   }
 
   public async expand(): Promise<void> {
     if (!CollapsibleNode._currentWorldId)
       return;
 
-    const expandedIds = WorldFlags.get(CollapsibleNode._currentWorldId, WorldFlagKey.expandedIds) || {};
-    await WorldFlags.set(CollapsibleNode._currentWorldId, WorldFlagKey.expandedIds, {...expandedIds, [this.id]: true});
+    const expandedIds = WorldFlags.get(CollapsibleNode._currentWorldId, this._expandedFlagKey) as Record<any, any>|| {};
+    await WorldFlags.set(CollapsibleNode._currentWorldId, this._expandedFlagKey, {...expandedIds, [this.id]: true});
   } 
  
   // expand/contract  the given entry, loading the new item data
@@ -87,7 +96,7 @@ export abstract class CollapsibleNode<ChildType extends DirectoryEntryNode | Dir
 
     // make sure all children are properly loaded (if it's being opened)
     if (expanded) {
-      const expandedIds = WorldFlags.get(CollapsibleNode._currentWorldId, WorldFlagKey.expandedIds) || {};
+      const expandedIds = WorldFlags.get(CollapsibleNode._currentWorldId, this._expandedFlagKey) as Record<any, any> || {};
 
       await updatedNode.recursivelyLoadNode(expandedIds);
     }

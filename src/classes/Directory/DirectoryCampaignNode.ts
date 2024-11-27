@@ -1,4 +1,5 @@
 import { CollapsibleNode, DirectoryEntryNode, } from '@/classes';
+import { WorldFlagKey } from '@/settings/WorldFlags';
 
 export class DirectoryCampaignNode extends CollapsibleNode<DirectoryEntryNode> {
   name: string;
@@ -8,7 +9,7 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectoryEntryNode> {
     children: string[] = [], loadedChildren: DirectoryEntryNode[] = [], 
   ) {
 
-    super(id, expanded, null, children, loadedChildren, []);
+    super(id, expanded, WorldFlagKey.expandedCampaignIds, null, children, loadedChildren, []);
 
     this.name = name;
   }

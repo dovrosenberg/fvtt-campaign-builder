@@ -6,7 +6,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 // local imports
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
 import { cleanTrees, hasHierarchy, Hierarchy, } from '@/utils/hierarchy';
-import { useDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
+import { useTopicDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
 import { getTopicText, } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
 import { DOCUMENT_TYPES, Entry } from '@/documents';
@@ -21,7 +21,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
 
   ///////////////////////////////
   // other stores
-  const directoryStore = useDirectoryStore();
+  const directoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
   const { currentWorldId, currentTopicJournals, currentWorldCompendium, } = storeToRefs(mainStore);
@@ -106,7 +106,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
         }
       }
 
-      await directoryStore.refreshCurrentTrees(options.parentId ? [options.parentId, entry[0].uuid] : [entry[0].uuid]);
+      await directoryStore.refreshTopicDirectoryTree(options.parentId ? [options.parentId, entry[0].uuid] : [entry[0].uuid]);
     }
    
     return entry ? entry[0] : null;
@@ -146,7 +146,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
     await navigationStore.cleanupDeletedEntry(entry.uuid);
 
     // refresh and force its parent to update
-    await directoryStore.refreshCurrentTrees(hierarchy?.parentId ? [hierarchy?.parentId] : []);
+    await directoryStore.refreshTopicDirectoryTree(hierarchy?.parentId ? [hierarchy?.parentId] : []);
   };
 
 

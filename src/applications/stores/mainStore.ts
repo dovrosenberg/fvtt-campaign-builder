@@ -21,6 +21,9 @@ export const useMainStore = defineStore('main', () => {
   // the state
   const currentTopicTab = ref<string | null>(null);
 
+  // current sidebar collapsed state 
+  const directoryCollapsed = ref<boolean>(false);
+
   ///////////////////////////////
   // internal state
   const _currentTopicJournals = ref<Record<ValidTopic, JournalEntry> | null>(null);  // current journals (by topic)
@@ -152,6 +155,7 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // return the public interface
   return {
+    directoryCollapsed,
     currentWorldId,
     currentWorldFolder,
     currentEntryTopic,

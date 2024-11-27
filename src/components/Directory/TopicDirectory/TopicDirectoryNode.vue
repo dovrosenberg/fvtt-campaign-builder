@@ -27,7 +27,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   import { getGame, localize } from '@/utils/game';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
 
@@ -69,7 +69,7 @@
   ////////////////////////////////
   // store
   const navigationStore = useNavigationStore();
-  const directoryStore = useDirectoryStore();
+  const directoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const currentEntryStore = useCurrentEntryStore();
   const { currentWorldId, currentEntryId, currentTopicJournals } = storeToRefs(mainStore);

@@ -110,7 +110,7 @@
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
-  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -134,7 +134,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const directoryStore = useDirectoryStore();
+  const directoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
   const { currentEntry, currentWorldId, currentTopicJournals, currentWorldCompendium, currentTopicTab } = storeToRefs(mainStore);
@@ -192,7 +192,7 @@
       if (currentEntry.value && currentEntry.value.name!==newValue) {
         await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), { name: newValue });
 
-        await directoryStore.refreshCurrentTrees([currentEntry.value.uuid]);
+        await directoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
         await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue);
       }
     }, debounceTime);
