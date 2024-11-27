@@ -39,7 +39,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
     const oldType = (entry.system.type as string | null | undefined) || '';
     await entry.update({ 'system.type': typeName });
 
-    await directoryStore.updateEntryType(entry, oldType, typeName);
+    await directoryStore.updateEntryType(entry, oldType);
   };
 
   // creates a new entry in the proper compendium in the given world
@@ -106,7 +106,6 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
         }
       }
 
-      await directoryStore.updateFilterNodes();  // otherwise the new item will be hidden
       await directoryStore.refreshCurrentTrees(options.parentId ? [options.parentId, entry[0].uuid] : [entry[0].uuid]);
     }
    

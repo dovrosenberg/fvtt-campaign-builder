@@ -6,14 +6,14 @@ import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 
 // local imports
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { hasHierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
+import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore } from '@/applications/stores';
 import { createWorldFolder, getTopicTextPlural, validateCompendia } from '@/compendia';
 import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 import { getGame } from '@/utils/game';
 
 // types
-import { DirectoryTopicNode, DirectoryEntryNode, } from '@/classes';
+import { DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, } from '@/classes';
 import { DirectoryWorld, Topic, ValidTopic, DirectoryCampaign } from '@/types';
 import { Entry } from '@/documents';
 
@@ -75,38 +75,57 @@ export const useDirectoryStore = defineStore('directory', () => {
   };
 
   // move the entry to a new type (doesn't update the entry itself)
-  const updateEntryType = async (entry: Entry, oldType: string, newType: string): Promise<void> => {
-    if (!currentWorldId.value)
+  // entry should already have been updated
+  const updateEntryType = async (entry: Entry, oldType: string): Promise<void> => {
+    const newType = entry.system.type;
+
+    if (!currentWorldId.value || oldType===newType)
       return;
 
     // remove from the old one
     const currentWorldNode = currentWorldTree.value.find((w)=>w.id===currentWorldId.value) || null;
-    const packNode = currentWorldNode?.topics.find((p)=>p.topic===entry.system.topic) || null;
-    const oldTypeNode = packNode?.loadedTypes.find((t) => t.name===oldType);
-    if (!currentWorldNode || !packNode) 
+    const topicNode = currentWorldNode?.topics.find((p)=>p.topic===entry.system.topic) || null;
+    const oldTypeNode = topicNode?.loadedTypes.find((t) => t.name===oldType);
+    if (!currentWorldNode || !topicNode) 
       throw new Error('Failed to load node in directoryStore.updateEntryType()');
 
-    if (oldTypeNode)
+    if (oldTypeNode) {
       oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entry.uuid);
+      oldTypeNode.children = oldTypeNode.children.filter((id)=>id !== entry.uuid);
+
+      // remove node if nothing left
+      if (oldTypeNode.loadedChildren.length===0) {
+        topicNode.loadedTypes = topicNode.loadedTypes.filter((t)=>t.name !== oldType);
+      }
+    }
 
     // add to the new one
-    const newTypeNode = packNode?.loadedTypes.find((t) => t.name===newType);
-    if (newTypeNode) {
-      newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([{ id: entry.uuid, name: entry.name || NO_NAME_STRING}]).sort((a,b)=>a.name.localeCompare(b.name));
+    let newTypeNode = topicNode?.loadedTypes.find((t) => t.name===newType);
+    if (!newTypeNode) {
+      // need to create the new type
+      newTypeNode = new DirectoryTypeNode(topicNode.id, newType);
+      topicNode.loadedTypes.push(newTypeNode);
     }
+
+    newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([DirectoryTypeEntryNode.fromEntry(entry, newTypeNode)]).sort((a,b)=>a.name.localeCompare(b.name));
+    newTypeNode.children.push(entry.uuid);
 
     // update the hierarchy (even for entries without hierarchy, we still need it for filtering)
     const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entry.uuid);
     if(!hierarchy)
       throw new Error(`Could not find hierarchy for ${entry.uuid} in directoryStore.updateEntryType()`);
 
-    hierarchy.type = newType;
-    await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, hierarchy);
+    if (hierarchy.type !== newType) {
+      hierarchy.type = newType;
+      await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, hierarchy);
+    }
+
+    await refreshCurrentTrees([entry.uuid, newTypeNode.id]);
   };
 
   // expand/contract  the given entry, loading the new item data
   // return the new node
-  const toggleWithLoad = async(node: DirectoryEntryNode, expanded: boolean) : Promise<DirectoryEntryNode>=> {
+  const toggleWithLoad = async(node: DirectoryEntryNode | DirectoryTypeNode, expanded: boolean) : Promise<DirectoryEntryNode>=> {
     return await node.toggleWithLoad(expanded);
   };
 
@@ -271,7 +290,7 @@ export const useDirectoryStore = defineStore('directory', () => {
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshCurrentTrees = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world and journals loaded
-    if (!currentWorldId.value || !currentTopicJournals.value)
+    if (!currentWorldId.value || !currentTopicJournals.value || isTreeRefreshing.value)
       return;
 
     isTreeRefreshing.value = true;
@@ -365,6 +384,9 @@ export const useDirectoryStore = defineStore('directory', () => {
       }
     }
 
+    // make sure the node list is up to date
+    await updateFilterNodes();
+
     isTreeRefreshing.value = false;
   };
   
@@ -456,7 +478,6 @@ export const useDirectoryStore = defineStore('directory', () => {
     }
 
     await validateCompendia(newWorldFolder);
-    await updateFilterNodes();  
     await refreshCurrentTrees();
   });
   
@@ -466,7 +487,6 @@ export const useDirectoryStore = defineStore('directory', () => {
       return;
     }
 
-    await updateFilterNodes();  
     await refreshCurrentTrees();
   });
   

@@ -1,4 +1,3 @@
-import { ValidTopic, } from '@/types';
 import { CollapsibleNode, DirectoryTypeEntryNode } from '@/classes';
 
 // a type "group"; used when showing the tree grouped by type
@@ -7,11 +6,11 @@ export class DirectoryTypeNode extends CollapsibleNode<DirectoryTypeEntryNode> {
   name: string;
   
   // children are for the entries; 
-  constructor(id: string, name: string, children: string[] = [], loadedChildren: DirectoryTypeEntryNode[] = [], 
+  constructor(topicId: string, name: string, children: string[] = [], loadedChildren: DirectoryTypeEntryNode[] = [], 
     expanded: boolean = false
   ) {
 
-    super(id, expanded, null, children, loadedChildren, []);
+    super(topicId + ':' + name, expanded, null, children, loadedChildren, []);
 
     this.name = name;
   }

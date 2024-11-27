@@ -109,7 +109,7 @@ export abstract class CollapsibleNode<ChildType extends DirectoryEntryNode | Dir
     for (let i=0; i<this.children.length; i++) {
       let child: ChildType | null = this.loadedChildren.find((childNode)=>childNode.id===this.children[i]) || null;
 
-      if (child && !updateEntryIds.includes(child.id)) {
+      if (child && !updateEntryIds.includes(child.id) && !updateEntryIds.includes(this.id)) {
         // this one is already loaded and attached (and not a forced update)
       } else if (CollapsibleNode._loadedNodes[this.children[i]]) {
         // it was loaded previously - just reattach it

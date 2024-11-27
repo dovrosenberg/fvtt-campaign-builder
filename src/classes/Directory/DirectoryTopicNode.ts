@@ -35,13 +35,18 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
     const allEntries = await CollapsibleNode._currentTopicJournals[this.topic].collections.pages.contents as Entry[];
 
     // create the loadedType nodes then populate their children
-    this.loadedTypes = types.map((type: string): DirectoryTypeNode => new DirectoryTypeNode(
-      this.id + ':' + type,
-      type,
-      [],
-      [],
-      expandedIds[this.id + ':' + type] || false,   
-    ));
+    this.loadedTypes = types.map((type: string): DirectoryTypeNode => {
+      const retval = new DirectoryTypeNode(
+        this.id,
+        type,
+        [],
+        [],
+      );
+
+      retval.expanded = expandedIds[retval.id] || false;
+
+      return retval;     
+    });
 
     for (let i=0; i<this.loadedTypes.length; i++) {
       const type = this.loadedTypes[i].name;
@@ -49,11 +54,10 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
       this.loadedTypes[i].loadedChildren = allEntries.filter((e: Entry)=> {
         const entryType = e.system.type;
         return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type);
-      }).map((entry: Entry): DirectoryTypeEntryNode=> new DirectoryTypeEntryNode(
-        entry.uuid,
-        entry.name || NO_NAME_STRING,
-        this.id + ':' + type,
-      )).sort((a, b) => a.name.localeCompare(b.name));
+      })
+        .map((entry: Entry): DirectoryTypeEntryNode=> DirectoryTypeEntryNode.fromEntry(entry, this.loadedTypes[i]))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      
       this.loadedTypes[i].children = this.loadedTypes[i].loadedChildren.map((n: DirectoryTypeEntryNode) => n.id);
     }
   }

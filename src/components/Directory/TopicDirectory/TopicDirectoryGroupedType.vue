@@ -1,4 +1,5 @@
 <template>
+  <!-- the "type" parent node -->
   <!-- note that filtering by filterNodes will hide unused types even if there's no search filter -->
   <li 
     v-if="filterNodes[props.topic]?.includes(currentType?.name)"

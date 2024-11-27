@@ -213,6 +213,8 @@
       };
       await WorldFlags.set(currentWorldId.value, WorldFlagKey.types, updatedTypes);
     }
+
+    await onTypeSelectionMade(added);
   };
 
   const onTypeSelectionMade = async (selection: string) => {
