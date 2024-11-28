@@ -1,6 +1,10 @@
+/* 
+ * A class representing an node representing a campaign in the campaign tree structures
+ */
+
 import { CollapsibleNode, DirectorySessionNode, } from '@/classes';
 import { WorldFlagKey } from '@/settings/WorldFlags';
-import { ValidTopic } from '@/types';
+import { Session } from '@/documents';
 
 export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode> {
   name: string;
@@ -21,4 +25,22 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
    * @param ids uuids of the nodes to load
    * @param updateIds uuids of the nodes that should be refreshed
    */
-  override async _loadNodeList(_topicJournals: Record<ValidTopic, JournalEntry[]>, _campaignJournals: JournalEntry[], _ids: string[], _updateIds: string[] ): Promise<void> {}}
+  override async _loadNodeList(ids: string[], updateIds: string[] ): Promise<void> {
+    // make sure we've loaded what we need
+    if (!CollapsibleNode._currentTopicJournals || !CollapsibleNode._currentWorldId) {
+      CollapsibleNode._loadedNodes = {};
+      return;
+    }
+
+    // we only want to load ones not already in _loadedNodes, unless its in updateIds
+    const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
+    
+    const myJournal = CollapsibleNode._currentCampaignJournals.find((c) => c.uuid === this.id) as JournalEntry;  // journal that goes with this node
+    const entries = (myJournal?.collections.pages.filter((s: Session)=>uuidsToLoad.includes(s.uuid)) || []) as Session[];
+
+    for (let i=0; i<entries.length; i++) {
+      const newNode = DirectorySessionNode.fromSession(entries[i], this.id);
+      CollapsibleNode._loadedNodes[newNode.id] = newNode;
+    }
+  }
+}

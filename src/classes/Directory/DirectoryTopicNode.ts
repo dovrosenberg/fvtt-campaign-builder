@@ -1,3 +1,7 @@
+/* 
+ * An node representing a topic in the topic tree structures
+ */
+
 import { ValidTopic, } from '@/types';
 import { DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, CollapsibleNode } from '@/classes';
 import { Entry } from '@/documents';
@@ -26,13 +30,15 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
    * @returns a promise that resolves when the entries are loaded
    */
   public async loadTypeEntries (types: string [], expandedIds: Record<string, boolean | null>): Promise<void> {
+    console.log('loadTypeEntries');
+
     // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
     //    type on the journalentry, or pack or world, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
     //    that is also in the index)
     if (!CollapsibleNode._currentTopicJournals)
       return;
 
-    const allEntries = await CollapsibleNode._currentTopicJournals[this.topic].collections.pages.contents as Entry[];
+    const allEntries = (await CollapsibleNode._currentTopicJournals[this.topic]?.collections.pages.contents || []) as Entry[];
 
     // create the loadedType nodes then populate their children
     this.loadedTypes = types.map((type: string): DirectoryTypeNode => {

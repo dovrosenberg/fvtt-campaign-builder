@@ -70,6 +70,13 @@
         "delete": "Delete world",
         "createCampaign": "Create campaign"
       },
+      "campaignsHeader": {
+        "createCampaign":"Create campaign"
+      },
+      "campaignFolder": {
+        "createSession": "Create a session",
+        "delete": "Delete campaign"
+      },
       "topicFolder": {
         "create": {
           "1": "Create new character",

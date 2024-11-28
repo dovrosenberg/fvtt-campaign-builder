@@ -4,7 +4,7 @@
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { useMainStore } from './mainStore';
+import { useMainStore, useCurrentEntryStore } from './index';
 
 // types
 import { 
@@ -71,7 +71,9 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentWorldCompendium, currentTopicTab } = storeToRefs(mainStore);
+  const entryStore = useCurrentEntryStore();
+  const { currentEntry, currentWorldCompendium, } = storeToRefs(mainStore);
+  const { currentTopicTab } = storeToRefs(entryStore);
 
   ///////////////////////////////
   // internal state

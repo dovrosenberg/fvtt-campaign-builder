@@ -20,7 +20,7 @@
       <!-- These are the topic compendia -->
       <ol 
         v-if="currentWorldId===world.id"
-        class="world-contents"
+        class="fwb-world-contents"
       >
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
         <li 
@@ -279,21 +279,12 @@
       }
     }
 
-    .world-contents {
+    .fwb-world-contents {
       border-left: 6px solid var(--fwb-sidebar-subfolder-border);
       border-bottom: 2px solid var(--fwb-sidebar-subfolder-border);
       margin: 0px;
       width: 100%;
       padding-left: 10px;
-
-      .fwb-topic-folder.collapsed .fwb-topic-contents {
-        display: none;
-      }
-
-      .fwb-topic-contents {
-        padding-left: 20px;
-        margin: 0px;
-      }
     }    
   }
 

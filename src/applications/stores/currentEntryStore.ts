@@ -2,6 +2,7 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
+import { ref } from 'vue';
 
 // local imports
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
@@ -18,6 +19,8 @@ import { Topic, ValidTopic } from '@/types';
 export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   ///////////////////////////////
   // the state
+  // the currently selected tab for the entry
+  const currentTopicTab = ref<string | null>(null);
 
   ///////////////////////////////
   // other stores
@@ -80,7 +83,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
     }],{
       parent: currentTopicJournals.value[topic],
       // pack: currentWorldCompendium.value.metadata.id,
-    }) as Entry;
+    }) as unknown as Entry;
 
     await currentWorldCompendium.value.configure({locked:true});
 
@@ -165,6 +168,8 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   ///////////////////////////////
   // return the public interface
   return {
+    currentTopicTab,
+
     updateEntryType,
     createEntry,
     deleteEntry,

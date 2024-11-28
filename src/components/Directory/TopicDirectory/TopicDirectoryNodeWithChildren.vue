@@ -107,8 +107,6 @@
   ////////////////////////////////
   // event handlers
   const onEntryToggleClick = async (event: MouseEvent) => {
-    const topic = event.target?.closest('.fwb-topic-folder').dataset.topic;
-
     currentNode.value = await directoryStore.toggleWithLoad(currentNode.value, !currentNode.value.expanded);
   };
 

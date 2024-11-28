@@ -7,6 +7,7 @@
     >
       <header 
         class="folder-header flexrow"
+        @contextmenu="onHeaderContextMenu($event)"
       >
         <h3 class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
@@ -15,55 +16,11 @@
       </header>
 
       <ol>
-        <li 
-          v-for="campaign in directoryStore.currentCampaignTree.value"
+        <CampaignDirectoryCampaignNode 
+          v-for="campaign in campaignDirectoryStore.currentCampaignTree.value"
           :key="campaign.id"
-          :class="'fwb-campaign-folder folder flexcol ' + (campaign.expanded ? '' : 'collapsed')" 
-          @click="onCampaignFolderClick($event, campaign.id)"
-        >
-          <header 
-            class="folder-header flexrow"
-            @contextmenu="onCampaignContextMenu($event, campaign.id)"
-          >
-            <h3 class="noborder">
-              <i class="fas fa-folder-open fa-fw"></i>
-              {{ campaign.name }}
-            </h3>
-          </header>
-
-          <!-- These are the sessions -->
-          <ol 
-            v-if="campaign.expanded"
-            class="campaign-contents"
-          >
-            <!-- data-topic-id is used by drag and drop and toggleEntry-->
-            <!-- <li 
-              v-for="topic in campaign.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
-              :key="topic.topic"
-              :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
-              :data-topic="topic.topic" 
-            >
-              <header class="folder-header flexrow">
-                <div 
-                  class="fwb-compendium-label noborder" 
-                  style="margin-bottom:0px"
-                  @click="onTopicFolderClick($event, topic)"
-                  @contextmenu="onTopicContextMenu($event, campaign.id, topic.topic)"
-                >
-                  <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                  <i :class="'icon fas ' + getIcon(topic.topic)" style="margin-right: 4px;"></i>
-                  {{ topic.name }}
-                </div>
-              </header>
-
-              <SessionDirectoryNode
-                :world-id="worldId"
-                :top-node="true"
-                :node="topic"
-              />
-            </li> -->
-          </ol>
-        </li>
+          :campaign="campaign"
+        />
       </ol>
     </li>
   </ol>
@@ -71,7 +28,6 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -82,6 +38,7 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
   
   // local components
+  import CampaignDirectoryCampaignNode from './CampaignDirectoryCampaignNode.vue';
   
   // types
   
@@ -94,12 +51,11 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const directoryStore = useCampaignDirectoryStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentWorldFolder } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
-  const root = ref<HTMLElement>();
   
   ////////////////////////////////
   // computed data
@@ -110,15 +66,7 @@
   ////////////////////////////////
   // event handlers
 
-  // change campaign
-  const onCampaignFolderClick = async (event: MouseEvent, campaignId: string) => {
-    event.stopPropagation();
-
-    if (campaignId)
-      await mainStore.setNewCampaign(campaignId);
-  };
-
-  const onCampaignContextMenu = (event: MouseEvent, campaignId: string | null): void => {
+  const onHeaderContextMenu = (event: MouseEvent): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();
@@ -130,34 +78,17 @@
       y: event.y,
       zIndex: 300,
       items: [
-        { 
+      { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.campaignFolder.delete'), 
+          label: localize('fwb.contextMenus.campaignsHeader.createCampaign'), 
           onClick: async () => {
-            if (campaignId)
-              await campignDirectoryStore.deleteCampaign(campaignId);
+            await campaignDirectoryStore.createCampaign();
           }
         },
       ]
     });
   };
-
-    // create a campaign
-  const onCreateCampaignClick = async (event: MouseEvent) => {
-    event.stopPropagation();
-
-    // // add 400 entries
-    // const wf = getGame().folders?.find((f)=>f.id==='IAAEn25ebbVZXL9V');
-    // if (wf) {
-    //   for (let i=0; i<400; i++) {
-    //     await currentEntryStore.createEntry(wf, Topic.Location, { name: foundry.utils.randomID() });
-    //   }
-    // }
-
-    await campignDirectoryStore.createCampaign();
-  };
-
 
   ////////////////////////////////
   // watchers
@@ -179,87 +110,6 @@
         padding: 0;
         flex-grow: 1;
         overflow: auto;
-
-        .fwb-campaign-folder {
-          align-items: flex-start;
-          justify-content: flex-start;
-
-          &.active {
-            background: #cfcdc2;
-          }
-        }
-      }
-
-      .fwb-campaign-folder > .folder-header {
-        border-bottom: none;
-        width: 100%;
-        flex: 1;
-
-        h3 {
-          color: inherit;   // reset the default from foundry            
-          text-shadow: inherit;
-        }
-      }
-
-      .fwb-campaign-folder:not(.collapsed) > .folder-header {
-        border-top: 1px solid var(--fwb-sidebar-campaign-border);
-        background: var(--fwb-sidebar-campaign-background);
-        color: var(--fwb-sidebar-campaign-color);
-      }
-
-      .fwb-campaign-folder.collapsed > .folder-header {
-        border-top: 1px solid var(--fwb-sidebar-campaign-border-collapsed);
-        background: var(--fwb-sidebar-campaign-background-collapsed);
-        color: var(--fwb-sidebar-campaign-color-collapsed);
-        text-shadow: none;
-      }
-
-      .fwb-campaign-folder .folder-header.context {
-        border-top: 1px solid var(--mej-active-color);
-        border-bottom: 1px solid var(--mej-active-color);
-      }
-
-      .fwb-topic-folder .folder-header {
-        background: inherit;
-        border: 0px;
-        text-shadow: none;   // override foundry default
-        cursor: pointer;
-
-        i.icon {
-          color: #777;
-        }  
-      }
-
-      // change icon to closed when collapsed
-      .fwb-topic-folder.collapsed > .folder-header i.fa-folder-open:before {
-        content: "\f07b";
-      }
-
-      .fwb-create-entry.create-button {
-        i.fa-atlas {
-          color: var(--fwb-sidebar-create-entry-color);
-        }
-        i.fa-plus {
-          background: var(--fwb-sidebar-create-entry-secondary-color);
-        }
-      }
-
-      .campaign-contents {
-        border-left: 6px solid var(--fwb-sidebar-subfolder-border);
-        border-bottom: 2px solid var(--fwb-sidebar-subfolder-border);
-        margin: 0px;
-        width: 100%;
-        padding-left: 10px;
-
-        .fwb-topic-folder.collapsed .fwb-topic-contents {
-          display: none;
-        }
-
-        .fwb-topic-contents {
-          padding-left: 20px;
-          margin: 0px;
-        }
-      }    
     }
   }
 
@@ -371,5 +221,5 @@
   ul.fwb-directory-tree > li:after, ul.fwb-directory-tree > li:before {
     display:none;
   }
-
+}
 </style>

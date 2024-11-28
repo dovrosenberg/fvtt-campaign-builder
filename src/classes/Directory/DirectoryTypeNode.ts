@@ -1,3 +1,7 @@
+/* 
+ * A class representing an entry in the topic tree structures (when in group by type mode)
+ */
+
 import { CollapsibleNode, DirectoryTypeEntryNode } from '@/classes';
 import { WorldFlagKey } from '@/settings/WorldFlags';
 

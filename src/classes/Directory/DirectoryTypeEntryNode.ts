@@ -1,3 +1,7 @@
+/* 
+ * A class representing a type grouping node in the topic tree structures (when in group by type mode)
+ */
+
 import { CollapsibleNode, DirectoryTypeNode, } from '@/classes';
 import { Entry } from '@/documents';
 import { NO_NAME_STRING } from '@/utils/hierarchy';

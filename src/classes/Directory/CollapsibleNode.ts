@@ -1,10 +1,16 @@
+/* 
+ * A class representing a node (which might have children) in the topic or campaign tree structures
+ */
+
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { DirectoryEntryNode, DirectoryTypeEntryNode, } from '@/classes';
+import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode } from '@/classes';
 import { ValidTopic, Topic } from '@/types';
 
 type ExpandedIdsFlags = WorldFlagKey.expandedIds | WorldFlagKey.expandedCampaignIds;
 
-export abstract class CollapsibleNode<ChildType extends DirectoryEntryNode | DirectoryTypeEntryNode | never> {
+type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode;
+
+export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   protected static _currentTopicJournals: Record<ValidTopic, JournalEntry | null> = {
     [Topic.Character]: null,
     [Topic.Event]: null,
@@ -112,6 +118,7 @@ export abstract class CollapsibleNode<ChildType extends DirectoryEntryNode | Dir
   protected abstract _loadNodeList(ids: string[], updateEntryIds: string[] ): Promise<void>;
   
   public async recursivelyLoadNode(expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> {
+    console.log('recursivelyLoadNode');
     // load any children that haven't been loaded before
     // this guarantees all children are at least in CollapsibleNode._loadedNodes and updateEntryIds ones have been refreshed
     const nodesToLoad = this.children.filter((id)=>!this.loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id));

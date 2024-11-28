@@ -1,3 +1,7 @@
+/* 
+ * An abstract class representing a node of any sort in the topic tree structures
+ */
+
 import { CollapsibleNode, DirectoryEntryNode, } from '@/classes';
 import { ValidTopic } from '@/types';
 import { Entry } from '@/documents';
@@ -21,6 +25,8 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
    * @param updateIds uuids of the nodes that should be refreshed
    */
   override async _loadNodeList(ids: string[], updateIds: string[] ): Promise<void> {
+    console.log('loadNodeList');
+
     // make sure we've loaded what we need
     if (!CollapsibleNode._currentTopicJournals || !CollapsibleNode._currentWorldId) {
       CollapsibleNode._loadedNodes = {};

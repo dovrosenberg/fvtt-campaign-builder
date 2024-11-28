@@ -7,6 +7,7 @@ import { reactive, watch, } from 'vue';
 // local imports
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { useMainStore } from '@/applications/stores';
+import { DirectoryCampaignNode } from '@/classes';
 
 // types
 
@@ -18,7 +19,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { rootFolder, currentWorldId, currentWorldFolder, } = storeToRefs(mainStore); 
+  const { currentWorldId, currentWorldFolder, } = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -27,10 +28,16 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // external state
   
   // the top-level folder structure
-  const currentCampaignTree = reactive<{value: DirectoryCampaign[]}>({value:[]});
+  const currentCampaignTree = reactive<{value: DirectoryCampaignNode[]}>({value:[]});
 
   ///////////////////////////////
   // actions
+  // expand/contract  the given entry, loading the new item data
+  // return the new node
+  const toggleWithLoad = async(node: DirectoryCampaignNode, expanded: boolean) : Promise<DirectoryCampaignNode>=> {
+    return await node.toggleWithLoad(expanded);
+  };
+
   const collapseAll = async(): Promise<void> => {
     if (!currentWorldId.value)
       return;
@@ -47,6 +54,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       return;
 
     const campaigns = WorldFlags.get(currentWorldId.value, WorldFlagKey.campaignEntries) || {};  
+    const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds);
 
     let updateCampaigns = false;
     if (Object.keys(campaigns).length != currentCampaignTree.value.length) {
@@ -69,13 +77,13 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       for (let i=0; i<Object.keys(campaigns).length; i++) {
         const id = Object.keys(campaigns)[i];
 
-        currentCampaignTree.value.push({
-          id: id,
-          name: campaigns[id],
-          sessions: [],
-          loadedSessions: [],
-          expanded: false,
-        });
+        currentCampaignTree.value.push(new DirectoryCampaignNode(
+          id,
+          campaigns[id],
+          expandedNodes[id] || false,
+          [],
+          [],
+        ));
       }
     }
   };
@@ -88,19 +96,20 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   
   ///////////////////////////////
   // watchers
-  // when the root folder changes, load the top level info (worlds and packs)
-  watch(rootFolder, async (newRootFolder: Folder | null): Promise<void> => {
-    if (!newRootFolder) {
-      currentCampaignTree.value = [];
-      return;
-    }
+  // // when the root folder changes, load the top level info (worlds and packs)
+  // watch(rootFolder, async (newRootFolder: Folder | null): Promise<void> => {
+  //   if (!newRootFolder) {
+  //     currentCampaignTree.value = [];
+  //     return;
+  //   }
 
-    await refreshCampaignDirectoryTree();
-  });
+  //   await refreshCampaignDirectoryTree();
+  // });
 
   // when the world changes, clean out the cache of loaded items
   watch(currentWorldFolder, async (newWorldFolder: Folder | null): Promise<void> => {
     if (!newWorldFolder) {
+      currentCampaignTree.value = [];
       return;
     }
 
@@ -117,6 +126,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     currentCampaignTree,
   
     collapseAll,
+    toggleWithLoad,
     refreshCampaignDirectoryTree,
   };
 });

@@ -137,7 +137,8 @@
   const directoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentEntry, currentWorldId, currentTopicJournals, currentWorldCompendium, currentTopicTab } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldId, currentTopicJournals, currentWorldCompendium, } = storeToRefs(mainStore);
+  const { currentTopicTab } = storeToRefs(currentEntryStore);
 
   ////////////////////////////////
   // data

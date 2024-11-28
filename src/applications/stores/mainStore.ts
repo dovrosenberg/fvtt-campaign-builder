@@ -19,7 +19,6 @@ import { Entry } from '@/documents/entry';
 export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // the state
-  const currentTopicTab = ref<string | null>(null);
 
   // current sidebar collapsed state 
   const directoryCollapsed = ref<boolean>(false);
@@ -27,7 +26,7 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // internal state
   const _currentTopicJournals = ref<Record<ValidTopic, JournalEntry> | null>(null);  // current journals (by topic)
-  const _currentCampaignJournals = ref<JournalEntry[] | null>(null);  // current campaign journals 
+  const _currentCampaignJournals = ref<JournalEntry[] | null>(null);  // campaign journals for current world
   const _currentEntry = ref<Entry | null>(null);  // current entry
 
   ///////////////////////////////
@@ -161,7 +160,6 @@ export const useMainStore = defineStore('main', () => {
     currentWorldId,
     currentWorldFolder,
     currentEntryTopic,
-    currentTopicTab,
     currentTopicJournals,
     currentCampaignJournals,
     currentEntry,
