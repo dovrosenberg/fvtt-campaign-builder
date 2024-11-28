@@ -2,19 +2,13 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
+import { reactive, watch, } from 'vue';
 
 // local imports
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore } from '@/applications/stores';
-import { getTopicTextPlural, validateCompendia } from '@/compendia';
-import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 
 // types
-import { DirectoryTopicNode,  } from '@/classes';
-import { DirectoryWorld, Topic, ValidTopic, DirectoryCampaign } from '@/types';
-import { Entry } from '@/documents';
 
 // the store definition
 export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => {
@@ -24,7 +18,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { rootFolder, currentWorldId, currentWorldFolder, currentTopicJournals,} = storeToRefs(mainStore); 
+  const { rootFolder, currentWorldId, currentWorldFolder, } = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -49,7 +43,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // refreshes the campaign tree 
   const refreshCampaignDirectoryTree = (): void => {
     // need to have a current world and journals loaded
-    if (!currentWorldId.value || !currentTopicJournals.value)
+    if (!currentWorldId.value)
       return;
 
     const campaigns = WorldFlags.get(currentWorldId.value, WorldFlagKey.campaignEntries) || {};  
@@ -107,15 +101,6 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // when the world changes, clean out the cache of loaded items
   watch(currentWorldFolder, async (newWorldFolder: Folder | null): Promise<void> => {
     if (!newWorldFolder) {
-      return;
-    }
-
-    await refreshCampaignDirectoryTree();
-  });
-  
-  // when the current journal set is updated, refresh the tree
-  watch(currentTopicJournals, async (newJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
-    if (!newJournals) {
       return;
     }
 

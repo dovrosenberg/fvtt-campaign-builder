@@ -48,17 +48,19 @@
       </div>
     </header>
 
-    <Splitter layout="vertical">
-      <SplitterPanel :size="60"> 
+    <Splitter layout="vertical" >
+      <SplitterPanel :size="60" class="flex items-top justify-center"> 
         <div v-if="isTopicTreeRefreshing">
           <ProgressSpinner v-if="isTopicTreeRefreshing" />
         </div>
-        <div v-else class="fwb-world-list-wrapper">
+        <div v-else class="fwb-directory-panel-wrapper">
           <TopicDirectory />
         </div>
       </SplitterPanel>
-      <SplitterPanel class="flex items-center justify-center"> 
-        <CampaignDirectory />
+      <SplitterPanel class="flex items-top justify-center"> 
+        <div class="fwb-directory-panel-wrapper">
+          <CampaignDirectory />
+        </div>
       </SplitterPanel>
     </Splitter>
 
@@ -158,6 +160,13 @@
   #fwb-directory {
     .action-buttons {
       padding-left: 30px;
+    }
+
+    fwb-directory-panel-wrapper {
+      display: flex;
+      flex: 0 1 100%;
+      overflow: auto;
+      height: 100%;
     }
 
     .directory-header {

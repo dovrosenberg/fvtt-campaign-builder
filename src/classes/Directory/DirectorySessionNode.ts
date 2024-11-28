@@ -1,5 +1,6 @@
 import { CollapsibleNode, } from '@/classes';
 import { WorldFlagKey } from '@/settings/WorldFlags';
+import { ValidTopic } from '@/types';
 
 // represents an entry in the type-grouped structure
 // has no children, the parent is a DirectoryTypeNode
@@ -16,5 +17,4 @@ export class DirectorySessionNode extends CollapsibleNode<never> {
     * no children
     * @override
     */
-  override async _loadNodeList(_ids: string[], _updateEntryIds: string[] ): Promise<void> {}
-}
+  override async _loadNodeList(_topicJournals: Record<ValidTopic, JournalEntry[]>, _campaignJournals: JournalEntry[], _ids: string[], _updateIds: string[] ): Promise<void> {}}

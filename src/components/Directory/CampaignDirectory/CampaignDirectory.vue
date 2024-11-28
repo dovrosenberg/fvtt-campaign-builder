@@ -1,57 +1,72 @@
 <template>
-  <div class="fwb-campaign-list-wrapper">
-    <!-- these are the campaigns -->
-    <ol class="fwb-campaign-list">
-      <li 
-        v-for="campaign in directoryStore.currentCampaignTree.value"
-        :key="campaign.id"
-        :class="'fwb-campaign-folder folder flexcol ' + (campaign.expanded ? '' : 'collapsed')" 
-        @click="onCampaignFolderClick($event, campaign.id)"
+  <!-- these are the campaigns -->
+  <ol class="fwb-campaign-list">
+    <li 
+      v-if="currentWorldFolder" 
+      class="fwb-world-folder folder flexcol" 
+    >
+      <header 
+        class="folder-header flexrow"
       >
-        <header 
-          class="folder-header flexrow"
-          @contextmenu="onCampaignContextMenu($event, campaign.id)"
-        >
-          <h3 class="noborder">
-            <i class="fas fa-folder-open fa-fw"></i>
-            {{ campaign.name }}
-          </h3>
-        </header>
+        <h3 class="noborder">
+          <i class="fas fa-folder-open fa-fw"></i>
+          {{ currentWorldFolder.name }} Campaigns
+        </h3>
+      </header>
 
-        <!-- These are the sessions -->
-        <ol 
-          v-if="campaign.expanded"
-          class="campaign-contents"
+      <ol>
+        <li 
+          v-for="campaign in directoryStore.currentCampaignTree.value"
+          :key="campaign.id"
+          :class="'fwb-campaign-folder folder flexcol ' + (campaign.expanded ? '' : 'collapsed')" 
+          @click="onCampaignFolderClick($event, campaign.id)"
         >
-          <!-- data-topic-id is used by drag and drop and toggleEntry-->
-          <li 
-            v-for="topic in campaign.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
-            :key="topic.topic"
-            :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
-            :data-topic="topic.topic" 
+          <header 
+            class="folder-header flexrow"
+            @contextmenu="onCampaignContextMenu($event, campaign.id)"
           >
-            <header class="folder-header flexrow">
-              <div 
-                class="fwb-compendium-label noborder" 
-                style="margin-bottom:0px"
-                @click="onTopicFolderClick($event, topic)"
-                @contextmenu="onTopicContextMenu($event, campaign.id, topic.topic)"
-              >
-                <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-                <i :class="'icon fas ' + getIcon(topic.topic)" style="margin-right: 4px;"></i>
-                {{ topic.name }}
-              </div>
-            </header>
+            <h3 class="noborder">
+              <i class="fas fa-folder-open fa-fw"></i>
+              {{ campaign.name }}
+            </h3>
+          </header>
 
-            <TopicDirectoryGroupedTree
-              :topic-node="topic"
-              :campaign-id="campaign.id"
-            />
-          </li>
-        </ol>
-      </li>
-    </ol>
-  </div>
+          <!-- These are the sessions -->
+          <ol 
+            v-if="campaign.expanded"
+            class="campaign-contents"
+          >
+            <!-- data-topic-id is used by drag and drop and toggleEntry-->
+            <!-- <li 
+              v-for="topic in campaign.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
+              :key="topic.topic"
+              :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
+              :data-topic="topic.topic" 
+            >
+              <header class="folder-header flexrow">
+                <div 
+                  class="fwb-compendium-label noborder" 
+                  style="margin-bottom:0px"
+                  @click="onTopicFolderClick($event, topic)"
+                  @contextmenu="onTopicContextMenu($event, campaign.id, topic.topic)"
+                >
+                  <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
+                  <i :class="'icon fas ' + getIcon(topic.topic)" style="margin-right: 4px;"></i>
+                  {{ topic.name }}
+                </div>
+              </header>
+
+              <SessionDirectoryNode
+                :world-id="worldId"
+                :top-node="true"
+                :node="topic"
+              />
+            </li> -->
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
 </template>
 
 <script setup lang="ts">
@@ -60,19 +75,15 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { getGame, localize } from '@/utils/game';
-  import { getIcon, } from '@/utils/misc';
-  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { localize } from '@/utils/game';
+  import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
   
   // local components
-  import SessionDirectoryNode from './SessionDirectoryNode.vue';
   
   // types
-  import { Topic, } from '@/types';
-  import { DirectoryTopicNode,  } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -83,11 +94,9 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const navigationStore = useNavigationStore();
   const directoryStore = useCampaignDirectoryStore();
-  const currentEntryStore = useCurrentEntryStore();
-  const { filterText, isGroupedByType } = storeToRefs(directoryStore);
-
+  const { currentWorldFolder } = storeToRefs(mainStore);
+  
   ////////////////////////////////
   // data
   const root = ref<HTMLElement>();
@@ -127,52 +136,11 @@
           label: localize('fwb.contextMenus.campaignFolder.delete'), 
           onClick: async () => {
             if (campaignId)
-              await directoryStore.deleteCampaign(campaignId);
+              await campignDirectoryStore.deleteCampaign(campaignId);
           }
         },
       ]
     });
-  };
-
-  const onTopicContextMenu = (event: MouseEvent, campaignId: string, topic: Topic): void => {
-    //prevent the browser's default menu
-    event.preventDefault();
-    event.stopPropagation();
-
-    //show our menu
-    ContextMenu.showContextMenu({
-      customClass: 'fwb',
-      x: event.x,
-      y: event.y,
-      zIndex: 300,
-      items: [
-        { 
-          icon: 'fa-atlas',
-          iconFontClass: 'fas',
-          label: localize(`fwb.contextMenus.topicFolder.create.${topic}`), 
-          onClick: async () => {
-            // get the right folder
-            const campaignFolder = getGame().folders?.find((f)=>f.uuid===campaignId) as globalThis.Folder;
-
-            if (!campaignFolder || !topic)
-              throw new Error('Invalid header in CampaignDirectory.onTopicContextMenu.onClick');
-
-            const entry = await currentEntryStore.createEntry(campaignFolder, topic, {} );
-
-            if (entry) {
-              await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
-            }
-          }
-        },
-      ]
-    });
-  };
-
-  // open/close a topic
-  const onTopicFolderClick = async (event: MouseEvent, directoryTopic: DirectoryTopicNode) => { 
-    event.stopPropagation();
-
-    await directoryStore.toggleTopic(directoryTopic);
   };
 
     // create a campaign
@@ -187,7 +155,7 @@
     //   }
     // }
 
-    await directoryStore.createCampaign();
+    await campignDirectoryStore.createCampaign();
   };
 
 
@@ -206,11 +174,7 @@
     }
 
     // the campaign list section
-    .fwb-campaign-list-wrapper {
-      display: flex;
-      flex: 0 1 100%;
-      overflow: hidden;
-
+    .fwb-directory-panel-wrapper {
       .fwb-campaign-list {
         padding: 0;
         flex-grow: 1;

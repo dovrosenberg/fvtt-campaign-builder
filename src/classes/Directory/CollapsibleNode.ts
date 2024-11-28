@@ -40,7 +40,7 @@ export abstract class CollapsibleNode<ChildType extends DirectoryEntryNode | Dir
     CollapsibleNode._loadedNodes = {};
   }
 
-  public static set c(journals: Record<ValidTopic, JournalEntry>) {
+  public static set currentTopicJournals(journals: Record<ValidTopic, JournalEntry>) {
     CollapsibleNode._currentTopicJournals = journals;
   }
 

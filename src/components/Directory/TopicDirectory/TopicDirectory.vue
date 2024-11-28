@@ -209,7 +209,7 @@
   }
 
   // the world list section
-  .fwb-world-list-wrapper {
+  .fwb-directory-panel-wrapper {
     .fwb-world-list {
       padding: 0;
       flex-grow: 1;
