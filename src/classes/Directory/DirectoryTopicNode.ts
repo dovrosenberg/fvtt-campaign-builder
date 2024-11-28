@@ -30,8 +30,6 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
    * @returns a promise that resolves when the entries are loaded
    */
   public async loadTypeEntries (types: string [], expandedIds: Record<string, boolean | null>): Promise<void> {
-    console.log('loadTypeEntries');
-
     // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
     //    type on the journalentry, or pack or world, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
     //    that is also in the index)

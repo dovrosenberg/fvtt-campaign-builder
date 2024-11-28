@@ -33,6 +33,7 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
+  import { createCampaign } from '@/compendia';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -52,7 +53,7 @@
   // store
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentWorldFolder } = storeToRefs(mainStore);
+  const { currentWorldFolder, currentWorldId } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -83,7 +84,10 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.campaignsHeader.createCampaign'), 
           onClick: async () => {
-            await campaignDirectoryStore.createCampaign();
+            if (currentWorldId.value) {
+              await createCampaign(currentWorldId.value);
+              await campaignDirectoryStore.refreshCampaignDirectoryTree();
+            }
           }
         },
       ]
@@ -112,14 +116,6 @@
         overflow: auto;
     }
   }
-
-  // #journal li.fwb-entry-item .fwb-entry-name, #journal li.fwb-type-item .fwb-entry-name {
-  //   flex-wrap: nowrap;
-  //   align-items: center;
-  //   display: flex;
-  //   flex-direction: row;
-  //   justify-content: flex-start;
-  // }
 
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled

@@ -188,7 +188,6 @@ div[data-application-part] {
       }
     }
 
-    #journal .entry-name > i,
     #fwb-directory .entry-name > i {
       margin-right: 8px;
       margin-left: 4px;

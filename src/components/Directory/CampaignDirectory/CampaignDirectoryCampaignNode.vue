@@ -233,14 +233,6 @@
     }
   }
 
-  // #journal li.fwb-entry-item .fwb-entry-name, #journal li.fwb-type-item .fwb-entry-name {
-  //   flex-wrap: nowrap;
-  //   align-items: center;
-  //   display: flex;
-  //   flex-direction: row;
-  //   justify-content: flex-start;
-  // }
-
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 

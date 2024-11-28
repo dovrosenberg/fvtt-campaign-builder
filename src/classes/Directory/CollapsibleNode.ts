@@ -118,7 +118,6 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   protected abstract _loadNodeList(ids: string[], updateEntryIds: string[] ): Promise<void>;
   
   public async recursivelyLoadNode(expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> {
-    console.log('recursivelyLoadNode');
     // load any children that haven't been loaded before
     // this guarantees all children are at least in CollapsibleNode._loadedNodes and updateEntryIds ones have been refreshed
     const nodesToLoad = this.children.filter((id)=>!this.loadedChildren.find((n)=>n.id===id) || updateEntryIds.includes(id));

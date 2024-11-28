@@ -25,8 +25,6 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
    * @param updateIds uuids of the nodes that should be refreshed
    */
   override async _loadNodeList(ids: string[], updateIds: string[] ): Promise<void> {
-    console.log('loadNodeList');
-
     // make sure we've loaded what we need
     if (!CollapsibleNode._currentTopicJournals || !CollapsibleNode._currentWorldId) {
       CollapsibleNode._loadedNodes = {};

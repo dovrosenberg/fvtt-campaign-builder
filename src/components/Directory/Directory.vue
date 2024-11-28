@@ -57,7 +57,7 @@
           <TopicDirectory />
         </div>
       </SplitterPanel>
-      <SplitterPanel class="flex items-top justify-center"> 
+      <SplitterPanel :size="40" class="flex items-top justify-center"> 
         <div class="fwb-directory-panel-wrapper">
           <CampaignDirectory />
         </div>
@@ -162,7 +162,7 @@
       padding-left: 30px;
     }
 
-    fwb-directory-panel-wrapper {
+    .fwb-directory-panel-wrapper {
       display: flex;
       flex: 0 1 100%;
       overflow: auto;
@@ -222,14 +222,6 @@
       }
     }
   }
-
-  // #journal li.fwb-entry-item .fwb-entry-name, #journal li.fwb-type-item .fwb-entry-name {
-  //   flex-wrap: nowrap;
-  //   align-items: center;
-  //   display: flex;
-  //   flex-direction: row;
-  //   justify-content: flex-start;
-  // }
 
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled

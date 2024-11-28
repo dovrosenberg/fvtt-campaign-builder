@@ -66,7 +66,7 @@
   // local imports
   import { getGame, localize } from '@/utils/game';
   import { getIcon, } from '@/utils/misc';
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore, useCampaignDirectoryStore } from '@/applications/stores';
   import { createCampaign } from '@/compendia';
 
   // library components
@@ -91,6 +91,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const directoryStore = useTopicDirectoryStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   const currentEntryStore = useCurrentEntryStore();
   const { currentWorldId } = storeToRefs(mainStore);
   const { filterText, isTopicTreeRefreshing, isGroupedByType } = storeToRefs(directoryStore);
@@ -144,8 +145,10 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.worldFolder.createCampaign'), 
           onClick: async () => {
-            if (worldId)
+            if (worldId) {
               await createCampaign(worldId);
+              await campaignDirectoryStore.refreshCampaignDirectoryTree();
+            }
           }
         },
       ]
@@ -287,14 +290,6 @@
       padding-left: 10px;
     }    
   }
-
-  // #journal li.fwb-entry-item .fwb-entry-name, #journal li.fwb-type-item .fwb-entry-name {
-  //   flex-wrap: nowrap;
-  //   align-items: center;
-  //   display: flex;
-  //   flex-direction: row;
-  //   justify-content: flex-start;
-  // }
 
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
