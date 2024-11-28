@@ -239,6 +239,7 @@
       }
     }
 
+    // world folder styling
     .fwb-world-folder:not(.collapsed) > .folder-header {
       border-top: 1px solid var(--fwb-sidebar-world-border);
       background: var(--fwb-sidebar-world-background);
@@ -257,8 +258,9 @@
       border-bottom: 1px solid var(--mej-active-color);
     }
 
-    .fwb-topic-folder .folder-header {
-      background: inherit;
+    // topic folder styling
+    .fwb-topic-folder.collapsed > .folder-header, .fwb-topic-folder:not(.collapsed) > .folder-header {
+      background: inherit;  // override foundry default
       border: 0px;
       text-shadow: none;   // override foundry default
       cursor: pointer;

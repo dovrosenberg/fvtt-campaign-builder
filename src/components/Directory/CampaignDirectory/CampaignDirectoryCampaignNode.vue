@@ -26,7 +26,7 @@
       <!-- <li 
         v-for="topic in campaign.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
         :key="topic.topic"
-        :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
+        :class="'fwb-campaign-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
         :data-topic="topic.topic" 
       >
         <header class="folder-header flexrow">

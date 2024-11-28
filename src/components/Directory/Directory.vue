@@ -48,8 +48,8 @@
       </div>
     </header>
 
-    <Splitter layout="vertical" >
-      <SplitterPanel :size="60" class="flex items-top justify-center"> 
+    <Splitter layout="vertical" class="fwb-directory-spliter">
+      <SplitterPanel :size="60" class="fwb-directory-panel"> 
         <div v-if="isTopicTreeRefreshing">
           <ProgressSpinner v-if="isTopicTreeRefreshing" />
         </div>
@@ -57,7 +57,7 @@
           <TopicDirectory />
         </div>
       </SplitterPanel>
-      <SplitterPanel :size="40" class="flex items-top justify-center"> 
+      <SplitterPanel :size="40" class="fwb-directory-panel"> 
         <div class="fwb-directory-panel-wrapper">
           <CampaignDirectory />
         </div>
@@ -162,62 +162,75 @@
       padding-left: 30px;
     }
 
-    .fwb-directory-panel-wrapper {
+    .fwb-directory-spliter {
+      flex: 1 1 auto;  // take up all remaining space
+      overflow: hidden;
       display: flex;
-      flex: 0 1 100%;
-      overflow: auto;
-      height: 100%;
-    }
+      flex-direction: column;
 
-    .directory-header {
-      flex: 0;
-      background-color: var(--fwb-header-background);
-      border-bottom: 1px solid var(--fwb-header-border-color);
-      color: var(--fwb-sidebar-label-color);
-      margin-bottom: 0px;
-      padding-top: 3px;
-      padding-bottom: 6px;
-      padding-left: 20px;
+      .fwb-directory-panel-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        height: 100%;
+      } 
 
-      .header-actions.action-buttons button {
-        line-height: 24px;
-        background: var(--fwb-sidebar-button-background);
-        border: 2px groove var(--fwb-sidebar-button-border);
+      .fwb-directory-panel {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; 
+        height: 100%; 
       }
 
-      .header-search {
-        #fwb-directory-search {
-          flex: 1;
-          height: var(--form-field-height);
+      .directory-header {
+        flex: 0;
+        background-color: var(--fwb-header-background);
+        border-bottom: 1px solid var(--fwb-header-border-color);
+        color: var(--fwb-sidebar-label-color);
+        margin-bottom: 0px;
+        padding-top: 3px;
+        padding-bottom: 6px;
+        padding-left: 20px;
+
+        .header-actions.action-buttons button {
+          line-height: 24px;
+          background: var(--fwb-sidebar-button-background);
+          border: 2px groove var(--fwb-sidebar-button-border);
         }
 
-        .header-control {
-          flex: 0 0 32px;
-          text-align: center;
-          position: relative;
+        .header-search {
+          #fwb-directory-search {
+            flex: 1;
+            height: var(--form-field-height);
+          }
 
-          i {
-            position: absolute;
+          .header-control {
+            flex: 0 0 32px;
+            text-align: center;
+            position: relative;
 
-            &.fa-plus {
-              top: -2px;
-              right: -2px;
-              font-size: 0.5rem;
-              background: black;
-              color: var(--color-text-light-highlight);
-              padding: 1px;
-              border-radius: 4px;
-            }  
+            i {
+              position: absolute;
+
+              &.fa-plus {
+                top: -2px;
+                right: -2px;
+                font-size: 0.5rem;
+                background: black;
+                color: var(--color-text-light-highlight);
+                padding: 1px;
+                border-radius: 4px;
+              }  
+            }
           }
         }
-      }
 
-      .header-group-type {
-        flex: 1;
-        height: var(--form-field-height);
+        .header-group-type {
+          flex: 1;
+          height: var(--form-field-height);
 
-        #fwb-group-by-type {
-          flex: 0;
+          #fwb-group-by-type {
+            flex: 0;
+          }
         }
       }
     }
