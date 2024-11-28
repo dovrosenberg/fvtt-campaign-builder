@@ -1,101 +1,93 @@
 <template>
-  <div 
-    ref="contentRef"
-    class="sheet fwb-journal-sheet"
+  <form 
+    :class="'flexcol fwb-journal-subsheet ' + topic" 
   >
-    <HomePage v-if="!currentEntry" />
-      
-    <form 
-      v-else
-      :class="'flexcol fwb-journal-subsheet ' + topic" 
-    >
-      <div class="sheet-container detailed flexcol">
-        <header class="journal-sheet-header flexrow">
-          <div class="sheet-image">
-            <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
+    <div class="sheet-container detailed flexcol">
+      <header class="journal-sheet-header flexrow">
+        <div class="sheet-image">
+          <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
+        </div>
+        <div class="header-details fwb-content-header">
+          <h1 class="header-name flexrow">
+            <i :class="`fas ${icon} sheet-icon`"></i>
+            <InputText
+              v-model="name"
+              for="fwb-input-name" 
+              :placeholder="namePlaceholder"                
+              :pt="{
+                root: { class: 'full-height' } 
+              }" 
+              @update:model-value="onNameUpdate"
+            />
+          </h1>
+          <div class="form-group fwb-content-header">
+            <label>{{ localize('fwb.labels.fields.type') }}</label>
+            <TypeAhead 
+              :initial-list="typeList"
+              :initial-value="currentEntry.system.type as string || ''"
+              @item-added="onTypeItemAdded"
+              @selection-made="onTypeSelectionMade"
+            />
           </div>
-          <div class="header-details fwb-content-header">
-            <h1 class="header-name flexrow">
-              <i :class="`fas ${icon} sheet-icon`"></i>
-              <InputText
-                v-model="name"
-                for="fwb-input-name" 
-                :placeholder="namePlaceholder"                
-                :pt="{
-                  root: { class: 'full-height' } 
-                }" 
-                @update:model-value="onNameUpdate"
-              />
-            </h1>
-            <div class="form-group fwb-content-header">
-              <label>{{ localize('fwb.labels.fields.type') }}</label>
-              <TypeAhead 
-                :initial-list="typeList"
-                :initial-value="currentEntry.system.type as string || ''"
-                @item-added="onTypeItemAdded"
-                @selection-made="onTypeSelectionMade"
-              />
-            </div>
 
-            <div 
-              v-if="showHierarchy"
-              class="form-group fwb-content-header"
-            >
-              <label>{{ localize('fwb.labels.fields.parent') }}</label>
-              <TypeAhead 
-                :initial-list="validParents"
-                :initial-value="parentId || ''"
-                @selection-made="onParentSelectionMade"
-              />
-            </div>
-          </div>
-        </header>
-        <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
-          <a class="item" data-tab="description">{{ localize('fwb.labels.tabs.description') }}</a>
-          <a 
-            v-for="relationship in relationships"
-            :key="relationship.label"
-            class="item" 
-            :data-tab="relationship.tab"
+          <div 
+            v-if="showHierarchy"
+            class="form-group fwb-content-header"
           >
-            {{ localize(relationship.label) }}
-          </a>
-        </nav>
-        <div class="fwb-tab-body flexcol">
-          <div class="tab description flexcol" data-group="primary" data-tab="description">
-            <div class="tab-inner flexcol">
-              <Editor 
-                :document="editorDocument"
-                :has-button="true"
-                target="content-description"
-                @editor-saved="onDescriptionEditorSaved"
-              />
-            </div>
+            <label>{{ localize('fwb.labels.fields.parent') }}</label>
+            <TypeAhead 
+              :initial-list="validParents"
+              :initial-value="parentId || ''"
+              @selection-made="onParentSelectionMade"
+            />
           </div>
-          <div class="tab description flexcol" data-group="primary" data-tab="characters">
-            <div class="tab-inner flexcol">
-              <RelatedItemTable :topic="Topic.Character" />
-            </div>
-          </div> 
-          <div class="tab description flexcol" data-group="primary" data-tab="locations">
-            <div class="tab-inner flexcol">
-              <RelatedItemTable :topic="Topic.Location" />
-            </div>
+        </div>
+      </header>
+      <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
+        <a class="item" data-tab="description">{{ localize('fwb.labels.tabs.description') }}</a>
+        <a 
+          v-for="relationship in relationships"
+          :key="relationship.label"
+          class="item" 
+          :data-tab="relationship.tab"
+        >
+          {{ localize(relationship.label) }}
+        </a>
+      </nav>
+      <div class="fwb-tab-body flexcol">
+        <div class="tab description flexcol" data-group="primary" data-tab="description">
+          <div class="tab-inner flexcol">
+            <Editor 
+              :document="editorDocument"
+              :has-button="true"
+              target="content-description"
+              @editor-saved="onDescriptionEditorSaved"
+            />
           </div>
-          <div class="tab description flexcol" data-group="primary" data-tab="organizations">
-            <div class="tab-inner flexcol">
-              <RelatedItemTable :topic="Topic.Organization" />
-            </div>
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="characters">
+          <div class="tab-inner flexcol">
+            <RelatedItemTable :topic="Topic.Character" />
           </div>
-          <div class="tab description flexcol" data-group="primary" data-tab="events">
-            <div class="tab-inner flexcol">
-              <RelatedItemTable :topic="Topic.Event" />
-            </div>
+        </div> 
+        <div class="tab description flexcol" data-group="primary" data-tab="locations">
+          <div class="tab-inner flexcol">
+            <RelatedItemTable :topic="Topic.Location" />
+          </div>
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="organizations">
+          <div class="tab-inner flexcol">
+            <RelatedItemTable :topic="Topic.Organization" />
+          </div>
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="events">
+          <div class="tab-inner flexcol">
+            <RelatedItemTable :topic="Topic.Event" />
           </div>
         </div>
       </div>
-    </form>	 
-  </div>
+    </div>
+  </form>	 
 </template>
 
 <script setup lang="ts">
@@ -117,7 +109,6 @@
 
   // local components
   import Editor from '@/components/Editor.vue';
-  import HomePage from '@/components/HomePage.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
   import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
   
@@ -251,7 +242,7 @@
 
       newTopic = newEntry ? newEntry.system.topic as ValidTopic : null;
       if (!newTopic) 
-        throw new Error('Invalid entry type in WBContent.watch-currenEntry');
+        throw new Error('Invalid entry type in ContentTab.watch-currenEntry');
 
       // we're going to show a content page
       topic.value = newTopic;
@@ -297,7 +288,7 @@
 
     //     // home page mode - click on a recent item
     //     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {
-    //       await this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
+    //       await this._makeCallback(ContentTab.CallbackType.RecentClicked, uuid);
     //     });
 
     //     // tree node clicked

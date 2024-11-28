@@ -6,7 +6,7 @@
     <div class="fwb-body flexcol">
       <WBHeader />
       <div class="fwb-content flexcol editable">
-        <WBContent />
+        <ContentTab />
       </div>
     </div>
     <div id="fwb-directory-sidebar" class="flexcol">
@@ -29,7 +29,7 @@
 
   // local components
   import WBHeader from '@/components/WBHeader.vue';
-  import WBContent from '@/components/WBContent.vue';
+  import ContentTab from '@/components/ContentTab/ContentTab.vue';
   import Directory from '@/components/Directory/Directory.vue';
 
   // types
