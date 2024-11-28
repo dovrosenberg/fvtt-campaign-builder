@@ -37,7 +37,7 @@
               @contextmenu="onTopicContextMenu($event, world.id, topic.topic)"
             >
               <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-              <i :class="'icon fas ' + getIcon(topic.topic)" style="margin-right: 4px;"></i>
+              <i :class="'icon fas ' + getTopicIcon(topic.topic)" style="margin-right: 4px;"></i>
               {{ topic.name }}
             </div>
           </header>
@@ -60,12 +60,11 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { getGame, localize } from '@/utils/game';
-  import { getIcon, } from '@/utils/misc';
+  import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore, useCampaignDirectoryStore } from '@/applications/stores';
   import { createCampaign } from '@/compendia';
 
@@ -77,7 +76,7 @@
   import TopicDirectoryGroupedTree from './TopicDirectoryGroupedTree.vue';
   
   // types
-  import { Topic, } from '@/types';
+  import { Topic, WindowTabType } from '@/types';
   import { DirectoryTopicNode, } from '@/classes';
   
   ////////////////////////////////
@@ -94,11 +93,10 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const currentEntryStore = useCurrentEntryStore();
   const { currentWorldId } = storeToRefs(mainStore);
-  const { filterText, isTopicTreeRefreshing, isGroupedByType } = storeToRefs(directoryStore);
+  const { isGroupedByType } = storeToRefs(directoryStore);
 
   ////////////////////////////////
   // data
-  const root = ref<HTMLElement>();
   
   ////////////////////////////////
   // computed data
@@ -141,7 +139,7 @@
           }
         },
         { 
-          icon: 'fa-signs-post',
+          icon: getTabTypeIcon(WindowTabType.Campaign),
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.worldFolder.createCampaign'), 
           onClick: async () => {

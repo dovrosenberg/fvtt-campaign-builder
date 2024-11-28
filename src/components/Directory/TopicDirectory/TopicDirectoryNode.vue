@@ -8,7 +8,7 @@
   />
   <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
-      :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
+      :class="`${props.node.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick($event)"
@@ -72,7 +72,7 @@
   const directoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentWorldId, currentEntryId, currentTopicJournals } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntry, currentTopicJournals } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(directoryStore);
   
   ////////////////////////////////

@@ -1,7 +1,7 @@
 <template>
   <li v-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
-      :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
+      :class="`${props.node.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick($event)"
@@ -59,7 +59,7 @@
   const navigationStore = useNavigationStore();
   const directoryStore = useTopicDirectoryStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentEntryId, currentWorldId } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldId } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(directoryStore);
 
   ////////////////////////////////

@@ -98,7 +98,7 @@
 
   // local imports
   import { updateEntry } from '@/compendia';
-  import { getIcon, } from '@/utils/misc';
+  import { getTopicIcon, } from '@/utils/misc';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
@@ -160,7 +160,7 @@
 
   ////////////////////////////////
   // computed data
-  const icon = computed((): string => (!topic.value ? '' : getIcon(topic.value)));
+  const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
   const typeList = computed((): string[] => (topic.value===null || !currentWorldId.value ? [] : WorldFlags.get(currentWorldId.value, WorldFlagKey.types)[topic.value]));

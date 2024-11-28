@@ -12,8 +12,8 @@ import { getCleanEntry } from '@/compendia';
 import { CollapsibleNode } from '@/classes';
 
 // types
-import { Topic, ValidTopic } from '@/types';
-import { Entry } from '@/documents/entry';
+import { Topic, ValidTopic, WindowTab, WindowTabType } from '@/types';
+import { Entry, Session } from '@/documents';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
@@ -27,7 +27,10 @@ export const useMainStore = defineStore('main', () => {
   // internal state
   const _currentTopicJournals = ref<Record<ValidTopic, JournalEntry> | null>(null);  // current journals (by topic)
   const _currentCampaignJournals = ref<JournalEntry[] | null>(null);  // campaign journals for current world
-  const _currentEntry = ref<Entry | null>(null);  // current entry
+  const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
+  const _currentCampaign = ref<JournalEntry | null>(null);  // current campaign (when showing a campaign tab)
+  const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
+  const _currentTab = ref<WindowTab | null>(null);  // current tab
 
   ///////////////////////////////
   // external state
@@ -50,8 +53,10 @@ export const useMainStore = defineStore('main', () => {
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
   const currentTopicJournals = computed((): Record<ValidTopic, JournalEntry> | null => _currentTopicJournals?.value || null);
   const currentCampaignJournals = computed((): JournalEntry[] | null => _currentCampaignJournals?.value || null);
-  const currentEntryId = computed((): string | null => _currentEntry?.value?.uuid || null);
   const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
+  const currentCampaign = computed((): JournalEntry | null => _currentCampaign?.value || null);
+  const currentSession = computed((): Session | null => _currentSession?.value || null);
+  const currentContentType = computed((): WindowTabType | null => _currentTab?.value?.tabType);  
 
   ///////////////////////////////
   // actions
@@ -72,14 +77,37 @@ export const useMainStore = defineStore('main', () => {
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };
 
-  const setNewEntry = async function (entry: string | null | Entry): Promise<void> {
-    if (typeof entry === 'string') {
-      _currentEntry.value = await getCleanEntry(entry);
+  const setNewTab = async function (tab: WindowTab): Promise<void> { 
+    _currentTab.value = tab;
 
-      if (!_currentEntry.value)
-        throw new Error('Attempted to setNewEntry with invalid uuid');
-    } else
-      _currentEntry.value = entry;
+    switch (tab.tabType) {
+      case WindowTabType.Entry:
+        if (tab.header.uuid) {
+          _currentEntry.value = await getCleanEntry(tab.header.uuid);
+        } else {
+          _currentEntry.value = null;
+          tab.tabType = null;
+        }
+        _currentCampaign.value = null;
+        _currentSession.value = null;
+        break;
+      case WindowTabType.Campaign:
+        _currentCampaign.value = _currentCampaignJournals.value?.find((c)=>(c.uuid===tab.header.uuid)) || null;
+        _currentEntry.value = null;
+        _currentSession.value = null;
+        break;
+      case WindowTabType.Session:
+        throw new Error('Sessions not yet implemented in mainStore.setNewTab()');
+        _currentSession.value = null;  
+        _currentEntry.value = null;
+        _currentCampaign.value = null;
+        break;
+      default:
+        _currentSession.value = null;  
+        _currentEntry.value = null;
+        _currentCampaign.value = null;
+        tab.tabType = null;
+    }
   };
 
   /**
@@ -88,6 +116,9 @@ export const useMainStore = defineStore('main', () => {
    * reactivity updates throughout the application.
    */
   const refreshEntry = function (): void {
+    if (!currentEntry.value)
+      return;
+
     // just force all reactivity to update
     _currentEntry.value = { ..._currentEntry.value };
   };
@@ -162,12 +193,14 @@ export const useMainStore = defineStore('main', () => {
     currentTopicJournals,
     currentCampaignJournals,
     currentEntry,
-    currentEntryId,
+    currentCampaign,
+    currentSession,
+    currentContentType,
     rootFolder,
     currentWorldCompendium,
    
     setNewWorld,
-    setNewEntry,
+    setNewTab,
     refreshEntry,
   };
 });

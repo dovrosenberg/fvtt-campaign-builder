@@ -12,7 +12,7 @@
           <span v-if="currentNode.expanded">-</span><span v-else>+</span>
         </div>
         <div 
-          :class="`${currentNode.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
+          :class="`${currentNode.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
           draggable="true"
           @click="onDirectoryItemClick($event, currentNode)"
           @dragstart="onDragStart($event, currentNode.id)"
@@ -90,7 +90,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentWorldId, currentEntryId, currentTopicJournals } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntry, currentTopicJournals } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data

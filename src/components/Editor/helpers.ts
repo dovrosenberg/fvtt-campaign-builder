@@ -1,6 +1,6 @@
 // helper functions for the Editor component
 
-import { getIcon } from '@/utils/misc';
+import { getTopicIcon } from '@/utils/misc';
 
 // types
 import { Entry } from '@/documents';
@@ -104,7 +104,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
       } else {  // this is an fwb item for this world
         return entry.toAnchor({ 
           name: data.name, dataset: { hash }, classes: ['fwb-content-link'],   // clicks on this class are handled 
-          icon: `fas ${getIcon(entry.system.topic)}` 
+          icon: `fas ${getTopicIcon(entry.system.topic)}` 
         });
       }
     } else {

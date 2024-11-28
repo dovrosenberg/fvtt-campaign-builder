@@ -2,10 +2,11 @@
   <div 
     ref="contentRef"
     class="sheet fwb-journal-sheet"
-  >
-    <HomePage v-if="!currentEntry" />
-      
-    <EntryContent v-else />
+  >      
+    <EntryContent v-if="currentContentType===WindowTabType.Entry" />
+    <SessionContent v-else-if="currentContentType===WindowTabType.Session" />
+    <CampaignContent v-else-if="currentContentType===WindowTabType.Campaign" />
+    <HomePage v-else />
   </div>
 </template>
 
@@ -24,6 +25,7 @@
   import EntryContent from './EntryContent.vue';
   
   // types
+  import { WindowTabType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -34,7 +36,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentEntry } = storeToRefs(mainStore);
+  const { currentContentType } = storeToRefs(mainStore); 
 
   ////////////////////////////////
   // computed data

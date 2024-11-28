@@ -1,5 +1,5 @@
 export { id as MODULE_ID } from '@module';
-import { Topic } from '@/types';
+import { Topic, WindowTabType } from '@/types';
 
 // sometimes topic ends up as a string (ex. when pulling from DOM), so this makes sure
 //    it can always be compared properly (particuarly for use in switch or [].includes, etc.)
@@ -9,7 +9,13 @@ export function toTopic(topic: string | number | Topic | null | undefined): Topi
   return castedTopic ?? null;
 }
 
-export function getIcon(topic: string | number | Topic | null | undefined) {
+export function toWindowTabType(type: string | number | WindowTabType | null | undefined): WindowTabType | null {
+  const castedType = typeof type === 'string' ? parseInt(type) as WindowTabType : type;
+
+  return castedType ?? null;
+}
+
+export function getTopicIcon(topic: string | number | Topic | null | undefined) {
   switch (toTopic(topic)) {
     case Topic.Character: 
       return 'fa-user';
@@ -19,6 +25,19 @@ export function getIcon(topic: string | number | Topic | null | undefined) {
       return 'fa-flag';
     case Topic.Event: 
       return 'fa-calendar-days';
+    default: 
+      return '';
+  }
+}
+
+export function getTabTypeIcon(type: string | number | WindowTabType | null | undefined) {
+  switch (toWindowTabType(type)) {
+    case WindowTabType.Campaign: 
+      return 'fa-signs-post';
+    case WindowTabType.Session: 
+      return 'fa-location-dot';
+    case WindowTabType.Entry:
+      throw new Error('Tried to use getTabTypeIcon() for Entry');
     default: 
       return '';
   }

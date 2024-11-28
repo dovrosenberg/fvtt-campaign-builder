@@ -8,7 +8,7 @@ import { storeToRefs } from 'pinia';
 // local imports
 import { getCleanEntry } from '@/compendia';
 import { localize } from '@/utils/game';
-import { getIcon } from '@/utils/misc';
+import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { useMainStore } from './mainStore';
 
@@ -25,7 +25,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorldId, } = storeToRefs(mainStore);
+  const { currentWorldId, currentCampaignJournals, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -38,17 +38,66 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // actions
  
+  type OpenContentOptions = {
+    activate?: boolean;
+    newTab?: boolean;
+    updateHistory?: boolean;
+  }
+
   /**
-   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and entryId is the same as currently active tab, then does nothing
+   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
-   * @param entryId The uuid of the entry to open in the tab. If null, a blank tab is opened.
+   * @param contentId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
    * @param options Options for the tab.
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
    * @returns The newly opened tab.
    */
-  const openEntry = async function (entryId = null as string | null, options?: { activate?: boolean; newTab?: boolean; updateHistory?: boolean }): Promise<WindowTab> {
+  const openEntry = async function(entryId = null as string | null, options?: OpenContentOptions) {
+    openContent(entryId, options, WindowTabType.Entry);
+  }
+
+  /**
+   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param campaignId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the entry open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @returns The newly opened tab.
+   */
+  const openCampaign = async function(campaignId = null as string | null, options?: OpenContentOptions) {
+    openContent(campaignId, options, WindowTabType.Campaign);
+  }
+
+  /**
+   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param sessionId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the entry open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @returns The newly opened tab.
+   */
+  const openSession = async function(sessionId = null as string | null, options?: OpenContentOptions) {
+    openContent(sessionId, options, WindowTabType.Session);
+  } 
+
+  /**
+   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param contentId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the entry open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @param contentType The type of content to open. If null, defaults to entry.
+   * @returns The newly opened tab.
+   */
+  const openContent = async function (contentId = null as string | null, options?: OpenContentOptions, contentType: WindowTabType): Promise<WindowTab> { 
     // set defaults
     options = {
       activate: true,
@@ -57,9 +106,34 @@ export const useNavigationStore = defineStore('navigation', () => {
       ...options,
     };
 
-    const entry = entryId ? await getCleanEntry(entryId) as Entry : null;
-    const entryName = (entry ? entry.name : localize('fwb.labels.newTab')) || '';
-    const headerData: TabHeader = { uuid: entry ? entryId : null, name: entryName, icon: entry ? getIcon(entry.system.topic) : '' };
+    let name: string;
+    let icon: string;
+
+    switch (contentType) {
+      case WindowTabType.Entry: {
+        const entry = contentId ? await getCleanEntry(contentId) as Entry : null;
+        name = (entry ? entry.name : localize('fwb.labels.newTab')) || '';
+        icon = entry ? getTopicIcon(entry.system.topic) : ''
+      }; break;
+      case WindowTabType.Campaign: {
+        const campaign = currentCampaignJournals?.value.find((j)=>j.uuid===contentId) || null; 
+
+        if (!campaign)
+          throw new Error('Could not find campaign in navigationStore.openContent()');
+
+        name = campaign.name; 
+        icon = getTabTypeIcon(WindowTabType.Campaign);
+      }; break;
+      case WindowTabType.Session: {
+        // const session = contentId ? await getCleanEntry(contentId) as JournalEntry : null;
+        name = 'SESSION',
+        icon = '';
+      }; break;
+      default:
+        throw new Error(`Invalid content type in navigationStore.openConent(): ${contentType}`);
+    }
+
+    const headerData: TabHeader = { uuid: contentId || null, name: name, icon: icon };
 
     // see if we need a new tab
     let tab;
@@ -70,7 +144,7 @@ export const useNavigationStore = defineStore('navigation', () => {
         header: headerData,
         history: [],
         historyIdx: -1,
-        tabType: WindowTabType.Entry,
+        tabType: contentType,
       } as WindowTab;
 
       //add to tabs list
@@ -79,16 +153,17 @@ export const useNavigationStore = defineStore('navigation', () => {
       tab = getActiveTab(false);
 
       // if same entry, nothing to do
-      if (tab.header?.uuid === entryId)
+      if (tab.header?.uuid === contentId || null)
         return tab;
 
       // otherwise, just swap out the active tab info
       tab.header = headerData;
+      tab.tabType = contentType;
     }
     
     // add to history 
     if (headerData.uuid && options.updateHistory) {
-      tab.history.push(entryId);
+      tab.history.push(contentId);
       tab.historyIdx = tab.history.length - 1; 
     }
 
@@ -102,7 +177,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (headerData.uuid)
       await _updateRecent(headerData);
 
-    await mainStore.setNewEntry(headerData.uuid);
+    await mainStore.setNewTab(tab);
 
     return tab;
   };
@@ -143,7 +218,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (newTab?.header?.uuid)
       await _updateRecent(newTab.header);
 
-    await mainStore.setNewEntry(newTab.header.uuid);
+    await mainStore.setNewTab(newTab);
 
     return;
   };
@@ -268,6 +343,8 @@ export const useNavigationStore = defineStore('navigation', () => {
     currentWorldId,
 
     openEntry,
+    openSession,
+    openCampaign,
     getActiveTab,
     activateTab,
     removeBookmark,

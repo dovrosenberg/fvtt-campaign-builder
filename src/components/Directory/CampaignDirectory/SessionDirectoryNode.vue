@@ -8,7 +8,7 @@
   />
   <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
-      :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
+      :class="`${props.node.id===currentSession?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick($event)"
@@ -25,15 +25,14 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useTopicDirectoryStore, } from '@/applications/stores';
   
   // library components
   
   // local components
 
   // types
-  import { ValidTopic } from '@/types';
-  import { DirectoryEntryNode, } from '@/classes';
+  import { SessionDirectoryNode, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -58,10 +57,10 @@
   ////////////////////////////////
   // store
   const navigationStore = useNavigationStore();
-  const campaignDirectoryStore = useCampaignDirectoryStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
-  const { currentEntryId, } = storeToRefs(mainStore);
-  const { filterNodes } = storeToRefs(campaignDirectoryStore);
+  const { currentSession, } = storeToRefs(mainStore);
+  const { filterNodes } = storeToRefs(topicDirectoryStore);
   
   ////////////////////////////////
   // data

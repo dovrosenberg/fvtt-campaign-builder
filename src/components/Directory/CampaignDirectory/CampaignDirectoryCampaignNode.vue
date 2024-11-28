@@ -37,7 +37,7 @@
             @contextmenu="onTopicContextMenu($event, campaign.id, topic.topic)"
           >
             <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-            <i :class="'icon fas ' + getIcon(topic.topic)" style="margin-right: 4px;"></i>
+            <i :class="'icon fas ' + getTopicIcon(topic.topic)" style="margin-right: 4px;"></i>
             {{ topic.name }}
           </div>
         </header>
@@ -58,7 +58,7 @@
   
   // local imports
   import { localize } from '@/utils/game';
-  import { useCampaignDirectoryStore, } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -83,7 +83,8 @@
   ////////////////////////////////
   // store
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  
+  const navigationStore = useNavigationStore();
+
   ////////////////////////////////
   // data
   // we don't just use props node because in toggleWithLoad we want to swap it out without rebuilding
@@ -100,8 +101,9 @@
   // event handlers
 
   // change campaign
-  const onCampaignFolderClick = async (_event: MouseEvent) => {
+  const onCampaignFolderClick = async (event: MouseEvent) => {
     currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value, !currentNode.value.expanded);
+    navigationStore.openCampaign(currentNode.value.id, {newTab: event.ctrlKey});
   };
 
   const onCampaignContextMenu = (event: MouseEvent): void => {

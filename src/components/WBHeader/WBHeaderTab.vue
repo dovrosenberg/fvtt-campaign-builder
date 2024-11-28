@@ -51,6 +51,9 @@
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits<{
+    (e: 'closeTab', tabId: string): void;
+  }>();
 
   ////////////////////////////////
   // store
@@ -72,7 +75,7 @@
 
   // listener for the tab close buttons
   const onTabCloseClick = async () => {
-    await closeTab(props.tab.id);
+    emit('closeTab', props.tab.id);
   };
 
 
