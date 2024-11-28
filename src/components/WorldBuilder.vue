@@ -28,7 +28,7 @@
   // library components
 
   // local components
-  import WBHeader from '@/components/WBHeader.vue';
+  import WBHeader from '@/components/WBHeader/WBHeader.vue';
   import ContentTab from '@/components/ContentTab/ContentTab.vue';
   import Directory from '@/components/Directory/Directory.vue';
 

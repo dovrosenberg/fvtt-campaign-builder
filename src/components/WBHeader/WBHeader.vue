@@ -5,32 +5,11 @@
   >
     <div class="fwb-tab-bar flexrow">
       <div class="fwb-tab-row flexrow">
-        <div 
+        <WBHeaderTab 
           v-for="tab in tabs"
           :key="tab.id"
-          :class="'fwb-tab flexrow ' + (tab.active ? 'active' : '')" 
-          draggable="true"
-          :title="tab.header.name" 
-          @click="onTabClick(tab.id)"
-          @dragstart="onDragStart($event, tab.id)"
-          @drop="onDrop($event, tab.id)"
-        >
-          <div 
-            v-if="tab.header.icon"
-            class="fwb-tab-icon"
-          >
-            <i :class="'fas ' + tab.header.icon"></i>
-          </div>
-          <div class="tab-content">
-            {{ tab.header.name }}
-          </div>
-          <div 
-            class="close"
-            @click="onTabCloseClick(tab.id)"
-          >
-            <i class="fas fa-times"></i>
-          </div>
-        </div>
+          :tab="tab"
+        />
 
         <div 
           id="fwb-add-tab" 
@@ -61,25 +40,11 @@
         <i class="fas fa-star"></i>
       </div>
 
-      <div 
+      <WBBookmark 
         v-for="bookmark in bookmarks"
         :key="bookmark.id"
-        class="fwb-bookmark-button" 
-        :title="bookmark.header.name" 
-        draggable="true"
-        @click.left="onBookmarkClick(bookmark.id)"
-        @contextmenu="onBookmarkContextMenu($event, bookmark)"
-        @dragstart="onDragStart($event, bookmark.id)"
-        @drop="onDrop($event, bookmark.id)"
-      >
-        <div>
-          <i 
-            v-if="bookmark.header.icon"
-            :class="'fas '+ bookmark.header.icon"
-          ></i> 
-          {{ bookmark.header.name }}
-        </div>
-      </div>
+        :bookmark="bookmark"
+      />
     </div>
 
     <div class="navigation flexrow">
@@ -119,6 +84,8 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
+  import WBHeaderTab from './WBHeaderTab.vue';
+  import WBBookmark from './WBBookmark.vue';
 
   // types
   import { Bookmark, WindowTab } from '@/types';
@@ -278,16 +245,6 @@
   const onHistoryForwardClick = () => { void navigateHistory(1); };
 
   // bookmark and tab listeners
-  const onTabClick = async (tabId: string) => {
-    void navigationStore.activateTab(tabId);
-  };
-
-  // listener for the tab close buttons
-  const onTabCloseClick = async (tabId: string) => {
-    if (tabId)
-      await closeTab(tabId);
-  };
-
   // handle a bookmark or tab dragging
   const onDragStart = (event: DragEvent, id: string): void => {
     const target = event.currentTarget as HTMLElement;
@@ -417,64 +374,6 @@
     .fwb-tab-row {
       padding-top: 1px;
 
-      .fwb-tab {
-        max-width: 150px;
-        height: 100%;
-        padding: 4px;
-        border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
-        line-height: 20px;
-        background: var(--fwb-header-tab-background);
-        border: var(--fwb-header-tab-border);
-        position: relative;
-        font-family: 'Signika', sans-serif;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        cursor: pointer;
-        flex-wrap: nowrap;
-        font-size: var(--font-size-14);
-
-        &.active, .fwb-tab:last-child {
-          flex: 0 0 150px;
-        }
-
-        .fwb-tab-icon {
-          flex: 0 1 0%;
-          margin-right: 6px;
-        }
-        
-        .tab-content {
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        &.active {
-          font-weight: bold;
-          background-color: var(--fwb-header-tab-active);
-          outline: none;
-        }
-
-        &:hover {
-          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-          background-color: var(--fwb-header-tab-hover);
-        }
-
-        .close {
-          flex: 0 0 10px;
-          opacity: 0.6;
-          cursor: pointer;
-          justify-content: flex-end;
-          align-content: flex-end;
-          padding-left: 2px;
-  
-          &:hover {
-            opacity: 0.8;
-          }
-        }
-      }
-
       .tab-button {
         flex: 0 0 30px;
         text-align: center;
@@ -498,63 +397,6 @@
     padding-left: 2px;
     flex: 0 0 36px;
     color: var(--fwb-header-bookmark-color);
-
-    .fwb-bookmark-button, #fwb-add-bookmark {
-      height: 28px;
-      border-radius: 28px;
-      margin-left: 4px;
-      margin-top: 4px;
-      line-height: 27px;
-      padding: 0px 10px;
-      font-size: 14px;
-      cursor: pointer;
-      flex-wrap: nowrap;
-      flex-grow: 0;
-      white-space: nowrap;
-      border: 1px solid var(--fwb-header-bookmark-border);
-      background: var(--fwb-header-bookmark-background);
-
-      &#fwb-add-bookmark {
-        border-radius: 4px;
-        flex: 0 0 24px;
-        height: 24px;
-        margin-top: 6px;
-        font-size: 16px;
-        padding-left: 2px;
-        line-height: 22px;
-        text-overflow: clip;
-        margin-left: 2px;
-        overflow: hidden;
-        border: 1px solid var(--fwb-header-add-bookmark-border);
-        background: var(--fwb-header-add-bookmark-background);
-        color: var(--fwb-header-add-bookmark-color);
-
-        &.disabled {
-          cursor: default;
-          color: #999;
-        }
-      }
-
-      & > div {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        width: 100%;
-      }
-
-      &:not(#fwb-add-bookmark) i {
-        margin-top: 4px;
-        margin-right: 2px;
-      }
-
-      &:hover {
-        background: var(--fwb-header-bookmark-hover);
-      }
-
-      &#fwb-add-bookmark:not(.disabled):hover {
-        background: var(--fwb-header-add-bookmark-hover);
-      }
-    }
   }
 
   // Navigation bar 
