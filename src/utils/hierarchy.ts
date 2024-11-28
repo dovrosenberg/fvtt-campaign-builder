@@ -1,4 +1,4 @@
-import { EntrySummary, Topic, ValidTopic, } from '@/types';
+import { TabSummary, Topic, ValidTopic, } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { Entry } from '@/documents';
 
@@ -23,7 +23,7 @@ export const hasHierarchy = (topic: Topic): boolean => [Topic.Organization, Topi
 // this is to populate a list of possible children for a node (ex. a dropdown)
 // a valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself
 // only works for topics that have hierachy
-export function validChildItems(currentWorldId: string, topicJournal: JournalEntry, entry: Entry): EntrySummary[] {
+export function validChildItems(currentWorldId: string, topicJournal: JournalEntry, entry: Entry): TabSummary[] {
   if (!entry.uuid)
     return [];
 
@@ -49,7 +49,7 @@ export function validParentItems(currentWorldId: string, topicJournal: JournalEn
     !(hierarchies[e.uuid]?.ancestors || []).includes(entry.id!))).map((e: Entry)=>({ name: e.name, id: e.uuid}));
 }
 
-const mapEntryToSummary = (entry: JournalEntry): EntrySummary => ({
+const mapEntryToSummary = (entry: JournalEntry): TabSummary => ({
   name: entry.name || '',
   uuid: entry.uuid,
 });

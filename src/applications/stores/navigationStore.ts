@@ -13,7 +13,7 @@ import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { useMainStore } from './mainStore';
 
 // types
-import { Bookmark, EntryHeader, WindowTab } from '@/types';
+import { Bookmark, TabHeader, WindowTab, WindowTabType } from '@/types';
 import { Entry } from '@/documents';
 
 
@@ -59,7 +59,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     const entry = entryId ? await getCleanEntry(entryId) as Entry : null;
     const entryName = (entry ? entry.name : localize('fwb.labels.newTab')) || '';
-    const entryData: EntryHeader = { uuid: entry ? entryId : null, name: entryName, icon: entry ? getIcon(entry.system.topic) : '' };
+    const headerData: TabHeader = { uuid: entry ? entryId : null, name: entryName, icon: entry ? getIcon(entry.system.topic) : '' };
 
     // see if we need a new tab
     let tab;
@@ -67,9 +67,10 @@ export const useNavigationStore = defineStore('navigation', () => {
       tab = {
         id: foundry.utils.randomID(),
         active: false,
-        entry: entryData,
+        header: headerData,
         history: [],
         historyIdx: -1,
+        tabType: WindowTabType.Entry,
       } as WindowTab;
 
       //add to tabs list
@@ -78,15 +79,15 @@ export const useNavigationStore = defineStore('navigation', () => {
       tab = getActiveTab(false);
 
       // if same entry, nothing to do
-      if (tab.entry?.uuid === entryId)
+      if (tab.header?.uuid === entryId)
         return tab;
 
       // otherwise, just swap out the active tab info
-      tab.entry = entryData;
+      tab.header = headerData;
     }
     
     // add to history 
-    if (entryData.uuid && options.updateHistory) {
+    if (headerData.uuid && options.updateHistory) {
       tab.history.push(entryId);
       tab.historyIdx = tab.history.length - 1; 
     }
@@ -98,10 +99,10 @@ export const useNavigationStore = defineStore('navigation', () => {
     await _saveTabs();
 
     // update the recent list (except for new tabs)
-    if (entryData.uuid)
-      await _updateRecent(entryData);
+    if (headerData.uuid)
+      await _updateRecent(headerData);
 
-    await mainStore.setNewEntry(entryData.uuid);
+    await mainStore.setNewEntry(headerData.uuid);
 
     return tab;
   };
@@ -139,10 +140,10 @@ export const useNavigationStore = defineStore('navigation', () => {
     await _saveTabs();
 
     // add to recent, unless it's a "home page"
-    if (newTab?.entry?.uuid)
-      await _updateRecent(newTab.entry);
+    if (newTab?.header?.uuid)
+      await _updateRecent(newTab.header);
 
-    await mainStore.setNewEntry(newTab.entry.uuid);
+    await mainStore.setNewEntry(newTab.header.uuid);
 
     return;
   };
@@ -151,8 +152,8 @@ export const useNavigationStore = defineStore('navigation', () => {
     // update the tabs 
     let updated = false;
     tabs.value.forEach((t: WindowTab): void => {
-      if (t.entry.uuid===entryId) {
-        t.entry.name = newName;
+      if (t.header.uuid===entryId) {
+        t.header.name = newName;
         updated = true;
       }
     });
@@ -166,7 +167,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     // remove any matching tabs
     for (let i=tabs.value.length-1; i>=0; i--) {
-      if (tabs.value[i].entry.uuid===entryId) {
+      if (tabs.value[i].header.uuid===entryId) {
         // if it's active, we need to move active to prior tab
         if (tabs.value[i].active)
           activeTabId = tabs.value[i-1].id;
@@ -181,7 +182,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     // remove any matching bookmarks
     for (let i=bookmarks.value.length-1; i>=0; i--) {
-      if (bookmarks.value[i].entry.uuid===entryId) {
+      if (bookmarks.value[i].header.uuid===entryId) {
         bookmarks.value.splice(i, 1);
       }
     }
@@ -233,17 +234,17 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
 
   // add a new entity to the recent list
-  const _updateRecent = async function (entry: EntryHeader): Promise<void> {
+  const _updateRecent = async function (header: TabHeader): Promise<void> {
     if (!currentWorldId.value)
       return;
 
-    let recent = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] as EntryHeader[];
+    let recent = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] as TabHeader[];
 
     // remove any other places in history this already appears
-    recent.findSplice((h: EntryHeader): boolean => h.uuid === entry.uuid);
+    recent.findSplice((h: TabHeader): boolean => h.uuid === header.uuid);
 
     // insert in the front
-    recent.unshift(entry);
+    recent.unshift(header);
 
     // trim if too long
     if (recent.length > 5)
@@ -265,7 +266,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     tabs,
     bookmarks,
     currentWorldId,
-    
 
     openEntry,
     getActiveTab,

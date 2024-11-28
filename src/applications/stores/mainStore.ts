@@ -53,7 +53,6 @@ export const useMainStore = defineStore('main', () => {
   const currentEntryId = computed((): string | null => _currentEntry?.value?.uuid || null);
   const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
 
-
   ///////////////////////////////
   // actions
   // set a new world from a uuid

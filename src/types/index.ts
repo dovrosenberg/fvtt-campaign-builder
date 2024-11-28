@@ -3,26 +3,34 @@ export type * from './tables.d.ts';
 export type * from './relationships.d.ts';
 export type * from './global.d.ts';
 
+// used to determine which component to display in the tab
+export enum WindowTabType  {
+  Entry,
+  Campaign,
+  Session,
+}
+
 export type WindowTab = {
   id: string;   // unique id
   active: boolean;   // is this the currently active tab
   history: string[];    // array of the history of entryIds shown in this tab (for the forward/back arrows) 
   historyIdx: number;   // index of current history point
-  entry: EntryHeader;  // reference to journal entry  -- leaving open possibility of expanding this type in the future
+  tabType: WindowTabType;   // the type of tab
+  header: TabHeader;  // reference to journal entry  -- leaving open possibility of expanding this type in the future
 }
 
 export type Bookmark = {
   id: string;   // id of the bookmark
-  entry: EntryHeader;
+  header: TabHeader;
 }
 
-export type EntryHeader = {
+export type TabHeader = {
   uuid: string | null;   
   name: string;
   icon: string;  // class of icon to display
 }
 
-export type EntrySummary = {
+export type TabSummary = {
   uuid: string;   
   name: string;
 }

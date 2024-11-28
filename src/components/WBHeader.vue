@@ -10,19 +10,19 @@
           :key="tab.id"
           :class="'fwb-tab flexrow ' + (tab.active ? 'active' : '')" 
           draggable="true"
-          :title="tab.entry.name" 
+          :title="tab.header.name" 
           @click="onTabClick(tab.id)"
           @dragstart="onDragStart($event, tab.id)"
           @drop="onDrop($event, tab.id)"
         >
           <div 
-            v-if="tab.entry.icon"
+            v-if="tab.header.icon"
             class="fwb-tab-icon"
           >
-            <i :class="'fas ' + tab.entry.icon"></i>
+            <i :class="'fas ' + tab.header.icon"></i>
           </div>
           <div class="tab-content">
-            {{ tab.entry.name }}
+            {{ tab.header.name }}
           </div>
           <div 
             class="close"
@@ -54,7 +54,7 @@
     <div class="fwb-bookmark-bar flexrow">
       <div 
         id="fwb-add-bookmark" 
-        :class="(!navigationStore.getActiveTab(false)?.entry?.uuid ? 'disabled' : '')"
+        :class="(!navigationStore.getActiveTab(false)?.header?.uuid ? 'disabled' : '')"
         :title="localize('fwb.tooltips.addBookmark')"
         @click="onAddBookmarkClick"
       >
@@ -65,7 +65,7 @@
         v-for="bookmark in bookmarks"
         :key="bookmark.id"
         class="fwb-bookmark-button" 
-        :title="bookmark.entry.name" 
+        :title="bookmark.header.name" 
         draggable="true"
         @click.left="onBookmarkClick(bookmark.id)"
         @contextmenu="onBookmarkContextMenu($event, bookmark)"
@@ -74,10 +74,10 @@
       >
         <div>
           <i 
-            v-if="bookmark.entry.icon"
-            :class="'fas '+ bookmark.entry.icon"
+            v-if="bookmark.header.icon"
+            :class="'fas '+ bookmark.header.icon"
           ></i> 
-          {{ bookmark.entry.name }}
+          {{ bookmark.header.name }}
         </div>
       </div>
     </div>
@@ -220,8 +220,8 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.bookmarks.openNewTab'), 
           onClick: async () => {
-            if (bookmark.entry.uuid)
-              await navigationStore.openEntry(bookmark.entry.uuid, { newTab: true });
+            if (bookmark.header.uuid)
+              await navigationStore.openEntry(bookmark.header.uuid, { newTab: true });
           }
         },
         { 
@@ -243,18 +243,18 @@
     //get the current tab and save the entity and name
     const tab = navigationStore.getActiveTab(false);
 
-    if (!tab?.entry?.uuid)
+    if (!tab?.header?.uuid)
       return;
 
     // see if a bookmark for the entry already exists
-    if (bookmarks.value.find((b) => (b.entry.uuid === tab?.entry?.uuid)) != undefined) {
+    if (bookmarks.value.find((b) => (b.header.uuid === tab?.header?.uuid)) != undefined) {
       globalThis.ui?.notifications?.warn(localize('fwb.errors.duplicateBookmark'));
       return;
     }
 
     const bookmark = {
       id: globalThis.foundry.utils.randomID(),
-      entry: tab.entry,
+      header: tab.header,
     } as Bookmark;
 
     await navigationStore.addBookmark(bookmark);
@@ -264,7 +264,7 @@
     const bookmark = bookmarks.value.find(b => b.id === bookmarkId);
 
     if (bookmark) {
-      await navigationStore.openEntry(bookmark?.entry.uuid, { newTab: false });
+      await navigationStore.openEntry(bookmark?.header.uuid, { newTab: false });
     }
   };
 

@@ -57,7 +57,7 @@
   // local components
 
   // types
-  import { EntryHeader } from '@/types';
+  import { TabHeader } from '@/types';
 
   ////////////////////////////////
   // props
@@ -77,7 +77,7 @@
 
   ////////////////////////////////
   // computed data
-  const recent = computed((): EntryHeader[] => (currentWorldId.value ? UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] : []));
+  const recent = computed((): TabHeader[] => (currentWorldId.value ? UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] : []));
 
   ////////////////////////////////
   // methods
