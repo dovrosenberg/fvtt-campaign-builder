@@ -146,63 +146,6 @@
     await navigationStore.openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
   };
 
-  // remove the tab given by the id from the list
-  const closeTab = async function (tabId: string) {
-    // find the tab
-    const tab = tabs.value.find((t) => (t.id === tabId));
-    const index = tabs.value.findIndex((t) => (t.id === tabId));
-
-    if (!tab) return;
-
-    // remove it from the array
-    tabs.value.splice(index, 1);
-
-    if (tabs.value.length === 0) {
-      await navigationStore.openEntry();  // make a default tab if that was the last one (will also activate it) and save them
-    } else if (tab.active) {
-      // if it was active, make the one before it active (or after if it was up front)
-      if (index===0) {
-        await navigationStore.activateTab(tabs.value[0].id);  // will also save them
-      }
-      else {
-        await navigationStore.activateTab(tabs.value[index-1].id);  // will also save them
-      }
-    }
-  };
-
-
-  const onBookmarkContextMenu = (event: MouseEvent, bookmark: Bookmark): void => {
-    //prevent the browser's default menu
-    event.preventDefault();
-
-    //show our menu
-    ContextMenu.showContextMenu({
-      customClass: 'fwb',
-      x: event.x,
-      y: event.y,
-      zIndex: 300,
-      items: [
-        { 
-          icon: 'fa-file-export',
-          iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.bookmarks.openNewTab'), 
-          onClick: async () => {
-            if (bookmark.header.uuid)
-              await navigationStore.openEntry(bookmark.header.uuid, { newTab: true });
-          }
-        },
-        { 
-          icon: 'fa-trash',
-          iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.bookmarks.delete'), 
-          onClick: async () => {
-            await navigationStore.removeBookmark(bookmark.id);
-          }
-        },
-      ]
-    });
-  };
-
   ////////////////////////////////
   // event handlers
   // add the current tab as a new bookmark
@@ -215,7 +158,7 @@
 
     // see if a bookmark for the entry already exists
     if (bookmarks.value.find((b) => (b.header.uuid === tab?.header?.uuid)) != undefined) {
-      globalThis.ui?.notifications?.warn(localize('fwb.errors.duplicateBookmark'));
+      ui?.notifications?.warn(localize('fwb.errors.duplicateBookmark') || '');
       return;
     }
 
@@ -227,14 +170,6 @@
     await navigationStore.addBookmark(bookmark);
   };
 
-  const onBookmarkClick = async (bookmarkId: string) => { 
-    const bookmark = bookmarks.value.find(b => b.id === bookmarkId);
-
-    if (bookmark) {
-      await navigationStore.openEntry(bookmark?.header.uuid, { newTab: false });
-    }
-  };
-
   const onSidebarToggleClick = async () => { 
     directoryCollapsed.value = !directoryCollapsed.value;
   };
@@ -243,77 +178,6 @@
 
   const onHistoryBackClick = () => { void navigateHistory(-1); };
   const onHistoryForwardClick = () => { void navigateHistory(1); };
-
-  // bookmark and tab listeners
-  // handle a bookmark or tab dragging
-  const onDragStart = (event: DragEvent, id: string): void => {
-    const target = event.currentTarget as HTMLElement;
-
-    if (target.classList.contains('fwb-tab')) {
-      const dragData = { 
-        //from: this.object.uuid 
-      } as { type: string; tabId?: string};
-
-      dragData.type = 'fwb-tab';   // JournalEntry... may want to consider passing a type that other things can do something with
-      dragData.tabId = id;
-
-      event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
-    } else if (target.classList.contains('fwb-bookmark-button')) {
-      const dragData = { 
-        //from: this.object.uuid 
-      } as { type: string; bookmarkId?: string};
-
-      dragData.type = 'fwb-bookmark';
-      dragData.bookmarkId = id;
-
-      event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
-    } 
-  };
-
-  const onDrop = async(event: DragEvent, id: string) => {
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
-    }
-    catch (err) {
-      return false;
-    }
-
-    if (data.type==='fwb-tab') {
-      // where are we droping it?
-      const target = (event.currentTarget as HTMLElement).closest('.fwb-tab') as HTMLElement;
-      if (!target)
-        return false;
-
-      if (data.tabId === id) return; // Don't drop on yourself
-
-      // insert before the drop target
-      const tabsValue = tabs.value;
-      const from = tabsValue.findIndex(t => t.id === data.tabId);
-      const to = tabsValue.findIndex(t => t.id === id);
-      tabsValue.splice(to, 0, tabsValue.splice(from, 1)[0]);
-      tabs.value = tabsValue;
-
-      // activate the moved one (will also save the tabs)
-      await navigationStore.activateTab(data.tabId);
-    } else if (data.type==='fwb-bookmark') {
-      const target = (event.currentTarget as HTMLElement).closest('.fwb-bookmark-button') as HTMLElement;
-      if (!target)
-        return false;
-
-      if (data.bookmarkId === id) return; // Don't drop on yourself
-
-      // insert before the drop target
-      const bookmarksValue = bookmarks.value;
-      const from = bookmarksValue.findIndex(b => b.id === data.bookmarkId);
-      const to = bookmarksValue.findIndex(b => b.id === id);
-      await navigationStore.changeBookmarkPosition(from, to);
-    } else {
-      return false;
-    } 
-
-    return true;
-  };
 
   ////////////////////////////////
   // watchers
