@@ -6,13 +6,12 @@
     :topic="props.topic"
     :top="props.top"
   />
-  <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)">
+  <li v-else-if="filterNodes[props.node.topic]?.includes(props.node.id)">
     <div 
       :class="`${props.node.id===currentSession?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick"
-      @contextmenu="onEntryContextMenu"
     >
       {{ props.node.name }}
     </div>
@@ -25,7 +24,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useTopicDirectoryStore, } from '@/applications/stores';
+  import { useMainStore, useNavigationStore, useTopicDirectoryStore, } from '@/applications/stores';
   
   // library components
   
