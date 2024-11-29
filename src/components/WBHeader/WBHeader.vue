@@ -211,12 +211,7 @@
     if (!newValue)
       return;
 
-    tabs.value = UserFlags.get(UserFlagKey.tabs, newValue) || [];
-    bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, newValue) || [];
-
-    // if there are no tabs, add one
-    if (!tabs.value.length)
-      await navigationStore.openEntry();
+    navigationStore.loadTabs();
   });
 
   ////////////////////////////////

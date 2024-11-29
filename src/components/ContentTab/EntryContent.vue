@@ -234,13 +234,13 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentEntry, async (newEntry: Entry | null): Promise<void> => {
-    if (!newEntry || !currentWorldId.value || !currentTopicJournals.value) {
+  watch([currentEntry, currentWorldId, currentTopicJournals], async (): Promise<void> => {
+    if (!currentEntry.value) {
       topic.value = null;
     } else {
       let newTopic;
 
-      newTopic = newEntry.system.topic as ValidTopic;
+      newTopic = currentEntry.value.system.topic as ValidTopic;
       if (!newTopic) 
         throw new Error('Invalid entry type in ContentTab.watch-currenEntry');
 
@@ -248,7 +248,7 @@
       topic.value = newTopic;
 
       // load starting data values
-      name.value = newEntry.name || '';
+      name.value = currentEntry.value.name || '';
 
       // bind the tabs (because they don't show on the homepage)
       if (tabs.value && contentRef.value) {
@@ -258,21 +258,23 @@
       }
 
       // set the parent and valid parents
-      if (!newEntry.uuid) {
+      if (!currentEntry.value.uuid) {
         parentId.value = null;
         validParents.value = [];
       } else {
-        parentId.value = WorldFlags.getHierarchy(currentWorldId.value, newEntry.uuid)?.parentId || null;
-    
-        // TODO - need to refresh this somehow if things are moved around in the directory
-        validParents.value = validParentItems(currentWorldId.value, currentTopicJournals.value[newTopic], newEntry).map((e)=> ({
-          id: e.id,
-          label: e.name || '',
-        }));
+        if (currentWorldId.value && currentTopicJournals.value  && currentTopicJournals.value[newTopic]) {
+          parentId.value = WorldFlags.getHierarchy(currentWorldId.value, currentEntry.value.uuid)?.parentId || null;
+      
+          // TODO - need to refresh this somehow if things are moved around in the directory
+          validParents.value = validParentItems(currentWorldId.value, currentTopicJournals.value[newTopic], currentEntry.value).map((e)=> ({
+            id: e.id,
+            label: e.name || '',
+          }));
+        }
       }
   
       // reattach the editor to the new entry
-      editorDocument.value = newEntry;
+      editorDocument.value = currentEntry.value;
     }
   });
 

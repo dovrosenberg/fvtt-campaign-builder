@@ -42,7 +42,7 @@ export class WindowTab {
    */
   public header: TabHeader;  
 
-  constructor(active: boolean, tabType: WindowTabType, header: TabHeader, contentId: string | null, id: string | null = null, history: WindowTabHistory[] =[], historyIdx: number = -1) {
+  constructor(active: boolean, header: TabHeader, contentId?: string | null, tabType?: WindowTabType | null, id: string | null = null, history: WindowTabHistory[] =[], historyIdx: number = -1) {
     if (id===null) {
       this.id = foundry.utils.randomID();
     } else {
@@ -55,8 +55,8 @@ export class WindowTab {
     if (!history || historyIdx<0) {
       this.history = [
         {
-          contentId: contentId,
-          tabType: tabType
+          contentId: contentId || null,
+          tabType: tabType ?? WindowTabType.NewTab
         }
       ];
       this.historyIdx = 0;
@@ -64,9 +64,6 @@ export class WindowTab {
       this.history = history;
       this.historyIdx = historyIdx;
     }
-
-    this.tabType = tabType;
-    this.contentId = contentId;
   }
 
   /**

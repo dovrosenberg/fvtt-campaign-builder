@@ -107,8 +107,8 @@ export const useNavigationStore = defineStore('navigation', () => {
       ...options,
     };
 
-    let name: string;
-    let icon: string;
+    let name = localize('fwb.labels.newTab') || '';
+    let icon = '';
     let badId = false;
 
     switch (contentType) {
@@ -149,8 +149,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (badId) {
       contentType = WindowTabType.NewTab;
       contentId = null;
-      name = localize('fwb.labels.newTab') || '';
-      icon = '';
     }
 
     const headerData: TabHeader = { uuid: contentId || null, name: name, icon: icon };
@@ -160,9 +158,9 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (options.newTab || !getActiveTab(false)) {
       tab = new WindowTab(
         false,
-        contentType, 
         headerData,
         headerData.uuid,
+        contentType, 
         null,
        );
 
@@ -208,8 +206,8 @@ export const useNavigationStore = defineStore('navigation', () => {
   const getActiveTab = function (findone = true): WindowTab | null {
     let tab = tabs.value.find(t => t.active);
     if (findone) {
-      if (!tab && tabs.value.length > 0)  // nothing was marked as active, just pick the 1st one
-        tab = tabs.value[0];
+      if (!tab && tabs.value.length > 0)  // nothing was marked as active, just pick the last one
+        tab = tabs.value[tabs.length-1];
     }
 
     return tab || null;
@@ -257,6 +255,20 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (updated)
       await _saveTabs();
   };
+
+  const loadTabs = async function () {
+    tabs.value = UserFlags.get(UserFlagKey.tabs, currentWorldId.value) || [];
+    bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, currentWorldId.value) || [];
+
+    if (!tabs.value.length) {
+      // if there are no tabs, add one
+      await openEntry();
+    } else {
+      // activate the active one
+      await mainStore.setNewTab(getActiveTab(true));
+    }
+  }
+
  
   const cleanupDeletedEntry = async(entryId: string): Promise<void> => {
     let activeTabId = '';
@@ -368,6 +380,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     openCampaign,
     openContent,
     getActiveTab,
+    loadTabs,
     activateTab,
     removeBookmark,
     addBookmark,

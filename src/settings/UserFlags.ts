@@ -28,9 +28,9 @@ export abstract class UserFlags {
     if (flag === UserFlagKey.tabs) {
       return (getGame().user?.getFlag(moduleJson.id, flag + worldId) || []).map((t: any) => new WindowTab(
         t.active, 
-        t.tabType,
         t.header,
-        t.contentId,
+        null,
+        null,
         t.id,
         t.history,
         t.historyIdx
