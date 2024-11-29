@@ -347,7 +347,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     currentWorldTree.value = tree;
 
     // make sure the node list is up to date
-    await updateFilterNodes();
+    updateFilterNodes();
 
     isTopicTreeRefreshing.value = false;
   };
@@ -443,8 +443,8 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   });
 
   // update the filter when text changes
-  watch(filterText, async () => {
-    await updateFilterNodes();
+  watch(filterText, () => {
+    updateFilterNodes();
   });
   
   ///////////////////////////////
