@@ -3,7 +3,7 @@
     :class="'flexcol fwb-journal-subsheet'" 
   >
     <div class="sheet-container detailed flexcol">
-      {{ currentSession.name}}
+      {{ currentSession?.name}}
     </div>
   </form>	 
 </template>

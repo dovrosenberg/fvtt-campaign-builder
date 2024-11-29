@@ -3,10 +3,18 @@
     ref="contentRef"
     class="sheet fwb-journal-sheet"
   >      
-    <EntryContent v-if="currentContentType===WindowTabType.Entry" />
-    <SessionContent v-else-if="currentContentType===WindowTabType.Session" />
-    <CampaignContent v-else-if="currentContentType===WindowTabType.Campaign" />
-    <HomePage v-else />
+    <div v-if="currentContentType===WindowTabType.Entry">
+      <EntryContent />
+    </div>
+    <div v-else-if="currentContentType===WindowTabType.Session">
+      <SessionContent />
+    </div>
+    <div v-else-if="currentContentType===WindowTabType.Campaign">
+      <CampaignContent />
+    </div>
+    <div v-else>
+      <HomePage />
+    </div>
   </div>
 </template>
 
@@ -21,10 +29,10 @@
   // library components
 
   // local components
-  import HomePage from './HomePage.vue';
   import EntryContent from './EntryContent.vue';
   import SessionContent from './SessionContent.vue';
   import CampaignContent from './CampaignContent.vue';
+  import HomePage from './HomePage.vue';
   
   // types
   import { WindowTabType } from '@/types';
