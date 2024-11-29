@@ -1,7 +1,7 @@
 <template>
   <div  
     :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')"
-    @click="onClickApplication($event)"
+    @click="onClickApplication"
   >
     <div class="fwb-body flexcol">
       <WBHeader />

@@ -240,7 +240,7 @@
     } else {
       let newTopic;
 
-      newTopic = newEntry ? newEntry.system.topic as ValidTopic : null;
+      newTopic = newEntry.system.topic as ValidTopic;
       if (!newTopic) 
         throw new Error('Invalid entry type in ContentTab.watch-currenEntry');
 

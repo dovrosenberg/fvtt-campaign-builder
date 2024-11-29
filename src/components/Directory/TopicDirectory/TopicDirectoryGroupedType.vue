@@ -19,8 +19,8 @@
         </div>
         <div 
           class="fwb-current-directory-type"
-          @drop="onDrop($event)"
-          @contextmenu="onTypeContextMenu($event)"
+          @drop="onDrop"
+          @contextmenu="onTypeContextMenu"
         >
           {{ currentType?.name }}
         </div>

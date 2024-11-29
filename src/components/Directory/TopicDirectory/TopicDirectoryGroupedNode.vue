@@ -1,13 +1,13 @@
 <template>
+  <!-- an entry node beneath a topic -- don't show children -->
   <li v-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
       :class="`${props.node.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
-      @click="onDirectoryItemClick($event)"
-      @dragstart="onDragStart($event)"
-      @drop="()=>false"
-      @contextmenu="onEntryContextMenu($event)"
+      @click="onDirectoryItemClick"
+      @dragstart="onDragStart"
+      @contextmenu="onEntryContextMenu"
     >
       {{ props.node.name }}
     </div>

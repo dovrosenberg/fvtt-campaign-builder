@@ -11,10 +11,10 @@
       :class="`${props.node.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
-      @click="onDirectoryItemClick($event)"
-      @dragstart="onDragStart($event)"
-      @drop="onDrop($event)"
-      @contextmenu="onEntryContextMenu($event)"
+      @click="onDirectoryItemClick"
+      @dragstart="onDragStart"
+      @drop="onDrop"
+      @contextmenu="onEntryContextMenu"
     >
       {{ props.node.name }}
     </div>

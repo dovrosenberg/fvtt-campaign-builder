@@ -9,8 +9,8 @@
       <div 
         class="fwb-compendium-label noborder" 
         style="margin-bottom:0px"
-        @click="onCampaignFolderClick($event)"
-        @contextmenu="onCampaignContextMenu($event)"
+        @click="onCampaignFolderClick"
+        @contextmenu="onCampaignContextMenu"
       >
         <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
         {{ props.campaign.name }}

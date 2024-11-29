@@ -16,7 +16,7 @@
           draggable="true"
           @click="onDirectoryItemClick($event, currentNode)"
           @dragstart="onDragStart($event, currentNode.id)"
-          @drop="onDrop($event)"
+          @drop="onDrop"
           @contextmenu="onEntryContextMenu"
         >
           {{ currentNode.name }}

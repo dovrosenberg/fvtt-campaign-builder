@@ -11,8 +11,8 @@
       :class="`${props.node.id===currentSession?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
-      @click="onDirectoryItemClick($event)"
-      @contextmenu="onEntryContextMenu($event)"
+      @click="onDirectoryItemClick"
+      @contextmenu="onEntryContextMenu"
     >
       {{ props.node.name }}
     </div>

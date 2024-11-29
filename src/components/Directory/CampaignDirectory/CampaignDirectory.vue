@@ -7,7 +7,7 @@
     >
       <header 
         class="folder-header flexrow"
-        @contextmenu="onHeaderContextMenu($event)"
+        @contextmenu="onHeaderContextMenu"
       >
         <h3 class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
