@@ -4,7 +4,7 @@
 
 import { CollapsibleNode, DirectoryEntryNode, } from '@/classes';
 import { ValidTopic } from '@/types';
-import { Entry } from '@/documents';
+import { EntryDoc } from '@/documents';
 import { WorldFlagKey } from '@/settings/WorldFlags';
 
 export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEntryNode> {
@@ -34,7 +34,7 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
     // we only want to load ones not already in _loadedNodes, unless its in updateIds
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
-    const entries = CollapsibleNode._currentTopicJournals[this.topic].collections.pages.filter((e: Entry)=>uuidsToLoad.includes(e.uuid));
+    const entries = CollapsibleNode._currentTopicJournals[this.topic].collections.pages.filter((e: EntryDoc)=>uuidsToLoad.includes(e.uuid));
 
     for (let i=0; i<entries.length; i++) {
       const newNode = DirectoryEntryNode.fromEntry(entries[i]);

@@ -4,7 +4,7 @@
 
 import { ValidTopic, } from '@/types';
 import { DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, CollapsibleNode } from '@/classes';
-import { Entry } from '@/documents';
+import { EntryDoc } from '@/documents';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 
 export class DirectoryTopicNode extends DirectoryTopicTreeNode {
@@ -36,7 +36,7 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
     if (!CollapsibleNode._currentTopicJournals)
       return;
 
-    const allEntries = (await CollapsibleNode._currentTopicJournals[this.topic]?.collections.pages.contents || []) as Entry[];
+    const allEntries = (await CollapsibleNode._currentTopicJournals[this.topic]?.collections.pages.contents || []) as EntryDoc[];
 
     // create the loadedType nodes then populate their children
     this.loadedTypes = types.map((type: string): DirectoryTypeNode => {
@@ -55,11 +55,11 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
     for (let i=0; i<this.loadedTypes.length; i++) {
       const type = this.loadedTypes[i].name;
 
-      this.loadedTypes[i].loadedChildren = allEntries.filter((e: Entry)=> {
+      this.loadedTypes[i].loadedChildren = allEntries.filter((e: EntryDoc)=> {
         const entryType = e.system.type;
         return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type);
       })
-        .map((entry: Entry): DirectoryTypeEntryNode=> DirectoryTypeEntryNode.fromEntry(entry, this.loadedTypes[i]))
+        .map((entry: EntryDoc): DirectoryTypeEntryNode=> DirectoryTypeEntryNode.fromEntry(entry, this.loadedTypes[i]))
         .sort((a, b) => a.name.localeCompare(b.name));
       
       this.loadedTypes[i].children = this.loadedTypes[i].loadedChildren.map((n: DirectoryTypeEntryNode) => n.id);

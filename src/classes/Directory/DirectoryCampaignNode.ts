@@ -4,7 +4,7 @@
 
 import { CollapsibleNode, DirectorySessionNode, } from '@/classes';
 import { WorldFlagKey } from '@/settings/WorldFlags';
-import { Session } from '@/documents';
+import { SessionDoc } from '@/documents';
 
 export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode> {
   name: string;
@@ -36,7 +36,7 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
     
     const myJournal = CollapsibleNode._currentCampaignJournals.find((c) => c.uuid === this.id) as JournalEntry;  // journal that goes with this node
-    const entries = (myJournal?.collections.pages.filter((s: Session)=>uuidsToLoad.includes(s.uuid)) || []) as Session[];
+    const entries = (myJournal?.collections.pages.filter((s: SessionDoc)=>uuidsToLoad.includes(s.uuid)) || []) as SessionDoc[];
 
     for (let i=0; i<entries.length; i++) {
       const newNode = DirectorySessionNode.fromSession(entries[i], this.id);

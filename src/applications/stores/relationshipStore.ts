@@ -15,7 +15,7 @@ import {
 import { reactive, Ref, toRaw, watch } from 'vue';
 import { ref } from 'vue';
 import { updateEntry } from '@/compendia';
-import { Entry } from '@/documents';
+import { EntryDoc } from '@/documents';
 
 // the store definition
 export const useRelationshipStore = defineStore('relationship', () => {
@@ -89,7 +89,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
    * @param extraFields Extra fields to save with the relationship
    * @returns whether the relationship was successfully added
    */
-  async function addRelationship(relatedEntry: Entry, extraFields: Record<string, string>): Promise<void> {
+  async function addRelationship(relatedEntry: EntryDoc, extraFields: Record<string, string>): Promise<void> {
     // create the relationship on current entry
     const entry = currentEntry.value;
 
@@ -151,7 +151,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   async function editRelationship(relatedEntryId: string, extraFields: Record<string, string>): Promise<void> {
     // create the relationship on current entry
     const entry = currentEntry.value;
-    const relatedEntry = await fromUuid(relatedEntryId) as Entry;
+    const relatedEntry = await fromUuid(relatedEntryId) as EntryDoc;
 
     if (!entry || !relatedEntry)
       throw new Error('Invalid entry in relationshipStore.addRelationship()');
@@ -191,7 +191,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       throw new Error('Invalid entry in relationshipStore.deleteRelationship()');
 
     const entry = currentEntry.value;
-    const relatedEntry = await fromUuid(relatedItemId) as Entry;
+    const relatedEntry = await fromUuid(relatedItemId) as EntryDoc;
 
     const entryTopic = entry.system.topic;
     const relatedEntryTopic = relatedEntry.system.topic;

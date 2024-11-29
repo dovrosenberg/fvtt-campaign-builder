@@ -2,8 +2,47 @@
   <form 
     :class="'flexcol fwb-journal-subsheet'" 
   >
-    <div class="sheet-container detailed flexcol">
-      {{ currentCampaign?.name}}
+  <div class="sheet-container detailed flexcol">
+      <header class="journal-sheet-header flexrow">
+        <div class="sheet-image">
+          <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
+        </div>
+        <div class="header-details fwb-content-header">
+          <h1 class="header-name flexrow">
+            <i :class="`fas ${icon} sheet-icon`"></i>
+            <InputText
+              v-model="name"
+              for="fwb-input-name" 
+              :placeholder="namePlaceholder"                
+              :pt="{
+                root: { class: 'full-height' } 
+              }" 
+              @update:model-value="onNameUpdate"
+            />
+          </h1>
+        </div>
+      </header>
+      <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
+        <a class="item" data-tab="description">{{ localize('fwb.labels.tabs.description') }}</a>
+        <a class="item" data-tab="pcs">{{ localize('fwb.labels.tabs.pcs') }}</a>
+      </nav>
+      <div class="fwb-tab-body flexcol">
+        <div class="tab description flexcol" data-group="primary" data-tab="description">
+          <div class="tab-inner flexcol">
+            <Editor 
+              :document="editorDocument"
+              :has-button="true"
+              target="content-description"
+              @editor-saved="onDescriptionEditorSaved"
+            />
+          </div>
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="pcs">
+          <div class="tab-inner flexcol">
+            PCs
+          </div>
+        </div> 
+      </div>
     </div>
   </form>	 
 </template>
@@ -11,16 +50,25 @@
 <script setup lang="ts">
 
   // library imports
+  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore } from '@/applications/stores';
-
+  import { getTabTypeIcon, } from '@/utils/misc';
+  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+  import { localize } from '@/utils/game';
+  import { useTopicDirectoryStore, useCampaignDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  
   // library components
+  import InputText from 'primevue/inputtext';
 
   // local components
+  import Editor from '@/components/Editor.vue';
   
   // types
+  import { ValidTopic, Topic, } from '@/types';
+  import { EntryDoc } from '@/documents';
+import CampaignDirectory from 'src/components/Directory/CampaignDirectory/CampaignDirectory.vue';
   
   ////////////////////////////////
   // props
@@ -31,23 +79,112 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentCampaign } = storeToRefs(mainStore);
+  const topicDirectoryStore = useTopicDirectoryStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
+  const navigationStore = useNavigationStore();
+  const currentEntryStore = useCurrentEntryStore();
+  const { currentCampaign, currentWorldId, currentTopicJournals, currentWorldCompendium, } = storeToRefs(mainStore);
+  const { currentTopicTab } = storeToRefs(currentEntryStore);
 
   ////////////////////////////////
   // data
 
+  const tabs = ref<Tabs>();
+  const topic = ref<Topic | null>(null);
+  const name = ref<string>('');
+
+  const editorDocument = ref<EntryDoc>();
+
+  const contentRef = ref<HTMLElement | null>(null);
+  const parentId = ref<string | null>(null);
+  const validParents = ref<{id: string; label: string}[]>([]);
+  const icon =  getTabTypeIcon(WindowTabType.Campaign);
+ 
   ////////////////////////////////
   // computed data
-
+  const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
+  
   ////////////////////////////////
   // methods
 
   ////////////////////////////////
   // event handlers
 
+  // debounce changes to name
+  let debounceTimer: NodeJS.Timeout | undefined = undefined;
+
+  const onNameUpdate = (newName: string | undefined) => {
+    const debounceTime = 500;
+  
+    clearTimeout(debounceTimer);
+    
+    debounceTimer = setTimeout(async () => {
+      const newValue = newName || '';
+      if (currentCampaign.value && currentCampaign.value.name!==newValue) {
+        await updateEntry(currentWorldCompendium.value, toRaw(currentCampaign.value), { name: newValue });
+
+        await  directoryStore.refresh([currentCampaign.value.uuid]);
+      }
+    }, debounceTime);
+  };
+
+  const onDescriptionEditorSaved = async (newContent: string) => {
+    if (!currentEntry.value)
+      return;
+
+    await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), {'text.content': newContent });  
+
+    //need to reset
+    // if it's not automatic, clear and reset the documentpage
+    // (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
+  };
+
+  ////////////////////////////////
+  // watchers
+  watch([currentCampaign, currentWorldId, currentTopicJournals], async (): Promise<void> => {
+    if (!currentCampaign.value) {
+    } else {
+      // load starting data values
+      name.value = currentCampaign.value.name || '';
+
+      // bind the tabs (because they don't show on the homepage)
+      if (tabs.value && contentRef.value) {
+        // have to wait until they render
+        await nextTick();
+        tabs.value.bind(contentRef.value);
+      }
+
+      // set the parent and valid parents
+      if (!currentEntry.value.uuid) {
+        parentId.value = null;
+        validParents.value = [];
+      } else {
+        if (currentWorldId.value && currentTopicJournals.value  && currentTopicJournals.value[newTopic]) {
+          parentId.value = WorldFlags.getHierarchy(currentWorldId.value, currentEntry.value.uuid)?.parentId || null;
+      
+          // TODO - need to refresh this somehow if things are moved around in the directory
+          validParents.value = validParentItems(currentWorldId.value, currentTopicJournals.value[newTopic], currentEntry.value).map((e)=> ({
+            id: e.id,
+            label: e.name || '',
+          }));
+        }
+      }
+  
+      // reattach the editor to the new entry
+      editorDocument.value = currentEntry.value;
+    }
+  });
 
   ////////////////////////////////
   // lifecycle events
+  onMounted(() => {
+    tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
+
+    // update the store when tab changes
+    tabs.value.callback = () => {
+      currentTopicTab.value = tabs.value?.active || null;
+    };
+  });
 
 
 </script>

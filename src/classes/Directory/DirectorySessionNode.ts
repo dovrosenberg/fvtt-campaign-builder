@@ -4,7 +4,7 @@
 
 import { CollapsibleNode, } from '@/classes';
 import { WorldFlagKey } from '@/settings/WorldFlags';
-import { Session } from '@/documents';
+import { SessionDoc } from '@/documents';
 import { NO_NAME_STRING } from '@/utils/hierarchy';
 
 // represents an entry in the type-grouped structure
@@ -19,7 +19,7 @@ export class DirectorySessionNode extends CollapsibleNode<never> {
   }
 
     // converts the entry to a DirectoryEntryNode for cleaner interface
-    static fromSession = (session: Session, campaignId: string): DirectorySessionNode => {
+    static fromSession = (session: SessionDoc, campaignId: string): DirectorySessionNode => {
       if (!CollapsibleNode._currentWorldId)
         throw new Error('No currentWorldId in DirectorySessionNode.fromEntry()');
   

@@ -5,7 +5,7 @@
 
 import { ValidTopic, } from '@/types';
 import { CollapsibleNode, DirectoryTopicTreeNode } from '@/classes';
-import { Entry } from '@/documents';
+import { EntryDoc } from '@/documents';
 import { WorldFlags } from '@/settings/WorldFlags';
 import { Hierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 
@@ -23,7 +23,7 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
   }
 
   // converts the entry to a DirectoryEntryNode for cleaner interface
-  static fromEntry = (entry: Entry): DirectoryEntryNode => {
+  static fromEntry = (entry: EntryDoc): DirectoryEntryNode => {
     if (!CollapsibleNode._currentWorldId)
       throw new Error('No currentWorldId in DirectoryEntryNode.fromEntry()');
 

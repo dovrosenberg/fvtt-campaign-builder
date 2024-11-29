@@ -94,7 +94,7 @@
 
   // types
   import { Topic, ValidTopic, } from '@/types';
-  import { Entry } from '@/documents';
+  import { EntryDoc } from '@/documents';
 
   ////////////////////////////////
   // props
@@ -121,7 +121,7 @@
   // data
   const loading = ref(false);
   const show = ref(props.modelValue);
-  const entry = ref<Entry | null>(null);  // the selected item from the dropdown
+  const entry = ref<EntryDoc | null>(null);  // the selected item from the dropdown
   const extraFieldValues = ref<Record<string, string>>({});
   const topicDetails = {
     [Topic.Event]: {
@@ -141,8 +141,8 @@
       buttonTitle: 'Add organization',
     },
   } as Record<ValidTopic, { title: string; buttonTitle: string }>;
-  const selectItems = ref<Entry[]>([]);
-  const options = ref<Entry[]>([]);
+  const selectItems = ref<EntryDoc[]>([]);
+  const options = ref<EntryDoc[]>([]);
   const extraFields = ref<{field:string; header:string}[]>([]);
   const nameSelectRef = ref<typeof AutoComplete | null>(null);
 

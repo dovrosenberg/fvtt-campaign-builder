@@ -3,7 +3,7 @@
 import { getTopicIcon } from '@/utils/misc';
 
 // types
-import { Entry } from '@/documents';
+import { EntryDoc } from '@/documents';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
 let enricherConfig: {
@@ -56,7 +56,7 @@ export const enrichFwbHTML = async(worldId: string | null, text: string): Promis
    * @protected
    */
 
-const customEnrichContentLinks = async (match: RegExpMatchArray, options: {worldId?: string; relativeTo?: Entry}): Promise<HTMLElement | null> => {
+const customEnrichContentLinks = async (match: RegExpMatchArray, options: {worldId?: string; relativeTo?: EntryDoc}): Promise<HTMLElement | null> => {
   const [type, target, hash, name] = match.slice(1, 5);
   const { relativeTo, worldId } = options;
 
@@ -68,11 +68,11 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
     name
   };
 
-  let entry: Entry | null = null;
+  let entry: EntryDoc | null = null;
   let broken = false;
   if ( type === 'UUID' ) {
     Object.assign(data.dataset, {link: '', uuid: target});
-    entry = await fromUuid(target, {relative: relativeTo}) as Entry;
+    entry = await fromUuid(target, {relative: relativeTo}) as EntryDoc;
   }
   else {
     broken = createLegacyContentLink(type, target, name, data);

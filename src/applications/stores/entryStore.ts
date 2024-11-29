@@ -8,7 +8,7 @@ import { useMainStore } from './mainStore';
 
 // types
 import { ValidTopic } from '@/types';
-import { Entry } from '@/documents';
+import { EntryDoc } from '@/documents';
 
 // the store definition
 export const useEntryStore = defineStore('entry', () => {
@@ -38,12 +38,12 @@ export const useEntryStore = defineStore('entry', () => {
    * @param uniqueOnly if true, only return entries that are not already linked to the current entry
    * @returns a list of journal entries
    */
-  const getEntriesForTopic = async function(topic: ValidTopic, uniqueOnly = false): Promise<Entry[]> {
+  const getEntriesForTopic = async function(topic: ValidTopic, uniqueOnly = false): Promise<EntryDoc[]> {
     if (!currentTopicJournals.value || !currentTopicJournals.value[topic])
       return [];
 
     // we find all journal entries with this topic
-    let journalEntries = await currentTopicJournals.value[topic].collections.pages.contents as Entry[];
+    let journalEntries = await currentTopicJournals.value[topic].collections.pages.contents as EntryDoc[];
 
     // filter unique ones if needed
     if (uniqueOnly && currentEntry.value) {

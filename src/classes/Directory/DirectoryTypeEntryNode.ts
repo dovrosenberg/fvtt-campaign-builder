@@ -3,7 +3,7 @@
  */
 
 import { CollapsibleNode, DirectoryTypeNode, } from '@/classes';
-import { Entry } from '@/documents';
+import { EntryDoc } from '@/documents';
 import { NO_NAME_STRING } from '@/utils/hierarchy';
 import { WorldFlagKey } from '@/settings/WorldFlags';
 
@@ -19,7 +19,7 @@ export class DirectoryTypeEntryNode extends CollapsibleNode<never> {
   }
 
   // converts the entry to a DirectoryTypeEntryNode for cleaner interface
-  static fromEntry = (entry: Entry, parentTypeNode: DirectoryTypeNode): DirectoryTypeEntryNode => {
+  static fromEntry = (entry: EntryDoc, parentTypeNode: DirectoryTypeNode): DirectoryTypeEntryNode => {
     return new DirectoryTypeEntryNode(
       entry.uuid,
       entry.name || NO_NAME_STRING,

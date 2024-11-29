@@ -15,7 +15,7 @@ import { useMainStore } from './mainStore';
 // types
 import { Bookmark, TabHeader, WindowTabType } from '@/types';
 import { WindowTab, } from '@/classes';
-import { Entry } from '@/documents';
+import { EntryDoc } from '@/documents';
 
 
 // the store definition
@@ -113,7 +113,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     switch (contentType) {
       case WindowTabType.Entry: {
-        const entry = contentId ? await getCleanEntry(contentId) as Entry : null;
+        const entry = contentId ? await getCleanEntry(contentId) as EntryDoc : null;
         if (!entry) {
           badId = true;
         } else {

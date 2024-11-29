@@ -15,7 +15,7 @@ import { getGame } from '@/utils/game';
 // types
 import { DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, } from '@/classes';
 import { DirectoryWorld, Topic, ValidTopic, } from '@/types';
-import { Entry } from '@/documents';
+import { EntryDoc } from '@/documents';
 
 // the store definition
 export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
@@ -72,7 +72,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
   // move the entry to a new type (doesn't update the entry itself)
   // entry should already have been updated
-  const updateEntryType = async (entry: Entry, oldType: string): Promise<void> => {
+  const updateEntryType = async (entry: EntryDoc, oldType: string): Promise<void> => {
     const newType = entry.system.type;
 
     if (!currentWorldId.value || oldType===newType)
@@ -143,7 +143,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return false;
 
     // we're going to use this to simplify syntax below
-    const saveHierarchyToEntryFromNode = async (entry: Entry, node: DirectoryEntryNode) : Promise<void> => {
+    const saveHierarchyToEntryFromNode = async (entry: EntryDoc, node: DirectoryEntryNode) : Promise<void> => {
       if (!currentWorldId.value)
         return;
 
@@ -155,13 +155,13 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return false;
 
     // have to have a child
-    const child = await fromUuid(childId) as Entry;
+    const child = await fromUuid(childId) as EntryDoc;
 
     if (!child)
       return false;
 
     // get the parent, if any, and create the nodes for simpler syntax 
-    const parent = parentId ? await fromUuid(parentId) as Entry: null;
+    const parent = parentId ? await fromUuid(parentId) as EntryDoc: null;
     const parentNode = parent ? DirectoryEntryNode.fromEntry(parent) : null;
     const childNode =  DirectoryEntryNode.fromEntry(child);
     const oldParentId = childNode.parentId;
@@ -180,7 +180,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     // if the child already has a parent, remove it from that parent's children
     if (childNode.parentId) {
-      const oldParent = await fromUuid(childNode.parentId) as Entry;
+      const oldParent = await fromUuid(childNode.parentId) as EntryDoc;
       const oldParentNode = oldParent ? DirectoryEntryNode.fromEntry(oldParent) : null;
       if (oldParentNode) {
         oldParentNode.children = oldParentNode.children.filter((c)=>c!==childId);
@@ -193,7 +193,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (parentNode) {   
       // add the child to the children list of the parent (if it has a parent)
       parentNode.children = [...parentNode.children, childId];
-      await saveHierarchyToEntryFromNode(parent as Entry, parentNode);
+      await saveHierarchyToEntryFromNode(parent as EntryDoc, parentNode);
 
       // set the parent and the ancestors of the child (ancestors = parent + parent's ancestors)
       childNode.parentId = parentId;
@@ -217,12 +217,12 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       const hierarchies = WorldFlags.get(currentWorldId.value, WorldFlagKey.hierarchies);
 
       // we switch to entries because of all the data retrieval
-      const doUpdateOnDescendents = async (entry: Entry): Promise<void> => {
+      const doUpdateOnDescendents = async (entry: EntryDoc): Promise<void> => {
         const children = hierarchies[entry.uuid]?.children || [];
 
         // this seems safe, despite 
         for (let i=0; i<children?.length; i++) {
-          const child = await fromUuid(children[i]) as Entry;
+          const child = await fromUuid(children[i]) as EntryDoc;
           const childNode = DirectoryEntryNode.fromEntry(child);
           childNode.ancestors = childNode.ancestors.filter(a => !ancestorsToRemove.includes(a));
           childNode.ancestors = childNode.ancestors.concat(ancestorsToAdd);
@@ -383,8 +383,8 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       const journal = currentTopicJournals.value[topics[i]];
 
       // filter on name and type
-      let matchedEntries = journal.collections.pages.filter((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.system.type || '' )))
-        .map((e: Entry): string=>e.uuid) as string[];
+      let matchedEntries = journal.collections.pages.filter((e: EntryDoc)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.system.type || '' )))
+        .map((e: EntryDoc): string=>e.uuid) as string[];
   
       // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding
       for (let j=matchedEntries.length-1; j>=0; j--) {

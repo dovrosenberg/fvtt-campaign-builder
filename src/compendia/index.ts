@@ -6,7 +6,7 @@ import { Topic, } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { toTopic } from '@/utils/misc';
-import { Entry, relationshipKeyReplace } from '@/documents';
+import { EntryDoc, relationshipKeyReplace } from '@/documents';
 
 
 /**
@@ -269,9 +269,9 @@ async function createCompendium(worldFolder: Folder): Promise<CompendiumCollecti
 }
 
 // loads the entry into memory and cleans it
-export async function getCleanEntry(uuid: string): Promise<Entry | null> {
+export async function getCleanEntry(uuid: string): Promise<EntryDoc | null> {
   // we must use fromUuid because these are all in compendia
-  const entry = await fromUuid(uuid) as Entry;
+  const entry = await fromUuid(uuid) as EntryDoc;
 
   return entry ? entry : null;
 }
@@ -282,11 +282,11 @@ export async function getCleanEntry(uuid: string): Promise<Entry | null> {
  * Unlocks the compendium to perform the update and then locks it again.
  * 
  * @param {CompendiumCollection<any>} currentCompendium - The compendium containing the entry to update.
- * @param {Entry} entry - The entry to be updated.  Make sure to pass in the raw entry using vue's toRaw() if calling on a proxy
+ * @param {EntryDoc} entry - The entry to be updated.  Make sure to pass in the raw entry using vue's toRaw() if calling on a proxy
  * @param {Record<string, any>} data - The data to update the entry with.
- * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
+ * @returns {Promise<EntryDoc | null>} The updated entry, or null if the update failed.
  */
-export async function updateEntry(currentCompendium: CompendiumCollection<any>, entry: Entry, data: Record<string, any>): Promise<Entry | null> {
+export async function updateEntry(currentCompendium: CompendiumCollection<any>, entry: EntryDoc, data: Record<string, any>): Promise<EntryDoc | null> {
   // unlock compendium to make the change
   await currentCompendium.configure({locked:false});
 

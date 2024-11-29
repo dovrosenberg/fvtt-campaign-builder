@@ -114,7 +114,7 @@
   
   // types
   import { ValidTopic, Topic, } from '@/types';
-  import { Entry } from '@/documents';
+  import { EntryDoc } from '@/documents';
   
   ////////////////////////////////
   // props
@@ -152,7 +152,7 @@
   const topic = ref<Topic | null>(null);
   const name = ref<string>('');
 
-  const editorDocument = ref<Entry>();
+  const editorDocument = ref<EntryDoc>();
 
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);

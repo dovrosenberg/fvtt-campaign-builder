@@ -10,7 +10,7 @@ import { cleanTrees, hasHierarchy, Hierarchy, } from '@/utils/hierarchy';
 import { useTopicDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
 import { getTopicText, } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
-import { DOCUMENT_TYPES, Entry } from '@/documents';
+import { DOCUMENT_TYPES, EntryDoc } from '@/documents';
 
 // types
 import { Topic, ValidTopic } from '@/types';
@@ -37,8 +37,8 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
    
   ///////////////////////////////
   // actions
-  const updateEntryType = async (entryId: string, typeName: string): Promise<void> => {
-    const entry = await fromUuid(entryId) as Entry;
+  const updateEntryDocType = async (entryId: string, typeName: string): Promise<void> => {
+    const entry = await fromUuid(entryId) as EntryDoc;
     const oldType = (entry.system.type as string | null | undefined) || '';
     await entry.update({ 'system.type': typeName });
 
@@ -48,7 +48,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
   type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
-  const createEntry = async (worldFolder: Folder, topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> => {
+  const createEntry = async (worldFolder: Folder, topic: ValidTopic, options: CreateEntryOptions): Promise<EntryDoc | null> => {
     if (!currentTopicJournals.value || !currentTopicJournals.value[topic])
       return null;
 
@@ -83,7 +83,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
     }],{
       parent: currentTopicJournals.value[topic],
       // pack: currentWorldCompendium.value.metadata.id,
-    }) as unknown as Entry;
+    }) as unknown as EntryDoc;
 
     await currentWorldCompendium.value.configure({locked:true});
 
@@ -117,7 +117,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
 
   // delete an entry from the world
   const deleteEntry = async (topic: ValidTopic, entryId: string) => {
-    const entry = await fromUuid(entryId) as Entry;
+    const entry = await fromUuid(entryId) as EntryDoc;
 
     if (!entry || !currentWorldId.value)
       return;

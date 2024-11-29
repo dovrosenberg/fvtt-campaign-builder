@@ -40,7 +40,7 @@
   // types
   import { ValidTopic } from '@/types';
   import { DirectoryEntryNode, } from '@/classes';
-  import { Entry } from '@/documents';
+  import { EntryDoc } from '@/documents';
 
   ////////////////////////////////
   // props
@@ -132,7 +132,7 @@
       return false;
 
     // is this a legal parent?
-    const childEntry = await globalThis.fromUuid(data.childId) as Entry | null;
+    const childEntry = await globalThis.fromUuid(data.childId) as EntryDoc | null;
 
     if (!childEntry)
       return false;
