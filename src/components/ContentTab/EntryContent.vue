@@ -24,7 +24,7 @@
             <label>{{ localize('fwb.labels.fields.type') }}</label>
             <TypeAhead 
               :initial-list="typeList"
-              :initial-value="currentEntry.system.type as string || ''"
+              :initial-value="currentEntry?.system.type as string || ''"
               @item-added="onTypeItemAdded"
               @selection-made="onTypeSelectionMade"
             />
@@ -285,17 +285,6 @@
     tabs.value.callback = () => {
       currentTopicTab.value = tabs.value?.active || null;
     };
-
-    //     // home page mode - click on a recent item
-    //     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {
-    //       await this._makeCallback(ContentTab.CallbackType.RecentClicked, uuid);
-    //     });
-
-    //     // tree node clicked
-    //     this._partials.HierarchyTree.registerCallback(Tree.CallbackType.ItemClicked, async (value: string)=>{
-    //       alert(value);
-    //     });
-    //   }
   });
 
 

@@ -88,7 +88,8 @@
   import WBBookmark from './WBBookmark.vue';
 
   // types
-  import { Bookmark, WindowTab } from '@/types';
+  import { Bookmark, } from '@/types';
+  import { WindowTab, } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -143,7 +144,7 @@
       return;
 
     tab.historyIdx = newSpot;
-    await navigationStore.openEntry(tab.history[tab.historyIdx], { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
+    await navigationStore.openContent(tab.history[tab.historyIdx].contentId, tab.history[tab.historyIdx].tabType, { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
   };
 
   ////////////////////////////////

@@ -1,6 +1,7 @@
 import { getGame } from '@/utils/game';
 import moduleJson from '@module';
-import { Bookmark, TabHeader, WindowTab } from '@/types';
+import { Bookmark, TabHeader, } from '@/types';
+import { WindowTab, } from '@/classes';
 
 export enum UserFlagKey {
   tabs = 'tabs',  // the open tabs
@@ -24,7 +25,19 @@ export abstract class UserFlags {
     if (!getGame().user)
       return null;
 
-    return (getGame().user?.getFlag(moduleJson.id, flag + worldId) || []) as UserFlagType<T>;
+    if (flag === UserFlagKey.tabs) {
+      return (getGame().user?.getFlag(moduleJson.id, flag + worldId) || []).map((t: any) => new WindowTab(
+        t.active, 
+        t.tabType,
+        t.header,
+        t.contentId,
+        t.id,
+        t.history,
+        t.historyIdx
+      )) as unknown as UserFlagType<T>;
+    } else {
+      return (getGame().user?.getFlag(moduleJson.id, flag + worldId) || []) as UserFlagType<T>;
+    }
   }
 
   // note - setting a flag to null will delete it

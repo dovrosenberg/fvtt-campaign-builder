@@ -12,7 +12,8 @@ import { getCleanEntry } from '@/compendia';
 import { CollapsibleNode } from '@/classes';
 
 // types
-import { Topic, ValidTopic, WindowTab, WindowTabType } from '@/types';
+import { Topic, ValidTopic, WindowTabType } from '@/types';
+import { WindowTab, } from '@/classes';
 import { Entry, Session } from '@/documents';
 
 // the store definition
@@ -86,7 +87,6 @@ export const useMainStore = defineStore('main', () => {
           _currentEntry.value = await getCleanEntry(tab.header.uuid);
         } else {
           _currentEntry.value = null;
-          tab.tabType = null;
         }
         _currentCampaign.value = null;
         _currentSession.value = null;
@@ -102,11 +102,11 @@ export const useMainStore = defineStore('main', () => {
         _currentEntry.value = null;
         _currentCampaign.value = null;
         break;
-      default:
+      default:  // make it a 'new entry' window
         _currentSession.value = null;  
         _currentEntry.value = null;
         _currentCampaign.value = null;
-        tab.tabType = null;
+        tab.tabType = WindowTabType.NewTab;
     }
   };
 

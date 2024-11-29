@@ -13,7 +13,8 @@ import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { useMainStore } from './mainStore';
 
 // types
-import { Bookmark, TabHeader, WindowTab, WindowTabType } from '@/types';
+import { Bookmark, TabHeader, WindowTabType } from '@/types';
+import { WindowTab, } from '@/classes';
 import { Entry } from '@/documents';
 
 
@@ -55,7 +56,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @returns The newly opened tab.
    */
   const openEntry = async function(entryId = null as string | null, options?: OpenContentOptions) {
-    openContent(entryId, options, WindowTabType.Entry);
+    await openContent(entryId, WindowTabType.Entry, options );
   }
 
   /**
@@ -69,7 +70,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @returns The newly opened tab.
    */
   const openCampaign = async function(campaignId = null as string | null, options?: OpenContentOptions) {
-    openContent(campaignId, options, WindowTabType.Campaign);
+    await openContent(campaignId, WindowTabType.Campaign, options);
   }
 
   /**
@@ -83,7 +84,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @returns The newly opened tab.
    */
   const openSession = async function(sessionId = null as string | null, options?: OpenContentOptions) {
-    openContent(sessionId, options, WindowTabType.Session);
+    await openContent(sessionId, WindowTabType.Session, options);
   } 
 
   /**
@@ -97,7 +98,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @param contentType The type of content to open. If null, defaults to entry.
    * @returns The newly opened tab.
    */
-  const openContent = async function (contentId = null as string | null, options?: OpenContentOptions, contentType: WindowTabType): Promise<WindowTab> { 
+  const openContent = async function (contentId = null as string | null, contentType: WindowTabType, options?: OpenContentOptions,): Promise<WindowTab> { 
     // set defaults
     options = {
       activate: true,
@@ -108,29 +109,48 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     let name: string;
     let icon: string;
+    let badId = false;
 
     switch (contentType) {
       case WindowTabType.Entry: {
         const entry = contentId ? await getCleanEntry(contentId) as Entry : null;
-        name = (entry ? entry.name : localize('fwb.labels.newTab')) || '';
-        icon = entry ? getTopicIcon(entry.system.topic) : ''
+        if (!entry) {
+          badId = true;
+        } else {
+          name = entry.name;
+          icon = getTopicIcon(entry.system.topic);
+        }
       }; break;
       case WindowTabType.Campaign: {
         const campaign = currentCampaignJournals?.value.find((j)=>j.uuid===contentId) || null; 
 
-        if (!campaign)
-          throw new Error('Could not find campaign in navigationStore.openContent()');
-
-        name = campaign.name; 
-        icon = getTabTypeIcon(WindowTabType.Campaign);
+        if (!campaign) {
+          badId = true;
+        } else {
+          name = campaign.name; 
+          icon = getTabTypeIcon(WindowTabType.Campaign);
+        }
       }; break;
       case WindowTabType.Session: {
         // const session = contentId ? await getCleanEntry(contentId) as JournalEntry : null;
-        name = 'SESSION',
-        icon = '';
+        if (true) { // (!session) {
+          badId = true;
+        } else {
+          name = 'SESSION',
+          icon = '';
+        }
       }; break;
-      default:
-        throw new Error(`Invalid content type in navigationStore.openConent(): ${contentType}`);
+      case WindowTabType.NewTab: 
+      default: {
+        badId = true;
+      }; break;
+    }
+
+    if (badId) {
+      contentType = WindowTabType.NewTab;
+      contentId = null;
+      name = localize('fwb.labels.newTab') || '';
+      icon = '';
     }
 
     const headerData: TabHeader = { uuid: contentId || null, name: name, icon: icon };
@@ -138,14 +158,13 @@ export const useNavigationStore = defineStore('navigation', () => {
     // see if we need a new tab
     let tab;
     if (options.newTab || !getActiveTab(false)) {
-      tab = {
-        id: foundry.utils.randomID(),
-        active: false,
-        header: headerData,
-        history: [],
-        historyIdx: -1,
-        tabType: contentType,
-      } as WindowTab;
+      tab = new WindowTab(
+        false,
+        contentType, 
+        headerData,
+        headerData.uuid,
+        null,
+       );
 
       //add to tabs list
       tabs.value.push(tab);
@@ -159,14 +178,16 @@ export const useNavigationStore = defineStore('navigation', () => {
       // otherwise, just swap out the active tab info
       tab.header = headerData;
       tab.tabType = contentType;
+
+      // add to history 
+      if (headerData.uuid && options.updateHistory) {
+        tab.addToHistory(contentId, contentType);
+      }
+
+      // force a refresh of reactivity
+      tabs.value = [ ...tabs.value ];
     }
     
-    // add to history 
-    if (headerData.uuid && options.updateHistory) {
-      tab.history.push(contentId);
-      tab.historyIdx = tab.history.length - 1; 
-    }
-
     if (options.activate)
       await activateTab(tab.id);  
 
@@ -345,6 +366,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     openEntry,
     openSession,
     openCampaign,
+    openContent,
     getActiveTab,
     activateTab,
     removeBookmark,

@@ -32,7 +32,7 @@
 
   // local imports
   import { useNavigationStore } from '@/applications/stores';
-  import { WindowTab } from '@/types';
+  import { WindowTab } from '@/classes';
 
   // library components
 

@@ -449,7 +449,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   
   ///////////////////////////////
   // lifecycle events
-  onMounted(async () => {
+  onMounted(() => {
     isGroupedByType.value = moduleSettings.get(SettingKey.groupTreeByType);
   });
 
