@@ -160,7 +160,7 @@
     if (!childEntry)
       return false;
 
-    if (!(await validParentItems(currentWorldId.value, currentTopicJournals.value[props.topic], childEntry)).find(e=>e.id===parentId))
+    if (!(validParentItems(currentWorldId.value, currentTopicJournals.value[props.topic], childEntry)).find(e=>e.id===parentId))
       return false;
 
     // add the dropped item as a child on the other (will also refresh the tree)

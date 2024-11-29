@@ -134,7 +134,7 @@
           onClick: async () => {
             if (worldId) {
               await directoryStore.deleteWorld(worldId);
-              await campaignDirectoryStore.refreshCampaignDirectoryTree();
+              campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
         },
@@ -145,7 +145,7 @@
           onClick: async () => {
             if (worldId) {
               await createCampaign(worldId);
-              await campaignDirectoryStore.refreshCampaignDirectoryTree();
+              campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
         },

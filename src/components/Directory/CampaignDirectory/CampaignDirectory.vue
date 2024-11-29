@@ -86,7 +86,7 @@
           onClick: async () => {
             if (currentWorldId.value) {
               await createCampaign(currentWorldId.value);
-              await campaignDirectoryStore.refreshCampaignDirectoryTree();
+              campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
         },

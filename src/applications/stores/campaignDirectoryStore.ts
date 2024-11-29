@@ -44,7 +44,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
     await WorldFlags.unset(currentWorldId.value, WorldFlagKey.expandedCampaignIds);
 
-    await refreshCampaignDirectoryTree();
+    refreshCampaignDirectoryTree();
   };
  
   // refreshes the campaign tree 
@@ -107,13 +107,13 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // });
 
   // when the world changes, clean out the cache of loaded items
-  watch(currentWorldFolder, async (newWorldFolder: Folder | null): Promise<void> => {
+  watch(currentWorldFolder, (newWorldFolder: Folder | null): void => {
     if (!newWorldFolder) {
       currentCampaignTree.value = [];
       return;
     }
 
-    await refreshCampaignDirectoryTree();
+    refreshCampaignDirectoryTree();
   });
   
   
