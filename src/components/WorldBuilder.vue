@@ -107,21 +107,6 @@
   });
 
 
-  /*
-
-
-  findMapEntry(event) {
-    let journalId = $(event.currentTarget).attr('page-id');
-    let journalId = $(event.currentTarget).attr('journal-id');
-
-    let note = canvas.notes.placeables.find(n => {
-      return n.document.entryId == journalId || n.document.journalId == journalId || (n.document.entryId == journalId && n.document.journalId == null);
-    });
-    canvas.notes.panToNote(note);
-  }
-
-  }*/
-
 </script>
 
 <style lang="scss">
@@ -142,22 +127,6 @@ div[data-application-part] {
   color: var(--color-text-light-highlight);
 }
 
-/*
-.fwb-main-window > header a.subsheet {
-  background: rgba(255, 255, 255, 0.1);
-  margin-left: 0px;
-  padding-left: 8px;
-}
-
-.fwb-main-window > header a.subsheet.first {
-  margin-left: 4px;
-  padding-left: 4px;
-}
-
-.fwb-main-window > header a.subsheet.last {
-  padding-right: 4px;
-}
-*/
 
 .fwb-main-window {  
   min-width: 640px;

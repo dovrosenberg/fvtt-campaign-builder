@@ -1,6 +1,6 @@
 <template>
   <form 
-    :class="'flexcol fwb-journal-subsheet" 
+    :class="'flexcol fwb-journal-subsheet'" 
   >
     <div class="sheet-container detailed flexcol">
       {{ currentSession.name}}
@@ -11,7 +11,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { PropType } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
   import { useMainStore } from '@/applications/stores';

@@ -23,6 +23,8 @@
   // local components
   import HomePage from './HomePage.vue';
   import EntryContent from './EntryContent.vue';
+  import SessionContent from './SessionContent.vue';
+  import CampaignContent from './CampaignContent.vue';
   
   // types
   import { WindowTabType } from '@/types';
