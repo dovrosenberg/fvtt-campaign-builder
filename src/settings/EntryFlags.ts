@@ -105,7 +105,7 @@ export abstract class EntryFlags {
     }
 
     // set the new one
-    if (relationships ?? relationships[topic]) {
+    if (relationships && relationships[topic]) {
       relationships[topic][relatedItem.uuid] = relatedItem;
     
       await EntryFlags.set(entry, EntryFlagKey.relationships, relationships);
@@ -128,7 +128,7 @@ export abstract class EntryFlags {
       relationships = flagSetup.find((f)=>f.flagId===EntryFlagKey.relationships)?.default as Record<Topic, Record<string, RelatedItem>>;
     }
 
-    if (relationships ?? relationships[topic]) {
+    if (relationships && relationships[topic]) {
       delete relationships[topic][relatedItemId];
 
       await EntryFlags.set(entry, EntryFlagKey.relationships, relationships);
