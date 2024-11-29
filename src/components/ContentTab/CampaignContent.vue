@@ -64,11 +64,11 @@
 
   // local components
   import Editor from '@/components/Editor.vue';
+  import CampaignDirectory from 'src/components/Directory/CampaignDirectory/CampaignDirectory.vue';
   
   // types
-  import { ValidTopic, Topic, } from '@/types';
-  import { EntryDoc } from '@/documents';
-import CampaignDirectory from 'src/components/Directory/CampaignDirectory/CampaignDirectory.vue';
+  import { ValidTopic, Topic, WindowTabType, } from '@/types';
+  import { Entry } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -93,7 +93,7 @@ import CampaignDirectory from 'src/components/Directory/CampaignDirectory/Campai
   const topic = ref<Topic | null>(null);
   const name = ref<string>('');
 
-  const editorDocument = ref<EntryDoc>();
+  const editorDocument = ref<Entry>();
 
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);

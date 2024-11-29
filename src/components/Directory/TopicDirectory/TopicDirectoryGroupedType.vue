@@ -87,12 +87,12 @@
 
   ////////////////////////////////
   // store
-  const directoryStore = useTopicDirectoryStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
   const { currentWorldId } = storeToRefs(mainStore);
-  const { filterNodes } = storeToRefs(directoryStore);
+  const { filterNodes } = storeToRefs(topicDirectoryStore);
   
   ////////////////////////////////
   // data
@@ -107,7 +107,7 @@
   ////////////////////////////////
   // event handlers
   const onTypeToggleClick = async () => {
-    currentType.value = await directoryStore.toggleWithLoad(currentType.value, !currentType.value.expanded);
+    currentType.value = await topicDirectoryStore.toggleWithLoad(currentType.value, !currentType.value.expanded);
   };
 
   // you can drop an item on a type and it should reassign the type
@@ -140,7 +140,7 @@
       return false;
 
     // set the new type
-    await currentEntryStore.updateEntryType(data.id, currentType.value.name);
+    await topicDirectoryStore.updateEntryType(data.id, currentType.value.name);
 
     return true;
   };

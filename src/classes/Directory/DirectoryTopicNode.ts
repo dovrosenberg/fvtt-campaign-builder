@@ -3,8 +3,7 @@
  */
 
 import { ValidTopic, } from '@/types';
-import { DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, CollapsibleNode } from '@/classes';
-import { EntryDoc } from '@/documents';
+import { Entry, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, CollapsibleNode } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 
 export class DirectoryTopicNode extends DirectoryTopicTreeNode {
@@ -56,7 +55,7 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
       const type = this.loadedTypes[i].name;
 
       this.loadedTypes[i].loadedChildren = allEntries.filter((e: EntryDoc)=> {
-        const entryType = e.system.type;
+        const entryType = e.type;
         return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type);
       })
         .map((entry: EntryDoc): DirectoryTypeEntryNode=> DirectoryTypeEntryNode.fromEntry(entry, this.loadedTypes[i]))

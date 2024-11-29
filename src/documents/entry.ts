@@ -11,7 +11,7 @@ const entrySchema = {
     [Topic.Event]: {},
     [Topic.Location]: {},
     [Topic.Organization]: {},
-  } as Record<Topic, Record<string, RelatedItemDetails<any, any>>>   // all the things related to this item, grouped by topic
+  } as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>   // all the things related to this item, grouped by topic
   }),    // keyed by topic, then entryId
 
   // description: new fields.SchemaField({
@@ -23,7 +23,7 @@ const entrySchema = {
 
 type EntrySchemaType = typeof entrySchema;
 
-type RelationshipFieldType = Record<Topic, Record<string,RelatedItemDetails<any, any>>>; 
+type RelationshipFieldType = Record<ValidTopic, Record<string,RelatedItemDetails<any, any>>>; 
 
 export class EntryDataModel<Schema extends EntrySchemaType, ParentNode extends JournalEntry> extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
   static defineSchema(): EntrySchemaType {
@@ -35,7 +35,6 @@ export class EntryDataModel<Schema extends EntrySchemaType, ParentNode extends J
     this.relationships = relationshipKeyReplace(this.relationships, false);
   }
 }
-
 
 // swap '.' and '!@' in relationship keys
 // serialize = true means replace '.' with '_'
@@ -67,6 +66,6 @@ export interface EntryDoc extends JournalEntryPage {
     /** 
      * Keyed by topic, then entryId 
      */ 
-    relationships: Record<Topic, Record<string, RelatedItemDetails<any, any>>> | undefined;  // keyed by topic then by entryId
+    relationships: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> | undefined;  // keyed by topic then by entryId
   };
 }

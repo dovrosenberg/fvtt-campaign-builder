@@ -14,8 +14,7 @@ import {
 } from '@/types';
 import { reactive, Ref, toRaw, watch } from 'vue';
 import { ref } from 'vue';
-import { updateEntry } from '@/compendia';
-import { EntryDoc } from '@/documents';
+import { Entry } from '@/classes';
 
 // the store definition
 export const useRelationshipStore = defineStore('relationship', () => {
@@ -71,9 +70,9 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const entryStore = useCurrentEntryStore();
+  const currentEntryStore = useCurrentEntryStore();
   const { currentEntry, currentWorldCompendium, } = storeToRefs(mainStore);
-  const { currentTopicTab } = storeToRefs(entryStore);
+  const { currentTopicTab } = storeToRefs(currentEntryStore);
 
   ///////////////////////////////
   // internal state
@@ -89,37 +88,37 @@ export const useRelationshipStore = defineStore('relationship', () => {
    * @param extraFields Extra fields to save with the relationship
    * @returns whether the relationship was successfully added
    */
-  async function addRelationship(relatedEntry: EntryDoc, extraFields: Record<string, string>): Promise<void> {
+  async function addRelationship(relatedEntry: Entry, extraFields: Record<string, string>): Promise<void> {
     // create the relationship on current entry
     const entry = currentEntry.value;
 
     if (!entry || !relatedEntry)
       throw new Error('Invalid entry in relationshipStore.addRelationship()');
-    if (!entry.system.relationships || !relatedEntry.system.relationships || !entry.system.topic || !relatedEntry.system.topic)
+    if (!entry.relationships || !relatedEntry.relationships || !entry.topic || !relatedEntry.topic)
       throw new Error('Missing system variable in relationshipStore.addRelationship()');
 
-    const entryTopic = entry.system.topic;
-    const relatedEntryTopic = relatedEntry.system.topic;
+    const entryTopic = entry.topic;
+    const relatedEntryTopic = relatedEntry.topic;
 
     // create the relationship items
     const relatedItem1 = {
       uuid: relatedEntry.uuid,
       name: relatedEntry.name,
-      topic: relatedEntry.system.topic,
-      type: relatedEntry.system.type || '',
+      topic: relatedEntry.topic,
+      type: relatedEntry.type || '',
       extraFields: extraFields,
     };
     const relatedItem2 = {
       uuid: entry.uuid,
       name: entry.name,
-      topic: entry.system.topic,
-      type: entry.system.type || '',
+      topic: entry.topic,
+      type: entry.type || '',
       extraFields: extraFields,
     };
 
     // update the entries
-    const entryRelationships = foundry.utils.deepClone(entry.system.relationships);
-    const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.system.relationships);
+    const entryRelationships = foundry.utils.deepClone(entry.relationships);
+    const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.relationships);
 
     if (!entryRelationships[relatedEntryTopic]) {
       entryRelationships[relatedEntryTopic] = {
@@ -136,8 +135,10 @@ export const useRelationshipStore = defineStore('relationship', () => {
       relatedEntryRelationships[entryTopic][entry.uuid] = relatedItem2;
     }
 
-    await updateEntry(currentWorldCompendium.value, toRaw(entry), { system: { relationships: entryRelationships }});
-    await updateEntry(currentWorldCompendium.value, toRaw(relatedEntry), { system: {relationships: relatedEntryRelationships }});
+    entry.relationships = entryRelationships;
+    await entry.save();
+    relatedEntry.relationships = relatedEntryRelationships;
+    await relatedEntry.save();
 
     mainStore.refreshEntry();
   }
@@ -151,19 +152,19 @@ export const useRelationshipStore = defineStore('relationship', () => {
   async function editRelationship(relatedEntryId: string, extraFields: Record<string, string>): Promise<void> {
     // create the relationship on current entry
     const entry = currentEntry.value;
-    const relatedEntry = await fromUuid(relatedEntryId) as EntryDoc;
+    const relatedEntry = await Entry.fromUuid(relatedEntryId); 
 
     if (!entry || !relatedEntry)
       throw new Error('Invalid entry in relationshipStore.addRelationship()');
-    if (!entry.system.relationships || !entry.system.topic || !relatedEntry.system.relationships || !relatedEntry.system.topic)
+    if (!entry.relationships || !entry.topic || !relatedEntry.relationships || !relatedEntry.topic)
       throw new Error('Missing system variable in relationshipStore.addRelationship()');
 
-    const entryTopic = entry.system.topic;
-    const relatedEntryTopic = relatedEntry.system.topic;
+    const entryTopic = entry.topic;
+    const relatedEntryTopic = relatedEntry.topic;
 
     // update the entries
-    const entryRelationships = foundry.utils.deepClone(entry.system.relationships);
-    const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.system.relationships);
+    const entryRelationships = foundry.utils.deepClone(entry.relationships);
+    const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.relationships);
 
     if (entryRelationships[relatedEntryTopic] && entryRelationships[relatedEntryTopic][relatedEntryId]) {
       // update the current entry's relationships
@@ -171,7 +172,8 @@ export const useRelationshipStore = defineStore('relationship', () => {
         ...entryRelationships[relatedEntryTopic][relatedEntryId],
         extraFields: extraFields
       };
-      await updateEntry(currentWorldCompendium.value, toRaw(entry), { system: { relationships: entryRelationships }});
+      entry.relationships = entryRelationships;
+      await entry.save();
     }
     if (relatedEntryRelationships[entryTopic] && relatedEntryRelationships[entryTopic][entry.uuid]) {
       // update the related entry's relationships
@@ -179,7 +181,8 @@ export const useRelationshipStore = defineStore('relationship', () => {
         ...relatedEntryRelationships[entryTopic][entry.uuid],
         extraFields: extraFields
       };
-      await updateEntry(currentWorldCompendium.value, toRaw(relatedEntry), { system: {relationships: relatedEntryRelationships }});
+      relatedEntry.relationships = relatedEntryRelationships;
+      await relatedEntry.save();
     }
 
     mainStore.refreshEntry();
@@ -191,24 +194,25 @@ export const useRelationshipStore = defineStore('relationship', () => {
       throw new Error('Invalid entry in relationshipStore.deleteRelationship()');
 
     const entry = currentEntry.value;
-    const relatedEntry = await fromUuid(relatedItemId) as EntryDoc;
+    const relatedEntry = await Entry.fromUuid(relatedItemId); 
 
-    const entryTopic = entry.system.topic;
-    const relatedEntryTopic = relatedEntry.system.topic;
+    const entryTopic = entry.topic;
+    const relatedEntryTopic = relatedEntry.topic;
 
     if (!entryTopic || !relatedEntryTopic)
       throw new Error('Missing topic in relationshipStore.deleteRelationship()');
 
     // update the entries
-    const entryRelationships = foundry.utils.deepClone(currentEntry.value.system.relationships);
-    const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.system.relationships);
+    const entryRelationships = foundry.utils.deepClone(currentEntry.value.relationships);
+    const relatedEntryRelationships = foundry.utils.deepClone(relatedEntry.relationships);
 
     if (entryRelationships && entryRelationships[relatedEntryTopic] && entryRelationships[relatedEntryTopic][relatedEntry.uuid]) {
       delete entryRelationships[relatedItemTopic][relatedEntry.uuid];
 
       // @ts-ignore - foundry code to delete the key
       entryRelationships[relatedItemTopic][`-=${relatedItemId}`] = null;
-      await updateEntry(currentWorldCompendium.value, toRaw(entry), { system: {relationships: entryRelationships }});
+      entry.relationships = entryRelationships;
+      await entry.save();
 
       // clean out the entry that tells foundry to delete the key
       delete entryRelationships[relatedItemTopic][`-=${relatedItemId}`];
@@ -218,7 +222,8 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
       // @ts-ignore - foundry code to delete the key
       relatedEntryRelationships[entryTopic][`-=${entry.uuid}`] = null;
-      await updateEntry(currentWorldCompendium.value, toRaw(relatedEntry), { system: {relationships: relatedEntryRelationships }});
+      relatedEntry.relationships = relatedEntryRelationships;
+      await relatedEntry.save();
 
       // clean out the entry that tells foundry to delete the key
       delete relatedEntryRelationships[entryTopic][`-=${entry.uuid}`];
@@ -235,7 +240,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     if (!currentEntry.value)
       throw new Error('Invalid current entry in relationshipStore.getRelationships()');
 
-    const relatedItems = (currentEntry.value.system.relationships ? currentEntry.value.system.relationships[topic] || {} : {}) as Record<string, RelatedItemDetails<PrimaryTopic, RelatedTopic>>;
+    const relatedItems = (currentEntry.value.relationships ? currentEntry.value.relationships[topic] || {} : {}) as Record<string, RelatedItemDetails<PrimaryTopic, RelatedTopic>>;
 
     // convert the map to an array and add the names
     for (const relatedItem of Object.values(relatedItems)) {
@@ -273,7 +278,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
           topic = Topic.None;
       }
 
-      relatedItemRows.value = currentEntry.value.system.relationships && topic!==Topic.None ? Object.values(currentEntry.value.system.relationships[topic]) || []: [];
+      relatedItemRows.value = currentEntry.value.relationships && topic!==Topic.None ? Object.values(currentEntry.value.relationships[topic]) || []: [];
     }
   };
 

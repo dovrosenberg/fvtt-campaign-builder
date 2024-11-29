@@ -2,9 +2,8 @@
  * An abstract class representing a node of any sort in the topic tree structures
  */
 
-import { CollapsibleNode, DirectoryEntryNode, } from '@/classes';
+import { Entry, CollapsibleNode, DirectoryEntryNode, } from '@/classes';
 import { ValidTopic } from '@/types';
-import { EntryDoc } from '@/documents';
 import { WorldFlagKey } from '@/settings/WorldFlags';
 
 export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEntryNode> {

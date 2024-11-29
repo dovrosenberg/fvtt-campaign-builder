@@ -6,7 +6,6 @@ import { ref, } from 'vue';
 import { storeToRefs } from 'pinia';
 
 // local imports
-import { getCleanEntry } from '@/compendia';
 import { localize } from '@/utils/game';
 import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
@@ -15,7 +14,6 @@ import { useMainStore } from './mainStore';
 // types
 import { Bookmark, TabHeader, WindowTabType } from '@/types';
 import { WindowTab, } from '@/classes';
-import { EntryDoc } from '@/documents';
 
 
 // the store definition
@@ -113,12 +111,12 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     switch (contentType) {
       case WindowTabType.Entry: {
-        const entry = contentId ? await getCleanEntry(contentId) as EntryDoc : null;
+        const entry = contentId ? await Entry.fromUuid(contentId) : null;
         if (!entry) {
           badId = true;
         } else {
           name = entry.name;
-          icon = getTopicIcon(entry.system.topic);
+          icon = getTopicIcon(entry.topic);
         }
       }; break;
       case WindowTabType.Campaign: {
@@ -132,7 +130,7 @@ export const useNavigationStore = defineStore('navigation', () => {
         }
       }; break;
       case WindowTabType.Session: {
-        // const session = contentId ? await getCleanEntry(contentId) as JournalEntry : null;
+        // const session = contentId ? await Session.fromUuid(contentId) : null;
         if (true) { // (!session) {
           badId = true;
         } else {

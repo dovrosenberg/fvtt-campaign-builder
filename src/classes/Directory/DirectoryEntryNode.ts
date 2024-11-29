@@ -4,8 +4,7 @@
 
 
 import { ValidTopic, } from '@/types';
-import { CollapsibleNode, DirectoryTopicTreeNode } from '@/classes';
-import { EntryDoc } from '@/documents';
+import { Entry, CollapsibleNode, DirectoryTopicTreeNode } from '@/classes';
 import { WorldFlags } from '@/settings/WorldFlags';
 import { Hierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 
@@ -23,20 +22,20 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
   }
 
   // converts the entry to a DirectoryEntryNode for cleaner interface
-  static fromEntry = (entry: EntryDoc): DirectoryEntryNode => {
+  static fromEntry = (entry: Entry): DirectoryEntryNode => {
     if (!CollapsibleNode._currentWorldId)
       throw new Error('No currentWorldId in DirectoryEntryNode.fromEntry()');
 
     const hierachy = WorldFlags.getHierarchy(CollapsibleNode._currentWorldId, entry.uuid);
 
-    if (!entry.system.topic)
+    if (!entry.topic)
       throw new Error('No topic in DirectoryEntryNode.fromEntry()');
 
     return new DirectoryEntryNode(
       entry.uuid,
       entry.name || NO_NAME_STRING,
-      entry.system.type || NO_TYPE_STRING,
-      entry.system.topic,
+      entry.type || NO_TYPE_STRING,
+      entry.topic,
       hierachy?.parentId || null,
       hierachy?.children || [],
       [],

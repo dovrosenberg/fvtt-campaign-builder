@@ -24,7 +24,7 @@
             <label>{{ localize('fwb.labels.fields.type') }}</label>
             <TypeAhead 
               :initial-list="typeList"
-              :initial-value="currentEntry?.system.type as string || ''"
+              :initial-value="currentEntry?.type as string || ''"
               @item-added="onTypeItemAdded"
               @selection-made="onTypeSelectionMade"
             />
@@ -58,7 +58,7 @@
         <div class="tab description flexcol" data-group="primary" data-tab="description">
           <div class="tab-inner flexcol">
             <Editor 
-              :document="editorDocument"
+              :document="editorDocument.raw"
               :has-button="true"
               target="content-description"
               @editor-saved="onDescriptionEditorSaved"
@@ -97,7 +97,6 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { updateEntry } from '@/compendia';
   import { getTopicIcon, } from '@/utils/misc';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { localize } from '@/utils/game';
@@ -114,7 +113,6 @@
   
   // types
   import { ValidTopic, Topic, } from '@/types';
-  import { EntryDoc } from '@/documents';
   
   ////////////////////////////////
   // props
@@ -125,7 +123,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const directoryStore = useTopicDirectoryStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
   const { currentEntry, currentWorldId, currentTopicJournals, currentWorldCompendium, } = storeToRefs(mainStore);
@@ -152,7 +150,7 @@
   const topic = ref<Topic | null>(null);
   const name = ref<string>('');
 
-  const editorDocument = ref<EntryDoc>();
+  const editorDocument = ref<Entry>();
 
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
@@ -184,7 +182,7 @@
       if (currentEntry.value && currentEntry.value.name!==newValue) {
         await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), { name: newValue });
 
-        await directoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
+        await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
         await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue);
       }
     }, debounceTime);
@@ -211,21 +209,22 @@
 
   const onTypeSelectionMade = async (selection: string) => {
     if (currentEntry.value)
-      await currentEntryStore.updateEntryType(currentEntry.value.uuid, selection);
+      await topicDirectoryStore.updateEntryType(currentEntry.value.uuid, selection);
   };
 
   const onParentSelectionMade = async (selection: string): Promise<void> => {
-    if (!currentEntry.value?.system?.topic || !currentEntry.value?.uuid)
+    if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
       return;
 
-    await directoryStore.setNodeParent(currentEntry.value.system.topic, currentEntry.value.uuid, selection || null);
+    await topicDirectoryStore.setNodeParent(currentEntry.value.topic, currentEntry.value.uuid, selection || null);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
     if (!currentEntry.value)
       return;
 
-    await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), {'text.content': newContent });  
+    currentEntry.value.setProperty('text.content', newContent);
+    await currentEntry.value.save();
 
     //need to reset
     // if it's not automatic, clear and reset the documentpage
@@ -240,7 +239,7 @@
     } else {
       let newTopic;
 
-      newTopic = currentEntry.value.system.topic as ValidTopic;
+      newTopic = currentEntry.value.topic as ValidTopic;
       if (!newTopic) 
         throw new Error('Invalid entry type in ContentTab.watch-currenEntry');
 

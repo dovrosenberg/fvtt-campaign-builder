@@ -8,13 +8,12 @@ import { computed, ref, watch } from 'vue';
 import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
-import { getCleanEntry } from '@/compendia';
 import { CollapsibleNode } from '@/classes';
 
 // types
 import { Topic, ValidTopic, WindowTabType } from '@/types';
 import { WindowTab, } from '@/classes';
-import { EntryDoc, SessionDoc } from '@/documents';
+import { SessionDoc } from '@/documents';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
@@ -28,7 +27,7 @@ export const useMainStore = defineStore('main', () => {
   // internal state
   const _currentTopicJournals = ref<Record<ValidTopic, JournalEntry> | null>(null);  // current journals (by topic)
   const _currentCampaignJournals = ref<JournalEntry[] | null>(null);  // campaign journals for current world
-  const _currentEntry = ref<EntryDoc | null>(null);  // current entry (when showing an entry tab)
+  const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
   const _currentCampaign = ref<JournalEntry | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<SessionDoc  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
@@ -54,7 +53,7 @@ export const useMainStore = defineStore('main', () => {
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
   const currentTopicJournals = computed((): Record<ValidTopic, JournalEntry> | null => _currentTopicJournals?.value || null);
   const currentCampaignJournals = computed((): JournalEntry[] | null => _currentCampaignJournals?.value || null);
-  const currentEntry = computed((): EntryDoc | null => _currentEntry?.value || null);
+  const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
   const currentCampaign = computed((): JournalEntry | null => _currentCampaign?.value || null);
   const currentSession = computed((): SessionDoc | null => _currentSession?.value || null);
   const currentContentType = computed((): WindowTabType | null => _currentTab?.value?.tabType);  
@@ -84,7 +83,7 @@ export const useMainStore = defineStore('main', () => {
     switch (tab.tabType) {
       case WindowTabType.Entry:
         if (tab.header.uuid) {
-          _currentEntry.value = await getCleanEntry(tab.header.uuid);
+          _currentEntry.value = new Entry(tab.header.uuid);
         } else {
           _currentEntry.value = null;
         }
@@ -129,7 +128,7 @@ export const useMainStore = defineStore('main', () => {
     if (!currentEntry.value)
       return Topic.None;
 
-    return currentEntry.value.system.topic || Topic.None;
+    return currentEntry.value.topic || Topic.None;
   });
 
   ///////////////////////////////

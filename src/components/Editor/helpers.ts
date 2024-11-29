@@ -3,7 +3,7 @@
 import { getTopicIcon } from '@/utils/misc';
 
 // types
-import { EntryDoc } from '@/documents';
+import { Entry } from '@/classes';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
 let enricherConfig: {
@@ -68,11 +68,11 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
     name
   };
 
-  let entry: EntryDoc | null = null;
+  let entry: Entry | null = null;
   let broken = false;
   if ( type === 'UUID' ) {
     Object.assign(data.dataset, {link: '', uuid: target});
-    entry = await fromUuid(target, {relative: relativeTo}) as EntryDoc;
+    entry = await Entry.fromUuid(target, {relative: relativeTo});
   }
   else {
     broken = createLegacyContentLink(type, target, name, data);
@@ -85,10 +85,10 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
     if (!worldId)
       return entry.toAnchor({ name: data.name, dataset: { hash } });
 
-    if (entry.documentName && entry.system?.topic) {
+    if (entry.documentName && entry.topic) {
       // check the pack to see if it's cross-world by seeing if the parent journal entry matches the 
       //    main one for the current world
-      const correctPack = WorldFlags.get(worldId, WorldFlagKey.topicEntries)?.[entry.system?.topic];
+      const correctPack = WorldFlags.get(worldId, WorldFlagKey.topicEntries)?.[entry.topic];
 
       // handle the ones we don't care about
       if (correctPack !== entry.parent?.uuid) {
@@ -104,7 +104,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
       } else {  // this is an fwb item for this world
         return entry.toAnchor({ 
           name: data.name, dataset: { hash }, classes: ['fwb-content-link'],   // clicks on this class are handled 
-          icon: `fas ${getTopicIcon(entry.system.topic)}` 
+          icon: `fas ${getTopicIcon(entry.topic)}` 
         });
       }
     } else {

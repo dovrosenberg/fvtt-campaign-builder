@@ -2,8 +2,7 @@
  * A class representing a type grouping node in the topic tree structures (when in group by type mode)
  */
 
-import { CollapsibleNode, DirectoryTypeNode, } from '@/classes';
-import { EntryDoc } from '@/documents';
+import { Entry, CollapsibleNode, DirectoryTypeNode, } from '@/classes';
 import { NO_NAME_STRING } from '@/utils/hierarchy';
 import { WorldFlagKey } from '@/settings/WorldFlags';
 
@@ -19,7 +18,7 @@ export class DirectoryTypeEntryNode extends CollapsibleNode<never> {
   }
 
   // converts the entry to a DirectoryTypeEntryNode for cleaner interface
-  static fromEntry = (entry: EntryDoc, parentTypeNode: DirectoryTypeNode): DirectoryTypeEntryNode => {
+  static fromEntry = (entry: Entry, parentTypeNode: DirectoryTypeNode): DirectoryTypeEntryNode => {
     return new DirectoryTypeEntryNode(
       entry.uuid,
       entry.name || NO_NAME_STRING,

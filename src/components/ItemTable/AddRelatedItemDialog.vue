@@ -79,7 +79,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useRelationshipStore, useEntryStore, } from '@/applications/stores';
+  import { useMainStore, useRelationshipStore, } from '@/applications/stores';
 
   // library components
   import Dialog from 'primevue/dialog';
@@ -94,7 +94,7 @@
 
   // types
   import { Topic, ValidTopic, } from '@/types';
-  import { EntryDoc } from '@/documents';
+  import { Entry } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -113,7 +113,6 @@
   ////////////////////////////////
   // store
   const relationshipStore = useRelationshipStore();
-  const entryStore = useEntryStore();
   const mainStore = useMainStore();
   const { currentEntry, currentEntryTopic } = storeToRefs(mainStore);
 
@@ -121,7 +120,7 @@
   // data
   const loading = ref(false);
   const show = ref(props.modelValue);
-  const entry = ref<EntryDoc | null>(null);  // the selected item from the dropdown
+  const entry = ref<Entry | null>(null);  // the selected item from the dropdown
   const extraFieldValues = ref<Record<string, string>>({});
   const topicDetails = {
     [Topic.Event]: {
@@ -141,8 +140,8 @@
       buttonTitle: 'Add organization',
     },
   } as Record<ValidTopic, { title: string; buttonTitle: string }>;
-  const selectItems = ref<EntryDoc[]>([]);
-  const options = ref<EntryDoc[]>([]);
+  const selectItems = ref<Entry[]>([]);
+  const options = ref<Entry[]>([]);
   const extraFields = ref<{field:string; header:string}[]>([]);
   const nameSelectRef = ref<typeof AutoComplete | null>(null);
 
@@ -212,7 +211,7 @@
       if (!currentEntry.value || !currentEntryTopic.value)
         throw new Error('Trying to show AddRelatedItemDialog without a current entry');
 
-      selectItems.value = await entryStore.getEntriesForTopic(props.topic, true);
+      selectItems.value = await Entry.getEntriesForTopic(props.topic, currentEntry.value);
       extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
 
       // focus on the input
