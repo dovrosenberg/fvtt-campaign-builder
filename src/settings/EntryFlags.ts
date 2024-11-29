@@ -105,9 +105,11 @@ export abstract class EntryFlags {
     }
 
     // set the new one
-    relationships[topic][relatedItem.uuid] = relatedItem;
+    if (relationships ?? relationships[topic]) {
+      relationships[topic][relatedItem.uuid] = relatedItem;
     
-    await EntryFlags.set(entry, EntryFlagKey.relationships, relationships);
+      await EntryFlags.set(entry, EntryFlagKey.relationships, relationships);
+    }
   }
 
   /**
@@ -125,8 +127,11 @@ export abstract class EntryFlags {
       // missing - set to default
       relationships = flagSetup.find((f)=>f.flagId===EntryFlagKey.relationships)?.default as Record<Topic, Record<string, RelatedItem>>;
     }
-    delete relationships[topic][relatedItemId];
 
-    await EntryFlags.set(entry, EntryFlagKey.relationships, relationships);
+    if (relationships ?? relationships[topic]) {
+      delete relationships[topic][relatedItemId];
+
+      await EntryFlags.set(entry, EntryFlagKey.relationships, relationships);
+    }
   }
 }
