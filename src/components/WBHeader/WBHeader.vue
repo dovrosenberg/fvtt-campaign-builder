@@ -191,6 +191,10 @@
     const bookmark = {
       id: globalThis.foundry.utils.randomID(),
       header: tab.header,
+      tabInfo: {
+        tabType: tab.tabType,
+        contentId: tab.contentId,
+      }
     } as Bookmark;
 
     await navigationStore.addBookmark(bookmark);

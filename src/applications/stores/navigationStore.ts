@@ -257,6 +257,9 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
 
   const loadTabs = async function () {
+    if (!currentWorldId.value)
+      return;
+
     tabs.value = UserFlags.get(UserFlagKey.tabs, currentWorldId.value) || [];
     bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, currentWorldId.value) || [];
 
@@ -265,7 +268,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       await openEntry();
     } else {
       // activate the active one
-      await mainStore.setNewTab(getActiveTab(true));
+      await mainStore.setNewTab(getActiveTab(true) as WindoTab);
     }
   }
 

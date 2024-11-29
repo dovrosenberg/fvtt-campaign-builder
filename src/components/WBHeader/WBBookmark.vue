@@ -78,7 +78,7 @@
           label: localize('fwb.contextMenus.bookmarks.openNewTab'), 
           onClick: async () => {
             if (props.bookmark.header.uuid)
-              await navigationStore.openEntry(props.bookmark.header.uuid, { newTab: true });
+              await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: true });
           }
         },
         { 
@@ -96,7 +96,10 @@
   ////////////////////////////////
   // event handlers
   const onBookmarkClick = async () => { 
-    await navigationStore.openEntry(props.bookmark?.header.uuid, { newTab: false });
+    if (!props.bookmark)
+    return;
+
+    await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: false });
   };
 
   // handle a bookmark or tab dragging

@@ -18,6 +18,7 @@ export type WindowTabHistory = {
 
 export type Bookmark = {
   id: string;   // id of the bookmark
+  tabInfo: WindowTabHistory;
   header: TabHeader;
 }
 
