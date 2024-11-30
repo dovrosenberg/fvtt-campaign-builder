@@ -8,6 +8,7 @@ import { cleanTrees } from '@/utils/hierarchy';
 // represents a topic entry (ex. a character, location, etc.)
 export class Entry {
   static worldCompendium: CompendiumCollection<any>;
+  static worldId: string;
   static currentTopicJournals: Record<ValidTopic, JournalEntry>;
 
   private _entryDoc: EntryDoc;
@@ -18,6 +19,10 @@ export class Entry {
    * @param {EntryDoc} entryDoc - The entry Foundry document
    */
   constructor(entryDoc: EntryDoc) {
+    // make sure it's the right kind of document
+    if (entryDoc.type !== DOCUMENT_TYPES.Entry)
+      throw new Error('Invalid document type in Entry constructor');
+
     // clone it to avoid unexpected changes, also drop the proxy
     this._entryDoc = foundry.utils.deepClone(entryDoc);
     this._cumulativeUpdate = {};
@@ -199,21 +204,21 @@ export class Entry {
     // have to unlock the pack
     await Entry.worldCompendium.configure({locked:false});
 
-    const hierarchy = WorldFlags.getHierarchy(Entry.worldCompendium.id, entryId);
+    const hierarchy = WorldFlags.getHierarchy(Entry.worldId, entryId);
 
     if (hierarchy) {
       // delete from any trees
       if (hierarchy?.ancestors || hierarchy?.children) {
-        await cleanTrees(Entry.worldCompendium.id, topic, entryId, hierarchy);
+        await cleanTrees(Entry.worldId, topic, entryId, hierarchy);
       }
     }
 
     // remove from the top nodes
-    const topNodes = WorldFlags.getTopicFlag(Entry.worldCompendium.id, WorldFlagKey.topNodes, topic);
-    await WorldFlags.setTopicFlag(Entry.worldCompendium.id, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entryId));
+    const topNodes = WorldFlags.getTopicFlag(Entry.worldId, WorldFlagKey.topNodes, topic);
+    await WorldFlags.setTopicFlag(Entry.worldId, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entryId));
 
     // remove from the expanded list
-    await WorldFlags.unset(Entry.worldCompendium.id, WorkflagKey.expandedIds, entryId);
+    await WorldFlags.unset(Entry.worldId, WorkflagKey.expandedIds, entryId);
 
     await entryDoc.delete();
 

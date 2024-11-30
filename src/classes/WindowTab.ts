@@ -111,6 +111,11 @@ export class WindowTab {
    * @param tabType - The type of the new entry.
    */
   public addToHistory(contentId: string, tabType: WindowTabType) {
+    // if the history is empty other than a 'new tab', clear that out first
+    if (this.history.length===1 && this.history[0].tabType===WindowTabType.NewTab) {
+      this.history = [];
+    }
+    
     this.history.push({
       contentId: contentId,
       tabType: tabType

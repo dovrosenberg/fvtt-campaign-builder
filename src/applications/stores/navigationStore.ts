@@ -109,6 +109,9 @@ export const useNavigationStore = defineStore('navigation', () => {
     let icon = '';
     let badId = false;
 
+    if (!contentId) 
+      contentType = WindowTabType.NewTab;
+
     switch (contentType) {
       case WindowTabType.Entry: {
         const entry = contentId ? await Entry.fromUuid(contentId) : null;
@@ -173,9 +176,8 @@ export const useNavigationStore = defineStore('navigation', () => {
 
       // otherwise, just swap out the active tab info
       tab.header = headerData;
-      tab.tabType = contentType;
 
-      // add to history 
+      // add to history
       if (headerData.uuid && options.updateHistory) {
         tab.addToHistory(contentId, contentType);
       }

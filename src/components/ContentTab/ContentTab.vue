@@ -12,8 +12,11 @@
     <div v-else-if="currentContentType===WindowTabType.Campaign">
       <CampaignContent />
     </div>
-    <div v-else>
+    <div v-else-if="currentContentType===WindowTabType.NewTab">
       <HomePage />
+    </div>
+    <div v-else>
+      Error! Unknown content type
     </div>
   </div>
 </template>

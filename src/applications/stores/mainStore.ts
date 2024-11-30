@@ -171,7 +171,9 @@ export const useMainStore = defineStore('main', () => {
     CollapsibleNode.currentTopicJournals = topicJournals;
     Entry.currentTopicJournals = topicJournals;
     Entry.worldCompendium = currentWorldCompendium.value;
+    Entry.worldId = currentWorldId.value;
     Campaign.worldCompendium = currentWorldCompendium.value;
+    Campaign.worldId = currentWorldId.value;
 
     _currentTopicJournals.value = topicJournals as Record<ValidTopic, JournalEntry>;
 

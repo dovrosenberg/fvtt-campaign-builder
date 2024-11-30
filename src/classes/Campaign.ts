@@ -1,13 +1,12 @@
 import { toRaw } from 'vue';
-
-import { EntryDoc, } from '@/documents';
-import { ValidTopic } from '@/types';
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { cleanTrees } from '@/utils/hierarchy';
+import { id as moduleId } from '@module';
+import { inputDialog } from '@/dialogs/input';
+import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags'; 
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
   static worldCompendium: CompendiumCollection<any>;
+  static worldId: string;
 
   private _campaignDoc: JournalEntry;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
@@ -17,6 +16,10 @@ export class Campaign {
    * @param {JournalEntry} campaignDoc - The entry Foundry document
    */
   constructor(campaignDoc: JournalEntry) {
+    // make sure it's the right kind of document
+    if (campaignDoc.documentName !== 'JournalEntry' || !campaignDoc.getFlag(moduleId, 'isCampaign'))
+      throw new Error('Invalid document type in Campaign constructor');
+
     // clone it to avoid unexpected changes, also drop the proxy
     this._campaignDoc = foundry.utils.deepClone(campaignDoc);
     this._cumulativeUpdate = {};
@@ -54,8 +57,11 @@ export class Campaign {
         const campaign = await JournalEntry.create({
           name: name,
         },{
-          pack: Campaign.worldCompendium.uuid,
+          pack: Campaign.worldCompendium.metadata.id,
         });  
+
+        if (campaign)
+          await campaign.setFlag(moduleId, 'isCampaign', 'true');
 
         // unlock compendium to make the change
         await Campaign.worldCompendium.configure({locked:true});
@@ -64,9 +70,9 @@ export class Campaign {
           throw new Error('Couldn\'t create new campaign');
 
         // update the list of campaigns
-        const campaigns = WorldFlags.get(worldId, WorldFlagKey.campaignEntries);
+        const campaigns = WorldFlags.get(Campaign.worldId, WorldFlagKey.campaignEntries);
         campaigns[campaign.uuid] = name;
-        await WorldFlags.set(worldId, WorldFlagKey.campaignEntries, campaigns);
+        await WorldFlags.set(Campaign.worldId, WorldFlagKey.campaignEntries, campaigns);
         
         return campaign;
       }
@@ -129,20 +135,31 @@ export class Campaign {
     return retval ? this : null;
   }
 
+  /**
+   * Deletes a campaign from the database, along with all the related sessions
+   * 
+   * @param {string} campaignId The id of the campaign to delete
+   * 
+   * @returns {Promise<void>}
+   */
   public static async deleteCampaign(campaignId: string) {
     if (!Campaign.worldCompendium)
+      return;
+
+    const campaignDoc = await fromUuid(campaignId) as EntryDoc;
+    if (!campaignDoc)
       return;
 
     // have to unlock the pack
     await Campaign.worldCompendium.configure({locked:false});
 
-    await Campaign.worldCompendium.deleteDocument(campaignId);
+    await campaignDoc.delete();
 
     await Campaign.worldCompendium.configure({locked:true});
 
     // update the flags
-    await WorldFlags.unset(Campaign.worldCompendium.uuid, WorldFlagKey.campaignEntries, campaignId);
-    await WorldFlags.unset(Campaign.worldCompendium.uuid, WorldFlagKey.expandedCampaignIds, campaignId);
+    await WorldFlags.unset(Campaign.worldId, WorldFlagKey.campaignEntries, campaignId);
+    await WorldFlags.unset(Campaign.worldId, WorldFlagKey.expandedCampaignIds, campaignId);
   }
  
 }
