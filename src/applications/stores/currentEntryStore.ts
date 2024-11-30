@@ -95,7 +95,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
 
     const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entryId);
 
-    Entry.deleteEntry(currentWorldId.value, topic, entryId);
+    Entry.deleteEntry(topic, entryId);
 
     // update tabs
     await navigationStore.cleanupDeletedEntry(entryId);

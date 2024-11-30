@@ -33,7 +33,6 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
-  import { createCampaign } from '@/compendia';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -42,6 +41,7 @@
   import CampaignDirectoryCampaignNode from './CampaignDirectoryCampaignNode.vue';
   
   // types
+  import { Campaign } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -85,7 +85,7 @@
           label: localize('fwb.contextMenus.campaignsHeader.createCampaign'), 
           onClick: async () => {
             if (currentWorldId.value) {
-              await createCampaign(currentWorldId.value);
+              await Campaign.create();
               campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }

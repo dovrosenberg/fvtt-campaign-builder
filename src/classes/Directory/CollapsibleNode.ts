@@ -17,7 +17,6 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
     [Topic.Location]: null,
     [Topic.Organization]: null
   };   
-  protected static _currentCampaignJournals: JournalEntry[] = [];   
   protected static _currentWorldId: string | null = null;
   protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode>;   // maps uuid to the node for easy lookup
 
@@ -48,10 +47,6 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
 
   public static set currentTopicJournals(journals: Record<ValidTopic, JournalEntry>) {
     CollapsibleNode._currentTopicJournals = journals;
-  }
-
-  public static set currentCampaignJournals(journals: JournalEntry[]) {
-    CollapsibleNode._currentCampaignJournals = journals;
   }
 
   /**

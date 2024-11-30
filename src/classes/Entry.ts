@@ -62,14 +62,10 @@ export class Entry {
   }
 
   get uuid(): string {
-    if (!this._entryDoc || !this._entryDoc.system)
-      debugger;
     return this._entryDoc.uuid;
   }
 
   get name(): string {
-    if (!this._entryDoc || !this._entryDoc.system)
-      debugger;
     return this._entryDoc.name;
   }
 
@@ -82,8 +78,6 @@ export class Entry {
   }
 
   get topic(): ValidTopic | undefined {
-    if (!this._entryDoc || !this._entryDoc.system)
-      debugger;
     return this._entryDoc.system.topic;
   }
 
@@ -99,8 +93,6 @@ export class Entry {
   }
 
   get type(): string {
-    if (!this._entryDoc)
-      throw new Error('Entry has no doc');
     return this._entryDoc.system.type || '';
   }
 
@@ -147,7 +139,7 @@ export class Entry {
   }
 
   /**
-   * Updates an entry 
+   * Updates an entry in the database
    * 
    * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
    */
@@ -194,31 +186,34 @@ export class Entry {
       return [];
     
     return  Entry.currentTopicJournals[topic].collections.pages.contents
-      .filter((e: EntryDoc)=> filterFn(new Entry(e)))
-      .map((e: EntryDoc) => new Entry(e));
+      .map((e: EntryDoc)=> new Entry(e))
+      .filter((e: Entry)=> filterFn(e));
   }
 
-  public static async deleteEntry(worldId: string, topic: ValidTopic, entryId: string) {
+  public static async deleteEntry(topic: ValidTopic, entryId: string) {
     const entryDoc = await fromUuid(entryId) as EntryDoc;
 
-    if (!entryDoc || !worldId)
+    if (!entryDoc || !Entry.worldCompendium)
       return;
 
     // have to unlock the pack
     await Entry.worldCompendium.configure({locked:false});
 
-    const hierarchy = WorldFlags.getHierarchy(worldId, entryId);
+    const hierarchy = WorldFlags.getHierarchy(Entry.worldCompendium.id, entryId);
 
     if (hierarchy) {
       // delete from any trees
       if (hierarchy?.ancestors || hierarchy?.children) {
-        await cleanTrees(worldId, topic, entryId, hierarchy);
+        await cleanTrees(Entry.worldCompendium.id, topic, entryId, hierarchy);
       }
     }
 
     // remove from the top nodes
-    const topNodes = WorldFlags.getTopicFlag(worldId, WorldFlagKey.topNodes, topic);
-    await WorldFlags.setTopicFlag(worldId, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entryId));
+    const topNodes = WorldFlags.getTopicFlag(Entry.worldCompendium.id, WorldFlagKey.topNodes, topic);
+    await WorldFlags.setTopicFlag(Entry.worldCompendium.id, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entryId));
+
+    // remove from the expanded list
+    await WorldFlags.unset(Entry.worldCompendium.id, WorkflagKey.expandedIds, entryId);
 
     await entryDoc.delete();
 

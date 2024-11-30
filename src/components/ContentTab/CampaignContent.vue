@@ -28,14 +28,14 @@
       </nav>
       <div class="fwb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
-          <div class="tab-inner flexcol">
+          <!-- <div class="tab-inner flexcol">
             <Editor 
               :document="editorDocument.raw"
               :has-button="true"
               target="content-description"
               @editor-saved="onDescriptionEditorSaved"
             />
-          </div>
+          </div> -->
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner flexcol">
@@ -156,25 +156,9 @@
         tabs.value.bind(contentRef.value);
       }
 
-      // set the parent and valid parents
-      if (!currentEntry.value.uuid) {
-        parentId.value = null;
-        validParents.value = [];
-      } else {
-        if (currentWorldId.value && currentTopicJournals.value  && currentTopicJournals.value[newTopic]) {
-          parentId.value = WorldFlags.getHierarchy(currentWorldId.value, currentEntry.value.uuid)?.parentId || null;
-      
-          // TODO - need to refresh this somehow if things are moved around in the directory
-          validParents.value = validParentItems(currentWorldId.value, newTopic, currentEntry.value).map((e)=> ({
-            id: e.id,
-            label: e.name || '',
-          }));
-        }
-      }
-  
       // reattach the editor to the new entry
-      editorDocument.value = currentEntry.value;
-    }
+      // editorDocument.value = currentEntry.value;
+    }  
   });
 
   ////////////////////////////////

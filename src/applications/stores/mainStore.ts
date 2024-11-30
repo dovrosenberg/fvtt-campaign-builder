@@ -12,7 +12,7 @@ import { CollapsibleNode } from '@/classes';
 
 // types
 import { Topic, ValidTopic, WindowTabType } from '@/types';
-import { WindowTab, Entry } from '@/classes';
+import { WindowTab, Entry, Campaign } from '@/classes';
 import { SessionDoc } from '@/documents';
 
 // the store definition
@@ -26,9 +26,8 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // internal state
   const _currentTopicJournals = ref<Record<ValidTopic, JournalEntry> | null>(null);  // current journals (by topic)
-  const _currentCampaignJournals = ref<JournalEntry[] | null>(null);  // campaign journals for current world
   const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
-  const _currentCampaign = ref<JournalEntry | null>(null);  // current campaign (when showing a campaign tab)
+  const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<SessionDoc  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
 
@@ -52,9 +51,8 @@ export const useMainStore = defineStore('main', () => {
 
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
   const currentTopicJournals = computed((): Record<ValidTopic, JournalEntry> | null => _currentTopicJournals?.value || null);
-  const currentCampaignJournals = computed((): JournalEntry[] | null => _currentCampaignJournals?.value || null);
   const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
-  const currentCampaign = computed((): JournalEntry | null => _currentCampaign?.value || null);
+  const currentCampaign = computed((): Campaign | null => _currentCampaign?.value || null);
   const currentSession = computed((): SessionDoc | null => _currentSession?.value || null);
   const currentContentType = computed((): WindowTabType | null => _currentTab?.value?.tabType);  
 
@@ -71,7 +69,7 @@ export const useMainStore = defineStore('main', () => {
     if (!folder)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');
 
-    // this will also trigger the _currentTopicJournals/_currentCampaignJournals to be updated
+    // this will also trigger the _currentTopicJournals to be updated
     currentWorldFolder.value = folder;
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
@@ -91,7 +89,7 @@ export const useMainStore = defineStore('main', () => {
         _currentSession.value = null;
         break;
       case WindowTabType.Campaign:
-        _currentCampaign.value = _currentCampaignJournals.value?.find((c)=>(c.uuid===tab.header.uuid)) || null;
+        _currentCampaign.value = await Campaign.fromUuid(tab.header.uuid);
         _currentEntry.value = null;
         _currentSession.value = null;
         break;
@@ -169,14 +167,13 @@ export const useMainStore = defineStore('main', () => {
         campaignJournals.push(j);
     }
 
-    // have to do this first because of watchers that trigger when we set _currentTopicJournals and _currentCampaignJournals
+    // have to do this first because of watchers that trigger when we set _currentTopicJournals 
     CollapsibleNode.currentTopicJournals = topicJournals;
-    CollapsibleNode.currentCampaignJournals = campaignJournals;
     Entry.currentTopicJournals = topicJournals;
     Entry.worldCompendium = currentWorldCompendium.value;
+    Campaign.worldCompendium = currentWorldCompendium.value;
 
     _currentTopicJournals.value = topicJournals as Record<ValidTopic, JournalEntry>;
-    _currentCampaignJournals.value = campaignJournals;
 
     CollapsibleNode.currentWorldId = newValue.uuid;
   });
@@ -192,7 +189,6 @@ export const useMainStore = defineStore('main', () => {
     currentWorldFolder,
     currentEntryTopic,
     currentTopicJournals,
-    currentCampaignJournals,
     currentEntry,
     currentCampaign,
     currentSession,

@@ -7,7 +7,7 @@ import { reactive, watch, } from 'vue';
 // local imports
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { useMainStore } from '@/applications/stores';
-import { DirectoryCampaignNode } from '@/classes';
+import { DirectoryCampaignNode, Campaign } from '@/classes';
 
 // types
 
@@ -88,6 +88,10 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     }
   };
 
+  const deleteCampaign = async(campaignId: string): Promise<void> => {
+    await Campaign.deleteCampaign(campaignId);
+  }
+
   ///////////////////////////////
   // computed state
 
@@ -128,5 +132,6 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     collapseAll,
     toggleWithLoad,
     refreshCampaignDirectoryTree,
+    deleteCampaign
   };
 });

@@ -13,7 +13,7 @@ import { useMainStore } from './mainStore';
 
 // types
 import { Bookmark, TabHeader, WindowTabType } from '@/types';
-import { WindowTab, Entry } from '@/classes';
+import { WindowTab, Entry, Campaign } from '@/classes';
 
 
 // the store definition
@@ -24,7 +24,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorldId, currentCampaignJournals, } = storeToRefs(mainStore);
+  const { currentWorldId, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -120,7 +120,7 @@ export const useNavigationStore = defineStore('navigation', () => {
         }
       }; break;
       case WindowTabType.Campaign: {
-        const campaign = currentCampaignJournals?.value.find((j)=>j.uuid===contentId) || null; 
+        const campaign = contentId ? await Campaign.fromUuid(contentId) : null; 
 
         if (!campaign) {
           badId = true;

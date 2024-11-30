@@ -426,10 +426,6 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   
   // when the current journal set is updated, refresh the tree
   watch(currentTopicJournals, async (newJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
-    if (!newJournals) {
-      return;
-    }
-
     await refreshTopicDirectoryTree();
   });
   

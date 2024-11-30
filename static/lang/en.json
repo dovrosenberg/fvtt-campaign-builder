@@ -26,7 +26,8 @@
         "locationChildren": "Child locations",
         "organizations": "Organizations",
         "organizationChildren": "Sub-organizations",
-        "scenes": "Scenes"
+        "scenes": "Scenes",
+        "pcs": "PCs"
       },
       "noResults": "Nothing here",
       "loading": "Loading"

@@ -367,7 +367,7 @@
         padding-bottom: 5px;
         border-bottom: 2px groove var(--fwb-sheet-tab-bottom-border);
         font-family: var(--fwb-font-family);
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 700;
 
         &.tabs {

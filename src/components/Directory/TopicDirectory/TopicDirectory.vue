@@ -66,8 +66,7 @@
   import { getGame, localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore, useCampaignDirectoryStore } from '@/applications/stores';
-  import { createCampaign } from '@/compendia';
-
+  
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
 
@@ -77,7 +76,7 @@
   
   // types
   import { Topic, WindowTabType } from '@/types';
-  import { DirectoryTopicNode, } from '@/classes';
+  import { DirectoryTopicNode, Campaign } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -144,7 +143,7 @@
           label: localize('fwb.contextMenus.worldFolder.createCampaign'), 
           onClick: async () => {
             if (worldId) {
-              await createCampaign(worldId);
+              await Campaign.create();
               campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
