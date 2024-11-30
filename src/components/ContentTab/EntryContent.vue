@@ -58,7 +58,7 @@
         <div class="tab description flexcol" data-group="primary" data-tab="description">
           <div class="tab-inner flexcol">
             <Editor 
-              :initialContent="rawDocument?.text?.content || ''"
+              :initialContent="currentEntry?.description || ''"
               :has-button="true"
               target="content-description"
               @editor-saved="onDescriptionEditorSaved"
@@ -229,7 +229,7 @@
     if (!currentEntry.value)
       return;
 
-    currentEntry.value.setProperty('text.content', newContent);
+    currentEntry.value.description = newContent;
     await currentEntry.value.save();
 
     //need to reset

@@ -133,7 +133,7 @@
     if (!currentEntry.value)
       return;
 
-    currentEntry.value.setProperty('text.content', newContent);
+    currentEntry.value.description = newContent;
     await currentEntry.value.save();
 
     //need to reset

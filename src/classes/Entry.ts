@@ -1,5 +1,7 @@
 import { toRaw } from 'vue';
 
+import { id as moduleId } from '@module';
+
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
@@ -112,6 +114,20 @@ export class Entry {
     }
   }
 
+  get description(): string {
+    return this._entryDoc.text?.content || '';
+  }
+
+  set description(value: string) {
+    this._entryDoc.text.content = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      text: {
+        content: value,
+      }
+    }
+  }
+
   // get direct access to the document (ex. to hook to foundry's editor)
   get raw(): EntryDoc {
     return this._entryDoc;
@@ -156,7 +172,7 @@ export class Entry {
 
     let oldRelationships;
     
-    if (this._cumulativeUpdate.system.relationships) {
+    if (updateData.system?.relationships) {
       // do the serialization of the relationships field
       oldRelationships = updateData.system.relationships;
 
@@ -164,11 +180,12 @@ export class Entry {
     }
 
     const retval = await toRaw(this._entryDoc).update(updateData) || null;
-    if (retval)
+    if (retval) {
       this._entryDoc = retval;
+    }
 
     // swap back
-    if (updateData?.system?.relationships) {
+    if (updateData.system?.relationships) {
       this._entryDoc.system.relationships = oldRelationships;
     }
 
