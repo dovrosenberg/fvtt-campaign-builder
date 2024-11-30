@@ -174,6 +174,15 @@ export class Entry {
     return retval ? this : null;
   }
 
+  public static filter(topic: ValidTopic, filterFn: (e: Entry) => boolean): Entry[] { 
+    if (!Entry.currentTopicJournals || !Entry.currentTopicJournals[topic])
+      return [];
+    
+    return  Entry.currentTopicJournals[topic].collections.pages.contents
+      .filter((e: EntryDoc)=> filterFn(new Entry(e)));
+
+  }
+
   public static async deleteEntry(worldId: string, topic: ValidTopic, entryId: string) {
     const entryDoc = await fromUuid(entryId) as EntryDoc;
 
@@ -218,7 +227,7 @@ export class Entry {
         return [];
   
       // we find all journal entries with this topic
-      let journalEntries = await Entry.currentTopicJournals[topic].collections.pages.contents as EntryDoc[];
+      let journalEntries = await Entry.filter(topic, ()=>true);
   
       // filter unique ones if needed
       if (notRelatedTo) {

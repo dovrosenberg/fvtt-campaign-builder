@@ -36,6 +36,6 @@
 			"@module": ["./static/module.json"]
 		}
 	},
-	"include": ["tests/**/*.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", ], 
+	"include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", ], 
 	"exclude": [ "node_modules", "dist" ]
 }

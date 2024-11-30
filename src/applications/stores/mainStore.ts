@@ -172,6 +172,8 @@ export const useMainStore = defineStore('main', () => {
     // have to do this first because of watchers that trigger when we set _currentTopicJournals and _currentCampaignJournals
     CollapsibleNode.currentTopicJournals = topicJournals;
     CollapsibleNode.currentCampaignJournals = campaignJournals;
+    Entry.currentTopicJournals = topicJournals;
+    Entry.worldCompendium = currentWorldCompendium.value;
 
     _currentTopicJournals.value = topicJournals as Record<ValidTopic, JournalEntry>;
     _currentCampaignJournals.value = campaignJournals;

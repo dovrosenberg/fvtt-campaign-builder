@@ -379,11 +379,9 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
-      const journal = currentTopicJournals.value[topics[i]];
-
       // filter on name and type
-      let matchedEntries = journal.collections.pages.filter((e: EntryDoc)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )))
-        .map((e: EntryDoc): string=>e.uuid) as string[];
+      let matchedEntries = Entry.filter(topics[i], (e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )))
+        .map((e: Entry): string=>e.uuid) as string[];
   
       // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding
       for (let j=matchedEntries.length-1; j>=0; j--) {

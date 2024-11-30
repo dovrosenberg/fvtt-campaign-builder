@@ -265,7 +265,7 @@
           parentId.value = WorldFlags.getHierarchy(currentWorldId.value, currentEntry.value.uuid)?.parentId || null;
       
           // TODO - need to refresh this somehow if things are moved around in the directory
-          validParents.value = validParentItems(currentWorldId.value, currentTopicJournals.value[newTopic], currentEntry.value).map((e)=> ({
+          validParents.value = validParentItems(currentWorldId.value, newTopic, currentEntry.value).map((e)=> ({
             id: e.id,
             label: e.name || '',
           }));
