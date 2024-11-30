@@ -268,7 +268,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       await openEntry();
     } else {
       // activate the active one
-      await mainStore.setNewTab(getActiveTab(true) as WindoTab);
+      await mainStore.setNewTab(getActiveTab(true) as WindowTab);
     }
   }
 

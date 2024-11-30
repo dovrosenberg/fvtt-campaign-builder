@@ -12,7 +12,7 @@ import {
   RelatedItemDetails, FieldDataByTopic,
   TablePagination,
 } from '@/types';
-import { reactive, Ref, toRaw, watch } from 'vue';
+import { reactive, Ref, watch } from 'vue';
 import { ref } from 'vue';
 import { Entry } from '@/classes';
 
@@ -71,7 +71,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   // other stores
   const mainStore = useMainStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentEntry, currentWorldCompendium, } = storeToRefs(mainStore);
+  const { currentEntry, } = storeToRefs(mainStore);
   const { currentTopicTab } = storeToRefs(currentEntryStore);
 
   ///////////////////////////////
@@ -195,6 +195,8 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
     const entry = currentEntry.value;
     const relatedEntry = await Entry.fromUuid(relatedItemId); 
+    if (!relatedEntry)
+      throw new Error('Invalid entry in relationshipStore.deleteRelationship()');
 
     const entryTopic = entry.topic;
     const relatedEntryTopic = relatedEntry.topic;

@@ -27,7 +27,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   const directoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
-  const { currentWorldId, currentWorldCompendium, } = storeToRefs(mainStore);
+  const { currentWorldId, } = storeToRefs(mainStore);
   
   ///////////////////////////////
   // internal state
@@ -53,7 +53,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
       return null;
 
     // create the entry
-    const entry = await Entry.create(nameToUse, topic, options.type);
+    const entry = await Entry.create(nameToUse, topic, options.type || '');
 
     if (entry) {
       const uuid = entry.uuid;

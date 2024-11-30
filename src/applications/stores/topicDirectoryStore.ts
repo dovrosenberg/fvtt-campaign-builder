@@ -120,7 +120,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
   // expand/contract  the given entry, loading the new item data
   // return the new node
-  const toggleWithLoad = async(node: DirectoryEntryNode | DirectoryTypeNode, expanded: boolean) : Promise<DirectoryEntryNode>=> {
+  const toggleWithLoad = async<T extends DirectoryEntryNode | DirectoryTypeNode>(node: T, expanded: boolean) : Promise<T>=> {
     return await node.toggleWithLoad(expanded);
   };
 
@@ -161,6 +161,11 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     // get the parent, if any, and create the nodes for simpler syntax 
     const parent = parentId ? await Entry.fromUuid(parentId): null;
+
+    if (!parent)
+      return false;
+
+
     const parentNode = parent ? DirectoryEntryNode.fromEntry(parent) : null;
     const childNode =  DirectoryEntryNode.fromEntry(child);
     const oldParentId = childNode.parentId;
@@ -180,10 +185,13 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     // if the child already has a parent, remove it from that parent's children
     if (childNode.parentId) {
       const oldParent = await Entry.fromUuid(childNode.parentId);
-      const oldParentNode = oldParent ? DirectoryEntryNode.fromEntry(oldParent) : null;
-      if (oldParentNode) {
-        oldParentNode.children = oldParentNode.children.filter((c)=>c!==childId);
-        await saveHierarchyToEntryFromNode(oldParent, oldParentNode);
+
+      if (oldParent) {
+        const oldParentNode = oldParent ? DirectoryEntryNode.fromEntry(oldParent) : null;
+        if (oldParentNode) {
+          oldParentNode.children = oldParentNode.children.filter((c)=>c!==childId);
+          await saveHierarchyToEntryFromNode(oldParent, oldParentNode);
+        }
       }
     }
 
@@ -222,6 +230,10 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         // this seems safe, despite 
         for (let i=0; i<children?.length; i++) {
           const child = await Entry.fromUuid(children[i]);
+
+          if (!child)
+            continue;
+
           const childNode = DirectoryEntryNode.fromEntry(child);
           childNode.ancestors = childNode.ancestors.filter(a => !ancestorsToRemove.includes(a));
           childNode.ancestors = childNode.ancestors.concat(ancestorsToAdd);
