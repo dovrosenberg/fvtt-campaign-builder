@@ -2,7 +2,7 @@
   <form 
     :class="'flexcol fwb-journal-subsheet'" 
   >
-  <div class="sheet-container detailed flexcol">
+  <div ref="contentRef" class="sheet-container detailed flexcol">
       <header class="journal-sheet-header flexrow">
         <div class="sheet-image">
           <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
@@ -149,13 +149,6 @@
       // load starting data values
       name.value = currentCampaign.value.name || '';
 
-      // bind the tabs (because they don't show on the homepage)
-      if (tabs.value && contentRef.value) {
-        // have to wait until they render
-        await nextTick();
-        tabs.value.bind(contentRef.value);
-      }
-
       // reattach the editor to the new entry
       // editorDocument.value = currentEntry.value;
     }  
@@ -163,13 +156,17 @@
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(() => {
+  onMounted(async () => {
     tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
 
     // update the store when tab changes
     tabs.value.callback = () => {
       currentTopicTab.value = tabs.value?.active || null;
     };
+
+    // have to wait until they render
+    await nextTick();
+    tabs.value.bind(contentRef.value);
   });
 
 

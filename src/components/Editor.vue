@@ -65,8 +65,8 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    document: {
-      type: Object as PropType<Document<any> | undefined>,
+    initialContent: {
+      type: String,
       required: false,
       default: undefined,
     }, 
@@ -120,7 +120,6 @@
   ////////////////////////////////
   // data
   const editorId = ref<string>();
-  const initialContent = ref<string>('');
   const enrichedInitialContent = ref<string>('');
   const editor = ref<globalThis.TextEditor | null>(null);
   const buttonDisplay = ref<string>('');   // is button currently visible
@@ -152,7 +151,7 @@
   // this creates the Editor class that converts the div into a 
   //    functional editor
   const activateEditor = async (): Promise<void> => {
-    if (!props.document || !coreEditorRef.value)
+    if (!coreEditorRef.value)
       return;
 
     const fitToSize = false;
@@ -169,7 +168,7 @@
 
     // Get initial content
     const options = {
-      document: props.document,
+      // document: props.document,
       target: coreEditorRef.value,
       fieldName: props.target,
       height, 
@@ -186,7 +185,7 @@
     
     buttonDisplay.value = 'none';
     
-    editor.value = await globalThis.TextEditor.create(options, initialContent.value);
+    editor.value = await globalThis.TextEditor.create(options, props.initialContent);
    
     options.target.closest('.editor')?.classList.add(props.engine);
 
@@ -239,7 +238,6 @@
       editorVisible.value = true;
     }
     
-    initialContent.value = content;
     emit('editorSaved', content);
   };
 
@@ -249,16 +247,11 @@
 
   ////////////////////////////////
   // watchers
-  watch(initialContent, async () =>{
-    enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, initialContent.value || '');
+  watch(() => props.initialContent, async () =>{
+    enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, props.initialContent || '');
   });
 
-  watch(()=> props.document, async () =>{
-    if (props.document) {
-      initialContent.value = props.document.text.content;
-    }
-  });
-
+  
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
@@ -272,7 +265,7 @@
     editor.value = null;
 
     // show the pretty text
-    enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, initialContent.value || '');
+    enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, props.initialContent || '');
 
     if (!props.hasButton) {
       void activateEditor();
