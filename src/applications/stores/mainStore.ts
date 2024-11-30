@@ -12,7 +12,7 @@ import { CollapsibleNode } from '@/classes';
 
 // types
 import { Topic, ValidTopic, WindowTabType } from '@/types';
-import { WindowTab, } from '@/classes';
+import { WindowTab, Entry } from '@/classes';
 import { SessionDoc } from '@/documents';
 
 // the store definition
@@ -83,7 +83,7 @@ export const useMainStore = defineStore('main', () => {
     switch (tab.tabType) {
       case WindowTabType.Entry:
         if (tab.header.uuid) {
-          _currentEntry.value = new Entry(tab.header.uuid);
+          _currentEntry.value = await Entry.fromUuid(tab.header.uuid);
         } else {
           _currentEntry.value = null;
         }

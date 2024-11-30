@@ -31,7 +31,7 @@ export function validChildItems(currentWorldId: string, topic: ValidTopic, entry
 
   // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
   // TODO: need to change find to forEach to populate an array
-  return Entry.filter(topic, (e: Entry)=>(e.uuid !== entry.uuid && !ancestors.includes(entry.uuid)))?
+  return Entry.filter(topic, (e: Entry)=>(e.uuid !== entry.uuid && !ancestors.includes(entry.uuid)))
     .map(mapEntryToSummary) || [];
 }
 

@@ -26,7 +26,7 @@ export abstract class UserFlags {
       return null;
 
     if (flag === UserFlagKey.tabs) {
-      return (getGame().user?.getFlag(moduleJson.id, flag + worldId) || []).map((t: any) => new WindowTab(
+      return (getGame().user?.getFlag(moduleJson.id, `${flag}.${worldId}`) || []).map((t: any) => new WindowTab(
         t.active, 
         t.header,
         null,
@@ -36,7 +36,7 @@ export abstract class UserFlags {
         t.historyIdx
       )) as unknown as UserFlagType<T>;
     } else {
-      return (getGame().user?.getFlag(moduleJson.id, flag + worldId) || []) as UserFlagType<T>;
+      return (getGame().user?.getFlag(moduleJson.id, `${flag}.${worldId}`) || []) as UserFlagType<T>;
     }
   }
 
@@ -45,6 +45,6 @@ export abstract class UserFlags {
     if (!getGame().user)
       return;
 
-    await getGame().user?.setFlag(moduleJson.id, flag + worldId, value);
+    await getGame().user?.setFlag(moduleJson.id, `${flag}.${worldId}`, value);
   }
 }

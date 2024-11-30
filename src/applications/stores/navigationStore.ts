@@ -13,7 +13,7 @@ import { useMainStore } from './mainStore';
 
 // types
 import { Bookmark, TabHeader, WindowTabType } from '@/types';
-import { WindowTab, } from '@/classes';
+import { WindowTab, Entry } from '@/classes';
 
 
 // the store definition

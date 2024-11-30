@@ -1,3 +1,5 @@
+import { toRaw } from 'vue';
+
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
@@ -8,16 +10,17 @@ export class Entry {
   static worldCompendium: CompendiumCollection<any>;
   static currentTopicJournals: Record<ValidTopic, JournalEntry>;
 
-  #entryDoc: EntryDoc;
-  #cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
+  private _entryDoc: EntryDoc;
+  private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
 
   /**
    * 
    * @param {EntryDoc} entryDoc - The entry Foundry document
    */
   constructor(entryDoc: EntryDoc) {
-    // clone it to avoid unexpected changes
-    this.#entryDoc = foundry.utils.deepClone(entryDoc);
+    // clone it to avoid unexpected changes, also drop the proxy
+    this._entryDoc = foundry.utils.deepClone(entryDoc);
+    this._cumulativeUpdate = {};
   }
 
   static async fromUuid(entryId: string, options?: Record<string, any>): Promise<Entry | null> {
@@ -59,46 +62,54 @@ export class Entry {
   }
 
   get uuid(): string {
-    return this.#entryDoc.uuid;
+    if (!this._entryDoc || !this._entryDoc.system)
+      debugger;
+    return this._entryDoc.uuid;
   }
 
   get name(): string {
-    return this.#entryDoc.name;
+    if (!this._entryDoc || !this._entryDoc.system)
+      debugger;
+    return this._entryDoc.name;
   }
 
   set name(value: string) {
-    this.#entryDoc.name = value;
-    this.#cumulativeUpdate = {
-      ...this.#cumulativeUpdate,
+    this._entryDoc.name = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
       name: value,
     };
   }
 
   get topic(): ValidTopic | undefined {
-    return this.#entryDoc.system.topic;
+    if (!this._entryDoc || !this._entryDoc.system)
+      debugger;
+    return this._entryDoc.system.topic;
   }
 
   set topic(value: ValidTopic) {
-    this.#entryDoc.system.topic = value;
-    this.#cumulativeUpdate = {
-      ...this.#cumulativeUpdate,
+    this._entryDoc.system.topic = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
       system: {
-        ...this.#cumulativeUpdate.system,
+        ...this._cumulativeUpdate.system,
         topic: value,
       }
     };
   }
 
   get type(): string {
-    return this.#entryDoc.system.type || '';
+    if (!this._entryDoc)
+      throw new Error('Entry has no doc');
+    return this._entryDoc.system.type || '';
   }
 
   set type(value: string) {
-    this.#entryDoc.system.type = value;
-    this.#cumulativeUpdate = {
-      ...this.#cumulativeUpdate,
+    this._entryDoc.system.type = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
       system: {
-        ...this.#cumulativeUpdate.system,
+        ...this._cumulativeUpdate.system,
         type: value,
       }
     }
@@ -106,20 +117,20 @@ export class Entry {
 
   // get direct access to the document (ex. to hook to foundry's editor)
   get raw(): EntryDoc {
-    return this.#entryDoc;
+    return this._entryDoc;
   }
 
   // keyed by topic then by entryId
   get relationships(): Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> | undefined {
-    return this.#entryDoc.system.relationships;
+    return this._entryDoc.system.relationships;
   }  
 
   set relationships(value: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> | undefined) {
-    this.#entryDoc.system.relationships = value;
-    this.#cumulativeUpdate = {
-      ...this.#cumulativeUpdate,
+    this._entryDoc.system.relationships = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
       system: {
-        ...this.#cumulativeUpdate.system,
+        ...this._cumulativeUpdate.system,
         relationships: value,
       }
     }
@@ -127,60 +138,64 @@ export class Entry {
 
   // used to set arbitrary properties on the entryDoc
   public setProperty(key: string, value: any) {
-    this.#entryDoc[key] = value;
+    this._entryDoc[key] = value;
 
-    this.#cumulativeUpdate = {
-      ...this.#cumulativeUpdate,
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
       [key]: value,
     };
   }
 
   /**
-   * Updates an entry in the compendium.
-   * Unlocks the compendium to perform the update and then locks it again.
+   * Updates an entry 
    * 
-   * @param {EntryDoc} entry - The entry to be updated.  Make sure to pass in the raw entry using vue's toRaw() if calling on a proxy
-   * @param {Record<string, any>} data - The data to update the entry with.
    * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
    */
   public async save(): Promise<Entry | null> {
-    let updateData = this.#cumulativeUpdate;
+    let updateData = this._cumulativeUpdate;
 
     // unlock compendium to make the change
     await Entry.worldCompendium.configure({locked:false});
 
     let oldRelationships;
     
-    if (this.#cumulativeUpdate.system.relationships) {
+    if (this._cumulativeUpdate.system.relationships) {
       // do the serialization of the relationships field
       oldRelationships = updateData.system.relationships;
 
       updateData.system.relationships = relationshipKeyReplace(updateData.system.relationships || {}, true);
     }
 
-    const retval = await this.#entryDoc.update(updateData) || null;
+    const retval = await toRaw(this._entryDoc).update(updateData) || null;
     if (retval)
-      this.#entryDoc = retval;
+      this._entryDoc = retval;
 
     // swap back
     if (updateData?.system?.relationships) {
-      this.#entryDoc.system.relationships = oldRelationships;
+      this._entryDoc.system.relationships = oldRelationships;
     }
 
-    this.#cumulativeUpdate = {};
+    this._cumulativeUpdate = {};
 
     await Entry.worldCompendium.configure({locked:true});
 
     return retval ? this : null;
   }
 
+  /**
+   * Given a topic and a filter function, returns all the matching Entries
+   * 
+   * @param {ValidTopic} topic - The topic to filter
+   * @param {(e: Entry) => boolean} filterFn - The filter function
+   * @returns {Entry[]} The entries that pass the filter
+   */
   public static filter(topic: ValidTopic, filterFn: (e: Entry) => boolean): Entry[] { 
     if (!Entry.currentTopicJournals || !Entry.currentTopicJournals[topic])
       return [];
     
     return  Entry.currentTopicJournals[topic].collections.pages.contents
-      .filter((e: EntryDoc)=> filterFn(new Entry(e)));
-
+      .filter((e: EntryDoc)=> filterFn(new Entry(e)))
+      .map((e: EntryDoc) => new Entry(e));
   }
 
   public static async deleteEntry(worldId: string, topic: ValidTopic, entryId: string) {
@@ -203,7 +218,7 @@ export class Entry {
 
     // remove from the top nodes
     const topNodes = WorldFlags.getTopicFlag(worldId, WorldFlagKey.topNodes, topic);
-    await WorldFlags.setTopicFlag(worldId, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entry.uuid));
+    await WorldFlags.setTopicFlag(worldId, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entryId));
 
     await entryDoc.delete();
 
@@ -227,17 +242,17 @@ export class Entry {
         return [];
   
       // we find all journal entries with this topic
-      let journalEntries = await Entry.filter(topic, ()=>true);
+      let entries = await Entry.filter(topic, ()=>true);
   
       // filter unique ones if needed
       if (notRelatedTo) {
         const relatedEntries = notRelatedTo.getAllRelatedEntries(topic);
   
         // also remove the current one
-        journalEntries = journalEntries.filter((entry) => !relatedEntries.includes(entry.uuid) && entry.uuid !== notRelatedTo.uuid);
+        entries = entries.filter((entry) => !relatedEntries.includes(entry.uuid) && entry.uuid !== notRelatedTo.uuid);
       }
   
-      return journalEntries.map((e: EntryDoc)=>(new Entry(e)));
+      return entries;
     };
   
   /**

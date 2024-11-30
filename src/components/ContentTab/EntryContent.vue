@@ -58,7 +58,7 @@
         <div class="tab description flexcol" data-group="primary" data-tab="description">
           <div class="tab-inner flexcol">
             <Editor 
-              :document="editorDocument.raw"
+              :document="rawDocument"
               :has-button="true"
               target="content-description"
               @editor-saved="onDescriptionEditorSaved"
@@ -113,7 +113,8 @@
   
   // types
   import { ValidTopic, Topic, } from '@/types';
-  
+  import { EntryDoc } from '@/documents';
+
   ////////////////////////////////
   // props
 
@@ -150,7 +151,7 @@
   const topic = ref<Topic | null>(null);
   const name = ref<string>('');
 
-  const editorDocument = ref<Entry>();
+  const rawDocument = ref<EntryDoc>();
 
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
@@ -180,7 +181,8 @@
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
       if (currentEntry.value && currentEntry.value.name!==newValue) {
-        await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), { name: newValue });
+        currentEntry.value.name = newValue;
+        await currentEntry.save();
 
         await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
         await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue);
@@ -208,8 +210,12 @@
   };
 
   const onTypeSelectionMade = async (selection: string) => {
-    if (currentEntry.value)
-      await topicDirectoryStore.updateEntryType(currentEntry.value.uuid, selection);
+    if (currentEntry.value) {
+      currentEntry.value.type = selection;
+      await currentEntry.value.save();
+
+      await topicDirectoryStore.updateEntryType(currentEntry.value, selection);
+    }
   };
 
   const onParentSelectionMade = async (selection: string): Promise<void> => {
@@ -273,7 +279,7 @@
       }
   
       // reattach the editor to the new entry
-      editorDocument.value = currentEntry.value;
+      rawDocument.value = currentEntry.value.raw;
     }
   });
 

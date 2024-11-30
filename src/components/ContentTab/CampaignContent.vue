@@ -30,7 +30,7 @@
         <div class="tab description flexcol" data-group="primary" data-tab="description">
           <div class="tab-inner flexcol">
             <Editor 
-              :document="editorDocument"
+              :document="editorDocument.raw"
               :has-button="true"
               target="content-description"
               @editor-saved="onDescriptionEditorSaved"
@@ -67,7 +67,7 @@
   import CampaignDirectory from 'src/components/Directory/CampaignDirectory/CampaignDirectory.vue';
   
   // types
-  import { ValidTopic, Topic, WindowTabType, } from '@/types';
+  import { Topic, WindowTabType, } from '@/types';
   import { Entry } from '@/classes';
   
   ////////////////////////////////
@@ -121,9 +121,10 @@
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
       if (currentCampaign.value && currentCampaign.value.name!==newValue) {
-        await updateEntry(currentWorldCompendium.value, toRaw(currentCampaign.value), { name: newValue });
+        currentCampaign.value.name = newValue;
+        await currentCampaign.value.save();
 
-        await  directoryStore.refresh([currentCampaign.value.uuid]);
+        await directoryStore.refresh([currentCampaign.value.uuid]);
       }
     }, debounceTime);
   };
@@ -132,7 +133,8 @@
     if (!currentEntry.value)
       return;
 
-    await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), {'text.content': newContent });  
+    currentEntry.value.setProperty('text.content', newContent);
+    await currentEntry.value.save();
 
     //need to reset
     // if it's not automatic, clear and reset the documentpage

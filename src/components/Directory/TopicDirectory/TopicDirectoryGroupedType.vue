@@ -140,7 +140,7 @@
       return false;
 
     // set the new type
-    await topicDirectoryStore.updateEntryType(data.id, currentType.value.name);
+    await topicDirectoryStore.updateEntryType(await Entry.fromUuid(data.id), currentType.value.name);
 
     return true;
   };

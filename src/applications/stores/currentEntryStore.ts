@@ -10,10 +10,9 @@ import { hasHierarchy, Hierarchy, } from '@/utils/hierarchy';
 import { useTopicDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
 import { getTopicText, } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
-import { DOCUMENT_TYPES, } from '@/documents';
 
 // types
-import { Topic, ValidTopic } from '@/types';
+import { ValidTopic } from '@/types';
 import { Entry } from '@/classes';
 
 // the store definition
@@ -91,6 +90,9 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
 
   // delete an entry from the world
   const deleteEntry = async (topic: ValidTopic, entryId: string) => {
+    if (!currentWorldId.value)
+      return;
+
     const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entryId);
 
     Entry.deleteEntry(currentWorldId.value, topic, entryId);
