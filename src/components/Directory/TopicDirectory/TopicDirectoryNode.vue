@@ -71,7 +71,7 @@
   const directoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentWorldId, currentEntry, currentTopicJournals } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntry, } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(directoryStore);
   
   ////////////////////////////////
@@ -110,7 +110,7 @@
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value || !currentTopicJournals.value || !currentTopicJournals.value[props.topic])
+    if (!currentWorldId.value)
       return false;
 
     let data;

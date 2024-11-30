@@ -27,7 +27,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   const directoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const mainStore = useMainStore();
-  const { currentWorldId, currentTopicJournals, currentWorldCompendium, } = storeToRefs(mainStore);
+  const { currentWorldId, currentWorldCompendium, } = storeToRefs(mainStore);
   
   ///////////////////////////////
   // internal state
@@ -41,9 +41,6 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
   // if name is populated will skip the dialog
   type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
   const createEntry = async (worldFolder: Folder, topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> => {
-    if (!currentTopicJournals.value || !currentTopicJournals.value[topic])
-      return null;
-
     const topicText = getTopicText(topic);
 
     let nameToUse = options.name || '' as string | null;
@@ -56,7 +53,7 @@ export const useCurrentEntryStore = defineStore('CurrentEntry', () => {
       return null;
 
     // create the entry
-    const entry = await Entry.create(currentWorldCompendium.value, currentTopicJournals.value[topic], nameToUse, options.type, topic);
+    const entry = await Entry.create(nameToUse, topic, options.type);
 
     if (entry) {
       const uuid = entry.uuid;

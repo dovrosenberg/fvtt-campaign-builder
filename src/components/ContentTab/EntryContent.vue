@@ -127,7 +127,7 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentEntry, currentWorldId, currentTopicJournals, currentWorldCompendium, } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldId,  } = storeToRefs(mainStore);
   const { currentTopicTab } = storeToRefs(currentEntryStore);
 
   ////////////////////////////////
@@ -239,7 +239,7 @@
 
   ////////////////////////////////
   // watchers
-  watch([currentEntry, currentWorldId, currentTopicJournals], async (): Promise<void> => {
+  watch([currentEntry, currentWorldId], async (): Promise<void> => {
     if (!currentEntry.value) {
       topic.value = null;
     } else {
@@ -247,7 +247,7 @@
 
       newTopic = currentEntry.value.topic as ValidTopic;
       if (!newTopic) 
-        throw new Error('Invalid entry type in ContentTab.watch-currenEntry');
+        throw new Error('Invalid entry topic in EntryContent.watch-currentEntry');
 
       // we're going to show a content page
       topic.value = newTopic;
@@ -260,7 +260,7 @@
         parentId.value = null;
         validParents.value = [];
       } else {
-        if (currentWorldId.value && currentTopicJournals.value  && currentTopicJournals.value[newTopic]) {
+        if (currentWorldId.value) {
           parentId.value = WorldFlags.getHierarchy(currentWorldId.value, currentEntry.value.uuid)?.parentId || null;
       
           // TODO - need to refresh this somehow if things are moved around in the directory

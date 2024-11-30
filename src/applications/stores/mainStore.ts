@@ -25,7 +25,6 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // internal state
-  const _currentTopicJournals = ref<Record<ValidTopic, JournalEntry> | null>(null);  // current journals (by topic)
   const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<SessionDoc  | null>(null);  // current session (when showing a session tab)
@@ -50,7 +49,6 @@ export const useMainStore = defineStore('main', () => {
   });
 
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
-  const currentTopicJournals = computed((): Record<ValidTopic, JournalEntry> | null => _currentTopicJournals?.value || null);
   const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
   const currentCampaign = computed((): Campaign | null => _currentCampaign?.value || null);
   const currentSession = computed((): SessionDoc | null => _currentSession?.value || null);
@@ -69,7 +67,6 @@ export const useMainStore = defineStore('main', () => {
     if (!folder)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');
 
-    // this will also trigger the _currentTopicJournals to be updated
     currentWorldFolder.value = folder;
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
@@ -134,51 +131,6 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // watchers
-  // when the world changes, load the JournalEntries
-  watch(() => currentWorldFolder.value,  async (newValue: Folder) => {
-    if (!newValue || !currentWorldCompendium.value)
-      return;
-
-    const topicEntries = WorldFlags.get(newValue.uuid, WorldFlagKey.topicEntries);
-    const campaignEntries = WorldFlags.get(newValue.uuid, WorldFlagKey.campaignEntries);
-    const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];
-    const topicJournals = {
-      [Topic.Character]: null,
-      [Topic.Event]: null,
-      [Topic.Location]: null,
-      [Topic.Organization]: null,
-    } as Record<ValidTopic, JournalEntry | null>;
-    const campaignJournals = [] as JournalEntry[];
-
-    for (let i=0; i<topics.length; i++) {
-      const t = topics[i];
-
-      // we need to load the actual entries - not just the index headers
-      topicJournals[t] = await(fromUuid(topicEntries[t])) as JournalEntry | null;
-
-      if (!topicJournals[t])
-        throw new Error(`Could not find journal for topic ${t} in world ${currentWorldId.value}`);
-    }
-
-    for (let i=0; i<Object.keys(campaignEntries).length; i++) {
-      // we need to load the actual entries - not just the index headers
-      const j = await(fromUuid(Object.keys(campaignEntries)[i])) as JournalEntry | null;
-      if (j)
-        campaignJournals.push(j);
-    }
-
-    // have to do this first because of watchers that trigger when we set _currentTopicJournals 
-    CollapsibleNode.currentTopicJournals = topicJournals;
-    Entry.currentTopicJournals = topicJournals;
-    Entry.worldCompendium = currentWorldCompendium.value;
-    Entry.worldId = currentWorldId.value;
-    Campaign.worldCompendium = currentWorldCompendium.value;
-    Campaign.worldId = currentWorldId.value;
-
-    _currentTopicJournals.value = topicJournals as Record<ValidTopic, JournalEntry>;
-
-    CollapsibleNode.currentWorldId = newValue.uuid;
-  });
 
   ///////////////////////////////
   // lifecycle events
@@ -190,7 +142,6 @@ export const useMainStore = defineStore('main', () => {
     currentWorldId,
     currentWorldFolder,
     currentEntryTopic,
-    currentTopicJournals,
     currentEntry,
     currentCampaign,
     currentSession,

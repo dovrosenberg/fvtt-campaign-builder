@@ -11,12 +11,6 @@ type ExpandedIdsFlags = WorldFlagKey.expandedIds | WorldFlagKey.expandedCampaign
 type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode;
 
 export abstract class CollapsibleNode<ChildType extends NodeType | never> {
-  protected static _currentTopicJournals: Record<ValidTopic, JournalEntry | null> = {
-    [Topic.Character]: null,
-    [Topic.Event]: null,
-    [Topic.Location]: null,
-    [Topic.Organization]: null
-  };   
   protected static _currentWorldId: string | null = null;
   protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode>;   // maps uuid to the node for easy lookup
 
@@ -43,10 +37,6 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   public static set currentWorldId(worldId: string | null) {
     CollapsibleNode._currentWorldId = worldId;
     CollapsibleNode._loadedNodes = {};
-  }
-
-  public static set currentTopicJournals(journals: Record<ValidTopic, JournalEntry>) {
-    CollapsibleNode._currentTopicJournals = journals;
   }
 
   /**

@@ -24,6 +24,7 @@
   import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { getGame } from '@/utils/game';
 
   // library components
 
@@ -33,6 +34,9 @@
   import Directory from '@/components/Directory/Directory.vue';
 
   // types
+  import { Topic, ValidTopic } from '@/types';
+  import { CollapsibleNode, Entry, Campaign } from '@/classes';
+  import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
   
   ////////////////////////////////
   // props
@@ -98,9 +102,49 @@
     const folders = await getDefaultFolders();
 
     if (folders && folders.rootFolder && folders.worldFolder) {
-      // this will force a refresh of the directory
+      // this will force a refresh of the directory; before we do that make sure all the static variables are setup
+      const worldId = folders.worldFolder.uuid;
+
+      const worldCompendium = getGame().packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
+
+      const topicEntries = WorldFlags.get(worldId, WorldFlagKey.topicEntries);
+      const campaignEntries = WorldFlags.get(worldId, WorldFlagKey.campaignEntries);
+      const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];
+      const topicJournals = {
+        [Topic.Character]: null,
+        [Topic.Event]: null,
+        [Topic.Location]: null,
+        [Topic.Organization]: null,
+      } as Record<ValidTopic, JournalEntry | null>;
+      const campaignJournals = [] as JournalEntry[];
+
+      for (let i=0; i<topics.length; i++) {
+        const t = topics[i];
+
+        // we need to load the actual entries - not just the index headers
+        topicJournals[t] = await(fromUuid(topicEntries[t])) as JournalEntry | null;
+
+        if (!topicJournals[t])
+          throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
+      }
+
+      for (let i=0; i<Object.keys(campaignEntries).length; i++) {
+        // we need to load the actual entries - not just the index headers
+        const j = await(fromUuid(Object.keys(campaignEntries)[i])) as JournalEntry | null;
+        if (j)
+          campaignJournals.push(j);
+      }
+
+      Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
+      Entry.worldCompendium = worldCompendium;
+      Entry.worldId = worldId;
+      Campaign.worldCompendium = worldCompendium;
+      Campaign.worldId = worldId;
+      CollapsibleNode.currentWorldId = worldId;
+
       rootFolder.value = folders.rootFolder;
       currentWorldFolder.value = folders.worldFolder;
+
     } else {
       throw new Error('Failed to load or create folder structure');
     }

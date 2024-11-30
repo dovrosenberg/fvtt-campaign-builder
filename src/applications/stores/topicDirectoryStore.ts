@@ -24,7 +24,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { rootFolder, currentWorldId, currentWorldFolder, currentTopicJournals,} = storeToRefs(mainStore); 
+  const { rootFolder, currentWorldId, currentWorldFolder,} = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -285,7 +285,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshTopicDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world and journals loaded
-    if (!currentWorldId.value || !currentTopicJournals.value || isTopicTreeRefreshing.value)
+    if (!currentWorldId.value)
       return;
 
     isTopicTreeRefreshing.value = true;
@@ -370,7 +370,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       [Topic.Organization]: [],
     };
 
-    if (!currentWorldId.value || !currentTopicJournals.value)
+    if (!currentWorldId.value)
       return;
 
     const hierarchies = WorldFlags.get(currentWorldId.value, WorldFlagKey.hierarchies);
@@ -405,15 +405,6 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   ///////////////////////////////
   // watchers
   // when the root folder changes, load the top level info (worlds and packs)
-  watch(rootFolder, async (newRootFolder: Folder | null): Promise<void> => {
-    if (!newRootFolder) {
-      currentWorldTree.value = [];
-      return;
-    }
-
-    await refreshTopicDirectoryTree();
-  });
-
   // when the world changes, clean out the cache of loaded items
   watch(currentWorldFolder, async (newWorldFolder: Folder | null): Promise<void> => {
     if (!newWorldFolder) {
@@ -425,9 +416,9 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   });
   
   // when the current journal set is updated, refresh the tree
-  watch(currentTopicJournals, async (newJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
-    await refreshTopicDirectoryTree();
-  });
+  // watch(currentTopicJournals, async (_newJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
+  //   await refreshTopicDirectoryTree();
+  // });
   
   // save grouping to settings
   watch(isGroupedByType, async (newSetting: boolean) => {

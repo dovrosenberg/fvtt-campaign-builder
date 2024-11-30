@@ -89,7 +89,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentWorldId, currentEntry, currentTopicJournals } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntry, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -133,7 +133,7 @@
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value || !currentTopicJournals.value || !currentTopicJournals.value[props.topic])
+    if (!currentWorldId.value)
       return false;
 
     let data;

@@ -83,7 +83,7 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const navigationStore = useNavigationStore();
   const currentEntryStore = useCurrentEntryStore();
-  const { currentCampaign, currentWorldId, currentTopicJournals, currentWorldCompendium, } = storeToRefs(mainStore);
+  const { currentCampaign, currentWorldId, currentWorldCompendium, } = storeToRefs(mainStore);
   const { currentTopicTab } = storeToRefs(currentEntryStore);
 
   ////////////////////////////////
@@ -143,7 +143,7 @@
 
   ////////////////////////////////
   // watchers
-  watch([currentCampaign, currentWorldId, currentTopicJournals], async (): Promise<void> => {
+  watch([currentCampaign, currentWorldId], async (): Promise<void> => {
     if (!currentCampaign.value) {
     } else {
       // load starting data values

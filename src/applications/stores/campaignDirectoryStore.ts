@@ -100,15 +100,6 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   
   ///////////////////////////////
   // watchers
-  // // when the root folder changes, load the top level info (worlds and packs)
-  // watch(rootFolder, async (newRootFolder: Folder | null): Promise<void> => {
-  //   if (!newRootFolder) {
-  //     currentCampaignTree.value = [];
-  //     return;
-  //   }
-
-  //   await refreshCampaignDirectoryTree();
-  // });
 
   // when the world changes, clean out the cache of loaded items
   watch(currentWorldFolder, (newWorldFolder: Folder | null): void => {

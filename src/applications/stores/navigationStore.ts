@@ -207,7 +207,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     let tab = tabs.value.find(t => t.active);
     if (findone) {
       if (!tab && tabs.value.length > 0)  // nothing was marked as active, just pick the last one
-        tab = tabs.value[tabs.length-1];
+        tab = tabs.value[tabs.value.length-1];
     }
 
     return tab || null;
