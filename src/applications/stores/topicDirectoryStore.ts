@@ -166,8 +166,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (!parent)
       return false;
 
-
-    const parentNode = parent ? DirectoryEntryNode.fromEntry(parent) : null;
+    const parentNode = DirectoryEntryNode.fromEntry(parent);
     const childNode =  DirectoryEntryNode.fromEntry(child);
     const oldParentId = childNode.parentId;
 
@@ -188,7 +187,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       const oldParent = await Entry.fromUuid(childNode.parentId);
 
       if (oldParent) {
-        const oldParentNode = oldParent ? DirectoryEntryNode.fromEntry(oldParent) : null;
+        const oldParentNode = DirectoryEntryNode.fromEntry(oldParent);
         if (oldParentNode) {
           oldParentNode.children = oldParentNode.children.filter((c)=>c!==childId);
           await saveHierarchyToEntryFromNode(oldParent, oldParentNode);

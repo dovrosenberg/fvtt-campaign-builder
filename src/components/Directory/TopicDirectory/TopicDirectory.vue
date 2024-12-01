@@ -132,7 +132,7 @@
           onClick: async () => {
             if (worldId) {
               await topicDirectoryStore.deleteWorld(worldId);
-              campaignDirectoryStore.refreshCampaignDirectoryTree();
+              await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
         },
@@ -143,7 +143,7 @@
           onClick: async () => {
             if (worldId) {
               await Campaign.create();
-              campaignDirectoryStore.refreshCampaignDirectoryTree();
+              await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
         },

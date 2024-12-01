@@ -56,7 +56,7 @@
   // local imports
   import { getTabTypeIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -65,7 +65,7 @@
   import Editor from '@/components/Editor.vue';
   
   // types
-  import { Topic, WindowTabType, } from '@/types';
+  import { WindowTabType, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -76,8 +76,9 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentWorldId, currentWorldCompendium, currentContentTab } = storeToRefs(mainStore);
+  const { currentCampaign, currentContentTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -113,6 +114,7 @@
         await currentCampaign.value.save();
 
         await campaignDirectoryStore.refreshCampaignDirectoryTree([currentCampaign.value.uuid]);
+        await navigationStore.propogateNameChange(currentCampaign.value.uuid, newValue);
       }
     }, debounceTime);
   };

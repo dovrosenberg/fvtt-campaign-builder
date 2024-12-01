@@ -241,11 +241,11 @@ export const useNavigationStore = defineStore('navigation', () => {
     return;
   };
 
-  const propogateNameChange = async(entryId: string, newName: string):Promise<void> => {
+  const propogateNameChange = async(contentId: string, newName: string):Promise<void> => {
     // update the tabs 
     let updated = false;
     tabs.value.forEach((t: WindowTab): void => {
-      if (t.header.uuid===entryId) {
+      if (t.header.uuid===contentId) {
         t.header.name = newName;
         updated = true;
       }

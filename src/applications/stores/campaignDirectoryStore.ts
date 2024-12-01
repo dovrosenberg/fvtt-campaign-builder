@@ -44,48 +44,43 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
     await WorldFlags.unset(currentWorldId.value, WorldFlagKey.expandedCampaignIds);
 
-    refreshCampaignDirectoryTree();
+    await refreshCampaignDirectoryTree();
   };
  
   // refreshes the campaign tree 
-  const refreshCampaignDirectoryTree = (): void => {
+  const refreshCampaignDirectoryTree = async (updateIds: string[] = []): void => {
     // need to have a current world and journals loaded
     if (!currentWorldId.value)
       return;
 
     const campaigns = WorldFlags.get(currentWorldId.value, WorldFlagKey.campaignEntries) || {};  
-    const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds);
+    const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
 
-    let updateCampaigns = false;
-    if (Object.keys(campaigns).length != currentCampaignTree.value.length) {
-      updateCampaigns = true;
-    } else if (currentCampaignTree.value.length > 0) {
-      // same length - make sure they all match
-      for (let i=0; i<currentCampaignTree.value.length; i++) {
-        // see if it's in there; if not, we need to update
-        if (!campaigns[currentCampaignTree.value[i].id]) {
-          updateCampaigns = true;
-          break;
-        }
-      }
+    currentCampaignTree.value = [];
+    
+    // get the all the campaigns 
+    for (let i=0; i<Object.keys(campaigns).length; i++) {
+      const id = Object.keys(campaigns)[i];
+
+      currentCampaignTree.value.push(new DirectoryCampaignNode(
+        id,
+        campaigns[id],
+        expandedNodes[id] || false,
+        [],
+        [],
+      ));
     }
 
-    if (updateCampaigns) {
-      currentCampaignTree.value = [];
-      
-      // get the all the entries 
-      for (let i=0; i<Object.keys(campaigns).length; i++) {
-        const id = Object.keys(campaigns)[i];
+    // load any open campaigns
+    for (let i=0; i<currentCampaignTree.value.length; i++) {
+      const campaignNode = currentCampaignTree.value[i];
 
-        currentCampaignTree.value.push(new DirectoryCampaignNode(
-          id,
-          campaigns[id],
-          expandedNodes[id] || false,
-          [],
-          [],
-        ));
-      }
-    }
+      if (!campaignNode.expanded)
+        continue;
+
+      // have to check all children are loaded and expanded properly
+      await campaignNode.recursivelyLoadNode(expandedNodes, updateIds);
+    } 
   };
 
   const deleteCampaign = async(campaignId: string): Promise<void> => {
@@ -102,13 +97,13 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // watchers
 
   // when the world changes, clean out the cache of loaded items
-  watch(currentWorldFolder, (newWorldFolder: Folder | null): void => {
+  watch(currentWorldFolder, async (newWorldFolder: Folder | null): void => {
     if (!newWorldFolder) {
       currentCampaignTree.value = [];
       return;
     }
 
-    refreshCampaignDirectoryTree();
+    await refreshCampaignDirectoryTree();
   });
   
   

@@ -126,14 +126,26 @@ export class Campaign {
     // unlock compendium to make the change
     await Campaign.worldCompendium.configure({locked:false});
 
-    const retval = await toRaw(this._campaignDoc).update(updateData) || null;
-    if (retval) {
-      this._campaignDoc = retval;
-      this._cumulativeUpdate = {};
-
+    let retval;
+    if (Object.keys(updateData).length === 0) {
       await this._campaignDoc.setFlag(moduleId, 'description', this._description);
-    }
+      retval = this;
+    } else {
+      const retval = await toRaw(this._campaignDoc).update(updateData) || null;
+      if (retval) {
+        this._campaignDoc = retval;
+        this._cumulativeUpdate = {};
 
+        await this._campaignDoc.setFlag(moduleId, 'description', this._description);
+      }
+
+      // update the name
+      if (updateData.name !== undefined) {
+        const campaigns = WorldFlags.get(Campaign.worldId, WorldFlagKey.campaignEntries) || {};  
+        campaigns[this._campaignDoc.uuid] = this._campaignDoc.name;
+        await WorldFlags.set(Campaign.worldId, WorldFlagKey.campaignEntries, campaigns);
+      }
+    }
     await Campaign.worldCompendium.configure({locked:true});
 
     return retval ? this : null;
