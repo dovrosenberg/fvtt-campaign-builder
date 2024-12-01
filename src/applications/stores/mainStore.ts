@@ -120,16 +120,11 @@ export const useMainStore = defineStore('main', () => {
    * reactivity updates throughout the application.
    */
   const refreshEntry = function (): void {
-    if (!currentEntry.value)
+    if (!_currentEntry.value)
       return;
 
     // just force all reactivity to update
-    _currentEntry.value = { ..._currentEntry.value };
-  };
-
-  // trigger reactivity and swap out an entry
-  const swapEntry = function (entry: Entry): void {
-    _currentEntry.value = entry;
+    _currentEntry.value = new Entry(_currentEntry.value.raw);
   };
 
   ///////////////////////////////
@@ -168,6 +163,5 @@ export const useMainStore = defineStore('main', () => {
     setNewWorld,
     setNewTab,
     refreshEntry,
-    swapEntry,
   };
 });

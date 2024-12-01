@@ -150,7 +150,7 @@
 
       // if it's currently open, force screen refresh
       if (entry.uuid === currentEntry.value?.uuid) {
-        mainStore.swapEntry(entry);
+        mainStore.refreshEntry();
       }
     }
 

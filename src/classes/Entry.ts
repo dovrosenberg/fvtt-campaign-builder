@@ -27,7 +27,7 @@ export class Entry {
     if (entryDoc.type !== DOCUMENT_TYPES.Entry)
       throw new Error('Invalid document type in Entry constructor');
 
-    // clone it to avoid unexpected changes, also drop the proxy
+    // clone it to avoid unexpected changes
     this._entryDoc = foundry.utils.deepClone(entryDoc);
     this._cumulativeUpdate = {};
   }
