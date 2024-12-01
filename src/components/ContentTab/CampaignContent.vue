@@ -28,14 +28,14 @@
       </nav>
       <div class="fwb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
-          <!-- <div class="tab-inner flexcol">
+          <div class="tab-inner flexcol">
             <Editor 
-              :document="editorDocument.raw"
+              :initial-content="currentCampaign?.description || ''"
               :has-button="true"
               target="content-description"
               @editor-saved="onDescriptionEditorSaved"
             />
-          </div> -->
+          </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner flexcol">
@@ -124,17 +124,17 @@
         currentCampaign.value.name = newValue;
         await currentCampaign.value.save();
 
-        await directoryStore.refresh([currentCampaign.value.uuid]);
+        await campaignDirectoryStore.refreshCampaignDirectoryTree([currentCampaign.value.uuid]);
       }
     }, debounceTime);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
-    if (!currentEntry.value)
+    if (!currentCampaign.value)
       return;
 
-    currentEntry.value.description = newContent;
-    await currentEntry.value.save();
+    currentCampaign.value.description = newContent;
+    await currentCampaign.value.save();
 
     //need to reset
     // if it's not automatic, clear and reset the documentpage
@@ -143,15 +143,15 @@
 
   ////////////////////////////////
   // watchers
-  watch([currentCampaign, currentWorldId], async (): Promise<void> => {
-    if (!currentCampaign.value) {
-    } else {
-      // load starting data values
-      name.value = currentCampaign.value.name || '';
+  watch([currentCampaign], async (): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
 
-      // reattach the editor to the new entry
-      // editorDocument.value = currentEntry.value;
-    }  
+    // reset the tab
+    currentContentTab.value = 'description';
+
+    // load starting data values
+    name.value = currentCampaign.value.name || '';
   });
 
   ////////////////////////////////

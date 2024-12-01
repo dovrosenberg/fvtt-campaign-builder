@@ -6,14 +6,14 @@ import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 
 // local imports
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
-import { useMainStore } from '@/applications/stores';
+import { hasHierarchy, Hierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
+import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { createWorldFolder, getTopicTextPlural, validateCompendia } from '@/compendia';
 import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 import { getGame } from '@/utils/game';
 
 // types
-import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, } from '@/classes';
+import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, } from '@/classes';
 import { DirectoryWorld, Topic, ValidTopic, } from '@/types';
 
 // the store definition
@@ -24,6 +24,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
   const { rootFolder, currentWorldId, currentWorldFolder,} = storeToRefs(mainStore); 
 
   ///////////////////////////////
@@ -82,7 +83,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     const topicNode = currentWorldNode?.topics.find((p)=>p.topic===entry.topic) || null;
     const oldTypeNode = topicNode?.loadedTypes.find((t) => t.name===oldType);
     if (!currentWorldNode || !topicNode) 
-      throw new Error('Failed to load node in directoryStore.updateEntryType()');
+      throw new Error('Failed to load node in topicDirectoryStore.updateEntryType()');
 
     if (oldTypeNode) {
       oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entry.uuid);
@@ -108,7 +109,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     // update the hierarchy (even for entries without hierarchy, we still need it for filtering)
     const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entry.uuid);
     if(!hierarchy)
-      throw new Error(`Could not find hierarchy for ${entry.uuid} in directoryStore.updateEntryType()`);
+      throw new Error(`Could not find hierarchy for ${entry.uuid} in topicTirectoryStore.updateEntryType()`);
 
     if (hierarchy.type !== newType) {
       hierarchy.type = newType;
@@ -121,7 +122,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // expand/contract  the given entry, loading the new item data
   // return the new node
   const toggleWithLoad = async<T extends DirectoryEntryNode | DirectoryTypeNode>(node: T, expanded: boolean) : Promise<T>=> {
-    return await node.toggleWithLoad(expanded);
+    return await node.toggleWithLoad(expanded) as T;
   };
 
 

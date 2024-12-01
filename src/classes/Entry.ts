@@ -5,7 +5,11 @@ import { id as moduleId } from '@module';
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { cleanTrees } from '@/utils/hierarchy';
+import { cleanTrees, } from '@/utils/hierarchy';
+import { inputDialog } from '@/dialogs/input';
+import { getTopicText } from '@/compendia';
+
+export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Entry {
@@ -39,7 +43,9 @@ export class Entry {
       return new Entry(entryDoc);
   }
 
-  static async create(name: string, topic: ValidTopic, type: string): Promise<Entry> 
+  // creates a new entry in the proper compendium in the given world
+  // if name is populated will skip the dialog
+  static async create(topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> 
   {
     if (!Entry.worldCompendium || !Entry.currentTopicJournals)
       throw new Error('No world compendium or topic journals in Entry.create()');
@@ -150,15 +156,6 @@ export class Entry {
   }
 
   // used to set arbitrary properties on the entryDoc
-  public setProperty(key: string, value: any) {
-    this._entryDoc[key] = value;
-
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [key]: value,
-    };
-  }
-
   /**
    * Updates an entry in the database
    * 
