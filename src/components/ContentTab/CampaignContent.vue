@@ -57,7 +57,7 @@
   import { getTabTypeIcon, } from '@/utils/misc';
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { localize } from '@/utils/game';
-  import { useTopicDirectoryStore, useCampaignDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -82,9 +82,7 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const navigationStore = useNavigationStore();
-  const currentEntryStore = useCurrentEntryStore();
-  const { currentCampaign, currentWorldId, currentWorldCompendium, } = storeToRefs(mainStore);
-  const { currentTopicTab } = storeToRefs(currentEntryStore);
+  const { currentCampaign, currentWorldId, currentWorldCompendium, currentContentTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -161,7 +159,7 @@
 
     // update the store when tab changes
     tabs.value.callback = () => {
-      currentTopicTab.value = tabs.value?.active || null;
+      currentContentTab.value = tabs.value?.active || null;
     };
 
     // have to wait until they render

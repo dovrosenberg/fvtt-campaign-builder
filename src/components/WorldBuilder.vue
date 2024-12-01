@@ -107,6 +107,9 @@
 
       const worldCompendium = getGame().packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
 
+      if (!worldCompendium)
+        throw new Error(`Could not find compendium for world ${worldId}`); ;
+  
       const topicEntries = WorldFlags.get(worldId, WorldFlagKey.topicEntries);
       const campaignEntries = WorldFlags.get(worldId, WorldFlagKey.campaignEntries);
       const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];

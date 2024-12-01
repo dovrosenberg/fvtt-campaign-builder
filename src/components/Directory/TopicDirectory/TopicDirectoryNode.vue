@@ -27,7 +27,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { getGame, localize } from '@/utils/game';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
 
@@ -68,11 +68,10 @@
   ////////////////////////////////
   // store
   const navigationStore = useNavigationStore();
-  const directoryStore = useTopicDirectoryStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
-  const currentEntryStore = useCurrentEntryStore();
   const { currentWorldId, currentEntry, } = storeToRefs(mainStore);
-  const { filterNodes } = storeToRefs(directoryStore);
+  const { filterNodes } = storeToRefs(topicDirectoryStore);
   
   ////////////////////////////////
   // data
@@ -140,7 +139,7 @@
       return false;
 
     // add the dropped item as a child on the other  (will also refresh the tree)
-    await directoryStore.setNodeParent(props.topic, data.childId, parentId);
+    await topicDirectoryStore.setNodeParent(props.topic, data.childId, parentId);
 
     return true;
   };
@@ -168,7 +167,7 @@
             if (!worldFolder || !props.topic)
               throw new Error('Invalid header in TopicDirectoryNode.onEntryContextMenu.onClick');
 
-            const entry = await currentEntryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
+            const entry = await topicDirectoryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -180,7 +179,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await currentEntryStore.deleteEntry(props.topic, props.node.id);
+            await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
           }
         },
       ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))

@@ -105,8 +105,8 @@
 
   ////////////////////////////////
   // store
-  const directoryStore = useTopicDirectoryStore();
-  const { filterText, isTopicTreeRefreshing, isGroupedByType } = storeToRefs(directoryStore);
+  const topicDirectoryStore = useTopicDirectoryStore();
+  const { filterText, isTopicTreeRefreshing, isGroupedByType } = storeToRefs(topicDirectoryStore);
 
   ////////////////////////////////
   // data
@@ -125,7 +125,7 @@
   const onCollapseAllClick = (event: MouseEvent) => {
     event.stopPropagation();
 
-    void directoryStore.collapseAll();
+    void topicDirectoryStore.collapseAll();
   };
 
   // create a world
@@ -140,7 +140,7 @@
     //   }
     // }
 
-    await directoryStore.createWorld();
+    await topicDirectoryStore.createWorld();
   };
 
   // save grouping to settings
