@@ -265,6 +265,46 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     return true;
   };
 
+  const createEntry = async (topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> => {
+    if (!currentWorldId.value)
+      return null;
+
+    const entry = await Entry.create(topic, options);
+
+    if (entry) {
+      const uuid = entry.uuid;
+
+      // we always add a hierarchy, because we use it for filtering
+      await WorldFlags.setHierarchy(currentWorldId.value, uuid, {
+        parentId: '',
+        ancestors: [],
+        children: [],
+        type: '',
+      } as Hierarchy);
+
+      // set parent if specified
+      if (options.parentId==undefined) {
+        // no parent - set as a top node
+        const topNodes = WorldFlags.getTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic);
+        await WorldFlags.setTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic, topNodes.concat([uuid]));
+      } else {
+        // add to the tree
+        if (hasHierarchy(topic)) {
+          // this creates the proper hierarchy
+          await setNodeParent(topic, uuid, options.parentId);
+        }
+      }
+
+      if (options.parentId) {
+        await refreshTopicDirectoryTree([options.parentId, entry.uuid]);
+      } else {
+        await refreshTopicDirectoryTree([entry.uuid]);
+      }
+    }
+
+    return entry || null;
+  }
+
   /**
    * Deletes a world identified by the given worldId.
    * This includes deleting all associated compendia and the world folder itself.
@@ -290,7 +330,22 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     await refreshTopicDirectoryTree();
   };
 
-  
+  // delete an entry from the world
+  const deleteEntry = async (topic: ValidTopic, entryId: string) => {
+    if (!currentWorldId.value)
+      return;
+
+    const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entryId);
+
+    Entry.deleteEntry(topic, entryId);
+
+    // update tabs
+    await navigationStore.cleanupDeletedEntry(entryId);
+
+    // refresh and force its parent to update
+    await refreshTopicDirectoryTree(hierarchy?.parentId ? [hierarchy?.parentId] : []);
+  };
+ 
  
   // refreshes the directory tree 
   // we try to keep it fast by not reloading from disk nodes that we've already loaded before,
@@ -468,5 +523,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     updateFilterNodes,
     deleteWorld,
     createWorld,
+    createEntry,
+    deleteEntry,
   };
 });

@@ -10,6 +10,7 @@ export class Campaign {
 
   private _campaignDoc: JournalEntry;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
+  private _description: string;   // track separately because flags aren't stored on update()
 
   /**
    * 
@@ -23,6 +24,7 @@ export class Campaign {
     // clone it to avoid unexpected changes, also drop the proxy
     this._campaignDoc = foundry.utils.deepClone(campaignDoc);
     this._cumulativeUpdate = {};
+    this._description = this._campaignDoc.getFlag(moduleId, 'description') || '';
   }
 
   static async fromUuid(entryId: string, options?: Record<string, any>): Promise<Campaign | null> {
@@ -60,8 +62,10 @@ export class Campaign {
           pack: Campaign.worldCompendium.metadata.id,
         });  
 
-        if (campaign)
+        if (campaign) {
           await campaign.setFlag(moduleId, 'isCampaign', 'true');
+          await campaign.setFlag(moduleId, 'description', '');
+        }
 
         // unlock compendium to make the change
         await Campaign.worldCompendium.configure({locked:true});
@@ -103,14 +107,12 @@ export class Campaign {
     return this._campaignDoc;
   }
 
-  // used to set arbitrary properties on the campaignDoc
-  public setProperty(key: string, value: any) {
-    this._campaignDoc[key] = value;
+  get description(): string {
+    return this._description;
+  }
 
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [key]: value,
-    };
+  set description(value: string) {
+    this._description = value;
   }
 
   /**
@@ -128,6 +130,8 @@ export class Campaign {
     if (retval) {
       this._campaignDoc = retval;
       this._cumulativeUpdate = {};
+
+      await this._campaignDoc.setFlag(moduleId, 'description', this._description);
     }
 
     await Campaign.worldCompendium.configure({locked:true});

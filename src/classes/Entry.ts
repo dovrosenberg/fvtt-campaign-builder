@@ -1,7 +1,5 @@
 import { toRaw } from 'vue';
 
-import { id as moduleId } from '@module';
-
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
@@ -50,13 +48,25 @@ export class Entry {
     if (!Entry.worldCompendium || !Entry.currentTopicJournals)
       throw new Error('No world compendium or topic journals in Entry.create()');
 
+    const topicText = getTopicText(topic);
+
+    let nameToUse = options.name || '' as string | null;
+    while (nameToUse==='') {  // if hit ok, must have a value
+      nameToUse = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
+    }  
+    
+    // if name is null, then we cancelled the dialog
+    if (!nameToUse)
+      return null;
+
+    // create the entry
     await Entry.worldCompendium.configure({locked:false});
 
     const entryDoc = await JournalEntryPage.createDocuments([{
       type: DOCUMENT_TYPES.Entry,
-      name: name,
+      name: nameToUse,
       system: {
-        type: type,
+        type: options.type || '',
         topic: topic,
         relationships: {
           [Topic.Character]: {},
@@ -71,8 +81,8 @@ export class Entry {
 
     await Entry.worldCompendium.configure({locked:true});
 
-    return new Entry(entryDoc[0]);
-  }
+    return entryDoc[0] ? new Entry(entryDoc[0]) : null;
+  };
 
   get uuid(): string {
     return this._entryDoc.uuid;

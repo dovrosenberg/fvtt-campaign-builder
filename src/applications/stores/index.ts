@@ -1,4 +1,3 @@
-export * from './currentEntryStore';
 export * from './mainStore';
 export * from './navigationStore';
 export * from './topicDirectoryStore';

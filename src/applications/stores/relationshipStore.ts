@@ -4,7 +4,7 @@
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { useMainStore, useCurrentEntryStore } from './index';
+import { useMainStore, } from './index';
 
 // types
 import { 
@@ -70,9 +70,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const currentEntryStore = useCurrentEntryStore();
-  const { currentEntry, } = storeToRefs(mainStore);
-  const { currentTopicTab } = storeToRefs(currentEntryStore);
+  const { currentEntry, currentContentTab } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -259,11 +257,11 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // internal functions
   const _refreshRows = () => {
-    if (!currentEntry.value || !currentTopicTab.value) {
+    if (!currentEntry.value || !currentContentTab.value) {
       relatedItemRows.value = [];
     } else {
       let topic: Topic;
-      switch (currentTopicTab.value) {
+      switch (currentContentTab.value) {
         case 'characters':
           topic = Topic.Character;
           break;
@@ -290,7 +288,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     _refreshRows();
   });
 
-  watch(()=> currentTopicTab.value, () => {
+  watch(()=> currentContentTab.value, () => {
     _refreshRows();
   });
 

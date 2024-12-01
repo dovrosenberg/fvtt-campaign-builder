@@ -39,11 +39,11 @@ export const useMainStore = defineStore('main', () => {
 
   const currentWorldCompendium = computed((): CompendiumCollection<any> => {
     if (!currentWorldId.value)
-      throw new Error('No currentWorldId in currentEntryStore.createEntry()');
+      throw new Error('No currentWorldId in mainStore.currentWorldCompendium()');
 
     const pack = getGame().packs?.get(WorldFlags.get(currentWorldId.value, WorldFlagKey.worldCompendium)) || null;
     if (!pack)
-      throw new Error('Bad compendia in currentEntryStore.createEntry()');
+      throw new Error('Bad compendia in mainStore.currentWorldCompendium()');
 
     return pack;
   });
@@ -53,6 +53,9 @@ export const useMainStore = defineStore('main', () => {
   const currentCampaign = computed((): Campaign | null => _currentCampaign?.value || null);
   const currentSession = computed((): SessionDoc | null => _currentSession?.value || null);
   const currentContentType = computed((): WindowTabType | null => _currentTab?.value?.tabType);  
+
+  // the currently selected tab for the entry
+  const currentContentTab = ref<string | null>(null);
 
   ///////////////////////////////
   // actions
@@ -138,6 +141,7 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // return the public interface
   return {
+    currentContentTab,
     directoryCollapsed,
     currentWorldId,
     currentWorldFolder,
