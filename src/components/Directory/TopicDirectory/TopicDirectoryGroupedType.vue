@@ -53,6 +53,7 @@
   import { useNavigationStore, useTopicDirectoryStore, useMainStore, } from '@/applications/stores';
   import { getGame, localize } from '@/utils/game';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
+  import { toTopic } from '@/utils/misc';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -90,7 +91,7 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntry } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(topicDirectoryStore);
   
   ////////////////////////////////
@@ -132,7 +133,7 @@
       return false;
     }
 
-    const topic = topicElement.dataset.topic;
+    const topic = toTopic(topicElement.dataset.topic);
 
     // if the topics don't match, can't drop
     if (data.topic!==topic)
@@ -140,8 +141,18 @@
 
     // set the new type
     const entry = await Entry.fromUuid(data.id);
-    if (entry)
-      await topicDirectoryStore.updateEntryType(entry, currentType.value.name);
+    if (entry) {
+      const oldType = entry.type;
+      entry.type = currentType.value.name;
+      await entry.save();
+
+      await topicDirectoryStore.updateEntryType(entry, oldType);
+
+      // if it's currently open, force screen refresh
+      if (entry.uuid === currentEntry.value?.uuid) {
+        mainStore.swapEntry(entry);
+      }
+    }
 
     return true;
   };

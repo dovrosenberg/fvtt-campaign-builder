@@ -92,10 +92,8 @@
       return;
     }
 
-    const topic = topicElement.dataset.topic;
-
     const dragData = { 
-      topic: toTopic(topic),
+      topic: toTopic(topicElement.dataset.topic),
       typeName: props.typeName,
       id: props.node.id,
     } as { topic: Topic; typeName: string; id: string};

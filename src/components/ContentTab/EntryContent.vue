@@ -209,10 +209,11 @@
 
   const onTypeSelectionMade = async (selection: string) => {
     if (currentEntry.value) {
+      const oldType = currentEntry.value.type;
       currentEntry.value.type = selection;
       await currentEntry.value.save();
 
-      await topicDirectoryStore.updateEntryType(currentEntry.value, selection);
+      await topicDirectoryStore.updateEntryType(currentEntry.value, oldType);
     }
   };
 

@@ -16,7 +16,7 @@
       <HomePage />
     </div>
     <div v-else>
-      Error! Unknown content type
+      <!-- Unknown content type - likely means we're still loading -->
     </div>
   </div>
 </template>

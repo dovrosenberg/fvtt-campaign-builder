@@ -88,13 +88,21 @@ export const useMainStore = defineStore('main', () => {
         _currentSession.value = null;
         break;
       case WindowTabType.Campaign:
-        _currentCampaign.value = await Campaign.fromUuid(tab.header.uuid);
+        if (tab.header.uuid) {
+          _currentCampaign.value = await Campaign.fromUuid(tab.header.uuid);
+        } else {
+          _currentCampaign.value = null;
+        }
         _currentEntry.value = null;
         _currentSession.value = null;
         break;
       case WindowTabType.Session:
         throw new Error('Sessions not yet implemented in mainStore.setNewTab()');
-        _currentSession.value = null;  
+        if (tab.header.uuid) {
+          _currentSession.value = await Session.fromUuid(tab.header.uuid);
+        } else {
+          _currentSession.value = null;
+        }
         _currentEntry.value = null;
         _currentCampaign.value = null;
         break;
@@ -117,6 +125,11 @@ export const useMainStore = defineStore('main', () => {
 
     // just force all reactivity to update
     _currentEntry.value = { ..._currentEntry.value };
+  };
+
+  // trigger reactivity and swap out an entry
+  const swapEntry = function (entry: Entry): void {
+    _currentEntry.value = entry;
   };
 
   ///////////////////////////////
@@ -155,5 +168,6 @@ export const useMainStore = defineStore('main', () => {
     setNewWorld,
     setNewTab,
     refreshEntry,
+    swapEntry,
   };
 });

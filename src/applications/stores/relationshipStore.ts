@@ -138,7 +138,9 @@ export const useRelationshipStore = defineStore('relationship', () => {
     relatedEntry.relationships = relatedEntryRelationships;
     await relatedEntry.save();
 
-    mainStore.refreshEntry();
+    // force a table refresh
+    relatedItemRows.value = {...relatedItemRows.value};
+    // mainStore.refreshEntry();
   }
 
   /**
