@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace } from '@/documents';
+import { DOCUMENT_TYPES, EntryDoc, } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { cleanTrees, } from '@/utils/hierarchy';
@@ -190,6 +190,9 @@ export class Entry {
    * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
    */
   public async save(): Promise<Entry | null> {
+    if (!Entry.worldCompendium)
+      throw new Error('No compendium in Entry.save()');
+
     let updateData = this._cumulativeUpdate;
 
     // unlock compendium to make the change
@@ -260,7 +263,7 @@ export class Entry {
     await WorldFlags.setTopicFlag(Entry.worldId, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entryId));
 
     // remove from the expanded list
-    await WorldFlags.unset(Entry.worldId, WorkflagKey.expandedIds, entryId);
+    await WorldFlags.unset(Entry.worldId, WorldFlagKey.expandedIds, entryId);
 
     await entryDoc.delete();
 

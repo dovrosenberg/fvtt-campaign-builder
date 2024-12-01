@@ -5,8 +5,8 @@ import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
-  static worldCompendium: CompendiumCollection<any>;
-  static worldId: string;
+  static worldCompendium: CompendiumCollection<any> | undefined;
+  static worldId: string = '';
 
   private _campaignDoc: JournalEntry;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made

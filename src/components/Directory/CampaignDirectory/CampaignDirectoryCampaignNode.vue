@@ -1,7 +1,7 @@
 <template>
   <li 
-    :class="'fwb-campaign-folder folder entry flexcol fwb-directory-compendium ' + (props.campaign.expanded ? '' : 'collapsed')" 
-    :data-campaign="props.campaign.id"
+    :class="'fwb-campaign-folder folder entry flexcol fwb-directory-compendium ' + (props.campaignNode.expanded ? '' : 'collapsed')" 
+    :data-campaign="props.campaignNode.id"
   >
     <header 
       class="folder-header flexrow"
@@ -13,41 +13,23 @@
         @contextmenu="onCampaignContextMenu"
       >
         <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-        {{ props.campaign.name }}
+        {{ props.campaignNode.name }}
       </div>
     </header>
 
     <!-- These are the sessions -->
     <ul 
-      v-if="props.campaign.expanded"
-      class="campaign-contents"
+      v-if="props.campaignNode.expanded"
+      class="campaign-contents fwb-directory-tree"
     >
-      <!-- data-topic-id is used by drag and drop and toggleEntry-->
-      <!-- <li 
-        v-for="topic in campaign.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
-        :key="topic.topic"
-        :class="'fwb-campaign-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
-        :data-topic="topic.topic" 
-      >
-        <header class="folder-header flexrow">
-          <div 
-            class="fwb-compendium-label noborder" 
-            style="margin-bottom:0px"
-            @click="onTopicFolderClick($event, topic)"
-            @contextmenu="onTopicContextMenu($event, campaign.id, topic.topic)"
-          >
-            <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-            <i :class="'icon fas ' + getTopicIcon(topic.topic)" style="margin-right: 4px;"></i>
-            {{ topic.name }}
-          </div>
-        </header>
-
-        <SessionDirectoryNode
-          :world-id="worldId"
-          :top-node="true"
-          :node="topic"
-        />
-      </li> -->
+      <SessionDirectoryNode 
+        v-for="node in props.campaignNode.loadedChildren"
+        :key="node.id"
+        :session-node="node"
+        :top="true"
+        class="fwb-entry-item" 
+        draggable="true"
+      />
     </ul>
   </li>
 </template>
@@ -64,14 +46,15 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
   
   // local components
+  import SessionDirectoryNode from './SessionDirectoryNode.vue';
   
   // types
-  import { DirectoryCampaignNode, } from '@/classes';
+  import { DirectoryCampaignNode, Session, } from '@/classes';
   
   ////////////////////////////////
   // props
   const props = defineProps({
-    campaign: {
+    campaignNode: {
       type: Object as PropType<DirectoryCampaignNode>,
       required: true,
     }
@@ -89,7 +72,7 @@
   // data
   // we don't just use props node because in toggleWithLoad we want to swap it out without rebuilding
   //   the whole tree
-  const currentNode = ref<DirectoryCampaignNode>(props.campaign);
+  const currentNode = ref<DirectoryCampaignNode>(props.campaignNode);
   
   ////////////////////////////////
   // computed data
@@ -123,7 +106,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.campaignFolder.createSession'), 
           onClick: async () => {
-            await campaignDirectoryStore.createSession(props.campaign.id);
+            await Session.create(props.campaignNode.id);
           }
         },
         { 
@@ -131,7 +114,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.campaignFolder.delete'), 
           onClick: async () => {
-            await campaignDirectoryStore.deleteCampaign(props.campaign.id);
+            await campaignDirectoryStore.deleteCampaign(props.campaignNode.id);
           }
         },
       ]

@@ -2,9 +2,8 @@
  * A class representing an node representing a campaign in the campaign tree structures
  */
 
-import { CollapsibleNode, DirectorySessionNode, } from '@/classes';
+import { CollapsibleNode, DirectorySessionNode, Session, } from '@/classes';
 import { WorldFlagKey } from '@/settings/WorldFlags';
-import { Session } from '@/classes';
 
 export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode> {
   name: string;
@@ -35,12 +34,11 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
     // we only want to load ones not already in _loadedNodes, unless its in updateIds
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
     
-    const campaign = Campaign.fromUuid(this.id);  // campaign that goes with this node
-    //const entries = (myJournal?.collections.pages.filter((s: SessionDoc)=>uuidsToLoad.includes(s.uuid)) || []) as SessionDoc[];
+    const sessions = Session.filter(this.id, (s: Session)=> uuidsToLoad.includes(s.uuid)) || [] as Session[];
 
-    // for (let i=0; i<entries.length; i++) {
-    //   const newNode = DirectorySessionNode.fromSession(entries[i], this.id);
-    //   CollapsibleNode._loadedNodes[newNode.id] = newNode;
-    // }
+    for (let i=0; i<sessions.length; i++) {
+      const newNode = DirectorySessionNode.fromSession(sessions[i], this.id);
+      CollapsibleNode._loadedNodes[newNode.id] = newNode;
+    }
   }
 }

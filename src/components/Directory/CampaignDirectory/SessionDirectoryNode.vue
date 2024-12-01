@@ -1,19 +1,14 @@
 <template>
-  <TopicDirectoryNodeWithChildren 
-    v-if="props.node.children.length" 
-    :node="props.node"
-    :world-id="props.worldId"
-    :topic="props.topic"
-    :top="props.top"
-  />
-  <li v-else-if="filterNodes[props.node.topic]?.includes(props.node.id)">
+  <!-- <li v-if="true /*filterNodes[props.node.topic]?.includes(props.node.id)*/"> -->
+
+  <li>
     <div 
-      :class="`${props.node.id===currentSession?.uuid ? 'fwb-current-directory-entry' : ''}`"
+      :class="`${props.sessionNode.id===currentSession?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
-      @click="onDirectoryItemClick"
+      @click="onSessionClick"
     >
-      {{ props.node.name }}
+      {{ props.sessionNode.name }}
     </div>
   </li>
 </template>
@@ -24,24 +19,20 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useNavigationStore, useTopicDirectoryStore, } from '@/applications/stores';
+  import { useMainStore, useNavigationStore, } from '@/applications/stores';
   
   // library components
   
   // local components
 
   // types
-  import { SessionDirectoryNode, } from '@/classes';
+  import { DirectorySessionNode, } from '@/classes';
   
   ////////////////////////////////
   // props
   const props = defineProps({
-    worldId: {
-      type: String,
-      required: true
-    },
-    node: { 
-      type: Object as PropType<SessionDirectoryNode>,
+    sessionNode: { 
+      type: Object as PropType<DirectorySessionNode>,
       required: true,
     },
     top: {    // applies special class to top level
@@ -56,10 +47,9 @@
   ////////////////////////////////
   // store
   const navigationStore = useNavigationStore();
-  const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const { currentSession, } = storeToRefs(mainStore);
-  const { filterNodes } = storeToRefs(topicDirectoryStore);
+  // const { filterNodes } = storeToRefs(topicDirectoryStore);
   
   ////////////////////////////////
   // data
@@ -74,11 +64,11 @@
 
   ////////////////////////////////
   // event handlers
-  const onDirectoryItemClick = async (event: MouseEvent) => {
+  const onSessionClick = async (event: MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
     
-    await navigationStore.openEntry(props.node.id, {newTab: event.ctrlKey});
+    // await navigationStore.openEntry(props.sessionNode.id, {newTab: event.ctrlKey});
   };
 
   ////////////////////////////////

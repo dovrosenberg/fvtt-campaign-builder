@@ -35,7 +35,7 @@
 
   // types
   import { Topic, ValidTopic } from '@/types';
-  import { CollapsibleNode, Entry, Campaign } from '@/classes';
+  import { CollapsibleNode, Entry, Campaign, Session } from '@/classes';
   import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
   
   ////////////////////////////////
@@ -134,8 +134,9 @@
       for (let i=0; i<Object.keys(campaignEntries).length; i++) {
         // we need to load the actual entries - not just the index headers
         const j = await(fromUuid(Object.keys(campaignEntries)[i])) as JournalEntry | null;
-        if (j)
-          campaignJournals.push(j);
+        if (j) {
+          campaignJournals[j.uuid] = j;
+        }
       }
 
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
@@ -143,8 +144,11 @@
       Entry.worldId = worldId;
       Campaign.worldCompendium = worldCompendium;
       Campaign.worldId = worldId;
+      Session.worldCompendium = worldCompendium;
+      Session.worldId = worldId;
+      Session.currentCampaignJournals = campaignJournals;
       CollapsibleNode.currentWorldId = worldId;
-
+      
       rootFolder.value = folders.rootFolder;
       currentWorldFolder.value = folders.worldFolder;
 

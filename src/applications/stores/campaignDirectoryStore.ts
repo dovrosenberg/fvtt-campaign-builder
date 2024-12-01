@@ -2,12 +2,12 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { reactive, watch, } from 'vue';
+import { reactive, ref, watch, } from 'vue';
 
 // local imports
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { useMainStore } from '@/applications/stores';
-import { DirectoryCampaignNode, Campaign } from '@/classes';
+import { DirectoryCampaignNode, Campaign, Session } from '@/classes';
 
 // types
 
@@ -23,6 +23,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
   ///////////////////////////////
   // internal state
+  const isCampaignTreeLoading = ref<boolean>(false);
 
   ///////////////////////////////
   // external state
@@ -48,10 +49,12 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   };
  
   // refreshes the campaign tree 
-  const refreshCampaignDirectoryTree = async (updateIds: string[] = []): void => {
+  const refreshCampaignDirectoryTree = async (updateIds: string[] = []): Promise<void> => {
     // need to have a current world and journals loaded
     if (!currentWorldId.value)
       return;
+
+    isCampaignTreeLoading.value = true;
 
     const campaigns = WorldFlags.get(currentWorldId.value, WorldFlagKey.campaignEntries) || {};  
     const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
@@ -61,15 +64,17 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     // get the all the campaigns 
     for (let i=0; i<Object.keys(campaigns).length; i++) {
       const id = Object.keys(campaigns)[i];
+      const children = (await Session.getSessionsForCampaign(id)).map(session => session.uuid);
 
       currentCampaignTree.value.push(new DirectoryCampaignNode(
         id,
-        campaigns[id],
+        campaigns[id],  // name
         expandedNodes[id] || false,
+        children,
         [],
-        [],
-      ));
+      ));      
     }
+    currentCampaignTree.value.sort((a: DirectoryCampaignNode, b: DirectoryCampaignNode) => a.name.localeCompare(b.name));
 
     // load any open campaigns
     for (let i=0; i<currentCampaignTree.value.length; i++) {
@@ -81,6 +86,8 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       // have to check all children are loaded and expanded properly
       await campaignNode.recursivelyLoadNode(expandedNodes, updateIds);
     } 
+
+    isCampaignTreeLoading.value = false;
   };
 
   const deleteCampaign = async(campaignId: string): Promise<void> => {

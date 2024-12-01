@@ -10,7 +10,7 @@ import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
 
 // types
-import { Topic, ValidTopic, WindowTabType } from '@/types';
+import { Topic, WindowTabType } from '@/types';
 import { WindowTab, Entry, Campaign, } from '@/classes';
 import { SessionDoc } from '@/documents';
 
@@ -47,6 +47,7 @@ export const useMainStore = defineStore('main', () => {
     return pack;
   });
 
+  // these are the currently selected entry shown in the main tab
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
   const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
   const currentCampaign = computed((): Campaign | null => _currentCampaign?.value || null);

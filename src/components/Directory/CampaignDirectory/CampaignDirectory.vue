@@ -19,7 +19,7 @@
         <CampaignDirectoryCampaignNode 
           v-for="campaign in campaignDirectoryStore.currentCampaignTree.value"
           :key="campaign.id"
-          :campaign="campaign"
+          :campaign-node="campaign"
         />
       </ol>
     </li>
