@@ -263,7 +263,10 @@
 
   ////////////////////////////////
   // watchers
-  watch([currentEntry, currentWorldId], async (): Promise<void> => {
+  watch([currentEntry], async (): Promise<void> => {
+    // reset the tab
+    currentContentTab.value = 'description';
+
     if (!currentEntry.value) {
       topic.value = null;
     } else {
