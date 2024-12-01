@@ -167,7 +167,7 @@
             if (!worldFolder || !props.topic)
               throw new Error('Invalid header in TopicDirectoryNode.onEntryContextMenu.onClick');
 
-            const entry = await topicDirectoryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
+            const entry = await topicDirectoryStore.createEntry(props.topic, { parentId: props.node.id} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

@@ -58,7 +58,7 @@
         <div class="tab description flexcol" data-group="primary" data-tab="description">
           <div class="tab-inner flexcol">
             <Editor 
-              :initialContent="currentEntry?.description || ''"
+              :initial-content="currentEntry?.description || ''"
               :has-button="true"
               target="content-description"
               @editor-saved="onDescriptionEditorSaved"
@@ -126,7 +126,7 @@
   const mainStore = useMainStore();
   const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
-  const { currentEntry, currentWorldId, currentContentTab  } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldId, currentContentTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data

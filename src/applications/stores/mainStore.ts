@@ -2,17 +2,16 @@
 
 // library imports
 import { defineStore, } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, } from 'vue';
 
 // local imports
 import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
-import { CollapsibleNode } from '@/classes';
 
 // types
 import { Topic, ValidTopic, WindowTabType } from '@/types';
-import { WindowTab, Entry, Campaign } from '@/classes';
+import { WindowTab, Entry, Campaign, } from '@/classes';
 import { SessionDoc } from '@/documents';
 
 // the store definition

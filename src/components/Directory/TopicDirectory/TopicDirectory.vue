@@ -76,7 +76,7 @@
   
   // types
   import { Topic, WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign } from '@/classes';
+  import { DirectoryTopicNode, Campaign, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -174,7 +174,7 @@
             if (!worldFolder || !topic)
               throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
-            const entry = await topicDirectoryStore.createEntry(worldFolder, topic, {} );
+            const entry = await topicDirectoryStore.createEntry(topic, {} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

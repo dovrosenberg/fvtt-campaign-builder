@@ -104,7 +104,7 @@
 
   ////////////////////////////////
   // event handlers
-  const onEntryToggleClick = async (event: MouseEvent) => {
+  const onEntryToggleClick = async (_event: MouseEvent) => {
     currentNode.value = await topicDirectoryStore.toggleWithLoad(currentNode.value, !currentNode.value.expanded);
   };
 
@@ -190,7 +190,7 @@
             if (!worldFolder || !props.topic)
               throw new Error('Invalid header in TopicDirectoryNodeWithChildren.onEntryContextMenu.onClick');
 
-            const entry = await topicDirectoryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
+            const entry = await topicDirectoryStore.createEntry(props.topic, { parentId: props.node.id} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

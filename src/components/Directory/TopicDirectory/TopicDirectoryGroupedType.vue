@@ -62,7 +62,7 @@
 
   // types
   import { ValidTopic, } from '@/types';
-  import { DirectoryTypeNode, } from '@/classes';
+  import { DirectoryTypeNode, Entry } from '@/classes';
 
   
   ////////////////////////////////
@@ -139,7 +139,9 @@
       return false;
 
     // set the new type
-    await topicDirectoryStore.updateEntryType(await Entry.fromUuid(data.id), currentType.value.name);
+    const entry = await Entry.fromUuid(data.id);
+    if (entry)
+      await topicDirectoryStore.updateEntryType(entry, currentType.value.name);
 
     return true;
   };
@@ -167,7 +169,7 @@
             if (!worldFolder)
               throw new Error('Invalid header in TopicDirectoryGroupedType.onTypeContextMenu.onClick');
 
-            const entry = await topicDirectoryStore.createEntry(worldFolder, props.topic, { type: props.type.name } );
+            const entry = await topicDirectoryStore.createEntry(props.topic, { type: props.type.name } );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
