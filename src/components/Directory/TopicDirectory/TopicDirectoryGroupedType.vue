@@ -50,7 +50,7 @@
   import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useNavigationStore, useTopicDirectoryStore, useMainStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useNavigationStore, useTopicDirectoryStore, useMainStore } from '@/applications/stores';
   import { getGame, localize } from '@/utils/game';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   
@@ -62,7 +62,7 @@
 
   // types
   import { ValidTopic, } from '@/types';
-  import { DirectoryTypeNode, } from '@/classes';
+  import { DirectoryTypeNode, Entry } from '@/classes';
 
   
   ////////////////////////////////
@@ -90,7 +90,6 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const currentEntryStore = useCurrentEntryStore();
   const { currentWorldId } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(topicDirectoryStore);
   
@@ -140,7 +139,9 @@
       return false;
 
     // set the new type
-    await topicDirectoryStore.updateEntryType(await Entry.fromUuid(data.id), currentType.value.name);
+    const entry = await Entry.fromUuid(data.id);
+    if (entry)
+      await topicDirectoryStore.updateEntryType(entry, currentType.value.name);
 
     return true;
   };
@@ -168,7 +169,7 @@
             if (!worldFolder)
               throw new Error('Invalid header in TopicDirectoryGroupedType.onTypeContextMenu.onClick');
 
-            const entry = await currentEntryStore.createEntry(worldFolder, props.topic, { type: props.type.name } );
+            const entry = await topicDirectoryStore.createEntry(props.topic, { type: props.type.name } );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

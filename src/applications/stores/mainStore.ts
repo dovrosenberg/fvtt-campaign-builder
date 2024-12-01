@@ -2,17 +2,17 @@
 
 // library imports
 import { defineStore, } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, } from 'vue';
 
 // local imports
 import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
-import { CollapsibleNode } from '@/classes';
+import { useNavigationStore } from './navigationStore';
 
 // types
 import { Topic, ValidTopic, WindowTabType } from '@/types';
-import { WindowTab, Entry, Campaign } from '@/classes';
+import { WindowTab, Entry, Campaign, CollapsibleNode } from '@/classes';
 import { SessionDoc } from '@/documents';
 
 // the store definition
@@ -29,6 +29,7 @@ export const useMainStore = defineStore('main', () => {
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<SessionDoc  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
+  const navigationStore = useNavigationStore();
 
   ///////////////////////////////
   // external state

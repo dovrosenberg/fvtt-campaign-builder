@@ -2,7 +2,7 @@
   <!-- these are the worlds -->
   <ol class="fwb-world-list">
     <li 
-      v-for="world in directoryStore.currentWorldTree.value"
+      v-for="world in topicDirectoryStore.currentWorldTree.value"
       :key="world.id"
       :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
       @click="onWorldFolderClick($event, world.id)"
@@ -65,7 +65,7 @@
   // local imports
   import { getGame, localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore, useCampaignDirectoryStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -76,7 +76,7 @@
   
   // types
   import { Topic, WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign } from '@/classes';
+  import { DirectoryTopicNode, Campaign, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -88,11 +88,10 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const directoryStore = useTopicDirectoryStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const currentEntryStore = useCurrentEntryStore();
   const { currentWorldId } = storeToRefs(mainStore);
-  const { isGroupedByType } = storeToRefs(directoryStore);
+  const { isGroupedByType } = storeToRefs(topicDirectoryStore);
 
   ////////////////////////////////
   // data
@@ -132,7 +131,7 @@
           label: localize('fwb.contextMenus.worldFolder.delete'), 
           onClick: async () => {
             if (worldId) {
-              await directoryStore.deleteWorld(worldId);
+              await topicDirectoryStore.deleteWorld(worldId);
               campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
@@ -175,7 +174,7 @@
             if (!worldFolder || !topic)
               throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
-            const entry = await currentEntryStore.createEntry(worldFolder, topic, {} );
+            const entry = await topicDirectoryStore.createEntry(topic, {} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -190,7 +189,7 @@
   const onTopicFolderClick = async (event: MouseEvent, directoryTopic: DirectoryTopicNode) => { 
     event.stopPropagation();
 
-    await directoryStore.toggleTopic(directoryTopic);
+    await topicDirectoryStore.toggleTopic(directoryTopic);
   };
 
   ////////////////////////////////

@@ -50,25 +50,22 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { getTabTypeIcon, } from '@/utils/misc';
-  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { localize } from '@/utils/game';
-  import { useTopicDirectoryStore, useCampaignDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
   
   // library components
   import InputText from 'primevue/inputtext';
 
   // local components
   import Editor from '@/components/Editor.vue';
-  import CampaignDirectory from 'src/components/Directory/CampaignDirectory/CampaignDirectory.vue';
   
   // types
   import { Topic, WindowTabType, } from '@/types';
-  import { Entry } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -79,12 +76,8 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const topicDirectoryStore = useTopicDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const navigationStore = useNavigationStore();
-  const currentEntryStore = useCurrentEntryStore();
-  const { currentCampaign, currentWorldId, currentWorldCompendium, } = storeToRefs(mainStore);
-  const { currentTopicTab } = storeToRefs(currentEntryStore);
+  const { currentCampaign, currentContentTab, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -93,16 +86,12 @@
   const topic = ref<Topic | null>(null);
   const name = ref<string>('');
 
-  const editorDocument = ref<Entry>();
-
   const contentRef = ref<HTMLElement | null>(null);
-  const parentId = ref<string | null>(null);
-  const validParents = ref<{id: string; label: string}[]>([]);
   const icon =  getTabTypeIcon(WindowTabType.Campaign);
  
   ////////////////////////////////
   // computed data
-  const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
+  const namePlaceholder = computed((): string => (localize('fwb.placeholders.campaignName') || ''));
   
   ////////////////////////////////
   // methods
@@ -161,7 +150,7 @@
 
     // update the store when tab changes
     tabs.value.callback = () => {
-      currentTopicTab.value = tabs.value?.active || null;
+      currentContentTab.value = tabs.value?.active || null;
     };
 
     // have to wait until they render

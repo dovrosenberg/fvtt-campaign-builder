@@ -20,7 +20,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { toTopic } from '@/utils/misc';
 
@@ -57,10 +57,9 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const directoryStore = useTopicDirectoryStore();
-  const currentEntryStore = useCurrentEntryStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
   const { currentEntry, currentWorldId } = storeToRefs(mainStore);
-  const { filterNodes } = storeToRefs(directoryStore);
+  const { filterNodes } = storeToRefs(topicDirectoryStore);
 
   ////////////////////////////////
   // data
@@ -121,7 +120,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await currentEntryStore.deleteEntry(props.topic, props.node.id);
+            await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
           }
         },
       ]

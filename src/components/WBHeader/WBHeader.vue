@@ -78,7 +78,6 @@
 
   // local imports
   import { localize } from '@/utils/game';
-  import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components

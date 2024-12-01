@@ -58,7 +58,7 @@
         <div class="tab description flexcol" data-group="primary" data-tab="description">
           <div class="tab-inner flexcol">
             <Editor 
-              :initialContent="currentEntry?.description || ''"
+              :initial-content="currentEntry?.description || ''"
               :has-button="true"
               target="content-description"
               @editor-saved="onDescriptionEditorSaved"
@@ -101,7 +101,7 @@
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -126,9 +126,7 @@
   const mainStore = useMainStore();
   const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
-  const currentEntryStore = useCurrentEntryStore();
-  const { currentEntry, currentWorldId,  } = storeToRefs(mainStore);
-  const { currentTopicTab } = storeToRefs(currentEntryStore);
+  const { currentEntry, currentWorldId, currentContentTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -283,7 +281,7 @@
 
     // update the store when tab changes
     tabs.value.callback = () => {
-      currentTopicTab.value = tabs.value?.active || null;
+      currentContentTab.value = tabs.value?.active || null;
     };
 
     // have to wait until they render
