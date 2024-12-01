@@ -188,17 +188,17 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
     const t = topics[i];
 
     // if the value is blank or we can't find the entry create a new one
-    let entry = compendium.index.find((e)=> e.uuid===topicEntries[t]);
-    if (!entry) {
+    let topicJournal = compendium.index.find((e)=> e.uuid===topicEntries[t]);
+    if (!topicJournal) {
       // create the missing one
-      entry = await JournalEntry.create({
+      topicJournal = await JournalEntry.create({
         name: getTopicTextPlural(t),
         folder: worldFolder.id,
       },{
         pack: compendiumId,
       });
 
-      topicEntries[t] = entry.uuid;  
+      topicEntries[t] = topicJournal.uuid;  
     
       updated = true;
     }

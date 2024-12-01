@@ -38,7 +38,7 @@
       "eventName": "Event Name",
       "locationName": "Location Name",
       "organizationName": "Organization Name",
-      "sceneName": "Scene Name"
+      "campaignName": "Campaign Name"
     },
     "compendia": {
       "entry": "Entries",

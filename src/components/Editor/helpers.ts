@@ -135,7 +135,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
    * @returns {boolean}      Whether the resulting link is broken or not.
    * @private
    */
-function createLegacyContentLink (type: string, target: string, name: string, data: any): boolean {
+function createLegacyContentLink (type: string, target: string, _name: string, data: any): boolean {
   let broken = false;
 
   // Get a matched World document

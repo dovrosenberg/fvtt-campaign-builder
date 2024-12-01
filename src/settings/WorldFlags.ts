@@ -108,7 +108,7 @@ export abstract class WorldFlags {
       if (!f.getFlag(moduleJson.id, flagSetup[i].flagId)) {
         const value =  foundry.utils.deepClone(flagSetup[i].default);
 
-        if (flagSetup[i].clean) {
+        if (flagSetup[i].clean && value) {
           flagSetup[i].clean(value);
         }
 
@@ -144,7 +144,7 @@ export abstract class WorldFlags {
     if (!config)
       throw new Error('Bad flag in WorldFlags.set()');
 
-    if (config.clean) {
+    if (config.clean && value) {
       config.clean(value);
     }
 

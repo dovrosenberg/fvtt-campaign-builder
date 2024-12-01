@@ -12,9 +12,8 @@ import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { useMainStore } from './mainStore';
 
 // types
-import { Bookmark, TabHeader, WindowTabType } from '@/types';
+import { Bookmark, TabHeader, WindowTabType, } from '@/types';
 import { WindowTab, Entry, Campaign } from '@/classes';
-
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -271,7 +270,6 @@ export const useNavigationStore = defineStore('navigation', () => {
       await mainStore.setNewTab(getActiveTab(true) as WindowTab);
     }
   }
-
  
   const cleanupDeletedEntry = async(entryId: string): Promise<void> => {
     let activeTabId = '';
@@ -376,7 +374,6 @@ export const useNavigationStore = defineStore('navigation', () => {
   return {
     tabs,
     bookmarks,
-    currentWorldId,
 
     openEntry,
     openSession,
