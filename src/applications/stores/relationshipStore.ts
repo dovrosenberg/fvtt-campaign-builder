@@ -232,6 +232,35 @@ export const useRelationshipStore = defineStore('relationship', () => {
     mainStore.refreshEntry();
   }
 
+  /**
+   * Propogate a name change to all related entries.  
+   * @param entryId The id of the entry whose name has changed
+   * @param newName The new name
+   * @returns A promise that resolves when the name change has been propogated
+   */
+  async function propogateNameChange(entry: Entry): Promise<void> {
+    // relationships are bi-directional, so look at all the relationships for the entry    
+    if (!entry || !entry.relationships)
+      return;
+
+    // for each one, go to the matching (reverse) relationship on the related item and update the name
+    for (const topic of Object.keys(entry.relationships)) {
+      for (const relatedEntryId of Object.keys(entry.relationships[topic])) {
+        const relatedEntry = await Entry.fromUuid(relatedEntryId);
+        if (!relatedEntry || !relatedEntry.relationships || !entry.topic)
+          continue;
+
+        const relatedRelationship = relatedEntry.relationships[entry.topic][entry.uuid];
+
+        if (!relatedRelationship)
+          continue;
+
+        relatedRelationship.name = entry.name;
+        await relatedEntry.save();
+      }
+    }
+  }
+  
   // return all of the related items to this one for a given topic
   async function getRelationships<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic>(topic: RelatedTopic): 
       Promise<RelatedItemDetails<PrimaryTopic, RelatedTopic>[]> {
@@ -305,5 +334,6 @@ export const useRelationshipStore = defineStore('relationship', () => {
     deleteRelationship,
     editRelationship,
     getRelationships,
+    propogateNameChange
   };
 });

@@ -6,8 +6,6 @@ import { Topic, } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { toTopic } from '@/utils/misc';
-import { relationshipKeyReplace } from '@/documents';
-
 
 /**
  * Gets the root folder.

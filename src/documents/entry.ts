@@ -5,7 +5,6 @@ const entrySchema = {
   topic: new fields.NumberField({ required: true, nullable: false, validate: (value: number) => { return Object.values(Topic).includes(value); }, textSearch: true, }),
   type: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
 
-  // @todo - should it be JSON?
   relationships: new fields.ObjectField({ required: true, nullable: false, initial: {
     [Topic.Character]: {},
     [Topic.Event]: {},
@@ -13,6 +12,10 @@ const entrySchema = {
     [Topic.Organization]: {},
   } as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>   // all the things related to this item, grouped by topic
   }),    // keyed by topic, then entryId
+
+  // we store these separately, for simplicity... for now, they're only used by one topic each
+  scenes: new fields.ArrayField(new fields.DocumentUUIDField({blank: false, type: 'Scene'}), { required: true, initial: [] }),
+  actors: new fields.ArrayField(new fields.DocumentUUIDField({blank: false, type: 'Actor'}), { required: true, initial: [] }),
 
   // description: new fields.SchemaField({
   //   short: new fields.HTMLField({required: false, blank: true})
@@ -54,7 +57,6 @@ export const relationshipKeyReplace = (relationships: RelationshipFieldType, ser
   return newRelationships;
 };
 
-
 const serializeEntryId = (entryId: string): string => { return entryId.replace(/\./g, '_'); };
 const deserializeEntryId = (entryId: string): string => { return entryId.replace(/_/g, '.'); };
 
@@ -67,5 +69,8 @@ export interface EntryDoc extends JournalEntryPage {
      * Keyed by topic, then entryId 
      */ 
     relationships: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> | undefined;  // keyed by topic then by entryId
+
+    scenes: string[];
+    actors: string[];
   };
 }

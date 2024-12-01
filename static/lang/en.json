@@ -27,6 +27,7 @@
         "organizations": "Organizations",
         "organizationChildren": "Sub-organizations",
         "scenes": "Scenes",
+        "actors": "Actors",
         "pcs": "PCs"
       },
       "noResults": "Nothing here",

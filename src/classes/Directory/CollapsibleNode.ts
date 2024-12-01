@@ -4,7 +4,6 @@
 
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode } from '@/classes';
-import { ValidTopic, Topic } from '@/types';
 
 type ExpandedIdsFlags = WorldFlagKey.expandedIds | WorldFlagKey.expandedCampaignIds;
 

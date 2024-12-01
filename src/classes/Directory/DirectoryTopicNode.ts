@@ -3,7 +3,7 @@
  */
 
 import { ValidTopic, } from '@/types';
-import { Entry, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, CollapsibleNode } from '@/classes';
+import { Entry, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 
 export class DirectoryTopicNode extends DirectoryTopicTreeNode {

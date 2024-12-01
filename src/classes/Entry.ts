@@ -73,7 +73,9 @@ export class Entry {
           [Topic.Event]: {},
           [Topic.Location]: {},
           [Topic.Organization]: {},
-        }
+        },
+        actors: [],
+        scenes: [],
       }
     }],{
       parent: Entry.currentTopicJournals[topic],
@@ -163,6 +165,22 @@ export class Entry {
         relationships: value,
       }
     }
+  }
+
+  get scenes(): string[] {
+    return this._entryDoc.system.scenes || [];
+  }  
+
+  set scenes(value: string[]) {
+    this._entryDoc.system.scenes = value;
+  }
+
+  get actors(): string[] {
+    return this._entryDoc.system.scenes || [];
+  }  
+
+  set actors(value: string[]) {
+    this._entryDoc.system.scenes = value;
   }
 
   // used to set arbitrary properties on the entryDoc

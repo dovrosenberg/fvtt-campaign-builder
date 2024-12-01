@@ -37,7 +37,7 @@
   // !!! TODO - use vue-safe-html instead of v-html!!!
 
   // library imports
-  import { PropType, computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -49,7 +49,6 @@
   // local components
 
   // types
-  import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs';
   const ProseMirror = globalThis.foundry.prosemirror;
 
   // type EditorOptions = {

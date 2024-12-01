@@ -175,7 +175,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return false;
 
     // make sure they share a topic 
-    if (parent && child.topic !== parent.topic)
+    if (child.topic !== parent.topic)
       return false;
      
     // next, confirm it's a valid target (the child must not be in the parent's ancestor list - or we get loops)

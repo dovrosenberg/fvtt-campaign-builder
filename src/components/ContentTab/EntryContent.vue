@@ -53,6 +53,20 @@
         >
           {{ localize(relationship.label) }}
         </a>
+        <a 
+          v-if="topic===Topic.Character"
+          class="item" 
+          :data-tab="actors"
+        >
+          {{ localize('fwb.labels.tabs.actors') }}
+        </a>
+        <a 
+          v-if="topic===Topic.Location"
+          class="item" 
+          :data-tab="scenes"
+        >
+          {{ localize('fwb.labels.tabs.scenes') }}
+        </a>
       </nav>
       <div class="fwb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
@@ -85,6 +99,16 @@
             <RelatedItemTable :topic="Topic.Event" />
           </div>
         </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="scenes">
+          <div class="tab-inner flexcol">
+            Scenes
+          </div>
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="actors">
+          <div class="tab-inner flexcol">
+            Actors
+          </div>
+        </div>
       </div>
     </div>
   </form>	 
@@ -93,7 +117,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -101,7 +125,7 @@
   import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
   import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -126,6 +150,7 @@
   const mainStore = useMainStore();
   const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
+  const relationshipStore = useRelationshipStore();
   const { currentEntry, currentWorldId, currentContentTab, } = storeToRefs(mainStore);
 
   ////////////////////////////////
@@ -142,7 +167,6 @@
     { tab: 'locations', label: 'fwb.labels.tabs.locations',},
     { tab: 'organizations', label: 'fwb.labels.tabs.organizations', },
     { tab: 'events', label: 'fwb.labels.tabs.events', },
-    { tab: 'scenes', label: 'fwb.labels.tabs.scenes', },
   ] as { tab: string; label: string }[];
 
   const tabs = ref<Tabs>();
@@ -180,10 +204,11 @@
       const newValue = newName || '';
       if (currentEntry.value && currentEntry.value.name!==newValue) {
         currentEntry.value.name = newValue;
-        await currentEntry.save();
+        await currentEntry.value.save();
 
         await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
         await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue);
+        await relationshipStore.propogateNameChange(currentEntry.value);
       }
     }, debounceTime);
   };
