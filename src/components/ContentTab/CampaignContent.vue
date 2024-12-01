@@ -77,13 +77,12 @@
   // store
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentContentTab, } = storeToRefs(mainStore);
+  const { currentCampaign, currentContentTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
 
   const tabs = ref<Tabs>();
-  const topic = ref<Topic | null>(null);
   const name = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);

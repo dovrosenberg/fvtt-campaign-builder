@@ -50,7 +50,7 @@
   import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useNavigationStore, useTopicDirectoryStore, useMainStore } from '@/applications/stores';
+  import { useNavigationStore, useTopicDirectoryStore, useMainStore, } from '@/applications/stores';
   import { getGame, localize } from '@/utils/game';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   

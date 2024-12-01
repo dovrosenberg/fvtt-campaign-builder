@@ -27,7 +27,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { getGame, localize } from '@/utils/game';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
 

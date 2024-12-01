@@ -20,7 +20,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { toTopic } from '@/utils/misc';
 

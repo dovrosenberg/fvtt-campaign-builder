@@ -45,7 +45,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getGame, localize } from '@/utils/game';
 
@@ -191,7 +191,6 @@
               throw new Error('Invalid header in TopicDirectoryNodeWithChildren.onEntryContextMenu.onClick');
 
             const entry = await topicDirectoryStore.createEntry(props.topic, { parentId: props.node.id} );
- 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
             }
