@@ -191,6 +191,7 @@
               throw new Error('Invalid header in TopicDirectoryNodeWithChildren.onEntryContextMenu.onClick');
 
             const entry = await topicDirectoryStore.createEntry(props.topic, { parentId: props.node.id} );
+
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
             }

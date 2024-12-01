@@ -126,7 +126,7 @@
   const mainStore = useMainStore();
   const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
-  const { currentEntry, currentWorldId, currentContentTab } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldId, currentContentTab, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
