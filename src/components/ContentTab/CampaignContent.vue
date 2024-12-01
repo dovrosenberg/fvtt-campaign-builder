@@ -77,7 +77,7 @@
   // store
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentContentTab } = storeToRefs(mainStore);
+  const { currentCampaign, currentWorldId, currentWorldCompendium, currentContentTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
