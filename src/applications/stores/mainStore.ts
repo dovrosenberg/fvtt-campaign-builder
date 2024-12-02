@@ -11,8 +11,8 @@ import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
 
 // types
 import { Topic, WindowTabType } from '@/types';
-import { WindowTab, Entry, Campaign, } from '@/classes';
-import { SessionDoc } from '@/documents';
+import { WindowTab, Entry, Campaign, Session, } from '@/classes';
+import { EntryDoc, SessionDoc, CampaignDoc } from '@/documents';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
@@ -26,7 +26,7 @@ export const useMainStore = defineStore('main', () => {
   // internal state
   const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
-  const _currentSession = ref<SessionDoc  | null>(null);  // current session (when showing a session tab)
+  const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
 
   ///////////////////////////////
@@ -51,7 +51,7 @@ export const useMainStore = defineStore('main', () => {
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
   const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
   const currentCampaign = computed((): Campaign | null => _currentCampaign?.value || null);
-  const currentSession = computed((): SessionDoc | null => _currentSession?.value || null);
+  const currentSession = computed((): Session | null => _currentSession?.value || null);
   const currentContentType = computed((): WindowTabType | null => _currentTab?.value?.tabType);  
 
   // the currently selected tab for the entry
@@ -98,7 +98,6 @@ export const useMainStore = defineStore('main', () => {
         _currentSession.value = null;
         break;
       case WindowTabType.Session:
-        throw new Error('Sessions not yet implemented in mainStore.setNewTab()');
         if (tab.header.uuid) {
           _currentSession.value = await Session.fromUuid(tab.header.uuid);
         } else {
@@ -117,15 +116,30 @@ export const useMainStore = defineStore('main', () => {
 
   /**
    * Refreshes the current entry by forcing all reactive properties to update.
-   * This is achieved by creating a shallow copy of the current entry, which triggers
-   * reactivity updates throughout the application.
+   * This is achieved by simply creating a new entry based on the EntryDoc of the current one
    */
   const refreshEntry = function (): void {
     if (!_currentEntry.value)
       return;
 
     // just force all reactivity to update
-    _currentEntry.value = new Entry(_currentEntry.value.raw);
+    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc);
+  };
+
+  const refreshCampaign = function (): void {
+    if (!_currentCampaign.value)
+      return;
+
+    // just force all reactivity to update
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc);
+  };
+
+  const refreshSession = function (): void {
+    if (!_currentSession.value)
+      return;
+
+    // just force all reactivity to update
+    _currentSession.value = new Entry(_currentSession.value.raw as SessionDoc);
   };
 
   ///////////////////////////////
@@ -164,5 +178,7 @@ export const useMainStore = defineStore('main', () => {
     setNewWorld,
     setNewTab,
     refreshEntry,
+    refreshCampaign,
+    refreshSession,
   };
 });

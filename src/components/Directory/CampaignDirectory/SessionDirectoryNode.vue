@@ -68,7 +68,7 @@
     event.stopPropagation();
     event.preventDefault();
     
-    // await navigationStore.openEntry(props.sessionNode.id, {newTab: event.ctrlKey});
+    await navigationStore.openSession(props.sessionNode.id, {newTab: event.ctrlKey});
   };
 
   ////////////////////////////////

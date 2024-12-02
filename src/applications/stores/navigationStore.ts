@@ -13,7 +13,7 @@ import { useMainStore } from './mainStore';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign } from '@/classes';
+import { WindowTab, Entry, Campaign, Session } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -132,8 +132,8 @@ export const useNavigationStore = defineStore('navigation', () => {
         }
       }; break;
       case WindowTabType.Session: {
-        // const session = contentId ? await Session.fromUuid(contentId) : null;
-        if (true) { // (!session) {
+        const session = contentId ? await Session.fromUuid(contentId) : null;
+        if (!session) {
           badId = true;
         } else {
           name = 'SESSION',

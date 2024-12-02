@@ -2,21 +2,22 @@ import { toRaw } from 'vue';
 import { id as moduleId } from '@module';
 import { inputDialog } from '@/dialogs/input';
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags'; 
+import { CampaignDoc } from '@/documents';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
   static worldCompendium: CompendiumCollection<any> | undefined;
   static worldId: string = '';
 
-  private _campaignDoc: JournalEntry;
+  private _campaignDoc: CampaignDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
   private _description: string;   // track separately because flags aren't stored on update()
 
   /**
    * 
-   * @param {JournalEntry} campaignDoc - The entry Foundry document
+   * @param {CampaignDoc} campaignDoc - The entry Foundry document
    */
-  constructor(campaignDoc: JournalEntry) {
+  constructor(campaignDoc: CampaignDoc) {
     // make sure it's the right kind of document
     if (campaignDoc.documentName !== 'JournalEntry' || !campaignDoc.getFlag(moduleId, 'isCampaign'))
       throw new Error('Invalid document type in Campaign constructor');
@@ -28,7 +29,7 @@ export class Campaign {
   }
 
   static async fromUuid(entryId: string, options?: Record<string, any>): Promise<Campaign | null> {
-    const campaignDoc = await fromUuid(entryId, options) as JournalEntry;
+    const campaignDoc = await fromUuid(entryId, options) as CampaignDoc;
 
     if (!campaignDoc)
       return null;
@@ -41,7 +42,7 @@ export class Campaign {
      * 
      * @returns A promise that resolves when the campaign has been created, with either the resulting entry or null on error
      */
-  static async create(): Promise<JournalEntry | null> {
+  static async create(): Promise<CampaignDoc | null> {
     if (!Campaign.worldCompendium)
       return null;
 
@@ -103,7 +104,7 @@ export class Campaign {
   }
 
   // get direct access to the document (ex. to hook to foundry's editor)
-  get raw(): JournalEntry {
+  get raw(): CampaignDoc {
     return this._campaignDoc;
   }
 

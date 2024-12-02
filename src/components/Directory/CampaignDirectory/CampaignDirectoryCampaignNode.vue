@@ -9,11 +9,16 @@
       <div 
         class="fwb-compendium-label noborder" 
         style="margin-bottom:0px"
-        @click="onCampaignFolderClick"
         @contextmenu="onCampaignContextMenu"
       >
-        <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-        {{ props.campaignNode.name }}
+        <i 
+          class="fas fa-folder-open fa-fw" 
+          style="margin-right: 4px;"
+          @click="onCampaignFolderClick"
+        ></i>
+        <span @click="onCampaignSelectClick">
+          {{ props.campaignNode.name }}
+        </span>
       </div>
     </header>
 
@@ -86,6 +91,9 @@
   // change campaign
   const onCampaignFolderClick = async (event: MouseEvent) => {
     currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value, !currentNode.value.expanded);
+  };
+
+  const onCampaignSelectClick = async (event: MouseEvent) => {
     navigationStore.openCampaign(currentNode.value.id, {newTab: event.ctrlKey});
   };
 
