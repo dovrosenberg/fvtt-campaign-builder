@@ -79,6 +79,9 @@
         "createSession": "Create a session",
         "delete": "Delete campaign"
       },
+      "session": {
+        "delete": "Delete session"
+      },
       "topicFolder": {
         "create": {
           "1": "Create new character",

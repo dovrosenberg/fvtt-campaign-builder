@@ -16,7 +16,7 @@
       </header>
 
       <ol>
-        <CampaignDirectoryCampaignNode 
+        <DirectoryCampaignNode 
           v-for="campaign in campaignDirectoryStore.currentCampaignTree.value"
           :key="campaign.id"
           :campaign-node="campaign"
@@ -33,15 +33,17 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
+  import { getTabTypeIcon } from '@/utils/misc';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
   
   // local components
-  import CampaignDirectoryCampaignNode from './CampaignDirectoryCampaignNode.vue';
+  import DirectoryCampaignNode from './DirectoryCampaignNode.vue';
   
   // types
   import { Campaign } from '@/classes';
+  import { WindowTabType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -80,7 +82,7 @@
       zIndex: 300,
       items: [
       { 
-          icon: 'fa-trash',
+          icon: getTabTypeIcon(WindowTabType.Campaign),
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.campaignsHeader.createCampaign'), 
           onClick: async () => {

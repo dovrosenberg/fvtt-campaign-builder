@@ -46,6 +46,7 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
+  import { getTabTypeIcon } from '@/utils/misc';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -54,7 +55,8 @@
   import SessionDirectoryNode from './SessionDirectoryNode.vue';
   
   // types
-  import { DirectoryCampaignNode, Session, } from '@/classes';
+  import { DirectoryCampaignNode, } from '@/classes';
+  import { WindowTabType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -89,7 +91,7 @@
   // event handlers
 
   // change campaign
-  const onCampaignFolderClick = async (event: MouseEvent) => {
+  const onCampaignFolderClick = async (_event: MouseEvent) => {
     currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value, !currentNode.value.expanded);
   };
 
@@ -110,11 +112,11 @@
       zIndex: 300,
       items: [
       { 
-          icon: 'fa-trash',
+          icon: getTabTypeIcon(WindowTabType.Session),
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.campaignFolder.createSession'), 
           onClick: async () => {
-            await Session.create(props.campaignNode.id);
+            await campaignDirectoryStore.createSession(props.campaignNode.id);
           }
         },
         { 

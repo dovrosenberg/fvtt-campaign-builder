@@ -7,6 +7,7 @@
       style="pointer-events: auto;"
       draggable="true"
       @click="onSessionClick"
+      @contextmenu="onSessionContextMenu"
     >
       {{ props.sessionNode.name }}
     </div>
@@ -19,14 +20,16 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useNavigationStore, } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
+  import { localize } from '@/utils/game';
   
   // library components
+  import ContextMenu from '@imengyu/vue3-context-menu';
   
   // local components
 
   // types
-  import { DirectorySessionNode, } from '@/classes';
+  import { DirectorySessionNode, Session, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -47,6 +50,7 @@
   ////////////////////////////////
   // store
   const navigationStore = useNavigationStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   const mainStore = useMainStore();
   const { currentSession, } = storeToRefs(mainStore);
   // const { filterNodes } = storeToRefs(topicDirectoryStore);
@@ -69,6 +73,30 @@
     event.preventDefault();
     
     await navigationStore.openSession(props.sessionNode.id, {newTab: event.ctrlKey});
+  };
+
+  const onSessionContextMenu = (event: MouseEvent): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+    event.stopPropagation();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fwb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('fwb.contextMenus.session.delete'), 
+          onClick: async () => {
+            await campaignDirectoryStore.deleteSession(props.sessionNode.id);
+          }
+        },
+      ]
+    });
   };
 
   ////////////////////////////////

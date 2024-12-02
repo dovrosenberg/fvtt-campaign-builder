@@ -136,8 +136,8 @@ export const useNavigationStore = defineStore('navigation', () => {
         if (!session) {
           badId = true;
         } else {
-          name = 'SESSION',
-          icon = '';
+          name = session.name;
+          icon = getTabTypeIcon(WindowTabType.Session);
         }
       }; break;
       case WindowTabType.NewTab: 

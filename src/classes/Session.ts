@@ -164,7 +164,7 @@ export class Session {
       .filter((s: Session)=> filterFn(s));
   }
 
-  public static async deleteEntry(campaignId: string, sessionId: string) {
+  public static async deleteSession(sessionId: string) {
     const sessionDoc = await fromUuid(sessionId) as SessionDoc;
 
     if (!sessionDoc || !Session.worldCompendium)

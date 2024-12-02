@@ -92,8 +92,18 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
   const deleteCampaign = async(campaignId: string): Promise<void> => {
     await Campaign.deleteCampaign(campaignId);
+    await refreshCampaignDirectoryTree();
   }
 
+  const deleteSession = async (sessionId: string): Promise<void> => {
+    await Session.deleteSession(sessionId);
+    await refreshCampaignDirectoryTree();
+  }
+
+  const createSession = async (campaignId: string) => {
+    await Session.create(campaignId);
+    await refreshCampaignDirectoryTree();
+}
   ///////////////////////////////
   // computed state
 
@@ -125,6 +135,8 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     collapseAll,
     toggleWithLoad,
     refreshCampaignDirectoryTree,
-    deleteCampaign
+    deleteCampaign,
+    deleteSession,
+    createSession,
   };
 });
