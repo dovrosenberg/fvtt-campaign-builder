@@ -156,7 +156,8 @@
 
     // have to wait until they render
     await nextTick();
-    tabs.value.bind(contentRef.value);
+    if (contentRef.value)
+      tabs.value.bind(contentRef.value);
   });
 
 

@@ -12,9 +12,7 @@ async function init(): Promise<void> {
 
   // register the data models
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
-    [DOCUMENT_TYPES.Entry]: EntryDataModel
-  });
-  Object.assign(CONFIG.JournalEntryPage.dataModels, {
+    [DOCUMENT_TYPES.Entry]: EntryDataModel,
     [DOCUMENT_TYPES.Session]: SessionDataModel
   });
 

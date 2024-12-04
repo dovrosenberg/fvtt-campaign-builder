@@ -108,8 +108,8 @@
       const worldCompendium = getGame().packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
 
       if (!worldCompendium)
-        throw new Error(`Could not find compendium for world ${worldId}`); ;
-  
+        throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
+
       const topicEntries = WorldFlags.get(worldId, WorldFlagKey.topicEntries);
       const campaignEntries = WorldFlags.get(worldId, WorldFlagKey.campaignEntries);
       const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];
@@ -119,7 +119,7 @@
         [Topic.Location]: null,
         [Topic.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;
-      const campaignJournals = [] as JournalEntry[];
+      const campaignJournals = {} as Record<string, Campaign>;
 
       for (let i=0; i<topics.length; i++) {
         const t = topics[i];
@@ -133,7 +133,7 @@
 
       for (let i=0; i<Object.keys(campaignEntries).length; i++) {
         // we need to load the actual entries - not just the index headers
-        const j = await(fromUuid(Object.keys(campaignEntries)[i])) as JournalEntry | null;
+        const j = await(fromUuid(Object.keys(campaignEntries)[i])) as Campaign | null;
         if (j) {
           campaignJournals[j.uuid] = j;
         }

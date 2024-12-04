@@ -56,14 +56,14 @@
         <a 
           v-if="topic===Topic.Character"
           class="item" 
-          :data-tab="actors"
+          data-tab="actors"
         >
           {{ localize('fwb.labels.tabs.actors') }}
         </a>
         <a 
           v-if="topic===Topic.Location"
           class="item" 
-          :data-tab="scenes"
+          data-tab="scenes"
         >
           {{ localize('fwb.labels.tabs.scenes') }}
         </a>
@@ -315,7 +315,8 @@
 
     // have to wait until they render
     await nextTick();
-    tabs.value.bind(contentRef.value);
+    if (contentRef.value)
+      tabs.value.bind(contentRef.value);
   });
 
 

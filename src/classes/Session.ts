@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, CampaignDoc } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 
@@ -8,7 +8,7 @@ import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 export class Session {
   static worldCompendium: CompendiumCollection<any> | undefined;
   static worldId: string = '';
-  static currentCampaignJournals: Record<string, JournalEntry> = {}; // keyed by id
+  static currentCampaignJournals: Record<string, CampaignDoc> = {}; // keyed by id
 
   private _sessionDoc: SessionDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
@@ -102,8 +102,8 @@ export class Session {
     }
   }
 
-  get number(): number {
-    return this._sessionDoc.system.number || null;
+  get number(): number | null{
+    return (this._sessionDoc.system.number!==null && this._sessionDoc.system.number!==undefined) ? this._sessionDoc.system.number : null;
   }
 
   set number(value: number) {

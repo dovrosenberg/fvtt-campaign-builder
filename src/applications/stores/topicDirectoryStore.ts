@@ -338,7 +338,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     Entry.deleteEntry(topic, entryId);
 
-    // update tabs
+    // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(entryId);
 
     // refresh and force its parent to update

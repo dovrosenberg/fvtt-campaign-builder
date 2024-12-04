@@ -30,7 +30,7 @@
           v-for="recentItem, idx in recent"
           :key="idx"
           class="recent-link" 
-          @click="onRecentClick(recentItem?.uuid)"
+          @click="onRecentClick(recentItem)"
         >
           <div>
             <i :class="`fas ${recentItem.icon}`"></i>
@@ -49,6 +49,7 @@
 
   // local imports
   import { localize } from '@/utils/game';
+  import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
   import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
 
@@ -57,7 +58,7 @@
   // local components
 
   // types
-  import { TabHeader } from '@/types';
+  import { TabHeader, Topic, WindowTabType } from '@/types';
 
   ////////////////////////////////
   // props
@@ -84,9 +85,29 @@
 
   ////////////////////////////////
   // event handlers
-  const onRecentClick = async (entryId: string | null) => {
-    if (entryId)
-      await navigationStore.openEntry(entryId);
+  const onRecentClick = async (item: TabHeader) => {
+    if (item.uuid) {
+      // a little goofy, but we do it by icon
+      switch (item.icon) {
+        case getTopicIcon(Topic.Character):
+        case getTopicIcon(Topic.Location):
+        case getTopicIcon(Topic.Organization):
+        case getTopicIcon(Topic.Event):
+          await navigationStore.openEntry(item.uuid, { newTab: false });
+          break;
+
+        case getTabTypeIcon(WindowTabType.Campaign):
+          await navigationStore.openCampaign(item.uuid, { newTab: false });
+          break;
+
+        case getTabTypeIcon(WindowTabType.Session):
+          await navigationStore.openSession(item.uuid, { newTab: false });
+          break;
+
+        default:
+          throw new Error(`Unknown item icon type in HomePage.onRecentClick(): ${item.icon}`);
+      }
+    }
   };
 
   ////////////////////////////////

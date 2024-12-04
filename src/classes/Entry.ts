@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, EntryDoc, } from '@/documents';
+import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace, } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topic } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
 import { cleanTrees, } from '@/utils/hierarchy';

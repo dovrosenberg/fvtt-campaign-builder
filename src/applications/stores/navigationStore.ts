@@ -241,7 +241,86 @@ export const useNavigationStore = defineStore('navigation', () => {
     return;
   };
 
-  const propogateNameChange = async(contentId: string, newName: string):Promise<void> => {
+/**
+ * Used after deleting an entry/campaign/session to make sure that no current tab or tab history includes 
+ * the deleted item.
+ *
+ * @param contentId - The content ID to remove.
+ * @returns A promise that resolves when the ID has been removed.
+ */
+  const cleanupDeletedEntry = async (contentId: string): Promise<void> => {
+    if (!currentWorldId.value)
+      return;
+
+    // pull the saved tabs from database
+    let tabs = UserFlags.get(UserFlagKey.tabs, currentWorldId.value);
+
+    if (tabs) {
+      let resetActiveTab = '';
+
+      // loop over each one and remove from the history; set tabIndex to point to the subsequent entry
+      // if there is only one entry left, eliminate the tab altogether
+      // go backward in case we need to remove one
+      for (let i = tabs.length-1; i>=0; i--) {
+        const tab = tabs[i];
+
+        // loop over the whole history
+        for (let j = tab.history.length-1; j>=0; j--) {
+          const history = tab.history[j];
+
+          if (history.contentId === contentId) {
+            if (tab.historyIdx === j && tab.history.length===1) {
+              // if the entry is the only one, remove the whole tab
+              tabs.splice(i, 1);
+
+              // if this was the active tab, we'll need to reset
+              if (tab.active)
+                resetActiveTab = tab.id;
+              break;
+            } else if (tab.historyIdx >= j && j>0) {
+              // if the entry is the current one or after the current one, we need to move the index back one
+              tab.historyIdx--;
+            } else if (tab.historyIdx === j && j===0) {
+              // there are others, but we're looking at the first one - set tab to next one
+              // but that one will be 0 in a sec, so we don't actually need to do anything
+
+              // note that if the length is 1, we'll be in the case above
+            }
+
+          // remove the entry from the history
+            tab.history.splice(j, 1);
+          }
+        }
+      }
+
+      // save the tabs
+      await UserFlags.set(UserFlagKey.tabs, tabs, currentWorldId.value);
+
+      // reset active tab if needed
+      if (resetActiveTab!='')
+        await activateTab(resetActiveTab);      
+    }
+
+    // now remove from bookmarks
+    let bookmarks = UserFlags.get(UserFlagKey.bookmarks, currentWorldId.value);
+    if (bookmarks) {
+      // remove any matching ones
+      bookmarks = bookmarks.filter(b => b.id !== contentId);
+      await UserFlags.set(UserFlagKey.bookmarks, bookmarks, currentWorldId.value);
+    }
+
+    // remove from recent items list
+    let recent = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value);
+    if (recent) {
+      // remove any matching ones
+      recent = recent.filter(r => r.uuid !== contentId);
+      await UserFlags.set(UserFlagKey.recentlyViewed, recent, currentWorldId.value);
+    }
+    // refresh the display
+    await loadTabs();
+  }
+  
+  const propogateNameChange = async (contentId: string, newName: string):Promise<void> => {
     // update the tabs 
     let updated = false;
     tabs.value.forEach((t: WindowTab): void => {
@@ -271,33 +350,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     }
   }
  
-  const cleanupDeletedEntry = async(entryId: string): Promise<void> => {
-    let activeTabId = '';
-
-    // remove any matching tabs
-    for (let i=tabs.value.length-1; i>=0; i--) {
-      if (tabs.value[i].header.uuid===entryId) {
-        // if it's active, we need to move active to prior tab
-        if (tabs.value[i].active)
-          activeTabId = tabs.value[i-1].id;
-
-        tabs.value.splice(i, 1);
-      }
-    }
-
-    // reset active tab if needed
-    if (activeTabId!=='')
-      await activateTab(activeTabId);
-
-    // remove any matching bookmarks
-    for (let i=bookmarks.value.length-1; i>=0; i--) {
-      if (bookmarks.value[i].header.uuid===entryId) {
-        bookmarks.value.splice(i, 1);
-      }
-    }
-
-  };
-
   // removes the bookmark with given id
   const removeBookmark = async function (bookmarkId: string) {
     const bookmarksValue = bookmarks.value;

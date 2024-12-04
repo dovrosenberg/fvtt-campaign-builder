@@ -6,7 +6,7 @@ import { reactive, ref, watch, } from 'vue';
 
 // local imports
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { useMainStore } from '@/applications/stores';
+import { useMainStore, useNavigationStore } from '@/applications/stores';
 import { DirectoryCampaignNode, Campaign, Session } from '@/classes';
 
 // types
@@ -19,6 +19,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
   const { currentWorldId, currentWorldFolder, } = storeToRefs(mainStore); 
 
   ///////////////////////////////
@@ -92,11 +93,19 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
   const deleteCampaign = async(campaignId: string): Promise<void> => {
     await Campaign.deleteCampaign(campaignId);
+
+    // update tabs/bookmarks
+    await navigationStore.cleanupDeletedEntry(campaignId);
+
     await refreshCampaignDirectoryTree();
   }
 
   const deleteSession = async (sessionId: string): Promise<void> => {
     await Session.deleteSession(sessionId);
+
+    // update tabs/bookmarks
+    await navigationStore.cleanupDeletedEntry(sessionId);
+
     await refreshCampaignDirectoryTree();
   }
 
