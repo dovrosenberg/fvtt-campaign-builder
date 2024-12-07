@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 import { id as moduleId } from '@module';
 import { inputDialog } from '@/dialogs/input';
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags'; 
-import { CampaignDoc } from '@/documents';
+import { CampaignDoc, EntryDoc } from '@/documents';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
@@ -122,15 +122,18 @@ export class Campaign {
    * @returns {Promise<Campaign | null>} The updated entry, or null if the update failed.
    */
   public async save(): Promise<Campaign | null> {
-    let updateData = this._cumulativeUpdate;
+    if (!Campaign.worldCompendium)
+      return null;
+
+    const updateData = this._cumulativeUpdate;
 
     // unlock compendium to make the change
     await Campaign.worldCompendium.configure({locked:false});
 
-    let retval;
+    let success = false;
     if (Object.keys(updateData).length === 0) {
       await this._campaignDoc.setFlag(moduleId, 'description', this._description);
-      retval = this;
+      success = true;
     } else {
       const retval = await toRaw(this._campaignDoc).update(updateData) || null;
       if (retval) {
@@ -149,7 +152,7 @@ export class Campaign {
     }
     await Campaign.worldCompendium.configure({locked:true});
 
-    return retval ? this : null;
+    return success ? this : null;
   }
 
   /**

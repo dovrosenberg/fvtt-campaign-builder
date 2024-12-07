@@ -170,11 +170,11 @@
         [Topic.Location]: null,
         [Topic.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;
-      const campaignJournals = {} as Record<string, Campaign>;
+      const campaignJournals = {} as Record<string, CampaignDoc>;
 
       for (let i=0; i<topics.length; i++) {
         const t = topics[i];
-
+        
         // we need to load the actual entries - not just the index headers
         topicJournals[t] = await(fromUuid(topicEntries[t])) as JournalEntry | null;
 
@@ -184,7 +184,7 @@
 
       for (let i=0; i<Object.keys(campaignEntries).length; i++) {
         // we need to load the actual entries - not just the index headers
-        const j = await(fromUuid(Object.keys(campaignEntries)[i])) as Campaign | null;
+        const j = await(fromUuid(Object.keys(campaignEntries)[i])) as CampaignDoc | null;
         if (j) {
           campaignJournals[j.uuid] = j;
         }

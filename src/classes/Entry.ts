@@ -84,7 +84,7 @@ export class Entry {
     await Entry.worldCompendium.configure({locked:true});
 
     return entryDoc[0] ? new Entry(entryDoc[0]) : null;
-  };
+  }
 
   get uuid(): string {
     return this._entryDoc.uuid;
@@ -129,7 +129,7 @@ export class Entry {
         ...this._cumulativeUpdate.system,
         type: value,
       }
-    }
+    };
   }
 
   get description(): string {
@@ -143,7 +143,7 @@ export class Entry {
       text: {
         content: value,
       }
-    }
+    };
   }
 
   // get direct access to the document (ex. to hook to foundry's editor)
@@ -164,7 +164,7 @@ export class Entry {
         ...this._cumulativeUpdate.system,
         relationships: value,
       }
-    }
+    };
   }
 
   get scenes(): string[] {
@@ -191,9 +191,9 @@ export class Entry {
    */
   public async save(): Promise<Entry | null> {
     if (!Entry.worldCompendium)
-      throw new Error('No compendium in Entry.save()');
+      return null;
 
-    let updateData = this._cumulativeUpdate;
+    const updateData = this._cumulativeUpdate;
 
     // unlock compendium to make the change
     await Entry.worldCompendium.configure({locked:false});
@@ -273,7 +273,7 @@ export class Entry {
     // TODO - remove from search
   }
 
-    /**
+  /**
    * Find all journal entries of a given topic
    * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
    *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
@@ -282,23 +282,23 @@ export class Entry {
    * @param notRelatedTo if present, only return entries that are not already linked to this entry
    * @returns a list of Entries
    */
-    public static async getEntriesForTopic(topic: ValidTopic, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
-      if (!Entry.currentTopicJournals || !Entry.currentTopicJournals[topic])
-        return [];
-  
-      // we find all journal entries with this topic
-      let entries = await Entry.filter(topic, ()=>true);
-  
-      // filter unique ones if needed
-      if (notRelatedTo) {
-        const relatedEntries = notRelatedTo.getAllRelatedEntries(topic);
-  
-        // also remove the current one
-        entries = entries.filter((entry) => !relatedEntries.includes(entry.uuid) && entry.uuid !== notRelatedTo.uuid);
-      }
-  
-      return entries;
-    };
+  public static async getEntriesForTopic(topic: ValidTopic, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
+    if (!Entry.currentTopicJournals || !Entry.currentTopicJournals[topic])
+      return [];
+
+    // we find all journal entries with this topic
+    let entries = await Entry.filter(topic, ()=>true);
+
+    // filter unique ones if needed
+    if (notRelatedTo) {
+      const relatedEntries = notRelatedTo.getAllRelatedEntries(topic);
+
+      // also remove the current one
+      entries = entries.filter((entry) => !relatedEntries.includes(entry.uuid) && entry.uuid !== notRelatedTo.uuid);
+    }
+
+    return entries;
+  }
   
   /**
    * Retrieves a list of all uuids that are linked to the current entry for a specified topic.
@@ -315,6 +315,6 @@ export class Entry {
 
     // if the flag has this topic, it's a Record keyed by uuid
     return Object.keys(relationships[topic]);
-  };
+  }
   
 }

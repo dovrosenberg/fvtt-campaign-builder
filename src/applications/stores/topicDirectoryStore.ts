@@ -302,7 +302,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     }
 
     return entry || null;
-  }
+  };
 
   /**
    * Deletes a world identified by the given worldId.
@@ -336,7 +336,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entryId);
 
-    Entry.deleteEntry(topic, entryId);
+    await Entry.deleteEntry(topic, entryId);
 
     // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(entryId);
@@ -393,7 +393,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
           [],
           [],
           expandedNodes[id] || false,
-        )
+        );
       }).sort((a: DirectoryTopicNode, b: DirectoryTopicNode): number => a.topic - b.topic);
 
       // load any open topics

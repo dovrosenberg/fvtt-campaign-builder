@@ -49,10 +49,10 @@ export const useMainStore = defineStore('main', () => {
 
   // these are the currently selected entry shown in the main tab
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
-  const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
-  const currentCampaign = computed((): Campaign | null => _currentCampaign?.value || null);
-  const currentSession = computed((): Session | null => _currentSession?.value || null);
-  const currentContentType = computed((): WindowTabType | null => _currentTab?.value?.tabType);  
+  const currentEntry = computed((): Entry | null => (_currentEntry?.value || null) as Entry | null);
+  const currentCampaign = computed((): Campaign | null => (_currentCampaign?.value || null) as Campaign | null);
+  const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
+  const currentContentType = computed((): WindowTabType | null => (_currentTab?.value?.tabType || null) as WindowTabType | null);  
 
   // the currently selected tab for the entry
   const currentContentTab = ref<string | null>(null);
@@ -139,7 +139,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentSession.value = new Entry(_currentSession.value.raw as SessionDoc);
+    _currentSession.value = new Session(_currentSession.value.raw as SessionDoc);
   };
 
   ///////////////////////////////

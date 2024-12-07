@@ -98,7 +98,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     await navigationStore.cleanupDeletedEntry(campaignId);
 
     await refreshCampaignDirectoryTree();
-  }
+  };
 
   const deleteSession = async (sessionId: string): Promise<void> => {
     await Session.deleteSession(sessionId);
@@ -107,12 +107,13 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     await navigationStore.cleanupDeletedEntry(sessionId);
 
     await refreshCampaignDirectoryTree();
-  }
+  };
 
   const createSession = async (campaignId: string) => {
     await Session.create(campaignId);
     await refreshCampaignDirectoryTree();
-}
+  };
+  
   ///////////////////////////////
   // computed state
 
@@ -123,7 +124,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // watchers
 
   // when the world changes, clean out the cache of loaded items
-  watch(currentWorldFolder, async (newWorldFolder: Folder | null): void => {
+  watch(currentWorldFolder, async (newWorldFolder: Folder | null): Promise<void> => {
     if (!newWorldFolder) {
       currentCampaignTree.value = [];
       return;

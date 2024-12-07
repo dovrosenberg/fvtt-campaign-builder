@@ -54,7 +54,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    */
   const openEntry = async function(entryId = null as string | null, options?: OpenContentOptions) {
     await openContent(entryId, WindowTabType.Entry, options );
-  }
+  };
 
   /**
    * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
@@ -68,7 +68,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    */
   const openCampaign = async function(campaignId = null as string | null, options?: OpenContentOptions) {
     await openContent(campaignId, WindowTabType.Campaign, options);
-  }
+  };
 
   /**
    * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
@@ -82,7 +82,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    */
   const openSession = async function(sessionId = null as string | null, options?: OpenContentOptions) {
     await openContent(sessionId, WindowTabType.Session, options);
-  } 
+  }; 
 
   /**
    * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
@@ -120,7 +120,7 @@ export const useNavigationStore = defineStore('navigation', () => {
           name = entry.name;
           icon = getTopicIcon(entry.topic);
         }
-      }; break;
+      } break;
       case WindowTabType.Campaign: {
         const campaign = contentId ? await Campaign.fromUuid(contentId) : null; 
 
@@ -130,7 +130,7 @@ export const useNavigationStore = defineStore('navigation', () => {
           name = campaign.name; 
           icon = getTabTypeIcon(WindowTabType.Campaign);
         }
-      }; break;
+      } break;
       case WindowTabType.Session: {
         const session = contentId ? await Session.fromUuid(contentId) : null;
         if (!session) {
@@ -139,11 +139,11 @@ export const useNavigationStore = defineStore('navigation', () => {
           name = session.name;
           icon = getTabTypeIcon(WindowTabType.Session);
         }
-      }; break;
+      } break;
       case WindowTabType.NewTab: 
       default: {
         badId = true;
-      }; break;
+      } break;
     }
 
     if (badId) {
@@ -162,7 +162,7 @@ export const useNavigationStore = defineStore('navigation', () => {
         headerData.uuid,
         contentType, 
         null,
-       );
+      );
 
       //add to tabs list
       tabs.value.push(tab);
@@ -241,19 +241,19 @@ export const useNavigationStore = defineStore('navigation', () => {
     return;
   };
 
-/**
- * Used after deleting an entry/campaign/session to make sure that no current tab or tab history includes 
- * the deleted item.
- *
- * @param contentId - The content ID to remove.
- * @returns A promise that resolves when the ID has been removed.
- */
+  /**
+   * Used after deleting an entry/campaign/session to make sure that no current tab or tab history includes 
+   * the deleted item.
+   *
+   * @param contentId - The content ID to remove.
+   * @returns A promise that resolves when the ID has been removed.
+   */
   const cleanupDeletedEntry = async (contentId: string): Promise<void> => {
     if (!currentWorldId.value)
       return;
 
     // pull the saved tabs from database
-    let tabs = UserFlags.get(UserFlagKey.tabs, currentWorldId.value);
+    const tabs = UserFlags.get(UserFlagKey.tabs, currentWorldId.value);
 
     if (tabs) {
       let resetActiveTab = '';
@@ -287,7 +287,7 @@ export const useNavigationStore = defineStore('navigation', () => {
               // note that if the length is 1, we'll be in the case above
             }
 
-          // remove the entry from the history
+            // remove the entry from the history
             tab.history.splice(j, 1);
           }
         }
@@ -318,7 +318,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     }
     // refresh the display
     await loadTabs();
-  }
+  };
   
   const propogateNameChange = async (contentId: string, newName: string):Promise<void> => {
     // update the tabs 
@@ -348,7 +348,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       // activate the active one
       await mainStore.setNewTab(getActiveTab(true) as WindowTab);
     }
-  }
+  };
  
   // removes the bookmark with given id
   const removeBookmark = async function (bookmarkId: string) {

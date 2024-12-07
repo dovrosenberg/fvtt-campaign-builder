@@ -50,6 +50,7 @@
         ],
         "no-debugger": "warn",
         "no-unused-expressions": "warn",
+        "no-undef": "off",
         "@typescript-eslint/ban-ts-comment": "off",
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/member-delimiter-style": "warn",

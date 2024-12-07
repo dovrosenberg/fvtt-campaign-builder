@@ -35,7 +35,8 @@ export class EntryDataModel<Schema extends EntrySchemaType, ParentNode extends J
 
   /** @override */
   prepareBaseData(): void {
-    this.relationships = relationshipKeyReplace(this.relationships, false);
+    if (this.relationships)
+      this.relationships = relationshipKeyReplace(this.relationships, false);
   }
 }
 
