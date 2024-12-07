@@ -23,7 +23,6 @@ export class SessionDataModel<Schema extends SessionSchemaType, ParentNode exten
   // }
 }
 
-
 export interface SessionDoc extends JournalEntryPage {
   system: {
     number: number | null | undefined;
