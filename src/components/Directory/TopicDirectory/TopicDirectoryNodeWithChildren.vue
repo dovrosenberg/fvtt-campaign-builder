@@ -12,11 +12,11 @@
           <span v-if="currentNode.expanded">-</span><span v-else>+</span>
         </div>
         <div 
-          :class="`${currentNode.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
+          :class="`${currentNode.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
           draggable="true"
           @click="onDirectoryItemClick($event, currentNode)"
           @dragstart="onDragStart($event, currentNode.id)"
-          @drop="onDrop($event)"
+          @drop="onDrop"
           @contextmenu="onEntryContextMenu"
         >
           {{ currentNode.name }}
@@ -25,7 +25,7 @@
       <ul>
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
         <div v-if="currentNode.expanded">
-          <DirectoryNodeComponent 
+          <TopicDirectoryNodeComponent 
             v-for="child in currentNode.loadedChildren"
             :key="child.id"
             :node="child"
@@ -45,7 +45,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getGame, localize } from '@/utils/game';
 
@@ -53,11 +53,11 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import DirectoryNodeComponent from './DirectoryNode.vue';
+  import TopicDirectoryNodeComponent from './TopicDirectoryNode.vue';
 
   // types
-  import { DirectoryEntryNode, ValidTopic } from '@/types';
-  import { Entry } from '@/documents';
+  import { ValidTopic } from '@/types';
+  import { Entry, DirectoryEntryNode, } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -85,15 +85,14 @@
   
   ////////////////////////////////
   // store
-  const directoryStore = useDirectoryStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const currentEntryStore = useCurrentEntryStore();
-  const { currentWorldId, currentEntryId, currentJournals } = storeToRefs(mainStore);
+  const { currentWorldId, currentEntry, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
-  // we don't just use props node because in toggleEntry we want to swap it out without rebuilding
+  // we don't just use props node because in toggleWithLoad we want to swap it out without rebuilding
   //   the whole tree
   const currentNode = ref<DirectoryEntryNode>(props.node);
 
@@ -105,10 +104,8 @@
 
   ////////////////////////////////
   // event handlers
-  const onEntryToggleClick = async (event: MouseEvent) => {
-    const topic = event.target?.closest('.fwb-topic-folder').dataset.topic;
-
-    currentNode.value = await directoryStore.toggleEntry(topic, currentNode.value, !currentNode.value.expanded);
+  const onEntryToggleClick = async (_event: MouseEvent) => {
+    currentNode.value = await topicDirectoryStore.toggleWithLoad(currentNode.value, !currentNode.value.expanded);
   };
 
   const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryEntryNode) => {
@@ -135,7 +132,7 @@
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value || !currentJournals.value || !currentJournals.value[props.topic])
+    if (!currentWorldId.value)
       return false;
 
     let data;
@@ -156,16 +153,16 @@
       return false;
 
     // is this a legal parent?
-    const childEntry = await globalThis.fromUuid(data.childId) as Entry | null;
+    const childEntry = await Entry.fromUuid(data.childId); 
 
     if (!childEntry)
       return false;
 
-    if (!(await validParentItems(currentWorldId.value, currentJournals.value[props.topic], childEntry)).find(e=>e.id===parentId))
+    if (!(validParentItems(currentWorldId.value, props.topic, childEntry)).find(e=>e.id===parentId))
       return false;
 
     // add the dropped item as a child on the other (will also refresh the tree)
-    await directoryStore.setNodeParent(props.topic, data.childId, parentId);
+    await topicDirectoryStore.setNodeParent(props.topic, data.childId, parentId);
 
     return true;
   };
@@ -191,9 +188,9 @@
             const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
             if (!worldFolder || !props.topic)
-              throw new Error('Invalid header in DirectoryEntryNode.onEntryContextMenu.onClick');
+              throw new Error('Invalid header in TopicDirectoryNodeWithChildren.onEntryContextMenu.onClick');
 
-            const entry = await currentEntryStore.createEntry(worldFolder, props.topic, { parentId: props.node.id} );
+            const entry = await topicDirectoryStore.createEntry(props.topic, { parentId: props.node.id} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -205,7 +202,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await currentEntryStore.deleteEntry(props.topic, props.node.id);
+            await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
           }
         },
       ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))

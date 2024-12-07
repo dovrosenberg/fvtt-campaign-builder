@@ -1,12 +1,12 @@
 <template>
   <div  
     :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')"
-    @click="onClickApplication($event)"
+    @click="onClickApplication"
   >
     <div class="fwb-body flexcol">
       <WBHeader />
       <div class="fwb-content flexcol editable">
-        <WBContent />
+        <ContentTab />
       </div>
     </div>
     <div id="fwb-directory-sidebar" class="flexcol">
@@ -17,22 +17,27 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, } from 'vue';
+  import { onMounted, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
-  import { useMainStore, useDirectoryStore, useNavigationStore } from '@/applications/stores';
+  import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { getGame } from '@/utils/game';
 
   // library components
 
   // local components
-  import WBHeader from '@/components/WBHeader.vue';
-  import WBContent from '@/components/WBContent.vue';
+  import WBHeader from '@/components/WBHeader/WBHeader.vue';
+  import ContentTab from '@/components/ContentTab/ContentTab.vue';
   import Directory from '@/components/Directory/Directory.vue';
 
   // types
+  import { Topic, ValidTopic } from '@/types';
+  import { CollapsibleNode, Entry, Campaign, Session } from '@/classes';
+  import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
+  import { CampaignDoc } from '@/documents';
   
   ////////////////////////////////
   // props
@@ -43,10 +48,8 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldFolder, rootFolder, } = storeToRefs(mainStore);
-  const { directoryCollapsed } = storeToRefs(directoryStore);
+  const { currentWorldFolder, rootFolder, directoryCollapsed } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -91,6 +94,56 @@
 
   ////////////////////////////////
   // watchers
+  watch(() => currentWorldFolder.value, async () => {
+    if (currentWorldFolder.value) {
+      // this will force a refresh of the directory; before we do that make sure all the static variables are setup
+      const worldId = currentWorldFolder.value.uuid;
+
+      const worldCompendium = getGame().packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
+
+      if (!worldCompendium)
+        throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
+
+      const topicEntries = WorldFlags.get(worldId, WorldFlagKey.topicEntries);
+      const campaignEntries = WorldFlags.get(worldId, WorldFlagKey.campaignEntries);
+      const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];
+      const topicJournals = {
+        [Topic.Character]: null,
+        [Topic.Event]: null,
+        [Topic.Location]: null,
+        [Topic.Organization]: null,
+      } as Record<ValidTopic, JournalEntry | null>;
+      const campaignJournals = {} as Record<string, CampaignDoc>;
+
+      for (let i=0; i<topics.length; i++) {
+        const t = topics[i];
+
+        // we need to load the actual entries - not just the index headers
+        topicJournals[t] = (await fromUuid(topicEntries[t])) as JournalEntry | null;
+
+        if (!topicJournals[t])
+          throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
+      }
+
+      for (let i=0; i<Object.keys(campaignEntries).length; i++) {
+        // we need to load the actual entries - not just the index headers
+        const j = await(fromUuid(Object.keys(campaignEntries)[i])) as CampaignDoc | null;
+        if (j) {
+          campaignJournals[j.uuid] = j;
+        }
+      }
+
+      Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
+      Entry.worldCompendium = worldCompendium;
+      Entry.worldId = worldId;
+      Campaign.worldCompendium = worldCompendium;
+      Campaign.worldId = worldId;
+      Session.worldCompendium = worldCompendium;
+      Session.worldId = worldId;
+      Session.currentCampaignJournals = campaignJournals;
+      CollapsibleNode.currentWorldId = worldId;
+    }
+  });
 
   ////////////////////////////////
   // lifecycle events
@@ -100,29 +153,61 @@
     const folders = await getDefaultFolders();
 
     if (folders && folders.rootFolder && folders.worldFolder) {
-      // this will force a refresh of the directory
+      // this will force a refresh of the directory; before we do that make sure all the static variables are setup
+      const worldId = folders.worldFolder.uuid;
+
+      const worldCompendium = getGame().packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
+
+      if (!worldCompendium)
+        throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
+
+      const topicEntries = WorldFlags.get(worldId, WorldFlagKey.topicEntries);
+      const campaignEntries = WorldFlags.get(worldId, WorldFlagKey.campaignEntries);
+      const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];
+      const topicJournals = {
+        [Topic.Character]: null,
+        [Topic.Event]: null,
+        [Topic.Location]: null,
+        [Topic.Organization]: null,
+      } as Record<ValidTopic, JournalEntry | null>;
+      const campaignJournals = {} as Record<string, CampaignDoc>;
+
+      for (let i=0; i<topics.length; i++) {
+        const t = topics[i];
+        
+        // we need to load the actual entries - not just the index headers
+        topicJournals[t] = await(fromUuid(topicEntries[t])) as JournalEntry | null;
+
+        if (!topicJournals[t])
+          throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
+      }
+
+      for (let i=0; i<Object.keys(campaignEntries).length; i++) {
+        // we need to load the actual entries - not just the index headers
+        const j = await(fromUuid(Object.keys(campaignEntries)[i])) as CampaignDoc | null;
+        if (j) {
+          campaignJournals[j.uuid] = j;
+        }
+      }
+
+      Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
+      Entry.worldCompendium = worldCompendium;
+      Entry.worldId = worldId;
+      Campaign.worldCompendium = worldCompendium;
+      Campaign.worldId = worldId;
+      Session.worldCompendium = worldCompendium;
+      Session.worldId = worldId;
+      Session.currentCampaignJournals = campaignJournals;
+      CollapsibleNode.currentWorldId = worldId;
+      
       rootFolder.value = folders.rootFolder;
       currentWorldFolder.value = folders.worldFolder;
+
     } else {
       throw new Error('Failed to load or create folder structure');
     }
   });
 
-
-  /*
-
-
-  findMapEntry(event) {
-    let journalId = $(event.currentTarget).attr('page-id');
-    let journalId = $(event.currentTarget).attr('journal-id');
-
-    let note = canvas.notes.placeables.find(n => {
-      return n.document.entryId == journalId || n.document.journalId == journalId || (n.document.entryId == journalId && n.document.journalId == null);
-    });
-    canvas.notes.panToNote(note);
-  }
-
-  }*/
 
 </script>
 
@@ -144,22 +229,6 @@ div[data-application-part] {
   color: var(--color-text-light-highlight);
 }
 
-/*
-.fwb-main-window > header a.subsheet {
-  background: rgba(255, 255, 255, 0.1);
-  margin-left: 0px;
-  padding-left: 8px;
-}
-
-.fwb-main-window > header a.subsheet.first {
-  margin-left: 4px;
-  padding-left: 4px;
-}
-
-.fwb-main-window > header a.subsheet.last {
-  padding-right: 4px;
-}
-*/
 
 .fwb-main-window {  
   min-width: 640px;
@@ -190,7 +259,6 @@ div[data-application-part] {
       }
     }
 
-    #journal .entry-name > i,
     #fwb-directory .entry-name > i {
       margin-right: 8px;
       margin-left: 4px;

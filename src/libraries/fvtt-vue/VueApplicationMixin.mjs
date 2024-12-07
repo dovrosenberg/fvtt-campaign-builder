@@ -152,7 +152,8 @@ export function VueApplicationMixin(BaseApplication) {
           if (part?.use) {
             for (const [key, plugin] of Object.entries(part.use)) {
               if (this.constructor.DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Mount Vue Instance | Use Plugin |`, key, plugin);
-              this.#instance.use(plugin.plugin, plugin?.options ?? {});
+              if (plugin?.plugin)
+                this.#instance.use(plugin.plugin, plugin?.options ?? {});
             }
           }
         }

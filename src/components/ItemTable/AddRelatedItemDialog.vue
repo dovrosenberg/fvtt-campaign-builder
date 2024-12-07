@@ -79,7 +79,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useRelationshipStore, useEntryStore, } from '@/applications/stores';
+  import { useMainStore, useRelationshipStore, } from '@/applications/stores';
 
   // library components
   import Dialog from 'primevue/dialog';
@@ -94,7 +94,7 @@
 
   // types
   import { Topic, ValidTopic, } from '@/types';
-  import { Entry } from '@/documents';
+  import { Entry } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -113,7 +113,6 @@
   ////////////////////////////////
   // store
   const relationshipStore = useRelationshipStore();
-  const entryStore = useEntryStore();
   const mainStore = useMainStore();
   const { currentEntry, currentEntryTopic } = storeToRefs(mainStore);
 
@@ -191,7 +190,7 @@
     resetDialog();
 
     loading.value = false;
-  }
+  };
   
   const onClose = function() {
     resetDialog();
@@ -212,7 +211,7 @@
       if (!currentEntry.value || !currentEntryTopic.value)
         throw new Error('Trying to show AddRelatedItemDialog without a current entry');
 
-      selectItems.value = await entryStore.getEntriesForTopic(props.topic, true);
+      selectItems.value = await Entry.getEntriesForTopic(props.topic, currentEntry.value);
       extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
 
       // focus on the input

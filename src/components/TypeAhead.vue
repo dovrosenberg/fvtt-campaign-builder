@@ -38,7 +38,7 @@
   // local components
 
   // types
-  type ListItem = {id: string; label: string;};
+  type ListItem = {id: string; label: string};
 
   ////////////////////////////////
   // props

@@ -1,13 +1,13 @@
 <template>
+  <!-- an entry node beneath a topic -- don't show children -->
   <li v-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
-      :class="`${props.node.id===currentEntryId ? 'fwb-current-directory-entry' : ''}`"
+      :class="`${props.node.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
-      @click="onDirectoryItemClick($event)"
-      @dragstart="onDragStart($event)"
-      @drop="()=>false"
-      @contextmenu="onEntryContextMenu($event)"
+      @click="onDirectoryItemClick"
+      @dragstart="onDragStart"
+      @contextmenu="onEntryContextMenu"
     >
       {{ props.node.name }}
     </div>
@@ -20,9 +20,9 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
-  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import { toTopic } from '@/utils/misc';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -30,7 +30,8 @@
   // local components
 
   // types
-  import { DirectoryTypeEntryNode, Topic, ValidTopic } from '@/types';
+  import { Topic, ValidTopic } from '@/types';
+  import { DirectoryTypeEntryNode, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -56,10 +57,9 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const directoryStore = useDirectoryStore();
-  const currentEntryStore = useCurrentEntryStore();
-  const { currentEntryId, currentWorldId } = storeToRefs(mainStore);
-  const { filterNodes } = storeToRefs(directoryStore);
+  const topicDirectoryStore = useTopicDirectoryStore();
+  const { currentEntry, currentWorldId } = storeToRefs(mainStore);
+  const { filterNodes } = storeToRefs(topicDirectoryStore);
 
   ////////////////////////////////
   // data
@@ -92,10 +92,8 @@
       return;
     }
 
-    const topic = topicElement.dataset.topic;
-
     const dragData = { 
-      topic: topic,
+      topic: toTopic(topicElement.dataset.topic),
       typeName: props.typeName,
       id: props.node.id,
     } as { topic: Topic; typeName: string; id: string};
@@ -120,7 +118,7 @@
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await currentEntryStore.deleteEntry(props.topic, props.node.id);
+            await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
           }
         },
       ]

@@ -26,7 +26,9 @@
         "locationChildren": "Child locations",
         "organizations": "Organizations",
         "organizationChildren": "Sub-organizations",
-        "scenes": "Scenes"
+        "scenes": "Scenes",
+        "actors": "Actors",
+        "pcs": "PCs"
       },
       "noResults": "Nothing here",
       "loading": "Loading"
@@ -37,7 +39,7 @@
       "eventName": "Event Name",
       "locationName": "Location Name",
       "organizationName": "Organization Name",
-      "sceneName": "Scene Name"
+      "campaignName": "Campaign Name"
     },
     "compendia": {
       "entry": "Entries",
@@ -67,7 +69,18 @@
         "delete": "Delete bookmark"
       },
       "worldFolder": {
-        "delete": "Delete world"
+        "delete": "Delete world",
+        "createCampaign": "Create campaign"
+      },
+      "campaignsHeader": {
+        "createCampaign":"Create campaign"
+      },
+      "campaignFolder": {
+        "createSession": "Create a session",
+        "delete": "Delete campaign"
+      },
+      "session": {
+        "delete": "Delete session"
       },
       "topicFolder": {
         "create": {

@@ -29,7 +29,7 @@
         },
         table: { style: 'margin: 0px;'}
       }"
-      @rowSelect="onRowSelect"
+      @row-select="onRowSelect"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -251,13 +251,16 @@
   );
 
   // map the extra fields to columns, adding style and sortable if not present in the field
-  const extraColumns = computed(() => 
-    extraFields[currentEntryTopic.value][props.topic].map((field) => ({
+  const extraColumns = computed(() => {
+    if (!extraFields || !extraFields[currentEntryTopic.value] || !extraFields[currentEntryTopic.value][props.topic])
+      return [];
+
+    return extraFields[currentEntryTopic.value][props.topic].map((field) => ({
       style: 'text-align: left',
       sortable: true,
       ...field,
-    })),
-  );
+    }));
+  });
 
   const columns = computed((): any[] => {
     // they all have some standard columns

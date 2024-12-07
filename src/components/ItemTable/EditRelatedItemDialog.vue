@@ -148,7 +148,7 @@
   const resetDialog = function() {
     show.value = false;
     emit('update:modelValue', false);
-  }
+  };
 
   ////////////////////////////////
   // event handlers

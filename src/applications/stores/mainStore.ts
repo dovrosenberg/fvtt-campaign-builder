@@ -2,28 +2,32 @@
 
 // library imports
 import { defineStore, } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, } from 'vue';
 
 // local imports
 import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
-import { getCleanEntry } from '@/compendia';
 
 // types
-import { Topic, ValidTopic } from '@/types';
-import { Entry } from '@/documents/entry';
+import { Topic, WindowTabType } from '@/types';
+import { WindowTab, Entry, Campaign, Session, } from '@/classes';
+import { EntryDoc, SessionDoc, CampaignDoc } from '@/documents';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // the state
-  const currentTopicTab = ref<string | null>(null);
+
+  // current sidebar collapsed state 
+  const directoryCollapsed = ref<boolean>(false);
 
   ///////////////////////////////
   // internal state
-  const _currentJournals = ref<Record<ValidTopic, JournalEntry> | null>(null);  // current journals (by topic)
-  const _currentEntry = ref<Entry | null>(null);  // current entry
+  const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
+  const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
+  const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
+  const _currentTab = ref<WindowTab | null>(null);  // current tab
 
   ///////////////////////////////
   // external state
@@ -34,20 +38,24 @@ export const useMainStore = defineStore('main', () => {
 
   const currentWorldCompendium = computed((): CompendiumCollection<any> => {
     if (!currentWorldId.value)
-      throw new Error('No currentWorldId in currentEntryStore.createEntry()');
+      throw new Error('No currentWorldId in mainStore.currentWorldCompendium()');
 
     const pack = getGame().packs?.get(WorldFlags.get(currentWorldId.value, WorldFlagKey.worldCompendium)) || null;
     if (!pack)
-      throw new Error('Bad compendia in currentEntryStore.createEntry()');
+      throw new Error('Bad compendia in mainStore.currentWorldCompendium()');
 
     return pack;
   });
 
+  // these are the currently selected entry shown in the main tab
   // it's a little confusing because the ones called 'entry' mean our entries -- they're actually JournalEntryPage
-  const currentJournals = computed((): Record<ValidTopic, JournalEntry> | null => _currentJournals?.value || null);
-  const currentEntryId = computed((): string | null => _currentEntry?.value?.uuid || null);
-  const currentEntry = computed((): Entry | null => _currentEntry?.value || null);
+  const currentEntry = computed((): Entry | null => (_currentEntry?.value || null) as Entry | null);
+  const currentCampaign = computed((): Campaign | null => (_currentCampaign?.value || null) as Campaign | null);
+  const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
+  const currentContentType = computed((): WindowTabType | null => (_currentTab?.value?.tabType || null) as WindowTabType | null);  
 
+  // the currently selected tab for the entry
+  const currentContentTab = ref<string | null>(null);
 
   ///////////////////////////////
   // actions
@@ -62,30 +70,76 @@ export const useMainStore = defineStore('main', () => {
     if (!folder)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');
 
-    // this will also trigger the _currentJournals to be updated
     currentWorldFolder.value = folder;
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };
 
-  const setNewEntry = async function (entry: string | null | Entry): Promise<void> {
-    if (typeof entry === 'string') {
-      _currentEntry.value = await getCleanEntry(entry);
+  const setNewTab = async function (tab: WindowTab): Promise<void> { 
+    _currentTab.value = tab;
 
-      if (!_currentEntry.value)
-        throw new Error('Attempted to setNewEntry with invalid uuid');
-    } else
-      _currentEntry.value = entry;
+    switch (tab.tabType) {
+      case WindowTabType.Entry:
+        if (tab.header.uuid) {
+          _currentEntry.value = await Entry.fromUuid(tab.header.uuid);
+        } else {
+          _currentEntry.value = null;
+        }
+        _currentCampaign.value = null;
+        _currentSession.value = null;
+        break;
+      case WindowTabType.Campaign:
+        if (tab.header.uuid) {
+          _currentCampaign.value = await Campaign.fromUuid(tab.header.uuid);
+        } else {
+          _currentCampaign.value = null;
+        }
+        _currentEntry.value = null;
+        _currentSession.value = null;
+        break;
+      case WindowTabType.Session:
+        if (tab.header.uuid) {
+          _currentSession.value = await Session.fromUuid(tab.header.uuid);
+        } else {
+          _currentSession.value = null;
+        }
+        _currentEntry.value = null;
+        _currentCampaign.value = null;
+        break;
+      default:  // make it a 'new entry' window
+        _currentSession.value = null;  
+        _currentEntry.value = null;
+        _currentCampaign.value = null;
+        tab.tabType = WindowTabType.NewTab;
+    }
   };
 
-/**
- * Refreshes the current entry by forcing all reactive properties to update.
- * This is achieved by creating a shallow copy of the current entry, which triggers
- * reactivity updates throughout the application.
- */
+  /**
+   * Refreshes the current entry by forcing all reactive properties to update.
+   * This is achieved by simply creating a new entry based on the EntryDoc of the current one
+   */
   const refreshEntry = function (): void {
+    if (!_currentEntry.value)
+      return;
+
     // just force all reactivity to update
-    _currentEntry.value = { ..._currentEntry.value };
+    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc);
+  };
+
+  const refreshCampaign = function (): void {
+    if (!_currentCampaign.value)
+      return;
+
+    // just force all reactivity to update
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc);
+  };
+
+  const refreshSession = function (): void {
+    if (!_currentSession.value)
+      return;
+
+    // just force all reactivity to update
+    _currentSession.value = new Session(_currentSession.value.raw as SessionDoc);
   };
 
   ///////////////////////////////
@@ -94,7 +148,7 @@ export const useMainStore = defineStore('main', () => {
     if (!currentEntry.value)
       return Topic.None;
 
-    return currentEntry.value.system.topic || Topic.None;
+    return currentEntry.value.topic || Topic.None;
   });
 
   ///////////////////////////////
@@ -102,32 +156,6 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // watchers
-  // when the world changes, load the JournalEntries
-  watch(() => currentWorldFolder.value,  async (newValue: Folder) => {
-    if (!newValue || !currentWorldCompendium.value)
-      return;
-
-    const topicEntries = WorldFlags.get(newValue.uuid, WorldFlagKey.topicEntries);
-    const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];
-    const retval = {
-      [Topic.Character]: null,
-      [Topic.Event]: null,
-      [Topic.Location]: null,
-      [Topic.Organization]: null,
-    } as Record<ValidTopic, JournalEntry | null>;
-
-    for (let i=0; i<topics.length; i++) {
-      const t = topics[i];
-
-      // we need to load the actual entries - not just the index headers
-      retval[t] = await(fromUuid(topicEntries[t])) as JournalEntry | null;
-
-      if (!retval[t])
-        throw new Error(`Could not find journal for topic ${t} in world ${currentWorldId.value}`);
-    }
-
-    _currentJournals.value = retval as Record<ValidTopic, JournalEntry>;
-  });
 
   ///////////////////////////////
   // lifecycle events
@@ -135,18 +163,22 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // return the public interface
   return {
+    currentContentTab,
+    directoryCollapsed,
     currentWorldId,
     currentWorldFolder,
     currentEntryTopic,
-    currentTopicTab,
-    currentJournals,
     currentEntry,
-    currentEntryId,
+    currentCampaign,
+    currentSession,
+    currentContentType,
     rootFolder,
     currentWorldCompendium,
    
     setNewWorld,
-    setNewEntry,
+    setNewTab,
     refreshEntry,
+    refreshCampaign,
+    refreshSession,
   };
 });

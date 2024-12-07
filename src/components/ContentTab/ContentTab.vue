@@ -2,128 +2,43 @@
   <div 
     ref="contentRef"
     class="sheet fwb-journal-sheet"
-  >
-    <HomePage v-if="!currentEntry" />
-      
-    <form 
-      v-else
-      :class="'flexcol fwb-journal-subsheet ' + topic" 
-    >
-      <div class="sheet-container detailed flexcol">
-        <header class="journal-sheet-header flexrow">
-          <div class="sheet-image">
-            <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
-          </div>
-          <div class="header-details fwb-content-header">
-            <h1 class="header-name flexrow">
-              <i :class="`fas ${icon} sheet-icon`"></i>
-              <InputText
-                v-model="name"
-                for="fwb-input-name" 
-                :placeholder="namePlaceholder"                
-                :pt="{
-                  root: { class: 'full-height' } 
-                }" 
-                @update:model-value="onNameUpdate"
-              />
-            </h1>
-            <div class="form-group fwb-content-header">
-              <label>{{ localize('fwb.labels.fields.type') }}</label>
-              <TypeAhead 
-                :initial-list="typeList"
-                :initial-value="currentEntry.system.type as string || ''"
-                @item-added="onTypeItemAdded"
-                @selection-made="onTypeSelectionMade"
-              />
-            </div>
-
-            <div 
-              v-if="showHierarchy"
-              class="form-group fwb-content-header"
-            >
-              <label>{{ localize('fwb.labels.fields.parent') }}</label>
-              <TypeAhead 
-                :initial-list="validParents"
-                :initial-value="parentId || ''"
-                @selection-made="onParentSelectionMade"
-              />
-            </div>
-          </div>
-        </header>
-        <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
-          <a class="item" data-tab="description">{{ localize('fwb.labels.tabs.description') }}</a>
-          <a 
-            v-for="relationship in relationships"
-            :key="relationship.label"
-            class="item" 
-            :data-tab="relationship.tab"
-          >
-            {{ localize(relationship.label) }}
-          </a>
-        </nav>
-        <div class="fwb-tab-body flexcol">
-          <div class="tab description flexcol" data-group="primary" data-tab="description">
-            <div class="tab-inner flexcol">
-              <Editor 
-                :document="editorDocument"
-                :has-button="true"
-                target="content-description"
-                @editor-saved="onDescriptionEditorSaved"
-              />
-            </div>
-          </div>
-          <div class="tab description flexcol" data-group="primary" data-tab="characters">
-            <div class="tab-inner flexcol">
-              <RelatedItemTable :topic="Topic.Character" />
-            </div>
-          </div> 
-          <div class="tab description flexcol" data-group="primary" data-tab="locations">
-            <div class="tab-inner flexcol">
-              <RelatedItemTable :topic="Topic.Location" />
-            </div>
-          </div>
-          <div class="tab description flexcol" data-group="primary" data-tab="organizations">
-            <div class="tab-inner flexcol">
-              <RelatedItemTable :topic="Topic.Organization" />
-            </div>
-          </div>
-          <div class="tab description flexcol" data-group="primary" data-tab="events">
-            <div class="tab-inner flexcol">
-              <RelatedItemTable :topic="Topic.Event" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </form>	 
+  >      
+    <div v-if="currentContentType===WindowTabType.Entry">
+      <EntryContent />
+    </div>
+    <div v-else-if="currentContentType===WindowTabType.Session">
+      <SessionContent />
+    </div>
+    <div v-else-if="currentContentType===WindowTabType.Campaign">
+      <CampaignContent />
+    </div>
+    <div v-else-if="currentContentType===WindowTabType.NewTab">
+      <HomePage />
+    </div>
+    <div v-else>
+      <!-- Unknown content type - likely means we're still loading -->
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
-  // local imports
-  import { updateEntry } from '@/compendia';
-  import { getIcon, } from '@/utils/misc';
-  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-  import { localize } from '@/utils/game';
-  import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
-  import { useDirectoryStore, useMainStore, useNavigationStore, useCurrentEntryStore } from '@/applications/stores';
-  
+   // local imports
+  import { useMainStore, } from '@/applications/stores';
+
   // library components
-  import InputText from 'primevue/inputtext';
 
   // local components
-  import Editor from '@/components/Editor.vue';
-  import HomePage from '@/components/HomePage.vue';
-  import TypeAhead from '@/components/TypeAhead.vue';
-  import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
+  import EntryContent from './EntryContent.vue';
+  import SessionContent from './SessionContent.vue';
+  import CampaignContent from './CampaignContent.vue';
+  import HomePage from './HomePage.vue';
   
   // types
-  import { ValidTopic, Topic } from '@/types';
-  import { Entry } from '@/documents';
+  import { WindowTabType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -134,44 +49,10 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const directoryStore = useDirectoryStore();
-  const navigationStore = useNavigationStore();
-  const currentEntryStore = useCurrentEntryStore();
-  const { currentEntry, currentWorldId, currentJournals, currentWorldCompendium, currentTopicTab } = storeToRefs(mainStore);
-
-  ////////////////////////////////
-  // data
-  const topicData = {
-    [Topic.Character]: { namePlaceholder: 'fwb.placeholders.characterName', },
-    [Topic.Event]: { namePlaceholder: 'fwb.placeholders.characterName', },
-    [Topic.Location]: { namePlaceholder: 'fwb.placeholders.characterName', },
-    [Topic.Organization]: { namePlaceholder: 'fwb.placeholders.characterName', },
-  };
-
-  const relationships = [
-    { tab: 'characters', label: 'fwb.labels.tabs.characters', },
-    { tab: 'locations', label: 'fwb.labels.tabs.locations',},
-    { tab: 'organizations', label: 'fwb.labels.tabs.organizations', },
-    { tab: 'events', label: 'fwb.labels.tabs.events', },
-    { tab: 'scenes', label: 'fwb.labels.tabs.scenes', },
-  ] as { tab: string; label: string }[];
-
-  const tabs = ref<Tabs>();
-  const topic = ref<Topic | null>(null);
-  const name = ref<string>('');
-
-  const editorDocument = ref<Entry<any>>();
-
-  const contentRef = ref<HTMLElement | null>(null);
-  const parentId = ref<string | null>(null);
-  const validParents = ref<{id: string; label: string}[]>([]);
+  const { currentContentType } = storeToRefs(mainStore); 
 
   ////////////////////////////////
   // computed data
-  const icon = computed((): string => (!topic.value ? '' : getIcon(topic.value)));
-  const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
-  const namePlaceholder = computed((): string => (topic.value===null ? '' : localize(topicData[topic.value]?.namePlaceholder || '')));
-  const typeList = computed((): string[] => (topic.value===null || !currentWorldId.value ? [] : WorldFlags.get(currentWorldId.value, WorldFlagKey.types)[topic.value]));
 
   ////////////////////////////////
   // methods
@@ -179,137 +60,14 @@
   ////////////////////////////////
   // event handlers
 
-  // debounce changes to name
-  let debounceTimer: NodeJS.Timeout | undefined = undefined;
-
-  const onNameUpdate = (newName: string | undefined) => {
-    const debounceTime = 500;
-  
-    clearTimeout(debounceTimer);
-    
-    debounceTimer = setTimeout(async () => {
-      const newValue = newName || '';
-      if (currentEntry.value && currentEntry.value.name!==newValue) {
-        await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), { name: newValue });
-
-        await directoryStore.refreshCurrentTree([currentEntry.value.uuid]);
-        await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue);
-      }
-    }, debounceTime);
-  };
-
-  // new type added in the typeahead
-  const onTypeItemAdded = async (added: string) => {
-    if (topic.value === null || !currentWorldId.value)
-      return;
-
-    const currentTypes = WorldFlags.get(currentWorldId.value, WorldFlagKey.types);
-
-    // if not a duplicate, add to the valid type lists 
-    if (!currentTypes[topic.value].includes(added)) {
-      const updatedTypes = {
-        ...currentTypes,
-        [topic.value]: currentTypes[topic.value].concat([added]),
-      };
-      await WorldFlags.set(currentWorldId.value, WorldFlagKey.types, updatedTypes);
-    }
-  };
-
-  const onTypeSelectionMade = async (selection: string) => {
-    if (currentEntry.value)
-      await currentEntryStore.updateEntryType(currentEntry.value.uuid, selection);
-  };
-
-  const onParentSelectionMade = async (selection: string): Promise<void> => {
-    if (!currentEntry.value?.system?.topic || !currentEntry.value?.uuid)
-      return;
-
-    await directoryStore.setNodeParent(currentEntry.value.system.topic, currentEntry.value.uuid, selection || null);
-  };
-
-  const onDescriptionEditorSaved = async (newContent: string) => {
-    if (!currentEntry.value)
-      return;
-
-    await updateEntry(currentWorldCompendium.value, toRaw(currentEntry.value), {'text.content': newContent });  
-
-    //need to reset
-    // if it's not automatic, clear and reset the documentpage
-    // (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
-  };
-
-  ////////////////////////////////
-  // watchers
-  watch(currentEntry, async (newEntry: Entry | null): Promise<void> => {
-    if (!newEntry || !currentWorldId.value || !currentJournals.value) {
-      topic.value = null;
-    } else {
-      let newTopic;
-
-      newTopic = newEntry ? newEntry.system.topic as ValidTopic : null;
-      if (!newTopic) 
-        throw new Error('Invalid entry type in WBContent.watch-currenEntry');
-
-      // we're going to show a content page
-      topic.value = newTopic;
-
-      // load starting data values
-      name.value = newEntry.name || '';
-
-      // bind the tabs (because they don't show on the homepage)
-      if (tabs.value && contentRef.value) {
-        // have to wait until they render
-        await nextTick();
-        tabs.value.bind(contentRef.value);
-      }
-
-      // set the parent and valid parents
-      if (!newEntry.uuid) {
-        parentId.value = null;
-        validParents.value = [];
-      } else {
-        parentId.value = WorldFlags.getHierarchy(currentWorldId.value, newEntry.uuid)?.parentId || null;
-    
-        // TODO - need to refresh this somehow if things are moved around in the directory
-        validParents.value = validParentItems(currentWorldId.value, currentJournals.value[newTopic], newEntry).map((e)=> ({
-          id: e.id,
-          label: e.name || '',
-        }));
-      }
-  
-      // reattach the editor to the new entry
-      editorDocument.value = newEntry;
-    }
-  });
-
   ////////////////////////////////
   // lifecycle events
-  onMounted(() => {
-    tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
-
-    // update the store when tab changes
-    tabs.value.callback = () => {
-      currentTopicTab.value = tabs.value?.active || null;
-    };
-
-    //     // home page mode - click on a recent item
-    //     this._partials.HomePage.registerCallback(HomePage.CallbackType.RecentClicked, async (uuid: string)=> {
-    //       await this._makeCallback(WBContent.CallbackType.RecentClicked, uuid);
-    //     });
-
-    //     // tree node clicked
-    //     this._partials.HierarchyTree.registerCallback(Tree.CallbackType.ItemClicked, async (value: string)=>{
-    //       alert(value);
-    //     });
-    //   }
-  });
-
 
 </script>
 
 <style lang="scss">
 
-  .fwb-journal-sheet {
+.fwb-journal-sheet {
     &.sheet {
       height: 100%;
     }
@@ -377,7 +135,7 @@
         padding-bottom: 5px;
         border-bottom: 2px groove var(--fwb-sheet-tab-bottom-border);
         font-family: var(--fwb-font-family);
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 700;
 
         &.tabs {
@@ -877,5 +635,4 @@
       overflow-x: hidden !important;
     }
   }
-
 </style>

@@ -1,8 +1,6 @@
-import { ValidTopic } from '@/types';
-
 const fields = foundry.data.fields;
 const sessionSchema = {
-  number: new fields.NumberField({ required: true, nullable: false, }),
+  number: new fields.NumberField({ required: false, nullable: true, initial: null }),
   description: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
 
 
@@ -25,10 +23,9 @@ export class SessionDataModel<Schema extends SessionSchemaType, ParentNode exten
   // }
 }
 
-
-export interface Session extends JournalEntryPage {
+export interface SessionDoc extends JournalEntryPage {
   system: {
-    number: number | undefined;
+    number: number | null | undefined;
     description: string | undefined;
   };
 }

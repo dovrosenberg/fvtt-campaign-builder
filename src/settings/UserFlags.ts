@@ -1,6 +1,7 @@
 import { getGame } from '@/utils/game';
 import moduleJson from '@module';
-import { Bookmark, EntryHeader, WindowTab } from '@/types';
+import { Bookmark, TabHeader, } from '@/types';
+import { WindowTab, } from '@/classes';
 
 export enum UserFlagKey {
   tabs = 'tabs',  // the open tabs
@@ -12,7 +13,7 @@ export enum UserFlagKey {
 type UserFlagType<K extends UserFlagKey> =
     K extends UserFlagKey.tabs ? WindowTab[] :
     K extends UserFlagKey.bookmarks ? Bookmark[] :
-    K extends UserFlagKey.recentlyViewed ? EntryHeader[] :
+    K extends UserFlagKey.recentlyViewed ? TabHeader[] :
     K extends UserFlagKey.currentWorld ? string :
     never;  
 
@@ -24,7 +25,19 @@ export abstract class UserFlags {
     if (!getGame().user)
       return null;
 
-    return (getGame().user?.getFlag(moduleJson.id, flag + worldId) || []) as UserFlagType<T>;
+    if (flag === UserFlagKey.tabs) {
+      return (getGame().user?.getFlag(moduleJson.id, `${flag}.${worldId}`) || []).map((t: any) => new WindowTab(
+        t.active, 
+        t.header,
+        null,
+        null,
+        t.id,
+        t.history,
+        t.historyIdx
+      )) as unknown as UserFlagType<T>;
+    } else {
+      return (getGame().user?.getFlag(moduleJson.id, `${flag}.${worldId}`) || []) as UserFlagType<T>;
+    }
   }
 
   // note - setting a flag to null will delete it
@@ -32,6 +45,6 @@ export abstract class UserFlags {
     if (!getGame().user)
       return;
 
-    await getGame().user?.setFlag(moduleJson.id, flag + worldId, value);
+    await getGame().user?.setFlag(moduleJson.id, `${flag}.${worldId}`, value);
   }
 }

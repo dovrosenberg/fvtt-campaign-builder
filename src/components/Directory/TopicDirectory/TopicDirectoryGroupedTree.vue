@@ -1,15 +1,12 @@
 <template>
+  <!-- this is just a <ul> wrapper around the a type node in the type-grouped tree-->
   <ul class="fwb-directory-tree">
-    <NodeComponent 
-      v-for="node in props.topic.loadedTopNodes"
-      :key="node.id"
-      :node="node" 
+    <TopicDirectoryGroupedType
+      v-for="type in props.topicNode.loadedTypes"
+      :key="type.id"
+      :type="type"
       :world-id="props.worldId"
-      :topic="props.topic.topic"
-      :pack-id="props.topic.id"
-      :top="true"
-      class="fwb-entry-item" 
-      draggable="true"
+      :topic="props.topicNode.topic"
     />
   </ul>
 </template>
@@ -23,21 +20,21 @@
   // library components
 
   // local components
-  import NodeComponent from './DirectoryNode.vue';
+  import TopicDirectoryGroupedType from './TopicDirectoryGroupedType.vue';
 
   // types
-  import { DirectoryTopicNode, } from '@/types';
+  import { DirectoryTopicNode, } from '@/classes';
   
   ////////////////////////////////
   // props
   const props = defineProps({
-    topic: {
+    topicNode: {
       type: Object as PropType<DirectoryTopicNode>,
       required: true,
     }, 
     worldId: {
       type: String,
-      required: true
+      required: true,
     },
   });
   

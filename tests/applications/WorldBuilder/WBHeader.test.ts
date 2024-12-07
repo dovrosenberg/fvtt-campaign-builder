@@ -3,7 +3,8 @@ import { UserFlags, UserFlagKey } from '@/settings/UserFlags';
 import { moduleSettings } from '@/settings/ModuleSettings';
 import { faker } from '@faker-js/faker';
 import _ from 'lodash';
-import { Bookmark, WindowTab } from '@/types';
+import { Bookmark, WindowTabType } from '@/types';
+import { WindowTab, } from '@/classes';
 
 const mockEntries = [
   {
@@ -23,34 +24,37 @@ const mockTabs = [
   {
     id: faker.string.uuid(),
     active: false,
-    entry: { uuid: null, name: 'New Tab' },
+    header: { uuid: null, name: 'New Tab' },
     history: [],
     historyIdx: -1,
+    tabType: WindowTabType.Entry,
   },
   {
     id: faker.string.uuid(),
     active: true,
-    entry: mockEntries[0],
+    header: mockEntries[0],
     history: [mockEntries[0].uuid],
     historyIdx: 0,
+    tabType: WindowTabType.Entry,
   },
   {
     id: faker.string.uuid(),
     active: false,
-    entry: mockEntries[1],
+    header: mockEntries[1],
     history: [mockEntries[0].uuid, mockEntries[1].uuid],
     historyIdx: 1,
+    tabType: WindowTabType.Entry,
   },
 ] as WindowTab[];
 const mockBookmarks = [
   {
     id: faker.string.uuid(),
-    entry: mockEntries[0],
+    header: mockEntries[0],
     icon: faker.person.firstName()
   },
   {
     id: faker.string.uuid(),
-    entry: mockEntries[1],
+    header: mockEntries[1],
     icon: faker.person.firstName()
   }
 ] as Bookmark[];
@@ -93,7 +97,7 @@ describe('WBHeader', () => {
       expect(wbHeader['_tabs'][0]).toEqual({
         id: wbHeader['_tabs'][0].id,
         active: true,
-        entry: { uuid: null, name: 'fwb.labels.newTab' },
+        header: { uuid: null, name: 'fwb.labels.newTab' },
         history: [],
         historyIdx: -1,
       });
@@ -135,7 +139,7 @@ describe('WBHeader', () => {
 
         const result = {
           active: true,
-          entry: { uuid: null, name: 'fwb.labels.newTab' },
+          header: { uuid: null, name: 'fwb.labels.newTab' },
           history: [],
           historyIdx: -1,
         };
@@ -188,7 +192,7 @@ describe('WBHeader', () => {
 
         const result = {
           active: true,
-          entry: mockEntries[0],
+          header: mockEntries[0],
           history: [mockEntries[0].uuid],
           historyIdx: 0,
         };
@@ -243,7 +247,7 @@ describe('WBHeader', () => {
         const result = {
           id: mockTabs[1].id,
           active: true,
-          entry: mockEntries[1],
+          header: mockEntries[1],
           history: [mockEntries[0].uuid, mockEntries[1].uuid],
           historyIdx: 1,
         };

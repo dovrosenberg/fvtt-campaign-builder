@@ -42,9 +42,15 @@
         "@typescript-eslint/no-floating-promises": "error",
         "@typescript-eslint/no-non-null-assertion": "off",
         "no-unused-vars": "off",
-        "@typescript-eslint/no-unused-vars": [1, { "args": "after-used" }],
+        "@typescript-eslint/no-unused-vars": [1, 
+            { 
+                "args": "after-used",
+                "argsIgnorePattern": "^_"
+            }
+        ],
         "no-debugger": "warn",
         "no-unused-expressions": "warn",
+        "no-undef": "off",
         "@typescript-eslint/ban-ts-comment": "off",
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/member-delimiter-style": "warn",

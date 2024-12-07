@@ -1,4 +1,5 @@
 <template>
+  <!-- the "type" parent node -->
   <!-- note that filtering by filterNodes will hide unused types even if there's no search filter -->
   <li 
     v-if="filterNodes[props.topic]?.includes(currentType?.name)"
@@ -18,8 +19,8 @@
         </div>
         <div 
           class="fwb-current-directory-type"
-          @drop="onDrop($event)"
-          @contextmenu="onTypeContextMenu($event)"
+          @drop="onDrop"
+          @contextmenu="onTypeContextMenu"
         >
           {{ currentType?.name }}
         </div>
@@ -31,7 +32,7 @@
             v-for="node in currentType.loadedChildren"
             :key="node.id"
           >
-            <DirectoryGroupedNode 
+            <TopicDirectoryGroupedNode 
               :node="node" 
               :topic="props.topic"
               :type-name="currentType.name"
@@ -49,18 +50,20 @@
   import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useNavigationStore, useDirectoryStore, useMainStore, useCurrentEntryStore } from '@/applications/stores';
+  import { useNavigationStore, useTopicDirectoryStore, useMainStore, } from '@/applications/stores';
   import { getGame, localize } from '@/utils/game';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
+  import { toTopic } from '@/utils/misc';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import DirectoryGroupedNode from './DirectoryGroupedNode.vue';
+  import TopicDirectoryGroupedNode from './TopicDirectoryGroupedNode.vue';
 
   // types
-  import { DirectoryTypeNode, ValidTopic, } from '@/types';
+  import { ValidTopic, } from '@/types';
+  import { DirectoryTypeNode, Entry } from '@/classes';
 
   
   ////////////////////////////////
@@ -75,7 +78,7 @@
       required: true,
     },
     topic: {
-      type: Object as PropType<ValidTopic>,
+      type: Number as PropType<ValidTopic>,
       required: true,
     }, 
   });
@@ -85,12 +88,11 @@
 
   ////////////////////////////////
   // store
-  const directoryStore = useDirectoryStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const currentEntryStore = useCurrentEntryStore();
-  const { currentWorldId } = storeToRefs(mainStore);
-  const { filterNodes } = storeToRefs(directoryStore);
+  const { currentWorldId, currentEntry } = storeToRefs(mainStore);
+  const { filterNodes } = storeToRefs(topicDirectoryStore);
   
   ////////////////////////////////
   // data
@@ -105,7 +107,7 @@
   ////////////////////////////////
   // event handlers
   const onTypeToggleClick = async () => {
-    currentType.value = await directoryStore.toggleType(currentType.value, !currentType.value.expanded);
+    currentType.value = await topicDirectoryStore.toggleWithLoad(currentType.value, !currentType.value.expanded);
   };
 
   // you can drop an item on a type and it should reassign the type
@@ -131,14 +133,26 @@
       return false;
     }
 
-    const topic = topicElement.dataset.topic;
+    const topic = toTopic(topicElement.dataset.topic);
 
     // if the topics don't match, can't drop
     if (data.topic!==topic)
       return false;
 
     // set the new type
-    await currentEntryStore.updateEntryType(data.id, currentType.value.name);
+    const entry = await Entry.fromUuid(data.id);
+    if (entry) {
+      const oldType = entry.type;
+      entry.type = currentType.value.name;
+      await entry.save();
+
+      await topicDirectoryStore.updateEntryType(entry, oldType);
+
+      // if it's currently open, force screen refresh
+      if (entry.uuid === currentEntry.value?.uuid) {
+        mainStore.refreshEntry();
+      }
+    }
 
     return true;
   };
@@ -164,9 +178,9 @@
             const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
             
             if (!worldFolder)
-              throw new Error('Invalid header in DirectoryGroupedType.onTypeContextMenu.onClick');
+              throw new Error('Invalid header in TopicDirectoryGroupedType.onTypeContextMenu.onClick');
 
-            const entry = await currentEntryStore.createEntry(worldFolder, props.topic, { type: props.type.name } );
+            const entry = await topicDirectoryStore.createEntry(props.topic, { type: props.type.name } );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

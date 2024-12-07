@@ -8,7 +8,6 @@ import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
 import { toTopic } from '@/utils/misc';
 import { Entry, relationshipKeyReplace } from '@/documents';
 
-
 /**
  * Gets the root folder.
  * If it is not stored in settings, creates a new folder and saves it to settings.
@@ -145,7 +144,7 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder; worldFo
 /**
  * Makes sure that the world folder has a compendium and that the compendium id is stored in the settings
  * If any are missing, creates them.
- * Note: compendia kind of suck.   You can't rename them or change the label.  And you can't have more than one with the same name/label
+ * @privateRemarks  Note: compendia kind of suck.   You can't rename them or change the label.  And you can't have more than one with the same name/label
  * in a given world.  So we give them all unique names but then use a flag to display the proper label (which is the topic)
  * @param worldFolder The folder to check.
  */
@@ -154,7 +153,7 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
 
   // the id for the compendia 
   let compendiumId: string = '';
-  let compendium: CompendiumCollection<Any> | undefined | null;
+  let compendium: CompendiumCollection<any> | undefined | null;
 
   const setting = WorldFlags.get(worldFolder.uuid, WorldFlagKey.worldCompendium); 
 
@@ -188,17 +187,17 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
     const t = topics[i];
 
     // if the value is blank or we can't find the entry create a new one
-    let entry = compendium.index.find((e)=> e.uuid===topicEntries[t]);
-    if (!entry) {
+    let topicJournal = compendium.index.find((e)=> e.uuid===topicEntries[t]);
+    if (!topicJournal) {
       // create the missing one
-      entry = await JournalEntry.create({
-        name: getTopicText(t),
+      topicJournal = await JournalEntry.create({
+        name: getTopicTextPlural(t),
         folder: worldFolder.id,
       },{
         pack: compendiumId,
       });
 
-      topicEntries[t] = entry.uuid;  
+      topicEntries[t] = topicJournal.uuid;  
     
       updated = true;
     }
@@ -232,6 +231,25 @@ export function getTopicText(topic: Topic): string {
   }
 }
 
+/**
+ * Returns a localized string representing the name of a given topic in plural form.
+ * 
+ * @param {Topic} topic - The topic for which to retrieve the text.
+ * @returns {string} A localized string for the topic.
+ * @throws {Error} If the topic is invalid.
+ */
+export function getTopicTextPlural(topic: Topic): string {
+  switch (toTopic(topic)) {
+    case Topic.Character: return localize('fwb.topics.characters') || ''; 
+    case Topic.Event: return localize('fwb.topics.events') || ''; 
+    case Topic.Location: return localize('fwb.topics.locations') || ''; 
+    case Topic.Organization: return localize('fwb.topics.organizations') || ''; 
+    case Topic.None:
+    default: 
+      throw new Error('Invalid topic in getTopicTextPlural()');
+  }
+}
+
 // returns the compendium
 async function createCompendium(worldFolder: Folder): Promise<CompendiumCollection<any>> {
   const metadata = { 
@@ -247,51 +265,4 @@ async function createCompendium(worldFolder: Folder): Promise<CompendiumCollecti
   await pack.configure({ locked:true });
 
   return pack;
-}
-
-// loads the entry into memory and cleans it
-export async function getCleanEntry(uuid: string): Promise<Entry | null> {
-  // we must use fromUuid because these are all in compendia
-  const entry = await fromUuid(uuid) as Entry;
-
-  return entry ? entry : null;
-}
-
-
-/**
- * Updates an entry in the compendium.
- * Unlocks the compendium to perform the update and then locks it again.
- * 
- * @param {CompendiumCollection<any>} currentCompendium - The compendium containing the entry to update.
- * @param {Entry} entry - The entry to be updated.  Make sure to pass in the raw entry using vue's toRaw() if calling on a proxy
- * @param {Record<string, any>} data - The data to update the entry with.
- * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
- */
-export async function updateEntry(currentCompendium: CompendiumCollection<any>, entry: Entry, data: Record<string, any>): Promise<Entry | null> {
-  // unlock compendium to make the change
-  await currentCompendium.configure({locked:false});
-
-  let oldRelationships;
-
-  if (data?.system?.relationships) {
-    // do the serialization of the relationships field
-    oldRelationships = data.system.relationships;
-
-    data.system.relationships = relationshipKeyReplace(data.system.relationships || {}, true);
-  }
-
-  const retval = await entry.update(data) || null;
-
-  // swap back
-  if (data?.system?.relationships) {
-    data.system.relationships = oldRelationships;
-    entry.system.relationships = oldRelationships;
-
-    if (retval)
-      retval.system.relationships = oldRelationships;
-  }
-
-  await currentCompendium.configure({locked:true});
-
-  return retval;
 }

@@ -1,10 +1,12 @@
 // helper functions for the Editor component
 
-import { getIcon } from '@/utils/misc';
+import { getTopicIcon } from '@/utils/misc';
 
 // types
-import { Entry } from '@/documents';
+import { EntryDoc } from '@/documents';
+import { Entry } from '@/classes';
 import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 
 let enricherConfig: {
   pattern: RegExp;
@@ -56,26 +58,27 @@ export const enrichFwbHTML = async(worldId: string | null, text: string): Promis
    * @protected
    */
 
-const customEnrichContentLinks = async (match: RegExpMatchArray, options: {worldId?: string; relativeTo?: Entry}): Promise<HTMLElement | null> => {
+const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worldId?: string; relativeTo?: EntryDoc}): Promise<HTMLElement | null> => {
   const [type, target, hash, name] = match.slice(1, 5);
-  const { relativeTo, worldId } = options;
+  const { relativeTo, worldId } = options || { relativeTo: undefined, worldId: undefined };
 
   // Prepare replacement data
   const data = {
     classes: ['content-link'],
     attrs: { draggable: 'true' },
     dataset: { link: '' },
-    name
+    name,
+    icon: '',
   };
 
   let entry: Entry | null = null;
   let broken = false;
   if ( type === 'UUID' ) {
     Object.assign(data.dataset, {link: '', uuid: target});
-    entry = await fromUuid(target, {relative: relativeTo}) as Entry;
+    entry = await Entry.fromUuid(target, {relative: relativeTo});
   }
   else {
-    broken = createLegacyContentLink(type, target, name, data);
+    broken = createLegacyContentLink(type as WORLD_DOCUMENT_TYPES, target, name, data);
   }
 
   // for now, we only care about the ones in the current world (for performance purposes and because
@@ -83,15 +86,15 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
   if (entry) {
     // if we're not in a world builder app, just do the default
     if (!worldId)
-      return entry.toAnchor({ name: data.name, dataset: { hash } });
+      return entry.raw.toAnchor({ name: data.name, dataset: { hash } });
 
-    if (entry.documentName && entry.system?.topic) {
+    if (entry.raw.documentName && entry.topic) {
       // check the pack to see if it's cross-world by seeing if the parent journal entry matches the 
       //    main one for the current world
-      const correctPack = WorldFlags.get(worldId, WorldFlagKey.topicEntries)?.[entry.system?.topic];
+      const correctPack = WorldFlags.get(worldId, WorldFlagKey.topicEntries)?.[entry.topic];
 
       // handle the ones we don't care about
-      if (correctPack !== entry.parent?.uuid) {
+      if (correctPack !== entry.raw.parent?.uuid) {
         // we're in the wrong world
         // this is a cross-world item; basically treat it like broken
         delete data.dataset.link;
@@ -102,9 +105,9 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
 
         return TextEditor.createAnchor(data);
       } else {  // this is an fwb item for this world
-        return entry.toAnchor({ 
+        return entry.raw.toAnchor({ 
           name: data.name, dataset: { hash }, classes: ['fwb-content-link'],   // clicks on this class are handled 
-          icon: `fas ${getIcon(entry.system.topic)}` 
+          icon: `fas ${getTopicIcon(entry.topic)}` 
         });
       }
     } else {
@@ -134,7 +137,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options: {world
    * @returns {boolean}      Whether the resulting link is broken or not.
    * @private
    */
-function createLegacyContentLink (type: string, target: string, name: string, data: any): boolean {
+function createLegacyContentLink (type: WORLD_DOCUMENT_TYPES, target: string, _name: string, data: any): boolean {
   let broken = false;
 
   // Get a matched World document
