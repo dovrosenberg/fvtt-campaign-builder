@@ -1,7 +1,5 @@
 <template>
-  <form 
-    :class="'flexcol fwb-journal-subsheet ' + topic" 
-  >
+  <form class="'flexcol fwb-journal-subsheet ' + topic" >
     <div ref="contentRef" class="sheet-container detailed flexcol">
       <header class="journal-sheet-header flexrow">
         <div class="sheet-image">

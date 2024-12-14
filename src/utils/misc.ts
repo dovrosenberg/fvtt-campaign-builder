@@ -1,4 +1,3 @@
-export { id as MODULE_ID } from '@module';
 import { Topic, WindowTabType } from '@/types';
 
 // sometimes topic ends up as a string (ex. when pulling from DOM), so this makes sure

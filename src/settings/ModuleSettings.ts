@@ -1,5 +1,5 @@
 import { getGame, localize } from '@/utils/game';
-import moduleJson from '@module';
+import { moduleId } from './index';
 
 export enum SettingKey {
   // displayed in settings
@@ -10,7 +10,7 @@ export enum SettingKey {
   groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
 }
 
-type SettingType<K extends SettingKey> =
+export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
     K extends SettingKey.rootFolderId ? string : 
     K extends SettingKey.groupTreeByType ? boolean : 
@@ -30,38 +30,38 @@ export class ModuleSettings {
   }
 
   // note that this returns the object directly, so if it's an object or array, if a reference
-  public get<T extends SettingKey>(setting: T): SettingType<T> {
-    return getGame().settings.get(moduleJson.id, setting) as SettingType<T>;
+  public get<T extends SettingKey>(setting: T): SettingKeyType<T> {
+    return getGame().settings.get(moduleId, setting) as SettingKeyType<T>;
   }
 
   // this gets something safe to modify
-  public getClone<T extends SettingKey>(setting: T): SettingType<T> {
+  public getClone<T extends SettingKey>(setting: T): SettingKeyType<T> {
     return foundry.utils.deepClone(this.get(setting));
   }
 
-  public async set<T extends SettingKey>(setting: T, value: SettingType<T>): Promise<void> {
-    await getGame().settings.set(moduleJson.id, setting, value);
+  public async set<T extends SettingKey>(setting: T, value: SettingKeyType<T>): Promise<void> {
+    await getGame().settings.set(moduleId, setting, value);
   }
 
-  private register(settingKey: string, settingConfig: ClientSettings.PartialSettingConfig) {
-    getGame().settings.register(moduleJson.id, settingKey, settingConfig);
+  private register(settingKey: SettingKey, settingConfig: ClientSettings.SettingConfig) {
+    getGame().settings.register(moduleId, settingKey, settingConfig);
   }
 
-  private registerMenu(settingKey: string, settingConfig: ClientSettings.PartialSettingSubmenuConfig) {
-    getGame().settings.registerMenu(moduleJson.id, settingKey, settingConfig);
+  private registerMenu(settingKey: SettingKey, settingConfig: Partial<ClientSettings.SettingSubmenuConfig>) {
+    getGame().settings.registerMenu(moduleId, settingKey, settingConfig);
   }
 
   // these are local menus (shown at top)
-  private localMenuParams: (ClientSettings.PartialSettingSubmenuConfig & { settingID: string })[] = [
+  private localMenuParams: (Partial<ClientSettings.SettingSubmenuConfig> & { settingID: SettingKey })[] = [
   ];
 
   // these are globals shown in the options
   // name and hint should be the id of a localization string
-  private displayParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
+  private displayParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
   ];
 
   // these are client-specific and displayed in settings
-  private localDisplayParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
+  private localDisplayParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
     {
       settingID: SettingKey.startCollapsed,
       name: 'acm.settings.startCollapsed',
@@ -72,7 +72,7 @@ export class ModuleSettings {
   ];
 
   // these are globals only used internally
-  private internalParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
+  private internalParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
     {
       settingID: SettingKey.rootFolderId,
       default: null,
@@ -82,7 +82,7 @@ export class ModuleSettings {
   ];
   
   // these are client-specfic only used internally
-  private localInternalParams: (ClientSettings.PartialSettingConfig & { settingID: string })[] = [
+  private localInternalParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
     {
       settingID: SettingKey.groupTreeByType,
       default: false,

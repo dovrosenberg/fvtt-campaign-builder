@@ -1,7 +1,7 @@
 import { getGame } from '@/utils/game';
-import moduleJson from '@module';
 import { Bookmark, TabHeader, } from '@/types';
 import { WindowTab, } from '@/classes';
+import { moduleId } from '.';
 
 export enum UserFlagKey {
   tabs = 'tabs',  // the open tabs
@@ -26,7 +26,8 @@ export abstract class UserFlags {
       return null;
 
     if (flag === UserFlagKey.tabs) {
-      return (getGame().user?.getFlag(moduleJson.id, `${flag}.${worldId}`) || []).map((t: any) => new WindowTab(
+      // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
+      return (getGame().user?.getFlag(moduleId, `${flag}.${worldId}`) || []).map((t: any) => new WindowTab(
         t.active, 
         t.header,
         null,
@@ -36,7 +37,8 @@ export abstract class UserFlags {
         t.historyIdx
       )) as unknown as UserFlagType<T>;
     } else {
-      return (getGame().user?.getFlag(moduleJson.id, `${flag}.${worldId}`) || []) as UserFlagType<T>;
+      // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
+      return (getGame().user?.getFlag(moduleId, `${flag}.${worldId}`) || []) as UserFlagType<T>;
     }
   }
 
@@ -45,6 +47,7 @@ export abstract class UserFlags {
     if (!getGame().user)
       return;
 
-    await getGame().user?.setFlag(moduleJson.id, `${flag}.${worldId}`, value);
+    // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
+    await getGame().user?.setFlag(moduleId, `${flag}.${worldId}`, value);
   }
 }
