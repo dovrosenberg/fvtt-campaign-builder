@@ -25,7 +25,8 @@
           // these are needed to override the foundry button styling
           first: {
             style: 'width: auto', 
-          }
+          },
+          root: { style: 'background: inherit', }
         },
         table: { style: 'margin: 0px;'}
       }"
@@ -76,6 +77,7 @@
         :body-style="col.style"
         :sortable="col.sortable"
       >
+        <!-- actions column format-->
         <template
           v-if="col.field==='actions'"
           #body="{ data }"
@@ -96,13 +98,17 @@
             <i class="fas fa-pen"></i>
           </a>
         </template>
+
+        <!-- format for columns that have a format function specified -->
         <template
           v-else-if="!!col.format"
           #body="{ data }"
         >
           {{ col.format(data[col.field as keyof typeof data]) }}
         </template>
-        <template 
+
+        <!-- template to add the filter headers fof name/type/role columns -->
+        <!-- <template 
           v-if="['name', 'type', 'role'].includes(col.field)"
           #filter="{ filterModel, filterCallback }"
         >
@@ -112,7 +118,7 @@
             :placeholder="`Search by ${col.header}`" 
             @input="filterCallback()" 
           />
-        </template>
+        </template> -->
       </Column>
     </DataTable>
   </div>

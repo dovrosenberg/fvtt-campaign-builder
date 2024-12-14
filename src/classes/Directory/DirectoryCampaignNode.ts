@@ -3,7 +3,7 @@
  */
 
 import { CollapsibleNode, DirectorySessionNode, Session, } from '@/classes';
-import { WorldFlagKey } from '@/settings/WorldFlags';
+import { WorldFlagKey } from '@/settings';
 
 export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode> {
   name: string;

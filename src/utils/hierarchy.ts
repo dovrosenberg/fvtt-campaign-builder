@@ -1,5 +1,5 @@
 import { TabSummary, Topic, ValidTopic, } from '@/types';
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { WorldFlagKey, WorldFlags } from '@/settings';
 import { Entry } from '@/classes';
 
 // the string to show for items with no type

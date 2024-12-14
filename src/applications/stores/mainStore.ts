@@ -6,8 +6,7 @@ import { computed, ref, } from 'vue';
 
 // local imports
 import { getGame } from '@/utils/game';
-import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
-import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
+import { UserFlagKey, UserFlags, WorldFlags, WorldFlagKey } from '@/settings';
 
 // types
 import { Topic, WindowTabType } from '@/types';

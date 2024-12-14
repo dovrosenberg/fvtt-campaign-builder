@@ -1,12 +1,9 @@
 // functions for managing folders and compendia
 import { inputDialog } from '@/dialogs/input';
-import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
 import { getGame, localize } from '@/utils/game';
 import { Topic, } from '@/types';
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
-import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
+import { SettingKey, moduleSettings, UserFlagKey, UserFlags, WorldFlagKey, WorldFlags } from '@/settings';
 import { toTopic } from '@/utils/misc';
-import { Entry, relationshipKeyReplace } from '@/documents';
 
 /**
  * Gets the root folder.
@@ -255,7 +252,7 @@ async function createCompendium(worldFolder: Folder): Promise<CompendiumCollecti
   const metadata = { 
     name: foundry.utils.randomID(), 
     label: worldFolder.name,
-    type: 'JournalEntry', 
+    type: 'JournalEntry' as const, 
   };
 
   const pack = await CompendiumCollection.createCompendium(metadata);

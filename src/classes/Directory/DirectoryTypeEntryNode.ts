@@ -4,7 +4,7 @@
 
 import { Entry, CollapsibleNode, DirectoryTypeNode, } from '@/classes';
 import { NO_NAME_STRING } from '@/utils/hierarchy';
-import { WorldFlagKey } from '@/settings/WorldFlags';
+import { WorldFlagKey } from '@/settings';
 
 // represents an entry in the type-grouped structure
 // has no children, the parent is a DirectoryTypeNode

@@ -8,7 +8,7 @@ import { storeToRefs } from 'pinia';
 // local imports
 import { localize } from '@/utils/game';
 import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
-import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
+import { UserFlagKey, UserFlags } from '@/settings';
 import { useMainStore } from './mainStore';
 
 // types

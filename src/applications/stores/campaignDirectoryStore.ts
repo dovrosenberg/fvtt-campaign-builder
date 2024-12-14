@@ -5,7 +5,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { reactive, ref, watch, } from 'vue';
 
 // local imports
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { WorldFlagKey, WorldFlags } from '@/settings';
 import { useMainStore, useNavigationStore } from '@/applications/stores';
 import { DirectoryCampaignNode, Campaign, Session } from '@/classes';
 

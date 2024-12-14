@@ -5,7 +5,7 @@ import { getTopicIcon } from '@/utils/misc';
 // types
 import { EntryDoc } from '@/documents';
 import { Entry } from '@/classes';
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { WorldFlagKey, WorldFlags } from '@/settings';
 import { WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 
 let enricherConfig: {

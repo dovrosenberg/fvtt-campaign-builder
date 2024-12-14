@@ -100,7 +100,7 @@ const flagSetup = [
 
 export abstract class WorldFlags {
   public static async setDefaults(worldId: string): Promise<void> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
+    const f = getGame()?.folders?.find((f)=>f.uuid===worldId) as Folder;
     if (!f)
       return;
 

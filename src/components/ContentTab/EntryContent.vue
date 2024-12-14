@@ -122,7 +122,7 @@
 
   // local imports
   import { getTopicIcon, } from '@/utils/misc';
-  import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+  import { WorldFlagKey, WorldFlags } from '@/settings';
   import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
