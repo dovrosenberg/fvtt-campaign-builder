@@ -74,6 +74,7 @@
         :key="col.field" 
         :field="col.field" 
         :header="col.header" 
+        :header-style="col.style"
         :body-style="col.style"
         :sortable="col.sortable"
       >
@@ -270,7 +271,7 @@
 
   const columns = computed((): any[] => {
     // they all have some standard columns
-    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px', header: 'Actions' };
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
     const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
     const typeColumn = { field: 'type', style: 'text-align: left', header: 'Type', sortable: true }; 
     const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 

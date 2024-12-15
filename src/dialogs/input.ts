@@ -1,3 +1,5 @@
+import JQuery from '@types/jquery';
+
 // creates a simple input dialog with the given title
 // returns the entered value or null if canceled
 export async function inputDialog(title: string, prompt: string): Promise<string | null> {

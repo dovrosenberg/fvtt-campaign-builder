@@ -63,6 +63,7 @@ export class Entry {
     await Entry.worldCompendium.configure({locked:false});
 
     const entryDoc = await JournalEntryPage.createDocuments([{
+      // @ts-ignore- we know this type is valid
       type: DOCUMENT_TYPES.Entry,
       name: nameToUse,
       system: {

@@ -43,11 +43,11 @@ export class ModuleSettings {
     await getGame().settings.set(moduleId, setting, value);
   }
 
-  private register(settingKey: SettingKey, settingConfig: ClientSettings.SettingConfig) {
+  private register(settingKey: SettingKey, settingConfig: ClientSettings.RegisterOptions<string | boolean>) {
     getGame().settings.register(moduleId, settingKey, settingConfig);
   }
 
-  private registerMenu(settingKey: SettingKey, settingConfig: Partial<ClientSettings.SettingSubmenuConfig>) {
+  private registerMenu(settingKey: SettingKey, settingConfig: ClientSettings.RegisterSubmenu) {
     getGame().settings.registerMenu(moduleId, settingKey, settingConfig);
   }
 
@@ -98,7 +98,7 @@ export class ModuleSettings {
         name: settings.name ? localize(settings.name) : '',
         hint: settings.hint ? localize(settings.hint) : '',
         restricted: true,
-      });
+      } as ClientSettings.RegisterSubmenu);
     }
 
     for (let i=0; i<this.displayParams.length; i++) {
@@ -109,7 +109,7 @@ export class ModuleSettings {
         hint: settings.hint ? localize(settings.hint) : '',
         scope: 'world',
         config: true,
-      });
+      } as ClientSettings.RegisterOptions<string | boolean>);
     }
 
     for (let i=0; i<this.localDisplayParams.length; i++) {
@@ -120,7 +120,7 @@ export class ModuleSettings {
         hint: settings.hint ? localize(settings.hint) : '',
         scope: 'client',
         config: true,
-      });
+      } as ClientSettings.RegisterOptions<string | boolean>);
     }
 
     for (let i=0; i<this.internalParams.length; i++) {
@@ -129,7 +129,7 @@ export class ModuleSettings {
         ...settings,
         scope: 'world',
         config: false,
-      });
+      } as ClientSettings.RegisterOptions<string | boolean>);
     }
 
     for (let i=0; i<this.localInternalParams.length; i++) {
@@ -138,7 +138,7 @@ export class ModuleSettings {
         ...settings,
         scope: 'client',
         config: false,
-      });
+      } as ClientSettings.RegisterOptions<string | boolean>);
     }
   }
 }

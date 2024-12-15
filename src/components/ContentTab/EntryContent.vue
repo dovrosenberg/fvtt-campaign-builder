@@ -1,5 +1,5 @@
 <template>
-  <form class="'flexcol fwb-journal-subsheet ' + topic" >
+  <form class="'flexcol fwb-journal-subsheet ' + topic">
     <div ref="contentRef" class="sheet-container detailed flexcol">
       <header class="journal-sheet-header flexrow">
         <div class="sheet-image">
@@ -99,12 +99,12 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="scenes">
           <div class="tab-inner flexcol">
-            Scenes
+            <RelatedDocumentTable />
           </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="actors">
           <div class="tab-inner flexcol">
-            Actors
+            <RelatedDocumentTable />
           </div>
         </div>
       </div>
@@ -132,6 +132,7 @@
   import Editor from '@/components/Editor.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
   import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
+  import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
   
   // types
   import { ValidTopic, Topic, } from '@/types';

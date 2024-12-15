@@ -6,7 +6,8 @@ import { getTopicIcon } from '@/utils/misc';
 import { EntryDoc } from '@/documents';
 import { Entry } from '@/classes';
 import { WorldFlagKey, WorldFlags } from '@/settings';
-import { WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
+import { EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
+import { ResolvedUUID } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/utils/helpers.mjs';
 
 let enricherConfig: {
   pattern: RegExp;
@@ -65,8 +66,8 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
   // Prepare replacement data
   const data = {
     classes: ['content-link'],
-    attrs: { draggable: 'true' },
-    dataset: { link: '' },
+    attrs: { draggable: 'true' } as { draggable?: string },
+    dataset: { link: '' } as { link?: string },
     name,
     icon: '',
   };
@@ -137,7 +138,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
    * @returns {boolean}      Whether the resulting link is broken or not.
    * @private
    */
-function createLegacyContentLink (type: WORLD_DOCUMENT_TYPES, target: string, _name: string, data: any): boolean {
+function createLegacyContentLink (type: WORLD_DOCUMENT_TYPES | EMBEDDED_DOCUMENT_TYPES | 'Compendium', target: string, _name: string, data: any): boolean {
   let broken = false;
 
   // Get a matched World document
@@ -145,7 +146,7 @@ function createLegacyContentLink (type: WORLD_DOCUMENT_TYPES, target: string, _n
 
     // Get the linked Document
     const config = CONFIG[type];
-    const collection = game.collections.get(type);
+    const collection = game.collections?.get(type);
     let document;
 
     if (!collection) {
@@ -165,7 +166,7 @@ function createLegacyContentLink (type: WORLD_DOCUMENT_TYPES, target: string, _n
   // Get a matched PlaylistSound
   else if ( type === 'PlaylistSound' ) {
     const [, playlistId, , soundId] = target.split('.');
-    const playlist = game.playlists.get(playlistId);
+    const playlist = game.playlists?.get(playlistId);
     const sound = playlist?.sounds.get(soundId);
     if ( !playlist || !sound ) broken = true;
 
@@ -180,7 +181,10 @@ function createLegacyContentLink (type: WORLD_DOCUMENT_TYPES, target: string, _n
   else if ( type === 'Compendium' ) {
 
     // Get the linked Document
-    const { collection: pack, id } = foundry.utils.parseUuid(`Compendium.${target}`);
+    const uuid = foundry.utils.parseUuid(`Compendium.${target}`);
+    const pack = uuid.collection as CompendiumCollection<any>;
+    const id = uuid.id;
+
     if ( pack ) {
       Object.assign(data.dataset, {pack: pack.collection, uuid: pack.getUuid(id)});
       data.icon = CONFIG[pack.documentName].sidebarIcon;

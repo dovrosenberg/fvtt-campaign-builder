@@ -11,6 +11,7 @@ import {
   Topic, ValidTopic,
   RelatedItemDetails, FieldDataByTopic,
   TablePagination,
+  RelatedDocumentDetails,
 } from '@/types';
 import { reactive, Ref, watch } from 'vue';
 import { ref } from 'vue';
@@ -21,6 +22,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // the state
   const relatedItemRows = ref<RelatedItemDetails<any, any>[]>([]);
+  const relatedDocumentRows = ref<RelatedDocumentDetails[]>([]);
 
   // we store the pagination info for each type like a preference
   const defaultPagination: TablePagination = {
@@ -29,7 +31,6 @@ export const useRelationshipStore = defineStore('relationship', () => {
     first: 0,
     page: 0,
     rowsPerPage: 10, 
-    totalRecords: undefined, 
     filters: {},
   };
 
@@ -285,9 +286,10 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
   ///////////////////////////////
   // internal functions
-  const _refreshRows = () => {
+  const _refreshRows = async () => {
     if (!currentEntry.value || !currentContentTab.value) {
       relatedItemRows.value = [];
+      relatedDocumentRows.value = [];
     } else {
       let topic: Topic;
       switch (currentContentTab.value) {
@@ -303,22 +305,58 @@ export const useRelationshipStore = defineStore('relationship', () => {
         case 'organizations':
           topic = Topic.Organization;
           break;
+        case 'scenes':
+          topic = Topic.None;
+          break;
+        case 'actors':
+          topic = Topic.None;
+          break;
         default:
           topic = Topic.None;
       }
 
-      relatedItemRows.value = currentEntry.value.relationships && topic!==Topic.None ? Object.values(currentEntry.value.relationships[topic]) || []: [];
+      if (topic === Topic.None) {
+        relatedItemRows.value = currentEntry.value.relationships && topic!==Topic.None ? Object.values(currentEntry.value.relationships[topic]) || []: [];
+        relatedDocumentRows.value = [];
+      } else if (currentContentTab.value==='scenes') {
+        relatedItemRows.value = [];
+
+        const sceneList = [] as RelatedDocumentDetails[];
+        for (let i=0; i<currentEntry.value.scenes.length; i++) {
+          const scene = (await fromUuid(currentEntry.value.scenes[i])) as Scene;
+          sceneList.push({
+            uuid: currentEntry.value.scenes[i],
+            name: scene.name,
+          });
+        }
+        relatedDocumentRows.value = sceneList;
+      } else if (currentContentTab.value==='actors') {
+        relatedItemRows.value = [];
+
+        const actorList = [] as RelatedDocumentDetails[];
+        for (let i=0; i<currentEntry.value.actors.length; i++) {
+          const scene = (await fromUuid(currentEntry.value.actors[i])) as Actor;
+          actorList.push({
+            uuid: currentEntry.value.actors[i],
+            name: scene.name,
+          });
+        }
+        relatedDocumentRows.value = actorList;
+      } else {
+        relatedItemRows.value = [];
+        relatedDocumentRows.value = [];
+      }
     }
   };
 
   ///////////////////////////////
   // watchers
-  watch(()=> currentEntry.value, () => {
-    _refreshRows();
+  watch(()=> currentEntry.value, async () => {
+    await _refreshRows();
   });
 
-  watch(()=> currentContentTab.value, () => {
-    _refreshRows();
+  watch(()=> currentContentTab.value, async () => {
+    await _refreshRows();
   });
 
   ///////////////////////////////
@@ -328,6 +366,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   // return the public interface
   return {
     relatedItemRows,
+    relatedDocumentRows,
     extraFields,
 
     addRelationship,
