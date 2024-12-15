@@ -112,49 +112,53 @@
 
   // you can drop an item on a type and it should reassign the type
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value)
-      return false;
+    if (event.dataTransfer?.types[0]==='text/plain') {
+      if (!currentWorldId.value)
+        return false;
 
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
-    }
-    catch (err) {
-      return false;
-    }
-
-    // make sure it's not already set
-    if (!data.typeName || data.typeName===currentType.value.name)
-      return false;
-
-    // get the pack on the new item
-    const topicElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
-    if (!topicElement || !topicElement.dataset.topic) {
-      return false;
-    }
-
-    const topic = toTopic(topicElement.dataset.topic);
-
-    // if the topics don't match, can't drop
-    if (data.topic!==topic)
-      return false;
-
-    // set the new type
-    const entry = await Entry.fromUuid(data.id);
-    if (entry) {
-      const oldType = entry.type;
-      entry.type = currentType.value.name;
-      await entry.save();
-
-      await topicDirectoryStore.updateEntryType(entry, oldType);
-
-      // if it's currently open, force screen refresh
-      if (entry.uuid === currentEntry.value?.uuid) {
-        mainStore.refreshEntry();
+      let data;
+      try {
+        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
       }
-    }
+      catch (err) {
+        return false;
+      }
 
-    return true;
+      // make sure it's not already set
+      if (!data.typeName || data.typeName===currentType.value.name)
+        return false;
+
+      // get the pack on the new item
+      const topicElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
+      if (!topicElement || !topicElement.dataset.topic) {
+        return false;
+      }
+
+      const topic = toTopic(topicElement.dataset.topic);
+
+      // if the topics don't match, can't drop
+      if (data.topic!==topic)
+        return false;
+
+      // set the new type
+      const entry = await Entry.fromUuid(data.id);
+      if (entry) {
+        const oldType = entry.type;
+        entry.type = currentType.value.name;
+        await entry.save();
+
+        await topicDirectoryStore.updateEntryType(entry, oldType);
+
+        // if it's currently open, force screen refresh
+        if (entry.uuid === currentEntry.value?.uuid) {
+          mainStore.refreshEntry();
+        }
+      }
+
+      return true;
+    } else {
+      return false;
+    }
   };
 
   const onTypeContextMenu = (event: MouseEvent): void => {

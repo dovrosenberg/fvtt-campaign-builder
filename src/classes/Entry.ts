@@ -236,7 +236,7 @@ export class Entry {
     if (!Entry.currentTopicJournals || !Entry.currentTopicJournals[topic])
       return [];
     
-    return  Entry.currentTopicJournals[topic].collections.pages.contents
+    return  (Entry.currentTopicJournals[topic].pages.contents as EntryDoc[])
       .map((e: EntryDoc)=> new Entry(e))
       .filter((e: Entry)=> filterFn(e));
   }

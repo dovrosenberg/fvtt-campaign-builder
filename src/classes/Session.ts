@@ -159,7 +159,7 @@ export class Session {
     if (!Session.currentCampaignJournals || !Session.currentCampaignJournals[campaignId])
       return [];
     
-    return  Session.currentCampaignJournals[campaignId].collections.pages.contents
+    return (Session.currentCampaignJournals[campaignId].pages.contents as SessionDoc[])
       .map((s: SessionDoc)=> new Session(s))
       .filter((s: Session)=> filterFn(s));
   }

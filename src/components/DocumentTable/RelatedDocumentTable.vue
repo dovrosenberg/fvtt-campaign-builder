@@ -1,6 +1,9 @@
 <template>
   <!-- A table to display/manage related scenes and actors -->
-  <div class="primevue-only">
+  <div 
+    class="primevue-only"
+    @drop="onDrop"
+  >
     <DataTable
       v-model:filters="pagination.filters"
       data-key="uuid"
@@ -96,12 +99,12 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType } from 'vue';
+  import { ref, computed,} from 'vue';
   import { storeToRefs } from 'pinia';
   import { FilterMatchMode } from '@primevue/core/api';
 
   // local imports
-  import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
+  import { useMainStore, useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // library components
@@ -114,7 +117,7 @@
   // local components
 
   // types
-  import { TablePagination, RelatedItemDetails, RelatedDocumentDetails } from '@/types';
+  import { TablePagination, RelatedDocumentDetails } from '@/types';
   
   ////////////////////////////////
   // props
@@ -191,9 +194,37 @@
     await Dialog.confirm({
       title: localize('fwb.dialogs.confirmDeleteRelationship.title'),
       content: localize('fwb.dialogs.confirmDeleteRelationship.message'),
-      yes: () => { void relationshipStore.deleteRelationship(props.topic, _id); },
+      yes: () => { 
+        if (currentContentTab.value==='scenes')
+          void relationshipStore.deleteScene(_id); 
+        else if (currentContentTab.value==='actors')
+          void relationshipStore.deleteActor(_id); 
+      },
       no: () => {},
     });
+  };
+
+  const onDrop = async(event: DragEvent) => {
+    if (event.dataTransfer?.types[0]==='text/plain') {
+      try {
+        let data;
+        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+
+        // make sure it's the right format
+        if (data.type==='Scene' && currentContentTab.value==='scenes' && data.uuid) {
+          await relationshipStore.addScene(data.uuid);
+        } else if (data.type==='Actor' && currentContentTab.value==='actors' && data.uuid) {
+          await relationshipStore.addActor(data.uuid);
+        }
+
+        return true;
+      }
+      catch (err) {
+        return false;
+      }
+    } else {
+      return false;
+    }
   };
   
   const onPaginationChanged = async function (newPagination: TablePagination | { filter: string; pagination: TablePagination }) {

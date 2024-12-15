@@ -143,6 +143,86 @@ export const useRelationshipStore = defineStore('relationship', () => {
   }
 
   /**
+   * Add a scene to the current entry
+   * @param sceneId The id of the scene to add
+   */
+  async function addScene(sceneId: string): Promise<void> {
+    // create the relationship on current entry
+    const entry = currentEntry.value;
+
+    if (!entry || !sceneId)
+      throw new Error('Invalid entry in relationshipStore.addSceme()');
+
+    // update the entry
+    if (!entry.scenes.includes(sceneId)) {
+      entry.scenes.push(sceneId);
+      await entry.save();
+    }
+
+    mainStore.refreshEntry();
+  }
+
+  /**
+   * Add a actor to the current entry
+   * @param actorId The id of the actor to add
+   */
+  async function addActor(actorId: string): Promise<void> {
+    // create the relationship on current entry
+    const entry = currentEntry.value;
+
+    if (!entry || !actorId)
+      throw new Error('Invalid entry in relationshipStore.addActor()');
+
+    // update the entry
+    if (!entry.actors.includes(actorId)) {
+      entry.actors.push(actorId);
+      await entry.save();
+    }
+
+    mainStore.refreshEntry();
+  }
+
+  /**
+   * Removea scene from the current entry
+   * @param sceneId The id of the scene to remove
+   */
+  async function deleteScene(sceneId: string): Promise<void> {
+    // edit the current entry
+    const entry = currentEntry.value;
+
+    if (!entry || !sceneId)
+      throw new Error('Invalid entry in relationshipStore.deleteScene()');
+
+    // update the entry
+    if (entry.scenes.includes(sceneId)) {
+      entry.scenes.splice(entry.scenes.indexOf(sceneId), 1);
+      await entry.save();
+    }
+
+    mainStore.refreshEntry();
+  }
+
+  /**
+   * Remove a actor from the current entry
+   * @param actorId The id of the actor to remove
+   */
+  async function deleteActor(actorId: string): Promise<void> {
+    // edit the current entry
+    const entry = currentEntry.value;
+
+    if (!entry || !actorId)
+      throw new Error('Invalid entry in relationshipStore.deleteScene()');
+
+    // update the entry
+    if (entry.actors.includes(actorId)) {
+      entry.actors.splice(entry.actors.indexOf(actorId), 1);
+      await entry.save();
+    }
+
+    mainStore.refreshEntry();
+  }
+
+  /**
    * Edit a relationship to the current entry - specifically the extra fields
    * @param relatedEntryId The other entry id
    * @param extraFields Extra fields to save with the relationship
@@ -315,8 +395,8 @@ export const useRelationshipStore = defineStore('relationship', () => {
           topic = Topic.None;
       }
 
-      if (topic === Topic.None) {
-        relatedItemRows.value = currentEntry.value.relationships && topic!==Topic.None ? Object.values(currentEntry.value.relationships[topic]) || []: [];
+      if (topic !== Topic.None) {
+        relatedItemRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]) || []: [];
         relatedDocumentRows.value = [];
       } else if (currentContentTab.value==='scenes') {
         relatedItemRows.value = [];
@@ -373,6 +453,10 @@ export const useRelationshipStore = defineStore('relationship', () => {
     deleteRelationship,
     editRelationship,
     getRelationships,
-    propogateNameChange
+    propogateNameChange,
+    addScene,
+    addActor,
+    deleteScene,
+    deleteActor,
   };
 });

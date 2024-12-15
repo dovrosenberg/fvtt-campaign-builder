@@ -95,32 +95,37 @@
   };
 
   const onDrop = async(event: DragEvent) => {
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
-    }
-    catch (err) {
+    if (event.dataTransfer?.types[0]==='text/plain') {
+      let data;
+
+      try {
+        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+      }
+      catch (err) {
+        return false;
+      }
+
+      // where are we droping it?
+      const target = (event.currentTarget as HTMLElement).closest('.fwb-tab') as HTMLElement;
+      if (!target)
+        return false;
+
+      if (data.tabId === props.tab.id) return; // Don't drop on yourself
+
+      // insert before the drop target
+      const tabsValue = tabs.value;
+      const from = tabsValue.findIndex(t => t.id === data.tabId);
+      const to = tabsValue.findIndex(t => t.id === props.tab.id);
+      tabsValue.splice(to, 0, tabsValue.splice(from, 1)[0]);
+      tabs.value = tabsValue;
+
+      // activate the moved one (will also save the tabs)
+      await navigationStore.activateTab(data.tabId);
+
+      return true;
+    } else {
       return false;
     }
-
-    // where are we droping it?
-    const target = (event.currentTarget as HTMLElement).closest('.fwb-tab') as HTMLElement;
-    if (!target)
-      return false;
-
-    if (data.tabId === props.tab.id) return; // Don't drop on yourself
-
-    // insert before the drop target
-    const tabsValue = tabs.value;
-    const from = tabsValue.findIndex(t => t.id === data.tabId);
-    const to = tabsValue.findIndex(t => t.id === props.tab.id);
-    tabsValue.splice(to, 0, tabsValue.splice(from, 1)[0]);
-    tabs.value = tabsValue;
-
-    // activate the moved one (will also save the tabs)
-    await navigationStore.activateTab(data.tabId);
-
-    return true;
   };
 
   ////////////////////////////////

@@ -109,39 +109,43 @@
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value)
-      return false;
+    if (event.dataTransfer?.types[0]==='text/plain') {
+      if (!currentWorldId.value)
+        return false;
 
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+      let data;
+      try {
+        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+      }
+      catch (err) {
+        return false;
+      }
+
+      // make sure it's not the same item
+      const parentId = props.node.id;
+      if (data.childId===parentId)
+        return false;
+
+      // if the types don't match or don't have hierarchy, can't drop
+      if (data.topic!==props.topic || !hasHierarchy(props.topic))
+        return false;
+
+      // is this a legal parent?
+      const childEntry = await Entry.fromUuid(data.childId);
+
+      if (!childEntry)
+        return false;
+
+      if (!(validParentItems(currentWorldId.value, props.topic, childEntry)).find(e=>e.id===parentId))
+        return false;
+
+      // add the dropped item as a child on the other  (will also refresh the tree)
+      await topicDirectoryStore.setNodeParent(props.topic, data.childId, parentId);
+
+      return true;
+    } else {
+      return false;
     }
-    catch (err) {
-      return false;
-    }
-
-    // make sure it's not the same item
-    const parentId = props.node.id;
-    if (data.childId===parentId)
-      return false;
-
-    // if the types don't match or don't have hierarchy, can't drop
-    if (data.topic!==props.topic || !hasHierarchy(props.topic))
-      return false;
-
-    // is this a legal parent?
-    const childEntry = await Entry.fromUuid(data.childId);
-
-    if (!childEntry)
-      return false;
-
-    if (!(validParentItems(currentWorldId.value, props.topic, childEntry)).find(e=>e.id===parentId))
-      return false;
-
-    // add the dropped item as a child on the other  (will also refresh the tree)
-    await topicDirectoryStore.setNodeParent(props.topic, data.childId, parentId);
-
-    return true;
   };
 
   const onEntryContextMenu = (event: MouseEvent): void => {
