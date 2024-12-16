@@ -45,6 +45,13 @@ export enum Topic {
 // topics except None
 export type ValidTopic = Exclude<Topic, Topic.None>;
 
+// content tabs that are document links not other entries
+export enum DocumentTab {
+  None,
+  Scenes,
+  Actors,
+}
+
 // relationships
 export type TreeNode = {
   text: string;   // the label

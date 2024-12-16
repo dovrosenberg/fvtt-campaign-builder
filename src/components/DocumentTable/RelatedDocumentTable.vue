@@ -117,13 +117,10 @@
   // local components
 
   // types
-  import { TablePagination, RelatedDocumentDetails } from '@/types';
+  import { TablePagination, RelatedDocumentDetails, DocumentTab } from '@/types';
   
   ////////////////////////////////
   // props
-  const props = defineProps({
-    // maybe passing in the class (Actor or Scene) would be enough?  otherwise, create a new enum
-  });
 
   ////////////////////////////////
   // emits
@@ -133,7 +130,7 @@
   const relationshipStore = useRelationshipStore();
   const mainStore = useMainStore();
 
-  const { currentContentTab } = storeToRefs(mainStore);
+  const { currentContentTab, currentDocumentTab } = storeToRefs(mainStore);
   const { relatedDocumentRows, } = storeToRefs(relationshipStore);
 
   ////////////////////////////////
@@ -195,9 +192,9 @@
       title: localize('fwb.dialogs.confirmDeleteRelationship.title'),
       content: localize('fwb.dialogs.confirmDeleteRelationship.message'),
       yes: () => { 
-        if (currentContentTab.value==='scenes')
+        if (currentDocumentTab.value===DocumentTab.Scenes)
           void relationshipStore.deleteScene(_id); 
-        else if (currentContentTab.value==='actors')
+        else if (currentDocumentTab.value===DocumentTab.Actors)
           void relationshipStore.deleteActor(_id); 
       },
       no: () => {},
@@ -211,9 +208,9 @@
         data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
 
         // make sure it's the right format
-        if (data.type==='Scene' && currentContentTab.value==='scenes' && data.uuid) {
+        if (data.type==='Scene' && currentDocumentTab.value===DocumentTab.Scenes && data.uuid) {
           await relationshipStore.addScene(data.uuid);
-        } else if (data.type==='Actor' && currentContentTab.value==='actors' && data.uuid) {
+        } else if (data.type==='Actor' && currentDocumentTab.value===DocumentTab.Actors && data.uuid) {
           await relationshipStore.addActor(data.uuid);
         }
 

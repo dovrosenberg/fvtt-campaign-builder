@@ -133,10 +133,11 @@
   import TypeAhead from '@/components/TypeAhead.vue';
   import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
-  
+
   // types
   import { ValidTopic, Topic, } from '@/types';
   import { EntryDoc } from '@/documents';
+  import { Entry } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -262,16 +263,23 @@
 
   ////////////////////////////////
   // watchers
-  watch([currentEntry], async (): Promise<void> => {
-    // reset the tab
-    currentContentTab.value = 'description';
+  // in case the tab is changed externally
+  watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
+    if (newTab!==oldTab)
+      tabs.value?.activate(newTab || 'description');    
+  });
 
-    if (!currentEntry.value) {
+  watch(currentEntry, async (newEntry: Entry | null, oldEntry: Entry | null): Promise<void> => {
+    // if we changed entries, reset the tab
+    if (newEntry?.uuid!==oldEntry?.uuid )
+      currentContentTab.value = 'description';
+
+    if (!newEntry || !newEntry.uuid) {
       topic.value = null;
     } else {
       let newTopic;
 
-      newTopic = currentEntry.value.topic as ValidTopic;
+      newTopic = newEntry.topic as ValidTopic;
       if (!newTopic) 
         throw new Error('Invalid entry topic in EntryContent.watch-currentEntry');
 
@@ -279,18 +287,18 @@
       topic.value = newTopic;
 
       // load starting data values
-      name.value = currentEntry.value.name || '';
+      name.value = newEntry.name || '';
 
       // set the parent and valid parents
-      if (!currentEntry.value.uuid) {
+      if (!newEntry.uuid) {
         parentId.value = null;
         validParents.value = [];
       } else {
         if (currentWorldId.value) {
-          parentId.value = WorldFlags.getHierarchy(currentWorldId.value, currentEntry.value.uuid)?.parentId || null;
+          parentId.value = WorldFlags.getHierarchy(currentWorldId.value, newEntry.uuid)?.parentId || null;
       
           // TODO - need to refresh this somehow if things are moved around in the directory
-          validParents.value = validParentItems(currentWorldId.value, newTopic, currentEntry.value).map((e)=> ({
+          validParents.value = validParentItems(currentWorldId.value, newTopic, newEntry).map((e)=> ({
             id: e.id,
             label: e.name || '',
           }));
@@ -298,7 +306,7 @@
       }
   
       // reattach the editor to the new entry
-      rawDocument.value = currentEntry.value.raw;
+      rawDocument.value = newEntry.raw;
     }
   });
 

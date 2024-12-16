@@ -9,7 +9,7 @@ import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags, WorldFlags, WorldFlagKey } from '@/settings';
 
 // types
-import { Topic, WindowTabType } from '@/types';
+import { Topic, WindowTabType, DocumentTab } from '@/types';
 import { WindowTab, Entry, Campaign, Session, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc } from '@/documents';
 
@@ -150,6 +150,20 @@ export const useMainStore = defineStore('main', () => {
     return currentEntry.value.topic || Topic.None;
   });
 
+  const currentDocumentTab = computed((): DocumentTab => {
+    if (!currentContentTab.value)
+      return DocumentTab.None;
+
+    switch (currentContentTab.value) {
+      case 'scenes':
+        return DocumentTab.Scenes;
+      case 'actors':
+        return DocumentTab.Actors;
+      default:
+        return DocumentTab.None;
+    }
+  });
+
   ///////////////////////////////
   // internal functions
 
@@ -163,6 +177,7 @@ export const useMainStore = defineStore('main', () => {
   // return the public interface
   return {
     currentContentTab,
+    currentDocumentTab,
     directoryCollapsed,
     currentWorldId,
     currentWorldFolder,

@@ -169,7 +169,11 @@ export class Entry {
   }
 
   get scenes(): string[] {
-    return this._entryDoc.system.scenes || [];
+    // create the array if it doesn't exist
+    if (!this._entryDoc.system.scenes)
+      this._entryDoc.system.scenes = [];
+
+    return this._entryDoc.system.scenes;
   }  
 
   set scenes(value: string[]) {
@@ -177,11 +181,15 @@ export class Entry {
   }
 
   get actors(): string[] {
-    return this._entryDoc.system.scenes || [];
+    // create the array if it doesn't exist
+    if (!this._entryDoc.system.actors)
+      this._entryDoc.system.actors = [];
+
+    return this._entryDoc.system.actors;
   }  
 
   set actors(value: string[]) {
-    this._entryDoc.system.scenes = value;
+    this._entryDoc.system.actors = value;
   }
 
   // used to set arbitrary properties on the entryDoc
@@ -194,7 +202,15 @@ export class Entry {
     if (!Entry.worldCompendium)
       return null;
 
-    const updateData = this._cumulativeUpdate;
+    // rather than try to monitor all changes to the arrays (which would require saving the originals or a proxy), we just always save them
+    const updateData = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        scenes: this.scenes,
+        actors: this.actors,
+      }
+    };
 
     // unlock compendium to make the change
     await Entry.worldCompendium.configure({locked:false});

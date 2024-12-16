@@ -12,6 +12,7 @@ import {
   RelatedItemDetails, FieldDataByTopic,
   TablePagination,
   RelatedDocumentDetails,
+  DocumentTab,
 } from '@/types';
 import { reactive, Ref, watch } from 'vue';
 import { ref } from 'vue';
@@ -71,7 +72,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentContentTab } = storeToRefs(mainStore);
+  const { currentEntry, currentContentTab, currentDocumentTab } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -398,7 +399,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       if (topic !== Topic.None) {
         relatedItemRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]) || []: [];
         relatedDocumentRows.value = [];
-      } else if (currentContentTab.value==='scenes') {
+      } else if (currentDocumentTab.value===DocumentTab.Scenes) {
         relatedItemRows.value = [];
 
         const sceneList = [] as RelatedDocumentDetails[];
@@ -410,7 +411,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
           });
         }
         relatedDocumentRows.value = sceneList;
-      } else if (currentContentTab.value==='actors') {
+      } else if (currentDocumentTab.value===DocumentTab.Actors) {
         relatedItemRows.value = [];
 
         const actorList = [] as RelatedDocumentDetails[];
