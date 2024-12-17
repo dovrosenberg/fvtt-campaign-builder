@@ -132,7 +132,7 @@
   const relationshipStore = useRelationshipStore();
   const mainStore = useMainStore();
 
-  const { currentContentTab, currentDocumentTab } = storeToRefs(mainStore);
+  const { currentDocumentTab } = storeToRefs(mainStore);
   const { relatedDocumentRows, } = storeToRefs(relationshipStore);
 
   ////////////////////////////////
@@ -161,7 +161,7 @@
     return base;
   });
 
-  type GridRow = { uuid: string; name: string; };
+  type GridRow = { uuid: string; name: string };
 
   const rows = computed((): GridRow[] => 
     relatedDocumentRows.value.map((item: RelatedDocumentDetails) => {
@@ -198,7 +198,7 @@
     // Need to test open/activate for things in compendiums
   };
 
-  const onRowContextMenu = async function (event: { originalEvent: MouseEvent; data: GridRow }): boolean {
+  const onRowContextMenu = async function (event: { originalEvent: MouseEvent; data: GridRow }): Promise<boolean> {
     const { originalEvent, data } = event;
 
     //prevent the browser's default menu
@@ -249,13 +249,14 @@
           iconFontClass: 'fas',
           label: localize('SCENES.ToggleNav'), 
           onClick: async () => {
-            throw new Error('Toggle Nav doesn\'t seem to work yet');
             const scene = await fromUuid(data.uuid) as Scene;
             await scene?.update({navigation: !scene.navigation});
           }
         },
       ]
     });
+
+    return true;
   };
 
   // call mutation to remove item  from relationship

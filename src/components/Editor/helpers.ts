@@ -6,8 +6,7 @@ import { getTopicIcon } from '@/utils/misc';
 import { EntryDoc } from '@/documents';
 import { Entry } from '@/classes';
 import { WorldFlagKey, WorldFlags } from '@/settings';
-import { EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
-import { ResolvedUUID } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/utils/helpers.mjs';
+import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 
 let enricherConfig: {
   pattern: RegExp;
@@ -16,7 +15,7 @@ let enricherConfig: {
 };
 
 export const setupEnricher = (): void => {
-  const documentTypes = CONST.DOCUMENT_LINK_TYPES.concat(['Compendium', 'UUID']);
+  const documentTypes = CONST.DOCUMENT_LINK_TYPES.concat(['Compendium', 'UUID'] as DOCUMENT_LINK_TYPES[]);
   const rgx = new RegExp(`@(${documentTypes.join('|')})\\[([^#\\]]+)(?:#([^\\]]+))?](?:{([^}]+)})?`, 'g');
 
   enricherConfig = { 
@@ -142,8 +141,7 @@ function createLegacyContentLink (type: WORLD_DOCUMENT_TYPES | EMBEDDED_DOCUMENT
   let broken = false;
 
   // Get a matched World document
-  if ( CONST.WORLD_DOCUMENT_TYPES.includes(type) ) {
-
+  if ( CONST.WORLD_DOCUMENT_TYPES.includes(type as unknown as WORLD_DOCUMENT_TYPES) ) {
     // Get the linked Document
     const config = CONFIG[type];
     const collection = game.collections?.get(type);

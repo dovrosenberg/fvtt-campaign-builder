@@ -1,8 +1,6 @@
 <template>
-  <form 
-    :class="'flexcol fwb-journal-subsheet'" 
-  >
-  <div ref="contentRef" class="sheet-container detailed flexcol">
+  <form :class="'flexcol fwb-journal-subsheet'">
+    <div ref="contentRef" class="sheet-container detailed flexcol">
       <header class="journal-sheet-header flexrow">
         <div class="sheet-image">
           <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->

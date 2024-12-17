@@ -1,4 +1,4 @@
-import JQuery from '@types/jquery';
+import type JQuery from '@types/jquery';
 
 // creates a simple input dialog with the given title
 // returns the entered value or null if canceled

@@ -1,4 +1,5 @@
 import { RelatedItemDetails, Topic, ValidTopic } from '@/types';
+import { ModuleId } from '@/settings';
 
 const fields = foundry.data.fields;
 const entrySchema = {
@@ -63,8 +64,10 @@ const deserializeEntryId = (entryId: string): string => { return entryId.replace
 
 export interface EntryDoc extends JournalEntryPage {
   system: {
+    type: `${ModuleId}.entry`;   
+
     topic: ValidTopic | undefined;
-    type: string | undefined;
+    entryType: string | undefined;
 
     /** 
      * Keyed by topic, then entryId 

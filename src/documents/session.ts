@@ -1,3 +1,5 @@
+import { ModuleId } from '@/settings';
+
 const fields = foundry.data.fields;
 const sessionSchema = {
   number: new fields.NumberField({ required: false, nullable: true, initial: null }),
@@ -25,6 +27,7 @@ export class SessionDataModel<Schema extends SessionSchemaType, ParentNode exten
 
 export interface SessionDoc extends JournalEntryPage {
   system: {
+    type: `${ModuleId}.session`;   
     number: number | null | undefined;
     description: string | undefined;
   };
