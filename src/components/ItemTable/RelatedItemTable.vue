@@ -20,7 +20,9 @@
       :pt="{
         header: { style: 'border: none' },
         thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
-        row: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
+        row: { 
+          style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
+        },
         pcPaginator: { 
           // these are needed to override the foundry button styling
           first: {
@@ -98,14 +100,6 @@
           >
             <i class="fas fa-pen"></i>
           </a>
-        </template>
-
-        <!-- format for columns that have a format function specified -->
-        <template
-          v-else-if="!!col.format"
-          #body="{ data }"
-        >
-          {{ col.format(data[col.field as keyof typeof data]) }}
         </template>
 
         <!-- template to add the filter headers fof name/type/role columns -->

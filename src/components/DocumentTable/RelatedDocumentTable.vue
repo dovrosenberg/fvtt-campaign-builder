@@ -35,6 +35,7 @@
         table: { style: 'margin: 0px;'}
       }"
       @row-select="onRowSelect"
+      @row-contextmenu="onRowContextMenu"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -102,6 +103,7 @@
   import { ref, computed,} from 'vue';
   import { storeToRefs } from 'pinia';
   import { FilterMatchMode } from '@primevue/core/api';
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local imports
   import { useMainStore, useRelationshipStore } from '@/applications/stores';
@@ -183,6 +185,77 @@
   ////////////////////////////////
   // event handlers
   const onRowSelect = async function (event: { data: GridRow} ) { 
+    const { data } = event;
+
+    if (currentDocumentTab.value===DocumentTab.Actors) {
+      const actor = await fromUuid(data.uuid) as Actor;
+      await actor?.sheet?.render(true);
+    } else if (currentDocumentTab.value===DocumentTab.Scenes) {
+      const scene = await fromUuid(data.uuid) as Scene;
+      await scene?.sheet?.render(true);
+    }
+  
+    // Need to test open/activate for things in compendiums
+  };
+
+  const onRowContextMenu = async function (event: { originalEvent: MouseEvent; data: GridRow }): boolean {
+    const { originalEvent, data } = event;
+
+    //prevent the browser's default menu
+    originalEvent.preventDefault();
+    originalEvent.stopPropagation();
+
+    // no menu for actors
+    if (currentDocumentTab.value===DocumentTab.Actors) {
+      return false;
+    }
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fwb',
+      x: originalEvent.x,
+      y: originalEvent.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-eye', 
+          iconFontClass: 'fas',
+          label: localize('SCENES.View'), 
+          onClick: async () => {
+            const scene = await fromUuid(data.uuid) as Scene;
+            await scene?.view();
+          }
+        },
+        { 
+          icon: 'fa-bullseye', 
+          iconFontClass: 'fas',
+          label: localize('SCENES.Activate'), 
+          onClick: async () => {
+            const scene = await fromUuid(data.uuid) as Scene;
+            await scene?.activate();
+          }
+        },
+        { 
+          icon: 'fa-cogs', 
+          iconFontClass: 'fas',
+          label: localize('SCENES.Configure'), 
+          onClick: async () => {
+            const scene = await fromUuid(data.uuid) as Scene;
+            await scene?.sheet?.render(true);
+          }
+        },
+        { 
+          icon: 'fa-compass', 
+          iconFontClass: 'fas',
+          label: localize('SCENES.ToggleNav'), 
+          onClick: async () => {
+            throw new Error('Toggle Nav doesn\'t seem to work yet');
+            const scene = await fromUuid(data.uuid) as Scene;
+            await scene?.update({navigation: !scene.navigation});
+          }
+        },
+      ]
+    });
   };
 
   // call mutation to remove item  from relationship
