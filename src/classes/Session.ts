@@ -59,7 +59,6 @@ export class Session {
       type: DOCUMENT_TYPES.Session,
       name: nameToUse,
       system: {
-        type: DOCUMENT_TYPES.Session,
         number: null,
         description: '',
       }

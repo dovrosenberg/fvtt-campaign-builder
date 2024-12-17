@@ -62,12 +62,11 @@ export const relationshipKeyReplace = (relationships: RelationshipFieldType, ser
 const serializeEntryId = (entryId: string): string => { return entryId.replace(/\./g, '_'); };
 const deserializeEntryId = (entryId: string): string => { return entryId.replace(/_/g, '.'); };
 
+// @ts-ignore - error because ts can't properly handle the structure of JournalEntryPage
 export interface EntryDoc extends JournalEntryPage {
   system: {
-    type: `${ModuleId}.entry`;   
-
     topic: ValidTopic | undefined;
-    entryType: string | undefined;
+    type: string | undefined;
 
     /** 
      * Keyed by topic, then entryId 

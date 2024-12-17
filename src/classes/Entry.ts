@@ -67,8 +67,7 @@ export class Entry {
       type: DOCUMENT_TYPES.Entry,
       name: nameToUse,
       system: {
-        type: DOCUMENT_TYPES.Entry,
-        entryType: options.type || '',
+        type: options.type || '',
         topic: topic,
         relationships: {
           [Topic.Character]: {},
@@ -120,11 +119,11 @@ export class Entry {
   }
 
   get type(): string {
-    return this._entryDoc.system.entryType || '';
+    return this._entryDoc.system.type || '';
   }
 
   set type(value: string) {
-    this._entryDoc.system.entryType = value;
+    this._entryDoc.system.type = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
