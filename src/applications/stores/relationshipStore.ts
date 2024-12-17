@@ -408,6 +408,8 @@ export const useRelationshipStore = defineStore('relationship', () => {
           sceneList.push({
             uuid: currentEntry.value.scenes[i],
             name: scene.name,
+            packId: scene.pack,
+            packName: scene.pack ? game.packs?.get(scene.pack)?.title : null,
           });
         }
         relatedDocumentRows.value = sceneList;
@@ -416,10 +418,12 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
         const actorList = [] as RelatedDocumentDetails[];
         for (let i=0; i<currentEntry.value.actors.length; i++) {
-          const scene = (await fromUuid(currentEntry.value.actors[i])) as Actor;
+          const actor = (await fromUuid(currentEntry.value.actors[i])) as Actor;
           actorList.push({
             uuid: currentEntry.value.actors[i],
-            name: scene.name,
+            name: actor.name,
+            packId: actor.pack,
+            packName: actor.pack ? game.packs?.get(actor.pack)?.title : null,
           });
         }
         relatedDocumentRows.value = actorList;

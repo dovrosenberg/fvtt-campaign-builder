@@ -110,7 +110,7 @@
   import { localize } from '@/utils/game';
 
   // library components
-  import DataTable from 'primevue/datatable';
+  import DataTable, { DataTableRowContextMenuEvent } from 'primevue/datatable';
   import Column from 'primevue/column';
   import InputText from 'primevue/inputtext';
   import IconField from 'primevue/iconfield';
@@ -165,7 +165,12 @@
 
   const rows = computed((): GridRow[] => 
     relatedDocumentRows.value.map((item: RelatedDocumentDetails) => {
-      const base = { uuid: item.uuid, name: item.name, };
+      const base = { 
+        uuid: item.uuid, 
+        name: item.name, 
+        packId: item.packId, 
+        location: item.packId ? `Compendium: ${item.packName}` : 'World',
+      };
 
       return base;
     })
@@ -175,8 +180,9 @@
     // for now, just action and name
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
     const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
+    const locationColumn = { field: 'location', style: 'text-align: left', header: 'Location', sortable: true }; 
 
-    return [actionColumn, nameColumn];
+    return [actionColumn, nameColumn, locationColumn];
   });
 
   ////////////////////////////////
@@ -198,12 +204,13 @@
     // Need to test open/activate for things in compendiums
   };
 
-  const onRowContextMenu = async function (event: { originalEvent: MouseEvent; data: GridRow }): Promise<boolean> {
+  const onRowContextMenu = async function (event: DataTableRowContextMenuEvent): Promise<boolean> {
     const { originalEvent, data } = event;
+    const mouseEvent = originalEvent as MouseEvent;
 
     //prevent the browser's default menu
-    originalEvent.preventDefault();
-    originalEvent.stopPropagation();
+    mouseEvent.preventDefault();
+    mouseEvent.stopPropagation();
 
     // no menu for actors
     if (currentDocumentTab.value===DocumentTab.Actors) {
@@ -213,8 +220,8 @@
     //show our menu
     ContextMenu.showContextMenu({
       customClass: 'fwb',
-      x: originalEvent.x,
-      y: originalEvent.y,
+      x: mouseEvent.x,
+      y: mouseEvent.y,
       zIndex: 300,
       items: [
         { 
@@ -230,6 +237,7 @@
           icon: 'fa-bullseye', 
           iconFontClass: 'fas',
           label: localize('SCENES.Activate'), 
+          hidden: data.packId,   // can't activate in compendium
           onClick: async () => {
             const scene = await fromUuid(data.uuid) as Scene;
             await scene?.activate();
@@ -248,9 +256,14 @@
           icon: 'fa-compass', 
           iconFontClass: 'fas',
           label: localize('SCENES.ToggleNav'), 
+          hidden: data.packId,   // can't nav in compendium
           onClick: async () => {
             const scene = await fromUuid(data.uuid) as Scene;
-            await scene?.update({navigation: !scene.navigation});
+            if (scene.active) {
+              alert('Cannot toggle navigation while scene is active');
+            } else {
+              await scene?.update({navigation: !scene.navigation});
+            }
           }
         },
       ]
