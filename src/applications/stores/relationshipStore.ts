@@ -409,7 +409,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
             uuid: currentEntry.value.scenes[i],
             name: scene.name,
             packId: scene.pack,
-            packName: scene.pack ? game.packs?.get(scene.pack)?.title : null,
+            packName: scene.pack ? game.packs?.get(scene.pack)?.title ?? null : null,
           });
         }
         relatedDocumentRows.value = sceneList;
@@ -423,7 +423,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
             uuid: currentEntry.value.actors[i],
             name: actor.name,
             packId: actor.pack,
-            packName: actor.pack ? game.packs?.get(actor.pack)?.title : null,
+            packName: actor.pack ? game.packs?.get(actor.pack)?.title ?? null : null,
           });
         }
         relatedDocumentRows.value = actorList;
