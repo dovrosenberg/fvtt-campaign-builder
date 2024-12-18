@@ -1,6 +1,5 @@
 import { WBHeader } from '@/applications/WorldBuilder/WBHeader';
-import { UserFlags, UserFlagKey } from '@/settings/UserFlags';
-import { moduleSettings } from '@/settings/ModuleSettings';
+import { moduleSettings, UserFlags, UserFlagKey } from '@/settings';
 import { faker } from '@faker-js/faker';
 import _ from 'lodash';
 import { Bookmark, WindowTabType } from '@/types';

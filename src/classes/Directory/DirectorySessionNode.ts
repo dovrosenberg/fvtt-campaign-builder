@@ -3,7 +3,7 @@
  */
 
 import { CollapsibleNode, Session } from '@/classes';
-import { WorldFlagKey } from '@/settings/WorldFlags';
+import { WorldFlagKey } from '@/settings';
 import { NO_NAME_STRING } from '@/utils/hierarchy';
 
 // represents an entry in the type-grouped structure

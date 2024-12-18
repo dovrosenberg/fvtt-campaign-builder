@@ -11,6 +11,8 @@ import {
   Topic, ValidTopic,
   RelatedItemDetails, FieldDataByTopic,
   TablePagination,
+  RelatedDocumentDetails,
+  DocumentTab,
 } from '@/types';
 import { reactive, Ref, watch } from 'vue';
 import { ref } from 'vue';
@@ -21,6 +23,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // the state
   const relatedItemRows = ref<RelatedItemDetails<any, any>[]>([]);
+  const relatedDocumentRows = ref<RelatedDocumentDetails[]>([]);
 
   // we store the pagination info for each type like a preference
   const defaultPagination: TablePagination = {
@@ -29,7 +32,6 @@ export const useRelationshipStore = defineStore('relationship', () => {
     first: 0,
     page: 0,
     rowsPerPage: 10, 
-    totalRecords: undefined, 
     filters: {},
   };
 
@@ -70,7 +72,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentContentTab } = storeToRefs(mainStore);
+  const { currentEntry, currentContentTab, currentDocumentTab } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -137,6 +139,86 @@ export const useRelationshipStore = defineStore('relationship', () => {
     await entry.save();
     relatedEntry.relationships = relatedEntryRelationships;
     await relatedEntry.save();
+
+    mainStore.refreshEntry();
+  }
+
+  /**
+   * Add a scene to the current entry
+   * @param sceneId The id of the scene to add
+   */
+  async function addScene(sceneId: string): Promise<void> {
+    // create the relationship on current entry
+    const entry = currentEntry.value;
+
+    if (!entry || !sceneId)
+      throw new Error('Invalid entry in relationshipStore.addSceme()');
+
+    // update the entry
+    if (!entry.scenes.includes(sceneId)) {
+      entry.scenes.push(sceneId);
+      await entry.save();
+    }
+
+    mainStore.refreshEntry();
+  }
+
+  /**
+   * Add a actor to the current entry
+   * @param actorId The id of the actor to add
+   */
+  async function addActor(actorId: string): Promise<void> {
+    // create the relationship on current entry
+    const entry = currentEntry.value;
+
+    if (!entry || !actorId)
+      throw new Error('Invalid entry in relationshipStore.addActor()');
+
+    // update the entry
+    if (!entry.actors.includes(actorId)) {
+      entry.actors.push(actorId);
+      await entry.save();
+    }
+
+    mainStore.refreshEntry();
+  }
+
+  /**
+   * Removea scene from the current entry
+   * @param sceneId The id of the scene to remove
+   */
+  async function deleteScene(sceneId: string): Promise<void> {
+    // edit the current entry
+    const entry = currentEntry.value;
+
+    if (!entry || !sceneId)
+      throw new Error('Invalid entry in relationshipStore.deleteScene()');
+
+    // update the entry
+    if (entry.scenes.includes(sceneId)) {
+      entry.scenes.splice(entry.scenes.indexOf(sceneId), 1);
+      await entry.save();
+    }
+
+    mainStore.refreshEntry();
+  }
+
+  /**
+   * Remove a actor from the current entry
+   * @param actorId The id of the actor to remove
+   */
+  async function deleteActor(actorId: string): Promise<void> {
+    // edit the current entry
+    const entry = currentEntry.value;
+
+    if (!entry || !actorId)
+      throw new Error('Invalid entry in relationshipStore.deleteScene()');
+
+    // update the entry
+    if (entry.actors.includes(actorId)) {
+      entry.actors.splice(entry.actors.indexOf(actorId), 1);
+      await entry.save();
+    }
 
     mainStore.refreshEntry();
   }
@@ -285,9 +367,10 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
   ///////////////////////////////
   // internal functions
-  const _refreshRows = () => {
+  const _refreshRows = async () => {
     if (!currentEntry.value || !currentContentTab.value) {
       relatedItemRows.value = [];
+      relatedDocumentRows.value = [];
     } else {
       let topic: Topic;
       switch (currentContentTab.value) {
@@ -303,22 +386,62 @@ export const useRelationshipStore = defineStore('relationship', () => {
         case 'organizations':
           topic = Topic.Organization;
           break;
+        case 'scenes':
+          topic = Topic.None;
+          break;
+        case 'actors':
+          topic = Topic.None;
+          break;
         default:
           topic = Topic.None;
       }
 
-      relatedItemRows.value = currentEntry.value.relationships && topic!==Topic.None ? Object.values(currentEntry.value.relationships[topic]) || []: [];
+      if (topic !== Topic.None) {
+        relatedItemRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]) || []: [];
+        relatedDocumentRows.value = [];
+      } else if (currentDocumentTab.value===DocumentTab.Scenes) {
+        relatedItemRows.value = [];
+
+        const sceneList = [] as RelatedDocumentDetails[];
+        for (let i=0; i<currentEntry.value.scenes.length; i++) {
+          const scene = (await fromUuid(currentEntry.value.scenes[i])) as Scene;
+          sceneList.push({
+            uuid: currentEntry.value.scenes[i],
+            name: scene.name,
+            packId: scene.pack,
+            packName: scene.pack ? game.packs?.get(scene.pack)?.title ?? null : null,
+          });
+        }
+        relatedDocumentRows.value = sceneList;
+      } else if (currentDocumentTab.value===DocumentTab.Actors) {
+        relatedItemRows.value = [];
+
+        const actorList = [] as RelatedDocumentDetails[];
+        for (let i=0; i<currentEntry.value.actors.length; i++) {
+          const actor = (await fromUuid(currentEntry.value.actors[i])) as Actor;
+          actorList.push({
+            uuid: currentEntry.value.actors[i],
+            name: actor.name,
+            packId: actor.pack,
+            packName: actor.pack ? game.packs?.get(actor.pack)?.title ?? null : null,
+          });
+        }
+        relatedDocumentRows.value = actorList;
+      } else {
+        relatedItemRows.value = [];
+        relatedDocumentRows.value = [];
+      }
     }
   };
 
   ///////////////////////////////
   // watchers
-  watch(()=> currentEntry.value, () => {
-    _refreshRows();
+  watch(()=> currentEntry.value, async () => {
+    await _refreshRows();
   });
 
-  watch(()=> currentContentTab.value, () => {
-    _refreshRows();
+  watch(()=> currentContentTab.value, async () => {
+    await _refreshRows();
   });
 
   ///////////////////////////////
@@ -328,12 +451,17 @@ export const useRelationshipStore = defineStore('relationship', () => {
   // return the public interface
   return {
     relatedItemRows,
+    relatedDocumentRows,
     extraFields,
 
     addRelationship,
     deleteRelationship,
     editRelationship,
     getRelationships,
-    propogateNameChange
+    propogateNameChange,
+    addScene,
+    addActor,
+    deleteScene,
+    deleteActor,
   };
 });

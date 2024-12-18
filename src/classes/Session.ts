@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, SessionDoc, CampaignDoc } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { WorldFlagKey, WorldFlags } from '@/settings';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Session {
@@ -69,7 +69,7 @@ export class Session {
     await Session.worldCompendium.configure({locked:true});
 
     return sessionDoc[0] ? new Session(sessionDoc[0]) : null;
-  };
+  }
 
   get uuid(): string {
     return this._sessionDoc.uuid;
@@ -99,7 +99,7 @@ export class Session {
         ...this._cumulativeUpdate.system,
         description: value,
       }
-    }
+    };
   }
 
   get number(): number | null{
@@ -113,7 +113,7 @@ export class Session {
       system: {
         number: value,
       }
-    }
+    };
   }
 
   // get direct access to the document (ex. to hook to foundry's editor)
@@ -131,7 +131,7 @@ export class Session {
     if (!Session.worldCompendium)
       throw new Error('No compendium in Session.save()');
 
-    let updateData = this._cumulativeUpdate;
+    const updateData = this._cumulativeUpdate;
 
     // unlock compendium to make the change
     await Session.worldCompendium.configure({locked:false});
@@ -159,7 +159,7 @@ export class Session {
     if (!Session.currentCampaignJournals || !Session.currentCampaignJournals[campaignId])
       return [];
     
-    return  Session.currentCampaignJournals[campaignId].collections.pages.contents
+    return (Session.currentCampaignJournals[campaignId].pages.contents as SessionDoc[])
       .map((s: SessionDoc)=> new Session(s))
       .filter((s: Session)=> filterFn(s));
   }
@@ -181,7 +181,7 @@ export class Session {
     await Session.worldCompendium.configure({locked:true});
   }
 
-    /**
+  /**
    * Find all sessions for a given campaign
    * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
    *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
@@ -190,23 +190,23 @@ export class Session {
    * @param notRelatedTo if present, only return sessions that are not already linked to this session
    * @returns a list of Entries
    */
-    public static async getSessionsForCampaign(campaignId: string, notRelatedTo?: Session | undefined): Promise<Session[]> {
-      if (!Session.currentCampaignJournals || !Session.currentCampaignJournals[campaignId])
-        return [];
+  public static async getSessionsForCampaign(campaignId: string, notRelatedTo?: Session | undefined): Promise<Session[]> {
+    if (!Session.currentCampaignJournals || !Session.currentCampaignJournals[campaignId])
+      return [];
   
-      // we find all journal entries with this topic
-      let sessions = await Session.filter(campaignId, ()=>true);
+    // we find all journal entries with this topic
+    let sessions = await Session.filter(campaignId, ()=>true);
   
-      // filter unique ones if needed
-      if (notRelatedTo) {
-        const relatedEntries = notRelatedTo.getAllRelatedSessions(campaignId);
+    // filter unique ones if needed
+    if (notRelatedTo) {
+      const relatedEntries = notRelatedTo.getAllRelatedSessions(campaignId);
   
-        // also remove the current one
-        sessions = sessions.filter((session) => !relatedEntries.includes(session.uuid) && session.uuid !== notRelatedTo.uuid);
-      }
+      // also remove the current one
+      sessions = sessions.filter((session) => !relatedEntries.includes(session.uuid) && session.uuid !== notRelatedTo.uuid);
+    }
   
-      return sessions;
-    };
+    return sessions;
+  }
   
   /**
    * Retrieves a list of all uuids that are linked to the current session.  For now, we don't
@@ -217,6 +217,6 @@ export class Session {
    */
   public getAllRelatedSessions(_campaignId: string): string[] {
     return [];
-  };
+  }
   
 }

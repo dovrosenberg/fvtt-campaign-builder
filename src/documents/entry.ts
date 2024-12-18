@@ -1,4 +1,5 @@
 import { RelatedItemDetails, Topic, ValidTopic } from '@/types';
+import { ModuleId } from '@/settings';
 
 const fields = foundry.data.fields;
 const entrySchema = {
@@ -61,6 +62,7 @@ export const relationshipKeyReplace = (relationships: RelationshipFieldType, ser
 const serializeEntryId = (entryId: string): string => { return entryId.replace(/\./g, '_'); };
 const deserializeEntryId = (entryId: string): string => { return entryId.replace(/_/g, '.'); };
 
+// @ts-ignore - error because ts can't properly handle the structure of JournalEntryPage
 export interface EntryDoc extends JournalEntryPage {
   system: {
     topic: ValidTopic | undefined;

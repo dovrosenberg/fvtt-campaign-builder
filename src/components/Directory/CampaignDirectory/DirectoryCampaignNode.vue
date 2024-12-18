@@ -3,9 +3,7 @@
     :class="'fwb-campaign-folder folder entry flexcol fwb-directory-compendium ' + (props.campaignNode.expanded ? '' : 'collapsed')" 
     :data-campaign="props.campaignNode.id"
   >
-    <header 
-      class="folder-header flexrow"
-    >
+    <header class="folder-header flexrow">
       <div 
         class="fwb-compendium-label noborder" 
         style="margin-bottom:0px"
@@ -96,7 +94,7 @@
   };
 
   const onCampaignSelectClick = async (event: MouseEvent) => {
-    navigationStore.openCampaign(currentNode.value.id, {newTab: event.ctrlKey});
+    await navigationStore.openCampaign(currentNode.value.id, {newTab: event.ctrlKey});
   };
 
   const onCampaignContextMenu = (event: MouseEvent): void => {
@@ -111,7 +109,7 @@
       y: event.y,
       zIndex: 300,
       items: [
-      { 
+        { 
           icon: getTabTypeIcon(WindowTabType.Session),
           iconFontClass: 'fas',
           label: localize('fwb.contextMenus.campaignFolder.createSession'), 

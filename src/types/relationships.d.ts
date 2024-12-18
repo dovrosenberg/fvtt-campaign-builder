@@ -39,3 +39,10 @@ export type RelatedItem<PrimaryTopic extends ValidTopic, RelatedTopic extends Va
 export type RelatedItemDetails<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic> = RelatedItem<PrimaryTopic, RelatedTopic> & {
   name: string;
 }
+
+export type RelatedDocumentDetails = {
+  uuid: string;   // the other item
+  name: string;
+  packId: string | null;   // uuid of the parent compendium (null if it's a world compendium)
+  packName: string | null;
+};

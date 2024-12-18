@@ -1,5 +1,5 @@
 import moduleJson from '@module';
-import { ModuleSettings, updateModuleSettings } from '@/settings/ModuleSettings';
+import { ModuleSettings, updateModuleSettings } from '@/settings';
 import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel } from '@/documents';
 
 export function registerForInitHook() {

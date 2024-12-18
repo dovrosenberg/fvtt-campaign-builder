@@ -10,6 +10,16 @@ export default definePreset(Aura, {
       rowStripedBackground: 'inherit',
       footerCellBackground: 'inherit',
       footerBackground: 'inherit',
+      paginatorTopBorderColor: 'black',
+      paginatorBottomBorderColor: 'black',
+      paginatorTopBorderWidth: '1px',
+      paginatorBottomBorderWidth: '1px',
+    },
+    paginator: {
+      navButton: {
+        height: '1rem',
+        width: '1rem',
+      }
     },
     button: {
       colorScheme: { 

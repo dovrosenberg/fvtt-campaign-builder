@@ -20,12 +20,15 @@
       :pt="{
         header: { style: 'border: none' },
         thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
-        row: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
+        row: { 
+          style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
+        },
         pcPaginator: { 
           // these are needed to override the foundry button styling
           first: {
             style: 'width: auto', 
-          }
+          },
+          root: { style: 'background: inherit', }
         },
         table: { style: 'margin: 0px;'}
       }"
@@ -73,9 +76,11 @@
         :key="col.field" 
         :field="col.field" 
         :header="col.header" 
+        :header-style="col.style"
         :body-style="col.style"
         :sortable="col.sortable"
       >
+        <!-- actions column format-->
         <template
           v-if="col.field==='actions'"
           #body="{ data }"
@@ -96,13 +101,9 @@
             <i class="fas fa-pen"></i>
           </a>
         </template>
-        <template
-          v-else-if="!!col.format"
-          #body="{ data }"
-        >
-          {{ col.format(data[col.field as keyof typeof data]) }}
-        </template>
-        <template 
+
+        <!-- template to add the filter headers fof name/type/role columns -->
+        <!-- <template 
           v-if="['name', 'type', 'role'].includes(col.field)"
           #filter="{ filterModel, filterCallback }"
         >
@@ -112,7 +113,7 @@
             :placeholder="`Search by ${col.header}`" 
             @input="filterCallback()" 
           />
-        </template>
+        </template> -->
       </Column>
     </DataTable>
   </div>
@@ -264,7 +265,7 @@
 
   const columns = computed((): any[] => {
     // they all have some standard columns
-    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px', header: 'Actions' };
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
     const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
     const typeColumn = { field: 'type', style: 'text-align: left', header: 'Type', sortable: true }; 
     const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 

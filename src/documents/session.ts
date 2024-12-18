@@ -1,3 +1,5 @@
+import { ModuleId } from '@/settings';
+
 const fields = foundry.data.fields;
 const sessionSchema = {
   number: new fields.NumberField({ required: false, nullable: true, initial: null }),
@@ -23,6 +25,7 @@ export class SessionDataModel<Schema extends SessionSchemaType, ParentNode exten
   // }
 }
 
+// @ts-ignore - error because ts can't properly handle the structure of JournalEntryPage
 export interface SessionDoc extends JournalEntryPage {
   system: {
     number: number | null | undefined;

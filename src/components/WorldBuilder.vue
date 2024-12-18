@@ -22,7 +22,7 @@
 
   // local imports
   import { getDefaultFolders, } from '@/compendia';
-  import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
+  import { SettingKey, moduleSettings, WorldFlags, WorldFlagKey } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { getGame } from '@/utils/game';
 
@@ -36,7 +36,6 @@
   // types
   import { Topic, ValidTopic } from '@/types';
   import { CollapsibleNode, Entry, Campaign, Session } from '@/classes';
-  import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags';
   import { CampaignDoc } from '@/documents';
   
   ////////////////////////////////

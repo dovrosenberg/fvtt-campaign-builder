@@ -2,7 +2,7 @@
  * A class representing a node (which might have children) in the topic or campaign tree structures
  */
 
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { WorldFlagKey, WorldFlags } from '@/settings';
 import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode } from '@/classes';
 
 type ExpandedIdsFlags = WorldFlagKey.expandedIds | WorldFlagKey.expandedCampaignIds;

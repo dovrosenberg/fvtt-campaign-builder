@@ -4,7 +4,7 @@
 
 import { Entry, CollapsibleNode, DirectoryEntryNode, } from '@/classes';
 import { ValidTopic } from '@/types';
-import { WorldFlagKey } from '@/settings/WorldFlags';
+import { WorldFlagKey } from '@/settings';
 
 export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEntryNode> {
   topic: ValidTopic;

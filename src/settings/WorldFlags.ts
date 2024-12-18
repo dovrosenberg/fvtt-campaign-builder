@@ -3,9 +3,9 @@
 // also, when the world is deleted, they'll all get cleaned up
 
 import { getGame } from '@/utils/game';
-import moduleJson from '@module';
 import { Topic, ValidTopic } from '@/types';
 import { Hierarchy } from '@/utils/hierarchy';
+import { moduleId } from '.';
 
 export enum WorldFlagKey {
   worldCompendium = 'worldCompendium',   // the uuid for the world compendium 
@@ -100,19 +100,19 @@ const flagSetup = [
 
 export abstract class WorldFlags {
   public static async setDefaults(worldId: string): Promise<void> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
+    const f = getGame()?.folders?.find((f)=>f.uuid===worldId) as Folder;
     if (!f)
       return;
 
     for (let i=0; i<flagSetup.length; i++) {
-      if (!f.getFlag(moduleJson.id, flagSetup[i].flagId)) {
+      if (!f.getFlag(moduleId, flagSetup[i].flagId)) {
         const value =  foundry.utils.deepClone(flagSetup[i].default);
 
         if (flagSetup[i].clean && value) {
           flagSetup[i].clean(value);
         }
 
-        await f.setFlag(moduleJson.id, flagSetup[i].flagId, value);
+        await f.setFlag(moduleId, flagSetup[i].flagId, value);
       }
     }
 
@@ -127,7 +127,7 @@ export abstract class WorldFlags {
     if (!f)
       return config?.default as WorldFlagType<T>;
 
-    const setting = (f.getFlag(moduleJson.id, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T>;
+    const setting = (f.getFlag(moduleId, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T>;
 
     if (config?.needsFlatten)
       return foundry.utils.flattenObject(setting as unknown as object) as WorldFlagType<T>;
@@ -148,7 +148,7 @@ export abstract class WorldFlags {
       config.clean(value);
     }
 
-    await f.setFlag(moduleJson.id, flag, value);
+    await f.setFlag(moduleId, flag, value);
   }
 
   // remove a key from an object flag
@@ -157,7 +157,7 @@ export abstract class WorldFlags {
     if (!f)
       return;
 
-    await f.unsetFlag(moduleJson.id, `${flag}${key ? '.' + key : ''}`);
+    await f.unsetFlag(moduleId, `${flag}${key ? '.' + key : ''}`);
   }
 
   // special case because of nesting and index
@@ -216,7 +216,7 @@ export abstract class WorldFlags {
     if (!f)
       return config?.default[topic];
 
-    const setting = (f.getFlag(moduleJson.id, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T>;
+    const setting = (f.getFlag(moduleId, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T>;
 
     if (config?.needsFlatten)
       return (foundry.utils.flattenObject(setting) as WorldFlagType<T>)[topic] as WorldFlagType<T>[keyof WorldFlagType<T>];

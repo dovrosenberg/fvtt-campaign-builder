@@ -1,7 +1,6 @@
 import { toRaw } from 'vue';
-import { id as moduleId } from '@module';
 import { inputDialog } from '@/dialogs/input';
-import { WorldFlags, WorldFlagKey } from '@/settings/WorldFlags'; 
+import { WorldFlags, WorldFlagKey, moduleId } from '@/settings'; 
 import { CampaignDoc, EntryDoc } from '@/documents';
 
 // represents a topic entry (ex. a character, location, etc.)
@@ -61,10 +60,10 @@ export class Campaign {
           name: name,
         },{
           pack: Campaign.worldCompendium.metadata.id,
-        });  
+        }) as unknown as CampaignDoc;  
 
         if (campaign) {
-          await campaign.setFlag(moduleId, 'isCampaign', 'true');
+          await campaign.setFlag(moduleId, 'isCampaign', true);
           await campaign.setFlag(moduleId, 'description', '');
         }
 

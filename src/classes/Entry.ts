@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace, } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topic } from '@/types';
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { WorldFlagKey, WorldFlags } from '@/settings';
 import { cleanTrees, } from '@/utils/hierarchy';
 import { inputDialog } from '@/dialogs/input';
 import { getTopicText } from '@/compendia';
@@ -63,6 +63,7 @@ export class Entry {
     await Entry.worldCompendium.configure({locked:false});
 
     const entryDoc = await JournalEntryPage.createDocuments([{
+      // @ts-ignore- we know this type is valid
       type: DOCUMENT_TYPES.Entry,
       name: nameToUse,
       system: {
@@ -168,7 +169,11 @@ export class Entry {
   }
 
   get scenes(): string[] {
-    return this._entryDoc.system.scenes || [];
+    // create the array if it doesn't exist
+    if (!this._entryDoc.system.scenes)
+      this._entryDoc.system.scenes = [];
+
+    return this._entryDoc.system.scenes;
   }  
 
   set scenes(value: string[]) {
@@ -176,11 +181,15 @@ export class Entry {
   }
 
   get actors(): string[] {
-    return this._entryDoc.system.scenes || [];
+    // create the array if it doesn't exist
+    if (!this._entryDoc.system.actors)
+      this._entryDoc.system.actors = [];
+
+    return this._entryDoc.system.actors;
   }  
 
   set actors(value: string[]) {
-    this._entryDoc.system.scenes = value;
+    this._entryDoc.system.actors = value;
   }
 
   // used to set arbitrary properties on the entryDoc
@@ -193,7 +202,15 @@ export class Entry {
     if (!Entry.worldCompendium)
       return null;
 
-    const updateData = this._cumulativeUpdate;
+    // rather than try to monitor all changes to the arrays (which would require saving the originals or a proxy), we just always save them
+    const updateData = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        scenes: this.scenes,
+        actors: this.actors,
+      }
+    };
 
     // unlock compendium to make the change
     await Entry.worldCompendium.configure({locked:false});
@@ -235,7 +252,7 @@ export class Entry {
     if (!Entry.currentTopicJournals || !Entry.currentTopicJournals[topic])
       return [];
     
-    return  Entry.currentTopicJournals[topic].collections.pages.contents
+    return  (Entry.currentTopicJournals[topic].pages.contents as EntryDoc[])
       .map((e: EntryDoc)=> new Entry(e))
       .filter((e: Entry)=> filterFn(e));
   }

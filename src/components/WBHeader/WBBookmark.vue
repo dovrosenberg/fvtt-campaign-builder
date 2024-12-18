@@ -115,27 +115,32 @@
   }; 
 
   const onDrop = async(event: DragEvent) => {
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
-    }
-    catch (err) {
+    if (event.dataTransfer?.types[0]==='text/plain') {
+      let data;
+
+      try {
+        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+      }
+      catch (err) {
+        return false;
+      }
+
+      const target = (event.currentTarget as HTMLElement).closest('.fwb-bookmark-button') as HTMLElement;
+      if (!target)
+        return false;
+
+      if (data.bookmarkId === props.bookmark.id) return; // Don't drop on yourself
+
+      // insert before the drop target
+      const bookmarksValue = bookmarks.value;
+      const from = bookmarksValue.findIndex(b => b.id === data.bookmarkId);
+      const to = bookmarksValue.findIndex(b => b.id === props.bookmark.id);
+      await navigationStore.changeBookmarkPosition(from, to);
+
+      return true;
+    } else {
       return false;
     }
-
-    const target = (event.currentTarget as HTMLElement).closest('.fwb-bookmark-button') as HTMLElement;
-    if (!target)
-      return false;
-
-    if (data.bookmarkId === props.bookmark.id) return; // Don't drop on yourself
-
-    // insert before the drop target
-    const bookmarksValue = bookmarks.value;
-    const from = bookmarksValue.findIndex(b => b.id === data.bookmarkId);
-    const to = bookmarksValue.findIndex(b => b.id === props.bookmark.id);
-    await navigationStore.changeBookmarkPosition(from, to);
-
-    return true;
   };
 
   ////////////////////////////////

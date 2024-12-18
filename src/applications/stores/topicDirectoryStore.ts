@@ -5,11 +5,10 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 
 // local imports
-import { WorldFlagKey, WorldFlags } from '@/settings/WorldFlags';
+import { moduleSettings, SettingKey, WorldFlagKey, WorldFlags } from '@/settings';
 import { hasHierarchy, Hierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { createWorldFolder, getTopicTextPlural, validateCompendia } from '@/compendia';
-import { moduleSettings, SettingKey } from '@/settings/ModuleSettings';
 import { getGame } from '@/utils/game';
 
 // types

@@ -3,7 +3,7 @@
  */
 
 import { CollapsibleNode, DirectoryTypeEntryNode } from '@/classes';
-import { WorldFlagKey } from '@/settings/WorldFlags';
+import { WorldFlagKey } from '@/settings';
 
 // a type "group"; used when showing the tree grouped by type
 // its children are DirectoryTypeEntryNodes (which are like regular entries but they can't have children)

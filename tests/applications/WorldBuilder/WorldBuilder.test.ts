@@ -1,7 +1,7 @@
 import { OldWorldBuilder } from '@/applications/WorldBuilder/OldWorldBuilder';
 
-jest.mock('@/settings/UserFlags.ts', () => {
-  const originalModule = jest.requireActual('@/settings/UserFlags.ts');
+jest.mock('@/settings', () => {
+  const originalModule = jest.requireActual('@/settings');
 
   const UserFlagsMock = jest.fn().mockImplementation(() => ({
     get: jest.fn(),
