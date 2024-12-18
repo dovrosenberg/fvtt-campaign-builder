@@ -1,4 +1,4 @@
-import { getGame, localize } from '@/utils/game';
+import { localize } from '@/utils/game';
 import { moduleId } from './index';
 
 export enum SettingKey {
@@ -31,7 +31,7 @@ export class ModuleSettings {
 
   // note that this returns the object directly, so if it's an object or array, if a reference
   public get<T extends SettingKey>(setting: T): SettingKeyType<T> {
-    return getGame().settings.get(moduleId, setting) as SettingKeyType<T>;
+    return game.settings.get(moduleId, setting) as SettingKeyType<T>;
   }
 
   // this gets something safe to modify
@@ -40,15 +40,15 @@ export class ModuleSettings {
   }
 
   public async set<T extends SettingKey>(setting: T, value: SettingKeyType<T>): Promise<void> {
-    await getGame().settings.set(moduleId, setting, value);
+    await game.settings.set(moduleId, setting, value);
   }
 
   private register(settingKey: SettingKey, settingConfig: ClientSettings.RegisterOptions<string | boolean>) {
-    getGame().settings.register(moduleId, settingKey, settingConfig);
+    game.settings.register(moduleId, settingKey, settingConfig);
   }
 
   private registerMenu(settingKey: SettingKey, settingConfig: ClientSettings.RegisterSubmenu) {
-    getGame().settings.registerMenu(moduleId, settingKey, settingConfig);
+    game.settings.registerMenu(moduleId, settingKey, settingConfig);
   }
 
   // these are local menus (shown at top)

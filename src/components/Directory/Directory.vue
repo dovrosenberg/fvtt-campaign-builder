@@ -133,7 +133,7 @@
     event.stopPropagation();
 
     // // add 400 entries
-    // const wf = getGame().folders?.find((f)=>f.id==='IAAEn25ebbVZXL9V');
+    // const wf = game.folders?.find((f)=>f.id==='IAAEn25ebbVZXL9V');
     // if (wf) {
     //   for (let i=0; i<400; i++) {
     //     await topicDirectoryStore.createEntry(Topic.Location, { name: foundry.utils.randomID() });

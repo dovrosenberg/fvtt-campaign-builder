@@ -51,7 +51,7 @@
   
   // local imports
   import { useNavigationStore, useTopicDirectoryStore, useMainStore, } from '@/applications/stores';
-  import { getGame, localize } from '@/utils/game';
+  import { localize } from '@/utils/game';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   import { toTopic } from '@/utils/misc';
   
@@ -179,7 +179,7 @@
           label: `${localize('fwb.contextMenus.typeFolder.create')} ${props.type.name}`, 
           onClick: async () => {
             // get the right topic
-            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
+            const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
             
             if (!worldFolder)
               throw new Error('Invalid header in TopicDirectoryGroupedType.onTypeContextMenu.onClick');

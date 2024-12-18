@@ -1,5 +1,5 @@
 import { WorldBuilderApplication} from '@/applications/WorldBuilder';
-import { getGame, localize } from '@/utils/game';
+import { localize } from '@/utils/game';
 import { setupEnricher } from '@/components/Editor/helpers';
 
 export function registerForReadyHook() {
@@ -10,7 +10,7 @@ async function ready(): Promise<void> {
   // register handlebars helpers
   await loadTemplates([]);
 
-  if (getGame().user?.isGM) {  
+  if (game.user?.isGM) {  
     const navToggleButton = jQuery(document).find('#nav-toggle');
     const toolTip = localize('fwb.tooltips.mainButton');
     navToggleButton.before(

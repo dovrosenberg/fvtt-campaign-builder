@@ -2,7 +2,6 @@
 // we store all the compendia status info here in the hopes that it's stored on the server, though that's unclear to me
 // also, when the world is deleted, they'll all get cleaned up
 
-import { getGame } from '@/utils/game';
 import { Topic, ValidTopic } from '@/types';
 import { Hierarchy } from '@/utils/hierarchy';
 import { moduleId } from '.';
@@ -100,7 +99,7 @@ const flagSetup = [
 
 export abstract class WorldFlags {
   public static async setDefaults(worldId: string): Promise<void> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldId) as Folder;
+    const f = game.folders?.find((f)=>f.uuid===worldId) as Folder;
     if (!f)
       return;
 
@@ -120,7 +119,7 @@ export abstract class WorldFlags {
   }
 
   public static get<T extends WorldFlagKey>(worldId: string, flag: T): WorldFlagType<T> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
+    const f = game.folders?.find((f)=>f.uuid===worldId);
     
     const config = flagSetup.find((s)=>s.flagId===flag);
 
@@ -136,7 +135,7 @@ export abstract class WorldFlags {
   }
 
   public static async set<T extends WorldFlagKey>(worldId: string, flag: T, value: WorldFlagType<T> | null): Promise<void> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
+    const f = game.folders?.find((f)=>f.uuid===worldId);
     if (!f)
       return;
 
@@ -153,7 +152,7 @@ export abstract class WorldFlags {
 
   // remove a key from an object flag
   public static async unset<T extends RequiresNoTopic>(worldId: string, flag: T, key?: string): Promise<void> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
+    const f = game.folders?.find((f)=>f.uuid===worldId);
     if (!f)
       return;
 
@@ -209,7 +208,7 @@ export abstract class WorldFlags {
 
   // special cases because of indexes
   public static getTopicFlag<T extends RequiresTopic>(worldId: string, flag: T, topic: Topic): WorldFlagType<T>[keyof WorldFlagType<T>] {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
+    const f = game.folders?.find((f)=>f.uuid===worldId);
     
     const config = flagSetup.find((s)=>s.flagId===flag);
 
@@ -225,7 +224,7 @@ export abstract class WorldFlags {
   }
 
   public static async setTopicFlag<T extends RequiresTopic>(worldId: string, flag: T, topic: Topic, value: WorldFlagType<T>[keyof WorldFlagType<T>]): Promise<void> {
-    const f = getGame()?.folders?.find((f)=>f.uuid===worldId);
+    const f = game.folders?.find((f)=>f.uuid===worldId);
     if (!f)
       return;
 

@@ -47,7 +47,7 @@
   // local imports
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
-  import { getGame, localize } from '@/utils/game';
+  import { localize } from '@/utils/game';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -190,7 +190,7 @@
           label: localize(`fwb.contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
           onClick: async () => {
             // get the right folder
-            const worldFolder = getGame().folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
+            const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
             if (!worldFolder || !props.topic)
               throw new Error('Invalid header in TopicDirectoryNodeWithChildren.onEntryContextMenu.onClick');

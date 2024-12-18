@@ -9,7 +9,6 @@ import { moduleSettings, SettingKey, WorldFlagKey, WorldFlags } from '@/settings
 import { hasHierarchy, Hierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { createWorldFolder, getTopicTextPlural, validateCompendia } from '@/compendia';
-import { getGame } from '@/utils/game';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, } from '@/classes';
@@ -315,7 +314,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     const worldFolder = await fromUuid(worldId) as Folder;
 
     // get the compendium
-    const compendium = getGame().packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
+    const compendium = game.packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
      
     if (compendium) {
       await compendium.configure({ locked:false });

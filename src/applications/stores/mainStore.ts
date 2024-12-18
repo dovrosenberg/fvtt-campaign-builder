@@ -5,7 +5,6 @@ import { defineStore, } from 'pinia';
 import { computed, ref, } from 'vue';
 
 // local imports
-import { getGame } from '@/utils/game';
 import { UserFlagKey, UserFlags, WorldFlags, WorldFlagKey } from '@/settings';
 
 // types
@@ -39,7 +38,7 @@ export const useMainStore = defineStore('main', () => {
     if (!currentWorldId.value)
       throw new Error('No currentWorldId in mainStore.currentWorldCompendium()');
 
-    const pack = getGame().packs?.get(WorldFlags.get(currentWorldId.value, WorldFlagKey.worldCompendium)) || null;
+    const pack = game.packs?.get(WorldFlags.get(currentWorldId.value, WorldFlagKey.worldCompendium)) || null;
     if (!pack)
       throw new Error('Bad compendia in mainStore.currentWorldCompendium()');
 
@@ -64,7 +63,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // load the folder
-    const folder = getGame()?.folders?.find((f)=>f.uuid===worldId) || null;
+    const folder = game?.folders?.find((f)=>f.uuid===worldId) || null;
     
     if (!folder)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');

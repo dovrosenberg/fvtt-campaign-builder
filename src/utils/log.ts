@@ -1,4 +1,3 @@
-import { getGame } from '@/utils/game';
 import { id as moduleId } from '@module';
 import {type DevModeApi} from '@/libraries/foundry/devMode';
 const messagePrefix = `${moduleId} | `;
@@ -14,7 +13,7 @@ declare global {
 
 export function log(force: boolean, ...args): void {
   try {
-    const isDebugging = getGame().modules.get('_dev-mode')?.api?.getPackageDebugValue(moduleId) || false;
+    const isDebugging = game.modules.get('_dev-mode')?.api?.getPackageDebugValue(moduleId) || false;
 
     if (force || isDebugging) {
       console.log(messagePrefix, ...args);

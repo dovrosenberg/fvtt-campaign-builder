@@ -1,6 +1,6 @@
 // functions for managing folders and compendia
 import { inputDialog } from '@/dialogs/input';
-import { getGame, localize } from '@/utils/game';
+import { localize } from '@/utils/game';
 import { Topic, } from '@/types';
 import { SettingKey, moduleSettings, UserFlagKey, UserFlags, WorldFlagKey, WorldFlags } from '@/settings';
 import { toTopic } from '@/utils/misc';
@@ -22,7 +22,7 @@ export async function getRootFolder(): Promise<Folder> {
     // save to settings for next time
     await moduleSettings.set(SettingKey.rootFolderId, folder.uuid);
   } else { 
-    folder = getGame()?.folders?.find((f)=>f.uuid===rootFolderId) || null;
+    folder = game.folders?.find((f)=>f.uuid===rootFolderId) || null;
 
     // there is a setting, but does the folder exist?
     if (!folder) {
@@ -156,14 +156,14 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
 
   if (setting) {
     compendiumId = setting;
-    compendium = getGame().packs?.get(compendiumId);
+    compendium = game.packs?.get(compendiumId);
   } else {
     updated = true;
   }
 
   // check it
   // if the value is blank or we can't find the compendia create a new one
-  if (!getGame().packs?.get(compendiumId)) {
+  if (!game.packs?.get(compendiumId)) {
     // create a new one
     compendium = await createCompendium(worldFolder);
     compendiumId = compendium.metadata.id;

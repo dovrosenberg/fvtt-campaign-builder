@@ -1,4 +1,3 @@
-import { getGame } from '@/utils/game';
 import { Bookmark, TabHeader, } from '@/types';
 import { WindowTab, } from '@/classes';
 import { moduleId } from '.';
@@ -22,12 +21,12 @@ export abstract class UserFlags {
   //    are dereferenced by foundry when saving to the database, making it hard to get back in proper format
   // we could just concatenate in the calling code, but then it would be much harder to type check
   public static get<T extends UserFlagKey>(flag: T, worldId = ''): UserFlagType<T> | null {
-    if (!getGame().user)
+    if (!game.user)
       return null;
 
     if (flag === UserFlagKey.tabs) {
       // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
-      return (getGame().user?.getFlag(moduleId, `${flag}.${worldId}`) || []).map((t: any) => new WindowTab(
+      return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) || []).map((t: any) => new WindowTab(
         t.active, 
         t.header,
         null,
@@ -38,16 +37,16 @@ export abstract class UserFlags {
       )) as unknown as UserFlagType<T>;
     } else {
       // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
-      return (getGame().user?.getFlag(moduleId, `${flag}.${worldId}`) || []) as UserFlagType<T>;
+      return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) || []) as UserFlagType<T>;
     }
   }
 
   // note - setting a flag to null will delete it
   public static async set<T extends UserFlagKey>(flag: T, value: UserFlagType<T> | null, worldId = ''): Promise<void> {
-    if (!getGame().user)
+    if (!game.user)
       return;
 
     // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
-    await getGame().user?.setFlag(moduleId, `${flag}.${worldId}`, value);
+    await game.user?.setFlag(moduleId, `${flag}.${worldId}`, value);
   }
 }

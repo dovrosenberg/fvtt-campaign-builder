@@ -24,7 +24,6 @@
   import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, moduleSettings, WorldFlags, WorldFlagKey } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
-  import { getGame } from '@/utils/game';
 
   // library components
 
@@ -98,7 +97,7 @@
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = currentWorldFolder.value.uuid;
 
-      const worldCompendium = getGame().packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
+      const worldCompendium = game.packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
 
       if (!worldCompendium)
         throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
@@ -155,7 +154,7 @@
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = folders.worldFolder.uuid;
 
-      const worldCompendium = getGame().packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
+      const worldCompendium = game.packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
 
       if (!worldCompendium)
         throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);

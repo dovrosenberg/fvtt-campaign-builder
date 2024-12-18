@@ -15,7 +15,7 @@ let enricherConfig: {
 };
 
 export const setupEnricher = (): void => {
-  const documentTypes = CONST.DOCUMENT_LINK_TYPES.concat(['Compendium', 'UUID'] as DOCUMENT_LINK_TYPES[]);
+  const documentTypes: (DOCUMENT_LINK_TYPES | 'Compendium' | 'UUID')[] = [...CONST.DOCUMENT_LINK_TYPES, 'Compendium', 'UUID'];
   const rgx = new RegExp(`@(${documentTypes.join('|')})\\[([^#\\]]+)(?:#([^\\]]+))?](?:{([^}]+)})?`, 'g');
 
   enricherConfig = { 
@@ -39,7 +39,7 @@ export const enrichFwbHTML = async(worldId: string | null, text: string): Promis
   const retval = await TextEditor.enrichHTML(text || '', {
     secrets: true,    //this.document.isOwner,
     documents: false,
-    async: true,
+    // async: true,
     worldId: worldId,
   });    
 

@@ -63,7 +63,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { getGame, localize } from '@/utils/game';
+  import { localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
   
@@ -169,7 +169,7 @@
           label: localize(`fwb.contextMenus.topicFolder.create.${topic}`), 
           onClick: async () => {
             // get the right folder
-            const worldFolder = getGame().folders?.find((f)=>f.uuid===worldId) as globalThis.Folder;
+            const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as globalThis.Folder;
 
             if (!worldFolder || !topic)
               throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
