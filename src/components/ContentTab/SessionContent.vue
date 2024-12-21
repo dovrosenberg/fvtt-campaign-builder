@@ -138,12 +138,12 @@
     numberDebounceTimer = setTimeout(async () => {
       const newValue = isNaN(parseInt(newNumber || '')) ? null : parseInt(newNumber as string);
 
-      if (currentSession.value && currentSession.value.number!==newValue) {
+      if (newValue && currentSession.value && currentSession.value.number!==newValue) {
         currentSession.value.number = newValue;
         await currentSession.value.save();
 
         await campaignDirectoryStore.refreshCampaignDirectoryTree([currentSession.value.uuid]);
-        await navigationStore.propogateNameChange(currentSession.value.uuid, newValue);
+        await navigationStore.propogateNameChange(currentSession.value.uuid, `${localize('labels.session.session')} ${newValue.toString()}`);
       }
     }, debounceTime);
   };
@@ -156,44 +156,15 @@
   // });
 
   watch(currentSession, async (newSession: Session | null, oldSession: Session | null): Promise<void> => {
-    // // if we changed entries, reset the tab
-    // if (newEntry?.uuid!==oldEntry?.uuid )
+    // if we changed entries, reset the tab
+    // if (newEnewSessionntry?.uuid!==oldSession?.uuid )
     //   currentContentTab.value = 'description';
 
-    // if (!newEntry || !newEntry.uuid) {
-    //   topic.value = null;
-    // } else {
-    //   let newTopic;
-
-    //   newTopic = newEntry.topic as ValidTopic;
-    //   if (!newTopic) 
-    //     throw new Error('Invalid entry topic in EntryContent.watch-currentEntry');
-
-    //   // we're going to show a content page
-    //   topic.value = newTopic;
-
-    //   // load starting data values
-    //   name.value = newEntry.name || '';
-
-    //   // set the parent and valid parents
-    //   if (!newEntry.uuid) {
-    //     parentId.value = null;
-    //     validParents.value = [];
-    //   } else {
-    //     if (currentWorldId.value) {
-    //       parentId.value = WorldFlags.getHierarchy(currentWorldId.value, newEntry.uuid)?.parentId || null;
-      
-    //       // TODO - need to refresh this somehow if things are moved around in the directory
-    //       validParents.value = validParentItems(currentWorldId.value, newTopic, newEntry).map((e)=> ({
-    //         id: e.id,
-    //         label: e.name || '',
-    //       }));
-    //     }
-    //   }
-  
-    //   // reattach the editor to the new entry
-    //   rawDocument.value = newEntry.raw;
-    // }
+    if (newSession && newSession.uuid) {
+      // load starting data values
+      name.value = newSession.name || '';
+      sessionNumber.value = newSession.number?.toString() || '';
+    }
   });
 
 

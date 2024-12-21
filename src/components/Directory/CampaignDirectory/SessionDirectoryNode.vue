@@ -6,6 +6,7 @@
       :class="`${props.sessionNode.id===currentSession?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
+      :data-tooltip="props.sessionNode.tooltip"
       @click="onSessionClick"
       @contextmenu="onSessionContextMenu"
     >

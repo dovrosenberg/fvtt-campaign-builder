@@ -156,24 +156,22 @@
   ////////////////////////////////
   // data
   const topicData = {
-    [Topic.Character]: { namePlaceholder: 'fwb.placeholders.characterName', },
-    [Topic.Event]: { namePlaceholder: 'fwb.placeholders.characterName', },
-    [Topic.Location]: { namePlaceholder: 'fwb.placeholders.characterName', },
-    [Topic.Organization]: { namePlaceholder: 'fwb.placeholders.characterName', },
+    [Topic.Character]: { namePlaceholder: 'placeholders.characterName', },
+    [Topic.Event]: { namePlaceholder: 'placeholders.characterName', },
+    [Topic.Location]: { namePlaceholder: 'placeholders.characterName', },
+    [Topic.Organization]: { namePlaceholder: 'placeholders.characterName', },
   };
 
   const relationships = [
-    { tab: 'characters', label: 'fwb.labels.tabs.characters', },
-    { tab: 'locations', label: 'fwb.labels.tabs.locations',},
-    { tab: 'organizations', label: 'fwb.labels.tabs.organizations', },
-    { tab: 'events', label: 'fwb.labels.tabs.events', },
+    { tab: 'characters', label: 'labels.tabs.characters', },
+    { tab: 'locations', label: 'labels.tabs.locations',},
+    { tab: 'organizations', label: 'labels.tabs.organizations', },
+    { tab: 'events', label: 'labels.tabs.events', },
   ] as { tab: string; label: string }[];
 
   const tabs = ref<Tabs>();
   const topic = ref<Topic | null>(null);
   const name = ref<string>('');
-
-  const rawDocument = ref<EntryDoc>();
 
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
@@ -304,9 +302,6 @@
           }));
         }
       }
-  
-      // reattach the editor to the new entry
-      rawDocument.value = newEntry.raw;
     }
   });
 

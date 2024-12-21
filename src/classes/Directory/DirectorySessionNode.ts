@@ -9,16 +9,22 @@ import { localize } from '@/utils/game';
 // represents an entry in the type-grouped structure
 // has no children, the parent is a DirectoryTypeNode
 export class DirectorySessionNode extends CollapsibleNode<never> {
-  sessionNumber: number;
+  private _name: string;
+  private _sessionNumber: number;
   
-  constructor(id: string, sessionNumber: number, parentId: string) {
+  constructor(id: string, name: string, sessionNumber: number, parentId: string) {
     super(id, false, WorldFlagKey.expandedCampaignIds, parentId, [], [], []);
 
-    this.sessionNumber = sessionNumber;
+    this._name = name;
+    this._sessionNumber = sessionNumber;
   }
 
   get name(): string {
-    return `${localize('labels.session.session')} ${this.sessionNumber}`;
+    return `${localize('labels.session.session')} ${this._sessionNumber}`;
+  }
+
+  get tooltip(): string {
+    return this._name;
   }
 
   // converts the entry to a DirectoryEntryNode for cleaner interface
@@ -28,6 +34,7 @@ export class DirectorySessionNode extends CollapsibleNode<never> {
 
     return new DirectorySessionNode(
       session.uuid,
+      session.name,
       session.number,
       campaignId,
     );
@@ -39,3 +46,4 @@ export class DirectorySessionNode extends CollapsibleNode<never> {
     */
   override async _loadNodeList(_ids: string[], _updateIds: string[] ): Promise<void> {}
 }
+

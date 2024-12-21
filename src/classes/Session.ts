@@ -143,6 +143,14 @@ export class Session {
     const retval = await toRaw(this._sessionDoc).update(updateData) || null;
     if (retval) {
       this._sessionDoc = retval;
+
+      // if we're updating the session number, then we need to reset the "next" number on the campaign
+      if (updateData.system && updateData.system.number) {
+        const campaign = new Campaign(this._sessionDoc.parent as CampaignDoc);
+
+        campaign.nextSessionNumber = Math.max(campaign.nextSessionNumber, updateData.system.number+1);
+        await campaign.save();
+      }
     }
 
     this._cumulativeUpdate = {};
