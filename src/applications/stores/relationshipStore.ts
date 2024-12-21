@@ -12,7 +12,7 @@ import {
   RelatedItemDetails, FieldDataByTopic,
   TablePagination,
   RelatedDocumentDetails,
-  DocumentTab,
+  DocumentLinkType,
 } from '@/types';
 import { reactive, Ref, watch } from 'vue';
 import { ref } from 'vue';
@@ -399,7 +399,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       if (topic !== Topic.None) {
         relatedItemRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]) || []: [];
         relatedDocumentRows.value = [];
-      } else if (currentDocumentTab.value===DocumentTab.Scenes) {
+      } else if (currentDocumentTab.value===DocumentLinkType.Scenes) {
         relatedItemRows.value = [];
 
         const sceneList = [] as RelatedDocumentDetails[];
@@ -413,7 +413,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
           });
         }
         relatedDocumentRows.value = sceneList;
-      } else if (currentDocumentTab.value===DocumentTab.Actors) {
+      } else if (currentDocumentTab.value===DocumentLinkType.Actors) {
         relatedItemRows.value = [];
 
         const actorList = [] as RelatedDocumentDetails[];

@@ -46,7 +46,7 @@ export enum Topic {
 export type ValidTopic = Exclude<Topic, Topic.None>;
 
 // content tabs that are document links not other entries
-export enum DocumentTab {
+export enum DocumentLinkType {
   None,
   Scenes,
   Actors,

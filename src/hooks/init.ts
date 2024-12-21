@@ -1,5 +1,4 @@
-import moduleJson from '@module';
-import { ModuleSettings, updateModuleSettings } from '@/settings';
+import { moduleId, ModuleSettings, updateModuleSettings } from '@/settings';
 import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel } from '@/documents';
 
 export function registerForInitHook() {
@@ -16,11 +15,11 @@ async function init(): Promise<void> {
     [DOCUMENT_TYPES.Session]: SessionDataModel
   });
 
-  DocumentSheetConfig.registerSheet(JournalEntryPage, moduleJson.id, JournalPageSheet, {
+  DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, JournalPageSheet, {
     types: [DOCUMENT_TYPES.Entry],
     makeDefault: true
   });
-  DocumentSheetConfig.registerSheet(JournalEntryPage, moduleJson.id, JournalPageSheet, {
+  DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, JournalPageSheet, {
     types: [DOCUMENT_TYPES.Session],
     makeDefault: true
   });

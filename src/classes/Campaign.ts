@@ -10,7 +10,6 @@ export class Campaign {
 
   private _campaignDoc: CampaignDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
-  private _description: string;   // track separately because flags aren't stored on update()
 
   /**
    * 
@@ -24,7 +23,6 @@ export class Campaign {
     // clone it to avoid unexpected changes, also drop the proxy
     this._campaignDoc = foundry.utils.deepClone(campaignDoc);
     this._cumulativeUpdate = {};
-    this._description = this._campaignDoc.getFlag(moduleId, 'description') || '';
   }
 
   static async fromUuid(entryId: string, options?: Record<string, any>): Promise<Campaign | null> {
@@ -108,11 +106,15 @@ export class Campaign {
   }
 
   get description(): string {
-    return this._description;
+    return this._campaignDoc.getFlag(moduleId, 'description') || '';
   }
 
   set description(value: string) {
-    this._description = value;
+    return this._campaignDoc.setFlag(moduleId, 'description', value);
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}.description`]: value
+    };
   }
 
   /**
@@ -130,16 +132,13 @@ export class Campaign {
     await Campaign.worldCompendium.configure({locked:false});
 
     let success = false;
-    if (Object.keys(updateData).length === 0) {
-      await this._campaignDoc.setFlag(moduleId, 'description', this._description);
-      success = true;
-    } else {
+    if (Object.keys(updateData).length !== 0) {
       const retval = await toRaw(this._campaignDoc).update(updateData) || null;
       if (retval) {
         this._campaignDoc = retval;
         this._cumulativeUpdate = {};
 
-        await this._campaignDoc.setFlag(moduleId, 'description', this._description);
+        success = true;
       }
 
       // update the name

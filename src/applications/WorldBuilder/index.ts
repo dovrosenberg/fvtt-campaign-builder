@@ -1,5 +1,5 @@
-import moduleJson from '@module';
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
+import { moduleId } from '@/settings';
 import { createPinia, setActivePinia } from 'pinia';
 import PrimeVue from 'primevue/config';
 import FWBTheme from './presetTheme';
@@ -16,7 +16,7 @@ setActivePinia(pinia);
 
 export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
-    id: `app-${moduleJson.id}-WorldBuilder`,
+    id: `app-${moduleId}-WorldBuilder`,
     classes: ['fwb-main-window'], 
     window: {
       title: 'fwb.title',

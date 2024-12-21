@@ -1,5 +1,4 @@
 import { RelatedItemDetails, Topic, ValidTopic } from '@/types';
-import { ModuleId } from '@/settings';
 
 const fields = foundry.data.fields;
 const entrySchema = {

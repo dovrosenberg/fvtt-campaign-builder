@@ -119,7 +119,7 @@
   // local components
 
   // types
-  import { TablePagination, RelatedDocumentDetails, DocumentTab } from '@/types';
+  import { TablePagination, RelatedDocumentDetails, DocumentLinkType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -193,10 +193,10 @@
   const onRowSelect = async function (event: { data: GridRow} ) { 
     const { data } = event;
 
-    if (currentDocumentTab.value===DocumentTab.Actors) {
+    if (currentDocumentTab.value===DocumentLinkType.Actors) {
       const actor = await fromUuid(data.uuid) as Actor;
       await actor?.sheet?.render(true);
-    } else if (currentDocumentTab.value===DocumentTab.Scenes) {
+    } else if (currentDocumentTab.value===DocumentLinkType.Scenes) {
       const scene = await fromUuid(data.uuid) as Scene;
       await scene?.sheet?.render(true);
     }
@@ -213,7 +213,7 @@
     mouseEvent.stopPropagation();
 
     // no menu for actors
-    if (currentDocumentTab.value===DocumentTab.Actors) {
+    if (currentDocumentTab.value===DocumentLinkType.Actors) {
       return false;
     }
 
@@ -279,9 +279,9 @@
       title: localize('fwb.dialogs.confirmDeleteRelationship.title'),
       content: localize('fwb.dialogs.confirmDeleteRelationship.message'),
       yes: () => { 
-        if (currentDocumentTab.value===DocumentTab.Scenes)
+        if (currentDocumentTab.value===DocumentLinkType.Scenes)
           void relationshipStore.deleteScene(_id); 
-        else if (currentDocumentTab.value===DocumentTab.Actors)
+        else if (currentDocumentTab.value===DocumentLinkType.Actors)
           void relationshipStore.deleteActor(_id); 
       },
       no: () => {},
@@ -295,9 +295,9 @@
         data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
 
         // make sure it's the right format
-        if (data.type==='Scene' && currentDocumentTab.value===DocumentTab.Scenes && data.uuid) {
+        if (data.type==='Scene' && currentDocumentTab.value===DocumentLinkType.Scenes && data.uuid) {
           await relationshipStore.addScene(data.uuid);
-        } else if (data.type==='Actor' && currentDocumentTab.value===DocumentTab.Actors && data.uuid) {
+        } else if (data.type==='Actor' && currentDocumentTab.value===DocumentLinkType.Actors && data.uuid) {
           await relationshipStore.addActor(data.uuid);
         }
 
