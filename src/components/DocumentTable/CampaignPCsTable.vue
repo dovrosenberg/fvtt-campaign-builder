@@ -100,13 +100,13 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed,} from 'vue';
+  import { ref, computed, PropType,} from 'vue';
   import { storeToRefs } from 'pinia';
   import { FilterMatchMode } from '@primevue/core/api';
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local imports
-  import { useMainStore, useRelationshipStore } from '@/applications/stores';
+  import { useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // library components
@@ -130,9 +130,7 @@
   ////////////////////////////////
   // store
   const relationshipStore = useRelationshipStore();
-  const mainStore = useMainStore();
-
-  const { currentDocumentTab } = storeToRefs(mainStore);
+  
   const { relatedDocumentRows, } = storeToRefs(relationshipStore);
 
   ////////////////////////////////
@@ -193,13 +191,8 @@
   const onRowSelect = async function (event: { data: GridRow} ) { 
     const { data } = event;
 
-    if (currentDocumentTab.value===DocumentLinkType.Actors) {
-      const actor = await fromUuid(data.uuid) as Actor;
-      await actor?.sheet?.render(true);
-    } else if (currentDocumentTab.value===DocumentLinkType.Scenes) {
-      const scene = await fromUuid(data.uuid) as Scene;
-      await scene?.sheet?.render(true);
-    }
+    const actor = await fromUuid(data.uuid) as Actor | Scene;
+    await actor?.sheet?.render(true);
   
     // Need to test open/activate for things in compendiums
   };
@@ -213,7 +206,7 @@
     mouseEvent.stopPropagation();
 
     // no menu for actors
-    if (currentDocumentTab.value===DocumentLinkType.Actors) {
+    if (props.documentLinkType===DocumentLinkType.Actors) {
       return false;
     }
 
@@ -279,9 +272,9 @@
       title: localize('dialogs.confirmDeleteRelationship.title'),
       content: localize('dialogs.confirmDeleteRelationship.message'),
       yes: () => { 
-        if (currentDocumentTab.value===DocumentLinkType.Scenes)
+        if (props.documentLinkType===DocumentLinkType.Scenes)
           void relationshipStore.deleteScene(_id); 
-        else if (currentDocumentTab.value===DocumentLinkType.Actors)
+        else if (props.documentLinkType===DocumentLinkType.Actors)
           void relationshipStore.deleteActor(_id); 
       },
       no: () => {},
@@ -295,9 +288,9 @@
         data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
 
         // make sure it's the right format
-        if (data.type==='Scene' && currentDocumentTab.value===DocumentLinkType.Scenes && data.uuid) {
+        if (data.type==='Scene' && props.documentLinkType===DocumentLinkType.Scenes && data.uuid) {
           await relationshipStore.addScene(data.uuid);
-        } else if (data.type==='Actor' && currentDocumentTab.value===DocumentLinkType.Actors && data.uuid) {
+        } else if (data.type==='Actor' && props.documentLinkType===DocumentLinkType.Actors && data.uuid) {
           await relationshipStore.addActor(data.uuid);
         }
 

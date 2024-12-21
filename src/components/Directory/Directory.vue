@@ -11,7 +11,7 @@
         <InputText 
           v-model="filterText"
           for="fwb-directory-search" 
-          :placeholder="localize('fwb.placeholders.search')"                
+          :placeholder="localize('placeholders.search')"                
           autocomplete="off"
           :pt="{
             root: {
@@ -21,7 +21,7 @@
         />
         <a 
           class="header-control create-world create-button" 
-          :data-tooltip="localize('fwb.tooltips.createWorld')"
+          :data-tooltip="localize('tooltips.createWorld')"
           @click="onCreateWorldClick"
         >
           <i class="fas fa-globe"></i>
@@ -29,7 +29,7 @@
         </a>
         <a 
           class="header-control collapse-all" 
-          :data-tooltip="localize('fwb.tooltips.collapseAllTopics')"
+          :data-tooltip="localize('tooltips.collapseAllTopics')"
           @click="onCollapseAllClick"
         >
           <i class="fa-duotone fa-folder-tree"></i>
@@ -43,7 +43,7 @@
           @change="onGroupTypeChange"
         >
         <label for="fwb-group-by-type">
-          {{ localize('fwb.labels.groupTree') }}
+          {{ localize('labels.groupTree') }}
         </label>
       </div>
     </header>

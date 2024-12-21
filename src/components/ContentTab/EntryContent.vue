@@ -19,7 +19,7 @@
             />
           </h1>
           <div class="form-group fwb-content-header">
-            <label>{{ localize('fwb.labels.fields.type') }}</label>
+            <label>{{ localize('labels.fields.type') }}</label>
             <TypeAhead 
               :initial-list="typeList"
               :initial-value="currentEntry?.type as string || ''"
@@ -32,7 +32,7 @@
             v-if="showHierarchy"
             class="form-group fwb-content-header"
           >
-            <label>{{ localize('fwb.labels.fields.parent') }}</label>
+            <label>{{ localize('labels.fields.parent') }}</label>
             <TypeAhead 
               :initial-list="validParents"
               :initial-value="parentId || ''"
@@ -42,7 +42,7 @@
         </div>
       </header>
       <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="description">{{ localize('fwb.labels.tabs.description') }}</a>
+        <a class="item" data-tab="description">{{ localize('labels.tabs.description') }}</a>
         <a 
           v-for="relationship in relationships"
           :key="relationship.label"
@@ -56,14 +56,14 @@
           class="item" 
           data-tab="actors"
         >
-          {{ localize('fwb.labels.tabs.actors') }}
+          {{ localize('labels.tabs.actors') }}
         </a>
         <a 
           v-if="topic===Topic.Location"
           class="item" 
           data-tab="scenes"
         >
-          {{ localize('fwb.labels.tabs.scenes') }}
+          {{ localize('labels.tabs.scenes') }}
         </a>
       </nav>
       <div class="fwb-tab-body flexcol">

@@ -12,7 +12,7 @@ async function ready(): Promise<void> {
 
   if (game.user?.isGM) {  
     const navToggleButton = jQuery(document).find('#nav-toggle');
-    const toolTip = localize('fwb.tooltips.mainButton');
+    const toolTip = localize('tooltips.mainButton');
     navToggleButton.before(
       `<button id='fwb-launch' type="button" class="nav-item flex0" title="${toolTip}"><i class="fas fa-globe"></i></button>`
     );

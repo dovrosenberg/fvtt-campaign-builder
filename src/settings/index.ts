@@ -1,6 +1,7 @@
 import { id } from '@module';
 import { WorldFlagType, WorldFlagKey } from './WorldFlags';
 import { SettingKey, SettingKeyType } from './ModuleSettings';
+import { CampaignFlags } from 'src/documents';
 
 export * from './UserFlags';
 export * from './ModuleSettings';
@@ -15,10 +16,6 @@ export type ModuleId = 'world-builder';
 export const moduleId: ModuleId = id as ModuleId;
 
 // flesh out the flag types 
-type CampaignFlags = Record<ModuleId, {
-  isCampaign: boolean;
-  description: string;
-}>;
 
 type WorldFolderFlags = Record<ModuleId, {
   [K in WorldFlagKey]: WorldFlagType<K>

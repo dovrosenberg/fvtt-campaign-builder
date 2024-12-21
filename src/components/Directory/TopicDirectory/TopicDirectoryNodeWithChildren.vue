@@ -205,7 +205,7 @@
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.directoryEntry.delete'), 
+          label: localize('contextMenus.directoryEntry.delete'), 
           onClick: async () => {
             await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
           }

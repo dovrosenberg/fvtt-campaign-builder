@@ -84,7 +84,7 @@
       { 
           icon: getTabTypeIcon(WindowTabType.Campaign),
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.campaignsHeader.createCampaign'), 
+          label: localize('contextMenus.campaignsHeader.createCampaign'), 
           onClick: async () => {
             if (currentWorldId.value) {
               await Campaign.create();

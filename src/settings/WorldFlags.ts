@@ -108,6 +108,7 @@ export abstract class WorldFlags {
         const value =  foundry.utils.deepClone(flagSetup[i].default);
 
         if (flagSetup[i].clean && value) {
+          // @ts-ignore - not sure why tsc can't tell clean isn't undefined
           flagSetup[i].clean(value);
         }
 

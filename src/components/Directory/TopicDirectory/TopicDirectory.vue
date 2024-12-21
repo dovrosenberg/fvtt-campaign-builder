@@ -128,7 +128,7 @@
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.worldFolder.delete'), 
+          label: localize('contextMenus.worldFolder.delete'), 
           onClick: async () => {
             if (worldId) {
               await topicDirectoryStore.deleteWorld(worldId);
@@ -139,7 +139,7 @@
         { 
           icon: getTabTypeIcon(WindowTabType.Campaign),
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.worldFolder.createCampaign'), 
+          label: localize('contextMenus.worldFolder.createCampaign'), 
           onClick: async () => {
             if (worldId) {
               await Campaign.create();

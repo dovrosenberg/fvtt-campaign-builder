@@ -10,12 +10,16 @@
       "newTab": "New Tab",
       "fields": {
         "type": "Type",
-        "parent": "Parent"
+        "parent": "Parent",
+        "sessionNumber": "Number"
       },
       "entry": {
         "topic": "Topic",
         "type": "Type",
         "relationships": "Relationshipa"
+      },
+      "session": {
+        "session": "Session"
       },
       "groupTree": "Group tree by type",
       "tabs": {
@@ -28,7 +32,9 @@
         "organizationChildren": "Sub-organizations",
         "scenes": "Scenes",
         "actors": "Actors",
-        "pcs": "PCs"
+        "pcs": "PCs",
+        "preparation": "Preparation",
+        "gametime": "Game Time"
       },
       "noResults": "Nothing here",
       "loading": "Loading"
@@ -39,7 +45,9 @@
       "eventName": "Event Name",
       "locationName": "Location Name",
       "organizationName": "Organization Name",
-      "campaignName": "Campaign Name"
+      "campaignName": "Campaign Name",
+      "sessionName": "Session Name",
+      "sessionNumber": "Session Number"
     },
     "compendia": {
       "entry": "Entries",

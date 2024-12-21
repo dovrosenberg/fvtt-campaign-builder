@@ -63,6 +63,7 @@ export class Campaign {
         if (campaign) {
           await campaign.setFlag(moduleId, 'isCampaign', true);
           await campaign.setFlag(moduleId, 'description', '');
+          await campaign.setFlag(moduleId, 'nextSessionNumber', 0);
         }
 
         // unlock compendium to make the change
@@ -88,6 +89,18 @@ export class Campaign {
     return this._campaignDoc.uuid;
   }
 
+  get nextSessionNumber(): number {
+    return this._campaignDoc.getFlag(moduleId, 'nextSessionNumber');
+  }
+
+  set nextSessionNumber(value: number) {
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}.nextSessionNumber`]: value
+    };
+  }
+
+
   get name(): string {
     return this._campaignDoc.name;
   }
@@ -110,7 +123,6 @@ export class Campaign {
   }
 
   set description(value: string) {
-    return this._campaignDoc.setFlag(moduleId, 'description', value);
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       [`flags.${moduleId}.description`]: value

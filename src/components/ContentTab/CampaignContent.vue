@@ -21,8 +21,8 @@
         </div>
       </header>
       <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="description">{{ localize('fwb.labels.tabs.description') }}</a>
-        <a class="item" data-tab="pcs">{{ localize('fwb.labels.tabs.pcs') }}</a>
+        <a class="item" data-tab="description">{{ localize('labels.tabs.description') }}</a>
+        <a class="item" data-tab="pcs">{{ localize('labels.tabs.pcs') }}</a>
       </nav>
       <div class="fwb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
@@ -37,10 +37,10 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner flexcol">
-            PCs
+            <CampaignPCsTable />
           </div>
-        </div> 
-      </div>
+        </div>
+      </div> 
     </div>
   </form>	 
 </template>
@@ -61,6 +61,7 @@
 
   // local components
   import Editor from '@/components/Editor.vue';
+  import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
   
   // types
   import { WindowTabType, } from '@/types';
@@ -89,7 +90,7 @@
  
   ////////////////////////////////
   // computed data
-  const namePlaceholder = computed((): string => (localize('fwb.placeholders.campaignName') || ''));
+  const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
   
   ////////////////////////////////
   // methods

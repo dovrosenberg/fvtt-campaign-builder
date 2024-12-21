@@ -45,7 +45,7 @@ export async function getRootFolder(): Promise<Folder> {
  */
 export async function createRootFolder(name?: string): Promise<Folder> {
   if (!name)
-    name = localize('fwb.defaultRootFolderName');
+    name = localize('defaultRootFolderName');
   
   const folders = await Folder.createDocuments([{
     name,
@@ -218,10 +218,10 @@ export async function validateCompendia(worldFolder: Folder): Promise<void> {
  */
 export function getTopicText(topic: Topic): string {
   switch (toTopic(topic)) {
-    case Topic.Character: return localize('fwb.topics.character') || ''; 
-    case Topic.Event: return localize('fwb.topics.event') || ''; 
-    case Topic.Location: return localize('fwb.topics.location') || ''; 
-    case Topic.Organization: return localize('fwb.topics.organization') || ''; 
+    case Topic.Character: return localize('topics.character') || ''; 
+    case Topic.Event: return localize('topics.event') || ''; 
+    case Topic.Location: return localize('topics.location') || ''; 
+    case Topic.Organization: return localize('topics.organization') || ''; 
     case Topic.None:
     default: 
       throw new Error('Invalid topic in getTopicText()');
@@ -237,10 +237,10 @@ export function getTopicText(topic: Topic): string {
  */
 export function getTopicTextPlural(topic: Topic): string {
   switch (toTopic(topic)) {
-    case Topic.Character: return localize('fwb.topics.characters') || ''; 
-    case Topic.Event: return localize('fwb.topics.events') || ''; 
-    case Topic.Location: return localize('fwb.topics.locations') || ''; 
-    case Topic.Organization: return localize('fwb.topics.organizations') || ''; 
+    case Topic.Character: return localize('topics.characters') || ''; 
+    case Topic.Event: return localize('topics.events') || ''; 
+    case Topic.Location: return localize('topics.locations') || ''; 
+    case Topic.Organization: return localize('topics.organizations') || ''; 
     case Topic.None:
     default: 
       throw new Error('Invalid topic in getTopicTextPlural()');

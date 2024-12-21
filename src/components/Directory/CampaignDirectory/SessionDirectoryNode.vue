@@ -90,7 +90,7 @@
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.session.delete'), 
+          label: localize('contextMenus.session.delete'), 
           onClick: async () => {
             await campaignDirectoryStore.deleteSession(props.sessionNode.id);
           }

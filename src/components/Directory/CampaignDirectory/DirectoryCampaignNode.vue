@@ -112,7 +112,7 @@
         { 
           icon: getTabTypeIcon(WindowTabType.Session),
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.campaignFolder.createSession'), 
+          label: localize('contextMenus.campaignFolder.createSession'), 
           onClick: async () => {
             await campaignDirectoryStore.createSession(props.campaignNode.id);
           }
@@ -120,7 +120,7 @@
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.campaignFolder.delete'), 
+          label: localize('contextMenus.campaignFolder.delete'), 
           onClick: async () => {
             await campaignDirectoryStore.deleteCampaign(props.campaignNode.id);
           }

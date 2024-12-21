@@ -24,7 +24,7 @@
       <div 
         id="fwb-sidebar-toggle" 
         class="tab-button" 
-        :data-tooltip="directoryCollapsed ? localize('fwb.tooltips.expandDirectory') : localize('fwb.tooltips.collapseDirectory')"
+        :data-tooltip="directoryCollapsed ? localize('tooltips.expandDirectory') : localize('tooltips.collapseDirectory')"
         @click="onSidebarToggleClick"
       >
         <i :class="'fas ' + (directoryCollapsed ? 'fa-caret-left' : 'fa-caret-right')"></i>
@@ -35,7 +35,7 @@
       <div 
         id="fwb-add-bookmark" 
         :class="(!navigationStore.getActiveTab(false)?.header?.uuid ? 'disabled' : '')"
-        :title="localize('fwb.tooltips.addBookmark')"
+        :title="localize('tooltips.addBookmark')"
         @click="onAddBookmarkClick"
       >
         <i class="fas fa-star"></i>
@@ -52,7 +52,7 @@
       <div 
         id="fwb-history-back" 
         :class="'nav-button ' + (canBack() ? '' : 'disabled')" 
-        :title="localize('fwb.tooltips.historyBack')"
+        :title="localize('tooltips.historyBack')"
         @click="onHistoryBackClick"
       >
         <i class="fas fa-chevron-left"></i>
@@ -60,7 +60,7 @@
       <div 
         id="fwb-history-forward" 
         :class="'nav-button ' + (canForward() ? '' : 'disabled')" 
-        :title="localize('fwb.tooltips.historyForward')"
+        :title="localize('tooltips.historyForward')"
         @click="onHistoryForwardClick"
       >
         <i class="fas fa-chevron-right"></i>
@@ -183,7 +183,7 @@
 
     // see if a bookmark for the entry already exists
     if (bookmarks.value.find((b) => (b.header.uuid === tab?.header?.uuid)) != undefined) {
-      ui?.notifications?.warn(localize('fwb.errors.duplicateBookmark') || '');
+      ui?.notifications?.warn(localize('errors.duplicateBookmark') || '');
       return;
     }
 

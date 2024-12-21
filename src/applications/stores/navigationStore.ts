@@ -104,7 +104,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       ...options,
     };
 
-    let name = localize('fwb.labels.newTab') || '';
+    let name = localize('labels.newTab') || '';
     let icon = '';
     let badId = false;
 
@@ -136,7 +136,7 @@ export const useNavigationStore = defineStore('navigation', () => {
         if (!session) {
           badId = true;
         } else {
-          name = session.name;
+          name = `${localize('labels.session.session')} ${session.number}`;
           icon = getTabTypeIcon(WindowTabType.Session);
         }
       } break;

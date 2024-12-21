@@ -3,6 +3,7 @@ import { toRaw } from 'vue';
 import { DOCUMENT_TYPES, SessionDoc, CampaignDoc } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { WorldFlagKey, WorldFlags } from '@/settings';
+import { Campaign } from '@/classes/Campaign';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Session {
@@ -52,6 +53,9 @@ export class Session {
     if (!nameToUse)
       return null;
 
+    // get the campaign so we can get next session number
+    const campaign = new Campaign(await fromUuid(campaignId) as CampaignDoc);
+
     // create the entry
     await Session.worldCompendium.configure({locked:false});
 
@@ -59,7 +63,7 @@ export class Session {
       type: DOCUMENT_TYPES.Session,
       name: nameToUse,
       system: {
-        number: null,
+        number: campaign.nextSessionNumber,
         description: '',
       }
     }],{
@@ -102,8 +106,8 @@ export class Session {
     };
   }
 
-  get number(): number | null{
-    return (this._sessionDoc.system.number!==null && this._sessionDoc.system.number!==undefined) ? this._sessionDoc.system.number : null;
+  get number(): number {
+    return this._sessionDoc.system.number;
   }
 
   set number(value: number) {
