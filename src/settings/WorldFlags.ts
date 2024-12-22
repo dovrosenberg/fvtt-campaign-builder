@@ -25,34 +25,20 @@ export type WorldFlagType<K extends WorldFlagKey> =
     K extends WorldFlagKey.expandedIds ? Record<string, boolean | null> :  // keyed by uuid (id for compendium); can be false or missing to represent false; we allow null only because of the strange foundry syntax for removing a key
     K extends WorldFlagKey.expandedCampaignIds ? Record<string, boolean | null> :  // keyed by uuid (id for compendium); can be false or missing to represent false; we allow null only because of the strange foundry syntax for removing a key
     K extends WorldFlagKey.topNodes ? Record<ValidTopic, string[]> :    // keyed by topic
-    K extends WorldFlagKey.hierarchies ? (Record<string, Hierarchy>) :   // keyed by entry id (don't need to key by topic since entry id is unique)
+    K extends WorldFlagKey.hierarchies ? Record<string, Hierarchy> :   // keyed by entry id (don't need to key by topic since entry id is unique)
     never;  
 
 type RequiresTopic = WorldFlagKey.topNodes;
 type RequiresNoTopic = Exclude<WorldFlagKey, RequiresTopic>;
 
 // protects the object from unexpected things that foundry saving does
-const protect = <T extends Record<string, any>>(flagValue:T): { uuid: string; value: T[keyof T] }[] => { 
-  // converts the object to an array
-  const newValue:{ uuid: string; value: T[keyof T] }[] = [];
-  for (const key in flagValue) {
-    newValue.push(
-      {
-        uuid: key,
-        value: flagValue[key]
-      } 
-    );
-  }
-
-  return newValue;
+const protect = <T extends Record<string, any>>(flagValue:T): T[] => { 
+  return [flagValue];
 };
 
 // convert the array to an object
-const unprotect = <T>(flagValue:{ uuid: string; value: T }[]): Record<string, T> => {
-  return flagValue.reduce((acc: Record<string, T>, { uuid, value }) => {
-    acc[uuid] = value;
-    return acc;
-  }, {} as Record<string, T>);
+const unprotect = <T extends Record<string, any>>(flagValue: T[]): T => {
+  return foundry.utils.flattenObject(flagValue[0] as T) as T;
 };
 
 type FlagSettings<K extends WorldFlagKey> = {
@@ -120,13 +106,13 @@ export abstract class WorldFlags {
 
     for (let i=0; i<flagSetup.length; i++) {
       if (!f.getFlag(moduleId, flagSetup[i].flagId)) {
-        let value =  foundry.utils.deepClone(flagSetup[i].default);
+        const value = foundry.utils.deepClone(flagSetup[i].default);
 
         if (flagSetup[i].keyedByUUID && value) {
-          value = protect(value as Record<string, unknown>);
-        }
-
-        await f.setFlag(moduleId, flagSetup[i].flagId, value);
+          await f.setFlag(moduleId, flagSetup[i].flagId, protect(value as Record<string, any>));
+        } else {
+          await f.setFlag(moduleId, flagSetup[i].flagId, value);
+        }        
       }
     }
 
@@ -141,12 +127,12 @@ export abstract class WorldFlags {
     if (!f)
       return config?.default as WorldFlagType<T>;
 
-    const setting = (f.getFlag(moduleId, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T>;
+    const setting = (f.getFlag(moduleId, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T> | WorldFlagType<T>[];
 
     if (config?.keyedByUUID)
-      return unprotect(setting as unknown as object) as WorldFlagType<T>;
+      return unprotect(setting as unknown as WorldFlagType<T>[]) as WorldFlagType<T>;
     else
-      return setting;
+      return setting as WorldFlagType<T>;
   }
 
   public static async set<T extends WorldFlagKey>(worldId: string, flag: T, value: WorldFlagType<T> | null): Promise<void> {
@@ -248,12 +234,12 @@ export abstract class WorldFlags {
     if (!f)
       return config?.default[topic];
 
-    const setting = (f.getFlag(moduleId, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T>;
+    const setting = (f.getFlag(moduleId, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T> | WorldFlagType<T>[];
 
     if (config?.keyedByUUID)
-      return (unprotect(setting) as WorldFlagType<T>)[topic] as WorldFlagType<T>[keyof WorldFlagType<T>];
+      return (unprotect(setting as WorldFlagType<T>[]) as WorldFlagType<T>)[topic] as WorldFlagType<T>[keyof WorldFlagType<T>];
     else
-      return setting[topic] as WorldFlagType<T>[keyof WorldFlagType<T>];
+      return (setting as WorldFlagType<T>)[topic] as WorldFlagType<T>[keyof WorldFlagType<T>];
   }
 
   public static async setTopicFlag<T extends RequiresTopic>(worldId: string, flag: T, topic: Topic, value: WorldFlagType<T>[keyof WorldFlagType<T>]): Promise<void> {
@@ -266,13 +252,15 @@ export abstract class WorldFlags {
       throw new Error('Bad flag in WorldFlags.set()');
 
     // get the current value
-    let currentValue = WorldFlags.get(worldId, flag) as WorldFlagType<T>;
+    const currentValue = WorldFlags.get(worldId, flag) as WorldFlagType<T>;
     currentValue[topic] = value;
 
     if (config.keyedByUUID) {
-      currentValue = protect(currentValue);
+      await WorldFlags.set(worldId, flag, protect(currentValue));
+    } else {
+      await WorldFlags.set(worldId, flag, currentValue);
     }
 
-    await WorldFlags.set(worldId, flag, currentValue as unknown as WorldFlagType<T>);
+    
   }
 }
