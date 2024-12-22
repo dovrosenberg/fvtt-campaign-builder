@@ -2,7 +2,7 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { reactive, ref, watch, } from 'vue';
+import { reactive, Ref, ref, watch, } from 'vue';
 
 // local imports
 import { WorldFlagKey, WorldFlags } from '@/settings';
@@ -58,7 +58,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     isCampaignTreeLoading.value = true;
 
     const campaigns = WorldFlags.get(currentWorldId.value, WorldFlagKey.campaignEntries) || {};  
-    const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds) || {};
+    const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedCampaignIds) || {};
 
     currentCampaignTree.value = [];
     
@@ -70,12 +70,12 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       currentCampaignTree.value.push(new DirectoryCampaignNode(
         id,
         campaigns[id],  // name
-        expandedNodes[id] || false,
         children,
         [],
+        expandedNodes[id] || false,
       ));      
     }
-    currentCampaignTree.value.sort((a: DirectoryCampaignNode, b: DirectoryCampaignNode) => a.name.localeCompare(b.name));
+    (currentCampaignTree.value as DirectoryCampaignNode[]).sort((a: DirectoryCampaignNode, b: DirectoryCampaignNode) => a.name.localeCompare(b.name));
 
     // load any open campaigns
     for (let i=0; i<currentCampaignTree.value.length; i++) {
@@ -124,7 +124,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // watchers
 
   // when the world changes, clean out the cache of loaded items
-  watch(currentWorldFolder, async (newWorldFolder: Folder | null): Promise<void> => {
+  watch(currentWorldFolder as Ref<Folder | null>, async (newWorldFolder: Folder | null): Promise<void> => {
     if (!newWorldFolder) {
       currentCampaignTree.value = [];
       return;

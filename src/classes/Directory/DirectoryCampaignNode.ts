@@ -9,8 +9,8 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
   name: string;
   
   // children are for the entries; loadedTypes is for the type nodes
-  constructor(id: string, name: string, expanded: boolean = false,
-    children: string[] = [], loadedChildren: DirectorySessionNode[] = [], 
+  constructor(id: string, name: string, children: string[] = [], 
+    loadedChildren: DirectorySessionNode[] = [], expanded: boolean = false
   ) {
 
     super(id, expanded, WorldFlagKey.expandedCampaignIds, null, children, loadedChildren, []);

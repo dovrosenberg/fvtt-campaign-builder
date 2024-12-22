@@ -74,11 +74,7 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
     if (this.expanded===expanded || !CollapsibleNode._currentWorldId)
       return this;
     
-    if (this.expanded) {
-      await this.collapse();
-    } else {
-      await this.expand();
-    }
+    await this.toggle();
 
     // instead of refreshing the whole tree, we can just update the node
     const updatedNode = foundry.utils.deepClone(this);
