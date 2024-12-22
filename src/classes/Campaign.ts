@@ -191,7 +191,7 @@ export class Campaign {
 
     await Campaign.worldCompendium.configure({locked:true});
 
-    // update the flags
+    // update the flags - this doesn't remove the whole flag, because the keys are flattened
     await WorldFlags.unset(Campaign.worldId, WorldFlagKey.campaignEntries, campaignId);
     await WorldFlags.unset(Campaign.worldId, WorldFlagKey.expandedCampaignIds, campaignId);
   }

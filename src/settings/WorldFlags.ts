@@ -31,33 +31,51 @@ export type WorldFlagType<K extends WorldFlagKey> =
 type RequiresTopic = WorldFlagKey.topNodes;
 type RequiresNoTopic = Exclude<WorldFlagKey, RequiresTopic>;
 
+// protects the object from unexpected things that foundry saving does
+const protect = <T extends Record<string, any>>(flagValue:T): { uuid: string; value: T[keyof T] }[] => { 
+  // converts the object to an array
+  const newValue:{ uuid: string; value: T[keyof T] }[] = [];
+  for (const key in flagValue) {
+    newValue.push(
+      {
+        uuid: key,
+        value: flagValue[key]
+      } 
+    );
+  }
+
+  return newValue;
+};
+
+// convert the array to an object
+const unprotect = <T>(flagValue:{ uuid: string; value: T }[]): Record<string, T> => {
+  return flagValue.reduce((acc: Record<string, T>, { uuid, value }) => {
+    acc[uuid] = value;
+    return acc;
+  }, {} as Record<string, T>);
+};
+
 type FlagSettings<K extends WorldFlagKey> = {
   flagId: K;
   default: WorldFlagType<K>;
 
-  clean?: (value: WorldFlagType<K>)=>void;  // clean converts the object to a "complex object" so that flatten/expand don't act on it
-
-  // needsFlatten determines if flattenObject is called, which is needed when the key is a record with keys that might have '.'
-  //    THIS IS ONLY SAFE SO LONG AS THE VALUES ARE NOT ALSO OBJECTS!!!
-  // TODO: assess whether we can use clean instead 
-  needsFlatten: boolean;
+  // is it a Record<uuid, ...>?  this will properly handle the '.'s
+  keyedByUUID?: boolean;
 };
 
 const flagSetup = [
   {
     flagId: WorldFlagKey.worldCompendium,
     default: '' as string,
-    needsFlatten: false,      
   },
   {
     flagId: WorldFlagKey.topicEntries,
     default: {} as Record<Topic, string>,
-    needsFlatten: false,      
   },
   {
     flagId: WorldFlagKey.campaignEntries,
     default: {} as Record<string, string>,
-    needsFlatten: true,      
+    keyedByUUID: true,
   },
   {
     flagId: WorldFlagKey.types,
@@ -67,23 +85,21 @@ const flagSetup = [
       [Topic.Event]: [],
       [Topic.Organization]: [],
     },
-    needsFlatten: false,      
   },
   {
     flagId: WorldFlagKey.expandedIds,
     default: {} as Record<string, boolean | null>,
-    needsFlatten: true,
+    keyedByUUID: true,
   },
   {
     flagId: WorldFlagKey.expandedCampaignIds,
     default: {} as Record<string, boolean | null>,
-    needsFlatten: true,
+    keyedByUUID: true,
   },
   {
     flagId: WorldFlagKey.hierarchies,
     default: {},
-    clean: (value:Record<string, Hierarchy>) => { value.constructor = () => {return;}; },
-    needsFlatten: false,      
+    keyedByUUID: true,
   },
   {
     flagId: WorldFlagKey.topNodes,
@@ -93,7 +109,6 @@ const flagSetup = [
       [Topic.Event]: [],
       [Topic.Organization]: [],
     },
-    needsFlatten: false,      
   },
 ] as FlagSettings<any>[];
 
@@ -105,11 +120,10 @@ export abstract class WorldFlags {
 
     for (let i=0; i<flagSetup.length; i++) {
       if (!f.getFlag(moduleId, flagSetup[i].flagId)) {
-        const value =  foundry.utils.deepClone(flagSetup[i].default);
+        let value =  foundry.utils.deepClone(flagSetup[i].default);
 
-        if (flagSetup[i].clean && value) {
-          // @ts-ignore - not sure why tsc can't tell clean isn't undefined
-          flagSetup[i].clean(value);
+        if (flagSetup[i].keyedByUUID && value) {
+          value = protect(value as Record<string, unknown>);
         }
 
         await f.setFlag(moduleId, flagSetup[i].flagId, value);
@@ -129,8 +143,8 @@ export abstract class WorldFlags {
 
     const setting = (f.getFlag(moduleId, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T>;
 
-    if (config?.needsFlatten)
-      return foundry.utils.flattenObject(setting as unknown as object) as WorldFlagType<T>;
+    if (config?.keyedByUUID)
+      return unprotect(setting as unknown as object) as WorldFlagType<T>;
     else
       return setting;
   }
@@ -144,11 +158,14 @@ export abstract class WorldFlags {
     if (!config)
       throw new Error('Bad flag in WorldFlags.set()');
 
-    if (config.clean && value) {
-      config.clean(value);
+    let newValue;
+    if (config.keyedByUUID && value) {
+      newValue = protect(value as Record<string, unknown>);
+    } else {
+      newValue = value;
     }
 
-    await f.setFlag(moduleId, flag, value);
+    await f.setFlag(moduleId, flag, newValue);
   }
 
   // remove a key from an object flag
@@ -157,7 +174,22 @@ export abstract class WorldFlags {
     if (!f)
       return;
 
-    await f.unsetFlag(moduleId, `${flag}${key ? '.' + key : ''}`);
+    const config = flagSetup.find((s)=>s.flagId===flag);
+    if (!config)
+      throw new Error('Bad flag in WorldFlags.unset()');
+    
+    if (config.keyedByUUID && key) {
+      const value = WorldFlags.get(worldId, flag) as Record<string, unknown>;
+      if (value[key]) {
+        delete value[key];
+
+        await f.setFlag(moduleId, flag, protect(value));
+      }
+    } else if (!config.keyedByUUID){
+      await f.unsetFlag(moduleId, `${flag}${key ? '.' + key : ''}`);
+    } else {
+      throw new Error('key missing in WorldFlags.unset()');
+    }
   }
 
   // special case because of nesting and index
@@ -218,8 +250,8 @@ export abstract class WorldFlags {
 
     const setting = (f.getFlag(moduleId, flag) || foundry.utils.deepClone(config?.default)) as WorldFlagType<T>;
 
-    if (config?.needsFlatten)
-      return (foundry.utils.flattenObject(setting) as WorldFlagType<T>)[topic] as WorldFlagType<T>[keyof WorldFlagType<T>];
+    if (config?.keyedByUUID)
+      return (unprotect(setting) as WorldFlagType<T>)[topic] as WorldFlagType<T>[keyof WorldFlagType<T>];
     else
       return setting[topic] as WorldFlagType<T>[keyof WorldFlagType<T>];
   }
@@ -234,11 +266,11 @@ export abstract class WorldFlags {
       throw new Error('Bad flag in WorldFlags.set()');
 
     // get the current value
-    const currentValue = WorldFlags.get(worldId, flag) as WorldFlagType<T>;
+    let currentValue = WorldFlags.get(worldId, flag) as WorldFlagType<T>;
     currentValue[topic] = value;
 
-    if (config.clean) {
-      config.clean(currentValue[topic]);
+    if (config.keyedByUUID) {
+      currentValue = protect(currentValue);
     }
 
     await WorldFlags.set(worldId, flag, currentValue as unknown as WorldFlagType<T>);

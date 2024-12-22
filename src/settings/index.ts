@@ -17,6 +17,7 @@ export const moduleId: ModuleId = id as ModuleId;
 
 // flesh out the flag types 
 
+// TODO: this isn't right... things that are protected should really be the protected form
 type WorldFolderFlags = Record<ModuleId, {
   [K in WorldFlagKey]: WorldFlagType<K>
 }>;

@@ -15,9 +15,9 @@
         </h3>
       </header>
 
-      <ol>
-        <DirectoryCampaignNode 
-          v-for="campaign in campaignDirectoryStore.currentCampaignTree.value"
+      <ol v-if="campaignDirectoryStore.currentCampaignTree.value.length>0">
+        <DirectoryCampaignNodeComponent 
+          v-for="campaign in campaignDirectoryStore.currentCampaignTree.value as DirectoryCampaignNode[]"
           :key="campaign.id"
           :campaign-node="campaign"
         />
@@ -39,10 +39,10 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
   
   // local components
-  import DirectoryCampaignNode from './DirectoryCampaignNode.vue';
+  import DirectoryCampaignNodeComponent from './DirectoryCampaignNode.vue';
   
   // types
-  import { Campaign } from '@/classes';
+  import { Campaign, DirectoryCampaignNode } from '@/classes';
   import { WindowTabType } from '@/types';
   
   ////////////////////////////////
