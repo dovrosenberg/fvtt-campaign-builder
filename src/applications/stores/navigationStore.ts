@@ -314,8 +314,9 @@ export const useNavigationStore = defineStore('navigation', () => {
               }
 
               break;
-            } else if (tab.historyIdx >= j && j>0) {
+            } else if (tab.historyIdx >= j && (j>0 || tab.historyIdx>0)) {
               // if the entry is the current one or after the current one, we need to move the index back one
+              //  (unless we're on the first one and that's the match)
               tab.historyIdx--;
             } else if (tab.historyIdx === j && j===0) {
               // there are others, but we're looking at the first one - set tab to next one
