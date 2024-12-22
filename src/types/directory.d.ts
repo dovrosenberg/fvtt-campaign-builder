@@ -15,5 +15,6 @@ export type DirectoryCampaign = {
 export type DirectorySessionNode = {
   id: string;
   name: string;
+  sessionNumber: number;   // needed to sort properly
   expanded: boolean;    // is the node expanded 
 }

@@ -29,7 +29,7 @@
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
         <div v-if="currentType.expanded">
           <div 
-            v-for="node in currentType.loadedChildren"
+            v-for="node in sortedChildren"
             :key="node.id"
           >
             <TopicDirectoryGroupedNode 
@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { PropType, ref, watch } from 'vue';
+  import { PropType, ref, watch, computed } from 'vue';
   import { storeToRefs } from 'pinia';
   
   // local imports
@@ -63,7 +63,7 @@
 
   // types
   import { ValidTopic, } from '@/types';
-  import { DirectoryTypeNode, Entry } from '@/classes';
+  import { DirectoryTypeEntryNode, DirectoryTypeNode, Entry } from '@/classes';
 
   
   ////////////////////////////////
@@ -100,7 +100,11 @@
   
   ////////////////////////////////
   // computed data
-  
+  const sortedChildren = computed((): DirectoryTypeEntryNode[] => {
+    const children = (currentType.value as DirectoryTypeNode).loadedChildren;
+    return children.sort((a, b) => a.name.localeCompare(b.name));
+  });
+
   ////////////////////////////////
   // methods
 

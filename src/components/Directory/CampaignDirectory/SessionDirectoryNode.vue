@@ -30,7 +30,7 @@
   // local components
 
   // types
-  import { DirectorySessionNode, Session, } from '@/classes';
+  import { DirectorySessionNode, } from '@/classes';
   
   ////////////////////////////////
   // props

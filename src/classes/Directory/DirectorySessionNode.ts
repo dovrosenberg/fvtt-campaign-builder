@@ -23,6 +23,10 @@ export class DirectorySessionNode extends CollapsibleNode<never> {
     return `${localize('labels.session.session')} ${this._sessionNumber}`;
   }
 
+  get sessionNumber(): number {
+    return this._sessionNumber;
+  }
+
   get tooltip(): string {
     return this._name;
   }

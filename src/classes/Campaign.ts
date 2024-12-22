@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { inputDialog } from '@/dialogs/input';
 import { WorldFlags, WorldFlagKey, moduleId } from '@/settings'; 
-import { CampaignDoc, EntryDoc } from '@/documents';
+import { CampaignDoc, EntryDoc, SessionDoc } from '@/documents';
 import { Session } from '@/classes/Session';
 
 // represents a topic entry (ex. a character, location, etc.)
@@ -64,7 +64,6 @@ export class Campaign {
         if (campaign) {
           await campaign.setFlag(moduleId, 'isCampaign', true);
           await campaign.setFlag(moduleId, 'description', '');
-          await campaign.setFlag(moduleId, 'nextSessionNumber', 0);
         }
 
         await Campaign.worldCompendium.configure({locked:true});
@@ -89,15 +88,15 @@ export class Campaign {
     return this._campaignDoc.uuid;
   }
 
+  // we return the next number after the highest currently existing sessio nnumber
   get nextSessionNumber(): number {
-    return this._campaignDoc.getFlag(moduleId, 'nextSessionNumber');
-  }
+    let maxNumber = -1;
+    this._campaignDoc.pages.forEach((page: JournalEntryPage) => {
+      if ((page as unknown as SessionDoc).system.number > maxNumber)
+        maxNumber = (page as unknown as SessionDoc).system.number;
+    });
 
-  set nextSessionNumber(value: number) {
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}.nextSessionNumber`]: value
-    };
+    return maxNumber + 1;
   }
 
   // returns the uuids of all the sessions
