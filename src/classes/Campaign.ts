@@ -2,6 +2,7 @@ import { toRaw } from 'vue';
 import { inputDialog } from '@/dialogs/input';
 import { WorldFlags, WorldFlagKey, moduleId } from '@/settings'; 
 import { CampaignDoc, EntryDoc } from '@/documents';
+import { Session } from '@/classes/Session';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
@@ -66,13 +67,12 @@ export class Campaign {
           await campaign.setFlag(moduleId, 'nextSessionNumber', 0);
         }
 
-        // unlock compendium to make the change
         await Campaign.worldCompendium.configure({locked:true});
 
         if (!campaign)
           throw new Error('Couldn\'t create new campaign');
 
-        // update the list of campaigns
+        Session.currentCampaignJournals[campaign.uuid] = campaign;
         const campaigns = WorldFlags.get(Campaign.worldId, WorldFlagKey.campaignEntries);
         campaigns[campaign.uuid] = name;
         await WorldFlags.set(Campaign.worldId, WorldFlagKey.campaignEntries, campaigns);
