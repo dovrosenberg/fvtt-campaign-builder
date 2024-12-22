@@ -149,28 +149,9 @@
   ////////////////////////////////
   // event handlers
 
-   // remove the tab given by the id from the list
-   const onCloseTab = async function (tabId: string) {
-    // find the tab
-    const tab = tabs.value.find((t) => (t.id === tabId));
-    const index = tabs.value.findIndex((t) => (t.id === tabId));
-
-    if (!tab) return;
-
-    // remove it from the array
-    tabs.value.splice(index, 1);
-
-    if (tabs.value.length === 0) {
-      await navigationStore.openEntry();  // make a default tab if that was the last one (will also activate it) and save them
-    } else if (tab.active) {
-      // if it was active, make the one before it active (or after if it was up front)
-      if (index===0) {
-        await navigationStore.activateTab(tabs.value[0].id);  // will also save them
-      }
-      else {
-        await navigationStore.activateTab(tabs.value[index-1].id);  // will also save them
-      }
-    }
+  // remove the tab given by the id from the list
+  const onCloseTab = function (tabId: string) {
+    void navigationStore.removeTab(tabId);
   };
 
   // add the current tab as a new bookmark
