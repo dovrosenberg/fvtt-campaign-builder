@@ -81,7 +81,7 @@
       y: event.y,
       zIndex: 300,
       items: [
-      { 
+        { 
           icon: getTabTypeIcon(WindowTabType.Campaign),
           iconFontClass: 'fas',
           label: localize('contextMenus.campaignsHeader.createCampaign'), 

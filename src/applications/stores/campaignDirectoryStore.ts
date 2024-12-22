@@ -118,9 +118,15 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     await refreshCampaignDirectoryTree();
   };
 
-  const createSession = async (campaignId: string) => {
-    await Session.create(campaignId);
-    await refreshCampaignDirectoryTree();
+  const createSession = async (campaignId: string): Promise<Session | null> => {
+    const session = await Session.create(campaignId);
+
+    if (session) {
+      await refreshCampaignDirectoryTree();
+      return session;
+    } else { 
+      return null;
+    }
   };
   
   ///////////////////////////////

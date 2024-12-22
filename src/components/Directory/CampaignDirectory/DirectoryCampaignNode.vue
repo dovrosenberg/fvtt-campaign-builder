@@ -114,7 +114,11 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.campaignFolder.createSession'), 
           onClick: async () => {
-            await campaignDirectoryStore.createSession(props.campaignNode.id);
+            const session = await campaignDirectoryStore.createSession(props.campaignNode.id);
+
+            if (session) {
+              await navigationStore.openSession(session.uuid, { newTab: true, activate: true, }); 
+            }
           }
         },
         { 
