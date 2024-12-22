@@ -100,6 +100,10 @@ export class Campaign {
     };
   }
 
+  // returns the uuids of all the sessions
+  get sessions(): string[] {
+    return this._campaignDoc.pages.map((page) => page.uuid);
+  }
 
   get name(): string {
     return this._campaignDoc.name;

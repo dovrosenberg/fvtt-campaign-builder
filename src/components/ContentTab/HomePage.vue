@@ -70,7 +70,8 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId, currentWorldFolder } = storeToRefs(mainStore);
+  const { currentWorldFolder } = storeToRefs(mainStore);
+  const { recent } = storeToRefs(navigationStore);
 
   ////////////////////////////////
   // data
@@ -78,7 +79,6 @@
 
   ////////////////////////////////
   // computed data
-  const recent = computed((): TabHeader[] => (currentWorldId.value ? UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] : []));
 
   ////////////////////////////////
   // methods

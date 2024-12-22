@@ -50,7 +50,7 @@ export const useMainStore = defineStore('main', () => {
   const currentEntry = computed((): Entry | null => (_currentEntry?.value || null) as Entry | null);
   const currentCampaign = computed((): Campaign | null => (_currentCampaign?.value || null) as Campaign | null);
   const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
-  const currentContentType = computed((): WindowTabType | null => (_currentTab?.value?.tabType || null) as WindowTabType | null);  
+  const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
 
   // the currently selected tab for the entry
   const currentContentTab = ref<string | null>(null);

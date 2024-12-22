@@ -32,6 +32,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   // external state
   const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of WBHeader)
   const bookmarks = ref<Bookmark[]>([]);
+  const recent = ref<TabHeader[]>([]);
 
   ///////////////////////////////
   // actions
@@ -288,8 +289,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     const tempTabs = tabs.value;
 
     if (tempTabs) {
-      // let resetActiveTab = '';
-
       // loop over each one and remove from the history; set tabIndex to point to the subsequent entry
       // if there is only one entry left, eliminate the tab altogether
       // go backward in case we need to remove one
@@ -313,8 +312,7 @@ export const useNavigationStore = defineStore('navigation', () => {
               if (tempTabs.length===1 && i===0) {
                 tempTabs[0] = tabs.value[0];
               }
-              // if (tab.active)
-              //   resetActiveTab = tab.id;
+
               break;
             } else if (tab.historyIdx >= j && j>0) {
               // if the entry is the current one or after the current one, we need to move the index back one
@@ -333,32 +331,17 @@ export const useNavigationStore = defineStore('navigation', () => {
       }
 
       // save the tabs
-      await UserFlags.set(UserFlagKey.tabs, tempTabs, currentWorldId.value);
-
       tabs.value = tempTabs;
-
-      // reset active tab if needed
-      // if (resetActiveTab!='')
-      //   await activateTab(resetActiveTab);      
+      await _saveTabs();
     }
 
     // now remove from bookmarks
-    let bookmarks = UserFlags.get(UserFlagKey.bookmarks, currentWorldId.value);
-    if (bookmarks) {
-      // remove any matching ones
-      bookmarks = bookmarks.filter(b => b.id !== contentId);
-      await UserFlags.set(UserFlagKey.bookmarks, bookmarks, currentWorldId.value);
-    }
+    bookmarks.value = bookmarks.value.filter(b => b.id !== contentId);
+    await _saveBookmarks();
 
     // remove from recent items list
-    let recent = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value);
-    if (recent) {
-      // remove any matching ones
-      recent = recent.filter(r => r.uuid !== contentId);
-      await UserFlags.set(UserFlagKey.recentlyViewed, recent, currentWorldId.value);
-    }
-    // refresh the display
-    await loadTabs();
+    recent.value = recent.value.filter(r => r.uuid !== contentId);
+    await _saveRecent();
   };
   
   const propogateNameChange = async (contentId: string, newName: string):Promise<void> => {
@@ -381,6 +364,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     tabs.value = UserFlags.get(UserFlagKey.tabs, currentWorldId.value) || [];
     bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, currentWorldId.value) || [];
+    recent.value = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [];
 
     if (!tabs.value.length) {
       // if there are no tabs, add one
@@ -435,24 +419,32 @@ export const useNavigationStore = defineStore('navigation', () => {
     await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentWorldId.value);
   };
 
+  const _saveRecent = async function () {
+    if (!currentWorldId.value)
+      return;
+
+    await UserFlags.set(UserFlagKey.recentlyViewed, recent.value, currentWorldId.value);
+  };
+
   // add a new entity to the recent list
   const _updateRecent = async function (header: TabHeader): Promise<void> {
     if (!currentWorldId.value)
       return;
 
-    let recent = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] as TabHeader[];
+    let newRecent = recent.value;
 
     // remove any other places in history this already appears
-    recent.findSplice((h: TabHeader): boolean => h.uuid === header.uuid);
+    newRecent.findSplice((h: TabHeader): boolean => h.uuid === header.uuid);
 
     // insert in the front
-    recent.unshift(header);
+    newRecent.unshift(header);
 
     // trim if too long
-    if (recent.length > 5)
-      recent = recent.slice(0, 5);
+    if (newRecent.length > 5)
+      newRecent = newRecent.slice(0, 5);
 
-    await UserFlags.set(UserFlagKey.recentlyViewed, recent, currentWorldId.value);
+    recent.value = newRecent;
+    await _saveRecent();
   };
   
 
@@ -467,6 +459,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   return {
     tabs,
     bookmarks,
+    recent,
 
     openEntry,
     openSession,

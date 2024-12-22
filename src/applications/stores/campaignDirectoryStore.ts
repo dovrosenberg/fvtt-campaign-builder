@@ -8,6 +8,7 @@ import { reactive, Ref, ref, watch, } from 'vue';
 import { WorldFlagKey, WorldFlags } from '@/settings';
 import { useMainStore, useNavigationStore } from '@/applications/stores';
 import { DirectoryCampaignNode, Campaign, Session } from '@/classes';
+import { CampaignDoc, } from 'src/documents';
 
 // types
 
@@ -92,6 +93,14 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   };
 
   const deleteCampaign = async(campaignId: string): Promise<void> => {
+    // have to delete all the sessions, too - not from the database (since deleting campaign
+    //    will do that), but from the UI
+    const campaignDoc = await fromUuid(campaignId) as CampaignDoc;
+    const sessions = campaignDoc.pages.map(page => page.uuid);
+    for (let i=0; i<sessions.length; i++) {
+      await navigationStore.cleanupDeletedEntry(sessions[i]);
+    }
+
     await Campaign.deleteCampaign(campaignId);
 
     // update tabs/bookmarks
