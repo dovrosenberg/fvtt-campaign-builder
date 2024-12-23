@@ -1,4 +1,4 @@
-import { WorldBuilderApplication} from '@/applications/WorldBuilder';
+import { getWorldBuilderApp } from '@/applications/WorldBuilder';
 import { localize } from '@/utils/game';
 import { setupEnricher } from '@/components/Editor/helpers';
 
@@ -19,7 +19,7 @@ async function ready(): Promise<void> {
 
     jQuery(document).on('click', '#fwb-launch', async (): Promise<void> => {
       // create the instance and render 
-      await (await new WorldBuilderApplication()).render(true);
+      await getWorldBuilderApp().render(true);
     });
   }
 

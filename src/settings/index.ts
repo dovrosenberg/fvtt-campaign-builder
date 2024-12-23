@@ -6,6 +6,7 @@ import { CampaignFlags } from 'src/documents';
 export * from './UserFlags';
 export * from './ModuleSettings';
 export * from './WorldFlags';
+export * from './KeyBindings';
 
 // NOTE: if the module ID changes, this needs to change... couldn't figure out how to automate it because
 //    needed a static type

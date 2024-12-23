@@ -14,6 +14,16 @@ import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 const pinia = createPinia();
 setActivePinia(pinia);
 
+// the global instance - needed for keybindings, among other things
+let wbApp: WorldBuilderApplication | null = null;
+
+export const getWorldBuilderApp = (): WorldBuilderApplication => {
+  if (wbApp)
+    return wbApp;
+
+  return wbApp = new WorldBuilderApplication();
+};
+
 export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: `app-${moduleId}-WorldBuilder`,

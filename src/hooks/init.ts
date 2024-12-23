@@ -1,4 +1,4 @@
-import { moduleId, ModuleSettings, updateModuleSettings } from '@/settings';
+import { KeyBindings, moduleId, ModuleSettings, updateModuleSettings } from '@/settings';
 import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel } from '@/documents';
 
 export function registerForInitHook() {
@@ -8,6 +8,9 @@ export function registerForInitHook() {
 async function init(): Promise<void> {
   // initialize settings first, so other things can use them
   updateModuleSettings(new ModuleSettings());  
+
+  // put in place the key bindings
+  KeyBindings.register();
 
   // register the data models
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
