@@ -1,7 +1,7 @@
 <template>
   <ul class="fwb-directory-tree">
     <NodeComponent 
-      v-for="node in props.topic.loadedChildren"
+      v-for="node in sortedChildren"
       :key="node.id"
       :node="node" 
       :world-id="props.worldId"
@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { PropType, } from 'vue';
+  import { computed, PropType, } from 'vue';
 
   // local imports
 
@@ -26,7 +26,7 @@
   import NodeComponent from './TopicDirectoryNode.vue';
 
   // types
-  import { DirectoryTopicNode, } from '@/classes';
+  import { DirectoryEntryNode, DirectoryTopicNode, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -52,6 +52,10 @@
   
   ////////////////////////////////
   // computed data
+  const sortedChildren = computed((): DirectoryEntryNode[] => {
+    const children = (props.topic).loadedChildren;
+    return children.sort((a, b) => a.name.localeCompare(b.name));
+  });
 
   ////////////////////////////////
   // methods

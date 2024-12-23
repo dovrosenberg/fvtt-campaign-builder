@@ -26,7 +26,7 @@
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
         <div v-if="currentNode.expanded">
           <TopicDirectoryNodeComponent 
-            v-for="child in currentNode.loadedChildren"
+            v-for="child in sortedChildren"
             :key="child.id"
             :node="child"
             :world-id="props.worldId"
@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { PropType, ref, watch } from 'vue';
+  import { computed, PropType, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -98,7 +98,13 @@
 
   ////////////////////////////////
   // computed data
-  
+  const sortedChildren = computed((): DirectoryEntryNode[] => {
+    const children = (currentNode.value).loadedChildren;
+    return children.sort((a, b) => a.name.localeCompare(b.name));
+  });
+
+
+
   ////////////////////////////////
   // methods
 
