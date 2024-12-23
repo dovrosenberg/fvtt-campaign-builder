@@ -94,7 +94,7 @@
 
   // change campaign
   const onCampaignFolderClick = async (_event: MouseEvent) => {
-    currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value, !currentNode.value.expanded);
+    currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as DirectoryCampaignNode, !currentNode.value.expanded);
   };
 
   const onCampaignSelectClick = async (event: MouseEvent) => {
