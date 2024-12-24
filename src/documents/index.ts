@@ -2,6 +2,7 @@ export * from './entry';
 export * from './session';
 export * from './campaign';
 export * from './pc';
+export * from './world';
 
 // can't use the one from settings because it won't be initialized yet
 import { id as moduleId } from '@module';

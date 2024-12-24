@@ -1,12 +1,11 @@
 import { id } from '@module';
-import { WorldFlagType, WorldFlagKey, WorldFolderFlagStorageType } from './WorldFlags';
 import { SettingKey, SettingKeyType } from './ModuleSettings';
-import { CampaignFlags } from 'src/documents';
+import { CampaignFlags, WorldDoc } from 'src/documents';
 
 export * from './UserFlags';
 export * from './ModuleSettings';
-export * from './WorldFlags';
 export * from './KeyBindings';
+export * from './DocumentFlags';
 
 // NOTE: if the module ID changes, this needs to change... couldn't figure out how to automate it because
 //    needed a static type
@@ -18,7 +17,11 @@ export const moduleId: ModuleId = id as ModuleId;
 
 // flesh out the flag types 
 
-type WorldFolderFlags = Record<ModuleId, WorldFolderFlagStorageType>;
+type WorldFolderFlags = {
+  [M in ModuleId]: {
+    [K in WorldDoc.FlagKey]: WorldDoc.FlagType<K>; 
+  };
+}
 
 type JournalEntryFlags = CampaignFlags;
 
