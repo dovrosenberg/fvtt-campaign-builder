@@ -1,20 +1,12 @@
-import { TabSummary, Topic, ValidTopic, } from '@/types';
+import { TabSummary,  Hierarchy, Topic, ValidTopic, } from '@/types';
 import { WorldFlagKey, WorldFlags } from '@/settings';
-import { Entry } from '@/classes';
+import { Entry, } from '@/classes';
 
 // the string to show for items with no type
 export const NO_TYPE_STRING = '(none)';
 
 // the string to show for items with no name
 export const NO_NAME_STRING = '<Blank>';
-
-// types and functions used to manage topic hierarchies
-export type Hierarchy = {
-  parentId: string | null;   // id of parent
-  ancestors: string[];    // ids of all ancestors
-  children: string[];    // ids of all direct children
-  type: string;    // the type of the entry
-}
 
 // does this topic use hierarchy?
 export const hasHierarchy = (topic: Topic): boolean => [Topic.Organization, Topic.Location].includes(topic);

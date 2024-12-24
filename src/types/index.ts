@@ -1,6 +1,7 @@
 export type * from './directory.d.ts';
 export type * from './tables.d.ts';
 export type * from './relationships.d.ts';
+export type * from './hierarchy.d.ts';
 export type * from './global.d.ts';
 
 // used to determine which component to display in the tab
