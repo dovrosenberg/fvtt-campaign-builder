@@ -42,7 +42,7 @@
         </div>
       </header>
       <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="description">{{ localize('labels.tabs.description') }}</a>
+        <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
         <a 
           v-for="relationship in relationships"
           :key="relationship.label"
@@ -56,14 +56,14 @@
           class="item" 
           data-tab="actors"
         >
-          {{ localize('labels.tabs.actors') }}
+          {{ localize('labels.tabs.entry.actors') }}
         </a>
         <a 
           v-if="topic===Topic.Location"
           class="item" 
           data-tab="scenes"
         >
-          {{ localize('labels.tabs.scenes') }}
+          {{ localize('labels.tabs.entry.scenes') }}
         </a>
       </nav>
       <div class="fwb-tab-body flexcol">
@@ -163,10 +163,10 @@
   };
 
   const relationships = [
-    { tab: 'characters', label: 'labels.tabs.characters', },
-    { tab: 'locations', label: 'labels.tabs.locations',},
-    { tab: 'organizations', label: 'labels.tabs.organizations', },
-    { tab: 'events', label: 'labels.tabs.events', },
+    { tab: 'characters', label: 'labels.tabs.entry.characters', },
+    { tab: 'locations', label: 'labels.tabs.entry.locations',},
+    { tab: 'organizations', label: 'labels.tabs.entry.organizations', },
+    { tab: 'events', label: 'labels.tabs.entry.events', },
   ] as { tab: string; label: string }[];
 
   const tabs = ref<Tabs>();

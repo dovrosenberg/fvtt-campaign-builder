@@ -9,6 +9,8 @@ export type TablePagination = {
   filters: Record<string, { value: string | null; matchMode: DataTableFilterMetaData['matchMode']}>;   // maps field name to filter value applied to it
 }
 
+export type FieldData = {field:string; header: string}[];
+
 export type PaginationResult<T extends AnyRow> = {
   rows: T[];
   rowsAvailable: number;

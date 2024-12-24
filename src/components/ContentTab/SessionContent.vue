@@ -30,28 +30,64 @@
               @update:model-value="onNumberUpdate"
             />
           </div>
-          <div>
-            <nav class="fwb-sheet-navigation flexrow stage-tabs" data-group="stage">
-              <a class="item" data-tab="preparation">{{ localize('labels.tabs.preparation') }}</a>
-              <a class="item" data-tab="gamtime">{{ localize('labels.tabs.gametime') }}</a>
-            </nav>
-          </div>
         </div>
       </header>
+      <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
+        <a class="item" data-tab="description">{{ localize('labels.tabs.session.description') }}</a>
+        <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
+        <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
+        <a class="item" data-tab="scenes">{{ localize('labels.tabs.session.scenes') }}</a>
+        <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
+        <a class="item" data-tab="secrets">{{ localize('labels.tabs.session.secrets') }}</a>
+        <a class="item" data-tab="locations">{{ localize('labels.tabs.session.locations') }}</a>
+        <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
+        <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
+      </nav>
       <div class="fwb-tab-body flexcol">
-        <div class="tab description flexcol" data-group="stage" data-tab="preparation">
+        <div class="tab description flexcol" data-group="primary" data-tab="description">
           <div class="tab-inner flexcol">
-            Prep tab<br>
-
-            <nav class="fwb-sheet-navigation flexrow detail-tabs" data-group="primary">
-              <a class="item" data-tab="description">{{ localize('labels.tabs.description') }}</a>
-            </nav>
+            Description
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="stage" data-tab="gametime">
+        <div class="tab description flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner flexcol">
-            Game time tab
-          </div>
+            pcs
+          </div>  
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="npcs">
+          <div class="tab-inner flexcol">
+            npcs
+          </div>  
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="scenes">
+          <div class="tab-inner flexcol">
+            scenes
+          </div>  
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="start">
+          <div class="tab-inner flexcol">
+            start
+          </div>  
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="secrets">
+          <div class="tab-inner flexcol">
+            secrets
+          </div>  
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="locations">
+          <div class="tab-inner flexcol">
+            locations
+          </div>  
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="monsters">
+          <div class="tab-inner flexcol">
+            monsters
+          </div>  
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="magic">
+          <div class="tab-inner flexcol">
+            magic
+          </div>  
         </div>
       </div>
     </div>
@@ -93,8 +129,7 @@
   
   ////////////////////////////////
   // data
-  const stageTabs = ref<Tabs>();
-  const detailTabs = ref<Tabs>();
+  const tabs = ref<Tabs>();
   
   const name = ref<string>('');
   const sessionNumber = ref<string>('');
@@ -171,23 +206,21 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    stageTabs.value = new Tabs({ navSelector: '.stage-tabs', contentSelector: '.fwb-tab-body', initial: 'preparation', /*callback: null*/ });
-    detailTabs.value = new Tabs({ navSelector: '.detail-tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
+    tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
 
     // update the store when tab changes
-    stageTabs.value.callback = () => {
+    tabs.value.callback = () => {
       // currentContentTab.value = tabs.value?.active || null;
     };
 
-    detailTabs.value.callback = () => {
+    tabs.value.callback = () => {
       // currentContentTab.value = tabs.value?.active || null;
     };
 
     // have to wait until they render
     await nextTick();
     if (contentRef.value) {
-      stageTabs.value.bind(contentRef.value);
-      detailTabs.value.bind(contentRef.value);
+      tabs.value.bind(contentRef.value);
     }
   });
 

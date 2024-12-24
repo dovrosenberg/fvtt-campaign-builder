@@ -6,5 +6,5 @@ export interface CampaignDoc extends JournalEntry {}
 export type CampaignFlags = Record<ModuleId, {
   isCampaign: boolean;
   description: string;
-  nextSessionNumber: number;
+  pcs: string[];  // actor uuids
 }>;

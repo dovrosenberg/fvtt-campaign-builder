@@ -23,18 +23,32 @@
       },
       "groupTree": "Group tree by type",
       "tabs": {
-        "description": "Description",
-        "characters": "Characters",
-        "events": "Events",
-        "locations": "Locations",
-        "locationChildren": "Child locations",
-        "organizations": "Organizations",
-        "organizationChildren": "Sub-organizations",
-        "scenes": "Scenes",
-        "actors": "Actors",
-        "pcs": "PCs",
-        "preparation": "Preparation",
-        "gametime": "Game Time"
+        "entry": {
+          "description": "Description",
+          "characters": "Characters",
+          "events": "Events",
+          "locations": "Locations",
+          "locationChildren": "Child locations",
+          "organizations": "Organizations",
+          "organizationChildren": "Sub-organizations",
+          "scenes": "Scenes",
+          "actors": "Actors"
+        },
+        "campaign": {
+          "description": "Description",
+          "pcs": "PCs"
+        },
+        "session": {
+          "description": "Description",
+          "pcs": "PCs",
+          "npcs": "NPCs",
+          "scenes": "Scenes",
+          "start": "Start",
+          "secrets": "Secrets/Clues",
+          "locations": "Locations",
+          "monsters": "Monsters",
+          "magic": "Magic Items"
+        }
       },
       "noResults": "Nothing here",
       "loading": "Loading"

@@ -120,6 +120,11 @@ export class Session {
     };
   }
 
+  get campaignId(): string {
+    debugger;
+    return this._sessionDoc.parent.uuid;
+  }
+
   // get direct access to the document (ex. to hook to foundry's editor)
   get raw(): SessionDoc {
     return this._sessionDoc;

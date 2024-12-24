@@ -35,7 +35,6 @@
         table: { style: 'margin: 0px;'}
       }"
       @row-select="onRowSelect"
-      @row-contextmenu="onRowContextMenu"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -100,17 +99,16 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType,} from 'vue';
+  import { ref, computed, } from 'vue';
   import { storeToRefs } from 'pinia';
   import { FilterMatchMode } from '@primevue/core/api';
-  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local imports
-  import { useRelationshipStore } from '@/applications/stores';
+  import { useCampaignStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // library components
-  import DataTable, { DataTableRowContextMenuEvent } from 'primevue/datatable';
+  import DataTable from 'primevue/datatable';
   import Column from 'primevue/column';
   import InputText from 'primevue/inputtext';
   import IconField from 'primevue/iconfield';
@@ -119,7 +117,7 @@
   // local components
 
   // types
-  import { TablePagination, RelatedDocumentDetails, DocumentLinkType } from '@/types';
+  import { TablePagination, RelatedDocumentDetails, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -129,9 +127,9 @@
 
   ////////////////////////////////
   // store
-  const relationshipStore = useRelationshipStore();
+  const campaignStore = useCampaignStore();
   
-  const { relatedDocumentRows, } = storeToRefs(relationshipStore);
+  const { relatedPCRows, } = storeToRefs(campaignStore);
 
   ////////////////////////////////
   // data
@@ -162,7 +160,7 @@
   type GridRow = { uuid: string; name: string };
 
   const rows = computed((): GridRow[] => 
-    relatedDocumentRows.value.map((item: RelatedDocumentDetails) => {
+    relatedPCRows.value.map((item: RelatedDocumentDetails) => {
       const base = { 
         uuid: item.uuid, 
         name: item.name, 
@@ -196,75 +194,7 @@
   
     // Need to test open/activate for things in compendiums
   };
-
-  const onRowContextMenu = async function (event: DataTableRowContextMenuEvent): Promise<boolean> {
-    const { originalEvent, data } = event;
-    const mouseEvent = originalEvent as MouseEvent;
-
-    //prevent the browser's default menu
-    mouseEvent.preventDefault();
-    mouseEvent.stopPropagation();
-
-    // no menu for actors
-    if (props.documentLinkType===DocumentLinkType.Actors) {
-      return false;
-    }
-
-    //show our menu
-    ContextMenu.showContextMenu({
-      customClass: 'fwb',
-      x: mouseEvent.x,
-      y: mouseEvent.y,
-      zIndex: 300,
-      items: [
-        { 
-          icon: 'fa-eye', 
-          iconFontClass: 'fas',
-          label: localize('SCENES.View'), 
-          onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
-            await scene?.view();
-          }
-        },
-        { 
-          icon: 'fa-bullseye', 
-          iconFontClass: 'fas',
-          label: localize('SCENES.Activate'), 
-          hidden: data.packId,   // can't activate in compendium
-          onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
-            await scene?.activate();
-          }
-        },
-        { 
-          icon: 'fa-cogs', 
-          iconFontClass: 'fas',
-          label: localize('SCENES.Configure'), 
-          onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
-            await scene?.sheet?.render(true);
-          }
-        },
-        { 
-          icon: 'fa-compass', 
-          iconFontClass: 'fas',
-          label: localize('SCENES.ToggleNav'), 
-          hidden: data.packId,   // can't nav in compendium
-          onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
-            if (scene.active) {
-              alert('Cannot toggle navigation while scene is active');
-            } else {
-              await scene?.update({navigation: !scene.navigation});
-            }
-          }
-        },
-      ]
-    });
-
-    return true;
-  };
-
+  
   // call mutation to remove item  from relationship
   const onDeleteItemClick = async function(_id: string) {
     // show the confirmation dialog 
@@ -272,10 +202,7 @@
       title: localize('dialogs.confirmDeleteRelationship.title'),
       content: localize('dialogs.confirmDeleteRelationship.message'),
       yes: () => { 
-        if (props.documentLinkType===DocumentLinkType.Scenes)
-          void relationshipStore.deleteScene(_id); 
-        else if (props.documentLinkType===DocumentLinkType.Actors)
-          void relationshipStore.deleteActor(_id); 
+        void campaignStore.deletePC(_id); 
       },
       no: () => {},
     });
@@ -288,10 +215,9 @@
         data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
 
         // make sure it's the right format
-        if (data.type==='Scene' && props.documentLinkType===DocumentLinkType.Scenes && data.uuid) {
-          await relationshipStore.addScene(data.uuid);
-        } else if (data.type==='Actor' && props.documentLinkType===DocumentLinkType.Actors && data.uuid) {
-          await relationshipStore.addActor(data.uuid);
+        if (data.type==='Actor' && data.uuid) {
+          alert('need to add actor');
+          await campaignStore.addPC(data.uuid);
         }
 
         return true;

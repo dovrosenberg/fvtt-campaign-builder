@@ -64,6 +64,7 @@ export class Campaign {
         if (campaign) {
           await campaign.setFlag(moduleId, 'isCampaign', true);
           await campaign.setFlag(moduleId, 'description', '');
+          await campaign.setFlag(moduleId, 'pcs', []);
         }
 
         await Campaign.worldCompendium.configure({locked:true});
@@ -129,6 +130,17 @@ export class Campaign {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       [`flags.${moduleId}.description`]: value
+    };
+  }
+
+  get pcs(): readonly string[] {
+    return this._campaignDoc.getFlag(moduleId, 'pcs') || [];
+  }
+
+  set pcs(value: string[]) {
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}.pcs`]: value
     };
   }
 

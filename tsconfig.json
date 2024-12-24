@@ -3,7 +3,7 @@
 		"incremental": true,
 		"target": "es2018",
 		"module": "esnext",
-		"lib": [ "es2015", "es2019", "dom" ],
+		"lib": [ "es2021", "dom" ],
 		"typeRoots": [ "./src/types", "node", "@league-of-foundry-developers/foundry-vtt-types"],
 		"moduleResolution": "node",
 		"sourceMap": true,

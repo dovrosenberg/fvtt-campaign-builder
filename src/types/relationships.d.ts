@@ -1,32 +1,7 @@
-import { Topic, ValidTopic } from '@/types';
+import { ValidTopic, FieldData } from '@/types';
 
 // lay out the extra fields for each combination of topics
-export type FieldDataByTopic = {
-  [Topic.Character]: {
-    [Topic.Character]: [];
-    [Topic.Event]: [];
-    [Topic.Location]: [{field:'role'; header:'Role'}];
-    [Topic.Organization]: [{field:'role'; header:'Role'}];
-  };
-  [Topic.Event]: {
-    [Topic.Character]: [];
-    [Topic.Event]: [];
-    [Topic.Location]: [];
-    [Topic.Organization]: [];
-  };
-  [Topic.Location]: {
-    [Topic.Character]: [{field:'role'; header:'Role'}];
-    [Topic.Event]: [];
-    [Topic.Location]: [];
-    [Topic.Organization]: [];
-  };
-  [Topic.Organization]: {
-    [Topic.Character]: [{field:'role'; header:'Role'}];
-    [Topic.Event]: [];
-    [Topic.Location]: [];
-    [Topic.Organization]: [];
-  };    
-};
+export type FieldDataByTopic = Record<ValidTopic, Record<ValidTopic, FieldData>>;
 
 export type RelatedItem<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic> = {
   uuid: string;   // the other item
@@ -46,3 +21,5 @@ export type RelatedDocumentDetails = {
   packId: string | null;   // uuid of the parent compendium (null if it's a world compendium)
   packName: string | null;
 };
+
+export type PCDetails = RelatedDocumentDetails;

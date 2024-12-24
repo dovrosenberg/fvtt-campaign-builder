@@ -1,5 +1,5 @@
 import { id } from '@module';
-import { WorldFlagType, WorldFlagKey } from './WorldFlags';
+import { WorldFlagType, WorldFlagKey, WorldFolderFlagStorageType } from './WorldFlags';
 import { SettingKey, SettingKeyType } from './ModuleSettings';
 import { CampaignFlags } from 'src/documents';
 
@@ -18,10 +18,7 @@ export const moduleId: ModuleId = id as ModuleId;
 
 // flesh out the flag types 
 
-// TODO: this isn't right... things that are protected should really be the protected form
-type WorldFolderFlags = Record<ModuleId, {
-  [K in WorldFlagKey]: WorldFlagType<K>
-}>;
+type WorldFolderFlags = Record<ModuleId, WorldFolderFlagStorageType>;
 
 type JournalEntryFlags = CampaignFlags;
 

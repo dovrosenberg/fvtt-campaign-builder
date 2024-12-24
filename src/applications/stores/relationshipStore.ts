@@ -1,4 +1,4 @@
-// this store handles the main state (current world, entry, etc.)
+// this store handles relationships between entries (not campaigns/sessions)
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';

@@ -28,7 +28,7 @@ type EntrySchemaType = typeof entrySchema;
 
 type RelationshipFieldType = Record<ValidTopic, Record<string,RelatedItemDetails<any, any>>>; 
 
-export class EntryDataModel<Schema extends EntrySchemaType, ParentNode extends JournalEntry> extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
+export class EntryDataModel extends foundry.abstract.TypeDataModel<EntrySchemaType, JournalEntry> {
   static defineSchema(): EntrySchemaType {
     return entrySchema;
   }
@@ -36,7 +36,7 @@ export class EntryDataModel<Schema extends EntrySchemaType, ParentNode extends J
   /** @override */
   prepareBaseData(): void {
     if (this.relationships)
-      this.relationships = relationshipKeyReplace(this.relationships, false);
+      this.relationships = relationshipKeyReplace(this.relationships as RelationshipFieldType, false);
   }
 }
 
