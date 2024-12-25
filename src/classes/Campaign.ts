@@ -6,11 +6,10 @@ import { inputDialog } from '@/dialogs/input';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
-  static worldId: string = '';
-
-  private _world: WBWorld | null;  // the world the campaign is in (if we don't setup up front, we can load it later)
   private _campaignDoc: CampaignDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
+
+  public world: WBWorld | null;  // the world the campaign is in (if we don't setup up front, we can load it later)
 
   // saved on JournalEntry
   private _name: string;
@@ -32,7 +31,7 @@ export class Campaign {
     // clone it to avoid unexpected changes, also drop the proxy
     this._campaignDoc = foundry.utils.deepClone(campaignDoc);
     this._cumulativeUpdate = {};
-    this._world = world || null;
+    this.world = world || null;
 
     this._description = getFlag(this._campaignDoc, CampaignFlagKey.description) || '';
     this._pcs = getFlag(this._campaignDoc, CampaignFlagKey.pcs) || [];
@@ -53,28 +52,22 @@ export class Campaign {
   }
 
   /**
-   *
-   * Get the WBWorld object for the campaign. Poduces a promise so needs to be awaited.
-   *
-   * @readonly
-   * @type {Promixe<WbWorld>} Note that it's a promise
-   * @memberof Campaign
+   * Gets the WBWorld associated with the campaign. If the world is already loaded, the promise resolves
+   * to the existing world; otherwise, it loads the world and then resolves to it.
+   * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
    */
-  get world(): Promise<WBWorld> {
-    return (async (): Promise<WBWorld> => {
-      if (this._world)
-        return this._world;
-      else {
-        const worldDoc = await fromUuid(this._campaignDoc.folder) as WorldDoc;
+  public async loadWorld(): Promise<WBWorld> {
+    if (this.world)
+      return this.world;
+    
+    const worldDoc = await fromUuid(this._campaignDoc.folder) as WorldDoc;
 
-        if (!worldDoc)
-          throw new Error('Invalid folder id in Campaign.getWorld()');
+    if (!worldDoc)
+      throw new Error('Invalid folder id in Campaign.getWorld()');
 
-        return new WBWorld(worldDoc);
-      }
-    })();
+    return new WBWorld(worldDoc);
   }
-
+  
   // we return the next number after the highest currently existing sessio nnumber
   get nextSessionNumber(): number {
     let maxNumber = -1;
@@ -190,8 +183,13 @@ export class Campaign {
   public async save(): Promise<Campaign | null> {
     const updateData = this._cumulativeUpdate;
 
+    let world = this.world;
+
+    if (!world)
+      world = await this.loadWorld();
+
     // unlock compendium to make the change
-    await (await this.world).unlock();
+    await world.unlock();
 
     let success = false;
     if (Object.keys(updateData).length !== 0) {
@@ -205,10 +203,10 @@ export class Campaign {
 
       // update the name
       if (updateData.name !== undefined) {
-        (await this.world).updateCampaignName(this.uuid, updateData.name);
+        world.updateCampaignName(this.uuid, updateData.name);
       }
     }
-    await (await this.world).lock();
+    await world.lock();
 
     return success ? this : null;
   }
@@ -224,13 +222,17 @@ export class Campaign {
 
     const id = this._campaignDoc.uuid;
 
+    let world = this.world;
+    if (!world)
+      world = await this.loadWorld();
+
     // have to unlock the pack
-    await (await this.world).unlock();
+    await world.unlock();
 
     await this._campaignDoc.delete();
 
-    await (await this.world).lock();
+    await world.lock();
 
-    (await this.world).deleteCampaignFromWorld(id);
+    world.deleteCampaignFromWorld(id);
   }
 }
