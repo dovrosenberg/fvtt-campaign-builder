@@ -125,11 +125,11 @@ export const useMainStore = defineStore('main', () => {
   };
 
   const refreshCampaign = function (): void {
-    if (!_currentCampaign.value)
+    if (!_currentCampaign.value || !currentWorld.value)
       return;
 
     // just force all reactivity to update
-    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc);
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentWorld.value as World);
   };
 
   const refreshSession = function (): void {

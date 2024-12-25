@@ -152,11 +152,14 @@ export const setFlag = async <
   }
 };
 
-// remove a key from an object flag
+/** 
+ * Remove a key from an object flag.  Generally most useful for things keyed by uuid.  For other fields, it will
+ * attempt to unset `flag.key`, or if key is missing just unsets `flag`
+ */
 export const unsetFlag = async <
   DocType extends ValidDocTypes,
   FK extends FlagKey<DocType> = FlagKey<DocType>,
-> (doc: DocType,flag: FK, key?: string): Promise<void> => {
+> (doc: DocType, flag: FK, key?: string): Promise<void> => {
   const config = getFlagSettingsFromDoc(doc).find((s)=>s.flagId===flag);
 
   if (!doc || !config)

@@ -65,33 +65,32 @@ export async function createRootFolder(name?: string): Promise<Folder> {
  * Will create new folders if missing.
  * @returns The root and world folders.
  */
-export async function getDefaultFolders(): Promise<{ rootFolder: Folder; worldFolder: Folder}> {
+export async function getDefaultFolders(): Promise<{ rootFolder: Folder; world: World}> {
   const rootFolder = await getRootFolder(); // will create if needed
   const worldId = UserFlags.get(UserFlagKey.currentWorld);  // this isn't world-specific (obviously)
 
   // make sure we have a default and it exists
-  let worldFolder = null as Folder | null;
+  let world = null as World | null;
   if (worldId) {
-    const baseItem = rootFolder.children.find((c)=>c.folder.uuid===worldId) || null;
-    worldFolder = baseItem?.folder || null;
+    world = World.fromUuid(worldId);
   }   
 
-  if (!worldId || !worldFolder) {
+  if (!world) {
     // couldn't find it, default to top if one exists
     if (rootFolder.children.length>0) {
-      worldFolder = rootFolder.children[0].folder as Folder;
+      world = World.fromUuid(rootFolder.children[0].folder);
     } else {
       // no world folder, so create one
-      worldFolder = await World.create(true);
+      world = await World.create(true);
 
       // if we couldn't create one, then throw an error
       // TODO- handle this more gracefully... allow the dialog to exist without a world, I guess
-      if (!worldFolder)
+      if (!world)
         throw new Error('Couldn\'t create world folder in compendia/index.getDefaultFolders()');
     }
   }
 
-  return { rootFolder, worldFolder };
+  return { rootFolder, world };
 }
 
 

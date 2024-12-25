@@ -142,7 +142,9 @@
           label: localize('contextMenus.worldFolder.createCampaign'), 
           onClick: async () => {
             if (worldId) {
-              await Campaign.create();
+              throw new Error('TODO: need to load the world and then call createCampaign... ideally have an array of worlds somewhere so don\'t have to load from disk');
+              const world = World.fromUuid(worldId);
+              await Campaign.create(world);
               await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }

@@ -1,6 +1,6 @@
 import { id } from '@module';
 import { SettingKey, SettingKeyType } from './ModuleSettings';
-import { CampaignFlags, WorldDoc } from 'src/documents';
+import { CampaignFlagKey, CampaignFlagType, WorldFlagKey, WorldFlagType } from '@/documents';
 
 export * from './UserFlags';
 export * from './ModuleSettings';
@@ -19,10 +19,15 @@ export const moduleId: ModuleId = id as ModuleId;
 
 type WorldFolderFlags = {
   [M in ModuleId]: {
-    [K in WorldDoc.FlagKey]: WorldDoc.FlagType<K>; 
+    [K in WorldFlagKey]: WorldFlagType<K>; 
   };
 }
 
+type CampaignFlags = {
+  [M in ModuleId]: {
+    [K in CampaignFlagKey]: CampaignFlagType<K>; 
+  };
+}
 type JournalEntryFlags = CampaignFlags;
 
 // settings

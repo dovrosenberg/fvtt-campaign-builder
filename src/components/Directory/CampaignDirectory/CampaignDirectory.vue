@@ -86,8 +86,8 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.campaignsHeader.createCampaign'), 
           onClick: async () => {
-            if (currentWorldId.value) {
-              await Campaign.create();
+            if (currentWorld.value) {
+              await Campaign.create(currentWorld.value);
               await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }

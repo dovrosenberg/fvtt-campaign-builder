@@ -8,7 +8,7 @@ export enum WorldFlagKey {
   isWorld = 'isWorld',    // used to mark the folder as a world
   compendiumId = 'compendiumId',   // the uuid for the world compendium 
   topicEntries = 'topicEntries',   // the JournalEntry uuid for each topic
-  campaignEntries = 'campaignEntries',   // name; keyed by journal entry uuid
+  campaignEntries = 'campaignEntries',   // name of each campaign; keyed by journal entry uuid
   types = 'types',  // object where each key is a Topic and the value is an array of valid types
   expandedIds = 'expandedIds',   // ids of nodes that are expanded in the tree (could be compendia or entries or subentries) - handles topic tree
   expandedCampaignIds = 'expandedCampaignIds',   // ids of nodes that are expanded in the campaign tree

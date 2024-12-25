@@ -125,10 +125,10 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
 
   const collapseAll = async(): Promise<void> => {
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return;
 
-    await WorldFlags.unset(currentWorldId.value, WorldFlagKey.expandedIds);
+    await currentWorld.value.collapseTopicDirectory();
 
     await refreshTopicDirectoryTree();
   };

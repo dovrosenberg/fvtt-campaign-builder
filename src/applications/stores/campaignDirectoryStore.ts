@@ -5,7 +5,6 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { reactive, Ref, ref, watch, } from 'vue';
 
 // local imports
-import { WorldFlagKey, WorldFlags } from '@/settings';
 import { useMainStore, useNavigationStore } from '@/applications/stores';
 import { DirectoryCampaignNode, Campaign, Session } from '@/classes';
 import { CampaignDoc, } from 'src/documents';
@@ -42,10 +41,10 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   };
 
   const collapseAll = async(): Promise<void> => {
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return;
 
-    await WorldFlags.unset(currentWorldId.value, WorldFlagKey.expandedCampaignIds);
+    await currentWorld.value.collapseCampaignDirectory();
 
     await refreshCampaignDirectoryTree();
   };

@@ -1,8 +1,10 @@
-import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey } from '@/settings'; 
-import { WorldDoc, WorldFlagKey, } from '@/documents';
+import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, unsetFlag, setFlag } from '@/settings'; 
+import { CampaignDoc, WorldDoc, WorldFlagKey, } from '@/documents';
 import { Hierarchy, Topic } from '@/types';
-import { getRootFolder, getTopicTextPlural, validateCompendia } from 'src/compendia';
-import { inputDialog } from 'src/dialogs/input';
+import { getRootFolder, getTopicTextPlural, } from '@/compendia';
+import { inputDialog } from '@/dialogs/input';
+import { Campaign } from './Campaign';
+import { Session } from './Session';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class World {
@@ -55,8 +57,9 @@ export class World {
     if (!worldDoc)
       return null;
     else {
-      return new World(worldDoc);
-      await worldDoc.validate();
+      const newWorld = new World(worldDoc);
+      // await worldDoc.validate();
+      return newWorld;
     }
   }
 
@@ -284,9 +287,15 @@ export class World {
           sorting: 'a',
         }]) as unknown as WorldDoc;
     
+        if (worldDoc) {
+          await setFlagDefaults(worldDoc);
+        };
+
         if (!worldDoc)
           throw new Error('Couldn\'t create new folder for world');
     
+        await setFlag(worldDoc, WorldFlagKey.isWorld, true);
+
         const newWorld = new World(worldDoc);
 
         // set as the current world
@@ -373,6 +382,45 @@ export class World {
 
     this._compendium = pack;
     this._compendiumId = pack.metadata.id;
+  }
+  
+  /**
+   * Unlock the world compendium to allow edits
+   */
+  public async unlock() {
+    await this._compendium.configure({locked:false});
+  }
+
+  /**
+   * Lock the world compendium to stop edits
+   */
+  public async lock() {
+    await this._compendium.configure({locked:true});
+  }
+  
+  public async collapseCampaignDirectory() {
+    // we just unset the entire expandedIds flag
+    await unsetFlag(this._worldDoc, WorldFlagKey.expandedCampaignIds);
+  }
+
+  public async collapseTopicDirectory() {
+    // we just unset the entire expandedIds flag
+    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds);
+  }
+
+  // remove a campaign from the world metadata
+  public deleteCampaignFromWorld(campaignId: string) {
+    // update the flags - this doesn't remove the whole flag, because the keys are flattened
+    await unsetFlag(this._worldDoc, WorldFlagKey.campaignEntries, campaignId);
+    await unsetFlag(this._worldDoc, WorldFlagKey.expandedCampaignIds, campaignId);
+  }  
+
+  // change a campaign name inside all the world metadata
+  public updateCampaignName(campaignId: string, name: string) {
+    await setFlag(this._worldDoc, WorldFlagKey.campaignEntries, {
+      ... (getFlag(this._worldDoc, WorldFlagKey.campaignEntries) || {}),
+      [campaignId]: name
+    });
   }
 }
 

@@ -22,7 +22,7 @@
 
   // local imports
   import { getDefaultFolders, } from '@/compendia';
-  import { SettingKey, moduleSettings, WorldFlags, WorldFlagKey } from '@/settings';
+  import { SettingKey, moduleSettings, } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
@@ -97,13 +97,13 @@
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = currentWorld.value.uuid;
 
-      const worldCompendium = game.packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
+      const worldCompendium = currentWorld.value.compendium || null;
 
       if (!worldCompendium)
         throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
 
-      const topicEntries = WorldFlags.get(worldId, WorldFlagKey.topicEntries);
-      const campaignEntries = WorldFlags.get(worldId, WorldFlagKey.campaignEntries);
+      const topicEntries = currentWorld.value.topicEntries;
+      const campaignEntries = currentWorld.value.campaignEntries;
       const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topic.Character]: null,
@@ -134,7 +134,6 @@
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
       Entry.worldCompendium = worldCompendium;
       Entry.worldId = worldId;
-      Campaign.worldCompendium = worldCompendium;
       Campaign.worldId = worldId;
       Session.worldCompendium = worldCompendium;
       Session.worldId = worldId;
@@ -150,17 +149,17 @@
 
     const folders = await getDefaultFolders();
 
-    if (folders && folders.rootFolder && folders.worldFolder) {
+    if (folders && folders.rootFolder && folders.world) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const worldId = folders.worldFolder.uuid;
+      const worldId = folders.world.uuid;
 
-      const worldCompendium = game.packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
+      const worldCompendium = folders.world.compendium || null;
 
       if (!worldCompendium)
         throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
 
-      const topicEntries = WorldFlags.get(worldId, WorldFlagKey.topicEntries);
-      const campaignEntries = WorldFlags.get(worldId, WorldFlagKey.campaignEntries);
+      const topicEntries = world.topicEntries;
+      const campaignEntries = world.campaignEntries;
       const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topic.Character]: null,
@@ -174,7 +173,7 @@
         const t = topics[i];
         
         // we need to load the actual entries - not just the index headers
-        topicJournals[t] = await(fromUuid(topicEntries[t])) as JournalEntry | null;
+        topicJournals[t] = (await fromUuid(topicEntries[t])) as JournalEntry | null;
 
         if (!topicJournals[t])
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
@@ -182,7 +181,7 @@
 
       for (let i=0; i<Object.keys(campaignEntries).length; i++) {
         // we need to load the actual entries - not just the index headers
-        const j = await(fromUuid(Object.keys(campaignEntries)[i])) as CampaignDoc | null;
+        const j = (await fromUuid(Object.keys(campaignEntries)[i])) as CampaignDoc | null;
         if (j) {
           campaignJournals[j.uuid] = j;
         }
@@ -191,7 +190,6 @@
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
       Entry.worldCompendium = worldCompendium;
       Entry.worldId = worldId;
-      Campaign.worldCompendium = worldCompendium;
       Campaign.worldId = worldId;
       Session.worldCompendium = worldCompendium;
       Session.worldId = worldId;

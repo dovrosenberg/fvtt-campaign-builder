@@ -120,7 +120,6 @@
 
   // local imports
   import { getTopicIcon, } from '@/utils/misc';
-  import { WorldFlagKey, WorldFlags } from '@/settings';
   import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
@@ -136,7 +135,6 @@
 
   // types
   import { ValidTopic, Topic, } from '@/types';
-  import { EntryDoc } from '@/documents';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -151,7 +149,7 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
-  const { currentEntry, currentWorldId, currentContentTab, } = storeToRefs(mainStore);
+  const { currentEntry, currentWorldId, currentWorld, currentContentTab, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -182,7 +180,7 @@
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
-  const typeList = computed((): string[] => (topic.value===null || !currentWorldId.value ? [] : WorldFlags.get(currentWorldId.value, WorldFlagKey.types)[topic.value]));
+  const typeList = computed((): string[] => (topic.value===null || !currentWorld.value ? [] : currentWorld.value.types[topic.value]));
 
   ////////////////////////////////
   // methods
@@ -213,10 +211,10 @@
 
   // new type added in the typeahead
   const onTypeItemAdded = async (added: string) => {
-    if (topic.value === null || !currentWorldId.value)
+    if (topic.value === null || !currentWorld.value)
       return;
 
-    const currentTypes = WorldFlags.get(currentWorldId.value, WorldFlagKey.types);
+    const currentTypes = currentWorld.value.types;
 
     // if not a duplicate, add to the valid type lists 
     if (!currentTypes[topic.value].includes(added)) {
@@ -224,7 +222,8 @@
         ...currentTypes,
         [topic.value]: currentTypes[topic.value].concat([added]),
       };
-      await WorldFlags.set(currentWorldId.value, WorldFlagKey.types, updatedTypes);
+      currentWorld.value.types = updatedTypes;
+      await currentWorld.value.save();
     }
 
     await onTypeSelectionMade(added);

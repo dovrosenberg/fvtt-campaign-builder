@@ -71,7 +71,7 @@ export const useSessionStore = defineStore('session', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentContentTab, currentSession, } = storeToRefs(mainStore);
+  const { currentContentTab, currentWorld, currentSession, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -107,10 +107,10 @@ export const useSessionStore = defineStore('session', () => {
    * @param actorId The id of the actor to add
    */
   async function addPC(actorId: string): Promise<void> {
-    if (!currentSession.value || !actorId)
+    if (!currentSession.value || !actorId || !currentWorld.value)
       throw new Error('Invalid session/Actor in sessionStore.addPC()');
 
-    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc); 
+    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc, currentWorld.value as World); 
 
     // update the campaign
     if (!campaign.pcs.includes(actorId)) {
@@ -126,10 +126,10 @@ export const useSessionStore = defineStore('session', () => {
    * @param actorId The id of the actor to remove
    */
   async function deletePC(actorId: string): Promise<void> {
-    if (!currentSession.value || !actorId)
+    if (!currentSession.value || !actorId ||!currentWorld.value)
       throw new Error('Invalid session/Actor in sessionStore.deletePC()');
 
-    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc); 
+    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc, currentWorld.value as World); 
 
     // update the campaign
     const pcs = [...campaign.pcs];
