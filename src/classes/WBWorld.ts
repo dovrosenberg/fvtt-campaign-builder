@@ -423,14 +423,14 @@ export class WBWorld {
     if (hierarchy) {
       // delete from any trees
       if (hierarchy?.ancestors || hierarchy?.children) {
-        await cleanTrees(this.id, topic, entryId, hierarchy);
+        await cleanTrees(this.uuid, topic, entryId, hierarchy);
       }
     }
 
     // remove from the top nodes
     const topNodes = WorldFlags.getTopicFlag(Entry.worldId, WorldFlagKey.topNodes, topic);
     await WorldFlags.setTopicFlag(Entry.worldId, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entryId));
-
+l
     // remove from the expanded list
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, entryId);
   }  
