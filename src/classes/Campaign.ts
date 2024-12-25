@@ -240,7 +240,7 @@ export class Campaign {
 
       // update the name
       if (updateData.name !== undefined) {
-        world.updateCampaignName(this.uuid, updateData.name);
+        await world.updateCampaignName(this.uuid, updateData.name);
       }
     }
     await world.lock();
@@ -270,6 +270,6 @@ export class Campaign {
 
     await world.lock();
 
-    world.deleteCampaignFromWorld(id);
+    await world.deleteCampaignFromWorld(id);
   }
 }

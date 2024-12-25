@@ -34,7 +34,7 @@
 
   // types
   import { Topic, ValidTopic } from '@/types';
-  import { CollapsibleNode, Entry, Campaign, Session } from '@/classes';
+  import { CollapsibleNode, Entry, } from '@/classes';
   import { CampaignDoc } from '@/documents';
   
   ////////////////////////////////

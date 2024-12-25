@@ -50,7 +50,6 @@
   // local imports
   import { localize } from '@/utils/game';
   import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
-  import { UserFlagKey, UserFlags } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components

@@ -288,7 +288,7 @@ export class WBWorld {
     
         if (worldDoc) {
           await setFlagDefaults(worldDoc);
-        };
+        }
 
         if (!worldDoc)
           throw new Error('Couldn\'t create new folder for world');

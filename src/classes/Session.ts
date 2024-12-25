@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, CampaignDoc } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { Campaign, WBWorld } from '@/classes';
 
