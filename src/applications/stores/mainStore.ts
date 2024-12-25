@@ -9,7 +9,7 @@ import { UserFlagKey, UserFlags, } from '@/settings';
 
 // types
 import { Topic, WindowTabType, DocumentLinkType } from '@/types';
-import { WindowTab, Entry, Campaign, Session, } from '@/classes';
+import { WBWorld, WindowTab, Entry, Campaign, Session, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc } from '@/documents';
 
 // the store definition
@@ -30,7 +30,7 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // external state
   const rootFolder = ref<Folder | null>(null);
-  const currentWorld = ref<World | null>(null);  // the current world folder
+  const currentWorld = ref<WBWorld | null>(null);  // the current world folder
 
   const currentWorldId = computed((): string | null => currentWorld.value ? currentWorld.value.uuid : null);
 
@@ -63,7 +63,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // load the world
-    const world = await World.fromUuid(worldId);
+    const world = await WBWorld.fromUuid(worldId);
     
     if (!world)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');
@@ -129,7 +129,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentWorld.value as World);
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentWorld.value as WBWorld);
   };
 
   const refreshSession = function (): void {

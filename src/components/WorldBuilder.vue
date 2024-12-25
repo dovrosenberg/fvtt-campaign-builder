@@ -134,7 +134,6 @@
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
       Entry.worldCompendium = worldCompendium;
       Entry.worldId = worldId;
-      Campaign.worldId = worldId;
       Session.worldCompendium = worldCompendium;
       Session.worldId = worldId;
       Session.currentCampaignJournals = campaignJournals;
@@ -190,7 +189,6 @@
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
       Entry.worldCompendium = worldCompendium;
       Entry.worldId = worldId;
-      Campaign.worldId = worldId;
       Session.worldCompendium = worldCompendium;
       Session.worldId = worldId;
       Session.currentCampaignJournals = campaignJournals;

@@ -143,7 +143,7 @@
           onClick: async () => {
             if (worldId) {
               throw new Error('TODO: need to load the world and then call createCampaign... ideally have an array of worlds somewhere so don\'t have to load from disk');
-              const world = World.fromUuid(worldId);
+              const world = WBWorld.fromUuid(worldId);
               await Campaign.create(world);
               await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }

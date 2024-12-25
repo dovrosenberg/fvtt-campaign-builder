@@ -49,7 +49,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   ///////////////////////////////
   // actions
   const createWorld = async(): Promise<void> => {
-    const world = await World.create(true);
+    const world = await WBWorld.create(true);
     if (world) {
       await mainStore.setNewWorld(world.uuid);
     }
@@ -471,7 +471,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // watchers
   // when the root folder changes, load the top level info (worlds and packs)
   // when the world changes, clean out the cache of loaded items
-  watch(currentWorld, async (newWorld: World | null): Promise<void> => {
+  watch(currentWorld, async (newWorld: WBWorld | null): Promise<void> => {
     if (!newWorld) {
       return;
     }

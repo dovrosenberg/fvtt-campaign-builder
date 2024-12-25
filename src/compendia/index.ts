@@ -3,7 +3,7 @@ import { localize } from '@/utils/game';
 import { Topic, } from '@/types';
 import { SettingKey, moduleSettings, UserFlagKey, UserFlags,} from '@/settings';
 import { toTopic } from '@/utils/misc';
-import { World } from '@/classes';
+import { WBWorld } from '@/classes';
 
 /**
  * Gets the root folder.
@@ -65,23 +65,23 @@ export async function createRootFolder(name?: string): Promise<Folder> {
  * Will create new folders if missing.
  * @returns The root and world folders.
  */
-export async function getDefaultFolders(): Promise<{ rootFolder: Folder; world: World}> {
+export async function getDefaultFolders(): Promise<{ rootFolder: Folder; world: WBWorld}> {
   const rootFolder = await getRootFolder(); // will create if needed
   const worldId = UserFlags.get(UserFlagKey.currentWorld);  // this isn't world-specific (obviously)
 
   // make sure we have a default and it exists
-  let world = null as World | null;
+  let world = null as WBWorld | null;
   if (worldId) {
-    world = World.fromUuid(worldId);
+    world = WBWorld.fromUuid(worldId);
   }   
 
   if (!world) {
     // couldn't find it, default to top if one exists
     if (rootFolder.children.length>0) {
-      world = World.fromUuid(rootFolder.children[0].folder);
+      world = WBWorld.fromUuid(rootFolder.children[0].folder);
     } else {
       // no world folder, so create one
-      world = await World.create(true);
+      world = await WBWorld.create(true);
 
       // if we couldn't create one, then throw an error
       // TODO- handle this more gracefully... allow the dialog to exist without a world, I guess

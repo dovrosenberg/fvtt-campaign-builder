@@ -14,7 +14,7 @@ import {
 } from '@/types';
 import { reactive, Ref, watch } from 'vue';
 import { ref } from 'vue';
-import { Campaign, Entry } from '@/classes';
+import { Campaign, WBWorld } from '@/classes';
 import { CampaignDoc } from 'src/documents';
 
 // the store definition
@@ -110,7 +110,7 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value || !actorId || !currentWorld.value)
       throw new Error('Invalid session/Actor in sessionStore.addPC()');
 
-    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc, currentWorld.value as World); 
+    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc, currentWorld.value as WBWorld); 
 
     // update the campaign
     if (!campaign.pcs.includes(actorId)) {
@@ -129,7 +129,7 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value || !actorId ||!currentWorld.value)
       throw new Error('Invalid session/Actor in sessionStore.deletePC()');
 
-    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc, currentWorld.value as World); 
+    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc, currentWorld.value as WBWorld); 
 
     // update the campaign
     const pcs = [...campaign.pcs];

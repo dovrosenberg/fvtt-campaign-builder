@@ -1,15 +1,14 @@
 import { toRaw } from 'vue';
 import { getFlag, moduleId, setFlagDefaults } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, SessionDoc, WorldDoc } from '@/documents';
-import { World } from '@/classes';
+import { WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs/input';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
-  static worldCompendium: CompendiumCollection<any> | undefined;
   static worldId: string = '';
 
-  private _world: World | null;  // the world the campaign is in (if we don't setup up front, we can load it later)
+  private _world: WBWorld | null;  // the world the campaign is in (if we don't setup up front, we can load it later)
   private _campaignDoc: CampaignDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
 
@@ -24,9 +23,9 @@ export class Campaign {
   /**
    * 
    * @param {CampaignDoc} campaignDoc - The entry Foundry document
-   * @param {World} world - The world the campaign is in
+   * @param {WBWorld} world - The world the campaign is in
    */
-  constructor(campaignDoc: CampaignDoc, world?: World) {
+  constructor(campaignDoc: CampaignDoc, world?: WBWorld) {
     // make sure it's the right kind of document
     if (campaignDoc.documentName !== 'JournalEntry' || !getFlag(campaignDoc, CampaignFlagKey.isCampaign))
       throw new Error('Invalid document type in Campaign constructor');
@@ -54,8 +53,8 @@ export class Campaign {
     return this._campaignDoc.uuid;
   }
 
-  // get the World object for the campaign
-  get world(): World {
+  // get the WBWorld object for the campaign
+  get world(): WBWorld {
     if (this._world)
       return this._world;
     else {
@@ -64,7 +63,7 @@ export class Campaign {
       if (!worldDoc)
         throw new Error('Invalid folder id in Campaign.getWorld()');
 
-      return new World(worldDoc);
+      return new WBWorld(worldDoc);
     }
   }
 
@@ -128,10 +127,10 @@ export class Campaign {
   /**
    * Creates a new campaign.  Prompts for a name.
    * 
-   * @param {World} world - The world to create the campaign in. 
+   * @param {WBWorld} world - The world to create the campaign in. 
    * @returns A promise that resolves when the campaign has been created, with either the resulting entry or null on error
    */
-  static async create(world: World): Promise<Campaign | null> {
+  static async create(world: WBWorld): Promise<Campaign | null> {
     // get the name
     let name;
 

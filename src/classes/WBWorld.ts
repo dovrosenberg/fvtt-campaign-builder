@@ -1,13 +1,11 @@
 import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, unsetFlag, setFlag } from '@/settings'; 
-import { CampaignDoc, WorldDoc, WorldFlagKey, } from '@/documents';
+import { WorldDoc, WorldFlagKey, } from '@/documents';
 import { Hierarchy, Topic } from '@/types';
 import { getRootFolder, getTopicTextPlural, } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
-import { Campaign } from './Campaign';
-import { Session } from './Session';
 
 // represents a topic entry (ex. a character, location, etc.)
-export class World {
+export class WBWorld {
   private _worldDoc: WorldDoc;   // this is the foundry folder
   private _compendium: CompendiumCollection;   // this is the main compendium
 
@@ -26,12 +24,12 @@ export class World {
   private _compendiumId;
 
   /**
-   * @param {WorldDoc} worldDoc - The world Foundry document
+   * @param {WorldDoc} worldDoc - The WBWorld Foundry document
    */
   constructor(worldDoc: WorldDoc) {
     // make sure it's the right kind of document
     if (worldDoc.documentName !== 'Folder' || !worldDoc.getFlag(moduleId, 'isWorld'))
-      throw new Error('Invalid document type in World constructor');
+      throw new Error('Invalid document type in WBWorld constructor');
 
     // clone it to avoid unexpected changes, also drop the proxy
     this._worldDoc = foundry.utils.deepClone(worldDoc);
@@ -51,13 +49,13 @@ export class World {
     }  
   }
 
-  static async fromUuid(worldId: string, options?: Record<string, any>): Promise<World | null> {
+  static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
     const worldDoc = await fromUuid(worldId, options) as WorldDoc;
 
     if (!worldDoc)
       return null;
     else {
-      const newWorld = new World(worldDoc);
+      const newWorld = new WBWorld(worldDoc);
       // await worldDoc.validate();
       return newWorld;
     }
@@ -244,9 +242,9 @@ export class World {
   /**
    * Updates a world in the database 
    * 
-   * @returns {Promise<World | null>} The updated World, or null if the update failed.
+   * @returns {Promise<WBWorld | null>} The updated WBWorld, or null if the update failed.
    */
-  public async save(): Promise<World | null> {
+  public async save(): Promise<WBWorld | null> {
     let success = false;
 
     const updateData = this._cumulativeUpdate;
@@ -269,7 +267,7 @@ export class World {
    * @param {boolean} [makeCurrent=false] If true, sets the new world as the current world.
    * @returns The new world, or null if the user cancelled the dialog.
    */
-  public static async create(makeCurrent = false): Promise<World | null> {
+  public static async create(makeCurrent = false): Promise<WBWorld | null> {
     const rootFolder = await getRootFolder(); // will create if needed
 
     // get the name
@@ -296,7 +294,7 @@ export class World {
     
         await setFlag(worldDoc, WorldFlagKey.isWorld, true);
 
-        const newWorld = new World(worldDoc);
+        const newWorld = new WBWorld(worldDoc);
 
         // set as the current world
         if (makeCurrent) {
@@ -329,7 +327,7 @@ export class World {
     }
 
     if (!this._compendium)
-      throw new Error('Failed to create compendium in World.validate()');
+      throw new Error('Failed to create compendium in WBWorld.validate()');
 
     // also need to create the journal entries
     // check them all
