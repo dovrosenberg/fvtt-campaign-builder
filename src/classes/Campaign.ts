@@ -160,8 +160,6 @@ export class Campaign {
 
         const newCampaign = new Campaign(newCampaignDoc, world);
 
-        Session.currentCampaignJournals[newCampaign.uuid] = newCampaignDoc;
-
         world.campaignEntries = {
           ...world.campaignEntries,
           [newCampaign.uuid]: name,
@@ -174,6 +172,45 @@ export class Campaign {
     // if name isn't '' and we're here, then we cancelled the dialog
     return null;
   }
+
+  /**
+   * Find all sessions for a given campaign
+   * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
+   *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
+   *            improvements in lots of places
+   * @param campaignId the campaign to search
+   * @param notRelatedTo if present, only return sessions that are not already linked to this session
+   * @returns a list of Entries
+   */
+  public async getSessions(notRelatedTo?: Session | undefined): Promise<Session[]> {
+    // we find all journal entries with this topic
+    let sessions = await this.filterSessions(()=>true);
+  
+    // filter unique ones if needed
+    if (notRelatedTo) {
+      const relatedEntries = notRelatedTo.getAllRelatedSessions(this.uuid);
+  
+      // also remove the current one
+      sessions = sessions.filter((session) => !relatedEntries.includes(session.uuid) && session.uuid !== notRelatedTo.uuid);
+    }
+  
+    return sessions;
+  }
+  
+  /**
+   * Given a topic and a filter function, returns all the matching Sessions
+   * inside this campaign
+   * 
+   * @param {ValidTopic} topic - The topic to filter
+   * @param {(e: Entry) => boolean} filterFn - The filter function
+   * @returns {Entry[]} The entries that pass the filter
+   */
+  public filterSessions(filterFn: (e: Session) => boolean): Session[] { 
+    return (this._campaignDoc.pages.contents as SessionDoc[])
+      .map((s: SessionDoc)=> new Session(s))
+      .filter((s: Session)=> filterFn(s));
+  }
+
   
   /**
    * Updates a campaign in the database 

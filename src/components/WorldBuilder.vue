@@ -133,10 +133,6 @@
 
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
       Entry.worldCompendium = worldCompendium;
-      Entry.worldId = worldId;
-      Session.worldCompendium = worldCompendium;
-      Session.worldId = worldId;
-      Session.currentCampaignJournals = campaignJournals;
       CollapsibleNode.currentWorldId = worldId;
     }
   });
@@ -188,10 +184,6 @@
 
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
       Entry.worldCompendium = worldCompendium;
-      Entry.worldId = worldId;
-      Session.worldCompendium = worldCompendium;
-      Session.worldId = worldId;
-      Session.currentCampaignJournals = campaignJournals;
       CollapsibleNode.currentWorldId = worldId;
       
       rootFolder.value = folders.rootFolder;

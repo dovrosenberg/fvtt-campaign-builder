@@ -65,7 +65,12 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     // get the all the campaigns 
     for (let i=0; i<Object.keys(campaigns).length; i++) {
       const id = Object.keys(campaigns)[i];
-      const children = (await Session.getSessionsForCampaign(id)).map(session => session.uuid);
+      const campaign = await Campaign.fromUuid(id);
+
+      if (!campaign)
+        throw new Error('Bad campaign in campaignDirectoryStore.refreshCampaignDirectoryTree()');
+
+      const children = (await campaign.getSessions()).map(session => session.uuid);
 
       currentCampaignTree.value.push(new DirectoryCampaignNode(
         id,

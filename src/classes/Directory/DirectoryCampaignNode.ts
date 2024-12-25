@@ -2,7 +2,7 @@
  * A class representing an node representing a campaign in the campaign tree structures
  */
 
-import { CollapsibleNode, DirectorySessionNode, Session, } from '@/classes';
+import { Campaign, CollapsibleNode, DirectorySessionNode, Session, } from '@/classes';
 import { WorldFlagKey } from '@/settings';
 
 export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode> {
@@ -33,8 +33,12 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
 
     // we only want to load ones not already in _loadedNodes, unless its in updateIds
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
-    
-    const sessions = Session.filter(this.id, (s: Session)=> uuidsToLoad.includes(s.uuid)) || [] as Session[];
+
+    const campaign = await Campaign.fromUuid(this.id);
+    if (!campaign)
+      throw new Error('Bad campaign id in DirectoryCampaignNode._loadNodeList()');
+
+    const sessions = campaign.filterSessions((s: Session)=> uuidsToLoad.includes(s.uuid)) || [] as Session[];
 
     for (let i=0; i<sessions.length; i++) {
       const newNode = DirectorySessionNode.fromSession(sessions[i], this.id);

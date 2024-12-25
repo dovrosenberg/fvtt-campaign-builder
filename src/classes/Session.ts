@@ -2,13 +2,11 @@ import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, SessionDoc, CampaignDoc } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
-import { Campaign } from '@/classes/Campaign';
+import { Campaign, WBWorld } from '@/classes';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Session {
-  static worldCompendium: CompendiumCollection<any> | undefined;
-  static worldId: string = '';
-  static currentCampaignJournals: Record<string, CampaignDoc> = {}; // keyed by id
+  public campaign: Campaign | null;  // the campaign the session is in (if we don't setup up front, we can load it later)
 
   private _sessionDoc: SessionDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
@@ -17,7 +15,7 @@ export class Session {
    * 
    * @param {SessionDoc} sessionDoc - The session Foundry document
    */
-  constructor(sessionDoc: SessionDoc) {
+  constructor(sessionDoc: SessionDoc, campaign?: Campaign) {
     // make sure it's the right kind of document
     if (sessionDoc.type !== DOCUMENT_TYPES.Session)
       throw new Error('Invalid document type in Session constructor');
@@ -25,8 +23,8 @@ export class Session {
     // clone it to avoid unexpected changes
     this._sessionDoc = foundry.utils.deepClone(sessionDoc);
     this._cumulativeUpdate = {};
+    this.campaign = campaign || null;
   }
-
 
   static async fromUuid(sessionId: string, options?: Record<string, any>): Promise<Session | null> {
     const sessionDoc = await fromUuid(sessionId, options) as SessionDoc;
@@ -37,12 +35,46 @@ export class Session {
       return new Session(sessionDoc);
   }
 
-  // creates a new session in the proper campaign journal in the given world
-  static async create(campaignId: string): Promise<Session | null> 
-  {
-    if (!Session.worldCompendium || !Session.currentCampaignJournals || !Session.currentCampaignJournals[campaignId])
-      throw new Error('No compendium or campaign journals in Session.create()');
+  /**
+   * Gets the Campaign associated with the session. If the campaign is already loaded, the promise resolves
+   * to the existing campaign; otherwise, it loads the campaign and then resolves to it.
+   * 
+   * @returns {Promise<Campaign>} A promise to the world associated with the campaign.
+   */
+  public async loadCampaign(): Promise<Campaign> {
+    if (this.campaign)
+      return this.campaign;
 
+    this.campaign = await Campaign.fromUuid(this._sessionDoc.parent.uuid);
+
+    if (!this.campaign)
+      throw new Error('Invalid folder id in Session.getCampaign()');
+
+    return this.campaign;
+  }
+  
+  /**
+   * Gets the world associated with a session, loading into the campaign 
+   * if needed.
+   * 
+   * @returns {Promise<Campaign>} A promise to the world associated with the campaign.
+   */
+  private async getWorld(): Promise<WBWorld> {
+    if (!this.campaign)
+      await this.loadCampaign();
+
+    const campaign = this.campaign as Campaign;
+
+    if (!campaign.world)
+      await campaign.loadWorld();
+
+    return campaign.world as WBWorld;
+  }
+  
+
+  // creates a new session in the proper campaign journal in the given world
+  static async create(campaign: Campaign ): Promise<Session | null> 
+  {
     let nameToUse = '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
       nameToUse = await inputDialog('Create Session', 'Session Name:'); 
@@ -52,11 +84,13 @@ export class Session {
     if (!nameToUse)
       return null;
 
-    // get the campaign so we can get next session number
-    const campaign = new Campaign(await fromUuid(campaignId) as CampaignDoc);
+    if (!campaign.world)
+      await campaign.loadWorld();
+
+    const world = campaign.world as WBWorld;
 
     // create the entry
-    await Session.worldCompendium.configure({locked:false});
+    await world.unlock();
 
     const sessionDoc = await JournalEntryPage.createDocuments([{
       type: DOCUMENT_TYPES.Session,
@@ -66,12 +100,12 @@ export class Session {
         description: '',
       }
     }],{
-      parent: Session.currentCampaignJournals[campaignId],
+      parent: campaign.raw as JournalEntry,
     }) as unknown as SessionDoc;
 
-    await Session.worldCompendium.configure({locked:true});
+    await world.lock();
 
-    return sessionDoc[0] ? new Session(sessionDoc[0]) : null;
+    return sessionDoc[0] ? new Session(sessionDoc[0], campaign) : null;
   }
 
   get uuid(): string {
@@ -136,13 +170,12 @@ export class Session {
    * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
    */
   public async save(): Promise<Session | null> {
-    if (!Session.worldCompendium)
-      throw new Error('No compendium in Session.save()');
+    const world = await this.getWorld();
 
     const updateData = this._cumulativeUpdate;
 
     // unlock compendium to make the change
-    await Session.worldCompendium.configure({locked:false});
+    await world.unlock();
 
     const retval = await toRaw(this._sessionDoc).update(updateData) || null;
     if (retval) {
@@ -151,69 +184,28 @@ export class Session {
 
     this._cumulativeUpdate = {};
 
-    await Session.worldCompendium.configure({locked:true});
+    await world.lock();
 
     return retval ? this : null;
   }
 
-  /**
-   * Given a topic and a filter function, returns all the matching Entries
-   * 
-   * @param {ValidTopic} topic - The topic to filter
-   * @param {(e: Entry) => boolean} filterFn - The filter function
-   * @returns {Entry[]} The entries that pass the filter
-   */
-  public static filter(campaignId: string, filterFn: (e: Session) => boolean): Session[] { 
-    if (!Session.currentCampaignJournals || !Session.currentCampaignJournals[campaignId])
-      return [];
-    
-    return (Session.currentCampaignJournals[campaignId].pages.contents as SessionDoc[])
-      .map((s: SessionDoc)=> new Session(s))
-      .filter((s: Session)=> filterFn(s));
-  }
+  public async delete() {
+    const id = this._sessionDoc.uuid;
 
-  public static async deleteSession(sessionId: string) {
-    const sessionDoc = await fromUuid(sessionId) as SessionDoc;
-
-    if (!sessionDoc || !Session.worldCompendium)
+    if (!this._sessionDoc)
       return;
 
+    const world = await this.getWorld() as WBWorld;
+
     // have to unlock the pack
-    await Session.worldCompendium.configure({locked:false});
+    await world.unlock();
+
+    await this._sessionDoc.delete();
 
     // remove from the expanded list
-    await WorldFlags.unset(Session.worldId, WorldFlagKey.expandedIds, sessionId);
+    await world.deleteSessionFromWorld(id);
 
-    await sessionDoc.delete();
-
-    await Session.worldCompendium.configure({locked:true});
-  }
-
-  /**
-   * Find all sessions for a given campaign
-   * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
-   *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
-   *            improvements in lots of places
-   * @param campaignId the campaign to search
-   * @param notRelatedTo if present, only return sessions that are not already linked to this session
-   * @returns a list of Entries
-   */
-  public static async getSessionsForCampaign(campaignId: string, notRelatedTo?: Session | undefined): Promise<Session[]> {
-    if (!Session.currentCampaignJournals || !Session.currentCampaignJournals[campaignId])
-      return [];
-  
-    // we find all journal entries with this topic
-    let sessions = await Session.filter(campaignId, ()=>true);
-  
-    // filter unique ones if needed
-    if (notRelatedTo) {
-      const relatedEntries = notRelatedTo.getAllRelatedSessions(campaignId);
-  
-      // also remove the current one
-      sessions = sessions.filter((session) => !relatedEntries.includes(session.uuid) && session.uuid !== notRelatedTo.uuid);
-    }
-  
-    return sessions;
+    await world.lock();
   }
   
   /**
