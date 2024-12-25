@@ -64,9 +64,6 @@ export class Entry {
   // if name is populated will skip the dialog
   static async create(topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> 
   {
-    if (!Entry.worldCompendium || !Entry.currentTopicJournals)
-      throw new Error('No world compendium or topic journals in Entry.create()');
-
     const topicText = getTopicText(topic);
 
     let nameToUse = options.name || '' as string | null;
@@ -122,11 +119,12 @@ export class Entry {
     };
   }
 
-  get topic(): ValidTopic | undefined {
+  get topic(): ValidTopic {
     return this._entryDoc.system.topic;
   }
 
   set topic(value: ValidTopic) {
+    throw new Error('Entry.topic is read-only - otherwise need to update all the world metadata???');
     this._entryDoc.system.topic = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
@@ -172,11 +170,11 @@ export class Entry {
   }
 
   // keyed by topic then by entryId
-  get relationships(): Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> | undefined {
+  get relationships(): Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> {
     return this._entryDoc.system.relationships;
   }  
 
-  set relationships(value: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> | undefined) {
+  set relationships(value: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>) {
     this._entryDoc.system.relationships = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
@@ -282,6 +280,7 @@ export class Entry {
 
     const world = this.world as WBWorld;
     const id = this.uuid;
+    const topic = this.topic;
 
     // have to unlock the pack
     await world.unlock();

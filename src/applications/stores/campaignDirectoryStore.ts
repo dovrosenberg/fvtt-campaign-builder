@@ -6,8 +6,7 @@ import { reactive, Ref, ref, watch, } from 'vue';
 
 // local imports
 import { useMainStore, useNavigationStore } from '@/applications/stores';
-import { DirectoryCampaignNode, Campaign, Session } from '@/classes';
-import { CampaignDoc, } from 'src/documents';
+import { DirectoryCampaignNode, Campaign, Session, WBWorld } from '@/classes';
 
 // types
 
@@ -99,13 +98,17 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   const deleteCampaign = async(campaignId: string): Promise<void> => {
     // have to delete all the sessions, too - not from the database (since deleting campaign
     //    will do that), but from the UI
-    const campaignDoc = await fromUuid(campaignId) as CampaignDoc;
-    const sessions = campaignDoc.pages.map(page => page.uuid);
+    const campaign = await Campaign.fromUuid(campaignId);
+
+    if (!campaign) 
+      throw new Error('Bad campaign in campaignDirectoryStore.deleteCampaign()');
+
+    const sessions = await campaign.getSessions();
     for (let i=0; i<sessions.length; i++) {
-      await navigationStore.cleanupDeletedEntry(sessions[i]);
+      await navigationStore.cleanupDeletedEntry(sessions[i].uuid);
     }
 
-    await Campaign.deleteCampaign(campaignId);
+    await campaign.delete();
 
     // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(campaignId);
@@ -114,7 +117,12 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   };
 
   const deleteSession = async (sessionId: string): Promise<void> => {
-    await Session.deleteSession(sessionId);
+    const session = await Session.fromUuid(sessionId);
+
+    if (!session) 
+      throw new Error('Bad session in campaignDirectoryStore.deleteSession()');
+
+    await session.delete();
 
     // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(sessionId);
@@ -123,7 +131,11 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   };
 
   const createSession = async (campaignId: string): Promise<Session | null> => {
-    const session = await Session.create(campaignId);
+    const campaign = await Campaign.fromUuid(campaignId);
+    if (!campaign)
+      throw new Error('Bad campaign in campaignDirectoryStore.createSession()');
+
+    const session = await Session.create(campaign);
 
     if (session) {
       await refreshCampaignDirectoryTree();

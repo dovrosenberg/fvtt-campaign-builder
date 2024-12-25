@@ -64,13 +64,13 @@ const deserializeEntryId = (entryId: string): string => { return entryId.replace
 // @ts-ignore - error because ts can't properly handle the structure of JournalEntryPage
 export interface EntryDoc extends JournalEntryPage {
   system: {
-    topic: ValidTopic | undefined;
-    type: string | undefined;
+    topic: ValidTopic;
+    type: string;
 
     /** 
      * Keyed by topic, then entryId 
      */ 
-    relationships: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> | undefined;  // keyed by topic then by entryId
+    relationships: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;  // keyed by topic then by entryId
 
     scenes: string[];
     actors: string[];
