@@ -5,7 +5,7 @@ import { defineStore, } from 'pinia';
 import { computed, ref, } from 'vue';
 
 // local imports
-import { UserFlagKey, UserFlags, WorldFlags, WorldFlagKey } from '@/settings';
+import { UserFlagKey, UserFlags, } from '@/settings';
 
 // types
 import { Topic, WindowTabType, DocumentLinkType } from '@/types';
@@ -30,15 +30,15 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // external state
   const rootFolder = ref<Folder | null>(null);
-  const currentWorldFolder = ref<Folder | null>(null);  // the current world folder
+  const currentWorld = ref<World | null>(null);  // the current world folder
 
-  const currentWorldId = computed((): string | null => currentWorldFolder.value ? currentWorldFolder.value.uuid : null);
+  const currentWorldId = computed((): string | null => currentWorld.value ? currentWorld.value.uuid : null);
 
   const currentWorldCompendium = computed((): CompendiumCollection<any> => {
     if (!currentWorldId.value)
       throw new Error('No currentWorldId in mainStore.currentWorldCompendium()');
 
-    const pack = game.packs?.get(WorldFlags.get(currentWorldId.value, WorldFlagKey.worldCompendium)) || null;
+    const pack = currentWorld.value?.compendium || null;
     if (!pack)
       throw new Error('Bad compendia in mainStore.currentWorldCompendium()');
 
@@ -62,13 +62,13 @@ export const useMainStore = defineStore('main', () => {
     if (!worldId)
       return;
 
-    // load the folder
-    const folder = game?.folders?.find((f)=>f.uuid===worldId) || null;
+    // load the world
+    const world = await World.fromUuid(worldId);
     
-    if (!folder)
+    if (!world)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');
 
-    currentWorldFolder.value = folder;
+    currentWorld.value = world;
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };
@@ -179,7 +179,7 @@ export const useMainStore = defineStore('main', () => {
     currentDocumentTab,
     directoryCollapsed,
     currentWorldId,
-    currentWorldFolder,
+    currentWorld,
     currentEntryTopic,
     currentEntry,
     currentCampaign,

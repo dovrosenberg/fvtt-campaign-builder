@@ -8,7 +8,7 @@ import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 import { moduleSettings, SettingKey, WorldFlagKey, WorldFlags } from '@/settings';
 import { hasHierarchy, Hierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
-import { createWorldFolder, getTopicTextPlural, validateCompendia } from '@/compendia';
+import { getTopicTextPlural, } from '@/compendia';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, } from '@/classes';
@@ -23,7 +23,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { rootFolder, currentWorldId, currentWorldFolder,} = storeToRefs(mainStore); 
+  const { rootFolder, currentWorldId, currentWorld,} = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -49,9 +49,9 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   ///////////////////////////////
   // actions
   const createWorld = async(): Promise<void> => {
-    const worldFolder = await createWorldFolder(true);
-    if (worldFolder) {
-      await mainStore.setNewWorld(worldFolder.uuid);
+    const world = await World.create(true);
+    if (world) {
+      await mainStore.setNewWorld(world.uuid);
     }
 
     await refreshTopicDirectoryTree();
@@ -471,12 +471,12 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // watchers
   // when the root folder changes, load the top level info (worlds and packs)
   // when the world changes, clean out the cache of loaded items
-  watch(currentWorldFolder, async (newWorldFolder: Folder | null): Promise<void> => {
-    if (!newWorldFolder) {
+  watch(currentWorld, async (newWorld: World | null): Promise<void> => {
+    if (!newWorld) {
       return;
     }
 
-    await validateCompendia(newWorldFolder);
+    await newWorld?.validate();
     await refreshTopicDirectoryTree();
   });
   

@@ -21,7 +21,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId, currentWorldFolder, } = storeToRefs(mainStore); 
+  const { currentWorldId, currentWorld, } = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -58,8 +58,8 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
     isCampaignTreeLoading.value = true;
 
-    const campaigns = WorldFlags.get(currentWorldId.value, WorldFlagKey.campaignEntries) || {};  
-    const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedCampaignIds) || {};
+    const campaigns = currentWorld.value?.campaignEntries || {};  
+    const expandedNodes = currentWorld.value?.expandedCampaignIds || {};
 
     currentCampaignTree.value = [];
     
@@ -139,8 +139,8 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // watchers
 
   // when the world changes, clean out the cache of loaded items
-  watch(currentWorldFolder as Ref<Folder | null>, async (newWorldFolder: Folder | null): Promise<void> => {
-    if (!newWorldFolder) {
+  watch(currentWorld as Ref<World | null>, async (newWorld: World | null): Promise<void> => {
+    if (!newWorld) {
       currentCampaignTree.value = [];
       return;
     }

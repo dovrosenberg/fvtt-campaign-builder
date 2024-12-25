@@ -47,7 +47,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldFolder, rootFolder, directoryCollapsed } = storeToRefs(mainStore);
+  const { currentWorld, rootFolder, directoryCollapsed } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -92,10 +92,10 @@
 
   ////////////////////////////////
   // watchers
-  watch(() => currentWorldFolder.value, async () => {
-    if (currentWorldFolder.value) {
+  watch(() => currentWorld.value, async () => {
+    if (currentWorld.value) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const worldId = currentWorldFolder.value.uuid;
+      const worldId = currentWorld.value.uuid;
 
       const worldCompendium = game.packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
 
@@ -199,7 +199,7 @@
       CollapsibleNode.currentWorldId = worldId;
       
       rootFolder.value = folders.rootFolder;
-      currentWorldFolder.value = folders.worldFolder;
+      currentWorld.value = folders.world;
 
     } else {
       throw new Error('Failed to load or create folder structure');

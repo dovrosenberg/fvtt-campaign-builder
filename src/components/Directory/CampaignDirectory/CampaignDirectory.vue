@@ -2,7 +2,7 @@
   <!-- these are the campaigns -->
   <ol class="fwb-campaign-list">
     <li 
-      v-if="currentWorldFolder" 
+      v-if="currentWorld" 
       class="fwb-world-folder folder flexcol" 
     >
       <header 
@@ -11,7 +11,7 @@
       >
         <h3 class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
-          {{ currentWorldFolder.name }} Campaigns
+          {{ currentWorld.name }} Campaigns
         </h3>
       </header>
 
@@ -55,7 +55,7 @@
   // store
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentWorldFolder, currentWorldId } = storeToRefs(mainStore);
+  const { currentWorld, currentWorldId } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data

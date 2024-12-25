@@ -6,7 +6,7 @@
       </div>
     </div>
     <h3>
-      {{ currentWorldFolder?.name }}
+      {{ currentWorld?.name }}
     </h3>
     <br>
     <br>
@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref } from 'vue';
+  import { ref } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -70,7 +70,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldFolder } = storeToRefs(mainStore);
+  const { currentWorld } = storeToRefs(mainStore);
   const { recent } = storeToRefs(navigationStore);
 
   ////////////////////////////////
