@@ -2,7 +2,6 @@ import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, SessionDoc, CampaignDoc } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
-import { WorldFlagKey, WorldFlags } from '@/settings';
 import { Campaign } from '@/classes/Campaign';
 
 // represents a topic entry (ex. a character, location, etc.)

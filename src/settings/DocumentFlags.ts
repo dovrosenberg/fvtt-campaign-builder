@@ -2,9 +2,16 @@
 // we store all the compendia status info here in the hopes that it's stored on the server, though that's unclear to me
 // also, when the world is deleted, they'll all get cleaned up
 
-import { CampaignDoc, CampaignFlagKey, CampaignFlagType, WorldDoc, WorldFlagKey, WorldFlagType } from '@/documents';
-import { flagSettings as worldFlagSettings } from '@/documents/world';
-import { flagSettings as campaignFlagSettings } from '@/documents/campaign';
+import { 
+  CampaignDoc, 
+  CampaignFlagKey, 
+  CampaignFlagType, 
+  WorldDoc, 
+  WorldFlagKey, 
+  WorldFlagType, 
+  worldFlagSettings, 
+  campaignFlagSettings 
+} from '@/documents';
 
 import { moduleId } from '.';
 
@@ -65,7 +72,7 @@ type DocFlagSettings<T extends ValidDocTypes> =
   never;
   
   
-  export function isWorldDoc(doc: ValidDocTypes): doc is WorldDoc {
+export function isWorldDoc(doc: ValidDocTypes): doc is WorldDoc {
   // @ts-ignore - not entirely sure why TS can't figure this out
   return doc.getFlag(moduleId, 'isWorld') === true;
 }

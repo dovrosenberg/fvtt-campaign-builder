@@ -28,6 +28,8 @@ type CampaignFlags = {
     [K in CampaignFlagKey]: CampaignFlagType<K>; 
   };
 }
+
+type FolderFlags = WorldFolderFlags;
 type JournalEntryFlags = CampaignFlags;
 
 // settings
@@ -38,7 +40,7 @@ type WBSettings = {
 declare global {
   interface FlagConfig {
     JournalEntry: JournalEntryFlags;
-    Folder: WorldFolderFlags;
+    Folder: FolderFlags;
   }
 
   interface SettingConfig extends WBSettings {}

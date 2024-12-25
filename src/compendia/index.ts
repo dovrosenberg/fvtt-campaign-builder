@@ -72,23 +72,22 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder; world: 
   // make sure we have a default and it exists
   let world = null as WBWorld | null;
   if (worldId) {
-    world = WBWorld.fromUuid(worldId);
+    world = await WBWorld.fromUuid(worldId);
   }   
 
   if (!world) {
     // couldn't find it, default to top if one exists
-    if (rootFolder.children.length>0) {
-      world = WBWorld.fromUuid(rootFolder.children[0].folder);
+    if (rootFolder.children.length>0 && rootFolder.children[0]?.folder?.uuid) {
+      world = await WBWorld.fromUuid(rootFolder.children[0].folder.uuid);
     } else {
       // no world folder, so create one
       world = await WBWorld.create(true);
-
-      // if we couldn't create one, then throw an error
-      // TODO- handle this more gracefully... allow the dialog to exist without a world, I guess
-      if (!world)
-        throw new Error('Couldn\'t create world folder in compendia/index.getDefaultFolders()');
     }
   }
+
+  // if we couldn't create one, then throw an error
+  if (!world)
+    throw new Error('Couldn\'t create world folder in compendia/index.getDefaultFolders()');
 
   return { rootFolder, world };
 }

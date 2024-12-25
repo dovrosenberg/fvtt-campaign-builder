@@ -5,7 +5,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 
 // local imports
-import { moduleSettings, SettingKey, WorldFlagKey, WorldFlags } from '@/settings';
+import { moduleSettings, SettingKey, } from '@/settings';
 import { hasHierarchy, Hierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';

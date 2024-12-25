@@ -40,7 +40,8 @@ export class ModuleSettings {
   }
 
   public async set<T extends SettingKey>(setting: T, value: SettingKeyType<T>): Promise<void> {
-    await game.settings.set(moduleId, setting, value);
+    // @ts-ignore - not sure how to fix the typing
+    await game.settings.set(moduleId, setting, value as SettingKeyType<setting>);
   }
 
   private register(settingKey: SettingKey, settingConfig: ClientSettings.RegisterOptions<string | boolean>) {

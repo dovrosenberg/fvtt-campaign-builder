@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { getFlag, moduleId, setFlagDefaults } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, SessionDoc, WorldDoc } from '@/documents';
-import { WBWorld } from '@/classes';
+import { Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs/input';
 
 // represents a topic entry (ex. a character, location, etc.)
@@ -19,7 +19,6 @@ export class Campaign {
   private _description: string;
   private _pcs: string[];   // Actor ids
 
-
   /**
    * 
    * @param {CampaignDoc} campaignDoc - The entry Foundry document
@@ -36,7 +35,7 @@ export class Campaign {
     this._world = world || null;
 
     this._description = getFlag(this._campaignDoc, CampaignFlagKey.description) || '';
-    this._campaignDoc.getFlag(moduleId, CampaignFlagKey.pcs) || [];
+    this._pcs = getFlag(this._campaignDoc, CampaignFlagKey.pcs) || [];
   }
 
   static async fromUuid(entryId: string, options?: Record<string, any>): Promise<Campaign | null> {
@@ -53,18 +52,27 @@ export class Campaign {
     return this._campaignDoc.uuid;
   }
 
-  // get the WBWorld object for the campaign
-  get world(): WBWorld {
-    if (this._world)
-      return this._world;
-    else {
-      const worldDoc = await fromUuid(this._campaignDoc.folder) as WorldDoc;
+  /**
+   *
+   * Get the WBWorld object for the campaign. Poduces a promise so needs to be awaited.
+   *
+   * @readonly
+   * @type {Promixe<WbWorld>} Note that it's a promise
+   * @memberof Campaign
+   */
+  get world(): Promise<WBWorld> {
+    return (async (): Promise<WBWorld> => {
+      if (this._world)
+        return this._world;
+      else {
+        const worldDoc = await fromUuid(this._campaignDoc.folder) as WorldDoc;
 
-      if (!worldDoc)
-        throw new Error('Invalid folder id in Campaign.getWorld()');
+        if (!worldDoc)
+          throw new Error('Invalid folder id in Campaign.getWorld()');
 
-      return new WBWorld(worldDoc);
-    }
+        return new WBWorld(worldDoc);
+      }
+    })();
   }
 
   // we return the next number after the highest currently existing sessio nnumber
@@ -113,11 +121,11 @@ export class Campaign {
   }
 
   get pcs(): readonly string[] {
-    return this.pcs;
+    return this._pcs;
   }
 
   set pcs(value: string[]) {
-    this.pcs = value;
+    this._pcs = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       [`flags.${moduleId}.pcs`]: value
@@ -139,7 +147,7 @@ export class Campaign {
       
       if (name) {
         // unlock the world to allow edits
-        world.unlock();
+        await world.unlock();
 
         // create a journal entry for the campaign
         const newCampaignDoc = await JournalEntry.create({
@@ -150,7 +158,7 @@ export class Campaign {
 
         if (newCampaignDoc) {
           await setFlagDefaults(newCampaignDoc);
-        };
+        }
 
         await world.lock();
 
@@ -161,10 +169,10 @@ export class Campaign {
 
         Session.currentCampaignJournals[newCampaign.uuid] = newCampaignDoc;
 
-        world.campaignEntries = [
+        world.campaignEntries = {
           ...world.campaignEntries,
-          [newCampaign.uuid]: name
-        ];
+          [newCampaign.uuid]: name,
+        };
         
         return newCampaign;
       }
@@ -183,7 +191,7 @@ export class Campaign {
     const updateData = this._cumulativeUpdate;
 
     // unlock compendium to make the change
-    await this.world.unlock();
+    await (await this.world).unlock();
 
     let success = false;
     if (Object.keys(updateData).length !== 0) {
@@ -197,10 +205,10 @@ export class Campaign {
 
       // update the name
       if (updateData.name !== undefined) {
-        this.world.updateCampaignName(this.uuid, updateData.name);
+        (await this.world).updateCampaignName(this.uuid, updateData.name);
       }
     }
-    await this.world.lock();
+    await (await this.world).lock();
 
     return success ? this : null;
   }
@@ -217,12 +225,12 @@ export class Campaign {
     const id = this._campaignDoc.uuid;
 
     // have to unlock the pack
-    await this.world.unlock();
+    await (await this.world).unlock();
 
     await this._campaignDoc.delete();
 
-    await this.world.lock();
+    await (await this.world).lock();
 
-    this.world.deleteCampaignFromWorld(id);
+    (await this.world).deleteCampaignFromWorld(id);
   }
 }

@@ -5,7 +5,6 @@
 
 import { ValidTopic, } from '@/types';
 import { Entry, CollapsibleNode, DirectoryTopicTreeNode } from '@/classes';
-import { WorldFlags } from '@/settings';
 import { Hierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 
 export class DirectoryEntryNode extends DirectoryTopicTreeNode {
