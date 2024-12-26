@@ -57,7 +57,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  import { Entry, DirectoryEntryNode, } from '@/classes';
+  import { Topic, Entry, DirectoryEntryNode, } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -71,7 +71,7 @@
       required: true
     },
     topic: {
-      type: Number as PropType<ValidTopic>,
+      type: Object as PropType<Topic>,
       required: true
     },
     top: {    // applies class to top level
@@ -130,7 +130,7 @@
     }
 
     const dragData = { 
-      topic:  props.topic,
+      topic:  props.topic.topic,
       childId: id,
     } as { topic: ValidTopic; childId: string};
 
@@ -157,7 +157,7 @@
         return false;
 
       // if the types don't match or don't have hierarchy, can't drop
-      if (data.topic!==props.topic || !hasHierarchy(props.topic))
+      if (data.topic!==props.topic.topic || !hasHierarchy(props.topic.topic))
         return false;
 
       // is this a legal parent?
@@ -166,7 +166,7 @@
       if (!childEntry)
         return false;
 
-      if (!(validParentItems(currentWorld.value, props.topic, childEntry)).find(e=>e.id===parentId))
+      if (!(validParentItems(currentWorld.value as WBWorld, props.topic, childEntry)).find(e=>e.id===parentId))
         return false;
 
       // add the dropped item as a child on the other (will also refresh the tree)

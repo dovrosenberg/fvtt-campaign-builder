@@ -12,7 +12,7 @@ export type CreateEntryOptions = { name?: string; type?: string; parentId?: stri
 export class Entry {
   static currentTopicJournals: Record<ValidTopic, JournalEntry>;
 
-  public topic: Topic | null;
+  public parentTopic: Topic | null;
 
   private _entryDoc: EntryDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
@@ -29,7 +29,7 @@ export class Entry {
     // clone it to avoid unexpected changes
     this._entryDoc = foundry.utils.deepClone(entryDoc);
     this._cumulativeUpdate = {};
-    this.topic = topic || null;
+    this.parentTopic = topic || null;
   }
 
   static async fromUuid(entryId: string, options?: Record<string, any>): Promise<Entry | null> {
@@ -47,23 +47,23 @@ export class Entry {
    * @returns {Promise<Topic>} A promise to the Topic  associated with the entry.
    */
   public async loadTopic(): Promise<Topic> {
-    if (this.topic)
-      return this.topic;
+    if (this.parentTopic)
+      return this.parentTopic;
     
-    this.topic = await Topic.fromUuid(this._entryDoc.parent.uuid) as TopicDoc;
+    this.parentTopic = await Topic.fromUuid(this._entryDoc.parent.uuid) as TopicDoc;
 
-    if (!this.topic)
+    if (!this.parentTopic)
       throw new Error('Invalid entry in Entry.getTopic()');
 
-    return this.topic;
+    return this.parentTopic;
   }
   
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
-  static async create(topic: Topic, options: CreateEntryOptions): Promise<Entry | null> 
+  static async create(parentTopic: Topic, options: CreateEntryOptions): Promise<Entry | null> 
   {
-    const topicText = getTopicText(topic);
-    const world = topic.getWorld();
+    const topicText = getTopicText(topic.topic);
+    const world = await parentTopic.getWorld();
 
     let nameToUse = options.name || '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
@@ -83,7 +83,7 @@ export class Entry {
       name: nameToUse,
       system: {
         type: options.type || '',
-        topic: topic,
+        topic: parentTopic.topic,
         relationships: {
           [Topics.Character]: {},
           [Topics.Event]: {},
@@ -94,13 +94,13 @@ export class Entry {
         scenes: [],
       }
     }],{
-      parent: Entry.currentTopicJournals[topic],
+      parent: Entry.currentTopicJournals[parentTopic.topic],
     }) as unknown as EntryDoc[];
 
     await world.lock();
 
     if (entryDoc) {
-      const entry = new Entry(entryDoc[0], world);
+      const entry = new Entry(entryDoc[0], parentTopic);
       return entry;
     } else {
       return null;
@@ -123,21 +123,9 @@ export class Entry {
     };
   }
 
-  TODO - reconcile this with the other topic property!
+  // topic is read-only
   get topic(): ValidTopic {
     return this._entryDoc.system.topic;
-  }
-
-  set topic(value: ValidTopic) {
-    throw new Error('Entry.topic is read-only - otherwise need to update all the world metadata???');
-    this._entryDoc.system.topic = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      system: {
-        ...this._cumulativeUpdate.system,
-        topic: value,
-      }
-    };
   }
 
   get type(): string {
@@ -221,10 +209,10 @@ export class Entry {
     * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
     */
   public async getWorld(): Promise<WBWorld> {
-    if (!this.topic)
+    if (!this.parentTopic)
       await this.loadTopic();
   
-    const topic = this.topic as Topic;
+    const topic = this.parentTopic as Topic;
     return topic.getWorld();
   }
   
@@ -276,27 +264,11 @@ export class Entry {
     return retval ? this : null;
   }
 
-  /**
-   * Given a topic and a filter function, returns all the matching Entries
-   * 
-   * @param {ValidTopic} topic - The topic to filter
-   * @param {(e: Entry) => boolean} filterFn - The filter function
-   * @returns {Entry[]} The entries that pass the filter
-   */
-  public static filter(topic: ValidTopic, filterFn: (e: Entry) => boolean): Entry[] { 
-    if (!Entry.currentTopicJournals || !Entry.currentTopicJournals[topic])
-      return [];
-    
-    return  (Entry.currentTopicJournals[topic].pages.contents as EntryDoc[])
-      .map((e: EntryDoc)=> new Entry(e))
-      .filter((e: Entry)=> filterFn(e));
-  }
-
   public async deleteEntry() {
     const world = await this.getWorld();
 
     const id = this.uuid;
-    const topic = this.topic;
+    const topic = this.parentTopic?.topic;
 
     // have to unlock the pack
     await world.unlock();
@@ -311,6 +283,9 @@ export class Entry {
     // TODO - remove from search
   }
 
+  
+
+    
   /**
    * Find all journal entries of a given topic
    * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
@@ -320,12 +295,12 @@ export class Entry {
    * @param notRelatedTo if present, only return entries that are not already linked to this entry
    * @returns a list of Entries
    */
-  public static async getEntriesForTopic(topic: ValidTopic, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
+  public static async getEntriesForTopic(topic: Topic, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
     if (!Entry.currentTopicJournals || !Entry.currentTopicJournals[topic])
       return [];
 
     // we find all journal entries with this topic
-    let entries = await Entry.filter(topic, ()=>true);
+    let entries = await topic.filter(()=>true);
 
     // filter unique ones if needed
     if (notRelatedTo) {
@@ -344,15 +319,15 @@ export class Entry {
    * @param topic - The topic for which to retrieve related items.
    * @returns An array of related uuids. Returns an empty array if there is no current entry.
    */
-  public getAllRelatedEntries(topic: ValidTopic): string[] {
+  public getAllRelatedEntries(topic: Topic): string[] {
     // get relationships
     const relationships = this.relationships || {};
 
-    if (!relationships[topic])
+    if (!relationships[topic.topic])
       return [];
 
     // if the flag has this topic, it's a Record keyed by uuid
-    return Object.keys(relationships[topic]);
+    return Object.keys(relationships[topic.topic]);
   }
   
 }

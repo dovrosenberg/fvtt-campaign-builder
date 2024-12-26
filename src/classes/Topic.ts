@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { getFlag, moduleId, setFlag, setFlagDefaults, } from '@/settings'; 
-import { TopicDoc, WorldDoc, TopicFlagKey, topicFlagSettings } from '@/documents';
-import { WBWorld } from '@/classes';
+import { TopicDoc, WorldDoc, TopicFlagKey, topicFlagSettings, EntryDoc } from '@/documents';
+import { Entry, WBWorld } from '@/classes';
 import { ValidTopic } from '@/types';
 import { getTopicTextPlural } from '@/compendia';
 
@@ -180,6 +180,19 @@ export class Topic {
     return newTopic;
   }
   
+  /**
+   * Given a filter function, returns all the matching Entries
+   * inside this topic
+   * 
+   * @param {(e: Entry) => boolean} filterFn - The filter function
+   * @returns {Entry[]} The entries that pass the filter
+   */
+  public filterEntries(filterFn: (e: Entry) => boolean): Entry[] { 
+    return (this._topicDoc.pages.contents as unknown as EntryDoc[])
+      .map((e: EntryDoc)=> new Entry(e, this))
+      .filter((e: Entry)=> filterFn(e));
+  }
+
   /**
    * Updates a topic in the database 
    * 

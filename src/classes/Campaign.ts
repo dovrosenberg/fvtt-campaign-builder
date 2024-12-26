@@ -217,16 +217,15 @@ export class Campaign {
   }
   
   /**
-   * Given a topic and a filter function, returns all the matching Sessions
+   * Given a filter function, returns all the matching Sessions
    * inside this campaign
    * 
-   * @param {ValidTopic} topic - The topic to filter
    * @param {(e: Entry) => boolean} filterFn - The filter function
    * @returns {Entry[]} The entries that pass the filter
    */
   public filterSessions(filterFn: (e: Session) => boolean): Session[] { 
     return (this._campaignDoc.pages.contents as unknown as SessionDoc[])
-      .map((s: SessionDoc)=> new Session(s))
+      .map((s: SessionDoc)=> new Session(s, this))
       .filter((s: Session)=> filterFn(s));
   }
 

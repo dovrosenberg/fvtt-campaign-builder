@@ -6,13 +6,13 @@ import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 
 // local imports
 import { moduleSettings, SettingKey, } from '@/settings';
-import { hasHierarchy, Hierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
+import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
 
 // types
-import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, } from '@/classes';
-import { DirectoryWorld, Topics, ValidTopic, } from '@/types';
+import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, Topic, } from '@/classes';
+import { DirectoryWorld, Hierarchy, Topics, ValidTopic, } from '@/types';
 
 // the store definition
 export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
@@ -137,7 +137,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // set the parent for a node, cleaning up all associated relationships/records
   // pass a null parent to make it a top node
   // returns wheether it was successful
-  const setNodeParent = async function(topic: Topics, childId: string, parentId: string | null): Promise<boolean> {
+  const setNodeParent = async function(topic: Topic, childId: string, parentId: string | null): Promise<boolean> {
     if (!currentWorld.value)
       return false;
 
@@ -151,7 +151,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     };
 
     // topic has to have hierarchy
-    if (!hasHierarchy(topic))
+    if (!hasHierarchy(topic.topic))
       return false;
 
     // have to have a child
@@ -175,7 +175,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return false;
 
     // make sure they share a topic 
-    if (child.topic !== parent.topic)
+    if (child.topic.topic !== parent.topic.topic)
       return false;
      
     // next, confirm it's a valid target (the child must not be in the parent's ancestor list - or we get loops)
@@ -250,7 +250,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     // if the child doesn't have a parent, make sure it's in the topnode list
     //    and vice versa
-    let topNodes = currentWorld.value.topics[topic].topNodes || [];
+    let topNodes = topic.topNodes || [];
 
     if (!parentNode && !topNodes.includes(childId)) {
       topNodes = topNodes.concat([childId]);
@@ -258,15 +258,16 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       topNodes = topNodes.filter((n)=>n!==childId);
     }
     
-    currentWorld.value.topics[topic].topNodes = topNodes;
-    await currentWorld.value.topics[topic].save();
+    topic.topNodes = topNodes;
+    await topic.save();
 
     await refreshTopicDirectoryTree([parentId, oldParentId].filter((id)=>id!==null));
 
     return true;
   };
 
-  const createEntry = async (topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> => {
+
+  const c = async (topic: Topic, options: CreateEntryOptions): Promise<Entry | null> => {
     if (!currentWorld.value)
       return null;
 
@@ -289,12 +290,12 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       // set parent if specified
       if (options.parentId==undefined) {
         // no parent - set as a top node
-        const topNodes = currentWorld.value.topics[topic].topNodes;
-        currentWorld.value.topics[topic].topNodes = topNodes.concat([uuid]);
-        await currentWorld.value.topics[topic].save();
+        const topNodes = topic.topNodes;
+        topic.topNodes = topNodes.concat([uuid]);
+        await topic.save();
       } else {
         // add to the tree
-        if (hasHierarchy(topic)) {
+        if (hasHierarchy(topic.topic)) {
           // this creates the proper hierarchy
           await setNodeParent(topic, uuid, options.parentId);
         }
@@ -447,6 +448,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     for (let i=0; i<topics.length; i++) {
       // filter on name and type
+      throw new Error('need to get the Topic objects in here');
       let matchedEntries = Entry.filter(topics[i], (e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )))
         .map((e: Entry): string=>e.uuid) as string[];
   

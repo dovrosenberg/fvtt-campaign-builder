@@ -2,13 +2,12 @@
  * An abstract class representing a node of any sort in the topic tree structures
  */
 
-import { Entry, CollapsibleNode, DirectoryEntryNode, } from '@/classes';
-import { ValidTopic } from '@/types';
+import { Entry, CollapsibleNode, DirectoryEntryNode, Topic, } from '@/classes';
 
 export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEntryNode> {
-  topic: ValidTopic;
+  topic: Topic;
   
-  constructor(id: string, topic: ValidTopic, expanded: boolean = false, parentId: string | null = null,
+  constructor(id: string, topic: Topic, expanded: boolean = false, parentId: string | null = null,
     children: string[] = [], loadedChildren: DirectoryEntryNode[] = [], ancestors: string[] = []
   ) {
     super(id, expanded, parentId, children, loadedChildren, ancestors);
@@ -32,7 +31,7 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
     // we only want to load ones not already in _loadedNodes, unless its in updateIds
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
-    const entries = Entry.filter(this.topic, (e: Entry)=>uuidsToLoad.includes(e.uuid));
+    const entries = this.topic.filter((e: Entry)=>uuidsToLoad.includes(e.uuid));
 
     for (let i=0; i<entries.length; i++) {
       const newNode = DirectoryEntryNode.fromEntry(entries[i]);

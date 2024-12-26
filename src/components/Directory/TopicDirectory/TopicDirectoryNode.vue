@@ -6,7 +6,7 @@
     :topic="props.topic"
     :top="props.top"
   />
-  <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)">
+  <li v-else-if="filterNodes[props.topic.topic]?.includes(props.node.id)">
     <div 
       :class="`${props.node.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
@@ -39,7 +39,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  import { DirectoryEntryNode, Entry } from '@/classes';
+  import { DirectoryEntryNode, Entry, Topic } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -49,7 +49,7 @@
       required: true
     },
     topic: {
-      type: Number as PropType<ValidTopic>,
+      type: Object as PropType<Topic>,
       required: true
     },
     node: { 
@@ -101,7 +101,7 @@
     }
 
     const dragData = { 
-      topic:  props.topic,
+      topic:  props.topic.topic,
       childId: props.node.id,
     } as { topic: ValidTopic; childId: string};
 
@@ -127,7 +127,7 @@
         return false;
 
       // if the types don't match or don't have hierarchy, can't drop
-      if (data.topic!==props.topic || !hasHierarchy(props.topic))
+      if (data.topic!==props.topic.topic || !hasHierarchy(props.topic.topic))
         return false;
 
       // is this a legal parent?
@@ -136,7 +136,7 @@
       if (!childEntry)
         return false;
 
-      if (!(validParentItems(currentWorld.value, props.topic, childEntry)).find(e=>e.id===parentId))
+      if (!(validParentItems(currentWorld.value as WBWorld, props.topic, childEntry)).find(e=>e.id===parentId))
         return false;
 
       // add the dropped item as a child on the other  (will also refresh the tree)
@@ -163,7 +163,7 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
+          label: localize(`contextMenus.topicFolder.create.${props.topic.topic}`) + ' as child', 
 
           onClick: async () => {
             // get the right folder
@@ -184,10 +184,10 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
+            await topicDirectoryStore.deleteEntry(props.topic.topic, props.node.id);
           }
         },
-      ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))
+      ].filter((item)=>(hasHierarchy(props.topic.topic) || item.icon!=='fa-atlas'))
 
       // the line above is to remove the "add child" option from entries that don't have hierarchy
       // not really ideal but a bit cleaner than having two separate arrays and concatening
