@@ -4,6 +4,7 @@ import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
 import { Topic } from '@/classes';
+import { cleanTrees } from '@/utils/hierarchy';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class WBWorld {
@@ -50,7 +51,7 @@ export class WBWorld {
     }  
 
     this.campaigns = null;
-    this.topics = {};
+    this.topics = {} as Record<ValidTopic, Topic>;
   }
 
   static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
@@ -397,20 +398,25 @@ export class WBWorld {
 
   // remove an entry from the world metadata
   // note: WORLD MUST BE UNLOCKED FIRST
-  public async deleteEntryFromWorld(topic: Topic, entryId: string) {
+  public async deleteEntryFromWorld(topic: ValidTopic, entryId: string) {
     const hierarchy = WorldFlags.getHierarchy(Entry.worldId, this.uuid);
 
+    let topNodesCleaned = false;
     if (hierarchy) {
-      // delete from any trees
+      // delete from any trees (also cleans up topNodes)
       if (hierarchy?.ancestors || hierarchy?.children) {
-        await cleanTrees(this.uuid, topic, entryId, hierarchy);
+        await cleanTrees(this, topic, entryId, hierarchy);
+        topNodesCleaned = true;
       }
     }
 
-    // remove from the top nodes
-    const topNodes = WorldFlags.getTopicFlag(Entry.worldId, WorldFlagKey.topNodes, topic);
-    await WorldFlags.setTopicFlag(Entry.worldId, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entryId));
-l
+    if (!topNodesCleaned) {
+      // remove from the top nodes
+      const topNodes = this.topics[topic].topNodes;
+      this.topics[topic].topNodes = topNodes.filter((id) => id !== entryId);
+      await this.topics[topic].save();
+    }
+
     // remove from the expanded list
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, entryId);
   }  

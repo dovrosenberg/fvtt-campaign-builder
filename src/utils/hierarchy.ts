@@ -1,5 +1,5 @@
 import { TabSummary,  Hierarchy, Topics, ValidTopic, } from '@/types';
-import { Entry, } from '@/classes';
+import { Entry, WBWorld, } from '@/classes';
 
 // the string to show for items with no type
 export const NO_TYPE_STRING = '(none)';
@@ -48,6 +48,7 @@ const mapEntryToSummary = (entry: Entry): TabSummary => ({
 
 // after we delete an item, we need to remove it from any trees where it is a child or ancestor,
 //    along with all of the items that are now orphaned
+// Also cleans up the topic topNodes
 export const cleanTrees = async function(world: WBWorld, topic: ValidTopic, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
   const hierarchies = WorldFlags.get(currentWorldId, WorldFlagKey.hierarchies); 
   
@@ -89,8 +90,8 @@ export const cleanTrees = async function(world: WBWorld, topic: ValidTopic, dele
   await WorldFlags.set(currentWorldId, WorldFlagKey.hierarchies, hierarchies);
 
   // update topNodes
-  let topNodes = WorldFlags.getTopicFlag(currentWorldId, WorldFlagKey.topNodes, topic);
-  topNodes = topNodes.filter((s: string)=>s!=deletedItemId).concat(newTopNodes);
-  await WorldFlags.setTopicFlag(currentWorldId, WorldFlagKey.topNodes, topic, topNodes);
+  const topNodes = world.topics[topic].topNodes;
+  world.topics[topic].topNodes = topNodes.filter((s: string)=>s!=deletedItemId).concat(newTopNodes);
+  await world.topics[topic].save();
 };
 

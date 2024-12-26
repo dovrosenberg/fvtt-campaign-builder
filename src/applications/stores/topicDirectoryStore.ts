@@ -353,7 +353,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshTopicDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world and journals loaded
-    if (!currentWorldId.value)
+    if (!currentWorldId.value || !currentWorld.value)
       return;
 
     isTopicTreeRefreshing.value = true;
@@ -380,8 +380,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     // find the record for the current world and set the packs
     const currentWorldBlock = tree.find((w)=>w.id===currentWorldId.value);
     if (currentWorldBlock && currentWorld) {
-      const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds);
-      const types = WorldFlags.get(currentWorldId.value, WorldFlagKey.types);
+      const expandedNodes = currentWorld.value.expandedIds;
 
       const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topics = topics.map((topic: ValidTopic): DirectoryTopicNode => {
@@ -390,7 +389,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
           id,
           getTopicTextPlural(topic),
           topic,
-          WorldFlags.getTopicFlag(currentWorldId.value as string, WorldFlagKey.topNodes, topic),
+          currentWorld.value.topics[topic].topNodes,
           [],
           [],
           expandedNodes[id] || false,
@@ -407,7 +406,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         // have to check all children are loaded and expanded properly
         await directoryTopicNode.recursivelyLoadNode(expandedNodes, updateEntryIds);
 
-        await directoryTopicNode.loadTypeEntries(types[directoryTopicNode.topic], expandedNodes);
+        await directoryTopicNode.loadTypeEntries(currentWorld.value.topics[directoryTopicNode.topic].types, expandedNodes);
       }
     }
 

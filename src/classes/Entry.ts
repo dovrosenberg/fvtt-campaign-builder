@@ -2,7 +2,6 @@ import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace, } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topics } from '@/types';
-import { cleanTrees, } from '@/utils/hierarchy';
 import { inputDialog } from '@/dialogs/input';
 import { getTopicText } from '@/compendia';
 import { WBWorld } from '@/classes';
