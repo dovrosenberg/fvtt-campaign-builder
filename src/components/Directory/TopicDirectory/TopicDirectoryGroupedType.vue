@@ -91,7 +91,7 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId, currentEntry } = storeToRefs(mainStore);
+  const { currentWorld, currentEntry } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(topicDirectoryStore);
   
   ////////////////////////////////
@@ -117,7 +117,7 @@
   // you can drop an item on a type and it should reassign the type
   const onDrop = async (event: DragEvent): Promise<boolean> => {
     if (event.dataTransfer?.types[0]==='text/plain') {
-      if (!currentWorldId.value)
+      if (!currentWorld.value)
         return false;
 
       let data;

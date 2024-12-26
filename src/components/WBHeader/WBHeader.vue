@@ -100,7 +100,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId, directoryCollapsed } = storeToRefs(mainStore);
+  const { currentWorld, directoryCollapsed } = storeToRefs(mainStore);
   const { tabs, bookmarks } = storeToRefs(navigationStore);
 
   ////////////////////////////////
@@ -191,8 +191,8 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentWorldId, async (newValue): Promise<void> => {
-    if (!newValue)
+  watch(currentWorld, async (newValue, oldValue): Promise<void> => {
+    if (!newValue || newValue.uuid === oldValue?.uuid)
       return;
 
     await navigationStore.loadTabs();

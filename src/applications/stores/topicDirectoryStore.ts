@@ -23,7 +23,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { rootFolder, currentWorldId, currentWorld,} = storeToRefs(mainStore); 
+  const { rootFolder, currentWorld,} = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -73,11 +73,11 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   const updateEntryType = async (entry: Entry, oldType: string): Promise<void> => {
     const newType = entry.type;
 
-    if (!currentWorldId.value || oldType===newType)
+    if (oldType===newType || !currentWorld.value)
       return;
 
     // remove from the old one
-    const currentWorldNode = currentWorldTree.value.find((w)=>w.id===currentWorldId.value) || null;
+    const currentWorldNode = currentWorldTree.value.find((w)=>w.id===currentWorld.value.uuid) || null;
     const topicNode = currentWorldNode?.topics.find((p)=>p.topic===entry.topic) || null;
     const oldTypeNode = topicNode?.loadedTypes.find((t) => t.name===oldType);
     if (!currentWorldNode || !topicNode) 
@@ -105,13 +105,14 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     newTypeNode.children.push(entry.uuid);
 
     // update the hierarchy (even for entries without hierarchy, we still need it for filtering)
-    const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entry.uuid);
+    const hierarchy = currentWorld.value.getEntryHierarchy(entry.uuid);
     if(!hierarchy)
       throw new Error(`Could not find hierarchy for ${entry.uuid} in topicTirectoryStore.updateEntryType()`);
 
     if (hierarchy.type !== newType) {
       hierarchy.type = newType;
-      await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, hierarchy);
+      currentWorld.value.setEntryHierarchy(entry.uuid, hierarchy);
+      await currentWorld.value.save();
     }
 
     await refreshTopicDirectoryTree([entry.uuid, newTypeNode.id]);
@@ -137,15 +138,16 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // pass a null parent to make it a top node
   // returns wheether it was successful
   const setNodeParent = async function(topic: Topics, childId: string, parentId: string | null): Promise<boolean> {
-    if (!currentWorldId.value || !currentWorld.value)
+    if (!currentWorld.value)
       return false;
 
     // we're going to use this to simplify syntax below
     const saveHierarchyToEntryFromNode = async (entry: Entry, node: DirectoryEntryNode) : Promise<void> => {
-      if (!currentWorldId.value)
+      if (!currentWorld.value)
         return;
 
-      await WorldFlags.setHierarchy(currentWorldId.value, entry.uuid, node.convertToHierarchy());
+      currentWorld.value.setEntryHierarchy(entry.uuid, node.convertToHierarchy());
+      await currentWorld.value.save();
     };
 
     // topic has to have hierarchy
@@ -219,7 +221,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     // then, update all of the child's descendents ancestor fields with that set of changes
     if (ancestorsToAdd || ancestorsToRemove) {
-      const hierarchies = WorldFlags.get(currentWorldId.value, WorldFlagKey.hierarchies);
+      const hierarchies = currentWorld.value.hierarchies;
 
       // we switch to entries because of all the data retrieval
       const doUpdateOnDescendents = async (entry: Entry): Promise<void> => {
@@ -265,7 +267,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   };
 
   const createEntry = async (topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> => {
-    if (!currentWorldId.value || !currentWorld.value)
+    if (!currentWorld.value)
       return null;
 
     const entry = await Entry.create(topic, options);
@@ -274,12 +276,15 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       const uuid = entry.uuid;
 
       // we always add a hierarchy, because we use it for filtering
-      await WorldFlags.setHierarchy(currentWorldId.value, uuid, {
-        parentId: '',
-        ancestors: [],
-        children: [],
-        type: '',
-      } as Hierarchy);
+      currentWorld.value.setEntryHierarchy(uuid, 
+        {
+          parentId: '',
+          ancestors: [],
+          children: [],
+          type: '',
+        } as Hierarchy
+      );
+      await currentWorld.value.save();
 
       // set parent if specified
       if (options.parentId==undefined) {
@@ -314,28 +319,22 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
    * @returns A promise that resolves when the world and its compendia are deleted.
    */
   const deleteWorld = async (worldId: string): Promise<void> => {
-    const worldFolder = await fromUuid(worldId) as Folder;
+    const world = await WBWorld.fromUuid(worldId);
 
-    // get the compendium
-    const compendium = game.packs?.get(WorldFlags.get(worldId, WorldFlagKey.worldCompendium)) || null;
-     
-    if (compendium) {
-      await compendium.configure({ locked:false });
-      await compendium.deleteCompendium();
-    }
+    if (!world)
+      return;
 
-    // delete the world folder
-    await worldFolder.delete();
+    await world.delete();
 
     await refreshTopicDirectoryTree();
   };
 
   // delete an entry from the world
   const deleteEntry = async (topic: ValidTopic, entryId: string) => {
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return;
 
-    const hierarchy = WorldFlags.getHierarchy(currentWorldId.value, entryId);
+    const hierarchy = currentWorld.value.getHierarchy(entryId);
 
     await Entry.deleteEntry(topic, entryId);
 
@@ -353,7 +352,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshTopicDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world and journals loaded
-    if (!currentWorldId.value || !currentWorld.value)
+    if (!currentWorld.value)
       return;
 
     isTopicTreeRefreshing.value = true;
@@ -367,7 +366,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       if (!world.folder)
         throw new Error('World without folder in refreshTopicDirectoryTree()');
 
-      if (world.folder.uuid===currentWorldId.value)
+      if (world.folder.uuid===currentWorld.value.uuid)
         currentWorld = world;
 
       return {
@@ -378,13 +377,13 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     }) || [];
 
     // find the record for the current world and set the packs
-    const currentWorldBlock = tree.find((w)=>w.id===currentWorldId.value);
+    const currentWorldBlock = tree.find((w)=>w.id===currentWorld.value.uuid);
     if (currentWorldBlock && currentWorld) {
       const expandedNodes = currentWorld.value.expandedIds;
 
       const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topics = topics.map((topic: ValidTopic): DirectoryTopicNode => {
-        const id = `${currentWorldId.value}.topic.${topic}`;
+        const id = `${currentWorld.value.uuid}.topic.${topic}`;
         return new DirectoryTopicNode(
           id,
           getTopicTextPlural(topic),
@@ -430,6 +429,9 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // it's an object keyed by topic with a list of all the ids to include
   // TODO - a checkbox option that uses search to filter by all searchable fields vs just name
   const updateFilterNodes = (): void => {
+    if (!currentWorld.value)
+      return;
+
     const retval: Record<ValidTopic, string[]> = {
       [Topics.Character]: [],
       [Topics.Event]: [],
@@ -437,10 +439,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       [Topics.Organization]: [],
     };
 
-    if (!currentWorldId.value)
-      return;
-
-    const hierarchies = WorldFlags.get(currentWorldId.value, WorldFlagKey.hierarchies);
+    const hierarchies = currentWorld.value.hierarchies;
 
     const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
     const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];

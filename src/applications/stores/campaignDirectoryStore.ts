@@ -19,7 +19,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId, currentWorld, } = storeToRefs(mainStore); 
+  const { currentWorld, } = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -51,13 +51,13 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // refreshes the campaign tree 
   const refreshCampaignDirectoryTree = async (updateIds: string[] = []): Promise<void> => {
     // need to have a current world and journals loaded
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return;
 
     isCampaignTreeLoading.value = true;
 
     const campaigns = currentWorld.value?.campaignEntries || {};  
-    const expandedNodes = currentWorld.value?.expandedCampaignIds || {};
+    const expandedNodes = currentWorld.value?.expandedIds || {};
 
     currentCampaignTree.value = [];
     

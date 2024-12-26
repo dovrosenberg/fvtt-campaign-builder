@@ -2,10 +2,9 @@
  * A class representing an entry (which might have children) in the topic tree structure
  */
 
-
-import { ValidTopic, } from '@/types';
+import { Hierarchy, ValidTopic, } from '@/types';
 import { Entry, CollapsibleNode, DirectoryTopicTreeNode } from '@/classes';
-import { Hierarchy, NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
+import { NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 
 export class DirectoryEntryNode extends DirectoryTopicTreeNode {
   name: string;
@@ -22,10 +21,10 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
 
   // converts the entry to a DirectoryEntryNode for cleaner interface
   static fromEntry = (entry: Entry): DirectoryEntryNode => {
-    if (!CollapsibleNode._currentWorldId)
-      throw new Error('No currentWorldId in DirectoryEntryNode.fromEntry()');
+    if (!CollapsibleNode._currentWorld)
+      throw new Error('No currentWorld in DirectoryEntryNode.fromEntry()');
 
-    const hierachy = WorldFlags.getHierarchy(CollapsibleNode._currentWorldId, entry.uuid);
+    const hierarchy = CollapsibleNode._currentWorld.getEntryHierarchy(entry.uuid);
 
     if (!entry.topic)
       throw new Error('No topic in DirectoryEntryNode.fromEntry()');
@@ -35,10 +34,10 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
       entry.name || NO_NAME_STRING,
       entry.type || NO_TYPE_STRING,
       entry.topic,
-      hierachy?.parentId || null,
-      hierachy?.children || [],
+      hierarchy?.parentId || null,
+      hierarchy?.children || [],
       [],
-      hierachy?.ancestors || [],
+      hierarchy?.ancestors || [],
       false,  // TODO- load this, too
     );
   };

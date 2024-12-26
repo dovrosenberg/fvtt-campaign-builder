@@ -4,7 +4,6 @@
 
 import { Entry, CollapsibleNode, DirectoryTypeNode, } from '@/classes';
 import { NO_NAME_STRING } from '@/utils/hierarchy';
-import { WorldFlagKey } from '@/settings';
 
 // represents an entry in the type-grouped structure
 // has no children, the parent is a DirectoryTypeNode
@@ -12,7 +11,7 @@ export class DirectoryTypeEntryNode extends CollapsibleNode<never> {
   name: string;
   
   constructor(id: string, name: string, parentId: string) {
-    super(id, false, WorldFlagKey.expandedIds, parentId, [], [], []);
+    super(id, false, parentId, [], [], []);
 
     this.name = name;
   }

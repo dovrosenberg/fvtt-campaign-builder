@@ -37,7 +37,7 @@ export class Topic {
 
     this._topNodes = getFlag(this._topicDoc, TopicFlagKey.topNodes);
     this._types = getFlag(this._topicDoc, TopicFlagKey.types);
-    this._types = getFlag(this._topicDoc, TopicFlagKey.topic);
+    this._topic = getFlag(this._topicDoc, TopicFlagKey.topic);
   }
 
   static async fromUuid(topicId: string, options?: Record<string, any>): Promise<Campaign | null> {
@@ -71,9 +71,9 @@ export class Topic {
     return new WBWorld(worldDoc);
   }
   
-/**
- * An array of top-level nodes.
- */
+  /**
+   * An array of top-level nodes.
+   */
   public get topNodes(): readonly string[] {
     return this._topNodes;
   }
@@ -204,8 +204,6 @@ export class Topic {
   public async delete() {
     if (!this._topicDoc)
       return;
-
-    const id = this._topicDoc.uuid;
 
     let world = this.world;
     if (!world)

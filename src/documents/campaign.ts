@@ -1,7 +1,9 @@
 import { FlagSettings } from 'src/settings';
 
 // camapaigns are journal entries, not documents
-export interface CampaignDoc extends JournalEntry {}
+export interface CampaignDoc extends JournalEntry {
+  __type: 'CampaignDoc';
+}
 
 export enum CampaignFlagKey {
   isCampaign = 'isCampaign',    // used to mark the JE as a campaign

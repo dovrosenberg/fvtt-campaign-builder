@@ -149,7 +149,7 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
-  const { currentEntry, currentWorldId, currentWorld, currentContentTab, } = storeToRefs(mainStore);
+  const { currentEntry, currentWorld, currentContentTab, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -291,11 +291,11 @@
         parentId.value = null;
         validParents.value = [];
       } else {
-        if (currentWorldId.value) {
-          parentId.value = WorldFlags.getHierarchy(currentWorldId.value, newEntry.uuid)?.parentId || null;
+        if (currentWorld.value) {
+          parentId.value = currentWorld.value.getHierarchy(newEntry.uuid)?.parentId || null;
       
           // TODO - need to refresh this somehow if things are moved around in the directory
-          validParents.value = validParentItems(currentWorldId.value, newTopic, newEntry).map((e)=> ({
+          validParents.value = validParentItems(currentWorld.value, newTopic, newEntry).map((e)=> ({
             id: e.id,
             label: e.name || '',
           }));

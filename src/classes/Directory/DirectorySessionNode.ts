@@ -3,7 +3,6 @@
  */
 
 import { CollapsibleNode, Session } from '@/classes';
-import { WorldFlagKey } from '@/settings';
 import { localize } from '@/utils/game';
 
 // represents an entry in the type-grouped structure
@@ -13,7 +12,7 @@ export class DirectorySessionNode extends CollapsibleNode<never> {
   private _sessionNumber: number;
   
   constructor(id: string, name: string, sessionNumber: number, parentId: string) {
-    super(id, false, WorldFlagKey.expandedCampaignIds, parentId, [], [], []);
+    super(id, false, parentId, [], [], []);
 
     this._name = name;
     this._sessionNumber = sessionNumber;
@@ -33,8 +32,8 @@ export class DirectorySessionNode extends CollapsibleNode<never> {
 
   // converts the entry to a DirectoryEntryNode for cleaner interface
   static fromSession = (session: Session, campaignId: string): DirectorySessionNode => {
-    if (!CollapsibleNode._currentWorldId)
-      throw new Error('No currentWorldId in DirectorySessionNode.fromEntry()');
+    if (!CollapsibleNode._currentWorld)
+      throw new Error('No currentWorld in DirectorySessionNode.fromEntry()');
 
     return new DirectorySessionNode(
       session.uuid,

@@ -4,7 +4,6 @@
 
 import { Entry, CollapsibleNode, DirectoryEntryNode, } from '@/classes';
 import { ValidTopic } from '@/types';
-import { WorldFlagKey } from '@/settings';
 
 export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEntryNode> {
   topic: ValidTopic;
@@ -12,7 +11,7 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
   constructor(id: string, topic: ValidTopic, expanded: boolean = false, parentId: string | null = null,
     children: string[] = [], loadedChildren: DirectoryEntryNode[] = [], ancestors: string[] = []
   ) {
-    super(id, expanded, WorldFlagKey.expandedIds, parentId, children, loadedChildren, ancestors);
+    super(id, expanded, parentId, children, loadedChildren, ancestors);
 
     this.topic = topic;
   }
@@ -25,7 +24,7 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
    */
   override async _loadNodeList(ids: string[], updateIds: string[] ): Promise<void> {
     // make sure we've loaded what we need
-    if (!CollapsibleNode._currentWorldId) {
+    if (!CollapsibleNode._currentWorld) {
       CollapsibleNode._loadedNodes = {};
       return;
     }

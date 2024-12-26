@@ -133,7 +133,7 @@
 
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
       Entry.worldCompendium = worldCompendium;
-      CollapsibleNode.currentWorldId = worldId;
+      CollapsibleNode.currentWorld = currentWorld.value;
     }
   });
 
@@ -185,7 +185,7 @@
 
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
       Entry.worldCompendium = worldCompendium;
-      CollapsibleNode.currentWorldId = worldId;
+      CollapsibleNode.currentWorld = folders.world;
       
       rootFolder.value = folders.rootFolder;
       currentWorld.value = folders.world;

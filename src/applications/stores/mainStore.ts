@@ -32,11 +32,9 @@ export const useMainStore = defineStore('main', () => {
   const rootFolder = ref<Folder | null>(null);
   const currentWorld = ref<WBWorld | null>(null);  // the current world folder
 
-  const currentWorldId = computed((): string | null => currentWorld.value ? currentWorld.value.uuid : null);
-
   const currentWorldCompendium = computed((): CompendiumCollection<any> => {
-    if (!currentWorldId.value)
-      throw new Error('No currentWorldId in mainStore.currentWorldCompendium()');
+    if (!currentWorld.value)
+      throw new Error('No currentWorld in mainStore.currentWorldCompendium()');
 
     const pack = currentWorld.value?.compendium || null;
     if (!pack)
@@ -178,7 +176,6 @@ export const useMainStore = defineStore('main', () => {
     currentContentTab,
     currentDocumentTab,
     directoryCollapsed,
-    currentWorldId,
     currentWorld,
     currentEntryTopic,
     currentEntry,

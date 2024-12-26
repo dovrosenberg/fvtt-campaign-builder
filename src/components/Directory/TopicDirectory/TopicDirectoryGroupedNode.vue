@@ -58,7 +58,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const topicDirectoryStore = useTopicDirectoryStore();
-  const { currentEntry, currentWorldId } = storeToRefs(mainStore);
+  const { currentEntry, currentWorld } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(topicDirectoryStore);
 
   ////////////////////////////////
@@ -80,7 +80,7 @@
   };
 
   const onDragStart = (event: DragEvent): void => {
-    if (!currentWorldId.value) { 
+    if (!currentWorld.value) { 
       event.preventDefault();
       return;
     }

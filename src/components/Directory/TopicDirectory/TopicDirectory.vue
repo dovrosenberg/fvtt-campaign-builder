@@ -4,7 +4,7 @@
     <li 
       v-for="world in topicDirectoryStore.currentWorldTree.value"
       :key="world.id"
-      :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
+      :class="'fwb-world-folder folder flexcol ' + (currentWorld.uuid===world.id ? '' : 'collapsed')" 
       @click="onWorldFolderClick($event, world.id)"
     >
       <header 
@@ -19,7 +19,7 @@
 
       <!-- These are the topic compendia -->
       <ol 
-        v-if="currentWorldId===world.id"
+        v-if="currentWorld.uuid===world.id"
         class="fwb-world-contents"
       >
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
@@ -90,7 +90,7 @@
   const navigationStore = useNavigationStore();
   const topicDirectoryStore = useTopicDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentWorldId } = storeToRefs(mainStore);
+  const { currentWorld } = storeToRefs(mainStore);
   const { isGroupedByType } = storeToRefs(topicDirectoryStore);
 
   ////////////////////////////////

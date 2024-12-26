@@ -21,7 +21,6 @@ export class WBWorld {
   // saved in flags
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made (saved into 'flags')
   private _campaignEntries: Record<string, string>;  //name of each campaign; keyed by journal entry uuid
-  private _expandedCampaignIds: Record<string, boolean | null>;   // ids of nodes that are expanded in the campaign tree
   private _expandedIds: Record<string, boolean | null>;  // ids of nodes that are expanded in the tree (could be compendia or entries or subentries) - handles topic tree
   private _hierarchies: Record<string, Hierarchy>;  // the full tree hierarchy or null for topics without hierarchy
   private _topicIds: Record<ValidTopic, string>;  // the uuid for each topic
@@ -40,7 +39,6 @@ export class WBWorld {
     this._cumulativeUpdate = {};
 
     this._campaignEntries = getFlag(this._worldDoc, WorldFlagKey.campaignEntries);
-    this._expandedCampaignIds = getFlag(this._worldDoc, WorldFlagKey.expandedCampaignIds);
     this._expandedIds = getFlag(this._worldDoc, WorldFlagKey.expandedIds);
     this._hierarchies = getFlag(this._worldDoc, WorldFlagKey.hierarchies);
     this._topicIds = getFlag(this._worldDoc, WorldFlagKey.topicIds);
@@ -66,12 +64,17 @@ export class WBWorld {
     }
   }
 
+  // get direct access to the document (ex. to hook to foundry's editor)
+  get raw(): WorldDoc {
+    return this._worldDoc;
+  }
+
   /**
   * Gets the Topics associated with the world. If the topics are already loaded, the promise resolves
   * to the existing ones; otherwise, it loads the topics and then resolves to the set.
   * @returns {Promise<Record<ValidTopic, Topics>>} A promise to the topics
   */
-  public async loadTopics(): Promise<Record<ValidTopic, Topics>> {
+  public async loadTopics(): Promise<Record<ValidTopic, Topic>> {
     for (const topic in Topics) {
       if (!this.topics[topic]) {
         const topicObj = await Topic.fromUuid(this._topicIds[topic]);
@@ -129,18 +132,11 @@ export class WBWorld {
   }
 
   /**
-   * The IDs of nodes that are expanded in the topic tree.
-   * Could include compendia, entries, or subentries.
+   * The IDs of nodes that are expanded in the cirectory.
+   * Could include compendia, entries, or subentries, or campaigns.
    */
   public get expandedIds(): Record<string, boolean | null> {
     return this._expandedIds;
-  }
-
-  /**
-   * The IDs of nodes that are expanded in the campaign tree.
-   */
-  public get expandedCampaignIds(): Record<string, boolean | null> {
-    return this._expandedCampaignIds;
   }
 
   /**
@@ -150,6 +146,20 @@ export class WBWorld {
     return this._hierarchies;
   }
 
+  /**
+   * Get the hierarchy for a single entry
+   */
+  public getEntryHierarchy(entryId: string): Hierarchy {
+    return this._hierarchies[entryId];
+  }
+
+  /**
+   * set the hierarchy for a single entry
+   */
+  public setEntryHierarchy(entryId: string, value: Hierarchy) {
+    this._hierarchies[entryId] = value;
+  }
+  
  
   /** 
    * The uuid for the world compendium  
@@ -193,17 +203,6 @@ export class WBWorld {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       [`flags.${moduleId}.expandedIds`]: value
-    };
-  }
-
-  /**
-   * The IDs of nodes that are expanded in the campaign tree.
-   */
-  public set expandedCampaignIds(value: Record<string, boolean | null>) {
-    this._expandedCampaignIds = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}.expandedCampaignIds`]: value
     };
   }
 
@@ -379,7 +378,7 @@ export class WBWorld {
   
   public async collapseCampaignDirectory() {
     // we just unset the entire expandedIds flag
-    await unsetFlag(this._worldDoc, WorldFlagKey.expandedCampaignIds);
+    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds);
   }
 
   public async collapseTopicDirectory() {
@@ -393,13 +392,13 @@ export class WBWorld {
   // note: WORLD MUST BE UNLOCKED FIRST
   public async deleteCampaignFromWorld(campaignId: string) {
     await unsetFlag(this._worldDoc, WorldFlagKey.campaignEntries, campaignId);
-    await unsetFlag(this._worldDoc, WorldFlagKey.expandedCampaignIds, campaignId);
+    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, campaignId);
   }  
 
   // remove an entry from the world metadata
   // note: WORLD MUST BE UNLOCKED FIRST
   public async deleteEntryFromWorld(topic: ValidTopic, entryId: string) {
-    const hierarchy = WorldFlags.getHierarchy(Entry.worldId, this.uuid);
+    const hierarchy = this.getEntryHierarchy(entryId);
 
     let topNodesCleaned = false;
     if (hierarchy) {
@@ -424,63 +423,27 @@ export class WBWorld {
   // remove a campaign from the world metadata
   // note: WORLD MUST BE UNLOCKED FIRST
   public async deleteSessionFromWorld(sessionId: string) {
-    await unsetFlag(this._worldDoc, WorldFlagKey.expandedCampaignIds, sessionId);
+    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, sessionId);
   }  
 
   // change a campaign name inside all the world metadata
+  // note: WORLD MUST BE UNLOCKED FIRST
   public async updateCampaignName(campaignId: string, name: string) {
     await setFlag(this._worldDoc, WorldFlagKey.campaignEntries, {
       ... (getFlag(this._worldDoc, WorldFlagKey.campaignEntries) || {}),
       [campaignId]: name
     });
   }
+
+  public async delete() {
+    // have to unlock the pack
+    await this.unlock();
+
+    // delete the pack
+    if (this._compendium) {
+      await this._compendium.deleteCompendium();
+    }
+    // delete the world folder
+    await this._worldDoc.delete();
+  }
 }
-
-// // special case because of nesting and index
-//   /**
-//    * Set the hierarchy 
-//    *
-//    * @static
-//    * @param {string} entryId
-//    * @param {Hierarchy} hierarchy
-//    * @return {*}  {Promise<void>}
-//    */
-//   public static async setHierarchy(worldId: string, entryId: string, hierarchy: Hierarchy): Promise<void> {
-//     // pull the full structure
-//     const hierarchies = WorldFlags.get(worldId, WorldFlagKey.hierarchies);
-//     hierarchies[entryId] = hierarchy;
-
-//     await WorldFlags.set(worldId, WorldFlagKey.hierarchies, hierarchies);
-//   }
-
-//   /**
-//    * Get the hierarchy.  Could just use get() but here for consistency with setHierarchy()
-//    *
-//    * @static
-//    * @param {string} entryId
-//    * @return {*}  {Promise<void>}
-//    */
-//   public static getHierarchy(worldId: string, entryId: string): Hierarchy | null {
-//     // pull the full structure
-//     const hierarchies = WorldFlags.get(worldId, WorldFlagKey.hierarchies);
-
-//     return hierarchies[entryId] || null;
-//   }
-
-//   /**
-//    * Remove an entry from hierarchy
-//    *
-//    * @static
-//    * @param {string} entryId
-//    * @param {Hierarchy} hierarchy
-//    * @return {*}  {Promise<void>}
-//    */
-//   public static async unsetHierarchy(worldId: string, entryId: string): Promise<void> {
-//     // pull the full structure
-//     const hierarchies = WorldFlags.get(worldId, WorldFlagKey.hierarchies);
-//     delete hierarchies[entryId];
-
-//     await WorldFlags.set(worldId, WorldFlagKey.hierarchies, hierarchies);
-//   }
-
- 

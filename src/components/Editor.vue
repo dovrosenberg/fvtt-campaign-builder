@@ -114,7 +114,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentWorldId } = storeToRefs(mainStore);
+  const { currentWorld } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -247,7 +247,7 @@
   ////////////////////////////////
   // watchers
   watch(() => props.initialContent, async () =>{
-    enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, props.initialContent || '');
+    enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
   });
 
   
@@ -264,7 +264,7 @@
     editor.value = null;
 
     // show the pretty text
-    enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, props.initialContent || '');
+    enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
 
     if (!props.hasButton) {
       void activateEditor();

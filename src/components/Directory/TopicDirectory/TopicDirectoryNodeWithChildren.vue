@@ -88,7 +88,7 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId, currentEntry, } = storeToRefs(mainStore);
+  const { currentWorld, currentEntry, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -124,7 +124,7 @@
   
   // handle an entry dragging to another to nest
   const onDragStart = (event: DragEvent, id: string): void => {
-    if (!currentWorldId.value) { 
+    if (!currentWorld.value) { 
       event.preventDefault();
       return;
     }
@@ -138,7 +138,7 @@
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return false;
 
     if (event.dataTransfer?.types[0]==='text/plain') {
@@ -166,7 +166,7 @@
       if (!childEntry)
         return false;
 
-      if (!(validParentItems(currentWorldId.value, props.topic, childEntry)).find(e=>e.id===parentId))
+      if (!(validParentItems(currentWorld.value, props.topic, childEntry)).find(e=>e.id===parentId))
         return false;
 
       // add the dropped item as a child on the other (will also refresh the tree)

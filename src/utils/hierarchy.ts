@@ -14,11 +14,11 @@ export const hasHierarchy = (topic: Topics): boolean => [Topics.Organization, To
 // this is to populate a list of possible children for a node (ex. a dropdown)
 // a valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself
 // only works for topics that have hierachy
-export function validChildItems(currentWorldId: string, topic: ValidTopic, entry: Entry): TabSummary[] {
+export function validChildItems(world: WBWorld, topic: ValidTopic, entry: Entry): TabSummary[] {
   if (!entry.uuid)
     return [];
 
-  const ancestors = WorldFlags.getHierarchy(currentWorldId, entry.uuid)?.ancestors || [];
+  const ancestors = world.getHierarchy(entry.uuid)?.ancestors || [];
 
   // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
   // TODO: need to change find to forEach to populate an array
@@ -29,11 +29,11 @@ export function validChildItems(currentWorldId: string, topic: ValidTopic, entry
 // returns a list of valid possible parents for a node
 // a valid parent is anything that does not have this object as an ancestor (to avoid creating loops) 
 // only works for topics that have hierachy
-export function validParentItems(currentWorldId: string, topic: ValidTopic, entry: Entry): {name: string; id: string}[] {
+export function validParentItems(world: WBWorld, topic: ValidTopic, entry: Entry): {name: string; id: string}[] {
   if (!entry.uuid)
     return [];
 
-  const hierarchies = WorldFlags.get(currentWorldId, WorldFlagKey.hierarchies);
+  const hierarchies = world.hierarchies;
 
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
   return Entry
@@ -50,7 +50,7 @@ const mapEntryToSummary = (entry: Entry): TabSummary => ({
 //    along with all of the items that are now orphaned
 // Also cleans up the topic topNodes
 export const cleanTrees = async function(world: WBWorld, topic: ValidTopic, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
-  const hierarchies = WorldFlags.get(currentWorldId, WorldFlagKey.hierarchies); 
+  const hierarchies = world.hierarchies;
   
   // remove deleted item and all its ancestors from any object who had them as ancestors previously
   // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
@@ -87,7 +87,8 @@ export const cleanTrees = async function(world: WBWorld, topic: ValidTopic, dele
   delete hierarchies[deletedItemId];
 
   // store updated hierarchy
-  await WorldFlags.set(currentWorldId, WorldFlagKey.hierarchies, hierarchies);
+  world.hierarchies = hierarchies;
+  await world.save();
 
   // update topNodes
   const topNodes = world.topics[topic].topNodes;

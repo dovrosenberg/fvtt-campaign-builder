@@ -3,7 +3,6 @@
  */
 
 import { Campaign, CollapsibleNode, DirectorySessionNode, Session, } from '@/classes';
-import { WorldFlagKey } from '@/settings';
 
 export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode> {
   name: string;
@@ -13,7 +12,7 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
     loadedChildren: DirectorySessionNode[] = [], expanded: boolean = false
   ) {
 
-    super(id, expanded, WorldFlagKey.expandedCampaignIds, null, children, loadedChildren, []);
+    super(id, expanded, null, children, loadedChildren, []);
 
     this.name = name;
   }
@@ -26,7 +25,7 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
    */
   override async _loadNodeList(ids: string[], updateIds: string[] ): Promise<void> {
     // make sure we've loaded what we need
-    if (!CollapsibleNode._currentWorldId) {
+    if (!CollapsibleNode._currentWorld) {
       CollapsibleNode._loadedNodes = {};
       return;
     }

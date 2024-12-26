@@ -3,7 +3,9 @@ import { FlagSettings } from '@/settings';
 import { Topics, ValidTopic } from '@/types';
 
 // camapaigns are journal entries, not documents
-export interface TopicDoc extends JournalEntry {}
+export interface TopicDoc extends JournalEntry {
+  __type: 'TopicDoc';
+}
 
 export enum TopicFlagKey {
   isTopic = 'isTopic',  // used to mark the JE as a topic
@@ -25,7 +27,7 @@ export const flagSettings = [
     default: true,
   },
   {
-    flagId: TopicFlagKey.isTopic,
+    flagId: TopicFlagKey.topic,
     default: Topics.Character,  // need to pick something
   },
   {
