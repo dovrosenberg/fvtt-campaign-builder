@@ -18,7 +18,7 @@ export function validChildItems(world: WBWorld, topic: ValidTopic, entry: Entry)
   if (!entry.uuid)
     return [];
 
-  const ancestors = world.getHierarchy(entry.uuid)?.ancestors || [];
+  const ancestors = world.getEntryHierarchy(entry.uuid)?.ancestors || [];
 
   // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
   // TODO: need to change find to forEach to populate an array

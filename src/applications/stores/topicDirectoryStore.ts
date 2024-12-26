@@ -334,7 +334,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (!currentWorld.value)
       return;
 
-    const hierarchy = currentWorld.value.getHierarchy(entryId);
+    const hierarchy = currentWorld.value.getEntryHierarchy(entryId);
 
     await Entry.deleteEntry(topic, entryId);
 
@@ -344,7 +344,6 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     // refresh and force its parent to update
     await refreshTopicDirectoryTree(hierarchy?.parentId ? [hierarchy?.parentId] : []);
   };
- 
  
   // refreshes the directory tree 
   // we try to keep it fast by not reloading from disk nodes that we've already loaded before,
@@ -361,13 +360,12 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     let tree = [] as DirectoryWorld[];
 
     // populate the world names, and find the current one
-    let currentWorld;    // the folder of the currently selected world
     tree = (toRaw(rootFolder.value) as Folder)?.children?.map((world: Folder): DirectoryWorld => {
       if (!world.folder)
         throw new Error('World without folder in refreshTopicDirectoryTree()');
 
-      if (world.folder.uuid===currentWorld.value.uuid)
-        currentWorld = world;
+      if (world.uuid===currentWorld.value.uuid)
+        currentWorld.value = await WBWorld.fromUuid(world.uuid);
 
       return {
         name: world.folder.name as string,

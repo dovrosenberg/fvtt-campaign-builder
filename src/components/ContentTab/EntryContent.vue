@@ -292,10 +292,10 @@
         validParents.value = [];
       } else {
         if (currentWorld.value) {
-          parentId.value = currentWorld.value.getHierarchy(newEntry.uuid)?.parentId || null;
+          parentId.value = currentWorld.value.getEntryHierarchy(newEntry.uuid)?.parentId || null;
       
           // TODO - need to refresh this somehow if things are moved around in the directory
-          validParents.value = validParentItems(currentWorld.value, newTopic, newEntry).map((e)=> ({
+          validParents.value = validParentItems(currentWorld.value as WBWorld, newTopic, newEntry).map((e)=> ({
             id: e.id,
             label: e.name || '',
           }));
