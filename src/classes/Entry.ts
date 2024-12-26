@@ -50,7 +50,7 @@ export class Entry {
     if (this.parentTopic)
       return this.parentTopic;
     
-    this.parentTopic = await Topic.fromUuid(this._entryDoc.parent.uuid) as TopicDoc;
+    this.parentTopic = await Topic.fromUuid(this._entryDoc.parent.uuid);
 
     if (!this.parentTopic)
       throw new Error('Invalid entry in Entry.getTopic()');
@@ -62,7 +62,7 @@ export class Entry {
   // if name is populated will skip the dialog
   static async create(parentTopic: Topic, options: CreateEntryOptions): Promise<Entry | null> 
   {
-    const topicText = getTopicText(topic.topic);
+    const topicText = getTopicText(parentTopic.topic);
     const world = await parentTopic.getWorld();
 
     let nameToUse = options.name || '' as string | null;
@@ -268,7 +268,7 @@ export class Entry {
     const world = await this.getWorld();
 
     const id = this.uuid;
-    const topic = this.parentTopic?.topic;
+    const topic = this.parentTopic?.topic as ValidTopic;
 
     // have to unlock the pack
     await world.unlock();
@@ -296,7 +296,7 @@ export class Entry {
    * @returns a list of Entries
    */
   public static async getEntriesForTopic(topic: Topic, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
-    if (!Entry.currentTopicJournals || !Entry.currentTopicJournals[topic])
+    if (!Entry.currentTopicJournals || !Entry.currentTopicJournals[topic.topic])
       return [];
 
     // we find all journal entries with this topic
