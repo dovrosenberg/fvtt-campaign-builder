@@ -33,7 +33,7 @@
   import Directory from '@/components/Directory/Directory.vue';
 
   // types
-  import { Topic, ValidTopic } from '@/types';
+  import { Topics, ValidTopic } from '@/types';
   import { CollapsibleNode, Entry, Campaign, Session } from '@/classes';
   import { CampaignDoc } from '@/documents';
   
@@ -102,14 +102,14 @@
       if (!worldCompendium)
         throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
 
-      const topicEntries = currentWorld.value.topicEntries;
+      const topicIds = currentWorld.value.topicIds;
       const campaignEntries = currentWorld.value.campaignEntries;
-      const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
-        [Topic.Character]: null,
-        [Topic.Event]: null,
-        [Topic.Location]: null,
-        [Topic.Organization]: null,
+        [Topics.Character]: null,
+        [Topics.Event]: null,
+        [Topics.Location]: null,
+        [Topics.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;
       const campaignJournals = {} as Record<string, CampaignDoc>;
 
@@ -117,7 +117,7 @@
         const t = topics[i];
 
         // we need to load the actual entries - not just the index headers
-        topicJournals[t] = (await fromUuid(topicEntries[t])) as JournalEntry | null;
+        topicJournals[t] = (await fromUuid(topicIds[t])) as JournalEntry | null;
 
         if (!topicJournals[t])
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
@@ -157,14 +157,14 @@
       if (!worldCompendium)
         throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
 
-      const topicEntries = world.topicEntries;
+      const topicIds = world.topicIds;
       const campaignEntries = world.campaignEntries;
-      const topics = [ Topic.Character, Topic.Event, Topic.Location, Topic.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
-        [Topic.Character]: null,
-        [Topic.Event]: null,
-        [Topic.Location]: null,
-        [Topic.Organization]: null,
+        [Topics.Character]: null,
+        [Topics.Event]: null,
+        [Topics.Location]: null,
+        [Topics.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;
       const campaignJournals = {} as Record<string, CampaignDoc>;
 
@@ -172,7 +172,7 @@
         const t = topics[i];
         
         // we need to load the actual entries - not just the index headers
-        topicJournals[t] = (await fromUuid(topicEntries[t])) as JournalEntry | null;
+        topicJournals[t] = (await fromUuid(topicIds[t])) as JournalEntry | null;
 
         if (!topicJournals[t])
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);

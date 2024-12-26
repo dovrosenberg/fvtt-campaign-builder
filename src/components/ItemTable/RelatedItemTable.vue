@@ -163,7 +163,7 @@
   import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
 
   // types
-  import { Topic, TablePagination, ValidTopic, RelatedItemDetails } from '@/types';
+  import { Topics, TablePagination, ValidTopic, RelatedItemDetails } from '@/types';
   
   ////////////////////////////////
   // props
@@ -228,10 +228,10 @@
     const prefix = 'Add ';
 
     const labels = {
-      [Topic.Event]: 'Event',
-      [Topic.Character]: 'Character',
-      [Topic.Location]: 'Location',
-      [Topic.Organization]: 'Organization',
+      [Topics.Event]: 'Event',
+      [Topics.Character]: 'Character',
+      [Topics.Location]: 'Location',
+      [Topics.Organization]: 'Organization',
     } as Record<ValidTopic, string>;
 
     return prefix + labels[props.topic];
@@ -271,22 +271,22 @@
     const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 
 
     const columns = {
-      [Topic.Event]: [
+      [Topics.Event]: [
         actionColumn,
         nameColumn,
         dateColumn,
       ],
-      [Topic.Character]: [
+      [Topics.Character]: [
         actionColumn,
         nameColumn,
         typeColumn,
       ],
-      [Topic.Location]: [
+      [Topics.Location]: [
         actionColumn,
         nameColumn,
         typeColumn,
       ],
-      [Topic.Organization]: [
+      [Topics.Organization]: [
         actionColumn,
         nameColumn,
         typeColumn,

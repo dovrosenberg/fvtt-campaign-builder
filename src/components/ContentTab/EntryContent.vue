@@ -52,14 +52,14 @@
           {{ localize(relationship.label) }}
         </a>
         <a 
-          v-if="topic===Topic.Character"
+          v-if="topic===Topics.Character"
           class="item" 
           data-tab="actors"
         >
           {{ localize('labels.tabs.entry.actors') }}
         </a>
         <a 
-          v-if="topic===Topic.Location"
+          v-if="topic===Topics.Location"
           class="item" 
           data-tab="scenes"
         >
@@ -79,22 +79,22 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="characters">
           <div class="tab-inner flexcol">
-            <RelatedItemTable :topic="Topic.Character" />
+            <RelatedItemTable :topic="Topics.Character" />
           </div>
         </div> 
         <div class="tab description flexcol" data-group="primary" data-tab="locations">
           <div class="tab-inner flexcol">
-            <RelatedItemTable :topic="Topic.Location" />
+            <RelatedItemTable :topic="Topics.Location" />
           </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="organizations">
           <div class="tab-inner flexcol">
-            <RelatedItemTable :topic="Topic.Organization" />
+            <RelatedItemTable :topic="Topics.Organization" />
           </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="events">
           <div class="tab-inner flexcol">
-            <RelatedItemTable :topic="Topic.Event" />
+            <RelatedItemTable :topic="Topics.Event" />
           </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="scenes">
@@ -134,7 +134,7 @@
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
 
   // types
-  import { ValidTopic, Topic, } from '@/types';
+  import { ValidTopic, Topics, } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -154,10 +154,10 @@
   ////////////////////////////////
   // data
   const topicData = {
-    [Topic.Character]: { namePlaceholder: 'placeholders.characterName', },
-    [Topic.Event]: { namePlaceholder: 'placeholders.characterName', },
-    [Topic.Location]: { namePlaceholder: 'placeholders.characterName', },
-    [Topic.Organization]: { namePlaceholder: 'placeholders.characterName', },
+    [Topics.Character]: { namePlaceholder: 'placeholders.characterName', },
+    [Topics.Event]: { namePlaceholder: 'placeholders.characterName', },
+    [Topics.Location]: { namePlaceholder: 'placeholders.characterName', },
+    [Topics.Organization]: { namePlaceholder: 'placeholders.characterName', },
   };
 
   const relationships = [
@@ -168,7 +168,7 @@
   ] as { tab: string; label: string }[];
 
   const tabs = ref<Tabs>();
-  const topic = ref<Topic | null>(null);
+  const topic = ref<Topics | null>(null);
   const name = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);

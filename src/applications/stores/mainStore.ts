@@ -8,7 +8,7 @@ import { computed, ref, } from 'vue';
 import { UserFlagKey, UserFlags, } from '@/settings';
 
 // types
-import { Topic, WindowTabType, DocumentLinkType } from '@/types';
+import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { WBWorld, WindowTab, Entry, Campaign, Session, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc } from '@/documents';
 
@@ -142,11 +142,11 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // computed state
-  const currentEntryTopic = computed((): Topic => {
+  const currentEntryTopic = computed((): Topics => {
     if (!currentEntry.value)
-      return Topic.None;
+      return Topics.None;
 
-    return currentEntry.value.topic || Topic.None;
+    return currentEntry.value.topic || Topics.None;
   });
 
   const currentDocumentTab = computed((): DocumentLinkType => {

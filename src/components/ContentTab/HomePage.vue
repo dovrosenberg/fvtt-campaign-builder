@@ -50,7 +50,6 @@
   // local imports
   import { localize } from '@/utils/game';
   import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
-  import { UserFlagKey, UserFlags } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
@@ -58,7 +57,7 @@
   // local components
 
   // types
-  import { TabHeader, Topic, WindowTabType } from '@/types';
+  import { TabHeader, Topics, WindowTabType } from '@/types';
 
   ////////////////////////////////
   // props
@@ -89,10 +88,10 @@
     if (item.uuid) {
       // a little goofy, but we do it by icon
       switch (item.icon) {
-        case getTopicIcon(Topic.Character):
-        case getTopicIcon(Topic.Location):
-        case getTopicIcon(Topic.Organization):
-        case getTopicIcon(Topic.Event):
+        case getTopicIcon(Topics.Character):
+        case getTopicIcon(Topics.Location):
+        case getTopicIcon(Topics.Organization):
+        case getTopicIcon(Topics.Event):
           await navigationStore.openEntry(item.uuid, { newTab: false });
           break;
 

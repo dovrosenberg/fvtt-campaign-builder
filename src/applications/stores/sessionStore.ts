@@ -8,7 +8,7 @@ import { useMainStore, } from './index';
 
 // types
 import { 
-  Topic, ValidTopic,
+  Topics, ValidTopic,
   RelatedItemDetails, FieldData,
   TablePagination,
 } from '@/types';
@@ -35,36 +35,36 @@ export const useSessionStore = defineStore('session', () => {
   };
 
   const relatedItemPagination = reactive({
-    [Topic.Character]: ref<TablePagination>(defaultPagination),
-    [Topic.Event]: ref<TablePagination>(defaultPagination),
-    [Topic.Location]: ref<TablePagination>(defaultPagination),
-    [Topic.Organization]: ref<TablePagination>(defaultPagination),
+    [Topics.Character]: ref<TablePagination>(defaultPagination),
+    [Topics.Event]: ref<TablePagination>(defaultPagination),
+    [Topics.Location]: ref<TablePagination>(defaultPagination),
+    [Topics.Organization]: ref<TablePagination>(defaultPagination),
   } as Record<ValidTopic, Ref<TablePagination>>);
 
   const extraFields = {
-    [Topic.Character]: {
-      [Topic.Character]: [],
-      [Topic.Event]: [],
-      [Topic.Location]: [{field:'role', header:'Role'}],
-      [Topic.Organization]: [{field:'role', header:'Role'}],
+    [Topics.Character]: {
+      [Topics.Character]: [],
+      [Topics.Event]: [],
+      [Topics.Location]: [{field:'role', header:'Role'}],
+      [Topics.Organization]: [{field:'role', header:'Role'}],
     },
-    [Topic.Event]: {
-      [Topic.Character]: [],
-      [Topic.Event]: [],
-      [Topic.Location]: [],
-      [Topic.Organization]: [],
+    [Topics.Event]: {
+      [Topics.Character]: [],
+      [Topics.Event]: [],
+      [Topics.Location]: [],
+      [Topics.Organization]: [],
     },
-    [Topic.Location]: {
-      [Topic.Character]: [{field:'role', header:'Role'}],
-      [Topic.Event]: [],
-      [Topic.Location]: [],
-      [Topic.Organization]: [],
+    [Topics.Location]: {
+      [Topics.Character]: [{field:'role', header:'Role'}],
+      [Topics.Event]: [],
+      [Topics.Location]: [],
+      [Topics.Organization]: [],
     },
-    [Topic.Organization]: {
-      [Topic.Character]: [{field:'role', header:'Role'}],
-      [Topic.Event]: [],
-      [Topic.Location]: [],
-      [Topic.Organization]: [],
+    [Topics.Organization]: {
+      [Topics.Character]: [{field:'role', header:'Role'}],
+      [Topics.Event]: [],
+      [Topics.Location]: [],
+      [Topics.Organization]: [],
     },    
   } as Record<ValidTopic, Record<ValidTopic, FieldData>>;
   

@@ -75,7 +75,7 @@
   import TopicDirectoryGroupedTree from './TopicDirectoryGroupedTree.vue';
   
   // types
-  import { Topic, WindowTabType } from '@/types';
+  import { Topics, WindowTabType } from '@/types';
   import { DirectoryTopicNode, Campaign, } from '@/classes';
   
   ////////////////////////////////
@@ -153,7 +153,7 @@
     });
   };
 
-  const onTopicContextMenu = (event: MouseEvent, worldId: string, topic: Topic): void => {
+  const onTopicContextMenu = (event: MouseEvent, worldId: string, topic: Topics): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();

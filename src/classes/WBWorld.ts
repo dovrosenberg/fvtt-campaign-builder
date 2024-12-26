@@ -1,27 +1,30 @@
 import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, unsetFlag, setFlag } from '@/settings'; 
-import { WorldDoc, WorldFlagKey, } from '@/documents';
-import { Hierarchy, Topic } from '@/types';
-import { getRootFolder, getTopicTextPlural, } from '@/compendia';
+import { CampaignDoc, WorldDoc, WorldFlagKey, } from '@/documents';
+import { Hierarchy, Topics, ValidTopic } from '@/types';
+import { getRootFolder,  } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
+import { Topic } from '@/classes';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class WBWorld {
   private _worldDoc: WorldDoc;   // this is the foundry folder
   private _compendium: CompendiumCollection;   // this is the main compendium
 
+  // JournalEntries
+  public campaigns: CampaignDoc[] | null; 
+  public topics: Record<ValidTopic, Topic>;  // we load them when we load the world (using validate()), so we assume it's never empty
+
   // saved on Folder
   private _name;
 
   // saved in flags
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made (saved into 'flags')
-  private _campaignEntries;
-  private _expandedCampaignIds;
-  private _expandedIds;
-  private _hierarchies;
-  private _topNodes;
-  private _topicEntries;
-  private _types;
-  private _compendiumId;
+  private _campaignEntries: Record<string, string>;  //name of each campaign; keyed by journal entry uuid
+  private _expandedCampaignIds: Record<string, boolean | null>;   // ids of nodes that are expanded in the campaign tree
+  private _expandedIds: Record<string, boolean | null>;  // ids of nodes that are expanded in the tree (could be compendia or entries or subentries) - handles topic tree
+  private _hierarchies: Record<string, Hierarchy>;  // the full tree hierarchy or null for topics without hierarchy
+  private _topicIds: Record<ValidTopic, string>;  // the uuid for each topic
+  private _compendiumId: string;  // the uuid for the world compendium 
 
   /**
    * @param {WorldDoc} worldDoc - The WBWorld Foundry document
@@ -39,14 +42,15 @@ export class WBWorld {
     this._expandedCampaignIds = getFlag(this._worldDoc, WorldFlagKey.expandedCampaignIds);
     this._expandedIds = getFlag(this._worldDoc, WorldFlagKey.expandedIds);
     this._hierarchies = getFlag(this._worldDoc, WorldFlagKey.hierarchies);
-    this._topNodes = getFlag(this._worldDoc, WorldFlagKey.topNodes);
-    this._topicEntries = getFlag(this._worldDoc, WorldFlagKey.topicEntries);
-    this._types = getFlag(this._worldDoc, WorldFlagKey.types);
+    this._topicIds = getFlag(this._worldDoc, WorldFlagKey.topicIds);
     this._compendiumId = getFlag(this._worldDoc, WorldFlagKey.compendiumId);
     this._name = this._worldDoc.name;
     if (this._compendiumId) {
       this._compendium = game.packs?.get(this._compendiumId);
     }  
+
+    this.campaigns = null;
+    this.topics = {};
   }
 
   static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
@@ -61,6 +65,26 @@ export class WBWorld {
     }
   }
 
+  /**
+  * Gets the Topics associated with the world. If the topics are already loaded, the promise resolves
+  * to the existing ones; otherwise, it loads the topics and then resolves to the set.
+  * @returns {Promise<Record<ValidTopic, Topics>>} A promise to the topics
+  */
+  public async loadTopics(): Promise<Record<ValidTopic, Topics>> {
+    for (const topic in Topics) {
+      if (!this.topics[topic]) {
+        const topicObj = await Topic.fromUuid(this._topicIds[topic]);
+        if (!topicObj)
+          throw new Error('Invalid topic uuid in WBWorld.loadTopics()');
+
+        this._topicIds[topic] = topicObj.uuid;
+        this.topics[topic] = topicObj;
+      }
+    }
+
+    return this.topics;
+  }
+  
   /** 
    * The uuid
    */
@@ -92,8 +116,8 @@ export class WBWorld {
   /**
    * The JournalEntry UUID for each topic.
    */
-  public get topicEntries(): Record<string, string> {
-    return this._topicEntries;
+  public get topicIds(): Record<string, string> {
+    return this._topicIds;
   }
 
   /**
@@ -101,13 +125,6 @@ export class WBWorld {
    */
   public get campaignEntries(): Record<string, string> {
     return this._campaignEntries;
-  }
-
-  /**
-   * An object where each key is a topic, and the value is an array of valid types.
-   */
-  public get types(): Record<string, string[]> {
-    return this._types;
   }
 
   /**
@@ -132,24 +149,7 @@ export class WBWorld {
     return this._hierarchies;
   }
 
-  /**
-   * An array of top-level nodes.
-   */
-  public get topNodes(): Record<string, string[]> {
-    return this._topNodes;
-  }
-
-  /** 
-   * The world name 
-   */
-  public set name(value: string) {
-    this._name = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      name: value
-    };
-  }
-  
+ 
   /** 
    * The uuid for the world compendium  
    */
@@ -164,11 +164,11 @@ export class WBWorld {
   /**
    * The JournalEntry UUID for each topic.
    */
-  public set topicEntries(value: Record<string, string>) {
-    this._topicEntries = value;
+  public set topicIds(value: Record<ValidTopic, string>) {
+    this._topicIds = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}.topicEntries`]: value
+      [`flags.${moduleId}.topicIds`]: value
     };
   }
 
@@ -180,17 +180,6 @@ export class WBWorld {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       [`flags.${moduleId}.campaignEntries`]: value
-    };
-  }
-
-  /**
-   * An object where each key is a topic, and the value is an array of valid types.
-   */
-  public set types(value: Record<string, string[]>) {
-    this._types = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}.types`]: value
     };
   }
 
@@ -225,17 +214,6 @@ export class WBWorld {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       [`flags.${moduleId}.hierarchies`]: value
-    };
-  }
-
-  /**
-   * An array of top-level nodes.
-   */
-  public set topNodes(value: Record<string, string[]>) {
-    this._topNodes = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}.topNodes`]: value
     };
   }
 
@@ -287,7 +265,7 @@ export class WBWorld {
     
         if (worldDoc) {
           await setFlagDefaults(worldDoc);
-        };
+        }
 
         if (!worldDoc)
           throw new Error('Couldn\'t create new folder for world');
@@ -301,7 +279,7 @@ export class WBWorld {
           await UserFlags.set(UserFlagKey.currentWorld, newWorld.uuid);
         }
     
-        await validateCompendia(worldDoc);
+        await this.validate();
         await setFlagDefaults(worldDoc);
 
         return newWorld;
@@ -313,6 +291,7 @@ export class WBWorld {
   }
 
   // make sure we have a compendium in the folder; create a new one if needed
+  // also loads all the topics
   public async validate() {
     let updated = false;
 
@@ -332,36 +311,37 @@ export class WBWorld {
     // also need to create the journal entries
     // check them all
     // Object.keys() on an enum returns an array with all the values followed by all the names
-    const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization];
-    const topicEntries = this._topicEntries;
+    const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization];
+    const topicIds = this._topicIds;
+    const topicObjects = {} as Record<ValidTopic, Topic>;
 
-    await this._compendium.configure({ locked:false });
-
+    // load the topics, creating them if needed
     for (let i=0; i<topics.length; i++) {
       const t = topics[i];
 
-      // if the value is blank or we can't find the entry create a new one
-      let topicJournal = this._compendium.index.find((e)=> e.uuid===topicEntries[t]);
-      if (!topicJournal) {
-        // create the missing one
-        topicJournal = await JournalEntry.create({
-          name: getTopicTextPlural(t),
-          folder: this.uuid,
-        },{
-          pack: this._compendiumId,
-        });
+      let topic = await Topic.fromUuid(topicIds[t]);
 
-        topicEntries[t] = topicJournal.uuid;  
-      
+      if (!topic) {
+        // create the missing one
+        topic = Topic.create(this, t);
+
+        if (!topic)
+          throw new Error('Couldn\'t create topic in WBWorld.validate()');
+
+        topicIds[t] = topic.uuid;
+        topicObjects[t] = topic;
+
         updated = true;
+      } else {
+        topicObjects[t] = topic;
       }
     }
 
-    await this._compendium.configure({ locked:true });
+    this.topics = topicObjects;
 
     // if we changed things, save new compendia flag
     if (updated) {
-      this.topicEntries = topicEntries;
+      this.topicIds = topicIds;
       await this.save();
     }
   }
@@ -407,14 +387,14 @@ export class WBWorld {
   }
 
   // remove a campaign from the world metadata
-  public deleteCampaignFromWorld(campaignId: string) {
+  public async deleteCampaignFromWorld(campaignId: string) {
     // update the flags - this doesn't remove the whole flag, because the keys are flattened
     await unsetFlag(this._worldDoc, WorldFlagKey.campaignEntries, campaignId);
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedCampaignIds, campaignId);
   }  
 
   // change a campaign name inside all the world metadata
-  public updateCampaignName(campaignId: string, name: string) {
+  public async updateCampaignName(campaignId: string, name: string) {
     await setFlag(this._worldDoc, WorldFlagKey.campaignEntries, {
       ... (getFlag(this._worldDoc, WorldFlagKey.campaignEntries) || {}),
       [campaignId]: name
@@ -469,33 +449,4 @@ export class WBWorld {
 //     await WorldFlags.set(worldId, WorldFlagKey.hierarchies, hierarchies);
 //   }
 
-//   // special cases because of indexes
-//   public static getTopicFlag<K extends RequiresTopic>(worldId: string, flag: K, topic: Topic): WorldFlagType<K>[keyof WorldFlagType<K>] {
-//     const f = game.folders?.find((f)=>f.uuid===worldId);
-    
-//     const config = flagSetup.find((s)=>s.flagId===flag);
-
-//     if (!f)
-//       return config?.default[topic];
-
-//     const fullFlag = WorldFlags.get(worldId, flag);
-
-//     return fullFlag[topic] as WorldFlagType<K>[keyof WorldFlagType<K>];
-//   }
-
-//   public async setTopicFlag<T extends RequiresTopic>(worldId: string, flag: T, topic: Topic, value: WorldFlagType<T>[keyof WorldFlagType<T>]): Promise<void> {
-//     const f = game.folders?.find((f)=>f.uuid===worldId);
-//     if (!f)
-//       return;
-
-//     const config = flagSetup.find((s)=>s.flagId===flag);
-//     if (!config)
-//       throw new Error('Bad flag in WorldFlags.set()');
-
-//     // get the current value
-//     const currentValue = WorldFlags.get(worldId, flag) as WorldFlagType<T>;
-//     currentValue[topic] = value;
-
-//     await WorldFlags.set(worldId, flag, currentValue);
-//   }
  

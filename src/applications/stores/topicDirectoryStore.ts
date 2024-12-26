@@ -11,8 +11,8 @@ import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
 
 // types
-import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, } from '@/classes';
-import { DirectoryWorld, Topic, ValidTopic, } from '@/types';
+import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, } from '@/classes';
+import { DirectoryWorld, Topics, ValidTopic, } from '@/types';
 
 // the store definition
 export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
@@ -136,8 +136,8 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // set the parent for a node, cleaning up all associated relationships/records
   // pass a null parent to make it a top node
   // returns wheether it was successful
-  const setNodeParent = async function(topic: Topic, childId: string, parentId: string | null): Promise<boolean> {
-    if (!currentWorldId.value)
+  const setNodeParent = async function(topic: Topics, childId: string, parentId: string | null): Promise<boolean> {
+    if (!currentWorldId.value || !currentWorld.value)
       return false;
 
     // we're going to use this to simplify syntax below
@@ -248,14 +248,16 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     // if the child doesn't have a parent, make sure it's in the topnode list
     //    and vice versa
-    let topNodes = WorldFlags.getTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic) || [];
+    let topNodes = currentWorld.value.topics[topic].topNodes || [];
 
     if (!parentNode && !topNodes.includes(childId)) {
       topNodes = topNodes.concat([childId]);
     } else if (parentNode && topNodes.includes(childId)) {
       topNodes = topNodes.filter((n)=>n!==childId);
     }
-    await WorldFlags.setTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic, topNodes);
+    
+    currentWorld.value.topics[topic].topNodes = topNodes;
+    await currentWorld.value.topics[topic].save();
 
     await refreshTopicDirectoryTree([parentId, oldParentId].filter((id)=>id!==null));
 
@@ -263,7 +265,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   };
 
   const createEntry = async (topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> => {
-    if (!currentWorldId.value)
+    if (!currentWorldId.value || !currentWorld.value)
       return null;
 
     const entry = await Entry.create(topic, options);
@@ -282,8 +284,9 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       // set parent if specified
       if (options.parentId==undefined) {
         // no parent - set as a top node
-        const topNodes = WorldFlags.getTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic);
-        await WorldFlags.setTopicFlag(currentWorldId.value, WorldFlagKey.topNodes, topic, topNodes.concat([uuid]));
+        const topNodes = currentWorld.value.topics[topic].topNodes;
+        currentWorld.value.topics[topic].topNodes = topNodes.concat([uuid]);
+        await currentWorld.value.topics[topic].save();
       } else {
         // add to the tree
         if (hasHierarchy(topic)) {
@@ -380,7 +383,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       const expandedNodes = WorldFlags.get(currentWorldId.value, WorldFlagKey.expandedIds);
       const types = WorldFlags.get(currentWorldId.value, WorldFlagKey.types);
 
-      const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization] as ValidTopic[];
+      const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topics = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${currentWorldId.value}.topic.${topic}`;
         return new DirectoryTopicNode(
@@ -429,10 +432,10 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // TODO - a checkbox option that uses search to filter by all searchable fields vs just name
   const updateFilterNodes = (): void => {
     const retval: Record<ValidTopic, string[]> = {
-      [Topic.Character]: [],
-      [Topic.Event]: [],
-      [Topic.Location]: [],
-      [Topic.Organization]: [],
+      [Topics.Character]: [],
+      [Topics.Event]: [],
+      [Topics.Location]: [],
+      [Topics.Organization]: [],
     };
 
     if (!currentWorldId.value)
@@ -441,7 +444,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     const hierarchies = WorldFlags.get(currentWorldId.value, WorldFlagKey.hierarchies);
 
     const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
-    const topics = [Topic.Character, Topic.Event, Topic.Location, Topic.Organization] as ValidTopic[];
+    const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
       // filter on name and type

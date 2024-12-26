@@ -35,7 +35,7 @@ export type TabSummary = {
 }
 
 // this oder is also the order that they get sorted in
-export enum Topic {
+export enum Topics {
   None = 0,
   Character = 1,
   Location = 2,
@@ -44,7 +44,7 @@ export enum Topic {
 }
 
 // topics except None
-export type ValidTopic = Exclude<Topic, Topic.None>;
+export type ValidTopic = Exclude<Topics, Topics.None>;
 
 // content tabs that are document links not other entries
 export enum DocumentLinkType {

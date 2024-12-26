@@ -1,15 +1,15 @@
-import { RelatedItemDetails, Topic, ValidTopic } from '@/types';
+import { RelatedItemDetails, Topics, ValidTopic } from '@/types';
 
 const fields = foundry.data.fields;
 const entrySchema = {
-  topic: new fields.NumberField({ required: true, nullable: false, validate: (value: number) => { return Object.values(Topic).includes(value); }, textSearch: true, }),
+  topic: new fields.NumberField({ required: true, nullable: false, validate: (value: number) => { return Object.values(Topics).includes(value); }, textSearch: true, }),
   type: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
 
   relationships: new fields.ObjectField({ required: true, nullable: false, initial: {
-    [Topic.Character]: {},
-    [Topic.Event]: {},
-    [Topic.Location]: {},
-    [Topic.Organization]: {},
+    [Topics.Character]: {},
+    [Topics.Event]: {},
+    [Topics.Location]: {},
+    [Topics.Organization]: {},
   } as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>   // all the things related to this item, grouped by topic
   }),    // keyed by topic, then entryId
 

@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace, } from '@/documents';
-import { RelatedItemDetails, ValidTopic, Topic } from '@/types';
+import { RelatedItemDetails, ValidTopic, Topics } from '@/types';
 import { cleanTrees, } from '@/utils/hierarchy';
 import { inputDialog } from '@/dialogs/input';
 import { getTopicText } from '@/compendia';
@@ -69,10 +69,10 @@ export class Entry {
         type: options.type || '',
         topic: topic,
         relationships: {
-          [Topic.Character]: {},
-          [Topic.Event]: {},
-          [Topic.Location]: {},
-          [Topic.Organization]: {},
+          [Topics.Character]: {},
+          [Topics.Event]: {},
+          [Topics.Location]: {},
+          [Topics.Organization]: {},
         },
         actors: [],
         scenes: [],

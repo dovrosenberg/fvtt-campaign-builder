@@ -6,11 +6,15 @@ import {
   CampaignDoc, 
   CampaignFlagKey, 
   CampaignFlagType, 
+  campaignFlagSettings, 
   WorldDoc, 
   WorldFlagKey, 
   WorldFlagType, 
   worldFlagSettings, 
-  campaignFlagSettings 
+  TopicDoc,
+  TopicFlagKey, 
+  TopicFlagType, 
+  topicFlagSettings, 
 } from '@/documents';
 
 import { moduleId } from '.';
@@ -18,7 +22,7 @@ import { moduleId } from '.';
 /** 
  * The allowed types to use flags (our types)
  */
-type ValidDocTypes = WorldDoc | CampaignDoc;
+type ValidDocTypes = WorldDoc | CampaignDoc | TopicDoc;
 
 /** 
  * The subset of FK (which should be an enum of keys) that are Record<string, any> 
@@ -60,15 +64,18 @@ export type FlagSettings<FK extends string, FT extends { [K in FK]: any }> = {
 type FlagKey<T extends ValidDocTypes> = 
   T extends WorldDoc ? WorldFlagKey :
   T extends CampaignDoc ? CampaignFlagKey :
+  T extends TopicDoc ? TopicFlagKey :
   never;
 type FlagType<T extends ValidDocTypes, K extends FlagKey<T>> = 
   T extends WorldDoc ? (K extends WorldFlagKey ? WorldFlagType<K> : never) :
   T extends CampaignDoc ? (K extends CampaignFlagKey ? CampaignFlagType<K> : never) :
+  T extends TopicDoc ? (K extends TopicFlagKey ? TopicFlagType<K> : never) :
   never;
 
 type DocFlagSettings<T extends ValidDocTypes> = 
   T extends WorldDoc ? typeof worldFlagSettings :
   T extends CampaignDoc ? typeof campaignFlagSettings :
+  T extends TopicDoc ? typeof topicFlagSettings :
   never;
   
   
@@ -77,9 +84,15 @@ export function isWorldDoc(doc: ValidDocTypes): doc is WorldDoc {
   return doc.getFlag(moduleId, 'isWorld') === true;
 }
 
+
 export function isCampaignDoc(doc: ValidDocTypes): doc is CampaignDoc {
   // @ts-ignore - not entirely sure why TS can't figure this out
   return doc.getFlag(moduleId, 'isCampaign') === true;
+}
+
+export function isTopicDoc(doc: ValidDocTypes): doc is TopicDoc {
+  // @ts-ignore - not entirely sure why TS can't figure this out
+  return doc.getFlag(moduleId, 'isTopic') === true;
 }
 
 const getFlagSettingsFromDoc = <DocType extends ValidDocTypes>(doc: DocType): DocFlagSettings<DocType> => {
@@ -89,6 +102,9 @@ const getFlagSettingsFromDoc = <DocType extends ValidDocTypes>(doc: DocType): Do
   if (isCampaignDoc(doc)) 
     return campaignFlagSettings as DocFlagSettings<DocType>;
   
+  if (isTopicDoc(doc)) 
+    return topicFlagSettings as DocFlagSettings<DocType>;
+
   throw new Error('Invalid document type');
 };
 

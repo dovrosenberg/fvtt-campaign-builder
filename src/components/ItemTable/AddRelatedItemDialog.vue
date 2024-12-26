@@ -93,7 +93,7 @@
   // local components
 
   // types
-  import { Topic, ValidTopic, } from '@/types';
+  import { Topics, ValidTopic, } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -123,19 +123,19 @@
   const entry = ref<Entry | null>(null);  // the selected item from the dropdown
   const extraFieldValues = ref<Record<string, string>>({});
   const topicDetails = {
-    [Topic.Event]: {
+    [Topics.Event]: {
       title: 'Add an event',
       buttonTitle: 'Add event',
     },
-    [Topic.Character]: {
+    [Topics.Character]: {
       title: 'Add a character',
       buttonTitle: 'Add character',
     },
-    [Topic.Location]: {
+    [Topics.Location]: {
       title: 'Add a location',
       buttonTitle: 'Add location',
     },
-    [Topic.Organization]: {
+    [Topics.Organization]: {
       title: 'Add an organization',
       buttonTitle: 'Add organization',
     },

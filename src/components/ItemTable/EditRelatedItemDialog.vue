@@ -74,7 +74,7 @@
   // local components
 
   // types
-  import { Topic, ValidTopic } from '@/types';
+  import { Topics, ValidTopic } from '@/types';
   
   type ItemTypeDetail = {
     title: string;
@@ -122,19 +122,19 @@
   const show = ref(props.modelValue);
   const extraFieldValues = ref(globalThis.foundry.utils.deepClone(props.extraFieldValues));
   const topicDetails = {
-    [Topic.Character]: {
+    [Topics.Character]: {
       title: 'Edit character',
       buttonTitle: 'Save character',
     },
-    [Topic.Organization]: {
+    [Topics.Organization]: {
       title: 'Edit organization',
       buttonTitle: 'Save organization',
     },
-    [Topic.Location]: {
+    [Topics.Location]: {
       title: 'Edit location',
       buttonTitle: 'Save location',
     },
-    [Topic.Event]: {
+    [Topics.Event]: {
       title: 'Edit event',
       buttonTitle: 'Save event',
     },

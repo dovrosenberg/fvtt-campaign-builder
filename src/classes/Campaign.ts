@@ -20,7 +20,7 @@ export class Campaign {
 
   /**
    * 
-   * @param {CampaignDoc} campaignDoc - The entry Foundry document
+   * @param {CampaignDoc} campaignDoc - The campaign Foundry document
    * @param {WBWorld} world - The world the campaign is in
    */
   constructor(campaignDoc: CampaignDoc, world?: WBWorld) {
@@ -37,8 +37,8 @@ export class Campaign {
     this._pcs = getFlag(this._campaignDoc, CampaignFlagKey.pcs) || [];
   }
 
-  static async fromUuid(entryId: string, options?: Record<string, any>): Promise<Campaign | null> {
-    const campaignDoc = await fromUuid(entryId, options) as CampaignDoc;
+  static async fromUuid(campaignId: string, options?: Record<string, any>): Promise<Campaign | null> {
+    const campaignDoc = await fromUuid(campaignId, options) as CampaignDoc;
 
     if (!campaignDoc)
       return null;
@@ -203,7 +203,7 @@ export class Campaign {
 
       // update the name
       if (updateData.name !== undefined) {
-        world.updateCampaignName(this.uuid, updateData.name);
+        await world.updateCampaignName(this.uuid, updateData.name);
       }
     }
     await world.lock();
@@ -233,6 +233,6 @@ export class Campaign {
 
     await world.lock();
 
-    world.deleteCampaignFromWorld(id);
+    await world.deleteCampaignFromWorld(id);
   }
 }

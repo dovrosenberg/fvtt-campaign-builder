@@ -90,7 +90,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
     if (entry.raw.documentName && entry.topic) {
       // check the pack to see if it's cross-world by seeing if the parent journal entry matches the 
       //    main one for the current world
-      const correctPack = (await WBWorld.fromUuid(worldId))?.topicEntries?.[entry.topic];
+      const correctPack = (await WBWorld.fromUuid(worldId))?.topicIds?.[entry.topic];
 
       // handle the ones we don't care about
       if (correctPack !== entry.raw.parent?.uuid) {

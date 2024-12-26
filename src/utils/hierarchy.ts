@@ -1,4 +1,4 @@
-import { TabSummary,  Hierarchy, Topic, ValidTopic, } from '@/types';
+import { TabSummary,  Hierarchy, Topics, ValidTopic, } from '@/types';
 import { Entry, } from '@/classes';
 
 // the string to show for items with no type
@@ -8,7 +8,7 @@ export const NO_TYPE_STRING = '(none)';
 export const NO_NAME_STRING = '<Blank>';
 
 // does this topic use hierarchy?
-export const hasHierarchy = (topic: Topic): boolean => [Topic.Organization, Topic.Location].includes(topic);
+export const hasHierarchy = (topic: Topics): boolean => [Topics.Organization, Topics.Location].includes(topic);
 
 // returns a list of valid possible children for a node
 // this is to populate a list of possible children for a node (ex. a dropdown)
@@ -48,7 +48,7 @@ const mapEntryToSummary = (entry: Entry): TabSummary => ({
 
 // after we delete an item, we need to remove it from any trees where it is a child or ancestor,
 //    along with all of the items that are now orphaned
-export const cleanTrees = async function(currentWorldId: string, topic: ValidTopic, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
+export const cleanTrees = async function(world: WBWorld, topic: ValidTopic, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
   const hierarchies = WorldFlags.get(currentWorldId, WorldFlagKey.hierarchies); 
   
   // remove deleted item and all its ancestors from any object who had them as ancestors previously
