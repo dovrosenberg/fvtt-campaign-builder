@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 import { getFlag, moduleId, setFlagDefaults } from '@/settings'; 
-import { CampaignDoc, CampaignFlagKey, SessionDoc, WorldDoc } from '@/documents';
+import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, SessionDoc, WorldDoc } from '@/documents';
 import { Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs/input';
 
@@ -143,15 +143,19 @@ export class Campaign {
         await world.unlock();
 
         // create a journal entry for the campaign
-        const newCampaignDoc = await JournalEntry.create({
+        const newCampaignDocs = await JournalEntry.create({
           name: name,
+          folder: foundry.utils.parseUuid(world.uuid).id,
         },{
-          pack: world.uuid,
-        }) as unknown as CampaignDoc;  
+          pack: world.compendium.id,
+        }) as unknown as CampaignDoc[];  
 
-        if (newCampaignDoc) {
-          await setFlagDefaults(newCampaignDoc);
-        }
+        if (!newCampaignDocs)
+          throw new Error('Couldn\'t create new journal entry for campaign');
+
+        const newCampaignDoc = newCampaignDocs[0];
+
+        await setFlagDefaults(newCampaignDoc, campaignFlagSettings);
 
         await world.lock();
 

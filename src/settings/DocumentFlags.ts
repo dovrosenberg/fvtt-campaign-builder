@@ -203,30 +203,31 @@ export const unsetFlag = async <
 };
 
 /**
- * Adds all the default flag values to the document
- * @param worldId 
+ * Adds all the default flag values to the document.  Overrides anything already there.  Does not automatically determine the flags because
+ * the doc type identifier (ex. isWorld) may not yet be set.  
+ * @param doc
  * @returns 
  */
 export const setFlagDefaults = async <
   DocType extends ValidDocTypes,
-> (doc: DocType): Promise<void> => {
-  const flagSettings = getFlagSettingsFromDoc(doc);
-
+> (doc: DocType, flagSettings: DocFlagSettings<DocType>): Promise<void> => {
   if (!doc || !flagSettings)
     throw new Error('Bad document/flag in DocumentFlags.setFlagDefaults()');
-    
+ 
+  // We can't use get() or set() because they rely on the doc type being set already
+
   for (let i=0; i < flagSettings.length; i++) {
     const flagId = flagSettings[i].flagId as FlagKey<DocType>;
 
-    if (!getFlag(doc, flagId)) {
-      const value = foundry.utils.deepClone(flagSettings[i].default);
+    const value = foundry.utils.deepClone(flagSettings[i].default);
 
-      if (flagSettings[i].keyedByUUID && value) {
-        await setFlag(doc, flagId, protect(value as Record<string, any>) as FlagType<DocType, typeof flagId>);
-      } else {
-        await setFlag(doc, flagId, value as FlagType<DocType, typeof flagId>);
-      }        
-    }
+    if (flagSettings[i].keyedByUUID && value) {
+      // @ts-ignore
+      await doc.setFlag(moduleId, flagId, protect(value as Record<string, any>) as FlagType<DocType, typeof flagId>);
+    } else {
+      // @ts-ignore
+      await doc.setFlag(moduleId, flagId, value as FlagType<DocType, typeof flagId>);
+    }        
   }
 
   return;

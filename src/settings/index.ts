@@ -1,6 +1,6 @@
 import { id } from '@module';
 import { SettingKey, SettingKeyType } from './ModuleSettings';
-import { CampaignFlagKey, CampaignFlagType, WorldFlagKey, WorldFlagType } from '@/documents';
+import { CampaignFlagKey, CampaignFlagType, WorldFlagKey, WorldFlagType, } from '@/documents';
 
 export * from './UserFlags';
 export * from './ModuleSettings';

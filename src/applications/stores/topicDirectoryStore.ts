@@ -349,6 +349,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // we try to keep it fast by not reloading from disk nodes that we've already loaded before,
   //    but that means that when names change or children change, we're not refreshing them properly
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
+  // TODO: consider wrapping the rootfolder in a class vs. doing this foundry work here
   const refreshTopicDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world and journals loaded
     if (!currentWorld.value)
@@ -360,12 +361,14 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     let tree = [] as DirectoryWorld[];
 
     // populate the world names, and find the current one
+    let currentWorldFound = false;
     tree = (toRaw(rootFolder.value) as Folder)?.children?.map((world: Folder): DirectoryWorld => {
       if (!world.folder)
         throw new Error('World without folder in refreshTopicDirectoryTree()');
 
-      if (world.uuid===currentWorld.value.uuid)
-        currentWorld.value = await WBWorld.fromUuid(world.uuid);
+      if (world.folder.uuid===currentWorld.value?.uuid) {
+        currentWorldFound = true;
+      }
 
       return {
         name: world.folder.name as string,
@@ -375,18 +378,18 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     }) || [];
 
     // find the record for the current world and set the packs
-    const currentWorldBlock = tree.find((w)=>w.id===currentWorld.value.uuid);
-    if (currentWorldBlock && currentWorld) {
+    const currentWorldBlock = tree.find((w)=>w.id===currentWorld.value?.uuid);
+    if (currentWorldBlock && currentWorldFound && currentWorld.value) {
       const expandedNodes = currentWorld.value.expandedIds;
 
       const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topics = topics.map((topic: ValidTopic): DirectoryTopicNode => {
-        const id = `${currentWorld.value.uuid}.topic.${topic}`;
+        const id = `${currentWorld.value?.uuid}.topic.${topic}`;
         return new DirectoryTopicNode(
           id,
           getTopicTextPlural(topic),
           topic,
-          currentWorld.value.topics[topic].topNodes,
+          currentWorld.value?.topics[topic].topNodes,
           [],
           [],
           expandedNodes[id] || false,

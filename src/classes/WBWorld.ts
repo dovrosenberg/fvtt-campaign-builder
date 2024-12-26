@@ -1,5 +1,5 @@
-import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, unsetFlag, setFlag } from '@/settings'; 
-import { CampaignDoc, WorldDoc, WorldFlagKey, } from '@/documents';
+import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, unsetFlag, setFlag, } from '@/settings'; 
+import { CampaignDoc, WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
@@ -256,22 +256,20 @@ export class WBWorld {
       
       if (name) {
         // create the world folder
-        const worldDoc = await Folder.createDocuments([{
+        const worldDocs = await Folder.createDocuments([{
           name,
           type: 'Compendium',
           folder: rootFolder.id,
           sorting: 'a',
-        }]) as unknown as WorldDoc;
+        }]) as unknown as WorldDoc[];
     
-        if (worldDoc) {
-          await setFlagDefaults(worldDoc);
-        }
-
-        if (!worldDoc)
+        if (!worldDocs)
           throw new Error('Couldn\'t create new folder for world');
-    
-        await setFlag(worldDoc, WorldFlagKey.isWorld, true);
 
+        const worldDoc = worldDocs[0];
+
+        await setFlagDefaults(worldDoc, worldFlagSettings);
+    
         const newWorld = new WBWorld(worldDoc);
 
         // set as the current world
@@ -280,7 +278,6 @@ export class WBWorld {
         }
     
         await newWorld.validate();
-        await setFlagDefaults(worldDoc);
 
         return newWorld;
       }
@@ -355,7 +352,7 @@ export class WBWorld {
     };
 
     const pack = await CompendiumCollection.createCompendium(metadata);
-    await pack.setFolder(this._worldDoc.uuid);
+    await pack.setFolder(this._worldDoc as Folder);
     await pack.configure({ locked:true });
 
     this._compendium = pack;

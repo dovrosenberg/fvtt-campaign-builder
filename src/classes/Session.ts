@@ -101,7 +101,7 @@ export class Session {
       }
     }],{
       parent: campaign.raw as JournalEntry,
-    }) as unknown as SessionDoc;
+    }) as unknown as SessionDoc[];
 
     await world.lock();
 

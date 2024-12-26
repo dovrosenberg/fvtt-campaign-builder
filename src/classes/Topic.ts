@@ -1,9 +1,9 @@
 import { toRaw } from 'vue';
-import { getFlag, moduleId, setFlag, setFlagDefaults } from '@/settings'; 
-import { TopicDoc, WorldDoc, TopicFlagKey } from '@/documents';
+import { getFlag, moduleId, setFlag, setFlagDefaults, } from '@/settings'; 
+import { TopicDoc, WorldDoc, TopicFlagKey, topicFlagSettings } from '@/documents';
 import { WBWorld } from '@/classes';
-import { ValidTopic } from 'src/types';
-import { getTopicTextPlural } from 'src/compendia';
+import { ValidTopic } from '@/types';
+import { getTopicTextPlural } from '@/compendia';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Topic {
@@ -144,13 +144,13 @@ export class Topic {
     // create a journal entry for the campaign
     const newTopicDoc = await JournalEntry.create({
       name: getTopicTextPlural(topic),
-      folder: world.uuid,
+      folder: foundry.utils.parseUuid(world.uuid).id,
     },{
       pack: world.compendiumId,
     }) as unknown as TopicDoc;
 
     if (newTopicDoc) {
-      await setFlagDefaults(newTopicDoc);
+      await setFlagDefaults(newTopicDoc, topicFlagSettings);
     }
 
     await setFlag(newTopicDoc, TopicFlagKey.topic, topic);

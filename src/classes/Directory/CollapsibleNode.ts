@@ -4,7 +4,7 @@
 
 import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, WBWorld } from '@/classes';
 import { WorldFlagKey } from '@/documents';
-import { unsetFlag } from 'src/settings';
+import { unsetFlag } from '@/settings';
 
 type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode;
 

@@ -1,4 +1,4 @@
-import { FlagSettings } from 'src/settings';
+import { FlagSettings } from '@/settings';
 
 // camapaigns are journal entries, not documents
 export interface CampaignDoc extends JournalEntry {

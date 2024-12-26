@@ -96,7 +96,7 @@ export class Entry {
       }
     }],{
       parent: Entry.currentTopicJournals[topic],
-    }) as unknown as EntryDoc;
+    }) as unknown as EntryDoc[];
 
     await Entry.worldCompendium.configure({locked:true});
 
