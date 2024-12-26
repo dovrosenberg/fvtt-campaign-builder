@@ -93,7 +93,7 @@
   ////////////////////////////////
   // watchers
   watch(() => currentWorld.value, async () => {
-    if (currentWorld.value) {
+    if (currentWorld.value && currentWorld.value.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = currentWorld.value.uuid;
 
@@ -131,9 +131,7 @@
         }
       }
 
-      Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
-      Entry.worldCompendium = worldCompendium;
-      CollapsibleNode.currentWorld = currentWorld.value;
+      CollapsibleNode.currentWorld = currentWorld.value as WBWorld;
     }
   });
 
@@ -144,7 +142,7 @@
 
     const folders = await getDefaultFolders();
 
-    if (folders && folders.rootFolder && folders.world) {
+    if (folders && folders.rootFolder && folders.world && folders.world.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = folders.world.uuid;
       const world = folders.world;
@@ -154,8 +152,6 @@
       if (!worldCompendium)
         throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
 
-      const topicIds = world.topicIds;
-      const campaignEntries = world.campaignEntries;
       const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
@@ -169,22 +165,21 @@
         const t = topics[i];
         
         // we need to load the actual entries - not just the index headers
-        topicJournals[t] = (await fromUuid(topicIds[t])) as JournalEntry | null;
+        topicJournals[t] = (await fromUuid(world.topicIds[t])) as JournalEntry | null;
 
         if (!topicJournals[t])
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
       }
 
-      for (let i=0; i<Object.keys(campaignEntries).length; i++) {
+      for (let i=0; i<Object.keys(world.campaignEntries).length; i++) {
         // we need to load the actual entries - not just the index headers
-        const j = (await fromUuid(Object.keys(campaignEntries)[i])) as CampaignDoc | null;
+        const j = (await fromUuid(Object.keys(world.campaignEntries)[i])) as CampaignDoc | null;
         if (j) {
           campaignJournals[j.uuid] = j;
         }
       }
 
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
-      Entry.worldCompendium = worldCompendium;
       CollapsibleNode.currentWorld = folders.world;
       
       rootFolder.value = folders.rootFolder;

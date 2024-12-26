@@ -135,7 +135,7 @@
 
   // types
   import { ValidTopic, Topics, } from '@/types';
-  import { Entry } from '@/classes';
+  import { Entry, WBWorld } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -180,7 +180,7 @@
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
-  const typeList = computed((): string[] => (topic.value===null || !currentWorld.value ? [] : currentWorld.value.types[topic.value]));
+  const typeList = computed((): string[] => (topic.value===null || !currentWorld.value ? [] : currentWorld.value.topics[topic.value].types));
 
   ////////////////////////////////
   // methods
@@ -214,7 +214,7 @@
     if (topic.value === null || !currentWorld.value)
       return;
 
-    const currentTypes = currentWorld.value.types;
+    const currentTypes = currentWorld.value.topics[topic.value].types;
 
     // if not a duplicate, add to the valid type lists 
     if (!currentTypes[topic.value].includes(added)) {
@@ -222,7 +222,7 @@
         ...currentTypes,
         [topic.value]: currentTypes[topic.value].concat([added]),
       };
-      currentWorld.value.types = updatedTypes;
+      currentWorld.value.topics[topic.value].types = updatedTypes;
       await currentWorld.value.save();
     }
 

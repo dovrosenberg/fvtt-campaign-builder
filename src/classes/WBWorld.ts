@@ -23,7 +23,7 @@ export class WBWorld {
   private _campaignEntries: Record<string, string>;  //name of each campaign; keyed by journal entry uuid
   private _expandedIds: Record<string, boolean | null>;  // ids of nodes that are expanded in the tree (could be compendia or entries or subentries) - handles topic tree
   private _hierarchies: Record<string, Hierarchy>;  // the full tree hierarchy or null for topics without hierarchy
-  private _topicIds: Record<ValidTopic, string>;  // the uuid for each topic
+  private _topicIds: Record<ValidTopic, string> | null;  // the uuid for each topic
   private _compendiumId: string;  // the uuid for the world compendium 
 
   /**
@@ -75,12 +75,16 @@ export class WBWorld {
   * @returns {Promise<Record<ValidTopic, Topics>>} A promise to the topics
   */
   public async loadTopics(): Promise<Record<ValidTopic, Topic>> {
+    if (!this._topicIds)
+      throw new Error('Invalid WBWorld.loadTopics() called before IDs loaded');
+
     for (const topic in Topics) {
       if (!this.topics[topic]) {
         const topicObj = await Topic.fromUuid(this._topicIds[topic]);
         if (!topicObj)
           throw new Error('Invalid topic uuid in WBWorld.loadTopics()');
 
+        topicObj.world = this;
         this._topicIds[topic] = topicObj.uuid;
         this.topics[topic] = topicObj;
       }
@@ -120,7 +124,7 @@ export class WBWorld {
   /**
    * The JournalEntry UUID for each topic.
    */
-  public get topicIds(): Record<string, string> {
+  public get topicIds(): Record<string, string> | null {
     return this._topicIds;
   }
 
@@ -218,12 +222,14 @@ export class WBWorld {
   }
 
   /**
-   * Updates a world in the database 
+   * Updates a world in the database.  Handles locking.
    * 
    * @returns {Promise<WBWorld | null>} The updated WBWorld, or null if the update failed.
    */
   public async save(): Promise<WBWorld | null> {
     let success = false;
+
+    await this.unlock();
 
     const updateData = this._cumulativeUpdate;
     if (Object.keys(updateData).length !== 0) {
@@ -236,6 +242,8 @@ export class WBWorld {
         success = true;
       }
     }
+
+    await this.lock();
 
     return success ? this : null;
   }  
@@ -309,18 +317,26 @@ export class WBWorld {
     // check them all
     // Object.keys() on an enum returns an array with all the values followed by all the names
     const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
-    const topicIds = this._topicIds;
+    let topicIds = this._topicIds;
     const topicObjects = {} as Record<ValidTopic, Topic>;
+
+    if (!topicIds) {
+      topicIds = {} as Record<ValidTopic, string>;
+    }
 
     // load the topics, creating them if needed
     for (let i=0; i<topics.length; i++) {
       const t = topics[i];
 
-      let topic = await Topic.fromUuid(topicIds[t]);
+      let topic;
+      if (topicIds[t]) {
+        topic = await Topic.fromUuid(topicIds[t]);
+        topic.world = this;
+      }
 
       if (!topic) {
         // create the missing one
-        topic = Topic.create(this, t);
+        topic = await Topic.create(this, t);
 
         if (!topic)
           throw new Error('Couldn\'t create topic in WBWorld.validate()');

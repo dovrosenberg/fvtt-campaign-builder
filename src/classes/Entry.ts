@@ -4,17 +4,15 @@ import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace, WorldDoc, } from '@/d
 import { RelatedItemDetails, ValidTopic, Topics } from '@/types';
 import { inputDialog } from '@/dialogs/input';
 import { getTopicText } from '@/compendia';
-import { WBWorld } from '@/classes';
+import { Topic, WBWorld } from '@/classes';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Entry {
-  static worldCompendium: CompendiumCollection<any>;
-  static worldId: string;
   static currentTopicJournals: Record<ValidTopic, JournalEntry>;
 
-  public world: WBWorld | null;
+  public topic: Topic | null;
 
   private _entryDoc: EntryDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
@@ -23,7 +21,7 @@ export class Entry {
    * 
    * @param {EntryDoc} entryDoc - The entry Foundry document
    */
-  constructor(entryDoc: EntryDoc, world?: WBWorld) {
+  constructor(entryDoc: EntryDoc, topic?: Topic) {
     // make sure it's the right kind of document
     if (entryDoc.type !== DOCUMENT_TYPES.Entry)
       throw new Error('Invalid document type in Entry constructor');
@@ -31,7 +29,7 @@ export class Entry {
     // clone it to avoid unexpected changes
     this._entryDoc = foundry.utils.deepClone(entryDoc);
     this._cumulativeUpdate = {};
-    this.world = world || null;
+    this.topic = topic || null;
   }
 
   static async fromUuid(entryId: string, options?: Record<string, any>): Promise<Entry | null> {
@@ -44,25 +42,25 @@ export class Entry {
   }
 
   /**
-   * Gets the WBWorld associated with the entry. If the world is already loaded, the promise resolves
-   * to the existing world; otherwise, it loads the world and then resolves to it.
-   * @returns {Promise<WBWorld>} A promise to the world associated with the entry.
+   * Gets the Topic associated with the entry. If the topic  is already loaded, the promise resolves
+   * to the existing Topic; otherwise, it loads the Topic and then resolves to it.
+   * @returns {Promise<Topic>} A promise to the Topic  associated with the entry.
    */
-  public async loadWorld(): Promise<WBWorld> {
-    if (this.world)
-      return this.world;
+  public async loadTopic(): Promise<Topic> {
+    if (this.topic)
+      return this.topic;
     
-    const worldDoc = await fromUuid(this._entryDoc.parent.folder) as WorldDoc;
+    this.topic = await Topic.fromUuid(this._entryDoc.parent.uuid) as TopicDoc;
 
-    if (!worldDoc)
-      throw new Error('Invalid folder id in Entry.getWorld()');
+    if (!topic)
+      throw new Error('Invalid entry in Entry.getTopic()');
 
-    return new WBWorld(worldDoc);
+    return this.topic;
   }
   
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
-  static async create(topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> 
+  static async create(topic: Topic, options: CreateEntryOptions): Promise<Entry | null> 
   {
     const topicText = getTopicText(topic);
 
@@ -76,7 +74,7 @@ export class Entry {
       return null;
 
     // create the entry
-    await Entry.worldCompendium.configure({locked:false});
+    await world.unlock();
 
     const entryDoc = await JournalEntryPage.createDocuments([{
       // @ts-ignore- we know this type is valid
@@ -98,9 +96,14 @@ export class Entry {
       parent: Entry.currentTopicJournals[topic],
     }) as unknown as EntryDoc[];
 
-    await Entry.worldCompendium.configure({locked:true});
+    await world.lock();
 
-    return entryDoc[0] ? new Entry(entryDoc[0]) : null;
+    if (entryDoc) {
+      const entry = new Entry(entryDoc[0], world);
+      return entry;
+    } else {
+      return null;
+    }
   }
 
   get uuid(): string {
@@ -209,6 +212,25 @@ export class Entry {
     this._entryDoc.system.actors = value;
   }
 
+  /**
+    * Gets the world associated with a entry, loading into the topic
+    * if needed.
+    * 
+    * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
+    */
+  private async getWorld(): Promise<WBWorld> {
+    if (!this.topic)
+      await this.loadTopic();
+  
+    const topic = this.topic as Topic;
+  
+    if (!topic.world)
+      await topic.loadWorld();
+  
+    return topic.world as WBWorld;
+  }
+  
+
   // used to set arbitrary properties on the entryDoc
   /**
    * Updates an entry in the database
@@ -216,8 +238,7 @@ export class Entry {
    * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
    */
   public async save(): Promise<Entry | null> {
-    if (!Entry.worldCompendium)
-      return null;
+    const world = await this.getWorld();
 
     // rather than try to monitor all changes to the arrays (which would require saving the originals or a proxy), we just always save them
     const updateData = {
@@ -230,7 +251,7 @@ export class Entry {
     };
 
     // unlock compendium to make the change
-    await Entry.worldCompendium.configure({locked:false});
+    await world.unlock();
 
     let oldRelationships;
     
@@ -253,7 +274,7 @@ export class Entry {
 
     this._cumulativeUpdate = {};
 
-    await Entry.worldCompendium.configure({locked:true});
+    await world.lock();
 
     return retval ? this : null;
   }

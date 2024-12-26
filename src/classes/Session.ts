@@ -48,7 +48,7 @@ export class Session {
     this.campaign = await Campaign.fromUuid(this._sessionDoc.parent.uuid);
 
     if (!this.campaign)
-      throw new Error('Invalid folder id in Session.getCampaign()');
+      throw new Error('Invalid session in Session.getCampaign()');
 
     return this.campaign;
   }
@@ -57,7 +57,7 @@ export class Session {
    * Gets the world associated with a session, loading into the campaign 
    * if needed.
    * 
-   * @returns {Promise<Campaign>} A promise to the world associated with the campaign.
+   * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
    */
   private async getWorld(): Promise<WBWorld> {
     if (!this.campaign)
@@ -105,7 +105,12 @@ export class Session {
 
     await world.lock();
 
-    return sessionDoc[0] ? new Session(sessionDoc[0], campaign) : null;
+    if (sessionDoc) {
+      const session = new Session(sessionDoc[0], campaign);
+      return session;
+    } else {
+      return null;
+    }
   }
 
   get uuid(): string {
