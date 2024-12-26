@@ -31,7 +31,7 @@ export class WBWorld {
    */
   constructor(worldDoc: WorldDoc) {
     // make sure it's the right kind of document
-    if (worldDoc.documentName !== 'Folder' || !worldDoc.getFlag(moduleId, 'isWorld'))
+    if (worldDoc.documentName !== 'Folder' || !worldDoc.getFlag(moduleId, WorldFlagKey.isWorld))
       throw new Error('Invalid document type in WBWorld constructor');
 
     // clone it to avoid unexpected changes, also drop the proxy
@@ -279,7 +279,7 @@ export class WBWorld {
           await UserFlags.set(UserFlagKey.currentWorld, newWorld.uuid);
         }
     
-        await this.validate();
+        await newWorld.validate();
         await setFlagDefaults(worldDoc);
 
         return newWorld;
@@ -311,7 +311,7 @@ export class WBWorld {
     // also need to create the journal entries
     // check them all
     // Object.keys() on an enum returns an array with all the values followed by all the names
-    const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization];
+    const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
     const topicIds = this._topicIds;
     const topicObjects = {} as Record<ValidTopic, Topic>;
 

@@ -40,7 +40,7 @@ export class Topic {
     this._topic = getFlag(this._topicDoc, TopicFlagKey.topic);
   }
 
-  static async fromUuid(topicId: string, options?: Record<string, any>): Promise<Campaign | null> {
+  static async fromUuid(topicId: string, options?: Record<string, any>): Promise<Topic | null> {
     const topicDoc = await fromUuid(topicId, options) as TopicDoc;
 
     if (!topicDoc)

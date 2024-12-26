@@ -206,7 +206,7 @@ export class Campaign {
    * @returns {Entry[]} The entries that pass the filter
    */
   public filterSessions(filterFn: (e: Session) => boolean): Session[] { 
-    return (this._campaignDoc.pages.contents as SessionDoc[])
+    return (this._campaignDoc.pages.contents as unknown as SessionDoc[])
       .map((s: SessionDoc)=> new Session(s))
       .filter((s: Session)=> filterFn(s));
   }

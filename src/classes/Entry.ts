@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace, } from '@/documents';
+import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace, WorldDoc, } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topics } from '@/types';
 import { inputDialog } from '@/dialogs/input';
 import { getTopicText } from '@/compendia';
