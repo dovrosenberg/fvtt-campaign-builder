@@ -119,7 +119,7 @@ export const useCampaignStore = defineStore('campaign', () => {
               uuid: id,
               packid: id,
               packName: id,
-            }
+            };
           }
           )|| [];
       } else {

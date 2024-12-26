@@ -5,6 +5,7 @@ import { RelatedItemDetails, ValidTopic, Topics } from '@/types';
 import { cleanTrees, } from '@/utils/hierarchy';
 import { inputDialog } from '@/dialogs/input';
 import { getTopicText } from '@/compendia';
+import { WBWorld } from '@/classes';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -14,6 +15,8 @@ export class Entry {
   static worldId: string;
   static currentTopicJournals: Record<ValidTopic, JournalEntry>;
 
+  public world: WBWorld | null;
+
   private _entryDoc: EntryDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
 
@@ -21,7 +24,7 @@ export class Entry {
    * 
    * @param {EntryDoc} entryDoc - The entry Foundry document
    */
-  constructor(entryDoc: EntryDoc) {
+  constructor(entryDoc: EntryDoc, world?: WBWorld) {
     // make sure it's the right kind of document
     if (entryDoc.type !== DOCUMENT_TYPES.Entry)
       throw new Error('Invalid document type in Entry constructor');
@@ -29,6 +32,7 @@ export class Entry {
     // clone it to avoid unexpected changes
     this._entryDoc = foundry.utils.deepClone(entryDoc);
     this._cumulativeUpdate = {};
+    this.world = world || null;
   }
 
   static async fromUuid(entryId: string, options?: Record<string, any>): Promise<Entry | null> {
@@ -40,13 +44,27 @@ export class Entry {
       return new Entry(entryDoc);
   }
 
+  /**
+   * Gets the WBWorld associated with the entry. If the world is already loaded, the promise resolves
+   * to the existing world; otherwise, it loads the world and then resolves to it.
+   * @returns {Promise<WBWorld>} A promise to the world associated with the entry.
+   */
+  public async loadWorld(): Promise<WBWorld> {
+    if (this.world)
+      return this.world;
+    
+    const worldDoc = await fromUuid(this._entryDoc.parent.folder) as WorldDoc;
+
+    if (!worldDoc)
+      throw new Error('Invalid folder id in Entry.getWorld()');
+
+    return new WBWorld(worldDoc);
+  }
+  
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
   static async create(topic: ValidTopic, options: CreateEntryOptions): Promise<Entry | null> 
   {
-    if (!Entry.worldCompendium || !Entry.currentTopicJournals)
-      throw new Error('No world compendium or topic journals in Entry.create()');
-
     const topicText = getTopicText(topic);
 
     let nameToUse = options.name || '' as string | null;
@@ -102,11 +120,12 @@ export class Entry {
     };
   }
 
-  get topic(): ValidTopic | undefined {
+  get topic(): ValidTopic {
     return this._entryDoc.system.topic;
   }
 
   set topic(value: ValidTopic) {
+    throw new Error('Entry.topic is read-only - otherwise need to update all the world metadata???');
     this._entryDoc.system.topic = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
@@ -152,11 +171,11 @@ export class Entry {
   }
 
   // keyed by topic then by entryId
-  get relationships(): Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> | undefined {
+  get relationships(): Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> {
     return this._entryDoc.system.relationships;
   }  
 
-  set relationships(value: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> | undefined) {
+  set relationships(value: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>) {
     this._entryDoc.system.relationships = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
@@ -256,34 +275,22 @@ export class Entry {
       .filter((e: Entry)=> filterFn(e));
   }
 
-  public static async deleteEntry(topic: ValidTopic, entryId: string) {
-    const entryDoc = await fromUuid(entryId) as EntryDoc;
+  public async deleteEntry() {
+    if (!this.world)
+      await this.loadWorld();
 
-    if (!entryDoc || !Entry.worldCompendium)
-      return;
+    const world = this.world as WBWorld;
+    const id = this.uuid;
+    const topic = this.topic;
 
     // have to unlock the pack
-    await Entry.worldCompendium.configure({locked:false});
+    await world.unlock();
 
-    const hierarchy = WorldFlags.getHierarchy(Entry.worldId, entryId);
+    await this._entryDoc.delete();
 
-    if (hierarchy) {
-      // delete from any trees
-      if (hierarchy?.ancestors || hierarchy?.children) {
-        await cleanTrees(Entry.worldId, topic, entryId, hierarchy);
-      }
-    }
+    await world.deleteEntryFromWorld(topic, id);
 
-    // remove from the top nodes
-    const topNodes = WorldFlags.getTopicFlag(Entry.worldId, WorldFlagKey.topNodes, topic);
-    await WorldFlags.setTopicFlag(Entry.worldId, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entryId));
-
-    // remove from the expanded list
-    await WorldFlags.unset(Entry.worldId, WorldFlagKey.expandedIds, entryId);
-
-    await entryDoc.delete();
-
-    await Entry.worldCompendium.configure({locked:true});
+    await world.lock();
 
     // TODO - remove from any relationships
     // TODO - remove from search

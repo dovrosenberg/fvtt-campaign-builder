@@ -26,7 +26,7 @@
   // library imports
   import { storeToRefs } from 'pinia';
 
-   // local imports
+  // local imports
   import { useMainStore, } from '@/applications/stores';
 
   // library components

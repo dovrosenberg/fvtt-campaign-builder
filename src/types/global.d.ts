@@ -1,5 +1,3 @@
-import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.d.mts';
-
 export * from '@league-of-foundry-developers/foundry-vtt-types/src/index.d.mts';
 
 // some global configuration for the types

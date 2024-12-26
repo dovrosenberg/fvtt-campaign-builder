@@ -387,10 +387,38 @@ export class WBWorld {
   }
 
   // remove a campaign from the world metadata
+  // update the flags - this doesn't remove the whole flag, because the keys are flattened
+  // TODO: should delete all the sessions from expanded entries, too
+  // note: WORLD MUST BE UNLOCKED FIRST
   public async deleteCampaignFromWorld(campaignId: string) {
-    // update the flags - this doesn't remove the whole flag, because the keys are flattened
     await unsetFlag(this._worldDoc, WorldFlagKey.campaignEntries, campaignId);
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedCampaignIds, campaignId);
+  }  
+
+  // remove an entry from the world metadata
+  // note: WORLD MUST BE UNLOCKED FIRST
+  public async deleteEntryFromWorld(topic: Topic, entryId: string) {
+    const hierarchy = WorldFlags.getHierarchy(Entry.worldId, this.uuid);
+
+    if (hierarchy) {
+      // delete from any trees
+      if (hierarchy?.ancestors || hierarchy?.children) {
+        await cleanTrees(this.uuid, topic, entryId, hierarchy);
+      }
+    }
+
+    // remove from the top nodes
+    const topNodes = WorldFlags.getTopicFlag(Entry.worldId, WorldFlagKey.topNodes, topic);
+    await WorldFlags.setTopicFlag(Entry.worldId, WorldFlagKey.topNodes, topic, topNodes.filter((id) => id !== entryId));
+l
+    // remove from the expanded list
+    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, entryId);
+  }  
+
+  // remove a campaign from the world metadata
+  // note: WORLD MUST BE UNLOCKED FIRST
+  public async deleteSessionFromWorld(sessionId: string) {
+    await unsetFlag(this._worldDoc, WorldFlagKey.expandedCampaignIds, sessionId);
   }  
 
   // change a campaign name inside all the world metadata

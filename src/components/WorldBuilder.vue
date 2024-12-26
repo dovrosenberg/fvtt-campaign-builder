@@ -133,10 +133,6 @@
 
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
       Entry.worldCompendium = worldCompendium;
-      Entry.worldId = worldId;
-      Session.worldCompendium = worldCompendium;
-      Session.worldId = worldId;
-      Session.currentCampaignJournals = campaignJournals;
       CollapsibleNode.currentWorldId = worldId;
     }
   });
@@ -151,6 +147,7 @@
     if (folders && folders.rootFolder && folders.world) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = folders.world.uuid;
+      const world = folders.world;
 
       const worldCompendium = folders.world.compendium || null;
 
@@ -188,10 +185,6 @@
 
       Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
       Entry.worldCompendium = worldCompendium;
-      Entry.worldId = worldId;
-      Session.worldCompendium = worldCompendium;
-      Session.worldId = worldId;
-      Session.currentCampaignJournals = campaignJournals;
       CollapsibleNode.currentWorldId = worldId;
       
       rootFolder.value = folders.rootFolder;

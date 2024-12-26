@@ -13,7 +13,7 @@
         />
 
         <div 
-          id="fwb-add-tab" props.tab.id
+          id="fwb-add-tab" 
           class="tab-button"
           @click="onAddTabClick"
         >
@@ -195,7 +195,7 @@
     if (!newValue)
       return;
 
-    navigationStore.loadTabs();
+    await navigationStore.loadTabs();
   });
 
   ////////////////////////////////
