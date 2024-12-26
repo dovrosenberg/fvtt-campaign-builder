@@ -52,6 +52,21 @@ export class Campaign {
   }
 
   /**
+   * Gets the world associated with a campaign 
+   * if needed.
+   * 
+   * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
+   */
+  public async getWorld(): Promise<WBWorld> {
+    if (!this.world)
+      await this.loadWorld();
+
+    const world = this.world as WBWorld;
+
+    return world;
+  }
+  
+  /**
    * Gets the WBWorld associated with the campaign. If the world is already loaded, the promise resolves
    * to the existing world; otherwise, it loads the world and then resolves to it.
    * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.

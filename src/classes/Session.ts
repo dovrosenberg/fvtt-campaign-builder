@@ -59,16 +59,13 @@ export class Session {
    * 
    * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
    */
-  private async getWorld(): Promise<WBWorld> {
+  public async getWorld(): Promise<WBWorld> {
     if (!this.campaign)
       await this.loadCampaign();
 
     const campaign = this.campaign as Campaign;
 
-    if (!campaign.world)
-      await campaign.loadWorld();
-
-    return campaign.world as WBWorld;
+    return campaign.getWorld();
   }
   
 

@@ -55,6 +55,21 @@ export class Topic {
   }
 
   /**
+   * Gets the world associated with a topic, loading into the campaign 
+   * if needed.
+   * 
+   * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
+   */
+  public async getWorld(): Promise<WBWorld> {
+    if (!this.world)
+      await this.loadWorld();
+
+    const world = this.world as WBWorld;
+
+    return world;
+  }
+  
+  /**
    * Gets the WBWorld associated with the topic. If the world is already loaded, the promise resolves
    * to the existing world; otherwise, it loads the world and then resolves to it.
    * @returns {Promise<WBWorld>} A promise to the world associated with the topic.
@@ -66,7 +81,7 @@ export class Topic {
     const worldDoc = await fromUuid(this._topicDoc.folder) as WorldDoc;
 
     if (!worldDoc)
-      throw new Error('Invalid folder id in Topics.getWorld()');
+      throw new Error('Invalid folder id in Topics.loadWorld()');
 
     return new WBWorld(worldDoc);
   }

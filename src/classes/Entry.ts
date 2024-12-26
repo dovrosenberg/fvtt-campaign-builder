@@ -52,7 +52,7 @@ export class Entry {
     
     this.topic = await Topic.fromUuid(this._entryDoc.parent.uuid) as TopicDoc;
 
-    if (!topic)
+    if (!this.topic)
       throw new Error('Invalid entry in Entry.getTopic()');
 
     return this.topic;
@@ -63,6 +63,7 @@ export class Entry {
   static async create(topic: Topic, options: CreateEntryOptions): Promise<Entry | null> 
   {
     const topicText = getTopicText(topic);
+    const world = topic.getWorld();
 
     let nameToUse = options.name || '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
@@ -122,6 +123,7 @@ export class Entry {
     };
   }
 
+  TODO - reconcile this with the other topic property!
   get topic(): ValidTopic {
     return this._entryDoc.system.topic;
   }
@@ -218,19 +220,14 @@ export class Entry {
     * 
     * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
     */
-  private async getWorld(): Promise<WBWorld> {
+  public async getWorld(): Promise<WBWorld> {
     if (!this.topic)
       await this.loadTopic();
   
     const topic = this.topic as Topic;
-  
-    if (!topic.world)
-      await topic.loadWorld();
-  
-    return topic.world as WBWorld;
+    return topic.getWorld();
   }
   
-
   // used to set arbitrary properties on the entryDoc
   /**
    * Updates an entry in the database
@@ -296,10 +293,8 @@ export class Entry {
   }
 
   public async deleteEntry() {
-    if (!this.world)
-      await this.loadWorld();
+    const world = await this.getWorld();
 
-    const world = this.world as WBWorld;
     const id = this.uuid;
     const topic = this.topic;
 
