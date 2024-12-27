@@ -78,7 +78,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     // remove from the old one
     const currentWorldNode = currentWorldTree.value.find((w)=>w.id===currentWorld.value?.uuid) || null;
-    const topicNode = currentWorldNode?.topics.find((p)=>p.topic===entry.topic) || null;
+    const topicNode = currentWorldNode?.topics.find((p)=>p.topic.topic===entry.topic) || null;
     const oldTypeNode = topicNode?.loadedTypes.find((t) => t.name===oldType);
     if (!currentWorldNode || !topicNode) 
       throw new Error('Failed to load node in topicDirectoryStore.updateEntryType()');
