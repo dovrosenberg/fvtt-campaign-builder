@@ -6,10 +6,12 @@ import { inputDialog } from '@/dialogs/input';
 import { Topic } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 
+type WBWorldCompendium = CompendiumCollection<JournalEntry.Metadata>;
+
 // represents a topic entry (ex. a character, location, etc.)
 export class WBWorld {
   private _worldDoc: WorldDoc;   // this is the foundry folder
-  private _compendium: CompendiumCollection;   // this is the main compendium
+  private _compendium: WBWorldCompendium;   // this is the main compendium
 
   // JournalEntries
   public campaigns: CampaignDoc[] | null; 
@@ -45,7 +47,12 @@ export class WBWorld {
     this._compendiumId = getFlag(this._worldDoc, WorldFlagKey.compendiumId);
     this._name = this._worldDoc.name;
     if (this._compendiumId) {
-      this._compendium = game.packs?.get(this._compendiumId);
+      const compendium = game.packs?.get(this._compendiumId);
+      if (!compendium) {
+        throw new Error(`Compendium ${this._compendiumId} not found in WBWorld constructor`);
+      }
+
+      this._compendium = compendium;
     }  
 
     this.campaigns = null;
@@ -117,7 +124,7 @@ export class WBWorld {
   /** 
    * The actual compendium
    */
-  public get compendium(): CompendiumCollection {
+  public get compendium(): WBWorldCompendium {
     return this._compendium;
   }
 
@@ -165,17 +172,6 @@ export class WBWorld {
   }
   
  
-  /** 
-   * The uuid for the world compendium  
-   */
-  public set compendiumId(value: string) {
-    this._compendiumId = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}.compendiumId`]: value
-    };
-  }
-
   /**
    * The JournalEntry UUID for each topic.
    */
@@ -301,7 +297,11 @@ export class WBWorld {
     let updated = false;
 
     if (this._compendiumId) {
-      this._compendium = game.packs?.get(this._compendiumId);
+      const compendium = game.packs?.get(this._compendiumId);
+      if (!compendium) 
+        throw new Error('Invalid compendiumId in WBWorld.validate()');
+      
+      this._compendium = compendium;
     }
 
     // check it

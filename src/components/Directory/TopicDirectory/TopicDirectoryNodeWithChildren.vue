@@ -100,7 +100,7 @@
   // computed data
   const sortedChildren = computed((): DirectoryEntryNode[] => {
     const children = (currentNode.value).loadedChildren;
-    return children.sort((a, b) => a.name.localeCompare(b.name));
+    return children.sort((a, b) => a.name.localeCompare(b.name)) as DirectoryEntryNode[];
   });
 
 

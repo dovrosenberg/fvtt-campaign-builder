@@ -269,7 +269,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   };
 
 
-  const c = async (topic: Topic, options: CreateEntryOptions): Promise<Entry | null> => {
+  const createEntry = async (topic: Topic, options: CreateEntryOptions): Promise<Entry | null> => {
     if (!currentWorld.value)
       return null;
 
@@ -389,13 +389,13 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topics = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${currentWorld.value?.uuid}.topic.${topic}`;
-        const topicObj = currentWorld.value.topics[topic];
+        const topicObj = currentWorld.value?.topics[topic] as Topic;
 
         return new DirectoryTopicNode(
           id,
           getTopicTextPlural(topic),
           topicObj,
-          topicObj.topNodes,
+          topicObj.topNodes.concat(),
           [],
           [],
           expandedNodes[id] || false,
@@ -481,6 +481,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // watchers
   // when the root folder changes, load the top level info (worlds and packs)
   // when the world changes, clean out the cache of loaded items
+  //@ts-ignore - Vue can't handle reactive classes
   watch(currentWorld, async (newWorld: WBWorld | null): Promise<void> => {
     if (!newWorld) {
       return;
