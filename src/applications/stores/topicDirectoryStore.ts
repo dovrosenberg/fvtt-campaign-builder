@@ -77,7 +77,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return;
 
     // remove from the old one
-    const currentWorldNode = currentWorldTree.value.find((w)=>w.id===currentWorld.value.uuid) || null;
+    const currentWorldNode = currentWorldTree.value.find((w)=>w.id===currentWorld.value?.uuid) || null;
     const topicNode = currentWorldNode?.topics.find((p)=>p.topic===entry.topic) || null;
     const oldTypeNode = topicNode?.loadedTypes.find((t) => t.name===oldType);
     if (!currentWorldNode || !topicNode) 

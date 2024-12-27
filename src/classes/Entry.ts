@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace, WorldDoc, } from '@/documents';
+import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace,  } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topics } from '@/types';
 import { inputDialog } from '@/dialogs/input';
 import { getTopicText } from '@/compendia';
@@ -300,7 +300,7 @@ export class Entry {
       return [];
 
     // we find all journal entries with this topic
-    let entries = await topic.filter(()=>true);
+    let entries = await topic.filterEntries(()=>true);
 
     // filter unique ones if needed
     if (notRelatedTo) {
