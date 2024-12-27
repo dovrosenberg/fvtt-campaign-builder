@@ -165,7 +165,7 @@ export class Campaign {
           name: name,
           folder: foundry.utils.parseUuid(world.uuid).id,
         },{
-          pack: world.compendium.id,
+          pack: world.compendium.metadata.id,
         }) as unknown as CampaignDoc[];  
 
         if (!newCampaignDocs)

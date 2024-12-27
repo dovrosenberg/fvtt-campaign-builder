@@ -164,7 +164,7 @@ export class Topic {
       name: getTopicTextPlural(topic),
       folder: foundry.utils.parseUuid(world.uuid).id,
     },{
-      pack: world.compendiumId,
+      pack: world.compendium.metadata.id,
     }) as unknown as TopicDoc;
 
     if (newTopicDoc) {

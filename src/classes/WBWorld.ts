@@ -29,6 +29,8 @@ export class WBWorld {
   private _compendiumId: string;  // the uuid for the world compendium 
 
   /**
+   * Note: you should always call validate() after creating a new WBWorld - this ensures the 
+   * compendium exists and is properly used
    * @param {WorldDoc} worldDoc - The WBWorld Foundry document
    */
   constructor(worldDoc: WorldDoc) {
@@ -50,7 +52,7 @@ export class WBWorld {
       const compendium = game.packs?.get(this._compendiumId);
       
       if (!compendium) {
-        // it didn't exist, so we pretend we don't have one
+        // it didn't exist, so we pretend we don't have one - this will get cleaned up in validate()
         this._compendiumId = '';
       } else {
         this._compendium = compendium;
@@ -117,14 +119,14 @@ export class WBWorld {
   }
   
   /** 
-   * The uuid for the world compendium   (used to be called worldCompendium)
+   * The uuid for the world compendium   
    */
   public get compendiumId(): string {
     return this._compendiumId;
   }
-  
-  /** 
-   * The actual compendium
+
+    /** 
+   * The actual compendium (used to be called worldCompendium)
    */
   public get compendium(): WBWorldCompendium {
     return this._compendium;
@@ -333,7 +335,9 @@ export class WBWorld {
       let topic;
       if (topicIds[t]) {
         topic = await Topic.fromUuid(topicIds[t]);
-        topic.world = this;
+
+        if (topic)
+          topic.world = this;
       }
 
       if (!topic) {
