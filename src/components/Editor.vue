@@ -247,6 +247,9 @@
   ////////////////////////////////
   // watchers
   watch(() => props.initialContent, async () =>{
+    if (!currentWorld.value)
+      return;
+      
     enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
   });
 

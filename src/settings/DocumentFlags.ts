@@ -190,7 +190,7 @@ export const unsetFlag = async <
 
   if (config.keyedByUUID && key) {
     const value = getFlag(doc, flag);
-    if (value[key]) {
+    if (value && value[key]) {
       delete value[key];
 
       await setFlag(doc, flag, value);

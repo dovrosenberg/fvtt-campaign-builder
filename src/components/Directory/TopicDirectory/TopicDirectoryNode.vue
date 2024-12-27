@@ -39,7 +39,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  import { DirectoryEntryNode, Entry, Topic } from '@/classes';
+  import { DirectoryEntryNode, Entry, Topic, WBWorld } from '@/classes';
 
   ////////////////////////////////
   // props

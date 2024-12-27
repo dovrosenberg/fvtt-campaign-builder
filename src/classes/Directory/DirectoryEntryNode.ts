@@ -2,15 +2,15 @@
  * A class representing an entry (which might have children) in the topic tree structure
  */
 
-import { Hierarchy, ValidTopic, } from '@/types';
-import { Entry, CollapsibleNode, DirectoryTopicTreeNode } from '@/classes';
+import { Hierarchy, } from '@/types';
+import { Topic, Entry, CollapsibleNode, DirectoryTopicTreeNode } from '@/classes';
 import { NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 
 export class DirectoryEntryNode extends DirectoryTopicTreeNode {
   name: string;
   type: string;    // the type of the entry
   
-  constructor(id: string, name: string, type: string, topic: ValidTopic, parentId: string | null = null, children: string[] = [], 
+  constructor(id: string, name: string, type: string, topic: Topic, parentId: string | null = null, children: string[] = [], 
     loadedChildren: DirectoryEntryNode[] = [], ancestors: string[] = [], expanded: boolean = false
   ) {
     super(id, topic, expanded, parentId, children, loadedChildren, ancestors);
@@ -26,14 +26,14 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
 
     const hierarchy = CollapsibleNode._currentWorld.getEntryHierarchy(entry.uuid);
 
-    if (!entry.topic)
-      throw new Error('No topic in DirectoryEntryNode.fromEntry()');
+    if (!entry.parentTopic)
+      throw new Error('No parentTopic in DirectoryEntryNode.fromEntry()');
 
     return new DirectoryEntryNode(
       entry.uuid,
       entry.name || NO_NAME_STRING,
       entry.type || NO_TYPE_STRING,
-      entry.topic,
+      entry.parentTopic,
       hierarchy?.parentId || null,
       hierarchy?.children || [],
       [],

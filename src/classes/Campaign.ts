@@ -74,11 +74,14 @@ export class Campaign {
   public async loadWorld(): Promise<WBWorld> {
     if (this.world)
       return this.world;
+
+    if (!this._campaignDoc.folder)
+      throw new Error('Invalid folder id in Campaign.loadWorld()');
     
-    const worldDoc = await fromUuid(this._campaignDoc.folder) as WorldDoc;
+    const worldDoc = await fromUuid(this._campaignDoc.folder.uuid) as WorldDoc;
 
     if (!worldDoc)
-      throw new Error('Invalid folder id in Campaign.getWorld()');
+      throw new Error('Invalid folder id in Campaign.loadWorld()');
 
     return new WBWorld(worldDoc);
   }
@@ -132,8 +135,8 @@ export class Campaign {
     return this._pcs;
   }
 
-  set pcs(value: string[]) {
-    this._pcs = value;
+  set pcs(value: readonly string[]) {
+    this._pcs = value.concat();  // clone to avoid being able to edit outside
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       [`flags.${moduleId}.pcs`]: value

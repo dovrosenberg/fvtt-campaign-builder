@@ -78,7 +78,10 @@ export class Topic {
     if (this.world)
       return this.world;
     
-    const worldDoc = await fromUuid(this._topicDoc.folder) as WorldDoc;
+    if (!this._topicDoc.folder)
+      throw new Error('Invalid folder id in Topics.loadWorld()');
+
+    const worldDoc = await fromUuid(this._topicDoc.folder.uuid) as WorldDoc;
 
     if (!worldDoc)
       throw new Error('Invalid folder id in Topics.loadWorld()');
@@ -96,8 +99,8 @@ export class Topic {
   /**
    * An array of top-level nodes.
    */
-  public set topNodes(value: string[]) {
-    this._topNodes = value;
+  public set topNodes(value: readonly string[]) {
+    this._topNodes = value.slice();   // we clone it so it can't be edited outside
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       [`flags.${moduleId}.topNodes`]: value

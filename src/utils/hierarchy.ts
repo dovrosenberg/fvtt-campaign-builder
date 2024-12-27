@@ -1,4 +1,4 @@
-import { TabSummary,  Hierarchy, Topics, ValidTopic, } from '@/types';
+import { TabSummary,  Hierarchy, Topics, } from '@/types';
 import { Topic, Entry, WBWorld, } from '@/classes';
 
 // the string to show for items with no type
@@ -22,7 +22,7 @@ export function validChildItems(world: WBWorld, topic: Topic, entry: Entry): Tab
 
   // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
   // TODO: need to change find to forEach to populate an array
-  return topic.filter((e: Entry)=>(e.uuid !== entry.uuid && !ancestors.includes(entry.uuid)))
+  return topic.filterEntries((e: Entry)=>(e.uuid !== entry.uuid && !ancestors.includes(entry.uuid)))
     .map(mapEntryToSummary) || [];
 }
 
@@ -37,7 +37,7 @@ export function validParentItems(world: WBWorld, topic: Topic, entry: Entry): {n
 
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
   return topic
-    .filter((e: Entry)=>( e.uuid !== entry.uuid && !(hierarchies[e.uuid]?.ancestors || []).includes(entry.uuid)))
+    .filterEntries((e: Entry)=>( e.uuid !== entry.uuid && !(hierarchies[e.uuid]?.ancestors || []).includes(entry.uuid)))
     .map((e: Entry)=>({ name: e.name, id: e.uuid}));
 }
 

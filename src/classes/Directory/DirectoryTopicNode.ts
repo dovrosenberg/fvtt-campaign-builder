@@ -49,7 +49,7 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
     for (let i=0; i<this.loadedTypes.length; i++) {
       const type = this.loadedTypes[i].name;
 
-      this.loadedTypes[i].loadedChildren = this.topic.filter((e: Entry): boolean=> {
+      this.loadedTypes[i].loadedChildren = this.topic.filterEntries((e: Entry): boolean=> {
         const entryType = e.type;
         return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type) as boolean;
       })

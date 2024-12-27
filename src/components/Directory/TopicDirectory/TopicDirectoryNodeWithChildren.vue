@@ -57,7 +57,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  import { Topic, Entry, DirectoryEntryNode, } from '@/classes';
+  import { Topic, Entry, DirectoryEntryNode, WBWorld, } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -216,7 +216,7 @@
             await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
           }
         },
-      ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))
+      ].filter((item)=>(hasHierarchy(props.topic.topic) || item.icon!=='fa-atlas'))
       // the line above is to remove the "add child" option from entries that don't have hierarchy
       // not really ideal but a bit cleaner than having two separate arrays and concatening
 

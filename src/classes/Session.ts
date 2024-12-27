@@ -156,7 +156,6 @@ export class Session {
   }
 
   get campaignId(): string {
-    debugger;
     return this._sessionDoc.parent.uuid;
   }
 

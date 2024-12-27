@@ -34,7 +34,7 @@
 
   // types
   import { Topics, ValidTopic } from '@/types';
-  import { CollapsibleNode, Entry, Campaign, Session } from '@/classes';
+  import { CollapsibleNode, Entry, WBWorld, } from '@/classes';
   import { CampaignDoc } from '@/documents';
   
   ////////////////////////////////
@@ -151,6 +151,10 @@
 
       if (!worldCompendium)
         throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
+
+      if (!world.topicIds)
+        throw new Error('Attempted to mount WorldBuilder.vue without topicIds set');
+
 
       const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {

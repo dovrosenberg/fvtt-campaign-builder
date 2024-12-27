@@ -76,7 +76,7 @@
   
   // types
   import { Topics, WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign, } from '@/classes';
+  import { DirectoryTopicNode, Campaign, WBWorld, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -143,7 +143,7 @@
           onClick: async () => {
             if (worldId) {
               throw new Error('TODO: need to load the world and then call createCampaign... ideally have an array of worlds somewhere so don\'t have to load from disk');
-              const world = WBWorld.fromUuid(worldId);
+              const world = await WBWorld.fromUuid(worldId);
               await Campaign.create(world);
               await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }

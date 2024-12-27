@@ -175,7 +175,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return false;
 
     // make sure they share a topic 
-    if (child.topic.topic !== parent.topic.topic)
+    if (child.topic !== parent.topic)
       return false;
      
     // next, confirm it's a valid target (the child must not be in the parent's ancestor list - or we get loops)
@@ -256,6 +256,8 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       topNodes = topNodes.concat([childId]);
     } else if (parentNode && topNodes.includes(childId)) {
       topNodes = topNodes.filter((n)=>n!==childId);
+    } else {
+      topNodes = topic.topNodes || [];
     }
     
     topic.topNodes = topNodes;
@@ -337,7 +339,8 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     const hierarchy = currentWorld.value.getEntryHierarchy(entryId);
 
-    await Entry.deleteEntry(topic, entryId);
+    const entry = currentWorld.value.topics[topic].filterEntries((e: Entry) => e.uuid === entryId)[0];
+    await entry.delete();
 
     // update tabs/bookmarks
     await navigationStore.cleanupDeletedEntry(entryId);
@@ -386,16 +389,18 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topics = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${currentWorld.value?.uuid}.topic.${topic}`;
+        const topicObj = currentWorld.value.topics[topic];
+
         return new DirectoryTopicNode(
           id,
           getTopicTextPlural(topic),
-          topic,
-          currentWorld.value?.topics[topic].topNodes,
+          topicObj,
+          topicObj.topNodes,
           [],
           [],
           expandedNodes[id] || false,
         );
-      }).sort((a: DirectoryTopicNode, b: DirectoryTopicNode): number => a.topic - b.topic);
+      }).sort((a: DirectoryTopicNode, b: DirectoryTopicNode): number => a.topic.topic - b.topic.topic);
 
       // load any open topics
       for (let i=0; i<currentWorldBlock?.topics.length; i++) {
@@ -447,9 +452,10 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
+      const topicObj = currentWorld.value.topics[topics[i]];
+
       // filter on name and type
-      throw new Error('need to get the Topic objects in here');
-      let matchedEntries = Entry.filter(topics[i], (e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )))
+      let matchedEntries = topicObj.filterEntries((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )))
         .map((e: Entry): string=>e.uuid) as string[];
   
       // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding

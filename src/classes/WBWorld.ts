@@ -410,7 +410,7 @@ export class WBWorld {
 
   // remove an entry from the world metadata
   // note: WORLD MUST BE UNLOCKED FIRST
-  public async deleteEntryFromWorld(topic: ValidTopic, entryId: string) {
+  public async deleteEntryFromWorld(topic: Topic, entryId: string) {
     const hierarchy = this.getEntryHierarchy(entryId);
 
     let topNodesCleaned = false;
@@ -424,9 +424,9 @@ export class WBWorld {
 
     if (!topNodesCleaned) {
       // remove from the top nodes
-      const topNodes = this.topics[topic].topNodes;
-      this.topics[topic].topNodes = topNodes.filter((id) => id !== entryId);
-      await this.topics[topic].save();
+      const topNodes = this.topics[topic.topic].topNodes;
+      this.topics[topic.topic].topNodes = topNodes.filter((id) => id !== entryId);
+      await this.topics[topic.topic].save();
     }
 
     // remove from the expanded list

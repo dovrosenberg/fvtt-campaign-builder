@@ -1,4 +1,4 @@
-import { ValidTopic, Hierarchy, Topics } from '@/types';
+import { ValidTopic, Hierarchy, } from '@/types';
 import { FlagSettings } from '@/settings/DocumentFlags';
 
 // camapaigns are journal entries, not documents

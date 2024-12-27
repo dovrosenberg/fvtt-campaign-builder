@@ -31,7 +31,7 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
     // we only want to load ones not already in _loadedNodes, unless its in updateIds
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
-    const entries = this.topic.filter((e: Entry)=>uuidsToLoad.includes(e.uuid));
+    const entries = this.topic.filterEntries((e: Entry)=>uuidsToLoad.includes(e.uuid));
 
     for (let i=0; i<entries.length; i++) {
       const newNode = DirectoryEntryNode.fromEntry(entries[i]);

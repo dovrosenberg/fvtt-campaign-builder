@@ -264,11 +264,14 @@ export class Entry {
     return retval ? this : null;
   }
 
-  public async deleteEntry() {
+  public async delete() {
     const world = await this.getWorld();
 
     const id = this.uuid;
-    const topic = this.parentTopic?.topic as ValidTopic;
+    const topic = this.parentTopic;
+
+    if (!topic)
+      throw new Error('Attempting to delete entry without parent Topic in Entry.delete()');
 
     // have to unlock the pack
     await world.unlock();
