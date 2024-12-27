@@ -14,7 +14,7 @@ export class WBWorld {
   private _compendium: WBWorldCompendium;   // this is the main compendium
 
   // JournalEntries
-  public campaigns: CampaignDoc[] | null; 
+  public campaigns: Record<string, CampaignDoc> | null;   // Campaigns keyed by uuid 
   public topics: Record<ValidTopic, Topic>;  // we load them when we load the world (using validate()), so we assume it's never empty
 
   // saved on Folder

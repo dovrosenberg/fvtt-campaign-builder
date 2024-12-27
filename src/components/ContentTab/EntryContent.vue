@@ -243,7 +243,7 @@
     if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
       return;
 
-    await topicDirectoryStore.setNodeParent(currentEntry.value.topic, currentEntry.value.uuid, selection || null);
+    await topicDirectoryStore.setNodeParent(currentEntry.value.parentTopic, currentEntry.value.uuid, selection || null);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
@@ -274,14 +274,14 @@
     if (!newEntry || !newEntry.uuid) {
       topic.value = null;
     } else {
-      let newTopic;
+      let newTopic: Topic;
 
-      newTopic = newEntry.topic as ValidTopic;
+      newTopic = newEntry.parentTopic;
       if (!newTopic) 
         throw new Error('Invalid entry topic in EntryContent.watch-currentEntry');
 
       // we're going to show a content page
-      topic.value = newTopic;
+      topic.value = newTopic.topic;
 
       // load starting data values
       name.value = newEntry.name || '';

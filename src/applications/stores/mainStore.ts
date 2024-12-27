@@ -78,6 +78,7 @@ export const useMainStore = defineStore('main', () => {
       case WindowTabType.Entry:
         if (tab.header.uuid) {
           _currentEntry.value = await Entry.fromUuid(tab.header.uuid);
+          _currentEntry.value.parentTopic = currentWorld.value.topics[_currentEntry.value.topic];
         } else {
           _currentEntry.value = null;
         }
@@ -96,6 +97,7 @@ export const useMainStore = defineStore('main', () => {
       case WindowTabType.Session:
         if (tab.header.uuid) {
           _currentSession.value = await Session.fromUuid(tab.header.uuid);
+          _currentEntry.value.parentTopic = currentWorld.value.sessions[_currentEntry.value.uuid];
         } else {
           _currentSession.value = null;
         }
@@ -119,7 +121,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc);
+    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc, _currentEntry.value.parentTopic);
   };
 
   const refreshCampaign = function (): void {

@@ -131,7 +131,7 @@
         return false;
 
       // is this a legal parent?
-      const childEntry = await Entry.fromUuid(data.childId);
+      const childEntry = await Entry.fromUuid(data.childId, currentWorld.value.topics[props.topic.topic]);
 
       if (!childEntry)
         return false;

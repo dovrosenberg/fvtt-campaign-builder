@@ -21,7 +21,7 @@ export class Entry {
    * 
    * @param {EntryDoc} entryDoc - The entry Foundry document
    */
-  constructor(entryDoc: EntryDoc, topic?: Topic) {
+  constructor(entryDoc: EntryDoc, parentTopic?: Topic) {
     // make sure it's the right kind of document
     if (entryDoc.type !== DOCUMENT_TYPES.Entry)
       throw new Error('Invalid document type in Entry constructor');
@@ -29,16 +29,18 @@ export class Entry {
     // clone it to avoid unexpected changes
     this._entryDoc = foundry.utils.deepClone(entryDoc);
     this._cumulativeUpdate = {};
-    this.parentTopic = topic || null;
+    this.parentTopic = parentTopic || null;
   }
 
-  static async fromUuid(entryId: string, options?: Record<string, any>): Promise<Entry | null> {
+  // does not set the parent topic
+  static async fromUuid(entryId: string, parentTopic?: Topic, options?: Record<string, any>): Promise<Entry | null> {
     const entryDoc = await fromUuid(entryId, options) as EntryDoc;
 
     if (!entryDoc)
       return null;
-    else
-      return new Entry(entryDoc);
+    else {
+      return new Entry(entryDoc, parentTopic);
+    }
   }
 
   /**

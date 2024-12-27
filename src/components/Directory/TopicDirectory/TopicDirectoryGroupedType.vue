@@ -145,7 +145,7 @@
         return false;
 
       // set the new type
-      const entry = await Entry.fromUuid(data.id);
+      const entry = await Entry.fromUuid(data.id, currentWorld.value.topics[topic]);
       if (entry) {
         const oldType = entry.type;
         entry.type = currentType.value.name;

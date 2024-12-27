@@ -155,13 +155,13 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return false;
 
     // have to have a child
-    const child = await Entry.fromUuid(childId);
+    const child = await Entry.fromUuid(childId, topic);
 
     if (!child)
       return false;
 
     // get the parent, if any, and create the nodes for simpler syntax 
-    const parent = parentId ? await Entry.fromUuid(parentId): null;
+    const parent = parentId ? await Entry.fromUuid(parentId, topic): null;
 
     if (!parent)
       return false;
@@ -184,7 +184,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     // if the child already has a parent, remove it from that parent's children
     if (childNode.parentId) {
-      const oldParent = await Entry.fromUuid(childNode.parentId);
+      const oldParent = await Entry.fromUuid(childNode.parentId, topic);
 
       if (oldParent) {
         const oldParentNode = DirectoryEntryNode.fromEntry(oldParent);
@@ -229,7 +229,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
         // this seems safe, despite 
         for (let i=0; i<children?.length; i++) {
-          const child = await Entry.fromUuid(children[i]);
+          const child = await Entry.fromUuid(children[i], topic);
 
           if (!child)
             continue;
