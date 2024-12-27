@@ -191,7 +191,7 @@ export class Topic {
    * @returns {Entry[]} The entries that pass the filter
    */
   public filterEntries(filterFn: (e: Entry) => boolean): Entry[] { 
-    return (this._topicDoc.pages.contents as unknown as EntryDoc[])
+    return (toRaw(this._topicDoc).pages.contents as unknown as EntryDoc[])
       .map((e: EntryDoc)=> new Entry(e, this))
       .filter((e: Entry)=> filterFn(e));
   }

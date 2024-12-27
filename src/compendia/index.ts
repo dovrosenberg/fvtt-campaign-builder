@@ -89,8 +89,6 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder; world: 
   if (!world)
     throw new Error('Couldn\'t create world folder in compendia/index.getDefaultFolders()');
 
-  await world.validate();
-
   return { rootFolder, world };
 }
 

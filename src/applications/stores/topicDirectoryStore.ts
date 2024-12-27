@@ -412,7 +412,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         // have to check all children are loaded and expanded properly
         await directoryTopicNode.recursivelyLoadNode(expandedNodes, updateEntryIds);
 
-        await directoryTopicNode.loadTypeEntries(currentWorld.value.topics[directoryTopicNode.topic].types, expandedNodes);
+        await directoryTopicNode.loadTypeEntries(currentWorld.value.topics[directoryTopicNode.topic.topic].types, expandedNodes);
       }
     }
 
@@ -487,7 +487,6 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return;
     }
 
-    await newWorld?.validate();
     await refreshTopicDirectoryTree();
   });
   

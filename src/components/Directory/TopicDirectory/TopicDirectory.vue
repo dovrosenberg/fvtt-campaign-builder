@@ -2,7 +2,7 @@
   <!-- these are the worlds -->
   <ol class="fwb-world-list">
     <li 
-      v-for="world in topicDirectoryStore.currentWorldTree.value"
+      v-for="world in currentWorldTree.value"
       :key="world.id"
       :class="'fwb-world-folder folder flexcol ' + (currentWorld.uuid===world.id ? '' : 'collapsed')" 
       @click="onWorldFolderClick($event, world.id)"
@@ -24,32 +24,32 @@
       >
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
         <li 
-          v-for="topic in world.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
-          :key="topic.topic"
-          :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
-          :data-topic="topic.topic" 
+          v-for="topicNode in world.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
+          :key="topicNode.topic"
+          :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topicNode.expanded ? '' : 'collapsed')"
+          :data-topic="topicNode.topic.topic" 
         >
           <header class="folder-header flexrow">
             <div 
               class="fwb-compendium-label noborder" 
               style="margin-bottom:0px"
-              @click="onTopicFolderClick($event, topic)"
-              @contextmenu="onTopicContextMenu($event, world.id, topic.topic)"
+              @click="onTopicFolderClick($event, topicNode)"
+              @contextmenu="onTopicContextMenu($event, world.id, topicNode.topic)"
             >
               <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-              <i :class="'icon fas ' + getTopicIcon(topic.topic)" style="margin-right: 4px;"></i>
-              {{ topic.name }}
+              <i :class="'icon fas ' + getTopicIcon(topicNode.topic.topic)" style="margin-right: 4px;"></i>
+              {{ topicNode.name }}
             </div>
           </header>
 
           <TopicDirectoryGroupedTree
             v-if="isGroupedByType" 
-            :topic-node="topic"
+            :topic-node="topicNode"
             :world-id="world.id"
           />
           <TopicDirectoryNestedTree
             v-else 
-            :topic="topic"
+            :topic-node="topicNode"
             :world-id="world.id"
           />
         </li>
@@ -76,7 +76,7 @@
   
   // types
   import { Topics, WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign, WBWorld, } from '@/classes';
+  import { DirectoryTopicNode, Campaign, WBWorld, Topic, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -91,7 +91,7 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentWorld } = storeToRefs(mainStore);
-  const { isGroupedByType } = storeToRefs(topicDirectoryStore);
+  const { isGroupedByType, currentWorldTree } = storeToRefs(topicDirectoryStore);
 
   ////////////////////////////////
   // data
@@ -153,7 +153,7 @@
     });
   };
 
-  const onTopicContextMenu = (event: MouseEvent, worldId: string, topic: Topics): void => {
+  const onTopicContextMenu = (event: MouseEvent, worldId: string, topic: Topic): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();
@@ -168,7 +168,7 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${topic}`), 
+          label: localize(`contextMenus.topicFolder.create.${topic.topic}`), 
           onClick: async () => {
             // get the right folder
             const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as globalThis.Folder;

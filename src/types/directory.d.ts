@@ -1,3 +1,5 @@
+import { DirectorySessionNode, DirectoryTopicNode } from '@/classes';
+
 export type DirectoryWorld = {
   id: string;   // the world folder ID
   name: string;

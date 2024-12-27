@@ -5,8 +5,8 @@
       :key="node.id"
       :node="node" 
       :world-id="props.worldId"
-      :topic="props.topic.topic"
-      :pack-id="props.topic.id"
+      :topic="props.topicNode"
+      :pack-id="props.topicNode.topic.uuid"
       :top="true"
       class="fwb-entry-item" 
       draggable="true"
@@ -31,7 +31,7 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    topic: {
+    topicNode: {
       type: Object as PropType<DirectoryTopicNode>,
       required: true,
     }, 
@@ -53,7 +53,7 @@
   ////////////////////////////////
   // computed data
   const sortedChildren = computed((): DirectoryEntryNode[] => {
-    const children = (props.topic).loadedChildren;
+    const children = (props.topicNode).loadedChildren;
     return children.sort((a, b) => a.name.localeCompare(b.name));
   });
 

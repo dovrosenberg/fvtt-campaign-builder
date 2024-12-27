@@ -48,7 +48,7 @@ export class Session {
     this.campaign = await Campaign.fromUuid(this._sessionDoc.parent.uuid);
 
     if (!this.campaign)
-      throw new Error('Invalid session in Session.getCampaign()');
+      throw new Error('Invalid session in Session.loadCampaign()');
 
     return this.campaign;
   }

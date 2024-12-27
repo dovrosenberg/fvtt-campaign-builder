@@ -48,11 +48,13 @@ export class WBWorld {
     this._name = this._worldDoc.name;
     if (this._compendiumId) {
       const compendium = game.packs?.get(this._compendiumId);
+      
       if (!compendium) {
-        throw new Error(`Compendium ${this._compendiumId} not found in WBWorld constructor`);
+        // it didn't exist, so we pretend we don't have one
+        this._compendiumId = '';
+      } else {
+        this._compendium = compendium;
       }
-
-      this._compendium = compendium;
     }  
 
     this.campaigns = null;
@@ -66,7 +68,7 @@ export class WBWorld {
       return null;
     else {
       const newWorld = new WBWorld(worldDoc);
-      // await worldDoc.validate();
+      await newWorld.validate();
       return newWorld;
     }
   }
@@ -273,7 +275,7 @@ export class WBWorld {
         const worldDoc = worldDocs[0];
 
         await setFlagDefaults(worldDoc, worldFlagSettings);
-    
+
         const newWorld = new WBWorld(worldDoc);
 
         // set as the current world
@@ -373,6 +375,7 @@ export class WBWorld {
 
     this._compendium = pack;
     this._compendiumId = pack.metadata.id;
+    await setFlag(this._worldDoc, WorldFlagKey.compendiumId, this._compendiumId);
   }
   
   /**

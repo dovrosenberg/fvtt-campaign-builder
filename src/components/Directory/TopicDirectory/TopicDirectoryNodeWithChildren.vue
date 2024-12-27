@@ -193,7 +193,7 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
+          label: localize(`contextMenus.topicFolder.create.${props.topic.topic}`) + ' as child', 
           onClick: async () => {
             // get the right folder
             const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;

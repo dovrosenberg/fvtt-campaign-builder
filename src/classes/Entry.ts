@@ -94,7 +94,7 @@ export class Entry {
         scenes: [],
       }
     }],{
-      parent: Entry.currentTopicJournals[parentTopic.topic],
+      parent: parentTopic.raw,
     }) as unknown as EntryDoc[];
 
     await world.lock();
@@ -299,9 +299,6 @@ export class Entry {
    * @returns a list of Entries
    */
   public static async getEntriesForTopic(topic: Topic, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
-    if (!Entry.currentTopicJournals || !Entry.currentTopicJournals[topic.topic])
-      return [];
-
     // we find all journal entries with this topic
     let entries = await topic.filterEntries(()=>true);
 
