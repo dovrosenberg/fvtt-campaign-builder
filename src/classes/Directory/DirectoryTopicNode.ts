@@ -10,12 +10,12 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
   loadedTypes: DirectoryTypeNode[];
   
   // children are for the entries; loadedTypes is for the type nodes
-  constructor(id: string, name: string, topic: TopicFolder, 
+  constructor(id: string, name: string, topicFolder: TopicFolder, 
     children: string[] = [], loadedChildren: DirectoryEntryNode[] = [], 
     loadedTypes: DirectoryTypeNode[] = [], expanded: boolean = false
   ) {
 
-    super(id, topic, expanded, null, children, loadedChildren, []);
+    super(id, topicFolder, expanded, null, children, loadedChildren, []);
 
     this.name = name;
     this.loadedTypes = loadedTypes;
@@ -49,7 +49,7 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
     for (let i=0; i<this.loadedTypes.length; i++) {
       const type = this.loadedTypes[i].name;
 
-      this.loadedTypes[i].loadedChildren = this.topic.filterEntries((e: Entry): boolean=> {
+      this.loadedTypes[i].loadedChildren = this.topicFolder.filterEntries((e: Entry): boolean=> {
         const entryType = e.type;
         return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type) as boolean;
       })

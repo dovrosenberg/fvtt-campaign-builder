@@ -15,7 +15,7 @@ export class WBWorld {
 
   // JournalEntries
   public campaigns: Record<string, Campaign> | null;   // Campaigns keyed by uuid 
-  public topics: Record<ValidTopic, TopicFolder>;  // we load them when we load the world (using validate()), so we assume it's never empty
+  public topicFolders: Record<ValidTopic, TopicFolder>;  // we load them when we load the world (using validate()), so we assume it's never empty
 
   // saved on Folder
   private _name;
@@ -60,7 +60,7 @@ export class WBWorld {
     }  
 
     this.campaigns = {} as Record<string, Campaign>;
-    this.topics = {} as Record<ValidTopic, TopicFolder>;
+    this.topicFolders = {} as Record<ValidTopic, TopicFolder>;
   }
 
   static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
@@ -83,24 +83,24 @@ export class WBWorld {
   /**
   * Gets the Topics associated with the world. If the topics are already loaded, the promise resolves
   * to the existing ones; otherwise, it loads the topics and then resolves to the set.
-  * @returns {Promise<Record<ValidTopic, Topics>>} A promise to the topics
+  * @returns {Promise<Record<ValidTopic, TopicFolder>>} A promise to the topics
   */
   public async loadTopics(): Promise<Record<ValidTopic, TopicFolder>> {
     if (!this._topicIds)
       throw new Error('Invalid WBWorld.loadTopics() called before IDs loaded');
 
     for (const topic in Topics) {
-      if (!this.topics[topic]) {
+      if (!this.topicFolders[topic]) {
         const topicObj = await TopicFolder.fromUuid(this._topicIds[topic]);
         if (!topicObj)
           throw new Error('Invalid topic uuid in WBWorld.loadTopics()');
 
         topicObj.world = this;
-        this.topics[topic] = topicObj;
+        this.topicFolders[topic] = topicObj;
       }
     }
 
-    return this.topics;
+    return this.topicFolders;
   }
   
 
@@ -362,32 +362,32 @@ export class WBWorld {
     for (let i=0; i<topics.length; i++) {
       const t = topics[i];
 
-      let topic;
+      let topicFolder;
       if (topicIds[t]) {
-        topic = await TopicFolder.fromUuid(topicIds[t]);
+        topicFolder = await TopicFolder.fromUuid(topicIds[t]);
 
-        if (topic)
-          topic.world = this;
+        if (topicFolder)
+          topicFolder.world = this;
       }
 
-      if (!topic) {
+      if (!topicFolder) {
         // create the missing one
-        topic = await TopicFolder.create(this, t);
+        topicFolder = await TopicFolder.create(this, t);
 
-        if (!topic)
-          throw new Error('Couldn\'t create topic in WBWorld.validate()');
+        if (!topicFolder)
+          throw new Error('Couldn\'t create topicFolder in WBWorld.validate()');
 
-        topic.world = this;
-        topicIds[t] = topic.uuid;
-        topicObjects[t] = topic;
+        topicFolder.world = this;
+        topicIds[t] = topicFolder.uuid;
+        topicObjects[t] = topicFolder;
 
         updated = true;
       } else {
-        topicObjects[t] = topic;
+        topicObjects[t] = topicFolder;
       }
     }
 
-    this.topics = topicObjects;
+    this.topicFolders = topicObjects;
 
     // if we changed things, save new compendia flag
     if (updated) {
@@ -448,23 +448,23 @@ export class WBWorld {
 
   // remove an entry from the world metadata
   // note: WORLD MUST BE UNLOCKED FIRST
-  public async deleteEntryFromWorld(topic: TopicFolder, entryId: string) {
+  public async deleteEntryFromWorld(topicFolder: TopicFolder, entryId: string) {
     const hierarchy = this.getEntryHierarchy(entryId);
 
     let topNodesCleaned = false;
     if (hierarchy) {
       // delete from any trees (also cleans up topNodes)
       if (hierarchy?.ancestors || hierarchy?.children) {
-        await cleanTrees(this, topic, entryId, hierarchy);
+        await cleanTrees(this, topicFolder, entryId, hierarchy);
         topNodesCleaned = true;
       }
     }
 
     if (!topNodesCleaned) {
       // remove from the top nodes
-      const topNodes = this.topics[topic.topic].topNodes;
-      this.topics[topic.topic].topNodes = topNodes.filter((id) => id !== entryId);
-      await this.topics[topic.topic].save();
+      const topNodes = this.topicFolders[topicFolder.topic].topNodes;
+      this.topicFolders[topicFolder.topic].topNodes = topNodes.filter((id) => id !== entryId);
+      await this.topicFolders[topicFolder.topic].save();
     }
 
     // remove from the expanded list

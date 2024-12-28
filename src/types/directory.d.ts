@@ -3,7 +3,7 @@ import { DirectorySessionNode, DirectoryTopicNode } from '@/classes';
 export type DirectoryWorld = {
   id: string;   // the world folder ID
   name: string;
-  topics: DirectoryTopicNode[];
+  topicNodes: DirectoryTopicNode[];
 }
 
 export type DirectoryCampaign = {

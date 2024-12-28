@@ -180,7 +180,7 @@
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
-  const typeList = computed((): string[] => (topic.value===null || !currentWorld.value ? [] : currentWorld.value.topics[topic.value].types));
+  const typeList = computed((): string[] => (topic.value===null || !currentWorld.value ? [] : currentWorld.value.topicFolders[topic.value].types));
 
   ////////////////////////////////
   // methods
@@ -214,7 +214,7 @@
     if (topic.value === null || !currentWorld.value)
       return;
 
-    const currentTypes = currentWorld.value.topics[topic.value].types;
+    const currentTypes = currentWorld.value.topicFolders[topic.value].types;
 
     // if not a duplicate, add to the valid type lists 
     if (!currentTypes[topic.value].includes(added)) {
@@ -222,7 +222,7 @@
         ...currentTypes,
         [topic.value]: currentTypes[topic.value].concat([added]),
       };
-      currentWorld.value.topics[topic.value].types = updatedTypes;
+      currentWorld.value.topicFolders[topic.value].types = updatedTypes;
       await currentWorld.value.save();
     }
 
@@ -277,14 +277,14 @@
     if (!newEntry || !newEntry.uuid) {
       topic.value = null;
     } else {
-      let newTopic: TopicFolder;
+      let newTopicFolder: TopicFolder;
 
-      newTopic = newEntry.topicFolder;
-      if (!newTopic) 
+      newTopicFolder = newEntry.topicFolder;
+      if (!newTopicFolder) 
         throw new Error('Invalid entry topic in EntryContent.watch-currentEntry');
 
       // we're going to show a content page
-      topic.value = newTopic.topic;
+      topic.value = newTopicFolder.topic;
 
       // load starting data values
       name.value = newEntry.name || '';
@@ -294,7 +294,7 @@
         parentId.value = currentWorld.value.getEntryHierarchy(newEntry.uuid)?.parentId || null;
     
         // TODO - need to refresh this somehow if things are moved around in the directory
-        validParents.value = validParentItems(currentWorld.value as WBWorld, newTopic, newEntry).map((e)=> ({
+        validParents.value = validParentItems(currentWorld.value as WBWorld, newTopicFolder, newEntry).map((e)=> ({
           id: e.id,
           label: e.name || '',
         }));

@@ -1,6 +1,4 @@
 <template>
-  <!-- <li v-if="true /*filterNodes[props.node.topic]?.includes(props.node.id)*/"> -->
-
   <li>
     <div 
       :class="`${props.sessionNode.id===currentSession?.uuid ? 'fwb-current-directory-entry' : ''}`"

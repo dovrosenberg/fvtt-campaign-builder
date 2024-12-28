@@ -84,7 +84,7 @@ export const useMainStore = defineStore('main', () => {
           if (!_currentEntry.value)
             throw new Error('Invalid entry uuid in mainStore.setNewTab()');
 
-          _currentEntry.value.topicFolder = currentWorld.value.topics[_currentEntry.value.topic];
+          _currentEntry.value.topicFolder = currentWorld.value.topicFolders[_currentEntry.value.topic];
         } else {
           _currentEntry.value = null;
         }

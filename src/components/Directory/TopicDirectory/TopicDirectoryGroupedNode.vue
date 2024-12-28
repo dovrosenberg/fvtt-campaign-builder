@@ -30,7 +30,7 @@
   // local components
 
   // types
-  import { Topics, ValidTopic } from '@/types';
+  import { ValidTopic } from '@/types';
   import { DirectoryTypeEntryNode, } from '@/classes';
   
   ////////////////////////////////
@@ -96,7 +96,7 @@
       topic: toTopic(topicElement.dataset.topic),
       typeName: props.typeName,
       id: props.node.id,
-    } as { topic: Topics; typeName: string; id: string};
+    } as { topic: ValidTopic; typeName: string; id: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };

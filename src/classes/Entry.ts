@@ -214,8 +214,8 @@ export class Entry {
     if (!this.topicFolder)
       await this.loadTopic();
   
-    const topic = this.topicFolder as TopicFolder;
-    return topic.getWorld();
+    const topicFolder = this.topicFolder as TopicFolder;
+    return topicFolder.getWorld();
   }
   
   // used to set arbitrary properties on the entryDoc
@@ -270,9 +270,9 @@ export class Entry {
     const world = await this.getWorld();
 
     const id = this.uuid;
-    const topic = this.topicFolder;
+    const topicFolder = this.topicFolder;
 
-    if (!topic)
+    if (!topicFolder)
       throw new Error('Attempting to delete entry without parent TopicFolder in Entry.delete()');
 
     // have to unlock the pack
@@ -280,7 +280,7 @@ export class Entry {
 
     await this._entryDoc.delete();
 
-    await world.deleteEntryFromWorld(topic, id);
+    await world.deleteEntryFromWorld(topicFolder, id);
 
     await world.lock();
 
@@ -300,13 +300,13 @@ export class Entry {
    * @param notRelatedTo if present, only return entries that are not already linked to this entry
    * @returns a list of Entries
    */
-  public static async getEntriesForTopic(topic: TopicFolder, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
+  public static async getEntriesForTopic(topicFolder: TopicFolder, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
     // we find all journal entries with this topic
-    let entries = await topic.filterEntries(()=>true);
+    let entries = await topicFolder.filterEntries(()=>true);
 
     // filter unique ones if needed
     if (notRelatedTo) {
-      const relatedEntries = notRelatedTo.getAllRelatedEntries(topic);
+      const relatedEntries = notRelatedTo.getAllRelatedEntries(topicFolder);
 
       // also remove the current one
       entries = entries.filter((entry) => !relatedEntries.includes(entry.uuid) && entry.uuid !== notRelatedTo.uuid);
@@ -321,15 +321,15 @@ export class Entry {
    * @param topic - The topic for which to retrieve related items.
    * @returns An array of related uuids. Returns an empty array if there is no current entry.
    */
-  public getAllRelatedEntries(topic: TopicFolder): string[] {
+  public getAllRelatedEntries(topicFolder: TopicFolder): string[] {
     // get relationships
     const relationships = this.relationships || {};
 
-    if (!relationships[topic.topic])
+    if (!relationships[topicFolder.topic])
       return [];
 
     // if the flag has this topic, it's a Record keyed by uuid
-    return Object.keys(relationships[topic.topic]);
+    return Object.keys(relationships[topicFolder.topic]);
   }
   
 }

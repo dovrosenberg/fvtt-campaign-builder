@@ -63,8 +63,8 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
    * @param topic - The topic node to be toggled.
    * @returns A promise that resolves when the topic has been toggled.
    */
-  const toggleTopic = async(topic: DirectoryTopicNode) : Promise<void> => {
-    await topic.toggleWithLoad(!topic.expanded);
+  const toggleTopic = async(topicNode: DirectoryTopicNode) : Promise<void> => {
+    await topicNode.toggleWithLoad(!topicNode.expanded);
     await refreshTopicDirectoryTree();
   };
 
@@ -78,7 +78,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     // remove from the old one
     const currentWorldNode = currentWorldTree.value.find((w)=>w.id===currentWorld.value?.uuid) || null;
-    const topicNode = currentWorldNode?.topics.find((p)=>p.topic.topic===entry.topic) || null;
+    const topicNode = currentWorldNode?.topicNodes.find((p)=>p.topicFolder.topic===entry.topic) || null;
     const oldTypeNode = topicNode?.loadedTypes.find((t) => t.name===oldType);
     if (!currentWorldNode || !topicNode) 
       throw new Error('Failed to load node in topicDirectoryStore.updateEntryType()');
@@ -137,7 +137,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // set the parent for a node, cleaning up all associated relationships/records
   // pass a null parent to make it a top node
   // returns wheether it was successful
-  const setNodeParent = async function(topic: TopicFolder, childId: string, parentId: string | null): Promise<boolean> {
+  const setNodeParent = async function(topicFolder: TopicFolder, childId: string, parentId: string | null): Promise<boolean> {
     if (!currentWorld.value)
       return false;
 
@@ -151,17 +151,17 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     };
 
     // topic has to have hierarchy
-    if (!hasHierarchy(topic.topic))
+    if (!hasHierarchy(topicFolder.topic))
       return false;
 
     // have to have a child
-    const child = await Entry.fromUuid(childId, topic);
+    const child = await Entry.fromUuid(childId, topicFolder);
 
     if (!child)
       return false;
 
     // get the parent, if any, and create the nodes for simpler syntax 
-    const parent = parentId ? await Entry.fromUuid(parentId, topic): null;
+    const parent = parentId ? await Entry.fromUuid(parentId, topicFolder): null;
 
     if (!parent)
       return false;
@@ -184,7 +184,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     // if the child already has a parent, remove it from that parent's children
     if (childNode.parentId) {
-      const oldParent = await Entry.fromUuid(childNode.parentId, topic);
+      const oldParent = await Entry.fromUuid(childNode.parentId, topicFolder);
 
       if (oldParent) {
         const oldParentNode = DirectoryEntryNode.fromEntry(oldParent);
@@ -229,7 +229,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
         // this seems safe, despite 
         for (let i=0; i<children?.length; i++) {
-          const child = await Entry.fromUuid(children[i], topic);
+          const child = await Entry.fromUuid(children[i], topicFolder);
 
           if (!child)
             continue;
@@ -250,18 +250,18 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     // if the child doesn't have a parent, make sure it's in the topnode list
     //    and vice versa
-    let topNodes = topic.topNodes || [];
+    let topNodes = topicFolder.topNodes || [];
 
     if (!parentNode && !topNodes.includes(childId)) {
       topNodes = topNodes.concat([childId]);
     } else if (parentNode && topNodes.includes(childId)) {
       topNodes = topNodes.filter((n)=>n!==childId);
     } else {
-      topNodes = topic.topNodes || [];
+      topNodes = topicFolder.topNodes || [];
     }
     
-    topic.topNodes = topNodes;
-    await topic.save();
+    topicFolder.topNodes = topNodes;
+    await topicFolder.save();
 
     await refreshTopicDirectoryTree([parentId, oldParentId].filter((id)=>id!==null));
 
@@ -269,11 +269,11 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   };
 
 
-  const createEntry = async (topic: TopicFolder, options: CreateEntryOptions): Promise<Entry | null> => {
+  const createEntry = async (topicFolder: TopicFolder, options: CreateEntryOptions): Promise<Entry | null> => {
     if (!currentWorld.value)
       return null;
 
-    const entry = await Entry.create(topic, options);
+    const entry = await Entry.create(topicFolder, options);
 
     if (entry) {
       const uuid = entry.uuid;
@@ -292,14 +292,14 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       // set parent if specified
       if (options.parentId==undefined) {
         // no parent - set as a top node
-        const topNodes = topic.topNodes;
-        topic.topNodes = topNodes.concat([uuid]);
-        await topic.save();
+        const topNodes = topicFolder.topNodes;
+        topicFolder.topNodes = topNodes.concat([uuid]);
+        await topicFolder.save();
       } else {
         // add to the tree
-        if (hasHierarchy(topic.topic)) {
+        if (hasHierarchy(topicFolder.topic)) {
           // this creates the proper hierarchy
-          await setNodeParent(topic, uuid, options.parentId);
+          await setNodeParent(topicFolder, uuid, options.parentId);
         }
       }
 
@@ -339,7 +339,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     const hierarchy = currentWorld.value.getEntryHierarchy(entryId);
 
-    const entry = currentWorld.value.topics[topic].filterEntries((e: Entry) => e.uuid === entryId)[0];
+    const entry = currentWorld.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId)[0];
     await entry.delete();
 
     // update tabs/bookmarks
@@ -377,7 +377,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return {
         name: world.folder.name as string,
         id: world.folder.uuid as string,
-        topics: []
+        topicNodes: []
       };
     }) || [];
 
@@ -387,9 +387,9 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       const expandedNodes = currentWorld.value.expandedIds;
 
       const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
-      currentWorldBlock.topics = topics.map((topic: ValidTopic): DirectoryTopicNode => {
+      currentWorldBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${(currentWorld.value as WBWorld).uuid}.topic.${topic}`;
-        const topicObj = (currentWorld.value as WBWorld).topics[topic] as TopicFolder;
+        const topicObj = (currentWorld.value as WBWorld).topicFolders[topic] as TopicFolder;
 
         return new DirectoryTopicNode(
           id,
@@ -400,11 +400,11 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
           [],
           expandedNodes[id] || false,
         );
-      }).sort((a: DirectoryTopicNode, b: DirectoryTopicNode): number => a.topic.topic - b.topic.topic);
+      }).sort((a: DirectoryTopicNode, b: DirectoryTopicNode): number => a.topicFolder.topic - b.topicFolder.topic);
 
       // load any open topics
-      for (let i=0; i<currentWorldBlock?.topics.length; i++) {
-        const directoryTopicNode = currentWorldBlock.topics[i];
+      for (let i=0; i<currentWorldBlock?.topicNodes.length; i++) {
+        const directoryTopicNode = currentWorldBlock.topicNodes[i];
 
         if (!directoryTopicNode.expanded)
           continue;
@@ -412,7 +412,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         // have to check all children are loaded and expanded properly
         await directoryTopicNode.recursivelyLoadNode(expandedNodes, updateEntryIds);
 
-        await directoryTopicNode.loadTypeEntries(currentWorld.value.topics[directoryTopicNode.topic.topic].types, expandedNodes);
+        await directoryTopicNode.loadTypeEntries(currentWorld.value.topicFolders[directoryTopicNode.topicFolder.topic].types, expandedNodes);
       }
     }
 

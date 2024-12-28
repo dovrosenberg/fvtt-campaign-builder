@@ -24,20 +24,20 @@
       >
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
         <li 
-          v-for="topicNode in world.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
-          :key="topicNode.topic"
+          v-for="topicNode in world.topicNodes.sort((a, b) => (a.topicFolder.topic < b.topicFolder.topic ? -1 : 1))"
+          :key="topicNode.topicFolder"
           :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topicNode.expanded ? '' : 'collapsed')"
-          :data-topic="topicNode.topic.topic" 
+          :data-topic="topicNode.topicFolder.topic" 
         >
           <header class="folder-header flexrow">
             <div 
               class="fwb-compendium-label noborder" 
               style="margin-bottom:0px"
               @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
-              @contextmenu="onTopicContextMenu($event, world.id, topicNode.topic as DirectoryTopicNode)"
+              @contextmenu="onTopicContextMenu($event, world.id, topicNode as DirectoryTopicNode)"
             >
               <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-              <i :class="'icon fas ' + getTopicIcon(topicNode.topic.topic)" style="margin-right: 4px;"></i>
+              <i :class="'icon fas ' + getTopicIcon(topicNode.topicFolder.topic)" style="margin-right: 4px;"></i>
               {{ topicNode.name }}
             </div>
           </header>
@@ -154,7 +154,7 @@
     });
   };
 
-  const onTopicContextMenu = (event: MouseEvent, worldId: string, topic: TopicFolder): void => {
+  const onTopicContextMenu = (event: MouseEvent, worldId: string, topicFolder: TopicFolder): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();
@@ -169,15 +169,15 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${topic.topic}`), 
+          label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
           onClick: async () => {
             // get the right folder
             const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as globalThis.Folder;
 
-            if (!worldFolder || !topic)
+            if (!worldFolder || !topicFolder)
               throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
-            const entry = await topicDirectoryStore.createEntry(topic, {} );
+            const entry = await topicDirectoryStore.createEntry(topicFolder, {} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

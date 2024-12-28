@@ -6,7 +6,7 @@
       :key="type.id"
       :type="type"
       :world-id="props.worldId"
-      :topic="props.topicNode.topic"
+      :topic="props.topicNode.topicFolder.topic"
     />
   </ul>
 </template>

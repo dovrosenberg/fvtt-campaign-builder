@@ -30,7 +30,7 @@
             :key="child.id"
             :node="child"
             :world-id="props.worldId"
-            :topic="props.topic"
+            :topic-folder="props.topicFolder"
             :top="false"
           />
         </div>
@@ -70,7 +70,7 @@
       type: String,
       required: true
     },
-    topic: {
+    topicFolder: {
       type: Object as PropType<TopicFolder>,
       required: true
     },
@@ -130,7 +130,7 @@
     }
 
     const dragData = { 
-      topic:  props.topic.topic,
+      topic:  props.topicFolder.topic,
       childId: id,
     } as { topic: ValidTopic; childId: string};
 
@@ -157,20 +157,20 @@
         return false;
 
       // if the types don't match or don't have hierarchy, can't drop
-      if (data.topic!==props.topic.topic || !hasHierarchy(props.topic.topic))
+      if (data.topic!==props.topicFolder.topic || !hasHierarchy(props.topicFolder.topic))
         return false;
 
       // is this a legal parent?
-      const childEntry = await Entry.fromUuid(data.childId, currentWorld.value.topics[props.topic.topic]); 
+      const childEntry = await Entry.fromUuid(data.childId, currentWorld.value.topicFolders[props.topicFolder.topic]); 
 
       if (!childEntry)
         return false;
 
-      if (!(validParentItems(currentWorld.value as WBWorld, props.topic, childEntry)).find(e=>e.id===parentId))
+      if (!(validParentItems(currentWorld.value as WBWorld, props.topicFolder, childEntry)).find(e=>e.id===parentId))
         return false;
 
       // add the dropped item as a child on the other (will also refresh the tree)
-      await topicDirectoryStore.setNodeParent(props.topic, data.childId, parentId);
+      await topicDirectoryStore.setNodeParent(props.topicFolder, data.childId, parentId);
 
       return true;
     } else {
@@ -193,15 +193,15 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${props.topic.topic}`) + ' as child', 
+          label: localize(`contextMenus.topicFolder.create.${props.topicFolder.topic}`) + ' as child', 
           onClick: async () => {
             // get the right folder
             const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
-            if (!worldFolder || !props.topic)
+            if (!worldFolder || !props.topicFolder)
               throw new Error('Invalid header in TopicDirectoryNodeWithChildren.onEntryContextMenu.onClick');
 
-            const entry = await topicDirectoryStore.createEntry(props.topic, { parentId: props.node.id} );
+            const entry = await topicDirectoryStore.createEntry(props.topicFolder, { parentId: props.node.id} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -213,10 +213,10 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
+            await topicDirectoryStore.deleteEntry(props.topicFolder, props.node.id);
           }
         },
-      ].filter((item)=>(hasHierarchy(props.topic.topic) || item.icon!=='fa-atlas'))
+      ].filter((item)=>(hasHierarchy(props.topicFolder.topic) || item.icon!=='fa-atlas'))
       // the line above is to remove the "add child" option from entries that don't have hierarchy
       // not really ideal but a bit cleaner than having two separate arrays and concatening
 

@@ -96,7 +96,7 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder; world: 
 /**
  * Returns a localized string representing the name of a given topic.
  * 
- * @param {Topics} topics - The topic for which to retrieve the text.
+ * @param {Topics} topic - The topic for which to retrieve the text.
  * @returns {string} A localized string for the topic.
  * @throws {Error} If the topic is invalid.
  */

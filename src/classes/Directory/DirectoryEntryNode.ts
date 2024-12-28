@@ -10,10 +10,10 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
   name: string;
   type: string;    // the type of the entry
   
-  constructor(id: string, name: string, type: string, topic: TopicFolder, parentId: string | null = null, children: string[] = [], 
+  constructor(id: string, name: string, type: string, topicFolder: TopicFolder, parentId: string | null = null, children: string[] = [], 
     loadedChildren: DirectoryEntryNode[] = [], ancestors: string[] = [], expanded: boolean = false
   ) {
-    super(id, topic, expanded, parentId, children, loadedChildren, ancestors);
+    super(id, topicFolder, expanded, parentId, children, loadedChildren, ancestors);
 
     this.name = name;
     this.type = type;
