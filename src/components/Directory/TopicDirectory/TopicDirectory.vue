@@ -4,7 +4,7 @@
     <li 
       v-for="world in currentWorldTree.value"
       :key="world.id"
-      :class="'fwb-world-folder folder flexcol ' + (currentWorld.uuid===world.id ? '' : 'collapsed')" 
+      :class="'fwb-world-folder folder flexcol ' + (currentWorld?.uuid===world.id ? '' : 'collapsed')" 
       @click="onWorldFolderClick($event, world.id)"
     >
       <header 
@@ -19,7 +19,7 @@
 
       <!-- These are the topic compendia -->
       <ol 
-        v-if="currentWorld.uuid===world.id"
+        v-if="currentWorld?.uuid===world.id"
         class="fwb-world-contents"
       >
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
@@ -33,8 +33,8 @@
             <div 
               class="fwb-compendium-label noborder" 
               style="margin-bottom:0px"
-              @click="onTopicFolderClick($event, topicNode)"
-              @contextmenu="onTopicContextMenu($event, world.id, topicNode.topic)"
+              @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
+              @contextmenu="onTopicContextMenu($event, world.id, topicNode.topic as DirectoryTopicNode)"
             >
               <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
               <i :class="'icon fas ' + getTopicIcon(topicNode.topic.topic)" style="margin-right: 4px;"></i>
@@ -75,7 +75,7 @@
   import TopicDirectoryGroupedTree from './TopicDirectoryGroupedTree.vue';
   
   // types
-  import { Topics, WindowTabType } from '@/types';
+  import { WindowTabType } from '@/types';
   import { DirectoryTopicNode, Campaign, WBWorld, Topic, } from '@/classes';
   
   ////////////////////////////////

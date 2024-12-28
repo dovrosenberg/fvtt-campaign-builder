@@ -397,7 +397,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       }
 
       if (topic !== Topics.None) {
-        relatedItemRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]) || []: [];
+        relatedItemRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]) : [];
         relatedDocumentRows.value = [];
       } else if (currentDocumentTab.value===DocumentLinkType.Scenes) {
         relatedItemRows.value = [];
