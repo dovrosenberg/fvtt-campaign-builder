@@ -114,7 +114,7 @@
   // store
   const relationshipStore = useRelationshipStore();
   const mainStore = useMainStore();
-  const { currentEntry, currentEntryTopic } = storeToRefs(mainStore);
+  const { currentEntry, currentWorld, currentEntryTopic } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -211,7 +211,7 @@
       if (!currentEntry.value || !currentEntryTopic.value)
         throw new Error('Trying to show AddRelatedItemDialog without a current entry');
 
-      selectItems.value = await Entry.getEntriesForTopic(props.topic, currentEntry.value);
+      selectItems.value = await Entry.getEntriesForTopic(currentWorld.value.topics[props.topic], currentEntry.value);
       extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
 
       // focus on the input

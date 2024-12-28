@@ -5,7 +5,7 @@
       :key="node.id"
       :node="node" 
       :world-id="props.worldId"
-      :topic="props.topicNode"
+      :topic="props.topicNode.topic"
       :pack-id="props.topicNode.topic.uuid"
       :top="true"
       class="fwb-entry-item" 

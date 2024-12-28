@@ -40,7 +40,7 @@ export const useMainStore = defineStore('main', () => {
     if (!pack)
       throw new Error('Bad compendia in mainStore.currentWorldCompendium()');
 
-    return pack;
+    return pack as CompendiumCollection<any>;
   });
 
   // these are the currently selected entry shown in the main tab
@@ -72,12 +72,18 @@ export const useMainStore = defineStore('main', () => {
   };
 
   const setNewTab = async function (tab: WindowTab): Promise<void> { 
+    if (!currentWorld.value)
+      return;
+
     _currentTab.value = tab;
 
     switch (tab.tabType) {
       case WindowTabType.Entry:
         if (tab.header.uuid) {
           _currentEntry.value = await Entry.fromUuid(tab.header.uuid);
+          if (!_currentEntry.value)
+            throw new Error('Invalid entry uuid in mainStore.setNewTab()');
+
           _currentEntry.value.parentTopic = currentWorld.value.topics[_currentEntry.value.topic];
         } else {
           _currentEntry.value = null;
@@ -97,7 +103,10 @@ export const useMainStore = defineStore('main', () => {
       case WindowTabType.Session:
         if (tab.header.uuid) {
           _currentSession.value = await Session.fromUuid(tab.header.uuid);
-          _currentEntry.value.parentTopic = currentWorld.value.sessions[_currentEntry.value.uuid];
+          if (!_currentSession.value)
+            throw new Error('Invalid entry uuid in mainStore.setNewTab()');
+
+          _currentSession.value.parentCampaign = currentWorld.value.campaigns[_currentSession.value.campaignId];
         } else {
           _currentSession.value = null;
         }
@@ -120,8 +129,11 @@ export const useMainStore = defineStore('main', () => {
     if (!_currentEntry.value)
       return;
 
+    if (!_currentEntry.value.parentTopic)
+      throw new Error('Invalid current parent topic in mainStore.refreshEntry()');
+
     // just force all reactivity to update
-    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc, _currentEntry.value.parentTopic);
+    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc, _currentEntry.value.parentTopic as Topic);
   };
 
   const refreshCampaign = function (): void {
