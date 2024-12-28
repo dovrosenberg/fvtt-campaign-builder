@@ -142,20 +142,15 @@
 
     const folders = await getDefaultFolders();
 
-    if (folders && folders.rootFolder && folders.world && folders.world.topicIds) {
-      // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const worldId = folders.world.uuid;
-      const world = folders.world;
+    const world = folders.world;
+    const worldId = folders.world.uuid;
+    const worldCompendium = folders.world.compendium || null;
 
-      const worldCompendium = folders.world.compendium || null;
-
-      if (!worldCompendium)
+    if (!worldCompendium)
         throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
 
-      if (!world.topicIds)
-        throw new Error('Attempted to mount WorldBuilder.vue without topicIds set');
-
-
+    if (folders && folders.rootFolder && world && world.topicIds && worldCompendium) {
+      // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,

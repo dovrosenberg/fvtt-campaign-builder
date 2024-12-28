@@ -388,8 +388,8 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
       const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topics = topics.map((topic: ValidTopic): DirectoryTopicNode => {
-        const id = `${currentWorld.value?.uuid}.topic.${topic}`;
-        const topicObj = currentWorld.value?.topics[topic] as Topic;
+        const id = `${(currentWorld.value as WBWorld).uuid}.topic.${topic}`;
+        const topicObj = (currentWorld.value as WBWorld).topics[topic] as Topic;
 
         return new DirectoryTopicNode(
           id,

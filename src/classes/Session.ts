@@ -191,11 +191,10 @@ export class Session {
   }
 
   public async delete() {
-    const id = this._sessionDoc.uuid;
-
     if (!this._sessionDoc)
       return;
 
+    const id = this._sessionDoc.uuid;
     const world = await this.getWorld() as WBWorld;
 
     // have to unlock the pack

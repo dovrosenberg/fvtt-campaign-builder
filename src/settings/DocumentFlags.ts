@@ -108,6 +108,22 @@ const getFlagSettingsFromDoc = <DocType extends ValidDocTypes>(doc: DocType): Do
   throw new Error('Invalid document type');
 };
 
+const getConfig = <
+  DocType extends ValidDocTypes,
+  FK extends FlagKey<DocType> = FlagKey<DocType>,
+  FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
+>(doc: DocType, flag: FK): FlagSettings<FK, {[K in FK]: FT}> => {
+  if (!doc)
+    throw new Error('Bad document in DocumentFlags.getConfig()');
+
+  const config = getFlagSettingsFromDoc(doc).find((s)=>s.flagId===flag);
+
+  if (!config)
+    throw new Error('Bad flag in DocumentFlags.getConfig()');
+
+  return config as FlagSettings<FK, {[K in FK]: FT}>;  
+};
+
 /**
  * protects the object from unexpected things that foundry saving does
  */
@@ -142,10 +158,7 @@ export const getFlag = <
   FK extends FlagKey<DocType> = FlagKey<DocType>,
   FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
 > (doc: DocType, flag: FK): FT => {
-  const config = getFlagSettingsFromDoc(doc).find((s)=>s.flagId===flag);
-
-  if (!doc || !config)
-    throw new Error('Bad document/flag in DocumentFlags.getFlag()');
+  const config = getConfig(doc, flag);
 
   // @ts-ignore - not sure how to fix the typing
   const setting = (doc.getFlag(moduleId, flag) || foundry.utils.deepClone(config.default));
@@ -161,10 +174,7 @@ export const setFlag = async <
   FK extends FlagKey<DocType> = FlagKey<DocType>,
   FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
 > (doc: DocType, flag: FK, value: FT | null): Promise<void> => {
-  const config = getFlagSettingsFromDoc(doc).find((s)=>s.flagId===flag);
-
-  if (!doc || !config)
-    throw new Error('Bad document/flag in DocumentFlags.setFlag()');
+  const config = getConfig(doc, flag);
 
   if (config.keyedByUUID && value) {
     // @ts-ignore - not sure how to fix the typing
@@ -183,10 +193,7 @@ export const unsetFlag = async <
   DocType extends ValidDocTypes,
   FK extends FlagKey<DocType> = FlagKey<DocType>,
 > (doc: DocType, flag: FK, key?: string): Promise<void> => {
-  const config = getFlagSettingsFromDoc(doc).find((s)=>s.flagId===flag);
-
-  if (!doc || !config)
-    throw new Error('Bad document/flag in DocumentFlags.unsetFlag()');
+  const config = getConfig(doc, flag);
 
   if (config.keyedByUUID && key) {
     const value = getFlag(doc, flag);
@@ -201,6 +208,7 @@ export const unsetFlag = async <
     throw new Error('key missing in DocumentFlags.unsetFlag()');
   }
 };
+
 
 /**
  * Adds all the default flag values to the document.  Overrides anything already there.  Does not automatically determine the flags because
