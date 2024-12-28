@@ -3,7 +3,7 @@ import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
-import { Campaign, Topic } from '@/classes';
+import { Campaign, TopicFolder } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 
 type WBWorldCompendium = CompendiumCollection<JournalEntry.Metadata>;
@@ -15,7 +15,7 @@ export class WBWorld {
 
   // JournalEntries
   public campaigns: Record<string, Campaign> | null;   // Campaigns keyed by uuid 
-  public topics: Record<ValidTopic, Topic>;  // we load them when we load the world (using validate()), so we assume it's never empty
+  public topics: Record<ValidTopic, TopicFolder>;  // we load them when we load the world (using validate()), so we assume it's never empty
 
   // saved on Folder
   private _name;
@@ -60,7 +60,7 @@ export class WBWorld {
     }  
 
     this.campaigns = {} as Record<string, Campaign>;
-    this.topics = {} as Record<ValidTopic, Topic>;
+    this.topics = {} as Record<ValidTopic, TopicFolder>;
   }
 
   static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
@@ -85,13 +85,13 @@ export class WBWorld {
   * to the existing ones; otherwise, it loads the topics and then resolves to the set.
   * @returns {Promise<Record<ValidTopic, Topics>>} A promise to the topics
   */
-  public async loadTopics(): Promise<Record<ValidTopic, Topic>> {
+  public async loadTopics(): Promise<Record<ValidTopic, TopicFolder>> {
     if (!this._topicIds)
       throw new Error('Invalid WBWorld.loadTopics() called before IDs loaded');
 
     for (const topic in Topics) {
       if (!this.topics[topic]) {
-        const topicObj = await Topic.fromUuid(this._topicIds[topic]);
+        const topicObj = await TopicFolder.fromUuid(this._topicIds[topic]);
         if (!topicObj)
           throw new Error('Invalid topic uuid in WBWorld.loadTopics()');
 
@@ -109,9 +109,12 @@ export class WBWorld {
   * to the existing ones; otherwise, it loads the campaigns and then resolves to the set.
   * @returns {Promise<Record<string, Campaign>>} A promise to the campaigns 
   */
-  public async loadCampaigns(): Promise<Record<ValidTopic, Topic>> {
+  public async loadCampaigns(): Promise<Record<string, Campaign>> {
     if (!this._campaignNames)
       throw new Error('Invalid WBWorld.loadCampaigns() called before IDs loaded');
+
+    if (!this.campaigns)
+      this.campaigns = {};
 
     for (const id in this._campaignNames) {
       if (!this.campaigns[id]) {
@@ -349,7 +352,7 @@ export class WBWorld {
 
     const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
     let topicIds = this._topicIds;
-    const topicObjects = {} as Record<ValidTopic, Topic>;
+    const topicObjects = {} as Record<ValidTopic, TopicFolder>;
 
     if (!topicIds) {
       topicIds = {} as Record<ValidTopic, string>;
@@ -361,7 +364,7 @@ export class WBWorld {
 
       let topic;
       if (topicIds[t]) {
-        topic = await Topic.fromUuid(topicIds[t]);
+        topic = await TopicFolder.fromUuid(topicIds[t]);
 
         if (topic)
           topic.world = this;
@@ -369,57 +372,7 @@ export class WBWorld {
 
       if (!topic) {
         // create the missing one
-        topic = await Topic.create(this, t);
-
-        if (!topic)
-          throw new Error('Couldn\'t create topic in WBWorld.validate()');
-
-        topic.world = this;
-        topicIds[t] = topic.uuid;
-        topicObjects[t] = topic;
-
-        updated = true;
-      } else {
-        topicObjects[t] = topic;
-      }
-    }
-
-    this.topics = topicObjects;
-
-    // if we changed things, save new compendia flag
-    if (updated) {
-      this.topicIds = topicIds;
-      await this.save();
-    }
-  }
-
-  // popul
-  private async populateCampaigns() {
-    let updated = false;
-
-    const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
-    let topicIds = this._topicIds;
-    const topicObjects = {} as Record<ValidTopic, Topic>;
-
-    if (!topicIds) {
-      topicIds = {} as Record<ValidTopic, string>;
-    }
-
-    // load the topics, creating them if needed
-    for (let i=0; i<topics.length; i++) {
-      const t = topics[i];
-
-      let topic;
-      if (topicIds[t]) {
-        topic = await Topic.fromUuid(topicIds[t]);
-
-        if (topic)
-          topic.world = this;
-      }
-
-      if (!topic) {
-        // create the missing one
-        topic = await Topic.create(this, t);
+        topic = await TopicFolder.create(this, t);
 
         if (!topic)
           throw new Error('Couldn\'t create topic in WBWorld.validate()');
@@ -495,7 +448,7 @@ export class WBWorld {
 
   // remove an entry from the world metadata
   // note: WORLD MUST BE UNLOCKED FIRST
-  public async deleteEntryFromWorld(topic: Topic, entryId: string) {
+  public async deleteEntryFromWorld(topic: TopicFolder, entryId: string) {
     const hierarchy = this.getEntryHierarchy(entryId);
 
     let topNodesCleaned = false;

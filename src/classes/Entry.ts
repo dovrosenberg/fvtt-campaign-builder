@@ -4,7 +4,7 @@ import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace,  } from '@/documents'
 import { RelatedItemDetails, ValidTopic, Topics } from '@/types';
 import { inputDialog } from '@/dialogs/input';
 import { getTopicText } from '@/compendia';
-import { Topic, WBWorld } from '@/classes';
+import { TopicFolder, WBWorld } from '@/classes';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -12,7 +12,7 @@ export type CreateEntryOptions = { name?: string; type?: string; parentId?: stri
 export class Entry {
   static currentTopicJournals: Record<ValidTopic, JournalEntry>;
 
-  public parentTopic: Topic | null;
+  public topicFolder: TopicFolder | null;
 
   private _entryDoc: EntryDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
@@ -21,7 +21,7 @@ export class Entry {
    * 
    * @param {EntryDoc} entryDoc - The entry Foundry document
    */
-  constructor(entryDoc: EntryDoc, parentTopic?: Topic) {
+  constructor(entryDoc: EntryDoc, topicFolder?: TopicFolder) {
     // make sure it's the right kind of document
     if (entryDoc.type !== DOCUMENT_TYPES.Entry)
       throw new Error('Invalid document type in Entry constructor');
@@ -29,43 +29,43 @@ export class Entry {
     // clone it to avoid unexpected changes
     this._entryDoc = foundry.utils.deepClone(entryDoc);
     this._cumulativeUpdate = {};
-    this.parentTopic = parentTopic || null;
+    this.topicFolder = topicFolder || null;
   }
 
   // does not set the parent topic
-  static async fromUuid(entryId: string, parentTopic?: Topic, options?: Record<string, any>): Promise<Entry | null> {
+  static async fromUuid(entryId: string, topicFolder?: TopicFolder, options?: Record<string, any>): Promise<Entry | null> {
     const entryDoc = await fromUuid(entryId, options) as EntryDoc;
 
     if (!entryDoc)
       return null;
     else {
-      return new Entry(entryDoc, parentTopic);
+      return new Entry(entryDoc, topicFolder);
     }
   }
 
   /**
-   * Gets the Topic associated with the entry. If the topic  is already loaded, the promise resolves
-   * to the existing Topic; otherwise, it loads the Topic and then resolves to it.
-   * @returns {Promise<Topic>} A promise to the Topic  associated with the entry.
+   * Gets the TopicFolder associated with the entry. If the topic  is already loaded, the promise resolves
+   * to the existing TopicFolder; otherwise, it loads the TopicFolder and then resolves to it.
+   * @returns {Promise<TopicFolder>} A promise to the TopicFolder  associated with the entry.
    */
-  public async loadTopic(): Promise<Topic> {
-    if (this.parentTopic)
-      return this.parentTopic;
+  public async loadTopic(): Promise<TopicFolder> {
+    if (this.topicFolder)
+      return this.topicFolder;
     
-    this.parentTopic = await Topic.fromUuid(this._entryDoc.parent.uuid);
+    this.topicFolder = await TopicFolder.fromUuid(this._entryDoc.parent.uuid);
 
-    if (!this.parentTopic)
+    if (!this.topicFolder)
       throw new Error('Invalid entry in Entry.getTopic()');
 
-    return this.parentTopic;
+    return this.topicFolder;
   }
   
   // creates a new entry in the proper compendium in the given world
   // if name is populated will skip the dialog
-  static async create(parentTopic: Topic, options: CreateEntryOptions): Promise<Entry | null> 
+  static async create(topicFolder: TopicFolder, options: CreateEntryOptions): Promise<Entry | null> 
   {
-    const topicText = getTopicText(parentTopic.topic);
-    const world = await parentTopic.getWorld();
+    const topicText = getTopicText(topicFolder.topic);
+    const world = await topicFolder.getWorld();
 
     let nameToUse = options.name || '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
@@ -85,7 +85,7 @@ export class Entry {
       name: nameToUse,
       system: {
         type: options.type || '',
-        topic: parentTopic.topic,
+        topic: topicFolder.topic,
         relationships: {
           [Topics.Character]: {},
           [Topics.Event]: {},
@@ -96,13 +96,13 @@ export class Entry {
         scenes: [],
       }
     }],{
-      parent: parentTopic.raw,
+      parent: topicFolder.raw,
     }) as unknown as EntryDoc[];
 
     await world.lock();
 
     if (entryDoc) {
-      const entry = new Entry(entryDoc[0], parentTopic);
+      const entry = new Entry(entryDoc[0], topicFolder);
       return entry;
     } else {
       return null;
@@ -211,10 +211,10 @@ export class Entry {
     * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
     */
   public async getWorld(): Promise<WBWorld> {
-    if (!this.parentTopic)
+    if (!this.topicFolder)
       await this.loadTopic();
   
-    const topic = this.parentTopic as Topic;
+    const topic = this.topicFolder as TopicFolder;
     return topic.getWorld();
   }
   
@@ -270,10 +270,10 @@ export class Entry {
     const world = await this.getWorld();
 
     const id = this.uuid;
-    const topic = this.parentTopic;
+    const topic = this.topicFolder;
 
     if (!topic)
-      throw new Error('Attempting to delete entry without parent Topic in Entry.delete()');
+      throw new Error('Attempting to delete entry without parent TopicFolder in Entry.delete()');
 
     // have to unlock the pack
     await world.unlock();
@@ -300,7 +300,7 @@ export class Entry {
    * @param notRelatedTo if present, only return entries that are not already linked to this entry
    * @returns a list of Entries
    */
-  public static async getEntriesForTopic(topic: Topic, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
+  public static async getEntriesForTopic(topic: TopicFolder, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
     // we find all journal entries with this topic
     let entries = await topic.filterEntries(()=>true);
 
@@ -321,7 +321,7 @@ export class Entry {
    * @param topic - The topic for which to retrieve related items.
    * @returns An array of related uuids. Returns an empty array if there is no current entry.
    */
-  public getAllRelatedEntries(topic: Topic): string[] {
+  public getAllRelatedEntries(topic: TopicFolder): string[] {
     // get relationships
     const relationships = this.relationships || {};
 

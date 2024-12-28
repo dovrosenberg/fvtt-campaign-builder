@@ -9,7 +9,7 @@ import { UserFlagKey, UserFlags, } from '@/settings';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { WBWorld, WindowTab, Entry, Campaign, Session, } from '@/classes';
+import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc } from '@/documents';
 
 // the store definition
@@ -84,7 +84,7 @@ export const useMainStore = defineStore('main', () => {
           if (!_currentEntry.value)
             throw new Error('Invalid entry uuid in mainStore.setNewTab()');
 
-          _currentEntry.value.parentTopic = currentWorld.value.topics[_currentEntry.value.topic];
+          _currentEntry.value.topicFolder = currentWorld.value.topics[_currentEntry.value.topic];
         } else {
           _currentEntry.value = null;
         }
@@ -129,11 +129,11 @@ export const useMainStore = defineStore('main', () => {
     if (!_currentEntry.value)
       return;
 
-    if (!_currentEntry.value.parentTopic)
+    if (!_currentEntry.value.topicFolder)
       throw new Error('Invalid current parent topic in mainStore.refreshEntry()');
 
     // just force all reactivity to update
-    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc, _currentEntry.value.parentTopic as Topic);
+    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc, _currentEntry.value.topicFolder as TopicFolder);
   };
 
   const refreshCampaign = function (): void {

@@ -19,7 +19,7 @@ We store a bunch of indexing data in flags the world folder to make it faster to
 * `topNodes: Record <Topics, string[]>` - the top node uuids in the tree for each topic
 * `hierarchies: Record<Topics, Record<string, Hierarchy>>` - a `Hierarchy` object for each entry uuid, in master object keyed by topic
 
-# Topic entries
+# TopicFolder entries
 
 * `interface Entry extends JournalEntryPage`
   * system variable inclues:

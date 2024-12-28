@@ -2,12 +2,12 @@
  * An abstract class representing a node of any sort in the topic tree structures
  */
 
-import { Entry, CollapsibleNode, DirectoryEntryNode, Topic, } from '@/classes';
+import { Entry, CollapsibleNode, DirectoryEntryNode, TopicFolder, } from '@/classes';
 
 export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEntryNode> {
-  topic: Topic;
+  topic: TopicFolder;
   
-  constructor(id: string, topic: Topic, expanded: boolean = false, parentId: string | null = null,
+  constructor(id: string, topic: TopicFolder, expanded: boolean = false, parentId: string | null = null,
     children: string[] = [], loadedChildren: DirectoryEntryNode[] = [], ancestors: string[] = []
   ) {
     super(id, expanded, parentId, children, loadedChildren, ancestors);

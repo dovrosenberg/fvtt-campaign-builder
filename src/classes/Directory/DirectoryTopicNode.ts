@@ -2,7 +2,7 @@
  * An node representing a topic in the topic tree structures
  */
 
-import { Topic, Entry, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, } from '@/classes';
+import { TopicFolder, Entry, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 
 export class DirectoryTopicNode extends DirectoryTopicTreeNode {
@@ -10,7 +10,7 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
   loadedTypes: DirectoryTypeNode[];
   
   // children are for the entries; loadedTypes is for the type nodes
-  constructor(id: string, name: string, topic: Topic, 
+  constructor(id: string, name: string, topic: TopicFolder, 
     children: string[] = [], loadedChildren: DirectoryEntryNode[] = [], 
     loadedTypes: DirectoryTypeNode[] = [], expanded: boolean = false
   ) {

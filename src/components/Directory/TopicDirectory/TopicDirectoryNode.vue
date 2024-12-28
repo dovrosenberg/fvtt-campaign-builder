@@ -39,7 +39,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  import { DirectoryEntryNode, Entry, Topic, WBWorld } from '@/classes';
+  import { DirectoryEntryNode, Entry, TopicFolder, WBWorld } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -49,7 +49,7 @@
       required: true
     },
     topic: {
-      type: Object as PropType<Topic>,
+      type: Object as PropType<TopicFolder>,
       required: true
     },
     node: { 

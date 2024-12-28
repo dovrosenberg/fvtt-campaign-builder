@@ -11,7 +11,7 @@ import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
 
 // types
-import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, Topic, } from '@/classes';
+import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, TopicFolder, } from '@/classes';
 import { DirectoryWorld, Hierarchy, Topics, ValidTopic, } from '@/types';
 
 // the store definition
@@ -137,7 +137,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // set the parent for a node, cleaning up all associated relationships/records
   // pass a null parent to make it a top node
   // returns wheether it was successful
-  const setNodeParent = async function(topic: Topic, childId: string, parentId: string | null): Promise<boolean> {
+  const setNodeParent = async function(topic: TopicFolder, childId: string, parentId: string | null): Promise<boolean> {
     if (!currentWorld.value)
       return false;
 
@@ -269,7 +269,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   };
 
 
-  const createEntry = async (topic: Topic, options: CreateEntryOptions): Promise<Entry | null> => {
+  const createEntry = async (topic: TopicFolder, options: CreateEntryOptions): Promise<Entry | null> => {
     if (!currentWorld.value)
       return null;
 
@@ -389,7 +389,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topics = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${(currentWorld.value as WBWorld).uuid}.topic.${topic}`;
-        const topicObj = (currentWorld.value as WBWorld).topics[topic] as Topic;
+        const topicObj = (currentWorld.value as WBWorld).topics[topic] as TopicFolder;
 
         return new DirectoryTopicNode(
           id,

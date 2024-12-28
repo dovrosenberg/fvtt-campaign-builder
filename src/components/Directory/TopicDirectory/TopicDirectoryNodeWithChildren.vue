@@ -57,7 +57,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  import { Topic, Entry, DirectoryEntryNode, WBWorld, } from '@/classes';
+  import { TopicFolder, Entry, DirectoryEntryNode, WBWorld, } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -71,7 +71,7 @@
       required: true
     },
     topic: {
-      type: Object as PropType<Topic>,
+      type: Object as PropType<TopicFolder>,
       required: true
     },
     top: {    // applies class to top level

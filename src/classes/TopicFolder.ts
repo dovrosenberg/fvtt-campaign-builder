@@ -6,7 +6,7 @@ import { ValidTopic } from '@/types';
 import { getTopicTextPlural } from '@/compendia';
 
 // represents a topic entry (ex. a character, location, etc.)
-export class Topic {
+export class TopicFolder {
   private _topicDoc: TopicDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
 
@@ -40,13 +40,13 @@ export class Topic {
     this._topic = getFlag(this._topicDoc, TopicFlagKey.topic);
   }
 
-  static async fromUuid(topicId: string, options?: Record<string, any>): Promise<Topic | null> {
+  static async fromUuid(topicId: string, options?: Record<string, any>): Promise<TopicFolder | null> {
     const topicDoc = await fromUuid(topicId, options) as TopicDoc;
 
     if (!topicDoc)
       return null;
     else {
-      return new Topic(topicDoc);
+      return new TopicFolder(topicDoc);
     }
   }
 
@@ -152,10 +152,10 @@ export class Topic {
    * Creates a new topic.  Does not add to world.
    * 
    * @param {WBWorld} world - The world to create the topic in. 
-   * @param {ValidTopic} topic - The topic for the Topic
+   * @param {ValidTopic} topic - The topic for the TopicFolder
    * @returns A promise that resolves when the topic has been created, with either the resulting entry or null on error
    */
-  static async create(world: WBWorld, topic: ValidTopic): Promise<Topic | null> {
+  static async create(world: WBWorld, topic: ValidTopic): Promise<TopicFolder | null> {
     // unlock the world to allow edits
     await world.unlock();
 
@@ -178,7 +178,7 @@ export class Topic {
     if (!newTopicDoc)
       throw new Error('Couldn\'t create new topic');
 
-    const newTopic = new Topic(newTopicDoc, world);
+    const newTopic = new TopicFolder(newTopicDoc, world);
     
     return newTopic;
   }
@@ -199,9 +199,9 @@ export class Topic {
   /**
    * Updates a topic in the database 
    * 
-   * @returns {Promise<Topic | null>} The updated topic, or null if the update failed.
+   * @returns {Promise<TopicFolder | null>} The updated topic, or null if the update failed.
    */
-  public async save(): Promise<Topic | null> {
+  public async save(): Promise<TopicFolder | null> {
     const updateData = this._cumulativeUpdate;
 
     let world = this.world;

@@ -134,7 +134,7 @@
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
 
   // types
-  import { Topic, Topics, } from '@/types';
+  import { TopicFolder, Topics, } from '@/types';
   import { Entry, WBWorld } from '@/classes';
 
   ////////////////////////////////
@@ -243,10 +243,10 @@
     if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
       return;
 
-    if (!currentEntry.value.parentTopic)
+    if (!currentEntry.value.topicFolder)
       throw new Error('Invalid topic in EntryContent.onParentSelectionMade()');
 
-    await topicDirectoryStore.setNodeParent(currentEntry.value.parentTopic, currentEntry.value.uuid, selection || null);
+    await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder, currentEntry.value.uuid, selection || null);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
@@ -277,9 +277,9 @@
     if (!newEntry || !newEntry.uuid) {
       topic.value = null;
     } else {
-      let newTopic: Topic;
+      let newTopic: TopicFolder;
 
-      newTopic = newEntry.parentTopic;
+      newTopic = newEntry.topicFolder;
       if (!newTopic) 
         throw new Error('Invalid entry topic in EntryContent.watch-currentEntry');
 

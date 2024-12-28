@@ -76,7 +76,7 @@
   
   // types
   import { WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign, WBWorld, Topic, } from '@/classes';
+  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -154,7 +154,7 @@
     });
   };
 
-  const onTopicContextMenu = (event: MouseEvent, worldId: string, topic: Topic): void => {
+  const onTopicContextMenu = (event: MouseEvent, worldId: string, topic: TopicFolder): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();

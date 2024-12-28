@@ -14,7 +14,7 @@
         "sessionNumber": "Number"
       },
       "entry": {
-        "topic": "Topic",
+        "topic": "TopicFolder",
         "type": "Type",
         "relationships": "Relationshipa"
       },

@@ -1,5 +1,5 @@
 import { TabSummary,  Hierarchy, Topics, } from '@/types';
-import { Topic, Entry, WBWorld, } from '@/classes';
+import { TopicFolder, Entry, WBWorld, } from '@/classes';
 
 // the string to show for items with no type
 export const NO_TYPE_STRING = '(none)';
@@ -14,7 +14,7 @@ export const hasHierarchy = (topic: Topics): boolean => [Topics.Organization, To
 // this is to populate a list of possible children for a node (ex. a dropdown)
 // a valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself
 // only works for topics that have hierachy
-export function validChildItems(world: WBWorld, topic: Topic, entry: Entry): TabSummary[] {
+export function validChildItems(world: WBWorld, topic: TopicFolder, entry: Entry): TabSummary[] {
   if (!entry.uuid)
     return [];
 
@@ -29,7 +29,7 @@ export function validChildItems(world: WBWorld, topic: Topic, entry: Entry): Tab
 // returns a list of valid possible parents for a node
 // a valid parent is anything that does not have this object as an ancestor (to avoid creating loops) 
 // only works for topics that have hierachy
-export function validParentItems(world: WBWorld, topic: Topic, entry: Entry): {name: string; id: string}[] {
+export function validParentItems(world: WBWorld, topic: TopicFolder, entry: Entry): {name: string; id: string}[] {
   if (!entry.uuid)
     return [];
 
@@ -49,7 +49,7 @@ const mapEntryToSummary = (entry: Entry): TabSummary => ({
 // after we delete an item, we need to remove it from any trees where it is a child or ancestor,
 //    along with all of the items that are now orphaned
 // Also cleans up the topic topNodes
-export const cleanTrees = async function(world: WBWorld, topic: Topic, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
+export const cleanTrees = async function(world: WBWorld, topic: TopicFolder, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
   const hierarchies = world.hierarchies;
   
   // remove deleted item and all its ancestors from any object who had them as ancestors previously
