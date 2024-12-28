@@ -96,7 +96,6 @@ export class WBWorld {
           throw new Error('Invalid topic uuid in WBWorld.loadTopics()');
 
         topicObj.world = this;
-        this._topicIds[topic] = topicObj.uuid;
         this.topics[topic] = topicObj;
       }
     }
@@ -104,6 +103,30 @@ export class WBWorld {
     return this.topics;
   }
   
+
+  /**
+  * Gets the Campaigns associated with the world. If the campaigns are already loaded, the promise resolves
+  * to the existing ones; otherwise, it loads the campaigns and then resolves to the set.
+  * @returns {Promise<Record<string, Campaign>>} A promise to the campaigns 
+  */
+  public async loadCampaigns(): Promise<Record<ValidTopic, Topic>> {
+    if (!this._campaignNames)
+      throw new Error('Invalid WBWorld.loadCampaigns() called before IDs loaded');
+
+    for (const id in this._campaignNames) {
+      if (!this.campaigns[id]) {
+        const campaignObj = await Campaign.fromUuid(this._campaignNames[id]);
+        if (!campaignObj)
+          throw new Error('Invalid campaign uuid in WBWorld.loadCampaigns()');
+
+        campaignObj.world = this;
+        this.campaigns[id] = campaignObj;
+      }
+    }
+
+    return this.campaigns;
+  }
+
   /** 
    * The uuid
    */
@@ -298,8 +321,6 @@ export class WBWorld {
   // make sure we have a compendium in the folder; create a new one if needed
   // also loads all the topics
   public async validate() {
-    let updated = false;
-
     if (this._compendiumId) {
       const compendium = game.packs?.get(this._compendiumId);
       if (!compendium) 
@@ -317,9 +338,15 @@ export class WBWorld {
     if (!this._compendium)
       throw new Error('Failed to create compendium in WBWorld.validate()');
 
-    // also need to create the journal entries
-    // check them all
-    // Object.keys() on an enum returns an array with all the values followed by all the names
+    // load the journal entries... we populate any missing topics, but can't reconstruct
+    //    campaigns
+    await this.populateTopics();
+    await this.loadCampaigns();
+  }
+
+  private async populateTopics() {
+    let updated = false;
+
     const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
     let topicIds = this._topicIds;
     const topicObjects = {} as Record<ValidTopic, Topic>;
@@ -347,6 +374,7 @@ export class WBWorld {
         if (!topic)
           throw new Error('Couldn\'t create topic in WBWorld.validate()');
 
+        topic.world = this;
         topicIds[t] = topic.uuid;
         topicObjects[t] = topic;
 
@@ -365,9 +393,56 @@ export class WBWorld {
     }
   }
 
-  MOVE LOAD TOPICS FROM VALIDATE HERE
-  THEN DO THE SAME TO LOAD CAMPAIGNS
-  
+  // popul
+  private async populateCampaigns() {
+    let updated = false;
+
+    const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
+    let topicIds = this._topicIds;
+    const topicObjects = {} as Record<ValidTopic, Topic>;
+
+    if (!topicIds) {
+      topicIds = {} as Record<ValidTopic, string>;
+    }
+
+    // load the topics, creating them if needed
+    for (let i=0; i<topics.length; i++) {
+      const t = topics[i];
+
+      let topic;
+      if (topicIds[t]) {
+        topic = await Topic.fromUuid(topicIds[t]);
+
+        if (topic)
+          topic.world = this;
+      }
+
+      if (!topic) {
+        // create the missing one
+        topic = await Topic.create(this, t);
+
+        if (!topic)
+          throw new Error('Couldn\'t create topic in WBWorld.validate()');
+
+        topic.world = this;
+        topicIds[t] = topic.uuid;
+        topicObjects[t] = topic;
+
+        updated = true;
+      } else {
+        topicObjects[t] = topic;
+      }
+    }
+
+    this.topics = topicObjects;
+
+    // if we changed things, save new compendia flag
+    if (updated) {
+      this.topicIds = topicIds;
+      await this.save();
+    }
+  }
+
   // returns the compendium
   private async createCompendium(): Promise<void> {
     const metadata = { 
