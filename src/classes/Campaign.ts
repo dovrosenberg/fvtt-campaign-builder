@@ -206,7 +206,7 @@ export class Campaign {
    */
   public async getSessions(notRelatedTo?: Session | undefined): Promise<Session[]> {
     // we find all journal entries with this topic
-    let sessions = await this.filterSessions(()=>true);
+    let sessions = this.filterSessions(()=>true);
   
     // filter unique ones if needed
     if (notRelatedTo) {

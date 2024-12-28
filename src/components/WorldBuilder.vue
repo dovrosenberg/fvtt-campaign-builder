@@ -142,14 +142,17 @@
 
     const folders = await getDefaultFolders();
 
+    if (!folders)
+        throw new Error(`Couldn't get folders for world ${worldId} in WorldBuilder.onMounted()`);
+
     const world = folders.world;
     const worldId = folders.world.uuid;
-    const worldCompendium = folders.world.compendium || null;
+    const worldCompendium = folders.world?.compendium || null;
 
     if (!worldCompendium)
         throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
 
-    if (folders && folders.rootFolder && world && world.topicIds && worldCompendium) {
+    if (folders && folders.rootFolder && world && world.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {

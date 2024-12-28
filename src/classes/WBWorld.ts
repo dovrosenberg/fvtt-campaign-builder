@@ -1,5 +1,5 @@
 import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, unsetFlag, setFlag, } from '@/settings'; 
-import { CampaignDoc, WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
+import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';

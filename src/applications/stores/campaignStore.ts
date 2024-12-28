@@ -112,12 +112,11 @@ export const useCampaignStore = defineStore('campaign', () => {
       }
 
       if (table !== CampaignTableTypes.None) {
-        relatedPCRows.value = !currentCampaign.value.pcs ? [] :
-          Object.values(currentCampaign.value.pcs).map((id)=>{
+        relatedPCRows.value = Object.values(currentCampaign.value.pcs).map((id)=>{
             return { 
               name: id, 
               uuid: id,
-              packid: id,
+              packId: id,
               packName: id,
             };
           }
