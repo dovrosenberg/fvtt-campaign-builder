@@ -103,7 +103,7 @@
         throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
 
       const topicIds = currentWorld.value.topicIds;
-      const campaignEntries = currentWorld.value.campaignEntries;
+      const campaignNames = currentWorld.value.campaignNames;
       const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
@@ -123,9 +123,9 @@
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
       }
 
-      for (let i=0; i<Object.keys(campaignEntries).length; i++) {
+      for (let i=0; i<Object.keys(campaignNames).length; i++) {
         // we need to load the actual entries - not just the index headers
-        const j = await(fromUuid(Object.keys(campaignEntries)[i])) as CampaignDoc | null;
+        const j = await(fromUuid(Object.keys(campaignNames)[i])) as CampaignDoc | null;
         if (j) {
           campaignJournals[j.uuid] = j;
         }
@@ -175,9 +175,9 @@
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
       }
 
-      for (let i=0; i<Object.keys(world.campaignEntries).length; i++) {
+      for (let i=0; i<Object.keys(world.campaignNames).length; i++) {
         // we need to load the actual entries - not just the index headers
-        const j = (await fromUuid(Object.keys(world.campaignEntries)[i])) as CampaignDoc | null;
+        const j = (await fromUuid(Object.keys(world.campaignNames)[i])) as CampaignDoc | null;
         if (j) {
           campaignJournals[j.uuid] = j;
         }

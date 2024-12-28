@@ -3,7 +3,7 @@ import { CampaignDoc, WorldDoc, WorldFlagKey, worldFlagSettings } from '@/docume
 import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
-import { Topic } from '@/classes';
+import { Campaign, Topic } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 
 type WBWorldCompendium = CompendiumCollection<JournalEntry.Metadata>;
@@ -14,7 +14,7 @@ export class WBWorld {
   private _compendium: WBWorldCompendium;   // this is the main compendium
 
   // JournalEntries
-  public campaigns: Record<string, CampaignDoc> | null;   // Campaigns keyed by uuid 
+  public campaigns: Record<string, Campaign> | null;   // Campaigns keyed by uuid 
   public topics: Record<ValidTopic, Topic>;  // we load them when we load the world (using validate()), so we assume it's never empty
 
   // saved on Folder
@@ -22,7 +22,7 @@ export class WBWorld {
 
   // saved in flags
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made (saved into 'flags')
-  private _campaignEntries: Record<string, string>;  //name of each campaign; keyed by journal entry uuid
+  private _campaignNames: Record<string, string>;  //name of each campaign; keyed by journal entry uuid
   private _expandedIds: Record<string, boolean | null>;  // ids of nodes that are expanded in the tree (could be compendia or entries or subentries) - handles topic tree
   private _hierarchies: Record<string, Hierarchy>;  // the full tree hierarchy or null for topics without hierarchy
   private _topicIds: Record<ValidTopic, string> | null;  // the uuid for each topic
@@ -42,7 +42,7 @@ export class WBWorld {
     this._worldDoc = foundry.utils.deepClone(worldDoc);
     this._cumulativeUpdate = {};
 
-    this._campaignEntries = getFlag(this._worldDoc, WorldFlagKey.campaignEntries);
+    this._campaignNames = getFlag(this._worldDoc, WorldFlagKey.campaignNames);
     this._expandedIds = getFlag(this._worldDoc, WorldFlagKey.expandedIds);
     this._hierarchies = getFlag(this._worldDoc, WorldFlagKey.hierarchies);
     this._topicIds = getFlag(this._worldDoc, WorldFlagKey.topicIds);
@@ -59,7 +59,7 @@ export class WBWorld {
       }
     }  
 
-    this.campaigns = null;
+    this.campaigns = {} as Record<string, Campaign>;
     this.topics = {} as Record<ValidTopic, Topic>;
   }
 
@@ -142,8 +142,8 @@ export class WBWorld {
   /**
    * The name keyed by JournalEntry UUID.
    */
-  public get campaignEntries(): Record<string, string> {
-    return this._campaignEntries;
+  public get campaignNames(): Record<string, string> {
+    return this._campaignNames;
   }
 
   /**
@@ -190,11 +190,11 @@ export class WBWorld {
   /**
    * The name keyed by JournalEntry UUID.
    */
-  public set campaignEntries(value: Record<string, string>) {
-    this._campaignEntries = value;
+  public set campaignNames(value: Record<string, string>) {
+    this._campaignNames = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}.campaignEntries`]: value
+      [`flags.${moduleId}.campaignNames`]: value
     };
   }
 
@@ -365,6 +365,9 @@ export class WBWorld {
     }
   }
 
+  MOVE LOAD TOPICS FROM VALIDATE HERE
+  THEN DO THE SAME TO LOAD CAMPAIGNS
+  
   // returns the compendium
   private async createCompendium(): Promise<void> {
     const metadata = { 
@@ -411,7 +414,7 @@ export class WBWorld {
   // TODO: should delete all the sessions from expanded entries, too
   // note: WORLD MUST BE UNLOCKED FIRST
   public async deleteCampaignFromWorld(campaignId: string) {
-    await unsetFlag(this._worldDoc, WorldFlagKey.campaignEntries, campaignId);
+    await unsetFlag(this._worldDoc, WorldFlagKey.campaignNames, campaignId);
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, campaignId);
   }  
 
@@ -449,8 +452,8 @@ export class WBWorld {
   // change a campaign name inside all the world metadata
   // note: WORLD MUST BE UNLOCKED FIRST
   public async updateCampaignName(campaignId: string, name: string) {
-    await setFlag(this._worldDoc, WorldFlagKey.campaignEntries, {
-      ... (getFlag(this._worldDoc, WorldFlagKey.campaignEntries) || {}),
+    await setFlag(this._worldDoc, WorldFlagKey.campaignNames, {
+      ... (getFlag(this._worldDoc, WorldFlagKey.campaignNames) || {}),
       [campaignId]: name
     });
   }

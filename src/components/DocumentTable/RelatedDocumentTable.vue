@@ -259,6 +259,9 @@
           hidden: data.packId,   // can't nav in compendium
           onClick: async () => {
             const scene = await fromUuid(data.uuid) as Scene;
+            if (!scene)
+              throw new Error('Failed to load scene in RelatedDocumentTable.onRowContextMenu()');
+            
             if (scene.active) {
               alert('Cannot toggle navigation while scene is active');
             } else {

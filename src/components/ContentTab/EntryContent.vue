@@ -134,7 +134,7 @@
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
 
   // types
-  import { ValidTopic, Topics, } from '@/types';
+  import { Topic, Topics, } from '@/types';
   import { Entry, WBWorld } from '@/classes';
 
   ////////////////////////////////
@@ -243,6 +243,9 @@
     if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
       return;
 
+    if (!currentEntry.value.parentTopic)
+      throw new Error('Invalid topic in EntryContent.onParentSelectionMade()');
+
     await topicDirectoryStore.setNodeParent(currentEntry.value.parentTopic, currentEntry.value.uuid, selection || null);
   };
 
@@ -287,19 +290,14 @@
       name.value = newEntry.name || '';
 
       // set the parent and valid parents
-      if (!newEntry.uuid) {
-        parentId.value = null;
-        validParents.value = [];
-      } else {
-        if (currentWorld.value) {
-          parentId.value = currentWorld.value.getEntryHierarchy(newEntry.uuid)?.parentId || null;
-      
-          // TODO - need to refresh this somehow if things are moved around in the directory
-          validParents.value = validParentItems(currentWorld.value as WBWorld, newTopic, newEntry).map((e)=> ({
-            id: e.id,
-            label: e.name || '',
-          }));
-        }
+      if (currentWorld.value) {
+        parentId.value = currentWorld.value.getEntryHierarchy(newEntry.uuid)?.parentId || null;
+    
+        // TODO - need to refresh this somehow if things are moved around in the directory
+        validParents.value = validParentItems(currentWorld.value as WBWorld, newTopic, newEntry).map((e)=> ({
+          id: e.id,
+          label: e.name || '',
+        }));
       }
     }
   });

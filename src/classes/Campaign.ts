@@ -182,8 +182,8 @@ export class Campaign {
 
         const newCampaign = new Campaign(newCampaignDoc, world);
 
-        world.campaignEntries = {
-          ...world.campaignEntries,
+        world.campaignNames = {
+          ...world.campaignNames,
           [newCampaign.uuid]: name,
         };
         

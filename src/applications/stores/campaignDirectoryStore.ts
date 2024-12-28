@@ -56,7 +56,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
     isCampaignTreeLoading.value = true;
 
-    const campaigns = currentWorld.value?.campaignEntries || {};  
+    const campaigns = currentWorld.value?.campaignNames || {};  
     const expandedNodes = currentWorld.value?.expandedIds || {};
 
     currentCampaignTree.value = [];
