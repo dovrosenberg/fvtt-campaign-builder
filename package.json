@@ -16,7 +16,7 @@
     "lint": "eslint --ext .ts,.vue src",
     "copy": "rm -rf $FOUNDRYVTT_DATA/Data/modules/world-builder/* && cp -r $(pwd)/dist/* $FOUNDRYVTT_DATA/Data/modules/world-builder",
     "linkdata": "ln -s $PWD/dist $FOUNDRYVTT_DATA/Data/modules/world-builder",
-    "tsc": "tsc --noEmit --skipLibCheck -p ./tsconfig.json",
+    "tsc": "tsc --skipLibCheck -p ./tsconfig.json",
     "test": "jest",
     "coverage": "jest --coverage",
     "unlinkdata": "unlink $FOUNDRYVTT_DATA/Data/modules/world-builder",

@@ -151,7 +151,7 @@ export class WBWorld {
     return this._compendiumId;
   }
 
-    /** 
+  /** 
    * The actual compendium (used to be called worldCompendium)
    */
   public get compendium(): WBWorldCompendium {

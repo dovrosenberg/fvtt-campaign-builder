@@ -39,7 +39,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  import { DirectoryEntryNode, Entry, TopicFolder, WBWorld } from '@/classes';
+  import { DirectoryEntryNode, Entry, WBWorld } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -49,7 +49,7 @@
       required: true
     },
     topic: {
-      type: Number as PropType<Topics>,
+      type: Number as PropType<ValidTopic>,
       required: true
     },
     node: { 
@@ -168,6 +168,9 @@
           label: localize(`contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
 
           onClick: async () => {
+            if (!currentWorld.value)
+              return;
+
             const topicFolder = currentWorld.value.topicFolders[props.topic];
 
             // get the right folder

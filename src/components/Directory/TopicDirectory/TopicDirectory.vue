@@ -34,7 +34,7 @@
               class="fwb-compendium-label noborder" 
               style="margin-bottom:0px"
               @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
-              @contextmenu="onTopicContextMenu($event, world.id, topicNode as DirectoryTopicNode)"
+              @contextmenu="onTopicContextMenu($event, world.id, topicNode.topicFolder)"
             >
               <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
               <i :class="'icon fas ' + getTopicIcon(topicNode.topicFolder.topic)" style="margin-right: 4px;"></i>
@@ -169,7 +169,7 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
+          label: localize(`contextMenus.topicFolcer.create.${topicFolder.topic}`), 
           onClick: async () => {
             // get the right folder
             const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as globalThis.Folder;

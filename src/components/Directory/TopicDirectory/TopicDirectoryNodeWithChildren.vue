@@ -56,8 +56,8 @@
   import TopicDirectoryNodeComponent from './TopicDirectoryNode.vue';
 
   // types
-  import { Topics, ValidTopic } from '@/types';
-  import { TopicFolder, Entry, DirectoryEntryNode, WBWorld, } from '@/classes';
+  import { ValidTopic } from '@/types';
+  import { Entry, DirectoryEntryNode, WBWorld, } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -71,7 +71,7 @@
       required: true
     },
     topic: {
-      type: Number as PropType<Topics>,
+      type: Number as PropType<ValidTopic>,
       required: true
     },
     top: {    // applies class to top level
