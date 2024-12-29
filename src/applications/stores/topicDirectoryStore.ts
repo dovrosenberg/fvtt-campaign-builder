@@ -452,7 +452,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
-      const topicObj = currentWorld.value.topics[topics[i]];
+      const topicObj = currentWorld.value.topicFolders[topics[i]];
 
       // filter on name and type
       let matchedEntries = topicObj.filterEntries((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )))

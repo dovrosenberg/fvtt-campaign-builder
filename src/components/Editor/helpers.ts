@@ -74,7 +74,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
   let broken = false;
   if ( type === 'UUID' ) {
     Object.assign(data.dataset, {link: '', uuid: target});
-    entry = await Entry.fromUuid(target, null, {relative: relativeTo});
+    entry = await Entry.fromUuid(target, undefined, {relative: relativeTo});
   }
   else {
     broken = createLegacyContentLink(type as WORLD_DOCUMENT_TYPES, target, name, data);

@@ -106,7 +106,7 @@ export const useMainStore = defineStore('main', () => {
           if (!_currentSession.value)
             throw new Error('Invalid entry uuid in mainStore.setNewTab()');
 
-          _currentSession.value.parentCampaign = currentWorld.value.campaigns[_currentSession.value.campaignId];
+          _currentSession.value.campaign = currentWorld.value.campaigns[_currentSession.value.campaignId];
         } else {
           _currentSession.value = null;
         }
