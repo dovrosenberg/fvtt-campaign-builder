@@ -25,7 +25,7 @@
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
         <li 
           v-for="topicNode in world.topicNodes.sort((a, b) => (a.topicFolder.topic < b.topicFolder.topic ? -1 : 1))"
-          :key="topicNode.topicFolder"
+          :key="topicNode.topicFolder.topic"
           :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topicNode.expanded ? '' : 'collapsed')"
           :data-topic="topicNode.topicFolder.topic" 
         >
@@ -34,7 +34,7 @@
               class="fwb-compendium-label noborder" 
               style="margin-bottom:0px"
               @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
-              @contextmenu="onTopicContextMenu($event, world.id, topicNode.topicFolder)"
+              @contextmenu="onTopicContextMenu($event, world.id, topicNode.topicFolder as TopicFolder)"
             >
               <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
               <i :class="'icon fas ' + getTopicIcon(topicNode.topicFolder.topic)" style="margin-right: 4px;"></i>
@@ -44,12 +44,12 @@
 
           <TopicDirectoryGroupedTree
             v-if="isGroupedByType" 
-            :topic-node="topicNode"
+            :topic-node="topicNode as DirectoryTopicNode"
             :world-id="world.id"
           />
           <TopicDirectoryNestedTree
             v-else 
-            :topic-node="topicNode"
+            :topic-node="topicNode as DirectoryTopicNode"
             :world-id="world.id"
           />
         </li>
@@ -169,7 +169,7 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolcer.create.${topicFolder.topic}`), 
+          label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
           onClick: async () => {
             // get the right folder
             const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as globalThis.Folder;

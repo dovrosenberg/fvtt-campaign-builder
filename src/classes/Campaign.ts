@@ -1,5 +1,5 @@
 import { toRaw } from 'vue';
-import { getFlag, moduleId, setFlagDefaults } from '@/settings'; 
+import { getFlag, moduleId, prepareFlagsForUpdate, setFlagDefaults } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, SessionDoc, WorldDoc } from '@/documents';
 import { Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs/input';
@@ -127,7 +127,10 @@ export class Campaign {
     this._description = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}.description`]: value
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        description: value,
+      }
     };
   }
 
@@ -139,7 +142,10 @@ export class Campaign {
     this._pcs = value.concat();  // clone to avoid being able to edit outside
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}.pcs`]: value
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        pcs: value,
+      }
     };
   }
 
@@ -251,6 +257,10 @@ export class Campaign {
 
     let success = false;
     if (Object.keys(updateData).length !== 0) {
+      // protect any complex flags
+      if (updateData[`flags.${moduleId}`])
+        updateData[`flags.${moduleId}`] = prepareFlagsForUpdate(this._campaignDoc, updateData[`flags.${moduleId}`]);
+
       const retval = await toRaw(this._campaignDoc).update(updateData) || null;
       if (retval) {
         this._campaignDoc = retval;
