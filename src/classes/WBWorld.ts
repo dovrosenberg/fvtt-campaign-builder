@@ -1,4 +1,4 @@
-import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, unsetFlag, setFlag, } from '@/settings'; 
+import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, unsetFlag, setFlag, prepareFlagsForUpdate, } from '@/settings'; 
 import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
@@ -151,7 +151,7 @@ export class WBWorld {
     return this._compendiumId;
   }
 
-    /** 
+  /** 
    * The actual compendium (used to be called worldCompendium)
    */
   public get compendium(): WBWorldCompendium {
@@ -199,6 +199,9 @@ export class WBWorld {
    */
   public setEntryHierarchy(entryId: string, value: Hierarchy) {
     this._hierarchies[entryId] = value;
+
+    // make sure to note we have an update to make
+    this.hierarchies = this._hierarchies;
   }
   
  
@@ -209,7 +212,10 @@ export class WBWorld {
     this._topicIds = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}.topicIds`]: value
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        topicIds: value,
+      }
     };
   }
 
@@ -220,7 +226,10 @@ export class WBWorld {
     this._campaignNames = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}.campaignNames`]: value
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        campaignNames: value,
+      }
     };
   }
 
@@ -232,7 +241,10 @@ export class WBWorld {
     this._expandedIds = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}.expandedIds`]: value
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        expandedIds: value,
+      }
     };
   }
 
@@ -243,7 +255,10 @@ export class WBWorld {
     this._hierarchies = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}.hierarchies`]: value
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        hierarchies: value,
+      }
     };
   }
 
@@ -259,6 +274,10 @@ export class WBWorld {
 
     const updateData = this._cumulativeUpdate;
     if (Object.keys(updateData).length !== 0) {
+
+      // protect any complex flags
+      if (updateData[`flags.${moduleId}`])
+        updateData[`flags.${moduleId}`] = prepareFlagsForUpdate(this._worldDoc, updateData[`flags.${moduleId}`]);
 
       const retval = await this._worldDoc.update(updateData) || null;
       if (retval) {

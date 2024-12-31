@@ -3,10 +3,10 @@
     v-if="props.node.children.length" 
     :node="props.node"
     :world-id="props.worldId"
-    :topic="props.topicFolder"
+    :topic="props.topic"
     :top="props.top"
   />
-  <li v-else-if="filterNodes[props.topicFolder.topic]?.includes(props.node.id)">
+  <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
       :class="`${props.node.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
@@ -39,7 +39,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  import { DirectoryEntryNode, Entry, TopicFolder, WBWorld } from '@/classes';
+  import { DirectoryEntryNode, Entry, WBWorld } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -48,8 +48,8 @@
       type: String,
       required: true
     },
-    topicFolder: {
-      type: Object as PropType<TopicFolder>,
+    topic: {
+      type: Number as PropType<ValidTopic>,
       required: true
     },
     node: { 
@@ -101,7 +101,7 @@
     }
 
     const dragData = { 
-      topic:  props.topicFolder.topic,
+      topic:  props.topic,
       childId: props.node.id,
     } as { topic: ValidTopic; childId: string};
 
@@ -109,6 +109,8 @@
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
+    const topicFolder = currentWorld.value?.topicFolders[props.topic];
+
     if (event.dataTransfer?.types[0]==='text/plain') {
       if (!currentWorld.value)
         return false;
@@ -127,20 +129,20 @@
         return false;
 
       // if the types don't match or don't have hierarchy, can't drop
-      if (data.topic!==props.topicFolder.topic || !hasHierarchy(props.toptopicFolderic.topic))
+      if (data.topic!==props.topic || !hasHierarchy(props.topic))
         return false;
 
       // is this a legal parent?
-      const childEntry = await Entry.fromUuid(data.childId, currentWorld.value.topicFolders[props.topicFolder.topic]);
+      const childEntry = await Entry.fromUuid(data.childId, topicFolder);
 
       if (!childEntry)
         return false;
 
-      if (!(validParentItems(currentWorld.value as WBWorld, props.topicFolder, childEntry)).find(e=>e.id===parentId))
+      if (!(validParentItems(currentWorld.value as WBWorld, topicFolder, childEntry)).find(e=>e.id===parentId))
         return false;
 
       // add the dropped item as a child on the other  (will also refresh the tree)
-      await topicDirectoryStore.setNodeParent(props.topicFolder, data.childId, parentId);
+      await topicDirectoryStore.setNodeParent(topicFolder, data.childId, parentId);
 
       return true;
     } else {
@@ -163,16 +165,21 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${props.topicFolder.topic}`) + ' as child', 
+          label: localize(`contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
 
           onClick: async () => {
+            if (!currentWorld.value)
+              return;
+
+            const topicFolder = currentWorld.value.topicFolders[props.topic];
+
             // get the right folder
             const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
-            if (!worldFolder || !props.topicFolder)
+            if (!worldFolder || !topicFolder)
               throw new Error('Invalid header in TopicDirectoryNode.onEntryContextMenu.onClick');
 
-            const entry = await topicDirectoryStore.createEntry(props.topicFolder, { parentId: props.node.id} );
+            const entry = await topicDirectoryStore.createEntry(topicFolder, { parentId: props.node.id} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -184,10 +191,10 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await topicDirectoryStore.deleteEntry(props.topicFolder.topic, props.node.id);
+            await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
           }
         },
-      ].filter((item)=>(hasHierarchy(props.topicFolder.topic) || item.icon!=='fa-atlas'))
+      ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))
 
       // the line above is to remove the "add child" option from entries that don't have hierarchy
       // not really ideal but a bit cleaner than having two separate arrays and concatening

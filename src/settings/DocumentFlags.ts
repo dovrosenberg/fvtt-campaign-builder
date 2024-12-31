@@ -185,6 +185,39 @@ export const setFlag = async <
   }
 };
 
+/**
+ * Sometimes we want to save multiple flags at once as part of an update.  But we need to make
+ * sure we properly protect them.  This takes an object that will be saved to `doc.flags` and
+ * returns the protected version.
+ * @param doc 
+ * @param flag 
+ * @param value 
+ */
+type FlagsObject< 
+  DocType extends ValidDocTypes,
+  FK extends FlagKey<DocType> = FlagKey<DocType>
+> = {
+  [Flag in FK]: FlagType<DocType, Flag>
+};
+
+export const prepareFlagsForUpdate = <
+  DocType extends ValidDocTypes,
+  FK extends FlagKey<DocType> = FlagKey<DocType>,
+> (doc: DocType, flagsObject: FlagsObject<DocType, FK>): FlagsObject<DocType, FK> => {
+  const retval = foundry.utils.deepClone(flagsObject);
+
+  // loop over each member of the flags object and see what needs to be protected
+  for (const flag in retval) {
+    const config = getConfig(doc, flag as FK);
+
+    if (config.keyedByUUID && retval[flag]) {
+      retval[flag] = protect(retval[flag] as Record<string, any>) as FlagType<DocType, FK>;
+    }
+  }
+
+  return retval;
+};
+
 /** 
  * Remove a key from an object flag.  Generally most useful for things keyed by uuid.  For other fields, it will
  * attempt to unset `flag.key`, or if key is missing just unsets `flag`

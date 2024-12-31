@@ -1,5 +1,5 @@
 import { toRaw } from 'vue';
-import { getFlag, moduleId, setFlag, setFlagDefaults, } from '@/settings'; 
+import { getFlag, moduleId, prepareFlagsForUpdate, setFlag, setFlagDefaults, } from '@/settings'; 
 import { TopicDoc, WorldDoc, TopicFlagKey, topicFlagSettings, EntryDoc } from '@/documents';
 import { Entry, WBWorld } from '@/classes';
 import { ValidTopic } from '@/types';
@@ -103,7 +103,10 @@ export class TopicFolder {
     this._topNodes = value.slice();   // we clone it so it can't be edited outside
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}.topNodes`]: value
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        topNodes: value,
+      }
     };
   }
 
@@ -121,7 +124,10 @@ export class TopicFolder {
     this._topic = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}.topic`]: value
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        topic: value,
+      }
     };
   }
 
@@ -139,7 +145,10 @@ export class TopicFolder {
     this._types = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}.types`]: value
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        types: value,
+      }
     };
   }
   
@@ -214,6 +223,10 @@ export class TopicFolder {
 
     let success = false;
     if (Object.keys(updateData).length !== 0) {
+      // protect any complex flags
+      if (updateData[`flags.${moduleId}`])
+        updateData[`flags.${moduleId}`] = prepareFlagsForUpdate(this._topicDoc, updateData[`flags.${moduleId}`]);
+
       const retval = await toRaw(this._topicDoc).update(updateData) || null;
       if (retval) {
         this._topicDoc = retval;

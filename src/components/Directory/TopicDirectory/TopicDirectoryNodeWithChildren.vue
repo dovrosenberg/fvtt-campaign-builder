@@ -30,7 +30,7 @@
             :key="child.id"
             :node="child"
             :world-id="props.worldId"
-            :topic-folder="props.topicFolder"
+            :topic="props.topic"
             :top="false"
           />
         </div>
@@ -57,7 +57,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  import { TopicFolder, Entry, DirectoryEntryNode, WBWorld, } from '@/classes';
+  import { Entry, DirectoryEntryNode, WBWorld, } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -70,8 +70,8 @@
       type: String,
       required: true
     },
-    topicFolder: {
-      type: Object as PropType<TopicFolder>,
+    topic: {
+      type: Number as PropType<ValidTopic>,
       required: true
     },
     top: {    // applies class to top level
@@ -130,7 +130,7 @@
     }
 
     const dragData = { 
-      topic:  props.topicFolder.topic,
+      topic:  props.topic,
       childId: id,
     } as { topic: ValidTopic; childId: string};
 
@@ -157,20 +157,21 @@
         return false;
 
       // if the types don't match or don't have hierarchy, can't drop
-      if (data.topic!==props.topicFolder.topic || !hasHierarchy(props.topicFolder.topic))
+      if (data.topic!==props.topic || !hasHierarchy(props.topic))
         return false;
 
       // is this a legal parent?
-      const childEntry = await Entry.fromUuid(data.childId, currentWorld.value.topicFolders[props.topicFolder.topic]); 
-
+      const topicFolder = currentWorld.value.topicFoldes[ptops.topic];
+      const childEntry = await Entry.fromUuid(data.childId, topicFolder); 
+      
       if (!childEntry)
         return false;
 
-      if (!(validParentItems(currentWorld.value as WBWorld, props.topicFolder, childEntry)).find(e=>e.id===parentId))
+      if (!(validParentItems(currentWorld.value as WBWorld, topicFolder, childEntry)).find(e=>e.id===parentId))
         return false;
 
       // add the dropped item as a child on the other (will also refresh the tree)
-      await topicDirectoryStore.setNodeParent(props.topicFolder, data.childId, parentId);
+      await topicDirectoryStore.setNodeParent(topicFolder, data.childId, parentId);
 
       return true;
     } else {
@@ -184,6 +185,7 @@
     event.stopPropagation();
 
     //show our menu
+    const topicFolder = currentWorld.value.topicFolders[props.topic];
     ContextMenu.showContextMenu({
       customClass: 'fwb',
       x: event.x,
@@ -193,15 +195,15 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${props.topicFolder.topic}`) + ' as child', 
+          label: localize(`contextMenus.topic.create.${props.topic}`) + ' as child', 
           onClick: async () => {
             // get the right folder
             const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
-            if (!worldFolder || !props.topicFolder)
+            if (!worldFolder || !props.topic)
               throw new Error('Invalid header in TopicDirectoryNodeWithChildren.onEntryContextMenu.onClick');
 
-            const entry = await topicDirectoryStore.createEntry(props.topicFolder, { parentId: props.node.id} );
+            const entry = await topicDirectoryStore.createEntry(topicFolder, { parentId: props.node.id} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -213,10 +215,10 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await topicDirectoryStore.deleteEntry(props.topicFolder, props.node.id);
+            await topicDirectoryStore.deleteEntry(topicFolder, props.node.id);
           }
         },
-      ].filter((item)=>(hasHierarchy(props.topicFolder.topic) || item.icon!=='fa-atlas'))
+      ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))
       // the line above is to remove the "add child" option from entries that don't have hierarchy
       // not really ideal but a bit cleaner than having two separate arrays and concatening
 

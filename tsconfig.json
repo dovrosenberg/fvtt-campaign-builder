@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"incremental": true,
+		"outDir": ".tscout",
 		"target": "es2018",
 		"module": "esnext",
 		"lib": [ "es2021", "dom" ],

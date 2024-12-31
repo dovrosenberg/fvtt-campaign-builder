@@ -42,7 +42,7 @@
   import DirectoryCampaignNodeComponent from './DirectoryCampaignNode.vue';
   
   // types
-  import { Campaign, DirectoryCampaignNode } from '@/classes';
+  import { Campaign, DirectoryCampaignNode, WBWorld } from '@/classes';
   import { WindowTabType } from '@/types';
   
   ////////////////////////////////
@@ -87,7 +87,7 @@
           label: localize('contextMenus.campaignsHeader.createCampaign'), 
           onClick: async () => {
             if (currentWorld.value) {
-              await Campaign.create(currentWorld.value);
+              await Campaign.create(currentWorld.value as WBWorld);
               await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
