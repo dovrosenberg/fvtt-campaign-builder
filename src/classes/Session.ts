@@ -6,7 +6,7 @@ import { Campaign, WBWorld } from '@/classes';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Session {
-  public campaign: Campaign | null;  // the campaign the session is in (if we don't setup up front, we can load it later)
+  public parentCampaign: Campaign | null;  // the campaign the session is in (if we don't setup up front, we can load it later)
 
   private _sessionDoc: SessionDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
@@ -15,7 +15,7 @@ export class Session {
    * 
    * @param {SessionDoc} sessionDoc - The session Foundry document
    */
-  constructor(sessionDoc: SessionDoc, campaign?: Campaign) {
+  constructor(sessionDoc: SessionDoc, parentCampaign?: Campaign) {
     // make sure it's the right kind of document
     if (sessionDoc.type !== DOCUMENT_TYPES.Session)
       throw new Error('Invalid document type in Session constructor');
@@ -23,7 +23,7 @@ export class Session {
     // clone it to avoid unexpected changes
     this._sessionDoc = foundry.utils.deepClone(sessionDoc);
     this._cumulativeUpdate = {};
-    this.campaign = campaign || null;
+    this.parentCampaign = parentCampaign || null;
   }
 
   static async fromUuid(sessionId: string, options?: Record<string, any>): Promise<Session | null> {
@@ -42,15 +42,15 @@ export class Session {
    * @returns {Promise<Campaign>} A promise to the world associated with the campaign.
    */
   public async loadCampaign(): Promise<Campaign> {
-    if (this.campaign)
-      return this.campaign;
+    if (this.parentCampaign)
+      return this.parentCampaign;
 
-    this.campaign = await Campaign.fromUuid(this._sessionDoc.parent.uuid);
+    this.parentCampaign = await Campaign.fromUuid(this._sessionDoc.parent.uuid);
 
-    if (!this.campaign)
+    if (!this.parentCampaign)
       throw new Error('Invalid session in Session.loadCampaign()');
 
-    return this.campaign;
+    return this.parentCampaign;
   }
   
   /**
@@ -60,10 +60,10 @@ export class Session {
    * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
    */
   public async getWorld(): Promise<WBWorld> {
-    if (!this.campaign)
+    if (!this.parentCampaign)
       await this.loadCampaign();
 
-    const campaign = this.campaign as Campaign;
+    const campaign = this.parentCampaign;
 
     return campaign.getWorld();
   }

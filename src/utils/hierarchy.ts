@@ -49,7 +49,7 @@ const mapEntryToSummary = (entry: Entry): TabSummary => ({
 // after we delete an item, we need to remove it from any trees where it is a child or ancestor,
 //    along with all of the items that are now orphaned
 // Also cleans up the topic topNodes
-export const cleanTrees = async function(world: WBWorld, toptopicFolderic: TopicFolder, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
+export const cleanTrees = async function(world: WBWorld, topicFolder: TopicFolder, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
   const hierarchies = world.hierarchies;
   
   // remove deleted item and all its ancestors from any object who had them as ancestors previously
