@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, PropType, nextTick, ref, watch } from 'vue';
+  import { computed, PropType, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -112,11 +112,6 @@
     // it returns the same node, so vue doesn't necessarily realize it needs to rerender without a new copy
     currentNode.value = await topicDirectoryStore.toggleWithLoad(currentNode.value as DirectoryEntryNode, !currentNode.value.expanded);
     await topicDirectoryStore.refreshTopicDirectoryTree([currentNode.value.id]);
-
-    console.log('After assignment:', currentNode.value.expanded);
-
-    await nextTick();
-    console.log('After nextTick:', currentNode.value.expanded);  
   };
 
   const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryEntryNode) => {
@@ -237,10 +232,6 @@
   // watchers
   watch(()=> props.node, (newValue: DirectoryEntryNode) => {
     currentNode.value = newValue;
-  });
-
-  watch(()=> currentNode.value.expanded, (newValue) => {
-    console.log('currentNode changed:', newValue);
   });
 
   ////////////////////////////////
