@@ -3,8 +3,6 @@
  */
 
 import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, WBWorld } from '@/classes';
-import { WorldFlagKey } from '@/documents';
-import { unsetFlag } from '@/settings';
 
 type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode;
 
@@ -17,7 +15,7 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   public children: string[];    // ids of all children (which might not be loaded)
   public ancestors: string[];    // ids of all ancestors
   public loadedChildren: ChildType[];
-  public expanded: boolean;
+  private expanded: boolean;
   
   constructor(id: string, expanded: boolean = false, parentId: string | null = null,
     children: string[] = [], loadedChildren: ChildType[] = [], ancestors: string[] = []
@@ -54,19 +52,14 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
     if (!CollapsibleNode._currentWorld)
       return;
 
-    await unsetFlag(CollapsibleNode._currentWorld.raw, WorldFlagKey.expandedIds, this.id);
+    await CollapsibleNode._currentWorld.collapseNode(this.id);
   }
 
   public async expand(): Promise<void> {
     if (!CollapsibleNode._currentWorld)
       return;
 
-    const expandedIds = CollapsibleNode._currentWorld.expandedIds || {};
-    CollapsibleNode._currentWorld.expandedIds = {
-      ...expandedIds, 
-      [this.id]: true
-    } ;
-    await CollapsibleNode._currentWorld.save();
+    await CollapsibleNode._currentWorld.expandNode(this.id);
   } 
  
   // expand/contract  the given entry, loading the new item data

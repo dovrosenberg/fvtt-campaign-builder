@@ -181,9 +181,8 @@
         }
       }
 
-      Entry.currentTopicJournals = topicJournals as Record<ValidTopic, JournalEntry>;
       CollapsibleNode.currentWorld = folders.world;
-      
+
       rootFolder.value = folders.rootFolder;
       currentWorld.value = folders.world;
 

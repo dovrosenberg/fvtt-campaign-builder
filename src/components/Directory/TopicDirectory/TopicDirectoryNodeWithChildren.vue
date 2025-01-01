@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, PropType, ref, watch } from 'vue';
+  import { computed, PropType, nextTick, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -114,6 +114,11 @@
     // it returns the same node, so vue doesn't necessarily realize it needs to rerender without a new copy
     currentNode.value = await topicDirectoryStore.toggleWithLoad(currentNode.value as DirectoryEntryNode, !currentNode.value.expanded);
     await topicDirectoryStore.refreshTopicDirectoryTree([currentNode.value.id]);
+
+    console.log('After assignment:', currentNode.value.expanded);
+
+    await nextTick();
+    console.log('After nextTick:', currentNode.value.expanded);  
   };
 
   const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryEntryNode) => {
@@ -164,7 +169,7 @@
 
       // is this a legal parent?
       const topicFolder = currentWorld.value.topicFolders[props.topic];
-      const childEntry = await Entry.fromUuid(data.childId, topicFolder); 
+      const childEntry = await Entry.fromUuid(data.childId, topicFolder as TopicFolder); 
       
       if (!childEntry)
         return false;

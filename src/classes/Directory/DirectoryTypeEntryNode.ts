@@ -10,7 +10,7 @@ import { NO_NAME_STRING } from '@/utils/hierarchy';
 export class DirectoryTypeEntryNode extends CollapsibleNode<never> {
   name: string;
   
-  constructor(id: string, name: string, parentId: string) {
+  constructor(id: string, name: string, parentId: string | null) {
     super(id, false, parentId, [], [], []);
 
     this.name = name;

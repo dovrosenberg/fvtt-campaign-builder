@@ -5,12 +5,12 @@
       v-for="world in currentWorldTree.value"
       :key="world.id"
       :class="'fwb-world-folder folder flexcol ' + (currentWorld?.uuid===world.id ? '' : 'collapsed')" 
-      @click="onWorldFolderClick($event, world.id)"
     >
       <header 
         class="folder-header flexrow"
         @contextmenu="onWorldContextMenu($event, world.id)"
-      >
+        @click="onWorldFolderClick($event, world.id)"
+        >
         <h3 class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
           {{ world.name }}

@@ -11,7 +11,7 @@ export class DirectorySessionNode extends CollapsibleNode<never> {
   private _name: string;
   private _sessionNumber: number;
   
-  constructor(id: string, name: string, sessionNumber: number, parentId: string) {
+  constructor(id: string, name: string, sessionNumber: number, parentId: string | null) {
     super(id, false, parentId, [], [], []);
 
     this._name = name;

@@ -188,7 +188,7 @@
 
             const topicFolder = currentWorld.value.topicFolders[props.topic];
             
-            const entry = await topicDirectoryStore.createEntry(topicFolder, { type: props.type.name } );
+            const entry = await topicDirectoryStore.createEntry(topicFolder as TopicFolder, { type: props.type.name } );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

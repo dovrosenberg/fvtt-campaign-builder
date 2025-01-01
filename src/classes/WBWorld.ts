@@ -248,6 +248,22 @@ export class WBWorld {
     };
   }
 
+  public async collapseNode(id: string): Promise<void> {
+    const expandedIds = this._expandedIds || {};
+    if (expandedIds[id])
+      delete expandedIds[id];
+    this._expandedIds = expandedIds;
+    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, id);
+  }
+
+  public async expandNode(id: string): Promise<void> {
+    const expandedIds = this._expandedIds || {};
+    expandedIds[id] = true;
+    this.expandedIds = expandedIds;
+
+    await this.save();
+  }
+
   /**
    * The full tree hierarchy or null for topics without a hierarchy.
    */

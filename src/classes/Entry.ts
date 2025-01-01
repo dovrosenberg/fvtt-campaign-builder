@@ -10,8 +10,6 @@ export type CreateEntryOptions = { name?: string; type?: string; parentId?: stri
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Entry {
-  static currentTopicJournals: Record<ValidTopic, JournalEntry>;
-
   public topicFolder: TopicFolder | null;
 
   private _entryDoc: EntryDoc;
