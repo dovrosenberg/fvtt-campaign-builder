@@ -160,13 +160,6 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (!child)
       return false;
 
-    // get the parent, if any, and create the nodes for simpler syntax 
-    const parent = parentId ? await Entry.fromUuid(parentId, topicFolder): null;
-
-    if (!parent)
-      return false;
-
-    const parentNode = DirectoryEntryNode.fromEntry(parent);
     const childNode =  DirectoryEntryNode.fromEntry(child);
     const oldParentId = childNode.parentId;
 
@@ -174,8 +167,12 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (parentId===oldParentId)
       return false;
 
-    // make sure they share a topic 
-    if (child.topic !== parent.topic)
+    // get the parent, if any, and create the nodes for simpler syntax 
+    const parent = parentId ? await Entry.fromUuid(parentId, topicFolder) : null;
+    const parentNode = parent ? DirectoryEntryNode.fromEntry(parent) : null;
+    
+    // make sure they share a topic (if parent isn't null)
+    if (parent && child.topic !== parent.topic)
       return false;
      
     // next, confirm it's a valid target (the child must not be in the parent's ancestor list - or we get loops)
@@ -204,7 +201,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
       // set the parent and the ancestors of the child (ancestors = parent + parent's ancestors)
       childNode.parentId = parentId;
-      childNode.ancestors = [parentId as string].concat(parentNode.ancestors);
+      childNode.ancestors = [parentId].concat(parentNode.ancestors);
       await saveHierarchyToEntryFromNode(child, childNode);
     } else {
       // parent and ancestors are null

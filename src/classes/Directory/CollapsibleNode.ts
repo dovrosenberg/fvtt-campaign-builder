@@ -15,7 +15,7 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   public children: string[];    // ids of all children (which might not be loaded)
   public ancestors: string[];    // ids of all ancestors
   public loadedChildren: ChildType[];
-  private expanded: boolean;
+  public expanded: boolean;
   
   constructor(id: string, expanded: boolean = false, parentId: string | null = null,
     children: string[] = [], loadedChildren: ChildType[] = [], ancestors: string[] = []

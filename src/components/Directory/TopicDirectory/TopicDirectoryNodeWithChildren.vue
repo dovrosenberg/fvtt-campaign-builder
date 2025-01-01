@@ -19,7 +19,7 @@
           @drop="onDrop"
           @contextmenu="onEntryContextMenu"
         >
-          {{ currentNode.name }} - {{ currentNode.expanded}}
+          {{ currentNode.name }}
         </div>
       </div>
       <ul>
@@ -102,8 +102,6 @@
     const children = (currentNode.value).loadedChildren;
     return children.sort((a, b) => a.name.localeCompare(b.name)) as DirectoryEntryNode[];
   });
-
-
 
   ////////////////////////////////
   // methods
