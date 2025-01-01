@@ -257,6 +257,9 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
+    if (!currentWorld.value)
+      return;
+
     // we create a random ID so we can use multiple instances
     editorId.value  = 'fwb-editor-' + globalThis.foundry.utils.randomID();
 

@@ -133,16 +133,16 @@
         return false;
 
       // is this a legal parent?
-      const childEntry = await Entry.fromUuid(data.childId, topicFolder);
+      const childEntry = await Entry.fromUuid(data.childId, topicFolder as TopicFolder);
 
       if (!childEntry)
         return false;
 
-      if (!(validParentItems(currentWorld.value as WBWorld, topicFolder, childEntry)).find(e=>e.id===parentId))
+      if (!(validParentItems(currentWorld.value as WBWorld, topicFolder as TopicFolder, childEntry)).find(e=>e.id===parentId))
         return false;
 
       // add the dropped item as a child on the other  (will also refresh the tree)
-      await topicDirectoryStore.setNodeParent(topicFolder, data.childId, parentId);
+      await topicDirectoryStore.setNodeParent(topicFolder as TopicFolder, data.childId, parentId);
 
       return true;
     } else {

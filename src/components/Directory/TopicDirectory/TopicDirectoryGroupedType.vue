@@ -141,7 +141,7 @@
       const topic = toTopic(topicElement.dataset.topic);
 
       // if the topics don't match, can't drop
-      if (data.topic!==topic)
+      if (data.topic!==topic || topic === null)
         return false;
 
       // set the new type
@@ -183,12 +183,12 @@
           label: `${localize('contextMenus.typeFolder.create')} ${props.type.name}`, 
           onClick: async () => {
             // get the right topic
-            const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
-            
-            if (!worldFolder)
-              throw new Error('Invalid header in TopicDirectoryGroupedType.onTypeContextMenu.onClick');
+            if (!currentWorld.value)
+            return;
 
-            const entry = await topicDirectoryStore.createEntry(props.topic, { type: props.type.name } );
+            const topicFolder = currentWorld.value.topicFolders[props.topic];
+            
+            const entry = await topicDirectoryStore.createEntry(topicFolder, { type: props.type.name } );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

@@ -207,11 +207,14 @@
   watch(() => props.modelValue, async (newValue) => {
     show.value = newValue; 
 
+    if (!currentWorld.value)
+      return;
+
     if (newValue) {
       if (!currentEntry.value || !currentEntryTopic.value)
         throw new Error('Trying to show AddRelatedItemDialog without a current entry');
 
-      selectItems.value = await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic], currentEntry.value);
+      selectItems.value = await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder, currentEntry.value);
       extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
 
       // focus on the input

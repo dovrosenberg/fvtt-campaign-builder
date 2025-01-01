@@ -125,6 +125,20 @@ const getConfig = <
 };
 
 /**
+ * Swaps characters in a string based on the protect flag.
+ * If protect is true, replaces all occurrences of '.' with '#&#'.
+ * If protect is false, replaces all occurrences of '#&#' with '.'.
+ * 
+ * @param original - The original string to be modified.
+ * @param protect - A boolean flag indicating whether to protect or unprotect the string.
+ * @returns The modified string with characters swapped based on the protect flag.
+ */
+
+const swapString = (original: string, protect: boolean): string => {
+  return protect ? original.replaceAll('.', '#&#') : original.replaceAll('#&#', '.');
+}
+
+/**
  * protects the object from unexpected things that foundry saving does
  */
 const protect = <T extends Record<string, any>>(flagValue: T): T => { 
@@ -132,8 +146,7 @@ const protect = <T extends Record<string, any>>(flagValue: T): T => {
   const retval = {};
 
   for (const [key, value] of Object.entries(flagValue as Record<string, any>)) {
-    // swap all the '.' for '#&#' in the keys
-    retval[key.replaceAll('.', '#&#')] = value;    
+    retval[swapString(key, true)] = value;    
   }
 
   return retval as T;
@@ -146,8 +159,7 @@ const unprotect = <T extends Record<string, any>>(flagValue: T): T => {
   const retval = {};
   
   for (const [key, value] of Object.entries(flagValue as Record<string, any>)) {
-    // swap all the '#&#' for '.' in the keys
-    retval[key.replaceAll('#&#', '.')] = value;
+    retval[swapString(key, false)] = value;    
   }
 
   return retval as T;
@@ -229,12 +241,7 @@ export const unsetFlag = async <
   const config = getConfig(doc, flag);
 
   if (config.keyedByUUID && key) {
-    const value = getFlag(doc, flag);
-    if (value && value[key]) {
-      delete value[key];
-
-      await setFlag(doc, flag, value);
-    }
+    await doc.unsetFlag(moduleId, `${flag}.${swapString(key, true)}`);
   } else if (!config.keyedByUUID){
     await doc.unsetFlag(moduleId, `${flag}${key ? '.' + key : ''}`);
   } else {

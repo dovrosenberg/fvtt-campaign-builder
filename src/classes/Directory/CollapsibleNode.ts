@@ -12,12 +12,12 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   protected static _currentWorld: WBWorld | null = null;
   protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode>;   // maps uuid to the node for easy lookup
 
-  id: string;
-  parentId: string | null;
-  children: string[];    // ids of all children (which might not be loaded)
-  ancestors: string[];    // ids of all ancestors
-  loadedChildren: ChildType[];
-  expanded: boolean;
+  public id: string;
+  public parentId: string | null;
+  public children: string[];    // ids of all children (which might not be loaded)
+  public ancestors: string[];    // ids of all ancestors
+  public loadedChildren: ChildType[];
+  public expanded: boolean;
   
   constructor(id: string, expanded: boolean = false, parentId: string | null = null,
     children: string[] = [], loadedChildren: ChildType[] = [], ancestors: string[] = []

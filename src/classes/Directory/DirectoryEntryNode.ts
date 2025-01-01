@@ -25,6 +25,7 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
       throw new Error('No currentWorld in DirectoryEntryNode.fromEntry()');
 
     const hierarchy = CollapsibleNode._currentWorld.getEntryHierarchy(entry.uuid);
+    const expanded = (CollapsibleNode._currentWorld.expandedIds && CollapsibleNode._currentWorld.expandedIds[entry.uuid]) || false;
 
     if (!entry.topicFolder)
       throw new Error('No topicFolder in DirectoryEntryNode.fromEntry()');
@@ -38,7 +39,7 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
       hierarchy?.children || [],
       [],
       hierarchy?.ancestors || [],
-      false,  // TODO- load this, too
+      expanded,
     );
   };
 
