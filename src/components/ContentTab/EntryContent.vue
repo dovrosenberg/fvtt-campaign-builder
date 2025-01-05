@@ -269,6 +269,11 @@
       tabs.value?.activate(newTab || 'description');    
   });
 
+  // if parent changes, make sure to update
+  watch(() => currentEntry.value.parentId, async (newParentId: string | null): Promise<void> => {
+    parentId.value = newParentId;    
+  });
+  
   watch(currentEntry, async (newEntry: Entry | null, oldEntry: Entry | null): Promise<void> => {
     // if we changed entries, reset the tab
     if (newEntry?.uuid!==oldEntry?.uuid )
@@ -290,10 +295,10 @@
       name.value = newEntry.name || '';
 
       // set the parent and valid parents
-      if (currentWorld.value) {
+      if (currentWorld.value) {    
+        // TODO - need to refresh both of these somehow if things are moved around in the directory
         parentId.value = currentWorld.value.getEntryHierarchy(newEntry.uuid)?.parentId || null;
-    
-        // TODO - need to refresh this somehow if things are moved around in the directory
+
         validParents.value = validParentItems(currentWorld.value as WBWorld, newTopicFolder, newEntry).map((e)=> ({
           id: e.id,
           label: e.name || '',

@@ -201,7 +201,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
       // set the parent and the ancestors of the child (ancestors = parent + parent's ancestors)
       childNode.parentId = parentId;
-      childNode.ancestors = [parentId].concat(parentNode.ancestors);
+      childNode.ancestors = parentNode.ancestors.concat(parentId ? [parentId] : []);
       await saveHierarchyToEntryFromNode(child, childNode);
     } else {
       // parent and ancestors are null
