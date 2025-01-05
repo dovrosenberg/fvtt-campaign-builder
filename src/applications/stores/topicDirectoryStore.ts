@@ -358,7 +358,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     isTopicTreeRefreshing.value = true;
 
-    // we put in the packs only for the current world
+    // we put in the topics only for the current world
     let tree = [] as DirectoryWorld[];
 
     // populate the world names, and find the current one
@@ -378,7 +378,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       };
     }) || [];
 
-    // find the record for the current world and set the packs
+    // find the record for the current world and set the entries for each topic
     const currentWorldBlock = tree.find((w)=>w.id===currentWorld.value?.uuid);
     if (currentWorldBlock && currentWorldFound && currentWorld.value) {
       const expandedNodes = currentWorld.value.expandedIds;
@@ -399,7 +399,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         );
       }).sort((a: DirectoryTopicNode, b: DirectoryTopicNode): number => a.topicFolder.topic - b.topicFolder.topic);
 
-      // load any open topics
+      // load the children for any open topics
       for (let i=0; i<currentWorldBlock?.topicNodes.length; i++) {
         const directoryTopicNode = currentWorldBlock.topicNodes[i];
 
@@ -409,6 +409,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         // have to check all children are loaded and expanded properly
         await directoryTopicNode.recursivelyLoadNode(expandedNodes, updateEntryIds);
 
+        // load the type-grouped entries
         await directoryTopicNode.loadTypeEntries(currentWorld.value.topicFolders[directoryTopicNode.topicFolder.topic].types, expandedNodes);
       }
     }

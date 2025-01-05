@@ -91,6 +91,15 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
    */
   protected abstract _loadNodeList(ids: string[], updateEntryIds: string[] ): Promise<void>;
   
+  /**
+   * This function is used to load all of the child nodes of the current node and update their expanded states.
+   * It is used to ensure that the entire tree is properly loaded and updated when the user expands or contracts a node in the topic tree.
+   * 
+   * @param expandedNodes The IDs of nodes that are currently expanded in the topic tree.
+   * @param updateEntryIds The IDs of nodes that should be refreshed (i.e. reloaded) even if they are already present in the tree.
+   * 
+   * @returns A promise that resolves when all of the child nodes have been loaded and updated.
+   */
   public async recursivelyLoadNode(expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> {
     // load any children that haven't been loaded before
     // this guarantees all children are at least in CollapsibleNode._loadedNodes and updateEntryIds ones have been refreshed
