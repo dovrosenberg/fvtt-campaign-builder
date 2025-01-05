@@ -3,7 +3,6 @@
  */
 
 import { CollapsibleNode, DirectoryTypeEntryNode } from '@/classes';
-import { WorldFlagKey } from '@/settings';
 
 // a type "group"; used when showing the tree grouped by type
 // its children are DirectoryTypeEntryNodes (which are like regular entries but they can't have children)
@@ -15,7 +14,7 @@ export class DirectoryTypeNode extends CollapsibleNode<DirectoryTypeEntryNode> {
     expanded: boolean = false
   ) {
 
-    super(topicId + ':' + name, expanded, WorldFlagKey.expandedIds, null, children, loadedChildren, []);
+    super(topicId + ':' + name, expanded, null, children, loadedChildren, []);
 
     this.name = name;
   }

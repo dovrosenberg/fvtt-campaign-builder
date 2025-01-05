@@ -2,7 +2,7 @@
   <!-- these are the campaigns -->
   <ol class="fwb-campaign-list">
     <li 
-      v-if="currentWorldFolder" 
+      v-if="currentWorld" 
       class="fwb-world-folder folder flexcol" 
     >
       <header 
@@ -11,13 +11,13 @@
       >
         <h3 class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
-          {{ currentWorldFolder.name }} Campaigns
+          {{ currentWorld.name }} Campaigns
         </h3>
       </header>
 
-      <ol>
-        <DirectoryCampaignNode 
-          v-for="campaign in campaignDirectoryStore.currentCampaignTree.value"
+      <ol v-if="campaignDirectoryStore.currentCampaignTree.value.length>0">
+        <DirectoryCampaignNodeComponent 
+          v-for="campaign in campaignDirectoryStore.currentCampaignTree.value as DirectoryCampaignNode[]"
           :key="campaign.id"
           :campaign-node="campaign"
         />
@@ -39,10 +39,10 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
   
   // local components
-  import DirectoryCampaignNode from './DirectoryCampaignNode.vue';
+  import DirectoryCampaignNodeComponent from './DirectoryCampaignNode.vue';
   
   // types
-  import { Campaign } from '@/classes';
+  import { Campaign, DirectoryCampaignNode, WBWorld } from '@/classes';
   import { WindowTabType } from '@/types';
   
   ////////////////////////////////
@@ -55,7 +55,7 @@
   // store
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentWorldFolder, currentWorldId } = storeToRefs(mainStore);
+  const { currentWorld, } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -81,13 +81,13 @@
       y: event.y,
       zIndex: 300,
       items: [
-      { 
+        { 
           icon: getTabTypeIcon(WindowTabType.Campaign),
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.campaignsHeader.createCampaign'), 
+          label: localize('contextMenus.campaignsHeader.createCampaign'), 
           onClick: async () => {
-            if (currentWorldId.value) {
-              await Campaign.create();
+            if (currentWorld.value) {
+              await Campaign.create(currentWorld.value as WBWorld);
               await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }

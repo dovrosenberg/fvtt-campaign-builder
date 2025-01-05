@@ -1,11 +1,10 @@
 <template>
-  <!-- <li v-if="true /*filterNodes[props.node.topic]?.includes(props.node.id)*/"> -->
-
   <li>
     <div 
       :class="`${props.sessionNode.id===currentSession?.uuid ? 'fwb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
+      :data-tooltip="props.sessionNode.tooltip"
       @click="onSessionClick"
       @contextmenu="onSessionContextMenu"
     >
@@ -29,7 +28,7 @@
   // local components
 
   // types
-  import { DirectorySessionNode, Session, } from '@/classes';
+  import { DirectorySessionNode, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -90,7 +89,7 @@
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.session.delete'), 
+          label: localize('contextMenus.session.delete'), 
           onClick: async () => {
             await campaignDirectoryStore.deleteSession(props.sessionNode.id);
           }

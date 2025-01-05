@@ -1,7 +1,9 @@
+import { DirectorySessionNode, DirectoryTopicNode } from '@/classes';
+
 export type DirectoryWorld = {
   id: string;   // the world folder ID
   name: string;
-  topics: DirectoryTopicNode[];
+  topicNodes: DirectoryTopicNode[];
 }
 
 export type DirectoryCampaign = {
@@ -15,5 +17,6 @@ export type DirectoryCampaign = {
 export type DirectorySessionNode = {
   id: string;
   name: string;
+  sessionNumber: number;   // needed to sort properly
   expanded: boolean;    // is the node expanded 
 }

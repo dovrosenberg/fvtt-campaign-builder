@@ -1,101 +1,113 @@
 import { toRaw } from 'vue';
+import { getFlag, moduleId, prepareFlagsForUpdate, setFlagDefaults } from '@/settings'; 
+import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, SessionDoc, WorldDoc } from '@/documents';
+import { Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs/input';
-import { WorldFlags, WorldFlagKey, moduleId } from '@/settings'; 
-import { CampaignDoc, EntryDoc } from '@/documents';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
-  static worldCompendium: CompendiumCollection<any> | undefined;
-  static worldId: string = '';
-
   private _campaignDoc: CampaignDoc;
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
-  private _description: string;   // track separately because flags aren't stored on update()
+
+  public world: WBWorld | null;  // the world the campaign is in (if we don't setup up front, we can load it later)
+
+  // saved on JournalEntry
+  private _name: string;
+
+  // saved in flags
+  private _description: string;
+  private _pcs: string[];   // Actor ids
 
   /**
    * 
-   * @param {CampaignDoc} campaignDoc - The entry Foundry document
+   * @param {CampaignDoc} campaignDoc - The campaign Foundry document
+   * @param {WBWorld} world - The world the campaign is in
    */
-  constructor(campaignDoc: CampaignDoc) {
+  constructor(campaignDoc: CampaignDoc, world?: WBWorld) {
     // make sure it's the right kind of document
-    if (campaignDoc.documentName !== 'JournalEntry' || !campaignDoc.getFlag(moduleId, 'isCampaign'))
+    if (campaignDoc.documentName !== 'JournalEntry' || !getFlag(campaignDoc, CampaignFlagKey.isCampaign))
       throw new Error('Invalid document type in Campaign constructor');
 
     // clone it to avoid unexpected changes, also drop the proxy
     this._campaignDoc = foundry.utils.deepClone(campaignDoc);
     this._cumulativeUpdate = {};
-    this._description = this._campaignDoc.getFlag(moduleId, 'description') || '';
+    this.world = world || null;
+
+    this._description = getFlag(this._campaignDoc, CampaignFlagKey.description) || '';
+    this._pcs = getFlag(this._campaignDoc, CampaignFlagKey.pcs) || [];
   }
 
-  static async fromUuid(entryId: string, options?: Record<string, any>): Promise<Campaign | null> {
-    const campaignDoc = await fromUuid(entryId, options) as CampaignDoc;
+  static async fromUuid(campaignId: string, options?: Record<string, any>): Promise<Campaign | null> {
+    const campaignDoc = await fromUuid(campaignId, options) as CampaignDoc;
 
     if (!campaignDoc)
       return null;
-    else
+    else {
       return new Campaign(campaignDoc);
-  }
-
-  /**
-     * Creates a new campaign inside the given world.  Prompts for a name.
-     * 
-     * @returns A promise that resolves when the campaign has been created, with either the resulting entry or null on error
-     */
-  static async create(): Promise<CampaignDoc | null> {
-    if (!Campaign.worldCompendium)
-      return null;
-
-    // get the name
-    let name;
-
-    do {
-      name = await inputDialog('Create Campaign', 'Campaign Name:');
-      
-      if (name) {
-        // unlock compendium to make the change
-        await Campaign.worldCompendium.configure({locked:false});
-
-        // create a journal entry for the campaign
-        const campaign = await JournalEntry.create({
-          name: name,
-        },{
-          pack: Campaign.worldCompendium.metadata.id,
-        }) as unknown as CampaignDoc;  
-
-        if (campaign) {
-          await campaign.setFlag(moduleId, 'isCampaign', true);
-          await campaign.setFlag(moduleId, 'description', '');
-        }
-
-        // unlock compendium to make the change
-        await Campaign.worldCompendium.configure({locked:true});
-
-        if (!campaign)
-          throw new Error('Couldn\'t create new campaign');
-
-        // update the list of campaigns
-        const campaigns = WorldFlags.get(Campaign.worldId, WorldFlagKey.campaignEntries);
-        campaigns[campaign.uuid] = name;
-        await WorldFlags.set(Campaign.worldId, WorldFlagKey.campaignEntries, campaigns);
-        
-        return campaign;
-      }
-    } while (name==='');  // if hit ok, must have a value
-
-    // if name isn't '' and we're here, then we cancelled the dialog
-    return null;
+    }
   }
 
   get uuid(): string {
     return this._campaignDoc.uuid;
   }
 
+  /**
+   * Gets the world associated with a campaign 
+   * if needed.
+   * 
+   * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
+   */
+  public async getWorld(): Promise<WBWorld> {
+    if (!this.world)
+      await this.loadWorld();
+
+    const world = this.world as WBWorld;
+
+    return world;
+  }
+  
+  /**
+   * Gets the WBWorld associated with the campaign. If the world is already loaded, the promise resolves
+   * to the existing world; otherwise, it loads the world and then resolves to it.
+   * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
+   */
+  public async loadWorld(): Promise<WBWorld> {
+    if (this.world)
+      return this.world;
+
+    if (!this._campaignDoc.folder)
+      throw new Error('Invalid folder id in Campaign.loadWorld()');
+    
+    const worldDoc = await fromUuid(this._campaignDoc.folder.uuid) as WorldDoc;
+
+    if (!worldDoc)
+      throw new Error('Invalid folder id in Campaign.loadWorld()');
+
+    return new WBWorld(worldDoc);
+  }
+  
+  // we return the next number after the highest currently existing sessio nnumber
+  get nextSessionNumber(): number {
+    let maxNumber = -1;
+    this._campaignDoc.pages.forEach((page: JournalEntryPage) => {
+      if ((page as unknown as SessionDoc).system.number > maxNumber)
+        maxNumber = (page as unknown as SessionDoc).system.number;
+    });
+
+    return maxNumber + 1;
+  }
+
+  // returns the uuids of all the sessions
+  get sessions(): string[] {
+    return this._campaignDoc.pages.map((page) => page.uuid);
+  }
+
   get name(): string {
-    return this._campaignDoc.name;
+    return this._name;
   }
 
   set name(value: string) {
-    this._campaignDoc.name = value;
+    this._name = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       name: value,
@@ -113,43 +125,156 @@ export class Campaign {
 
   set description(value: string) {
     this._description = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        description: value,
+      }
+    };
   }
 
+  get pcs(): readonly string[] {
+    return this._pcs;
+  }
+
+  set pcs(value: readonly string[]) {
+    this._pcs = value.concat();  // clone to avoid being able to edit outside
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        pcs: value,
+      }
+    };
+  }
+
+  /**
+   * Creates a new campaign.  Prompts for a name.
+   * 
+   * @param {WBWorld} world - The world to create the campaign in. 
+   * @returns A promise that resolves when the campaign has been created, with either the resulting entry or null on error
+   */
+  static async create(world: WBWorld): Promise<Campaign | null> {
+    // get the name
+    let name;
+
+    do {
+      name = await inputDialog('Create Campaign', 'Campaign Name:');
+      
+      if (name) {
+        // unlock the world to allow edits
+        await world.unlock();
+
+        // create a journal entry for the campaign
+        const newCampaignDocs = await JournalEntry.create({
+          name: name,
+          folder: foundry.utils.parseUuid(world.uuid).id,
+        },{
+          pack: world.compendium.metadata.id,
+        }) as unknown as CampaignDoc[];  
+
+        if (!newCampaignDocs)
+          throw new Error('Couldn\'t create new journal entry for campaign');
+
+        const newCampaignDoc = newCampaignDocs[0];
+
+        await setFlagDefaults(newCampaignDoc, campaignFlagSettings);
+
+        await world.lock();
+
+        if (!newCampaignDoc)
+          throw new Error('Couldn\'t create new campaign');
+
+        const newCampaign = new Campaign(newCampaignDoc, world);
+
+        world.campaignNames = {
+          ...world.campaignNames,
+          [newCampaign.uuid]: name,
+        };
+        
+        return newCampaign;
+      }
+    } while (name==='');  // if hit ok, must have a value
+
+    // if name isn't '' and we're here, then we cancelled the dialog
+    return null;
+  }
+
+  /**
+   * Find all sessions for a given campaign
+   * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
+   *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
+   *            improvements in lots of places
+   * @param campaignId the campaign to search
+   * @param notRelatedTo if present, only return sessions that are not already linked to this session
+   * @returns a list of Entries
+   */
+  public async getSessions(notRelatedTo?: Session | undefined): Promise<Session[]> {
+    // we find all journal entries with this topic
+    let sessions = this.filterSessions(()=>true);
+  
+    // filter unique ones if needed
+    if (notRelatedTo) {
+      const relatedEntries = notRelatedTo.getAllRelatedSessions(this.uuid);
+  
+      // also remove the current one
+      sessions = sessions.filter((session) => !relatedEntries.includes(session.uuid) && session.uuid !== notRelatedTo.uuid);
+    }
+  
+    return sessions;
+  }
+  
+  /**
+   * Given a filter function, returns all the matching Sessions
+   * inside this campaign
+   * 
+   * @param {(e: Entry) => boolean} filterFn - The filter function
+   * @returns {Entry[]} The entries that pass the filter
+   */
+  public filterSessions(filterFn: (e: Session) => boolean): Session[] { 
+    return (this._campaignDoc.pages.contents as unknown as SessionDoc[])
+      .map((s: SessionDoc)=> new Session(s, this))
+      .filter((s: Session)=> filterFn(s));
+  }
+
+  
   /**
    * Updates a campaign in the database 
    * 
    * @returns {Promise<Campaign | null>} The updated entry, or null if the update failed.
    */
   public async save(): Promise<Campaign | null> {
-    if (!Campaign.worldCompendium)
-      return null;
-
     const updateData = this._cumulativeUpdate;
 
+    let world = this.world;
+
+    if (!world)
+      world = await this.loadWorld();
+
     // unlock compendium to make the change
-    await Campaign.worldCompendium.configure({locked:false});
+    await world.unlock();
 
     let success = false;
-    if (Object.keys(updateData).length === 0) {
-      await this._campaignDoc.setFlag(moduleId, 'description', this._description);
-      success = true;
-    } else {
+    if (Object.keys(updateData).length !== 0) {
+      // protect any complex flags
+      if (updateData[`flags.${moduleId}`])
+        updateData[`flags.${moduleId}`] = prepareFlagsForUpdate(this._campaignDoc, updateData[`flags.${moduleId}`]);
+
       const retval = await toRaw(this._campaignDoc).update(updateData) || null;
       if (retval) {
         this._campaignDoc = retval;
         this._cumulativeUpdate = {};
 
-        await this._campaignDoc.setFlag(moduleId, 'description', this._description);
+        success = true;
       }
 
       // update the name
       if (updateData.name !== undefined) {
-        const campaigns = WorldFlags.get(Campaign.worldId, WorldFlagKey.campaignEntries) || {};  
-        campaigns[this._campaignDoc.uuid] = this._campaignDoc.name;
-        await WorldFlags.set(Campaign.worldId, WorldFlagKey.campaignEntries, campaigns);
+        await world.updateCampaignName(this.uuid, updateData.name);
       }
     }
-    await Campaign.worldCompendium.configure({locked:true});
+    await world.lock();
 
     return success ? this : null;
   }
@@ -157,28 +282,25 @@ export class Campaign {
   /**
    * Deletes a campaign from the database, along with all the related sessions
    * 
-   * @param {string} campaignId The id of the campaign to delete
-   * 
    * @returns {Promise<void>}
    */
-  public static async deleteCampaign(campaignId: string) {
-    if (!Campaign.worldCompendium)
+  public async delete() {
+    if (!this._campaignDoc)
       return;
 
-    const campaignDoc = await fromUuid(campaignId) as EntryDoc;
-    if (!campaignDoc)
-      return;
+    const id = this._campaignDoc.uuid;
+
+    let world = this.world;
+    if (!world)
+      world = await this.loadWorld();
 
     // have to unlock the pack
-    await Campaign.worldCompendium.configure({locked:false});
+    await world.unlock();
 
-    await campaignDoc.delete();
+    await this._campaignDoc.delete();
 
-    await Campaign.worldCompendium.configure({locked:true});
+    await world.lock();
 
-    // update the flags
-    await WorldFlags.unset(Campaign.worldId, WorldFlagKey.campaignEntries, campaignId);
-    await WorldFlags.unset(Campaign.worldId, WorldFlagKey.expandedCampaignIds, campaignId);
+    await world.deleteCampaignFromWorld(id);
   }
- 
 }

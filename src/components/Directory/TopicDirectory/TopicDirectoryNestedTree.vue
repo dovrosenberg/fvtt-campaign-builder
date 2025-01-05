@@ -1,12 +1,12 @@
 <template>
   <ul class="fwb-directory-tree">
     <NodeComponent 
-      v-for="node in props.topic.loadedChildren"
+      v-for="node in sortedChildren"
       :key="node.id"
       :node="node" 
       :world-id="props.worldId"
-      :topic="props.topic.topic"
-      :pack-id="props.topic.id"
+      :topic="props.topicNode.topicFolder.topic"
+      :pack-id="props.topicNode.topicFolder.uuid"
       :top="true"
       class="fwb-entry-item" 
       draggable="true"
@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { PropType, } from 'vue';
+  import { computed, PropType, } from 'vue';
 
   // local imports
 
@@ -26,12 +26,12 @@
   import NodeComponent from './TopicDirectoryNode.vue';
 
   // types
-  import { DirectoryTopicNode, } from '@/classes';
+  import { DirectoryEntryNode, DirectoryTopicNode, } from '@/classes';
   
   ////////////////////////////////
   // props
   const props = defineProps({
-    topic: {
+    topicNode: {
       type: Object as PropType<DirectoryTopicNode>,
       required: true,
     }, 
@@ -52,6 +52,10 @@
   
   ////////////////////////////////
   // computed data
+  const sortedChildren = computed((): DirectoryEntryNode[] => {
+    const children = (props.topicNode).loadedChildren;
+    return children.sort((a, b) => a.name.localeCompare(b.name));
+  });
 
   ////////////////////////////////
   // methods

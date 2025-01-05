@@ -13,7 +13,7 @@
         />
 
         <div 
-          id="fwb-add-tab" props.tab.id
+          id="fwb-add-tab" 
           class="tab-button"
           @click="onAddTabClick"
         >
@@ -24,7 +24,7 @@
       <div 
         id="fwb-sidebar-toggle" 
         class="tab-button" 
-        :data-tooltip="directoryCollapsed ? localize('fwb.tooltips.expandDirectory') : localize('fwb.tooltips.collapseDirectory')"
+        :data-tooltip="directoryCollapsed ? localize('tooltips.expandDirectory') : localize('tooltips.collapseDirectory')"
         @click="onSidebarToggleClick"
       >
         <i :class="'fas ' + (directoryCollapsed ? 'fa-caret-left' : 'fa-caret-right')"></i>
@@ -35,7 +35,7 @@
       <div 
         id="fwb-add-bookmark" 
         :class="(!navigationStore.getActiveTab(false)?.header?.uuid ? 'disabled' : '')"
-        :title="localize('fwb.tooltips.addBookmark')"
+        :title="localize('tooltips.addBookmark')"
         @click="onAddBookmarkClick"
       >
         <i class="fas fa-star"></i>
@@ -52,7 +52,7 @@
       <div 
         id="fwb-history-back" 
         :class="'nav-button ' + (canBack() ? '' : 'disabled')" 
-        :title="localize('fwb.tooltips.historyBack')"
+        :title="localize('tooltips.historyBack')"
         @click="onHistoryBackClick"
       >
         <i class="fas fa-chevron-left"></i>
@@ -60,7 +60,7 @@
       <div 
         id="fwb-history-forward" 
         :class="'nav-button ' + (canForward() ? '' : 'disabled')" 
-        :title="localize('fwb.tooltips.historyForward')"
+        :title="localize('tooltips.historyForward')"
         @click="onHistoryForwardClick"
       >
         <i class="fas fa-chevron-right"></i>
@@ -100,7 +100,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId, directoryCollapsed } = storeToRefs(mainStore);
+  const { currentWorld, directoryCollapsed } = storeToRefs(mainStore);
   const { tabs, bookmarks } = storeToRefs(navigationStore);
 
   ////////////////////////////////
@@ -149,28 +149,9 @@
   ////////////////////////////////
   // event handlers
 
-   // remove the tab given by the id from the list
-   const onCloseTab = async function (tabId: string) {
-    // find the tab
-    const tab = tabs.value.find((t) => (t.id === tabId));
-    const index = tabs.value.findIndex((t) => (t.id === tabId));
-
-    if (!tab) return;
-
-    // remove it from the array
-    tabs.value.splice(index, 1);
-
-    if (tabs.value.length === 0) {
-      await navigationStore.openEntry();  // make a default tab if that was the last one (will also activate it) and save them
-    } else if (tab.active) {
-      // if it was active, make the one before it active (or after if it was up front)
-      if (index===0) {
-        await navigationStore.activateTab(tabs.value[0].id);  // will also save them
-      }
-      else {
-        await navigationStore.activateTab(tabs.value[index-1].id);  // will also save them
-      }
-    }
+  // remove the tab given by the id from the list
+  const onCloseTab = function (tabId: string) {
+    void navigationStore.removeTab(tabId);
   };
 
   // add the current tab as a new bookmark
@@ -183,7 +164,7 @@
 
     // see if a bookmark for the entry already exists
     if (bookmarks.value.find((b) => (b.header.uuid === tab?.header?.uuid)) != undefined) {
-      ui?.notifications?.warn(localize('fwb.errors.duplicateBookmark') || '');
+      ui?.notifications?.warn(localize('errors.duplicateBookmark') || '');
       return;
     }
 
@@ -210,11 +191,11 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentWorldId, async (newValue): Promise<void> => {
-    if (!newValue)
+  watch(currentWorld, async (newValue, oldValue): Promise<void> => {
+    if (!newValue || newValue.uuid === oldValue?.uuid)
       return;
 
-    navigationStore.loadTabs();
+    await navigationStore.loadTabs();
   });
 
   ////////////////////////////////

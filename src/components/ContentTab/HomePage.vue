@@ -6,7 +6,7 @@
       </div>
     </div>
     <h3>
-      {{ currentWorldFolder?.name }}
+      {{ currentWorld?.name }}
     </h3>
     <br>
     <br>
@@ -44,13 +44,12 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref } from 'vue';
+  import { ref } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { localize } from '@/utils/game';
   import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
-  import { UserFlagKey, UserFlags } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
@@ -58,7 +57,7 @@
   // local components
 
   // types
-  import { TabHeader, Topic, WindowTabType } from '@/types';
+  import { TabHeader, Topics, WindowTabType } from '@/types';
 
   ////////////////////////////////
   // props
@@ -70,7 +69,8 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId, currentWorldFolder } = storeToRefs(mainStore);
+  const { currentWorld } = storeToRefs(mainStore);
+  const { recent } = storeToRefs(navigationStore);
 
   ////////////////////////////////
   // data
@@ -78,7 +78,6 @@
 
   ////////////////////////////////
   // computed data
-  const recent = computed((): TabHeader[] => (currentWorldId.value ? UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] : []));
 
   ////////////////////////////////
   // methods
@@ -89,10 +88,10 @@
     if (item.uuid) {
       // a little goofy, but we do it by icon
       switch (item.icon) {
-        case getTopicIcon(Topic.Character):
-        case getTopicIcon(Topic.Location):
-        case getTopicIcon(Topic.Organization):
-        case getTopicIcon(Topic.Event):
+        case getTopicIcon(Topics.Character):
+        case getTopicIcon(Topics.Location):
+        case getTopicIcon(Topics.Organization):
+        case getTopicIcon(Topics.Event):
           await navigationStore.openEntry(item.uuid, { newTab: false });
           break;
 

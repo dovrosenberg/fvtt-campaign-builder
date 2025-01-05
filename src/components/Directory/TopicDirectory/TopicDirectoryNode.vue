@@ -39,7 +39,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  import { DirectoryEntryNode, Entry } from '@/classes';
+  import { DirectoryEntryNode, Entry, WBWorld } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -70,7 +70,7 @@
   const navigationStore = useNavigationStore();
   const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
-  const { currentWorldId, currentEntry, } = storeToRefs(mainStore);
+  const { currentWorld, currentEntry, } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(topicDirectoryStore);
   
   ////////////////////////////////
@@ -95,7 +95,7 @@
 
   // handle an entry dragging to another to nest
   const onDragStart = (event: DragEvent): void => {
-    if (!currentWorldId.value) { 
+    if (!currentWorld.value) { 
       event.preventDefault();
       return;
     }
@@ -109,8 +109,10 @@
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
+    const topicFolder = currentWorld.value?.topicFolders[props.topic];
+
     if (event.dataTransfer?.types[0]==='text/plain') {
-      if (!currentWorldId.value)
+      if (!currentWorld.value)
         return false;
 
       let data;
@@ -131,16 +133,16 @@
         return false;
 
       // is this a legal parent?
-      const childEntry = await Entry.fromUuid(data.childId);
+      const childEntry = await Entry.fromUuid(data.childId, topicFolder as TopicFolder);
 
       if (!childEntry)
         return false;
 
-      if (!(validParentItems(currentWorldId.value, props.topic, childEntry)).find(e=>e.id===parentId))
+      if (!(validParentItems(currentWorld.value as WBWorld, topicFolder as TopicFolder, childEntry)).find(e=>e.id===parentId))
         return false;
 
       // add the dropped item as a child on the other  (will also refresh the tree)
-      await topicDirectoryStore.setNodeParent(props.topic, data.childId, parentId);
+      await topicDirectoryStore.setNodeParent(topicFolder as TopicFolder, data.childId, parentId);
 
       return true;
     } else {
@@ -163,15 +165,21 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`fwb.contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
+          label: localize(`contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
+
           onClick: async () => {
+            if (!currentWorld.value)
+              return;
+
+            const topicFolder = currentWorld.value.topicFolders[props.topic];
+
             // get the right folder
             const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
 
-            if (!worldFolder || !props.topic)
+            if (!worldFolder || !topicFolder)
               throw new Error('Invalid header in TopicDirectoryNode.onEntryContextMenu.onClick');
 
-            const entry = await topicDirectoryStore.createEntry(props.topic, { parentId: props.node.id} );
+            const entry = await topicDirectoryStore.createEntry(topicFolder, { parentId: props.node.id} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -181,7 +189,7 @@
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.directoryEntry.delete'), 
+          label: localize('contextMenus.directoryEntry.delete'), 
           onClick: async () => {
             await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
           }

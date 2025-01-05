@@ -10,25 +10,45 @@
       "newTab": "New Tab",
       "fields": {
         "type": "Type",
-        "parent": "Parent"
+        "parent": "Parent",
+        "sessionNumber": "Number"
       },
       "entry": {
-        "topic": "Topic",
+        "topic": "TopicFolder",
         "type": "Type",
         "relationships": "Relationshipa"
       },
+      "session": {
+        "session": "Session"
+      },
       "groupTree": "Group tree by type",
       "tabs": {
-        "description": "Description",
-        "characters": "Characters",
-        "events": "Events",
-        "locations": "Locations",
-        "locationChildren": "Child locations",
-        "organizations": "Organizations",
-        "organizationChildren": "Sub-organizations",
-        "scenes": "Scenes",
-        "actors": "Actors",
-        "pcs": "PCs"
+        "entry": {
+          "description": "Description",
+          "characters": "Characters",
+          "events": "Events",
+          "locations": "Locations",
+          "locationChildren": "Child locations",
+          "organizations": "Organizations",
+          "organizationChildren": "Sub-organizations",
+          "scenes": "Scenes",
+          "actors": "Actors"
+        },
+        "campaign": {
+          "description": "Description",
+          "pcs": "PCs"
+        },
+        "session": {
+          "description": "Description",
+          "pcs": "PCs",
+          "npcs": "NPCs",
+          "scenes": "Scenes",
+          "start": "Start",
+          "secrets": "Secrets/Clues",
+          "locations": "Locations",
+          "monsters": "Monsters",
+          "magic": "Magic Items"
+        }
       },
       "noResults": "Nothing here",
       "loading": "Loading"
@@ -39,7 +59,9 @@
       "eventName": "Event Name",
       "locationName": "Location Name",
       "organizationName": "Organization Name",
-      "campaignName": "Campaign Name"
+      "campaignName": "Campaign Name",
+      "sessionName": "Session Name",
+      "sessionNumber": "Session Number"
     },
     "compendia": {
       "entry": "Entries",

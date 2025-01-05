@@ -75,7 +75,7 @@
         { 
           icon: 'fa-file-export',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.bookmarks.openNewTab'), 
+          label: localize('contextMenus.bookmarks.openNewTab'), 
           onClick: async () => {
             if (props.bookmark.header.uuid)
               await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: true });
@@ -84,7 +84,7 @@
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.bookmarks.delete'), 
+          label: localize('contextMenus.bookmarks.delete'), 
           onClick: async () => {
             await navigationStore.removeBookmark(props.bookmark.id);
           }
@@ -97,7 +97,7 @@
   // event handlers
   const onBookmarkClick = async () => { 
     if (!props.bookmark)
-    return;
+      return;
 
     await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: false });
   };

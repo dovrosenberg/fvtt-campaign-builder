@@ -12,14 +12,14 @@
 We store a bunch of indexing data in flags the world folder to make it faster to look things up.  We store it here so that it gets deleted when the world gets deleted.
 
 * `worldCompendium: string` - the uuid for the world compendium 
-* `campaignEntries: Record<string, string>` - the name of each campaign, keyed by the JournalEntry uuid for the campaign
-* `topicEntries: Record <Topic, string>` - the JournalEntry uuid for each topic
-* `types: Record<Topic, string[]>` - list of valid types in use for each topic 
+* `campaignNames: Record<string, string>` - the name of each campaign, keyed by the JournalEntry uuid for the campaign
+* `topicIds: Record <Topics, string>` - the JournalEntry uuid for each topic
+* `types: Record<Topics, string[]>` - list of valid types in use for each topic 
 * `expandedIds: Record<string, boolean>`- tracks which entry uuids are currently expanded in the tree 
-* `topNodes: Record <Topic, string[]>` - the top node uuids in the tree for each topic
-* `hierarchies: Record<Topic, Record<string, Hierarchy>>` - a `Hierarchy` object for each entry uuid, in master object keyed by topic
+* `topNodes: Record <Topics, string[]>` - the top node uuids in the tree for each topic
+* `hierarchies: Record<Topics, Record<string, Hierarchy>>` - a `Hierarchy` object for each entry uuid, in master object keyed by topic
 
-# Topic entries
+# TopicFolder entries
 
 * `interface Entry extends JournalEntryPage`
   * system variable inclues:

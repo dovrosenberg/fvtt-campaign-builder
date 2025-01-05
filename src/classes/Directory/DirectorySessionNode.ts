@@ -3,34 +3,50 @@
  */
 
 import { CollapsibleNode, Session } from '@/classes';
-import { WorldFlagKey } from '@/settings';
-import { NO_NAME_STRING } from '@/utils/hierarchy';
+import { localize } from '@/utils/game';
 
 // represents an entry in the type-grouped structure
 // has no children, the parent is a DirectoryTypeNode
 export class DirectorySessionNode extends CollapsibleNode<never> {
-  name: string;
+  private _name: string;
+  private _sessionNumber: number;
   
-  constructor(id: string, name: string, parentId: string) {
-    super(id, false, WorldFlagKey.expandedCampaignIds, parentId, [], [], []);
+  constructor(id: string, name: string, sessionNumber: number, parentId: string | null) {
+    super(id, false, parentId, [], [], []);
 
-    this.name = name;
+    this._name = name;
+    this._sessionNumber = sessionNumber;
   }
 
-    // converts the entry to a DirectoryEntryNode for cleaner interface
-    static fromSession = (session: Session, campaignId: string): DirectorySessionNode => {
-      if (!CollapsibleNode._currentWorldId)
-        throw new Error('No currentWorldId in DirectorySessionNode.fromEntry()');
-  
-      return new DirectorySessionNode(
-        session.uuid,
-        session.name || NO_NAME_STRING,
-        campaignId,
-      );
-    };
+  get name(): string {
+    return `${localize('labels.session.session')} ${this._sessionNumber}`;
+  }
+
+  get sessionNumber(): number {
+    return this._sessionNumber;
+  }
+
+  get tooltip(): string {
+    return this._name;
+  }
+
+  // converts the entry to a DirectoryEntryNode for cleaner interface
+  static fromSession = (session: Session, campaignId: string): DirectorySessionNode => {
+    if (!CollapsibleNode._currentWorld)
+      throw new Error('No currentWorld in DirectorySessionNode.fromEntry()');
+
+    return new DirectorySessionNode(
+      session.uuid,
+      session.name,
+      session.number,
+      campaignId,
+    );
+  };
   
   /**
     * no children
     * @override
     */
-  override async _loadNodeList(_ids: string[], _updateIds: string[] ): Promise<void> {}}
+  override async _loadNodeList(_ids: string[], _updateIds: string[] ): Promise<void> {}
+}
+

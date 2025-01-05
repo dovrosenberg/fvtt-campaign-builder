@@ -5,11 +5,11 @@ import { defineStore, } from 'pinia';
 import { computed, ref, } from 'vue';
 
 // local imports
-import { UserFlagKey, UserFlags, WorldFlags, WorldFlagKey } from '@/settings';
+import { UserFlagKey, UserFlags, } from '@/settings';
 
 // types
-import { Topic, WindowTabType, DocumentTab } from '@/types';
-import { WindowTab, Entry, Campaign, Session, } from '@/classes';
+import { Topics, WindowTabType, DocumentLinkType } from '@/types';
+import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc } from '@/documents';
 
 // the store definition
@@ -30,19 +30,17 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // external state
   const rootFolder = ref<Folder | null>(null);
-  const currentWorldFolder = ref<Folder | null>(null);  // the current world folder
-
-  const currentWorldId = computed((): string | null => currentWorldFolder.value ? currentWorldFolder.value.uuid : null);
+  const currentWorld = ref<WBWorld | null>(null);  // the current world folder
 
   const currentWorldCompendium = computed((): CompendiumCollection<any> => {
-    if (!currentWorldId.value)
-      throw new Error('No currentWorldId in mainStore.currentWorldCompendium()');
+    if (!currentWorld.value)
+      throw new Error('No currentWorld in mainStore.currentWorldCompendium()');
 
-    const pack = game.packs?.get(WorldFlags.get(currentWorldId.value, WorldFlagKey.worldCompendium)) || null;
+    const pack = currentWorld.value?.compendium || null;
     if (!pack)
       throw new Error('Bad compendia in mainStore.currentWorldCompendium()');
 
-    return pack;
+    return pack as CompendiumCollection<any>;
   });
 
   // these are the currently selected entry shown in the main tab
@@ -50,7 +48,7 @@ export const useMainStore = defineStore('main', () => {
   const currentEntry = computed((): Entry | null => (_currentEntry?.value || null) as Entry | null);
   const currentCampaign = computed((): Campaign | null => (_currentCampaign?.value || null) as Campaign | null);
   const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
-  const currentContentType = computed((): WindowTabType | null => (_currentTab?.value?.tabType || null) as WindowTabType | null);  
+  const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
 
   // the currently selected tab for the entry
   const currentContentTab = ref<string | null>(null);
@@ -62,24 +60,31 @@ export const useMainStore = defineStore('main', () => {
     if (!worldId)
       return;
 
-    // load the folder
-    const folder = game?.folders?.find((f)=>f.uuid===worldId) || null;
+    // load the world
+    const world = await WBWorld.fromUuid(worldId);
     
-    if (!folder)
+    if (!world)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');
 
-    currentWorldFolder.value = folder;
+    currentWorld.value = world;
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };
 
   const setNewTab = async function (tab: WindowTab): Promise<void> { 
+    if (!currentWorld.value)
+      return;
+
     _currentTab.value = tab;
 
     switch (tab.tabType) {
       case WindowTabType.Entry:
         if (tab.header.uuid) {
           _currentEntry.value = await Entry.fromUuid(tab.header.uuid);
+          if (!_currentEntry.value)
+            throw new Error('Invalid entry uuid in mainStore.setNewTab()');
+
+          _currentEntry.value.topicFolder = currentWorld.value.topicFolders[_currentEntry.value.topic];
         } else {
           _currentEntry.value = null;
         }
@@ -98,6 +103,10 @@ export const useMainStore = defineStore('main', () => {
       case WindowTabType.Session:
         if (tab.header.uuid) {
           _currentSession.value = await Session.fromUuid(tab.header.uuid);
+          if (!_currentSession.value)
+            throw new Error('Invalid entry uuid in mainStore.setNewTab()');
+
+          _currentSession.value.campaign = currentWorld.value.campaigns[_currentSession.value.campaignId];
         } else {
           _currentSession.value = null;
         }
@@ -120,16 +129,19 @@ export const useMainStore = defineStore('main', () => {
     if (!_currentEntry.value)
       return;
 
+    if (!_currentEntry.value.topicFolder)
+      throw new Error('Invalid current parent topic in mainStore.refreshEntry()');
+
     // just force all reactivity to update
-    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc);
+    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc, _currentEntry.value.topicFolder as TopicFolder);
   };
 
   const refreshCampaign = function (): void {
-    if (!_currentCampaign.value)
+    if (!_currentCampaign.value || !currentWorld.value)
       return;
 
     // just force all reactivity to update
-    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc);
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentWorld.value as WBWorld);
   };
 
   const refreshSession = function (): void {
@@ -142,24 +154,24 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // computed state
-  const currentEntryTopic = computed((): Topic => {
+  const currentEntryTopic = computed((): Topics => {
     if (!currentEntry.value)
-      return Topic.None;
+      return Topics.None;
 
-    return currentEntry.value.topic || Topic.None;
+    return currentEntry.value.topic || Topics.None;
   });
 
-  const currentDocumentTab = computed((): DocumentTab => {
+  const currentDocumentTab = computed((): DocumentLinkType => {
     if (!currentContentTab.value)
-      return DocumentTab.None;
+      return DocumentLinkType.None;
 
     switch (currentContentTab.value) {
       case 'scenes':
-        return DocumentTab.Scenes;
+        return DocumentLinkType.Scenes;
       case 'actors':
-        return DocumentTab.Actors;
+        return DocumentLinkType.Actors;
       default:
-        return DocumentTab.None;
+        return DocumentLinkType.None;
     }
   });
 
@@ -178,8 +190,7 @@ export const useMainStore = defineStore('main', () => {
     currentContentTab,
     currentDocumentTab,
     directoryCollapsed,
-    currentWorldId,
-    currentWorldFolder,
+    currentWorld,
     currentEntryTopic,
     currentEntry,
     currentCampaign,

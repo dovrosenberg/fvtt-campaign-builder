@@ -93,7 +93,7 @@
   // local components
 
   // types
-  import { Topic, ValidTopic, } from '@/types';
+  import { Topics, ValidTopic, } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -114,7 +114,7 @@
   // store
   const relationshipStore = useRelationshipStore();
   const mainStore = useMainStore();
-  const { currentEntry, currentEntryTopic } = storeToRefs(mainStore);
+  const { currentEntry, currentWorld, currentEntryTopic } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -123,19 +123,19 @@
   const entry = ref<Entry | null>(null);  // the selected item from the dropdown
   const extraFieldValues = ref<Record<string, string>>({});
   const topicDetails = {
-    [Topic.Event]: {
+    [Topics.Event]: {
       title: 'Add an event',
       buttonTitle: 'Add event',
     },
-    [Topic.Character]: {
+    [Topics.Character]: {
       title: 'Add a character',
       buttonTitle: 'Add character',
     },
-    [Topic.Location]: {
+    [Topics.Location]: {
       title: 'Add a location',
       buttonTitle: 'Add location',
     },
-    [Topic.Organization]: {
+    [Topics.Organization]: {
       title: 'Add an organization',
       buttonTitle: 'Add organization',
     },
@@ -207,11 +207,14 @@
   watch(() => props.modelValue, async (newValue) => {
     show.value = newValue; 
 
+    if (!currentWorld.value)
+      return;
+
     if (newValue) {
       if (!currentEntry.value || !currentEntryTopic.value)
         throw new Error('Trying to show AddRelatedItemDialog without a current entry');
 
-      selectItems.value = await Entry.getEntriesForTopic(props.topic, currentEntry.value);
+      selectItems.value = await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder, currentEntry.value);
       extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
 
       // focus on the input

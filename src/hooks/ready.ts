@@ -1,4 +1,4 @@
-import { WorldBuilderApplication} from '@/applications/WorldBuilder';
+import { getWorldBuilderApp } from '@/applications/WorldBuilder';
 import { localize } from '@/utils/game';
 import { setupEnricher } from '@/components/Editor/helpers';
 
@@ -12,14 +12,14 @@ async function ready(): Promise<void> {
 
   if (game.user?.isGM) {  
     const navToggleButton = jQuery(document).find('#nav-toggle');
-    const toolTip = localize('fwb.tooltips.mainButton');
+    const toolTip = localize('tooltips.mainButton');
     navToggleButton.before(
       `<button id='fwb-launch' type="button" class="nav-item flex0" title="${toolTip}"><i class="fas fa-globe"></i></button>`
     );
 
     jQuery(document).on('click', '#fwb-launch', async (): Promise<void> => {
       // create the instance and render 
-      await (await new WorldBuilderApplication()).render(true);
+      await getWorldBuilderApp().render(true);
     });
   }
 

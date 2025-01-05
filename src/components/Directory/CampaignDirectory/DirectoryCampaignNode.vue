@@ -26,7 +26,7 @@
       class="campaign-contents fwb-directory-tree"
     >
       <SessionDirectoryNode 
-        v-for="node in props.campaignNode.loadedChildren"
+        v-for="node in sortedChildren"
         :key="node.id"
         :session-node="node"
         :top="true"
@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, PropType } from 'vue';
+  import { ref, PropType, computed } from 'vue';
   
   // local imports
   import { localize } from '@/utils/game';
@@ -54,7 +54,7 @@
   
   // types
   import { DirectoryCampaignNode, } from '@/classes';
-  import { WindowTabType } from '@/types';
+  import { DirectorySessionNode, WindowTabType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -81,6 +81,10 @@
   
   ////////////////////////////////
   // computed data
+  const sortedChildren = computed((): DirectorySessionNode[] => {
+    const children = props.campaignNode.loadedChildren;
+    return children.sort((a, b) => a.sessionNumber - b.sessionNumber);
+  });
 
   ////////////////////////////////
   // methods
@@ -90,7 +94,7 @@
 
   // change campaign
   const onCampaignFolderClick = async (_event: MouseEvent) => {
-    currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value, !currentNode.value.expanded);
+    currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as DirectoryCampaignNode, !currentNode.value.expanded);
   };
 
   const onCampaignSelectClick = async (event: MouseEvent) => {
@@ -112,15 +116,19 @@
         { 
           icon: getTabTypeIcon(WindowTabType.Session),
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.campaignFolder.createSession'), 
+          label: localize('contextMenus.campaignFolder.createSession'), 
           onClick: async () => {
-            await campaignDirectoryStore.createSession(props.campaignNode.id);
+            const session = await campaignDirectoryStore.createSession(props.campaignNode.id);
+
+            if (session) {
+              await navigationStore.openSession(session.uuid, { newTab: true, activate: true, }); 
+            }
           }
         },
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.campaignFolder.delete'), 
+          label: localize('contextMenus.campaignFolder.delete'), 
           onClick: async () => {
             await campaignDirectoryStore.deleteCampaign(props.campaignNode.id);
           }

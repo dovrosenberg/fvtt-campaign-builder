@@ -2,14 +2,14 @@
   <!-- these are the worlds -->
   <ol class="fwb-world-list">
     <li 
-      v-for="world in topicDirectoryStore.currentWorldTree.value"
+      v-for="world in currentWorldTree.value"
       :key="world.id"
-      :class="'fwb-world-folder folder flexcol ' + (currentWorldId===world.id ? '' : 'collapsed')" 
-      @click="onWorldFolderClick($event, world.id)"
+      :class="'fwb-world-folder folder flexcol ' + (currentWorld?.uuid===world.id ? '' : 'collapsed')" 
     >
       <header 
         class="folder-header flexrow"
         @contextmenu="onWorldContextMenu($event, world.id)"
+        @click="onWorldFolderClick($event, world.id)"
       >
         <h3 class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
@@ -19,37 +19,37 @@
 
       <!-- These are the topic compendia -->
       <ol 
-        v-if="currentWorldId===world.id"
+        v-if="currentWorld?.uuid===world.id"
         class="fwb-world-contents"
       >
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
         <li 
-          v-for="topic in world.topics.sort((a, b) => (a.topic < b.topic ? -1 : 1))"
-          :key="topic.topic"
-          :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topic.expanded ? '' : 'collapsed')"
-          :data-topic="topic.topic" 
+          v-for="topicNode in world.topicNodes.sort((a, b) => (a.topicFolder.topic < b.topicFolder.topic ? -1 : 1))"
+          :key="topicNode.topicFolder.topic"
+          :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topicNode.expanded ? '' : 'collapsed')"
+          :data-topic="topicNode.topicFolder.topic" 
         >
           <header class="folder-header flexrow">
             <div 
               class="fwb-compendium-label noborder" 
               style="margin-bottom:0px"
-              @click="onTopicFolderClick($event, topic)"
-              @contextmenu="onTopicContextMenu($event, world.id, topic.topic)"
+              @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
+              @contextmenu="onTopicContextMenu($event, world.id, topicNode.topicFolder as TopicFolder)"
             >
               <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
-              <i :class="'icon fas ' + getTopicIcon(topic.topic)" style="margin-right: 4px;"></i>
-              {{ topic.name }}
+              <i :class="'icon fas ' + getTopicIcon(topicNode.topicFolder.topic)" style="margin-right: 4px;"></i>
+              {{ topicNode.name }}
             </div>
           </header>
 
           <TopicDirectoryGroupedTree
             v-if="isGroupedByType" 
-            :topic-node="topic"
+            :topic-node="topicNode as DirectoryTopicNode"
             :world-id="world.id"
           />
           <TopicDirectoryNestedTree
             v-else 
-            :topic="topic"
+            :topic-node="topicNode as DirectoryTopicNode"
             :world-id="world.id"
           />
         </li>
@@ -75,8 +75,8 @@
   import TopicDirectoryGroupedTree from './TopicDirectoryGroupedTree.vue';
   
   // types
-  import { Topic, WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign, } from '@/classes';
+  import { WindowTabType } from '@/types';
+  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -90,8 +90,8 @@
   const navigationStore = useNavigationStore();
   const topicDirectoryStore = useTopicDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentWorldId } = storeToRefs(mainStore);
-  const { isGroupedByType } = storeToRefs(topicDirectoryStore);
+  const { currentWorld } = storeToRefs(mainStore);
+  const { isGroupedByType, currentWorldTree } = storeToRefs(topicDirectoryStore);
 
   ////////////////////////////////
   // data
@@ -128,7 +128,7 @@
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.worldFolder.delete'), 
+          label: localize('contextMenus.worldFolder.delete'), 
           onClick: async () => {
             if (worldId) {
               await topicDirectoryStore.deleteWorld(worldId);
@@ -139,10 +139,13 @@
         { 
           icon: getTabTypeIcon(WindowTabType.Campaign),
           iconFontClass: 'fas',
-          label: localize('fwb.contextMenus.worldFolder.createCampaign'), 
+          label: localize('contextMenus.worldFolder.createCampaign'), 
+
           onClick: async () => {
             if (worldId) {
-              await Campaign.create();
+              throw new Error('TODO: need to load the world and then call createCampaign... ideally have an array of worlds somewhere so don\'t have to load from disk');
+              const world = await WBWorld.fromUuid(worldId);
+              await Campaign.create(world);
               await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
@@ -151,7 +154,7 @@
     });
   };
 
-  const onTopicContextMenu = (event: MouseEvent, worldId: string, topic: Topic): void => {
+  const onTopicContextMenu = (event: MouseEvent, worldId: string, topicFolder: TopicFolder): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();
@@ -166,15 +169,15 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`fwb.contextMenus.topicFolder.create.${topic}`), 
+          label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
           onClick: async () => {
             // get the right folder
             const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as globalThis.Folder;
 
-            if (!worldFolder || !topic)
+            if (!worldFolder || !topicFolder)
               throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
-            const entry = await topicDirectoryStore.createEntry(topic, {} );
+            const entry = await topicDirectoryStore.createEntry(topicFolder, {} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

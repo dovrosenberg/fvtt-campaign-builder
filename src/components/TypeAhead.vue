@@ -6,7 +6,7 @@
     <input 
       v-model="currentValue" 
       type="text"
-      :placeholder="`${localize('fwb.placeholders.search')}...`"
+      :placeholder="`${localize('placeholders.search')}...`"
       @input="onInput"
     >
     <div 

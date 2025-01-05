@@ -1,5 +1,5 @@
-import moduleJson from '@module';
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
+import { moduleId } from '@/settings';
 import { createPinia, setActivePinia } from 'pinia';
 import PrimeVue from 'primevue/config';
 import FWBTheme from './presetTheme';
@@ -14,9 +14,19 @@ import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 const pinia = createPinia();
 setActivePinia(pinia);
 
+// the global instance - needed for keybindings, among other things
+let wbApp: WorldBuilderApplication | null = null;
+
+export const getWorldBuilderApp = (): WorldBuilderApplication => {
+  if (wbApp)
+    return wbApp;
+
+  return wbApp = new WorldBuilderApplication();
+};
+
 export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
-    id: `app-${moduleJson.id}-WorldBuilder`,
+    id: `app-${moduleId}-WorldBuilder`,
     classes: ['fwb-main-window'], 
     window: {
       title: 'fwb.title',

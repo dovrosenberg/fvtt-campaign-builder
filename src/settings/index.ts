@@ -1,10 +1,11 @@
 import { id } from '@module';
-import { WorldFlagType, WorldFlagKey } from './WorldFlags';
 import { SettingKey, SettingKeyType } from './ModuleSettings';
+import { CampaignFlagKey, CampaignFlagType, WorldFlagKey, WorldFlagType, } from '@/documents';
 
 export * from './UserFlags';
 export * from './ModuleSettings';
-export * from './WorldFlags';
+export * from './KeyBindings';
+export * from './DocumentFlags';
 
 // NOTE: if the module ID changes, this needs to change... couldn't figure out how to automate it because
 //    needed a static type
@@ -15,15 +16,20 @@ export type ModuleId = 'world-builder';
 export const moduleId: ModuleId = id as ModuleId;
 
 // flesh out the flag types 
-type CampaignFlags = Record<ModuleId, {
-  isCampaign: boolean;
-  description: string;
-}>;
 
-type WorldFolderFlags = Record<ModuleId, {
-  [K in WorldFlagKey]: WorldFlagType<K>
-}>;
+type WorldFolderFlags = {
+  [M in ModuleId]: {
+    [K in WorldFlagKey]: WorldFlagType<K>; 
+  };
+}
 
+type CampaignFlags = {
+  [M in ModuleId]: {
+    [K in CampaignFlagKey]: CampaignFlagType<K>; 
+  };
+}
+
+type FolderFlags = WorldFolderFlags;
 type JournalEntryFlags = CampaignFlags;
 
 // settings
@@ -34,7 +40,7 @@ type WBSettings = {
 declare global {
   interface FlagConfig {
     JournalEntry: JournalEntryFlags;
-    Folder: WorldFolderFlags;
+    Folder: FolderFlags;
   }
 
   interface SettingConfig extends WBSettings {}

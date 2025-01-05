@@ -2,18 +2,18 @@
   <!-- this is just a <ul> wrapper around the a type node in the type-grouped tree-->
   <ul class="fwb-directory-tree">
     <TopicDirectoryGroupedType
-      v-for="type in props.topicNode.loadedTypes"
+      v-for="type in sortedTypes"
       :key="type.id"
       :type="type"
       :world-id="props.worldId"
-      :topic="props.topicNode.topic"
+      :topic="props.topicNode.topicFolder.topic"
     />
   </ul>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { PropType, } from 'vue';
+  import { computed, PropType, } from 'vue';
 
   // local imports
 
@@ -23,7 +23,7 @@
   import TopicDirectoryGroupedType from './TopicDirectoryGroupedType.vue';
 
   // types
-  import { DirectoryTopicNode, } from '@/classes';
+  import { DirectoryTopicNode, DirectoryTypeNode, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -49,6 +49,10 @@
   
   ////////////////////////////////
   // computed data
+  const sortedTypes = computed((): DirectoryTypeNode[] => {
+    const types = props.topicNode.loadedTypes;
+    return types.sort((a, b) => a.name.localeCompare(b.name));
+  });
 
   ////////////////////////////////
   // methods

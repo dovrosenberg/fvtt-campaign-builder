@@ -1,9 +1,14 @@
-import { id as moduleId } from '@module';
 import {type DevModeApi} from '@/libraries/foundry/devMode';
+import { moduleId } from '@/settings';
+
 const messagePrefix = `${moduleId} | `;
 
 // log the given text, so long as our current log level is at least the one given
 declare global {
+  interface RequiredModules {
+    '_dev-mode': true;
+  }
+
   interface ModuleConfig {
     '_dev_mode': {
       api: DevModeApi;

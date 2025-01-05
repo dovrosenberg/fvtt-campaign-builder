@@ -65,10 +65,10 @@
         </div>
       </template>
       <template #empty>
-        {{ localize('fwb.labels.noResults') }} 
+        {{ localize('labels.noResults') }} 
       </template>
       <template #loading>
-        {{ localize('fwb.labels.loading') }}...
+        {{ localize('labels.loading') }}...
       </template>
 
       <Column 
@@ -87,7 +87,7 @@
         >
           <a 
             class="" 
-            :data-tooltip="localize('fwb.tooltips.deleteRelationship')"
+            :data-tooltip="localize('tooltips.deleteRelationship')"
             @click.stop="onDeleteItemClick(data.uuid)" 
           >
             <i class="fas fa-trash"></i>
@@ -95,7 +95,7 @@
           <a 
             v-if="extraColumns.length>0"
             class="" 
-            :data-tooltip="localize('fwb.tooltips.editRelationship')"
+            :data-tooltip="localize('tooltips.editRelationship')"
             @click.stop="onEditItemClick(data)" 
           >
             <i class="fas fa-pen"></i>
@@ -163,7 +163,7 @@
   import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
 
   // types
-  import { Topic, TablePagination, ValidTopic, RelatedItemDetails } from '@/types';
+  import { Topics, TablePagination, ValidTopic, RelatedItemDetails } from '@/types';
   
   ////////////////////////////////
   // props
@@ -228,10 +228,10 @@
     const prefix = 'Add ';
 
     const labels = {
-      [Topic.Event]: 'Event',
-      [Topic.Character]: 'Character',
-      [Topic.Location]: 'Location',
-      [Topic.Organization]: 'Organization',
+      [Topics.Event]: 'Event',
+      [Topics.Character]: 'Character',
+      [Topics.Location]: 'Location',
+      [Topics.Organization]: 'Organization',
     } as Record<ValidTopic, string>;
 
     return prefix + labels[props.topic];
@@ -271,22 +271,22 @@
     const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 
 
     const columns = {
-      [Topic.Event]: [
+      [Topics.Event]: [
         actionColumn,
         nameColumn,
         dateColumn,
       ],
-      [Topic.Character]: [
+      [Topics.Character]: [
         actionColumn,
         nameColumn,
         typeColumn,
       ],
-      [Topic.Location]: [
+      [Topics.Location]: [
         actionColumn,
         nameColumn,
         typeColumn,
       ],
-      [Topic.Organization]: [
+      [Topics.Organization]: [
         actionColumn,
         nameColumn,
         typeColumn,
@@ -346,8 +346,8 @@
   const onDeleteItemClick = async function(_id: string) {
     // show the confirmation dialog 
     await Dialog.confirm({
-      title: localize('fwb.dialogs.confirmDeleteRelationship.title'),
-      content: localize('fwb.dialogs.confirmDeleteRelationship.message'),
+      title: localize('dialogs.confirmDeleteRelationship.title'),
+      content: localize('dialogs.confirmDeleteRelationship.message'),
       yes: () => { void relationshipStore.deleteRelationship(props.topic, _id); },
       no: () => {},
     });

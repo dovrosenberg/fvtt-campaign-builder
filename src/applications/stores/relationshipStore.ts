@@ -1,4 +1,4 @@
-// this store handles the main state (current world, entry, etc.)
+// this store handles relationships between entries (not campaigns/sessions)
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
@@ -8,11 +8,11 @@ import { useMainStore, } from './index';
 
 // types
 import { 
-  Topic, ValidTopic,
+  Topics, ValidTopic,
   RelatedItemDetails, FieldDataByTopic,
   TablePagination,
   RelatedDocumentDetails,
-  DocumentTab,
+  DocumentLinkType,
 } from '@/types';
 import { reactive, Ref, watch } from 'vue';
 import { ref } from 'vue';
@@ -36,36 +36,36 @@ export const useRelationshipStore = defineStore('relationship', () => {
   };
 
   const relatedItemPagination = reactive({
-    [Topic.Character]: ref<TablePagination>(defaultPagination),
-    [Topic.Event]: ref<TablePagination>(defaultPagination),
-    [Topic.Location]: ref<TablePagination>(defaultPagination),
-    [Topic.Organization]: ref<TablePagination>(defaultPagination),
+    [Topics.Character]: ref<TablePagination>(defaultPagination),
+    [Topics.Event]: ref<TablePagination>(defaultPagination),
+    [Topics.Location]: ref<TablePagination>(defaultPagination),
+    [Topics.Organization]: ref<TablePagination>(defaultPagination),
   } as Record<ValidTopic, Ref<TablePagination>>);
 
   const extraFields = {
-    [Topic.Character]: {
-      [Topic.Character]: [],
-      [Topic.Event]: [],
-      [Topic.Location]: [{field:'role', header:'Role'}],
-      [Topic.Organization]: [{field:'role', header:'Role'}],
+    [Topics.Character]: {
+      [Topics.Character]: [],
+      [Topics.Event]: [],
+      [Topics.Location]: [{field:'role', header:'Role'}],
+      [Topics.Organization]: [{field:'role', header:'Role'}],
     },
-    [Topic.Event]: {
-      [Topic.Character]: [],
-      [Topic.Event]: [],
-      [Topic.Location]: [],
-      [Topic.Organization]: [],
+    [Topics.Event]: {
+      [Topics.Character]: [],
+      [Topics.Event]: [],
+      [Topics.Location]: [],
+      [Topics.Organization]: [],
     },
-    [Topic.Location]: {
-      [Topic.Character]: [{field:'role', header:'Role'}],
-      [Topic.Event]: [],
-      [Topic.Location]: [],
-      [Topic.Organization]: [],
+    [Topics.Location]: {
+      [Topics.Character]: [{field:'role', header:'Role'}],
+      [Topics.Event]: [],
+      [Topics.Location]: [],
+      [Topics.Organization]: [],
     },
-    [Topic.Organization]: {
-      [Topic.Character]: [{field:'role', header:'Role'}],
-      [Topic.Event]: [],
-      [Topic.Location]: [],
-      [Topic.Organization]: [],
+    [Topics.Organization]: {
+      [Topics.Character]: [{field:'role', header:'Role'}],
+      [Topics.Event]: [],
+      [Topics.Location]: [],
+      [Topics.Organization]: [],
     },    
   } as FieldDataByTopic;
   
@@ -269,7 +269,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   }
 
   // remove a relationship to the current entry
-  async function deleteRelationship(relatedItemTopic: Topic, relatedItemId: string): Promise<void> {
+  async function deleteRelationship(relatedItemTopic: Topics, relatedItemId: string): Promise<void> {
     if (!currentEntry.value)
       throw new Error('Invalid entry in relationshipStore.deleteRelationship()');
 
@@ -372,34 +372,34 @@ export const useRelationshipStore = defineStore('relationship', () => {
       relatedItemRows.value = [];
       relatedDocumentRows.value = [];
     } else {
-      let topic: Topic;
+      let topic: Topics;
       switch (currentContentTab.value) {
         case 'characters':
-          topic = Topic.Character;
+          topic = Topics.Character;
           break;
         case 'events':
-          topic = Topic.Event;
+          topic = Topics.Event;
           break;
         case 'locations':
-          topic = Topic.Location;
+          topic = Topics.Location;
           break;
         case 'organizations':
-          topic = Topic.Organization;
+          topic = Topics.Organization;
           break;
         case 'scenes':
-          topic = Topic.None;
+          topic = Topics.None;
           break;
         case 'actors':
-          topic = Topic.None;
+          topic = Topics.None;
           break;
         default:
-          topic = Topic.None;
+          topic = Topics.None;
       }
 
-      if (topic !== Topic.None) {
-        relatedItemRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]) || []: [];
+      if (topic !== Topics.None) {
+        relatedItemRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]) : [];
         relatedDocumentRows.value = [];
-      } else if (currentDocumentTab.value===DocumentTab.Scenes) {
+      } else if (currentDocumentTab.value===DocumentLinkType.Scenes) {
         relatedItemRows.value = [];
 
         const sceneList = [] as RelatedDocumentDetails[];
@@ -413,7 +413,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
           });
         }
         relatedDocumentRows.value = sceneList;
-      } else if (currentDocumentTab.value===DocumentTab.Actors) {
+      } else if (currentDocumentTab.value===DocumentLinkType.Actors) {
         relatedItemRows.value = [];
 
         const actorList = [] as RelatedDocumentDetails[];
