@@ -1,20 +1,12 @@
-import moduleJson from '@module';
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
+import { moduleId } from '@/settings';
 import { createPinia, setActivePinia } from 'pinia';
-import { Quasar } from 'quasar';
+import PrimeVue from 'primevue/config';
+import FWBTheme from './presetTheme';
+
 import App from '@/components/WorldBuilder.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
-
-/////////////////
-// Vuetify
-// import { createVuetify } from 'vuetify';
-
-// const vuetify = createVuetify({
-//   // components,
-//   // directives,
-// });
-
 
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 
@@ -22,9 +14,19 @@ import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 const pinia = createPinia();
 setActivePinia(pinia);
 
+// the global instance - needed for keybindings, among other things
+let wbApp: WorldBuilderApplication | null = null;
+
+export const getWorldBuilderApp = (): WorldBuilderApplication => {
+  if (wbApp)
+    return wbApp;
+
+  return wbApp = new WorldBuilderApplication();
+};
+
 export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
-  static DEFAULT_OPTIONS = foundry.utils.mergeObject(super.DEFAULT_OPTIONS, {
-    id: `app-${moduleJson.id}-WorldBuilder`,
+  static DEFAULT_OPTIONS = {
+    id: `app-${moduleId}-WorldBuilder`,
     classes: ['fwb-main-window'], 
     window: {
       title: 'fwb.title',
@@ -45,7 +47,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
       // submitOnClose: false,
     },
     actions: {}
-  }, { inplace: false });
+  };
 
   static DEBUG = false;
 
@@ -61,8 +63,22 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
           plugin: pinia,
           options: {}
         },
-        // vuetify: { plugin: vuetify }
-        quasar: { plugin: Quasar }
+        primevue: { 
+          plugin: PrimeVue, 
+          options: {
+            theme: { 
+              preset: FWBTheme,
+              options: {
+                // prefix: 'fwb-p',
+                // cssLayer: {
+                //   name: 'fwb-p',
+                //   order: 'fwb-p',
+                // },
+                darkModeSelector: '.theme-dark'
+              }
+            }
+          }
+        },
       }
     }
   };

@@ -1,6 +1,6 @@
-import { getGame } from '@/utils/game';
-import moduleJson from '@module';
-import { Bookmark, EntryHeader, WindowTab } from '@/types';
+import { Bookmark, TabHeader, } from '@/types';
+import { WindowTab, } from '@/classes';
+import { moduleId } from '.';
 
 export enum UserFlagKey {
   tabs = 'tabs',  // the open tabs
@@ -12,7 +12,7 @@ export enum UserFlagKey {
 type UserFlagType<K extends UserFlagKey> =
     K extends UserFlagKey.tabs ? WindowTab[] :
     K extends UserFlagKey.bookmarks ? Bookmark[] :
-    K extends UserFlagKey.recentlyViewed ? EntryHeader[] :
+    K extends UserFlagKey.recentlyViewed ? TabHeader[] :
     K extends UserFlagKey.currentWorld ? string :
     never;  
 
@@ -21,17 +21,32 @@ export abstract class UserFlags {
   //    are dereferenced by foundry when saving to the database, making it hard to get back in proper format
   // we could just concatenate in the calling code, but then it would be much harder to type check
   public static get<T extends UserFlagKey>(flag: T, worldId = ''): UserFlagType<T> | null {
-    if (!getGame().user)
+    if (!game.user)
       return null;
 
-    return (getGame().user?.getFlag(moduleJson.id, flag + worldId) || []) as UserFlagType<T>;
+    if (flag === UserFlagKey.tabs) {
+      // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
+      return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) || []).map((t: any) => new WindowTab(
+        t.active, 
+        t.header,
+        null,
+        null,
+        t.id,
+        t.history,
+        t.historyIdx
+      )) as unknown as UserFlagType<T>;
+    } else {
+      // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
+      return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) || []) as UserFlagType<T>;
+    }
   }
 
   // note - setting a flag to null will delete it
   public static async set<T extends UserFlagKey>(flag: T, value: UserFlagType<T> | null, worldId = ''): Promise<void> {
-    if (!getGame().user)
+    if (!game.user)
       return;
 
-    await getGame().user?.setFlag(moduleJson.id, flag + worldId, value);
+    // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
+    await game.user?.setFlag(moduleId, `${flag}.${worldId}`, value);
   }
 }

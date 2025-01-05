@@ -1,12 +1,12 @@
 <template>
   <div  
     :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')"
-    @click="onClickApplication($event)"
+    @click="onClickApplication"
   >
     <div class="fwb-body flexcol">
       <WBHeader />
       <div class="fwb-content flexcol editable">
-        <WBContent />
+        <ContentTab />
       </div>
     </div>
     <div id="fwb-directory-sidebar" class="flexcol">
@@ -17,22 +17,25 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, } from 'vue';
+  import { onMounted, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { getDefaultFolders, } from '@/compendia';
-  import { SettingKey, moduleSettings } from '@/settings/ModuleSettings';
-  import { useMainStore, useDirectoryStore, useNavigationStore } from '@/applications/stores';
+  import { SettingKey, moduleSettings, } from '@/settings';
+  import { useMainStore, useNavigationStore } from '@/applications/stores';
 
   // library components
 
   // local components
-  import WBHeader from '@/components/WBHeader.vue';
-  import WBContent from '@/components/WBContent.vue';
+  import WBHeader from '@/components/WBHeader/WBHeader.vue';
+  import ContentTab from '@/components/ContentTab/ContentTab.vue';
   import Directory from '@/components/Directory/Directory.vue';
 
   // types
+  import { Topics, ValidTopic } from '@/types';
+  import { CollapsibleNode, Entry, WBWorld, } from '@/classes';
+  import { CampaignDoc } from '@/documents';
   
   ////////////////////////////////
   // props
@@ -43,10 +46,8 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const directoryStore = useDirectoryStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldFolder, rootFolder, } = storeToRefs(mainStore);
-  const { directoryCollapsed } = storeToRefs(directoryStore);
+  const { currentWorld, rootFolder, directoryCollapsed } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -91,6 +92,48 @@
 
   ////////////////////////////////
   // watchers
+  watch(() => currentWorld.value, async () => {
+    if (currentWorld.value && currentWorld.value.topicIds) {
+      // this will force a refresh of the directory; before we do that make sure all the static variables are setup
+      const worldId = currentWorld.value.uuid;
+
+      const worldCompendium = currentWorld.value.compendium || null;
+
+      if (!worldCompendium)
+        throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
+
+      const topicIds = currentWorld.value.topicIds;
+      const campaignNames = currentWorld.value.campaignNames;
+      const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topicJournals = {
+        [Topics.Character]: null,
+        [Topics.Event]: null,
+        [Topics.Location]: null,
+        [Topics.Organization]: null,
+      } as Record<ValidTopic, JournalEntry | null>;
+      const campaignJournals = {} as Record<string, CampaignDoc>;
+
+      for (let i=0; i<topics.length; i++) {
+        const t = topics[i];
+
+        // we need to load the actual entries - not just the index headers
+        topicJournals[t] = (await fromUuid(topicIds[t])) as JournalEntry | null;
+
+        if (!topicJournals[t])
+          throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
+      }
+
+      for (let i=0; i<Object.keys(campaignNames).length; i++) {
+        // we need to load the actual entries - not just the index headers
+        const j = await(fromUuid(Object.keys(campaignNames)[i])) as CampaignDoc | null;
+        if (j) {
+          campaignJournals[j.uuid] = j;
+        }
+      }
+
+      CollapsibleNode.currentWorld = currentWorld.value as WBWorld;
+    }
+  });
 
   ////////////////////////////////
   // lifecycle events
@@ -99,34 +142,61 @@
 
     const folders = await getDefaultFolders();
 
-    if (folders && folders.rootFolder && folders.worldFolder) {
-      // this will force a refresh of the directory
+    if (!folders || !folders.rootFolder)
+        throw new Error(`Couldn't get folders in WorldBuilder.onMounted()`);
+
+    const world = folders.world;
+    const worldId = folders.world?.uuid;
+    const worldCompendium = folders.world?.compendium || null;
+
+    if (!world || !worldId || !worldCompendium)
+        throw new Error(`Could not find world/compendium for world ${worldId} in WorldBuilder.onMounted()`);
+
+    if (world.topicIds) {
+      // this will force a refresh of the directory; before we do that make sure all the static variables are setup
+      const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topicJournals = {
+        [Topics.Character]: null,
+        [Topics.Event]: null,
+        [Topics.Location]: null,
+        [Topics.Organization]: null,
+      } as Record<ValidTopic, JournalEntry | null>;
+      const campaignJournals = {} as Record<string, CampaignDoc>;
+
+      for (let i=0; i<topics.length; i++) {
+        const t = topics[i];
+        
+        // we need to load the actual entries - not just the index headers
+        topicJournals[t] = (await fromUuid(world.topicIds[t])) as JournalEntry | null;
+
+        if (!topicJournals[t])
+          throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
+      }
+
+      for (let i=0; i<Object.keys(world.campaignNames).length; i++) {
+        // we need to load the actual entries - not just the index headers
+        const j = (await fromUuid(Object.keys(world.campaignNames)[i])) as CampaignDoc | null;
+        if (j) {
+          campaignJournals[j.uuid] = j;
+        }
+      }
+
+      CollapsibleNode.currentWorld = folders.world;
+
       rootFolder.value = folders.rootFolder;
-      currentWorldFolder.value = folders.worldFolder;
+      currentWorld.value = folders.world;
+
     } else {
       throw new Error('Failed to load or create folder structure');
     }
   });
 
 
-  /*
-
-
-  findMapEntry(event) {
-    let journalId = $(event.currentTarget).attr('page-id');
-    let journalId = $(event.currentTarget).attr('journal-id');
-
-    let note = canvas.notes.placeables.find(n => {
-      return n.document.entryId == journalId || n.document.journalId == journalId || (n.document.entryId == journalId && n.document.journalId == null);
-    });
-    canvas.notes.panToNote(note);
-  }
-
-  }*/
-
 </script>
 
 <style lang="scss">
+@import "@/components/styles/styles.scss";
+
 // this is from the Vue handler, but we need it to be a flexbox so the overall app window controls the size the rest
 //    of the way down
 div[data-application-part] {
@@ -142,22 +212,6 @@ div[data-application-part] {
   color: var(--color-text-light-highlight);
 }
 
-/*
-.fwb-main-window > header a.subsheet {
-  background: rgba(255, 255, 255, 0.1);
-  margin-left: 0px;
-  padding-left: 8px;
-}
-
-.fwb-main-window > header a.subsheet.first {
-  margin-left: 4px;
-  padding-left: 4px;
-}
-
-.fwb-main-window > header a.subsheet.last {
-  padding-right: 4px;
-}
-*/
 
 .fwb-main-window {  
   min-width: 640px;
@@ -188,7 +242,6 @@ div[data-application-part] {
       }
     }
 
-    #journal .entry-name > i,
     #fwb-directory .entry-name > i {
       margin-right: 8px;
       margin-left: 4px;

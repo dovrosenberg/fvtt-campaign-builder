@@ -1,10 +1,11 @@
 {
 	"compilerOptions": {
 		"incremental": true,
+		"outDir": ".tscout",
 		"target": "es2018",
 		"module": "esnext",
-		"lib": [ "es2015", "es2019", "dom" ],
-		"typeRoots": [ "node_modules/@types", "./src/types", "node", "@league-of-foundry-developers/foundry-vtt-types"],
+		"lib": [ "es2021", "dom" ],
+		"typeRoots": [ "./src/types", "node", "@league-of-foundry-developers/foundry-vtt-types"],
 		"moduleResolution": "node",
 		"sourceMap": true,
 		"strict": true,
@@ -17,8 +18,8 @@
 		"noImplicitThis": false,
 		"alwaysStrict": true,
 
-		"noUnusedLocals": false,
-		"noUnusedParameters": false,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 
@@ -36,6 +37,6 @@
 			"@module": ["./static/module.json"]
 		}
 	},
-	"include": ["tests/**/*.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", ], 
+	"include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", "@league-of-foundry-developers/foundry-vtt-types/src/index.d.mts"], 
 	"exclude": [ "node_modules", "dist" ]
 }

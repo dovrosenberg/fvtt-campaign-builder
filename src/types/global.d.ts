@@ -1,16 +1,8 @@
-import '@league-of-foundry-developers/foundry-vtt-types/src/index.d.mts';
+export * from '@league-of-foundry-developers/foundry-vtt-types/src/index.d.mts';
 
+// some global configuration for the types
 declare global {
-   interface JournalPageSheet extends DocumentSheet {
-    toc: any;
-    object: any;
-    onAutoSave(string): void;
-    onNewSteps(): void;
-  }
-
-  interface xyz {
-    a: number;
-    b: ()=>number;
+  interface AssumeHookRan {
+    setup: never; // this ensures that `game` is never undefined (at least from a typescript standpoint)... avoids needing to continually typeguard
   }
 }
-

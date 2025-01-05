@@ -1,12 +1,24 @@
-import { getGame } from '@/utils/game';
+import {type DevModeApi} from '@/libraries/foundry/devMode';
+import { moduleId } from '@/settings';
 
-const messagePrefix = 'autocomplete-mentions | ';
+const messagePrefix = `${moduleId} | `;
 
 // log the given text, so long as our current log level is at least the one given
+declare global {
+  interface RequiredModules {
+    '_dev-mode': true;
+  }
+
+  interface ModuleConfig {
+    '_dev_mode': {
+      api: DevModeApi;
+    };
+  }
+}
+
 export function log(force: boolean, ...args): void {
   try {
-    // @ts-ignore
-    const isDebugging = getGame().modules.get('_dev-mode')?.api?.getPackageDebugValue('autocomplete-mentions') || false;
+    const isDebugging = game.modules.get('_dev-mode')?.api?.getPackageDebugValue(moduleId) || false;
 
     if (force || isDebugging) {
       console.log(messagePrefix, ...args);

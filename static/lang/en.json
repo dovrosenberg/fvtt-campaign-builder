@@ -10,19 +10,48 @@
       "newTab": "New Tab",
       "fields": {
         "type": "Type",
-        "parent": "Parent"
+        "parent": "Parent",
+        "sessionNumber": "Number"
+      },
+      "entry": {
+        "topic": "TopicFolder",
+        "type": "Type",
+        "relationships": "Relationshipa"
+      },
+      "session": {
+        "session": "Session"
       },
       "groupTree": "Group tree by type",
       "tabs": {
-        "description": "Description",
-        "characters": "Characters",
-        "events": "Events",
-        "locations": "Locations",
-        "locationChildren": "Child locations",
-        "organizations": "Organizations",
-        "organizationChildren": "Sub-organizations",
-        "scenes": "Scenes"
-      }
+        "entry": {
+          "description": "Description",
+          "characters": "Characters",
+          "events": "Events",
+          "locations": "Locations",
+          "locationChildren": "Child locations",
+          "organizations": "Organizations",
+          "organizationChildren": "Sub-organizations",
+          "scenes": "Scenes",
+          "actors": "Actors"
+        },
+        "campaign": {
+          "description": "Description",
+          "pcs": "PCs"
+        },
+        "session": {
+          "description": "Description",
+          "pcs": "PCs",
+          "npcs": "NPCs",
+          "scenes": "Scenes",
+          "start": "Start",
+          "secrets": "Secrets/Clues",
+          "locations": "Locations",
+          "monsters": "Monsters",
+          "magic": "Magic Items"
+        }
+      },
+      "noResults": "Nothing here",
+      "loading": "Loading"
     },
     "placeholders": {
       "search": "Search",
@@ -30,7 +59,13 @@
       "eventName": "Event Name",
       "locationName": "Location Name",
       "organizationName": "Organization Name",
-      "sceneName": "Scene Name"
+      "campaignName": "Campaign Name",
+      "sessionName": "Session Name",
+      "sessionNumber": "Session Number"
+    },
+    "compendia": {
+      "entry": "Entries",
+      "session": "Sessions"
     },
     "topics": {
       "character": "Character",
@@ -44,13 +79,30 @@
       "scene": "Scene",
       "scenes": "Scenes"
     },
+    "dialogs": {
+      "confirmDeleteRelationship": {
+        "title": "Remove from relationship?",
+        "message": "Are you sure you want to delete this relationship?"
+      }
+    },
     "contextMenus": {
       "bookmarks": {
         "openNewTab": "Open in new Tab",
         "delete": "Delete bookmark"
       },
       "worldFolder": {
-        "delete": "Delete world"
+        "delete": "Delete world",
+        "createCampaign": "Create campaign"
+      },
+      "campaignsHeader": {
+        "createCampaign":"Create campaign"
+      },
+      "campaignFolder": {
+        "createSession": "Create a session",
+        "delete": "Delete campaign"
+      },
+      "session": {
+        "delete": "Delete session"
       },
       "topicFolder": {
         "create": {
@@ -75,7 +127,9 @@
       "collapseAllTopics": "Collapse all",
       "addBookmark": "Add bookmark",
       "historyBack": "Back",
-      "historyForward": "Forward"
+      "historyForward": "Forward",
+      "editRelationship": "Edit relationship",
+      "deleteRelationship": "Delete relationship"
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"

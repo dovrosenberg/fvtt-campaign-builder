@@ -6,16 +6,14 @@ import { ref, } from 'vue';
 import { storeToRefs } from 'pinia';
 
 // local imports
-import { getCleanEntry } from '@/compendia';
 import { localize } from '@/utils/game';
-import { getIcon } from '@/utils/misc';
-import { EntryFlagKey, EntryFlags } from '@/settings/EntryFlags';
-import { UserFlagKey, UserFlags } from '@/settings/UserFlags';
+import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
+import { UserFlagKey, UserFlags } from '@/settings';
 import { useMainStore } from './mainStore';
 
 // types
-import { Bookmark, EntryHeader, WindowTab } from '@/types';
-
+import { Bookmark, TabHeader, WindowTabType, } from '@/types';
+import { WindowTab, Entry, Campaign, Session } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -25,7 +23,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorldId, } = storeToRefs(mainStore);
+  const { currentWorld, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -34,15 +32,71 @@ export const useNavigationStore = defineStore('navigation', () => {
   // external state
   const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of WBHeader)
   const bookmarks = ref<Bookmark[]>([]);
+  const recent = ref<TabHeader[]>([]);
 
   ///////////////////////////////
   // actions
-  // activate - switch to the tab after creating - defaults to true
-  // newTab - should entry open in current tab or a new one - defaults to true
-  // entryId = the uuid of the entry for the tab  (currently just journal entries); if missing, open a "New Tab"
-  // updateHistory - should history be updated- defaults to true
-  // if not !newTab and entryId is the same as currently active tab, then does nothign
-  const openEntry = async function (entryId = null as string | null, options?: { activate?: boolean; newTab?: boolean; updateHistory?: boolean }): Promise<WindowTab> {
+ 
+  type OpenContentOptions = {
+    activate?: boolean;
+    newTab?: boolean;
+    updateHistory?: boolean;
+  }
+
+  /**
+   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param contentId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the entry open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @returns The newly opened tab.
+   */
+  const openEntry = async function(entryId = null as string | null, options?: OpenContentOptions) {
+    await openContent(entryId, WindowTabType.Entry, options );
+  };
+
+  /**
+   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param campaignId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the entry open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @returns The newly opened tab.
+   */
+  const openCampaign = async function(campaignId = null as string | null, options?: OpenContentOptions) {
+    await openContent(campaignId, WindowTabType.Campaign, options);
+  };
+
+  /**
+   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param sessionId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the entry open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @returns The newly opened tab.
+   */
+  const openSession = async function(sessionId = null as string | null, options?: OpenContentOptions) {
+    await openContent(sessionId, WindowTabType.Session, options);
+  }; 
+
+  /**
+   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param contentId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the entry open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @param contentType The type of content to open. If null, defaults to entry.
+   * @returns The newly opened tab.
+   */
+  const openContent = async function (contentId = null as string | null, contentType: WindowTabType, options?: OpenContentOptions,): Promise<WindowTab> { 
     // set defaults
     options = {
       activate: true,
@@ -51,20 +105,66 @@ export const useNavigationStore = defineStore('navigation', () => {
       ...options,
     };
 
-    const journal = entryId ? await getCleanEntry(entryId) as JournalEntry : null;
-    const entryName = (journal ? journal.name : localize('fwb.labels.newTab')) || '';
-    const entry = { uuid: journal ? entryId : null, name: entryName, icon: journal ? getIcon(EntryFlags.get(journal, EntryFlagKey.topic)) : '' };
+    let name = localize('labels.newTab') || '';
+    let icon = '';
+    let badId = false;
+
+    if (!contentId) 
+      contentType = WindowTabType.NewTab;
+
+    switch (contentType) {
+      case WindowTabType.Entry: {
+        const entry = contentId ? await Entry.fromUuid(contentId) : null;
+        if (!entry) {
+          badId = true;
+        } else {
+          name = entry.name;
+          icon = getTopicIcon(entry.topic);
+        }
+      } break;
+      case WindowTabType.Campaign: {
+        const campaign = contentId ? await Campaign.fromUuid(contentId) : null; 
+
+        if (!campaign) {
+          badId = true;
+        } else {
+          name = campaign.name; 
+          icon = getTabTypeIcon(WindowTabType.Campaign);
+        }
+      } break;
+      case WindowTabType.Session: {
+        const session = contentId ? await Session.fromUuid(contentId) : null;
+        if (!session) {
+          badId = true;
+        } else {
+          name = `${localize('labels.session.session')} ${session.number}`;
+          icon = getTabTypeIcon(WindowTabType.Session);
+        }
+      } break;
+      case WindowTabType.NewTab: 
+        break;
+      default: {
+        badId = true;
+      } break;
+    }
+
+    if (badId) {
+      contentType = WindowTabType.NewTab;
+      contentId = null;
+    }
+
+    const headerData: TabHeader = { uuid: contentId || null, name: name, icon: icon };
 
     // see if we need a new tab
     let tab;
     if (options.newTab || !getActiveTab(false)) {
-      tab = {
-        id: foundry.utils.randomID(),
-        active: false,
-        entry: entry,
-        history: [],
-        historyIdx: -1,
-      } as WindowTab;
+      tab = new WindowTab(
+        false,
+        headerData,
+        headerData.uuid,
+        contentType, 
+        null,
+      );
 
       //add to tabs list
       tabs.value.push(tab);
@@ -72,19 +172,21 @@ export const useNavigationStore = defineStore('navigation', () => {
       tab = getActiveTab(false);
 
       // if same entry, nothing to do
-      if (tab.entry?.uuid === entryId)
+      if (tab.header?.uuid === contentId || null)
         return tab;
 
       // otherwise, just swap out the active tab info
-      tab.entry = entry;
+      tab.header = headerData;
+
+      // add to history
+      if (headerData.uuid && options.updateHistory) {
+        tab.addToHistory(contentId, contentType);
+      }
+
+      // force a refresh of reactivity
+      tabs.value = [ ...tabs.value ];
     }
     
-    // add to history 
-    if (entry.uuid && options.updateHistory) {
-      tab.history.push(entryId);
-      tab.historyIdx = tab.history.length - 1; 
-    }
-
     if (options.activate)
       await activateTab(tab.id);  
 
@@ -92,10 +194,10 @@ export const useNavigationStore = defineStore('navigation', () => {
     await _saveTabs();
 
     // update the recent list (except for new tabs)
-    if (entry.uuid)
-      await _updateRecent(entry);
+    if (headerData.uuid)
+      await _updateRecent(headerData);
 
-    await mainStore.setNewEntry(entry.uuid);
+    await mainStore.setNewTab(tab);
 
     return tab;
   };
@@ -105,11 +207,42 @@ export const useNavigationStore = defineStore('navigation', () => {
   const getActiveTab = function (findone = true): WindowTab | null {
     let tab = tabs.value.find(t => t.active);
     if (findone) {
-      if (!tab && tabs.value.length > 0)  // nothing was marked as active, just pick the 1st one
-        tab = tabs.value[0];
+      if (!tab && tabs.value.length > 0)  // nothing was marked as active, just pick the last one
+        tab = tabs.value[tabs.value.length-1];
     }
 
     return tab || null;
+  };
+
+  /**
+   * Remove the tab with the given id. If the tab is active, then activate the previous tab.
+   * If it's the last tab, create a new default one.
+   * @param tabId The id of the tab to remove.
+   */
+  const removeTab = async function (tabId: string): Promise<void> {
+    // find the tab
+    const tab = tabs.value.find((t) => (t.id === tabId));
+    const index = tabs.value.findIndex((t) => (t.id === tabId));
+
+    if (!tab) return;
+
+    // remove it from the array
+    tabs.value.splice(index, 1);
+
+    if (tabs.value.length === 0) {
+      await openEntry();  // make a default tab if that was the last one (will also activate it) and save them
+    } else if (tab.active) {
+      // if it was active, make the one before it active (or after if it was up front)
+      if (index===0) {
+        await activateTab(tabs.value[0].id);  // will also save them
+      }
+      else {
+        await activateTab(tabs.value[index-1].id);  // will also save them
+      }
+    }
+
+    // force a refresh
+    // tabs.value = [ ...tabs.value ];
   };
 
   // activate the given tab, first closing the current subsheet
@@ -133,20 +266,93 @@ export const useNavigationStore = defineStore('navigation', () => {
     await _saveTabs();
 
     // add to recent, unless it's a "home page"
-    if (newTab?.entry?.uuid)
-      await _updateRecent(newTab.entry);
+    if (newTab?.header?.uuid)
+      await _updateRecent(newTab.header);
 
-    await mainStore.setNewEntry(newTab.entry.uuid);
+    await mainStore.setNewTab(newTab);
 
     return;
   };
 
-  const propogateNameChange = async(entryId: string, newName: string):Promise<void> => {
+  /**
+   * Used after deleting an entry/campaign/session to make sure that no current tab or tab history includes 
+   * the deleted item.
+   *
+   * @param contentId - The content ID to remove.
+   * @returns A promise that resolves when the ID has been removed.
+   */
+  const cleanupDeletedEntry = async (contentId: string): Promise<void> => {
+    // get the current set of tabs
+    const tempTabs = tabs.value;
+
+    if (tempTabs) {
+      // loop over each one and remove from the history; set tabIndex to point to the subsequent entry
+      // if there is only one entry left, eliminate the tab altogether
+      // go backward in case we need to remove one
+      for (let i = tempTabs.length-1; i>=0; i--) {
+        const tab = tempTabs[i];
+
+        // loop over the whole history
+        for (let j = tab.history.length-1; j>=0; j--) {
+          const history = tab.history[j];
+
+          if (history.contentId === contentId) {
+            if (tab.historyIdx === j && tab.history.length===1) {
+              await removeTab(tab.id);
+              tempTabs.splice(i, 1);
+
+              // let's say this way the only remaining tab; then when we
+              //    delete it, there's a new tab 0 (the default) that we 
+              //    need to retain
+              // but if we finish the loop, we're going to screw it up because
+              //    `tempTabs` doesn't reflect that change yet
+              if (tempTabs.length===1 && i===0) {
+                tempTabs[0] = tabs.value[0];
+              }
+
+              break;
+            } else if (tab.historyIdx >= j && (j>0 || tab.historyIdx>0)) {
+              // if the entry is the current one or after the current one, we need to move the index back one
+              //  (unless we're on the first one and that's the match)
+              tab.historyIdx--;
+            } else if (tab.historyIdx === j && j===0) {
+              // there are others, but we're looking at the first one - set tab to next one
+              // but that one will be 0 in a sec, so we don't actually need to do anything
+
+              // note that if the length is 1, we'll be in the case above
+            }
+
+            // remove the entry from the history
+            tab.history.splice(j, 1);
+          }
+        }
+      }
+
+      // save the tabs
+      tabs.value = tempTabs;
+      await _saveTabs();
+    }
+
+    // now remove from bookmarks
+    bookmarks.value = bookmarks.value.filter(b => b.id !== contentId);
+    await _saveBookmarks();
+
+    // remove from recent items list
+    recent.value = recent.value.filter(r => r.uuid !== contentId);
+    await _saveRecent();
+  };
+  
+  /**
+   * When an entry's name changes, propogate that change to the header of all open tabs referring to that entry.
+   * @param contentId - The ID of the entry whose name changed.
+   * @param newName - The new name of the entry.
+   */
+  const propogateNameChange = async (contentId: string, newName: string):Promise<void> => {
     // update the tabs 
     let updated = false;
     tabs.value.forEach((t: WindowTab): void => {
-      if (t.entry.uuid===entryId) {
-        t.entry.name = newName;
+      if (t.header.uuid===contentId) {
+        t.header.name = newName;
         updated = true;
       }
     });
@@ -154,34 +360,24 @@ export const useNavigationStore = defineStore('navigation', () => {
     if (updated)
       await _saveTabs();
   };
- 
-  const cleanupDeletedEntry = async(entryId: string): Promise<void> => {
-    let activeTabId = '';
 
-    // remove any matching tabs
-    for (let i=tabs.value.length-1; i>=0; i--) {
-      if (tabs.value[i].entry.uuid===entryId) {
-        // if it's active, we need to move active to prior tab
-        if (tabs.value[i].active)
-          activeTabId = tabs.value[i-1].id;
+  const loadTabs = async function () {
+    if (!currentWorld.value)
+      return;
 
-        tabs.value.splice(i, 1);
-      }
+    tabs.value = UserFlags.get(UserFlagKey.tabs, currentWorld.value.uuid) || [];
+    bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, currentWorld.value.uuid) || [];
+    recent.value = UserFlags.get(UserFlagKey.recentlyViewed, currentWorld.value.uuid) || [];
+
+    if (!tabs.value.length) {
+      // if there are no tabs, add one
+      await openEntry();
+    } else {
+      // activate the active one
+      await mainStore.setNewTab(getActiveTab(true) as WindowTab);
     }
-
-    // reset active tab if needed
-    if (activeTabId!=='')
-      await activateTab(activeTabId);
-
-    // remove any matching bookmarks
-    for (let i=bookmarks.value.length-1; i>=0; i--) {
-      if (bookmarks.value[i].entry.uuid===entryId) {
-        bookmarks.value.splice(i, 1);
-      }
-    }
-
   };
-
+ 
   // removes the bookmark with given id
   const removeBookmark = async function (bookmarkId: string) {
     const bookmarksValue = bookmarks.value;
@@ -213,37 +409,42 @@ export const useNavigationStore = defineStore('navigation', () => {
   // internal functions
   // save tabs to database
   const _saveTabs = async function () {
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return;
 
-    await UserFlags.set(UserFlagKey.tabs, tabs.value, currentWorldId.value);
+    await UserFlags.set(UserFlagKey.tabs, tabs.value, currentWorld.value.uuid);
   };
 
   const _saveBookmarks = async function () {
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return;
 
-    await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentWorldId.value);
+    await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentWorld.value.uuid);
+  };
+
+  const _saveRecent = async function () {
+    if (!currentWorld.value)
+      return;
+
+    await UserFlags.set(UserFlagKey.recentlyViewed, recent.value, currentWorld.value.uuid);
   };
 
   // add a new entity to the recent list
-  const _updateRecent = async function (entry: EntryHeader): Promise<void> {
-    if (!currentWorldId.value)
-      return;
-
-    let recent = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [] as EntryHeader[];
+  const _updateRecent = async function (header: TabHeader): Promise<void> {
+    let newRecent = recent.value;
 
     // remove any other places in history this already appears
-    recent.findSplice((h: EntryHeader): boolean => h.uuid === entry.uuid);
+    newRecent.findSplice((h: TabHeader): boolean => h.uuid === header.uuid);
 
     // insert in the front
-    recent.unshift(entry);
+    newRecent.unshift(header);
 
     // trim if too long
-    if (recent.length > 5)
-      recent = recent.slice(0, 5);
+    if (newRecent.length > 5)
+      newRecent = newRecent.slice(0, 5);
 
-    await UserFlags.set(UserFlagKey.recentlyViewed, recent, currentWorldId.value);
+    recent.value = newRecent;
+    await _saveRecent();
   };
   
 
@@ -258,12 +459,16 @@ export const useNavigationStore = defineStore('navigation', () => {
   return {
     tabs,
     bookmarks,
-    currentWorldId,
-    
+    recent,
 
     openEntry,
+    openSession,
+    openCampaign,
+    openContent,
     getActiveTab,
+    loadTabs,
     activateTab,
+    removeTab,
     removeBookmark,
     addBookmark,
     changeBookmarkPosition,

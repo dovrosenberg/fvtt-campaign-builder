@@ -1,31 +1,41 @@
-export * from './directory';
+export type * from './directory.d.ts';
+export type * from './tables.d.ts';
+export type * from './relationships.d.ts';
+export type * from './hierarchy.d.ts';
+export type * from './global.d.ts';
 
-export type WindowTab = {
-  id: string;   // unique id
-  active: boolean;   // is this the currently active tab
-  history: string[];    // array of the history of entryIds shown in this tab (for the forward/back arrows) 
-  historyIdx: number;   // index of current history point
-  entry: EntryHeader;  // reference to journal entry  -- leaving open possibility of expanding this type in the future
+// used to determine which component to display in the tab
+export enum WindowTabType  {
+  NewTab,
+  Entry,
+  Campaign,
+  Session,
+}
+
+export type WindowTabHistory = {
+  contentId: string | null;
+  tabType: WindowTabType;
 }
 
 export type Bookmark = {
   id: string;   // id of the bookmark
-  entry: EntryHeader;
+  tabInfo: WindowTabHistory;
+  header: TabHeader;
 }
 
-export type EntryHeader = {
+export type TabHeader = {
   uuid: string | null;   
   name: string;
   icon: string;  // class of icon to display
 }
 
-export type EntrySummary = {
+export type TabSummary = {
   uuid: string;   
   name: string;
 }
 
 // this oder is also the order that they get sorted in
-export enum Topic {
+export enum Topics {
   None = 0,
   Character = 1,
   Location = 2,
@@ -33,6 +43,17 @@ export enum Topic {
   Event = 4,
 }
 
+// topics except None
+export type ValidTopic = Exclude<Topics, Topics.None>;
+
+// content tabs that are document links not other entries
+export enum DocumentLinkType {
+  None,
+  Scenes,
+  Actors,
+}
+
+// relationships
 export type TreeNode = {
   text: string;   // the label
   value: string;   // a value to be passed up when clicked (ex. a uuid)
