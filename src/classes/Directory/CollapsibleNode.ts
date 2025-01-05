@@ -8,7 +8,9 @@ type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNo
 
 export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   protected static _currentWorld: WBWorld | null = null;
-  protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode>;   // maps uuid to the node for easy lookup
+
+  /** maps uuid to the node for easy lookup **/
+  protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode>;   
 
   public id: string;
   public parentId: string | null;
@@ -122,6 +124,9 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
         if (!child)
           throw new Error('Child failed to load properly in CollapsibleNode.recursivelyLoadNode() ');
 
+        // make sure we're not about to add a duplicate
+        // @ts-ignore - child has to have a value here
+        this.loadedChildren = this.loadedChildren.filter((childNode)=>childNode.id!==child.id);
         this.loadedChildren.push(child);
       } else {
         // should never happen because everything should be in _loadedNodes
