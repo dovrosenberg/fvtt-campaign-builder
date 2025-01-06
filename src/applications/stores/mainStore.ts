@@ -32,6 +32,9 @@ export const useMainStore = defineStore('main', () => {
   const rootFolder = ref<Folder | null>(null);
   const currentWorld = ref<WBWorld | null>(null);  // the current world folder
 
+  // can set this to tell current entry tab to refresh everything
+  const refreshCurrentEntry = ref<boolean>(false);
+
   const currentWorldCompendium = computed((): CompendiumCollection<any> => {
     if (!currentWorld.value)
       throw new Error('No currentWorld in mainStore.currentWorldCompendium()');
@@ -198,6 +201,7 @@ export const useMainStore = defineStore('main', () => {
     currentContentType,
     rootFolder,
     currentWorldCompendium,
+    refreshCurrentEntry,
    
     setNewWorld,
     setNewTab,

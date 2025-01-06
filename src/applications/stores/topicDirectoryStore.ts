@@ -23,7 +23,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { rootFolder, currentWorld,} = storeToRefs(mainStore); 
+  const { rootFolder, currentWorld, currentEntry, refreshCurrentEntry, } = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -194,7 +194,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     const originalChildAncestors = childNode.ancestors;  // save this for adjusting all the ancestors later
 
-    if (parentNode) {   
+    if (parent && parentNode) {   
       // add the child to the children list of the parent (if it has a parent)
       parentNode.children = [...parentNode.children, childId];
       await saveHierarchyToEntryFromNode(parent, parentNode);
@@ -259,6 +259,11 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     
     topicFolder.topNodes = topNodes;
     await topicFolder.save();
+
+    // force current entry to refresh if needed
+    if ([childId, parentId].includes(currentEntry.value.uuid)) {
+      refreshCurrentEntry.value = true;      
+    }
 
     await refreshTopicDirectoryTree([parentId, oldParentId].filter((id)=>id!==null));
 
@@ -325,6 +330,14 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return;
 
     await world.delete();
+
+    // pick another world
+    if (rootFolder.value?.children && rootFolder.value.children.length > 0) { 
+      await mainStore.setNewWorld(rootFolder.value.children[0].folder.uuid as string);
+    } else {
+      // close all tabs and bookmarks (if we're changing worlds they'll reset automatically)
+      await navigationStore.clearTabsAndBookmarks();
+    }
 
     await refreshTopicDirectoryTree();
   };

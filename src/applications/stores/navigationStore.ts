@@ -245,6 +245,15 @@ export const useNavigationStore = defineStore('navigation', () => {
     // tabs.value = [ ...tabs.value ];
   };
 
+/**
+ * Closes all open tabs and removes all bookmarks. Should be used only when there is no
+ * world available.
+ */
+  const clearTabsAndBookmarks = async function () {
+    tabs.value = [];
+    bookmarks.value = [];
+  };
+
   // activate the given tab, first closing the current subsheet
   // tabId must exist
   const activateTab = async function (tabId: string): Promise<void> {
@@ -474,5 +483,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     changeBookmarkPosition,
     propogateNameChange,
     cleanupDeletedEntry,
+    clearTabsAndBookmarks,
   };
 });

@@ -149,7 +149,7 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
-  const { currentEntry, currentWorld, currentContentTab, } = storeToRefs(mainStore);
+  const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -184,6 +184,33 @@
 
   ////////////////////////////////
   // methods
+  const refreshEntry = async () => {
+    if (!currentEntry.value || !currentEntry.value.uuid) {
+      topic.value = null;
+    } else {
+      let newTopicFolder: TopicFolder;
+
+      newTopicFolder = currentEntry.value.topicFolder;
+      if (!newTopicFolder) 
+        throw new Error('Invalid entry topic in EntryContent.watch-currentEntry');
+
+      // we're going to show a content page
+      topic.value = newTopicFolder.topic;
+
+      // load starting data values
+      name.value = currentEntry.value.name || '';
+
+      // set the parent and valid parents
+      if (currentWorld.value) {    
+        parentId.value = currentWorld.value.getEntryHierarchy(currentEntry.value.uuid)?.parentId || null;
+
+        validParents.value = validParentItems(currentWorld.value as WBWorld, newTopicFolder, currentEntry.value).map((e)=> ({
+          id: e.id,
+          label: e.name || '',
+        }));
+      }
+    }
+  };
 
   ////////////////////////////////
   // event handlers
@@ -269,42 +296,20 @@
       tabs.value?.activate(newTab || 'description');    
   });
 
-  // if parent changes, make sure to update
-  watch(() => currentEntry.value.parentId, async (newParentId: string | null): Promise<void> => {
-    parentId.value = newParentId;    
+  // see if we want to force a full refresh (ex. when parent changes externally)
+  watch(refreshCurrentEntry, async (newValue: boolean): Promise<void> => {
+    if (newValue) {
+      await refreshEntry();
+      refreshCurrentEntry.value = false;
+    }
   });
   
   watch(currentEntry, async (newEntry: Entry | null, oldEntry: Entry | null): Promise<void> => {
+    await refreshEntry();
+
     // if we changed entries, reset the tab
     if (newEntry?.uuid!==oldEntry?.uuid )
       currentContentTab.value = 'description';
-
-    if (!newEntry || !newEntry.uuid) {
-      topic.value = null;
-    } else {
-      let newTopicFolder: TopicFolder;
-
-      newTopicFolder = newEntry.topicFolder;
-      if (!newTopicFolder) 
-        throw new Error('Invalid entry topic in EntryContent.watch-currentEntry');
-
-      // we're going to show a content page
-      topic.value = newTopicFolder.topic;
-
-      // load starting data values
-      name.value = newEntry.name || '';
-
-      // set the parent and valid parents
-      if (currentWorld.value) {    
-        // TODO - need to refresh both of these somehow if things are moved around in the directory
-        parentId.value = currentWorld.value.getEntryHierarchy(newEntry.uuid)?.parentId || null;
-
-        validParents.value = validParentItems(currentWorld.value as WBWorld, newTopicFolder, newEntry).map((e)=> ({
-          id: e.id,
-          label: e.name || '',
-        }));
-      }
-    }
   });
 
   ////////////////////////////////
