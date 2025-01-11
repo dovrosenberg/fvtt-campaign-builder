@@ -1,4 +1,6 @@
 import moduleJson from '@module';
+import { wbApp } from '@/applications/WorldBuilder';
+import { useNavigationStore } from '@/applications/stores/navigationStore';
 
 export enum KeyBindingKeys {
   closeTab = 'closeTab',   // close the current tab
@@ -14,7 +16,16 @@ export class KeyBindings {
         bindingId: KeyBindingKeys.closeTab,
         name: 'fwb.keybindings.closeTab',
         hint: 'fwb.keybindings.closeTabHelp',
-        onDown: () => { alert('close tab'); /* call function on getWorldBuilderApp */ },
+        onDown: () => { 
+          // only trap this when the window is open
+          if (wbApp && wbApp.rendered) {
+            const store = useNavigationStore();
+            const tab = store.getActiveTab();
+            if (tab) {
+              store.removeTab(tab.id);
+            }
+          }
+        },
         editable: [
           {
             key: 'KeyW',

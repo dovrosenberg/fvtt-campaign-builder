@@ -1,4 +1,5 @@
-import { KeyBindings, moduleId, ModuleSettings, updateModuleSettings } from '@/settings';
+import { moduleId, ModuleSettings, updateModuleSettings } from '@/settings';
+import { KeyBindings } from '@/settings/KeyBindings';
 import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel } from '@/documents';
 
 export function registerForInitHook() {

@@ -4,7 +4,7 @@ import { CampaignFlagKey, CampaignFlagType, WorldFlagKey, WorldFlagType, } from 
 
 export * from './UserFlags';
 export * from './ModuleSettings';
-export * from './KeyBindings';
+// export * from './KeyBindings';     // importing this here creates a circular dependency, since keybindings needs WorldBuilder which needs moduleId
 export * from './DocumentFlags';
 
 // NOTE: if the module ID changes, this needs to change... couldn't figure out how to automate it because
