@@ -33,6 +33,7 @@
         table: { style: 'margin: 0px;'}
       }"
       @row-select="emit('rowSelect', $event)"
+      @row-contextmenu="emit('rowContextMenu', $event)"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -182,13 +183,13 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['rowSelect', 'editItem', 'deleteItem', 'addItem', ]);
+  const emit = defineEmits(['rowSelect', 'editItem', 'deleteItem', 'addItem', 'rowContextMenu']);
 
   ////////////////////////////////
   // store
+
   ////////////////////////////////
   // data
-  ref<string>('');   // text to filter the table rows
   const pagination = ref<TablePagination>({
     sortField: 'name', 
     sortOrder: 1, 

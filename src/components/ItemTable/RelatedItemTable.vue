@@ -13,7 +13,6 @@
     @delete-item="onDeleteItemClick"
     @edit-item="onEditItemClick"
     @row-select="onRowSelect"
-
   />
 
   <EditRelatedItemDialog 
