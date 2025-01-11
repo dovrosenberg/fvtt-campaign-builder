@@ -4,105 +4,26 @@
     class="primevue-only"
     @drop="onDrop"
   >
-    <DataTable
-      v-model:filters="pagination.filters"
-      data-key="uuid"
-      :value="rows"
-      size="small"
-      paginator
-      paginator-position="bottom"
-      paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-      current-page-report-template="{first} to {last} of {totalRecords}"
-      :sort-field="pagination.sortField"
-      :sort-order="pagination.sortOrder"
-      :default-sort-order="1"
-      :total-records="rows.length"
-      :global-filter-fields="filterFields"
-      :rows="pagination.rowsPerPage"
-      filter-display="row"
-      selection-mode="single" 
-      :pt="{
-        header: { style: 'border: none' },
-        thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
-        row: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
-        pcPaginator: { 
-          // these are needed to override the foundry button styling
-          first: {
-            style: 'width: auto', 
-          },
-          root: { style: 'background: inherit', }
-        },
-        table: { style: 'margin: 0px;'}
-      }"
+    <BaseTable
+      :rows="rows"
+      :columns="columns"
+      :showAddButton="false"
+      :filterFields="filterFields"
+      :allowEdit="true"
+      :edit-item-label="localize('tooltips.editRelationship')"
+      :delete-item-label="localize('tooltips.deleteRelationship')"
+
+      @delete-item="onDeleteItemClick"
       @row-select="onRowSelect"
-      @row-contextmenu="onRowContextMenu"
-    >
-      <template #header>
-        <div style="display: flex; justify-content: space-between;">
-          <div></div>
-          <IconField icon-position="left">
-            <InputIcon>
-              <i class="fas fa-search"></i>
-            </InputIcon>
-            <InputText 
-              v-model="pagination.filters.global.value"  
-              placeholder="Keyword Search"
-            />
-          </IconField>
-        </div>
-      </template>
-      <template #empty>
-        {{ localize('labels.noResults') }} 
-      </template>
-      <template #loading>
-        {{ localize('labels.loading') }}...
-      </template>
-
-      <Column 
-        v-for="col of columns" 
-        :key="col.field" 
-        :field="col.field" 
-        :header="col.header" 
-        :header-style="col.style"
-        :body-style="col.style"
-        :sortable="col.sortable"
-      >
-        <!-- actions column format-->
-        <template
-          v-if="col.field==='actions'"
-          #body="{ data }"
-        >
-          <a 
-            class="" 
-            :data-tooltip="localize('tooltips.deleteRelationship')"
-            @click.stop="onDeleteItemClick(data.uuid)" 
-          >
-            <i class="fas fa-trash"></i>
-          </a>
-        </template>
-
-        <!-- template to add the filter headers fof name/type/role columns -->
-        <!-- <template 
-          v-if="['name', 'type', 'role'].includes(col.field)"
-          #filter="{ filterModel, filterCallback }"
-        >
-          <InputText 
-            v-model="filterModel.value" 
-            type="text" 
-            :placeholder="`Search by ${col.header}`" 
-            @input="filterCallback()" 
-          />
-        </template> -->
-      </Column>
-    </DataTable>
+      @row-context-menu="onRowContextMenu"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed,} from 'vue';
+  import { computed,} from 'vue';
   import { storeToRefs } from 'pinia';
-  import { FilterMatchMode } from '@primevue/core/api';
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local imports
@@ -110,16 +31,13 @@
   import { localize } from '@/utils/game';
 
   // library components
-  import DataTable, { DataTableRowContextMenuEvent } from 'primevue/datatable';
-  import Column from 'primevue/column';
-  import InputText from 'primevue/inputtext';
-  import IconField from 'primevue/iconfield';
-  import InputIcon from 'primevue/inputicon';
+  import { DataTableRowContextMenuEvent } from 'primevue/datatable';
 
   // local components
+  import BaseTable from '@/components/BaseTable/BaseTable.vue';
 
   // types
-  import { TablePagination, RelatedDocumentDetails, DocumentLinkType } from '@/types';
+  import { RelatedDocumentDetails, DocumentLinkType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -138,21 +56,6 @@
   ////////////////////////////////
   // data
     
-  ref<string>('');   // text to filter the table rows
-  const pagination = ref<TablePagination>({
-    sortField: 'name', 
-    sortOrder: 1, 
-    first: 0,
-    page: 1,
-    rowsPerPage: 5, 
-    filters: {
-      global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-      name: { value: null, matchMode: FilterMatchMode.CONTAINS },
-      type: { value: null, matchMode: FilterMatchMode.CONTAINS },
-      role: { value: null, matchMode: FilterMatchMode.CONTAINS },  // TODO: support any extra columns
-    },
-  });
-
   ////////////////////////////////
   // computed data
   const filterFields = computed(() => {
@@ -227,7 +130,7 @@
         { 
           icon: 'fa-eye', 
           iconFontClass: 'fas',
-          label: localize('SCENES.View'), 
+          label: game.i18n.localize('SCENES.View'), 
           onClick: async () => {
             const scene = await fromUuid(data.uuid) as Scene;
             await scene?.view();
@@ -236,17 +139,24 @@
         { 
           icon: 'fa-bullseye', 
           iconFontClass: 'fas',
-          label: localize('SCENES.Activate'), 
-          hidden: data.packId,   // can't activate in compendium
+          label: game.i18n.localize('SCENES.Activate'), 
+          hidden: !!data.packId,   // can't activate in compendium
           onClick: async () => {
             const scene = await fromUuid(data.uuid) as Scene;
             await scene?.activate();
           }
         },
         { 
+          icon: 'fa-bullseye', 
+          iconFontClass: 'fas',
+          label: 'Cannot activate from compendium',
+          disabled: true,
+          hidden: !data.packId,   // can't activate in compendium
+        },
+        { 
           icon: 'fa-cogs', 
           iconFontClass: 'fas',
-          label: localize('SCENES.Configure'), 
+          label: game.i18n.localize('SCENES.Configure'), 
           onClick: async () => {
             const scene = await fromUuid(data.uuid) as Scene;
             await scene?.sheet?.render(true);
@@ -255,8 +165,8 @@
         { 
           icon: 'fa-compass', 
           iconFontClass: 'fas',
-          label: localize('SCENES.ToggleNav'), 
-          hidden: data.packId,   // can't nav in compendium
+          label: game.i18n.localize('SCENES.ToggleNav'), 
+          hidden: !!data.packId,   // can't nav in compendium
           onClick: async () => {
             const scene = await fromUuid(data.uuid) as Scene;
             if (!scene)
@@ -268,6 +178,13 @@
               await scene?.update({navigation: !scene.navigation});
             }
           }
+        },
+        { 
+          icon: 'fa-compass', 
+          iconFontClass: 'fas',
+          label: 'Cannot toggle navigation from scene in a compendium', 
+          disabled: true,
+          hidden: !data.packId,   // can't nav in compendium
         },
       ]
     });
@@ -314,21 +231,6 @@
     }
   };
   
-  const onPaginationChanged = async function (newPagination: TablePagination | { filter: string; pagination: TablePagination }) {
-    // // this gets called for filter changes and pagination changes, but with a different argument !?
-    // if (Object.keys(newPagination).includes('pagination')) {
-    //   relationshipStore.relatedItemPagination[props.topic] = {
-    //     ...(newPagination as {pagination: TablePagination}).pagination,
-    //     filter: newPagination.filter,
-    //   };
-    // } else {
-    //   relationshipStore.relatedItemPagination[props.topic] = {
-    //     ...(newPagination as TablePagination),
-    //     filter: relationshipStore.relatedItemPagination[props.topic].filter,
-    //   };
-    // }
-  };
-
   ////////////////////////////////
   // watchers
   // reload when topic changes
