@@ -52,14 +52,14 @@
           {{ localize(relationship.label) }}
         </a>
         <a 
-          v-if="topic===Topic.Character"
+          v-if="topic===Topics.Character"
           class="item" 
           data-tab="actors"
         >
           {{ localize('labels.tabs.entry.actors') }}
         </a>
         <a 
-          v-if="topic===Topic.Location"
+          v-if="topic===Topics.Location"
           class="item" 
           data-tab="scenes"
         >
@@ -79,22 +79,22 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="characters">
           <div class="tab-inner flexcol">
-            <RelatedItemTable :topic="Topic.Character" />
+            <RelatedItemTable :topic="Topics.Character" />
           </div>
         </div> 
         <div class="tab description flexcol" data-group="primary" data-tab="locations">
           <div class="tab-inner flexcol">
-            <RelatedItemTable :topic="Topic.Location" />
+            <RelatedItemTable :topic="Topics.Location" />
           </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="organizations">
           <div class="tab-inner flexcol">
-            <RelatedItemTable :topic="Topic.Organization" />
+            <RelatedItemTable :topic="Topics.Organization" />
           </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="events">
           <div class="tab-inner flexcol">
-            <RelatedItemTable :topic="Topic.Event" />
+            <RelatedItemTable :topic="Topics.Event" />
           </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="scenes">
@@ -120,7 +120,6 @@
 
   // local imports
   import { getTopicIcon, } from '@/utils/misc';
-  import { WorldFlagKey, WorldFlags } from '@/settings';
   import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
@@ -135,9 +134,8 @@
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
 
   // types
-  import { ValidTopic, Topic, } from '@/types';
-  import { EntryDoc } from '@/documents';
-  import { Entry } from '@/classes';
+  import { TopicFolder, Topics, } from '@/types';
+  import { Entry, WBWorld } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -151,15 +149,15 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
-  const { currentEntry, currentWorldId, currentContentTab, } = storeToRefs(mainStore);
+  const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
   const topicData = {
-    [Topic.Character]: { namePlaceholder: 'placeholders.characterName', },
-    [Topic.Event]: { namePlaceholder: 'placeholders.characterName', },
-    [Topic.Location]: { namePlaceholder: 'placeholders.characterName', },
-    [Topic.Organization]: { namePlaceholder: 'placeholders.characterName', },
+    [Topics.Character]: { namePlaceholder: 'placeholders.characterName', },
+    [Topics.Event]: { namePlaceholder: 'placeholders.characterName', },
+    [Topics.Location]: { namePlaceholder: 'placeholders.characterName', },
+    [Topics.Organization]: { namePlaceholder: 'placeholders.characterName', },
   };
 
   const relationships = [
@@ -170,7 +168,7 @@
   ] as { tab: string; label: string }[];
 
   const tabs = ref<Tabs>();
-  const topic = ref<Topic | null>(null);
+  const topic = ref<Topics | null>(null);
   const name = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);
@@ -182,10 +180,37 @@
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
-  const typeList = computed((): string[] => (topic.value===null || !currentWorldId.value ? [] : WorldFlags.get(currentWorldId.value, WorldFlagKey.types)[topic.value]));
+  const typeList = computed((): string[] => (topic.value===null || !currentWorld.value ? [] : currentWorld.value.topicFolders[topic.value].types));
 
   ////////////////////////////////
   // methods
+  const refreshEntry = async () => {
+    if (!currentEntry.value || !currentEntry.value.uuid) {
+      topic.value = null;
+    } else {
+      let newTopicFolder: TopicFolder;
+
+      newTopicFolder = currentEntry.value.topicFolder;
+      if (!newTopicFolder) 
+        throw new Error('Invalid entry topic in EntryContent.watch-currentEntry');
+
+      // we're going to show a content page
+      topic.value = newTopicFolder.topic;
+
+      // load starting data values
+      name.value = currentEntry.value.name || '';
+
+      // set the parent and valid parents
+      if (currentWorld.value) {    
+        parentId.value = currentWorld.value.getEntryHierarchy(currentEntry.value.uuid)?.parentId || null;
+
+        validParents.value = validParentItems(currentWorld.value as WBWorld, newTopicFolder, currentEntry.value).map((e)=> ({
+          id: e.id,
+          label: e.name || '',
+        }));
+      }
+    }
+  };
 
   ////////////////////////////////
   // event handlers
@@ -213,10 +238,10 @@
 
   // new type added in the typeahead
   const onTypeItemAdded = async (added: string) => {
-    if (topic.value === null || !currentWorldId.value)
+    if (topic.value === null || !currentWorld.value)
       return;
 
-    const currentTypes = WorldFlags.get(currentWorldId.value, WorldFlagKey.types);
+    const currentTypes = currentWorld.value.topicFolders[topic.value].types;
 
     // if not a duplicate, add to the valid type lists 
     if (!currentTypes[topic.value].includes(added)) {
@@ -224,7 +249,8 @@
         ...currentTypes,
         [topic.value]: currentTypes[topic.value].concat([added]),
       };
-      await WorldFlags.set(currentWorldId.value, WorldFlagKey.types, updatedTypes);
+      currentWorld.value.topicFolders[topic.value].types = updatedTypes;
+      await currentWorld.value.save();
     }
 
     await onTypeSelectionMade(added);
@@ -244,7 +270,10 @@
     if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
       return;
 
-    await topicDirectoryStore.setNodeParent(currentEntry.value.topic, currentEntry.value.uuid, selection || null);
+    if (!currentEntry.value.topicFolder)
+      throw new Error('Invalid topic in EntryContent.onParentSelectionMade()');
+
+    await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder, currentEntry.value.uuid, selection || null);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
@@ -267,42 +296,20 @@
       tabs.value?.activate(newTab || 'description');    
   });
 
+  // see if we want to force a full refresh (ex. when parent changes externally)
+  watch(refreshCurrentEntry, async (newValue: boolean): Promise<void> => {
+    if (newValue) {
+      await refreshEntry();
+      refreshCurrentEntry.value = false;
+    }
+  });
+  
   watch(currentEntry, async (newEntry: Entry | null, oldEntry: Entry | null): Promise<void> => {
+    await refreshEntry();
+
     // if we changed entries, reset the tab
     if (newEntry?.uuid!==oldEntry?.uuid )
       currentContentTab.value = 'description';
-
-    if (!newEntry || !newEntry.uuid) {
-      topic.value = null;
-    } else {
-      let newTopic;
-
-      newTopic = newEntry.topic as ValidTopic;
-      if (!newTopic) 
-        throw new Error('Invalid entry topic in EntryContent.watch-currentEntry');
-
-      // we're going to show a content page
-      topic.value = newTopic;
-
-      // load starting data values
-      name.value = newEntry.name || '';
-
-      // set the parent and valid parents
-      if (!newEntry.uuid) {
-        parentId.value = null;
-        validParents.value = [];
-      } else {
-        if (currentWorldId.value) {
-          parentId.value = WorldFlags.getHierarchy(currentWorldId.value, newEntry.uuid)?.parentId || null;
-      
-          // TODO - need to refresh this somehow if things are moved around in the directory
-          validParents.value = validParentItems(currentWorldId.value, newTopic, newEntry).map((e)=> ({
-            id: e.id,
-            label: e.name || '',
-          }));
-        }
-      }
-    }
   });
 
   ////////////////////////////////

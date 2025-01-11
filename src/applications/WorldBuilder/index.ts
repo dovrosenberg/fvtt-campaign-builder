@@ -15,7 +15,7 @@ const pinia = createPinia();
 setActivePinia(pinia);
 
 // the global instance - needed for keybindings, among other things
-let wbApp: WorldBuilderApplication | null = null;
+export let wbApp: WorldBuilderApplication | null = null;
 
 export const getWorldBuilderApp = (): WorldBuilderApplication => {
   if (wbApp)

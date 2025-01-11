@@ -2,7 +2,7 @@
   <!-- these are the campaigns -->
   <ol class="fwb-campaign-list">
     <li 
-      v-if="currentWorldFolder" 
+      v-if="currentWorld" 
       class="fwb-world-folder folder flexcol" 
     >
       <header 
@@ -11,7 +11,7 @@
       >
         <h3 class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
-          {{ currentWorldFolder.name }} Campaigns
+          {{ currentWorld.name }} Campaigns
         </h3>
       </header>
 
@@ -42,7 +42,7 @@
   import DirectoryCampaignNodeComponent from './DirectoryCampaignNode.vue';
   
   // types
-  import { Campaign, DirectoryCampaignNode } from '@/classes';
+  import { Campaign, DirectoryCampaignNode, WBWorld } from '@/classes';
   import { WindowTabType } from '@/types';
   
   ////////////////////////////////
@@ -55,7 +55,7 @@
   // store
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentWorldFolder, currentWorldId } = storeToRefs(mainStore);
+  const { currentWorld, } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -86,8 +86,8 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.campaignsHeader.createCampaign'), 
           onClick: async () => {
-            if (currentWorldId.value) {
-              await Campaign.create();
+            if (currentWorld.value) {
+              await Campaign.create(currentWorld.value as WBWorld);
               await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }

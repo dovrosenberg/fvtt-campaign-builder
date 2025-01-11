@@ -125,7 +125,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentSession } = storeToRefs(mainStore);
+  const { currentSession, currentContentTab } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -192,8 +192,8 @@
 
   watch(currentSession, async (newSession: Session | null, oldSession: Session | null): Promise<void> => {
     // if we changed entries, reset the tab
-    // if (newEnewSessionntry?.uuid!==oldSession?.uuid )
-    //   currentContentTab.value = 'description';
+    if (newSession?.uuid!==oldSession?.uuid )
+      currentContentTab.value = 'description';
 
     if (newSession && newSession.uuid) {
       // load starting data values

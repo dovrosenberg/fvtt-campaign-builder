@@ -23,7 +23,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorldId, } = storeToRefs(mainStore);
+  const { currentWorld, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -245,6 +245,15 @@ export const useNavigationStore = defineStore('navigation', () => {
     // tabs.value = [ ...tabs.value ];
   };
 
+/**
+ * Closes all open tabs and removes all bookmarks. Should be used only when there is no
+ * world available.
+ */
+  const clearTabsAndBookmarks = async function () {
+    tabs.value = [];
+    bookmarks.value = [];
+  };
+
   // activate the given tab, first closing the current subsheet
   // tabId must exist
   const activateTab = async function (tabId: string): Promise<void> {
@@ -282,9 +291,6 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @returns A promise that resolves when the ID has been removed.
    */
   const cleanupDeletedEntry = async (contentId: string): Promise<void> => {
-    if (!currentWorldId.value)
-      return;
-
     // get the current set of tabs
     const tempTabs = tabs.value;
 
@@ -345,6 +351,11 @@ export const useNavigationStore = defineStore('navigation', () => {
     await _saveRecent();
   };
   
+  /**
+   * When an entry's name changes, propogate that change to the header of all open tabs referring to that entry.
+   * @param contentId - The ID of the entry whose name changed.
+   * @param newName - The new name of the entry.
+   */
   const propogateNameChange = async (contentId: string, newName: string):Promise<void> => {
     // update the tabs 
     let updated = false;
@@ -360,12 +371,12 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
 
   const loadTabs = async function () {
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return;
 
-    tabs.value = UserFlags.get(UserFlagKey.tabs, currentWorldId.value) || [];
-    bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, currentWorldId.value) || [];
-    recent.value = UserFlags.get(UserFlagKey.recentlyViewed, currentWorldId.value) || [];
+    tabs.value = UserFlags.get(UserFlagKey.tabs, currentWorld.value.uuid) || [];
+    bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, currentWorld.value.uuid) || [];
+    recent.value = UserFlags.get(UserFlagKey.recentlyViewed, currentWorld.value.uuid) || [];
 
     if (!tabs.value.length) {
       // if there are no tabs, add one
@@ -407,31 +418,28 @@ export const useNavigationStore = defineStore('navigation', () => {
   // internal functions
   // save tabs to database
   const _saveTabs = async function () {
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return;
 
-    await UserFlags.set(UserFlagKey.tabs, tabs.value, currentWorldId.value);
+    await UserFlags.set(UserFlagKey.tabs, tabs.value, currentWorld.value.uuid);
   };
 
   const _saveBookmarks = async function () {
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return;
 
-    await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentWorldId.value);
+    await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentWorld.value.uuid);
   };
 
   const _saveRecent = async function () {
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return;
 
-    await UserFlags.set(UserFlagKey.recentlyViewed, recent.value, currentWorldId.value);
+    await UserFlags.set(UserFlagKey.recentlyViewed, recent.value, currentWorld.value.uuid);
   };
 
   // add a new entity to the recent list
   const _updateRecent = async function (header: TabHeader): Promise<void> {
-    if (!currentWorldId.value)
-      return;
-
     let newRecent = recent.value;
 
     // remove any other places in history this already appears
@@ -475,5 +483,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     changeBookmarkPosition,
     propogateNameChange,
     cleanupDeletedEntry,
+    clearTabsAndBookmarks,
   };
 });

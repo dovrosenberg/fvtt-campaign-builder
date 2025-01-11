@@ -1,6 +1,5 @@
-import { TabSummary, Topic, ValidTopic, } from '@/types';
-import { WorldFlagKey, WorldFlags } from '@/settings';
-import { Entry } from '@/classes';
+import { TabSummary,  Hierarchy, Topics, } from '@/types';
+import { TopicFolder, Entry, WBWorld, } from '@/classes';
 
 // the string to show for items with no type
 export const NO_TYPE_STRING = '(none)';
@@ -8,45 +7,37 @@ export const NO_TYPE_STRING = '(none)';
 // the string to show for items with no name
 export const NO_NAME_STRING = '<Blank>';
 
-// types and functions used to manage topic hierarchies
-export type Hierarchy = {
-  parentId: string | null;   // id of parent
-  ancestors: string[];    // ids of all ancestors
-  children: string[];    // ids of all direct children
-  type: string;    // the type of the entry
-}
-
 // does this topic use hierarchy?
-export const hasHierarchy = (topic: Topic): boolean => [Topic.Organization, Topic.Location].includes(topic);
+export const hasHierarchy = (topic: Topics): boolean => [Topics.Organization, Topics.Location].includes(topic);
 
 // returns a list of valid possible children for a node
 // this is to populate a list of possible children for a node (ex. a dropdown)
 // a valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself
 // only works for topics that have hierachy
-export function validChildItems(currentWorldId: string, topic: ValidTopic, entry: Entry): TabSummary[] {
+export function validChildItems(world: WBWorld, topicFolder: TopicFolder, entry: Entry): TabSummary[] {
   if (!entry.uuid)
     return [];
 
-  const ancestors = WorldFlags.getHierarchy(currentWorldId, entry.uuid)?.ancestors || [];
+  const ancestors = world.getEntryHierarchy(entry.uuid)?.ancestors || [];
 
   // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
   // TODO: need to change find to forEach to populate an array
-  return Entry.filter(topic, (e: Entry)=>(e.uuid !== entry.uuid && !ancestors.includes(entry.uuid)))
+  return topicFolder.filterEntries((e: Entry)=>(e.uuid !== entry.uuid && !ancestors.includes(entry.uuid)))
     .map(mapEntryToSummary) || [];
 }
 
 // returns a list of valid possible parents for a node
 // a valid parent is anything that does not have this object as an ancestor (to avoid creating loops) 
 // only works for topics that have hierachy
-export function validParentItems(currentWorldId: string, topic: ValidTopic, entry: Entry): {name: string; id: string}[] {
+export function validParentItems(world: WBWorld, topicFolder: TopicFolder, entry: Entry): {name: string; id: string}[] {
   if (!entry.uuid)
     return [];
 
-  const hierarchies = WorldFlags.get(currentWorldId, WorldFlagKey.hierarchies);
+  const hierarchies = world.hierarchies;
 
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
-  return Entry
-    .filter(topic, (e: Entry)=>( e.uuid !== entry.uuid && !(hierarchies[e.uuid]?.ancestors || []).includes(entry.uuid)))
+  return topicFolder
+    .filterEntries((e: Entry)=>( e.uuid !== entry.uuid && !(hierarchies[e.uuid]?.ancestors || []).includes(entry.uuid)))
     .map((e: Entry)=>({ name: e.name, id: e.uuid}));
 }
 
@@ -57,8 +48,9 @@ const mapEntryToSummary = (entry: Entry): TabSummary => ({
 
 // after we delete an item, we need to remove it from any trees where it is a child or ancestor,
 //    along with all of the items that are now orphaned
-export const cleanTrees = async function(currentWorldId: string, topic: ValidTopic, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
-  const hierarchies = WorldFlags.get(currentWorldId, WorldFlagKey.hierarchies); 
+// Also cleans up the topic topNodes
+export const cleanTrees = async function(world: WBWorld, topicFolder: TopicFolder, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
+  const hierarchies = world.hierarchies;
   
   // remove deleted item and all its ancestors from any object who had them as ancestors previously
   // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
@@ -95,11 +87,12 @@ export const cleanTrees = async function(currentWorldId: string, topic: ValidTop
   delete hierarchies[deletedItemId];
 
   // store updated hierarchy
-  await WorldFlags.set(currentWorldId, WorldFlagKey.hierarchies, hierarchies);
+  world.hierarchies = hierarchies;
+  await world.save();
 
   // update topNodes
-  let topNodes = WorldFlags.getTopicFlag(currentWorldId, WorldFlagKey.topNodes, topic);
-  topNodes = topNodes.filter((s: string)=>s!=deletedItemId).concat(newTopNodes);
-  await WorldFlags.setTopicFlag(currentWorldId, WorldFlagKey.topNodes, topic, topNodes);
+  const topNodes = topicFolder.topNodes;
+  topicFolder.topNodes = topNodes.filter((s: string)=>s!=deletedItemId).concat(newTopNodes);
+  await topicFolder.save();
 };
 

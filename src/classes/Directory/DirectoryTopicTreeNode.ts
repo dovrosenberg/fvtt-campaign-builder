@@ -2,19 +2,17 @@
  * An abstract class representing a node of any sort in the topic tree structures
  */
 
-import { Entry, CollapsibleNode, DirectoryEntryNode, } from '@/classes';
-import { ValidTopic } from '@/types';
-import { WorldFlagKey } from '@/settings';
+import { Entry, CollapsibleNode, DirectoryEntryNode, TopicFolder, } from '@/classes';
 
 export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEntryNode> {
-  topic: ValidTopic;
+  topicFolder: TopicFolder;
   
-  constructor(id: string, topic: ValidTopic, expanded: boolean = false, parentId: string | null = null,
+  constructor(id: string, topicFolder: TopicFolder, expanded: boolean = false, parentId: string | null = null,
     children: string[] = [], loadedChildren: DirectoryEntryNode[] = [], ancestors: string[] = []
   ) {
-    super(id, expanded, WorldFlagKey.expandedIds, parentId, children, loadedChildren, ancestors);
+    super(id, expanded, parentId, children, loadedChildren, ancestors);
 
-    this.topic = topic;
+    this.topicFolder = topicFolder;
   }
 
   /**
@@ -25,7 +23,7 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
    */
   override async _loadNodeList(ids: string[], updateIds: string[] ): Promise<void> {
     // make sure we've loaded what we need
-    if (!CollapsibleNode._currentWorldId) {
+    if (!CollapsibleNode._currentWorld) {
       CollapsibleNode._loadedNodes = {};
       return;
     }
@@ -33,7 +31,7 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
     // we only want to load ones not already in _loadedNodes, unless its in updateIds
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
-    const entries = Entry.filter(this.topic, (e: Entry)=>uuidsToLoad.includes(e.uuid));
+    const entries = this.topicFolder.filterEntries((e: Entry)=>uuidsToLoad.includes(e.uuid));
 
     for (let i=0; i<entries.length; i++) {
       const newNode = DirectoryEntryNode.fromEntry(entries[i]);

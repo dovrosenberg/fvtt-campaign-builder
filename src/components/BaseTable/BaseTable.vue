@@ -1,9 +1,5 @@
 <template>
-  <!-- A table to display/manage related scenes and actors -->
-  <div 
-    class="primevue-only"
-    @drop="onDrop"
-  >
+  <div class="primevue-only">
     <DataTable
       v-model:filters="pagination.filters"
       data-key="uuid"
@@ -17,14 +13,16 @@
       :sort-order="pagination.sortOrder"
       :default-sort-order="1"
       :total-records="rows.length"
-      :global-filter-fields="filterFields"
+      :global-filter-fields="props.filterFields"
       :rows="pagination.rowsPerPage"
       filter-display="row"
       selection-mode="single" 
       :pt="{
         header: { style: 'border: none' },
         thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
-        row: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
+        row: { 
+          style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
+        },
         pcPaginator: { 
           // these are needed to override the foundry button styling
           first: {
@@ -34,11 +32,29 @@
         },
         table: { style: 'margin: 0px;'}
       }"
-      @row-select="onRowSelect"
+      @row-select="emit('rowSelect', $event)"
+      @row-contextmenu="emit('rowContextMenu', $event)"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
-          <div></div>
+          <Button
+            v-if="props.showAddButton"
+            color="primary" 
+            :label="props.addButtonLabel" 
+            style="flex: initial; width:auto;"
+            @click="emit('addItem')"
+          >
+            <template #icon>
+              <!-- icon="o_add_circle"  -->
+              <i class="fas fa-plus"></i>
+            </template>
+          </Button>
+          <!-- <q-btn v-if="showGenerate"
+            color="primary" 
+            icon="psychology" 
+            label="Generate" 
+            @click=""
+          /> -->
           <IconField icon-position="left">
             <InputIcon>
               <i class="fas fa-search"></i>
@@ -73,10 +89,18 @@
         >
           <a 
             class="" 
-            :data-tooltip="localize('tooltips.deleteRelationship')"
-            @click.stop="onDeleteItemClick(data.uuid)" 
+            :data-tooltip="props.deleteItemLabel"
+            @click.stop="emit('deleteItem', data.uuid)" 
           >
             <i class="fas fa-trash"></i>
+          </a>
+          <a 
+            v-if="props.allowEdit"
+            class="" 
+            :data-tooltip="props.editItemLabel"
+            @click.stop="emit('editItem', data)" 
+          >
+            <i class="fas fa-pen"></i>
           </a>
         </template>
 
@@ -95,20 +119,20 @@
       </Column>
     </DataTable>
   </div>
+
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { ref, PropType } from 'vue';
   import { FilterMatchMode } from '@primevue/core/api';
 
   // local imports
-  import { useCampaignStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // library components
-  import DataTable from 'primevue/datatable';
+  import Button from 'primevue/button';
+  import DataTable, { DataTableFilterMetaData } from 'primevue/datatable';
   import Column from 'primevue/column';
   import InputText from 'primevue/inputtext';
   import IconField from 'primevue/iconfield';
@@ -117,24 +141,55 @@
   // local components
 
   // types
-  import { TablePagination, RelatedDocumentDetails, } from '@/types';
-  
+  import { TablePagination,  } from '@/types';
+  type GridRow = { uuid: string; } & Record<string, string>;
+
   ////////////////////////////////
   // props
+  const props = defineProps({
+    showAddButton: { 
+      type: Boolean, 
+      default: false,
+    },
+    addButtonLabel: { 
+      type: String, 
+      default: '',
+    },
+    filterFields: {
+      type: Array as PropType<string[]>,   // list of column names you can filter on
+      default: [],
+    },
+    rows: {
+      type: Array as PropType<GridRow[]>,
+      required: true,
+    },
+    columns: {
+      type: Array as PropType<any[]>,
+      required: true,
+    },
+    allowEdit: {
+      type: Boolean,
+      default: false,
+    },
+    editItemLabel: {
+      type: String,
+      default: '',
+    },
+    deleteItemLabel: {
+      type: String,
+      required: true,
+    },
+  });
 
   ////////////////////////////////
   // emits
+  const emit = defineEmits(['rowSelect', 'editItem', 'deleteItem', 'addItem', 'rowContextMenu']);
 
   ////////////////////////////////
   // store
-  const campaignStore = useCampaignStore();
-  
-  const { relatedPCRows, } = storeToRefs(campaignStore);
 
   ////////////////////////////////
   // data
-    
-  ref<string>('');   // text to filter the table rows
   const pagination = ref<TablePagination>({
     sortField: 'name', 
     sortOrder: 1, 
@@ -143,93 +198,22 @@
     rowsPerPage: 5, 
     filters: {
       global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-      name: { value: null, matchMode: FilterMatchMode.CONTAINS },
-      type: { value: null, matchMode: FilterMatchMode.CONTAINS },
-      role: { value: null, matchMode: FilterMatchMode.CONTAINS },  // TODO: support any extra columns
-    },
+      ...props.filterFields.reduce((acc, field): Record<string, DataTableFilterMetaData> => {
+        acc[field] = { value: null, matchMode: FilterMatchMode.CONTAINS };
+        return acc;
+      }, {} as Record<string, DataTableFilterMetaData>)
+    }
   });
 
   ////////////////////////////////
   // computed data
-  const filterFields = computed(() => {
-    let base = ['name'];
-
-    return base;
-  });
-
-  type GridRow = { uuid: string; name: string };
-
-  const rows = computed((): GridRow[] => 
-    relatedPCRows.value.map((item: RelatedDocumentDetails) => {
-      const base = { 
-        uuid: item.uuid, 
-        name: item.name, 
-        packId: item.packId, 
-        location: item.packId ? `Compendium: ${item.packName}` : 'World',
-      };
-
-      return base;
-    })
-  );
-
-  const columns = computed((): any[] => {
-    // for now, just action and name
-    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
-    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
-    const locationColumn = { field: 'location', style: 'text-align: left', header: 'Location', sortable: true }; 
-
-    return [actionColumn, nameColumn, locationColumn];
-  });
 
   ////////////////////////////////
   // methods
 
   ////////////////////////////////
   // event handlers
-  const onRowSelect = async function (event: { data: GridRow} ) { 
-    const { data } = event;
 
-    const actor = await fromUuid(data.uuid) as Actor | Scene;
-    await actor?.sheet?.render(true);
-  
-    // Need to test open/activate for things in compendiums
-  };
-  
-  // call mutation to remove item  from relationship
-  const onDeleteItemClick = async function(_id: string) {
-    // show the confirmation dialog 
-    await Dialog.confirm({
-      title: localize('dialogs.confirmDeleteRelationship.title'),
-      content: localize('dialogs.confirmDeleteRelationship.message'),
-      yes: () => { 
-        void campaignStore.deletePC(_id); 
-      },
-      no: () => {},
-    });
-  };
-
-  const onDrop = async(event: DragEvent) => {
-    if (event.dataTransfer?.types[0]==='text/plain') {
-      try {
-        let data;
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
-
-        // make sure it's the right format
-        if (data.type==='Actor' && data.uuid) {
-          alert('need to add actor');
-          await campaignStore.addPC(data.uuid);
-        }
-
-        return true;
-      }
-      catch (err) {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  };
-  
   ////////////////////////////////
   // watchers
   // reload when topic changes

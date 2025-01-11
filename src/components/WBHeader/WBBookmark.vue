@@ -97,7 +97,7 @@
   // event handlers
   const onBookmarkClick = async () => { 
     if (!props.bookmark)
-    return;
+      return;
 
     await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: false });
   };

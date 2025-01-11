@@ -30,7 +30,7 @@
   // local components
 
   // types
-  import { Topic, ValidTopic } from '@/types';
+  import { ValidTopic } from '@/types';
   import { DirectoryTypeEntryNode, } from '@/classes';
   
   ////////////////////////////////
@@ -58,7 +58,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const topicDirectoryStore = useTopicDirectoryStore();
-  const { currentEntry, currentWorldId } = storeToRefs(mainStore);
+  const { currentEntry, currentWorld } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(topicDirectoryStore);
 
   ////////////////////////////////
@@ -80,7 +80,7 @@
   };
 
   const onDragStart = (event: DragEvent): void => {
-    if (!currentWorldId.value) { 
+    if (!currentWorld.value) { 
       event.preventDefault();
       return;
     }
@@ -96,7 +96,7 @@
       topic: toTopic(topicElement.dataset.topic),
       typeName: props.typeName,
       id: props.node.id,
-    } as { topic: Topic; typeName: string; id: string};
+    } as { topic: ValidTopic; typeName: string; id: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };

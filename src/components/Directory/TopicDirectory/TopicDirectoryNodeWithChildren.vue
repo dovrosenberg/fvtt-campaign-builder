@@ -14,7 +14,7 @@
         <div 
           :class="`${currentNode.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
           draggable="true"
-          @click="onDirectoryItemClick($event, currentNode)"
+          @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"
           @dragstart="onDragStart($event, currentNode.id)"
           @drop="onDrop"
           @contextmenu="onEntryContextMenu"
@@ -57,7 +57,7 @@
 
   // types
   import { ValidTopic } from '@/types';
-  import { Entry, DirectoryEntryNode, } from '@/classes';
+  import { Entry, DirectoryEntryNode, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -88,7 +88,7 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId, currentEntry, } = storeToRefs(mainStore);
+  const { currentWorld, currentEntry, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -100,10 +100,8 @@
   // computed data
   const sortedChildren = computed((): DirectoryEntryNode[] => {
     const children = (currentNode.value).loadedChildren;
-    return children.sort((a, b) => a.name.localeCompare(b.name));
+    return children.sort((a, b) => a.name.localeCompare(b.name)) as DirectoryEntryNode[];
   });
-
-
 
   ////////////////////////////////
   // methods
@@ -111,7 +109,9 @@
   ////////////////////////////////
   // event handlers
   const onEntryToggleClick = async (_event: MouseEvent) => {
-    currentNode.value = await topicDirectoryStore.toggleWithLoad(currentNode.value, !currentNode.value.expanded);
+    // it returns the same node, so vue doesn't necessarily realize it needs to rerender without a new copy
+    currentNode.value = await topicDirectoryStore.toggleWithLoad(currentNode.value as DirectoryEntryNode, !currentNode.value.expanded);
+    await topicDirectoryStore.refreshTopicDirectoryTree([currentNode.value.id]);
   };
 
   const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryEntryNode) => {
@@ -124,7 +124,7 @@
   
   // handle an entry dragging to another to nest
   const onDragStart = (event: DragEvent, id: string): void => {
-    if (!currentWorldId.value) { 
+    if (!currentWorld.value) { 
       event.preventDefault();
       return;
     }
@@ -138,7 +138,7 @@
   };
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (!currentWorldId.value)
+    if (!currentWorld.value)
       return false;
 
     if (event.dataTransfer?.types[0]==='text/plain') {
@@ -161,16 +161,17 @@
         return false;
 
       // is this a legal parent?
-      const childEntry = await Entry.fromUuid(data.childId); 
-
+      const topicFolder = currentWorld.value.topicFolders[props.topic];
+      const childEntry = await Entry.fromUuid(data.childId, topicFolder as TopicFolder); 
+      
       if (!childEntry)
         return false;
 
-      if (!(validParentItems(currentWorldId.value, props.topic, childEntry)).find(e=>e.id===parentId))
+      if (!(validParentItems(currentWorld.value as WBWorld, topicFolder as TopicFolder, childEntry)).find(e=>e.id===parentId))
         return false;
 
       // add the dropped item as a child on the other (will also refresh the tree)
-      await topicDirectoryStore.setNodeParent(props.topic, data.childId, parentId);
+      await topicDirectoryStore.setNodeParent(topicFolder as TopicFolder, data.childId, parentId);
 
       return true;
     } else {
@@ -183,7 +184,11 @@
     event.preventDefault();
     event.stopPropagation();
 
+    if (!currentWorld.value)
+      return;
+
     //show our menu
+    const topicFolder = currentWorld.value.topicFolders[props.topic];
     ContextMenu.showContextMenu({
       customClass: 'fwb',
       x: event.x,
@@ -193,7 +198,7 @@
         { 
           icon: 'fa-atlas',
           iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
+          label: localize(`contextMenus.topic.create.${props.topic}`) + ' as child', 
           onClick: async () => {
             // get the right folder
             const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
@@ -201,7 +206,7 @@
             if (!worldFolder || !props.topic)
               throw new Error('Invalid header in TopicDirectoryNodeWithChildren.onEntryContextMenu.onClick');
 
-            const entry = await topicDirectoryStore.createEntry(props.topic, { parentId: props.node.id} );
+            const entry = await topicDirectoryStore.createEntry(topicFolder as TopicFolder, { parentId: props.node.id} );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -213,7 +218,7 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.directoryEntry.delete'), 
           onClick: async () => {
-            await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
+            await topicDirectoryStore.deleteEntry(topicFolder.topic, props.node.id);
           }
         },
       ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))

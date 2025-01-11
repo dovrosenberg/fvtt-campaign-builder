@@ -91,7 +91,7 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorldId, currentEntry } = storeToRefs(mainStore);
+  const { currentWorld, currentEntry } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(topicDirectoryStore);
   
   ////////////////////////////////
@@ -117,7 +117,7 @@
   // you can drop an item on a type and it should reassign the type
   const onDrop = async (event: DragEvent): Promise<boolean> => {
     if (event.dataTransfer?.types[0]==='text/plain') {
-      if (!currentWorldId.value)
+      if (!currentWorld.value)
         return false;
 
       let data;
@@ -141,11 +141,11 @@
       const topic = toTopic(topicElement.dataset.topic);
 
       // if the topics don't match, can't drop
-      if (data.topic!==topic)
+      if (data.topic!==topic || topic === null)
         return false;
 
       // set the new type
-      const entry = await Entry.fromUuid(data.id);
+      const entry = await Entry.fromUuid(data.id, currentWorld.value.topicFolders[topic]);
       if (entry) {
         const oldType = entry.type;
         entry.type = currentType.value.name;
@@ -183,12 +183,12 @@
           label: `${localize('contextMenus.typeFolder.create')} ${props.type.name}`, 
           onClick: async () => {
             // get the right topic
-            const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
-            
-            if (!worldFolder)
-              throw new Error('Invalid header in TopicDirectoryGroupedType.onTypeContextMenu.onClick');
+            if (!currentWorld.value)
+            return;
 
-            const entry = await topicDirectoryStore.createEntry(props.topic, { type: props.type.name } );
+            const topicFolder = currentWorld.value.topicFolders[props.topic];
+            
+            const entry = await topicDirectoryStore.createEntry(topicFolder as TopicFolder, { type: props.type.name } );
 
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

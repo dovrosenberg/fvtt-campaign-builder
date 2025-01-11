@@ -8,14 +8,14 @@ import { useMainStore, } from './index';
 
 // types
 import { 
-  Topic, ValidTopic,
+  Topics, ValidTopic,
   RelatedItemDetails, FieldData,
   TablePagination,
 } from '@/types';
 import { reactive, Ref, watch } from 'vue';
 import { ref } from 'vue';
-import { Campaign, Entry } from '@/classes';
-import { CampaignDoc } from 'src/documents';
+import { Campaign, WBWorld } from '@/classes';
+import { CampaignDoc } from '@/documents';
 
 // the store definition
 export const useSessionStore = defineStore('session', () => {
@@ -34,44 +34,37 @@ export const useSessionStore = defineStore('session', () => {
     filters: {},
   };
 
-  const relatedItemPagination = reactive({
-    [Topic.Character]: ref<TablePagination>(defaultPagination),
-    [Topic.Event]: ref<TablePagination>(defaultPagination),
-    [Topic.Location]: ref<TablePagination>(defaultPagination),
-    [Topic.Organization]: ref<TablePagination>(defaultPagination),
-  } as Record<ValidTopic, Ref<TablePagination>>);
-
   const extraFields = {
-    [Topic.Character]: {
-      [Topic.Character]: [],
-      [Topic.Event]: [],
-      [Topic.Location]: [{field:'role', header:'Role'}],
-      [Topic.Organization]: [{field:'role', header:'Role'}],
+    [Topics.Character]: {
+      [Topics.Character]: [],
+      [Topics.Event]: [],
+      [Topics.Location]: [{field:'role', header:'Role'}],
+      [Topics.Organization]: [{field:'role', header:'Role'}],
     },
-    [Topic.Event]: {
-      [Topic.Character]: [],
-      [Topic.Event]: [],
-      [Topic.Location]: [],
-      [Topic.Organization]: [],
+    [Topics.Event]: {
+      [Topics.Character]: [],
+      [Topics.Event]: [],
+      [Topics.Location]: [],
+      [Topics.Organization]: [],
     },
-    [Topic.Location]: {
-      [Topic.Character]: [{field:'role', header:'Role'}],
-      [Topic.Event]: [],
-      [Topic.Location]: [],
-      [Topic.Organization]: [],
+    [Topics.Location]: {
+      [Topics.Character]: [{field:'role', header:'Role'}],
+      [Topics.Event]: [],
+      [Topics.Location]: [],
+      [Topics.Organization]: [],
     },
-    [Topic.Organization]: {
-      [Topic.Character]: [{field:'role', header:'Role'}],
-      [Topic.Event]: [],
-      [Topic.Location]: [],
-      [Topic.Organization]: [],
+    [Topics.Organization]: {
+      [Topics.Character]: [{field:'role', header:'Role'}],
+      [Topics.Event]: [],
+      [Topics.Location]: [],
+      [Topics.Organization]: [],
     },    
   } as Record<ValidTopic, Record<ValidTopic, FieldData>>;
   
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentContentTab, currentSession, } = storeToRefs(mainStore);
+  const { currentContentTab, currentWorld, currentSession, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -107,10 +100,10 @@ export const useSessionStore = defineStore('session', () => {
    * @param actorId The id of the actor to add
    */
   async function addPC(actorId: string): Promise<void> {
-    if (!currentSession.value || !actorId)
+    if (!currentSession.value || !actorId || !currentWorld.value)
       throw new Error('Invalid session/Actor in sessionStore.addPC()');
 
-    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc); 
+    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc, currentWorld.value as WBWorld); 
 
     // update the campaign
     if (!campaign.pcs.includes(actorId)) {
@@ -126,10 +119,10 @@ export const useSessionStore = defineStore('session', () => {
    * @param actorId The id of the actor to remove
    */
   async function deletePC(actorId: string): Promise<void> {
-    if (!currentSession.value || !actorId)
+    if (!currentSession.value || !actorId ||!currentWorld.value)
       throw new Error('Invalid session/Actor in sessionStore.deletePC()');
 
-    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc); 
+    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc, currentWorld.value as WBWorld); 
 
     // update the campaign
     const pcs = [...campaign.pcs];

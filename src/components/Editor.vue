@@ -114,7 +114,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentWorldId } = storeToRefs(mainStore);
+  const { currentWorld } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -247,13 +247,19 @@
   ////////////////////////////////
   // watchers
   watch(() => props.initialContent, async () =>{
-    enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, props.initialContent || '');
+    if (!currentWorld.value)
+      return;
+      
+    enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
   });
 
   
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
+    if (!currentWorld.value)
+      return;
+
     // we create a random ID so we can use multiple instances
     editorId.value  = 'fwb-editor-' + globalThis.foundry.utils.randomID();
 
@@ -264,7 +270,7 @@
     editor.value = null;
 
     // show the pretty text
-    enrichedInitialContent.value = await enrichFwbHTML(currentWorldId.value, props.initialContent || '');
+    enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
 
     if (!props.hasButton) {
       void activateEditor();

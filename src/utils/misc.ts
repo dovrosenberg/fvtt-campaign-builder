@@ -1,9 +1,9 @@
-import { Topic, WindowTabType } from '@/types';
+import { Topics, WindowTabType } from '@/types';
 
 // sometimes topic ends up as a string (ex. when pulling from DOM), so this makes sure
 //    it can always be compared properly (particuarly for use in switch or [].includes, etc.)
-export function toTopic(topic: string | number | Topic | null | undefined): Topic | null {
-  const castedTopic = typeof topic === 'string' ? parseInt(topic) as Topic : topic;
+export function toTopic(topic: string | number | Topics | null | undefined): Topics | null {
+  const castedTopic = typeof topic === 'string' ? parseInt(topic) as Topics : topic;
 
   return castedTopic ?? null;
 }
@@ -14,15 +14,15 @@ export function toWindowTabType(type: string | number | WindowTabType | null | u
   return castedType ?? null;
 }
 
-export function getTopicIcon(topic: string | number | Topic | null | undefined) {
+export function getTopicIcon(topic: string | number | Topics | null | undefined) {
   switch (toTopic(topic)) {
-    case Topic.Character: 
+    case Topics.Character: 
       return 'fa-user';
-    case Topic.Location: 
+    case Topics.Location: 
       return 'fa-location-dot';   //'fa-place-of-worship';
-    case Topic.Organization: 
+    case Topics.Organization: 
       return 'fa-flag';
-    case Topic.Event: 
+    case Topics.Event: 
       return 'fa-calendar-days';
     default: 
       return '';

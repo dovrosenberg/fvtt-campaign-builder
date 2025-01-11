@@ -4,8 +4,7 @@ import { getTopicIcon } from '@/utils/misc';
 
 // types
 import { EntryDoc } from '@/documents';
-import { Entry } from '@/classes';
-import { WorldFlagKey, WorldFlags } from '@/settings';
+import { WBWorld, Entry } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 
 let enricherConfig: {
@@ -75,7 +74,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
   let broken = false;
   if ( type === 'UUID' ) {
     Object.assign(data.dataset, {link: '', uuid: target});
-    entry = await Entry.fromUuid(target, {relative: relativeTo});
+    entry = await Entry.fromUuid(target, undefined, {relative: relativeTo});
   }
   else {
     broken = createLegacyContentLink(type as WORLD_DOCUMENT_TYPES, target, name, data);
@@ -91,7 +90,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
     if (entry.raw.documentName && entry.topic) {
       // check the pack to see if it's cross-world by seeing if the parent journal entry matches the 
       //    main one for the current world
-      const correctPack = WorldFlags.get(worldId, WorldFlagKey.topicEntries)?.[entry.topic];
+      const correctPack = (await WBWorld.fromUuid(worldId))?.topicIds?.[entry.topic];
 
       // handle the ones we don't care about
       if (correctPack !== entry.raw.parent?.uuid) {

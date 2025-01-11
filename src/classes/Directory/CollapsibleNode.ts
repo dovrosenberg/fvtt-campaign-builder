@@ -2,39 +2,36 @@
  * A class representing a node (which might have children) in the topic or campaign tree structures
  */
 
-import { WorldFlagKey, WorldFlags } from '@/settings';
-import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode } from '@/classes';
-
-type ExpandedIdsFlags = WorldFlagKey.expandedIds | WorldFlagKey.expandedCampaignIds;
+import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, WBWorld } from '@/classes';
 
 type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode;
 
 export abstract class CollapsibleNode<ChildType extends NodeType | never> {
-  protected static _currentWorldId: string | null = null;
-  protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode>;   // maps uuid to the node for easy lookup
+  protected static _currentWorld: WBWorld | null = null;
 
-  _expandedFlagKey: ExpandedIdsFlags;    // the WorldFlagKey for this type (regular or campaign)
-  id: string;
-  parentId: string | null;
-  children: string[];    // ids of all children (which might not be loaded)
-  ancestors: string[];    // ids of all ancestors
-  loadedChildren: ChildType[];
-  expanded: boolean;
+  /** maps uuid to the node for easy lookup **/
+  protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode>;   
+
+  public id: string;
+  public parentId: string | null;
+  public children: string[];    // ids of all children (which might not be loaded)
+  public ancestors: string[];    // ids of all ancestors
+  public loadedChildren: ChildType[];
+  public expanded: boolean;
   
-  constructor(id: string, expanded: boolean = false, expandedFlagKey: ExpandedIdsFlags, parentId: string | null = null,
+  constructor(id: string, expanded: boolean = false, parentId: string | null = null,
     children: string[] = [], loadedChildren: ChildType[] = [], ancestors: string[] = []
   ) {
     this.id = id; 
     this.expanded = expanded;
-    this._expandedFlagKey = expandedFlagKey;
     this.parentId = parentId;
     this.children = children;
     this.loadedChildren = loadedChildren;
     this.ancestors = ancestors;
   }
 
-  public static set currentWorldId(worldId: string | null) {
-    CollapsibleNode._currentWorldId = worldId;
+  public static set currentWorld(world: WBWorld | null) {
+    CollapsibleNode._currentWorld = world;
     CollapsibleNode._loadedNodes = {};
   }
 
@@ -54,24 +51,23 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
 
   // used to toggle entries and compendia (not worlds)
   public async collapse(): Promise<void> {
-    if (!CollapsibleNode._currentWorldId)
+    if (!CollapsibleNode._currentWorld)
       return;
 
-    await WorldFlags.unset(CollapsibleNode._currentWorldId, this._expandedFlagKey, this.id);
+    await CollapsibleNode._currentWorld.collapseNode(this.id);
   }
 
   public async expand(): Promise<void> {
-    if (!CollapsibleNode._currentWorldId)
+    if (!CollapsibleNode._currentWorld)
       return;
 
-    const expandedIds = WorldFlags.get(CollapsibleNode._currentWorldId, this._expandedFlagKey) as Record<any, any>|| {};
-    await WorldFlags.set(CollapsibleNode._currentWorldId, this._expandedFlagKey, {...expandedIds, [this.id]: true});
+    await CollapsibleNode._currentWorld.expandNode(this.id);
   } 
  
   // expand/contract  the given entry, loading the new item data
   // return the new node
   public async toggleWithLoad(expanded: boolean) : Promise<typeof this> {
-    if (this.expanded===expanded || !CollapsibleNode._currentWorldId)
+    if (this.expanded===expanded || !CollapsibleNode._currentWorld)
       return this;
     
     await this.toggle();
@@ -82,7 +78,7 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
 
     // make sure all children are properly loaded (if it's being opened)
     if (expanded) {
-      const expandedIds = WorldFlags.get(CollapsibleNode._currentWorldId, this._expandedFlagKey) as Record<any, any> || {};
+      const expandedIds = CollapsibleNode._currentWorld.expandedIds || {};
 
       await updatedNode.recursivelyLoadNode(expandedIds);
     }
@@ -97,6 +93,15 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
    */
   protected abstract _loadNodeList(ids: string[], updateEntryIds: string[] ): Promise<void>;
   
+  /**
+   * This function is used to load all of the child nodes of the current node and update their expanded states.
+   * It is used to ensure that the entire tree is properly loaded and updated when the user expands or contracts a node in the topic tree.
+   * 
+   * @param expandedNodes The IDs of nodes that are currently expanded in the topic tree.
+   * @param updateEntryIds The IDs of nodes that should be refreshed (i.e. reloaded) even if they are already present in the tree.
+   * 
+   * @returns A promise that resolves when all of the child nodes have been loaded and updated.
+   */
   public async recursivelyLoadNode(expandedNodes: Record<string, boolean | null>, updateEntryIds: string[] = []): Promise<void> {
     // load any children that haven't been loaded before
     // this guarantees all children are at least in CollapsibleNode._loadedNodes and updateEntryIds ones have been refreshed
@@ -119,6 +124,9 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
         if (!child)
           throw new Error('Child failed to load properly in CollapsibleNode.recursivelyLoadNode() ');
 
+        // make sure we're not about to add a duplicate
+        // @ts-ignore - child has to have a value here
+        this.loadedChildren = this.loadedChildren.filter((childNode)=>childNode.id!==child.id);
         this.loadedChildren.push(child);
       } else {
         // should never happen because everything should be in _loadedNodes
