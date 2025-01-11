@@ -5,4 +5,3 @@ coverage/
 .tscout/
 .npmrc
 tsconfig.tsbuildinfo
-.tscout/
