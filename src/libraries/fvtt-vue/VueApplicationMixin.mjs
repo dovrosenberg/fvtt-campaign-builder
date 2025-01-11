@@ -225,8 +225,11 @@ export function VueApplicationMixin(BaseApplication) {
      */
     async close(options = {}) {
       // Unmount the Vue Instance
-      if (this.#instance) this.#instance.unmount();
-
+      if (this.#instance) {
+        this.#instance.unmount();
+        this.#instance = null;
+      }
+      
       // Call the close method of the base application
       await super.close(options);
     }
