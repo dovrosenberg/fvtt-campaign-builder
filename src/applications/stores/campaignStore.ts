@@ -37,10 +37,6 @@ export const useCampaignStore = defineStore('campaign', () => {
     PC,
   }
 
-  const relatedItemPagination = reactive({
-    [CampaignTableTypes.PC]: ref<TablePagination>(defaultPagination),
-  } as Record<CampaignTableTypes, Ref<TablePagination>>);
-
   const extraFields = {
     [CampaignTableTypes.None]: [],
     [CampaignTableTypes.PC]: [],

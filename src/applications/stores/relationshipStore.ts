@@ -35,13 +35,6 @@ export const useRelationshipStore = defineStore('relationship', () => {
     filters: {},
   };
 
-  const relatedItemPagination = reactive({
-    [Topics.Character]: ref<TablePagination>(defaultPagination),
-    [Topics.Event]: ref<TablePagination>(defaultPagination),
-    [Topics.Location]: ref<TablePagination>(defaultPagination),
-    [Topics.Organization]: ref<TablePagination>(defaultPagination),
-  } as Record<ValidTopic, Ref<TablePagination>>);
-
   const extraFields = {
     [Topics.Character]: {
       [Topics.Character]: [],

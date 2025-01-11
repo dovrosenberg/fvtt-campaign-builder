@@ -314,21 +314,6 @@
     }
   };
   
-  const onPaginationChanged = async function (newPagination: TablePagination | { filter: string; pagination: TablePagination }) {
-    // // this gets called for filter changes and pagination changes, but with a different argument !?
-    // if (Object.keys(newPagination).includes('pagination')) {
-    //   relationshipStore.relatedItemPagination[props.topic] = {
-    //     ...(newPagination as {pagination: TablePagination}).pagination,
-    //     filter: newPagination.filter,
-    //   };
-    // } else {
-    //   relationshipStore.relatedItemPagination[props.topic] = {
-    //     ...(newPagination as TablePagination),
-    //     filter: relationshipStore.relatedItemPagination[props.topic].filter,
-    //   };
-    // }
-  };
-
   ////////////////////////////////
   // watchers
   // reload when topic changes
