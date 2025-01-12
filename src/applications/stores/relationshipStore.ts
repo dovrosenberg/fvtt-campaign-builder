@@ -319,8 +319,8 @@ export const useRelationshipStore = defineStore('relationship', () => {
       return;
 
     // for each one, go to the matching (reverse) relationship on the related item and update the name
-    for (const topic of Object.keys(entry.relationships)) {
-      for (const relatedEntryId of Object.keys(entry.relationships[topic])) {
+    for (const topicRelationships of Object.values(entry.relationships)) {
+      for (const relatedEntryId in topicRelationships) {
         const relatedEntry = await Entry.fromUuid(relatedEntryId);
         if (!relatedEntry || !relatedEntry.relationships || !entry.topic)
           continue;

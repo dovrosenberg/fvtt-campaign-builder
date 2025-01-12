@@ -35,6 +35,7 @@ export class Campaign {
 
     this._description = getFlag(this._campaignDoc, CampaignFlagKey.description) || '';
     this._pcs = getFlag(this._campaignDoc, CampaignFlagKey.pcs) || [];
+    this._name = campaignDoc.name;
   }
 
   static async fromUuid(campaignId: string, options?: Record<string, any>): Promise<Campaign | null> {
@@ -75,10 +76,10 @@ export class Campaign {
     if (this.world)
       return this.world;
 
-    if (!this._campaignDoc.folder)
+    if (!this._campaignDoc.compendium?.folder)
       throw new Error('Invalid folder id in Campaign.loadWorld()');
     
-    const worldDoc = await fromUuid(this._campaignDoc.folder.uuid) as WorldDoc;
+    const worldDoc = await fromUuid(this._campaignDoc.compendium.folder.uuid) as WorldDoc;
 
     if (!worldDoc)
       throw new Error('Invalid folder id in Campaign.loadWorld()');
@@ -167,17 +168,15 @@ export class Campaign {
         await world.unlock();
 
         // create a journal entry for the campaign
-        const newCampaignDocs = await JournalEntry.create({
+        const newCampaignDoc = await JournalEntry.create({
           name: name,
           folder: foundry.utils.parseUuid(world.uuid).id,
         },{
           pack: world.compendium.metadata.id,
-        }) as unknown as CampaignDoc[];  
+        }) as unknown as CampaignDoc;  
 
-        if (!newCampaignDocs)
+        if (!newCampaignDoc)
           throw new Error('Couldn\'t create new journal entry for campaign');
-
-        const newCampaignDoc = newCampaignDocs[0];
 
         await setFlagDefaults(newCampaignDoc, campaignFlagSettings);
 

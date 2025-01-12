@@ -117,14 +117,12 @@ export class WBWorld {
       this.campaigns = {};
 
     for (const id in this._campaignNames) {
-      if (!this.campaigns[id]) {
-        const campaignObj = await Campaign.fromUuid(this._campaignNames[id]);
-        if (!campaignObj)
-          throw new Error('Invalid campaign uuid in WBWorld.loadCampaigns()');
+      const campaignObj = await Campaign.fromUuid(id);
+      if (!campaignObj)
+        throw new Error('Invalid campaign uuid in WBWorld.loadCampaigns()');
 
-        campaignObj.world = this;
-        this.campaigns[id] = campaignObj;
-      }
+      campaignObj.world = this;
+      this.campaigns[id] = campaignObj;
     }
 
     return this.campaigns;
@@ -515,6 +513,8 @@ export class WBWorld {
   // change a campaign name inside all the world metadata
   // note: WORLD MUST BE UNLOCKED FIRST
   public async updateCampaignName(campaignId: string, name: string) {
+    this._campaignNames[campaignId] = name;
+    
     await setFlag(this._worldDoc, WorldFlagKey.campaignNames, {
       ... (getFlag(this._worldDoc, WorldFlagKey.campaignNames) || {}),
       [campaignId]: name

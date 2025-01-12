@@ -58,24 +58,24 @@ export const cleanTrees = async function(world: WBWorld, topicFolder: TopicFolde
   const itemsToRemove = [deletedItemId, ...deletedHierarchy.ancestors];
 
   const newTopNodes: string[] = [];
-  for (let i=0; i<Object.keys(hierarchies).length; i++) {
+  for (const id in hierarchies) {
     // if it's the one being deleted, skip it
-    if (Object.keys(hierarchies)[i]===deletedItemId)
+    if (id===deletedItemId)
       continue;
 
     // if its parent is being removed, move it up one 
-    if (hierarchies[Object.keys(hierarchies)[i]].parentId===deletedItemId) {
-      hierarchies[Object.keys(hierarchies)[i]].parentId=deletedHierarchy.parentId;
+    if (hierarchies[id].parentId===deletedItemId) {
+      hierarchies[id].parentId=deletedHierarchy.parentId;
 
       // and add to children of new parent or make a topnode
       if (deletedHierarchy.parentId) 
-        hierarchies[deletedHierarchy.parentId].children.push(Object.keys(hierarchies)[i]);
+        hierarchies[deletedHierarchy.parentId].children.push(id);
       else
-        newTopNodes.push(Object.keys(hierarchies)[i]);
+        newTopNodes.push(id);
     }
 
     // remove all the elements
-    hierarchies[Object.keys(hierarchies)[i]].ancestors = hierarchies[Object.keys(hierarchies)[i]].ancestors.filter((s: string)=>!itemsToRemove.includes(s));
+    hierarchies[id].ancestors = hierarchies[id].ancestors.filter((s: string)=>!itemsToRemove.includes(s));
   }
 
   // remove it from the children list of its parent
