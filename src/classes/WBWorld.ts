@@ -470,10 +470,11 @@ export class WBWorld {
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds);
   }
 
-  // remove a campaign from the world metadata
-  // update the flags - this doesn't remove the whole flag, because the keys are flattened
+  /**
+   * Remove a campaign from the world metadata.  NOTE: WORLD MUST BE UNLOCKED FIRST
+   * @param {string} campaignId - the uuid of the campaign to remove
+   */
   // TODO: should delete all the sessions from expanded entries, too
-  // note: WORLD MUST BE UNLOCKED FIRST
   public async deleteCampaignFromWorld(campaignId: string) {
     await unsetFlag(this._worldDoc, WorldFlagKey.campaignNames, campaignId);
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, campaignId);

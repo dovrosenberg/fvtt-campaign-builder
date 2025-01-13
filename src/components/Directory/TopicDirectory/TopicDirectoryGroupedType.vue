@@ -5,7 +5,6 @@
     v-if="filterNodes[props.topic]?.includes(currentType?.name)"
     class="fwb-type-item"
   >
-    <!-- TODO: track expanded state-->
     <div 
       class="details"
       :open="currentType.expanded"
