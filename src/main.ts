@@ -10,7 +10,7 @@ import { DevModeApi } from '@/libraries/foundry/devMode';
 // note: for the logs to actually work, you have to activate it in the UI under the config for the developer mode module
 Hooks.once('devModeReady', async ({ registerPackageDebugFlag: registerPackageDebugFlag }: DevModeApi) => {
   void registerPackageDebugFlag(moduleId, 'boolean');
-  //CONFIG.debug.hooks = true;
+  CONFIG.debug.hooks = true;
 });
 
 registerForHooks();
