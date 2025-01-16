@@ -123,9 +123,9 @@
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
       }
 
-      for (let i=0; i<Object.keys(campaignNames).length; i++) {
+      for (const campaignId in campaignNames) {
         // we need to load the actual entries - not just the index headers
-        const j = await(fromUuid(Object.keys(campaignNames)[i])) as CampaignDoc | null;
+        const j = await(fromUuid(campaignId)) as CampaignDoc | null;
         if (j) {
           campaignJournals[j.uuid] = j;
         }
@@ -173,9 +173,9 @@
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
       }
 
-      for (let i=0; i<Object.keys(world.campaignNames).length; i++) {
+      for (const campaignId in world.campaignNames) {
         // we need to load the actual entries - not just the index headers
-        const j = (await fromUuid(Object.keys(world.campaignNames)[i])) as CampaignDoc | null;
+        const j = (await fromUuid(campaignId)) as CampaignDoc | null;
         if (j) {
           campaignJournals[j.uuid] = j;
         }

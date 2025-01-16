@@ -184,9 +184,8 @@
     addDialogShow.value = true;
   };
 
-  const onRowSelect = async function (event: { data: GridRow} ) { 
-    // TODO - hold down control to open in a new tab
-    await navigationStore.openEntry(event.data.uuid, { newTab: false });
+  const onRowSelect = async function (event: { originalEvent: PointerEvent; data: GridRow} ) { 
+    await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
 
   // show the edit dialog

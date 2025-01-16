@@ -77,7 +77,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentContentTab } = storeToRefs(mainStore);
+  const { currentCampaign, currentContentTab, currentWorld } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -111,6 +111,10 @@
       if (currentCampaign.value && currentCampaign.value.name!==newValue) {
         currentCampaign.value.name = newValue;
         await currentCampaign.value.save();
+
+        // need to make sure the mapping is right, because that's where refreshCampaignDirectoryTree pulls from
+        if (currentWorld.value)
+          currentWorld.value.updateCampaignName(currentCampaign.value.uuid, newValue);
 
         await campaignDirectoryStore.refreshCampaignDirectoryTree([currentCampaign.value.uuid]);
         await navigationStore.propogateNameChange(currentCampaign.value.uuid, newValue);

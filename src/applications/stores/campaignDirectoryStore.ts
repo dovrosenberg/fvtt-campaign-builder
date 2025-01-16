@@ -62,8 +62,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     currentCampaignTree.value = [];
     
     // get the all the campaigns 
-    for (let i=0; i<Object.keys(campaigns).length; i++) {
-      const id = Object.keys(campaigns)[i];
+    for (const id in campaigns) {
       const campaign = await Campaign.fromUuid(id);
 
       if (!campaign)

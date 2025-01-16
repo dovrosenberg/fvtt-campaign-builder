@@ -140,7 +140,6 @@
           icon: getTabTypeIcon(WindowTabType.Campaign),
           iconFontClass: 'fas',
           label: localize('contextMenus.worldFolder.createCampaign'), 
-
           onClick: async () => {
             if (worldId) {
               throw new Error('TODO: need to load the world and then call createCampaign... ideally have an array of worlds somewhere so don\'t have to load from disk');
