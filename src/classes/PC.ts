@@ -1,5 +1,6 @@
 import { DOCUMENT_TYPES, PCDoc } from '@/documents';
 import { Campaign, WBWorld } from '@/classes';
+import { localize } from '@/utils/game';
 
 // represents a PC - these are stored in flag inside campaigns so saving, etc. is handled by campaign
 export class PC {
@@ -89,7 +90,7 @@ export class PC {
   // creates a new PC in the proper campaign journal in the given world
   static async create(campaign: Campaign): Promise<PC | null> 
   {
-    const nameToUse = '<Link to actor>';
+    const nameToUse = localize('placeholders.linkToActor');
     
     const world = await campaign.getWorld();
 
@@ -197,5 +198,54 @@ export class PC {
         actorId: value,
       }
     };
+  }
+
+  get campaignId(): string {
+    return this._pcDoc.parent.uuid;
+  }
+
+  // get direct access to the document (ex. to hook to foundry's editor)
+  get raw(): PCDoc {
+    return this._pcDoc;
+  }
+
+  // used to set arbitrary properties on the entryDoc
+  /**
+   * Updates a PC in the database
+   * 
+   * @returns {Promise<PC | null>} The updated PC, or null if the update failed.
+   */
+  public async save(): Promise<PC | null> {
+    const world = await this.getWorld();
+
+    const updateData = this._cumulativeUpdate;
+
+    // unlock compendium to make the change
+    await world.unlock();
+
+    const retval = await toRaw(this._pcDoc).update(updateData) || null;
+    if (retval) {
+      this._pcDoc = retval;
+    }
+
+    this._cumulativeUpdate = {};
+
+    await world.lock();
+
+    return retval ? this : null;
+  }
+
+  public async delete() {
+    if (!this._pcDoc)
+      return;
+
+    const world = await this.getWorld() as WBWorld;
+
+    // have to unlock the pack
+    await world.unlock();
+
+    await this._pcDoc.delete();
+
+    await world.lock();
   }
 }

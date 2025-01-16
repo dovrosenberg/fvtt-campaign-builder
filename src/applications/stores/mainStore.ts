@@ -120,8 +120,7 @@ export const useMainStore = defineStore('main', () => {
           if (!_currentPC.value)
             throw new Error('Invalid PC uuid in mainStore.setNewTab()');
 
-          TODO  --- 
-          _currentPC.value.campaign = currentWorld.value.campaigns[_currentSession.value.campaignId];
+          _currentPC.value.campaign = currentWorld.value.campaigns[_currentPC.value.campaignId];
         }
         break;
       default:  // make it a 'new entry' window

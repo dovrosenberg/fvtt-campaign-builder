@@ -164,9 +164,9 @@ export class Session {
 
   // used to set arbitrary properties on the entryDoc
   /**
-   * Updates an entry in the database
+   * Updates a session in the database
    * 
-   * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
+   * @returns {Promise<Session | null>} The updated session, or null if the update failed.
    */
   public async save(): Promise<Session | null> {
     const world = await this.getWorld();

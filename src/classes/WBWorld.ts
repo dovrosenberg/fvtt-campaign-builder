@@ -505,7 +505,7 @@ export class WBWorld {
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, entryId);
   }  
 
-  // remove a campaign from the world metadata
+  // remove a session from the world metadata
   // note: WORLD MUST BE UNLOCKED FIRST
   public async deleteSessionFromWorld(sessionId: string) {
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, sessionId);

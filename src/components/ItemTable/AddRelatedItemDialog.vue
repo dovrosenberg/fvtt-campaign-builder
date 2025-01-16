@@ -94,7 +94,7 @@
 
   // types
   import { Topics, ValidTopic, } from '@/types';
-  import { Entry } from '@/classes';
+  import { Entry, TopicFolder } from '@/classes';
 
   ////////////////////////////////
   // props

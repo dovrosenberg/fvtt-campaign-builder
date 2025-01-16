@@ -18,3 +18,8 @@ export type PaginationResult<T extends AnyRow> = {
 
 export type AnyPaginationResult = PaginationResult<any>;
 
+export type PCDetails = {
+    uuid: string;   // the other item
+    name: string;
+    playerName: string;
+}

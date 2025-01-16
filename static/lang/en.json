@@ -62,7 +62,8 @@
       "organizationName": "Organization Name",
       "campaignName": "Campaign Name",
       "sessionName": "Session Name",
-      "sessionNumber": "Session Number"
+      "sessionNumber": "Session Number",
+      "linkToActor": "Link to Actor"
     },
     "compendia": {
       "entry": "Entries",

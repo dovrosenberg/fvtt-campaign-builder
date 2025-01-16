@@ -22,4 +22,3 @@ export type RelatedDocumentDetails = {
   packName: string | null;
 };
 
-export type PCDetails = RelatedDocumentDetails;

@@ -12,8 +12,9 @@ import {
   FieldData,
   TablePagination,
 } from '@/types';
-import { reactive, Ref, watch } from 'vue';
+import { watch } from 'vue';
 import { ref } from 'vue';
+import { localize } from '@/utils/game';
 
 // the store definition
 export const useCampaignStore = defineStore('campaign', () => {
@@ -56,39 +57,6 @@ export const useCampaignStore = defineStore('campaign', () => {
   ///////////////////////////////
   // actions
   
-  /**
-   * Add an actor as a PC for the campaign
-   * @param actorId The id of the actor to add
-   */
-  async function addPC(actorId: string): Promise<void> {
-    if (!currentCampaign.value || !actorId)
-      throw new Error('Invalid campaign/Actor in campaignStore.addPC()');
-
-    // update the campaign
-    if (!currentCampaign.value.pcs.includes(actorId)) {
-      currentCampaign.value.pcs = [...currentCampaign.value.pcs, actorId]; 
-      await currentCampaign.value.save();
-    }
-
-    mainStore.refreshCampaign();
-  }
-
-  async function deletePC(actorId: string): Promise<void> {
-    if (!currentCampaign.value || !actorId)
-      throw new Error('Invalid campaign/Actor in campaignStore.deletePC()');
-
-    // update the campaign
-    const pcs = [...currentCampaign.value.pcs];
-    if (pcs.includes(actorId)) {
-      pcs.splice(pcs.indexOf(actorId), 1);
-      currentCampaign.value.pcs = pcs;
-      await currentCampaign.value.save();
-    }
-
-    mainStore.refreshCampaign();
-  }
-
-
   ///////////////////////////////
   // computed state
 
@@ -108,13 +76,15 @@ export const useCampaignStore = defineStore('campaign', () => {
       }
 
       if (table !== CampaignTableTypes.None) {
-        relatedPCRows.value = !currentCampaign.value.pcs ? [] :
-          Object.values(currentCampaign.value.pcs).map((id)=>{
+        const pcs = await currentCampaign.value.getPCs();
+        relatedPCRows.value = !pcs ? [] :
+          Object.values(pcs).map((pc: PC)=>{
+            const actor = pc.getActor();
+
             return { 
-              name: id, 
-              uuid: id,
-              packid: id,
-              packName: id,
+              name: actor?.name || localize('placeholders.linkToActor'),
+              playerName: pc.playerName,
+              uuid: pc.uuid,
             }
           }
           )|| [];
@@ -142,8 +112,5 @@ export const useCampaignStore = defineStore('campaign', () => {
   return {
     relatedPCRows,
     extraFields,
-
-    addPC,
-    deletePC,
   };
 });

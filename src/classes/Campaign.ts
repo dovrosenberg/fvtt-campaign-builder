@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 import { getFlag, moduleId, prepareFlagsForUpdate, setFlag, setFlagDefaults, unsetFlag } from '@/settings'; 
-import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, SessionDoc, WorldDoc } from '@/documents';
+import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, WorldDoc } from '@/documents';
 import { PC, Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs/input';
 import { Lore } from './Lore';
@@ -130,45 +130,6 @@ export class Campaign {
         description: value,
       }
     };
-  }
-
-  public async getAllPCs(): Promise<Record<string, PC>> {
-    const pcFlag = getFlag(this._campaignDoc, CampaignFlagKey.pcs);
-    const retval = {} as Record<string, PC>;
-
-    for (const id in pcFlag) {
-      const pc = await PC.fromRaw(pcFlag[id]);
-      if (pc)
-        retval[id] = pc;
-    }
-
-    return retval;
-  }
-
-/**
- * Updates or inserts a PC in the campaign.
- * If the PC already exists, it updates the existing entry. Otherwise, it adds the new PC.  It saves the change
- * immediately - you don't need to call Campaign.save()
- * 
- * @param {PC} pc - The PC object to be added or updated in the campaign.
- */
-  public async upsertPC(pc: PC): Promise<void> {
-    const currentPCs = getFlag(this._campaignDoc, CampaignFlagKey.pcs) || {};
-
-    await setFlag(this._campaignDoc, CampaignFlagKey.pcs, {
-      ...currentPCs,
-      [pc.id]: pc.getRaw()
-    });
-  }
-
-  public async deletePC(pcId: string): Promise<void> {
-    await unsetFlag(this._campaignDoc, CampaignFlagKey.pcs, pcId);
-  }
-
-  public async getPC(pcId: string): Promise<PC | null> {
-    const currentPCs = getFlag(this._campaignDoc, CampaignFlagKey.pcs) || {};
-
-    return currentPCs[pcId] ? await PC.fromRaw(currentPCs[pcId]) : null;
   }
 
   public async getAllLore(): Promise<Record<string, Lore>> {
@@ -306,7 +267,7 @@ export class Campaign {
    * @returns {Session[]} The entries that pass the filter
    */
   public filterSessions(filterFn: (e: Session) => boolean): Session[] { 
-    return (this._campaignDoc.pages.contents as unknown as SessionDoc[])
+    return (toRaw(this._campaignDoc).pages.contents as unknown as SessionDoc[])
       .filter((p) => p.type===DOCUMENT_TYPES.Session)
       .map((s: SessionDoc)=> new Session(s, this))
       .filter((s: Session)=> filterFn(s));
@@ -320,7 +281,7 @@ export class Campaign {
    * @returns {PC[]} The entries that pass the filter
    */
   public filterPCs(filterFn: (e: PC) => boolean): PC[] { 
-    return (this._campaignDoc.pages.contents as unknown as SessionDoc[])
+    return (toRaw(this._campaignDoc).pages.contents as unknown as SessionDoc[])
       .filter((p) => p.type===DOCUMENT_TYPES.PC)
       .map((s: PCDoc)=> new PC(s, this))
       .filter((s: PC)=> filterFn(s));

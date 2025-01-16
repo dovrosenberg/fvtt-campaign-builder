@@ -6,6 +6,10 @@ export default definePreset(Aura, {
     datatable: {
       headerBackground: 'inherit',
       headerCellBackground: 'inherit',
+      headerCellSelected: {
+        background: 'inherit',
+        color: 'var(--color-warm-3)',
+      },
       rowBackground: 'inherit',
       rowStripedBackground: 'inherit',
       footerCellBackground: 'inherit',

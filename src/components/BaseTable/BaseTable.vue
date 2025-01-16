@@ -30,7 +30,10 @@
           },
           root: { style: 'background: inherit', }
         },
-        table: { style: 'margin: 0px;'}
+        table: { style: 'margin: 0px;'},
+        column: {
+          sort: { style: 'background: red;' }
+        },
       }"
       @row-select="emit('rowSelect', $event)"
       @row-contextmenu="emit('rowContextMenu', $event)"
