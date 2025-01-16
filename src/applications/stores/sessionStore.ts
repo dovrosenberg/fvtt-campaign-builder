@@ -12,10 +12,8 @@ import {
   RelatedItemDetails, FieldData,
   TablePagination,
 } from '@/types';
-import { reactive, Ref, watch } from 'vue';
+import { watch } from 'vue';
 import { ref } from 'vue';
-import { Campaign, WBWorld } from '@/classes';
-import { CampaignDoc } from '@/documents';
 
 // the store definition
 export const useSessionStore = defineStore('session', () => {

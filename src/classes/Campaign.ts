@@ -203,9 +203,6 @@ export class Campaign {
 
         await world.lock();
 
-        if (!newCampaignDoc)
-          throw new Error('Couldn\'t create new campaign');
-
         const newCampaign = new Campaign(newCampaignDoc, world);
 
         world.campaignNames = {
