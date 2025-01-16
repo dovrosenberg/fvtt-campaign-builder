@@ -1,4 +1,5 @@
 import { FlagSettings } from '@/settings';
+import { RawLore, RawPC } from '@/classes';
 
 // camapaigns are journal entries, not documents
 export interface CampaignDoc extends JournalEntry {
@@ -8,13 +9,15 @@ export interface CampaignDoc extends JournalEntry {
 export enum CampaignFlagKey {
   isCampaign = 'isCampaign',    // used to mark the JE as a campaign
   description = 'description',
-  pcs = 'pcs',   // actor uuids
+  pcs = 'pcs',   
+  lore = 'lore',
 }
 
 export type CampaignFlagType<K extends CampaignFlagKey> =
   K extends CampaignFlagKey.isCampaign ? true :
   K extends CampaignFlagKey.description ? string :
-  K extends CampaignFlagKey.pcs ? string[] : 
+  K extends CampaignFlagKey.pcs ? Record<string, RawPC> : 
+  K extends CampaignFlagKey.lore ? Record<string, RawLore> :
   never;  
 
 export const flagSettings = [
@@ -28,7 +31,13 @@ export const flagSettings = [
   },
   {
     flagId: CampaignFlagKey.pcs,
-    default: [] as string[],
+    default: {} as Record<string, RawPC>,
+    keyedByUUID: true,
+  },
+  {
+    flagId: CampaignFlagKey.lore,
+    default: {} as Record<string, RawLore>,
+    keyedByUUID: true,
   },
 ] as FlagSettings<CampaignFlagKey, {[K in CampaignFlagKey]: CampaignFlagType<K>}>[];
 

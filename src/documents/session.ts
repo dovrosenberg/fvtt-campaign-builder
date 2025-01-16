@@ -25,6 +25,8 @@ export class SessionDataModel<Schema extends SessionSchemaType, ParentNode exten
 
 // @ts-ignore - error because ts can't properly handle the structure of JournalEntryPage
 export interface SessionDoc extends JournalEntryPage {
+  __type: 'SessionDoc';
+
   system: {
     number: number;
     description: string | undefined;

@@ -1,6 +1,6 @@
 import { moduleId, ModuleSettings, updateModuleSettings } from '@/settings';
 import { KeyBindings } from '@/settings/KeyBindings';
-import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel } from '@/documents';
+import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel, PCDataModel } from '@/documents';
 
 export function registerForInitHook() {
   Hooks.once('init', init);
@@ -16,7 +16,8 @@ async function init(): Promise<void> {
   // register the data models
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
     [DOCUMENT_TYPES.Entry]: EntryDataModel,
-    [DOCUMENT_TYPES.Session]: SessionDataModel
+    [DOCUMENT_TYPES.Session]: SessionDataModel,
+    [DOCUMENT_TYPES.PC]: PCDataModel,
   });
 
   DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, JournalPageSheet, {
@@ -25,6 +26,10 @@ async function init(): Promise<void> {
   });
   DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, JournalPageSheet, {
     types: [DOCUMENT_TYPES.Session],
+    makeDefault: true
+  });
+  DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, JournalPageSheet, {
+    types: [DOCUMENT_TYPES.PC],
     makeDefault: true
   });
 }

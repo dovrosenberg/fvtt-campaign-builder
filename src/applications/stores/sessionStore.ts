@@ -95,46 +95,7 @@ export const useSessionStore = defineStore('session', () => {
   //   mainStore.refreshEntry();
   // }
 
-  /**
-   * Add an actor as a PC for the campaign
-   * @param actorId The id of the actor to add
-   */
-  async function addPC(actorId: string): Promise<void> {
-    if (!currentSession.value || !actorId || !currentWorld.value)
-      throw new Error('Invalid session/Actor in sessionStore.addPC()');
-
-    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc, currentWorld.value as WBWorld); 
-
-    // update the campaign
-    if (!campaign.pcs.includes(actorId)) {
-      campaign.pcs = [...campaign.pcs, actorId]; 
-      await campaign.save();
-    }
-
-    mainStore.refreshSession();
-  }
-
-  /**
-   * Remove a PC from the current campaign
-   * @param actorId The id of the actor to remove
-   */
-  async function deletePC(actorId: string): Promise<void> {
-    if (!currentSession.value || !actorId ||!currentWorld.value)
-      throw new Error('Invalid session/Actor in sessionStore.deletePC()');
-
-    const campaign = new Campaign(await fromUuid(currentSession.value.campaignId) as CampaignDoc, currentWorld.value as WBWorld); 
-
-    // update the campaign
-    const pcs = [...campaign.pcs];
-    if (pcs.includes(actorId)) {
-      pcs.splice(pcs.indexOf(actorId), 1);
-      campaign.pcs = pcs;
-      await campaign.save();
-    }
-
-    mainStore.refreshSession();
-  }
-
+  // /**
   ///////////////////////////////
   // computed state
 
@@ -161,8 +122,5 @@ export const useSessionStore = defineStore('session', () => {
   return {
     relatedPCRows,
     extraFields,
-
-    addPC,
-    deletePC,
   };
 });

@@ -4,7 +4,7 @@
       <header class="journal-sheet-header flexrow">
         <div class="header-details fwb-content-header">
           <h1 class="header-name flexrow">
-            <i :class="`fas ${getTabTypeIcon(WindowTabType.Session)} sheet-icon`"></i>
+            <i :class="`fas ${getTabTypeIcon(WindowTabType.PC)} sheet-icon`"></i>
             <InputText
               v-model="name"
               for="fwb-input-name" 

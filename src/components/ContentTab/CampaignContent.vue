@@ -2,9 +2,6 @@
   <form :class="'flexcol fwb-journal-subsheet'">
     <div ref="contentRef" class="sheet-container detailed flexcol">
       <header class="journal-sheet-header flexrow">
-        <div class="sheet-image">
-          <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
-        </div>
         <div class="header-details fwb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${icon} sheet-icon`"></i>
@@ -23,9 +20,13 @@
       <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.campaign.pcs') }}</a>
+        <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
       </nav>
       <div class="fwb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
+          <div class="sheet-image">
+            <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
+          </div>
           <div class="tab-inner flexcol">
             <Editor 
               :initial-content="currentCampaign?.description || ''"

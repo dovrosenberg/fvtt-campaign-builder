@@ -195,7 +195,7 @@
     // Need to test open/activate for things in compendiums
   };
   
-  // call mutation to remove item  from relationship
+  // call mutation to remove item from relationship
   const onDeleteItemClick = async function(_id: string) {
     // show the confirmation dialog 
     await Dialog.confirm({
@@ -215,10 +215,11 @@
         data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
 
         // make sure it's the right format
-        if (data.type==='Actor' && data.uuid) {
-          alert('need to add actor');
-          await campaignStore.addPC(data.uuid);
-        }
+        throw new Error('WHAT SHOULD HAPPEN WHEN DROPPING ON CAMPAIGN');
+        // if (data.type==='Actor' && data.uuid) {
+        //   alert('need to add actor');
+        //   await campaignStore.addPC(data.uuid);
+        // }
 
         return true;
       }

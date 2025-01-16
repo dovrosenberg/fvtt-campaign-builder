@@ -1,8 +1,9 @@
 import { toRaw } from 'vue';
-import { getFlag, moduleId, prepareFlagsForUpdate, setFlagDefaults } from '@/settings'; 
-import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, SessionDoc, WorldDoc } from '@/documents';
-import { Session, WBWorld } from '@/classes';
+import { getFlag, moduleId, prepareFlagsForUpdate, setFlag, setFlagDefaults, unsetFlag } from '@/settings'; 
+import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, SessionDoc, WorldDoc } from '@/documents';
+import { PC, Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs/input';
+import { Lore } from './Lore';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
@@ -16,7 +17,6 @@ export class Campaign {
 
   // saved in flags
   private _description: string;
-  private _pcs: string[];   // Actor ids
 
   /**
    * 
@@ -34,7 +34,6 @@ export class Campaign {
     this.world = world || null;
 
     this._description = getFlag(this._campaignDoc, CampaignFlagKey.description) || '';
-    this._pcs = getFlag(this._campaignDoc, CampaignFlagKey.pcs) || [];
     this._name = campaignDoc.name;
   }
 
@@ -60,11 +59,9 @@ export class Campaign {
    */
   public async getWorld(): Promise<WBWorld> {
     if (!this.world)
-      await this.loadWorld();
+      this.world = await this.loadWorld();
 
-    const world = this.world as WBWorld;
-
-    return world;
+    return this.world;
   }
   
   /**
@@ -87,11 +84,11 @@ export class Campaign {
     return new WBWorld(worldDoc);
   }
   
-  // we return the next number after the highest currently existing sessio nnumber
+  // we return the next number after the highest currently existing session number
   get nextSessionNumber(): number {
-    let maxNumber = -1;
+    let maxNumber = 0;
     this._campaignDoc.pages.forEach((page: JournalEntryPage) => {
-      if ((page as unknown as SessionDoc).system.number > maxNumber)
+      if (page.type === DOCUMENT_TYPES.Session && (page as unknown as SessionDoc).system.number > maxNumber)
         maxNumber = (page as unknown as SessionDoc).system.number;
     });
 
@@ -100,7 +97,7 @@ export class Campaign {
 
   // returns the uuids of all the sessions
   get sessions(): string[] {
-    return this._campaignDoc.pages.map((page) => page.uuid);
+    return this._campaignDoc.pages.filter((p) => p.type===DOCUMENT_TYPES.Session).map((page) => page.uuid);
   }
 
   get name(): string {
@@ -135,19 +132,82 @@ export class Campaign {
     };
   }
 
-  get pcs(): readonly string[] {
-    return this._pcs;
+  public async getAllPCs(): Promise<Record<string, PC>> {
+    const pcFlag = getFlag(this._campaignDoc, CampaignFlagKey.pcs);
+    const retval = {} as Record<string, PC>;
+
+    for (const id in pcFlag) {
+      const pc = await PC.fromRaw(pcFlag[id]);
+      if (pc)
+        retval[id] = pc;
+    }
+
+    return retval;
   }
 
-  set pcs(value: readonly string[]) {
-    this._pcs = value.concat();  // clone to avoid being able to edit outside
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        pcs: value,
-      }
-    };
+/**
+ * Updates or inserts a PC in the campaign.
+ * If the PC already exists, it updates the existing entry. Otherwise, it adds the new PC.  It saves the change
+ * immediately - you don't need to call Campaign.save()
+ * 
+ * @param {PC} pc - The PC object to be added or updated in the campaign.
+ */
+  public async upsertPC(pc: PC): Promise<void> {
+    const currentPCs = getFlag(this._campaignDoc, CampaignFlagKey.pcs) || {};
+
+    await setFlag(this._campaignDoc, CampaignFlagKey.pcs, {
+      ...currentPCs,
+      [pc.id]: pc.getRaw()
+    });
+  }
+
+  public async deletePC(pcId: string): Promise<void> {
+    await unsetFlag(this._campaignDoc, CampaignFlagKey.pcs, pcId);
+  }
+
+  public async getPC(pcId: string): Promise<PC | null> {
+    const currentPCs = getFlag(this._campaignDoc, CampaignFlagKey.pcs) || {};
+
+    return currentPCs[pcId] ? await PC.fromRaw(currentPCs[pcId]) : null;
+  }
+
+  public async getAllLore(): Promise<Record<string, Lore>> {
+    const loreFlag = getFlag(this._campaignDoc, CampaignFlagKey.lore);
+    const retval = {} as Record<string, Lore>;
+
+    for (const id in loreFlag) {
+      const lore = await Lore.fromRaw(loreFlag[id]);
+      if (lore)
+        retval[id] = lore;
+    }
+
+    return retval;
+  }
+
+/**
+ * Updates or inserts a lore in the campaign.
+ * If the lore already exists, it updates the existing entry. Otherwise, it adds the new lore.  It saves the change
+ * immediately - you don't need to call Campaign.save()
+ * 
+ * @param {Lore} lore - The PC object to be added or updated in the campaign.
+ */
+  public async upsertLore(lore: Lore): Promise<void> {
+    const currentLore = getFlag(this._campaignDoc, CampaignFlagKey.lore) || {};
+
+    await setFlag(this._campaignDoc, CampaignFlagKey.lore, {
+      ...currentLore,
+      [lore.id]: lore.getRaw()
+    });
+  }
+
+  public async deleteLore(loreId: string): Promise<void> {
+    await unsetFlag(this._campaignDoc, CampaignFlagKey.lore, loreId);
+  }
+
+  public async getLore(loreId: string): Promise<Lore | null> {
+    const currentLore = getFlag(this._campaignDoc, CampaignFlagKey.lore) || {};
+
+    return currentLore[loreId] ? await Lore.fromRaw(currentLore[loreId]) : null;
   }
 
   /**
@@ -191,6 +251,7 @@ export class Campaign {
           ...world.campaignNames,
           [newCampaign.uuid]: name,
         };
+        await world.save();
         
         return newCampaign;
       }
@@ -225,18 +286,45 @@ export class Campaign {
   }
   
   /**
+   * Find all PCs for a given campaign
+   * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
+   *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
+   *            improvements in lots of places
+   * @param campaignId the campaign to search
+   * @returns a list of Entries
+   */
+  public async getPCs(): Promise<PC[]> {
+    // we find all journal entries with this topic
+    return this.filterPCs(()=>true);
+  }
+
+  /**
    * Given a filter function, returns all the matching Sessions
    * inside this campaign
    * 
-   * @param {(e: Entry) => boolean} filterFn - The filter function
-   * @returns {Entry[]} The entries that pass the filter
+   * @param {(e: Session) => boolean} filterFn - The filter function
+   * @returns {Session[]} The entries that pass the filter
    */
   public filterSessions(filterFn: (e: Session) => boolean): Session[] { 
     return (this._campaignDoc.pages.contents as unknown as SessionDoc[])
+      .filter((p) => p.type===DOCUMENT_TYPES.Session)
       .map((s: SessionDoc)=> new Session(s, this))
       .filter((s: Session)=> filterFn(s));
   }
 
+  /**
+   * Given a filter function, returns all the matching Sessions
+   * inside this campaign
+   * 
+   * @param {(e: PC) => boolean} filterFn - The filter function
+   * @returns {PC[]} The entries that pass the filter
+   */
+  public filterPCs(filterFn: (e: PC) => boolean): PC[] { 
+    return (this._campaignDoc.pages.contents as unknown as SessionDoc[])
+      .filter((p) => p.type===DOCUMENT_TYPES.PC)
+      .map((s: PCDoc)=> new PC(s, this))
+      .filter((s: PC)=> filterFn(s));
+  }
   
   /**
    * Updates a campaign in the database 
@@ -246,10 +334,7 @@ export class Campaign {
   public async save(): Promise<Campaign | null> {
     const updateData = this._cumulativeUpdate;
 
-    let world = this.world;
-
-    if (!world)
-      world = await this.loadWorld();
+    let world = await this.getWorld();
 
     // unlock compendium to make the change
     await world.unlock();
@@ -289,9 +374,7 @@ export class Campaign {
 
     const id = this._campaignDoc.uuid;
 
-    let world = this.world;
-    if (!world)
-      world = await this.loadWorld();
+    let world = await this.getWorld();
 
     // have to unlock the pack
     await world.unlock();

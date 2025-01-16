@@ -36,16 +36,17 @@
         },
         "campaign": {
           "description": "Description",
-          "pcs": "PCs"
+          "pcs": "PCs",
+          "lore": "Lore"
         },
         "session": {
-          "description": "Description",
+          "notes": "Notes",
           "pcs": "PCs",
-          "npcs": "NPCs",
-          "scenes": "Scenes",
           "start": "Start",
-          "secrets": "Secrets/Clues",
+          "lore": "Lore",
+          "scenes": "Scenes",
           "locations": "Locations",
+          "npcs": "NPCs",
           "monsters": "Monsters",
           "magic": "Magic Items"
         }

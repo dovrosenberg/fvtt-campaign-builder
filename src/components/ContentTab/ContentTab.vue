@@ -12,6 +12,9 @@
     <div v-else-if="currentContentType===WindowTabType.Campaign">
       <CampaignContent />
     </div>
+    <div v-else-if="currentContentType===WindowTabType.PC">
+      <PCContent />
+    </div>
     <div v-else-if="currentContentType===WindowTabType.NewTab">
       <HomePage />
     </div>
@@ -34,6 +37,7 @@
   // local components
   import EntryContent from './EntryContent.vue';
   import SessionContent from './SessionContent.vue';
+  import PCContent from './PCContent.vue';
   import CampaignContent from './CampaignContent.vue';
   import HomePage from './HomePage.vue';
   

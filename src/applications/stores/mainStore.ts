@@ -23,6 +23,7 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // internal state
   const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
+  const _currentPC = ref<PC | null>(null);  // current PC (when showing a PC tab)
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
@@ -80,6 +81,12 @@ export const useMainStore = defineStore('main', () => {
 
     _currentTab.value = tab;
 
+    // clear everything
+    _currentEntry.value = null;
+    _currentCampaign.value = null;
+    _currentSession.value = null;
+    _currentPC.value = null;
+
     switch (tab.tabType) {
       case WindowTabType.Entry:
         if (tab.header.uuid) {
@@ -88,33 +95,34 @@ export const useMainStore = defineStore('main', () => {
             throw new Error('Invalid entry uuid in mainStore.setNewTab()');
 
           _currentEntry.value.topicFolder = currentWorld.value.topicFolders[_currentEntry.value.topic];
-        } else {
-          _currentEntry.value = null;
         }
-        _currentCampaign.value = null;
-        _currentSession.value = null;
         break;
       case WindowTabType.Campaign:
         if (tab.header.uuid) {
           _currentCampaign.value = await Campaign.fromUuid(tab.header.uuid);
-        } else {
-          _currentCampaign.value = null;
+
+          if (!_currentCampaign.value)
+            throw new Error('Invalid campaign uuid in mainStore.setNewTab()');
         }
-        _currentEntry.value = null;
-        _currentSession.value = null;
         break;
       case WindowTabType.Session:
         if (tab.header.uuid) {
           _currentSession.value = await Session.fromUuid(tab.header.uuid);
           if (!_currentSession.value)
-            throw new Error('Invalid entry uuid in mainStore.setNewTab()');
+            throw new Error('Invalid session uuid in mainStore.setNewTab()');
 
           _currentSession.value.campaign = currentWorld.value.campaigns[_currentSession.value.campaignId];
-        } else {
-          _currentSession.value = null;
         }
-        _currentEntry.value = null;
-        _currentCampaign.value = null;
+        break;
+      case WindowTabType.PC:
+        if (tab.header.uuid) {
+          _currentPC.value = await PC.fromId(tab.header.uuid);
+          if (!_currentPC.value)
+            throw new Error('Invalid PC uuid in mainStore.setNewTab()');
+
+          TODO  --- 
+          _currentPC.value.campaign = currentWorld.value.campaigns[_currentSession.value.campaignId];
+        }
         break;
       default:  // make it a 'new entry' window
         _currentSession.value = null;  

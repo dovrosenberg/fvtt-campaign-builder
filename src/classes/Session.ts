@@ -61,16 +61,17 @@ export class Session {
    */
   public async getWorld(): Promise<WBWorld> {
     if (!this.parentCampaign)
-      await this.loadCampaign();
+      this.parentCampaign = await this.loadCampaign();
 
-    const campaign = this.parentCampaign;
-
-    return campaign.getWorld();
+    if (!this.parentCampaign)
+      throw new Error('Invalid campaign in Session.getWorld()');
+    
+    return this.parentCampaign.getWorld();
   }
   
 
   // creates a new session in the proper campaign journal in the given world
-  static async create(campaign: Campaign ): Promise<Session | null> 
+  static async create(campaign: Campaign): Promise<Session | null> 
   {
     let nameToUse = '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
@@ -81,10 +82,7 @@ export class Session {
     if (!nameToUse)
       return null;
 
-    if (!campaign.world)
-      await campaign.loadWorld();
-
-    const world = campaign.world as WBWorld;
+    const world = await campaign.getWorld();
 
     // create the entry
     await world.unlock();
