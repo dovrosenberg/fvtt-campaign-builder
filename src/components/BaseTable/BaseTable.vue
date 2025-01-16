@@ -31,10 +31,8 @@
           root: { style: 'background: inherit', }
         },
         table: { style: 'margin: 0px;'},
-        column: {
-          sort: { style: 'background: red;' }
-        },
       }"
+
       @row-select="emit('rowSelect', $event)"
       @row-contextmenu="emit('rowContextMenu', $event)"
     >
@@ -58,7 +56,10 @@
             label="Generate" 
             @click=""
           /> -->
-          <IconField icon-position="left">
+          <IconField 
+            v-if="props.showFilter"
+            icon-position="left"
+          >
             <InputIcon>
               <i class="fas fa-search"></i>
             </InputIcon>
@@ -153,6 +154,10 @@
     showAddButton: { 
       type: Boolean, 
       default: false,
+    },
+    showFilter: { 
+      type: Boolean, 
+      default: true,
     },
     addButtonLabel: { 
       type: String, 

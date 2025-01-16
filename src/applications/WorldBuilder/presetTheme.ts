@@ -8,7 +8,7 @@ export default definePreset(Aura, {
       headerCellBackground: 'inherit',
       headerCellSelected: {
         background: 'inherit',
-        color: 'var(--color-warm-3)',
+        color: '#5d142b',   //'var(--color-warm-3)', - can't seem to set it to a variable?
       },
       rowBackground: 'inherit',
       rowStripedBackground: 'inherit',
