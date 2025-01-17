@@ -19,7 +19,11 @@
         "relationships": "Relationshipa"
       },
       "session": {
-        "session": "Session"
+        "session": "Session",
+        "pc": "PC"
+      },
+      "campaign": {
+        "addPC": "Add PC"
       },
       "groupTree": "Group tree by type",
       "tabs": {
@@ -85,6 +89,26 @@
       "confirmDeleteRelationship": {
         "title": "Remove from relationship?",
         "message": "Are you sure you want to delete this relationship?"
+      },
+      "confirmDeletePC": {
+        "title": "Delete PC?",
+        "message": "Are you sure you want to delete this PC from the campaign?"
+      },
+      "createPC": {
+        "title": "Create PC",
+        "playerName": "Player Name"
+      },
+      "createCampaign": {
+        "title": "Create Campaign",
+        "campaignName": "Campaign Name"
+      },
+      "createSession": {
+        "title": "Create Session",
+        "sessionName": "Session Name"
+      },
+      "createWorld": {
+        "title": "Create World",
+        "worldName": "World Name"
       }
     },
     "contextMenus": {

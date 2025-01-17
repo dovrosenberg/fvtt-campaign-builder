@@ -134,8 +134,8 @@
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
 
   // types
-  import { TopicFolder, Topics, } from '@/types';
-  import { Entry, WBWorld } from '@/classes';
+  import { Topics, } from '@/types';
+  import { Entry, WBWorld, TopicFolder} from '@/classes';
 
   ////////////////////////////////
   // props

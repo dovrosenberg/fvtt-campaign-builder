@@ -169,7 +169,7 @@
     }
 
     const bookmark = {
-      id: globalThis.foundry.utils.randomID(),
+      id: foundry.utils.randomID(),
       header: tab.header,
       tabInfo: {
         tabType: tab.tabType,

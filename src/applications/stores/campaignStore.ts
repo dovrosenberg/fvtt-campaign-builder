@@ -2,19 +2,14 @@
 // 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
+import { watch, ref } from 'vue';
 
 // local imports
-import { useMainStore, } from './index';
+import { useMainStore, useNavigationStore } from './index';
 
 // types
-import { 
-  PCDetails, 
-  FieldData,
-  TablePagination,
-} from '@/types';
-import { watch } from 'vue';
-import { ref } from 'vue';
-import { localize } from '@/utils/game';
+import { PCDetails, FieldData, } from '@/types';
+import { Campaign, PC } from '@/classes';
 
 // the store definition
 export const useCampaignStore = defineStore('campaign', () => {
@@ -23,16 +18,6 @@ export const useCampaignStore = defineStore('campaign', () => {
   // used for tables
   const relatedPCRows = ref<PCDetails[]>([]);
   
-  // we store the pagination info for each type like a preference
-  const defaultPagination: TablePagination = {
-    sortField: 'name', 
-    sortOrder: 1, 
-    first: 0,
-    page: 0,
-    rowsPerPage: 10, 
-    filters: {},
-  };
-
   enum CampaignTableTypes {
     None,
     PC,
@@ -46,6 +31,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
   const { currentCampaign, currentContentTab } = storeToRefs(mainStore);
 
   ///////////////////////////////
@@ -56,13 +42,44 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   ///////////////////////////////
   // actions
+  const addPC = async (): Promise<PC | null> => {
+    if (!currentCampaign.value)
+      return null;
+
+    const campaign = await Campaign.fromUuid(currentCampaign.value.uuid);
+    if (!campaign)
+      throw new Error('Bad campaign in campaignStore.addPC()');
+
+    const pc = await PC.create(campaign);
+
+    if (pc) {
+      await mainStore.refreshCampaign();
+      return pc;
+    } else { 
+      return null;
+    }
+  };
+
+  const deletePC = async (pcId: string): Promise<void> => {
+    const pc = await PC.fromUuid(pcId);
+
+    if (!pc) 
+      throw new Error('Bad session in campaignDirectoryStore.deletePC()');
+
+    await pc.delete();
+
+    // update tabs/bookmarks
+    await navigationStore.cleanupDeletedEntry(pcId);
+
+    await mainStore.refreshCampaign();
+  };
   
   ///////////////////////////////
   // computed state
 
   ///////////////////////////////
   // internal functions
-  const _refreshRows = async () => {
+  const _refreshRows = async (): Promise<void> => {
     if (!currentCampaign.value || !currentContentTab.value) {
       relatedPCRows.value = [];
     } else {
@@ -75,21 +92,19 @@ export const useCampaignStore = defineStore('campaign', () => {
           table = CampaignTableTypes.None;
       }
 
+      relatedPCRows.value = [];
       if (table !== CampaignTableTypes.None) {
         const pcs = await currentCampaign.value.getPCs();
-        relatedPCRows.value = !pcs ? [] :
-          Object.values(pcs).map((pc: PC)=>{
-            const actor = pc.getActor();
 
-            return { 
-              name: actor?.name || localize('placeholders.linkToActor'),
-              playerName: pc.playerName,
-              uuid: pc.uuid,
-            }
+        if (pcs) {
+          for (let i = 0; i < pcs.length; i++) {
+            relatedPCRows.value.push({ 
+              name: pcs[i].name,
+              playerName: pcs[i].playerName,
+              uuid: pcs[i].uuid,
+            });
           }
-          )|| [];
-      } else {
-        relatedPCRows.value = [];
+        }
       }
     }
   };
@@ -112,5 +127,8 @@ export const useCampaignStore = defineStore('campaign', () => {
   return {
     relatedPCRows,
     extraFields,
+
+    addPC,
+    deletePC,
   };
 });

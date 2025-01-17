@@ -7,11 +7,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { useMainStore, } from './index';
 
 // types
-import { 
-  Topics, ValidTopic,
-  RelatedItemDetails, FieldData,
-  TablePagination,
-} from '@/types';
+import { Topics, ValidTopic, RelatedItemDetails, FieldData, } from '@/types';
 import { watch } from 'vue';
 import { ref } from 'vue';
 
@@ -22,16 +18,6 @@ export const useSessionStore = defineStore('session', () => {
   // used for tables
   const relatedPCRows = ref<RelatedItemDetails<any, any>[]>([]);
   
-  // we store the pagination info for each type like a preference
-  const defaultPagination: TablePagination = {
-    sortField: 'name', 
-    sortOrder: 1, 
-    first: 0,
-    page: 0,
-    rowsPerPage: 10, 
-    filters: {},
-  };
-
   const extraFields = {
     [Topics.Character]: {
       [Topics.Character]: [],
@@ -62,7 +48,7 @@ export const useSessionStore = defineStore('session', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentContentTab, currentWorld, currentSession, } = storeToRefs(mainStore);
+  const { currentContentTab, currentSession, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state

@@ -201,7 +201,7 @@
           label: localize(`contextMenus.topic.create.${props.topic}`) + ' as child', 
           onClick: async () => {
             // get the right folder
-            const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
+            const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as Folder;
 
             if (!worldFolder || !props.topic)
               throw new Error('Invalid header in TopicDirectoryNodeWithChildren.onEntryContextMenu.onClick');

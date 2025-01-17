@@ -4,6 +4,7 @@ import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCD
 import { PC, Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs/input';
 import { Lore } from './Lore';
+import { localize } from '@/utils/game';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
@@ -76,7 +77,7 @@ export class Campaign {
     if (!this._campaignDoc.compendium?.folder)
       throw new Error('Invalid folder id in Campaign.loadWorld()');
     
-    const worldDoc = await fromUuid(this._campaignDoc.compendium.folder.uuid) as WorldDoc;
+    const worldDoc = await fromUuid(this._campaignDoc.compendium.folder.uuid) as unknown as WorldDoc;
 
     if (!worldDoc)
       throw new Error('Invalid folder id in Campaign.loadWorld()');
@@ -85,6 +86,8 @@ export class Campaign {
   }
   
   // we return the next number after the highest currently existing session number
+  // we calculate each time because it's fast enough and we don't need to continually be updating 
+  //    metadata
   get nextSessionNumber(): number {
     let maxNumber = 0;
     this._campaignDoc.pages.forEach((page: JournalEntryPage) => {
@@ -182,8 +185,8 @@ export class Campaign {
     let name;
 
     do {
-      name = await inputDialog('Create Campaign', 'Campaign Name:');
-      
+      name = await inputDialog(localize('dialogs.createCampaign.title'), `${localize('dialogs.createCampaign.campaignName')}:`); 
+
       if (name) {
         // unlock the world to allow edits
         await world.unlock();
@@ -253,7 +256,7 @@ export class Campaign {
    */
   public async getPCs(): Promise<PC[]> {
     // we find all journal entries with this topic
-    return this.filterPCs(()=>true);
+    return await this.filterPCs(()=>true);
   }
 
   /**
@@ -277,11 +280,16 @@ export class Campaign {
    * @param {(e: PC) => boolean} filterFn - The filter function
    * @returns {PC[]} The entries that pass the filter
    */
-  public filterPCs(filterFn: (e: PC) => boolean): PC[] { 
-    return (toRaw(this._campaignDoc).pages.contents as unknown as SessionDoc[])
+  public async filterPCs(filterFn: (e: PC) => boolean): Promise<PC[]> { 
+    const retval = (toRaw(this._campaignDoc).pages.contents as unknown as PCDoc[])
       .filter((p) => p.type===DOCUMENT_TYPES.PC)
       .map((s: PCDoc)=> new PC(s, this))
       .filter((s: PC)=> filterFn(s));
+
+    // load all the actors
+    await Promise.all(retval.map((pc) => pc.getActor()));
+
+    return retval;
   }
   
   /**

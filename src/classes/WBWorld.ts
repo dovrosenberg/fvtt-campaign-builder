@@ -5,6 +5,7 @@ import { getRootFolder,  } from '@/compendia';
 import { inputDialog } from '@/dialogs/input';
 import { Campaign, TopicFolder } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
+import { localize } from '@/utils/game';
 
 type WBWorldCompendium = CompendiumCollection<JournalEntry.Metadata>;
 
@@ -319,7 +320,7 @@ export class WBWorld {
     let name;
 
     do {
-      name = await inputDialog('Create World', 'World Name:');
+      name = await inputDialog(localize('dialogs.createWorld.title'), `${localize('dialogs.createWorld.worldName')}:`); 
       
       if (name) {
         // create the world folder

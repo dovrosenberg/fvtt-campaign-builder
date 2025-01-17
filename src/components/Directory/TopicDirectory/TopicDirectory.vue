@@ -171,7 +171,7 @@
           label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
           onClick: async () => {
             // get the right folder
-            const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as globalThis.Folder;
+            const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as Folder;
 
             if (!worldFolder || !topicFolder)
               throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');

@@ -6,7 +6,7 @@ import { reactive, Ref, ref, watch, } from 'vue';
 
 // local imports
 import { useMainStore, useNavigationStore } from '@/applications/stores';
-import { DirectoryCampaignNode, Campaign, Session, WBWorld } from '@/classes';
+import { DirectoryCampaignNode, Campaign, Session, WBWorld, PC } from '@/classes';
 
 // types
 
@@ -143,6 +143,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       return null;
     }
   };
+
   
   ///////////////////////////////
   // computed state

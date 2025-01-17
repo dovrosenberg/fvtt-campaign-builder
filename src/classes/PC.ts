@@ -1,6 +1,7 @@
 import { DOCUMENT_TYPES, PCDoc } from '@/documents';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
+import { inputDialog } from '@/dialogs/input';
 
 // represents a PC - these are stored in flag inside campaigns so saving, etc. is handled by campaign
 export class PC {
@@ -66,10 +67,11 @@ export class PC {
     this._actor = (await fromUuid(this._pcDoc.system.actorId)) as Actor | null;
 
     if (!this._actor)
-      throw new Error('Invalid actor in PC.loadActor()');
+      throw new Error('Invalid actor in PC.getActor()');
 
     return this._actor;
   }
+
 
   /**
    * Gets the world associated with a PC, loading into the campaign 
@@ -87,11 +89,19 @@ export class PC {
     return this.parentCampaign.getWorld();
   }
 
+  
   // creates a new PC in the proper campaign journal in the given world
   static async create(campaign: Campaign): Promise<PC | null> 
   {
-    const nameToUse = localize('placeholders.linkToActor');
+    let nameToUse = '' as string | null;
+    while (nameToUse==='') {  // if hit ok, must have a value
+      nameToUse = await inputDialog(localize('dialogs.createPC.title'), `${localize('dialogs.createPC.playerName')}:`); 
+    }  
     
+    // if name is null, then we cancelled the dialog
+    if (!nameToUse)
+      return null;
+
     const world = await campaign.getWorld();
 
     // create the entry
@@ -99,9 +109,9 @@ export class PC {
 
     const pcDoc = await JournalEntryPage.createDocuments([{
       type: DOCUMENT_TYPES.PC,
-      name: nameToUse,
+      name: `<${localize('placeholders.linkToActor')}>`,
       system: {
-        playerName: '',
+        playerName: nameToUse,
         actorId: null,
         plotPoints: '',
         background: '',
@@ -123,6 +133,15 @@ export class PC {
 
   get uuid(): string {
     return this._pcDoc.uuid;
+  }
+
+  get name(): string {
+    if (!this._pcDoc.system.actorId)
+      return `<${localize('placeholders.linkToActor')}>`;
+    else if (!this._actor)
+      throw new Error('Actor not loaded in PC.name()');
+    else
+      return this._actor.name;
   }
 
   get playerName(): string {

@@ -37,7 +37,7 @@
   // !!! TODO - use vue-safe-html instead of v-html!!!
 
   // library imports
-  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
+  import { computed, nextTick, onMounted, PropType, ref, toRaw, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -49,14 +49,16 @@
   // local components
 
   // types
-  const ProseMirror = globalThis.foundry.prosemirror;
+  const ProseMirror = foundry.prosemirror;
+  import type ProseMirrorMenu from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/prosemirror/menu.d.mts';
+  import type ProseMirrorKeyMaps from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/prosemirror/keymaps.d.mts';
 
   // type EditorOptions = {
   //   document: Document<any>,
   //   target: HTMLElement,
   //   fieldName: string,
   //   height: number, 
-  //   engine: string, 
+  //   engine: 'tinymce' | 'prosemirror', 
   //   collaborate: boolean,
   //   plugins?: any,
   // };
@@ -90,7 +92,7 @@
       default: false,
     },
     engine: {
-      type: String,
+      type: String as PropType<'tinymce' | 'prosemirror'>,
       required: false,
       default: 'prosemirror',
     },
@@ -120,7 +122,7 @@
   // data
   const editorId = ref<string>();
   const enrichedInitialContent = ref<string>('');
-  const editor = ref<globalThis.TextEditor | null>(null);
+  const editor = ref<TextEditor | null>(null);
   const buttonDisplay = ref<string>('');   // is button currently visible
   const editorVisible = ref<boolean>(true);
 
@@ -177,14 +179,14 @@
     };
 
     if (props.engine === 'prosemirror') 
-      options.plugins = configureProseMirrorPlugins(/*{removed:hasButton}*/);
+      options.plugins = configureProseMirrorPlugins();
 
     if (!fitToSize && options.target.offsetHeight) 
       options.height = options.target.offsetHeight;
     
     buttonDisplay.value = 'none';
     
-    editor.value = await globalThis.TextEditor.create(options, props.initialContent);
+    editor.value = await TextEditor.create(options, props.initialContent);
    
     options.target.closest('.editor')?.classList.add(props.engine);
 
@@ -197,11 +199,11 @@
 
   const configureProseMirrorPlugins = () => {
     return {
-      menu: ProseMirror.ProseMirrorMenu.build(ProseMirror.defaultSchema, {
+      menu: ProseMirrorMenu.build(ProseMirror.defaultSchema, {
         destroyOnSave: true,  // note! this controls whether the save button or save & close button is shown,
         onSave: () => saveEditor()
       }),
-      keyMaps: ProseMirror.ProseMirrorKeyMaps.build(ProseMirror.defaultSchema, {
+      keyMaps: ProseMirrorKeyMaps.build(ProseMirror.defaultSchema, {
         onSave: () => saveEditor()
       })
     };
@@ -214,10 +216,12 @@
     // get the new content
     let content;
     if (props.engine === 'tinymce') {
+      // @ts-ignore - editor is a tinymce.Editor
       const mceContent = editor.value.getContent();
       //this.delete(editor.value.id); // Delete hidden MCE inputs
       content = mceContent;
     } else if (props.engine === 'prosemirror') {
+      // @ts-ignore - editor is a tinymce.Editor
       content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
     } else {
       throw new Error(`Unrecognized enginer in saveEditor(): ${props.engine}`);
@@ -261,7 +265,7 @@
       return;
 
     // we create a random ID so we can use multiple instances
-    editorId.value  = 'fwb-editor-' + globalThis.foundry.utils.randomID();
+    editorId.value  = 'fwb-editor-' + foundry.utils.randomID();
 
     // initialize the editor
     if (!coreEditorRef.value)

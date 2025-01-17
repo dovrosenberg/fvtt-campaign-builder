@@ -29,6 +29,9 @@
       "entry": {},
       "session": {
         "htmlFields": [ "description" ]
+      },
+      "pc": {
+        "htmlFields": [ "background", "plotPoints", "magicItems" ]
       }
     }
   },

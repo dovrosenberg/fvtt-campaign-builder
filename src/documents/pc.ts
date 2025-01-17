@@ -5,13 +5,6 @@ const pcSchema = {
   background: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
   plotPoints: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
   magicItems: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-
-
-  // description: new fields.SchemaField({
-  //   short: new fields.HTMLField({required: false, blank: true})
-  // }),
-  // img: new fields.FilePathField({required: false, categories: ['IMAGE']}),
-  // steps: new fields.ArrayField(new fields.StringField({blank: true}))
 };
 
 type PCSchemaType = typeof pcSchema;

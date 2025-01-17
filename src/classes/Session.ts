@@ -3,6 +3,7 @@ import { toRaw } from 'vue';
 import { DOCUMENT_TYPES, SessionDoc, } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { Campaign, WBWorld } from '@/classes';
+import { localize } from '@/utils/game';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Session {
@@ -75,7 +76,7 @@ export class Session {
   {
     let nameToUse = '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await inputDialog('Create Session', 'Session Name:'); 
+      nameToUse = await inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`); 
     }  
     
     // if name is null, then we cancelled the dialog

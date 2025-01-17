@@ -174,7 +174,7 @@
             const topicFolder = currentWorld.value.topicFolders[props.topic];
 
             // get the right folder
-            const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as globalThis.Folder;
+            const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as Folder;
 
             if (!worldFolder || !topicFolder)
               throw new Error('Invalid header in TopicDirectoryNode.onEntryContextMenu.onClick');

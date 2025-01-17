@@ -16,29 +16,12 @@
             />
           </h1>
           <div class="form-group fwb-content-header">
-            <label>{{ localize('labels.fields.sessionNumber') }}</label>
-            <InputText
-              v-model="sessionNumber"
-              for="fwb-input-number" 
-              :placeholder="localize('placeholders.sessionNumber')"
-              :pt="{
-                root: { class: 'full-height' } 
-              }" 
-              @update:model-value="onNumberUpdate"
-            />
+            PC stuff
           </div>
         </div>
       </header>
       <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
-        <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
-        <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
-        <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
-        <a class="item" data-tab="scenes">{{ localize('labels.tabs.session.scenes') }}</a>
-        <a class="item" data-tab="locations">{{ localize('labels.tabs.session.locations') }}</a>
-        <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
-        <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
-        <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
       </nav>
       <div class="fwb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
@@ -135,7 +118,7 @@
   const sessionNumber = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);
-
+ 
   ////////////////////////////////
   // computed data
 

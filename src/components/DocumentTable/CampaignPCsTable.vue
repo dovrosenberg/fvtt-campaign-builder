@@ -11,6 +11,7 @@
       :showFilter="false"
       :allowEdit="false"
       :delete-item-label="localize('tooltips.deleteRelationship')"
+      :add-button-label="localize('labels.campaign.addPC')"
 
       @add-item="onAddItemClick"
       @delete-item="onDeleteItemClick"
@@ -25,7 +26,7 @@
   import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useCampaignStore, useNavigationStore } from '@/applications/stores';
+  import { useCampaignStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // library components
@@ -45,7 +46,7 @@
   ////////////////////////////////
   // store
   const campaignStore = useCampaignStore();
-  
+  const navigationStore = useNavigationStore();
   const { relatedPCRows, } = storeToRefs(campaignStore);
 
   ////////////////////////////////
@@ -81,12 +82,15 @@
 
   ////////////////////////////////
   // event handlers
-  const onAddItemClick = () => {
-    addDialogShow.value = true;
+  const onAddItemClick = async () => {
+    const newPC = await campaignStore.addPC();
+
+    if (newPC)
+      await navigationStore.openPC(newPC.uuid, { newTab: true });
   };
 
   const onRowSelect = async function (event: { originalEvent: PointerEvent; data: GridRow} ) { 
-    await useNavigationStore().openPC(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
+    await navigationStore.openPC(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
 
   // call mutation to remove item from relationship
@@ -110,6 +114,7 @@
 
         // make sure it's the right format
         throw new Error('WHAT SHOULD HAPPEN WHEN DROPPING ON CAMPAIGN');
+        // IF ITS AN ACTOR CREATE A NEW PC AND LINK IT
         // if (data.type==='Actor' && data.uuid) {
         //   alert('need to add actor');
         //   await campaignStore.addPC(data.uuid);

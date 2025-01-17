@@ -124,9 +124,6 @@ export const useMainStore = defineStore('main', () => {
         }
         break;
       default:  // make it a 'new entry' window
-        _currentSession.value = null;  
-        _currentEntry.value = null;
-        _currentCampaign.value = null;
         tab.tabType = WindowTabType.NewTab;
     }
   };
