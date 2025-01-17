@@ -1,7 +1,7 @@
 const fields = foundry.data.fields;
 const pcSchema = {
   playerName: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-  actorId: new fields.DocumentIdField({ required: false, nullable: true, }),
+  actorId: new fields.DocumentUUIDField({ required: false, nullable: true, }),
   background: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
   plotPoints: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
   magicItems: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),

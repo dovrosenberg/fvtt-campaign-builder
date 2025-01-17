@@ -122,7 +122,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     relatedEntry.relationships = relatedEntryRelationships;
     await relatedEntry.save();
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**
@@ -142,7 +142,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       await entry.save();
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**
@@ -162,7 +162,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       await entry.save();
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**
@@ -182,7 +182,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       await entry.save();
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**
@@ -202,7 +202,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       await entry.save();
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**
@@ -247,7 +247,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       await relatedEntry.save();
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   // remove a relationship to the current entry
@@ -293,7 +293,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       delete relatedEntryRelationships[entryTopic][`-=${entry.uuid}`];
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**

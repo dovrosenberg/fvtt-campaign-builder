@@ -2,6 +2,7 @@ import { DOCUMENT_TYPES, PCDoc } from '@/documents';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
 import { inputDialog } from '@/dialogs/input';
+import { toRaw } from 'vue';
 
 // represents a PC - these are stored in flag inside campaigns so saving, etc. is handled by campaign
 export class PC {
@@ -72,6 +73,9 @@ export class PC {
     return this._actor;
   }
 
+  public get actor(): Actor | null {
+    return this._actor;
+  }
 
   /**
    * Gets the world associated with a PC, loading into the campaign 
@@ -139,7 +143,7 @@ export class PC {
     if (!this._pcDoc.system.actorId)
       return `<${localize('placeholders.linkToActor')}>`;
     else if (!this._actor)
-      throw new Error('Actor not loaded in PC.name()');
+      return '';
     else
       return this._actor.name;
   }

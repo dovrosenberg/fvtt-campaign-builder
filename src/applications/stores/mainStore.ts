@@ -9,8 +9,8 @@ import { UserFlagKey, UserFlags, } from '@/settings';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, } from '@/classes';
-import { EntryDoc, SessionDoc, CampaignDoc } from '@/documents';
+import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, PC, } from '@/classes';
+import { EntryDoc, SessionDoc, CampaignDoc, PCDoc } from '@/documents';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
@@ -52,6 +52,7 @@ export const useMainStore = defineStore('main', () => {
   const currentEntry = computed((): Entry | null => (_currentEntry?.value || null) as Entry | null);
   const currentCampaign = computed((): Campaign | null => (_currentCampaign?.value || null) as Campaign | null);
   const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
+  const currentPC = computed((): PC | null => (_currentPC?.value || null) as PC | null);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
 
   // the currently selected tab for the entry
@@ -111,16 +112,16 @@ export const useMainStore = defineStore('main', () => {
           if (!_currentSession.value)
             throw new Error('Invalid session uuid in mainStore.setNewTab()');
 
-          _currentSession.value.campaign = currentWorld.value.campaigns[_currentSession.value.campaignId];
+          _currentSession.value.parentCampaign = currentWorld.value.campaigns[_currentSession.value.campaignId];
         }
         break;
       case WindowTabType.PC:
         if (tab.header.uuid) {
-          _currentPC.value = await PC.fromId(tab.header.uuid);
+          _currentPC.value = await PC.fromUuid(tab.header.uuid);
           if (!_currentPC.value)
             throw new Error('Invalid PC uuid in mainStore.setNewTab()');
 
-          _currentPC.value.campaign = currentWorld.value.campaigns[_currentPC.value.campaignId];
+          _currentPC.value.parentCampaign = currentWorld.value.campaigns[_currentPC.value.campaignId];
         }
         break;
       default:  // make it a 'new entry' window
@@ -132,7 +133,7 @@ export const useMainStore = defineStore('main', () => {
    * Refreshes the current entry by forcing all reactive properties to update.
    * This is achieved by simply creating a new entry based on the EntryDoc of the current one
    */
-  const refreshEntry = function (): void {
+  const refreshEntry = async function (): Promise<void> {
     if (!_currentEntry.value)
       return;
 
@@ -143,7 +144,7 @@ export const useMainStore = defineStore('main', () => {
     _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc, _currentEntry.value.topicFolder as TopicFolder);
   };
 
-  const refreshCampaign = function (): void {
+  const refreshCampaign = async function (): Promise<void> {
     if (!_currentCampaign.value || !currentWorld.value)
       return;
 
@@ -151,12 +152,22 @@ export const useMainStore = defineStore('main', () => {
     _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentWorld.value as WBWorld);
   };
 
-  const refreshSession = function (): void {
+  const refreshSession = async function (): Promise<void> {
     if (!_currentSession.value)
       return;
 
     // just force all reactivity to update
     _currentSession.value = new Session(_currentSession.value.raw as SessionDoc);
+  };
+
+  const refreshPC = async function (): Promise<void> {
+    if (!_currentPC.value)
+      return;
+
+    // just force all reactivity to update
+    _currentPC.value = new PC(_currentPC.value.raw as PCDoc);
+
+    await _currentPC.value.getActor();
   };
 
   ///////////////////////////////
@@ -202,6 +213,7 @@ export const useMainStore = defineStore('main', () => {
     currentEntry,
     currentCampaign,
     currentSession,
+    currentPC,
     currentContentType,
     rootFolder,
     currentWorldCompendium,
@@ -212,5 +224,6 @@ export const useMainStore = defineStore('main', () => {
     refreshEntry,
     refreshCampaign,
     refreshSession,
+    refreshPC,
   };
 });

@@ -376,7 +376,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   
   /**
    * When an entry's name changes, propogate that change to the header of all open tabs referring to that entry.
-   * @param contentId - The ID of the entry whose name changed.
+   * @param contentId - The ID of the entry whose name changed (can be campaign, session, etc, too).
    * @param newName - The new name of the entry.
    */
   const propogateNameChange = async (contentId: string, newName: string):Promise<void> => {

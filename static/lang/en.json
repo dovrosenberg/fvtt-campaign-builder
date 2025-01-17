@@ -25,6 +25,9 @@
       "campaign": {
         "addPC": "Add PC"
       },
+      "pc": {
+        "linkToNewActor": "Link to new actor"
+      },
       "groupTree": "Group tree by type",
       "tabs": {
         "entry": {

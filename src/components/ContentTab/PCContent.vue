@@ -2,77 +2,76 @@
   <form class="'flexcol fwb-journal-subsheet ' + topic">
     <div ref="contentRef" class="sheet-container detailed flexcol">
       <header class="journal-sheet-header flexrow">
+        <div 
+          class="sheet-image" 
+          @drop="onDropActor"
+          @click="onActorImageClick"
+        >
+          <div
+            v-if="currentPC?.actorId"
+          >
+            <img 
+              class="portrait" 
+              :src="currentImage"
+            > 
+          </div>
+          <div
+            v-else
+          >
+            Drag an actor here to link it
+          </div>
+        </div>
         <div class="header-details fwb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${getTabTypeIcon(WindowTabType.PC)} sheet-icon`"></i>
             <InputText
               v-model="name"
               for="fwb-input-name" 
-              :placeholder="localize('placeholders.sessionName')"
+              :disabled="true"
               :pt="{
                 root: { class: 'full-height' } 
               }" 
-              @update:model-value="onNameUpdate"
             />
           </h1>
-          <div class="form-group fwb-content-header">
-            PC stuff
-          </div>
+          <div class="fwb-tab-body flexcol">
+            <div class="tab description flexcol" data-group="primary" data-tab="overview">
+              <div class="tab-inner flexcol">
+                <div>
+                  <InputText
+                    v-model="playerName"
+                    for="fwb-input-name" 
+                    @update:model-value="onPlayerNameUpdate"
+                    :pt="{
+                      root: { class: 'full-height' } 
+                    }" 
+                  />
+                </div>
+                Background<br>
+                <Editor 
+                  :initial-content="currentPC?.background || ''"
+                  :has-button="true"
+                  target="content-description"
+                  @editor-saved="onBackgroundSaved"
+                />
+                Other plot points<br>
+                <Editor 
+                  :initial-content="currentPC?.plotPoints || ''"
+                  :has-button="true"
+                  target="content-description"
+                  @editor-saved="onPlotPointsSaved"
+                />
+                Magic Items<br>
+                <Editor 
+                  :initial-content="currentPC?.magicItems || ''"
+                  :has-button="true"
+                  target="content-description"
+                  @editor-saved="onMagicItemsSaved"
+                />
+              </div>
+            </div>
+          </div> 
         </div>
       </header>
-      <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
-      </nav>
-      <div class="fwb-tab-body flexcol">
-        <div class="tab description flexcol" data-group="primary" data-tab="description">
-          <div class="sheet-image">
-            <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
-          </div>
-          <div class="tab-inner flexcol">
-            Description
-          </div>  
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="pcs">
-          <div class="tab-inner flexcol">
-            pcs
-          </div>  
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="npcs">
-          <div class="tab-inner flexcol">
-            npcs
-          </div>  
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="scenes">
-          <div class="tab-inner flexcol">
-            scenes
-          </div>  
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="start">
-          <div class="tab-inner flexcol">
-            start
-          </div>  
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="secrets">
-          <div class="tab-inner flexcol">
-            secrets
-          </div>  
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="locations">
-          <div class="tab-inner flexcol">
-            locations
-          </div>  
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="monsters">
-          <div class="tab-inner flexcol">
-            monsters
-          </div>  
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="magic">
-          <div class="tab-inner flexcol">
-            magic
-          </div>  
-        </div>
-      </div>
     </div>
   </form>	 
 </template>
@@ -81,21 +80,20 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { nextTick, ref, watch, onMounted } from 'vue';
+  import { ref, watch, onMounted, computed } from 'vue';
 
   // local imports
-  import { useMainStore, useCampaignDirectoryStore, useNavigationStore } from '@/applications/stores';
+  import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { WindowTabType } from '@/types';
   import { getTabTypeIcon } from '@/utils/misc';
-  import { localize } from '@/utils/game';
-
+  
   // library components
   import InputText from 'primevue/inputtext';
 
   // local components
   
   // types
-  import { Session } from '@/classes';
+  import { PC } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -107,64 +105,80 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentSession, currentContentTab } = storeToRefs(mainStore);
+  const { currentPC } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
-  const tabs = ref<Tabs>();
-  
-  const name = ref<string>('');
-  const sessionNumber = ref<string>('');
+  const playerName = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);
  
   ////////////////////////////////
   // computed data
+  const name = computed(() => {
+    if (!currentPC.value) 
+      return '';
+
+      return currentPC.value.name || '';
+  });
+
+  const currentImage = computed(() => {
+    if (!currentPC.value) 
+      return '';
+
+    return currentPC.value.actor?.img || '';
+  });
 
   ////////////////////////////////
   // methods
 
   ////////////////////////////////
   // event handlers
-  // debounce changes to name/number
-  let nameDebounceTimer: NodeJS.Timeout | undefined = undefined;
-  let numberDebounceTimer: NodeJS.Timeout | undefined = undefined;
 
-  const onNameUpdate = (newName: string | undefined) => {
+  const onDropActor = async (event: DragEvent) => {
+    if (currentPC.value && event.dataTransfer?.types[0]==='text/plain') {
+      try {
+        let data;
+        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+        if (data.type==='Actor') {
+          currentPC.value.actorId = data.uuid;
+          await currentPC.value.save();
+          await mainStore.refreshPC();
+
+          // need to refreshPC first to ensure that the new actor gets loaded so we can call name
+          await navigationStore.propogateNameChange(currentPC.value.uuid, currentPC.value.name);
+        }  
+      } 
+      catch (err) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // debounce changes to name
+  let nameDebounceTimer: NodeJS.Timeout | undefined = undefined;
+  
+  const onPlayerNameUpdate = (newName: string | undefined) => {
     const debounceTime = 500;
   
     clearTimeout(nameDebounceTimer);
     
     nameDebounceTimer = setTimeout(async () => {
       const newValue = newName || '';
-      if (currentSession.value && currentSession.value.name!==newValue) {
-        currentSession.value.name = newValue;
-        await currentSession.value.save();
-
-        await campaignDirectoryStore.refreshCampaignDirectoryTree([currentSession.value.uuid]);
-        await navigationStore.propogateNameChange(currentSession.value.uuid, newValue);
+      if (currentPC.value && currentPC.value.playerName!==newValue) {
+        currentPC.value.playerName = newValue;
+        await currentPC.value.save();
       }
     }, debounceTime);
   };
 
-  const onNumberUpdate = (newNumber: string | undefined) => {
-    const debounceTime = 500;
-  
-    clearTimeout(numberDebounceTimer);
-    
-    numberDebounceTimer = setTimeout(async () => {
-      const newValue = isNaN(parseInt(newNumber || '')) ? null : parseInt(newNumber as string);
-
-      if (newValue && currentSession.value && currentSession.value.number!==newValue) {
-        currentSession.value.number = newValue;
-        await currentSession.value.save();
-
-        await campaignDirectoryStore.refreshCampaignDirectoryTree([currentSession.value.uuid]);
-        await navigationStore.propogateNameChange(currentSession.value.uuid, `${localize('labels.session.session')} ${newValue.toString()}`);
-      }
-    }, debounceTime);
-  };
+  const onActorImageClick = async () => {
+    const actor = await currentPC.value?.getActor();
+    if (actor)
+      await actor?.sheet?.render(true);
+  }
 
   ////////////////////////////////
   // watchers
@@ -173,15 +187,12 @@
   //     tabs.value?.activate(newTab || 'description');    
   // });
 
-  watch(currentSession, async (newSession: Session | null, oldSession: Session | null): Promise<void> => {
-    // if we changed entries, reset the tab
-    if (newSession?.uuid!==oldSession?.uuid )
-      currentContentTab.value = 'description';
-
-    if (newSession && newSession.uuid) {
+  watch(currentPC, async (newPC: PC | null): Promise<void> => {
+    if (newPC && newPC.uuid) {
       // load starting data values
-      name.value = newSession.name || '';
-      sessionNumber.value = newSession.number?.toString() || '';
+      playerName.value = newPC.playerName || '';
+
+      await newPC.getActor();
     }
   });
 
@@ -189,24 +200,13 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
+    if (currentPC.value) {
+      // load starting data values
+      playerName.value = currentPC.value.playerName || '';
 
-    // update the store when tab changes
-    tabs.value.callback = () => {
-      // currentContentTab.value = tabs.value?.active || null;
-    };
-
-    tabs.value.callback = () => {
-      // currentContentTab.value = tabs.value?.active || null;
-    };
-
-    // have to wait until they render
-    await nextTick();
-    if (contentRef.value) {
-      tabs.value.bind(contentRef.value);
+      await currentPC.value.getActor();
     }
   });
-
 
 </script>
 
