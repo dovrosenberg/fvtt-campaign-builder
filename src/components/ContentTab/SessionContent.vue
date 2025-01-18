@@ -1,7 +1,7 @@
 <template>
   <form class="'flexcol fwb-journal-subsheet ' + topic">
-    <div ref="contentRef" class="sheet-container detailed flexcol">
-      <header class="journal-sheet-header flexrow">
+    <div ref="contentRef" class="fwb-sheet-container detailed flexcol">
+      <header class="fwb-journal-sheet-header flexrow">
         <div class="header-details fwb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${getTabTypeIcon(WindowTabType.Session)} sheet-icon`"></i>

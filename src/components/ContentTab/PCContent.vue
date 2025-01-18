@@ -1,7 +1,7 @@
 <template>
   <form class="'flexcol fwb-journal-subsheet ' + topic">
-    <div ref="contentRef" class="sheet-container detailed flexcol" style="overflow-y: auto">
-      <header class="journal-sheet-header flexrow">
+    <div ref="contentRef" class="fwb-sheet-container detailed flexcol" style="overflow-y: auto">
+      <header class="fwb-journal-sheet-header flexrow">
         <div 
           class="sheet-image" 
           @drop="onDropActor"
