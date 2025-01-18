@@ -1,31 +1,57 @@
 <template>
   <div  
-    :class="'fwb flexrow ' + (directoryCollapsed ? 'collapsed' : '')"
+    class="fwb"
     @click="onClickApplication"
   >
-    <div class="fwb-body flexcol">
-      <WBHeader />
-      <div class="fwb-content flexcol editable">
-        <ContentTab />
+    <Splitter 
+      ref="splitterRef"
+      layout="horizontal" 
+      :gutter-size="2"
+      class="fwb-splitter"
+    >
+      <SplitterPanel 
+        :size="directoryCollapsed ? 99 : 76" 
+        :min-size="directoryCollapsed ? 99 : 50" 
+        class="fwb-left-panel"
+      > 
+        <div class="fwb-body flexcol">
+          <WBHeader />
+          <div class="fwb-content flexcol editable">
+            <ContentTab />
+          </div>
+        </div>
+        <div
+          class="fwb-sidebar-toggle-tab"
+          @click.stop="onSidebarToggleClick"
+          :class="{ collapsed: directoryCollapsed }"
+          :data-tooltip="directoryCollapsed ? localize('tooltips.expandDirectory') : localize('tooltips.collapseDirectory')"
+        >
+          <i :class="'fas ' + (directoryCollapsed ? 'fa-caret-left' : 'fa-caret-right')"></i>
       </div>
-    </div>
-    <div id="fwb-directory-sidebar" class="flexcol">
-      <Directory @world-selected="onDirectoryWorldSelected" />
-    </div> 
+      </SplitterPanel>
+      <SplitterPanel :size="directoryCollapsed ? 1 :24" :min-size="directoryCollapsed ? 1 : 18" class=""> 
+        <div id="fwb-directory-sidebar" class="flexcol" :style="{display: directoryCollapsed ? 'none' : ''}">
+          <Directory @world-selected="onDirectoryWorldSelected" />
+        </div> 
+      </SplitterPanel>
+    </Splitter>
   </div>
 </template> 
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, watch, } from 'vue';
+  import { onMounted, watch, ref } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, moduleSettings, } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { localize } from '@/utils/game';
 
   // library components
+  import Splitter from 'primevue/splitter';
+  import SplitterPanel from 'primevue/splitterpanel';
 
   // local components
   import WBHeader from '@/components/WBHeader/WBHeader.vue';
@@ -34,7 +60,7 @@
 
   // types
   import { Topics, ValidTopic } from '@/types';
-  import { CollapsibleNode, Entry, WBWorld, } from '@/classes';
+  import { WBWorld, } from '@/classes';
   import { CampaignDoc } from '@/documents';
   
   ////////////////////////////////
@@ -47,10 +73,13 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, rootFolder, directoryCollapsed } = storeToRefs(mainStore);
+  const { currentWorld, rootFolder, } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
+  // current sidebar collapsed state 
+  const directoryCollapsed = ref<boolean>(false);
+  const splitterRef = ref<InstanceType<typeof Splitter> | null>();
 
   ////////////////////////////////
   // computed data
@@ -62,6 +91,13 @@
   // event handlers
   const onDirectoryWorldSelected = async (worldId: string) => {
     await mainStore.setNewWorld(worldId);
+  };
+
+  const onSidebarToggleClick = async () => { 
+    directoryCollapsed.value = !directoryCollapsed.value;
+
+    if (splitterRef.value)
+      splitterRef.value?.resetState();
   };
 
   // whenever we click on a link inside the application that is a link to a document (these are inserted by TextEditor.enrichHTML)
@@ -212,6 +248,10 @@ div[data-application-part] {
 .fwb-main-window {  
   min-width: 640px;
 
+  .window-content {
+    padding: 0;
+  }
+
   .window-content > div {
     overflow: hidden;
   }
@@ -221,6 +261,7 @@ div[data-application-part] {
     width: 100%;
     margin-top: 0px;
     flex-wrap: nowrap;
+    padding: 0.1rem;
 
     // Sidebar 
     #fwb-directory-sidebar {
@@ -244,31 +285,6 @@ div[data-application-part] {
       flex: 0 0 15px;
     }
 
-  // changes when sidebar collapses
-    &.collapsed {
-      .fwb-header .fwb-tab-bar {
-        padding-right: 30px;
-
-        #context-menu {
-          left: var(--fwb-context-x);
-          width: 225px;
-        }
-      }
-      .fwb-footer {
-        padding-right: 26px;
-      }
-      #fwb-directory-sidebar {
-        flex: 0 0 0px;
-        width: 0px;
-        overflow: hidden;
-      }
-      #fwb-sidebar-toggle {
-        right: 6px;
-        top: 4px;
-        width: auto;
-      }
-    }
-
     .fwb-body {
       height: 100%;
     }
@@ -284,4 +300,38 @@ div[data-application-part] {
   
 }
 
+.fwb-splitter {
+  height: 100%;
+}
+
+.fwb-left-panel {
+  position: relative;
+  overflow: visible !important;  // make sure the tab shows
+}
+
+.fwb-sidebar-toggle-tab {
+  position: absolute;
+  top: 50%; // Center vertically in the gutter 
+  transform: translateY(-50%); // Adjust for perfect vertical centering 
+  left: calc(100% - 12px); // Position on the edge of the left panel 
+  z-index: 100; 
+  width: 12px;
+  height: 40px;
+  background-color: var(--color-light-5) !important;
+  color: white;
+  border-color: var(--button-hover-border-color);
+  border: 1px;
+  border-radius: 4px;
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  font-size: 14px; 
+
+  &:hover {
+    background-color: #fda948;
+    border-color: var(--color-warm-3);
+  }
+}
 </style>
+

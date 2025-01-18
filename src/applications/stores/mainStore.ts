@@ -17,9 +17,6 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // the state
 
-  // current sidebar collapsed state 
-  const directoryCollapsed = ref<boolean>(false);
-
   ///////////////////////////////
   // internal state
   const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
@@ -210,7 +207,6 @@ export const useMainStore = defineStore('main', () => {
   return {
     currentContentTab,
     currentDocumentTab,
-    directoryCollapsed,
     currentWorld,
     currentEntryTopic,
     currentEntry,
