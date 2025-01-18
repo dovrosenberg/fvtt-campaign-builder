@@ -9,7 +9,7 @@ import { UserFlagKey, UserFlags, } from '@/settings';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, PC, } from '@/classes';
+import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, PC, CollapsibleNode, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc, PCDoc } from '@/documents';
 
 // the store definition
@@ -27,11 +27,11 @@ export const useMainStore = defineStore('main', () => {
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
+  const _currentWorld = ref<WBWorld | null>(null);  // the current world folder
 
   ///////////////////////////////
   // external state
   const rootFolder = ref<Folder | null>(null);
-  const currentWorld = ref<WBWorld | null>(null);  // the current world folder
 
   // can set this to tell current entry tab to refresh everything
   const refreshCurrentEntry = ref<boolean>(false);
@@ -54,6 +54,7 @@ export const useMainStore = defineStore('main', () => {
   const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
   const currentPC = computed((): PC | null => (_currentPC?.value || null) as PC | null);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
+  const currentWorld = computed((): WBWorld | null => (_currentWorld?.value || null) as WBWorld | null);
 
   // the currently selected tab for the entry
   const currentContentTab = ref<string | null>(null);
@@ -71,7 +72,9 @@ export const useMainStore = defineStore('main', () => {
     if (!world)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');
 
-    currentWorld.value = world;
+    _currentWorld.value = world;
+
+    CollapsibleNode.currentWorld = world;
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };

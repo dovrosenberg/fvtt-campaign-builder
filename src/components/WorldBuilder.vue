@@ -92,8 +92,8 @@
 
   ////////////////////////////////
   // watchers
-  watch(() => currentWorld.value, async () => {
-    if (currentWorld.value && currentWorld.value.topicIds) {
+  watch(currentWorld, async (newWorld: WBWorld | null, oldWorld: WBWorld | null) => {
+    if (currentWorld.value && currentWorld.value.topicIds && newWorld?.uuid!==oldWorld?.uuid) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = currentWorld.value.uuid;
 
@@ -130,8 +130,6 @@
           campaignJournals[j.uuid] = j;
         }
       }
-
-      CollapsibleNode.currentWorld = currentWorld.value as WBWorld;
     }
   });
 
@@ -181,10 +179,8 @@
         }
       }
 
-      CollapsibleNode.currentWorld = folders.world;
-
       rootFolder.value = folders.rootFolder;
-      currentWorld.value = folders.world;
+      mainStore.setNewWorld(folders.world.uuid);
 
     } else {
       throw new Error('Failed to load or create folder structure');

@@ -37,7 +37,7 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
     if (!campaign)
       throw new Error('Bad campaign id in DirectoryCampaignNode._loadNodeList()');
 
-    const sessions = campaign.filterSessions((s: Session)=> uuidsToLoad.includes(s.uuid)) || [] as Session[];
+    const sessions = campaign.filterSessions((s: Session)=> uuidsToLoad.includes(s.uuid));
 
     for (let i=0; i<sessions.length; i++) {
       const newNode = DirectorySessionNode.fromSession(sessions[i], this.id);
