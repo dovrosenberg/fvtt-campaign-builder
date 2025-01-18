@@ -32,7 +32,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentCampaign, currentContentTab, currentSession } = storeToRefs(mainStore);
+  const { currentCampaign, currentContentTab, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state

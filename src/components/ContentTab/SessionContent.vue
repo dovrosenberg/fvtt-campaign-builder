@@ -43,10 +43,6 @@
       <div class="fwb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="notes">
           <div class="tab-inner flexcol">
-            <div class="sheet-image">
-              <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
-            </div>
-
             <Editor 
               :initial-content="currentSession?.notes || ''"
               :has-button="true"
@@ -71,7 +67,11 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="start">
           <div class="tab-inner flexcol">
-            start
+            <Editor 
+              :initial-content="currentSession?.startingAction || ''"
+              :has-button="true"
+              @editor-saved="onStartEditorSaved"
+            />
           </div>  
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="secrets">
@@ -117,7 +117,7 @@
   // local components
   import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
   import Editor from '@/components/Editor.vue';
-  
+
   // types
   import { Session } from '@/classes';
   
@@ -196,10 +196,14 @@
 
     currentSession.value.notes = newContent;
     await currentSession.value.save();
+  };
 
-    //need to reset
-    // if it's not automatic, clear and reset the documentpage
-    // (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
+  const onStartEditorSaved = async (newContent: string) => {
+    if (!currentSession.value)
+      return;
+
+    currentSession.value.startingAction = newContent;
+    await currentSession.value.save();
   };
 
   ////////////////////////////////

@@ -1,7 +1,6 @@
 <template>
   <div class="primevue-only">
     <DataTable
-      v-model:filters="pagination.filters"
       data-key="uuid"
       :value="rows"
       size="small"
@@ -15,7 +14,8 @@
       :total-records="rows.length"
       :global-filter-fields="props.filterFields"
       :rows="pagination.rowsPerPage"
-      filter-display="row"
+      :filters="pagination.filters"
+      :filter-display="filterDisplay"
       selection-mode="single" 
       :pt="{
         header: { style: 'border: none' },
@@ -128,7 +128,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, PropType } from 'vue';
+  import { ref, PropType, computed } from 'vue';
   import { FilterMatchMode } from '@primevue/core/api';
 
   // local imports
@@ -215,7 +215,12 @@
 
   ////////////////////////////////
   // computed data
+  const filterDisplay = computed((): 'menu' | 'row' | undefined=> {
+    // for now, let's not use the individual headers
+    return undefined;
 
+    // return props.filterFields.length === 0 ? undefined : 'row'
+  })
   ////////////////////////////////
   // methods
 

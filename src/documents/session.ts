@@ -1,7 +1,7 @@
 const fields = foundry.data.fields;
 const sessionSchema = {
   number: new fields.NumberField({ required: true, nullable: false }),
-  description: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
+  startingAction: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
 };
 
 type SessionSchemaType = typeof sessionSchema;
@@ -22,6 +22,6 @@ export interface SessionDoc extends JournalEntryPage {
 
   system: {
     number: number;
-    description: string | undefined;
+    startingAction: string;
   };
 }

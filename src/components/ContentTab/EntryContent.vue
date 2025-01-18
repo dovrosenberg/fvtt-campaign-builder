@@ -281,10 +281,6 @@
 
     currentEntry.value.description = newContent;
     await currentEntry.value.save();
-
-    //need to reset
-    // if it's not automatic, clear and reset the documentpage
-    // (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
   };
 
   ////////////////////////////////

@@ -18,32 +18,13 @@ export const useSessionStore = defineStore('session', () => {
   // used for tables
   const relatedPCRows = ref<RelatedItemDetails<any, any>[]>([]);
   
+  enum SessionTableTypes {
+    None,
+  }
+
   const extraFields = {
-    [Topics.Character]: {
-      [Topics.Character]: [],
-      [Topics.Event]: [],
-      [Topics.Location]: [{field:'role', header:'Role'}],
-      [Topics.Organization]: [{field:'role', header:'Role'}],
-    },
-    [Topics.Event]: {
-      [Topics.Character]: [],
-      [Topics.Event]: [],
-      [Topics.Location]: [],
-      [Topics.Organization]: [],
-    },
-    [Topics.Location]: {
-      [Topics.Character]: [{field:'role', header:'Role'}],
-      [Topics.Event]: [],
-      [Topics.Location]: [],
-      [Topics.Organization]: [],
-    },
-    [Topics.Organization]: {
-      [Topics.Character]: [{field:'role', header:'Role'}],
-      [Topics.Event]: [],
-      [Topics.Location]: [],
-      [Topics.Organization]: [],
-    },    
-  } as Record<ValidTopic, Record<ValidTopic, FieldData>>;
+    [SessionTableTypes.None]: [],
+  } as Record<SessionTableTypes, FieldData>;
   
   ///////////////////////////////
   // other stores

@@ -1,7 +1,6 @@
 <template>
   <!-- A table to display/manage related scenes and actors -->
   <div 
-    class="primevue-only"
     @drop="onDrop"
   >
     <BaseTable
