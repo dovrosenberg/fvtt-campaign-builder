@@ -310,6 +310,15 @@
     #context-menu li {
       text-align: left;
     }
+
+    #fwb-add-tab {
+      flex: 0 0 30px;
+      justify-content: center;
+
+      .fwb-tab-icon {
+        margin: 0px;
+      }
+    }
   }
 }
 </style>
