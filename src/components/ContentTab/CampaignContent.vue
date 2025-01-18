@@ -31,7 +31,6 @@
             <Editor 
               :initial-content="currentCampaign?.description || ''"
               :has-button="true"
-              target="content-description"
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>

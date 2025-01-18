@@ -11,7 +11,11 @@
       "fields": {
         "type": "Type",
         "parent": "Parent",
-        "sessionNumber": "Number"
+        "sessionNumber": "Number",
+        "playerName": "Player Name",
+        "backgroundPoints": "Background Points",
+        "otherPlotPoints": "Other Plot Points",
+        "desiredMagicItems": "Desired Magic Items"
       },
       "entry": {
         "topic": "TopicFolder",

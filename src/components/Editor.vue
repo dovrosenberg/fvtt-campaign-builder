@@ -3,14 +3,15 @@
     :id="editorId" 
     ref="wrapperRef"
     class="fwb-editor flexcol"
-  >
+    :style="wrapperStyle"
+    >
     <!-- this reproduces the Vue editor() Handlebars helper -->
     <!-- editorVisible used to reset the DOM by toggling-->
     <div 
       v-if="editorVisible"  
       ref="editorRef"
       :class="'editor ' + props.class"
-      :style="(height ? height + 'px' : '')"
+      :style="innerStyle"
     >
       <!-- activation button -->
       <a 
@@ -50,12 +51,9 @@
 
   // types
   const ProseMirror = foundry.prosemirror;
-  import type ProseMirrorMenu from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/prosemirror/menu.d.mts';
-  import type ProseMirrorKeyMaps from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/prosemirror/keymaps.d.mts';
 
   // type EditorOptions = {
   //   document: Document<any>,
-  //   target: HTMLElement,
   //   fieldName: string,
   //   height: number, 
   //   engine: 'tinymce' | 'prosemirror', 
@@ -101,10 +99,11 @@
       required: false,
       default: null,
     },
-    target: {
+    fixedHeight: {
       type: String,
-      required: true,
-    }  
+      required: false,
+      default: null,
+    },
   });
 
   ////////////////////////////////
@@ -140,11 +139,11 @@
       collaborate: props.collaborate.toString(),
     } as Record<string, string>;
 
-    if (props.editable) 
-      dataset.edit = props.target;
-
     return dataset;
   });
+
+  const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight + 'px'}` : ''));
+  const innerStyle = computed((): string => (props.height ? `height: ${props.height + 'px'}` : ''));
 
   ////////////////////////////////
   // methods
@@ -160,7 +159,7 @@
     // if the window content is shorter, we want to handle that case (rare)
     const wc = coreEditorRef.value.closest('.window-content') as HTMLElement;
 
-    if (!props.target || !buttonRef.value || !wrapperRef.value)
+    if (!buttonRef.value || !wrapperRef.value)
       throw new Error('Missing name or button in activateEditor()');
 
     // Determine the preferred editor height
@@ -171,7 +170,6 @@
     const options = {
       // document: props.document,
       target: coreEditorRef.value,
-      fieldName: props.target,
       height, 
       engine: props.engine, 
       collaborate: props.collaborate,
@@ -199,11 +197,11 @@
 
   const configureProseMirrorPlugins = () => {
     return {
-      menu: ProseMirrorMenu.build(ProseMirror.defaultSchema, {
+      menu: ProseMirror.ProseMirrorMenu.build(ProseMirror.defaultSchema, {
         destroyOnSave: true,  // note! this controls whether the save button or save & close button is shown,
         onSave: () => saveEditor()
       }),
-      keyMaps: ProseMirrorKeyMaps.build(ProseMirror.defaultSchema, {
+      keyMaps: ProseMirror.ProseMirrorKeyMaps.build(ProseMirror.defaultSchema, {
         onSave: () => saveEditor()
       })
     };
@@ -286,5 +284,25 @@
 <style lang="scss">
   .fwb-editor {
     flex: 1 !important;
+    overflow-y: auto !important;
   }
+
+  .theme-light .fwb-editor {
+    border: 1px solid var(--color-dark-6);
+    outline: 1px solid transparent;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--color-dark-2);
+    font-size: var(--font-size-14);
+    padding: 0 0.5rem;
+
+    &:focus {
+      outline-color: var(--color-warm-2);
+    }
+
+    &:disabled {
+      color: var(--color-dark-4);
+    }
+  }
+
 </style>

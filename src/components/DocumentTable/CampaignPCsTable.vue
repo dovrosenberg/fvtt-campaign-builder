@@ -113,12 +113,16 @@
         data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
 
         // make sure it's the right format
-        throw new Error('WHAT SHOULD HAPPEN WHEN DROPPING ON CAMPAIGN');
-        // IF ITS AN ACTOR CREATE A NEW PC AND LINK IT
-        // if (data.type==='Actor' && data.uuid) {
-        //   alert('need to add actor');
-        //   await campaignStore.addPC(data.uuid);
-        // }
+        // if it's an actor, create a new PC and link it
+        if (data.type==='Actor' && data.uuid) {
+          const newPC = await campaignStore.addPC();
+
+          if (newPC) {
+            newPC.actorId = data.uuid;
+            await newPC?.getActor();
+            await navigationStore.openPC(newPC.uuid, { newTab: true });
+          }
+        }
 
         return true;
       }

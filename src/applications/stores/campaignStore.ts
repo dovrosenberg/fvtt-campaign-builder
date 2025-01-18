@@ -32,7 +32,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentCampaign, currentContentTab } = storeToRefs(mainStore);
+  const { currentCampaign, currentContentTab, currentSession } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -79,31 +79,18 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   ///////////////////////////////
   // internal functions
-  const _refreshRows = async (): Promise<void> => {
-    if (!currentCampaign.value || !currentContentTab.value) {
-      relatedPCRows.value = [];
-    } else {
-      let table: CampaignTableTypes;
-      switch (currentContentTab.value) {
-        case 'pcs':
-          table = CampaignTableTypes.PC;
-          break;
-        default:
-          table = CampaignTableTypes.None;
-      }
+  const _refreshPCRows = async (): Promise<void> => {
+    relatedPCRows.value = [];
+    if (currentCampaign.value) {
+      const pcs = await currentCampaign.value.getPCs();
 
-      relatedPCRows.value = [];
-      if (table !== CampaignTableTypes.None) {
-        const pcs = await currentCampaign.value.getPCs();
-
-        if (pcs) {
-          for (let i = 0; i < pcs.length; i++) {
-            relatedPCRows.value.push({ 
-              name: pcs[i].name,
-              playerName: pcs[i].playerName,
-              uuid: pcs[i].uuid,
-            });
-          }
+      if (pcs) {
+        for (let i = 0; i < pcs.length; i++) {
+          relatedPCRows.value.push({ 
+            name: pcs[i].name,
+            playerName: pcs[i].playerName,
+            uuid: pcs[i].uuid,
+          });
         }
       }
     }
@@ -112,11 +99,11 @@ export const useCampaignStore = defineStore('campaign', () => {
   ///////////////////////////////
   // watchers
   watch(()=> currentCampaign.value, async () => {
-    await _refreshRows();
+    await _refreshPCRows();
   });
 
   watch(()=> currentContentTab.value, async () => {
-    await _refreshRows();
+    await _refreshPCRows();
   });
 
   ///////////////////////////////

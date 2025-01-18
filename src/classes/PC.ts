@@ -31,8 +31,11 @@ export class PC {
 
     if (!pcDoc)
       return null;
-    else
-      return new PC(pcDoc);
+
+    const pc = new PC(pcDoc);
+    await pc.getActor();
+    await pc.loadCampaign();
+    return pc;
   }
 
   /**

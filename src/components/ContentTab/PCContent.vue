@@ -1,6 +1,6 @@
 <template>
   <form class="'flexcol fwb-journal-subsheet ' + topic">
-    <div ref="contentRef" class="sheet-container detailed flexcol">
+    <div ref="contentRef" class="sheet-container detailed flexcol" style="overflow-y: auto">
       <header class="journal-sheet-header flexrow">
         <div 
           class="sheet-image" 
@@ -33,45 +33,56 @@
               }" 
             />
           </h1>
-          <div class="fwb-tab-body flexcol">
-            <div class="tab description flexcol" data-group="primary" data-tab="overview">
-              <div class="tab-inner flexcol">
-                <div>
-                  <InputText
-                    v-model="playerName"
-                    for="fwb-input-name" 
-                    @update:model-value="onPlayerNameUpdate"
-                    :pt="{
-                      root: { class: 'full-height' } 
-                    }" 
-                  />
-                </div>
-                Background<br>
-                <Editor 
-                  :initial-content="currentPC?.background || ''"
-                  :has-button="true"
-                  target="content-description"
-                  @editor-saved="onBackgroundSaved"
-                />
-                Other plot points<br>
-                <Editor 
-                  :initial-content="currentPC?.plotPoints || ''"
-                  :has-button="true"
-                  target="content-description"
-                  @editor-saved="onPlotPointsSaved"
-                />
-                Magic Items<br>
-                <Editor 
-                  :initial-content="currentPC?.magicItems || ''"
-                  :has-button="true"
-                  target="content-description"
-                  @editor-saved="onMagicItemsSaved"
-                />
-              </div>
-            </div>
-          </div> 
         </div>
       </header>
+      <div class="flexcol">
+        <div class="flexrow">
+          <label>{{ localize('labels.fields.playerName') }}</label>
+        </div>
+        <div class="flexrow">
+          <InputText
+            v-model="playerName"
+            for="fwb-input-name" 
+            @update:model-value="onPlayerNameUpdate"
+            :pt="{
+              root: { class: 'full-height' } 
+            }" 
+          />
+        </div>
+        <div class="flexrow">
+          <label>{{ localize('labels.fields.backgroundPoints') }}</label>
+        </div>
+        <div class="flexrow editor-container">
+          <Editor 
+            :initial-content="currentPC?.background || ''"
+            :has-button="true"
+            fixed-height="125"
+            @editor-saved="onBackgroundSaved"
+          />
+        </div>
+        <div class="flexrow">
+          <label>{{ localize('labels.fields.otherPlotPoints') }}</label>
+        </div>
+        <div class="flexrow editor-container">
+          <Editor 
+            :initial-content="currentPC?.plotPoints || ''"
+            :has-button="true"
+            fixed-height="125"
+            @editor-saved="onPlotPointsSaved"
+          />
+        </div>
+        <div class="flexrow">
+          <label>{{ localize('labels.fields.desiredMagicItems') }}</label>
+        </div>
+        <div class="flexrow editor-container">
+          <Editor
+            :initial-content="currentPC?.magicItems || ''"
+            :has-button="true"
+            fixed-height="125"
+            @editor-saved="onMagicItemsSaved"
+          />
+        </div>
+      </div>
     </div>
   </form>	 
 </template>
@@ -85,12 +96,14 @@
   // local imports
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { WindowTabType } from '@/types';
-  import { getTabTypeIcon } from '@/utils/misc';
+  import { getTabTypeIcon, } from '@/utils/misc';
+  import { localize, } from '@/utils/game';
   
   // library components
   import InputText from 'primevue/inputtext';
 
   // local components
+  import Editor from '@/components/Editor.vue';
   
   // types
   import { PC } from '@/classes';
@@ -180,6 +193,29 @@
       await actor?.sheet?.render(true);
   }
 
+  const onBackgroundSaved = async (content: string) => {
+    if (!currentPC.value)
+      return;
+
+    currentPC.value.background = content;
+    await currentPC.value.save();
+  }
+
+  const onPlotPointsSaved = async (content: string) => {
+    if (!currentPC.value)
+      return;
+
+    currentPC.value.plotPoints = content;
+    await currentPC.value.save();
+  }
+
+  const onMagicItemsSaved = async (content: string) => {
+    if (!currentPC.value)
+      return;
+
+    currentPC.value.magicItems = content;
+    await currentPC.value.save();
+  }
   ////////////////////////////////
   // watchers
   // watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
@@ -211,5 +247,4 @@
 </script>
 
 <style lang="scss">
-
 </style>

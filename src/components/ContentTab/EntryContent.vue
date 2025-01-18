@@ -72,7 +72,6 @@
             <Editor 
               :initial-content="currentEntry?.description || ''"
               :has-button="true"
-              target="content-description"
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>

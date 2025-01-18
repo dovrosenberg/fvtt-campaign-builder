@@ -261,7 +261,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     await topicFolder.save();
 
     // force current entry to refresh if needed
-    if ([childId, parentId].includes(currentEntry.value.uuid)) {
+    if ([childId, parentId].includes(currentEntry.value?.uuid)) {
       refreshCurrentEntry.value = true;      
     }
 

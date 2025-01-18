@@ -3,19 +3,34 @@
     ref="contentRef"
     class="sheet fwb-journal-sheet"
   >      
-    <div v-if="currentContentType===WindowTabType.Entry">
+    <div 
+      v-if="currentContentType===WindowTabType.Entry"
+      class="fwb-content-wrapper"
+    >
       <EntryContent />
     </div>
-    <div v-else-if="currentContentType===WindowTabType.Session">
+    <div 
+      v-else-if="currentContentType===WindowTabType.Session"
+      class="fwb-content-wrapper"
+    >
       <SessionContent />
     </div>
-    <div v-else-if="currentContentType===WindowTabType.Campaign">
+    <div 
+      v-else-if="currentContentType===WindowTabType.Campaign"
+      class="fwb-content-wrapper"
+    >
       <CampaignContent />
     </div>
-    <div v-else-if="currentContentType===WindowTabType.PC">
+    <div 
+      v-else-if="currentContentType===WindowTabType.PC"
+      class="fwb-content-wrapper"
+    >
       <PCContent />
     </div>
-    <div v-else-if="currentContentType===WindowTabType.NewTab">
+    <div 
+      v-else-if="currentContentType===WindowTabType.NewTab"
+      class="fwb-content-wrapper"
+    >
       <HomePage />
     </div>
     <div v-else>
@@ -638,5 +653,9 @@
       overflow-y: hidden !important;
       overflow-x: hidden !important;
     }
+  }
+
+  .fwb-content-wrapper {
+    height: 100%;
   }
 </style>

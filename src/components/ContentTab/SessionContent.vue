@@ -41,18 +41,23 @@
         <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
       </nav>
       <div class="fwb-tab-body flexcol">
-        <div class="tab description flexcol" data-group="primary" data-tab="description">
-          <div class="sheet-image">
-            <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
-          </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="notes">
           <div class="tab-inner flexcol">
-            Description
-          </div>  
+            <div class="sheet-image">
+              <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
+            </div>
+
+            <Editor 
+              :initial-content="currentSession?.notes || ''"
+              :has-button="true"
+              @editor-saved="onNotesEditorSaved"
+            />
+          </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner flexcol">
-            pcs
-          </div>  
+            <CampaignPCsTable />
+          </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="npcs">
           <div class="tab-inner flexcol">
@@ -110,6 +115,8 @@
   import InputText from 'primevue/inputtext';
 
   // local components
+  import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
+  import Editor from '@/components/Editor.vue';
   
   // types
   import { Session } from '@/classes';
@@ -181,6 +188,18 @@
         await navigationStore.propogateNameChange(currentSession.value.uuid, `${localize('labels.session.session')} ${newValue.toString()}`);
       }
     }, debounceTime);
+  };
+
+  const onNotesEditorSaved = async (newContent: string) => {
+    if (!currentSession.value)
+      return;
+
+    currentSession.value.notes = newContent;
+    await currentSession.value.save();
+
+    //need to reset
+    // if it's not automatic, clear and reset the documentpage
+    // (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
   };
 
   ////////////////////////////////

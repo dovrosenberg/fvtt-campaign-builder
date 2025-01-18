@@ -32,8 +32,10 @@ export class Session {
 
     if (!sessionDoc)
       return null;
-    else
-      return new Session(sessionDoc);
+    
+    const session = new Session(sessionDoc);
+    await session.loadCampaign();
+    return session;
   }
 
   /**
@@ -125,17 +127,16 @@ export class Session {
     };
   }
 
-  get description(): string {
-    return this._sessionDoc.system.description || '';
+  get notes(): string {
+    return this._sessionDoc.text?.content || '';
   }
 
-  set description(value: string) {
-    this._sessionDoc.system.description = value;
+  set notes(value: string) {
+    this._sessionDoc.text.content = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      system: {
-        ...this._cumulativeUpdate.system,
-        description: value,
+      text: {
+        content: value,
       }
     };
   }
