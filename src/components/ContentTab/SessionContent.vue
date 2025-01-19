@@ -81,7 +81,19 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="locations">
           <div class="tab-inner flexcol">
-            locations
+            <SessionTable 
+              :rows="[]"
+              :columns="[]"  
+              :delete-item-label="localize('tooltips.deleteLocation')"   
+              :allow-edit="false"
+              :show-add-button="true"
+              :add-button-label="localize('labels.session.addLocation')" 
+              @add-item="onAddLocation"
+              @delete-item="onDeleteLocation"
+              @mark-item-done="onMarkLocationDone"
+              @unmark-item-done="onUnmarkLocationDone"
+              @move-to-next-session="onMoveToNextSession"        
+            />
           </div>  
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="monsters">
@@ -117,6 +129,7 @@
   // local components
   import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
   import Editor from '@/components/Editor.vue';
+  import SessionTable from '@/components/DocumentTable/SessionTable.vue';
 
   // types
   import { Session } from '@/classes';

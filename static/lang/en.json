@@ -24,7 +24,8 @@
       },
       "session": {
         "session": "Session",
-        "pc": "PC"
+        "pc": "PC",
+        "addLocation": "Add location"
       },
       "campaign": {
         "addPC": "Add PC"
@@ -162,7 +163,11 @@
       "historyBack": "Back",
       "historyForward": "Forward",
       "editRelationship": "Edit relationship",
-      "deleteRelationship": "Delete relationship"
+      "deleteRelationship": "Delete relationship",
+      "deleteLocation": "Delete location",
+      "markAsDone": "Mark as done",
+      "unmarkAsDone": "Unmark as done",
+      "moveToNextSession": "Move to next session",
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"
