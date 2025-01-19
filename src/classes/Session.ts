@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, SessionLocation, } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
@@ -155,18 +155,54 @@ export class Session {
     };
   }
 
-  get startingAction(): string {
-    return this._sessionDoc.system.startingAction;
+  get locations(): readonly SessionLocation[] {
+    return this._sessionDoc.system.locations || [];
   }
 
-  set startingAction(value: string) {
-    this._sessionDoc.system.startingAction = value;
+  async addLocation(uuid: string): Promise<void> {
+    this._sessionDoc.system.locations.push({
+      uuid: uuid,
+      delivered: false
+    });
+
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
-        startingAction: value,
+        deliveredItems: this._sessionDoc.system.locations
       }
     };
+
+    await this.save();
+  }
+
+  async deleteLocation(uuid: string): Promise<void> {
+    this._sessionDoc.system.locations = this._sessionDoc.system.locations.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        deliveredItems: this._sessionDoc.system.locations
+      }
+    };
+
+    await this.save();
+  }
+
+  async markLocationDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const location = this._sessionDoc.system.locations.find((l) => l.uuid===uuid);
+    if (!location)
+      return;
+    
+    location.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        deliveredItems: this._sessionDoc.system.locations
+      }
+    };
+
+    await this.save();
   }
 
   get campaignId(): string {

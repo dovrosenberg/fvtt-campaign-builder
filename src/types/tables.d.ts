@@ -23,3 +23,9 @@ export type PCDetails = {
     name: string;
     playerName: string;
 }
+
+export type SessionLocationDetails = {
+  uuid: string;   // the other item
+  name: string;
+  delivered: boolean;
+}

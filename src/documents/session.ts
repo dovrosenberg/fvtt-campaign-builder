@@ -1,7 +1,13 @@
+export type SessionLocation = {
+  uuid: string;
+  delivered: boolean;
+}
+
 const fields = foundry.data.fields;
 const sessionSchema = {
   number: new fields.NumberField({ required: true, nullable: false }),
   startingAction: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
+  locations: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionLocation[] }),  
 };
 
 type SessionSchemaType = typeof sessionSchema;
@@ -23,5 +29,6 @@ export interface SessionDoc extends JournalEntryPage {
   system: {
     number: number;
     startingAction: string;
+    locations: SessionLocation[];
   };
 }

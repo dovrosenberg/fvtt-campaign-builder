@@ -7,7 +7,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { useMainStore, } from './index';
 
 // types
-import { Topics, ValidTopic, RelatedItemDetails, FieldData, } from '@/types';
+import { SessionLocationDetails, FieldData, Topics, } from '@/types';
 import { watch } from 'vue';
 import { ref } from 'vue';
 
@@ -16,20 +16,22 @@ export const useSessionStore = defineStore('session', () => {
   ///////////////////////////////
   // the state
   // used for tables
-  const relatedPCRows = ref<RelatedItemDetails<any, any>[]>([]);
+  const relatedLocationRows = ref<SessionLocationDetails[]>([]);
   
   enum SessionTableTypes {
     None,
+    Location,
   }
 
   const extraFields = {
     [SessionTableTypes.None]: [],
+    [SessionTableTypes.Location]: [],
   } as Record<SessionTableTypes, FieldData>;
   
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentContentTab, currentSession, } = storeToRefs(mainStore);
+  const { currentWorld, currentContentTab, currentSession, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -39,34 +41,63 @@ export const useSessionStore = defineStore('session', () => {
 
   ///////////////////////////////
   // actions
-  
-  /**
-   * Add a scene to the current entry
-   * @param sceneId The id of the scene to add
-   */
-  // async function addScene(sceneId: string): Promise<void> {
-  //   // create the relationship on current entry
-  //   const entry = currentEntry.value;
+  const addLocation = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.addLocation()');
 
-  //   if (!entry || !sceneId)
-  //     throw new Error('Invalid entry in relationshipStore.addSceme()');
+    await currentSession.value.addLocation(uuid);
+    await _refreshRows();
+  }
 
-  //   // update the entry
-  //   if (!entry.scenes.includes(sceneId)) {
-  //     entry.scenes.push(sceneId);
-  //     await entry.save();
-  //   }
+  const deleteLocation = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.deleteLocation()');
 
-  //   mainStore.refreshEntry();
-  // }
+    await currentSession.value.deleteLocation(uuid);
+    await _refreshRows();
+  }
 
-  // /**
+  const markLocationDelivered = async (uuid: string, delivered: boolean): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.markLocationDelivered()');
+
+    await currentSession.value.markLocationDelivered(uuid, delivered);
+    await _refreshRows();
+  }
+
+  const moveLocationToNext = async (uuid: string): Promise<void> => {
+    throw new Error("sessionstore.moveLocationtonext not writtenl")
+    await _refreshRows();
+  }
+
   ///////////////////////////////
   // computed state
 
   ///////////////////////////////
   // internal functions
   const _refreshRows = async () => {
+    if (!currentSession.value)
+      return;
+
+    const retval = [] as SessionLocationDetails[];
+    const topicFolder = currentWorld.value?.topicFolders[Topics.Location];
+
+    if (!topicFolder)
+      throw new Error('Invalid topic folder in sessionStore._refreshRows()');
+
+    for (const location of currentSession.value?.locations) {
+      const entry = await topicFolder.findEntry(location.uuid);
+
+      if (entry) {
+        retval.push({
+          uuid: location.uuid,
+          delivered: location.delivered,
+          name: entry.name, 
+        });
+      }
+    }
+
+    relatedLocationRows.value = retval;
   };
 
   ///////////////////////////////
@@ -85,7 +116,11 @@ export const useSessionStore = defineStore('session', () => {
   ///////////////////////////////
   // return the public interface
   return {
-    relatedPCRows,
+    relatedLocationRows,
     extraFields,
+    addLocation,
+    deleteLocation,
+    markLocationDelivered,
+    moveLocationToNext,
   };
 });

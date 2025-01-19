@@ -205,6 +205,18 @@ export class TopicFolder {
       .filter((e: Entry)=> filterFn(e));
   }
 
+   /**
+   * Returns the specified entry from inside this topic, if it exists
+   * 
+   * @param {uuid: string} - The id to find
+   * @returns {Entry | null} The matchingentry
+   */
+   public findEntry(uuid: string): Entry | null { 
+    const match: EntryDoc[] = (toRaw(this._topicDoc).pages.contents as unknown as EntryDoc[]).find((e: EntryDoc)=> e.uuid === uuid);
+
+    return match ? new Entry(match[0], this) : null;
+  }
+
   /**
    * Updates a topic in the database 
    * 

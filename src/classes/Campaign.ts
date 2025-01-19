@@ -44,7 +44,9 @@ export class Campaign {
     if (!campaignDoc)
       return null;
     else {
-      return new Campaign(campaignDoc);
+      const campaign = new Campaign(campaignDoc);
+      await campaign.loadWorld();
+      return campaign;
     }
   }
 
