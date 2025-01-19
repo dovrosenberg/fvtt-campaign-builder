@@ -41,6 +41,11 @@ export const useSessionStore = defineStore('session', () => {
 
   ///////////////////////////////
   // actions
+  
+  /**
+   * Adds a location to the session.
+   * @param uuid the UUID of the location to add.
+   */
   const addLocation = async (uuid: string): Promise<void> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.addLocation()');
@@ -49,6 +54,10 @@ export const useSessionStore = defineStore('session', () => {
     await _refreshRows();
   }
 
+  /**
+   * Deletes a location from the session
+   * @param uuid the UUID of the location
+   */
   const deleteLocation = async (uuid: string): Promise<void> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteLocation()');
@@ -57,6 +66,11 @@ export const useSessionStore = defineStore('session', () => {
     await _refreshRows();
   }
 
+  /**
+   * Set the delivered status for a given location.
+   * @param uuid the UUID of the location
+   * @param delivered the new delivered status
+   */
   const markLocationDelivered = async (uuid: string, delivered: boolean): Promise<void> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.markLocationDelivered()');
@@ -65,6 +79,10 @@ export const useSessionStore = defineStore('session', () => {
     await _refreshRows();
   }
 
+  /**
+   * Move a location to the next session in the campaign, creating it if needed.
+   * @param uuid the UUID of the location to move
+   */
   const moveLocationToNext = async (uuid: string): Promise<void> => {
     throw new Error("sessionstore.moveLocationtonext not writtenl")
     await _refreshRows();

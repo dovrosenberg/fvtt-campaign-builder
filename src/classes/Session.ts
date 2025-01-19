@@ -155,6 +155,20 @@ export class Session {
     };
   }
 
+  get startingAction(): string {
+    return this._sessionDoc.system.startingAction;
+  }
+
+  set startingAction(value: string) {
+    this._sessionDoc.system.startingAction = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        startingAction: value,
+      }
+    };
+  }
+
   get locations(): readonly SessionLocation[] {
     return this._sessionDoc.system.locations || [];
   }

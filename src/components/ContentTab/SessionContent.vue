@@ -92,7 +92,7 @@
               @delete-item="onDeleteLocation"
               @mark-item-done="onMarkLocationDone"
               @unmark-item-done="onUnmarkLocationDone"
-              @move-to-next-session="onMoveToNextSession"        
+              @move-to-next-session="onMoveLocationToNext"        
             />
           </div>  
         </div>
@@ -118,7 +118,7 @@
   import { nextTick, ref, watch, onMounted } from 'vue';
 
   // local imports
-  import { useMainStore, useCampaignDirectoryStore, useNavigationStore } from '@/applications/stores';
+  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useSessionStore } from '@/applications/stores';
   import { WindowTabType } from '@/types';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game';
@@ -145,6 +145,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
+  const sessionStore = useSessionStore();
   const { currentSession, currentContentTab } = storeToRefs(mainStore);
   
   ////////////////////////////////
@@ -218,6 +219,25 @@
     currentSession.value.startingAction = newContent;
     await currentSession.value.save();
   };
+
+  const onAddLocation = async () => {
+  };
+
+  const onDeleteLocation = async (uuid: string) => {
+    await sessionStore.deleteLocation(uuid);
+  }
+
+  const onMarkLocationDone = async (uuid: string) => {
+    await sessionStore.markLocationDelivered(uuid, true);
+  }
+
+  const onUnmarkLocationDone = async (uuid: string) => {
+    await sessionStore.markLocationDelivered(uuid, false);
+  }
+
+  const onMoveLocationToNext = async (uuid: string) => {
+    await sessionStore.moveLocationToNext(uuid);
+  }
 
   ////////////////////////////////
   // watchers
