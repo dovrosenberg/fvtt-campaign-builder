@@ -155,6 +155,26 @@ export class Session {
     };
   }
 
+  get date(): Date | null {
+    // system.date is a string, so need to convert
+    if (!this._sessionDoc.system.date)
+      return null;
+
+    const dateValue = new Date(this._sessionDoc.system.date);
+
+    return dateValue.isValid() ? dateValue : null;
+  }
+
+  set date(value: Date | null) {
+    this._sessionDoc.system.date = value?.isValid() ? value.toISOString() : null;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        date: value,
+      }
+    };
+  }
+
   get startingAction(): string {
     return this._sessionDoc.system.startingAction;
   }

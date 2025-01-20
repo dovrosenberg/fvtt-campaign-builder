@@ -6,7 +6,7 @@ export type SessionLocation = {
 const fields = foundry.data.fields;
 const sessionSchema = {
   number: new fields.NumberField({ required: true, nullable: false }),
-  sessionDate: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: false, }),
+  date: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: false, }),
   startingAction: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
   locations: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionLocation[] }),  
 };
@@ -29,8 +29,8 @@ export interface SessionDoc extends JournalEntryPage {
 
   system: {
     number: number;
+    date: string | null;
     startingAction: string;
-    sessionDate: string;
     locations: SessionLocation[];
   };
 }

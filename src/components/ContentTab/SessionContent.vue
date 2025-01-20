@@ -30,11 +30,9 @@
             </div>
             <div class="form-group fwb-content-header flexcol">
               <label>{{ localize('labels.fields.sessionDate') }}</label>
-              <Datepicker 
+              <DatePicker 
                 v-model="sessionDate"
-                :typeable="true"
-                :clearable="true"
-                :weekStartsOn="0"
+                :show-button-bar="true"
               />   
             </div>
           </div>
@@ -136,7 +134,7 @@
 
   // library components
   import InputText from 'primevue/inputtext';
-  import Datepicker from 'vue3-datepicker'
+  import DatePicker from 'primevue/datepicker';
 	
   // local components
   import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
@@ -166,7 +164,7 @@
   
   const name = ref<string>('');
   const sessionNumber = ref<string>('');
-  const sessionDate = ref<Date>(new Date());
+  const sessionDate = ref<Date | undefined>(undefined);
 
   const contentRef = ref<HTMLElement | null>(null);
 
@@ -258,6 +256,19 @@
   //   if (newTab!==oldTab)
   //     tabs.value?.activate(newTab || 'description');    
   // });
+  let dateDebounceTimer: NodeJS.Timeout | undefined = undefined;
+  watch(sessionDate, async (newDate: Date | undefined): Promise<void> => {
+    const debounceTime = 500;
+  
+    clearTimeout(dateDebounceTimer);
+    
+    dateDebounceTimer = setTimeout(async () => {
+      if (currentSession.value && currentSession.value.date?.toISOString()!==newDate?.toISOString()) {
+        currentSession.value.date = newDate || null;
+        await currentSession.value.save();
+      }
+    }, debounceTime);
+  });
 
   watch(currentSession, async (newSession: Session | null, oldSession: Session | null): Promise<void> => {
     // if we changed entries, reset the tab
@@ -268,6 +279,7 @@
       // load starting data values
       name.value = newSession.name || '';
       sessionNumber.value = newSession.number?.toString() || '';
+      sessionDate.value = newSession.date || undefined;
     }
   });
 
