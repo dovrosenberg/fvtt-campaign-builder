@@ -167,8 +167,8 @@
       "editRelationship": "Edit relationship",
       "deleteRelationship": "Delete relationship",
       "deleteLocation": "Delete location",
-      "markAsDone": "Mark as done",
-      "unmarkAsDone": "Unmark as done",
+      "markAsDelivered": "Mark as delivered",
+      "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session"
     },
     "errors": {

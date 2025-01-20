@@ -235,7 +235,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
-        deliveredItems: this._sessionDoc.system.locations
+        locations: this._sessionDoc.system.locations
       }
     };
 

@@ -95,7 +95,7 @@
           <a 
             v-if="!data.delivered"
             class="fwb-action-icon" 
-            :data-tooltip="localize('tooltips.markAsDone')"
+            :data-tooltip="localize('tooltips.markAsDelivered')"
             @click.stop="emit('markItemDelivered', data.uuid)" 
           >
             <i class="fas fa-check"></i>
@@ -103,7 +103,7 @@
           <a 
             v-if="data.delivered"
             class="fwb-action-icon" 
-            :data-tooltip="localize('tooltips.unmarkAsDone')"
+            :data-tooltip="localize('tooltips.unmarkAsDelivered')"
             @click.stop="emit('unmarkItemDelivered', data.uuid)" 
           >
             <i class="fas fa-circle-xmark"></i>
