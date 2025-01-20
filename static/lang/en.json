@@ -12,6 +12,7 @@
         "type": "Type",
         "parent": "Parent",
         "sessionNumber": "Number",
+        "sessionDate": "Session Date",
         "playerName": "Player Name",
         "backgroundPoints": "Background Points",
         "otherPlotPoints": "Other Plot Points",
@@ -74,6 +75,7 @@
       "organizationName": "Organization Name",
       "campaignName": "Campaign Name",
       "sessionName": "Session Name",
+      "sessionDate": "Date",
       "sessionNumber": "Session Number",
       "linkToActor": "Link to Actor"
     },
@@ -167,7 +169,7 @@
       "deleteLocation": "Delete location",
       "markAsDone": "Mark as done",
       "unmarkAsDone": "Unmark as done",
-      "moveToNextSession": "Move to next session",
+      "moveToNextSession": "Move to next session"
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"

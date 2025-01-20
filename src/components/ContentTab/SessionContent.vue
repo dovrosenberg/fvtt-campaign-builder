@@ -15,17 +15,28 @@
               @update:model-value="onNameUpdate"
             />
           </h1>
-          <div class="form-group fwb-content-header">
-            <label>{{ localize('labels.fields.sessionNumber') }}</label>
-            <InputText
-              v-model="sessionNumber"
-              for="fwb-input-number" 
-              :placeholder="localize('placeholders.sessionNumber')"
-              :pt="{
-                root: { class: 'full-height' } 
-              }" 
-              @update:model-value="onNumberUpdate"
-            />
+          <div class="flexrow">
+            <div class="form-group fwb-content-header flexcol">
+              <label>{{ localize('labels.fields.sessionNumber') }}</label>
+              <InputText
+                v-model="sessionNumber"
+                for="fwb-input-number" 
+                :placeholder="localize('placeholders.sessionNumber')"
+                :pt="{
+                  root: { class: 'full-height' } 
+                }" 
+                @update:model-value="onNumberUpdate"
+              />
+            </div>
+            <div class="form-group fwb-content-header flexcol">
+              <label>{{ localize('labels.fields.sessionDate') }}</label>
+              <Datepicker 
+                v-model="sessionDate"
+                :typeable="true"
+                :clearable="true"
+                :weekStartsOn="0"
+              />   
+            </div>
           </div>
         </div>
       </header>
@@ -121,11 +132,12 @@
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useSessionStore } from '@/applications/stores';
   import { WindowTabType } from '@/types';
   import { getTabTypeIcon } from '@/utils/misc';
-  import { localize } from '@/utils/game';
+  import { localize } from '@/utils/game'
 
   // library components
   import InputText from 'primevue/inputtext';
-
+  import Datepicker from 'vue3-datepicker'
+	
   // local components
   import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
   import Editor from '@/components/Editor.vue';
@@ -154,6 +166,7 @@
   
   const name = ref<string>('');
   const sessionNumber = ref<string>('');
+  const sessionDate = ref<Date>(new Date());
 
   const contentRef = ref<HTMLElement | null>(null);
 
