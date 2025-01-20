@@ -26,7 +26,8 @@
       "session": {
         "session": "Session",
         "pc": "PC",
-        "addLocation": "Add location"
+        "addLocation": "Add location",
+        "addItem": "Add item"
       },
       "campaign": {
         "addPC": "Add PC"
@@ -167,6 +168,7 @@
       "editRelationship": "Edit relationship",
       "deleteRelationship": "Delete relationship",
       "deleteLocation": "Delete location",
+      "deleteItem": "Delete item",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session"

@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, SessionLocation, } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
@@ -236,6 +236,59 @@ export class Session {
       ...this._cumulativeUpdate,
       system: {
         locations: this._sessionDoc.system.locations
+      }
+    };
+
+    await this.save();
+  }
+
+  get items(): readonly SessionItem[] {
+    return this._sessionDoc.system.items || [];
+  }
+
+  async addItem(uuid: string): Promise<void> {
+    if (this._sessionDoc.system.items.find(i=> i.uuid===uuid))
+      return;
+
+    this._sessionDoc.system.items.push({
+      uuid: uuid,
+      delivered: false
+    });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        items: this._sessionDoc.system.items
+      }
+    };
+
+    await this.save();
+  }
+
+  async deleteItem(uuid: string): Promise<void> {
+    this._sessionDoc.system.items = this._sessionDoc.system.items.filter(i=> i.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        items: this._sessionDoc.system.items
+      }
+    };
+
+    await this.save();
+  }
+
+  async markItemDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const item = this._sessionDoc.system.items.find((i) => i.uuid===uuid);
+    if (!item)
+      return;
+    
+    item.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        items: this._sessionDoc.system.items
       }
     };
 

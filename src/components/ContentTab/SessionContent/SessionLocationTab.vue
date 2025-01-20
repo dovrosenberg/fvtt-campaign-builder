@@ -12,7 +12,7 @@
     @unmark-item-delivered="onUnmarkLocationDelivered"
     @move-to-next-session="onMoveLocationToNext"        
   />
-  <ItemPickerDialog
+  <EntryPickerDialog
     v-model="showLocationPicker"
     :topic="Topics.Location"
     @item-picked="onAddLocationPicked"
@@ -34,7 +34,7 @@
 	
   // local components
   import SessionTable from '@/components/DocumentTable/SessionTable.vue';
-  import ItemPickerDialog from '@/components/ItemPickerDialog/ItemPickerDialog.vue';
+  import EntryPickerDialog from '@/components/ContentTab/SessionContent/EntryPickerDialog.vue';
 
   // types
   

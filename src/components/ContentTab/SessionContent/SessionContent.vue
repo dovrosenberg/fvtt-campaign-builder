@@ -100,7 +100,7 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="magic">
           <div class="tab-inner flexcol">
-            magic
+            <SessionItemTab />
           </div>  
         </div>
       </div>
@@ -128,6 +128,7 @@
   import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
   import Editor from '@/components/Editor.vue';
   import SessionLocationTab from './SessionLocationTab.vue';
+  import SessionItemTab from './SessionItemTab.vue';
 
   // types
   import { Session } from '@/classes';

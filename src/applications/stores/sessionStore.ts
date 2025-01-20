@@ -8,7 +8,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
 
 // types
-import { SessionLocationDetails, FieldData, Topics, } from '@/types';
+import { SessionLocationDetails, SessionItemDetails, FieldData, Topics, } from '@/types';
 import { Session } from '@/classes';
 
 // the store definition
@@ -17,15 +17,18 @@ export const useSessionStore = defineStore('session', () => {
   // the state
   // used for tables
   const relatedLocationRows = ref<SessionLocationDetails[]>([]);
+  const relatedItemRows = ref<SessionItemDetails[]>([]);
   
   enum SessionTableTypes {
     None,
     Location,
+    Item,
   }
 
   const extraFields = {
     [SessionTableTypes.None]: [],
     [SessionTableTypes.Location]: [],
+    [SessionTableTypes.Item]: [],  // TODO: do we need extra fields to show the location, etc?
   } as Record<SessionTableTypes, FieldData>;
   
   ///////////////////////////////
@@ -100,6 +103,63 @@ export const useSessionStore = defineStore('session', () => {
     await _refreshRows();
   }
 
+  /**
+   * Adds a magic item to the session.
+   * @param uuid the UUID of the item to add.
+   */
+  const addItem = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.addItem()');
+
+    await currentSession.value.addItem(uuid);
+    await _refreshRows();
+  }
+
+  /**
+   * Deletes a magic item from the session
+   * @param uuid the UUID of the item
+   */
+  const deleteItem = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.deleteItem()');
+
+    await currentSession.value.deleteItem(uuid);
+    await _refreshRows();
+  }
+
+  /**
+   * Set the delivered status for a given magic item.
+   * @param uuid the UUID of the item
+   * @param delivered the new delivered status
+   */
+  const markItemDelivered = async (uuid: string, delivered: boolean): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.markItemDelivered()');
+
+    await currentSession.value.markItemDelivered(uuid, delivered);
+    await _refreshRows();
+  }
+
+  /**
+   * Move a magic item to the next session in the campaign, creating it if needed.
+   * @param uuid the UUID of the item to move
+   */
+  const moveItemToNext = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      return;
+
+    const nextSession = await getNextSession();
+
+    if (!nextSession)
+      return;
+
+    // have a next session - add there and delete here
+    await nextSession.addItem(uuid);
+    await currentSession.value.deleteItem(uuid);
+
+    await _refreshRows();
+  }
+
   const getNextSession = async (): Promise<Session | null> => {
     if (!currentSession.value || !currentSession.value.parentCampaign || currentSession.value.number===null)
       return null;
@@ -130,6 +190,14 @@ export const useSessionStore = defineStore('session', () => {
   ///////////////////////////////
   // internal functions
   const _refreshRows = async () => {
+    relatedLocationRows.value = [];
+    relatedItemRows.value = [];
+
+    await _refreshLocationRows();
+    await _refreshItemRows();
+  };
+
+  const _refreshLocationRows = async () => {
     if (!currentSession.value)
       return;
 
@@ -152,7 +220,29 @@ export const useSessionStore = defineStore('session', () => {
     }
 
     relatedLocationRows.value = retval;
-  };
+  }
+
+
+  const _refreshItemRows = async () => {
+    if (!currentSession.value)
+      return;
+
+    const retval = [] as SessionItemDetails[];
+
+    for (const item of currentSession.value?.items) {
+      const entry = await fromUuid(item.uuid) as Item;
+
+      if (entry) {
+        retval.push({
+          uuid: item.uuid,
+          delivered: item.delivered,
+          name: entry.name, 
+        });
+      }
+    }
+
+    relatedItemRows.value = retval;
+  }
 
   ///////////////////////////////
   // watchers
@@ -176,5 +266,9 @@ export const useSessionStore = defineStore('session', () => {
     deleteLocation,
     markLocationDelivered,
     moveLocationToNext,
+    addItem,
+    deleteItem,
+    markItemDelivered,
+    moveItemToNext,
   };
 });

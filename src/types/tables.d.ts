@@ -25,7 +25,13 @@ export type PCDetails = {
 }
 
 export type SessionLocationDetails = {
-  uuid: string;   // the other item
+  uuid: string;   // the location entry
+  name: string;
+  delivered: boolean;
+}
+
+export type SessionItemDetails = {
+  uuid: string;   // the Item document
   name: string;
   delivered: boolean;
 }
