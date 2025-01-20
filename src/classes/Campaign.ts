@@ -92,7 +92,7 @@ export class Campaign {
   //    metadata
   get nextSessionNumber(): number {
     let maxNumber = 0;
-    this._campaignDoc.pages.forEach((page: JournalEntryPage) => {
+    toRaw(this._campaignDoc).pages.forEach((page: JournalEntryPage) => {
       if (page.type === DOCUMENT_TYPES.Session && (page as unknown as SessionDoc).system.number > maxNumber)
         maxNumber = (page as unknown as SessionDoc).system.number;
     });

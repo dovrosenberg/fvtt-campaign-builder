@@ -1,15 +1,15 @@
 // this store handles activities specific to campaigns 
 // 
 // library imports
+import { ref, watch } from 'vue';
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { useMainStore, } from './index';
+import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
 
 // types
 import { SessionLocationDetails, FieldData, Topics, } from '@/types';
-import { watch } from 'vue';
-import { ref } from 'vue';
+import { Session } from '@/classes';
 
 // the store definition
 export const useSessionStore = defineStore('session', () => {
@@ -31,6 +31,7 @@ export const useSessionStore = defineStore('session', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentWorld, currentContentTab, currentSession, } = storeToRefs(mainStore);
 
   ///////////////////////////////
@@ -84,8 +85,43 @@ export const useSessionStore = defineStore('session', () => {
    * @param uuid the UUID of the location to move
    */
   const moveLocationToNext = async (uuid: string): Promise<void> => {
-    throw new Error("sessionstore.moveLocationtonext not writtenl")
+    if (!currentSession.value)
+      return;
+
+    const nextSession = await getNextSession();
+
+    if (!nextSession)
+      return;
+
+    // have a next session - add there and delete here
+    await nextSession.addLocation(uuid);
+    await currentSession.value.deleteLocation(uuid);
+
     await _refreshRows();
+  }
+
+  const getNextSession = async (): Promise<Session | null> => {
+    if (!currentSession.value || !currentSession.value.parentCampaign || currentSession.value.number===null)
+      return null;
+
+    const campaign = currentSession.value.parentCampaign;
+    const nextSessionNumber = currentSession.value.number+1;
+    const nextSession = campaign.filterSessions(s => s.number === nextSessionNumber);
+
+    // found it - just return it
+    if (nextSession.length>0) 
+      return nextSession[0];
+    
+    // need to create one
+    const newSession = await Session.create(campaign);
+    if (!newSession)
+      return null;
+
+    newSession.number = nextSessionNumber;
+
+    await campaignDirectoryStore.refreshCampaignDirectoryTree();
+
+    return newSession;
   }
 
   ///////////////////////////////
