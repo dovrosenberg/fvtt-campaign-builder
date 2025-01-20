@@ -78,7 +78,7 @@
           #body="{ data }"
         >
           <a 
-            class="" 
+            class="fwb-action-icon" 
             :data-tooltip="props.deleteItemLabel"
             @click.stop="emit('deleteItem', data.uuid)" 
           >
@@ -86,30 +86,32 @@
           </a>
           <a 
             v-if="props.allowEdit"
-            class="" 
+            class="fwb-action-icon" 
             :data-tooltip="props.editItemLabel"
-            @click.stop="emit('editItem', data)" 
+            @click.stop="emit('editItem', data.uuid)" 
           >
             <i class="fas fa-pen"></i>
           </a>
           <a 
-            class="" 
+            v-if="!data.delivered"
+            class="fwb-action-icon" 
             :data-tooltip="localize('tooltips.markAsDone')"
-            @click.stop="emit('markItemDone', data)" 
+            @click.stop="emit('markItemDelivered', data.uuid)" 
           >
             <i class="fas fa-check"></i>
           </a>
           <a 
-            class="" 
+            v-if="data.delivered"
+            class="fwb-action-icon" 
             :data-tooltip="localize('tooltips.unmarkAsDone')"
-            @click.stop="emit('unmarkItemDone', data)" 
+            @click.stop="emit('unmarkItemDelivered', data.uuid)" 
           >
             <i class="fas fa-circle-xmark"></i>
           </a>
           <a 
-            class="" 
+            class="fwb-action-icon" 
             :data-tooltip="localize('tooltips.moveToNextSession')"
-            @click.stop="emit('moveToNextSession', data)" 
+            @click.stop="emit('moveToNextSession', data.uuid)" 
           >
             <i class="fas fa-share"></i>
           </a>
@@ -122,7 +124,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, PropType, } from 'vue';
+  import { ref, PropType, computed } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
@@ -136,7 +138,7 @@
 
   // types
   import { TablePagination,  } from '@/types';
-  type GridRow = { uuid: string; } & Record<string, string>;
+  type GridRow = { uuid: string; delivered: boolean } & Record<string, string>;
 
   ////////////////////////////////
   // props
@@ -150,7 +152,7 @@
       default: '',
     },
     rows: {
-      type: Array as PropType<GridRow[]>,
+      type: Array as PropType<Readonly<GridRow[]>>,
       required: true,
     },
     columns: {
@@ -174,7 +176,7 @@
   ////////////////////////////////
   // emits
   const emit = defineEmits(['rowSelect', 'editItem', 'deleteItem', 'addItem', 
-      'rowContextMenu', 'markItemDone', 'unmarkItemDone', 'moveToNextSession']);
+      'rowContextMenu', 'markItemDelivered', 'unmarkItemDelivered', 'moveToNextSession']);
 
   ////////////////////////////////
   // store
@@ -192,6 +194,18 @@
 
   ////////////////////////////////
   // computed data
+  const columns = computed((): any[] => {
+    // they all have some standard columns
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
+
+    const columns = [ actionColumn, nameColumn ];
+    for (const col of props.columns) {
+      columns.push(col);
+    }
+
+    return columns;
+  });
 
   ////////////////////////////////
   // methods
@@ -210,7 +224,8 @@
 </script>
 
 <style lang="scss" scoped>
-  .action-icon {
+  .fwb-action-icon {
     cursor: pointer;
+    margin-right: 3px;
   }
 </style>

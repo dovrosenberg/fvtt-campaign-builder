@@ -212,9 +212,9 @@ export class TopicFolder {
    * @returns {Entry | null} The matchingentry
    */
    public findEntry(uuid: string): Entry | null { 
-    const match: EntryDoc[] = (toRaw(this._topicDoc).pages.contents as unknown as EntryDoc[]).find((e: EntryDoc)=> e.uuid === uuid);
+    const match: EntryDoc | undefined = (toRaw(this._topicDoc).pages.contents as unknown as EntryDoc[]).find((e: EntryDoc)=> e.uuid === uuid);
 
-    return match ? new Entry(match[0], this) : null;
+    return match ? new Entry(match, this) : null;
   }
 
   /**

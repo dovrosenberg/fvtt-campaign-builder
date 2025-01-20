@@ -92,7 +92,7 @@
           #body="{ data }"
         >
           <a 
-            class="" 
+            class="fwb-action-icon" 
             :data-tooltip="props.deleteItemLabel"
             @click.stop="emit('deleteItem', data.uuid)" 
           >
@@ -100,7 +100,7 @@
           </a>
           <a 
             v-if="props.allowEdit"
-            class="" 
+            class="fwb-action-icon" 
             :data-tooltip="props.editItemLabel"
             @click.stop="emit('editItem', data)" 
           >
@@ -238,7 +238,8 @@
 </script>
 
 <style lang="scss" scoped>
-  .action-icon {
+  .fwb-action-icon {
     cursor: pointer;
+    margin-right: 3px;
   }
 </style>

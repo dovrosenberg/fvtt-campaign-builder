@@ -194,6 +194,9 @@ export class Session {
   }
 
   async addLocation(uuid: string): Promise<void> {
+    if (this._sessionDoc.system.locations.find(l=> l.uuid===uuid))
+      return;
+
     this._sessionDoc.system.locations.push({
       uuid: uuid,
       delivered: false
@@ -202,7 +205,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
-        deliveredItems: this._sessionDoc.system.locations
+        locations: this._sessionDoc.system.locations
       }
     };
 
@@ -215,7 +218,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
-        deliveredItems: this._sessionDoc.system.locations
+        locations: this._sessionDoc.system.locations
       }
     };
 

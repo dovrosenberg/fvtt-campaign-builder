@@ -50,7 +50,7 @@
         </InputGroup>
       </div>
       <div v-else>
-        All possible related items are already connected.
+        No items found
       </div>
       <template #footer>
         <Button 
@@ -79,7 +79,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useRelationshipStore, } from '@/applications/stores';
+  import { useMainStore, } from '@/applications/stores';
 
   // library components
   import Dialog from 'primevue/dialog';
@@ -108,13 +108,12 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['update:modelValue']);
+  const emit = defineEmits(['update:modelValue', 'itemPicked', ]);
 
   ////////////////////////////////
   // store
-  const relationshipStore = useRelationshipStore();
   const mainStore = useMainStore();
-  const { currentEntry, currentWorld, currentEntryTopic } = storeToRefs(mainStore);
+  const { currentWorld, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -181,22 +180,16 @@
     }
   };
 
-  const onAddClick = async function() {
-    loading.value = true;
+  const onAddClick = function() {
+    // loading.value = true;
 
     if (entry.value) {
-      // replace nulls with empty strings
-      const extraFieldsToSend = extraFields.value.reduce((acc, field) => {
-        acc[field.field] = extraFieldValues.value[field.field] || '';
-        return acc;
-      }, {} as Record<string, string>);
-
-      await relationshipStore.addRelationship(entry.value as Entry, extraFieldsToSend);
+      emit('itemPicked', entry.value.uuid);
     }
 
     resetDialog();
 
-    loading.value = false;
+    // loading.value = false;
   };
   
   const onClose = function() {
@@ -218,11 +211,7 @@
       return;
 
     if (newValue) {
-      if (!currentEntry.value || !currentEntryTopic.value)
-        throw new Error('Trying to show AddRelatedItemDialog without a current entry');
-
-      selectItems.value = (await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder), currentEntry.value).map(mapEntryToOption);
-      extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
+      selectItems.value = (await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder)).map(mapEntryToOption);
 
       // focus on the input
       await nextTick();

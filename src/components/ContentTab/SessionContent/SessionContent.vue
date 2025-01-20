@@ -90,19 +90,7 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="locations">
           <div class="tab-inner flexcol">
-            <SessionTable 
-              :rows="[]"
-              :columns="[]"  
-              :delete-item-label="localize('tooltips.deleteLocation')"   
-              :allow-edit="false"
-              :show-add-button="true"
-              :add-button-label="localize('labels.session.addLocation')" 
-              @add-item="onAddLocation"
-              @delete-item="onDeleteLocation"
-              @mark-item-done="onMarkLocationDone"
-              @unmark-item-done="onUnmarkLocationDone"
-              @move-to-next-session="onMoveLocationToNext"        
-            />
+            <SessionLocationTab />
           </div>  
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="monsters">
@@ -139,7 +127,7 @@
   // local components
   import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
   import Editor from '@/components/Editor.vue';
-  import SessionTable from '@/components/DocumentTable/SessionTable.vue';
+  import SessionLocationTab from './SessionLocationTab.vue';
 
   // types
   import { Session } from '@/classes';
@@ -231,24 +219,6 @@
     await currentSession.value.save();
   };
 
-  const onAddLocation = async () => {
-  };
-
-  const onDeleteLocation = async (uuid: string) => {
-    await sessionStore.deleteLocation(uuid);
-  }
-
-  const onMarkLocationDone = async (uuid: string) => {
-    await sessionStore.markLocationDelivered(uuid, true);
-  }
-
-  const onUnmarkLocationDone = async (uuid: string) => {
-    await sessionStore.markLocationDelivered(uuid, false);
-  }
-
-  const onMoveLocationToNext = async (uuid: string) => {
-    await sessionStore.moveLocationToNext(uuid);
-  }
 
   ////////////////////////////////
   // watchers

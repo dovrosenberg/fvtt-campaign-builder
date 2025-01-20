@@ -40,7 +40,6 @@
 </template>
 
 <script setup lang="ts">
-
   // library imports
   import { storeToRefs } from 'pinia';
 
@@ -51,7 +50,7 @@
 
   // local components
   import EntryContent from './EntryContent.vue';
-  import SessionContent from './SessionContent.vue';
+  import SessionContent from './SessionContent/SessionContent.vue';
   import PCContent from './PCContent.vue';
   import CampaignContent from './CampaignContent.vue';
   import HomePage from './HomePage.vue';

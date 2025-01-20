@@ -241,7 +241,4 @@
 </script>
 
 <style lang="scss" scoped>
-  .action-icon {
-    cursor: pointer;
-  }
 </style>
