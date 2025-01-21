@@ -9,6 +9,7 @@
       paginator-position="bottom"
       paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
       current-page-report-template="{first} to {last} of {totalRecords}"
+      :editMode="columns.find(c=>c.editable) ? 'cell' : undefined"
       :sort-field="pagination.sortField"
       :sort-order="pagination.sortOrder"
       :default-sort-order="1"
@@ -33,6 +34,7 @@
 
       @row-select="emit('rowSelect', $event)"
       @row-contextmenu="emit('rowContextMenu', $event)"
+      @cell-edit-complete="emit('cellEditComplete', $event)"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -116,6 +118,12 @@
             <i class="fas fa-share"></i>
           </a>
         </template>
+        <template
+          v-if="col.editable"
+          #body="{ data }"
+        >
+          <InputText v-model="data[col.field]" autofocus fluid />
+        </template>
       </Column>
     </DataTable>
   </div>
@@ -131,13 +139,14 @@
 
   // library components
   import Button from 'primevue/button';
-  import DataTable, { DataTableRowContextMenuEvent, DataTableRowSelectEvent } from 'primevue/datatable';
+  import DataTable, { DataTableCellEditCompleteEvent, DataTableRowContextMenuEvent, DataTableRowSelectEvent } from 'primevue/datatable';
   import Column from 'primevue/column';
+  import InputText from 'primevue/inputtext';
 
   // local components
 
   // types
-  import { TablePagination,  } from '@/types';
+  import { TablePagination, } from '@/types';
   type GridRow = { uuid: string; delivered: boolean } & Record<string, string>;
 
   ////////////////////////////////
@@ -180,6 +189,7 @@
     (e: 'editItem', uuid: string): void;
     (e: 'deleteItem', uuid: string): void;
     (e: 'addItem'): void;
+    (e: 'cellEditComplete', originalEvent: DataTableCellEditCompleteEvent): void;
     (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
     (e: 'markItemDelivered', uuid: string): void;
     (e: 'unmarkItemDelivered', uuid: string): void;

@@ -171,6 +171,7 @@
       "deleteLocation": "Delete location",
       "deleteNPC": "Delete NPC",
       "deleteItem": "Delete item",
+      "deleteMonster": "Delete monster",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session"

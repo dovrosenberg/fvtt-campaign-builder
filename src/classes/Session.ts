@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
@@ -289,6 +289,78 @@ export class Session {
       ...this._cumulativeUpdate,
       system: {
         npcs: this._sessionDoc.system.npcs
+      }
+    };
+
+    await this.save();
+  }
+
+  get monsters(): readonly SessionMonster[] {
+    return this._sessionDoc.system.monsters || [];
+  }
+
+  async addMonster(uuid: string, number = 1): Promise<void> {
+    if (this._sessionDoc.system.monsters.find(l=> l.uuid===uuid))
+      return;
+
+    this._sessionDoc.system.monsters.push({
+      uuid: uuid,
+      number: number,
+      delivered: false
+    });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        monsters: this._sessionDoc.system.monsters
+      }
+    };
+
+    await this.save();
+  }
+
+  async updateMonsterNumber(uuid: string, value: number): Promise<void> {
+    const monster = this._sessionDoc.system.monsters.find(l=> l.uuid===uuid);
+
+    if (!monster)
+      return;
+
+    monster.number = value;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        monsters: this._sessionDoc.system.monsters
+      }
+    };
+
+    await this.save();
+  }
+
+  async deleteMonster(uuid: string): Promise<void> {
+    this._sessionDoc.system.monsters = this._sessionDoc.system.monsters.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        monsters: this._sessionDoc.system.monsters
+      }
+    };
+
+    await this.save();
+  }
+
+  async markMonsterDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const monster = this._sessionDoc.system.monsters.find((l) => l.uuid===uuid);
+    if (!monster)
+      return;
+    
+    monster.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        monsters: this._sessionDoc.system.monsters
       }
     };
 

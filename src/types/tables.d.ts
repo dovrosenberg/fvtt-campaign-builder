@@ -9,7 +9,11 @@ export type TablePagination = {
   filters: Record<string, { value: string | null; matchMode: DataTableFilterMetaData['matchMode']}>;   // maps field name to filter value applied to it
 }
 
-export type FieldData = {field:string; header: string}[];
+export type FieldData = {
+  field:string; 
+  header: string;
+  editable?: boolean;
+}[];
 
 export type PaginationResult<T extends AnyRow> = {
   rows: T[];
@@ -39,5 +43,12 @@ export type SessionNPCDetails = {
 export type SessionItemDetails = {
   uuid: string;   // the Item document
   name: string;
+  delivered: boolean;
+}
+
+export type SessionMonsterDetails = {
+  uuid: string;   // the Actor document
+  name: string;
+  number: number;
   delivered: boolean;
 }

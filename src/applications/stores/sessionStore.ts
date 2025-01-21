@@ -8,8 +8,15 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
 
 // types
-import { SessionLocationDetails, SessionItemDetails, FieldData, Topics, SessionNPCDetails, } from '@/types';
+import { SessionLocationDetails, SessionItemDetails, FieldData, Topics, SessionNPCDetails, SessionMonsterDetails, } from '@/types';
 import { Session } from '@/classes';
+export enum SessionTableTypes {
+  None,
+  Location,
+  Item,
+  NPC,
+  Monster,
+}
 
 // the store definition
 export const useSessionStore = defineStore('session', () => {
@@ -19,19 +26,19 @@ export const useSessionStore = defineStore('session', () => {
   const relatedLocationRows = ref<SessionLocationDetails[]>([]);
   const relatedItemRows = ref<SessionItemDetails[]>([]);
   const relatedNPCRows = ref<SessionNPCDetails[]>([]);
+  const relatedMonsterRows = ref<SessionMonsterDetails[]>([]);
   
-  enum SessionTableTypes {
-    None,
-    Location,
-    Item,
-    NPC
-  }
 
   const extraFields = {
     [SessionTableTypes.None]: [],
     [SessionTableTypes.Location]: [],
     [SessionTableTypes.Item]: [],  // TODO: do we need extra fields to show the location, etc?
     [SessionTableTypes.NPC]: [],  // TODO: do we need extra fields to show the location, etc?
+    [SessionTableTypes.Monster]: [{
+     field: 'number', 
+     header: 'Number', 
+     editable: true,
+    }],  // TODO: do we need extra fields to show the location, etc?
   } as Record<SessionTableTypes, FieldData>;
   
   ///////////////////////////////
@@ -220,6 +227,80 @@ export const useSessionStore = defineStore('session', () => {
     await _refreshRows();
   }
 
+  /**
+   * Adds a monster to the session.
+   * @param uuid the UUID of the actor to add.
+   */
+  const addMonster = async (uuid: string, number = 1): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.addMonster()');
+
+    await currentSession.value.addMonster(uuid, number);
+    await _refreshRows();
+  }
+
+  /**
+   * Deletes a monster from the session
+   * @param uuid the UUID of the actor
+   */
+  const deleteMonster = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.deleteMonster()');
+
+    await currentSession.value.deleteMonster(uuid);
+    await _refreshRows();
+  }
+
+  /**
+   * Updates the number associated with a a monster row
+   * @param uuid the UUID of the actor
+   */
+  const updateMonsterNumber = async (uuid: string, value: number): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.updateMonsterNumber()');
+
+    await currentSession.value.updateMonsterNumber(uuid, value);
+    await _refreshRows();
+  }
+
+  /**
+   * Set the delivered status for a given monster.
+   * @param uuid the UUID of the actor
+   * @param delivered the new delivered status
+   */
+  const markMonsterDelivered = async (uuid: string, delivered: boolean): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.markMonsterDelivered()');
+
+    await currentSession.value.markMonsterDelivered(uuid, delivered);
+    await _refreshRows();
+  }
+
+  /**
+   * Move a monster to the next session in the campaign, creating it if needed.
+   * @param uuid the UUID of the actor to move
+   */
+  const moveMonsterToNext = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      return;
+
+    const currentMonster = currentSession.value.monsters.find(m=> m.uuid===uuid);
+
+    if (!currentMonster)
+      return;
+
+    const nextSession = await getNextSession();
+
+    if (!nextSession)
+      return;
+
+    // have a next session - add there and delete here
+    await nextSession.addMonster(uuid, currentMonster.number);
+    await currentSession.value.deleteMonster(uuid);
+
+    await _refreshRows();
+  }
+
   const getNextSession = async (): Promise<Session | null> => {
     if (!currentSession.value || !currentSession.value.parentCampaign || currentSession.value.number===null)
       return null;
@@ -253,10 +334,12 @@ export const useSessionStore = defineStore('session', () => {
     relatedLocationRows.value = [];
     relatedItemRows.value = [];
     relatedNPCRows.value = [];
+    relatedMonsterRows.value = [];
 
     await _refreshLocationRows();
     await _refreshItemRows();
     await _refreshNPCRows();
+    await _refreshMonsterRows();
   };
 
   const _refreshLocationRows = async () => {
@@ -331,6 +414,28 @@ export const useSessionStore = defineStore('session', () => {
     relatedItemRows.value = retval;
   }
 
+  const _refreshMonsterRows = async () => {
+    if (!currentSession.value)
+      return;
+
+    const retval = [] as SessionMonsterDetails[];
+
+    for (const monster of currentSession.value?.monsters) {
+      const entry = await fromUuid(monster.uuid) as Actor;
+
+      if (entry) {
+        retval.push({
+          uuid: monster.uuid,
+          delivered: monster.delivered,
+          number: monster.number,
+          name: entry.name, 
+        });
+      }
+    }
+
+    relatedMonsterRows.value = retval;
+  }
+
   ///////////////////////////////
   // watchers
   watch(()=> currentSession.value, async () => {
@@ -350,6 +455,7 @@ export const useSessionStore = defineStore('session', () => {
     relatedLocationRows,
     relatedItemRows,
     relatedNPCRows,
+    relatedMonsterRows,
     extraFields,
     addLocation,
     deleteLocation,
@@ -363,5 +469,10 @@ export const useSessionStore = defineStore('session', () => {
     deleteNPC,
     markNPCDelivered,
     moveNPCToNext,
+    addMonster,
+    deleteMonster,
+    updateMonsterNumber,
+    markMonsterDelivered,
+    moveMonsterToNext,
   };
 });
