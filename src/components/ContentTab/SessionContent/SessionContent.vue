@@ -66,7 +66,7 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="npcs">
           <div class="tab-inner flexcol">
-            npcs
+            <SessionNPCTab />
           </div>  
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="scenes">
@@ -129,6 +129,7 @@
   import Editor from '@/components/Editor.vue';
   import SessionLocationTab from '@/components/ContentTab/SessionContent/SessionLocationTab.vue';
   import SessionItemTab from '@/components/ContentTab/SessionContent/SessionItemTab.vue';
+  import SessionNPCTab from '@/components/ContentTab/SessionContent/SessionNPCTab.vue';
 
   // types
   import { Session } from '@/classes';

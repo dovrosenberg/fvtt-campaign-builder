@@ -30,6 +30,12 @@ export type SessionLocationDetails = {
   delivered: boolean;
 }
 
+export type SessionNPCDetails = {
+  uuid: string;   // the character entry
+  name: string;
+  delivered: boolean;
+}
+
 export type SessionItemDetails = {
   uuid: string;   // the Item document
   name: string;

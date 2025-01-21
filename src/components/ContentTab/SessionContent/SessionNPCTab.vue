@@ -1,22 +1,22 @@
 <template>
   <SessionTable 
-    :rows="relatedLocationRows"
+    :rows="relatedNPCRows"
     :columns="[]"  
-    :delete-item-label="localize('tooltips.deleteLocation')"   
+    :delete-item-label="localize('tooltips.deleteNPC')"   
     :allow-edit="false"
     :show-add-button="true"
-    :add-button-label="localize('labels.session.addLocation')" 
+    :add-button-label="localize('labels.session.addNPC')" 
     @row-select="onRowSelect"
-    @add-item="showLocationPicker=true"
-    @delete-item="onDeleteLocation"
-    @mark-item-delivered="onMarkLocationDelivered"
-    @unmark-item-delivered="onUnmarkLocationDelivered"
-    @move-to-next-session="onMoveLocationToNext"        
+    @add-item="showNPCPicker=true"
+    @delete-item="onDeleteNPC"
+    @mark-item-delivered="onMarkNPCDelivered"
+    @unmark-item-delivered="onUnmarkNPCDelivered"
+    @move-to-next-session="onMoveNPCToNext"        
   />
   <EntryPickerDialog
-    v-model="showLocationPicker"
-    :topic="Topics.Location"
-    @item-picked="onAddLocationPicked"
+    v-model="showNPCPicker"
+    :topic="Topics.Character"
+    @item-picked="onAddNPCPicked"
   />
 </template>
 
@@ -32,7 +32,7 @@
   import { localize } from '@/utils/game'
 
   // library components
-	import { DatatableRowSelectEvent } from 'primevue/datatable';
+	import { DataTableRowSelectEvent } from 'primevue/datatable';
 
   // local components
   import SessionTable from '@/components/DocumentTable/SessionTable.vue';
@@ -50,11 +50,11 @@
   // store
   const sessionStore = useSessionStore();
   const navigationStore = useNavigationStore();
-  const { relatedLocationRows } = storeToRefs(sessionStore);
+  const { relatedNPCRows } = storeToRefs(sessionStore);
   
   ////////////////////////////////
   // data
-  const showLocationPicker = ref<boolean>(false);
+  const showNPCPicker = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
@@ -64,28 +64,28 @@
 
   ////////////////////////////////
   // event handlers
-  const onRowSelect = async function (event: DatatableRowSelectEvent) { 
+  const onRowSelect = async function (event: DataTableRowSelectEvent) { 
     await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
 
-  const onAddLocationPicked = async (uuid: string) => {
-    await sessionStore.addLocation(uuid);  
+  const onAddNPCPicked = async (uuid: string) => {
+    await sessionStore.addNPC(uuid);  
   }
 
-  const onDeleteLocation = async (uuid: string) => {
-    await sessionStore.deleteLocation(uuid);
+  const onDeleteNPC = async (uuid: string) => {
+    await sessionStore.deleteNPC(uuid);
   }
 
-  const onMarkLocationDelivered = async (uuid: string) => {
-    await sessionStore.markLocationDelivered(uuid, true);
+  const onMarkNPCDelivered = async (uuid: string) => {
+    await sessionStore.markNPCDelivered(uuid, true);
   }
 
-  const onUnmarkLocationDelivered = async (uuid: string) => {
-    await sessionStore.markLocationDelivered(uuid, false);
+  const onUnmarkNPCDelivered = async (uuid: string) => {
+    await sessionStore.markNPCDelivered(uuid, false);
   }
 
-  const onMoveLocationToNext = async (uuid: string) => {
-    await sessionStore.moveLocationToNext(uuid);
+  const onMoveNPCToNext = async (uuid: string) => {
+    await sessionStore.moveNPCToNext(uuid);
   }
 
   ////////////////////////////////

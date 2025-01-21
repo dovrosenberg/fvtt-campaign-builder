@@ -27,6 +27,7 @@
         "session": "Session",
         "pc": "PC",
         "addLocation": "Add location",
+        "addNPC": "Add NPC",
         "addItem": "Add item"
       },
       "campaign": {
@@ -168,6 +169,7 @@
       "editRelationship": "Edit relationship",
       "deleteRelationship": "Delete relationship",
       "deleteLocation": "Delete location",
+      "deleteNPC": "Delete NPC",
       "deleteItem": "Delete item",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",

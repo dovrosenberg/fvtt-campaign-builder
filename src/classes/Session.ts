@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
@@ -236,6 +236,59 @@ export class Session {
       ...this._cumulativeUpdate,
       system: {
         locations: this._sessionDoc.system.locations
+      }
+    };
+
+    await this.save();
+  }
+
+  get npcs(): readonly SessionNPC[] {
+    return this._sessionDoc.system.npcs || [];
+  }
+
+  async addNPC(uuid: string): Promise<void> {
+    if (this._sessionDoc.system.npcs.find(l=> l.uuid===uuid))
+      return;
+
+    this._sessionDoc.system.npcs.push({
+      uuid: uuid,
+      delivered: false
+    });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        npcs: this._sessionDoc.system.npcs
+      }
+    };
+
+    await this.save();
+  }
+
+  async deleteNPC(uuid: string): Promise<void> {
+    this._sessionDoc.system.npcs = this._sessionDoc.system.npcs.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        npcs: this._sessionDoc.system.npcs
+      }
+    };
+
+    await this.save();
+  }
+
+  async markNPCDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const npc = this._sessionDoc.system.npcs.find((l) => l.uuid===uuid);
+    if (!npc)
+      return;
+    
+    npc.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        npcs: this._sessionDoc.system.npcs
       }
     };
 

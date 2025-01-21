@@ -8,7 +8,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
 
 // types
-import { SessionLocationDetails, SessionItemDetails, FieldData, Topics, } from '@/types';
+import { SessionLocationDetails, SessionItemDetails, FieldData, Topics, SessionNPCDetails, } from '@/types';
 import { Session } from '@/classes';
 
 // the store definition
@@ -18,17 +18,20 @@ export const useSessionStore = defineStore('session', () => {
   // used for tables
   const relatedLocationRows = ref<SessionLocationDetails[]>([]);
   const relatedItemRows = ref<SessionItemDetails[]>([]);
+  const relatedNPCRows = ref<SessionNPCDetails[]>([]);
   
   enum SessionTableTypes {
     None,
     Location,
     Item,
+    NPC
   }
 
   const extraFields = {
     [SessionTableTypes.None]: [],
     [SessionTableTypes.Location]: [],
     [SessionTableTypes.Item]: [],  // TODO: do we need extra fields to show the location, etc?
+    [SessionTableTypes.NPC]: [],  // TODO: do we need extra fields to show the location, etc?
   } as Record<SessionTableTypes, FieldData>;
   
   ///////////////////////////////
@@ -99,6 +102,63 @@ export const useSessionStore = defineStore('session', () => {
     // have a next session - add there and delete here
     await nextSession.addLocation(uuid);
     await currentSession.value.deleteLocation(uuid);
+
+    await _refreshRows();
+  }
+
+  /**
+   * Adds a NPC to the session.
+   * @param uuid the UUID of the character to add.
+   */
+  const addNPC = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.addNPC()');
+
+    await currentSession.value.addNPC(uuid);
+    await _refreshRows();
+  }
+
+  /**
+   * Deletes a NPC from the session
+   * @param uuid the UUID of the character
+   */
+  const deleteNPC = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.deleteNPC()');
+
+    await currentSession.value.deleteNPC(uuid);
+    await _refreshRows();
+  }
+
+  /**
+   * Set the delivered status for a given NPC.
+   * @param uuid the UUID of the character
+   * @param delivered the new delivered status
+   */
+  const markNPCDelivered = async (uuid: string, delivered: boolean): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.markNPCDelivered()');
+
+    await currentSession.value.markNPCDelivered(uuid, delivered);
+    await _refreshRows();
+  }
+
+  /**
+   * Move a NPC to the next session in the campaign, creating it if needed.
+   * @param uuid the UUID of the character to move
+   */
+  const moveNPCToNext = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      return;
+
+    const nextSession = await getNextSession();
+
+    if (!nextSession)
+      return;
+
+    // have a next session - add there and delete here
+    await nextSession.addNPC(uuid);
+    await currentSession.value.deleteNPC(uuid);
 
     await _refreshRows();
   }
@@ -192,9 +252,11 @@ export const useSessionStore = defineStore('session', () => {
   const _refreshRows = async () => {
     relatedLocationRows.value = [];
     relatedItemRows.value = [];
+    relatedNPCRows.value = [];
 
     await _refreshLocationRows();
     await _refreshItemRows();
+    await _refreshNPCRows();
   };
 
   const _refreshLocationRows = async () => {
@@ -222,6 +284,31 @@ export const useSessionStore = defineStore('session', () => {
     relatedLocationRows.value = retval;
   }
 
+
+  const _refreshNPCRows = async () => {
+    if (!currentSession.value)
+      return;
+
+    const retval = [] as SessionNPCDetails[];
+    const topicFolder = currentWorld.value?.topicFolders[Topics.Character];
+
+    if (!topicFolder)
+      throw new Error('Invalid topic folder in sessionStore._refreshRows()');
+
+    for (const npc of currentSession.value?.npcs) {
+      const entry = await topicFolder.findEntry(npc.uuid);
+
+      if (entry) {
+        retval.push({
+          uuid: npc.uuid,
+          delivered: npc.delivered,
+          name: entry.name, 
+        });
+      }
+    }
+
+    relatedNPCRows.value = retval;
+  }
 
   const _refreshItemRows = async () => {
     if (!currentSession.value)
@@ -262,6 +349,7 @@ export const useSessionStore = defineStore('session', () => {
   return {
     relatedLocationRows,
     relatedItemRows,
+    relatedNPCRows,
     extraFields,
     addLocation,
     deleteLocation,
@@ -271,5 +359,9 @@ export const useSessionStore = defineStore('session', () => {
     deleteItem,
     markItemDelivered,
     moveItemToNext,
+    addNPC,
+    deleteNPC,
+    markNPCDelivered,
+    moveNPCToNext,
   };
 });
