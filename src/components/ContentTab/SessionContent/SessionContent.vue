@@ -127,8 +127,8 @@
   // local components
   import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
   import Editor from '@/components/Editor.vue';
-  import SessionLocationTab from './SessionLocationTab.vue';
-  import SessionItemTab from './SessionItemTab.vue';
+  import SessionLocationTab from '@/components/ContentTab/SessionContent/SessionLocationTab.vue';
+  import SessionItemTab from '@/components/ContentTab/SessionContent/SessionItemTab.vue';
 
   // types
   import { Session } from '@/classes';

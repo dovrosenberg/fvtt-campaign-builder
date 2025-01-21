@@ -5,6 +5,7 @@
     :delete-item-label="localize('tooltips.deleteItem')"   
     :allow-edit="false"
     :show-add-button="false"
+    @row-select="onRowSelect($event.data.uuid)"  
     @add-item="showItemPicker=true"
     @drop="onDrop"
     @delete-item="onDeleteItem"
@@ -73,6 +74,11 @@
     } else {
       return false;
     }
+  }
+
+  const onRowSelect = async (uuid: string) => {
+    const item = await fromUuid(uuid) as Item;
+    await item?.sheet?.render(true);
   }
 
   const onDeleteItem = async (uuid: string) => {

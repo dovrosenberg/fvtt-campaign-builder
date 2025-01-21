@@ -108,7 +108,10 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['update:modelValue', 'itemPicked', ]);
+  const emit = defineEmits<{
+    (e: 'update:modelValue', newValue: boolean): void;
+    (e: 'itemPicked', uuid: string): void;
+  }>();
 
   ////////////////////////////////
   // store
@@ -118,7 +121,7 @@
   ////////////////////////////////
   // data
   const loading = ref(false);
-  const show = ref(props.modelValue);
+  const show = ref<boolean>(props.modelValue);
   const entry = ref<Entry | null>(null);  // the selected item from the dropdown
   const extraFieldValues = ref<Record<string, string>>({});
   const topicDetails = {
@@ -199,7 +202,7 @@
   ////////////////////////////////
   // watchers
   // when the addDialog changes state, alert parent (so v-model works)
-  watch(() => show, async (newValue) => {
+  watch(() => show, async (newValue: boolean) => {
     emit('update:modelValue', newValue);
   });
 

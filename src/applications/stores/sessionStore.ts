@@ -261,6 +261,7 @@ export const useSessionStore = defineStore('session', () => {
   // return the public interface
   return {
     relatedLocationRows,
+    relatedItemRows,
     extraFields,
     addLocation,
     deleteLocation,

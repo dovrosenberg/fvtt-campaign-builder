@@ -131,7 +131,7 @@
 
   // library components
   import Button from 'primevue/button';
-  import DataTable from 'primevue/datatable';
+  import DataTable, { DataTableRowContextMenuEvent, DataTableRowSelectEvent } from 'primevue/datatable';
   import Column from 'primevue/column';
 
   // local components
@@ -175,8 +175,16 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['rowSelect', 'editItem', 'deleteItem', 'addItem', 
-      'rowContextMenu', 'markItemDelivered', 'unmarkItemDelivered', 'moveToNextSession']);
+  const emit = defineEmits<{
+    (e: 'rowSelect', originalEvent: DataTableRowSelectEvent): void;
+    (e: 'editItem', uuid: string): void;
+    (e: 'deleteItem', uuid: string): void;
+    (e: 'addItem'): void;
+    (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
+    (e: 'markItemDelivered', uuid: string): void;
+    (e: 'unmarkItemDelivered', uuid: string): void;
+    (e: 'moveToNextSession', uuid: string): void;
+  }>();
 
   ////////////////////////////////
   // store
