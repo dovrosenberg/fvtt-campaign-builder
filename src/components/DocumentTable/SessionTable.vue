@@ -35,6 +35,7 @@
       @row-select="emit('rowSelect', $event)"
       @row-contextmenu="emit('rowContextMenu', $event)"
       @cell-edit-complete="onCellEditComplete"
+      @cell-edit-cancel="editingRow = null"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -127,7 +128,10 @@
             @click.stop=""
           >
             <!-- we set the id so that we can pull the value when we change row -->
-            <InputText :id="`${data.uuid}-${col.field}`" v-model="data[col.field]" autofocus fluid />
+             <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
+            <InputText 
+              :id="`${data.uuid}-${col.field}`" v-model="data[col.field]" autofocus fluid
+            />
           </div>
           <div 
             v-else
