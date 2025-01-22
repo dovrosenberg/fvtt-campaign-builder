@@ -60,3 +60,11 @@ export type SessionSceneDetails = {
   description: string;
   delivered: boolean;
 }
+
+export type SessionLoreDetails = {
+  uuid: string;   
+  description: string;
+  journalEntryPageId: string | null;  // the JournalEntryPage document
+  journalEntryPageName: string | null;  
+  delivered: boolean;
+}

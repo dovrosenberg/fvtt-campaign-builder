@@ -28,6 +28,7 @@
         "pc": "PC",
         "addLocation": "Add location",
         "addScene": "Add scene",
+        "addLore": "Add lore",
         "addNPC": "Add NPC",
         "addItem": "Add item"
       },
@@ -174,6 +175,7 @@
       "deleteItem": "Delete item",
       "deleteMonster": "Delete monster",
       "deleteScene": "Delete scene",
+      "deleteLore": "Delete lore",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session"

@@ -15,9 +15,7 @@
 </template>
 
 <script setup lang="ts">
-
   // library imports
-  import { ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports

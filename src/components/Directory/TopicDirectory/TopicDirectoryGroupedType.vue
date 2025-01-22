@@ -62,7 +62,7 @@
 
   // types
   import { ValidTopic, } from '@/types';
-  import { DirectoryTypeEntryNode, DirectoryTypeNode, Entry } from '@/classes';
+  import { DirectoryTypeEntryNode, DirectoryTypeNode, Entry, TopicFolder } from '@/classes';
 
   
   ////////////////////////////////

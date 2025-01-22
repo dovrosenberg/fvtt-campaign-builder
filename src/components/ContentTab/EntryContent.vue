@@ -187,7 +187,7 @@
     if (!currentEntry.value || !currentEntry.value.uuid) {
       topic.value = null;
     } else {
-      let newTopicFolder: TopicFolder;
+      let newTopicFolder: TopicFolder | null;
 
       newTopicFolder = currentEntry.value.topicFolder;
       if (!newTopicFolder) 

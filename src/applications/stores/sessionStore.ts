@@ -15,7 +15,8 @@ import {
   Topics, 
   SessionNPCDetails, 
   SessionMonsterDetails, 
-  SessionSceneDetails
+  SessionSceneDetails,
+  SessionLoreDetails,
 } from '@/types';
 
 import { Session } from '@/classes';
@@ -27,6 +28,7 @@ export enum SessionTableTypes {
   NPC,
   Monster,
   Scene,
+  Lore,
 }
 
 // the store definition
@@ -39,6 +41,7 @@ export const useSessionStore = defineStore('session', () => {
   const relatedNPCRows = ref<SessionNPCDetails[]>([]);
   const relatedMonsterRows = ref<SessionMonsterDetails[]>([]);
   const relatedSceneRows = ref<SessionSceneDetails[]>([]);
+  const relatedLoreRows = ref<SessionLoreDetails[]>([]); 
   
 
   const extraFields = {
@@ -51,14 +54,18 @@ export const useSessionStore = defineStore('session', () => {
     ],  // TODO: do we need extra fields to show the location, etc?
     [SessionTableTypes.NPC]: [
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
-    ],  // TODO: do we need extra fields to show the location, etc?
+    ],
     [SessionTableTypes.Monster]: [
       { field: 'number', header: 'Number', editable: true },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
     ],  // TODO: do we need extra fields to show the location, etc?
     [SessionTableTypes.Scene]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
-    ],  // TODO: do we need extra fields to show the location, etc?
+    ],
+    [SessionTableTypes.Lore]: [
+      { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
+      { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false },
+    ],  
   } as Record<SessionTableTypes, FieldData>;
   
   ///////////////////////////////
@@ -264,6 +271,92 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   /**
+   * Adds a lore to the session.
+   */
+  const addLore = async (description = ''): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.addLore()');
+
+    await currentSession.value.addLore(description);
+    await _refreshRows();
+  }
+
+  /**
+   * Updates the description associated with a lore 
+   * @param uuid the UUID of the lore
+   */
+  const updateLoreDescription = async (uuid: string, description: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.updateLoreDescription()');
+
+    await currentSession.value.updateLoreDescription(uuid, description);
+    await _refreshRows();
+  }
+  
+  /**
+   * Updates the journal entry associated with a lore 
+   * @param loreUuid the UUID of the lore
+   * @param journalEntryPageUuid the UUID of the journal entry page (or null)
+   */
+  const updateLoreJournalEntry = async (loreUuid: string, journalEntryPageUuid: string | null): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.updateLoreJournalEntry()');
+
+    await currentSession.value.updateLoreJournalEntry(loreUuid, journalEntryPageUuid);
+    await _refreshRows();
+  }
+
+  /**
+   * Deletes a lore from the session
+   * @param uuid the UUID of the l0ore
+   */
+  const deleteLore = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.deleteLore()');
+
+    await currentSession.value.deleteLore(uuid);
+    await _refreshRows();
+  }
+
+  /**
+   * Set the delivered status for a given lore.
+   * @param uuid the UUID of the lore
+   * @param delivered the new delivered status
+   */
+  const markLoreDelivered = async (uuid: string, delivered: boolean): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.markLoreDelivered()');
+
+    await currentSession.value.markLoreDelivered(uuid, delivered);
+    await _refreshRows();
+  }
+
+  /**
+   * Move a lore to the next session in the campaign, creating it if needed.
+   * @param uuid the UUID of the lore to move
+   */
+  const moveLoreToNext = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      return;
+
+    const nextSession = await getNextSession();
+
+    if (!nextSession)
+      return;
+
+    const currentLore = currentSession.value.lore.find(l=> l.uuid===uuid);
+
+    if (!currentLore)
+      return;
+
+    // have a next session - add there and delete here
+    await nextSession.addLore(currentLore.description);
+    await currentSession.value.deleteLore(uuid);
+
+    await _refreshRows();
+  }
+
+  /**
    * Adds a magic item to the session.
    * @param uuid the UUID of the item to add.
    */
@@ -429,12 +522,14 @@ export const useSessionStore = defineStore('session', () => {
     relatedNPCRows.value = [];
     relatedMonsterRows.value = [];
     relatedSceneRows.value = [];
+    relatedLoreRows.value = [];
 
     await _refreshLocationRows();
     await _refreshItemRows();
     await _refreshNPCRows();
     await _refreshMonsterRows();
     await _refreshSceneRows();
+    await _refreshLoreRows();
   };
 
   const _refreshLocationRows = async () => {
@@ -549,6 +644,30 @@ export const useSessionStore = defineStore('session', () => {
     relatedSceneRows.value = retval;
   }
 
+  const _refreshLoreRows = async () => {
+    if (!currentSession.value)
+      return;
+
+    const retval = [] as SessionLoreDetails[];
+
+    for (const lore of currentSession.value?.lore) {
+      let entry: JournalEntryPage;
+
+      if (lore.journalEntryPageId)
+        entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage;
+
+      retval.push({
+        uuid: lore.uuid,
+        delivered: lore.delivered,
+        description: lore.description,
+        journalEntryPageId: lore.journalEntryPageId,
+        journalEntryPageName: entry?.name || null,
+      });
+    }
+
+    relatedLoreRows.value = retval;
+  }
+
   ///////////////////////////////
   // watchers
   watch(()=> currentSession.value, async () => {
@@ -570,6 +689,7 @@ export const useSessionStore = defineStore('session', () => {
     relatedNPCRows,
     relatedMonsterRows,
     relatedSceneRows,
+    relatedLoreRows,
     extraFields,
     addLocation,
     deleteLocation,
@@ -593,5 +713,10 @@ export const useSessionStore = defineStore('session', () => {
     updateSceneDescription,
     markSceneDelivered,
     moveSceneToNext,
+    addLore,
+    deleteLore,
+    updateLoreDescription,
+    markLoreDelivered,
+    moveLoreToNext,
   };
 });

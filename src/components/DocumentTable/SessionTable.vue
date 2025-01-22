@@ -135,7 +135,7 @@
           </div>
           <div 
             v-else
-            @click.stop="onClickEditableCell(data.uuid, col.field, data[col.field])"
+            @click.stop="onClickEditableCell(data.uuid)"
           >
             <!-- we're not editing this row, but need to put a click event on columns that are editable -->
             {{ data[col.field] }} &nbsp;

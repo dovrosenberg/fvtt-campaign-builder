@@ -83,9 +83,9 @@
             />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="secrets">
+        <div class="tab description flexcol" data-group="primary" data-tab="lore">
           <div class="tab-inner flexcol">
-            secrets
+            <SessionLoreTab />
           </div>  
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="locations">
@@ -115,7 +115,7 @@
   import { nextTick, ref, watch, onMounted } from 'vue';
 
   // local imports
-  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useSessionStore } from '@/applications/stores';
+  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
   import { WindowTabType } from '@/types';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
@@ -132,6 +132,7 @@
   import SessionNPCTab from '@/components/ContentTab/SessionContent/SessionNPCTab.vue';
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
   import SessionSceneTab from '@/components/ContentTab/SessionContent/SessionSceneTab.vue';
+  import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
 
   // types
   import { Session } from '@/classes';
@@ -147,7 +148,6 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const sessionStore = useSessionStore();
   const { currentSession, currentContentTab } = storeToRefs(mainStore);
   
   ////////////////////////////////

@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionScene } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionScene, SessionLore } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
@@ -361,6 +361,97 @@ export class Session {
       ...this._cumulativeUpdate,
       system: {
         scenes: this._sessionDoc.system.scenes
+      }
+    };
+
+    await this.save();
+  }
+
+  get lore(): readonly SessionLore[] {
+    return this._sessionDoc.system.lore || [];
+  }
+
+  async addLore(description: string): Promise<void> {
+    const uuid = foundry.utils.randomID();
+
+    this._sessionDoc.system.lore.push({
+      uuid: uuid,
+      description: description,
+      delivered: false,
+      journalEntryPageId: null,
+    });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        lore: this._sessionDoc.system.lore
+      }
+    };
+
+    await this.save();
+  }
+
+  async updateLoreDescription(uuid: string, description: string): Promise<void> {
+    const lore = this._sessionDoc.system.lore.find(l=> l.uuid===uuid);
+
+    if (!lore)
+      return;
+
+    lore.description = description;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        lore: this._sessionDoc.system.lore
+      }
+    };
+
+    await this.save();
+  }
+
+  async updateLoreJournalEntry(loreUuid: string, journalEntryPageId: string | null): Promise<void> {
+    const lore = this._sessionDoc.system.lore.find(l=> l.uuid===loreUuid);
+
+    if (!lore)
+      return;
+
+    lore.journalEntryPageId = journalEntryPageId;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        lore: this._sessionDoc.system.lore
+      }
+    };
+
+    await this.save();
+  }
+
+
+  async deleteLore(uuid: string): Promise<void> {
+    this._sessionDoc.system.lore = this._sessionDoc.system.lore.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        lore: this._sessionDoc.system.lore
+      }
+    };
+
+    await this.save();
+  }
+
+  async markLoreDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const lore = this._sessionDoc.system.lore.find((l) => l.uuid===uuid);
+    if (!lore)
+      return;
+    
+    lore.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        lore: this._sessionDoc.system.lore
       }
     };
 

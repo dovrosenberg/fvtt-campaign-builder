@@ -25,6 +25,13 @@ export type SessionScene = {
   description: string;
 }
 
+export type SessionLore = {
+  uuid: string;
+  delivered: boolean;
+  description: string;
+  journalEntryPageId: string | null;
+}
+
 const fields = foundry.data.fields;
 const sessionSchema = {
   number: new fields.NumberField({ required: true, nullable: false }),
@@ -34,7 +41,8 @@ const sessionSchema = {
   npcs: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionNPC[] }),  
   items: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionItem[] }),  
   monsters: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionMonster[] }),  
-  scenes: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionScenes[] }),  
+  scenes: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionScene[] }),  
+  lore: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionLore[] }),  
 };
 
 type SessionSchemaType = typeof sessionSchema;
@@ -62,5 +70,6 @@ export interface SessionDoc extends JournalEntryPage {
     npcs: SessionNPC[];
     monsters: SessionMonster[];
     scenes: SessionScene[];
+    lore: SessionLore[];
   };
 }
