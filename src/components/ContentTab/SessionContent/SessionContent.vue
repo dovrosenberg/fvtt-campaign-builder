@@ -71,7 +71,7 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="scenes">
           <div class="tab-inner flexcol">
-            scenes
+            <SessionSceneTab />
           </div>  
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="start">
@@ -131,6 +131,7 @@
   import SessionItemTab from '@/components/ContentTab/SessionContent/SessionItemTab.vue';
   import SessionNPCTab from '@/components/ContentTab/SessionContent/SessionNPCTab.vue';
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
+  import SessionSceneTab from '@/components/ContentTab/SessionContent/SessionSceneTab.vue';
 
   // types
   import { Session } from '@/classes';

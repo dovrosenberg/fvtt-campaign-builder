@@ -1,12 +1,11 @@
 <template>
   <SessionTable 
     :rows="relatedItemRows"
-    :columns="[]"  
+    :columns="sessionStore.extraFields[SessionTableTypes.Item]"  
     :delete-item-label="localize('tooltips.deleteItem')"   
     :allow-edit="false"
     :show-add-button="false"
     @row-select="onRowSelect($event.data.uuid)"  
-    @add-item="showItemPicker=true"
     @drop="onDrop"
     @delete-item="onDeleteItem"
     @mark-item-delivered="onMarkItemDelivered"
@@ -22,7 +21,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, } from '@/applications/stores';
+  import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
 
   // library components
@@ -45,7 +44,6 @@
   
   ////////////////////////////////
   // data
-  const showItemPicker = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data

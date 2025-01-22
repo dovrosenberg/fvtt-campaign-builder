@@ -8,14 +8,25 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
 
 // types
-import { SessionLocationDetails, SessionItemDetails, FieldData, Topics, SessionNPCDetails, SessionMonsterDetails, } from '@/types';
+import { 
+  SessionLocationDetails, 
+  SessionItemDetails, 
+  FieldData, 
+  Topics, 
+  SessionNPCDetails, 
+  SessionMonsterDetails, 
+  SessionSceneDetails
+} from '@/types';
+
 import { Session } from '@/classes';
+
 export enum SessionTableTypes {
   None,
   Location,
   Item,
   NPC,
   Monster,
+  Scene,
 }
 
 // the store definition
@@ -27,18 +38,27 @@ export const useSessionStore = defineStore('session', () => {
   const relatedItemRows = ref<SessionItemDetails[]>([]);
   const relatedNPCRows = ref<SessionNPCDetails[]>([]);
   const relatedMonsterRows = ref<SessionMonsterDetails[]>([]);
+  const relatedSceneRows = ref<SessionSceneDetails[]>([]);
   
 
   const extraFields = {
     [SessionTableTypes.None]: [],
-    [SessionTableTypes.Location]: [],
-    [SessionTableTypes.Item]: [],  // TODO: do we need extra fields to show the location, etc?
-    [SessionTableTypes.NPC]: [],  // TODO: do we need extra fields to show the location, etc?
-    [SessionTableTypes.Monster]: [{
-     field: 'number', 
-     header: 'Number', 
-     editable: true,
-    }],  // TODO: do we need extra fields to show the location, etc?
+    [SessionTableTypes.Location]: [
+      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
+    ],
+    [SessionTableTypes.Item]: [
+      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
+    ],  // TODO: do we need extra fields to show the location, etc?
+    [SessionTableTypes.NPC]: [
+      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
+    ],  // TODO: do we need extra fields to show the location, etc?
+    [SessionTableTypes.Monster]: [
+      { field: 'number', header: 'Number', editable: true },
+      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
+    ],  // TODO: do we need extra fields to show the location, etc?
+    [SessionTableTypes.Scene]: [
+      { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
+    ],  // TODO: do we need extra fields to show the location, etc?
   } as Record<SessionTableTypes, FieldData>;
   
   ///////////////////////////////
@@ -166,6 +186,79 @@ export const useSessionStore = defineStore('session', () => {
     // have a next session - add there and delete here
     await nextSession.addNPC(uuid);
     await currentSession.value.deleteNPC(uuid);
+
+    await _refreshRows();
+  }
+
+  /**
+   * Adds a scene to the session.
+   */
+  const addScene = async (description = ''): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.addScene()');
+
+    await currentSession.value.addScene(description);
+    await _refreshRows();
+  }
+
+  /**
+   * Updates the description associated with a scene row
+   * @param uuid the UUID of the scene
+   */
+  const updateSceneDescription = async (uuid: string, description: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.updateSceneDescription()');
+
+    await currentSession.value.updateSceneDescription(uuid, description);
+    await _refreshRows();
+  }
+  
+  /**
+   * Deletes a scene from the session
+   * @param uuid the UUID of the scene
+   */
+  const deleteScene = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.deleteScene()');
+
+    await currentSession.value.deleteScene(uuid);
+    await _refreshRows();
+  }
+
+  /**
+   * Set the delivered status for a given scene.
+   * @param uuid the UUID of the scene
+   * @param delivered the new delivered status
+   */
+  const markSceneDelivered = async (uuid: string, delivered: boolean): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.markSceneDelivered()');
+
+    await currentSession.value.markSceneDelivered(uuid, delivered);
+    await _refreshRows();
+  }
+
+  /**
+   * Move a scene to the next session in the campaign, creating it if needed.
+   * @param uuid the UUID of the scene to move
+   */
+  const moveSceneToNext = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      return;
+
+    const nextSession = await getNextSession();
+
+    if (!nextSession)
+      return;
+
+    const currentScene = currentSession.value.scenes.find(s=> s.uuid===uuid);
+
+    if (!currentScene)
+      return;
+
+    // have a next session - add there and delete here
+    await nextSession.addScene(currentScene.description);
+    await currentSession.value.deleteScene(uuid);
 
     await _refreshRows();
   }
@@ -335,11 +428,13 @@ export const useSessionStore = defineStore('session', () => {
     relatedItemRows.value = [];
     relatedNPCRows.value = [];
     relatedMonsterRows.value = [];
+    relatedSceneRows.value = [];
 
     await _refreshLocationRows();
     await _refreshItemRows();
     await _refreshNPCRows();
     await _refreshMonsterRows();
+    await _refreshSceneRows();
   };
 
   const _refreshLocationRows = async () => {
@@ -436,6 +531,24 @@ export const useSessionStore = defineStore('session', () => {
     relatedMonsterRows.value = retval;
   }
 
+
+  const _refreshSceneRows = async () => {
+    if (!currentSession.value)
+      return;
+
+    const retval = [] as SessionSceneDetails[];
+
+    for (const scene of currentSession.value?.scenes) {
+      retval.push({
+        uuid: scene.uuid,
+        delivered: scene.delivered,
+        description: scene.description,
+      });
+    }
+
+    relatedSceneRows.value = retval;
+  }
+
   ///////////////////////////////
   // watchers
   watch(()=> currentSession.value, async () => {
@@ -456,6 +569,7 @@ export const useSessionStore = defineStore('session', () => {
     relatedItemRows,
     relatedNPCRows,
     relatedMonsterRows,
+    relatedSceneRows,
     extraFields,
     addLocation,
     deleteLocation,
@@ -474,5 +588,10 @@ export const useSessionStore = defineStore('session', () => {
     updateMonsterNumber,
     markMonsterDelivered,
     moveMonsterToNext,
+    addScene,
+    deleteScene,
+    updateSceneDescription,
+    markSceneDelivered,
+    moveSceneToNext,
   };
 });

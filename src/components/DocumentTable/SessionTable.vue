@@ -215,9 +215,8 @@
   const columns = computed((): any[] => {
     // they all have some standard columns
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
-    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
 
-    const columns = [ actionColumn, nameColumn ];
+    const columns = [ actionColumn ];
     for (const col of props.columns) {
       columns.push(col);
     }

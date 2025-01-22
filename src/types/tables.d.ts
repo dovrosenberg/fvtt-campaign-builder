@@ -13,6 +13,8 @@ export type FieldData = {
   field:string; 
   header: string;
   editable?: boolean;
+  style?: string;
+  sortable?: boolean;
 }[];
 
 export type PaginationResult<T extends AnyRow> = {
@@ -50,5 +52,11 @@ export type SessionMonsterDetails = {
   uuid: string;   // the Actor document
   name: string;
   number: number;
+  delivered: boolean;
+}
+
+export type SessionSceneDetails = {
+  uuid: string;   // the Actor document
+  description: string;
   delivered: boolean;
 }

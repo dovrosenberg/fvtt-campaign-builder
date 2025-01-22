@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionScene } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
@@ -289,6 +289,78 @@ export class Session {
       ...this._cumulativeUpdate,
       system: {
         npcs: this._sessionDoc.system.npcs
+      }
+    };
+
+    await this.save();
+  }
+
+  get scenes(): readonly SessionScene[] {
+    return this._sessionDoc.system.scenes || [];
+  }
+
+  async addScene(description: string): Promise<void> {
+    const uuid = foundry.utils.randomID();
+
+    this._sessionDoc.system.scenes.push({
+      uuid: uuid,
+      description: description,
+      delivered: false
+    });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        scenes: this._sessionDoc.system.scenes
+      }
+    };
+
+    await this.save();
+  }
+
+  async updateSceneDescription(uuid: string, description: string): Promise<void> {
+    const scene = this._sessionDoc.system.scenes.find(s=> s.uuid===uuid);
+
+    if (!scene)
+      return;
+
+    scene.description = description;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        scenes: this._sessionDoc.system.scenes
+      }
+    };
+
+    await this.save();
+  }
+
+
+  async deleteScene(uuid: string): Promise<void> {
+    this._sessionDoc.system.scenes = this._sessionDoc.system.scenes.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        scenes: this._sessionDoc.system.scenes
+      }
+    };
+
+    await this.save();
+  }
+
+  async markSceneDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const scene = this._sessionDoc.system.scenes.find((s) => s.uuid===uuid);
+    if (!scene)
+      return;
+    
+    scene.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        scenes: this._sessionDoc.system.scenes
       }
     };
 

@@ -6,7 +6,6 @@
     :allow-edit="false"
     :show-add-button="false"
     @row-select="onRowSelect($event.data.uuid)"  
-    @add-item="showMonsterPicker=true"
     @drop="onDrop"
     @delete-item="onDeleteMonster"
     @mark-item-delivered="onMarkMonsterDelivered"

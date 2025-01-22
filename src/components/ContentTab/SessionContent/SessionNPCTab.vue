@@ -1,7 +1,7 @@
 <template>
   <SessionTable 
     :rows="relatedNPCRows"
-    :columns="[]"  
+    :columns="sessionStore.extraFields[SessionTableTypes.NPC]"  
     :delete-item-label="localize('tooltips.deleteNPC')"   
     :allow-edit="false"
     :show-add-button="true"
@@ -27,7 +27,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, useNavigationStore, } from '@/applications/stores';
+  import { useSessionStore, useNavigationStore, SessionTableTypes} from '@/applications/stores';
   import { Topics, } from '@/types';
   import { localize } from '@/utils/game'
 

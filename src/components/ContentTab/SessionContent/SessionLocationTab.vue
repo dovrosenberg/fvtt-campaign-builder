@@ -1,7 +1,7 @@
 <template>
   <SessionTable 
     :rows="relatedLocationRows"
-    :columns="[]"  
+    :columns="sessionStore.extraFields[SessionTableTypes.Location]"
     :delete-item-label="localize('tooltips.deleteLocation')"   
     :allow-edit="false"
     :show-add-button="true"
@@ -27,12 +27,12 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, useNavigationStore, } from '@/applications/stores';
+  import { useSessionStore, useNavigationStore, SessionTableTypes } from '@/applications/stores';
   import { Topics, } from '@/types';
   import { localize } from '@/utils/game'
 
   // library components
-	import { DatatableRowSelectEvent } from 'primevue/datatable';
+	import { DataTableRowSelectEvent } from 'primevue/datatable';
 
   // local components
   import SessionTable from '@/components/DocumentTable/SessionTable.vue';
@@ -64,7 +64,7 @@
 
   ////////////////////////////////
   // event handlers
-  const onRowSelect = async function (event: DatatableRowSelectEvent) { 
+  const onRowSelect = async function (event: DataTableRowSelectEvent) { 
     await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
 
