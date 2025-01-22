@@ -67,7 +67,7 @@
         break;
 
       default:
-        originalEvent.preventDefault();
+        originalEvent?.preventDefault();
         break;
     }  
   }

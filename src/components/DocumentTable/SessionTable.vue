@@ -34,7 +34,7 @@
 
       @row-select="emit('rowSelect', $event)"
       @row-contextmenu="emit('rowContextMenu', $event)"
-      @cell-edit-complete="emit('cellEditComplete', $event)"
+      @cell-edit-complete="onCellEditComplete"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -122,7 +122,20 @@
           v-if="col.editable"
           #body="{ data }"
         >
-          <InputText v-model="data[col.field]" autofocus fluid />
+          <div  
+            v-if="data.uuid===editingRow"
+            @click.stop=""
+          >
+            <!-- we set the id so that we can pull the value when we change row -->
+            <InputText :id="`${data.uuid}-${col.field}`" v-model="data[col.field]" autofocus fluid />
+          </div>
+          <div 
+            v-else
+            @click.stop="onClickEditableCell(data.uuid, col.field, data[col.field])"
+          >
+            <!-- we're not editing this row, but need to put a click event on columns that are editable -->
+            {{ data[col.field] }} &nbsp;
+          </div>
         </template>
       </Column>
     </DataTable>
@@ -209,6 +222,9 @@
     rowsPerPage: 5, 
     filters: {},
   });
+  
+  /** are we editing and row, and which one (uuid) */
+  const editingRow = ref<string | null>(null);
 
   ////////////////////////////////
   // computed data
@@ -229,6 +245,31 @@
 
   ////////////////////////////////
   // event handlers
+  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
+    // turn off editing mode
+    editingRow.value = null;
+
+    emit('cellEditComplete', event);
+  }
+
+  const onClickEditableCell = (uuid: string) => {
+    // if we were already editing a row, fire of a complete event
+    if (editingRow.value) {
+      // loop over all the inputs
+      for (const col of props.columns) {
+        const id = `${editingRow.value}-${col.field}`;
+        const input = document.getElementById(id) as HTMLInputElement;
+        if (input) {
+          // pull the value from the input and fire an event to save it
+          // TODO: change the event type because we're not firing a full event here
+          emit('cellEditComplete', { data: { uuid: editingRow.value }, newValue: input.value, field: col.field, originalEvent: null });
+        }
+      }
+    }
+
+    // set the new row
+    editingRow.value = uuid;
+  }
 
   ////////////////////////////////
   // watchers
