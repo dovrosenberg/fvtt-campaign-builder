@@ -201,7 +201,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       // otherwise, just swap out the active tab info
       tab.header = headerData;
 
-      // add to history
+      // add to history -- it should go immediately after the current tab and all other forward history should go away
       if (headerData.uuid && options.updateHistory) {
         tab.addToHistory(contentId, contentType);
       }
