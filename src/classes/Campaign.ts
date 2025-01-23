@@ -3,8 +3,8 @@ import { getFlag, moduleId, prepareFlagsForUpdate, setFlag, setFlagDefaults, uns
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, WorldDoc } from '@/documents';
 import { PC, Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs/input';
-import { Lore } from './Lore';
 import { localize } from '@/utils/game';
+import { SessionLore } from '@/documents/session';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
@@ -18,6 +18,7 @@ export class Campaign {
 
   // saved in flags
   private _description: string;
+  private _lore: SessionLore[];
 
   /**
    * 
@@ -35,6 +36,7 @@ export class Campaign {
     this.world = world || null;
 
     this._description = getFlag(this._campaignDoc, CampaignFlagKey.description) || '';
+    this._lore = getFlag(this._campaignDoc, CampaignFlagKey.lore) || [];
     this._name = campaignDoc.name;
   }
 
@@ -137,43 +139,100 @@ export class Campaign {
     };
   }
 
-  public async getAllLore(): Promise<Record<string, Lore>> {
-    const loreFlag = getFlag(this._campaignDoc, CampaignFlagKey.lore);
-    const retval = {} as Record<string, Lore>;
-
-    for (const id in loreFlag) {
-      const lore = await Lore.fromRaw(loreFlag[id]);
-      if (lore)
-        retval[id] = lore;
-    }
-
-    return retval;
+  public get lore(): SessionLore[] {
+    return this._lore;
   }
+  
+  async addLore(description: string): Promise<void> {
+    const uuid = foundry.utils.randomID();
 
-/**
- * Updates or inserts a lore in the campaign.
- * If the lore already exists, it updates the existing entry. Otherwise, it adds the new lore.  It saves the change
- * immediately - you don't need to call Campaign.save()
- * 
- * @param {Lore} lore - The PC object to be added or updated in the campaign.
- */
-  public async upsertLore(lore: Lore): Promise<void> {
-    const currentLore = getFlag(this._campaignDoc, CampaignFlagKey.lore) || {};
-
-    await setFlag(this._campaignDoc, CampaignFlagKey.lore, {
-      ...currentLore,
-      [lore.id]: lore.getRaw()
+    this._lore.push({
+      uuid: uuid,
+      description: description,
+      delivered: false,
+      journalEntryPageId: null,
     });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        lore: this._lore,
+      }
+    };
+
+    await this.save();
   }
 
-  public async deleteLore(loreId: string): Promise<void> {
-    await unsetFlag(this._campaignDoc, CampaignFlagKey.lore, loreId);
+  async updateLoreDescription(uuid: string, description: string): Promise<void> {
+    const lore = this._lore.find(l=> l.uuid===uuid);
+
+    if (!lore)
+      return;
+
+    lore.description = description;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        lore: this._lore,
+      }
+    };
+
+    await this.save();
   }
 
-  public async getLore(loreId: string): Promise<Lore | null> {
-    const currentLore = getFlag(this._campaignDoc, CampaignFlagKey.lore) || {};
+  async updateLoreJournalEntry(loreUuid: string, journalEntryPageId: string | null): Promise<void> {
+    const lore = this._lore.find(l=> l.uuid===loreUuid);
 
-    return currentLore[loreId] ? await Lore.fromRaw(currentLore[loreId]) : null;
+    if (!lore)
+      return;
+
+    lore.journalEntryPageId = journalEntryPageId;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        lore: this._lore,
+      }
+    };
+
+    await this.save();
+  }
+
+
+  async deleteLore(uuid: string): Promise<void> {
+    this._lore = this._lore.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        lore: this._lore,
+      }
+    };
+
+    await this.save();
+  }
+
+  async markLoreDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const lore = this._lore.find((l) => l.uuid===uuid);
+    if (!lore)
+      return;
+    
+    lore.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        lore: this._lore,
+      }
+    };
+
+    await this.save();
   }
 
   /**

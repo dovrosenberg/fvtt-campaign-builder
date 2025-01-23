@@ -1,5 +1,5 @@
 import { FlagSettings } from '@/settings';
-import { RawLore, } from '@/classes';
+import { SessionLore } from '@/documents/session';
 
 // camapaigns are journal entries, not documents
 export interface CampaignDoc extends JournalEntry {
@@ -15,7 +15,7 @@ export enum CampaignFlagKey {
 export type CampaignFlagType<K extends CampaignFlagKey> =
   K extends CampaignFlagKey.isCampaign ? true :
   K extends CampaignFlagKey.description ? string :
-  K extends CampaignFlagKey.lore ? Record<string, RawLore> :
+  K extends CampaignFlagKey.lore ? SessionLore[] :
   never;  
 
 export const flagSettings = [
@@ -29,8 +29,7 @@ export const flagSettings = [
   },
   {
     flagId: CampaignFlagKey.lore,
-    default: {} as Record<string, RawLore>,
-    keyedByUUID: true,
+    default: [] as SessionLore[],
   },
 ] as FlagSettings<CampaignFlagKey, {[K in CampaignFlagKey]: CampaignFlagType<K>}>[];
 

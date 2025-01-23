@@ -6,4 +6,3 @@ export * from './TopicFolder';
 export * from './WBWorld';
 export * from './Session';
 export * from './PC';
-export * from './Lore';

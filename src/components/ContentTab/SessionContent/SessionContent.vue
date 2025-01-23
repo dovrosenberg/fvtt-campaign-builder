@@ -61,7 +61,7 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner flexcol">
-            <CampaignPCsTable />
+            <CampaignPCsTab />
           </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="npcs">
@@ -125,7 +125,7 @@
   import DatePicker from 'primevue/datepicker';
 	
   // local components
-  import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
+  import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import Editor from '@/components/Editor.vue';
   import SessionLocationTab from '@/components/ContentTab/SessionContent/SessionLocationTab.vue';
   import SessionItemTab from '@/components/ContentTab/SessionContent/SessionItemTab.vue';

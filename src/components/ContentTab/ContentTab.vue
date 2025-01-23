@@ -49,11 +49,11 @@
   // library components
 
   // local components
-  import EntryContent from './EntryContent.vue';
-  import SessionContent from './SessionContent/SessionContent.vue';
-  import PCContent from './PCContent.vue';
-  import CampaignContent from './CampaignContent.vue';
-  import HomePage from './HomePage.vue';
+  import EntryContent from '@/components/ContentTab/EntryContent.vue';
+  import SessionContent from '@/components/ContentTab/SessionContent/SessionContent.vue';
+  import PCContent from '@/components/ContentTab/PCContent.vue';
+  import CampaignContent from '@/components/ContentTab/CampaignContent/CampaignContent.vue';
+  import HomePage from '@/components/ContentTab/HomePage.vue';
   
   // types
   import { WindowTabType } from '@/types';

@@ -92,7 +92,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.addLocation()');
 
     await currentSession.value.addLocation(uuid);
-    await _refreshRows();
+    await _refreshLocationRows();
   }
 
   /**
@@ -104,7 +104,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteLocation()');
 
     await currentSession.value.deleteLocation(uuid);
-    await _refreshRows();
+    await _refreshLocationRows();
   }
 
   /**
@@ -117,7 +117,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markLocationDelivered()');
 
     await currentSession.value.markLocationDelivered(uuid, delivered);
-    await _refreshRows();
+    await _refreshLocationRows();
   }
 
   /**
@@ -137,7 +137,7 @@ export const useSessionStore = defineStore('session', () => {
     await nextSession.addLocation(uuid);
     await currentSession.value.deleteLocation(uuid);
 
-    await _refreshRows();
+    await _refreshLocationRows();
   }
 
   /**
@@ -149,7 +149,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.addNPC()');
 
     await currentSession.value.addNPC(uuid);
-    await _refreshRows();
+    await _refreshNPCRows();
   }
 
   /**
@@ -161,7 +161,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteNPC()');
 
     await currentSession.value.deleteNPC(uuid);
-    await _refreshRows();
+    await _refreshNPCRows();
   }
 
   /**
@@ -174,7 +174,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markNPCDelivered()');
 
     await currentSession.value.markNPCDelivered(uuid, delivered);
-    await _refreshRows();
+    await _refreshNPCRows();
   }
 
   /**
@@ -194,7 +194,7 @@ export const useSessionStore = defineStore('session', () => {
     await nextSession.addNPC(uuid);
     await currentSession.value.deleteNPC(uuid);
 
-    await _refreshRows();
+    await _refreshNPCRows();
   }
 
   /**
@@ -205,7 +205,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.addScene()');
 
     await currentSession.value.addScene(description);
-    await _refreshRows();
+    await _refreshSceneRows();
   }
 
   /**
@@ -217,7 +217,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.updateSceneDescription()');
 
     await currentSession.value.updateSceneDescription(uuid, description);
-    await _refreshRows();
+    await _refreshSceneRows();
   }
   
   /**
@@ -229,7 +229,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteScene()');
 
     await currentSession.value.deleteScene(uuid);
-    await _refreshRows();
+    await _refreshSceneRows();
   }
 
   /**
@@ -242,7 +242,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markSceneDelivered()');
 
     await currentSession.value.markSceneDelivered(uuid, delivered);
-    await _refreshRows();
+    await _refreshSceneRows();
   }
 
   /**
@@ -267,7 +267,7 @@ export const useSessionStore = defineStore('session', () => {
     await nextSession.addScene(currentScene.description);
     await currentSession.value.deleteScene(uuid);
 
-    await _refreshRows();
+    await _refreshSceneRows();
   }
 
   /**
@@ -278,7 +278,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.addLore()');
 
     await currentSession.value.addLore(description);
-    await _refreshRows();
+    await _refreshLoreRows();
   }
 
   /**
@@ -290,7 +290,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.updateLoreDescription()');
 
     await currentSession.value.updateLoreDescription(uuid, description);
-    await _refreshRows();
+    await _refreshLoreRows();
   }
   
   /**
@@ -303,7 +303,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.updateLoreJournalEntry()');
 
     await currentSession.value.updateLoreJournalEntry(loreUuid, journalEntryPageUuid);
-    await _refreshRows();
+    await _refreshLoreRows();
   }
 
   /**
@@ -315,7 +315,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteLore()');
 
     await currentSession.value.deleteLore(uuid);
-    await _refreshRows();
+    await _refreshLoreRows();
   }
 
   /**
@@ -328,7 +328,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markLoreDelivered()');
 
     await currentSession.value.markLoreDelivered(uuid, delivered);
-    await _refreshRows();
+    await _refreshLoreRows();
   }
 
   /**
@@ -353,7 +353,7 @@ export const useSessionStore = defineStore('session', () => {
     await nextSession.addLore(currentLore.description);
     await currentSession.value.deleteLore(uuid);
 
-    await _refreshRows();
+    await _refreshLoreRows();
   }
 
   /**
@@ -365,7 +365,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.addItem()');
 
     await currentSession.value.addItem(uuid);
-    await _refreshRows();
+    await _refreshItemRows();
   }
 
   /**
@@ -377,7 +377,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteItem()');
 
     await currentSession.value.deleteItem(uuid);
-    await _refreshRows();
+    await _refreshItemRows();
   }
 
   /**
@@ -390,7 +390,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markItemDelivered()');
 
     await currentSession.value.markItemDelivered(uuid, delivered);
-    await _refreshRows();
+    await _refreshItemRows();
   }
 
   /**
@@ -410,7 +410,7 @@ export const useSessionStore = defineStore('session', () => {
     await nextSession.addItem(uuid);
     await currentSession.value.deleteItem(uuid);
 
-    await _refreshRows();
+    await _refreshItemRows();
   }
 
   /**
@@ -422,7 +422,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.addMonster()');
 
     await currentSession.value.addMonster(uuid, number);
-    await _refreshRows();
+    await _refreshMonsterRows();
   }
 
   /**
@@ -434,7 +434,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteMonster()');
 
     await currentSession.value.deleteMonster(uuid);
-    await _refreshRows();
+    await _refreshMonsterRows();
   }
 
   /**
@@ -446,7 +446,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.updateMonsterNumber()');
 
     await currentSession.value.updateMonsterNumber(uuid, value);
-    await _refreshRows();
+    await _refreshMonsterRows();
   }
 
   /**
@@ -459,7 +459,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markMonsterDelivered()');
 
     await currentSession.value.markMonsterDelivered(uuid, delivered);
-    await _refreshRows();
+    await _refreshMonsterRows();
   }
 
   /**
@@ -484,7 +484,7 @@ export const useSessionStore = defineStore('session', () => {
     await nextSession.addMonster(uuid, currentMonster.number);
     await currentSession.value.deleteMonster(uuid);
 
-    await _refreshRows();
+    await _refreshMonsterRows();
   }
 
   const getNextSession = async (): Promise<Session | null> => {
@@ -716,6 +716,7 @@ export const useSessionStore = defineStore('session', () => {
     addLore,
     deleteLore,
     updateLoreDescription,
+    updateLoreJournalEntry,
     markLoreDelivered,
     moveLoreToNext,
   };

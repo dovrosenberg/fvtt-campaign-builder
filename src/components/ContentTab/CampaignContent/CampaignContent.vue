@@ -37,7 +37,12 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner flexcol">
-            <CampaignPCsTable />
+            <CampaignPCsTab />
+          </div>
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="lore">
+          <div class="tab-inner flexcol">
+            <CampaignLoreTab />
           </div>
         </div>
       </div> 
@@ -61,7 +66,8 @@
 
   // local components
   import Editor from '@/components/Editor.vue';
-  import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
+  import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
+  import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
   
   // types
   import { WindowTabType, } from '@/types';
