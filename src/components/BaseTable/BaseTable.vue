@@ -146,7 +146,7 @@
 
   // types
   import { TablePagination,  } from '@/types';
-  type GridRow = { uuid: string; } & Record<string, string>;
+  type BaseTableGridRow = { uuid: string; } & Record<string, any>;
 
   ////////////////////////////////
   // props
@@ -168,7 +168,7 @@
       default: [],
     },
     rows: {
-      type: Array as PropType<GridRow[]>,
+      type: Array as PropType<BaseTableGridRow[]>,
       required: true,
     },
     columns: {

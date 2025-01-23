@@ -53,9 +53,9 @@
 
   ////////////////////////////////
   // computed data
-  type GridRow = { uuid: string; name: string, playerName: string };
+  type CampaignPCsGridRow = { uuid: string; name: string, playerName: string };
 
-  const rows = computed((): GridRow[] => 
+  const rows = computed((): CampaignPCsGridRow[] => 
     relatedPCRows.value.map((pc: PCDetails) => {
       const base = { 
         uuid: pc.uuid, 
@@ -88,7 +88,7 @@
       await navigationStore.openPC(newPC.uuid, { newTab: true });
   };
 
-  const onRowSelect = async function (event: { originalEvent: PointerEvent; data: GridRow} ) { 
+  const onRowSelect = async function (event: { originalEvent: PointerEvent; data: CampaignPCsGridRow} ) { 
     await navigationStore.openPC(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
 

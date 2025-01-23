@@ -165,7 +165,7 @@
 
   // types
   import { TablePagination, } from '@/types';
-  type GridRow = { uuid: string; delivered: boolean } & Record<string, string>;
+  type SessionTableGridRow = { uuid: string; delivered: boolean } & Record<string, any>;
 
   ////////////////////////////////
   // props
@@ -179,7 +179,7 @@
       default: '',
     },
     rows: {
-      type: Array as PropType<Readonly<GridRow[]>>,
+      type: Array as PropType<SessionTableGridRow[]>,
       required: true,
     },
     columns: {

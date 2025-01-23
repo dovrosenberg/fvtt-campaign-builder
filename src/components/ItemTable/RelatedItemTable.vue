@@ -105,9 +105,9 @@
     return prefix + labels[props.topic];
   });
 
-  type GridRow = { uuid: string; name: string; type: string } & Record<string, string>;
+  type RelatedItemGridRow = { uuid: string; name: string; type: string } & Record<string, any>;
 
-  const rows = computed((): GridRow[] => 
+  const rows = computed((): RelatedItemGridRow[] => 
     relatedItemRows.value.map((item: RelatedItemDetails<any, any>) => {
       const base = { uuid: item.uuid, name: item.name, type: item.type };
 
@@ -184,12 +184,12 @@
     addDialogShow.value = true;
   };
 
-  const onRowSelect = async function (event: { originalEvent: PointerEvent; data: GridRow} ) { 
+  const onRowSelect = async function (event: { originalEvent: PointerEvent; data: RelatedItemGridRow} ) { 
     await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
 
   // show the edit dialog
-  const onEditItemClick = function(row: GridRow) {
+  const onEditItemClick = function(row: RelatedItemGridRow) {
     // assemble the extra field data
     const fieldsToAdd = extraColumns.value.reduce((accum, col) => {
       accum.push({
