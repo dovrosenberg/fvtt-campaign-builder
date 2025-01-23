@@ -68,3 +68,9 @@ export type SessionLoreDetails = {
   journalEntryPageName: string | null;  
   delivered: boolean;
 }
+
+export type CampaignLoreDetails = SessionLoreDetails & {
+  /** uuid of the session it came from */
+  lockedToSessionId: string | null;  
+  lockedToSessionName: string | null;  
+}

@@ -5,10 +5,10 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { watch, ref } from 'vue';
 
 // local imports
-import { useMainStore, useNavigationStore } from './index';
+import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
 // types
-import { PCDetails, FieldData, SessionLoreDetails} from '@/types';
+import { PCDetails, FieldData, CampaignLoreDetails} from '@/types';
 import { Campaign, PC, Session } from '@/classes';
 
 export enum CampaignTableTypes {
@@ -23,13 +23,14 @@ export const useCampaignStore = defineStore('campaign', () => {
   // the state
   // used for tables
   const relatedPCRows = ref<PCDetails[]>([]);
-  const relatedLoreRows = ref<SessionLoreDetails[]>([]);
+  const relatedLoreRows = ref<CampaignLoreDetails[]>([]);
   
   const extraFields = {
     [CampaignTableTypes.None]: [],
     [CampaignTableTypes.PC]: [],
     [CampaignTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
+      { field: 'lockedToSessionName', style: 'text-align: left', header: 'Delivered in', editable: false },
       { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false },
     ],  
   } as Record<CampaignTableTypes, FieldData>;
@@ -38,6 +39,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentCampaign, currentContentTab, } = storeToRefs(mainStore);
 
   ///////////////////////////////
@@ -206,6 +208,9 @@ export const useCampaignStore = defineStore('campaign', () => {
     relatedPCRows.value = [];
     relatedLoreRows.value = [];
 
+    if (!currentCampaign.value)
+      return;
+
     await _refreshPCRows();
     await _refreshLoreRows();
   }
@@ -231,11 +236,11 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!currentCampaign.value)
       return;
 
-    const retval = [] as SessionLoreDetails[];
+    const retval = [] as CampaignLoreDetails[];
 
     // at the top of the list, put all the ones from the sessions... 
     // TODO: mark these differently so they can't be moved, unmarked, etc. and sort separately
-    for (const session of currentCampaign.value.sessions) {
+    for (const session of await currentCampaign.value.getSessions()) {
       for (const lore of session.lore) {
         if (!lore.delivered)
           continue;
@@ -247,14 +252,15 @@ export const useCampaignStore = defineStore('campaign', () => {
   
         retval.push({
           uuid: lore.uuid,
+          lockedToSessionId: session.uuid,
+          lockedToSessionName: session.name,
           delivered: lore.delivered,
           description: lore.description,
           journalEntryPageId: lore.journalEntryPageId,
           journalEntryPageName: entry?.name || null,
         });
-        }
+      }
     }
-
 
     for (const lore of currentCampaign.value?.lore) {
       let entry: JournalEntryPage | null = null;
@@ -264,6 +270,8 @@ export const useCampaignStore = defineStore('campaign', () => {
 
       retval.push({
         uuid: lore.uuid,
+        lockedToSessionId: null,
+        lockedToSessionName: null,
         delivered: lore.delivered,
         description: lore.description,
         journalEntryPageId: lore.journalEntryPageId,

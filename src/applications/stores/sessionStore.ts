@@ -524,6 +524,9 @@ export const useSessionStore = defineStore('session', () => {
     relatedSceneRows.value = [];
     relatedLoreRows.value = [];
 
+    if (!currentSession.value)
+      return;
+
     await _refreshLocationRows();
     await _refreshItemRows();
     await _refreshNPCRows();

@@ -96,7 +96,7 @@
             <i class="fas fa-pen"></i>
           </a>
           <a 
-            v-if="!data.delivered"
+            v-if="!data.delivered  && !data.lockedToSessionId"
             class="fwb-action-icon" 
             :data-tooltip="localize('tooltips.markAsDelivered')"
             @click.stop="emit('markItemDelivered', data.uuid)" 
@@ -104,7 +104,7 @@
             <i class="fas fa-check"></i>
           </a>
           <a 
-            v-if="data.delivered"
+            v-if="data.delivered && !data.lockedToSessionId"
             class="fwb-action-icon" 
             :data-tooltip="localize('tooltips.unmarkAsDelivered')"
             @click.stop="emit('unmarkItemDelivered', data.uuid)" 
@@ -112,6 +112,7 @@
             <i class="fas fa-circle-xmark"></i>
           </a>
           <a 
+            v-if="!data.lockedToSessionId"
             class="fwb-action-icon" 
             :data-tooltip="localize('tooltips.moveToNextSession')"
             @click.stop="emit('moveToNextSession', data.uuid)" 
