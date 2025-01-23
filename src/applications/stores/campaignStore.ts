@@ -258,6 +258,9 @@ export const useCampaignStore = defineStore('campaign', () => {
           description: lore.description,
           journalEntryPageId: lore.journalEntryPageId,
           journalEntryPageName: entry?.name || null,
+          packId: !entry ? null : entry.pack,
+          location: !entry ? '' : 
+            (entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World'),
         });
       }
     }
@@ -276,7 +279,10 @@ export const useCampaignStore = defineStore('campaign', () => {
         description: lore.description,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
-      });
+        packId: !entry ? null : entry.pack,
+        location: !entry ? '' : 
+          (entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World'),
+});
     }
 
     relatedLoreRows.value = retval;

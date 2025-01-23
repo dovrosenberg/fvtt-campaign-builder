@@ -51,20 +51,23 @@ export const useSessionStore = defineStore('session', () => {
     ],
     [SessionTableTypes.Item]: [
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
-    ],  // TODO: do we need extra fields to show the location, etc?
+      { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
+    ],  
     [SessionTableTypes.NPC]: [
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
     ],
     [SessionTableTypes.Monster]: [
       { field: 'number', header: 'Number', editable: true },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
-    ],  // TODO: do we need extra fields to show the location, etc?
+      { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
+    ], 
     [SessionTableTypes.Scene]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
     ],
     [SessionTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
       { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false },
+      { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
     ],  
   } as Record<SessionTableTypes, FieldData>;
   
@@ -600,6 +603,8 @@ export const useSessionStore = defineStore('session', () => {
           uuid: item.uuid,
           delivered: item.delivered,
           name: entry.name, 
+          packId: entry.pack,
+          location: entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World',
         });
       }
     }
@@ -622,6 +627,8 @@ export const useSessionStore = defineStore('session', () => {
           delivered: monster.delivered,
           number: monster.number,
           name: entry.name, 
+          packId: entry.pack,
+          location: entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World',
         });
       }
     }
@@ -654,7 +661,7 @@ export const useSessionStore = defineStore('session', () => {
     const retval = [] as SessionLoreDetails[];
 
     for (const lore of currentSession.value?.lore) {
-      let entry: JournalEntryPage;
+      let entry: JournalEntryPage | null = null;
 
       if (lore.journalEntryPageId)
         entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage;
@@ -665,7 +672,9 @@ export const useSessionStore = defineStore('session', () => {
         description: lore.description,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
-      });
+        packId: !entry ? null : entry.pack,
+        packName: !entry ? null : (entry.pack ? game.packs?.get(entry.pack)?.title ?? null : null),
+    });
     }
 
     relatedLoreRows.value = retval;
