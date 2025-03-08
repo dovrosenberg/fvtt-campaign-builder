@@ -15,4 +15,5 @@ import { id as moduleId } from '@module';
 export const DOCUMENT_TYPES = {
   Entry: `${moduleId}.entry`,
   Session: `${moduleId}.session`,
+  PC: `${moduleId}.pc`,
 };

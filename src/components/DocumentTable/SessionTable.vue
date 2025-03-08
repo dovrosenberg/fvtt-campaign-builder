@@ -1,4 +1,5 @@
 <template>
+  <!-- a table for use in sessions - handles items that can be moved to the next session, marked done, etc. -->
   <div class="primevue-only">
     <DataTable
       data-key="uuid"
@@ -8,14 +9,12 @@
       paginator-position="bottom"
       paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
       current-page-report-template="{first} to {last} of {totalRecords}"
+      :editMode="columns.find(c=>c.editable) ? 'cell' : undefined"
       :sort-field="pagination.sortField"
       :sort-order="pagination.sortOrder"
       :default-sort-order="1"
       :total-records="rows.length"
-      :global-filter-fields="props.filterFields"
       :rows="pagination.rowsPerPage"
-      :filters="pagination.filters"
-      :filter-display="filterDisplay"
       selection-mode="single" 
       :pt="{
         header: { style: 'border: none' },
@@ -35,6 +34,8 @@
 
       @row-select="emit('rowSelect', $event)"
       @row-contextmenu="emit('rowContextMenu', $event)"
+      @cell-edit-complete="onCellEditComplete"
+      @cell-edit-cancel="editingRow = null"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -56,18 +57,6 @@
             label="Generate" 
             @click=""
           /> -->
-          <IconField 
-            v-if="props.showFilter"
-            icon-position="left"
-          >
-            <InputIcon>
-              <i class="fas fa-search"></i>
-            </InputIcon>
-            <InputText 
-              v-model="pagination.filters.global.value"  
-              placeholder="Keyword Search"
-            />
-          </IconField>
         </div>
       </template>
       <template #empty>
@@ -102,24 +91,57 @@
             v-if="props.allowEdit"
             class="fwb-action-icon" 
             :data-tooltip="props.editItemLabel"
-            @click.stop="emit('editItem', data)" 
+            @click.stop="emit('editItem', data.uuid)" 
           >
             <i class="fas fa-pen"></i>
           </a>
+          <a 
+            v-if="!data.delivered  && !data.lockedToSessionId"
+            class="fwb-action-icon" 
+            :data-tooltip="localize('tooltips.markAsDelivered')"
+            @click.stop="emit('markItemDelivered', data.uuid)" 
+          >
+            <i class="fas fa-check"></i>
+          </a>
+          <a 
+            v-if="data.delivered && !data.lockedToSessionId"
+            class="fwb-action-icon" 
+            :data-tooltip="localize('tooltips.unmarkAsDelivered')"
+            @click.stop="emit('unmarkItemDelivered', data.uuid)" 
+          >
+            <i class="fas fa-circle-xmark"></i>
+          </a>
+          <a 
+            v-if="!data.lockedToSessionId"
+            class="fwb-action-icon" 
+            :data-tooltip="localize('tooltips.moveToNextSession')"
+            @click.stop="emit('moveToNextSession', data.uuid)" 
+          >
+            <i class="fas fa-share"></i>
+          </a>
         </template>
-
-        <!-- template to add the filter headers fof name/type/role columns -->
-        <!-- <template 
-          v-if="['name', 'type', 'role'].includes(col.field)"
-          #filter="{ filterModel, filterCallback }"
+        <template
+          v-if="col.editable"
+          #body="{ data }"
         >
-          <InputText 
-            v-model="filterModel.value" 
-            type="text" 
-            :placeholder="`Search by ${col.header}`" 
-            @input="filterCallback()" 
-          />
-        </template> -->
+          <div  
+            v-if="data.uuid===editingRow"
+            @click.stop=""
+          >
+            <!-- we set the id so that we can pull the value when we change row -->
+             <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
+            <InputText 
+              :id="`${data.uuid}-${col.field}`" v-model="data[col.field]" autofocus fluid
+            />
+          </div>
+          <div 
+            v-else
+            @click.stop="onClickEditableCell(data.uuid)"
+          >
+            <!-- we're not editing this row, but need to put a click event on columns that are editable -->
+            {{ data[col.field] }} &nbsp;
+          </div>
+        </template>
       </Column>
     </DataTable>
   </div>
@@ -129,24 +151,21 @@
 <script setup lang="ts">
   // library imports
   import { ref, PropType, computed } from 'vue';
-  import { FilterMatchMode } from '@primevue/core/api';
 
   // local imports
   import { localize } from '@/utils/game';
 
   // library components
   import Button from 'primevue/button';
-  import DataTable, { DataTableFilterMetaData } from 'primevue/datatable';
+  import DataTable, { DataTableCellEditCompleteEvent, DataTableRowContextMenuEvent, DataTableRowSelectEvent } from 'primevue/datatable';
   import Column from 'primevue/column';
   import InputText from 'primevue/inputtext';
-  import IconField from 'primevue/iconfield';
-  import InputIcon from 'primevue/inputicon';
 
   // local components
 
   // types
-  import { TablePagination,  } from '@/types';
-  type BaseTableGridRow = { uuid: string; } & Record<string, any>;
+  import { TablePagination, } from '@/types';
+  type SessionTableGridRow = { uuid: string; delivered: boolean } & Record<string, any>;
 
   ////////////////////////////////
   // props
@@ -155,20 +174,12 @@
       type: Boolean, 
       default: false,
     },
-    showFilter: { 
-      type: Boolean, 
-      default: true,
-    },
     addButtonLabel: { 
       type: String, 
       default: '',
     },
-    filterFields: {
-      type: Array as PropType<string[]>,   // list of column names you can filter on
-      default: [],
-    },
     rows: {
-      type: Array as PropType<BaseTableGridRow[]>,
+      type: Array as PropType<SessionTableGridRow[]>,
       required: true,
     },
     columns: {
@@ -187,11 +198,26 @@
       type: String,
       required: true,
     },
+    showMoveToCampaign: { 
+      type: Boolean, 
+      default: false,
+    },
   });
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['rowSelect', 'editItem', 'deleteItem', 'addItem', 'rowContextMenu']);
+  const emit = defineEmits<{
+    (e: 'rowSelect', originalEvent: DataTableRowSelectEvent): void;
+    (e: 'editItem', uuid: string): void;
+    (e: 'deleteItem', uuid: string): void;
+    (e: 'addItem'): void;
+    (e: 'cellEditComplete', originalEvent: DataTableCellEditCompleteEvent): void;
+    (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
+    (e: 'markItemDelivered', uuid: string): void;
+    (e: 'unmarkItemDelivered', uuid: string): void;
+    (e: 'moveToNextSession', uuid: string): void;
+    (e: 'moveToCampaign', uuid: string): void;
+  }>();
 
   ////////////////////////////////
   // store
@@ -204,28 +230,56 @@
     first: 0,
     page: 1,
     rowsPerPage: 5, 
-    filters: {
-      global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-      ...props.filterFields.reduce((acc, field): Record<string, DataTableFilterMetaData> => {
-        acc[field] = { value: null, matchMode: FilterMatchMode.CONTAINS };
-        return acc;
-      }, {} as Record<string, DataTableFilterMetaData>)
-    }
+    filters: {},
   });
+  
+  /** are we editing and row, and which one (uuid) */
+  const editingRow = ref<string | null>(null);
 
   ////////////////////////////////
   // computed data
-  const filterDisplay = computed((): 'menu' | 'row' | undefined=> {
-    // for now, let's not use the individual headers
-    return undefined;
+  const columns = computed((): any[] => {
+    // they all have some standard columns
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
 
-    // return props.filterFields.length === 0 ? undefined : 'row'
-  })
+    const columns = [ actionColumn ];
+    for (const col of props.columns) {
+      columns.push(col);
+    }
+
+    return columns;
+  });
+
   ////////////////////////////////
   // methods
 
   ////////////////////////////////
   // event handlers
+  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
+    // turn off editing mode
+    editingRow.value = null;
+
+    emit('cellEditComplete', event);
+  }
+
+  const onClickEditableCell = (uuid: string) => {
+    // if we were already editing a row, fire of a complete event
+    if (editingRow.value) {
+      // loop over all the inputs
+      for (const col of props.columns) {
+        const id = `${editingRow.value}-${col.field}`;
+        const input = document.getElementById(id) as HTMLInputElement;
+        if (input) {
+          // pull the value from the input and fire an event to save it
+          // TODO: change the event type because we're not firing a full event here
+          emit('cellEditComplete', { data: { uuid: editingRow.value }, newValue: input.value, field: col.field, originalEvent: null });
+        }
+      }
+    }
+
+    // set the new row
+    editingRow.value = uuid;
+  }
 
   ////////////////////////////////
   // watchers

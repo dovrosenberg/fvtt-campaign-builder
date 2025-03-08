@@ -9,28 +9,26 @@ import { UserFlagKey, UserFlags, } from '@/settings';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, } from '@/classes';
-import { EntryDoc, SessionDoc, CampaignDoc } from '@/documents';
+import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, PC, CollapsibleNode, } from '@/classes';
+import { EntryDoc, SessionDoc, CampaignDoc, PCDoc } from '@/documents';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // the state
 
-  // current sidebar collapsed state 
-  const directoryCollapsed = ref<boolean>(false);
-
   ///////////////////////////////
   // internal state
   const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
+  const _currentPC = ref<PC | null>(null);  // current PC (when showing a PC tab)
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
+  const _currentWorld = ref<WBWorld | null>(null);  // the current world folder
 
   ///////////////////////////////
   // external state
   const rootFolder = ref<Folder | null>(null);
-  const currentWorld = ref<WBWorld | null>(null);  // the current world folder
 
   // can set this to tell current entry tab to refresh everything
   const refreshCurrentEntry = ref<boolean>(false);
@@ -51,7 +49,9 @@ export const useMainStore = defineStore('main', () => {
   const currentEntry = computed((): Entry | null => (_currentEntry?.value || null) as Entry | null);
   const currentCampaign = computed((): Campaign | null => (_currentCampaign?.value || null) as Campaign | null);
   const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
+  const currentPC = computed((): PC | null => (_currentPC?.value || null) as PC | null);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
+  const currentWorld = computed((): WBWorld | null => (_currentWorld?.value || null) as WBWorld | null);
 
   // the currently selected tab for the entry
   const currentContentTab = ref<string | null>(null);
@@ -69,7 +69,9 @@ export const useMainStore = defineStore('main', () => {
     if (!world)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');
 
-    currentWorld.value = world;
+    _currentWorld.value = world;
+
+    CollapsibleNode.currentWorld = world;
 
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };
@@ -80,6 +82,12 @@ export const useMainStore = defineStore('main', () => {
 
     _currentTab.value = tab;
 
+    // clear everything
+    _currentEntry.value = null;
+    _currentCampaign.value = null;
+    _currentSession.value = null;
+    _currentPC.value = null;
+
     switch (tab.tabType) {
       case WindowTabType.Entry:
         if (tab.header.uuid) {
@@ -88,38 +96,35 @@ export const useMainStore = defineStore('main', () => {
             throw new Error('Invalid entry uuid in mainStore.setNewTab()');
 
           _currentEntry.value.topicFolder = currentWorld.value.topicFolders[_currentEntry.value.topic];
-        } else {
-          _currentEntry.value = null;
         }
-        _currentCampaign.value = null;
-        _currentSession.value = null;
         break;
       case WindowTabType.Campaign:
         if (tab.header.uuid) {
           _currentCampaign.value = await Campaign.fromUuid(tab.header.uuid);
-        } else {
-          _currentCampaign.value = null;
+
+          if (!_currentCampaign.value)
+            throw new Error('Invalid campaign uuid in mainStore.setNewTab()');
         }
-        _currentEntry.value = null;
-        _currentSession.value = null;
         break;
       case WindowTabType.Session:
         if (tab.header.uuid) {
           _currentSession.value = await Session.fromUuid(tab.header.uuid);
           if (!_currentSession.value)
-            throw new Error('Invalid entry uuid in mainStore.setNewTab()');
+            throw new Error('Invalid session uuid in mainStore.setNewTab()');
 
-          _currentSession.value.campaign = currentWorld.value.campaigns[_currentSession.value.campaignId];
-        } else {
-          _currentSession.value = null;
+          _currentCampaign.value = await _currentSession.value.loadCampaign();
         }
-        _currentEntry.value = null;
-        _currentCampaign.value = null;
+        break;
+      case WindowTabType.PC:
+        if (tab.header.uuid) {
+          _currentPC.value = await PC.fromUuid(tab.header.uuid);
+          if (!_currentPC.value)
+            throw new Error('Invalid PC uuid in mainStore.setNewTab()');
+
+          _currentCampaign.value = await _currentPC.value.loadCampaign();
+        }
         break;
       default:  // make it a 'new entry' window
-        _currentSession.value = null;  
-        _currentEntry.value = null;
-        _currentCampaign.value = null;
         tab.tabType = WindowTabType.NewTab;
     }
   };
@@ -128,7 +133,7 @@ export const useMainStore = defineStore('main', () => {
    * Refreshes the current entry by forcing all reactive properties to update.
    * This is achieved by simply creating a new entry based on the EntryDoc of the current one
    */
-  const refreshEntry = function (): void {
+  const refreshEntry = async function (): Promise<void> {
     if (!_currentEntry.value)
       return;
 
@@ -139,7 +144,7 @@ export const useMainStore = defineStore('main', () => {
     _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc, _currentEntry.value.topicFolder as TopicFolder);
   };
 
-  const refreshCampaign = function (): void {
+  const refreshCampaign = async function (): Promise<void> {
     if (!_currentCampaign.value || !currentWorld.value)
       return;
 
@@ -147,12 +152,22 @@ export const useMainStore = defineStore('main', () => {
     _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentWorld.value as WBWorld);
   };
 
-  const refreshSession = function (): void {
+  const refreshSession = async function (): Promise<void> {
     if (!_currentSession.value)
       return;
 
     // just force all reactivity to update
     _currentSession.value = new Session(_currentSession.value.raw as SessionDoc);
+  };
+
+  const refreshPC = async function (): Promise<void> {
+    if (!_currentPC.value)
+      return;
+
+    // just force all reactivity to update
+    _currentPC.value = new PC(_currentPC.value.raw as PCDoc);
+
+    await _currentPC.value.getActor();
   };
 
   ///////////////////////////////
@@ -192,12 +207,12 @@ export const useMainStore = defineStore('main', () => {
   return {
     currentContentTab,
     currentDocumentTab,
-    directoryCollapsed,
     currentWorld,
     currentEntryTopic,
     currentEntry,
     currentCampaign,
     currentSession,
+    currentPC,
     currentContentType,
     rootFolder,
     currentWorldCompendium,
@@ -208,5 +223,6 @@ export const useMainStore = defineStore('main', () => {
     refreshEntry,
     refreshCampaign,
     refreshSession,
+    refreshPC,
   };
 });

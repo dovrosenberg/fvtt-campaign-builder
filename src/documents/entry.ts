@@ -63,6 +63,8 @@ const deserializeEntryId = (entryId: string): string => { return entryId.replace
 
 // @ts-ignore - error because ts can't properly handle the structure of JournalEntryPage
 export interface EntryDoc extends JournalEntryPage {
+  __type: 'EntryDoc';
+
   system: {
     topic: ValidTopic;
     type: string;

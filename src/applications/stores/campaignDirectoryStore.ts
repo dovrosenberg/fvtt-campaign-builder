@@ -2,11 +2,11 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { reactive, Ref, ref, watch, } from 'vue';
+import { reactive, ref, watch, } from 'vue';
 
 // local imports
 import { useMainStore, useNavigationStore } from '@/applications/stores';
-import { DirectoryCampaignNode, Campaign, Session, WBWorld } from '@/classes';
+import { DirectoryCampaignNode, Campaign, Session, WBWorld, } from '@/classes';
 
 // types
 
@@ -143,6 +143,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       return null;
     }
   };
+
   
   ///////////////////////////////
   // computed state
@@ -154,7 +155,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // watchers
 
   // when the world changes, clean out the cache of loaded items
-  watch(currentWorld as Ref<WBWorld | null>, async (newWorld: WBWorld | null): Promise<void> => {
+  watch(currentWorld, async (newWorld: WBWorld | null): Promise<void> => {
     if (!newWorld) {
       currentCampaignTree.value = [];
       return;

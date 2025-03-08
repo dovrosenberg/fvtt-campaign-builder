@@ -105,7 +105,8 @@ export class WindowTab {
   }
 
   /**
-   * Adds a new history entry to the end of the history array and updates the current history index to point to the new entry.
+   * Adds a new history entry immediately after the current item and clears all forward history. 
+   * Also updates the current history index to point to the new entry.
    *
    * @param contentId - The content ID of the new entry.
    * @param tabType - The type of the new entry.
@@ -114,8 +115,12 @@ export class WindowTab {
     // if the history is empty other than a 'new tab', clear that out first
     if (this.history.length===1 && this.history[0].tabType===WindowTabType.NewTab) {
       this.history = [];
+      this.historyIdx = -1;
     }
     
+    // delete all history after the current entry
+    this.history = this.history.slice(0, this.historyIdx+1);
+
     this.history.push({
       contentId: contentId,
       tabType: tabType

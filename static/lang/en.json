@@ -11,7 +11,12 @@
       "fields": {
         "type": "Type",
         "parent": "Parent",
-        "sessionNumber": "Number"
+        "sessionNumber": "Number",
+        "sessionDate": "Session Date",
+        "playerName": "Player Name",
+        "backgroundPoints": "Background Points",
+        "otherPlotPoints": "Other Plot Points",
+        "desiredMagicItems": "Desired Magic Items"
       },
       "entry": {
         "topic": "TopicFolder",
@@ -19,7 +24,19 @@
         "relationships": "Relationshipa"
       },
       "session": {
-        "session": "Session"
+        "session": "Session",
+        "pc": "PC",
+        "addLocation": "Add location",
+        "addScene": "Add scene",
+        "addLore": "Add lore",
+        "addNPC": "Add NPC",
+        "addItem": "Add item"
+      },
+      "campaign": {
+        "addPC": "Add PC"
+      },
+      "pc": {
+        "linkToNewActor": "Link to new actor"
       },
       "groupTree": "Group tree by type",
       "tabs": {
@@ -36,16 +53,17 @@
         },
         "campaign": {
           "description": "Description",
-          "pcs": "PCs"
+          "pcs": "PCs",
+          "lore": "Lore"
         },
         "session": {
-          "description": "Description",
+          "notes": "Notes",
           "pcs": "PCs",
-          "npcs": "NPCs",
-          "scenes": "Scenes",
           "start": "Start",
-          "secrets": "Secrets/Clues",
+          "lore": "Lore",
+          "scenes": "Scenes",
           "locations": "Locations",
+          "npcs": "NPCs",
           "monsters": "Monsters",
           "magic": "Magic Items"
         }
@@ -61,7 +79,9 @@
       "organizationName": "Organization Name",
       "campaignName": "Campaign Name",
       "sessionName": "Session Name",
-      "sessionNumber": "Session Number"
+      "sessionDate": "Date",
+      "sessionNumber": "Session Number",
+      "linkToActor": "Link to Actor"
     },
     "compendia": {
       "entry": "Entries",
@@ -83,6 +103,26 @@
       "confirmDeleteRelationship": {
         "title": "Remove from relationship?",
         "message": "Are you sure you want to delete this relationship?"
+      },
+      "confirmDeletePC": {
+        "title": "Delete PC?",
+        "message": "Are you sure you want to delete this PC from the campaign?"
+      },
+      "createPC": {
+        "title": "Create PC",
+        "playerName": "Player Name"
+      },
+      "createCampaign": {
+        "title": "Create Campaign",
+        "campaignName": "Campaign Name"
+      },
+      "createSession": {
+        "title": "Create Session",
+        "sessionName": "Session Name"
+      },
+      "createWorld": {
+        "title": "Create World",
+        "worldName": "World Name"
       }
     },
     "contextMenus": {
@@ -129,7 +169,16 @@
       "historyBack": "Back",
       "historyForward": "Forward",
       "editRelationship": "Edit relationship",
-      "deleteRelationship": "Delete relationship"
+      "deleteRelationship": "Delete relationship",
+      "deleteLocation": "Delete location",
+      "deleteNPC": "Delete NPC",
+      "deleteItem": "Delete item",
+      "deleteMonster": "Delete monster",
+      "deleteScene": "Delete scene",
+      "deleteLore": "Delete lore",
+      "markAsDelivered": "Mark as delivered",
+      "unmarkAsDelivered": "Unmark as delivered",
+      "moveToNextSession": "Move to next session"
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"

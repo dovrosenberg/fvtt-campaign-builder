@@ -1,10 +1,7 @@
 <template>
   <form :class="'flexcol fwb-journal-subsheet'">
-    <div ref="contentRef" class="sheet-container detailed flexcol">
-      <header class="journal-sheet-header flexrow">
-        <div class="sheet-image">
-          <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
-        </div>
+    <div ref="contentRef" class="fwb-sheet-container detailed flexcol">
+      <header class="fwb-journal-sheet-header flexrow">
         <div class="header-details fwb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${icon} sheet-icon`"></i>
@@ -23,21 +20,29 @@
       <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.campaign.pcs') }}</a>
+        <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
       </nav>
       <div class="fwb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
+          <div class="sheet-image">
+            <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
+          </div>
           <div class="tab-inner flexcol">
             <Editor 
               :initial-content="currentCampaign?.description || ''"
               :has-button="true"
-              target="content-description"
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner flexcol">
-            <CampaignPCsTable />
+            <CampaignPCsTab />
+          </div>
+        </div>
+        <div class="tab description flexcol" data-group="primary" data-tab="lore">
+          <div class="tab-inner flexcol">
+            <CampaignLoreTab />
           </div>
         </div>
       </div> 
@@ -61,7 +66,8 @@
 
   // local components
   import Editor from '@/components/Editor.vue';
-  import CampaignPCsTable from '@/components/DocumentTable/CampaignPCsTable.vue';
+  import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
+  import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
   
   // types
   import { WindowTabType, } from '@/types';
@@ -128,10 +134,6 @@
 
     currentCampaign.value.description = newContent;
     await currentCampaign.value.save();
-
-    //need to reset
-    // if it's not automatic, clear and reset the documentpage
-    // (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
   };
 
   ////////////////////////////////

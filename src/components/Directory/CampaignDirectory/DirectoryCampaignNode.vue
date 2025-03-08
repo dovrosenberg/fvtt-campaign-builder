@@ -205,30 +205,10 @@
           content: "\f07b";
         }
 
-        .fwb-create-entry.create-button {
-          i.fa-atlas {
-            color: var(--fwb-sidebar-create-entry-color);
-          }
-          i.fa-plus {
-            background: var(--fwb-sidebar-create-entry-secondary-color);
-          }
-        }
-
         .campaign-contents {
-          border-left: 6px solid var(--fwb-sidebar-subfolder-border);
-          border-bottom: 2px solid var(--fwb-sidebar-subfolder-border);
           margin: 0px;
           width: 100%;
           padding-left: 10px;
-
-          .fwb-campaign-folder.collapsed .fwb-campaign-contents {
-            display: none;
-          }
-
-          .fwb-campaign-contents {
-            padding-left: 20px;
-            margin: 0px;
-          }
         }    
       }
     }

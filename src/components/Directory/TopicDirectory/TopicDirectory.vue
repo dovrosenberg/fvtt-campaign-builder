@@ -142,10 +142,12 @@
           label: localize('contextMenus.worldFolder.createCampaign'), 
           onClick: async () => {
             if (worldId) {
-              throw new Error('TODO: need to load the world and then call createCampaign... ideally have an array of worlds somewhere so don\'t have to load from disk');
               const world = await WBWorld.fromUuid(worldId);
-              await Campaign.create(world);
-              await campaignDirectoryStore.refreshCampaignDirectoryTree();
+
+              if (world) {
+                await Campaign.create(world);
+                await campaignDirectoryStore.refreshCampaignDirectoryTree();
+              }
             }
           }
         },
@@ -171,7 +173,7 @@
           label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
           onClick: async () => {
             // get the right folder
-            const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as globalThis.Folder;
+            const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as Folder;
 
             if (!worldFolder || !topicFolder)
               throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
@@ -273,18 +275,7 @@
       content: "\f07b";
     }
 
-    .fwb-create-entry.create-button {
-      i.fa-atlas {
-        color: var(--fwb-sidebar-create-entry-color);
-      }
-      i.fa-plus {
-        background: var(--fwb-sidebar-create-entry-secondary-color);
-      }
-    }
-
     .fwb-world-contents {
-      border-left: 6px solid var(--fwb-sidebar-subfolder-border);
-      border-bottom: 2px solid var(--fwb-sidebar-subfolder-border);
       margin: 0px;
       width: 100%;
       padding-left: 10px;

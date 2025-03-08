@@ -13,7 +13,7 @@ import { useMainStore } from './mainStore';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, PC } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -46,7 +46,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   /**
    * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
-   * @param contentId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param contentId The uuid of the entry to open in the tab. If null, a blank tab is opened.
    * @param options Options for the tab.
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
@@ -58,13 +58,13 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
 
   /**
-   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * Open a new tab to the given campaign. If no campaign is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
-   * @param campaignId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param campaignId The uuid of the campaign to open in the tab. If null, a blank tab is opened.
    * @param options Options for the tab.
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
-   * @param options.newTab Should the entry open in a new tab? Defaults to true.
-   * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @param options.newTab Should the campaign open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the campaign be added to the history of the tab? Defaults to true.
    * @returns The newly opened tab.
    */
   const openCampaign = async function(campaignId = null as string | null, options?: OpenContentOptions) {
@@ -72,13 +72,27 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
 
   /**
-   * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * Open a new tab to the given PC. If no PC is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
-   * @param sessionId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param pcId The uuid of the PC to open in the tab. If null, a blank tab is opened.
    * @param options Options for the tab.
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
-   * @param options.newTab Should the entry open in a new tab? Defaults to true.
-   * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @param options.newTab Should the PC open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the PC be added to the history of the tab? Defaults to true.
+   * @returns The newly opened tab.
+   */
+  const openPC = async function(pcId = null as string | null, options?: OpenContentOptions) {
+    await openContent(pcId, WindowTabType.PC, options);
+  };
+
+  /**
+   * Open a new tab to the given session. If no session is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param sessionId The uuid of the session to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the session open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the session be added to the history of the tab? Defaults to true.
    * @returns The newly opened tab.
    */
   const openSession = async function(sessionId = null as string | null, options?: OpenContentOptions) {
@@ -141,6 +155,15 @@ export const useNavigationStore = defineStore('navigation', () => {
           icon = getTabTypeIcon(WindowTabType.Session);
         }
       } break;
+      case WindowTabType.PC: {
+        const pc = contentId ? await PC.fromUuid(contentId) : null;
+        if (!pc) {
+          badId = true;
+        } else {
+          name = pc.name;
+          icon = getTabTypeIcon(WindowTabType.PC);
+        }
+      } break;
       case WindowTabType.NewTab: 
         break;
       default: {
@@ -178,7 +201,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       // otherwise, just swap out the active tab info
       tab.header = headerData;
 
-      // add to history
+      // add to history -- it should go immediately after the current tab and all other forward history should go away
       if (headerData.uuid && options.updateHistory) {
         tab.addToHistory(contentId, contentType);
       }
@@ -203,10 +226,10 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
 
   // return the active tab
-  // if findone is true, always returns one (i.e. if nothing active, returns the first one)
-  const getActiveTab = function (findone = true): WindowTab | null {
+  // if findOne is true, always returns one (i.e. if nothing active, returns the first one)
+  const getActiveTab = function (findOne = true): WindowTab | null {
     let tab = tabs.value.find(t => t.active);
-    if (findone) {
+    if (findOne) {
       if (!tab && tabs.value.length > 0)  // nothing was marked as active, just pick the last one
         tab = tabs.value[tabs.value.length-1];
     }
@@ -473,6 +496,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     openEntry,
     openSession,
     openCampaign,
+    openPC,
     openContent,
     getActiveTab,
     loadTabs,

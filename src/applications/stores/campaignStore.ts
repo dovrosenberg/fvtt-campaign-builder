@@ -2,18 +2,20 @@
 // 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
+import { watch, ref } from 'vue';
 
 // local imports
-import { useMainStore, } from './index';
+import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
 
 // types
-import { 
-  PCDetails, 
-  FieldData,
-  TablePagination,
-} from '@/types';
-import { reactive, Ref, watch } from 'vue';
-import { ref } from 'vue';
+import { PCDetails, FieldData, CampaignLoreDetails} from '@/types';
+import { Campaign, PC, Session } from '@/classes';
+
+export enum CampaignTableTypes {
+  None,
+  PC,
+  Lore,
+}
 
 // the store definition
 export const useCampaignStore = defineStore('campaign', () => {
@@ -21,31 +23,24 @@ export const useCampaignStore = defineStore('campaign', () => {
   // the state
   // used for tables
   const relatedPCRows = ref<PCDetails[]>([]);
+  const relatedLoreRows = ref<CampaignLoreDetails[]>([]);
   
-  // we store the pagination info for each type like a preference
-  const defaultPagination: TablePagination = {
-    sortField: 'name', 
-    sortOrder: 1, 
-    first: 0,
-    page: 0,
-    rowsPerPage: 10, 
-    filters: {},
-  };
-
-  enum CampaignTableTypes {
-    None,
-    PC,
-  }
-
   const extraFields = {
     [CampaignTableTypes.None]: [],
     [CampaignTableTypes.PC]: [],
+    [CampaignTableTypes.Lore]: [
+      { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
+      { field: 'lockedToSessionName', style: 'text-align: left', header: 'Delivered in', editable: false },
+      { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false },
+    ],  
   } as Record<CampaignTableTypes, FieldData>;
   
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentCampaign, currentContentTab } = storeToRefs(mainStore);
+  const navigationStore = useNavigationStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
+  const { currentCampaign, currentContentTab, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -55,74 +50,244 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   ///////////////////////////////
   // actions
+  const addPC = async (): Promise<PC | null> => {
+    if (!currentCampaign.value)
+      return null;
+
+    const campaign = await Campaign.fromUuid(currentCampaign.value.uuid);
+    if (!campaign)
+      throw new Error('Bad campaign in campaignStore.addPC()');
+
+    const pc = await PC.create(campaign);
+
+    await _refreshPCRows();
+
+    if (pc) {
+      await mainStore.refreshCampaign();
+      return pc;
+    } else { 
+      return null;
+    }
+  };
+
+  const deletePC = async (pcId: string): Promise<void> => {
+    const pc = await PC.fromUuid(pcId);
+
+    if (!pc) 
+      throw new Error('Bad session in campaignDirectoryStore.deletePC()');
+
+    await pc.delete();
+
+    // update tabs/bookmarks
+    await navigationStore.cleanupDeletedEntry(pcId);
+
+    await _refreshPCRows();
+    await mainStore.refreshCampaign();
+  };
   
-  /**
-   * Add an actor as a PC for the campaign
-   * @param actorId The id of the actor to add
+    /**
+   * Adds a lore to the session.
    */
-  async function addPC(actorId: string): Promise<void> {
-    if (!currentCampaign.value || !actorId)
-      throw new Error('Invalid campaign/Actor in campaignStore.addPC()');
-
-    // update the campaign
-    if (!currentCampaign.value.pcs.includes(actorId)) {
-      currentCampaign.value.pcs = [...currentCampaign.value.pcs, actorId]; 
-      await currentCampaign.value.save();
+    const addLore = async (description = ''): Promise<void> => {
+      if (!currentCampaign.value)
+        throw new Error('Invalid session in campaignStore.addLore()');
+  
+      await currentCampaign.value.addLore(description);
+      await _refreshLoreRows();
     }
-
-    mainStore.refreshCampaign();
-  }
-
-  async function deletePC(actorId: string): Promise<void> {
-    if (!currentCampaign.value || !actorId)
-      throw new Error('Invalid campaign/Actor in campaignStore.deletePC()');
-
-    // update the campaign
-    const pcs = [...currentCampaign.value.pcs];
-    if (pcs.includes(actorId)) {
-      pcs.splice(pcs.indexOf(actorId), 1);
-      currentCampaign.value.pcs = pcs;
-      await currentCampaign.value.save();
+  
+    /**
+     * Updates the description associated with a lore 
+     * @param uuid the UUID of the lore
+     */
+    const updateLoreDescription = async (uuid: string, description: string): Promise<void> => {
+      if (!currentCampaign.value)
+        throw new Error('Invalid session in campaignStore.updateLoreDescription()');
+  
+      await currentCampaign.value.updateLoreDescription(uuid, description);
+      await _refreshLoreRows();
     }
-
-    mainStore.refreshCampaign();
-  }
-
-
+    
+    /**
+     * Updates the journal entry associated with a lore 
+     * @param loreUuid the UUID of the lore
+     * @param journalEntryPageUuid the UUID of the journal entry page (or null)
+     */
+    const updateLoreJournalEntry = async (loreUuid: string, journalEntryPageUuid: string | null): Promise<void> => {
+      if (!currentCampaign.value)
+        throw new Error('Invalid session in campaignStore.updateLoreJournalEntry()');
+  
+      await currentCampaign.value.updateLoreJournalEntry(loreUuid, journalEntryPageUuid);
+      await _refreshLoreRows();
+    }
+  
+    /**
+     * Deletes a lore from the session
+     * @param uuid the UUID of the l0ore
+     */
+    const deleteLore = async (uuid: string): Promise<void> => {
+      if (!currentCampaign.value)
+        throw new Error('Invalid session in campaignStore.deleteLore()');
+  
+      await currentCampaign.value.deleteLore(uuid);
+      await _refreshLoreRows();
+    }
+  
+    /**
+     * Set the delivered status for a given lore.
+     * @param uuid the UUID of the lore
+     * @param delivered the new delivered status
+     */
+    const markLoreDelivered = async (uuid: string, delivered: boolean): Promise<void> => {
+      if (!currentCampaign.value)
+        throw new Error('Invalid session in campaignStore.markLoreDelivered()');
+  
+      await currentCampaign.value.markLoreDelivered(uuid, delivered);
+      await _refreshLoreRows();
+    }
+  
+    /**
+     * Move a lore to the last session in the campaign, creating if needed
+     * @param uuid the UUID of the lore to move
+     */
+    const moveLoreToLastSession = async (uuid: string): Promise<void> => {
+      if (!currentCampaign.value)
+        return;
+  
+      const lastSession = await _getLastSession();
+  
+      if (!lastSession) 
+        return;
+  
+      const currentLore = currentCampaign.value.lore.find(l=> l.uuid===uuid);
+  
+      if (!currentLore)
+        return;
+  
+      // have a next session - add there and delete here
+      await lastSession.addLore(currentLore.description);
+      await currentCampaign.value.deleteLore(uuid);
+  
+      await _refreshLoreRows();
+    }
+  
   ///////////////////////////////
   // computed state
 
   ///////////////////////////////
   // internal functions
-  const _refreshRows = async () => {
-    if (!currentCampaign.value || !currentContentTab.value) {
-      relatedPCRows.value = [];
-    } else {
-      let table: CampaignTableTypes;
-      switch (currentContentTab.value) {
-        case 'pcs':
-          table = CampaignTableTypes.PC;
-          break;
-        default:
-          table = CampaignTableTypes.None;
-      }
 
-      if (table !== CampaignTableTypes.None) {
-        relatedPCRows.value = !currentCampaign.value.pcs ? [] :
-          Object.values(currentCampaign.value.pcs).map((id)=>{
-            return { 
-              name: id, 
-              uuid: id,
-              packid: id,
-              packName: id,
-            }
-          }
-          )|| [];
-      } else {
-        relatedPCRows.value = [];
+  const _getLastSession = async (): Promise<Session | null> => {
+    if (!currentCampaign.value)
+      return null;
+
+    const sessions = await currentCampaign.value.getSessions(); 
+
+    if (sessions.length!==0) {
+      return sessions.reduce((session, maxSession) => {
+        if (session.number > maxSession.number)
+          return session;
+        else
+          return maxSession;
+      }, sessions[0]);
+    } 
+    
+    // need to create one
+    const newSession = await Session.create(currentCampaign.value);
+    if (!newSession)
+      return null;
+
+    newSession.number = 1;
+
+    await campaignDirectoryStore.refreshCampaignDirectoryTree();
+
+    return newSession;
+  }
+
+  const _refreshRows = async (): Promise<void> => {
+    relatedPCRows.value = [];
+    relatedLoreRows.value = [];
+
+    if (!currentCampaign.value)
+      return;
+
+    await _refreshPCRows();
+    await _refreshLoreRows();
+  }
+
+  const _refreshPCRows = async (): Promise<void> => {
+    relatedPCRows.value = [];
+    if (currentCampaign.value) {
+      const pcs = await currentCampaign.value.getPCs();
+
+      if (pcs) {
+        for (let i = 0; i < pcs.length; i++) {
+          relatedPCRows.value.push({ 
+            name: pcs[i].name,
+            playerName: pcs[i].playerName,
+            uuid: pcs[i].uuid,
+          });
+        }
       }
     }
   };
+
+  const _refreshLoreRows = async () => {
+    if (!currentCampaign.value)
+      return;
+
+    const retval = [] as CampaignLoreDetails[];
+
+    // at the top of the list, put all the ones from the sessions... 
+    // TODO: mark these differently so they can't be moved, unmarked, etc. and sort separately
+    for (const session of await currentCampaign.value.getSessions()) {
+      for (const lore of session.lore) {
+        if (!lore.delivered)
+          continue;
+        
+        let entry: JournalEntryPage | null = null;
+
+        if (lore.journalEntryPageId)
+          entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage;
+  
+        retval.push({
+          uuid: lore.uuid,
+          lockedToSessionId: session.uuid,
+          lockedToSessionName: session.name,
+          delivered: lore.delivered,
+          description: lore.description,
+          journalEntryPageId: lore.journalEntryPageId,
+          journalEntryPageName: entry?.name || null,
+          packId: !entry ? null : entry.pack,
+          location: !entry ? '' : 
+            (entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World'),
+        });
+      }
+    }
+
+    for (const lore of currentCampaign.value?.lore) {
+      let entry: JournalEntryPage | null = null;
+
+      if (lore.journalEntryPageId)
+        entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage;
+
+      retval.push({
+        uuid: lore.uuid,
+        lockedToSessionId: null,
+        lockedToSessionName: null,
+        delivered: lore.delivered,
+        description: lore.description,
+        journalEntryPageId: lore.journalEntryPageId,
+        journalEntryPageName: entry?.name || null,
+        packId: !entry ? null : entry.pack,
+        location: !entry ? '' : 
+          (entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World'),
+});
+    }
+
+    relatedLoreRows.value = retval;
+  }
+
 
   ///////////////////////////////
   // watchers
@@ -141,9 +306,16 @@ export const useCampaignStore = defineStore('campaign', () => {
   // return the public interface
   return {
     relatedPCRows,
+    relatedLoreRows,
     extraFields,
 
     addPC,
     deletePC,
+    addLore,
+    deleteLore,
+    updateLoreDescription,
+    updateLoreJournalEntry,
+    markLoreDelivered,
+    moveLoreToLastSession,
   };
 });

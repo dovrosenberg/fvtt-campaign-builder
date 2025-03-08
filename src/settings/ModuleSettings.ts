@@ -65,8 +65,8 @@ export class ModuleSettings {
   private localDisplayParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
     {
       settingID: SettingKey.startCollapsed,
-      name: 'acm.settings.startCollapsed',
-      hint: 'acm.settings.startCollapsedHelp',
+      name: 'settings.startCollapsed',
+      hint: 'settings.startCollapsedHelp',
       default: false,
       type: Boolean,
     },

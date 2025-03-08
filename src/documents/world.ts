@@ -2,7 +2,9 @@ import { ValidTopic, Hierarchy, } from '@/types';
 import { FlagSettings } from '@/settings/DocumentFlags';
 
 // camapaigns are journal entries, not documents
-export interface WorldDoc extends Folder {}
+export interface WorldDoc extends Folder {
+  __type: 'WorldDoc';
+}
 
 export enum WorldFlagKey {
   isWorld = 'isWorld',    // used to mark the folder as a world

@@ -35,6 +35,8 @@ export function getTabTypeIcon(type: string | number | WindowTabType | null | un
       return 'fa-signs-post';
     case WindowTabType.Session: 
       return 'fa-tent';
+    case WindowTabType.PC: 
+      return 'fa-user-ninja';
     case WindowTabType.Entry:
       throw new Error('Tried to use getTabTypeIcon() for Entry');
     default: 

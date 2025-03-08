@@ -14,20 +14,14 @@
 
         <div 
           id="fwb-add-tab" 
-          class="tab-button"
+          class="fwb-tab flexrow" 
+          title="Open new tab" 
           @click="onAddTabClick"
         >
-          <i class="fas fa-plus"></i>
+          <div class="fwb-tab-icon">
+            <i class="fas fa-plus"></i>
+          </div>
         </div>
-      </div>
-
-      <div 
-        id="fwb-sidebar-toggle" 
-        class="tab-button" 
-        :data-tooltip="directoryCollapsed ? localize('tooltips.expandDirectory') : localize('tooltips.collapseDirectory')"
-        @click="onSidebarToggleClick"
-      >
-        <i :class="'fas ' + (directoryCollapsed ? 'fa-caret-left' : 'fa-caret-right')"></i>
       </div>
     </div>
 
@@ -100,7 +94,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, directoryCollapsed } = storeToRefs(mainStore);
+  const { currentWorld, } = storeToRefs(mainStore);
   const { tabs, bookmarks } = storeToRefs(navigationStore);
 
   ////////////////////////////////
@@ -169,7 +163,7 @@
     }
 
     const bookmark = {
-      id: globalThis.foundry.utils.randomID(),
+      id: foundry.utils.randomID(),
       header: tab.header,
       tabInfo: {
         tabType: tab.tabType,
@@ -178,10 +172,6 @@
     } as Bookmark;
 
     await navigationStore.addBookmark(bookmark);
-  };
-
-  const onSidebarToggleClick = async () => { 
-    directoryCollapsed.value = !directoryCollapsed.value;
   };
 
   const onAddTabClick = async () => { await navigationStore.openEntry(); };
@@ -228,36 +218,6 @@
     padding: 4px 2px 0px 4px;
     flex: 0 0 34px;
     color: var(--fwb-header-tab-color);
-
-    #fwb-sidebar-toggle {
-      float: left;
-      position: absolute;
-      top: 4px;
-      right: -36px;
-      font-size: 20px;
-      width: 30px;
-      transition: right 0.5s;
-      cursor: pointer;
-    }
-  
-    .fwb-tab-row {
-      padding-top: 1px;
-
-      .tab-button {
-        flex: 0 0 30px;
-        text-align: center;
-        line-height: 30px;
-        font-weight: bold;
-        cursor: pointer;
-        font-size: 18px;
-        color: var(--fwb-header-tab-btn-color);
-
-        &:hover {
-          opacity: 0.9;
-          text-shadow: 0 0 8px red;
-        }
-      }
-    }
   }
 
 
@@ -349,6 +309,15 @@
 
     #context-menu li {
       text-align: left;
+    }
+
+    #fwb-add-tab {
+      flex: 0 0 30px;
+      justify-content: center;
+
+      .fwb-tab-icon {
+        margin: 0px;
+      }
     }
   }
 }

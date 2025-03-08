@@ -1,8 +1,9 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionScene, SessionLore } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { Campaign, WBWorld } from '@/classes';
+import { localize } from '@/utils/game';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Session {
@@ -31,8 +32,10 @@ export class Session {
 
     if (!sessionDoc)
       return null;
-    else
-      return new Session(sessionDoc);
+    
+    const session = new Session(sessionDoc);
+    await session.loadCampaign();
+    return session;
   }
 
   /**
@@ -61,30 +64,28 @@ export class Session {
    */
   public async getWorld(): Promise<WBWorld> {
     if (!this.parentCampaign)
-      await this.loadCampaign();
+      this.parentCampaign = await this.loadCampaign();
 
-    const campaign = this.parentCampaign;
-
-    return campaign.getWorld();
+    if (!this.parentCampaign)
+      throw new Error('Invalid campaign in Session.getWorld()');
+    
+    return this.parentCampaign.getWorld();
   }
   
 
   // creates a new session in the proper campaign journal in the given world
-  static async create(campaign: Campaign ): Promise<Session | null> 
+  static async create(campaign: Campaign): Promise<Session | null> 
   {
     let nameToUse = '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await inputDialog('Create Session', 'Session Name:'); 
+      nameToUse = await inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`); 
     }  
     
     // if name is null, then we cancelled the dialog
     if (!nameToUse)
       return null;
 
-    if (!campaign.world)
-      await campaign.loadWorld();
-
-    const world = campaign.world as WBWorld;
+    const world = await campaign.getWorld();
 
     // create the entry
     await world.unlock();
@@ -126,17 +127,16 @@ export class Session {
     };
   }
 
-  get description(): string {
-    return this._sessionDoc.system.description || '';
+  get notes(): string {
+    return this._sessionDoc.text?.content || '';
   }
 
-  set description(value: string) {
-    this._sessionDoc.system.description = value;
+  set notes(value: string) {
+    this._sessionDoc.text.content = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      system: {
-        ...this._cumulativeUpdate.system,
-        description: value,
+      text: {
+        content: value,
       }
     };
   }
@@ -155,6 +155,434 @@ export class Session {
     };
   }
 
+  get date(): Date | null {
+    // system.date is a string, so need to convert
+    if (!this._sessionDoc.system.date)
+      return null;
+
+    const dateValue = new Date(this._sessionDoc.system.date);
+
+    return dateValue.isValid() ? dateValue : null;
+  }
+
+  set date(value: Date | null) {
+    this._sessionDoc.system.date = value?.isValid() ? value.toISOString() : null;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        date: value,
+      }
+    };
+  }
+
+  get startingAction(): string {
+    return this._sessionDoc.system.startingAction;
+  }
+
+  set startingAction(value: string) {
+    this._sessionDoc.system.startingAction = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        startingAction: value,
+      }
+    };
+  }
+
+  get locations(): readonly SessionLocation[] {
+    return this._sessionDoc.system.locations || [];
+  }
+
+  async addLocation(uuid: string): Promise<void> {
+    if (this._sessionDoc.system.locations.find(l=> l.uuid===uuid))
+      return;
+
+    this._sessionDoc.system.locations.push({
+      uuid: uuid,
+      delivered: false
+    });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        locations: this._sessionDoc.system.locations
+      }
+    };
+
+    await this.save();
+  }
+
+  async deleteLocation(uuid: string): Promise<void> {
+    this._sessionDoc.system.locations = this._sessionDoc.system.locations.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        locations: this._sessionDoc.system.locations
+      }
+    };
+
+    await this.save();
+  }
+
+  async markLocationDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const location = this._sessionDoc.system.locations.find((l) => l.uuid===uuid);
+    if (!location)
+      return;
+    
+    location.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        locations: this._sessionDoc.system.locations
+      }
+    };
+
+    await this.save();
+  }
+
+  get npcs(): readonly SessionNPC[] {
+    return this._sessionDoc.system.npcs || [];
+  }
+
+  async addNPC(uuid: string): Promise<void> {
+    if (this._sessionDoc.system.npcs.find(l=> l.uuid===uuid))
+      return;
+
+    this._sessionDoc.system.npcs.push({
+      uuid: uuid,
+      delivered: false
+    });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        npcs: this._sessionDoc.system.npcs
+      }
+    };
+
+    await this.save();
+  }
+
+  async deleteNPC(uuid: string): Promise<void> {
+    this._sessionDoc.system.npcs = this._sessionDoc.system.npcs.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        npcs: this._sessionDoc.system.npcs
+      }
+    };
+
+    await this.save();
+  }
+
+  async markNPCDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const npc = this._sessionDoc.system.npcs.find((l) => l.uuid===uuid);
+    if (!npc)
+      return;
+    
+    npc.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        npcs: this._sessionDoc.system.npcs
+      }
+    };
+
+    await this.save();
+  }
+
+  get scenes(): readonly SessionScene[] {
+    return this._sessionDoc.system.scenes || [];
+  }
+
+  async addScene(description: string): Promise<void> {
+    const uuid = foundry.utils.randomID();
+
+    this._sessionDoc.system.scenes.push({
+      uuid: uuid,
+      description: description,
+      delivered: false
+    });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        scenes: this._sessionDoc.system.scenes
+      }
+    };
+
+    await this.save();
+  }
+
+  async updateSceneDescription(uuid: string, description: string): Promise<void> {
+    const scene = this._sessionDoc.system.scenes.find(s=> s.uuid===uuid);
+
+    if (!scene)
+      return;
+
+    scene.description = description;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        scenes: this._sessionDoc.system.scenes
+      }
+    };
+
+    await this.save();
+  }
+
+
+  async deleteScene(uuid: string): Promise<void> {
+    this._sessionDoc.system.scenes = this._sessionDoc.system.scenes.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        scenes: this._sessionDoc.system.scenes
+      }
+    };
+
+    await this.save();
+  }
+
+  async markSceneDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const scene = this._sessionDoc.system.scenes.find((s) => s.uuid===uuid);
+    if (!scene)
+      return;
+    
+    scene.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        scenes: this._sessionDoc.system.scenes
+      }
+    };
+
+    await this.save();
+  }
+
+  get lore(): readonly SessionLore[] {
+    return this._sessionDoc.system.lore || [];
+  }
+
+  async addLore(description: string): Promise<void> {
+    const uuid = foundry.utils.randomID();
+
+    this._sessionDoc.system.lore.push({
+      uuid: uuid,
+      description: description,
+      delivered: false,
+      journalEntryPageId: null,
+    });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        lore: this._sessionDoc.system.lore
+      }
+    };
+
+    await this.save();
+  }
+
+  async updateLoreDescription(uuid: string, description: string): Promise<void> {
+    const lore = this._sessionDoc.system.lore.find(l=> l.uuid===uuid);
+
+    if (!lore)
+      return;
+
+    lore.description = description;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        lore: this._sessionDoc.system.lore
+      }
+    };
+
+    await this.save();
+  }
+
+  async updateLoreJournalEntry(loreUuid: string, journalEntryPageId: string | null): Promise<void> {
+    const lore = this._sessionDoc.system.lore.find(l=> l.uuid===loreUuid);
+
+    if (!lore)
+      return;
+
+    lore.journalEntryPageId = journalEntryPageId;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        lore: this._sessionDoc.system.lore
+      }
+    };
+
+    await this.save();
+  }
+
+
+  async deleteLore(uuid: string): Promise<void> {
+    this._sessionDoc.system.lore = this._sessionDoc.system.lore.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        lore: this._sessionDoc.system.lore
+      }
+    };
+
+    await this.save();
+  }
+
+  async markLoreDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const lore = this._sessionDoc.system.lore.find((l) => l.uuid===uuid);
+    if (!lore)
+      return;
+    
+    lore.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        lore: this._sessionDoc.system.lore
+      }
+    };
+
+    await this.save();
+  }
+
+  get monsters(): readonly SessionMonster[] {
+    return this._sessionDoc.system.monsters || [];
+  }
+
+  async addMonster(uuid: string, number = 1): Promise<void> {
+    if (this._sessionDoc.system.monsters.find(l=> l.uuid===uuid))
+      return;
+
+    this._sessionDoc.system.monsters.push({
+      uuid: uuid,
+      number: number,
+      delivered: false
+    });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        monsters: this._sessionDoc.system.monsters
+      }
+    };
+
+    await this.save();
+  }
+
+  async updateMonsterNumber(uuid: string, value: number): Promise<void> {
+    const monster = this._sessionDoc.system.monsters.find(l=> l.uuid===uuid);
+
+    if (!monster)
+      return;
+
+    monster.number = value;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        monsters: this._sessionDoc.system.monsters
+      }
+    };
+
+    await this.save();
+  }
+
+  async deleteMonster(uuid: string): Promise<void> {
+    this._sessionDoc.system.monsters = this._sessionDoc.system.monsters.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        monsters: this._sessionDoc.system.monsters
+      }
+    };
+
+    await this.save();
+  }
+
+  async markMonsterDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const monster = this._sessionDoc.system.monsters.find((l) => l.uuid===uuid);
+    if (!monster)
+      return;
+    
+    monster.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        monsters: this._sessionDoc.system.monsters
+      }
+    };
+
+    await this.save();
+  }
+
+  get items(): readonly SessionItem[] {
+    return this._sessionDoc.system.items || [];
+  }
+
+  async addItem(uuid: string): Promise<void> {
+    if (this._sessionDoc.system.items.find(i=> i.uuid===uuid))
+      return;
+
+    this._sessionDoc.system.items.push({
+      uuid: uuid,
+      delivered: false
+    });
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        items: this._sessionDoc.system.items
+      }
+    };
+
+    await this.save();
+  }
+
+  async deleteItem(uuid: string): Promise<void> {
+    this._sessionDoc.system.items = this._sessionDoc.system.items.filter(i=> i.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        items: this._sessionDoc.system.items
+      }
+    };
+
+    await this.save();
+  }
+
+  async markItemDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const item = this._sessionDoc.system.items.find((i) => i.uuid===uuid);
+    if (!item)
+      return;
+    
+    item.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        items: this._sessionDoc.system.items
+      }
+    };
+
+    await this.save();
+  }
+
   get campaignId(): string {
     return this._sessionDoc.parent.uuid;
   }
@@ -166,9 +594,9 @@ export class Session {
 
   // used to set arbitrary properties on the entryDoc
   /**
-   * Updates an entry in the database
+   * Updates a session in the database
    * 
-   * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
+   * @returns {Promise<Session | null>} The updated session, or null if the update failed.
    */
   public async save(): Promise<Session | null> {
     const world = await this.getWorld();

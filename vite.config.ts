@@ -54,6 +54,7 @@ export default defineConfig({
     // }),
     // combine all the scss output into one file
     scss({
+      api: 'modern',
       output: 'styles/style.css',
       sourceMap: true,
       include: ['src/**/*.scss', 'src/**/*.css', 'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css'],

@@ -10,11 +10,10 @@ import { useMainStore, } from './index';
 import { 
   Topics, ValidTopic,
   RelatedItemDetails, FieldDataByTopic,
-  TablePagination,
   RelatedDocumentDetails,
   DocumentLinkType,
 } from '@/types';
-import { reactive, Ref, watch } from 'vue';
+import { watch } from 'vue';
 import { ref } from 'vue';
 import { Entry } from '@/classes';
 
@@ -24,16 +23,6 @@ export const useRelationshipStore = defineStore('relationship', () => {
   // the state
   const relatedItemRows = ref<RelatedItemDetails<any, any>[]>([]);
   const relatedDocumentRows = ref<RelatedDocumentDetails[]>([]);
-
-  // we store the pagination info for each type like a preference
-  const defaultPagination: TablePagination = {
-    sortField: 'name', 
-    sortOrder: 1, 
-    first: 0,
-    page: 0,
-    rowsPerPage: 10, 
-    filters: {},
-  };
 
   const extraFields = {
     [Topics.Character]: {
@@ -133,7 +122,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     relatedEntry.relationships = relatedEntryRelationships;
     await relatedEntry.save();
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**
@@ -153,7 +142,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       await entry.save();
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**
@@ -173,7 +162,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       await entry.save();
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**
@@ -193,7 +182,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       await entry.save();
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**
@@ -213,7 +202,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       await entry.save();
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**
@@ -258,7 +247,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       await relatedEntry.save();
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   // remove a relationship to the current entry
@@ -304,7 +293,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       delete relatedEntryRelationships[entryTopic][`-=${entry.uuid}`];
     }
 
-    mainStore.refreshEntry();
+    await mainStore.refreshEntry();
   }
 
   /**

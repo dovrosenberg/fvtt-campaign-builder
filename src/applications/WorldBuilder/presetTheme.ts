@@ -6,14 +6,19 @@ export default definePreset(Aura, {
     datatable: {
       headerBackground: 'inherit',
       headerCellBackground: 'inherit',
+      headerCellSelected: {
+        background: 'inherit',
+        color: '#5d142b',   //'var(--color-warm-3)', - can't seem to set it to a variable?
+      },
       rowBackground: 'inherit',
+      bodyCellBorderColor: '#666',   // var(--color-border-dark-5)
       rowStripedBackground: 'inherit',
       footerCellBackground: 'inherit',
       footerBackground: 'inherit',
-      paginatorTopBorderColor: 'black',
-      paginatorBottomBorderColor: 'black',
-      paginatorTopBorderWidth: '1px',
-      paginatorBottomBorderWidth: '1px',
+      // paginatorTopBorderColor: 'black',
+      // paginatorBottomBorderColor: 'black',
+      paginatorTopBorderWidth: '0px',
+      paginatorBottomBorderWidth: '0px',
     },
     paginator: {
       navButton: {

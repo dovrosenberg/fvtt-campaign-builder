@@ -17,6 +17,16 @@
   }
 
   table {
+    border: 0px !important;
+    border-radius: 0px !important;
+
+    thead {
+      background: unset;
+      color: unset;
+      text-shadow: unset;
+      border-bottom: unset;
+    }
+
     // --table-background-color: none;
   }
 }
