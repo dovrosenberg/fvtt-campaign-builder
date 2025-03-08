@@ -2,11 +2,11 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { reactive, Ref, ref, watch, } from 'vue';
+import { reactive, ref, watch, } from 'vue';
 
 // local imports
 import { useMainStore, useNavigationStore } from '@/applications/stores';
-import { DirectoryCampaignNode, Campaign, Session, WBWorld, PC } from '@/classes';
+import { DirectoryCampaignNode, Campaign, Session, WBWorld, } from '@/classes';
 
 // types
 

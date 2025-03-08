@@ -673,7 +673,8 @@ export const useSessionStore = defineStore('session', () => {
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
         packId: !entry ? null : entry.pack,
-        packName: !entry ? null : (entry.pack ? game.packs?.get(entry.pack)?.title ?? null : null),
+        location: !entry ? '' : 
+          (entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World'),
     });
     }
 

@@ -50,7 +50,6 @@
   // local components
 
   // types
-  const ProseMirror = foundry.prosemirror;
 
   // type EditorOptions = {
   //   document: Document<any>,
@@ -148,8 +147,7 @@
   ////////////////////////////////
   // methods
   // shouldn't be called unless there's already a document
-  // this creates the Editor class that converts the div into a 
-  //    functional editor
+  // this creates the Editor class that converts the div into a functional editor
   const activateEditor = async (): Promise<void> => {
     if (!coreEditorRef.value)
       return;
@@ -187,12 +185,6 @@
     editor.value = await TextEditor.create(options, props.initialContent);
    
     options.target.closest('.editor')?.classList.add(props.engine);
-
-    // /* @deprecated since v10 */
-    // if ( props.engine !== 'prosemirror' ) {
-    //   editor.value.focus();
-    //   //editor.value.on("change", () => this._changed = true);
-    // }
   };
 
   const configureProseMirrorPlugins = () => {

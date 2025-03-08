@@ -198,6 +198,10 @@
       type: String,
       required: true,
     },
+    showMoveToCampaign: { 
+      type: Boolean, 
+      default: false,
+    },
   });
 
   ////////////////////////////////
@@ -212,6 +216,7 @@
     (e: 'markItemDelivered', uuid: string): void;
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;
+    (e: 'moveToCampaign', uuid: string): void;
   }>();
 
   ////////////////////////////////

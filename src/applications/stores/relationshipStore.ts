@@ -13,7 +13,7 @@ import {
   RelatedDocumentDetails,
   DocumentLinkType,
 } from '@/types';
-import { Ref, watch } from 'vue';
+import { watch } from 'vue';
 import { ref } from 'vue';
 import { Entry } from '@/classes';
 
