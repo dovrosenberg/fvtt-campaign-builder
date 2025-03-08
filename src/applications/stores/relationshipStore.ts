@@ -308,12 +308,12 @@ export const useRelationshipStore = defineStore('relationship', () => {
   }
 
   /**
-   * Propogate a name change to all related entries.  
+   * propagate a name change to all related entries.  
    * @param entryId The id of the entry whose name has changed
    * @param newName The new name
-   * @returns A promise that resolves when the name change has been propogated
+   * @returns A promise that resolves when the name change has been propagated
    */
-  async function propogateNameChange(entry: Entry): Promise<void> {
+  async function propagateNameChange(entry: Entry): Promise<void> {
     // relationships are bi-directional, so look at all the relationships for the entry    
     if (!entry || !entry.relationships)
       return;
@@ -451,7 +451,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     deleteRelationship,
     editRelationship,
     getRelationships,
-    propogateNameChange,
+    propagateNameChange,
     addScene,
     addActor,
     deleteScene,

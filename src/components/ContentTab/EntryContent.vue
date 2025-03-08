@@ -230,8 +230,8 @@
         await currentEntry.value.save();
 
         await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
-        await navigationStore.propogateNameChange(currentEntry.value.uuid, newValue);
-        await relationshipStore.propogateNameChange(currentEntry.value);
+        await navigationStore.propagateNameChange(currentEntry.value.uuid, newValue);
+        await relationshipStore.propagateNameChange(currentEntry.value);
       }
     }, debounceTime);
   };

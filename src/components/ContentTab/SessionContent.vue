@@ -160,7 +160,7 @@
         await currentSession.value.save();
 
         await campaignDirectoryStore.refreshCampaignDirectoryTree([currentSession.value.uuid]);
-        await navigationStore.propogateNameChange(currentSession.value.uuid, newValue);
+        await navigationStore.propagateNameChange(currentSession.value.uuid, newValue);
       }
     }, debounceTime);
   };
@@ -178,7 +178,7 @@
         await currentSession.value.save();
 
         await campaignDirectoryStore.refreshCampaignDirectoryTree([currentSession.value.uuid]);
-        await navigationStore.propogateNameChange(currentSession.value.uuid, `${localize('labels.session.session')} ${newValue.toString()}`);
+        await navigationStore.propagateNameChange(currentSession.value.uuid, `${localize('labels.session.session')} ${newValue.toString()}`);
       }
     }, debounceTime);
   };

@@ -352,11 +352,11 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
   
   /**
-   * When an entry's name changes, propogate that change to the header of all open tabs referring to that entry.
+   * When an entry's name changes, propagate that change to the header of all open tabs referring to that entry.
    * @param contentId - The ID of the entry whose name changed.
    * @param newName - The new name of the entry.
    */
-  const propogateNameChange = async (contentId: string, newName: string):Promise<void> => {
+  const propagateNameChange = async (contentId: string, newName: string):Promise<void> => {
     // update the tabs 
     let updated = false;
     tabs.value.forEach((t: WindowTab): void => {
@@ -481,7 +481,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     removeBookmark,
     addBookmark,
     changeBookmarkPosition,
-    propogateNameChange,
+    propagateNameChange,
     cleanupDeletedEntry,
     clearTabsAndBookmarks,
   };

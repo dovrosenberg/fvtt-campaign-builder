@@ -117,7 +117,7 @@
           currentWorld.value.updateCampaignName(currentCampaign.value.uuid, newValue);
 
         await campaignDirectoryStore.refreshCampaignDirectoryTree([currentCampaign.value.uuid]);
-        await navigationStore.propogateNameChange(currentCampaign.value.uuid, newValue);
+        await navigationStore.propagateNameChange(currentCampaign.value.uuid, newValue);
       }
     }, debounceTime);
   };
