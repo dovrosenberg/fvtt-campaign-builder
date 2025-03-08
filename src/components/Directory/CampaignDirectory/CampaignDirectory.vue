@@ -1,9 +1,9 @@
 <template>
   <!-- these are the campaigns -->
-  <ol class="fwb-campaign-list">
+  <ol class="wcb-campaign-list">
     <li 
       v-if="currentWorld" 
-      class="fwb-world-folder folder flexcol" 
+      class="wcb-world-folder folder flexcol" 
     >
       <header 
         class="folder-header flexrow"
@@ -76,7 +76,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'fwb',
+      customClass: 'wcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
@@ -105,14 +105,14 @@
 </script>
 
 <style lang="scss">
-  #fwb-directory {
+  #wcb-directory {
     .action-buttons {
       padding-left: 30px;
     }
 
     // the campaign list section
-    .fwb-directory-panel-wrapper {
-      .fwb-campaign-list {
+    .wcb-directory-panel-wrapper {
+      .wcb-campaign-list {
         padding: 0;
         flex-grow: 1;
         overflow: auto;
@@ -122,15 +122,15 @@
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  .fwb-directory-compendium {
-    .fwb-entry-item, .fwb-type-item {
+  .wcb-directory-compendium {
+    .wcb-entry-item, .wcb-type-item {
       position: relative;
       padding-left: 1em;
       cursor: pointer;
     }
 
     // bold the active one
-    .fwb-current-directory-entry {
+    .wcb-current-directory-entry {
       font-weight: bold;
     }
 
@@ -174,7 +174,7 @@
       }
 
       // add the little open markers
-      div.summary .fwb-directory-expand-button {
+      div.summary .wcb-directory-expand-button {
         position: absolute;
         text-align: center;
         line-height: 0.80em;
@@ -189,7 +189,7 @@
         z-index: 999;
       }
 
-      div.summary.top .fwb-directory-expand-button {
+      div.summary.top .wcb-directory-expand-button {
         margin-left: 1em;
       }
 
@@ -216,7 +216,7 @@
     }
   }
 
-  ul.fwb-directory-tree > li:after, ul.fwb-directory-tree > li:before {
+  ul.wcb-directory-tree > li:after, ul.wcb-directory-tree > li:before {
     display:none;
   }
 }

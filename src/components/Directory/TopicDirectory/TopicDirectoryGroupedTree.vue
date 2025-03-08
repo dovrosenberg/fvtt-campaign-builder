@@ -1,6 +1,6 @@
 <template>
   <!-- this is just a <ul> wrapper around the a type node in the type-grouped tree-->
-  <ul class="fwb-directory-tree">
+  <ul class="wcb-directory-tree">
     <TopicDirectoryGroupedType
       v-for="type in sortedTypes"
       :key="type.id"

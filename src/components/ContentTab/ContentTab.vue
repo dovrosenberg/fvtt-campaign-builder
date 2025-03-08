@@ -1,35 +1,35 @@
 <template>
   <div 
     ref="contentRef"
-    class="sheet fwb-journal-sheet"
+    class="sheet wcb-journal-sheet"
   >      
     <div 
       v-if="currentContentType===WindowTabType.Entry"
-      class="fwb-content-wrapper"
+      class="wcb-content-wrapper"
     >
       <EntryContent />
     </div>
     <div 
       v-else-if="currentContentType===WindowTabType.Session"
-      class="fwb-content-wrapper"
+      class="wcb-content-wrapper"
     >
       <SessionContent />
     </div>
     <div 
       v-else-if="currentContentType===WindowTabType.Campaign"
-      class="fwb-content-wrapper"
+      class="wcb-content-wrapper"
     >
       <CampaignContent />
     </div>
     <div 
       v-else-if="currentContentType===WindowTabType.PC"
-      class="fwb-content-wrapper"
+      class="wcb-content-wrapper"
     >
       <PCContent />
     </div>
     <div 
       v-else-if="currentContentType===WindowTabType.NewTab"
-      class="fwb-content-wrapper"
+      class="wcb-content-wrapper"
     >
       <HomePage />
     </div>
@@ -84,7 +84,7 @@
 </script>
 
 <style lang="scss">
-  .fwb-journal-sheet {
+  .wcb-journal-sheet {
     &.sheet {
       height: 100%;
     }
@@ -99,18 +99,18 @@
         height: 100%;
       }
     
-      .fwb-sheet-container {
+      .wcb-sheet-container {
         height: 100%;
         width: 100%;
         overflow: hidden;
-        color: var(--fwb-sheet-color);
+        color: var(--wcb-sheet-color);
       }
       
-      .fwb-sheet-container.detailed {
+      .wcb-sheet-container.detailed {
         padding: 4px;
       }
       
-      .fwb-sheet-container #context-menu {
+      .wcb-sheet-container #context-menu {
         font-family: var(--font-primary);
       }
       
@@ -118,40 +118,40 @@
         z-index: 100;
       }
 
-      .fwb-journal-sheet-header .sheet-image {
+      .wcb-journal-sheet-header .sheet-image {
         flex: 0 0 160px;
         font-size: 13px;
         max-width: 160px;
         height: 160px;
         position: relative;
         border-radius: 5px;
-        border: 1px solid var(--fwb-icon-outline);
+        border: 1px solid var(--wcb-icon-outline);
         margin-right: 6px;
         overflow: hidden;
       }
     
-      .fwb-journal-sheet-header .sheet-image img.profile {
+      .wcb-journal-sheet-header .sheet-image img.profile {
         width: 100%;
         height: 100%;
         object-fit: contain;
         max-width: 100%;
         border: 0px;
-        background: var(--fwb-icon-background);
-        -webkit-box-shadow: 0 0 10px var(--fwb-icon-shadow) inset;
-        box-shadow: 0 0 10px var(--fwb-icon-shadow) inset;
+        background: var(--wcb-icon-background);
+        -webkit-box-shadow: 0 0 10px var(--wcb-icon-shadow) inset;
+        box-shadow: 0 0 10px var(--wcb-icon-shadow) inset;
         background-repeat: no-repeat;
         background-position: center;
         background-size: contain;
       }
     
       /* Nav */
-      .fwb-sheet-navigation {
+      .wcb-sheet-navigation {
         flex-grow: 0;
         flex: 0 0 30px !important;
-        background: var(--fwb-sheet-tab-background);
+        background: var(--wcb-sheet-tab-background);
         padding-bottom: 5px;
-        border-bottom: 2px groove var(--fwb-sheet-tab-bottom-border);
-        font-family: var(--fwb-font-family);
+        border-bottom: 2px groove var(--wcb-sheet-tab-bottom-border);
+        font-family: var(--wcb-font-family);
         font-size: 18px;
         font-weight: 700;
 
@@ -163,22 +163,22 @@
             height: 30px !important;
             line-height: 32px;
             margin: 0 24px;
-            border-bottom: var(--fwb-sheet-tab-border);
-            color: var(--fwb-sheet-tab-color);
+            border-bottom: var(--wcb-sheet-tab-border);
+            color: var(--wcb-sheet-tab-color);
             max-width: 150px;
           }
 
           .item:hover {
-            color: var(--fwb-sheet-tab-color-hover);
+            color: var(--wcb-sheet-tab-color-hover);
           }
 
           .item.hasitems {
-            border-bottom-color: var(--fwb-sheet-tab-border-items);
+            border-bottom-color: var(--wcb-sheet-tab-border-items);
           }
 
           .item.active {
-            border-bottom-color: var(--fwb-sheet-tab-border-active);
-            color: var(--fwb-sheet-tab-color-active);
+            border-bottom-color: var(--wcb-sheet-tab-border-active);
+            color: var(--wcb-sheet-tab-color-active);
           }
 
           .tab {
@@ -194,126 +194,126 @@
       }
 
       /* Header Details */
-      .fwb-journal-sheet-header .header-details {
+      .wcb-journal-sheet-header .header-details {
         font-size: var(--font-size-20);
         font-weight: 700;
         //overflow: hidden;
         /*width: calc(100% - 160px);*/
       }
 
-      .fwb-journal-sheet-header .header-details input {
-        border: var(--fwb-sheet-header-input-border);
-        background: var(--fwb-sheet-header-input-background);
+      .wcb-journal-sheet-header .header-details input {
+        border: var(--wcb-sheet-header-input-border);
+        background: var(--wcb-sheet-header-input-background);
       }
 
-      .fwb-journal-sheet-header .header-details .header-name {
+      .wcb-journal-sheet-header .header-details .header-name {
         margin: 0;
       }
 
-      .fwb-journal-sheet-header .header-details .header-name input[type="text"] {
+      .wcb-journal-sheet-header .header-details .header-name input[type="text"] {
         font-size: 32px;
         height: 36px;
       }
 
-      .fwb-journal-sheet-header .header-details .form-group {
+      .wcb-journal-sheet-header .header-details .form-group {
         margin: 4px 8px 0px 0px;
       }
-      .fwb-journal-sheet-header .header-details .form-group label {
+      .wcb-journal-sheet-header .header-details .form-group label {
         max-width: 175px;
-        color: var(--fwb-sheet-header-label-color);
+        color: var(--wcb-sheet-header-label-color);
         text-align: left;
         background: none;
         border: none;
       }
-      .fwb-journal-sheet-header .header-details .form-group input {
+      .wcb-journal-sheet-header .header-details .form-group input {
         font-size: var(--font-size-20);
-        color: var(--fwb-sheet-header-detail-input-color);
+        color: var(--wcb-sheet-header-detail-input-color);
       }
 
-      .fwb-journal-sheet-header .header-details .form-group select {
-        border: var(--fwb-sheet-header-input-border);
+      .wcb-journal-sheet-header .header-details .form-group select {
+        border: var(--wcb-sheet-header-input-border);
         font-size: inherit;
         font-family: inherit;
         height: calc(var(--font-size-20) + 6);
         margin: 0px;
-        color: var(--fwb-sheet-header-detail-input-color);
-        background: var(--fwb-sheet-header-input-background);
+        color: var(--wcb-sheet-header-detail-input-color);
+        background: var(--wcb-sheet-header-input-background);
       }
 
-      .fwb-journal-sheet-header .header-details .form-group select:hover {
+      .wcb-journal-sheet-header .header-details .form-group select:hover {
         box-shadow: 0 0 8px var(--color-shadow-primary);
       }
 
-      .fwb-content-header {
+      .wcb-content-header {
         overflow-y: visible;
       }
 
-      .fwb-journal-sheet-header .header-details .header-name input[type="text"] {
-        background: var(--fwb-sheet-header-name-background);
+      .wcb-journal-sheet-header .header-details .header-name input[type="text"] {
+        background: var(--wcb-sheet-header-name-background);
         border: 1px solid transparent;
-        color: var(--fwb-sheet-header-name-color);
+        color: var(--wcb-sheet-header-name-color);
         margin-right: 2px;
       }
 
-      .fwb-journal-sheet-header .header-details .header-name input[type="text"]:hover,
-      .fwb-journal-sheet-header .header-details .header-name input[type="text"]:focus {
-        background: var(--fwb-sheet-header-name-background-hover);
+      .wcb-journal-sheet-header .header-details .header-name input[type="text"]:hover,
+      .wcb-journal-sheet-header .header-details .header-name input[type="text"]:focus {
+        background: var(--wcb-sheet-header-name-background-hover);
       }
 
       // the tab content
-      .fwb-tab-body {
+      .wcb-tab-body {
         display: flex;
         flex: 1;
 
       }
     }
 
-    .fwb-sheet-container a[disabled] {
+    .wcb-sheet-container a[disabled] {
       pointer-events: none;
     }
 
     /* Header */
-    .fwb-sheet-container .fwb-journal-sheet-header {
-      font-family: var(--fwb-font-family);
+    .wcb-sheet-container .wcb-journal-sheet-header {
+      font-family: var(--wcb-font-family);
       font-size: 24px;
       flex-grow: 0;
-      border-bottom: 2px solid var(--fwb-sheet-header-border);
+      border-bottom: 2px solid var(--wcb-sheet-header-border);
       z-index: 1;
       padding-left: 8px;
     }
 
-    .fwb-sheet-container.detailed .fwb-journal-sheet-header {
+    .wcb-sheet-container.detailed .wcb-journal-sheet-header {
       align-items: flex-start;
       padding-bottom: 4px;
       /*flex: 0 0 162px;*/
-      border-bottom: 2px groove var(--fwb-sheet-detailed-header-border);
+      border-bottom: 2px groove var(--wcb-sheet-detailed-header-border);
       margin: 0px;
       padding-left: 0px;
       position: relative;
     }
 
-    .fwb-journal-sheet-header.header-name input[type="text"] {
-      background: var(--fwb-sheet-header-name-background);
+    .wcb-journal-sheet-header.header-name input[type="text"] {
+      background: var(--wcb-sheet-header-name-background);
       border: 1px solid transparent;
-      color: var(--fwb-sheet-header-name-color);
+      color: var(--wcb-sheet-header-name-color);
       margin-right: 2px;
       font-size: 28px;
       height: calc(100% - 2px);
     }
 
-    .fwb-journal-sheet-header.header-name input[type="text"]:hover,
-    .fwb-journal-sheet-header.header-name input[type="text"]:focus {
-      background: var(--fwb-sheet-header-name-background-hover);
+    .wcb-journal-sheet-header.header-name input[type="text"]:hover,
+    .wcb-journal-sheet-header.header-name input[type="text"]:focus {
+      background: var(--wcb-sheet-header-name-background-hover);
     }
 
-    .fwb-sheet-container .fwb-journal-sheet-header .sheet-icon {
+    .wcb-sheet-container .wcb-journal-sheet-header .sheet-icon {
       flex: 0 0 30px;
       line-height: 35px;
       margin-top: 0px;
       color: #777;
     }
 
-    .fwb-sheet-container.detailed .fwb-journal-sheet-header .sheet-icon {
+    .wcb-sheet-container.detailed .wcb-journal-sheet-header .sheet-icon {
       flex: 0 0 20px;
       font-size: 20px;
       height: 20px;
@@ -322,14 +322,14 @@
       line-height: 15px;
     }
 
-    &.image-popout.dark .fwb-journal-sheet-header input[type="text"] {
+    &.image-popout.dark .wcb-journal-sheet-header input[type="text"] {
       color: #fff;
     }
 
-    .fwb-journal-sheet-header.header-name .fwb-header-search {
+    .wcb-journal-sheet-header.header-name .wcb-header-search {
       font-size: 14px;
       flex: 0 0 255px;
-      color: var(--fwb-sheet-color);
+      color: var(--wcb-sheet-color);
 
       i {
         flex: 0 0 25px;
@@ -342,30 +342,30 @@
         height: 25px;
         margin-top: 6px;
         margin-right: 4px;
-        border: 1px solid var(--fwb-sheet-header-search-border);
-        background: var(--fwb-sheet-header-search-background);
-        color: var(--fwb-sheet-header-search-color);
+        border: 1px solid var(--wcb-sheet-header-search-border);
+        background: var(--wcb-sheet-header-search-background);
+        color: var(--wcb-sheet-header-search-color);
     
         &::placeholder {
-          color: var(--fwb-sheet-header-search-placeholder);
+          color: var(--wcb-sheet-header-search-placeholder);
         }
       
         &:hover,
         &:focus {
-          background: var(--fwb-sheet-header-search-background-hover);
+          background: var(--wcb-sheet-header-search-background-hover);
         }
       }
     }
 
-    .fwb-journal-subsheet:not(.gm) .gm-only {
+    .wcb-journal-subsheet:not(.gm) .gm-only {
       display: none;
     }
     
-    .fwb-journal-subsheet:not(.owner) .owner-only {
+    .wcb-journal-subsheet:not(.owner) .owner-only {
       display: none;
     }
     
-    .fwb-journal-sheet-header {
+    .wcb-journal-sheet-header {
       button {
         flex: 0 0 30px;
         height: 30px;
@@ -376,8 +376,8 @@
         padding: 0px 3px;
         cursor: pointer;
         box-shadow: none;
-        color: var(--fwb-sheet-header-button-color);
-        background: var(--fwb-sheet-header-button-background);
+        color: var(--wcb-sheet-header-button-color);
+        background: var(--wcb-sheet-header-button-background);
         border-radius: 3px;
         margin-top: 3px;
         margin-right: 5px;
@@ -397,8 +397,8 @@
       }
 
       button.active {
-        border: 1px solid var(--fwb-active-color);
-        color: var(--fwb-active-color);
+        border: 1px solid var(--wcb-active-color);
+        color: var(--wcb-active-color);
       }
     }
 
@@ -406,25 +406,25 @@
     .page-controls {
       flex-grow: 0;
       padding-top: 1px;
-      border-bottom: 2px groove var(--fwb-sheet-details-section-border);
+      border-bottom: 2px groove var(--wcb-sheet-details-section-border);
 
       button {
         flex: 0 0 130px;
-        background: var(--fwb-sheet-page-control-background);
-        color: var(--fwb-sheet-page-control-color);
+        background: var(--wcb-sheet-page-control-background);
+        color: var(--wcb-sheet-page-control-color);
       }
 
       button:hover {
-        background: var(--fwb-sheet-page-control-background-hover);
+        background: var(--wcb-sheet-page-control-background-hover);
       }
 
-      button.fwb-header-control {
+      button.wcb-header-control {
         flex: 0 0 30px;
       }
     }
 
     /* Body */
-    .fwb-sheet-container .fwb-tab-body {
+    .wcb-sheet-container .wcb-tab-body {
       height: 100%;
       overflow: hidden;
       position: relative;
@@ -433,14 +433,14 @@
 
 
     /* Tabs */
-    &.sheet .fwb-tab-body .tab {
+    &.sheet .wcb-tab-body .tab {
       height: 100% !important;
       overflow-y: auto !important;
       align-content: flex-start;
       flex: 1;
     }
 
-    &.sheet .fwb-tab-body .tab .tab-inner {
+    &.sheet .wcb-tab-body .tab .tab-inner {
       height: 100%;
       overflow-y: auto !important;
       align-content: flex-start;
@@ -453,9 +453,9 @@
 
     .tab.notes .notes-container {
       overflow: auto;
-      border: var(--fwb-sheet-input-border);
-      background: var(--fwb-sheet-input-background);
-      color: var(--fwb-sheet-input-color);
+      border: var(--wcb-sheet-input-border);
+      background: var(--wcb-sheet-input-background);
+      color: var(--wcb-sheet-input-color);
       border-radius: 4px;
       margin-bottom: 3px;
     }
@@ -512,7 +512,7 @@
     }
 
     
-    // .fwb-journal-subsheet[editable='false'] .editor-edit {
+    // .wcb-journal-subsheet[editable='false'] .editor-edit {
     //   display: none !important;
     // }
 
@@ -530,7 +530,7 @@
     }
 
     /* Additional */
-    .fwb-sheet-container .fwb-tab-body .no-character-alert {
+    .wcb-sheet-container .wcb-tab-body .no-character-alert {
       background: rgba(214, 150, 0, 0.8);
       border: 1px solid var(--color-level-warning);
       margin-bottom: 0.5em;
@@ -544,24 +544,24 @@
       flex: 0 0 33px;
     }
 
-    .fwb-sheet-container .fwb-tab-body .no-character-alert a {
+    .wcb-sheet-container .wcb-tab-body .no-character-alert a {
       color: var(--color-text-hyperlink);
     }
 
     /* Text Entry */
-    .fwb-journal-subsheet div[data-tab='picture'] #context-menu {
+    .wcb-journal-subsheet div[data-tab='picture'] #context-menu {
       top: calc(50% - 33px);
       left: calc(50% - 100px);
       max-width: 200px;
     }
 
-    &.sheet .fwb-journal-subsheet div[data-tab='picture'].tab {
+    &.sheet .wcb-journal-subsheet div[data-tab='picture'].tab {
       overflow-y: hidden !important;
       overflow-x: hidden !important;
     }
   }
 
-  .fwb-content-wrapper {
+  .wcb-content-wrapper {
     height: 100%;
   }
 </style>

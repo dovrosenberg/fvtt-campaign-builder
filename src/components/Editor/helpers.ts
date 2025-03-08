@@ -103,9 +103,9 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
         data.classes.push('broken');
 
         return TextEditor.createAnchor(data);
-      } else {  // this is an fwb item for this world
+      } else {  // this is an wcb item for this world
         return entry.raw.toAnchor({ 
-          name: data.name, dataset: { hash }, classes: ['fwb-content-link'],   // clicks on this class are handled 
+          name: data.name, dataset: { hash }, classes: ['wcb-content-link'],   // clicks on this class are handled 
           icon: `fas ${getTopicIcon(entry.topic)}` 
         });
       }

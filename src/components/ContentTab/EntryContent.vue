@@ -1,16 +1,16 @@
 <template>
-  <form class="'flexcol fwb-journal-subsheet ' + topic">
-    <div ref="contentRef" class="fwb-sheet-container detailed flexcol">
-      <header class="fwb-journal-sheet-header flexrow">
+  <form class="'flexcol wcb-journal-subsheet ' + topic">
+    <div ref="contentRef" class="wcb-sheet-container detailed flexcol">
+      <header class="wcb-journal-sheet-header flexrow">
         <div class="sheet-image">
           <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
         </div>
-        <div class="header-details fwb-content-header">
+        <div class="header-details wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${icon} sheet-icon`"></i>
             <InputText
               v-model="name"
-              for="fwb-input-name" 
+              for="wcb-input-name" 
               :placeholder="namePlaceholder"                
               :pt="{
                 root: { class: 'full-height' } 
@@ -18,7 +18,7 @@
               @update:model-value="onNameUpdate"
             />
           </h1>
-          <div class="form-group fwb-content-header">
+          <div class="form-group wcb-content-header">
             <label>{{ localize('labels.fields.type') }}</label>
             <TypeAhead 
               :initial-list="typeList"
@@ -30,7 +30,7 @@
 
           <div 
             v-if="showHierarchy"
-            class="form-group fwb-content-header"
+            class="form-group wcb-content-header"
           >
             <label>{{ localize('labels.fields.parent') }}</label>
             <TypeAhead 
@@ -41,7 +41,7 @@
           </div>
         </div>
       </header>
-      <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
+      <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
         <a 
           v-for="relationship in relationships"
@@ -66,7 +66,7 @@
           {{ localize('labels.tabs.entry.scenes') }}
         </a>
       </nav>
-      <div class="fwb-tab-body flexcol">
+      <div class="wcb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
           <div class="tab-inner flexcol">
             <Editor 
@@ -310,7 +310,7 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
+    tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.wcb-tab-body', initial: 'description', /*callback: null*/ });
 
     // update the store when tab changes
     tabs.value.callback = () => {

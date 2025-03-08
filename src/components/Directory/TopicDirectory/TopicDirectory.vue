@@ -1,10 +1,10 @@
 <template>
   <!-- these are the worlds -->
-  <ol class="fwb-world-list">
+  <ol class="wcb-world-list">
     <li 
       v-for="world in currentWorldTree.value"
       :key="world.id"
-      :class="'fwb-world-folder folder flexcol ' + (currentWorld?.uuid===world.id ? '' : 'collapsed')" 
+      :class="'wcb-world-folder folder flexcol ' + (currentWorld?.uuid===world.id ? '' : 'collapsed')" 
     >
       <header 
         class="folder-header flexrow"
@@ -20,18 +20,18 @@
       <!-- These are the topic compendia -->
       <ol 
         v-if="currentWorld?.uuid===world.id"
-        class="fwb-world-contents"
+        class="wcb-world-contents"
       >
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
         <li 
           v-for="topicNode in world.topicNodes.sort((a, b) => (a.topicFolder.topic < b.topicFolder.topic ? -1 : 1))"
           :key="topicNode.topicFolder.topic"
-          :class="'fwb-topic-folder folder entry flexcol fwb-directory-compendium ' + (topicNode.expanded ? '' : 'collapsed')"
+          :class="'wcb-topic-folder folder entry flexcol wcb-directory-compendium ' + (topicNode.expanded ? '' : 'collapsed')"
           :data-topic="topicNode.topicFolder.topic" 
         >
           <header class="folder-header flexrow">
             <div 
-              class="fwb-compendium-label noborder" 
+              class="wcb-compendium-label noborder" 
               style="margin-bottom:0px"
               @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
               @contextmenu="onTopicContextMenu($event, world.id, topicNode.topicFolder as TopicFolder)"
@@ -120,7 +120,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'fwb',
+      customClass: 'wcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
@@ -162,7 +162,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'fwb',
+      customClass: 'wcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
@@ -205,20 +205,20 @@
 </script>
 
 <style lang="scss">
-  #fwb-directory {
+  #wcb-directory {
     .action-buttons {
       padding-left: 30px;
     }
   }
 
   // the world list section
-  .fwb-directory-panel-wrapper {
-    .fwb-world-list {
+  .wcb-directory-panel-wrapper {
+    .wcb-world-list {
       padding: 0;
       flex-grow: 1;
       overflow: auto;
 
-      .fwb-world-folder {
+      .wcb-world-folder {
         align-items: flex-start;
         justify-content: flex-start;
 
@@ -228,7 +228,7 @@
       }
     }
 
-    .fwb-world-folder > .folder-header {
+    .wcb-world-folder > .folder-header {
       border-bottom: none;
       width: 100%;
       flex: 1;
@@ -240,26 +240,26 @@
     }
 
     // world folder styling
-    .fwb-world-folder:not(.collapsed) > .folder-header {
-      border-top: 1px solid var(--fwb-sidebar-world-border);
-      background: var(--fwb-sidebar-world-background);
-      color: var(--fwb-sidebar-world-color);
+    .wcb-world-folder:not(.collapsed) > .folder-header {
+      border-top: 1px solid var(--wcb-sidebar-world-border);
+      background: var(--wcb-sidebar-world-background);
+      color: var(--wcb-sidebar-world-color);
     }
 
-    .fwb-world-folder.collapsed > .folder-header {
-      border-top: 1px solid var(--fwb-sidebar-world-border-collapsed);
-      background: var(--fwb-sidebar-world-background-collapsed);
-      color: var(--fwb-sidebar-world-color-collapsed);
+    .wcb-world-folder.collapsed > .folder-header {
+      border-top: 1px solid var(--wcb-sidebar-world-border-collapsed);
+      background: var(--wcb-sidebar-world-background-collapsed);
+      color: var(--wcb-sidebar-world-color-collapsed);
       text-shadow: none;
     }
 
-    .fwb-world-folder .folder-header.context {
+    .wcb-world-folder .folder-header.context {
       border-top: 1px solid var(--mej-active-color);
       border-bottom: 1px solid var(--mej-active-color);
     }
 
     // topic folder styling
-    .fwb-topic-folder.collapsed > .folder-header, .fwb-topic-folder:not(.collapsed) > .folder-header {
+    .wcb-topic-folder.collapsed > .folder-header, .wcb-topic-folder:not(.collapsed) > .folder-header {
       background: inherit;  // override foundry default
       border: 0px;
       text-shadow: none;   // override foundry default
@@ -271,11 +271,11 @@
     }
 
     // change icon to closed when collapsed
-    .fwb-topic-folder.collapsed > .folder-header i.fa-folder-open:before {
+    .wcb-topic-folder.collapsed > .folder-header i.fa-folder-open:before {
       content: "\f07b";
     }
 
-    .fwb-world-contents {
+    .wcb-world-contents {
       margin: 0px;
       width: 100%;
       padding-left: 10px;
@@ -285,15 +285,15 @@
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  .fwb-directory-compendium {
-    .fwb-entry-item, .fwb-type-item {
+  .wcb-directory-compendium {
+    .wcb-entry-item, .wcb-type-item {
       position: relative;
       padding-left: 1em;
       cursor: pointer;
     }
 
     // bold the active one
-    .fwb-current-directory-entry {
+    .wcb-current-directory-entry {
       font-weight: bold;
     }
 
@@ -337,7 +337,7 @@
       }
 
       // add the little open markers
-      div.summary .fwb-directory-expand-button {
+      div.summary .wcb-directory-expand-button {
         position: absolute;
         text-align: center;
         line-height: 0.80em;
@@ -352,7 +352,7 @@
         z-index: 999;
       }
 
-      div.summary.top .fwb-directory-expand-button {
+      div.summary.top .wcb-directory-expand-button {
         margin-left: 1em;
       }
 
@@ -379,7 +379,7 @@
     }
   }
 
-  ul.fwb-directory-tree > li:after, ul.fwb-directory-tree > li:before {
+  ul.wcb-directory-tree > li:after, ul.wcb-directory-tree > li:before {
     display:none;
   }
 

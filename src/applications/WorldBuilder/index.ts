@@ -27,15 +27,15 @@ export const getWorldBuilderApp = (): WorldBuilderApplication => {
 export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: `app-${moduleId}-WorldBuilder`,
-    classes: ['fwb-main-window'], 
+    classes: ['wcb-main-window'], 
     window: {
-      title: 'fwb.title',
+      title: 'wcb.title',
       icon: 'fa-solid fa-globe',
       resizable: true,
       // popOut: true,
       // editable: true,
       // //viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
-      // scrollY: ['ol.fwb-world-list']
+      // scrollY: ['ol.wcb-world-list']
     },
     position: {
       width: 1025,
@@ -55,7 +55,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
 
   static PARTS = {
     app: {
-      id: 'fwb-app',
+      id: 'wcb-app',
       component: App,
       props: {},
       use: {
@@ -69,10 +69,10 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
             theme: { 
               preset: FWBTheme,
               options: {
-                // prefix: 'fwb-p',
+                // prefix: 'wcb-p',
                 // cssLayer: {
-                //   name: 'fwb-p',
-                //   order: 'fwb-p',
+                //   name: 'wcb-p',
+                //   order: 'wcb-p',
                 // },
                 darkModeSelector: '.theme-dark'
               }

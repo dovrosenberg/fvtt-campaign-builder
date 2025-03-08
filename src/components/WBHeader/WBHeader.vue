@@ -1,10 +1,10 @@
 <template>
   <header 
     ref="root"
-    class="fwb-header flexcol"
+    class="wcb-header flexcol"
   >
-    <div class="fwb-tab-bar flexrow">
-      <div class="fwb-tab-row flexrow">
+    <div class="wcb-tab-bar flexrow">
+      <div class="wcb-tab-row flexrow">
         <WBHeaderTab 
           v-for="tab in tabs"
           :key="tab.id"
@@ -13,21 +13,21 @@
         />
 
         <div 
-          id="fwb-add-tab" 
-          class="fwb-tab flexrow" 
+          id="wcb-add-tab" 
+          class="wcb-tab flexrow" 
           title="Open new tab" 
           @click="onAddTabClick"
         >
-          <div class="fwb-tab-icon">
+          <div class="wcb-tab-icon">
             <i class="fas fa-plus"></i>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="fwb-bookmark-bar flexrow">
+    <div class="wcb-bookmark-bar flexrow">
       <div 
-        id="fwb-add-bookmark" 
+        id="wcb-add-bookmark" 
         :class="(!navigationStore.getActiveTab(false)?.header?.uuid ? 'disabled' : '')"
         :title="localize('tooltips.addBookmark')"
         @click="onAddBookmarkClick"
@@ -44,7 +44,7 @@
 
     <div class="navigation flexrow">
       <div 
-        id="fwb-history-back" 
+        id="wcb-history-back" 
         :class="'nav-button ' + (canBack() ? '' : 'disabled')" 
         :title="localize('tooltips.historyBack')"
         @click="onHistoryBackClick"
@@ -52,7 +52,7 @@
         <i class="fas fa-chevron-left"></i>
       </div>
       <div 
-        id="fwb-history-forward" 
+        id="wcb-history-forward" 
         :class="'nav-button ' + (canForward() ? '' : 'disabled')" 
         :title="localize('tooltips.historyForward')"
         @click="onHistoryForwardClick"
@@ -201,43 +201,43 @@
 </script>
 
 <style lang="scss">
-.fwb-header {
-  color: var(--fwb-header-color);
-  background-color: var(--fwb-header-background);
+.wcb-header {
+  color: var(--wcb-header-color);
+  background-color: var(--wcb-header-background);
   flex-grow: 0;
 
   & > * {
     flex: 0 0 30px;
-    border-bottom: 1px solid var(--fwb-header-border-color);
+    border-bottom: 1px solid var(--wcb-header-border-color);
   }
 
   // tab bar
-  .fwb-tab-bar {
+  .wcb-tab-bar {
     position: relative;
     transition: padding-right 0.5s;
     padding: 4px 2px 0px 4px;
     flex: 0 0 34px;
-    color: var(--fwb-header-tab-color);
+    color: var(--wcb-header-tab-color);
   }
 
 
   // Bookmark bar
-  .fwb-bookmark-bar {
+  .wcb-bookmark-bar {
     padding-left: 2px;
     flex: 0 0 36px;
-    color: var(--fwb-header-bookmark-color);
+    color: var(--wcb-header-bookmark-color);
   }
 
   // Navigation bar 
   .navigation {
-    color: var(--fwb-header-nav-color);
-    background: var(--fwb-header-nav-background);
+    color: var(--wcb-header-nav-color);
+    background: var(--wcb-header-nav-background);
     padding: 2px;
 
     hr.vertical {
       height: 100%;
       width: 1px;
-      border-right: 2px groove var(--fwb-header-nav-vertical-line);
+      border-right: 2px groove var(--wcb-header-nav-vertical-line);
       flex: 0 0 1px;
       margin: 0px 2px;
     }
@@ -256,21 +256,21 @@
       width: 24px;
       height: 24px;
       border-radius: 4px;
-      border: 1px solid var(--fwb-header-nav-btn-border);
+      border: 1px solid var(--wcb-header-nav-btn-border);
       margin-top: 1px;
-      background: var(--fwb-header-nav-btn-background);
+      background: var(--wcb-header-nav-btn-background);
     }
 
     .nav-button:not(.disabled):hover {
       box-shadow: 0 0 5px red;
       cursor: pointer;
-      background: var(--fwb-header-nav-btn-background-hover);
+      background: var(--wcb-header-nav-btn-background-hover);
     }
 
     .nav-button.disabled {
-      color: var(--fwb-header-nav-btn-disabled);
-      background: var(--fwb-header-nav-btn-background-disabled);
-      border-color: var(--fwb-header-nav-btn-border-disabled);
+      color: var(--wcb-header-nav-btn-disabled);
+      background: var(--wcb-header-nav-btn-background-disabled);
+      border-color: var(--wcb-header-nav-btn-border-disabled);
     }
 
     .nav-input {
@@ -279,19 +279,19 @@
       height: 25px !important;
       border-radius: 4px;
       flex: 0 0 200px;
-      border: 1px solid var(--fwb-header-nav-input-border);
-      background: var(--fwb-header-nav-input-background);
-      color: var(--fwb-header-nav-input-color);
+      border: 1px solid var(--wcb-header-nav-input-border);
+      background: var(--wcb-header-nav-input-background);
+      color: var(--wcb-header-nav-input-color);
     }
 
     .nav-input::placeholder {
-      color: var(--fwb-header-nav-input-placeholder-color);
+      color: var(--wcb-header-nav-input-placeholder-color);
     }
 
     .nav-input:focus {
-      background: var(--fwb-header-nav-input-focus-background);
-      border: 1px solid var(--fwb-header-nav-input-focus-border);
-      color: var(--fwb-header-nav-input-focus-color);
+      background: var(--wcb-header-nav-input-focus-background);
+      border: 1px solid var(--wcb-header-nav-input-focus-border);
+      color: var(--wcb-header-nav-input-focus-color);
     }
 
     .nav-text {
@@ -311,11 +311,11 @@
       text-align: left;
     }
 
-    #fwb-add-tab {
+    #wcb-add-tab {
       flex: 0 0 30px;
       justify-content: center;
 
-      .fwb-tab-icon {
+      .wcb-tab-icon {
         margin: 0px;
       }
     }

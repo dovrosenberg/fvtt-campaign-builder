@@ -1,16 +1,16 @@
 <template>
   <!-- The overall directory sidebar -->
   <div 
-    id="fwb-directory" 
+    id="wcb-directory" 
     ref="root"
     class="tab flexcol journal-directory" 
   >
     <!-- Directory Header -->
-    <header class="fwb-directory-header">
-      <div class="fwb-header-search flexrow">
+    <header class="wcb-directory-header">
+      <div class="wcb-header-search flexrow">
         <InputText 
           v-model="filterText"
-          for="fwb-directory-search" 
+          for="wcb-directory-search" 
           :placeholder="localize('placeholders.search')"                
           autocomplete="off"
           :pt="{
@@ -20,7 +20,7 @@
           }"
         />
         <a 
-          class="fwb-header-control create-world create-button" 
+          class="wcb-header-control create-world create-button" 
           :data-tooltip="localize('tooltips.createWorld')"
           @click="onCreateWorldClick"
         >
@@ -28,37 +28,37 @@
           <i class="fas fa-plus"></i>
         </a>
         <a 
-          class="fwb-header-control collapse-all" 
+          class="wcb-header-control collapse-all" 
           :data-tooltip="localize('tooltips.collapseAllTopics')"
           @click="onCollapseAllClick"
         >
           <i class="fa-duotone fa-folder-tree"></i>
         </a>
       </div>
-      <div class="fwb-header-group-type flexrow">
+      <div class="wcb-header-group-type flexrow">
         <input
-          id="fwb-group-by-type"
+          id="wcb-group-by-type"
           type="checkbox"
           :checked="isGroupedByType"
           @change="onGroupTypeChange"
         >
-        <label for="fwb-group-by-type">
+        <label for="wcb-group-by-type">
           {{ localize('labels.groupTree') }}
         </label>
       </div>
     </header>
 
-    <Splitter layout="vertical" class="fwb-directory-spliter">
-      <SplitterPanel :size="60" class="fwb-directory-panel"> 
+    <Splitter layout="vertical" class="wcb-directory-spliter">
+      <SplitterPanel :size="60" class="wcb-directory-panel"> 
         <div v-if="isTopicTreeRefreshing">
           <ProgressSpinner v-if="isTopicTreeRefreshing" />
         </div>
-        <div v-else class="fwb-directory-panel-wrapper">
+        <div v-else class="wcb-directory-panel-wrapper">
           <TopicDirectory />
         </div>
       </SplitterPanel>
-      <SplitterPanel :size="40" class="fwb-directory-panel"> 
-        <div class="fwb-directory-panel-wrapper">
+      <SplitterPanel :size="40" class="wcb-directory-panel"> 
+        <div class="wcb-directory-panel-wrapper">
           <CampaignDirectory />
         </div>
       </SplitterPanel>
@@ -157,24 +157,24 @@
 </script>
 
 <style lang="scss">
-  #fwb-directory {
+  #wcb-directory {
     .action-buttons {
       padding-left: 30px;
     }
 
-    .fwb-directory-spliter {
+    .wcb-directory-spliter {
       flex: 1 1 auto;  // take up all remaining space
       overflow: hidden;
       display: flex;
       flex-direction: column;
 
-      .fwb-directory-panel-wrapper {
+      .wcb-directory-panel-wrapper {
         flex: 1;
         overflow-y: auto;
         height: 100%;
       } 
 
-      .fwb-directory-panel {
+      .wcb-directory-panel {
         display: flex;
         flex-direction: column;
         overflow: hidden; 
@@ -182,23 +182,23 @@
       }
     }
 
-    .fwb-directory-header {
+    .wcb-directory-header {
       flex: 0;
-      background-color: var(--fwb-header-background);
-      border-bottom: 1px solid var(--fwb-header-border-color);
-      color: var(--fwb-sidebar-label-color);
+      background-color: var(--wcb-header-background);
+      border-bottom: 1px solid var(--wcb-header-border-color);
+      color: var(--wcb-sidebar-label-color);
       margin-bottom: 0px;
       padding-top: 3px;
       padding-bottom: 6px;
       padding-left: 20px;
 
-      .fwb-header-search {
-        #fwb-directory-search {
+      .wcb-header-search {
+        #wcb-directory-search {
           flex: 1;
           height: var(--form-field-height);
         }
 
-        .fwb-header-control {
+        .wcb-header-control {
           flex: 0 0 32px;
           text-align: center;
           position: relative;
@@ -219,11 +219,11 @@
         }
       }
 
-      .fwb-header-group-type {
+      .wcb-header-group-type {
         flex: 1;
         height: var(--form-field-height);
 
-        #fwb-group-by-type {
+        #wcb-group-by-type {
           flex: 0;
         }
       }
@@ -233,7 +233,7 @@
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  ul.fwb-directory-tree > li:after, ul.fwb-directory-tree > li:before {
+  ul.wcb-directory-tree > li:after, ul.wcb-directory-tree > li:before {
     display:none;
   }
 

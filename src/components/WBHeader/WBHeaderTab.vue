@@ -1,6 +1,6 @@
 <template>
   <div 
-    :class="'fwb-tab flexrow ' + (tab.active ? 'active' : '')" 
+    :class="'wcb-tab flexrow ' + (tab.active ? 'active' : '')" 
     draggable="true"
     :title="tab.header.name" 
     @click="onTabClick"
@@ -9,7 +9,7 @@
   >
     <div 
       v-if="tab.header.icon"
-      class="fwb-tab-icon"
+      class="wcb-tab-icon"
     >
       <i :class="'fas ' + tab.header.icon"></i>
     </div>
@@ -88,7 +88,7 @@
       //from: this.object.uuid 
     } as { type: string; tabId?: string};
 
-    dragData.type = 'fwb-tab';   // JournalEntry... may want to consider passing a type that other things can do something with
+    dragData.type = 'wcb-tab';   // JournalEntry... may want to consider passing a type that other things can do something with
     dragData.tabId = props.tab.id;
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
@@ -106,7 +106,7 @@
       }
 
       // where are we droping it?
-      const target = (event.currentTarget as HTMLElement).closest('.fwb-tab') as HTMLElement;
+      const target = (event.currentTarget as HTMLElement).closest('.wcb-tab') as HTMLElement;
       if (!target)
         return false;
 
@@ -138,15 +138,15 @@
 </script>
 
 <style lang="scss">
-  .fwb-tab {
+  .wcb-tab {
     max-width: 150px;
     height: 100%;
     padding: 4px;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     line-height: 20px;
-    background: var(--fwb-header-tab-background);
-    border: var(--fwb-header-tab-border);
+    background: var(--wcb-header-tab-background);
+    border: var(--wcb-header-tab-border);
     position: relative;
     font-family: 'Signika', sans-serif;
     overflow: hidden;
@@ -156,11 +156,11 @@
     flex-wrap: nowrap;
     font-size: var(--font-size-14);
 
-    &.active, .fwb-tab:last-child {
+    &.active, .wcb-tab:last-child {
       flex: 0 0 150px;
     }
 
-    .fwb-tab-icon {
+    .wcb-tab-icon {
       flex: 0 1 0%;
       margin-right: 6px;
     }
@@ -173,13 +173,13 @@
 
     &.active {
       font-weight: bold;
-      background-color: var(--fwb-header-tab-active);
+      background-color: var(--wcb-header-tab-active);
       outline: none;
     }
 
     &:hover {
       box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-      background-color: var(--fwb-header-tab-hover);
+      background-color: var(--wcb-header-tab-hover);
     }
 
     .close {

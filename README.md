@@ -1,20 +1,27 @@
-# Package name
+# World & Campaign Builder
 
-[![Supported Foundry Versions](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/dovrosenberg/fvtt-world-builder/raw/master/static/module.json)](https://github.com/dovrosenberg/fvtt-world-builder)
+[![Supported Foundry Versions](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/dovrosenberg/fvtt-campaign-builder/raw/master/static/module.json)](https://github.com/dovrosenberg/fvtt-campaign-builder)
 
 The goal of this package is to facilitate creating, planning, and running campaigns in Foundry, while also enabling world-building and lore creation rather than using a third-party tool like WorldAnvil, Kanka, Fantasia Archive, LengendKeeper, etc.  Why would you want to do it this way, even though many of those platforms have integration solutions with Foundry?  
 - It's free
 - It may be easier than managing the integration
 - Most importantly, you can **continue to build out lore as you play**.  
 
-While I'm seeking to make this module strong enough that it's a reasonable substitute for the primary commercial solutions, it will likely always be missing features that those provide.  Instead, the advantage of FVTT World Builder is that it is easy/fast enough to use that you can refer to it in real-time while running an adventure, and also quickly add notes.  I'm attempting t
-
 You can use the module just to plan/run sessions or just to do world building.  But it will be most useful when used in combination, because it's designed to be easy to pull defined elements from the world into your planning, as well as to easily add to the world during and after sessions.
+
+While I'm seeking to make this module strong enough that it's a reasonable substitute for the primary commercial solutions, it will likely always be missing features that those provide.  Instead, the advantage of FVTT World Builder is that it is easy/fast enough to use that you can refer to it in real-time while running an adventure, and also quickly add notes.  
+
+I plan to use the module to support a live game where only combat is being done in Foundry.  I hope to make the tool useful enough that DM's could use it on a laptop even in a game that isn't using Foundry for play at all.
+
+### Play style notes
+The campaign planning component is modeled after [The Lazy Dungeon Master](https://slyflourish.com/lazydm/), which I highly recommend.  There is a [freely available copy of the original book](https://slyflourish.com/the_lazy_dungeon_master_cc.html) and I also recommend the newer [Return of the Lazy Dungeon Master](https://www.amazon.com/Flourishs-Return-Lazy-Dungeon-Master/dp/B0B8F1G5G7) (though you have to buy that version).
+
+
 
 ## Important note
 This module is VERY early in development.  It's really an alpha.  The UX is not great.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.
 
-[Feature requests?](https://github.com/dovrosenberg/fvtt-world-builder/issues/new/choose)
+[Feature requests?](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose)
 
 ## Features
 
@@ -73,7 +80,7 @@ see much value in doing so.  The PCs are where you track storylines, related NPC
 
 ## Issues?
 
-If you believe you found a bug or would like to post a feature request, head over to the module's [Github repo](https://github.com/dovrosenberg/fvtt-world-builder) and [open a new issue](https://github.com/dovrosenberg/fvtt-world-builder/issues/new/choose).
+If you believe you found a bug or would like to post a feature request, head over to the module's [Github repo](https://github.com/dovrosenberg/fvtt-campaign-builder) and [open a new issue](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose).
 
 ## Support
 
@@ -81,7 +88,7 @@ I'm happy to do this for free, as I primarily work on things I like to use mysel
 
 ## Credits
 
-World Builder is the result of the effort of many people (whether they know it or not). Please refer to [CREDITS.md](https://github.com/dovrosenberg/fvtt-world-builder/blob/master/CREDITS.md) for the full list.
+World Builder is the result of the effort of many people (whether they know it or not). Please refer to [CREDITS.md](https://github.com/dovrosenberg/fvtt-campaign-builder/blob/master/CREDITS.md) for the full list.
 
 
 ## Copyright and usage

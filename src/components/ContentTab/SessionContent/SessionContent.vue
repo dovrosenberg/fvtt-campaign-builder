@@ -1,13 +1,13 @@
 <template>
-  <form class="'flexcol fwb-journal-subsheet ' + topic">
-    <div ref="contentRef" class="fwb-sheet-container detailed flexcol">
-      <header class="fwb-journal-sheet-header flexrow">
-        <div class="header-details fwb-content-header">
+  <form class="'flexcol wcb-journal-subsheet ' + topic">
+    <div ref="contentRef" class="wcb-sheet-container detailed flexcol">
+      <header class="wcb-journal-sheet-header flexrow">
+        <div class="header-details wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${getTabTypeIcon(WindowTabType.Session)} sheet-icon`"></i>
             <InputText
               v-model="name"
-              for="fwb-input-name" 
+              for="wcb-input-name" 
               :placeholder="localize('placeholders.sessionName')"
               :pt="{
                 root: { class: 'full-height' } 
@@ -16,11 +16,11 @@
             />
           </h1>
           <div class="flexrow">
-            <div class="form-group fwb-content-header flexcol">
+            <div class="form-group wcb-content-header flexcol">
               <label>{{ localize('labels.fields.sessionNumber') }}</label>
               <InputText
                 v-model="sessionNumber"
-                for="fwb-input-number" 
+                for="wcb-input-number" 
                 :placeholder="localize('placeholders.sessionNumber')"
                 :pt="{
                   root: { class: 'full-height' } 
@@ -28,7 +28,7 @@
                 @update:model-value="onNumberUpdate"
               />
             </div>
-            <div class="form-group fwb-content-header flexcol">
+            <div class="form-group wcb-content-header flexcol">
               <label>{{ localize('labels.fields.sessionDate') }}</label>
               <DatePicker 
                 v-model="sessionDate"
@@ -38,7 +38,7 @@
           </div>
         </div>
       </header>
-      <nav class="fwb-sheet-navigation flexrow tabs" data-group="primary">
+      <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
         <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
@@ -49,7 +49,7 @@
         <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
         <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
       </nav>
-      <div class="fwb-tab-body flexcol">
+      <div class="wcb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="notes">
           <div class="tab-inner flexcol">
             <Editor 
@@ -261,7 +261,7 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.fwb-tab-body', initial: 'description', /*callback: null*/ });
+    tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.wcb-tab-body', initial: 'description', /*callback: null*/ });
 
     // update the store when tab changes
     tabs.value.callback = () => {

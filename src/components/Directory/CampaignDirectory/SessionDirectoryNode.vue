@@ -1,7 +1,7 @@
 <template>
   <li>
     <div 
-      :class="`${props.sessionNode.id===currentSession?.uuid ? 'fwb-current-directory-entry' : ''}`"
+      :class="`${props.sessionNode.id===currentSession?.uuid ? 'wcb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
       :data-tooltip="props.sessionNode.tooltip"
@@ -81,7 +81,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'fwb',
+      customClass: 'wcb',
       x: event.x,
       y: event.y,
       zIndex: 300,

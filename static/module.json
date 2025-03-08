@@ -1,7 +1,7 @@
 {
-  "id": "world-builder",
-  "title": "World Builder",
-  "description": "Create full worlds (like Kanka, WorldAnvil, etc. but simpler) right inside Foundry - as you play.",
+  "id": "campaign-builder",
+  "title": "World & Campaign Builder",
+  "description": "Plan your campaigns and create full worlds (like Kanka, WorldAnvil, etc. but simpler) right inside Foundry - as you play.",
 
   "compatibility": {
     "minimum": "13",
@@ -12,7 +12,7 @@
     "scripts/index.js"
   ],
   "styles": [
-    "styles/world-builder.css"
+    "styles/campaign-builder.css"
   ],
   "packs": [],
 
@@ -45,13 +45,13 @@
     }
   ],
 
-  "url": "https://github.com/dovrosenberg/fvtt-world-builder",
-  "manifest": "https://github.com/dovrosenberg/fvtt-world-builder/releases/latest/download/module.json",
+  "version": "#{VERSION}#",
+  "url": "https://github.com/dovrosenberg/fvtt-campaign-builder",
+  "manifest": "https://github.com/dovrosenberg/fvtt-campaign-builder/releases/latest/download/module.json",
   "download": "#{DOWNLOAD}#",
-  "## version": "will be added when we build",
 
-  "license": "https://github.com/dovrosenberg/fvtt-world-builder/blob/master/LICENSE.md",
-  "readme": "https://github.com/dovrosenberg/fvtt-world-builder/blob/master/README.md",
-  "bugs": "https://github.com/dovrosenberg/fvtt-world-builder/issues",
-  "changelog": "https://github.com/dovrosenberg/fvtt-world-builder/blob/master/CHANGELOG.md"
+  "license": "https://github.com/dovrosenberg/fvtt-campaign-builder/blob/master/LICENSE.md",
+  "readme": "https://github.com/dovrosenberg/fvtt-campaign-builder/blob/master/README.md",
+  "bugs": "https://github.com/dovrosenberg/fvtt-campaign-builder/issues",
+  "changelog": "https://github.com/dovrosenberg/fvtt-campaign-builder/blob/master/CHANGELOG.md"
 }

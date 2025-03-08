@@ -6,13 +6,13 @@
     >
       <div :class="'summary ' + (props.top ? 'top' : '')">      
         <div 
-          class="fwb-directory-expand-button"
+          class="wcb-directory-expand-button"
           @click="onEntryToggleClick"
         >
           <span v-if="currentNode.expanded">-</span><span v-else>+</span>
         </div>
         <div 
-          :class="`${currentNode.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
+          :class="`${currentNode.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : ''}`"
           draggable="true"
           @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"
           @dragstart="onDragStart($event, currentNode.id)"
@@ -190,7 +190,7 @@
     //show our menu
     const topicFolder = currentWorld.value.topicFolders[props.topic];
     ContextMenu.showContextMenu({
-      customClass: 'fwb',
+      customClass: 'wcb',
       x: event.x,
       y: event.y,
       zIndex: 300,

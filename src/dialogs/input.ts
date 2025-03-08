@@ -6,7 +6,7 @@ export async function inputDialog(title: string, prompt: string): Promise<string
   let response = null as string | null;
 
   const data = {prompt};
-  const inputContent = await renderTemplate('modules/world-builder/templates/InputDialog.hbs', data);
+  const inputContent = await renderTemplate('modules/campaign-builder/templates/InputDialog.hbs', data);
 
   const dialog = {
     title,

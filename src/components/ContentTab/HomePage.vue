@@ -1,5 +1,5 @@
 <template>
-  <div class="flexcol fwb-journal-subsheet blank blank-body">
+  <div class="flexcol wcb-journal-subsheet blank blank-body">
     <div class="message">
       <div style="transform: translateY(50%);">
         {{ !message ? '' : localize(message) }}
@@ -123,13 +123,13 @@
 
 <style lang="scss">
   /* Blank */
-  .fwb-journal-subsheet.blank {
+  .wcb-journal-subsheet.blank {
     display: flex;
     text-align: center;
     align-items: center;
     justify-content: center;
     font-size: var(--font-size-16);
-    color: var(--fwb-blank-color);
+    color: var(--wcb-blank-color);
     font-weight: bold;
 
     .message {
@@ -144,8 +144,8 @@
     .recently-viewed {
       margin-bottom: 20px;
       border-radius: 6px;
-      background-color: var(--fwb-blank-recent-background);
-      border: 1px solid var(--fwb-blank-recent-border);
+      background-color: var(--wcb-blank-recent-background);
+      border: 1px solid var(--wcb-blank-recent-border);
       font-size: 20px;
       padding: 4px;
     }
@@ -158,7 +158,7 @@
 
     .recent-link:hover,
     .new-link:hover {
-      color: var(--fwb-blank-link-hover);
+      color: var(--wcb-blank-link-hover);
     }
   }
 </style>

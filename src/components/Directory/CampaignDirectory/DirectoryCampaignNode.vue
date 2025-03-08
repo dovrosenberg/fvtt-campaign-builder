@@ -1,11 +1,11 @@
 <template>
   <li 
-    :class="'fwb-campaign-folder folder entry flexcol fwb-directory-compendium ' + (props.campaignNode.expanded ? '' : 'collapsed')" 
+    :class="'wcb-campaign-folder folder entry flexcol wcb-directory-compendium ' + (props.campaignNode.expanded ? '' : 'collapsed')" 
     :data-campaign="props.campaignNode.id"
   >
     <header class="folder-header flexrow">
       <div 
-        class="fwb-compendium-label noborder" 
+        class="wcb-compendium-label noborder" 
         style="margin-bottom:0px"
         @contextmenu="onCampaignContextMenu"
       >
@@ -23,14 +23,14 @@
     <!-- These are the sessions -->
     <ul 
       v-if="props.campaignNode.expanded"
-      class="campaign-contents fwb-directory-tree"
+      class="campaign-contents wcb-directory-tree"
     >
       <SessionDirectoryNode 
         v-for="node in sortedChildren"
         :key="node.id"
         :session-node="node"
         :top="true"
-        class="fwb-entry-item" 
+        class="wcb-entry-item" 
         draggable="true"
       />
     </ul>
@@ -108,7 +108,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'fwb',
+      customClass: 'wcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
@@ -147,11 +147,11 @@
 </script>
 
 <style lang="scss">
-  #fwb-directory {
+  #wcb-directory {
     // the campaign list section
-    .fwb-directory-panel-wrapper {
-      .fwb-campaign-list {
-        .fwb-campaign-folder {
+    .wcb-directory-panel-wrapper {
+      .wcb-campaign-list {
+        .wcb-campaign-folder {
           align-items: flex-start;
           justify-content: flex-start;
 
@@ -160,7 +160,7 @@
           }
         }
 
-        .fwb-campaign-folder > .folder-header {
+        .wcb-campaign-folder > .folder-header {
           border-bottom: none;
           width: 100%;
           flex: 1;
@@ -171,25 +171,25 @@
           }
         }
 
-        .fwb-campaign-folder:not(.collapsed) > .folder-header {
-          border-top: 1px solid var(--fwb-sidebar-campaign-border);
-          background: var(--fwb-sidebar-campaign-background);
-          color: var(--fwb-sidebar-campaign-color);
+        .wcb-campaign-folder:not(.collapsed) > .folder-header {
+          border-top: 1px solid var(--wcb-sidebar-campaign-border);
+          background: var(--wcb-sidebar-campaign-background);
+          color: var(--wcb-sidebar-campaign-color);
         }
 
-        .fwb-campaign-folder.collapsed > .folder-header {
-          border-top: 1px solid var(--fwb-sidebar-campaign-border-collapsed);
-          background: var(--fwb-sidebar-campaign-background-collapsed);
-          color: var(--fwb-sidebar-campaign-color-collapsed);
+        .wcb-campaign-folder.collapsed > .folder-header {
+          border-top: 1px solid var(--wcb-sidebar-campaign-border-collapsed);
+          background: var(--wcb-sidebar-campaign-background-collapsed);
+          color: var(--wcb-sidebar-campaign-color-collapsed);
           text-shadow: none;
         }
 
-        .fwb-campaign-folder .folder-header.context {
+        .wcb-campaign-folder .folder-header.context {
           border-top: 1px solid var(--mej-active-color);
           border-bottom: 1px solid var(--mej-active-color);
         }
 
-        .fwb-campaign-folder .folder-header {
+        .wcb-campaign-folder .folder-header {
           background: inherit;
           border: 0px;
           text-shadow: none;   // override foundry default
@@ -201,7 +201,7 @@
         }
 
         // change icon to closed when collapsed
-        .fwb-campaign-folder.collapsed > .folder-header i.fa-folder-open:before {
+        .wcb-campaign-folder.collapsed > .folder-header i.fa-folder-open:before {
           content: "\f07b";
         }
 
@@ -217,15 +217,15 @@
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  .fwb-directory-compendium {
-    .fwb-entry-item, .fwb-type-item {
+  .wcb-directory-compendium {
+    .wcb-entry-item, .wcb-type-item {
       position: relative;
       padding-left: 1em;
       cursor: pointer;
     }
 
     // bold the active one
-    .fwb-current-directory-entry {
+    .wcb-current-directory-entry {
       font-weight: bold;
     }
 
@@ -269,7 +269,7 @@
       }
 
       // add the little open markers
-      div.summary .fwb-directory-expand-button {
+      div.summary .wcb-directory-expand-button {
         position: absolute;
         text-align: center;
         line-height: 0.80em;
@@ -284,7 +284,7 @@
         z-index: 999;
       }
 
-      div.summary.top .fwb-directory-expand-button {
+      div.summary.top .wcb-directory-expand-button {
         margin-left: 1em;
       }
 
@@ -311,7 +311,7 @@
     }
   }
 
-  ul.fwb-directory-tree > li:after, ul.fwb-directory-tree > li:before {
+  ul.wcb-directory-tree > li:after, ul.wcb-directory-tree > li:before {
     display:none;
   }
 

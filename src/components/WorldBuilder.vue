@@ -1,27 +1,27 @@
 <template>
   <div  
-    class="fwb"
+    class="wcb"
     @click="onClickApplication"
   >
     <Splitter 
       ref="splitterRef"
       layout="horizontal" 
       :gutter-size="2"
-      class="fwb-splitter"
+      class="wcb-splitter"
     >
       <SplitterPanel 
         :size="directoryCollapsed ? 99 : 76" 
         :min-size="directoryCollapsed ? 99 : 50" 
-        class="fwb-left-panel"
+        class="wcb-left-panel"
       > 
-        <div class="fwb-body flexcol">
+        <div class="wcb-body flexcol">
           <WBHeader />
-          <div class="fwb-content flexcol editable">
+          <div class="wcb-content flexcol editable">
             <ContentTab />
           </div>
         </div>
         <div
-          class="fwb-sidebar-toggle-tab"
+          class="wcb-sidebar-toggle-tab"
           @click.stop="onSidebarToggleClick"
           :class="{ collapsed: directoryCollapsed }"
           :data-tooltip="directoryCollapsed ? localize('tooltips.expandDirectory') : localize('tooltips.collapseDirectory')"
@@ -30,7 +30,7 @@
       </div>
       </SplitterPanel>
       <SplitterPanel :size="directoryCollapsed ? 1 :24" :min-size="directoryCollapsed ? 1 : 18" class=""> 
-        <div id="fwb-directory-sidebar" class="flexcol" :style="{display: directoryCollapsed ? 'none' : ''}">
+        <div id="wcb-directory-sidebar" class="flexcol" :style="{display: directoryCollapsed ? 'none' : ''}">
           <Directory @world-selected="onDirectoryWorldSelected" />
         </div> 
       </SplitterPanel>
@@ -111,7 +111,7 @@
 
     let found=false;
     for (let i=0; i< target.classList.length; i++) {
-      if (target.classList[i]==='fwb-content-link' && target.dataset.uuid) {
+      if (target.classList[i]==='wcb-content-link' && target.dataset.uuid) {
         found=true; 
         break;
       }
@@ -122,7 +122,7 @@
     // cancel any other actions
     event.stopPropagation();
     
-    // the only things tagged fwb-content-link are ones for the world we're looking at, so just need to open it
+    // the only things tagged wcb-content-link are ones for the world we're looking at, so just need to open it
     void navigationStore.openEntry(target.dataset.uuid, { newTab: event.ctrlKey});
   };
 
@@ -239,13 +239,13 @@ div[data-application-part] {
 
 
 // the launch button in the top right corner
-#fwb-launch {
+#wcb-launch {
   background-color: rgba(0,0,0,.5);
   color: var(--color-text-light-highlight);
 }
 
 
-.fwb-main-window {  
+.wcb-main-window {  
   min-width: 640px;
 
   .window-content {
@@ -256,7 +256,7 @@ div[data-application-part] {
     overflow: hidden;
   }
 
-  .fwb {
+  .wcb {
     height: 100%;
     width: 100%;
     margin-top: 0px;
@@ -264,13 +264,13 @@ div[data-application-part] {
     padding: 0.1rem;
 
     // Sidebar 
-    #fwb-directory-sidebar {
+    #wcb-directory-sidebar {
       display: flex;
       flex: 0 0 250px;
       height: 100%;
       overflow: hidden;
-      background: var(--fwb-sidebar-background);
-      border-left: 1px solid var(--fwb-header-border-color);
+      background: var(--wcb-sidebar-background);
+      border-left: 1px solid var(--wcb-header-border-color);
       transition: width 0.5s, flex 0.5s;
 
       & > div {
@@ -279,18 +279,18 @@ div[data-application-part] {
       }
     }
 
-    #fwb-directory .entry-name > i {
+    #wcb-directory .entry-name > i {
       margin-right: 8px;
       margin-left: 4px;
       flex: 0 0 15px;
     }
 
-    .fwb-body {
+    .wcb-body {
       height: 100%;
     }
   }
 
-  .fwb-content {
+  .wcb-content {
     flex: 1;
     height: 100%;
     overflow: hidden;
@@ -300,16 +300,16 @@ div[data-application-part] {
   
 }
 
-.fwb-splitter {
+.wcb-splitter {
   height: 100%;
 }
 
-.fwb-left-panel {
+.wcb-left-panel {
   position: relative;
   overflow: visible !important;  // make sure the tab shows
 }
 
-.fwb-sidebar-toggle-tab {
+.wcb-sidebar-toggle-tab {
   position: absolute;
   top: 50%; // Center vertically in the gutter 
   transform: translateY(-50%); // Adjust for perfect vertical centering 

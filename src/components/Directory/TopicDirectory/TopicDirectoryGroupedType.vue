@@ -3,7 +3,7 @@
   <!-- note that filtering by filterNodes will hide unused types even if there's no search filter -->
   <li 
     v-if="filterNodes[props.topic]?.includes(currentType?.name)"
-    class="fwb-type-item"
+    class="wcb-type-item"
   >
     <div 
       class="details"
@@ -11,13 +11,13 @@
     >
       <div class="summary top">      
         <div 
-          class="fwb-directory-expand-button"
+          class="wcb-directory-expand-button"
           @click="onTypeToggleClick"
         >
           <span v-if="currentType.expanded">-</span><span v-else>+</span>
         </div>
         <div 
-          class="fwb-current-directory-type"
+          class="wcb-current-directory-type"
           @drop="onDrop"
           @contextmenu="onTypeContextMenu"
         >
@@ -132,7 +132,7 @@
         return false;
 
       // get the pack on the new item
-      const topicElement = (event.currentTarget as HTMLElement).closest('.fwb-topic-folder') as HTMLElement | null;
+      const topicElement = (event.currentTarget as HTMLElement).closest('.wcb-topic-folder') as HTMLElement | null;
       if (!topicElement || !topicElement.dataset.topic) {
         return false;
       }
@@ -171,7 +171,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'fwb',
+      customClass: 'wcb',
       x: event.x,
       y: event.y,
       zIndex: 300,

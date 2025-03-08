@@ -1,7 +1,7 @@
 <template>
-  <form class="'flexcol fwb-journal-subsheet ' + topic">
-    <div ref="contentRef" class="fwb-sheet-container detailed flexcol" style="overflow-y: auto">
-      <header class="fwb-journal-sheet-header flexrow">
+  <form class="'flexcol wcb-journal-subsheet ' + topic">
+    <div ref="contentRef" class="wcb-sheet-container detailed flexcol" style="overflow-y: auto">
+      <header class="wcb-journal-sheet-header flexrow">
         <div 
           class="sheet-image" 
           @drop="onDropActor"
@@ -21,12 +21,12 @@
             Drag an actor here to link it
           </div>
         </div>
-        <div class="header-details fwb-content-header">
+        <div class="header-details wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${getTabTypeIcon(WindowTabType.PC)} sheet-icon`"></i>
             <InputText
               v-model="name"
-              for="fwb-input-name" 
+              for="wcb-input-name" 
               :disabled="true"
               :pt="{
                 root: { class: 'full-height' } 
@@ -42,7 +42,7 @@
         <div class="flexrow">
           <InputText
             v-model="playerName"
-            for="fwb-input-name" 
+            for="wcb-input-name" 
             @update:model-value="onPlayerNameUpdate"
             :pt="{
               root: { class: 'full-height' } 

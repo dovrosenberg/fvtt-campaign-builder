@@ -1,14 +1,14 @@
 {
-  "name": "fvtt-world-builder",
+  "name": "fvtt-campaign-builder",
   "title": "Foundry VTT World Builder",
   "version": "0.0.1",
   "description": "Create regions, organizations, culture, and other elements of your world, right in Foundry.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dovrosenberg/fvtt-world-builder.git"
+    "url": "git+https://github.com/dovrosenberg/fvtt-campaign-builder.git"
   },
   "author": "Dov Rosenberg",
-  "homepage": "https://github.com/dovrosenberg/fvtt-world-builder#readme",
+  "homepage": "https://github.com/dovrosenberg/fvtt-campaign-builder#readme",
   "main": "main.ts",
   "scripts": {
     "build": "vite build",

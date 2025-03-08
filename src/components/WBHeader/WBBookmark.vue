@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="fwb-bookmark-button" 
+    class="wcb-bookmark-button" 
     :title="bookmark.header.name" 
     draggable="true"
     @click.left="onBookmarkClick"
@@ -67,7 +67,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'fwb',
+      customClass: 'wcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
@@ -108,7 +108,7 @@
       //from: this.object.uuid 
     } as { type: string; bookmarkId?: string};
 
-    dragData.type = 'fwb-bookmark';
+    dragData.type = 'wcb-bookmark';
     dragData.bookmarkId = props.bookmark.id;
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
@@ -125,7 +125,7 @@
         return false;
       }
 
-      const target = (event.currentTarget as HTMLElement).closest('.fwb-bookmark-button') as HTMLElement;
+      const target = (event.currentTarget as HTMLElement).closest('.wcb-bookmark-button') as HTMLElement;
       if (!target)
         return false;
 
@@ -151,7 +151,7 @@
 </script>
 
 <style lang="scss">
-  .fwb-bookmark-button, #fwb-add-bookmark {
+  .wcb-bookmark-button, #wcb-add-bookmark {
     height: 28px;
     border-radius: 28px;
     margin-left: 4px;
@@ -163,10 +163,10 @@
     flex-wrap: nowrap;
     flex-grow: 0;
     white-space: nowrap;
-    border: 1px solid var(--fwb-header-bookmark-border);
-    background: var(--fwb-header-bookmark-background);
+    border: 1px solid var(--wcb-header-bookmark-border);
+    background: var(--wcb-header-bookmark-background);
 
-    &#fwb-add-bookmark {
+    &#wcb-add-bookmark {
       border-radius: 4px;
       flex: 0 0 24px;
       height: 24px;
@@ -177,9 +177,9 @@
       text-overflow: clip;
       margin-left: 2px;
       overflow: hidden;
-      border: 1px solid var(--fwb-header-add-bookmark-border);
-      background: var(--fwb-header-add-bookmark-background);
-      color: var(--fwb-header-add-bookmark-color);
+      border: 1px solid var(--wcb-header-add-bookmark-border);
+      background: var(--wcb-header-add-bookmark-background);
+      color: var(--wcb-header-add-bookmark-color);
 
       &.disabled {
         cursor: default;
@@ -194,17 +194,17 @@
       width: 100%;
     }
 
-    &:not(#fwb-add-bookmark) i {
+    &:not(#wcb-add-bookmark) i {
       margin-top: 4px;
       margin-right: 2px;
     }
 
     &:hover {
-      background: var(--fwb-header-bookmark-hover);
+      background: var(--wcb-header-bookmark-hover);
     }
 
-    &#fwb-add-bookmark:not(.disabled):hover {
-      background: var(--fwb-header-add-bookmark-hover);
+    &#wcb-add-bookmark:not(.disabled):hover {
+      background: var(--wcb-header-add-bookmark-hover);
     }
 }
 </style>

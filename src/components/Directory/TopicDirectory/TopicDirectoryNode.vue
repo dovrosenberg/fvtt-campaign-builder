@@ -8,7 +8,7 @@
   />
   <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
-      :class="`${props.node.id===currentEntry?.uuid ? 'fwb-current-directory-entry' : ''}`"
+      :class="`${props.node.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : ''}`"
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick"
@@ -157,7 +157,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'fwb',
+      customClass: 'wcb',
       x: event.x,
       y: event.y,
       zIndex: 300,

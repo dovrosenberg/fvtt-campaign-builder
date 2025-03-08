@@ -14,8 +14,8 @@ export class KeyBindings {
     const keybindings = [
       {
         bindingId: KeyBindingKeys.closeTab,
-        name: 'fwb.keybindings.closeTab',
-        hint: 'fwb.keybindings.closeTabHelp',
+        name: 'wcb.keybindings.closeTab',
+        hint: 'wcb.keybindings.closeTabHelp',
         onDown: () => { 
           // only trap this when the window is open
           if (wbApp && wbApp.rendered) {

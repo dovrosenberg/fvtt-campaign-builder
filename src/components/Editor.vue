@@ -2,7 +2,7 @@
   <div 
     :id="editorId" 
     ref="wrapperRef"
-    class="fwb-editor flexcol"
+    class="wcb-editor flexcol"
     :style="wrapperStyle"
     >
     <!-- this reproduces the Vue editor() Handlebars helper -->
@@ -255,7 +255,7 @@
       return;
 
     // we create a random ID so we can use multiple instances
-    editorId.value  = 'fwb-editor-' + foundry.utils.randomID();
+    editorId.value  = 'wcb-editor-' + foundry.utils.randomID();
 
     // initialize the editor
     if (!coreEditorRef.value)
@@ -274,12 +274,12 @@
 </script>
 
 <style lang="scss">
-  .fwb-editor {
+  .wcb-editor {
     flex: 1 !important;
     overflow-y: auto !important;
   }
 
-  .theme-light .fwb-editor {
+  .theme-light .wcb-editor {
     border: 1px solid var(--color-dark-6);
     outline: 1px solid transparent;
     border-radius: 4px;

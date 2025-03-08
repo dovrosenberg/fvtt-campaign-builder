@@ -1,4 +1,4 @@
-// replace 'world-builder' below with package name
+// replace 'campaign-builder' below with package name
 
 import copy from 'rollup-plugin-copy';
 import scss from 'rollup-plugin-scss';
@@ -66,7 +66,7 @@ export default defineConfig({
     createHtmlPlugin({
       inject: {
         data: {
-          title: 'world-builder'
+          title: 'campaign-builder'
         }
       }
     }),
@@ -78,12 +78,12 @@ export default defineConfig({
     rollupOptions: {
       input: 'src/main.ts',
       output: {
-        // rename output.css to world-builder.css
+        // rename output.css to campaign-builder.css
         assetFileNames: (assetInfo): string => {
           if (assetInfo.name === 'output.css') 
-            return 'styles/world-builder.css';
+            return 'styles/campaign-builder.css';
           else if (assetInfo.name ==='output.css.map')
-            return 'styles/world-builder.css.map';
+            return 'styles/campaign-builder.css.map';
           else if (assetInfo.name)
             return assetInfo.name;
           else
