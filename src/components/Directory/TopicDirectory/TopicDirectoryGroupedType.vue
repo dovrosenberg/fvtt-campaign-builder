@@ -62,7 +62,7 @@
 
   // types
   import { ValidTopic, } from '@/types';
-  import { DirectoryTypeEntryNode, DirectoryTypeNode, Entry } from '@/classes';
+  import { DirectoryTypeEntryNode, DirectoryTypeNode, Entry, TopicFolder } from '@/classes';
 
   
   ////////////////////////////////
@@ -154,7 +154,7 @@
 
         // if it's currently open, force screen refresh
         if (entry.uuid === currentEntry.value?.uuid) {
-          mainStore.refreshEntry();
+          await mainStore.refreshEntry();
         }
       }
 

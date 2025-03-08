@@ -10,6 +10,7 @@ export enum WindowTabType  {
   Entry,
   Campaign,
   Session,
+  PC,
 }
 
 export type WindowTabHistory = {
@@ -51,6 +52,7 @@ export enum DocumentLinkType {
   None,
   Scenes,
   Actors,
+  Items,
 }
 
 // relationships

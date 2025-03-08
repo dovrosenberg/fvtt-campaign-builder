@@ -1,7 +1,6 @@
 <template>
   <!-- A table to display/manage related scenes and actors -->
   <div 
-    class="primevue-only"
     @drop="onDrop"
   >
     <BaseTable
@@ -64,9 +63,9 @@
     return base;
   });
 
-  type GridRow = { uuid: string; name: string };
+  type RelatedDocumentGridRow = { uuid: string; name: string };
 
-  const rows = computed((): GridRow[] => 
+  const rows = computed((): RelatedDocumentGridRow[] => 
     relatedDocumentRows.value.map((item: RelatedDocumentDetails) => {
       const base = { 
         uuid: item.uuid, 
@@ -93,7 +92,7 @@
 
   ////////////////////////////////
   // event handlers
-  const onRowSelect = async function (event: { data: GridRow} ) { 
+  const onRowSelect = async function (event: { data: RelatedDocumentGridRow} ) { 
     const { data } = event;
 
     if (currentDocumentTab.value===DocumentLinkType.Actors) {
@@ -242,7 +241,4 @@
 </script>
 
 <style lang="scss" scoped>
-  .action-icon {
-    cursor: pointer;
-  }
 </style>

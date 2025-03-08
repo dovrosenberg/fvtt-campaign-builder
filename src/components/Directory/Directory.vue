@@ -6,8 +6,8 @@
     class="tab flexcol journal-directory" 
   >
     <!-- Directory Header -->
-    <header class="directory-header">
-      <div class="header-search flexrow">
+    <header class="fwb-directory-header">
+      <div class="fwb-header-search flexrow">
         <InputText 
           v-model="filterText"
           for="fwb-directory-search" 
@@ -20,7 +20,7 @@
           }"
         />
         <a 
-          class="header-control create-world create-button" 
+          class="fwb-header-control create-world create-button" 
           :data-tooltip="localize('tooltips.createWorld')"
           @click="onCreateWorldClick"
         >
@@ -28,14 +28,14 @@
           <i class="fas fa-plus"></i>
         </a>
         <a 
-          class="header-control collapse-all" 
+          class="fwb-header-control collapse-all" 
           :data-tooltip="localize('tooltips.collapseAllTopics')"
           @click="onCollapseAllClick"
         >
           <i class="fa-duotone fa-folder-tree"></i>
         </a>
       </div>
-      <div class="header-group-type flexrow">
+      <div class="fwb-header-group-type flexrow">
         <input
           id="fwb-group-by-type"
           type="checkbox"
@@ -180,57 +180,51 @@
         overflow: hidden; 
         height: 100%; 
       }
+    }
 
-      .directory-header {
-        flex: 0;
-        background-color: var(--fwb-header-background);
-        border-bottom: 1px solid var(--fwb-header-border-color);
-        color: var(--fwb-sidebar-label-color);
-        margin-bottom: 0px;
-        padding-top: 3px;
-        padding-bottom: 6px;
-        padding-left: 20px;
+    .fwb-directory-header {
+      flex: 0;
+      background-color: var(--fwb-header-background);
+      border-bottom: 1px solid var(--fwb-header-border-color);
+      color: var(--fwb-sidebar-label-color);
+      margin-bottom: 0px;
+      padding-top: 3px;
+      padding-bottom: 6px;
+      padding-left: 20px;
 
-        .header-actions.action-buttons button {
-          line-height: 24px;
-          background: var(--fwb-sidebar-button-background);
-          border: 2px groove var(--fwb-sidebar-button-border);
-        }
-
-        .header-search {
-          #fwb-directory-search {
-            flex: 1;
-            height: var(--form-field-height);
-          }
-
-          .header-control {
-            flex: 0 0 32px;
-            text-align: center;
-            position: relative;
-
-            i {
-              position: absolute;
-
-              &.fa-plus {
-                top: -2px;
-                right: -2px;
-                font-size: 0.5rem;
-                background: black;
-                color: var(--color-text-light-highlight);
-                padding: 1px;
-                border-radius: 4px;
-              }  
-            }
-          }
-        }
-
-        .header-group-type {
+      .fwb-header-search {
+        #fwb-directory-search {
           flex: 1;
           height: var(--form-field-height);
+        }
 
-          #fwb-group-by-type {
-            flex: 0;
+        .fwb-header-control {
+          flex: 0 0 32px;
+          text-align: center;
+          position: relative;
+
+          i {
+            position: absolute;
+
+            &.fa-plus {
+              top: -2px;
+              right: -2px;
+              font-size: 0.5rem;
+              background: black;
+              color: var(--color-text-light-highlight);
+              padding: 1px;
+              border-radius: 4px;
+            }  
           }
+        }
+      }
+
+      .fwb-header-group-type {
+        flex: 1;
+        height: var(--form-field-height);
+
+        #fwb-group-by-type {
+          flex: 0;
         }
       }
     }

@@ -110,7 +110,9 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['update:modelValue']);
+  const emit = defineEmits<{
+    (e: 'update:modelValue', newValue: boolean): void;
+  }>();
 
   ////////////////////////////////
   // store
@@ -120,7 +122,7 @@
   // data
   const loading = ref(false);
   const show = ref(props.modelValue);
-  const extraFieldValues = ref(globalThis.foundry.utils.deepClone(props.extraFieldValues));
+  const extraFieldValues = ref(foundry.utils.deepClone(props.extraFieldValues));
   const topicDetails = {
     [Topics.Character]: {
       title: 'Edit character',
@@ -185,7 +187,7 @@
 
     // if we're now visible, update the extra field values
     if (show.value)
-      extraFieldValues.value = globalThis.foundry.utils.deepClone(props.extraFieldValues);
+      extraFieldValues.value = foundry.utils.deepClone(props.extraFieldValues);
   });
 
   // make sure to update the 

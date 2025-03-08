@@ -1,7 +1,7 @@
 <template>
   <form class="'flexcol fwb-journal-subsheet ' + topic">
-    <div ref="contentRef" class="sheet-container detailed flexcol">
-      <header class="journal-sheet-header flexrow">
+    <div ref="contentRef" class="fwb-sheet-container detailed flexcol">
+      <header class="fwb-journal-sheet-header flexrow">
         <div class="sheet-image">
           <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
         </div>
@@ -72,7 +72,6 @@
             <Editor 
               :initial-content="currentEntry?.description || ''"
               :has-button="true"
-              target="content-description"
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>
@@ -134,8 +133,8 @@
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
 
   // types
-  import { TopicFolder, Topics, } from '@/types';
-  import { Entry, WBWorld } from '@/classes';
+  import { Topics, } from '@/types';
+  import { Entry, WBWorld, TopicFolder} from '@/classes';
 
   ////////////////////////////////
   // props
@@ -188,7 +187,7 @@
     if (!currentEntry.value || !currentEntry.value.uuid) {
       topic.value = null;
     } else {
-      let newTopicFolder: TopicFolder;
+      let newTopicFolder: TopicFolder | null;
 
       newTopicFolder = currentEntry.value.topicFolder;
       if (!newTopicFolder) 
@@ -282,10 +281,6 @@
 
     currentEntry.value.description = newContent;
     await currentEntry.value.save();
-
-    //need to reset
-    // if it's not automatic, clear and reset the documentpage
-    // (this._partials.DescriptionEditoras as Editor).attachEditor(descriptionPage, newContent);
   };
 
   ////////////////////////////////

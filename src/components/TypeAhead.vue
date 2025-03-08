@@ -214,7 +214,7 @@
   ////////////////////////////////
   // watchers
   watch(() => props.initialList, (newList: T[]) => {
-    list.value = globalThis.foundry.utils.deepClone(newList) || [];
+    list.value = foundry.utils.deepClone(newList) || [];
   });
 
   watch(() => props.initialValue, (newValue: string) => {
@@ -233,7 +233,7 @@
     });
 
     // create our working list
-    list.value = globalThis.foundry.utils.deepClone(props.initialList) || [];
+    list.value = foundry.utils.deepClone(props.initialList) || [];
     currentValue.value = objectMode.value ? (props.initialList.find((item)=>(item as ListItem).id===props.initialValue) as ListItem)?.label || '' : props.initialValue;
   });
 

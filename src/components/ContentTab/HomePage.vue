@@ -103,7 +103,11 @@
           await navigationStore.openSession(item.uuid, { newTab: false });
           break;
 
-        default:
+        case getTabTypeIcon(WindowTabType.PC):
+          await navigationStore.openPC(item.uuid, { newTab: false });
+          break;
+
+          default:
           throw new Error(`Unknown item icon type in HomePage.onRecentClick(): ${item.icon}`);
       }
     }

@@ -12,23 +12,19 @@
   "main": "main.ts",
   "scripts": {
     "build": "vite build",
-    "debug": "NODE_ENV=development vite build --mode development --minify=false",
+    "debug": "vite build --minify=false --mode development",
     "lint": "eslint --ext .ts,.vue src",
-    "copy": "rm -rf $FOUNDRYVTT_DATA/Data/modules/world-builder/* && cp -r $(pwd)/dist/* $FOUNDRYVTT_DATA/Data/modules/world-builder",
-    "linkdata": "ln -s $PWD/dist $FOUNDRYVTT_DATA/Data/modules/world-builder",
+    "linkdata": "ln -s $PWD/dist ~/foundry13data/Data/modules/simple-weather",
     "tsc": "vue-tsc --skipLibCheck -p ./tsconfig.json",
-    "test": "jest",
-    "coverage": "jest --coverage",
-    "unlinkdata": "unlink $FOUNDRYVTT_DATA/Data/modules/world-builder",
+    "unlinkdata": "unlink ~/foundry13data/Data/modules/simple-weather",
     "buildcopy": "npm run build && npm run copy",
-    "foundry": "node $FOUNDRYVTT_APP/resources/app/main.js"
-  },
+    "foundry": "node ~/foundry13/resources/app/main.js --dataPath=/home/dov/foundry13data"
+},
   "devDependencies": {
     "@faker-js/faker": "^9.3.0",
     "@league-of-foundry-developers/foundry-vtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
     "@primevue/auto-import-resolver": "^4.2.5",
-    "@types/jest": "^29.5.14",
     "@types/jquery": "^3.5.32",
     "@types/lodash": "^4.17.13",
     "@typescript-eslint/eslint-plugin": "^8.18.2",
@@ -38,9 +34,6 @@
     "eslint": "^9.17.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-vue": "^9.32.0",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "jest-extended": "^4.0.2",
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.9.2",
     "node-sass": "^9.0.0",
@@ -55,12 +48,13 @@
     "source-map-loader": "^5.0.0",
     "string-replace-loader": "^3.1.0",
     "style-loader": "^4.0.0",
-    "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.1",
+    "typescript": "^5.7.3",
     "unplugin-vue-components": "^0.28.0",
     "vite": "^6.0.6",
     "vite-plugin-env-compatible": "^2.0.1",
     "vite-plugin-html": "3.2.2",
+    "vue-eslint-parser": "^9.4.3",
     "vue-tsc": "^2.1.10"
   },
   "dependencies": {
@@ -68,7 +62,6 @@
     "@primevue/themes": "^4.2.5",
     "pinia": "^2.3.0",
     "primevue": "^4.2.5",
-    "vue": "^3.5.13",
-    "vue-eslint-parser": "^9.4.3"
+    "vue": "^3.5.13"
   }
 }

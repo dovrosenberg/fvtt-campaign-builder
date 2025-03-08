@@ -3,14 +3,15 @@
     :id="editorId" 
     ref="wrapperRef"
     class="fwb-editor flexcol"
-  >
+    :style="wrapperStyle"
+    >
     <!-- this reproduces the Vue editor() Handlebars helper -->
     <!-- editorVisible used to reset the DOM by toggling-->
     <div 
       v-if="editorVisible"  
       ref="editorRef"
       :class="'editor ' + props.class"
-      :style="(height ? height + 'px' : '')"
+      :style="innerStyle"
     >
       <!-- activation button -->
       <a 
@@ -37,7 +38,7 @@
   // !!! TODO - use vue-safe-html instead of v-html!!!
 
   // library imports
-  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
+  import { computed, nextTick, onMounted, PropType, ref, toRaw, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -49,14 +50,12 @@
   // local components
 
   // types
-  const ProseMirror = globalThis.foundry.prosemirror;
 
   // type EditorOptions = {
   //   document: Document<any>,
-  //   target: HTMLElement,
   //   fieldName: string,
   //   height: number, 
-  //   engine: string, 
+  //   engine: 'tinymce' | 'prosemirror', 
   //   collaborate: boolean,
   //   plugins?: any,
   // };
@@ -90,7 +89,7 @@
       default: false,
     },
     engine: {
-      type: String,
+      type: String as PropType<'tinymce' | 'prosemirror'>,
       required: false,
       default: 'prosemirror',
     },
@@ -99,10 +98,11 @@
       required: false,
       default: null,
     },
-    target: {
+    fixedHeight: {
       type: String,
-      required: true,
-    }  
+      required: false,
+      default: null,
+    },
   });
 
   ////////////////////////////////
@@ -120,7 +120,7 @@
   // data
   const editorId = ref<string>();
   const enrichedInitialContent = ref<string>('');
-  const editor = ref<globalThis.TextEditor | null>(null);
+  const editor = ref<TextEditor | null>(null);
   const buttonDisplay = ref<string>('');   // is button currently visible
   const editorVisible = ref<boolean>(true);
 
@@ -138,17 +138,16 @@
       collaborate: props.collaborate.toString(),
     } as Record<string, string>;
 
-    if (props.editable) 
-      dataset.edit = props.target;
-
     return dataset;
   });
+
+  const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight + 'px'}` : ''));
+  const innerStyle = computed((): string => (props.height ? `height: ${props.height + 'px'}` : ''));
 
   ////////////////////////////////
   // methods
   // shouldn't be called unless there's already a document
-  // this creates the Editor class that converts the div into a 
-  //    functional editor
+  // this creates the Editor class that converts the div into a functional editor
   const activateEditor = async (): Promise<void> => {
     if (!coreEditorRef.value)
       return;
@@ -158,7 +157,7 @@
     // if the window content is shorter, we want to handle that case (rare)
     const wc = coreEditorRef.value.closest('.window-content') as HTMLElement;
 
-    if (!props.target || !buttonRef.value || !wrapperRef.value)
+    if (!buttonRef.value || !wrapperRef.value)
       throw new Error('Missing name or button in activateEditor()');
 
     // Determine the preferred editor height
@@ -169,7 +168,6 @@
     const options = {
       // document: props.document,
       target: coreEditorRef.value,
-      fieldName: props.target,
       height, 
       engine: props.engine, 
       collaborate: props.collaborate,
@@ -177,22 +175,16 @@
     };
 
     if (props.engine === 'prosemirror') 
-      options.plugins = configureProseMirrorPlugins(/*{removed:hasButton}*/);
+      options.plugins = configureProseMirrorPlugins();
 
     if (!fitToSize && options.target.offsetHeight) 
       options.height = options.target.offsetHeight;
     
     buttonDisplay.value = 'none';
     
-    editor.value = await globalThis.TextEditor.create(options, props.initialContent);
+    editor.value = await TextEditor.create(options, props.initialContent);
    
     options.target.closest('.editor')?.classList.add(props.engine);
-
-    // /* @deprecated since v10 */
-    // if ( props.engine !== 'prosemirror' ) {
-    //   editor.value.focus();
-    //   //editor.value.on("change", () => this._changed = true);
-    // }
   };
 
   const configureProseMirrorPlugins = () => {
@@ -214,10 +206,12 @@
     // get the new content
     let content;
     if (props.engine === 'tinymce') {
+      // @ts-ignore - editor is a tinymce.Editor
       const mceContent = editor.value.getContent();
       //this.delete(editor.value.id); // Delete hidden MCE inputs
       content = mceContent;
     } else if (props.engine === 'prosemirror') {
+      // @ts-ignore - editor is a tinymce.Editor
       content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
     } else {
       throw new Error(`Unrecognized enginer in saveEditor(): ${props.engine}`);
@@ -261,7 +255,7 @@
       return;
 
     // we create a random ID so we can use multiple instances
-    editorId.value  = 'fwb-editor-' + globalThis.foundry.utils.randomID();
+    editorId.value  = 'fwb-editor-' + foundry.utils.randomID();
 
     // initialize the editor
     if (!coreEditorRef.value)
@@ -282,5 +276,25 @@
 <style lang="scss">
   .fwb-editor {
     flex: 1 !important;
+    overflow-y: auto !important;
   }
+
+  .theme-light .fwb-editor {
+    border: 1px solid var(--color-dark-6);
+    outline: 1px solid transparent;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--color-dark-2);
+    font-size: var(--font-size-14);
+    padding: 0 0.5rem;
+
+    &:focus {
+      outline-color: var(--color-warm-2);
+    }
+
+    &:disabled {
+      color: var(--color-dark-4);
+    }
+  }
+
 </style>

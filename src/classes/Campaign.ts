@@ -1,8 +1,10 @@
 import { toRaw } from 'vue';
-import { getFlag, moduleId, prepareFlagsForUpdate, setFlagDefaults } from '@/settings'; 
-import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, SessionDoc, WorldDoc } from '@/documents';
-import { Session, WBWorld } from '@/classes';
+import { getFlag, moduleId, prepareFlagsForUpdate, setFlagDefaults, } from '@/settings'; 
+import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, WorldDoc } from '@/documents';
+import { PC, Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs/input';
+import { localize } from '@/utils/game';
+import { SessionLore } from '@/documents/session';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign {
@@ -16,7 +18,7 @@ export class Campaign {
 
   // saved in flags
   private _description: string;
-  private _pcs: string[];   // Actor ids
+  private _lore: SessionLore[];
 
   /**
    * 
@@ -34,7 +36,7 @@ export class Campaign {
     this.world = world || null;
 
     this._description = getFlag(this._campaignDoc, CampaignFlagKey.description) || '';
-    this._pcs = getFlag(this._campaignDoc, CampaignFlagKey.pcs) || [];
+    this._lore = getFlag(this._campaignDoc, CampaignFlagKey.lore) || [];
     this._name = campaignDoc.name;
   }
 
@@ -44,7 +46,9 @@ export class Campaign {
     if (!campaignDoc)
       return null;
     else {
-      return new Campaign(campaignDoc);
+      const campaign = new Campaign(campaignDoc);
+      await campaign.loadWorld();
+      return campaign;
     }
   }
 
@@ -60,11 +64,9 @@ export class Campaign {
    */
   public async getWorld(): Promise<WBWorld> {
     if (!this.world)
-      await this.loadWorld();
+      this.world = await this.loadWorld();
 
-    const world = this.world as WBWorld;
-
-    return world;
+    return this.world;
   }
   
   /**
@@ -79,7 +81,7 @@ export class Campaign {
     if (!this._campaignDoc.compendium?.folder)
       throw new Error('Invalid folder id in Campaign.loadWorld()');
     
-    const worldDoc = await fromUuid(this._campaignDoc.compendium.folder.uuid) as WorldDoc;
+    const worldDoc = await fromUuid(this._campaignDoc.compendium.folder.uuid) as unknown as WorldDoc;
 
     if (!worldDoc)
       throw new Error('Invalid folder id in Campaign.loadWorld()');
@@ -87,11 +89,13 @@ export class Campaign {
     return new WBWorld(worldDoc);
   }
   
-  // we return the next number after the highest currently existing sessio nnumber
+  // we return the next number after the highest currently existing session number
+  // we calculate each time because it's fast enough and we don't need to continually be updating 
+  //    metadata
   get nextSessionNumber(): number {
-    let maxNumber = -1;
-    this._campaignDoc.pages.forEach((page: JournalEntryPage) => {
-      if ((page as unknown as SessionDoc).system.number > maxNumber)
+    let maxNumber = 0;
+    toRaw(this._campaignDoc).pages.forEach((page: JournalEntryPage) => {
+      if (page.type === DOCUMENT_TYPES.Session && (page as unknown as SessionDoc).system.number > maxNumber)
         maxNumber = (page as unknown as SessionDoc).system.number;
     });
 
@@ -100,7 +104,7 @@ export class Campaign {
 
   // returns the uuids of all the sessions
   get sessions(): string[] {
-    return this._campaignDoc.pages.map((page) => page.uuid);
+    return this._campaignDoc.pages.filter((p) => p.type===DOCUMENT_TYPES.Session).map((page) => page.uuid);
   }
 
   get name(): string {
@@ -135,19 +139,100 @@ export class Campaign {
     };
   }
 
-  get pcs(): readonly string[] {
-    return this._pcs;
+  public get lore(): SessionLore[] {
+    return this._lore;
   }
+  
+  async addLore(description: string): Promise<void> {
+    const uuid = foundry.utils.randomID();
 
-  set pcs(value: readonly string[]) {
-    this._pcs = value.concat();  // clone to avoid being able to edit outside
+    this._lore.push({
+      uuid: uuid,
+      description: description,
+      delivered: false,
+      journalEntryPageId: null,
+    });
+
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       [`flags.${moduleId}`]: {
         ...this._cumulativeUpdate[`flags.${moduleId}`],
-        pcs: value,
+        lore: this._lore,
       }
     };
+
+    await this.save();
+  }
+
+  async updateLoreDescription(uuid: string, description: string): Promise<void> {
+    const lore = this._lore.find(l=> l.uuid===uuid);
+
+    if (!lore)
+      return;
+
+    lore.description = description;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        lore: this._lore,
+      }
+    };
+
+    await this.save();
+  }
+
+  async updateLoreJournalEntry(loreUuid: string, journalEntryPageId: string | null): Promise<void> {
+    const lore = this._lore.find(l=> l.uuid===loreUuid);
+
+    if (!lore)
+      return;
+
+    lore.journalEntryPageId = journalEntryPageId;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        lore: this._lore,
+      }
+    };
+
+    await this.save();
+  }
+
+
+  async deleteLore(uuid: string): Promise<void> {
+    this._lore = this._lore.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        lore: this._lore,
+      }
+    };
+
+    await this.save();
+  }
+
+  async markLoreDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const lore = this._lore.find((l) => l.uuid===uuid);
+    if (!lore)
+      return;
+    
+    lore.delivered = delivered;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        lore: this._lore,
+      }
+    };
+
+    await this.save();
   }
 
   /**
@@ -161,8 +246,8 @@ export class Campaign {
     let name;
 
     do {
-      name = await inputDialog('Create Campaign', 'Campaign Name:');
-      
+      name = await inputDialog(localize('dialogs.createCampaign.title'), `${localize('dialogs.createCampaign.campaignName')}:`); 
+
       if (name) {
         // unlock the world to allow edits
         await world.unlock();
@@ -182,15 +267,13 @@ export class Campaign {
 
         await world.lock();
 
-        if (!newCampaignDoc)
-          throw new Error('Couldn\'t create new campaign');
-
         const newCampaign = new Campaign(newCampaignDoc, world);
 
         world.campaignNames = {
           ...world.campaignNames,
           [newCampaign.uuid]: name,
         };
+        await world.save();
         
         return newCampaign;
       }
@@ -225,18 +308,50 @@ export class Campaign {
   }
   
   /**
+   * Find all PCs for a given campaign
+   * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
+   *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
+   *            improvements in lots of places
+   * @param campaignId the campaign to search
+   * @returns a list of Entries
+   */
+  public async getPCs(): Promise<PC[]> {
+    // we find all journal entries with this topic
+    return await this.filterPCs(()=>true);
+  }
+
+  /**
    * Given a filter function, returns all the matching Sessions
    * inside this campaign
    * 
-   * @param {(e: Entry) => boolean} filterFn - The filter function
-   * @returns {Entry[]} The entries that pass the filter
+   * @param {(e: Session) => boolean} filterFn - The filter function
+   * @returns {Session[]} The entries that pass the filter
    */
   public filterSessions(filterFn: (e: Session) => boolean): Session[] { 
-    return (this._campaignDoc.pages.contents as unknown as SessionDoc[])
+    return (toRaw(this._campaignDoc).pages.contents as unknown as SessionDoc[])
+      .filter((p) => p.type===DOCUMENT_TYPES.Session)
       .map((s: SessionDoc)=> new Session(s, this))
       .filter((s: Session)=> filterFn(s));
   }
 
+  /**
+   * Given a filter function, returns all the matching Sessions
+   * inside this campaign
+   * 
+   * @param {(e: PC) => boolean} filterFn - The filter function
+   * @returns {PC[]} The entries that pass the filter
+   */
+  public async filterPCs(filterFn: (e: PC) => boolean): Promise<PC[]> { 
+    const retval = (toRaw(this._campaignDoc).pages.contents as unknown as PCDoc[])
+      .filter((p) => p.type===DOCUMENT_TYPES.PC)
+      .map((s: PCDoc)=> new PC(s, this))
+      .filter((s: PC)=> filterFn(s));
+
+    // load all the actors
+    await Promise.all(retval.map((pc) => pc.getActor()));
+
+    return retval;
+  }
   
   /**
    * Updates a campaign in the database 
@@ -246,10 +361,7 @@ export class Campaign {
   public async save(): Promise<Campaign | null> {
     const updateData = this._cumulativeUpdate;
 
-    let world = this.world;
-
-    if (!world)
-      world = await this.loadWorld();
+    let world = await this.getWorld();
 
     // unlock compendium to make the change
     await world.unlock();
@@ -289,9 +401,7 @@ export class Campaign {
 
     const id = this._campaignDoc.uuid;
 
-    let world = this.world;
-    if (!world)
-      world = await this.loadWorld();
+    let world = await this.getWorld();
 
     // have to unlock the pack
     await world.unlock();

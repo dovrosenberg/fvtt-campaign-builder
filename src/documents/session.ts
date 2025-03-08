@@ -1,14 +1,48 @@
+export type SessionLocation = {
+  uuid: string;
+  delivered: boolean;
+}
+
+export type SessionItem = {
+  uuid: string;
+  delivered: boolean;
+}
+
+export type SessionNPC = {
+  uuid: string;
+  delivered: boolean;
+}
+
+export type SessionMonster = {
+  uuid: string;
+  delivered: boolean;
+  number: number;
+}
+
+export type SessionScene = {
+  uuid: string;
+  delivered: boolean;
+  description: string;
+}
+
+export type SessionLore = {
+  uuid: string;
+  delivered: boolean;
+  description: string;
+  journalEntryPageId: string | null;
+}
+
 const fields = foundry.data.fields;
 const sessionSchema = {
   number: new fields.NumberField({ required: true, nullable: false }),
-  description: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-
-
-  // description: new fields.SchemaField({
-  //   short: new fields.HTMLField({required: false, blank: true})
-  // }),
-  // img: new fields.FilePathField({required: false, categories: ['IMAGE']}),
-  // steps: new fields.ArrayField(new fields.StringField({blank: true}))
+  date: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: false, }),
+  startingAction: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
+  locations: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionLocation[] }),  
+  npcs: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionNPC[] }),  
+  items: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionItem[] }),  
+  monsters: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionMonster[] }),  
+  scenes: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionScene[] }),  
+  lore: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionLore[] }),  
 };
 
 type SessionSchemaType = typeof sessionSchema;
@@ -25,8 +59,17 @@ export class SessionDataModel<Schema extends SessionSchemaType, ParentNode exten
 
 // @ts-ignore - error because ts can't properly handle the structure of JournalEntryPage
 export interface SessionDoc extends JournalEntryPage {
+  __type: 'SessionDoc';
+
   system: {
     number: number;
-    description: string | undefined;
+    date: string | null;
+    startingAction: string;
+    locations: SessionLocation[];
+    items: SessionItem[];
+    npcs: SessionNPC[];
+    monsters: SessionMonster[];
+    scenes: SessionScene[];
+    lore: SessionLore[];
   };
 }

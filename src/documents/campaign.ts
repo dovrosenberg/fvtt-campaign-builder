@@ -1,20 +1,26 @@
 import { FlagSettings } from '@/settings';
+import { SessionLore } from '@/documents/session';
 
 // camapaigns are journal entries, not documents
 export interface CampaignDoc extends JournalEntry {
   __type: 'CampaignDoc';
 }
 
+export type CampaignLore = SessionLore & {
+  lockedToSessionId: string | null;  
+  lockedToSessionName: string | null;  
+}
+
 export enum CampaignFlagKey {
   isCampaign = 'isCampaign',    // used to mark the JE as a campaign
   description = 'description',
-  pcs = 'pcs',   // actor uuids
+  lore = 'lore',
 }
 
 export type CampaignFlagType<K extends CampaignFlagKey> =
   K extends CampaignFlagKey.isCampaign ? true :
   K extends CampaignFlagKey.description ? string :
-  K extends CampaignFlagKey.pcs ? string[] : 
+  K extends CampaignFlagKey.lore ? CampaignLore[] :
   never;  
 
 export const flagSettings = [
@@ -27,8 +33,8 @@ export const flagSettings = [
     default: '' as string,
   },
   {
-    flagId: CampaignFlagKey.pcs,
-    default: [] as string[],
+    flagId: CampaignFlagKey.lore,
+    default: [] as CampaignLore[],
   },
 ] as FlagSettings<CampaignFlagKey, {[K in CampaignFlagKey]: CampaignFlagType<K>}>[];
 
