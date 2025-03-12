@@ -25,7 +25,7 @@ export abstract class UserFlags {
       return null;
 
     if (flag === UserFlagKey.tabs) {
-      // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
+      // We need to create the class instances
       return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) || []).map((t: any) => new WindowTab(
         t.active, 
         t.header,
@@ -35,9 +35,10 @@ export abstract class UserFlags {
         t.history,
         t.historyIdx
       )) as unknown as UserFlagType<T>;
+    } else if (flag === UserFlagKey.currentWorld) {
+      return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) ||  '') as UserFlagType<T>;
     } else {
-      // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
-      return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) || []) as UserFlagType<T>;
+      return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) ||  []) as UserFlagType<T>;
     }
   }
 

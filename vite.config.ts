@@ -12,7 +12,7 @@ import vue from '@vitejs/plugin-vue';
 // import Components from 'unplugin-vue-components/vite';
 // import { PrimeVueResolver } from '@primevue/auto-import-resolver';
 
-// to get the verison number
+// to get the version number
 import npmPackage from './package.json';
 
 export default defineConfig({

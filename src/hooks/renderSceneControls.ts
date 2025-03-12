@@ -13,13 +13,22 @@ async function render(): Promise<void> {
     if (existingButton.length > 0)
       return;
 
-    const navParent = jQuery(document).find('#ui-top #navigation');
-    const toolTip = localize('tooltips.mainButton');
-    navParent.prepend(
-      `<button id='wcb-launch' type="button" class="nav-item flex0" title="${toolTip}"><i class="fas fa-globe"></i></button>`
-    );
+    const sceneNav = jQuery(document).find('#scene-navigation');
 
-    jQuery(document).on('click', '#wcb-launch', async (): Promise<void> => {
+    // sometimes this is called before the toolbar is loaded
+    if (sceneNav.length === 0)
+      return;
+    
+    const toolTip = localize('tooltips.mainButton');
+    const button = jQuery(`<button id='wcb-launch' type="button" class="scene-navigation-menu" style="flex:0 1 20px; pointer-events: auto" title="${toolTip}"><i class="fas fa-globe"></i></button>`);
+
+    // put the button before the nav
+    sceneNav.before(button);
+
+    // wrap both in a new flexrow
+    button.add(sceneNav).wrapAll(`<div id="wcb-launch-wrapper" class="flexrow" style="align-items: flex-start"></div>`);
+
+    button.on('click', null, async (): Promise<void> => {
       // create the instance and render 
       await getWorldBuilderApp().render(true);
     });

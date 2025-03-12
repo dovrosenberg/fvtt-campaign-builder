@@ -1,6 +1,6 @@
 {
   "name": "fvtt-campaign-builder",
-  "title": "Foundry VTT World Builder",
+  "title": "World & Campaign Builder for Foundry",
   "version": "0.0.1",
   "description": "Create regions, organizations, culture, and other elements of your world, right in Foundry.",
   "repository": {
@@ -14,9 +14,9 @@
     "build": "vite build",
     "debug": "vite build --minify=false --mode development",
     "lint": "eslint --ext .ts,.vue src",
-    "linkdata": "ln -s $PWD/dist ~/foundry13data/Data/modules/simple-weather",
+    "linkdata": "ln -s $PWD/dist ~/foundry13data/Data/modules/campaign-builder",
     "tsc": "vue-tsc --skipLibCheck -p ./tsconfig.json",
-    "unlinkdata": "unlink ~/foundry13data/Data/modules/simple-weather",
+    "unlinkdata": "unlink ~/foundry13data/Data/modules/campaign-builder",
     "buildcopy": "npm run build && npm run copy",
     "foundry": "node ~/foundry13/resources/app/main.js --dataPath=/home/dov/foundry13data"
 },
