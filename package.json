@@ -18,11 +18,13 @@
     "tsc": "vue-tsc --skipLibCheck -p ./tsconfig.json",
     "unlinkdata": "unlink ~/foundry13data/Data/modules/campaign-builder",
     "buildcopy": "npm run build && npm run copy",
-    "foundry": "node ~/foundry13/resources/app/main.js --dataPath=/home/dov/foundry13data"
-},
+    "foundry": "node ~/foundry13/resources/app/main.js --dataPath=/home/dov/foundry13data",
+    "updateREST": "rm -rf src/apiClient && npx @openapitools/openapi-generator-cli generate -i http://localhost:8080/documentation/json -g typescript-axios -o src/apiClient --additional-properties=withSeparateModelsAndApi=true,disallowAdditionalPropertiesIfNotPresent=false,apiPackage=API,modelPackage=types,supportsES6=true,withInterfaces=true"
+  },
   "devDependencies": {
     "@faker-js/faker": "^9.3.0",
     "@league-of-foundry-developers/foundry-vtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
+    "@openapitools/openapi-generator-cli": "^2.18.4",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
     "@primevue/auto-import-resolver": "^4.2.5",
     "@types/jquery": "^3.5.32",

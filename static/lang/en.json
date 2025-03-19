@@ -4,7 +4,10 @@
     "defaultRootFolderName": "World Builder",
     "settings": {
       "startCollapsed": "Sidebar starts collapsed?",
-      "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?"
+      "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
+      "advanced": "Advanced Settings",
+      "advancedLabel": "Open Advanced Settings",
+      "advancedHelp": "Configure advanced settings (including AI)"
     },
     "labels": {
       "newTab": "New Tab",
@@ -21,7 +24,7 @@
       "entry": {
         "topic": "TopicFolder",
         "type": "Type",
-        "relationships": "Relationshipa"
+        "relationships": "Relationships"
       },
       "session": {
         "session": "Session",

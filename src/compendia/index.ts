@@ -12,7 +12,7 @@ import { WBWorld } from '@/classes';
  * @returns The root folder.
  */
 export async function getRootFolder(): Promise<Folder> {
-  const rootFolderId = moduleSettings.get(SettingKey.rootFolderId);
+  const rootFolderId = ModuleSettings.get(SettingKey.rootFolderId);
   let folder: Folder | null;
 
   if (!rootFolderId) {
@@ -20,7 +20,7 @@ export async function getRootFolder(): Promise<Folder> {
     folder = await createRootFolder();
 
     // save to settings for next time
-    await moduleSettings.set(SettingKey.rootFolderId, folder.uuid);
+    await ModuleSettings.set(SettingKey.rootFolderId, folder.uuid);
   } else { 
     folder = game.folders?.find((f)=>f.uuid===rootFolderId) || null;
 
@@ -30,7 +30,7 @@ export async function getRootFolder(): Promise<Folder> {
       folder = await createRootFolder();
   
       // save to settings for next time
-      await moduleSettings.set(SettingKey.rootFolderId, folder.uuid);
+      await ModuleSettings.set(SettingKey.rootFolderId, folder.uuid);
     }
   }
 

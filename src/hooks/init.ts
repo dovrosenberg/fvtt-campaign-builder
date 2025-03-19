@@ -1,6 +1,7 @@
-import { moduleId, ModuleSettings, updateModuleSettings } from '@/settings';
+import { moduleId, ModuleSettings, } from '@/settings';
 import { KeyBindings } from '@/settings/KeyBindings';
 import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel, PCDataModel } from '@/documents';
+import { Backend } from '@/classes/Backend';
 
 export function registerForInitHook() {
   Hooks.once('init', init);
@@ -8,10 +9,13 @@ export function registerForInitHook() {
 
 async function init(): Promise<void> {
   // initialize settings first, so other things can use them
-  updateModuleSettings(new ModuleSettings());  
+  ModuleSettings.register();
 
   // put in place the key bindings
   KeyBindings.register();
+
+  // check the backend
+  await Backend.configure();
 
   // register the data models
   Object.assign(CONFIG.JournalEntryPage.dataModels, {

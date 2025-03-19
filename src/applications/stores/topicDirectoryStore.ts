@@ -509,7 +509,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // save grouping to settings
   watch(isGroupedByType, async (newSetting: boolean) => {
     isGroupedByType.value = newSetting;
-    await moduleSettings.set(SettingKey.groupTreeByType, isGroupedByType.value);
+    await ModuleSettings.set(SettingKey.groupTreeByType, isGroupedByType.value);
   });
 
   // update the filter when text changes
@@ -520,7 +520,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   ///////////////////////////////
   // lifecycle events
   onMounted(() => {
-    isGroupedByType.value = moduleSettings.get(SettingKey.groupTreeByType);
+    isGroupedByType.value = ModuleSettings.get(SettingKey.groupTreeByType);
   });
 
   ///////////////////////////////
