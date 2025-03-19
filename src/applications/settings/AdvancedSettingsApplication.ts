@@ -1,5 +1,6 @@
 import moduleJson from '@module';
 import { ModuleSettings, SettingKey } from '@/settings';
+import { Backend } from '@/classes/Backend';
 
 export class AdvancedSettingsApplication extends FormApplication {
   constructor(object, options) {
@@ -29,5 +30,8 @@ export class AdvancedSettingsApplication extends FormApplication {
   public async _updateObject(_event, formData: Record<string, string>): Promise<void> {
     await ModuleSettings.set(SettingKey.APIURL, formData.APIURL);
     await ModuleSettings.set(SettingKey.APIToken, formData.APIToken);
+
+    // reset the backend
+    await Backend.configure();
   }
 }

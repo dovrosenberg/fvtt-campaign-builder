@@ -48,16 +48,12 @@ export class ModuleSettings {
   }
 
   // these are global menus (shown at top)
-  private static menuParams: (ClientSettings.PartialSettingSubmenuConfig & { settingID: ModuleSettingKeys })[] = [
-    // couldn't get this to work because it creates a new instance but I can't figure out how to attach it to the weatherInstance variable in main.js
-    // {
-    //     settingID: ModuleSettingKeys.showApplication,
-    //     name: '',
-    //     label: 'Open Simple Weather',
-    //     hint: 'Reopen the main window if closed',
-    //     icon: "fa fa-calendar",
-    //     type: WeatherApplication,
-    // },
+  private static menuParams: (Partial<ClientSettings.SettingSubmenuConfig> & { settingID: SettingKey })[] = [
+  ];
+
+  // these are local menus (shown at top)
+  private static localMenuParams: (Partial<ClientSettings.SettingSubmenuConfig> & { settingID: SettingKey })[] = [
+    // we want this local because we don't want players to be able to see the GM's keys, etc.
     {
       settingID: 'ModuleSettingKeys.advancedSettingsMenu',
       name: 'settings.advanced',
@@ -67,10 +63,6 @@ export class ModuleSettings {
       permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: AdvancedSettingsApplication,
     }
-  ];
-
-  // these are local menus (shown at top)
-  private static localMenuParams: (Partial<ClientSettings.SettingSubmenuConfig> & { settingID: SettingKey })[] = [
   ];
 
   // these are globals shown in the options
