@@ -33,6 +33,8 @@ import type { ApiLocationGeneratePostRequest } from '../types';
 import type { ApiOrganizationGeneratePost200Response } from '../types';
 // @ts-ignore
 import type { ApiOrganizationGeneratePostRequest } from '../types';
+// @ts-ignore
+import type { ApiVersionGet200Response } from '../types';
 /**
  * FCBApi - axios parameter creator
  * @export
@@ -156,6 +158,39 @@ export const FCBApiAxiosParamCreator = function (configuration?: Configuration) 
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Get current backend version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiVersionGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/version`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -202,6 +237,17 @@ export const FCBApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['FCBApi.apiOrganizationGeneratePost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * Get current backend version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiVersionGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiVersionGet200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiVersionGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FCBApi.apiVersionGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -239,6 +285,14 @@ export const FCBApiFactory = function (configuration?: Configuration, basePath?:
         apiOrganizationGeneratePost(apiOrganizationGeneratePostRequest: ApiOrganizationGeneratePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiOrganizationGeneratePost200Response> {
             return localVarFp.apiOrganizationGeneratePost(apiOrganizationGeneratePostRequest, options).then((request) => request(axios, basePath));
         },
+        /**
+         * Get current backend version
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiVersionGet(options?: RawAxiosRequestConfig): AxiosPromise<ApiVersionGet200Response> {
+            return localVarFp.apiVersionGet(options).then((request) => request(axios, basePath));
+        },
     };
 };
 
@@ -274,6 +328,14 @@ export interface FCBApiInterface {
      * @memberof FCBApiInterface
      */
     apiOrganizationGeneratePost(apiOrganizationGeneratePostRequest: ApiOrganizationGeneratePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiOrganizationGeneratePost200Response>;
+
+    /**
+     * Get current backend version
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApiInterface
+     */
+    apiVersionGet(options?: RawAxiosRequestConfig): AxiosPromise<ApiVersionGet200Response>;
 
 }
 
@@ -315,6 +377,16 @@ export class FCBApi extends BaseAPI implements FCBApiInterface {
      */
     public apiOrganizationGeneratePost(apiOrganizationGeneratePostRequest: ApiOrganizationGeneratePostRequest, options?: RawAxiosRequestConfig) {
         return FCBApiFp(this.configuration).apiOrganizationGeneratePost(apiOrganizationGeneratePostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get current backend version
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApi
+     */
+    public apiVersionGet(options?: RawAxiosRequestConfig) {
+        return FCBApiFp(this.configuration).apiVersionGet(options).then((request) => request(this.axios, this.basePath));
     }
 }
 

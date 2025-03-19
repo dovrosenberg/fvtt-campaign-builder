@@ -172,7 +172,7 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    directoryCollapsed.value = moduleSettings.get(SettingKey.startCollapsed) || false;
+    directoryCollapsed.value = ModuleSettings.get(SettingKey.startCollapsed) || false;
 
     const folders = await getDefaultFolders();
 

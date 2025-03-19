@@ -14,4 +14,5 @@ types/api-location-generate-post-request.ts
 types/api-location-generate-post200-response.ts
 types/api-organization-generate-post-request.ts
 types/api-organization-generate-post200-response.ts
+types/api-version-get200-response.ts
 types/index.ts
