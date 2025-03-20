@@ -65,6 +65,8 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
         primevue: { 
           plugin: PrimeVue, 
           options: {
+            // theme: 'none',  -- can do this if you want to just style everything manually; could also define a theme without a preset?
+            // for now - trying to just use "unstyled" on all the inputs, buttons, etc. to make it easier to style
             theme: { 
               preset: WCBTheme,
               options: {

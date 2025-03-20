@@ -40,7 +40,7 @@
         <div style="display: flex; justify-content: space-between;">
           <Button
             v-if="props.showAddButton"
-            color="primary" 
+            unstyled
             :label="props.addButtonLabel" 
             style="flex: initial; width:auto;"
             @click="emit('addItem')"
@@ -66,7 +66,8 @@
             <InputText 
               v-model="pagination.filters.global.value"  
               placeholder="Keyword Search"
-            />
+              unstyled
+              />
           </IconField>
         </div>
       </template>
@@ -118,6 +119,7 @@
             type="text" 
             :placeholder="`Search by ${col.header}`" 
             @input="filterCallback()" 
+            unstyled
           />
         </template> -->
       </Column>

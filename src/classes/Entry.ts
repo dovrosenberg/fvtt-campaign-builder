@@ -130,7 +130,7 @@ export class Entry {
     return this._entryDoc.system.speciesId;
   }
 
-  set speciesId(value: string) {
+  set speciesId(value: string | undefined) {
     if (this.topic !== Topics.Character)
       throw new Error('Attempt to set species on non-character');
 

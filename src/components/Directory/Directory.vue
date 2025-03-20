@@ -11,6 +11,7 @@
         <InputText 
           v-model="filterText"
           for="wcb-directory-search" 
+          unstyled
           :placeholder="localize('placeholders.search')"                
           autocomplete="off"
           :pt="{
@@ -25,7 +26,11 @@
           @click="onCreateWorldClick"
         >
           <i class="fas fa-globe"></i>
-          <i class="fas fa-plus"></i>
+          <i 
+            class="fas fa-plus"
+            style="color: black; background: rgba(255, 255, 255, 0.7); font-size: 0.6rem;"
+          >
+          </i>
         </a>
         <a 
           class="wcb-header-control collapse-all" 

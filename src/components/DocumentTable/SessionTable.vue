@@ -41,7 +41,7 @@
         <div style="display: flex; justify-content: space-between;">
           <Button
             v-if="props.showAddButton"
-            color="primary" 
+            unstyled
             :label="props.addButtonLabel" 
             style="flex: initial; width:auto;"
             @click="emit('addItem')"
@@ -131,6 +131,7 @@
             <!-- we set the id so that we can pull the value when we change row -->
              <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
             <InputText 
+              unstyled
               :id="`${data.uuid}-${col.field}`" v-model="data[col.field]" autofocus fluid
             />
           </div>

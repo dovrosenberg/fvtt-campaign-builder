@@ -27,6 +27,7 @@
         >
           <FloatLabel>
             <InputText 
+              unstyled
               :id="field.field"
               v-model="extraFieldValues[field.field]"
               variant="outlined"
@@ -40,6 +41,7 @@
         <Button 
           label="Cancel"
           text
+          unstyled
           severity="secondary"
           autofocus
           @click="show=false;"
@@ -47,6 +49,7 @@
         <Button
           :label="topicDetails[props.topic].buttonTitle" 
           text
+          unstyled
           severity="secondary"
           autofocus
           @click="onEditClick"

@@ -6,6 +6,7 @@
         <div class="form-fields">
           <InputText
             v-model="APIURL"
+            unstyled
           />
         </div>
         <p class="hint">
@@ -18,6 +19,7 @@
         <div class="form-fields">
           <InputText
             v-model="APIToken"
+            unstyled
           />
         </div>
         <p class="hint">

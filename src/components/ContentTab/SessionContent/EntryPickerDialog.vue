@@ -41,6 +41,7 @@
         >
           <FloatLabel>
             <InputText 
+              unstyled
               :id="field.field"
               v-model="extraFieldValues[field.field]"
               variant="outlined"
@@ -55,6 +56,7 @@
       <template #footer>
         <Button 
           label="Cancel"
+          unstyled
           text
           severity="secondary"
           autofocus

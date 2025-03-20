@@ -27,6 +27,7 @@
             <InputText
               v-model="name"
               for="wcb-input-name" 
+              unstyled
               :disabled="true"
               :pt="{
                 root: { class: 'full-height' } 
@@ -43,6 +44,7 @@
           <InputText
             v-model="playerName"
             for="wcb-input-name" 
+            unstyled
             @update:model-value="onPlayerNameUpdate"
             :pt="{
               root: { class: 'full-height' } 

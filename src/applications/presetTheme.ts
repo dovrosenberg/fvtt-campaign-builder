@@ -65,11 +65,11 @@ export default definePreset(Aura, {
       color: 'inherit',
       borderColor: 'none',
     },
-    inputttext: {
+    inputtext: {
       root: {
-        background: 'red',
-        color: 'inherit',
-        borderColor: 'inherit',
+        background: 'revert',
+        color: 'revert',
+        borderColor: 'revert',
       },
     },
     textarea: {

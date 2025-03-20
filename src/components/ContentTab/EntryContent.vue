@@ -11,6 +11,7 @@
             <InputText
               v-model="name"
               for="wcb-input-name" 
+              unstyled
               :placeholder="namePlaceholder"                
               :pt="{
                 root: { class: 'full-height' } 
@@ -39,6 +40,7 @@
               :initial-value="currentEntry?.speciesId || ''"
               :allow-new-items="false"
               @selection-made="onSpeciesSelectionMade"
+              @item-added="onSpeciesItemAdded"
             />
           </div>
 
@@ -316,6 +318,12 @@
 
     currentEntry.value.speciesId = selection;
     await currentEntry.value.save();
+  };
+
+  // can't add new ones - just reset
+  const onSpeciesItemAdded = async (): Promise<void> => {
+    if (currentEntry.value)
+      currentEntry.value.speciesId = currentEntry.value.speciesId;
   };
 
   ////////////////////////////////
