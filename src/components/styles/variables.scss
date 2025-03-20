@@ -1,20 +1,20 @@
 :root {
-  --wcb-light-0: var(--color-text-light-0);
-  --wcb-light-1: var(--color-text-light-1);
-  --wcb-light-2: var(--color-text-light-2);
-  --wcb-light-3: var(--color-text-light-3);
-  --wcb-light-4: var(--color-text-light-4);
-  --wcb-light-5: var(--color-text-light-5);
-  --wcb-light-6: var(--color-text-light-6);
-  --wcb-light-7: var(--color-text-light-7);
-  --wcb-dark-7: var(--color-text-dark-7);
-  --wcb-dark-6: var(--color-text-dark-6);
-  --wcb-dark-5: var(--color-text-dark-5);
-  --wcb-dark-4: var(--color-text-dark-4);
-  --wcb-dark-3: var(--color-text-dark-3);
-  --wcb-dark-2: var(--color-text-dark-2);
-  --wcb-dark-1: var(--color-text-dark-1);
-  --wcb-dark-0: var(--color-text-dark-0);
+  --wcb-light-0: var(--color-light-0);
+  --wcb-light-1: var(--color-light-1);
+  --wcb-light-2: var(--color-light-2);
+  --wcb-light-3: var(--color-light-3);
+  --wcb-light-4: var(--color-light-4);
+  --wcb-light-5: var(--color-light-5);
+  --wcb-light-6: var(--color-light-6);
+  --wcb-light-7: var(--color-light-7);
+  --wcb-dark-7: var(--color-dark-7);
+  --wcb-dark-6: var(--color-dark-6);
+  --wcb-dark-5: var(--color-dark-5);
+  --wcb-dark-4: var(--color-dark-4);
+  --wcb-dark-3: var(--color-dark-3);
+  --wcb-dark-2: var(--color-dark-2);
+  --wcb-dark-1: var(--color-dark-1);
+  --wcb-dark-0: var(--color-dark-0);
   --wcb-cream: rgba(255, 255, 240, 0.8);
 
   --wcb-font-family: 'Modesto Condensed', 'Palatino Linotype', serif;
@@ -116,12 +116,19 @@
   --wcb-sidebar-input-placeholder-color: var(--color-text-dark-secondary);
   --wcb-sidebar-label-color: var(--wcb-sheet-color);
   --wcb-sidebar-world-color: var(--color-text-light-highlight);
-  --wcb-sidebar-world-background: rgb(133, 131, 124);
+  --wcb-sidebar-world-background: rgb(183, 181, 174);
   --wcb-sidebar-world-border: rgb(116, 115, 109);
   --wcb-sidebar-world-color-collapsed: var(--wcb-dark-2);
   --wcb-sidebar-world-background-collapsed: var(--wcb-light-5);
   --wcb-sidebar-world-border-collapsed: rgb(139, 138, 131);
   --wcb-sidebar-world-context-color: var(--color-text-dark-primary);
+  --wcb-sidebar-campaign-color: var(--color-text-light-highlight);
+  --wcb-sidebar-campaign-background: var(--wcb-light-5);   //rgb(183, 181, 174);
+  --wcb-sidebar-campaign-border: rgb(116, 115, 109);
+  --wcb-sidebar-campaign-color-collapsed: var(--wcb-dark-2);
+  --wcb-sidebar-campaign-background-collapsed: var(--wcb-light-5);
+  --wcb-sidebar-campaign-border-collapsed: rgb(139, 138, 131);
+  --wcb-sidebar-campaign-context-color: var(--color-text-dark-primary);
   --wcb-sidebar-create-entry-color: var(--wcb-dark-3);
   --wcb-sidebar-create-entry-secondary-color: var(--wcb-dark-5);
   --wcb-sidebar-subfolder-border: rgb(156, 154, 148);
@@ -130,108 +137,108 @@
   --wcb-sidebar-document-border-botom: rgb(154, 152, 144);
 }
 
-.theme-dark {
-  --wcb-header-border-color: rgb(192, 192, 192);//
-  --wcb-header-background: rgb(220, 220, 220);//
-  --wcb-header-color: var(--color-text-light-primary);//
-  --wcb-header-tab-color: var(--wcb-header-color);
-  --wcb-header-tab-btn-color: rgb(103, 102, 99);//
-  --wcb-header-tab-background: rgba(255, 255, 240, 0.5);//
-  --wcb-header-tab-border: 1px solid rgb(181, 179, 164);//
-  --wcb-header-tab-active: rgba(255, 255, 255, 0.9);//
-  --wcb-header-tab-hover: inherit;//
-  --wcb-header-tab-active-hover: inherit;//
-  --wcb-header-bookmark-color: var(--wcb-header-color);
-  --wcb-header-bookmark-background: rgba(255, 255, 255, 0.3);//
-  --wcb-header-bookmark-border: rgb(192, 192, 192);//
-  --wcb-header-bookmark-hover: rgba(0, 0, 0, 0.1);//
-  --wcb-header-add-bookmark-background: var(--wcb-header-bookmark-background);
-  --wcb-header-add-bookmark-border: var(--wcb-header-bookmark-border);
-  --wcb-header-add-bookmark-color: var(--wcb-header-bookmark-color);
-  --wcb-header-add-bookmark-hover: var(--wcb-header-bookmark-hover);
-  --wcb-header-nav-color: var(--wcb-header-color);//
-  --wcb-header-nav-background: rgb(233, 231, 225);//
-  --wcb-header-nav-btn-background: var(--wcb-cream);//
-  --wcb-header-nav-btn-border: rgb(192, 192, 192);//
-  --wcb-header-nav-btn-disabled: rgb(136, 136, 136);//
-  --wcb-header-nav-btn-background-disabled: inherit;//
-  --wcb-header-nav-btn-border-disabled: inherit;//
-  --wcb-header-nav-btn-background-hover: var(--wcb-header-nav-btn-background);
-  --wcb-header-nav-input-border: rgb(122, 121, 113);//
-  --wcb-header-nav-input-background: rgba(0, 0, 0, 0.05);//
-  --wcb-header-nav-input-color: rgb(25, 24, 19);//
-  --wcb-header-nav-input-placeholder-color: var(--color-text-light-secondary);
-  --wcb-header-nav-input-focus-background: rgba(255, 255, 250, 0.4);//
-  --wcb-header-nav-input-focus-border: rgb(192, 192, 192);///
-  --wcb-header-nav-input-focus-color: var(--wcb-header-nav-input-color);
-  --wcb-header-nav-input-error-background: rgba(255, 0, 0, 0.1);//
-  --wcb-header-nav-vertical-line: rgb(238, 237, 224);//
-  --wcb-sheet-color: var(--color-text-dark-primary);
-  --wcb-sheet-header-border: rgb(120, 46, 34);//
-  --wcb-sheet-header-name-color: var(--wcb-sheet-header-input-color);
-  --wcb-sheet-header-name-background: none;//
-  --wcb-sheet-header-name-background-hover: none;//
-  --wcb-sheet-header-input-color: var(--color-text-light-primary);
-  --wcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);//
-  --wcb-sheet-header-input-background: rgba(0, 0, 0, 0.05);//
-  --wcb-sheet-header-label-color: rgb(75, 74, 68);//
-  --wcb-sheet-header-button-color: var(--primary-font);//
-  --wcb-sheet-header-button-background: rgba(0, 0, 0, 0.1);//
-  --wcb-sheet-header-detail-input-color: rgb(25, 24, 19);//
-  --wcb-sheet-header-search-color: var(--wcb-sheet-header-input-color);
-  --wcb-sheet-header-search-placeholder: var(--color-text-light-secondary);
-  --wcb-sheet-header-search-background: var(--wcb-sheet-header-input-background);
-  --wcb-sheet-header-search-background-hover: var(--wcb-sheet-header-input-background);
-  --wcb-sheet-header-search-border: --wcb-sheet-header-input-border;//
-  --wcb-sheet-detailed-header-border: rgb(238, 237, 224);//
-  --wcb-sheet-tab-color: var(--wcb-sheet-color);
-  --wcb-sheet-tab-color-hover: inherit;//
-  --wcb-sheet-tab-color-active: var(--wcb-sheet-tab-color);//
-  --wcb-sheet-tab-background: rgba(255, 255, 255, 0.3);//
-  --wcb-sheet-tab-bottom-border: rgb(238, 237, 224);//
-  --wcb-sheet-tab-border: 3px solid rgb(181, 179, 164);//
-  --wcb-sheet-tab-border-active: rgb(68, 25, 26);//
-  --wcb-sheet-tab-border-items: rgb(187, 178, 114);//
-  --wcb-sheet-page-control-color: var(--wcb-sheet-color);
-  --wcb-sheet-page-control-background: rgb(192, 192, 192);//
-  --wcb-sheet-page-control-background-hover: var(--wcb-sheet-page-control-background);
-  --wcb-sheet-details-section-border: rgb(238, 237, 224);//
-  --wcb-sheet-input-border: 1px solid rgb(122, 121, 113);//
-  --wcb-sheet-input-background: rgba(0, 0, 0, 0.05);//
-  --wcb-sheet-input-color: var(--color-text-light-primary);
-  --wcb-sheet-button-background: rgb(192, 192, 192);
-  --wcb-sheet-button-background-hover: var(--wcb-sheet-button-background);
-  --wcb-sheet-button-color: var(--wcb-sheet-color);
+// .theme-dark {
+//   --wcb-header-border-color: rgb(192, 192, 192);//
+//   --wcb-header-background: rgb(220, 220, 220);//
+//   --wcb-header-color: var(--color-text-light-primary);//
+//   --wcb-header-tab-color: var(--wcb-header-color);
+//   --wcb-header-tab-btn-color: rgb(103, 102, 99);//
+//   --wcb-header-tab-background: rgba(255, 255, 240, 0.5);//
+//   --wcb-header-tab-border: 1px solid rgb(181, 179, 164);//
+//   --wcb-header-tab-active: rgba(255, 255, 255, 0.9);//
+//   --wcb-header-tab-hover: inherit;//
+//   --wcb-header-tab-active-hover: inherit;//
+//   --wcb-header-bookmark-color: var(--wcb-header-color);
+//   --wcb-header-bookmark-background: rgba(255, 255, 255, 0.3);//
+//   --wcb-header-bookmark-border: rgb(192, 192, 192);//
+//   --wcb-header-bookmark-hover: rgba(0, 0, 0, 0.1);//
+//   --wcb-header-add-bookmark-background: var(--wcb-header-bookmark-background);
+//   --wcb-header-add-bookmark-border: var(--wcb-header-bookmark-border);
+//   --wcb-header-add-bookmark-color: var(--wcb-header-bookmark-color);
+//   --wcb-header-add-bookmark-hover: var(--wcb-header-bookmark-hover);
+//   --wcb-header-nav-color: var(--wcb-header-color);//
+//   --wcb-header-nav-background: rgb(233, 231, 225);//
+//   --wcb-header-nav-btn-background: var(--wcb-cream);//
+//   --wcb-header-nav-btn-border: rgb(192, 192, 192);//
+//   --wcb-header-nav-btn-disabled: rgb(136, 136, 136);//
+//   --wcb-header-nav-btn-background-disabled: inherit;//
+//   --wcb-header-nav-btn-border-disabled: inherit;//
+//   --wcb-header-nav-btn-background-hover: var(--wcb-header-nav-btn-background);
+//   --wcb-header-nav-input-border: rgb(122, 121, 113);//
+//   --wcb-header-nav-input-background: rgba(0, 0, 0, 0.05);//
+//   --wcb-header-nav-input-color: rgb(25, 24, 19);//
+//   --wcb-header-nav-input-placeholder-color: var(--color-text-light-secondary);
+//   --wcb-header-nav-input-focus-background: rgba(255, 255, 250, 0.4);//
+//   --wcb-header-nav-input-focus-border: rgb(192, 192, 192);///
+//   --wcb-header-nav-input-focus-color: var(--wcb-header-nav-input-color);
+//   --wcb-header-nav-input-error-background: rgba(255, 0, 0, 0.1);//
+//   --wcb-header-nav-vertical-line: rgb(238, 237, 224);//
+//   --wcb-sheet-color: var(--color-text-dark-primary);
+//   --wcb-sheet-header-border: rgb(120, 46, 34);//
+//   --wcb-sheet-header-name-color: var(--wcb-sheet-header-input-color);
+//   --wcb-sheet-header-name-background: none;//
+//   --wcb-sheet-header-name-background-hover: none;//
+//   --wcb-sheet-header-input-color: var(--color-text-light-primary);
+//   --wcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);//
+//   --wcb-sheet-header-input-background: rgba(0, 0, 0, 0.05);//
+//   --wcb-sheet-header-label-color: rgb(75, 74, 68);//
+//   --wcb-sheet-header-button-color: var(--primary-font);//
+//   --wcb-sheet-header-button-background: rgba(0, 0, 0, 0.1);//
+//   --wcb-sheet-header-detail-input-color: rgb(25, 24, 19);//
+//   --wcb-sheet-header-search-color: var(--wcb-sheet-header-input-color);
+//   --wcb-sheet-header-search-placeholder: var(--color-text-light-secondary);
+//   --wcb-sheet-header-search-background: var(--wcb-sheet-header-input-background);
+//   --wcb-sheet-header-search-background-hover: var(--wcb-sheet-header-input-background);
+//   --wcb-sheet-header-search-border: --wcb-sheet-header-input-border;//
+//   --wcb-sheet-detailed-header-border: rgb(238, 237, 224);//
+//   --wcb-sheet-tab-color: var(--wcb-sheet-color);
+//   --wcb-sheet-tab-color-hover: inherit;//
+//   --wcb-sheet-tab-color-active: var(--wcb-sheet-tab-color);//
+//   --wcb-sheet-tab-background: rgba(255, 255, 255, 0.3);//
+//   --wcb-sheet-tab-bottom-border: rgb(238, 237, 224);//
+//   --wcb-sheet-tab-border: 3px solid rgb(181, 179, 164);//
+//   --wcb-sheet-tab-border-active: rgb(68, 25, 26);//
+//   --wcb-sheet-tab-border-items: rgb(187, 178, 114);//
+//   --wcb-sheet-page-control-color: var(--wcb-sheet-color);
+//   --wcb-sheet-page-control-background: rgb(192, 192, 192);//
+//   --wcb-sheet-page-control-background-hover: var(--wcb-sheet-page-control-background);
+//   --wcb-sheet-details-section-border: rgb(238, 237, 224);//
+//   --wcb-sheet-input-border: 1px solid rgb(122, 121, 113);//
+//   --wcb-sheet-input-background: rgba(0, 0, 0, 0.05);//
+//   --wcb-sheet-input-color: var(--color-text-light-primary);
+//   --wcb-sheet-button-background: rgb(192, 192, 192);
+//   --wcb-sheet-button-background-hover: var(--wcb-sheet-button-background);
+//   --wcb-sheet-button-color: var(--wcb-sheet-color);
 
-  --wcb-active-color: rgb(255, 100, 0);//
-  --wcb-icon-background: rgba(236, 233, 223, 1);//
-  --wcb-icon-shadow: rgba(0, 0, 0, 0.4);//
-  --wcb-icon-outline: rgba(0, 0, 0, 0.4);//
-  --wcb-blank-color: rgba(0, 0, 0, 0.5);//
-  --wcb-blank-recent-background: rgba(255, 255, 255, 0.3);//
-  --wcb-blank-recent-border: rgba(255, 255, 255, 0.5);//
-  --wcb-blank-link-hover: rgba(0, 0, 0, 0.8);//
+//   --wcb-active-color: rgb(255, 100, 0);//
+//   --wcb-icon-background: rgba(236, 233, 223, 1);//
+//   --wcb-icon-shadow: rgba(0, 0, 0, 0.4);//
+//   --wcb-icon-outline: rgba(0, 0, 0, 0.4);//
+//   --wcb-blank-color: rgba(0, 0, 0, 0.5);//
+//   --wcb-blank-recent-background: rgba(255, 255, 255, 0.3);//
+//   --wcb-blank-recent-border: rgba(255, 255, 255, 0.5);//
+//   --wcb-blank-link-hover: rgba(0, 0, 0, 0.8);//
   
-  --wcb-sidebar-background: black;
-  --wcb-sidebar-button-background: rgba(0, 0, 0, 0.1);  //
-  --wcb-sidebar-button-border: rgb(238, 237, 224);//
-  --wcb-sidebar-input-border: rgb(192, 192, 192);//
-  --wcb-sidebar-input-background: black;
-  --wcb-sidebar-input-background-focus: black;
-  --wcb-sidebar-input-color: var(--color-text-light-primary);
-  --wcb-sidebar-input-placeholder-color: var(--color-text-light-secondary);
-  --wcb-sidebar-label-color: var(--wcb-sheet-color);//
-  --wcb-sidebar-world-color: var(--color-text-dark-highlight);
-  --wcb-sidebar-world-background: rgb(133, 131, 124);//
-  --wcb-sidebar-world-border: rgb(116, 115, 109);//
-  --wcb-sidebar-world-color-collapsed: var(--wcb-light-2);
-  --wcb-sidebar-world-background-collapsed: var(--wcb-dark-2);
-  --wcb-sidebar-world-border-collapsed: rgb(139, 138, 131);//
-  --wcb-sidebar-world-context-color: var(--color-text-light-primary);
-  --wcb-sidebar-create-entry-color: var(--wcb-light-3);
-  --wcb-sidebar-create-entry-secondary-color: var(--wcb-light-5);
-  --wcb-sidebar-subfolder-border: rgb(156, 154, 148);//
-  --wcb-sidebar-document-color: var(--color-text-light-primary);
-  --wcb-sidebar-document-border-top: rgb(195, 193, 182);//
-  --wcb-sidebar-document-border-botom: rgb(154, 152, 144);//
-}
+//   --wcb-sidebar-background: black;
+//   --wcb-sidebar-button-background: rgba(0, 0, 0, 0.1);  //
+//   --wcb-sidebar-button-border: rgb(238, 237, 224);//
+//   --wcb-sidebar-input-border: rgb(192, 192, 192);//
+//   --wcb-sidebar-input-background: black;
+//   --wcb-sidebar-input-background-focus: black;
+//   --wcb-sidebar-input-color: var(--color-text-light-primary);
+//   --wcb-sidebar-input-placeholder-color: var(--color-text-light-secondary);
+//   --wcb-sidebar-label-color: var(--wcb-sheet-color);//
+//   --wcb-sidebar-world-color: var(--color-text-dark-highlight);
+//   --wcb-sidebar-world-background: rgb(133, 131, 124);//
+//   --wcb-sidebar-world-border: rgb(116, 115, 109);//
+//   --wcb-sidebar-world-color-collapsed: var(--wcb-light-2);
+//   --wcb-sidebar-world-background-collapsed: var(--wcb-dark-2);
+//   --wcb-sidebar-world-border-collapsed: rgb(139, 138, 131);//
+//   --wcb-sidebar-world-context-color: var(--color-text-light-primary);
+//   --wcb-sidebar-create-entry-color: var(--wcb-light-3);
+//   --wcb-sidebar-create-entry-secondary-color: var(--wcb-light-5);
+//   --wcb-sidebar-subfolder-border: rgb(156, 154, 148);//
+//   --wcb-sidebar-document-color: var(--color-text-light-primary);
+//   --wcb-sidebar-document-border-top: rgb(195, 193, 182);//
+//   --wcb-sidebar-document-border-botom: rgb(154, 152, 144);//
+// }

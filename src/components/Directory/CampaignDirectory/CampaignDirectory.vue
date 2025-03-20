@@ -9,10 +9,10 @@
         class="folder-header flexrow"
         @contextmenu="onHeaderContextMenu"
       >
-        <h3 class="noborder">
+        <div class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
           {{ currentWorld.name }} Campaigns
-        </h3>
+        </div>
       </header>
 
       <ol v-if="campaignDirectoryStore.currentCampaignTree.value.length>0">

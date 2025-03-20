@@ -164,29 +164,17 @@
           border-bottom: none;
           width: 100%;
           flex: 1;
-
-          h3 {
-            color: inherit;   // reset the default from foundry            
-            text-shadow: inherit;
-          }
         }
 
         .wcb-campaign-folder:not(.collapsed) > .folder-header {
-          border-top: 1px solid var(--wcb-sidebar-campaign-border);
           background: var(--wcb-sidebar-campaign-background);
           color: var(--wcb-sidebar-campaign-color);
         }
 
         .wcb-campaign-folder.collapsed > .folder-header {
-          border-top: 1px solid var(--wcb-sidebar-campaign-border-collapsed);
           background: var(--wcb-sidebar-campaign-background-collapsed);
           color: var(--wcb-sidebar-campaign-color-collapsed);
           text-shadow: none;
-        }
-
-        .wcb-campaign-folder .folder-header.context {
-          border-top: 1px solid var(--mej-active-color);
-          border-bottom: 1px solid var(--mej-active-color);
         }
 
         .wcb-campaign-folder .folder-header {
