@@ -56,7 +56,7 @@ export class SpeciesListApplication extends VueApplicationMixin(ApplicationV2) {
                 //   name: 'wcb-p',
                 //   order: 'wcb-p',
                 // },
-                darkModeSelector: '.theme-dark'
+                //darkModeSelector: '.theme-dark'
               }
             }
           }

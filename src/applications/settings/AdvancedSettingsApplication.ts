@@ -52,7 +52,7 @@ export class AdvancedSettingsApplication extends VueApplicationMixin(Application
                 //   name: 'wcb-p',
                 //   order: 'wcb-p',
                 // },
-                darkModeSelector: '.theme-dark'
+                //darkModeSelector: '.theme-dark'
               }
             }
           }

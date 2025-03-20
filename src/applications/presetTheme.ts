@@ -59,11 +59,25 @@ export default definePreset(Aura, {
         color: 'inherit',
       }
     },
-    splitterPanel: {
+    splitterpanel: {
       borderRadius: '0',
       background: 'inherit',
       color: 'inherit',
       borderColor: 'none',
-    }
+    },
+    inputttext: {
+      root: {
+        background: 'red',
+        color: 'inherit',
+        borderColor: 'inherit',
+      },
+    },
+    textarea: {
+      root: {
+        background: 'inherit',
+        color: 'inherit',
+        borderColor: 'inherit',
+      }
+    },
   }
 });
