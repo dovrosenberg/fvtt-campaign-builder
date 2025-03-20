@@ -1,32 +1,49 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
+import { createPinia, setActivePinia } from 'pinia';
 import PrimeVue from 'primevue/config';
 import WCBTheme from '@/applications/presetTheme';
 
-import App from '@/components/applications/AdvancedSettings.vue';
+import App from '@/components/applications/WorldBuilder.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
 
-// the most recent one; we track this so it can close itself
-export let advancedSettingsApp: AdvancedSettingsApplication | null = null;
+import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 
-export class AdvancedSettingsApplication extends VueApplicationMixin(ApplicationV2) {
-  constructor() { super(); advancedSettingsApp = this; }
+// setup pinia
+const pinia = createPinia();
+setActivePinia(pinia);
 
+// the global instance - needed for keybindings, among other things
+export let wbApp: WorldBuilderApplication | null = null;
+
+export const getWorldBuilderApp = (): WorldBuilderApplication => {
+  if (wbApp)
+    return wbApp;
+
+  return wbApp = new WorldBuilderApplication();
+};
+
+export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
-    id: `app-wcb-advanced-settings`,
-    classes: ['wcb-advanced-settings'], 
+    id: `app-wcb-WorldBuilder`,
+    classes: ['wcb-main-window'], 
     window: {
-      title: 'wcb.applications.advancedSettings.title',
-      icon: 'fa-solid fa-gear',
-      resizable: false,
+      title: 'wcb.title',
+      icon: 'fa-solid fa-globe',
+      resizable: true,
       // popOut: true,
       // editable: true,
       // //viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
       // scrollY: ['ol.wcb-world-list']
     },
     position: {
-      width: 600,
-      // height: 300,
+      width: 1025,
+      height: 700,
+    },
+    form: {
+      // closeOnSubmit: false,
+      submitOnChange: true,
+      // submitOnClose: false,
     },
     actions: {}
   };
@@ -37,10 +54,14 @@ export class AdvancedSettingsApplication extends VueApplicationMixin(Application
 
   static PARTS = {
     app: {
-      id: 'wcb-advanced-settings-app',
+      id: 'wcb-app',
       component: App,
       props: {},
       use: {
+        pinia: {
+          plugin: pinia,
+          options: {}
+        },
         primevue: { 
           plugin: PrimeVue, 
           options: {

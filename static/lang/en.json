@@ -7,7 +7,18 @@
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
       "advanced": "Advanced Settings",
       "advancedLabel": "Open Advanced Settings",
-      "advancedHelp": "Configure advanced settings (including AI)"
+      "advancedHelp": "Configure advanced settings (including AI)",
+      "speciesList": "Manage Species List",
+      "speciesListLabel": "Species List",
+      "speciesListHelp": "Define the species to make available.  These cross all worlds - file an issue if you have need more different lists per world."
+    },
+    "applications": {
+      "speciesList": {
+        "title": "Configure Species List"
+      },
+      "advancedSettings": {
+        "title": "Configure Advanced Settings"
+      }
     },
     "labels": {
       "newTab": "New Tab",

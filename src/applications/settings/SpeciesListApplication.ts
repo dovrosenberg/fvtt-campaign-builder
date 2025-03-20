@@ -1,36 +1,20 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
-import { moduleId } from '@/settings';
-import { createPinia, setActivePinia } from 'pinia';
 import PrimeVue from 'primevue/config';
-import FWBTheme from './presetTheme';
+import WCBTheme from '@/applications/presetTheme';
 
-import App from '@/components/WorldBuilder.vue';
+import App from '@/components/applications/SpeciesList.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
 
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
+export class SpeciesListApplication extends VueApplicationMixin(ApplicationV2) {
+  constructor() { super(); }
 
-// setup pinia
-const pinia = createPinia();
-setActivePinia(pinia);
-
-// the global instance - needed for keybindings, among other things
-export let wbApp: WorldBuilderApplication | null = null;
-
-export const getWorldBuilderApp = (): WorldBuilderApplication => {
-  if (wbApp)
-    return wbApp;
-
-  return wbApp = new WorldBuilderApplication();
-};
-
-export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
-    id: `app-${moduleId}-WorldBuilder`,
-    classes: ['wcb-main-window'], 
+    id: `app-wcb-species-list`,
+    classes: ['wcb-species-list'], 
     window: {
-      title: 'wcb.title',
-      icon: 'fa-solid fa-globe',
+      title: 'wcb.applications.speciesList.title',
+      icon: 'fa-solid fa-person-half-dress',
       resizable: true,
       // popOut: true,
       // editable: true,
@@ -38,8 +22,8 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
       // scrollY: ['ol.wcb-world-list']
     },
     position: {
-      width: 1025,
-      height: 700,
+      width: 400,
+      height: 300,
     },
     form: {
       // closeOnSubmit: false,
@@ -55,19 +39,15 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
 
   static PARTS = {
     app: {
-      id: 'wcb-app',
+      id: 'wcb-species-list-app',
       component: App,
       props: {},
       use: {
-        pinia: {
-          plugin: pinia,
-          options: {}
-        },
         primevue: { 
           plugin: PrimeVue, 
           options: {
             theme: { 
-              preset: FWBTheme,
+              preset: WCBTheme,
               options: {
                 // prefix: 'wcb-p',
                 // cssLayer: {

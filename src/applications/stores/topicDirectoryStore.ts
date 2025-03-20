@@ -5,7 +5,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 
 // local imports
-import { moduleSettings, SettingKey, } from '@/settings';
+import { ModuleSettings, SettingKey, } from '@/settings';
 import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
@@ -107,7 +107,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     // update the hierarchy (even for entries without hierarchy, we still need it for filtering)
     const hierarchy = currentWorld.value.getEntryHierarchy(entry.uuid);
     if(!hierarchy)
-      throw new Error(`Could not find hierarchy for ${entry.uuid} in topicTirectoryStore.updateEntryType()`);
+      throw new Error(`Could not find hierarchy for ${entry.uuid} in topicDirectoryStore.updateEntryType()`);
 
     if (hierarchy.type !== newType) {
       hierarchy.type = newType;
@@ -136,7 +136,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
  
   // set the parent for a node, cleaning up all associated relationships/records
   // pass a null parent to make it a top node
-  // returns wheether it was successful
+  // returns whether it was successful
   const setNodeParent = async function(topicFolder: TopicFolder, childId: string, parentId: string | null): Promise<boolean> {
     if (!currentWorld.value)
       return false;
@@ -210,18 +210,18 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       await saveHierarchyToEntryFromNode(child, childNode);
     }
 
-    // recalculate the ancestor lists for all of the descendents of the child
+    // recalculate the ancestor lists for all of the descendants of the child
     // first, figure out the differences between the child's old ancestors and the new ones (so we can touch fewer items)
     // we add an extra value to ancestorsToRemove so that we can ensure it's never empty (which will cause the $ne to throw an error)
     const ancestorsToAdd = originalChildAncestors.filter(a => !childNode.ancestors.includes(a));
     const ancestorsToRemove = childNode.ancestors.filter(a => !originalChildAncestors.includes(a));
 
-    // then, update all of the child's descendents ancestor fields with that set of changes
+    // then, update all of the child's descendants ancestor fields with that set of changes
     if (ancestorsToAdd || ancestorsToRemove) {
       const hierarchies = currentWorld.value.hierarchies;
 
       // we switch to entries because of all the data retrieval
-      const doUpdateOnDescendents = async (entry: Entry): Promise<void> => {
+      const doUpdateOnDescendants = async (entry: Entry): Promise<void> => {
         const children = hierarchies[entry.uuid]?.children || [];
 
         // this seems safe, despite 
@@ -238,14 +238,14 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
           await saveHierarchyToEntryFromNode(child, childNode);
 
           // now do it's kids
-          await doUpdateOnDescendents(child);
+          await doUpdateOnDescendants(child);
         }
       };
 
-      await doUpdateOnDescendents(child);
+      await doUpdateOnDescendants(child);
     }
 
-    // if the child doesn't have a parent, make sure it's in the topnode list
+    // if the child doesn't have a parent, make sure it's in the topNode list
     //    and vice versa
     let topNodes = topicFolder.topNodes || [];
 
@@ -363,7 +363,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // we try to keep it fast by not reloading from disk nodes that we've already loaded before,
   //    but that means that when names change or children change, we're not refreshing them properly
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
-  // TODO: consider wrapping the rootfolder in a class vs. doing this foundry work here
+  // TODO: consider wrapping the rootFolder in a class vs. doing this foundry work here
   const refreshTopicDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world and journals loaded
     if (!currentWorld.value)

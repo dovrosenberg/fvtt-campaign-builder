@@ -1,6 +1,8 @@
 import { localize } from '@/utils/game';
 import { moduleId } from './index';
 import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSettingsApplication';
+import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
+import { Species } from '@/types';
 
 export enum SettingKey {
   // displayed in settings
@@ -12,6 +14,8 @@ export enum SettingKey {
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
   APIURL = 'APIURL',   // URL of backend 
   APIToken = 'APIToken',
+  speciesListMenu = 'speciesListMenu',  // display the species list screen
+  speciesList = 'speciesList',
 }
 
 export type SettingKeyType<K extends SettingKey> =
@@ -21,6 +25,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
+    K extends SettingKey.speciesList ? Species[] :
     never;  
 
 export class ModuleSettings {
@@ -55,13 +60,22 @@ export class ModuleSettings {
   private static localMenuParams: (Partial<ClientSettings.SettingSubmenuConfig> & { settingID: SettingKey })[] = [
     // we want this local because we don't want players to be able to see the GM's keys, etc.
     {
-      settingID: 'ModuleSettingKeys.advancedSettingsMenu',
+      settingID: SettingKey.advancedSettingsMenu,
       name: 'settings.advanced',
       label: 'wcb.settings.advancedLabel',   // localized by Foundry
       hint: 'settings.advancedHelp',   
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
       permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: AdvancedSettingsApplication,
+    },
+    {
+      settingID: SettingKey.speciesListMenu,
+      name: 'settings.speciesList',
+      label: 'wcb.settings.speciesListLabel',   // localized by Foundry
+      hint: 'settings.speciesListHelp',   
+      icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
+      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
+      type: SpeciesListApplication,
     }
   ];
 
@@ -98,10 +112,15 @@ export class ModuleSettings {
       default: '',
       type: String,
     },
+    {
+      settingID: SettingKey.speciesList,
+      default: [],
+      type: Array,
+    },
 
   ];
   
-  // these are client-specfic only used internally
+  // these are client-specific only used internally
   private static localInternalParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
     {
       settingID: SettingKey.groupTreeByType,
