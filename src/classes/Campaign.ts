@@ -86,7 +86,8 @@ export class Campaign {
     if (!worldDoc)
       throw new Error('Invalid folder id in Campaign.loadWorld()');
 
-    return new WBWorld(worldDoc);
+    this.world = new WBWorld(worldDoc);
+    return this.world;
   }
   
   // we return the next number after the highest currently existing session number

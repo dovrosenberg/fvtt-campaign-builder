@@ -233,8 +233,7 @@ export class Entry {
     if (!this.topicFolder)
       await this.loadTopic();
   
-    const topicFolder = this.topicFolder as TopicFolder;
-    return topicFolder.getWorld();
+    return await (this.topicFolder as TopicFolder).getWorld();
   }
   
   // used to set arbitrary properties on the entryDoc

@@ -123,7 +123,7 @@
   // data
   const loading = ref(false);
   const show = ref(props.modelValue);
-  const entry = ref<Entry | null>(null);  // the selected item from the dropdown
+  const entry = ref<{uuid: string; name: string} | null>(null);  // the selected item from the dropdown
   const extraFieldValues = ref<Record<string, string>>({});
   const topicDetails = {
     [Topics.Event]: {
@@ -194,7 +194,9 @@
         return acc;
       }, {} as Record<string, string>);
 
-      await relationshipStore.addRelationship(entry.value as Entry, extraFieldsToSend);
+      const fullEntry = await Entry.fromUuid(entry.value.uuid);
+      if (fullEntry)
+        await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
     }
 
     resetDialog();
@@ -224,7 +226,7 @@
       if (!currentEntry.value || !currentEntryTopic.value)
         throw new Error('Trying to show AddRelatedItemDialog without a current entry');
 
-      selectItems.value = (await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder), currentEntry.value).map(mapEntryToOption);
+      selectItems.value = (await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder, currentEntry.value)).map(mapEntryToOption);
       extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
 
       // focus on the input

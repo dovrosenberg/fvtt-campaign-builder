@@ -6,11 +6,13 @@ export default definePreset(Aura, {
     datatable: {
       headerBackground: 'inherit',
       headerCellBackground: 'inherit',
+      headerCellColor: 'inherit',
       headerCellSelected: {
         background: 'inherit',
         color: '#5d142b',   //'var(--color-warm-3)', - can't seem to set it to a variable?
       },
       rowBackground: 'inherit',
+      rowColor: 'inherit',
       bodyCellBorderColor: '#666',   // var(--color-border-dark-5)
       rowStripedBackground: 'inherit',
       footerCellBackground: 'inherit',
@@ -26,30 +28,32 @@ export default definePreset(Aura, {
         width: '1rem',
       }
     },
-    button: {
-      colorScheme: { 
-        light: {
-          primaryHoverBackground: 'inherit',
-          primaryHoverBorderColor: 'inherit',
-          primaryHoverColor: 'inherit',
-          primaryActiveBackground: 'inherit',
-          primaryAcriveBorderColor: 'inherit',
-          primaryActiveColor: 'inherit',
-        },
-        dark: {
-          primaryHoverBackground: 'inherit',
-          primaryHoverBorderColor: 'inherit',
-          primaryHoverColor: 'inherit',
-          primaryActiveBackground: 'inherit',
-          primaryAcriveBorderColor: 'inherit',
-          primaryActiveColor: 'inherit',
-        },
-      }
-    },
+    // button: {
+    //   colorScheme: { 
+    //     light: {
+    //       primaryHoverBackground: 'inherit',
+    //       primaryHoverBorderColor: 'inherit',
+    //       primaryHoverColor: 'inherit',
+    //       primaryActiveBackground: 'inherit',
+    //       primaryAcriveBorderColor: 'inherit',
+    //       primaryActiveColor: 'inherit',
+    //     },
+    //     dark: {
+    //       primaryHoverBackground: 'inherit',
+    //       primaryHoverBorderColor: 'inherit',
+    //       primaryHoverColor: 'inherit',
+    //       primaryActiveBackground: 'inherit',
+    //       primaryAcriveBorderColor: 'inherit',
+    //       primaryActiveColor: 'inherit',
+    //     },
+    //   }
+    // },
+    // probably want to redo the dialogs in vue to avoid the css complexity of trying to fix them
     dialog: {
       borderRadius: '6px',
       header: {
         padding: '0 .5rem',
+        color: 'inherit',
       }
     },
     splitter: {
@@ -64,20 +68,6 @@ export default definePreset(Aura, {
       background: 'inherit',
       color: 'inherit',
       borderColor: 'none',
-    },
-    inputtext: {
-      root: {
-        background: 'revert',
-        color: 'revert',
-        borderColor: 'revert',
-      },
-    },
-    textarea: {
-      root: {
-        background: 'inherit',
-        color: 'inherit',
-        borderColor: 'inherit',
-      }
     },
   }
 });
