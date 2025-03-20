@@ -6,8 +6,11 @@ import App from '@/components/applications/SpeciesList.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
 
+// the most recent one; we track this so it can close itself
+export let speciesListApp: SpeciesListApplication | null = null;
+
 export class SpeciesListApplication extends VueApplicationMixin(ApplicationV2) {
-  constructor() { super(); }
+  constructor() { super(); speciesListApp = this;}
 
   static DEFAULT_OPTIONS = {
     id: `app-wcb-species-list`,
@@ -22,8 +25,7 @@ export class SpeciesListApplication extends VueApplicationMixin(ApplicationV2) {
       // scrollY: ['ol.wcb-world-list']
     },
     position: {
-      width: 400,
-      height: 300,
+      width: 800,
     },
     form: {
       // closeOnSubmit: false,

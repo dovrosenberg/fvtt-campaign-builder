@@ -2,26 +2,26 @@
   <section class="window-content standard-form">
     <div class="standard-form scrollable">
       <div class="form-group">
-        <label>Backend URL</label>
+        <label>{{ localize('applications.advancedSettings.labels.backendURL') }}</label>
         <div class="form-fields">
           <InputText
             v-model="APIURL"
           />
         </div>
         <p class="hint">
-          When you run the script to deploy the backend, it outputs this.
+          {{ localize('applications.advancedSettings.labels.backendURLHint') }}
         </p>
       </div>
 
       <div class="form-group">
-        <label>API Token</label>
+        <label>{{ localize('applications.advancedSettings.labels.APIToken') }}</label>
         <div class="form-fields">
           <InputText
             v-model="APIToken"
           />
         </div>
         <p class="hint">
-          When you run the script to deploy the backend, it outputs this.
+          {{ localize('applications.advancedSettings.labels.APITokenHint') }}
         </p>
       </div>
 
@@ -30,13 +30,13 @@
           @click="onClickReset"
         >
           <i class="fa-solid fa-undo"></i>
-          <label>Reset</label>
+          <label>{{ localize('labels.reset') }}</label>
         </button>
         <button 
           @click="onClickSubmit"
         >
           <i class="fa-solid fa-save"></i>
-          <label>Save Changes</label>
+          <label>{{ localize('labels.saveChanges') }}</label>
         </button>
       </footer>
     </div>
@@ -51,10 +51,10 @@
   import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend } from '@/classes/Backend';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
-    
+  import { localize } from '@/utils/game';
+
   // library components
   import InputText from 'primevue/inputtext';
-
 
   // local components
 

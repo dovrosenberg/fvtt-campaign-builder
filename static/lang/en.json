@@ -14,14 +14,27 @@
     },
     "applications": {
       "speciesList": {
-        "title": "Configure Species List"
+        "title": "Configure Species List",
+        "labels": {
+          "add": "Add species",
+          "edit": "Edit species",
+          "delete": "Delete species"
+        }
       },
       "advancedSettings": {
-        "title": "Configure Advanced Settings"
+        "title": "Configure Advanced Settings",
+        "labels": {
+          "backendURL": "Backend URL",
+          "backendURLHint": "Output from script to deploy the backend.",
+          "APIToken": "API Token",
+          "APITokenHint": "Output from script to deploy the backend."  
+        }
       }
     },
     "labels": {
       "newTab": "New Tab",
+      "saveChanges": "Save Changes",
+      "reset": "Reset",
       "fields": {
         "type": "Type",
         "parent": "Parent",
@@ -30,7 +43,8 @@
         "playerName": "Player Name",
         "backgroundPoints": "Background Points",
         "otherPlotPoints": "Other Plot Points",
-        "desiredMagicItems": "Desired Magic Items"
+        "desiredMagicItems": "Desired Magic Items",
+        "species": "Species"
       },
       "entry": {
         "topic": "TopicFolder",
