@@ -78,10 +78,10 @@ export class Campaign {
     if (this.world)
       return this.world;
 
-    if (!this._campaignDoc.compendium?.folder)
+    if (!this._campaignDoc.collection?.folder)
       throw new Error('Invalid folder id in Campaign.loadWorld()');
     
-    const worldDoc = await fromUuid(this._campaignDoc.compendium.folder.uuid) as unknown as WorldDoc;
+    const worldDoc = await fromUuid(this._campaignDoc.collection.folder.uuid) as unknown as WorldDoc;
 
     if (!worldDoc)
       throw new Error('Invalid folder id in Campaign.loadWorld()');

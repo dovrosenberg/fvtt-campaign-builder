@@ -76,10 +76,10 @@ export class TopicFolder {
     if (this.world)
       return this.world;
     
-    if (!this._topicDoc.compendium?.folder)
+    if (!this._topicDoc.collection?.folder)
       throw new Error('Invalid folder id in Topics.loadWorld()');
 
-    const worldDoc = await fromUuid(this._topicDoc.compendium.folder.uuid) as WorldDoc;
+    const worldDoc = await fromUuid(this._topicDoc.collection.folder.uuid) as WorldDoc;
 
     if (!worldDoc)
       throw new Error('Invalid folder id in Topics.loadWorld()');

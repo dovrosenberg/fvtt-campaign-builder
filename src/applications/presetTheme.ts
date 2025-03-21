@@ -28,6 +28,16 @@ export default definePreset(Aura, {
         width: '1rem',
       }
     },
+    autocomplete: {
+      dropdownBackground: {
+        background: 'red',
+        color: 'purple',
+      },
+    },
+    inputtext: {
+      background: 'inherit',
+      color: 'inherit',
+    },
     // button: {
     //   colorScheme: { 
     //     light: {

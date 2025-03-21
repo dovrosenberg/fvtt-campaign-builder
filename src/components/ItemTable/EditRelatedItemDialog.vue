@@ -1,62 +1,45 @@
 <template>
   <!-- Used for editing the "extra fields" present on the relationships between two items (ex. the role for a character in an organization)-->
-  <div v-if="loading">
-    <ProgressSpinner v-show="loading" />
-  </div>
-  <div v-else>
-    <Dialog 
-      v-model:visible="show" 
-      style="min-width: 350px;"
-      dismissable-mask
-      block-scroll
-      @hide="onClose"
+  <Dialog 
+    v-model="show" 
+    :title="`${topicDetails[props.topic].title}: ${props.itemName}`"
+    :buttons="[
+      {
+        label: 'Cancel',
+        default: false,
+        close: true,
+        callback: () => { show=false;}
+      },
+      {
+        label: topicDetails[props.topic].buttonTitle,
+        default: true,
+        close: true,
+        callback: onEditClick
+      }
+    ]"
+    @close="onClose"
+  >
+    <div 
+      v-if="props.extraFieldValues.length>0"
+      class="flexcol"
     >
-      <template #header>
-        <div class="text-h6">
-          {{ `${topicDetails[props.topic].title}: ${props.itemName}` }}
-        </div>
-      </template>
-
-      <div 
-        v-if="props.extraFieldValues.length>0"
-        class="flexcol"
-      >
+      <div class="flexrow">
         <InputGroup 
-          v-for="field in extraFieldValues"
+          v-for="(field, index) in extraFieldValues"
           :key="field.field"
         >
-          <FloatLabel>
+          <IftaLabel>
             <InputText 
-              unstyled
               :id="field.field"
-              v-model="extraFieldValues[field.field]"
+              v-model="extraFieldValues[index].value"
               variant="outlined"
             />
             <label :for="field.field">{{ field.header }}</label>
-          </FloatLabel>
+          </IftaLabel>
         </InputGroup>
       </div>
-
-      <template #footer>
-        <Button 
-          label="Cancel"
-          text
-          unstyled
-          severity="secondary"
-          autofocus
-          @click="show=false;"
-        />
-        <Button
-          :label="topicDetails[props.topic].buttonTitle" 
-          text
-          unstyled
-          severity="secondary"
-          autofocus
-          @click="onEditClick"
-        />
-      </template>
-    </Dialog>
-  </div>
+    </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -67,14 +50,12 @@
   import { useRelationshipStore } from '@/applications/stores';
 
   // library components
-  import Dialog from 'primevue/dialog';
-  import Button from 'primevue/button';
-  import ProgressSpinner from 'primevue/progressspinner';
   import InputText from 'primevue/inputtext';
   import InputGroup from 'primevue/inputgroup';
-  import FloatLabel from 'primevue/floatlabel';
+  import IftaLabel from 'primevue/iftalabel';
 
   // local components
+  import Dialog from '@/components/Dialog.vue';
 
   // types
   import { Topics, ValidTopic } from '@/types';
@@ -123,7 +104,6 @@
 
   ////////////////////////////////
   // data
-  const loading = ref(false);
   const show = ref(props.modelValue);
   const extraFieldValues = ref(foundry.utils.deepClone(props.extraFieldValues));
   const topicDetails = {
@@ -158,19 +138,15 @@
   ////////////////////////////////
   // event handlers
   const onEditClick = async function() {
-    loading.value = true;
-
     // replace nulls with empty strings
-    const extraFieldsToSend = props.extraFieldValues.reduce((acc, field) => {
-      acc[field.field] = extraFieldValues.value[field.field] || '';
+    const extraFieldsToSend = props.extraFieldValues.reduce((acc, field, i) => {
+      acc[field.field] = extraFieldValues.value[i].value || '';
       return acc;
     }, {} as Record<string, string>);
 
     await relationshipStore.editRelationship(props.itemId, extraFieldsToSend);
     
     resetDialog();
-
-    loading.value = false;
   };
   
   const onClose = function() {

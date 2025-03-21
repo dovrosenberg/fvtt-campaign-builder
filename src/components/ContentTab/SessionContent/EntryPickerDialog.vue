@@ -1,78 +1,61 @@
 <template>
-  <div v-if="loading">
-    <ProgressSpinner v-show="loading" />
-  </div>
-  <div v-else>
-    <Dialog 
-      v-model:visible="show" 
-      style="min-width: 350px;"
-      dismissable-mask
-      block-scroll
-      @hide="onClose"
+  <Dialog 
+    v-model="show" 
+    :title="topicDetails[props.topic].title"
+    :buttons="[
+      {
+        label: 'Cancel',
+        default: false,
+        close: true,
+        callback: () => { show=false;}
+      },
+      {
+        label: topicDetails[props.topic].buttonTitle,
+        default: true,
+        close: true,
+        disable: !isAddFormValid,
+        callback: onAddClick
+      }
+    ]"
+    @close="onClose"
+  >
+    <div 
+      v-if="selectItems.length>0"
+      class="flexcol"
     >
-      <template #header>
-        <div class="text-h6">
-          {{ topicDetails[props.topic].title }}
-        </div>
-      </template>
-
-      <div 
-        v-if="selectItems.length>0"
-        class="flexcol"
+      <AutoComplete 
+        ref="nameSelectRef"
+        v-model="entry"
+        :dropdown="true"
+        :typeahead="true"
+        :force-selection="true"
+        :suggestions="options"
+        :placeholder="topicDetails[props.topic].title"
+        option-label="name"
+        data-key="uuid"
+        variant="outlined"
+        show-clear
+        @complete="onSearch"
+        @keydown.enter.stop="onAddClick"
+      />
+      <InputGroup 
+        v-for="field in extraFields"
+        :key="field.field"
       >
-        <AutoComplete 
-          ref="nameSelectRef"
-          v-model="entry"
-          :dropdown="true"
-          :typeahead="true"
-          :force-selection="true"
-          :suggestions="options"
-          :placeholder="topicDetails[props.topic].title"
-          option-label="name"
-          data-key="uuid"
-          variant="outlined"
-          show-clear
-          @complete="onSearch"
-          @keydown.enter.stop="onAddClick"
-        />
-        <InputGroup 
-          v-for="field in extraFields"
-          :key="field.field"
-        >
-          <FloatLabel>
-            <InputText 
-              unstyled
-              :id="field.field"
-              v-model="extraFieldValues[field.field]"
-              variant="outlined"
-            />
-            <label :for="field.field">{{ field.header }}</label>
-          </FloatLabel>
-        </InputGroup>
-      </div>
-      <div v-else>
-        No items found
-      </div>
-      <template #footer>
-        <Button 
-          label="Cancel"
-          unstyled
-          text
-          severity="secondary"
-          autofocus
-          @click="show=false;"
-        />
-        <Button
-          :label="topicDetails[props.topic].buttonTitle" 
-          :disable="!isAddFormValid"
-          text
-          severity="secondary"
-          autofocus
-          @click="onAddClick"
-        />
-      </template>
-    </Dialog>
-  </div>
+        <IftaLabel>
+          <InputText 
+            :id="field.field"
+            v-model="extraFieldValues[field.field]"
+            variant="outlined"
+          />
+          <label :for="field.field">{{ field.header }}</label>
+        </IftaLabel>
+      </InputGroup>
+    </div>
+    <div v-else>
+      No items found
+    </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -84,16 +67,13 @@
   import { useMainStore, } from '@/applications/stores';
 
   // library components
-  import Dialog from 'primevue/dialog';
-  import Button from 'primevue/button';
-  import ProgressSpinner from 'primevue/progressspinner';
   import AutoComplete from 'primevue/autocomplete';
   import InputText from 'primevue/inputtext';
   import InputGroup from 'primevue/inputgroup';
-  import FloatLabel from 'primevue/floatlabel';
+  import IftaLabel from 'primevue/iftalabel';
 
   // local components
-
+  import Dialog from '@/components/Dialog.vue';
   // types
   import { Topics, ValidTopic, } from '@/types';
   import { Entry, TopicFolder } from '@/classes';
@@ -122,7 +102,6 @@
 
   ////////////////////////////////
   // data
-  const loading = ref(false);
   const show = ref<boolean>(props.modelValue);
   const entry = ref<Entry | null>(null);  // the selected item from the dropdown
   const extraFieldValues = ref<Record<string, string>>({});
@@ -186,15 +165,11 @@
   };
 
   const onAddClick = function() {
-    // loading.value = true;
-
     if (entry.value) {
       emit('itemPicked', entry.value.uuid);
     }
 
     resetDialog();
-
-    // loading.value = false;
   };
   
   const onClose = function() {
