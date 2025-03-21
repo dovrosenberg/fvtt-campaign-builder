@@ -1,7 +1,7 @@
 // functions for managing folders and compendia
 import { localize } from '@/utils/game';
 import { Topics, } from '@/types';
-import { SettingKey, moduleSettings, UserFlagKey, UserFlags,} from '@/settings';
+import { SettingKey, ModuleSettings, UserFlagKey, UserFlags,} from '@/settings';
 import { toTopic } from '@/utils/misc';
 import { WBWorld } from '@/classes';
 

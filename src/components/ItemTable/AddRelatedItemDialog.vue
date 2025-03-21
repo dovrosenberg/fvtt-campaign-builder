@@ -1,25 +1,30 @@
 <template>
-  <div v-if="loading">
-    <ProgressSpinner v-show="loading" />
-  </div>
-  <div v-else>
-    <Dialog 
-      v-model:visible="show" 
-      style="min-width: 350px;"
-      dismissable-mask
-      block-scroll
-      @hide="onClose"
+  <Dialog 
+    v-model="show"
+    :title="topicDetails[props.topic].title"
+    :buttons="[
+      {
+        label: 'Cancel',
+        default: false,
+        close: true,
+        callback: () => { show=false;}
+      },
+      {
+        label: topicDetails[props.topic].buttonTitle,
+        disable: !isAddFormValid,
+        default: true,
+        close: true,
+        callback: onAddClick
+      }
+    ]"
+    @close="onClose"
+  >
+  <div 
+      v-if="selectItems.length>0"
+      class="flexcol"
+      style="gap: 5px;"
     >
-      <template #header>
-        <div class="text-h6">
-          {{ topicDetails[props.topic].title }}
-        </div>
-      </template>
-
-      <div 
-        v-if="selectItems.length>0"
-        class="flexcol"
-      >
+      <div class="flexrow">
         <AutoComplete 
           ref="nameSelectRef"
           v-model="entry"
@@ -35,42 +40,27 @@
           @complete="onSearch"
           @keydown.enter.stop="onAddClick"
         />
+      </div>
+      <div class="flexrow">
         <InputGroup 
           v-for="field in extraFields"
           :key="field.field"
         >
-          <FloatLabel>
+          <IftaLabel>
             <InputText 
               :id="field.field"
               v-model="extraFieldValues[field.field]"
               variant="outlined"
             />
             <label :for="field.field">{{ field.header }}</label>
-          </FloatLabel>
+          </IftaLabel>
         </InputGroup>
       </div>
-      <div v-else>
-        All possible related items are already connected.
-      </div>
-      <template #footer>
-        <Button 
-          label="Cancel"
-          text
-          severity="secondary"
-          autofocus
-          @click="show=false;"
-        />
-        <Button
-          :label="topicDetails[props.topic].buttonTitle" 
-          :disable="!isAddFormValid"
-          text
-          severity="secondary"
-          autofocus
-          @click="onAddClick"
-        />
-      </template>
-    </Dialog>
-  </div>
+    </div>
+    <div v-else>
+      All possible related items are already connected.
+    </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -82,15 +72,13 @@
   import { useMainStore, useRelationshipStore, } from '@/applications/stores';
 
   // library components
-  import Dialog from 'primevue/dialog';
-  import Button from 'primevue/button';
-  import ProgressSpinner from 'primevue/progressspinner';
   import AutoComplete from 'primevue/autocomplete';
   import InputText from 'primevue/inputtext';
   import InputGroup from 'primevue/inputgroup';
-  import FloatLabel from 'primevue/floatlabel';
+  import IftaLabel from 'primevue/iftalabel';
 
   // local components
+  import Dialog from '@/components/Dialog.vue';
 
   // types
   import { Topics, ValidTopic, } from '@/types';
@@ -118,9 +106,8 @@
 
   ////////////////////////////////
   // data
-  const loading = ref(false);
   const show = ref(props.modelValue);
-  const entry = ref<Entry | null>(null);  // the selected item from the dropdown
+  const entry = ref<{uuid: string; name: string} | null>(null);  // the selected item from the dropdown
   const extraFieldValues = ref<Record<string, string>>({});
   const topicDetails = {
     [Topics.Event]: {
@@ -182,8 +169,6 @@
   };
 
   const onAddClick = async function() {
-    loading.value = true;
-
     if (entry.value) {
       // replace nulls with empty strings
       const extraFieldsToSend = extraFields.value.reduce((acc, field) => {
@@ -191,12 +176,12 @@
         return acc;
       }, {} as Record<string, string>);
 
-      await relationshipStore.addRelationship(entry.value as Entry, extraFieldsToSend);
+      const fullEntry = await Entry.fromUuid(entry.value.uuid);
+      if (fullEntry)
+        await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
     }
 
     resetDialog();
-
-    loading.value = false;
   };
   
   const onClose = function() {
@@ -221,7 +206,7 @@
       if (!currentEntry.value || !currentEntryTopic.value)
         throw new Error('Trying to show AddRelatedItemDialog without a current entry');
 
-      selectItems.value = (await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder), currentEntry.value).map(mapEntryToOption);
+      selectItems.value = (await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder, currentEntry.value)).map(mapEntryToOption);
       extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
 
       // focus on the input

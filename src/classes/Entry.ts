@@ -123,6 +123,27 @@ export class Entry {
     };
   }
 
+  get speciesId(): string | undefined {
+    if (!this._entryDoc.system.speciesId)
+      return undefined;
+
+    return this._entryDoc.system.speciesId;
+  }
+
+  set speciesId(value: string | undefined) {
+    if (this.topic !== Topics.Character)
+      throw new Error('Attempt to set species on non-character');
+
+    this._entryDoc.system.speciesId = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        speciesId: value,
+      }
+    };
+  }
+
   // topic is read-only
   get topic(): ValidTopic {
     return this._entryDoc.system.topic;
@@ -212,8 +233,7 @@ export class Entry {
     if (!this.topicFolder)
       await this.loadTopic();
   
-    const topicFolder = this.topicFolder as TopicFolder;
-    return topicFolder.getWorld();
+    return await (this.topicFolder as TopicFolder).getWorld();
   }
   
   // used to set arbitrary properties on the entryDoc

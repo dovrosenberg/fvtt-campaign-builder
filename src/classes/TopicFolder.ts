@@ -64,9 +64,7 @@ export class TopicFolder {
     if (!this.world)
       await this.loadWorld();
 
-    const world = this.world as WBWorld;
-
-    return world;
+    return (this.world as WBWorld);
   }
   
   /**
@@ -78,15 +76,16 @@ export class TopicFolder {
     if (this.world)
       return this.world;
     
-    if (!this._topicDoc.compendium?.folder)
+    if (!this._topicDoc.collection?.folder)
       throw new Error('Invalid folder id in Topics.loadWorld()');
 
-    const worldDoc = await fromUuid(this._topicDoc.compendium.folder.uuid) as WorldDoc;
+    const worldDoc = await fromUuid(this._topicDoc.collection.folder.uuid) as WorldDoc;
 
     if (!worldDoc)
       throw new Error('Invalid folder id in Topics.loadWorld()');
 
-    return new WBWorld(worldDoc);
+    this.world = new WBWorld(worldDoc);
+    return this.world;
   }
   
   /**

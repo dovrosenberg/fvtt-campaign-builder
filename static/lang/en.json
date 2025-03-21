@@ -7,10 +7,34 @@
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
       "advanced": "Advanced Settings",
       "advancedLabel": "Open Advanced Settings",
-      "advancedHelp": "Configure advanced settings (including AI)"
+      "advancedHelp": "Configure advanced settings (including AI)",
+      "speciesList": "Manage Species List",
+      "speciesListLabel": "Species List",
+      "speciesListHelp": "Define the species to make available.  These cross all worlds - file an issue if you have need more different lists per world."
+    },
+    "applications": {
+      "speciesList": {
+        "title": "Configure Species List",
+        "labels": {
+          "add": "Add species",
+          "edit": "Edit species",
+          "delete": "Delete species"
+        }
+      },
+      "advancedSettings": {
+        "title": "Configure Advanced Settings",
+        "labels": {
+          "backendURL": "Backend URL",
+          "backendURLHint": "Output from script to deploy the backend.",
+          "APIToken": "API Token",
+          "APITokenHint": "Output from script to deploy the backend."  
+        }
+      }
     },
     "labels": {
       "newTab": "New Tab",
+      "saveChanges": "Save Changes",
+      "reset": "Reset",
       "fields": {
         "type": "Type",
         "parent": "Parent",
@@ -19,7 +43,8 @@
         "playerName": "Player Name",
         "backgroundPoints": "Background Points",
         "otherPlotPoints": "Other Plot Points",
-        "desiredMagicItems": "Desired Magic Items"
+        "desiredMagicItems": "Desired Magic Items",
+        "species": "Species"
       },
       "entry": {
         "topic": "TopicFolder",

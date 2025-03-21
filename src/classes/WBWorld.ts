@@ -9,7 +9,7 @@ import { localize } from '@/utils/game';
 
 type WBWorldCompendium = CompendiumCollection<JournalEntry.Metadata>;
 
-// represents a topic entry (ex. a character, location, etc.)
+// represents a campaign setting
 export class WBWorld {
   private _worldDoc: WorldDoc;   // this is the foundry folder
   private _compendium: WBWorldCompendium;   // this is the main compendium

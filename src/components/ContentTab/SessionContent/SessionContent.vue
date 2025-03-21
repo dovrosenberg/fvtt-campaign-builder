@@ -8,6 +8,7 @@
             <InputText
               v-model="name"
               for="wcb-input-name" 
+              unstyled
               :placeholder="localize('placeholders.sessionName')"
               :pt="{
                 root: { class: 'full-height' } 
@@ -21,6 +22,7 @@
               <InputText
                 v-model="sessionNumber"
                 for="wcb-input-number" 
+                unstyled
                 :placeholder="localize('placeholders.sessionNumber')"
                 :pt="{
                   root: { class: 'full-height' } 

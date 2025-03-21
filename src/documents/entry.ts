@@ -17,6 +17,9 @@ const entrySchema = {
   scenes: new fields.ArrayField(new fields.DocumentUUIDField({blank: false, type: 'Scene'}), { required: true, initial: [] }),
   actors: new fields.ArrayField(new fields.DocumentUUIDField({blank: false, type: 'Actor'}), { required: true, initial: [] }),
 
+  // used only for characters
+  speciesId: new fields.StringField({ required: false, nullable: false, textSearch: false, }),
+
   // description: new fields.SchemaField({
   //   short: new fields.HTMLField({required: false, blank: true})
   // }),
@@ -73,6 +76,8 @@ export interface EntryDoc extends JournalEntryPage {
      * Keyed by topic, then entryId 
      */ 
     relationships: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;  // keyed by topic then by entryId
+
+    speciesId?: string | undefined;
 
     scenes: string[];
     actors: string[];

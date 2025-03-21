@@ -8,6 +8,7 @@
             <InputText
               v-model="name"
               for="wcb-input-name" 
+              unstyled
               :placeholder="namePlaceholder"                
               :pt="{
                 root: { class: 'full-height' } 

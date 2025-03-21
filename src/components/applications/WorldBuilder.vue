@@ -45,7 +45,7 @@
 
   // local imports
   import { getDefaultFolders, } from '@/compendia';
-  import { SettingKey, moduleSettings, } from '@/settings';
+  import { SettingKey, ModuleSettings, } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
 

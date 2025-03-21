@@ -30,6 +30,7 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
 - Journal entry for overall world with key details
 - Create geographical hierarchies (world-continents-countries-regions-towns-etc.)
 - Create organizational hierarchies (ex. for religions, governing bodies, large familes, criminal organizations, companies, etc.)
+- AI-driven generation of characters, locations, and organizations
 - Locations and organizations are stored as custom journal entries
   - Customizeable templates
   - Key info
@@ -37,10 +38,10 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
   - Cross-references?  This may be difficult to implement
 - Create characters as journal entry - not necessarily connected to an actor
 - Hierarchy "levels" are customizable
-- Tags
 - Attach associated scenes
 
 ## Planned (or at least considered) features
+- Tags for tracking/searching various entries
 - keyboard shortcuts
   - Quick search - popup just a search box to use fulltext search to try to find something
   - Quick create - quickly generate NPC/location and interconnect into the world
@@ -69,12 +70,21 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
 ## How it works
 - Instructions, screenshots, etc.
 
+### Advanced features
+- There are some advanced features (and more planned) that require you to setup a backend server.  In particular the AI features.  This approach has the advantages of:
+  - You don't need to store sensitive credentials (i.e. OpenAI tokens) in Foundry (which would then be visible by whoever is hosting the session), and 
+  - Activities that take some time (particularly image generation) can be done much more effectively
+  - Future-proof for more complex features in the future
+- Setting up these features is not particularly complicated, but does require:
+  - Some basic comfort with running command-line scripts
+  - Account creation (currently Google Cloud and OpenAPI).  The backend is designed to stay within the Google Cloud free tier (assuming you're not running anything else) and the OpenAPI costs are minimal (ex. you can create ~5000 AI-generated character descriptions for $0.15), but both services will require you to provide a credit card.
+  - Full details on the setup are here: https://github.com/dovrosenberg/fvtt-fcb-backend
+
 ### Note on characters, actors, and PCs
 - Characters (in worlds) can be PCs if you'd like, but they're really intended primarily to represent all the NPCs.  
   - Characters can be tied to multiple Actors (ex. if you want to represent a young version and an old version or track the human form 
   of a werewolf separately from the wolf form, etc.) though typically it would be 1:1
-- PCs (in campaigns) represent the PCs (and to a lesser extent, the players).  They are not tied to world Characters, because I didn't 
-see much value in doing so.  The PCs are where you track storylines, related NPCs and organizations, etc.  This makes them easier to find and review when preparing and running the game.
+- PCs (in campaigns) represent the PCs (and to a lesser extent, the players).  They are not tied to world Characters, because I didn't see much value in doing so.  The PCs are where you track storylines, related NPCs and organizations, etc.  This makes them easier to find and review when preparing and running the game.
   - PCs are explicitly tied to a single Actor
 
 

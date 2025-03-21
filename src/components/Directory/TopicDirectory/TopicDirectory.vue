@@ -11,10 +11,10 @@
         @contextmenu="onWorldContextMenu($event, world.id)"
         @click="onWorldFolderClick($event, world.id)"
       >
-        <h3 class="noborder">
+        <div class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
           {{ world.name }}
-        </h3>
+        </div>
       </header>
 
       <!-- These are the topic compendia -->
@@ -232,11 +232,6 @@
       border-bottom: none;
       width: 100%;
       flex: 1;
-
-      h3 {
-        color: inherit;   // reset the default from foundry            
-        text-shadow: inherit;
-      }
     }
 
     // world folder styling
@@ -244,6 +239,7 @@
       border-top: 1px solid var(--wcb-sidebar-world-border);
       background: var(--wcb-sidebar-world-background);
       color: var(--wcb-sidebar-world-color);
+      text-shadow: none;
     }
 
     .wcb-world-folder.collapsed > .folder-header {
@@ -262,6 +258,7 @@
     .wcb-topic-folder.collapsed > .folder-header, .wcb-topic-folder:not(.collapsed) > .folder-header {
       background: inherit;  // override foundry default
       border: 0px;
+      color: var(--wcb-sidebar-world-color);
       text-shadow: none;   // override foundry default
       cursor: pointer;
 
