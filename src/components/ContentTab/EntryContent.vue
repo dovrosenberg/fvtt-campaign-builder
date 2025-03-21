@@ -150,8 +150,8 @@
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
 
   // types
-  import { Topics, } from '@/types';
-  import { Entry, WBWorld, TopicFolder} from '@/classes';
+  import { Topics, ValidTopic } from '@/types';
+  import { Entry, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -268,14 +268,12 @@
     if (topic.value === null || !currentWorld.value)
       return;
 
-    const currentTypes = currentWorld.value.topicFolders[topic.value].types;
+    const currentTypes = currentWorld.value.topicFolders[topic.value as ValidTopic].types;
 
     // if not a duplicate, add to the valid type lists 
-    if (!currentTypes[topic.value].includes(added)) {
-      const updatedTypes = {
-        ...currentTypes,
-        [topic.value]: currentTypes[topic.value].concat([added]),
-      };
+    if (!currentTypes[topic.value]?.includes(added)) {
+      const updatedTypes = currentTypes.concat(added);
+
       currentWorld.value.topicFolders[topic.value].types = updatedTypes;
       await currentWorld.value.save();
     }
