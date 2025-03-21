@@ -268,14 +268,15 @@
     if (topic.value === null || !currentWorld.value)
       return;
 
-    const currentTypes = currentWorld.value.topicFolders[topic.value as ValidTopic].types;
+    const topicFolder = currentWorld.value.topicFolders[topic.value as ValidTopic];
+    const currentTypes = topicFolder.types;
 
     // if not a duplicate, add to the valid type lists 
     if (!currentTypes[topic.value]?.includes(added)) {
       const updatedTypes = currentTypes.concat(added);
 
-      currentWorld.value.topicFolders[topic.value].types = updatedTypes;
-      await currentWorld.value.save();
+      topicFolder.types = updatedTypes;
+      await topicFolder.save();
     }
 
     await onTypeSelectionMade(added);

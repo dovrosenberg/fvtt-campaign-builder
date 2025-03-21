@@ -8,7 +8,7 @@
   >
     <header 
       class="wcb-window-header window-header flexrow draggable"
-      @mouseDown="onStartDrag"
+      @mousedown="onStartDrag"
     >
       <div class="wcb-window-title">{{ title }}</div>
       <a 
@@ -112,9 +112,8 @@
       return;
 
     dragging = true;
-    const rect = dialogRef.value.getBoundingClientRect();
-    dragOffset.x = e.clientX - rect.left;
-    dragOffset.y = e.clientY - rect.top;
+    dragOffset.x = e.clientX ;
+    dragOffset.y = e.clientY ;
     document.addEventListener('mousemove', onDrag);
     document.addEventListener('mouseup', stopDrag);
   }
@@ -123,8 +122,11 @@
     if (!dragging) 
       return;
     
-    position.left = e.clientX - dragOffset.x;
-    position.top = e.clientY - dragOffset.y;
+    position.left += (e.clientX - dragOffset.x);
+    position.top += (e.clientY - dragOffset.y);
+
+    dragOffset.x = e.clientX;
+    dragOffset.y = e.clientY;
   }
 
   function stopDrag() {
