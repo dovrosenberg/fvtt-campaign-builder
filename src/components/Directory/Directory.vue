@@ -184,6 +184,7 @@
         flex-direction: column;
         overflow: hidden; 
         height: 100%; 
+        padding-bottom: 10px;
       }
     }
 
@@ -193,9 +194,7 @@
       border-bottom: 1px solid var(--wcb-header-border-color);
       color: var(--wcb-sidebar-label-color);
       margin-bottom: 0px;
-      padding-top: 3px;
-      padding-bottom: 6px;
-      padding-left: 20px;
+      padding: 8px 0px 8px 8px;
 
       .wcb-header-search {
         #wcb-directory-search {
@@ -205,15 +204,18 @@
 
         .wcb-header-control {
           flex: 0 0 32px;
+          justify-content: center;
           text-align: center;
           position: relative;
+          display: inline-flex;
+          align-items: center;
 
           i {
             position: absolute;
 
             &.fa-plus {
-              top: -2px;
-              right: -2px;
+              top: -10px;
+              right: 3px;
               font-size: 0.5rem;
               background: black;
               color: var(--color-text-light-highlight);

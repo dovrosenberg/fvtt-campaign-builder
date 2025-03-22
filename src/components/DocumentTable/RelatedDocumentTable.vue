@@ -1,33 +1,32 @@
 <template>
   <!-- A table to display/manage related scenes and actors -->
-  <div 
-    @drop="onDrop"
-  >
-    <BaseTable
-      :rows="rows"
-      :columns="columns"
-      :showAddButton="false"
-      :filterFields="filterFields"
-      :allowEdit="true"
-      :edit-item-label="localize('tooltips.editRelationship')"
-      :delete-item-label="localize('tooltips.deleteRelationship')"
+  <BaseTable
+    :rows="rows"
+    :columns="columns"
+    :showAddButton="false"
+    :filterFields="filterFields"
+    :allowEdit="true"
+    :edit-item-label="localize('tooltips.editRelationship')"
+    :delete-item-label="localize('tooltips.deleteRelationship')"
 
-      @delete-item="onDeleteItemClick"
-      @row-select="onRowSelect"
-      @row-context-menu="onRowContextMenu"
-    />
-  </div>
+    @delete-item="onDeleteItemClick"
+    @row-select="onRowSelect"
+    @row-context-menu="onRowContextMenu"
+    @drop="onDrop"
+    @dragover="onDragover"
+  />
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { computed,} from 'vue';
+  import { computed, PropType,} from 'vue';
   import { storeToRefs } from 'pinia';
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local imports
-  import { useMainStore, useRelationshipStore } from '@/applications/stores';
+  import { useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
   import { DataTableRowContextMenuEvent } from 'primevue/datatable';
@@ -40,6 +39,12 @@
   
   ////////////////////////////////
   // props
+  const props = defineProps({
+    documentLinkType: { 
+      type:Number as PropType<DocumentLinkType>, 
+      required: true,
+    },
+  });
 
   ////////////////////////////////
   // emits
@@ -47,9 +52,7 @@
   ////////////////////////////////
   // store
   const relationshipStore = useRelationshipStore();
-  const mainStore = useMainStore();
 
-  const { currentDocumentTab } = storeToRefs(mainStore);
   const { relatedDocumentRows, } = storeToRefs(relationshipStore);
 
   ////////////////////////////////
@@ -95,10 +98,10 @@
   const onRowSelect = async function (event: { data: RelatedDocumentGridRow} ) { 
     const { data } = event;
 
-    if (currentDocumentTab.value===DocumentLinkType.Actors) {
+    if (props.documentLinkType===DocumentLinkType.Actors) {
       const actor = await fromUuid(data.uuid) as Actor;
       await actor?.sheet?.render(true);
-    } else if (currentDocumentTab.value===DocumentLinkType.Scenes) {
+    } else if (props.documentLinkType===DocumentLinkType.Scenes) {
       const scene = await fromUuid(data.uuid) as Scene;
       await scene?.sheet?.render(true);
     }
@@ -115,7 +118,7 @@
     mouseEvent.stopPropagation();
 
     // no menu for actors
-    if (currentDocumentTab.value===DocumentLinkType.Actors) {
+    if (props.documentLinkType===DocumentLinkType.Actors) {
       return false;
     }
 
@@ -198,35 +201,36 @@
       title: localize('dialogs.confirmDeleteRelationship.title'),
       content: localize('dialogs.confirmDeleteRelationship.message'),
       yes: () => { 
-        if (currentDocumentTab.value===DocumentLinkType.Scenes)
+        if (props.documentLinkType===DocumentLinkType.Scenes)
           void relationshipStore.deleteScene(_id); 
-        else if (currentDocumentTab.value===DocumentLinkType.Actors)
+        else if (props.documentLinkType===DocumentLinkType.Actors)
           void relationshipStore.deleteActor(_id); 
       },
       no: () => {},
     });
   };
 
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
+
   const onDrop = async(event: DragEvent) => {
-    if (event.dataTransfer?.types[0]==='text/plain') {
-      try {
-        let data;
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+    event.preventDefault();  
 
-        // make sure it's the right format
-        if (data.type==='Scene' && currentDocumentTab.value===DocumentLinkType.Scenes && data.uuid) {
-          await relationshipStore.addScene(data.uuid);
-        } else if (data.type==='Actor' && currentDocumentTab.value===DocumentLinkType.Actors && data.uuid) {
-          await relationshipStore.addActor(data.uuid);
-        }
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
 
-        return true;
-      }
-      catch (err) {
-        return false;
-      }
-    } else {
-      return false;
+    // make sure it's the right format
+    if (data.type==='Scene' && props.documentLinkType===DocumentLinkType.Scenes && data.uuid) {
+      await relationshipStore.addScene(data.uuid);
+    } else if (data.type==='Actor' && props.documentLinkType===DocumentLinkType.Actors && data.uuid) {
+      await relationshipStore.addActor(data.uuid);
     }
   };
   

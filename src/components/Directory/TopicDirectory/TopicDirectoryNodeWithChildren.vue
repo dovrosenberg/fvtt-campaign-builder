@@ -17,6 +17,7 @@
           @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"
           @dragstart="onDragStart($event, currentNode.id)"
           @drop="onDrop"
+          @dragover="onDragover"
           @contextmenu="onEntryContextMenu"
         >
           {{ currentNode.name }}
@@ -48,6 +49,7 @@
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { localize } from '@/utils/game';
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -137,46 +139,46 @@
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
 
-  const onDrop = async (event: DragEvent): Promise<boolean> => {
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
+
+  const onDrop = async (event: DragEvent) => {
+    event.preventDefault();  
+
     if (!currentWorld.value)
       return false;
 
-    if (event.dataTransfer?.types[0]==='text/plain') {
-      let data;
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
 
-      try {
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
-      }
-      catch (err) {
-        return false;
-      }
+    // make sure it's not the same item
+    const parentId = currentNode.value.id;
+    if (data.childId===parentId)
+      return;
 
-      // make sure it's not the same item
-      const parentId = currentNode.value.id;
-      if (data.childId===parentId)
-        return false;
+    // if the types don't match or don't have hierarchy, can't drop
+    if (data.topic!==props.topic || !hasHierarchy(props.topic))
+      return;
 
-      // if the types don't match or don't have hierarchy, can't drop
-      if (data.topic!==props.topic || !hasHierarchy(props.topic))
-        return false;
+    // is this a legal parent?
+    const topicFolder = currentWorld.value.topicFolders[props.topic];
+    const childEntry = await Entry.fromUuid(data.childId, topicFolder as TopicFolder); 
+    
+    if (!childEntry)
+      return;
 
-      // is this a legal parent?
-      const topicFolder = currentWorld.value.topicFolders[props.topic];
-      const childEntry = await Entry.fromUuid(data.childId, topicFolder as TopicFolder); 
-      
-      if (!childEntry)
-        return false;
+    if (!(validParentItems(currentWorld.value as WBWorld, topicFolder as TopicFolder, childEntry)).find(e=>e.id===parentId))
+      return;
 
-      if (!(validParentItems(currentWorld.value as WBWorld, topicFolder as TopicFolder, childEntry)).find(e=>e.id===parentId))
-        return false;
-
-      // add the dropped item as a child on the other (will also refresh the tree)
-      await topicDirectoryStore.setNodeParent(topicFolder as TopicFolder, data.childId, parentId);
-
-      return true;
-    } else {
-      return false;
-    }
+    // add the dropped item as a child on the other (will also refresh the tree)
+    await topicDirectoryStore.setNodeParent(topicFolder as TopicFolder, data.childId, parentId);
   };
 
   const onEntryContextMenu = (event: MouseEvent): void => {

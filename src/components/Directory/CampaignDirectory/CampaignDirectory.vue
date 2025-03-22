@@ -116,7 +116,8 @@
         padding: 0;
         flex-grow: 1;
         overflow: auto;
-    }
+        margin-top: 3px;
+      }
   }
 
   // the nested tree structure

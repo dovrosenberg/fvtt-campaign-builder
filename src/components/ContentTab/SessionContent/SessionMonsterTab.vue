@@ -7,6 +7,7 @@
     :show-add-button="false"
     @row-select="onRowSelect($event.data.uuid)"  
     @drop="onDrop"
+    @dragover="onDragover"
     @delete-item="onDeleteMonster"
     @mark-item-delivered="onMarkMonsterDelivered"
     @unmark-item-delivered="onUnmarkMonsterDelivered"
@@ -24,6 +25,7 @@
   // local imports
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
 	
@@ -56,24 +58,25 @@
 
   ////////////////////////////////
   // event handlers
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
+
   const onDrop = async (event: DragEvent) => {
-    if (event.dataTransfer?.types[0]==='text/plain') {
-      try {
-        let data;
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+    event.preventDefault();  
 
-        // make sure it's the right format
-        if (data.type==='Actor' && data.uuid) {
-          await sessionStore.addMonster(data.uuid);  
-        }
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
 
-        return true;
-      }
-      catch (err) {
-        return false;
-      }
-    } else {
-      return false;
+    // make sure it's the right format
+    if (data.type==='Actor' && data.uuid) {
+      await sessionStore.addMonster(data.uuid);  
     }
   }
 

@@ -114,12 +114,16 @@
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="scenes">
           <div class="tab-inner flexcol">
-            <RelatedDocumentTable />
+            <RelatedDocumentTable 
+              :document-link-type="DocumentLinkType.Scenes"
+            />
           </div>
         </div>
         <div class="tab description flexcol" data-group="primary" data-tab="actors">
           <div class="tab-inner flexcol">
-            <RelatedDocumentTable />
+            <RelatedDocumentTable 
+              :document-link-type="DocumentLinkType.Actors"
+            />
           </div>
         </div>
       </div>
@@ -150,7 +154,7 @@
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
 
   // types
-  import { Topics, ValidTopic } from '@/types';
+  import { DocumentLinkType, Topics, ValidTopic } from '@/types';
   import { Entry, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////

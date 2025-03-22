@@ -7,6 +7,7 @@
     @contextmenu="onBookmarkContextMenu"
     @dragstart="onDragStart"
     @drop="onDrop"
+    @dragover="onDragover"
   >
     <div>
       <i 
@@ -29,6 +30,7 @@
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // local components
 
@@ -114,33 +116,33 @@
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   }; 
 
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
+
   const onDrop = async(event: DragEvent) => {
-    if (event.dataTransfer?.types[0]==='text/plain') {
-      let data;
+    event.preventDefault();  
 
-      try {
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
-      }
-      catch (err) {
-        return false;
-      }
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
 
-      const target = (event.currentTarget as HTMLElement).closest('.wcb-bookmark-button') as HTMLElement;
-      if (!target)
-        return false;
+    const target = (event.currentTarget as HTMLElement).closest('.wcb-bookmark-button') as HTMLElement;
+    if (!target)
+      return;
 
-      if (data.bookmarkId === props.bookmark.id) return; // Don't drop on yourself
+    if (data.bookmarkId === props.bookmark.id) return; // Don't drop on yourself
 
-      // insert before the drop target
-      const bookmarksValue = bookmarks.value;
-      const from = bookmarksValue.findIndex(b => b.id === data.bookmarkId);
-      const to = bookmarksValue.findIndex(b => b.id === props.bookmark.id);
-      await navigationStore.changeBookmarkPosition(from, to);
-
-      return true;
-    } else {
-      return false;
-    }
+    // insert before the drop target
+    const bookmarksValue = bookmarks.value;
+    const from = bookmarksValue.findIndex(b => b.id === data.bookmarkId);
+    const to = bookmarksValue.findIndex(b => b.id === props.bookmark.id);
+    await navigationStore.changeBookmarkPosition(from, to);
   };
 
   ////////////////////////////////

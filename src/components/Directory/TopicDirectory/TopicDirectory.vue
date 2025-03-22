@@ -12,7 +12,7 @@
         @click="onWorldFolderClick($event, world.id)"
       >
         <div class="noborder">
-          <i class="fas fa-folder-open fa-fw"></i>
+          <i :class="`fas ${currentWorld?.uuid===world.id ? 'fa-folder-open' : 'fa-folder'} fa-fw`"></i>
           {{ world.name }}
         </div>
       </header>
@@ -217,6 +217,7 @@
       padding: 0;
       flex-grow: 1;
       overflow: auto;
+      margin-top: 3px;
 
       .wcb-world-folder {
         align-items: flex-start;
@@ -243,6 +244,7 @@
     }
 
     .wcb-world-folder.collapsed > .folder-header {
+      cursor: pointer;
       border-top: 1px solid var(--wcb-sidebar-world-border-collapsed);
       background: var(--wcb-sidebar-world-background-collapsed);
       color: var(--wcb-sidebar-world-color-collapsed);

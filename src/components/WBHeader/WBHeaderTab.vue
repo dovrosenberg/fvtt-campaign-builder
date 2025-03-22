@@ -6,6 +6,7 @@
     @click="onTabClick"
     @dragstart="onDragStart"
     @drop="onDrop"
+    @dragover="onDragover"
   >
     <div 
       v-if="tab.header.icon"
@@ -33,6 +34,7 @@
   // local imports
   import { useNavigationStore } from '@/applications/stores';
   import { WindowTab } from '@/classes';
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
 
@@ -94,38 +96,38 @@
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
 
-  const onDrop = async(event: DragEvent) => {
-    if (event.dataTransfer?.types[0]==='text/plain') {
-      let data;
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
 
-      try {
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
-      }
-      catch (err) {
-        return false;
-      }
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
 
-      // where are we droping it?
-      const target = (event.currentTarget as HTMLElement).closest('.wcb-tab') as HTMLElement;
-      if (!target)
-        return false;
+  const onDrop = async (event: DragEvent) => {
+    event.preventDefault();  
 
-      if (data.tabId === props.tab.id) return; // Don't drop on yourself
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
 
-      // insert before the drop target
-      const tabsValue = tabs.value;
-      const from = tabsValue.findIndex(t => t.id === data.tabId);
-      const to = tabsValue.findIndex(t => t.id === props.tab.id);
-      tabsValue.splice(to, 0, tabsValue.splice(from, 1)[0]);
-      tabs.value = tabsValue;
+    // where are we droping it?
+    const target = (event.currentTarget as HTMLElement).closest('.wcb-tab') as HTMLElement;
+    if (!target)
+      return;
 
-      // activate the moved one (will also save the tabs)
-      await navigationStore.activateTab(data.tabId);
+    if (data.tabId === props.tab.id) return; // Don't drop on yourself
 
-      return true;
-    } else {
-      return false;
-    }
+    // insert before the drop target
+    const tabsValue = tabs.value;
+    const from = tabsValue.findIndex(t => t.id === data.tabId);
+    const to = tabsValue.findIndex(t => t.id === props.tab.id);
+    tabsValue.splice(to, 0, tabsValue.splice(from, 1)[0]);
+    tabs.value = tabsValue;
+
+    // activate the moved one (will also save the tabs)
+    await navigationStore.activateTab(data.tabId);
   };
 
   ////////////////////////////////

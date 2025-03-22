@@ -1,22 +1,21 @@
 <template>
   <!-- A table to display/manage related scenes and actors -->
-  <div 
-    @drop="onDrop"
-  >
-    <BaseTable
-      :rows="rows"
-      :columns="columns"
-      :showAddButton="true"
-      :showFilter="false"
-      :allowEdit="false"
-      :delete-item-label="localize('tooltips.deleteRelationship')"
-      :add-button-label="localize('labels.campaign.addPC')"
+  <BaseTable
+    :rows="rows"
+    :columns="columns"
+    :show-add-button="true"
+    :extra-add-text="localize('labels.campaign.addPCDrag')"
+    :showFilter="false"
+    :allowEdit="false"
+    :delete-item-label="localize('tooltips.deleteRelationship')"
+    :add-button-label="localize('labels.campaign.addPC')"
 
-      @add-item="onAddItemClick"
-      @delete-item="onDeleteItemClick"
-      @row-select="onRowSelect"
-    />
-  </div>
+    @add-item="onAddItemClick"
+    @delete-item="onDeleteItemClick"
+    @row-select="onRowSelect"
+    @drop="onDrop"
+    @dragover="onDragover"
+  />
 </template>
 
 <script setup lang="ts">
@@ -27,6 +26,7 @@
   // local imports
   import { useCampaignStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
 
@@ -105,31 +105,32 @@
     });
   };
 
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
+
   const onDrop = async(event: DragEvent) => {
-    if (event.dataTransfer?.types[0]==='text/plain') {
-      try {
-        let data;
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+    event.preventDefault();  
 
-        // make sure it's the right format
-        // if it's an actor, create a new PC and link it
-        if (data.type==='Actor' && data.uuid) {
-          const newPC = await campaignStore.addPC();
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
 
-          if (newPC) {
-            newPC.actorId = data.uuid;
-            await newPC?.getActor();
-            await navigationStore.openPC(newPC.uuid, { newTab: true });
-          }
-        }
+    // make sure it's the right format
+    // if it's an actor, create a new PC and link it
+    if (data.type==='Actor' && data.uuid) {
+      const newPC = await campaignStore.addPC();
 
-        return true;
+      if (newPC) {
+        newPC.actorId = data.uuid;
+        await newPC?.getActor();
+        await navigationStore.openPC(newPC.uuid, { newTab: true });
       }
-      catch (err) {
-        return false;
-      }
-    } else {
-      return false;
     }
   };
   

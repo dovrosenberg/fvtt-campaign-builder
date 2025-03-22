@@ -5,6 +5,7 @@
         <div 
           class="sheet-image" 
           @drop="onDropActor"
+          @dragover="onDragoverActor"
           @click="onActorImageClick"
         >
           <div
@@ -146,30 +147,42 @@
 
   ////////////////////////////////
   // methods
+  
 
   ////////////////////////////////
   // event handlers
+  const onDragoverActor = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
 
   const onDropActor = async (event: DragEvent) => {
-    if (currentPC.value && event.dataTransfer?.types[0]==='text/plain') {
-      try {
-        let data;
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
-        if (data.type==='Actor') {
-          currentPC.value.actorId = data.uuid;
-          await currentPC.value.save();
-          await mainStore.refreshPC();
+    event.preventDefault();
+    event.stopPropagation();
 
-          // need to refreshPC first to ensure that the new actor gets loaded so we can call name
-          await navigationStore.propogateNameChange(currentPC.value.uuid, currentPC.value.name);
-        }  
-      } 
-      catch (err) {
-        return false;
-      }
+    // validate the drop
+    if (!currentPC.value || event.dataTransfer?.types[0]!=='text/plain')
+      return;
+   
+    try {  // in case parse fails
+      let data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+
+      if (data.type!=='Actor' || !data.uuid)
+        return;
+
+      currentPC.value.actorId = data.uuid;
+      await currentPC.value.save();
+      await mainStore.refreshPC();
+
+      // need to refreshPC first to ensure that the new actor gets loaded so we can call name
+      await navigationStore.propagateNameChange(currentPC.value.uuid, currentPC.value.name);
     }
-
-    return true;
+    catch (err) {
+      return;
+    }      
   }
 
   // debounce changes to name
