@@ -13,15 +13,17 @@
     @delete-item="onDeleteItemClick"
     @edit-item="onEditItemClick"
     @row-select="onRowSelect"
+    @drop="onDrop"
   />
 
   <EditRelatedItemDialog 
-    v-if="extraColumns.length>0"
+    v-if="extraColumns.length>0 || useEditDialogForAdd"
     v-model="editDialogShow"
     :item-id="editItem.itemId"
     :item-name="editItem.itemName"
     :extra-field-values="editItem.extraFields"
     :topic="props.topic"
+    :add-mode="useEditDialogForAdd"
   />
   <AddRelatedItemDialog 
     v-model="addDialogShow"
@@ -38,6 +40,7 @@
   // local imports
   import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import { Entry } from '@/classes';
 
   // library components
 
@@ -45,8 +48,9 @@
   import AddRelatedItemDialog from './AddRelatedItemDialog.vue';
   import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
   import BaseTable from '@/components/BaseTable/BaseTable.vue';
+
   // types
-  import { Topics, ValidTopic, RelatedItemDetails } from '@/types';
+  import { Topics, ValidTopic, RelatedItemDetails, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -74,12 +78,14 @@
   // data
   const addDialogShow = ref(false);   // should we pop up the add dialog?
   const editDialogShow = ref(false);   // should we pop up the edit dialog?
-    
+  const useEditDialogForAdd = ref(false);  // are we using the edit dialog to add (for drag & drop)
+
   const editItem = ref({
     itemId: '',
     itemName: '',
     extraFields: [],
   } as { itemId: string; itemName: string; extraFields: {field: string; header: string; value: string}[] });
+
   ////////////////////////////////
   // computed data
   const filterFields = computed(() => {
@@ -187,6 +193,43 @@
   const onRowSelect = async function (event: { originalEvent: PointerEvent; data: RelatedItemGridRow} ) { 
     await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
+
+  const onDrop = async (event: DragEvent) => {
+    if (event.dataTransfer?.types[0]==='text/plain') {
+      try {
+        let data;
+        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+
+        // make sure it's the right format
+        if (typeof data.topic !== 'number' || !data.childId) {
+          return false;
+        }
+
+        // see if the topic matches
+        if (data.topic !== props.topic) {
+          return false;
+        }
+
+        // add the item to the relationship 
+        // make the extra fields blank, if there are any
+        const extraFieldsToSend = extraFields[currentEntryTopic.value][props.topic].reduce((acc, field) => {
+          acc[field.field] = '';
+          return acc;
+        }, {} as Record<string, string>);
+
+        const fullEntry = await Entry.fromUuid(data.childId);
+        if (fullEntry)
+          await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
+        else
+          return false;
+      } 
+      catch (err) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   // show the edit dialog
   const onEditItemClick = function(row: RelatedItemGridRow) {
