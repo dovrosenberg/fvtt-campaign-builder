@@ -17,6 +17,7 @@
           @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"
           @dragstart="onDragStart($event, currentNode.id)"
           @drop="onDrop"
+          @dragover="onDragover"
           @contextmenu="onEntryContextMenu"
         >
           {{ currentNode.name }}
@@ -136,6 +137,14 @@
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
+
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
     if (!currentWorld.value)

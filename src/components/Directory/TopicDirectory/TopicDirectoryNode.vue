@@ -14,6 +14,7 @@
       @click="onDirectoryItemClick"
       @dragstart="onDragStart"
       @drop="onDrop"
+      @dragover="onDragover"
       @contextmenu="onEntryContextMenu"
     >
       {{ props.node.name }}
@@ -107,6 +108,14 @@
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
+
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
 
   const onDrop = async (event: DragEvent): Promise<boolean> => {
     const topicFolder = currentWorld.value?.topicFolders[props.topic];

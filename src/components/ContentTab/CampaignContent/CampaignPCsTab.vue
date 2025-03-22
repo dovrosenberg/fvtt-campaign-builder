@@ -1,22 +1,20 @@
 <template>
   <!-- A table to display/manage related scenes and actors -->
-  <div 
-    @drop="onDrop"
-  >
-    <BaseTable
-      :rows="rows"
-      :columns="columns"
-      :showAddButton="true"
-      :showFilter="false"
-      :allowEdit="false"
-      :delete-item-label="localize('tooltips.deleteRelationship')"
-      :add-button-label="localize('labels.campaign.addPC')"
+  <BaseTable
+    :rows="rows"
+    :columns="columns"
+    :showAddButton="true"
+    :showFilter="false"
+    :allowEdit="false"
+    :delete-item-label="localize('tooltips.deleteRelationship')"
+    :add-button-label="localize('labels.campaign.addPC')"
 
-      @add-item="onAddItemClick"
-      @delete-item="onDeleteItemClick"
-      @row-select="onRowSelect"
-    />
-  </div>
+    @add-item="onAddItemClick"
+    @delete-item="onDeleteItemClick"
+    @row-select="onRowSelect"
+    @drop="onDrop"
+    @dragover="onDragover"
+  />
 </template>
 
 <script setup lang="ts">
@@ -104,6 +102,14 @@
       no: () => {},
     });
   };
+
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
 
   const onDrop = async(event: DragEvent) => {
     if (event.dataTransfer?.types[0]==='text/plain') {

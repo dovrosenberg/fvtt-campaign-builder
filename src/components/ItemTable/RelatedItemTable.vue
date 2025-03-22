@@ -14,6 +14,7 @@
     @edit-item="onEditItemClick"
     @row-select="onRowSelect"
     @drop="onDrop"
+    @dragover="onDragover"
   />
 
   <EditRelatedItemDialog 
@@ -193,6 +194,14 @@
   const onRowSelect = async function (event: { originalEvent: PointerEvent; data: RelatedItemGridRow} ) { 
     await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
+
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
 
   const onDrop = async (event: DragEvent) => {
     if (event.dataTransfer?.types[0]==='text/plain') {

@@ -6,6 +6,7 @@
     @click="onTabClick"
     @dragstart="onDragStart"
     @drop="onDrop"
+    @dragover="onDragover"
   >
     <div 
       v-if="tab.header.icon"
@@ -93,6 +94,14 @@
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
+
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
 
   const onDrop = async(event: DragEvent) => {
     if (event.dataTransfer?.types[0]==='text/plain') {

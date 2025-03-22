@@ -1,4 +1,5 @@
 <template>
+  <!-- a table for data inside a session that supports moving rows around to other sessions -->
   <SessionTable 
     :rows="relatedLoreRows"
     :columns="campaignStore.extraFields[CampaignTableTypes.Lore]"  

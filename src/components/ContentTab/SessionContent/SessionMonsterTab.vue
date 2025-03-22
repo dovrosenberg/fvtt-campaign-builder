@@ -7,6 +7,7 @@
     :show-add-button="false"
     @row-select="onRowSelect($event.data.uuid)"  
     @drop="onDrop"
+    @dragover="onDragover"
     @delete-item="onDeleteMonster"
     @mark-item-delivered="onMarkMonsterDelivered"
     @unmark-item-delivered="onUnmarkMonsterDelivered"
@@ -56,6 +57,14 @@
 
   ////////////////////////////////
   // event handlers
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
+
   const onDrop = async (event: DragEvent) => {
     if (event.dataTransfer?.types[0]==='text/plain') {
       try {

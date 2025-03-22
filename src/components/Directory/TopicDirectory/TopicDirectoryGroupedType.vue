@@ -19,6 +19,7 @@
         <div 
           class="wcb-current-directory-type"
           @drop="onDrop"
+          @dragover="onDragover"
           @contextmenu="onTypeContextMenu"
         >
           {{ currentType?.name }}
@@ -114,6 +115,14 @@
   };
 
   // you can drop an item on a type and it should reassign the type
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
+
   const onDrop = async (event: DragEvent): Promise<boolean> => {
     if (event.dataTransfer?.types[0]==='text/plain') {
       if (!currentWorld.value)
