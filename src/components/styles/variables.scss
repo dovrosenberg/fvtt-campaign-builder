@@ -1,4 +1,4 @@
-:root {
+body {
   --wcb-light-0: var(--color-light-0);
   --wcb-light-1: var(--color-light-1);
   --wcb-light-2: var(--color-light-2);
@@ -25,7 +25,7 @@
 }
 
 // themed variables
-:root {
+body {
   --wcb-header-border-color: rgb(192, 192, 192);
   --wcb-header-background: rgb(220, 220, 220);
   --wcb-header-color: var(--color-text-dark-primary);
@@ -116,14 +116,14 @@
   --wcb-sidebar-input-placeholder-color: var(--color-text-dark-secondary);
   --wcb-sidebar-label-color: var(--wcb-sheet-color);
   --wcb-sidebar-world-color: var(--color-text-light-highlight);
-  --wcb-sidebar-world-background: rgb(183, 181, 174);
+  --wcb-sidebar-world-background: var(--color-light-3);   //rgb(183, 181, 174);
   --wcb-sidebar-world-border: rgb(116, 115, 109);
   --wcb-sidebar-world-color-collapsed: var(--wcb-dark-2);
-  --wcb-sidebar-world-background-collapsed: var(--wcb-light-5);
+  --wcb-sidebar-world-background-collapsed: var(--color-light-2);
   --wcb-sidebar-world-border-collapsed: rgb(139, 138, 131);
   --wcb-sidebar-world-context-color: var(--color-text-dark-primary);
   --wcb-sidebar-campaign-color: var(--color-text-light-highlight);
-  --wcb-sidebar-campaign-background: var(--wcb-light-5);   //rgb(183, 181, 174);
+  --wcb-sidebar-campaign-background: var(--wcb-light-3);   //rgb(183, 181, 174);
   --wcb-sidebar-campaign-border: rgb(116, 115, 109);
   --wcb-sidebar-campaign-color-collapsed: var(--wcb-dark-2);
   --wcb-sidebar-campaign-background-collapsed: var(--wcb-light-5);

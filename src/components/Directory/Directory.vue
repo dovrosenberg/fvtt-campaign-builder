@@ -208,6 +208,7 @@
           text-align: center;
           position: relative;
           display: inline-flex;
+          align-items: center;
 
           i {
             position: absolute;
