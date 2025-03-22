@@ -34,6 +34,7 @@
   // local imports
   import { useNavigationStore } from '@/applications/stores';
   import { WindowTab } from '@/classes';
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
 
@@ -103,38 +104,30 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async(event: DragEvent) => {
-    if (event.dataTransfer?.types[0]==='text/plain') {
-      let data;
+  const onDrop = async (event: DragEvent) => {
+    event.preventDefault();  
 
-      try {
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
-      }
-      catch (err) {
-        return false;
-      }
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
 
-      // where are we droping it?
-      const target = (event.currentTarget as HTMLElement).closest('.wcb-tab') as HTMLElement;
-      if (!target)
-        return false;
+    // where are we droping it?
+    const target = (event.currentTarget as HTMLElement).closest('.wcb-tab') as HTMLElement;
+    if (!target)
+      return;
 
-      if (data.tabId === props.tab.id) return; // Don't drop on yourself
+    if (data.tabId === props.tab.id) return; // Don't drop on yourself
 
-      // insert before the drop target
-      const tabsValue = tabs.value;
-      const from = tabsValue.findIndex(t => t.id === data.tabId);
-      const to = tabsValue.findIndex(t => t.id === props.tab.id);
-      tabsValue.splice(to, 0, tabsValue.splice(from, 1)[0]);
-      tabs.value = tabsValue;
+    // insert before the drop target
+    const tabsValue = tabs.value;
+    const from = tabsValue.findIndex(t => t.id === data.tabId);
+    const to = tabsValue.findIndex(t => t.id === props.tab.id);
+    tabsValue.splice(to, 0, tabsValue.splice(from, 1)[0]);
+    tabs.value = tabsValue;
 
-      // activate the moved one (will also save the tabs)
-      await navigationStore.activateTab(data.tabId);
-
-      return true;
-    } else {
-      return false;
-    }
+    // activate the moved one (will also save the tabs)
+    await navigationStore.activateTab(data.tabId);
   };
 
   ////////////////////////////////

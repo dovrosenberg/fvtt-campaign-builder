@@ -13,6 +13,8 @@
     @mark-item-delivered="onMarkLocationDelivered"
     @unmark-item-delivered="onUnmarkLocationDelivered"
     @move-to-next-session="onMoveLocationToNext"        
+    @dragover="onDragover"
+    @drop="onDrop"
   />
   <EntryPickerDialog
     v-model="showLocationPicker"
@@ -31,6 +33,7 @@
   import { useSessionStore, useNavigationStore, SessionTableTypes } from '@/applications/stores';
   import { Topics, } from '@/types';
   import { localize } from '@/utils/game'
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
 	import { DataTableRowSelectEvent } from 'primevue/datatable';
@@ -88,6 +91,30 @@
   const onMoveLocationToNext = async (uuid: string) => {
     await sessionStore.moveLocationToNext(uuid);
   }
+
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
+
+  const onDrop = async(event: DragEvent) => {
+    event.preventDefault();  
+
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
+
+    // make sure it's the right format
+    if (data.topic !== Topics.Location || !data.childId) {
+      return;
+    }
+
+    await sessionStore.addLocation(data.childId);      
+  };
 
   ////////////////////////////////
   // watchers

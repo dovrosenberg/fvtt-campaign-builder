@@ -54,7 +54,8 @@
   import { localize } from '@/utils/game';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   import { toTopic } from '@/utils/misc';
-  
+  import { getValidatedData } from '@/utils/dragdrop';
+
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
 
@@ -123,53 +124,46 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async (event: DragEvent): Promise<boolean> => {
-    if (event.dataTransfer?.types[0]==='text/plain') {
-      if (!currentWorld.value)
-        return false;
+  const onDrop = async (event: DragEvent) => {
+    event.preventDefault();  
 
-      let data;
-      try {
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+    if (!currentWorld.value)
+        return;
+
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
+
+    // make sure it's not already set
+    if (!data.typeName || data.typeName===currentType.value.name)
+      return;
+
+    // get the pack on the new item
+    const topicElement = (event.currentTarget as HTMLElement).closest('.wcb-topic-folder') as HTMLElement | null;
+    if (!topicElement || !topicElement.dataset.topic) {
+      return;
+    }
+
+    const topic = toTopic(topicElement.dataset.topic);
+
+    // if the topics don't match, can't drop
+    if (data.topic!==topic || topic === null)
+      return;
+
+    // set the new type
+    const entry = await Entry.fromUuid(data.id, currentWorld.value.topicFolders[topic]);
+    if (entry) {
+      const oldType = entry.type;
+      entry.type = currentType.value.name;
+      await entry.save();
+
+      await topicDirectoryStore.updateEntryType(entry, oldType);
+
+      // if it's currently open, force screen refresh
+      if (entry.uuid === currentEntry.value?.uuid) {
+        await mainStore.refreshEntry();
       }
-      catch (err) {
-        return false;
-      }
-
-      // make sure it's not already set
-      if (!data.typeName || data.typeName===currentType.value.name)
-        return false;
-
-      // get the pack on the new item
-      const topicElement = (event.currentTarget as HTMLElement).closest('.wcb-topic-folder') as HTMLElement | null;
-      if (!topicElement || !topicElement.dataset.topic) {
-        return false;
-      }
-
-      const topic = toTopic(topicElement.dataset.topic);
-
-      // if the topics don't match, can't drop
-      if (data.topic!==topic || topic === null)
-        return false;
-
-      // set the new type
-      const entry = await Entry.fromUuid(data.id, currentWorld.value.topicFolders[topic]);
-      if (entry) {
-        const oldType = entry.type;
-        entry.type = currentType.value.name;
-        await entry.save();
-
-        await topicDirectoryStore.updateEntryType(entry, oldType);
-
-        // if it's currently open, force screen refresh
-        if (entry.uuid === currentEntry.value?.uuid) {
-          await mainStore.refreshEntry();
-        }
-      }
-
-      return true;
-    } else {
-      return false;
     }
   };
 

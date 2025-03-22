@@ -43,6 +43,7 @@
   import { useMainStore, useNavigationStore, useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { Entry } from '@/classes';
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
 
@@ -210,40 +211,30 @@
   }
 
   const onDrop = async (event: DragEvent) => {
-    if (event.dataTransfer?.types[0]==='text/plain') {
-      try {
-        let data;
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+    event.preventDefault();  
 
-        // make sure it's the right format
-        if (typeof data.topic !== 'number' || !data.childId) {
-          return false;
-        }
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
 
-        // see if the topic matches
-        if (data.topic !== props.topic) {
-          return false;
-        }
-
-        // add the item to the relationship 
-        // make the extra fields blank, if there are any
-        const extraFieldsToSend = extraFields[currentEntryTopic.value][props.topic].reduce((acc, field) => {
-          acc[field.field] = '';
-          return acc;
-        }, {} as Record<string, string>);
-
-        const fullEntry = await Entry.fromUuid(data.childId);
-        if (fullEntry)
-          await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
-        else
-          return false;
-      } 
-      catch (err) {
-        return false;
-      }
+    // make sure it's the right format and topic matches
+    if (data.topic !== props.topic || !data.childId) {
+      return;
     }
 
-    return true;
+    // add the item to the relationship 
+    // make the extra fields blank, if there are any
+    const extraFieldsToSend = extraFields[currentEntryTopic.value][props.topic].reduce((acc, field) => {
+      acc[field.field] = '';
+      return acc;
+    }, {} as Record<string, string>);
+
+    const fullEntry = await Entry.fromUuid(data.childId);
+    if (fullEntry)
+      await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
+    else
+      return;
   }
 
   // show the edit dialog

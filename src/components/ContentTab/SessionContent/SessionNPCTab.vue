@@ -13,6 +13,8 @@
     @mark-item-delivered="onMarkNPCDelivered"
     @unmark-item-delivered="onUnmarkNPCDelivered"
     @move-to-next-session="onMoveNPCToNext"        
+    @dragover="onDragover"
+    @drop="onDrop"
   />
   <EntryPickerDialog
     v-model="showNPCPicker"
@@ -31,6 +33,7 @@
   import { useSessionStore, useNavigationStore, SessionTableTypes} from '@/applications/stores';
   import { Topics, } from '@/types';
   import { localize } from '@/utils/game'
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
 	import { DataTableRowSelectEvent } from 'primevue/datatable';
@@ -88,6 +91,31 @@
   const onMoveNPCToNext = async (uuid: string) => {
     await sessionStore.moveNPCToNext(uuid);
   }
+
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();  
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
+
+  const onDrop = async(event: DragEvent) => {
+    event.preventDefault();  
+
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
+
+    // make sure it's the right format
+    if (data.topic !== Topics.Character || !data.childId) {
+      return;
+    }
+
+    await sessionStore.addNPC(data.childId);      
+  };
+
 
   ////////////////////////////////
   // watchers

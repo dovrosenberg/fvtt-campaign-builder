@@ -26,6 +26,7 @@
   // local imports
   import { useCampaignStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
 
@@ -113,30 +114,23 @@
   }
 
   const onDrop = async(event: DragEvent) => {
-    if (event.dataTransfer?.types[0]==='text/plain') {
-      try {
-        let data;
-        data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
+    event.preventDefault();  
 
-        // make sure it's the right format
-        // if it's an actor, create a new PC and link it
-        if (data.type==='Actor' && data.uuid) {
-          const newPC = await campaignStore.addPC();
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
 
-          if (newPC) {
-            newPC.actorId = data.uuid;
-            await newPC?.getActor();
-            await navigationStore.openPC(newPC.uuid, { newTab: true });
-          }
-        }
+    // make sure it's the right format
+    // if it's an actor, create a new PC and link it
+    if (data.type==='Actor' && data.uuid) {
+      const newPC = await campaignStore.addPC();
 
-        return true;
+      if (newPC) {
+        newPC.actorId = data.uuid;
+        await newPC?.getActor();
+        await navigationStore.openPC(newPC.uuid, { newTab: true });
       }
-      catch (err) {
-        return false;
-      }
-    } else {
-      return false;
     }
   };
   
