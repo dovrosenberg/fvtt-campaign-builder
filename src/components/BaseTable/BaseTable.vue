@@ -38,18 +38,23 @@
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
-          <Button
-            v-if="props.showAddButton"
-            unstyled
-            :label="props.addButtonLabel" 
-            style="flex: initial; width:auto;"
-            @click="emit('addItem')"
-          >
-            <template #icon>
-              <!-- icon="o_add_circle"  -->
-              <i class="fas fa-plus"></i>
-            </template>
-          </Button>
+          <div style="display: flex">
+            <Button
+              v-if="props.showAddButton"
+              unstyled
+              :label="props.addButtonLabel" 
+              style="flex: initial; width:auto;"
+              @click="emit('addItem')"
+            >
+              <template #icon>
+                <!-- icon="o_add_circle"  -->
+                <i class="fas fa-plus"></i>
+              </template>
+            </Button>
+            <div style="line-height:var(--input-height); color: var(--color-text-primary); margin-left: 0.75rem;">
+              {{ props.extraAddText }}
+            </div>
+          </div>
           <!-- <q-btn v-if="showGenerate"
             color="primary" 
             icon="psychology" 
@@ -65,9 +70,8 @@
             </InputIcon>
             <InputText 
               v-model="pagination.filters.global.value"  
-              placeholder="Keyword Search"
-              unstyled
-              />
+              :placeholder="localize('placeholders.search')"
+            />
           </IconField>
         </div>
       </template>
@@ -162,6 +166,10 @@
       default: true,
     },
     addButtonLabel: { 
+      type: String, 
+      default: '',
+    },
+    extraAddText: {   // displays as text next to the add button (even if no button)
       type: String, 
       default: '',
     },

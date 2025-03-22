@@ -6,6 +6,7 @@
     :allow-edit="false"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLocation')" 
+    :extra-add-text="localize('labels.session.addLocationDrag')"
     @row-select="onRowSelect"
     @add-item="showLocationPicker=true"
     @delete-item="onDeleteLocation"

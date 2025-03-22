@@ -6,6 +6,7 @@
     :allow-edit="false"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addNPC')" 
+    :extra-add-text="localize('labels.session.addNPCDrag')"
     @row-select="onRowSelect"
     @add-item="showNPCPicker=true"
     @delete-item="onDeleteNPC"

@@ -3,6 +3,7 @@
     :rows="rows"
     :columns="columns"
     :showAddButton="true"
+    :extra-add-text="newItemDragLabel"
     :addButtonLabel="newItemLabel"
     :filterFields="filterFields"
     :allowEdit="true"
@@ -100,16 +101,21 @@
   });
 
   const newItemLabel = computed(() => {
-    const prefix = 'Add ';
+    switch (props.topic) {
+      case Topics.Event: return localize('labels.addTopic.event');
+      case Topics.Character: return localize('labels.addTopic.character'); 
+      case Topics.Location: return localize('labels.addTopic.location');
+      case Topics.Organization: return localize('labels.addTopic.organization');
+    }
+  });
 
-    const labels = {
-      [Topics.Event]: 'Event',
-      [Topics.Character]: 'Character',
-      [Topics.Location]: 'Location',
-      [Topics.Organization]: 'Organization',
-    } as Record<ValidTopic, string>;
-
-    return prefix + labels[props.topic];
+  const newItemDragLabel = computed(() => {
+    switch (props.topic) {
+      case Topics.Event: return localize('labels.addTopicDrag.event');
+      case Topics.Character: return localize('labels.addTopicDrag.character'); 
+      case Topics.Location: return localize('labels.addTopicDrag.location');
+      case Topics.Organization: return localize('labels.addTopicDrag.organization');
+    }
   });
 
   type RelatedItemGridRow = { uuid: string; name: string; type: string } & Record<string, any>;

@@ -3,7 +3,8 @@
   <BaseTable
     :rows="rows"
     :columns="columns"
-    :showAddButton="true"
+    :show-add-button="true"
+    :extra-add-text="localize('labels.campaign.addPCDrag')"
     :showFilter="false"
     :allowEdit="false"
     :delete-item-label="localize('tooltips.deleteRelationship')"

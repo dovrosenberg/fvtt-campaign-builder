@@ -217,6 +217,7 @@
       padding: 0;
       flex-grow: 1;
       overflow: auto;
+      margin-top: 3px;
 
       .wcb-world-folder {
         align-items: flex-start;

@@ -46,6 +46,18 @@
         "desiredMagicItems": "Desired Magic Items",
         "species": "Species"
       },
+      "addTopic": {
+        "character": "Add Character",
+        "event": "Add Event",
+        "location": "Add Location",
+        "organization": "Add Organization"
+      },
+      "addTopicDrag": {
+        "character": "(or drag/drop a character)",
+        "event": "(or drag/drop an event)",
+        "location": "(or drag/drop a location)",
+        "organization": "(or drag/drop an organization)"
+      },
       "entry": {
         "topic": "TopicFolder",
         "type": "Type",
@@ -55,13 +67,16 @@
         "session": "Session",
         "pc": "PC",
         "addLocation": "Add location",
+        "addLocationDrag": "(or drag/drop a location)",
         "addScene": "Add scene",
         "addLore": "Add lore",
         "addNPC": "Add NPC",
+        "addNPCDrag": "(or drag/drop a character)",
         "addItem": "Add item"
       },
       "campaign": {
-        "addPC": "Add PC"
+        "addPC": "Add PC",
+        "addPCDrag": "(or drag/drop an actor)"
       },
       "pc": {
         "linkToNewActor": "Link to new actor"
@@ -123,9 +138,7 @@
       "characters": "Characters",
       "events": "Events",
       "locations": "Locations",
-      "organizations": "Organizations",
-      "scene": "Scene",
-      "scenes": "Scenes"
+      "organizations": "Organizations"
     },
     "dialogs": {
       "confirmDeleteRelationship": {
