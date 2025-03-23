@@ -35,7 +35,7 @@ export default definePreset(Aura, {
       },
     },
     inputtext: {
-      background: 'inherit', // change to var  
+      background: 'rgba(0, 0, 0, 0.1)', 
       color: 'black',   //'var(--color-text-primary)',       // change to var
       focusBorderColor: 'black',  // change to var
       focusRing: {
@@ -45,7 +45,7 @@ export default definePreset(Aura, {
       }
     },
     textarea: {
-      background: 'inherit', // change to var  
+      background: 'rgba(0, 0, 0, 0.1)', 
       color: 'black',   //'var(--color-text-primary)',       // change to var
       focusBorderColor: 'black',  // change to var
       focusRing: {

@@ -116,25 +116,27 @@ body {
   --wcb-sidebar-input-placeholder-color: var(--color-text-dark-secondary);
   --wcb-sidebar-label-color: var(--wcb-sheet-color);
   --wcb-sidebar-world-color: var(--color-text-light-highlight);
-  --wcb-sidebar-world-background: var(--color-light-3);   //rgb(183, 181, 174);
-  --wcb-sidebar-world-border: rgb(116, 115, 109);
-  --wcb-sidebar-world-color-collapsed: var(--wcb-dark-2);
-  --wcb-sidebar-world-background-collapsed: var(--color-light-2);
-  --wcb-sidebar-world-border-collapsed: rgb(139, 138, 131);
+  --wcb-sidebar-world-background: rgb(201, 201, 182);
+  --wcb-sidebar-world-border: rgb(219, 219, 219);
+  --wcb-sidebar-world-color-collapsed: rgb(130, 130, 130);
+  --wcb-sidebar-world-background-collapsed: rgb(219, 219, 219);
+  --wcb-sidebar-world-border-collapsed: rgb(199, 199, 199);
   --wcb-sidebar-world-context-color: var(--color-text-dark-primary);
-  --wcb-sidebar-campaign-color: var(--color-text-light-highlight);
-  --wcb-sidebar-campaign-background: var(--wcb-light-3);   //rgb(183, 181, 174);
-  --wcb-sidebar-campaign-border: rgb(116, 115, 109);
-  --wcb-sidebar-campaign-color-collapsed: var(--wcb-dark-2);
-  --wcb-sidebar-campaign-background-collapsed: var(--wcb-light-5);
-  --wcb-sidebar-campaign-border-collapsed: rgb(139, 138, 131);
-  --wcb-sidebar-campaign-context-color: var(--color-text-dark-primary);
+  --wcb-sidebar-campaign-color: var(--wcb-sidebar-world-color);
+  --wcb-sidebar-campaign-background: inherit;    // var(--wcb-sidebar-world-background);
+  --wcb-sidebar-campaign-border: var(--wcb-sidebar-world-border);;
+  --wcb-sidebar-campaign-color-collapsed: var(--wcb-sidebar-campaign-color);
+  --wcb-sidebar-campaign-background-collapsed: inherit;  //var(--wcb-sidebar-world-background-collapsed);
+  --wcb-sidebar-campaign-border-collapsed: var(--wcb-sidebar-world-border-collapsed);
+  --wcb-sidebar-campaign-context-color: var(--wcb-sidebar-world-context-color);
   --wcb-sidebar-create-entry-color: var(--wcb-dark-3);
   --wcb-sidebar-create-entry-secondary-color: var(--wcb-dark-5);
   --wcb-sidebar-subfolder-border: rgb(156, 154, 148);
   --wcb-sidebar-document-color: var(--color-text-dark-primary);
   --wcb-sidebar-document-border-top: rgb(195, 193, 182);
-  --wcb-sidebar-document-border-botom: rgb(154, 152, 144);
+  --wcb-sidebar-document-border-bottom: rgb(154, 152, 144);
+
+  --wcb-ta-list-background: rgb(220, 220, 220);
 }
 
 // .theme-dark {

@@ -21,11 +21,10 @@
           </h1>
           <div class="form-group wcb-content-header">
             <label>{{ localize('labels.fields.type') }}</label>
-            <TypeAhead 
-              :initial-list="typeList"
-              :initial-value="currentEntry?.type as string || ''"
-              @item-added="onTypeItemAdded"
-              @selection-made="onTypeSelectionMade"
+            <TypeSelect
+              :initial-value="currentEntry?.type || ''"
+              :topic="topic as ValidTopic"
+              @type-selection-made="onTypeSelectionMade"
             />
           </div>
 
@@ -35,12 +34,10 @@
             class="form-group wcb-content-header"
           >
             <label>{{ localize('labels.fields.species') }}</label>
-            <TypeAhead 
-              :initial-list="validSpecies"
+            <SpeciesSelect
               :initial-value="currentEntry?.speciesId || ''"
               :allow-new-items="false"
-              @selection-made="onSpeciesSelectionMade"
-              @item-added="onSpeciesItemAdded"
+              @species-selection-made="onSpeciesSelectionMade"
             />
           </div>
 
@@ -142,7 +139,6 @@
   import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
-  import { ModuleSettings, SettingKey } from '@/settings';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -152,9 +148,11 @@
   import TypeAhead from '@/components/TypeAhead.vue';
   import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
+  import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
+  import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
 
   // types
-  import { DocumentLinkType, Topics, ValidTopic } from '@/types';
+  import { DocumentLinkType, Topics, ValidTopic, } from '@/types';
   import { Entry, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////
@@ -194,14 +192,12 @@
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
-  const validSpecies = ref<{id: string; label: string}[]>([]);
 
   ////////////////////////////////
   // computed data
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
-  const typeList = computed((): string[] => (topic.value===null || !currentWorld.value ? [] : currentWorld.value.topicFolders[topic.value].types));
 
   ////////////////////////////////
   // methods
@@ -230,16 +226,6 @@
           label: e.name || '',
         }));
       }
-
-      // refresh species
-      if (topic.value === Topics.Character) {
-        validSpecies.value = ModuleSettings.get(SettingKey.speciesList).map((s) => ({
-          id: s.id,
-          label: s.name,
-        })) || [];
-      } else {
-        validSpecies.value = [];
-      }
     }
   };
 
@@ -267,25 +253,6 @@
     }, debounceTime);
   };
 
-  // new type added in the typeahead
-  const onTypeItemAdded = async (added: string) => {
-    if (topic.value === null || !currentWorld.value)
-      return;
-
-    const topicFolder = currentWorld.value.topicFolders[topic.value as ValidTopic];
-    const currentTypes = topicFolder.types;
-
-    // if not a duplicate, add to the valid type lists 
-    if (!currentTypes[topic.value]?.includes(added)) {
-      const updatedTypes = currentTypes.concat(added);
-
-      topicFolder.types = updatedTypes;
-      await topicFolder.save();
-    }
-
-    await onTypeSelectionMade(added);
-  };
-
   const onTypeSelectionMade = async (selection: string) => {
     if (currentEntry.value) {
       const oldType = currentEntry.value.type;
@@ -295,7 +262,6 @@
       await topicDirectoryStore.updateEntryType(currentEntry.value, oldType);
     }
   };
-
 
   const onParentSelectionMade = async (selection: string): Promise<void> => {
     if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
@@ -315,18 +281,12 @@
     await currentEntry.value.save();
   };
 
-  const onSpeciesSelectionMade = async (selection: string): Promise<void> => {
-    if (!currentEntry.value?.topic || !currentEntry.value?.uuid || currentEntry.value.topic !== Topics.Character)
+  const onSpeciesSelectionMade = async (newSpeciesId: string): Promise<void> => {
+    if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
       return;
 
-    currentEntry.value.speciesId = selection;
+    currentEntry.value.speciesId = newSpeciesId;
     await currentEntry.value.save();
-  };
-
-  // can't add new ones - just reset
-  const onSpeciesItemAdded = async (): Promise<void> => {
-    if (currentEntry.value)
-      currentEntry.value.speciesId = currentEntry.value.speciesId;
   };
 
   ////////////////////////////////

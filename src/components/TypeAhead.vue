@@ -243,7 +243,7 @@
   .wcb-typeahead {
     position: relative;
     overflow-y: visible;
-    z-index: 1000;
+    z-index: auto;
 
     .wcb-ta-dropdown {
       position: absolute;
@@ -254,9 +254,10 @@
       box-shadow: 0 0 5px #555555;
       border-radius: 3px;
       width: calc(100% - 2px);
+      z-index: 1;
       
       .typeahead-entry {
-        background-color: var(--wcb-header-tab-background);
+        background-color: var(--wcb-ta-list-background);
         padding: 1px 3px;
         margin: 1px 0;
         font-size: 1rem;

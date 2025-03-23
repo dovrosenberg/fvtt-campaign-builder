@@ -47,6 +47,10 @@ Can we create a dialog to handle all those cases?
       area that's disabled? - for the output
       There should be a generate button, an accept button, and a cancel button
       <div class="flexrow">
+        Type AutoComplete
+        Species Autocomplete
+        brief description
+        
         <AutoComplete 
           ref="nameSelectRef"
           v-model="entry"

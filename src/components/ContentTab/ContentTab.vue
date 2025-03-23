@@ -49,7 +49,7 @@
   // library components
 
   // local components
-  import EntryContent from '@/components/ContentTab/EntryContent.vue';
+  import EntryContent from '@/components/ContentTab/EntryContent/EntryContent.vue';
   import SessionContent from '@/components/ContentTab/SessionContent/SessionContent.vue';
   import PCContent from '@/components/ContentTab/PCContent.vue';
   import CampaignContent from '@/components/ContentTab/CampaignContent/CampaignContent.vue';
