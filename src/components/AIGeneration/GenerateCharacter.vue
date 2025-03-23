@@ -1,4 +1,8 @@
-Need to think this through more - there should be a generate button on related item 
+<template>
+  <!-- used to generate a description for an entry-->
+
+
+  <!-- Need to think this through more - there should be a generate button on related item 
 tables - that's to do something from scratch... but how does it deal with things
 like parent?
 
@@ -8,12 +12,10 @@ stuff there and then generate?
 Or should it be a right click on a directory topic to generate from there?
 
 Can we create a dialog to handle all those cases?
-
-<template>
-  <!-- used to generate a description for an entry-->
-  <Dialog 
+ -->
+<Dialog 
     v-model="show"
-    :title="topicDetails[props.topic].title"
+    :title="localize('dialogs.generateCharacter.title')"
     :buttons="[
       {
         label: 'Cancel',
@@ -25,88 +27,81 @@ Can we create a dialog to handle all those cases?
         label: 'Generate',
         default: false,
         close: true,
-        disable: !isFormValid,
-        callback: onGenerate
+        callback: onGenerateClick
       },
       {
         label: 'Accept',
         default: false,
         close: true,
-        callback: onAccept
+        disable: !generateComplete,
+        callback: onAcceptClick
       },
     ]"
     @close="onClose"
   >
-  <div 
-      v-if="selectItems.length>0"
+    <div 
       class="flexcol"
       style="gap: 5px;"
     >
-      So - in here, we want the controls for all the inputs - some things we can
-      pull from the entry (like parent, etc.).  We then show an area - maybe a text 
-      area that's disabled? - for the output
-      There should be a generate button, an accept button, and a cancel button
-      <div class="flexrow">
-        Type AutoComplete
-        Species Autocomplete
-        brief description
-        
-        <AutoComplete 
-          ref="nameSelectRef"
-          v-model="entry"
-          :dropdown="true"
-          :typeahead="true"
-          :force-selection="true"
-          :suggestions="options"
-          :placeholder="topicDetails[props.topic].title"
-          option-label="name"
-          data-key="uuid"
-          variant="outlined"
-          show-clear
-          @complete="onSearch"
-          @keydown.enter.stop="onAddClick"
-        />
-      </div>
-      <div class="flexrow">
-        <InputGroup 
-          v-for="field in extraFields"
-          :key="field.field"
-        >
-          <IftaLabel>
-            <InputText 
-              :id="field.field"
-              v-model="extraFieldValues[field.field]"
-              variant="outlined"
-            />
-            <label :for="field.field">{{ field.header }}</label>
-          </IftaLabel>
-        </InputGroup>
-      </div>
-    </div>
-    <div v-else>
-      All possible related items are already connected.
+      <h6>Name (if blank, will generate a new one)</h6>
+      <InputText
+        v-model="name"
+        type="text" 
+      />
+
+      <h6>Type (If you create a new one, it will be added to the master list)</h6>
+      <TypeSelect 
+        :initial-value="type"
+        :topic="Topics.Character"
+        @type-selection-made="onTypeSelectionMade"
+      />
+
+      <h6>
+        Species (if blank, will use a random one from your world; you can enter
+        something custom here and it won't be added to the list; it will be
+        passed directly to the AI, so if it's something custom, don't 
+        expect much - better to add to the species list first)
+      </h6>
+      <SpeciesSelect 
+        :initial-value="speciesId"
+        :allow-new-items="true"
+        @species-selection-made="onSpeciesSelectionMade"
+        @species-item-added="onSpeciesItemAdded"
+      />
+
+      <h6>Brief description (if blank, will generate a new one)</h6>
+      <Textarea 
+        v-model="briefDescription"
+        rows="2"
+      />
+      <hr>
+      Generated name: Joe
+      Generated description: lj;asd f;lksjad f;alsjkf ;lasjfsdjf a;sljf;asl fjsa;dfj sa;dlfj sdaf
+      as;dfjas;fj;sa f;asjf ;sadfj;sal f;asjf s;adfj 
+      ;asjfd; asj;fl jsa;lf j;aslfj ;sajf ;sajfd 
+      af;ajdsf;a sfj;as f;jl sdf
     </div>
   </Dialog>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch, nextTick, } from 'vue';
-  import { storeToRefs } from 'pinia';
+  import { ref, watch, } from 'vue';
 
   // local imports
-  import { useMainStore, useRelationshipStore, } from '@/applications/stores';
-
+  import { localize } from '@/utils/game';
+  import { ModuleSettings, SettingKey } from '@/settings';
+  import { Backend } from '@/classes/Backend';
+  
   // library components
   import InputText from 'primevue/inputtext';
-  import InputGroup from 'primevue/inputgroup';
-  import IftaLabel from 'primevue/iftalabel';
 
   // local components
   import Dialog from '@/components/Dialog.vue';
+  import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
+  import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
 
   // types
-  import { Entry, TopicFolder, } from '@/classes';
   import { Topics, } from '@/types';
 
   ////////////////////////////////
@@ -121,21 +116,19 @@ Can we create a dialog to handle all those cases?
 
   ////////////////////////////////
   // store
-  const relationshipStore = useRelationshipStore();
-  const mainStore = useMainStore();
-  const { currentEntry, currentWorld, currentEntryTopic } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
-  const show = ref(props.modelValue);
-  const entry = ref<{uuid: string; name: string} | null>(null);  // the selected item from the dropdown
+  const show = ref<boolean>(props.modelValue);
+  const name = ref<string>('');
+  const type = ref<string>('');
+  const speciesId = ref<string>('');
+  const speciesName = ref<string>('');
+  const briefDescription = ref<string>('');
+  const generateComplete = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
-  const isFormValid = computed((): boolean => {
-    // need to see which fields are required and make sure they're filled in
-    return false;
-  });
 
   ////////////////////////////////
   // methods
@@ -144,39 +137,54 @@ Can we create a dialog to handle all those cases?
     emit('update:modelValue', false);
   };
 
-  const mapEntryToOption = function(entry: Entry) {
-    return {
-      uuid: entry.uuid,
-      name: entry.type ? `${entry.name} (${entry.type})` : entry.name,
-    };
-  };
-
   ////////////////////////////////
   // event handlers
-  const onSearch = (event: {query: string}) => {
-    const { query } = event;
-
-    if (query === '') {
-      options.value = selectItems.value;
-    }
-    else {
-      const needle = query.toLowerCase();
-      options.value = selectItems.value.filter((item) => (item.name.toLowerCase().indexOf(needle) > -1));
-    }
+  const onTypeSelectionMade = async (newType: string): Promise<void> => {
+    type.value = newType;
   };
 
-  const onAddClick = async function() {
-    if (entry.value) {
-      // replace nulls with empty strings
-      const extraFieldsToSend = extraFields.value.reduce((acc, field) => {
-        acc[field.field] = extraFieldValues.value[field.field] || '';
-        return acc;
-      }, {} as Record<string, string>);
+  const onSpeciesSelectionMade = async (_newSpeciesId: string, newSpeciesName: string): Promise<void> => {
+    speciesName.value = newSpeciesName;
+  };
 
-      const fullEntry = await Entry.fromUuid(entry.value.uuid);
-      if (fullEntry)
-        await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
+  const onSpeciesItemAdded = async (newName: string): Promise<void> => {
+    speciesName.value = newName;
+  };
+
+  const onGenerateClick = async function() {
+    let speciesDescription = '';
+
+    const speciesList = ModuleSettings.get(SettingKey.speciesList);
+
+    // randomize species if needed
+    if (speciesName.value === '') {
+      const randomSpecies = speciesList[Math.floor(Math.random() * speciesList.length)];
+      speciesName.value = randomSpecies.name;
+    } else {
+      const speciesToUse = speciesList[speciesId.value];
+      speciesDescription = speciesToUse.description;
     }
+    
+    // pull the other things we need  
+    // genre, worldFielding
+
+    // const result = await Backend.api.apiCharacterGeneratePost({
+    //   genre: '',
+    //   worldFeeling: '',
+    //   type: type.value,
+    //   species: speciesName.value,
+    //   speciesDescription: speciesDescription,
+    //   briefDescription: briefDescription.value,
+    // });
+
+    // take the result name (if name is blank) and descdription and display
+    // it
+
+    generateComplete.value = true;
+  }
+
+  const onAcceptClick = async function() {
+    // emit an event that has the new name and description
 
     resetDialog();
   };
@@ -195,22 +203,6 @@ Can we create a dialog to handle all those cases?
   // when the prop changes state, update internal value
   watch(() => props.modelValue, async (newValue) => {
     show.value = newValue; 
-
-    if (!currentWorld.value)
-      return;
-
-    if (newValue) {
-      if (!currentEntry.value || currentEntryTopic.value !== Topics.Organization)
-        throw new Error('Trying to show AddRelatedItemDialog without a current entry');
-
-      selectItems.value = (await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder, currentEntry.value)).map(mapEntryToOption);
-      extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
-
-      // focus on the input
-      await nextTick();
-      // @ts-ignore - not sure why $el isn't found
-      nameSelectRef.value?.$el?.querySelector('input')?.focus();
-    }
   });
 
   ////////////////////////////////

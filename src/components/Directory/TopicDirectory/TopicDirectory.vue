@@ -56,11 +56,13 @@
       </ol>
     </li>
   </ol>
+  <GenerateCharacter v-model="showGenerateCharacter" />
 </template>
 
 <script setup lang="ts">
   // library imports
   import { storeToRefs } from 'pinia';
+  import { ref } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
@@ -73,7 +75,8 @@
   // local components
   import TopicDirectoryNestedTree from './TopicDirectoryNestedTree.vue';
   import TopicDirectoryGroupedTree from './TopicDirectoryGroupedTree.vue';
-  
+  import GenerateCharacter from '@/components/AIGeneration/GenerateCharacter.vue';
+
   // types
   import { WindowTabType } from '@/types';
   import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, } from '@/classes';
@@ -95,7 +98,8 @@
 
   ////////////////////////////////
   // data
-  
+  const showGenerateCharacter = ref<boolean>(false);
+
   ////////////////////////////////
   // computed data
 
@@ -183,6 +187,14 @@
             if (entry) {
               await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
             }
+          }
+        },
+        { 
+          icon: 'fa-atlas',
+          iconFontClass: 'fas',
+          label: 'Generate character', 
+          onClick: async () => {
+            showGenerateCharacter.value = true;
           }
         },
       ]

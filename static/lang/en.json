@@ -141,6 +141,9 @@
       "organizations": "Organizations"
     },
     "dialogs": {
+      "generateCharacter": {
+        "title": "Generate Character"
+      },
       "confirmDeleteRelationship": {
         "title": "Remove from relationship?",
         "message": "Are you sure you want to delete this relationship?"

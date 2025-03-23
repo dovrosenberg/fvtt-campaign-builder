@@ -31,7 +31,7 @@
       required: false,
       default: false,
     },
-    initialValue: {
+    initialValue: {   // the Id
       type: String,
       required: false,
       default: '',
@@ -41,8 +41,8 @@
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
-    (e: 'speciesSelectionMade', speciesId: string): void;
-    (e: 'speciesItemAdded', speciesId: string): void;
+    (e: 'speciesSelectionMade', speciesId: string, speciesName: string): void;
+    (e: 'speciesItemAdded', speciesName: string): void;
   }>();
 
   ////////////////////////////////
@@ -62,14 +62,15 @@
   ////////////////////////////////
   // event handlers
 
-  const onSpeciesSelectionMade = async (selection: string): Promise<void> => {
-    emit('speciesSelectionMade', selection);
+  const onSpeciesSelectionMade = async (speciesId: string): Promise<void> => {
+    emit('speciesSelectionMade', speciesId, validSpecies.value.find(s=>s.id===speciesId)?.label || '');
   };
 
-  // can't add new ones - just reset
-  const onSpeciesItemAdded = async (selection: string): Promise<void> => {
+  // parameter is the text - you need to add it to the settings in the parent
+  //    if desired
+  const onSpeciesItemAdded = async (speciesName: string): Promise<void> => {
     if (props.allowNewItems) {
-      emit('speciesItemAdded', selection);
+      emit('speciesItemAdded', speciesName);
     } else {
       // can't add - just reset
       currentSpeciesId.value = props.initialValue;      

@@ -259,7 +259,6 @@
       .typeahead-entry {
         background-color: var(--wcb-ta-list-background);
         padding: 1px 3px;
-        margin: 1px 0;
         font-size: 1rem;
         font-weight: normal;
         font-family: Signika, sans-serif;
