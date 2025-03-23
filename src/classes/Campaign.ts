@@ -18,6 +18,8 @@ export class Campaign {
 
   // saved in flags
   private _description: string;
+  private _genre: string;
+  private _worldFeeling: string;
   private _lore: SessionLore[];
 
   /**
@@ -36,6 +38,8 @@ export class Campaign {
     this.world = world || null;
 
     this._description = getFlag(this._campaignDoc, CampaignFlagKey.description) || '';
+    this._genre = getFlag(this._campaignDoc, CampaignFlagKey.genre) || '';
+    this._worldFeeling = getFlag(this._campaignDoc, CampaignFlagKey.worldFeeling) || '';
     this._lore = getFlag(this._campaignDoc, CampaignFlagKey.lore) || [];
     this._name = campaignDoc.name;
   }
@@ -136,6 +140,36 @@ export class Campaign {
       [`flags.${moduleId}`]: {
         ...this._cumulativeUpdate[`flags.${moduleId}`],
         description: value,
+      }
+    };
+  }
+
+  get genre(): string {
+    return this._genre;
+  }
+
+  set genre(value: string) {
+    this._genre = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        genre: value,
+      }
+    };
+  }
+
+  get worldFeeling(): string {
+    return this._worldFeeling;
+  }
+
+  set worldFeeling(value: string) {
+    this._worldFeeling = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        worldFeeling: value,
       }
     };
   }

@@ -44,6 +44,16 @@ export default definePreset(Aura, {
         style: 'solid',
       }
     },
+    textarea: {
+      background: 'inherit', // change to var  
+      color: 'black',   //'var(--color-text-primary)',       // change to var
+      focusBorderColor: 'black',  // change to var
+      focusRing: {
+        color: '#c9593f',  // change to var
+        width: '2px',
+        style: 'solid',
+      }
+    },
     // button: {
     //   colorScheme: { 
     //     light: {

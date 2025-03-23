@@ -264,7 +264,11 @@
       .wcb-tab-body {
         display: flex;
         flex: 1;
+        padding: 4px;
 
+        h6 {
+          margin-top: 1rem;
+        }
       }
     }
 

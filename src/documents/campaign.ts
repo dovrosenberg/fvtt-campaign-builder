@@ -1,7 +1,7 @@
 import { FlagSettings } from '@/settings';
 import { SessionLore } from '@/documents/session';
 
-// camapaigns are journal entries, not documents
+// campaigns are journal entries, not documents
 export interface CampaignDoc extends JournalEntry {
   __type: 'CampaignDoc';
 }
@@ -15,12 +15,16 @@ export enum CampaignFlagKey {
   isCampaign = 'isCampaign',    // used to mark the JE as a campaign
   description = 'description',
   lore = 'lore',
+  genre = 'genre',
+  worldFeeling = 'worldFeeling',
 }
 
 export type CampaignFlagType<K extends CampaignFlagKey> =
   K extends CampaignFlagKey.isCampaign ? true :
   K extends CampaignFlagKey.description ? string :
   K extends CampaignFlagKey.lore ? CampaignLore[] :
+  K extends CampaignFlagKey.genre ? string :
+  K extends CampaignFlagKey.worldFeeling ? string :
   never;  
 
 export const flagSettings = [
@@ -35,6 +39,14 @@ export const flagSettings = [
   {
     flagId: CampaignFlagKey.lore,
     default: [] as CampaignLore[],
+  },
+  {
+    flagId: CampaignFlagKey.worldFeeling,
+    default: '',
+  },
+  {
+    flagId: CampaignFlagKey.genre,
+    default: '',
   },
 ] as FlagSettings<CampaignFlagKey, {[K in CampaignFlagKey]: CampaignFlagType<K>}>[];
 

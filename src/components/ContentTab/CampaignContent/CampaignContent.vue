@@ -28,9 +28,23 @@
           <div class="sheet-image">
             <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
           </div>
-          <div class="tab-inner flexcol">
+          <div v-if="currentCampaign" class="tab-inner flexcol">
+            <h6>Genre (ex. "Fantasy" - Needed for AI generation)</h6>
+            <InputText
+              v-model="currentCampaign.genre"
+              type="text" 
+              style="width: 250px"
+              @update:model-value="onGenreSaved"
+            />
+            <h6>World Feeling (ex. "Rugged and dangerous with low level of magic, reserved for the elites" - Improves AI generation)</h6>
+            <Textarea 
+              v-model="currentCampaign.worldFeeling"
+              rows="2"
+              @update:model-value="onWorldFeelingSaved"
+            />
+            <h6>Description</h6>
             <Editor 
-              :initial-content="currentCampaign?.description || ''"
+              :initial-content="currentCampaign.description || ''"
               :has-button="true"
               @editor-saved="onDescriptionEditorSaved"
             />
@@ -64,6 +78,7 @@
   
   // library components
   import InputText from 'primevue/inputtext';
+  import Textarea from 'primevue/textarea';
 
   // local components
   import Editor from '@/components/Editor.vue';
@@ -136,6 +151,28 @@
     currentCampaign.value.description = newContent;
     await currentCampaign.value.save();
   };
+
+  const onGenreSaved = async () => {
+    const debounceTime = 500;
+  
+    clearTimeout(debounceTimer);
+    
+    debounceTimer = setTimeout(async () => {
+      if (currentCampaign.value)
+        await currentCampaign.value.save();
+    }, debounceTime);
+  }
+
+  const onWorldFeelingSaved = async () => {
+    const debounceTime = 500;
+  
+    clearTimeout(debounceTimer);
+    
+    debounceTimer = setTimeout(async () => {
+      if (currentCampaign.value)
+        await currentCampaign.value.save();
+    }, debounceTime);
+  }
 
   ////////////////////////////////
   // watchers
