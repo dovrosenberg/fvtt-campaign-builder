@@ -87,8 +87,10 @@ Can we create a dialog to handle all those cases?
 <script setup lang="ts">
   // library imports
   import { ref, watch, } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
+  import { useMainStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend } from '@/classes/Backend';
@@ -116,6 +118,8 @@ Can we create a dialog to handle all those cases?
 
   ////////////////////////////////
   // store
+  const mainStore = useMainStore();
+  const { currentWorld } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -152,6 +156,9 @@ Can we create a dialog to handle all those cases?
   };
 
   const onGenerateClick = async function() {
+    if (!currentWorld.value) 
+      return;
+
     let speciesDescription = '';
 
     const speciesList = ModuleSettings.get(SettingKey.speciesList);
@@ -166,7 +173,8 @@ Can we create a dialog to handle all those cases?
     }
     
     // pull the other things we need  
-    // genre, worldFielding
+    const genre = currentWorld.value.genre;
+    const worldFeeling = currentWorld.value.worldFeeling;
 
     // const result = await Backend.api.apiCharacterGeneratePost({
     //   genre: '',

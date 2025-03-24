@@ -13,7 +13,7 @@ import { useMainStore } from './mainStore';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, PC } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, PC, WBWorld } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -55,6 +55,20 @@ export const useNavigationStore = defineStore('navigation', () => {
    */
   const openEntry = async function(entryId = null as string | null, options?: OpenContentOptions) {
     await openContent(entryId, WindowTabType.Entry, options );
+  };
+
+  /**
+   * Open a new tab to the given world. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param contentId The uuid of the world to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the entry open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the world be added to the history of the tab? Defaults to true.
+   * @returns The newly opened tab.
+   */
+  const openWorld = async function(worldId = null as string | null, options?: OpenContentOptions) {
+    await openContent(worldId, WindowTabType.World, options );
   };
 
   /**
@@ -134,6 +148,15 @@ export const useNavigationStore = defineStore('navigation', () => {
         } else {
           name = entry.name;
           icon = getTopicIcon(entry.topic);
+        }
+      } break;
+      case WindowTabType.World: {
+        const world = contentId ? await WBWorld.fromUuid(contentId) : null;
+        if (!world) {
+          badId = true;
+        } else {
+          name = world.name;
+          icon = getTabTypeIcon(WindowTabType.World);
         }
       } break;
       case WindowTabType.Campaign: {
@@ -496,6 +519,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     openEntry,
     openSession,
     openCampaign,
+    openWorld,
     openPC,
     openContent,
     getActiveTab,

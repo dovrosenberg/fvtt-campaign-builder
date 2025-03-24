@@ -13,6 +13,9 @@ export enum WorldFlagKey {
   campaignNames = 'campaignNames',   // name of each campaign; keyed by journal entry uuid
   expandedIds = 'expandedIds',   // ids of nodes that are expanded in the tree (could be compendia or entries or subentries) - handles topic tree
   hierarchies = 'hierarchies',   // the full tree hierarchy or null for topics without hierarchy
+  genre = 'genre',
+  worldFeeling = 'worldFeeling',
+  description = 'description',
 }
 
 export type WorldFlagType<K extends WorldFlagKey> =
@@ -22,6 +25,9 @@ export type WorldFlagType<K extends WorldFlagKey> =
   K extends WorldFlagKey.campaignNames ? Record<string, string> : // name; keyed by journal entry uuid
   K extends WorldFlagKey.expandedIds ? Record<string, boolean | null> :  // keyed by uuid (id for compendium); can be false or missing to represent false; we allow null only because of the strange foundry syntax for removing a key
   K extends WorldFlagKey.hierarchies ? Record<string, Hierarchy> :   // keyed by entry id (don't need to key by topic since entry id is unique)
+  K extends WorldFlagKey.genre ? string :
+  K extends WorldFlagKey.worldFeeling ? string :
+  K extends WorldFlagKey.description ? string :
   never;  
 
 export const flagSettings = [
@@ -51,6 +57,18 @@ export const flagSettings = [
     flagId: WorldFlagKey.hierarchies,
     default: {},
     keyedByUUID: true,
+  },
+  {
+    flagId: WorldFlagKey.worldFeeling,
+    default: '',
+  },
+  {
+    flagId: WorldFlagKey.genre,
+    default: '',
+  },
+  {
+    flagId: WorldFlagKey.description,
+    default: '' as string,
   },
 ] as FlagSettings<WorldFlagKey, {[K in WorldFlagKey]: WorldFlagType<K>}>[];
 

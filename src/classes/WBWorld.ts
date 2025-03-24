@@ -28,6 +28,9 @@ export class WBWorld {
   private _hierarchies: Record<string, Hierarchy>;  // the full tree hierarchy or null for topics without hierarchy
   private _topicIds: Record<ValidTopic, string> | null;  // the uuid for each topic
   private _compendiumId: string;  // the uuid for the world compendium 
+  private _description: string;
+  private _genre: string;
+  private _worldFeeling: string;
 
   /**
    * Note: you should always call validate() after creating a new WBWorld - this ensures the 
@@ -48,6 +51,9 @@ export class WBWorld {
     this._hierarchies = getFlag(this._worldDoc, WorldFlagKey.hierarchies);
     this._topicIds = getFlag(this._worldDoc, WorldFlagKey.topicIds);
     this._compendiumId = getFlag(this._worldDoc, WorldFlagKey.compendiumId);
+    this._description = getFlag(this._worldDoc, WorldFlagKey.description) || '';
+    this._genre = getFlag(this._worldDoc, WorldFlagKey.genre) || '';
+    this._worldFeeling = getFlag(this._worldDoc, WorldFlagKey.worldFeeling) || '';
     this._name = this._worldDoc.name;
     if (this._compendiumId) {
       const compendium = game.packs?.get(this._compendiumId);
@@ -142,6 +148,15 @@ export class WBWorld {
   public get name(): string {
     return this._name;
   }
+
+  set name(value: string) {
+    this._name = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      name: value,
+    };
+  }
+
   
   /** 
    * The uuid for the world compendium   
@@ -185,6 +200,52 @@ export class WBWorld {
   public get hierarchies(): Record<string, Hierarchy> {
     return this._hierarchies;
   }
+
+  get description(): string {
+    return this._description;
+  }
+
+  set description(value: string) {
+    this._description = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        description: value,
+      }
+    };
+  }
+
+  public get genre(): string {
+    return this._genre;
+  }
+
+  public set genre(value: string) {
+    this._genre = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        genre: value,
+      }
+    };
+  }
+
+  public get worldFeeling(): string {
+    return this._worldFeeling;
+  }
+
+  public set worldFeeling(value: string) {
+    this._worldFeeling = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        worldFeeling: value,
+      }
+    };
+  }
+  
 
   /**
    * Get the hierarchy for a single entry

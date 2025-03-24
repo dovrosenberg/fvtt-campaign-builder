@@ -111,10 +111,13 @@
 
   // change world
   const onWorldFolderClick = async (event: MouseEvent, worldId: string) => {
+    event.preventDefault();
     event.stopPropagation();
 
-    if (worldId)
+    if (worldId) {
       await mainStore.setNewWorld(worldId);
+      await navigationStore.openWorld(worldId, {newTab: event.ctrlKey});
+    }
   };
 
   const onWorldContextMenu = (event: MouseEvent, worldId: string | null): void => {

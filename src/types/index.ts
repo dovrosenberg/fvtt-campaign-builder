@@ -12,6 +12,7 @@ export enum WindowTabType  {
   Campaign,
   Session,
   PC,
+  World,
 }
 
 export type WindowTabHistory = {

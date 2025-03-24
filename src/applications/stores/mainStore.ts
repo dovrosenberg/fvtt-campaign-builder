@@ -98,6 +98,14 @@ export const useMainStore = defineStore('main', () => {
           _currentEntry.value.topicFolder = currentWorld.value.topicFolders[_currentEntry.value.topic];
         }
         break;
+      case WindowTabType.World:
+          if (tab.header.uuid) {
+            _currentEntry.value = null;
+            _currentWorld.value = await WBWorld.fromUuid(tab.header.uuid);
+            if (!_currentWorld.value)
+              throw new Error('Invalid entry uuid in mainStore.setNewTab()');
+          }
+          break;
       case WindowTabType.Campaign:
         if (tab.header.uuid) {
           _currentCampaign.value = await Campaign.fromUuid(tab.header.uuid);

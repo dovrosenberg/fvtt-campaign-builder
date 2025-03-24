@@ -20,30 +20,32 @@
       </header>
       <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
-        <a class="item" data-tab="pcs">{{ localize('labels.tabs.campaign.pcs') }}</a>
-        <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
       </nav>
       <div class="wcb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
           <div class="sheet-image">
             <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
           </div>
-          <div v-if="currentCampaign" class="tab-inner flexcol">
+          <div v-if="currentWorld" class="tab-inner flexcol">
+            <h6>Genre (ex. "Fantasy" - Needed for AI generation)</h6>
+            <InputText
+              v-model="currentWorld.genre"
+              type="text" 
+              style="width: 250px"
+              @update:model-value="onGenreSaved"
+            />
+            <h6>World Feeling (ex. "Rugged and dangerous with low level of magic, reserved for the elites" - Improves AI generation)</h6>
+            <Textarea 
+              v-model="currentWorld.worldFeeling"
+              rows="2"
+              @update:model-value="onWorldFeelingSaved"
+            />
+            <h6>Description/Notes</h6>
             <Editor 
-              :initial-content="currentCampaign.description || ''"
+              :initial-content="currentWorld.description || ''"
               :has-button="true"
               @editor-saved="onDescriptionEditorSaved"
             />
-          </div>
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="pcs">
-          <div class="tab-inner flexcol">
-            <CampaignPCsTab />
-          </div>
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="lore">
-          <div class="tab-inner flexcol">
-            <CampaignLoreTab />
           </div>
         </div>
       </div> 
@@ -60,7 +62,7 @@
   // local imports
   import { getTabTypeIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useMainStore, useNavigationStore, useTopicDirectoryStore } from '@/applications/stores';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -68,8 +70,6 @@
 
   // local components
   import Editor from '@/components/Editor.vue';
-  import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
-  import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
   
   // types
   import { WindowTabType, } from '@/types';
@@ -84,8 +84,8 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentContentTab, currentWorld } = storeToRefs(mainStore);
+  const topicDirectoryStore = useTopicDirectoryStore();
+  const { currentContentTab, currentWorld } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -116,26 +116,22 @@
     
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
-      if (currentCampaign.value && currentCampaign.value.name!==newValue) {
-        currentCampaign.value.name = newValue;
-        await currentCampaign.value.save();
+      if (currentWorld.value && currentWorld.value.name!==newValue) {
+        currentWorld.value.name = newValue;
+        await currentWorld.value.save();
 
-        // need to make sure the mapping is right, because that's where refreshCampaignDirectoryTree pulls from
-        if (currentWorld.value)
-          currentWorld.value.updateCampaignName(currentCampaign.value.uuid, newValue);
-
-        await campaignDirectoryStore.refreshCampaignDirectoryTree([currentCampaign.value.uuid]);
-        await navigationStore.propagateNameChange(currentCampaign.value.uuid, newValue);
+        await topicDirectoryStore.refreshTopicDirectoryTree([currentWorld.value.uuid]);
+        await navigationStore.propagateNameChange(currentWorld.value.uuid, newValue);
       }
     }, debounceTime);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
-    if (!currentCampaign.value)
+    if (!currentWorld.value)
       return;
 
-    currentCampaign.value.description = newContent;
-    await currentCampaign.value.save();
+    currentWorld.value.description = newContent;
+    await currentWorld.value.save();
   };
 
   const onGenreSaved = async () => {
@@ -144,8 +140,8 @@
     clearTimeout(debounceTimer);
     
     debounceTimer = setTimeout(async () => {
-      if (currentCampaign.value)
-        await currentCampaign.value.save();
+      if (currentWorld.value)
+        await currentWorld.value.save();
     }, debounceTime);
   }
 
@@ -155,22 +151,22 @@
     clearTimeout(debounceTimer);
     
     debounceTimer = setTimeout(async () => {
-      if (currentCampaign.value)
-        await currentCampaign.value.save();
+      if (currentWorld.value)
+        await currentWorld.value.save();
     }, debounceTime);
   }
 
   ////////////////////////////////
   // watchers
-  watch([currentCampaign], async (): Promise<void> => {
-    if (!currentCampaign.value)
+  watch([currentWorld], async (): Promise<void> => {
+    if (!currentWorld.value)
       return;
 
     // reset the tab
     currentContentTab.value = 'description';
 
     // load starting data values
-    name.value = currentCampaign.value.name || '';
+    name.value = currentWorld.value.name || '';
   });
 
   ////////////////////////////////
