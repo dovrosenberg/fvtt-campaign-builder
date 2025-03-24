@@ -75,7 +75,7 @@
     const currentTypes = topicFolder.types;
 
     // if not a duplicate, add to the valid type lists 
-    if (!currentTypes[props.topic]?.includes(added)) {
+    if (!currentTypes?.includes(added)) {
       const updatedTypes = currentTypes.concat(added);
 
       topicFolder.types = updatedTypes;

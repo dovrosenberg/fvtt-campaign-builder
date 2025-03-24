@@ -6,7 +6,7 @@
 tables - that's to do something from scratch... but how does it deal with things
 like parent?
 
-Or can we only generate from the entry dscription screen?  But then you have to create the entry, edit the name and
+Or can we only generate from the entry description screen?  But then you have to create the entry, edit the name and
 stuff there and then generate?
 
 Or should it be a right click on a directory topic to generate from there?
@@ -27,6 +27,7 @@ Can we create a dialog to handle all those cases?
         label: 'Generate',
         default: false,
         close: false,
+        disable: loading,
         callback: onGenerateClick
       },
       {
@@ -69,18 +70,30 @@ Can we create a dialog to handle all those cases?
         @species-item-added="onSpeciesItemAdded"
       />
 
-      <h6>Brief description (if blank, will generate a new one)</h6>
+      <h6>Brief description (optional; use to specify physical features or personality you want included)</h6>
       <Textarea 
         v-model="briefDescription"
         rows="2"
       />
       <hr>
-      <div v-if="generateComplete">
-        Generated name: {{ generatedName }}
-        Generated description: {{ generatedDescription }}
-      </div>
-      <div v-else>
-        Press generate for results...
+      <div style="overflow: auto; height: 250px; min-height: 250px; max-height: 250px">
+        <div v-if="generateError">
+          <span style="color: red"><span style="font-weight: bold">There was an error:</span> {{ generateError }}</span>
+        </div>
+        <div v-else-if="generateComplete">
+          <div><span style="font-weight: bold">Generated name:</span> {{ generatedName }}</div>
+          <div style="white-space: pre-wrap">
+            <span style="font-weight: bold">Generated description:</span> {{ generatedDescription }}
+          </div>
+        </div>
+        <div v-else-if="loading"
+          style="display: flex; align-items: center; justify-content: center; vertical-align: middle;"
+        >
+          <ProgressSpinner />
+        </div>
+        <div v-else>
+          Press generate for results...
+        </div>
       </div>
     </div>
   </Dialog>
@@ -99,6 +112,8 @@ Can we create a dialog to handle all those cases?
   
   // library components
   import InputText from 'primevue/inputtext';
+  import ProgressSpinner from 'primevue/progressspinner';
+  import Textarea from 'primevue/textarea';
 
   // local components
   import Dialog from '@/components/Dialog.vue';
@@ -131,9 +146,12 @@ Can we create a dialog to handle all those cases?
   const speciesId = ref<string>('');
   const speciesName = ref<string>('');
   const briefDescription = ref<string>('');
-  const generateComplete = ref<boolean>(false);
   const generatedName = ref<string>('');
   const generatedDescription = ref<string>('');
+
+  const generateComplete = ref<boolean>(false);
+  const loading = ref<boolean>(false);
+  const generateError = ref<string>('');
 
   ////////////////////////////////
   // computed data
@@ -147,6 +165,8 @@ Can we create a dialog to handle all those cases?
     speciesName.value = '';
     briefDescription.value = '';
     generateComplete.value = false;
+    generateError.value = '';
+    loading.value = false;
     show.value = false;
     emit('update:modelValue', false);
   };
@@ -170,6 +190,10 @@ Can we create a dialog to handle all those cases?
     if (!currentWorld.value) 
       return;
 
+    loading.value = true;
+    generateComplete.value = false;
+    generateError.value = '';
+
     let speciesDescription = '';
 
     const speciesList = ModuleSettings.get(SettingKey.speciesList);
@@ -187,18 +211,28 @@ Can we create a dialog to handle all those cases?
     }
     
     // pull the other things we need  
-    const result = await Backend.api.apiCharacterGeneratePost({
-      genre: currentWorld.value.genre,
-      worldFeeling: currentWorld.value.worldFeeling,
-      type: type.value,
-      species: speciesName.value,
-      speciesDescription: speciesDescription,
-      briefDescription: briefDescription.value,
-    });
+    let result: Awaited<ReturnType<typeof Backend.api.apiCharacterGeneratePost>>;
+    try {
+      result = await Backend.api.apiCharacterGeneratePost({
+        genre: currentWorld.value.genre,
+        worldFeeling: currentWorld.value.worldFeeling,
+        type: type.value,
+        species: speciesName.value,
+        speciesDescription: speciesDescription,
+        briefDescription: briefDescription.value,
+      });
+    } catch (error) {
+      generateError.value = (error as Error).message;
+      generateComplete.value = true;
+      loading.value = false;
+      return;
+    }
 
-    generateComplete.value = true;
     generatedName.value = name.value ? name.value : result.data.name;
     generatedDescription.value = result.data.description;
+
+    generateComplete.value = true;
+    loading.value = false;
   }
 
   const onAcceptClick = async function() {
