@@ -68,6 +68,7 @@
   import { localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
+  import { Backend } from '@/classes/Backend';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -193,9 +194,10 @@
           }
         },
         { 
-          icon: 'fa-atlas',
+          icon: 'fa-head-side-virus',
           iconFontClass: 'fas',
           label: 'Generate character', 
+          disabled: !Backend.available,
           onClick: async () => {
             showGenerateCharacter.value = true;
           }

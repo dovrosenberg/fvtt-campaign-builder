@@ -39,11 +39,17 @@ export interface ApiCharacterGeneratePostRequest {
      */
     'type'?: string;
     /**
-     * The species of the character (will default to human)
+     * The species of the character
      * @type {string}
      * @memberof ApiCharacterGeneratePostRequest
      */
     'species'?: string;
+    /**
+     * A brief description of the species
+     * @type {string}
+     * @memberof ApiCharacterGeneratePostRequest
+     */
+    'speciesDescription'?: string;
     /**
      * A brief description of the character to factor into the produced text
      * @type {string}

@@ -26,7 +26,7 @@ Can we create a dialog to handle all those cases?
       {
         label: 'Generate',
         default: false,
-        close: true,
+        close: false,
         callback: onGenerateClick
       },
       {
@@ -75,11 +75,13 @@ Can we create a dialog to handle all those cases?
         rows="2"
       />
       <hr>
-      Generated name: Joe
-      Generated description: lj;asd f;lksjad f;alsjkf ;lasjfsdjf a;sljf;asl fjsa;dfj sa;dlfj sdaf
-      as;dfjas;fj;sa f;asjf ;sadfj;sal f;asjf s;adfj 
-      ;asjfd; asj;fl jsa;lf j;aslfj ;sajf ;sajfd 
-      af;ajdsf;a sfj;as f;jl sdf
+      <div v-if="generateComplete">
+        Generated name: {{ generatedName }}
+        Generated description: {{ generatedDescription }}
+      </div>
+      <div v-else>
+        Press generate for results...
+      </div>
     </div>
   </Dialog>
 </template>
@@ -130,6 +132,8 @@ Can we create a dialog to handle all those cases?
   const speciesName = ref<string>('');
   const briefDescription = ref<string>('');
   const generateComplete = ref<boolean>(false);
+  const generatedName = ref<string>('');
+  const generatedDescription = ref<string>('');
 
   ////////////////////////////////
   // computed data
@@ -137,6 +141,12 @@ Can we create a dialog to handle all those cases?
   ////////////////////////////////
   // methods
   const resetDialog = function() {
+    name.value = '';
+    type.value = '';
+    speciesId.value = '';
+    speciesName.value = '';
+    briefDescription.value = '';
+    generateComplete.value = false;
     show.value = false;
     emit('update:modelValue', false);
   };
@@ -147,7 +157,8 @@ Can we create a dialog to handle all those cases?
     type.value = newType;
   };
 
-  const onSpeciesSelectionMade = async (_newSpeciesId: string, newSpeciesName: string): Promise<void> => {
+  const onSpeciesSelectionMade = async (newSpeciesId: string, newSpeciesName: string): Promise<void> => {
+    speciesId.value = newSpeciesId;
     speciesName.value = newSpeciesName;
   };
 
@@ -167,28 +178,27 @@ Can we create a dialog to handle all those cases?
     if (speciesName.value === '') {
       const randomSpecies = speciesList[Math.floor(Math.random() * speciesList.length)];
       speciesName.value = randomSpecies.name;
+    } else if (speciesId.value === '') {
+      // custom name
+      speciesDescription = '';
     } else {
-      const speciesToUse = speciesList[speciesId.value];
-      speciesDescription = speciesToUse.description;
+      const speciesToUse = speciesList.find(s => s.id === speciesId.value);
+      speciesDescription = speciesToUse?.description || '';
     }
     
     // pull the other things we need  
-    const genre = currentWorld.value.genre;
-    const worldFeeling = currentWorld.value.worldFeeling;
-
-    // const result = await Backend.api.apiCharacterGeneratePost({
-    //   genre: '',
-    //   worldFeeling: '',
-    //   type: type.value,
-    //   species: speciesName.value,
-    //   speciesDescription: speciesDescription,
-    //   briefDescription: briefDescription.value,
-    // });
-
-    // take the result name (if name is blank) and descdription and display
-    // it
+    const result = await Backend.api.apiCharacterGeneratePost({
+      genre: currentWorld.value.genre,
+      worldFeeling: currentWorld.value.worldFeeling,
+      type: type.value,
+      species: speciesName.value,
+      speciesDescription: speciesDescription,
+      briefDescription: briefDescription.value,
+    });
 
     generateComplete.value = true;
+    generatedName.value = name.value ? name.value : result.data.name;
+    generatedDescription.value = result.data.description;
   }
 
   const onAcceptClick = async function() {
