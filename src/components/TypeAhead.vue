@@ -43,15 +43,18 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    initialValue: {         // the initial value (string or id)
+    /**  the initial value (string or id) */
+    initialValue: {         
       type: String,
       required: true,
     },
-    initialList: {   // the initial list of items to include
+    /**  the initial list of items to include */
+    initialList: {    
       type: Array as PropType<T[]>,
       required: true,
     },
-    allowNewItems: {   // can we add new items?  can't be used if the items are objects
+    /** can we add new items?  can't be used if the items are objects */
+    allowNewItems: {   
       type: Boolean,
       required: false,
       default: true,
@@ -78,19 +81,33 @@
 
   ////////////////////////////////
   // computed data
-  const objectMode = computed(() => props.initialList.length>0 && isObject(props.initialList[0]));
+   /** Determines whether we're in object mode (id/label) or string mode */
+   const objectMode = computed(() => props.initialList.length>0 && isObject(props.initialList[0]));
 
   ////////////////////////////////
   // methods
+    /**
+   * Type guard to check if a value is a ListItem object.
+   * @param value The value to check
+   * @returns True if the value is an object with id and label
+   */
   function isObject(value: unknown): value is { id: string; label: string } {
     return typeof value === 'object' && value !== null && 'id' in value && 'label' in value;
   }
 
+ /**
+   * Returns the display label for the given filtered item index.
+   * @param i Index of the item
+   * @returns Label string
+   */
   const getLabel = (i: number) => (objectMode.value ? (filteredItems.value[i] as ListItem).label : (filteredItems.value[i] as string));
 
   ////////////////////////////////
   // event handlers
   // listen for input changes
+  /**
+   * Handles text input changes and filters the list of items.
+   */
   const onInput = () => {
     // note that we have the focus
     hasFocus.value = true;
@@ -109,11 +126,15 @@
     }
 
     // Render the filtered items
-    // we clear the index if we're typing
-    idx.value = -1;
+    // pick the first item if there is one
+    idx.value = filteredItems.value.length > 0 ? 0 : -1;
   };
 
-  // Event listener for item clicks
+
+  /**
+   * Handles a click on an item in the dropdown list.
+   * @param event Mouse click event
+   */
   const onDropdownClick = async (event: MouseEvent) => {
     const target = event.target as HTMLElement;
 
@@ -131,7 +152,10 @@
     }
   };
 
-  // capture keydown for up, down, enter
+  /**
+   * Handles keyboard navigation and selection.
+   * @param event Keyboard event
+   */
   const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
     // if no list, don't need to do anything
     if (!filteredItems.value)
