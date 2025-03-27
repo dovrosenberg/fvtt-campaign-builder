@@ -54,16 +54,17 @@ export function getTabTypeIcon(type: string | number | WindowTabType | null | un
  */
 export function generatedTextToHTML(text: string) {
   return text
-  .split('\n')
-  .map(line => line.trim())
-  .filter(line => line.length > 0)
-  .map(line => `<p>${line}</p>`)
-  .join('')
-
-  // and replace special characters
+  // replace special characters
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
   .replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;')
-  .replace(/'/g, '&#039;');
+  .replace(/'/g, '&#039;')
+
+  // change newlines to paragraphs
+  .split('\n')
+  .map(line => line.trim())
+  .filter(line => line.length > 0)
+  .map(line => `<p>${line}</p>`)
+  .join('');  
 }
