@@ -95,7 +95,8 @@
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend } from '@/classes/Backend';
-  
+  import { generatedTextToHTML } from '@/utils/misc';
+    
   // library components
   import InputText from 'primevue/inputtext';
   import ProgressSpinner from 'primevue/progressspinner';
@@ -108,6 +109,7 @@
 
   // types
   import { Topics, GeneratedCharacterDetails } from '@/types';
+
 
   ////////////////////////////////
   // props
@@ -254,7 +256,7 @@
     // emit an event that has the new name and description
     emit('characterGenerated', { 
       name: generatedName.value, 
-      description: generatedDescription.value,
+      description: generatedTextToHTML(generatedDescription.value),
       type: type.value,
       speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
     });

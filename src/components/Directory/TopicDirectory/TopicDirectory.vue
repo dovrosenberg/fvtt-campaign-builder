@@ -65,7 +65,7 @@
 <script setup lang="ts">
   // library imports
   import { storeToRefs } from 'pinia';
-  import { onErrorCaptured, ref } from 'vue';
+  import { ref } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
@@ -84,7 +84,6 @@
   // types
   import { GeneratedCharacterDetails, Topics, WindowTabType } from '@/types';
   import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, Entry, } from '@/classes';
-import SuppressWeatherRegionBehaviorType from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client-esm/data/region-behaviors/suppress-weather.mjs';
   
   ////////////////////////////////
   // props
@@ -244,15 +243,12 @@ import SuppressWeatherRegionBehaviorType from '@league-of-foundry-developers/fou
       return;
 
     // create the character
-    const entry = await Entry.create(topicFolder, {
-      name: name,
-    });
+    const entry = await topicDirectoryStore.createEntry(topicFolder, { name: name, type: type } );
 
     if (!entry)
       throw new Error('Failed to create entry in TopicDirectory.onCharacterGenerated()');
 
     entry.description = description;
-    entry.type = type;
     if (speciesId)
       entry.speciesId = speciesId;
     await entry.save();
