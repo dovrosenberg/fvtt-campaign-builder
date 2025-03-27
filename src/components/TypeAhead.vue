@@ -62,7 +62,7 @@
   // emits
   const emit = defineEmits<{
     (e: 'itemAdded', newValue: string): void;
-    (e: 'selectionMade', selectedValue: string): void;
+    (e: 'selectionMade', selectedValue: { id: string; label: string; } | string): void;
   }>();
 
   ////////////////////////////////
@@ -165,17 +165,28 @@
         // if box is empty, we don't add a new value, but we still say blank was seleted
         if (idx.value===-1 && currentValue.value) {
           // exact match only to let us add values that are just different cases
-          const match = objectMode.value ? (list.value as ListItem[]).find(item=>item.label===selection.toString())?.id : (list.value as string[]).find(item=>item===selection.toString());
+          const match = objectMode.value ? (list.value as ListItem[]).find(item=>item.label===currentValue.value)?.id : (list.value as string[]).find(item=>item===currentValue.value);
           if (match) {
             // it's match, so we'll select that item but don't need to add anything (we don't use the text
             //    in the box because it might have different case)
             selection = match;
-          } else if (props.allowNewItems && !objectMode.value) {
-            selection = currentValue.value;
-            (list.value as string[]).push(selection);
-            hasFocus.value = false;
+          } else if (props.allowNewItems) {
+            if (objectMode.value) {
+              selection = currentValue.value;
+              // we give it an arbitrary id for now
+              const id = foundry.utils.randomID(12);
+              (list.value as ListItem[]).push({id: id, label: selection});
 
-            emit('itemAdded', selection);
+              hasFocus.value = false;
+              emit('itemAdded', {id: id, label: selection});
+            } else {
+              selection = currentValue.value;
+              (list.value as string[]).push(selection);
+              hasFocus.value = false;
+
+              emit('itemAdded', selection);
+            }
+
           } else {
             // there's no match but we're not allowed to add - reset back to the original
             // find the initial item

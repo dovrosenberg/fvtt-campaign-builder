@@ -110,7 +110,11 @@
   ////////////////////////////////
   // event handlers
 
-  // change world
+  /**
+   * Handles clicking on a world folder to activate it and navigate to it.
+   * @param event The click event
+   * @param worldId The UUID of the selected world
+   */
   const onWorldFolderClick = async (event: MouseEvent, worldId: string) => {
     event.preventDefault();
     event.stopPropagation();
@@ -121,6 +125,11 @@
     }
   };
 
+  /**
+   * Handles right-click context menu on a world folder, offering actions like delete or create campaign.
+   * @param event The contextmenu event
+   * @param worldId The UUID of the world
+   */
   const onWorldContextMenu = (event: MouseEvent, worldId: string | null): void => {
     //prevent the browser's default menu
     event.preventDefault();
@@ -163,6 +172,12 @@
     });
   };
 
+  /**
+   * Handles right-click context menu on a topic folder, offering actions like creating an entry or generating a character.
+   * @param event The contextmenu event
+   * @param worldId The UUID of the parent world
+   * @param topicFolder The TopicFolder object representing the clicked topic
+   */
   const onTopicContextMenu = (event: MouseEvent, worldId: string, topicFolder: TopicFolder): void => {
     //prevent the browser's default menu
     event.preventDefault();
@@ -206,7 +221,11 @@
     });
   };
 
-  // open/close a topic
+ /**
+   * Toggles expansion of a topic node when clicked.
+   * @param event The click event
+   * @param directoryTopic The DirectoryTopicNode being toggled
+   */
   const onTopicFolderClick = async (event: MouseEvent, directoryTopic: DirectoryTopicNode) => { 
     event.stopPropagation();
 

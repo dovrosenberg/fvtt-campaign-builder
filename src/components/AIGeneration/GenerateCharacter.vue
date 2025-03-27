@@ -182,8 +182,9 @@ Can we create a dialog to handle all those cases?
     speciesName.value = newSpeciesName;
   };
 
-  const onSpeciesItemAdded = async (newName: string): Promise<void> => {
-    speciesName.value = newName;
+  const onSpeciesItemAdded = async (newSpecies: { id: string; label: string }): Promise<void> => {
+    speciesId.value = newSpecies.id;
+    speciesName.value = newSpecies.label;
   };
 
   const onGenerateClick = async function() {
@@ -207,7 +208,7 @@ Can we create a dialog to handle all those cases?
       speciesDescription = '';
     } else {
       const speciesToUse = speciesList.find(s => s.id === speciesId.value);
-      speciesDescription = speciesToUse?.description || '';
+      speciesDescription = speciesToUse?.description || '';  // might not be there because could be just added
     }
     
     // pull the other things we need  
@@ -219,6 +220,7 @@ Can we create a dialog to handle all those cases?
         type: type.value,
         species: speciesName.value,
         speciesDescription: speciesDescription,
+        name: name.value,
         briefDescription: briefDescription.value,
       });
     } catch (error) {
@@ -228,7 +230,7 @@ Can we create a dialog to handle all those cases?
       return;
     }
 
-    generatedName.value = name.value ? name.value : result.data.name;
+    generatedName.value = result.data.name;
     generatedDescription.value = result.data.description;
 
     generateComplete.value = true;

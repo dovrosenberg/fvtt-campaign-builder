@@ -42,7 +42,7 @@
   // emits
   const emit = defineEmits<{
     (e: 'speciesSelectionMade', speciesId: string, speciesName: string): void;
-    (e: 'speciesItemAdded', speciesName: string): void;
+    (e: 'speciesItemAdded', species: { id: string; label:string }): void;
   }>();
 
   ////////////////////////////////
@@ -68,9 +68,14 @@
 
   // parameter is the text - you need to add it to the settings in the parent
   //    if desired
-  const onSpeciesItemAdded = async (speciesName: string): Promise<void> => {
+  const onSpeciesItemAdded = async (newSpecies: { id: string, label: string}): Promise<void> => {
     if (props.allowNewItems) {
-      emit('speciesItemAdded', speciesName);
+      currentSpeciesId.value = newSpecies.id;
+
+      // add to our internal list
+      validSpecies.value.push(newSpecies);
+
+      emit('speciesItemAdded', newSpecies);
     } else {
       // can't add - just reset
       currentSpeciesId.value = props.initialValue;      
