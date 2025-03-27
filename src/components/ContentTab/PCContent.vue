@@ -1,6 +1,6 @@
 <template>
   <form class="'flexcol wcb-journal-subsheet ' + topic">
-    <div ref="contentRef" class="wcb-sheet-container detailed flexcol" style="overflow-y: auto">
+    <div ref="contentRef" class="wcb-sheet-container flexcol" style="overflow-y: auto">
       <header class="wcb-journal-sheet-header flexrow">
         <div 
           class="sheet-image" 
@@ -30,6 +30,7 @@
               for="wcb-input-name" 
               unstyled
               :disabled="true"
+              class="wcb-input-name"
               :pt="{
                 root: { class: 'full-height' } 
               }" 
@@ -45,6 +46,7 @@
           <InputText
             v-model="playerName"
             for="wcb-input-name" 
+            class="wcb-input-name"
             unstyled
             @update:model-value="onPlayerNameUpdate"
             :pt="{

@@ -65,7 +65,6 @@ body {
   --wcb-sheet-header-border: rgb(120, 46, 34);
   --wcb-sheet-header-name-color: var(--wcb-sheet-header-input-color);
   --wcb-sheet-header-name-background: none;
-  --wcb-sheet-header-name-background-hover: none;
   --wcb-sheet-header-input-color: var(--color-text-dark-primary);
   --wcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);
   --wcb-sheet-header-input-background: rgba(0, 0, 0, 0.05);
@@ -73,12 +72,13 @@ body {
   --wcb-sheet-header-button-color: var(--primary-font);
   --wcb-sheet-header-button-background: rgba(0, 0, 0, 0.1);
   --wcb-sheet-header-detail-input-color: rgb(25, 24, 19);
+  --wcb-sheet-header-icon-color: #777;
   --wcb-sheet-header-search-color: var(--wcb-sheet-header-input-color);
   --wcb-sheet-header-search-placeholder: var(--color-text-dark-secondary);
   --wcb-sheet-header-search-background: var(--wcb-sheet-header-input-background);
   --wcb-sheet-header-search-background-hover: var(--wcb-sheet-header-input-background);
   --wcb-sheet-header-search-border: --wcb-sheet-header-input-border;
-  --wcb-sheet-detailed-header-border: rgb(238, 237, 224);
+  --wcb-sheet-header-border: rgb(238, 237, 224);
   --wcb-sheet-tab-color: var(--wcb-sheet-color);
   --wcb-sheet-tab-color-hover: inherit;
   --wcb-sheet-tab-color-active: var(--wcb-sheet-tab-color);

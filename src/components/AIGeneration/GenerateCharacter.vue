@@ -1,19 +1,5 @@
 <template>
-  <!-- used to generate a description for an entry-->
-
-
-  <!-- Need to think this through more - there should be a generate button on related item 
-tables - that's to do something from scratch... but how does it deal with things
-like parent?
-
-Or can we only generate from the entry description screen?  But then you have to create the entry, edit the name and
-stuff there and then generate?
-
-Or should it be a right click on a directory topic to generate from there?
-
-Can we create a dialog to handle all those cases?
- -->
-<Dialog 
+  <Dialog 
     v-model="show"
     :title="localize('dialogs.generateCharacter.title')"
     :buttons="[
@@ -127,6 +113,26 @@ Can we create a dialog to handle all those cases?
   // props
   const props = defineProps({
     modelValue: Boolean,  // show/hide dialog
+    initialName: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    initialType: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    initialSpeciesId: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    initialDescription: {
+      type: String,
+      required: false,
+      default: '',
+    },
   });
 
   ////////////////////////////////
@@ -145,11 +151,11 @@ Can we create a dialog to handle all those cases?
   ////////////////////////////////
   // data
   const show = ref<boolean>(props.modelValue);
-  const name = ref<string>('');
-  const type = ref<string>('');
-  const speciesId = ref<string>('');
+  const name = ref<string>(props.initialName);
+  const type = ref<string>(props.initialType);
+  const speciesId = ref<string>(props.initialSpeciesId);
   const speciesName = ref<string>('');
-  const briefDescription = ref<string>('');
+  const briefDescription = ref<string>(props.initialDescription);
   const generatedName = ref<string>('');
   const generatedDescription = ref<string>('');
 

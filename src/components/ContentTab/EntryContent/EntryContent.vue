@@ -1,6 +1,6 @@
 <template>
   <form class="'flexcol wcb-journal-subsheet ' + topic">
-    <div ref="contentRef" class="wcb-sheet-container detailed flexcol">
+    <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-journal-sheet-header flexrow">
         <div class="sheet-image">
           <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
@@ -11,6 +11,7 @@
             <InputText
               v-model="name"
               for="wcb-input-name" 
+              class="wcb-input-name"
               unstyled
               :placeholder="namePlaceholder"                
               :pt="{
@@ -333,5 +334,4 @@
 </script>
 
 <style lang="scss">
-
 </style>

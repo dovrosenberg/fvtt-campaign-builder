@@ -111,9 +111,6 @@
         width: 100%;
         overflow: hidden;
         color: var(--wcb-sheet-color);
-      }
-      
-      .wcb-sheet-container.detailed {
         padding: 4px;
       }
       
@@ -215,11 +212,23 @@
 
       .wcb-journal-sheet-header .header-details .header-name {
         margin: 0;
-      }
 
-      .wcb-journal-sheet-header .header-details .header-name input[type="text"] {
-        font-size: 32px;
-        height: 36px;
+        .wcb-input-name {
+          background: var(--wcb-sheet-header-name-background);
+          color: var(--wcb-sheet-header-name-color);
+          margin-left: 3px;
+          margin-right: 8px;
+          font-size: 32px;
+          height: 36px;
+
+          &:not(:focus){
+            border-bottom: 1px solid #777;
+            border-radius: 0px;
+            border-right: 0px transparent;
+            border-left: 0px transparent;
+            border-top: 0px transparent;
+          }
+        }
       }
 
       .wcb-journal-sheet-header .header-details .form-group {
@@ -255,18 +264,6 @@
         overflow-y: visible;
       }
 
-      .wcb-journal-sheet-header .header-details .header-name input[type="text"] {
-        background: var(--wcb-sheet-header-name-background);
-        border: 1px solid transparent;
-        color: var(--wcb-sheet-header-name-color);
-        margin-right: 2px;
-      }
-
-      .wcb-journal-sheet-header .header-details .header-name input[type="text"]:hover,
-      .wcb-journal-sheet-header .header-details .header-name input[type="text"]:focus {
-        background: var(--wcb-sheet-header-name-background-hover);
-      }
-
       // the tab content
       .wcb-tab-body {
         display: flex;
@@ -288,16 +285,11 @@
       font-family: var(--wcb-font-family);
       font-size: 24px;
       flex-grow: 0;
-      border-bottom: 2px solid var(--wcb-sheet-header-border);
       z-index: 1;
       padding-left: 8px;
-    }
-
-    .wcb-sheet-container.detailed .wcb-journal-sheet-header {
       align-items: flex-start;
       padding-bottom: 4px;
-      /*flex: 0 0 162px;*/
-      border-bottom: 2px groove var(--wcb-sheet-detailed-header-border);
+      border-bottom: 2px groove var(--wcb-sheet-header-border);
       margin: 0px;
       padding-left: 0px;
       position: relative;
@@ -318,19 +310,11 @@
     }
 
     .wcb-sheet-container .wcb-journal-sheet-header .sheet-icon {
-      flex: 0 0 30px;
       line-height: 35px;
       margin-top: 0px;
-      color: #777;
-    }
-
-    .wcb-sheet-container.detailed .wcb-journal-sheet-header .sheet-icon {
+      color: var(--wcb-sheet-header-icon-color);
       flex: 0 0 20px;
       font-size: 20px;
-      height: 20px;
-      margin-top: 12px;
-      margin-left: 5px;
-      line-height: 15px;
     }
 
     &.image-popout.dark .wcb-journal-sheet-header input[type="text"] {
