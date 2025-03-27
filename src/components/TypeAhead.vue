@@ -61,7 +61,7 @@
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
-    (e: 'itemAdded', newValue: string): void;
+    (e: 'itemAdded', newValue: { id: string; label: string; } | string): void;
     (e: 'selectionMade', selectedValue: { id: string; label: string; } | string): void;
   }>();
 

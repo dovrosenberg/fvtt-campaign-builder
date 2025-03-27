@@ -62,12 +62,30 @@
   ////////////////////////////////
   // event handlers
 
-  const onSpeciesSelectionMade = async (speciesId: string): Promise<void> => {
-    emit('speciesSelectionMade', speciesId, validSpecies.value.find(s=>s.id===speciesId)?.label || '');
+/**
+ * Handles the event when a species is selected from the list.
+ * Emits the 'speciesSelectionMade' event with the selected species ID and its corresponding label.
+ *
+ * @param {string} speciesId - The ID of the selected species.
+ * @returns {Promise<void>} - A promise that resolves when the event has been emitted.
+ */
+  const onSpeciesSelectionMade = async (species: { id: string; label: string; }): Promise<void> => {
+    // we only return valid species descriptions - not newly added ones
+    emit('speciesSelectionMade', species.id, validSpecies.value.find(s=>s.id===species.id)?.label || '');
   };
 
-  // parameter is the text - you need to add it to the settings in the parent
-  //    if desired
+  /**
+   * Handles the event when a species is added to the list.
+   * If allowNewItems is true, adds the new species to the internal list and emits the 'speciesItemAdded' event with the new species.
+   * Note that you need to add it to the settings in the parent if desired.
+   * 
+   * If allowNewItems is false, doesn't add the new species to the internal list and resets the currentSpeciesId to the initialValue.
+   *
+   * @param {Object} newSpecies - The new species item to add.
+   * @param {string} newSpecies.id - The ID of the new species item.
+   * @param {string} newSpecies.label - The label of the new species item.
+   * @returns {Promise<void>} - A promise that resolves when the event has been emitted.
+   */
   const onSpeciesItemAdded = async (newSpecies: { id: string, label: string}): Promise<void> => {
     if (props.allowNewItems) {
       currentSpeciesId.value = newSpecies.id;
