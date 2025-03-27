@@ -4,6 +4,7 @@ export type * from './relationships.d.ts';
 export type * from './hierarchy.d.ts';
 export type * from './global.d.ts';
 export type * from './species.d.ts';
+export type * from './dialogs.d.ts';
 
 // used to determine which component to display in the tab
 export enum WindowTabType  {

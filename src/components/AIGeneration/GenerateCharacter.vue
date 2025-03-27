@@ -121,7 +121,7 @@ Can we create a dialog to handle all those cases?
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
 
   // types
-  import { Topics, } from '@/types';
+  import { Topics, GeneratedCharacterDetails } from '@/types';
 
   ////////////////////////////////
   // props
@@ -131,7 +131,11 @@ Can we create a dialog to handle all those cases?
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['update:modelValue']);
+  const emit = defineEmits<{
+    (e: 'update:modelValue', value: boolean): void;
+    (e: 'characterGenerated', character: GeneratedCharacterDetails): void;
+  }>();
+
 
   ////////////////////////////////
   // store
@@ -238,8 +242,16 @@ Can we create a dialog to handle all those cases?
   }
 
   const onAcceptClick = async function() {
-    // emit an event that has the new name and description
+    // see if speciesId was made up or is an existing one
+    const validSpecies = ModuleSettings.get(SettingKey.speciesList).map((s) => s.id);
 
+    // emit an event that has the new name and description
+    emit('characterGenerated', { 
+      name: generatedName.value, 
+      description: generatedDescription.value,
+      type: type.value,
+      speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
+    });
     resetDialog();
   };
   

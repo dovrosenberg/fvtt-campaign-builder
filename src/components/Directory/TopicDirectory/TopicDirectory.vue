@@ -56,13 +56,16 @@
       </ol>
     </li>
   </ol>
-  <GenerateCharacter v-model="showGenerateCharacter" />
+  <GenerateCharacter 
+    v-model="showGenerateCharacter"
+    @character-generated="onCharacterGenerated" 
+  />
 </template>
 
 <script setup lang="ts">
   // library imports
   import { storeToRefs } from 'pinia';
-  import { ref } from 'vue';
+  import { onErrorCaptured, ref } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
@@ -79,8 +82,9 @@
   import GenerateCharacter from '@/components/AIGeneration/GenerateCharacter.vue';
 
   // types
-  import { WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, } from '@/classes';
+  import { GeneratedCharacterDetails, Topics, WindowTabType } from '@/types';
+  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, Entry, } from '@/classes';
+import SuppressWeatherRegionBehaviorType from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client-esm/data/region-behaviors/suppress-weather.mjs';
   
   ////////////////////////////////
   // props
@@ -231,6 +235,33 @@
 
     await topicDirectoryStore.toggleTopic(directoryTopic);
   };
+
+  const onCharacterGenerated = async (details: GeneratedCharacterDetails ) => {
+    const { name, description, type, speciesId } = details;
+    const topicFolder = currentWorld.value?.topicFolders[Topics.Character];
+
+    if (!topicFolder)
+      return;
+
+    // create the character
+    const entry = await Entry.create(topicFolder, {
+      name: name,
+    });
+
+    if (!entry)
+      throw new Error('Failed to create entry in TopicDirectory.onCharacterGenerated()');
+
+    entry.description = description;
+    entry.type = type;
+    if (speciesId)
+      entry.speciesId = speciesId;
+    await entry.save();
+
+    // open the entry in a new tab
+    if (entry) {
+      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+    }   
+  }
 
   ////////////////////////////////
   // watchers
