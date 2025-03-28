@@ -205,8 +205,7 @@
         font-size: var(--font-size-14);
 
         input, textarea { 
-          font-size: inherit;
-          padding: 1px 3px;
+          font-size: var(--font-size-14) !important;
         }
       }
 

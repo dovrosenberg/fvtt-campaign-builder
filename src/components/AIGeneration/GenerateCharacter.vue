@@ -36,6 +36,7 @@
       <InputText
         v-model="name"
         type="text"
+        :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
       />
 
       <h6>
@@ -65,9 +66,11 @@
       </h6>
       <Textarea
         v-model="briefDescription"
-        rows="4"
+        :rows="4"
+        autoResize
+        :pt="{ root: { style: { 'font-size': 'var(--font-size-14)', 'min-height': '6rem' }}}"
       />
-      <hr class="compact-hr">
+      <hr>
       <div class="results-container">
         <div v-if="generateError" class="error-message">
           <span class="error-label">There was an error:</span> {{ generateError }}
@@ -330,21 +333,8 @@
     }
   }
 
-  .compact-hr {
-    border: 0 !important;
-    height: 1px !important;
-    background-color: #ccc !important;
-    margin: 10px 0 !important;
-    background-image: none !important;
-    box-shadow: none !important;
-  }
-
   .p-inputtext, .p-dropdown {
     margin-bottom: 4px;
-  }
-
-  .compact-hr {
-    margin: 8px 0;
   }
 
   .results-container {

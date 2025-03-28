@@ -36,12 +36,14 @@ export default definePreset(Aura, {
       },
     },
     inputtext: {
-      background: 'rgba(0, 0, 0, 0.1)', 
+      background: 'rgba(0, 0, 0, 0.05)', 
       color: 'black',   //'var(--color-text-primary)',       // change to var
       borderRadius: '4px',
       focusBorderColor: 'black',  // change to var
-      padding: '1px 3px',
-      fontSize: 'inherit',
+      padding: {
+        x: '3px',
+        y: '1px',
+      },
       focusRing: {
         color: '#c9593f',  // change to var
         width: '2px',
@@ -49,11 +51,13 @@ export default definePreset(Aura, {
       }
     },
     textarea: {
-      background: 'rgba(0, 0, 0, 0.1)', 
+      background: 'rgba(0, 0, 0, 0.05)', 
       color: 'black',   //'var(--color-text-primary)',       // change to var
       borderRadius: '4px',
-      padding: '1px 3px',
-      fontSize: 'inherit',
+      padding: {
+        x: '3px',
+        y: '1px',
+      },
       focusBorderColor: 'black',  // change to var
       focusRing: {
         color: '#c9593f',  // change to var

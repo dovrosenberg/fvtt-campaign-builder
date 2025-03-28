@@ -284,6 +284,7 @@
     position: relative;
     overflow-y: visible;
     z-index: auto;
+    outline: 2px solid var(--input-focus-outline-color);
 
     .wcb-ta-dropdown {
       position: absolute;
