@@ -203,6 +203,12 @@
         // flex-direction: column;
         // flex: 1;
         font-size: var(--font-size-14);
+
+        input { 
+          padding: 1px 3px;
+          font-size: inherit;
+          border-radius: 3px;
+        }
       }
 
       .wcb-dialog-buttons {

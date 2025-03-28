@@ -26,58 +26,62 @@
     ]"
     @close="onClose"
   >
-    <div 
-      class="flexcol"
-      style="gap: 5px;"
+    <div
+      class="flexcol generate-character-dialog"
     >
-      <h6>Name (if blank, will generate a new one)</h6>
+      <h6>
+        Name
+        <i class="fas fa-info-circle tooltip-icon" data-tooltip="If left blank, a name will be generated automatically"></i>
+      </h6>
       <InputText
         v-model="name"
-        type="text" 
+        type="text"
       />
 
-      <h6>Type (If you create a new one, it will be added to the master list)</h6>
-      <TypeSelect 
+      <h6>
+        Type
+        <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you create a new type, it will be added to the master list"></i>
+      </h6>
+      <TypeSelect
         :initial-value="type"
         :topic="Topics.Character"
         @type-selection-made="onTypeSelectionMade"
       />
 
       <h6>
-        Species (if blank, will use a random one from your world; you can enter
-        something custom here and it won't be added to the list; it will be
-        passed directly to the AI, so if it's something custom, don't 
-        expect much - better to add to the species list first)
+        Species
+        <i class="fas fa-info-circle tooltip-icon" data-tooltip="If blank, a random species from your world will be used. Custom entries will be passed to the AI but not added to your species list"></i>
       </h6>
-      <SpeciesSelect 
+      <SpeciesSelect
         :initial-value="speciesId"
         :allow-new-items="true"
         @species-selection-made="onSpeciesSelectionMade"
         @species-item-added="onSpeciesItemAdded"
       />
 
-      <h6>Brief description (optional; use to specify physical features or personality you want included)</h6>
-      <Textarea 
+      <h6>
+        Brief description
+        <i class="fas fa-info-circle tooltip-icon" data-tooltip="Optional. Use to specify physical features or personality traits you want included"></i>
+      </h6>
+      <Textarea
         v-model="briefDescription"
-        rows="2"
+        rows="4"
       />
-      <hr>
-      <div style="overflow: auto; height: 250px; min-height: 250px; max-height: 250px">
-        <div v-if="generateError">
-          <span style="color: red"><span style="font-weight: bold">There was an error:</span> {{ generateError }}</span>
+      <hr class="compact-hr">
+      <div class="results-container">
+        <div v-if="generateError" class="error-message">
+          <span class="error-label">There was an error:</span> {{ generateError }}
         </div>
-        <div v-else-if="generateComplete">
-          <div><span style="font-weight: bold">Generated name:</span> {{ generatedName }}</div>
-          <div style="white-space: pre-wrap">
-            <span style="font-weight: bold">Generated description:</span> {{ generatedDescription }}
+        <div v-else-if="generateComplete" class="generated-content">
+          <div><span class="label">Generated name:</span> {{ generatedName }}</div>
+          <div class="description">
+            <span class="label">Generated description:</span> {{ generatedDescription }}
           </div>
         </div>
-        <div v-else-if="loading"
-          style="display: flex; align-items: center; justify-content: center; vertical-align: middle;"
-        >
+        <div v-else-if="loading" class="loading-container">
           <ProgressSpinner />
         </div>
-        <div v-else>
+        <div v-else class="prompt-message">
           Press generate for results...
         </div>
       </div>
@@ -186,9 +190,9 @@
     type.value = newType;
   };
 
-  const onSpeciesSelectionMade = async (newSpeciesId: string, newSpeciesName: string): Promise<void> => {
-    speciesId.value = newSpeciesId;
-    speciesName.value = newSpeciesName;
+  const onSpeciesSelectionMade = async (species: { id: string; label: string },): Promise<void> => {
+    speciesId.value = species.id;
+    speciesName.value = species.label;
   };
 
   const onSpeciesItemAdded = async (newSpecies: { id: string; label: string }): Promise<void> => {
@@ -280,6 +284,16 @@
       name.value = props.initialName;
       type.value = props.initialType;
       speciesId.value = props.initialSpeciesId;
+
+      // Set the species name if we have a species ID
+      if (props.initialSpeciesId) {
+        const speciesList = ModuleSettings.get(SettingKey.speciesList);
+        const species = speciesList.find(s => s.id === props.initialSpeciesId);
+        speciesName.value = species?.name || '';
+      } else {
+        speciesName.value = '';
+      }
+
       briefDescription.value = props.initialDescription;
       generateComplete.value = false;
       generateError.value = '';
@@ -293,4 +307,86 @@
 </script>
 
 <style lang="scss" scoped>
+.generate-character-dialog {
+  h6 {
+    margin-bottom: 2px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    .tooltip-icon {
+      margin-left: 5px;
+      font-size: 12px;
+      color: #888;
+      cursor: help;
+
+      &:hover {
+        color: #555;
+      }
+    }
+  }
+
+  .compact-hr {
+    border: 0 !important;
+    height: 1px !important;
+    background-color: #ccc !important;
+    margin: 10px 0 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+
+  .p-inputtext, .p-dropdown {
+    margin-bottom: 4px;
+  }
+
+  .compact-hr {
+    margin: 8px 0;
+  }
+
+  .results-container {
+    overflow: auto;
+    height: 250px;
+    min-height: 250px;
+    max-height: 250px;
+    margin-top: 4px;
+
+    .error-message {
+      color: red;
+
+      .error-label {
+        font-weight: bold;
+      }
+    }
+
+    .prompt-message {
+      text-align: center;
+      color: var(--color-text-dark-secondary);
+      margin-top: 100px;
+      font-style: italic;
+    }
+
+    .loading-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .generated-content {
+      .label {
+        font-weight: bold;
+        margin-right: 4px;
+      }
+
+      .description {
+        white-space: pre-wrap;
+        margin-top: 8px;
+      }
+    }
+  }
+}
 </style>

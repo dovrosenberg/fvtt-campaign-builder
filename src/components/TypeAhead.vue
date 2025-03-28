@@ -65,7 +65,9 @@
   // emits
   const emit = defineEmits<{
     (e: 'itemAdded', newValue: { id: string; label: string; } | string): void;
-    (e: 'selectionMade', selectedValue: { id: string; label: string; } | string): void;
+
+    /** in object mode returns key, value; is value mode 1st param is the text and 2nd is undefined */
+    (e: 'selectionMade', selectedValue: string, selectedName?: string): void;
   }>();
 
   ////////////////////////////////
@@ -148,7 +150,7 @@
       filteredItems.value = [];
 
       hasFocus.value = false;
-      emit('selectionMade', selection);
+      emit('selectionMade', selection, target.textContent || '' );
     }
   };
 
@@ -219,24 +221,27 @@
               currentValue.value = initialItem.label;
 
               // set the selection to be the id of the current item (this assumes there is only 1 valid match)
-              selection = initialItem.id;
+              if (props.initialList.length > 0) {
+                selection = initialItem.id;
+                emit('selectionMade', selection, getLabel(0));
+              }
             } else {
               selection = props.initialValue;
               currentValue.value = selection;
+              emit('selectionMade', selection);
             }
           }
         } else if (idx.value!==-1) {
           // fill in the input value
-          selection = objectMode.value ? (filteredItems.value as ListItem[])[idx.value].id : (filteredItems.value as string[])[idx.value];
+          selection = objectMode.value ? (filteredItems.value as ListItem[])[idx.value].id : getLabel(idx.value);
           currentValue.value = getLabel(idx.value);
+          emit('selectionMade', selection, getLabel(idx.value));
         }
   
         // close the list
         idx.value = -1;
         filteredItems.value = [];
         hasFocus.value = false;
-
-        emit('selectionMade', selection);
 
         return;
       }

@@ -22,6 +22,7 @@
 
   // types
   import { onMounted } from 'vue';
+  type SpeciesSelectOption = { id: string; label: string };
 
   ////////////////////////////////
   // props
@@ -41,8 +42,8 @@
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
-    (e: 'speciesSelectionMade', speciesId: string, speciesName: string): void;
-    (e: 'speciesItemAdded', species: { id: string; label:string }): void;
+    (e: 'speciesSelectionMade', species: SpeciesSelectOption): void;
+    (e: 'speciesItemAdded', species: SpeciesSelectOption): void;
   }>();
 
   ////////////////////////////////
@@ -69,9 +70,9 @@
  * @param {string} speciesId - The ID of the selected species.
  * @returns {Promise<void>} - A promise that resolves when the event has been emitted.
  */
-  const onSpeciesSelectionMade = async (species: { id: string; label: string; }): Promise<void> => {
+  const onSpeciesSelectionMade = async (speciesId: string): Promise<void> => {
     // we only return valid species descriptions - not newly added ones
-    emit('speciesSelectionMade', species.id, validSpecies.value.find(s=>s.id===species.id)?.label || '');
+    emit('speciesSelectionMade', { id: speciesId, label: validSpecies.value.find(s=>s.id===speciesId)?.label || ''});
   };
 
   /**
@@ -86,7 +87,7 @@
    * @param {string} newSpecies.label - The label of the new species item.
    * @returns {Promise<void>} - A promise that resolves when the event has been emitted.
    */
-  const onSpeciesItemAdded = async (newSpecies: { id: string, label: string}): Promise<void> => {
+  const onSpeciesItemAdded = async (newSpecies: SpeciesSelectOption): Promise<void> => {
     if (props.allowNewItems) {
       currentSpeciesId.value = newSpecies.id;
 

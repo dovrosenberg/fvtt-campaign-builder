@@ -139,7 +139,7 @@
     :initial-name="currentEntry?.name || ''"
     :initial-type="currentEntry?.type || ''"
     :initial-species-id="currentEntry?.speciesId || ''"
-    :initial-description="currentEntry?.description || ''"
+    :initial-description="currentEntry?.description ? htmlToPlainText(currentEntry.description) : ''"
     @character-generated="onCharacterGenerated"
   />
 </template>
@@ -151,7 +151,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { getTopicIcon, } from '@/utils/misc';
+  import { getTopicIcon, htmlToPlainText } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
@@ -316,11 +316,11 @@
     await currentEntry.value.save();
   };
 
-  const onSpeciesSelectionMade = async (newSpeciesId: string): Promise<void> => {
+  const onSpeciesSelectionMade = async (species: {id: string; label: string}): Promise<void> => {
     if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
       return;
 
-    currentEntry.value.speciesId = newSpeciesId;
+    currentEntry.value.speciesId = species.id;
     await currentEntry.value.save();
   };
 
