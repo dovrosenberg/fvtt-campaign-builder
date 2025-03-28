@@ -10,15 +10,22 @@
             <i :class="`fas ${icon} sheet-icon`"></i>
             <InputText
               v-model="name"
-              for="wcb-input-name" 
+              for="wcb-input-name"
               class="wcb-input-name"
               unstyled
-              :placeholder="namePlaceholder"                
+              :placeholder="namePlaceholder"
               :pt="{
-                root: { class: 'full-height' } 
-              }" 
+                root: { class: 'full-height' }
+              }"
               @update:model-value="onNameUpdate"
             />
+            <button
+              class="wcb-generate-button"
+              @click="onGenerateButtonClick"
+              title="Generate content"
+            >
+              <i class="fas fa-head-side-virus"></i>
+            </button>
           </h1>
           <div class="form-group wcb-content-header">
             <label>{{ localize('labels.fields.type') }}</label>
@@ -126,7 +133,15 @@
         </div>
       </div>
     </div>
-  </form>	 
+  </form>
+  <GenerateCharacter
+    v-model="showGenerateCharacter"
+    :initial-name="currentEntry?.name || ''"
+    :initial-type="currentEntry?.type || ''"
+    :initial-species-id="currentEntry?.speciesId || ''"
+    :initial-description="currentEntry?.description || ''"
+    @character-generated="onCharacterGenerated"
+  />
 </template>
 
 <script setup lang="ts">
@@ -143,6 +158,7 @@
   
   // library components
   import InputText from 'primevue/inputtext';
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
   import Editor from '@/components/Editor.vue';
@@ -151,10 +167,27 @@
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
+  import GenerateCharacter from '@/components/AIGeneration/GenerateCharacter.vue';
 
   // types
-  import { DocumentLinkType, Topics, ValidTopic, } from '@/types';
+  import { DocumentLinkType, Topics, ValidTopic, GeneratedCharacterDetails } from '@/types';
   import { Entry, WBWorld, TopicFolder } from '@/classes';
+
+  // Declare the Tabs class from Foundry VTT global
+  declare global {
+    class Tabs {
+      constructor(options: {
+        navSelector: string;
+        contentSelector: string;
+        initial: string;
+        callback?: () => void;
+      });
+      bind(element: HTMLElement): void;
+      activate(tabName: string): void;
+      callback?: () => void;
+      active: string | null;
+    }
+  }
 
   ////////////////////////////////
   // props
@@ -193,6 +226,7 @@
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
+  const showGenerateCharacter = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
@@ -290,6 +324,62 @@
     await currentEntry.value.save();
   };
 
+  const onGenerateButtonClick = (event: MouseEvent): void => {
+    // Prevent default behavior
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Show context menu
+    ContextMenu.showContextMenu({
+      customClass: 'wcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        {
+          icon: 'fa-file-lines',
+          iconFontClass: 'fas',
+          label: 'Generate text',
+          onClick: () => {
+            showGenerateCharacter.value = true;
+          }
+        },
+        {
+          icon: 'fa-image',
+          iconFontClass: 'fas',
+          label: 'Generate image',
+          onClick: () => {
+            // TODO: Implement image generation functionality
+            console.log('Generate image clicked');
+          }
+        },
+      ]
+    });
+  };
+
+  const onCharacterGenerated = async (details: GeneratedCharacterDetails) => {
+    if (!currentEntry.value) return;
+
+    // Update the entry with the generated content
+    currentEntry.value.name = details.name;
+    currentEntry.value.description = details.description;
+    currentEntry.value.type = details.type;
+    if (details.speciesId) {
+      currentEntry.value.speciesId = details.speciesId;
+    }
+
+    // Save the entry
+    await currentEntry.value.save();
+
+    // Update the UI
+    name.value = details.name;
+
+    // Refresh the directory tree to show the updated name
+    await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
+    await navigationStore.propagateNameChange(currentEntry.value.uuid, details.name);
+    await relationshipStore.propagateNameChange(currentEntry.value);
+  };
+
   ////////////////////////////////
   // watchers
   // in case the tab is changed externally
@@ -334,4 +424,32 @@
 </script>
 
 <style lang="scss">
+.wcb-generate-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--button-border-color);
+  border-radius: 4px;
+  background: var(--button-background-color);
+  color: var(--button-text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--button-hover-background-color);
+    border-color: var(--button-hover-border-color);
+    color: var(--button-hover-text-color);
+  }
+
+  i {
+    font-size: 14px;
+    color: currentColor;
+  }
+}
+
+.header-name {
+  align-items: center;
+}
 </style>

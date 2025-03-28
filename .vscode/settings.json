@@ -10,5 +10,6 @@
     "SHADOWROOT",
     "splitterpanel",
     "Unmark"
-  ]
+  ],
+  "zencoder.enableRepoIndexing": true
 }

@@ -171,11 +171,8 @@
   ////////////////////////////////
   // methods
   const resetDialog = function() {
-    name.value = '';
-    type.value = '';
-    speciesId.value = '';
-    speciesName.value = '';
-    briefDescription.value = '';
+    // Just close the dialog without clearing values
+    // Values will be updated when the dialog is opened again
     generateComplete.value = false;
     generateError.value = '';
     loading.value = false;
@@ -276,7 +273,18 @@
 
   // when the prop changes state, update internal value
   watch(() => props.modelValue, async (newValue) => {
-    show.value = newValue; 
+    show.value = newValue;
+
+    // If the dialog is being opened, update the values from props
+    if (newValue) {
+      name.value = props.initialName;
+      type.value = props.initialType;
+      speciesId.value = props.initialSpeciesId;
+      briefDescription.value = props.initialDescription;
+      generateComplete.value = false;
+      generateError.value = '';
+      loading.value = false;
+    }
   });
 
   ////////////////////////////////
