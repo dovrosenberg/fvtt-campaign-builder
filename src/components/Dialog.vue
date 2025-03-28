@@ -204,10 +204,9 @@
         // flex: 1;
         font-size: var(--font-size-14);
 
-        input { 
-          padding: 1px 3px;
+        input, textarea { 
           font-size: inherit;
-          border-radius: 3px;
+          padding: 1px 3px;
         }
       }
 
