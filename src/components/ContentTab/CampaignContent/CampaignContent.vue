@@ -2,7 +2,7 @@
   <form :class="'flexcol wcb-journal-subsheet'">
     <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-journal-sheet-header flexrow">
-        <div class="header-details wcb-content-header">
+        <div class="wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${icon} sheet-icon`"></i>
             <InputText

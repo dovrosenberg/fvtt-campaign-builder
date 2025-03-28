@@ -70,7 +70,7 @@ body {
   --wcb-sheet-header-input-background: rgba(0, 0, 0, 0.05);
   --wcb-sheet-header-label-color: rgb(75, 74, 68);
   --wcb-sheet-header-button-color: var(--primary-font);
-  --wcb-sheet-header-button-background: rgba(0, 0, 0, 0.1);
+  --wcb-sheet-header-button-background: var(--button-background-color);
   --wcb-sheet-header-detail-input-color: rgb(25, 24, 19);
   --wcb-sheet-header-icon-color: #777;
   --wcb-sheet-header-search-color: var(--wcb-sheet-header-input-color);

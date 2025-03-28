@@ -22,7 +22,7 @@
             Drag an actor here to link it
           </div>
         </div>
-        <div class="header-details wcb-content-header">
+        <div class="wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${getTabTypeIcon(WindowTabType.PC)} sheet-icon`"></i>
             <InputText

@@ -5,7 +5,7 @@
         <div class="sheet-image">
           <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
         </div>
-        <div class="header-details wcb-content-header">
+        <div class="wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${icon} sheet-icon`"></i>
             <InputText
@@ -27,7 +27,7 @@
               <i class="fas fa-head-side-virus"></i>
             </button>
           </h1>
-          <div class="form-group wcb-content-header">
+          <div class="form-group">
             <label>{{ localize('labels.fields.type') }}</label>
             <TypeSelect
               :initial-value="currentEntry?.type || ''"
@@ -39,7 +39,7 @@
           <!-- show the species for characters -->
           <div 
             v-if="topic===Topics.Character"
-            class="form-group wcb-content-header"
+            class="form-group"
           >
             <label>{{ localize('labels.fields.species') }}</label>
             <SpeciesSelect
@@ -51,7 +51,7 @@
 
           <div 
             v-if="showHierarchy"
-            class="form-group wcb-content-header"
+            class="form-group"
           >
             <label>{{ localize('labels.fields.parent') }}</label>
             <TypeAhead 
@@ -424,32 +424,4 @@
 </script>
 
 <style lang="scss">
-.wcb-generate-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 8px;
-  padding: 4px 8px;
-  border: 1px solid var(--button-border-color);
-  border-radius: 4px;
-  background: var(--button-background-color);
-  color: var(--button-text-color);
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: var(--button-hover-background-color);
-    border-color: var(--button-hover-border-color);
-    color: var(--button-hover-text-color);
-  }
-
-  i {
-    font-size: 14px;
-    color: currentColor;
-  }
-}
-
-.header-name {
-  align-items: center;
-}
 </style>

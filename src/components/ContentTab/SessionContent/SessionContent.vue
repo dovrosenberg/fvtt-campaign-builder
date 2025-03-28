@@ -2,7 +2,7 @@
   <form class="'flexcol wcb-journal-subsheet ' + topic">
     <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-journal-sheet-header flexrow">
-        <div class="header-details wcb-content-header">
+        <div class="wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${getTabTypeIcon(WindowTabType.Session)} sheet-icon`"></i>
             <InputText
@@ -18,7 +18,7 @@
             />
           </h1>
           <div class="flexrow">
-            <div class="form-group wcb-content-header flexcol">
+            <div class="form-group">
               <label>{{ localize('labels.fields.sessionNumber') }}</label>
               <InputText
                 v-model="sessionNumber"
@@ -31,7 +31,7 @@
                 @update:model-value="onNumberUpdate"
               />
             </div>
-            <div class="form-group wcb-content-header flexcol">
+            <div class="form-group">
               <label>{{ localize('labels.fields.sessionDate') }}</label>
               <DatePicker 
                 v-model="sessionDate"
