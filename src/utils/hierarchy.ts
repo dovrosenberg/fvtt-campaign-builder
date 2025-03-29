@@ -14,9 +14,11 @@ export const hasHierarchy = (topic: Topics): boolean => [Topics.Organization, To
 // this is to populate a list of possible children for a node (ex. a dropdown)
 // a valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself
 // only works for topics that have hierachy
-export function validChildItems(world: WBWorld, topicFolder: TopicFolder, entry: Entry): TabSummary[] {
+export function validChildItems(world: WBWorld, entry: Entry): TabSummary[] {
   if (!entry.uuid)
     return [];
+
+  const topicFolder = world.topicFolders[entry.topic];
 
   const ancestors = world.getEntryHierarchy(entry.uuid)?.ancestors || [];
 
@@ -28,16 +30,29 @@ export function validChildItems(world: WBWorld, topicFolder: TopicFolder, entry:
 // returns a list of valid possible parents for a node
 // a valid parent is anything that does not have this object as an ancestor (to avoid creating loops) 
 // only works for topics that have hierachy
-export function validParentItems(world: WBWorld, topicFolder: TopicFolder, entry: Entry): {name: string; id: string}[] {
+export function validParentItems(world: WBWorld, entry: Entry): {name: string; id: string}[] {
   if (!entry.uuid)
     return [];
 
   const hierarchies = world.hierarchies;
+  const topicFolder = world.topicFolders[entry.topic];
+
+  if (!topicFolder || !hasHierarchy(entry.topic))
+    return [];
 
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
   return topicFolder
     .filterEntries((e: Entry)=>( e.uuid !== entry.uuid && !(hierarchies[e.uuid]?.ancestors || []).includes(entry.uuid)))
     .map((e: Entry)=>({ name: e.name, id: e.uuid}));
+}
+
+export function getParentId(world: WBWorld, entry: Entry): string | null {
+  if (!hasHierarchy(entry.topic))
+    return null;
+
+  const hierarchies = world.hierarchies;
+  const hierarchy = hierarchies[entry.uuid];
+  return hierarchy?.parentId ?? null;
 }
 
 const mapEntryToSummary = (entry: Entry): TabSummary => ({

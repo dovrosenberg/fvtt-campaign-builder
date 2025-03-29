@@ -143,6 +143,15 @@
     :initial-description="currentEntry?.description ? htmlToPlainText(currentEntry.description) : ''"
     @character-generated="onCharacterGenerated"
   />
+  <GenerateLocation
+    v-model="showGenerateLocation"
+    :initial-name="currentEntry?.name || ''"
+    :initial-type="currentEntry?.type || ''"
+    :valid-parents="validParents"
+    :initial-parent-id="parentId || ''"
+    :initial-description="currentEntry?.description ? htmlToPlainText(currentEntry.description) : ''"
+    @character-generated="onLocationGenerated"
+  />
 </template>
 
 <script setup lang="ts">
@@ -171,10 +180,11 @@
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
   import GenerateCharacter from '@/components/AIGeneration/GenerateCharacter.vue';
+  import GenerateLocation from '@/components/AIGeneration/GenerateLocation.vue';
   import ImagePicker from '@/components/ImagePicker.vue'; 
 
   // types
-  import { DocumentLinkType, Topics, ValidTopic, GeneratedCharacterDetails, Species } from '@/types';
+  import { DocumentLinkType, Topics, ValidTopic, GeneratedCharacterDetails, Species, GeneratedLocationDetails } from '@/types';
   import { Entry, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////
@@ -215,6 +225,7 @@
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
   const showGenerateCharacter = ref<boolean>(false);
+  const showGenerateLocation = ref<boolean>(false);
   const isGeneratingImage = ref<boolean>(false); // Flag to track whether image generation is in progress
   const defaultImage = 'icons/svg/mystery-man.svg'; // Default Foundry image
   
@@ -253,9 +264,9 @@
 
       // set the parent and valid parents
       if (currentWorld.value) {    
-        parentId.value = currentWorld.value.getEntryHierarchy(currentEntry.value.uuid)?.parentId || null;
+        parentId.value = await currentEntry.value.getParentId();
 
-        validParents.value = validParentItems(currentWorld.value as WBWorld, newTopicFolder, currentEntry.value).map((e)=> ({
+        validParents.value = validParentItems(currentWorld.value as WBWorld, currentEntry.value).map((e)=> ({
           id: e.id,
           label: e.name || '',
         }));
@@ -328,13 +339,13 @@
     event.preventDefault();
     event.stopPropagation();
 
+    if (topic.value !== Topics.Character && topic.value !== Topics.Location) {
+      return;
+    }
+
     // Show context menu
-    ContextMenu.showContextMenu({
-      customClass: 'wcb',
-      x: event.x,
-      y: event.y,
-      zIndex: 300,
-      items: [
+    const menuItems = {
+      [Topics.Character]: [
         {
           icon: 'fa-file-lines',
           iconFontClass: 'fas',
@@ -349,14 +360,41 @@
           label: `Generate image ${isGeneratingImage.value ? ' (in progress)' : ''}`,
           disabled: isGeneratingImage.value,
           onClick: async () => {
-            await generateImage();
+            await generateCharacterImage();
+          }
+        },
+      ],
+      [Topics.Location]: [
+      {
+          icon: 'fa-file-lines',
+          iconFontClass: 'fas',
+          label: 'Generate text',
+          onClick: () => {
+            showGenerateLocation.value = true;
+          }
+        },
+        {
+          icon: 'fa-image',
+          iconFontClass: 'fas',
+          label: `Generate image ${isGeneratingImage.value ? ' (in progress)' : ''}`,
+          disabled: isGeneratingImage.value,
+          onClick: async () => {
+            await generateLocationImage();
           }
         },
       ]
+    };
+
+    ContextMenu.showContextMenu({
+      customClass: 'wcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: menuItems[topic.value],
     });
   };
 
-  const generateImage = async (): Promise<void> => {
+  const generateCharacterImage = async (): Promise<void> => {
     if (!currentEntry.value || !currentWorld.value || isGeneratingImage.value || currentEntry.value.topic !== Topics.Character) {
       return;
     }
@@ -398,6 +436,48 @@
     }
   };
 
+  const generateLocationImage = async (): Promise<void> => {
+    if (!currentEntry.value || !currentWorld.value || isGeneratingImage.value || currentEntry.value.topic !== Topics.Location) {
+      return;
+    }
+
+    try {
+      isGeneratingImage.value = true;
+
+      // Show a notification that we're generating an image
+      ui.notifications?.info(`Generating image for ${currentEntry.value.name}. This may take a minute...`);
+
+      // Get species name if this is a character
+      let species: Species | undefined;
+      const speciesList = ModuleSettings.get(SettingKey.speciesList);
+      if (currentEntry.value.speciesId) {
+        species = speciesList.find(s => s.id === currentEntry.value?.speciesId);
+      }
+
+      // Call the API to generate an image
+      const result = await Backend.api.apiLocationGenerateImagePost({
+        genre: currentWorld.value.genre,
+        worldFeeling: currentWorld.value.worldFeeling,
+        type: currentEntry.value.type,
+        species: species?.name || '',
+        speciesDescription: species?.description || '',
+        briefDescription: currentEntry.value.description,
+      });
+
+      // Update the entry with the generated image
+      if (result.data.filePath) {
+        currentEntry.value.img = result.data.filePath;
+        await currentEntry.value.save();
+      } else {
+        throw new Error('Failed to generate image: No image path returned');
+      }
+    } catch (error) {
+      throw new Error(`Failed to generate image: ${(error as Error).message}`);
+    } finally {
+      isGeneratingImage.value = false;
+    }
+  };
+
   const onCharacterGenerated = async (details: GeneratedCharacterDetails) => {
     if (!currentEntry.value) return;
 
@@ -407,6 +487,29 @@
     currentEntry.value.type = details.type;
     if (details.speciesId) {
       currentEntry.value.speciesId = details.speciesId;
+    }
+
+    // Save the entry
+    await currentEntry.value.save();
+
+    // Update the UI
+    name.value = details.name;
+
+    // Refresh the directory tree to show the updated name
+    await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
+    await navigationStore.propagateNameChange(currentEntry.value.uuid, details.name);
+    await relationshipStore.propagateNameChange(currentEntry.value);
+  };
+
+  const onLocationGenerated = async (details: GeneratedLocationDetails) => {
+    if (!currentEntry.value) return;
+
+    // Update the entry with the generated content
+    currentEntry.value.name = details.name;
+    currentEntry.value.description = details.description;
+    currentEntry.value.type = details.type;
+    if (details.parentId) {
+      await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder as TopicFolder, currentEntry.value.uuid, details.parentId || null);
     }
 
     // Save the entry

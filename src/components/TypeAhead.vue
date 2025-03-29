@@ -231,6 +231,9 @@
               emit('selectionMade', selection);
             }
           }
+        } else if (idx.value===-1 && !currentValue.value) {
+          // it's blank - but need to emit that
+          emit('selectionMade', '', '');
         } else if (idx.value!==-1) {
           // fill in the input value
           selection = objectMode.value ? (filteredItems.value as ListItem[])[idx.value].id : getLabel(idx.value);

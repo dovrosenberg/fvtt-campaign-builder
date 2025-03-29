@@ -146,7 +146,7 @@
     if (!childEntry)
       return;
 
-    if (!(validParentItems(currentWorld.value as WBWorld, topicFolder as TopicFolder, childEntry)).find(e=>e.id===parentId))
+    if (!(validParentItems(currentWorld.value as WBWorld, childEntry)).find(e=>e.id===parentId))
       return;
 
     // add the dropped item as a child on the other  (will also refresh the tree)

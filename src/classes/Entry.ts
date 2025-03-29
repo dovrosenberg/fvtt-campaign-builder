@@ -5,6 +5,7 @@ import { RelatedItemDetails, ValidTopic, Topics } from '@/types';
 import { inputDialog } from '@/dialogs/input';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, WBWorld } from '@/classes';
+import { getParentId } from '@/utils/hierarchy';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -237,6 +238,11 @@ export class Entry {
 
   set actors(value: string[]) {
     this._entryDoc.system.actors = value;
+  }
+
+  public async getParentId(): Promise<string | null> {
+    const world = await this.getWorld();
+    return getParentId(world, this);
   }
 
   /**

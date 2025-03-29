@@ -1,7 +1,7 @@
 <template>
   <Dialog 
     v-model="show"
-    :title="localize('dialogs.generateCharacter.title')"
+    :title="localize('dialogs.generateLocation.title')"
     :buttons="[
       {
         label: 'Cancel',
@@ -45,19 +45,18 @@
       </h6>
       <TypeSelect
         :initial-value="type"
-        :topic="Topics.Character"
+        :topic="Topics.Location"
         @type-selection-made="onTypeSelectionMade"
       />
 
       <h6>
-        Species
-        <i class="fas fa-info-circle tooltip-icon" data-tooltip="If blank, a random species from your world will be used. Custom entries will be passed to the AI but not added to your species list"></i>
+        Parent
+        <i class="fas fa-info-circle tooltip-icon" data-tooltip="May influence generated text in some cases"></i>
       </h6>
-      <SpeciesSelect
-        :initial-value="speciesId"
-        :allow-new-items="true"
-        @species-selection-made="onSpeciesSelectionMade"
-        @species-item-added="onSpeciesItemAdded"
+      <TypeAhead 
+        :initial-list="validParents"
+        :initial-value="parentId || ''"
+        @selection-made="onParentSelectionMade"
       />
 
       <h6>
@@ -94,15 +93,15 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, } from 'vue';
+  import { ref, watch, PropType } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { useMainStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend } from '@/classes/Backend';
   import { generatedTextToHTML } from '@/utils/misc';
+  import { Entry } from '@/classes';
     
   // library components
   import InputText from 'primevue/inputtext';
@@ -112,10 +111,10 @@
   // local components
   import Dialog from '@/components/Dialog.vue';
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
-  import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
+  import TypeAhead from '@/components/TypeAhead.vue'; 
 
   // types
-  import { Topics, GeneratedCharacterDetails } from '@/types';
+  import { Topics, GeneratedLocationDetails } from '@/types';
 
 
   ////////////////////////////////
@@ -132,7 +131,12 @@
       required: false,
       default: '',
     },
-    initialSpeciesId: {
+    validParents: {
+      type: Array as PropType<{id: string; label: string}[]>,
+      required: false,
+      default: '',
+    },
+    initialParentId: {
       type: String,
       required: false,
       default: '',
@@ -148,7 +152,7 @@
   // emits
   const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
-    (e: 'characterGenerated', character: GeneratedCharacterDetails): void;
+    (e: 'locationGenerated', character: GeneratedLocationDetails): void;
   }>();
 
 
@@ -162,8 +166,8 @@
   const show = ref<boolean>(props.modelValue);
   const name = ref<string>(props.initialName);
   const type = ref<string>(props.initialType);
-  const speciesId = ref<string>(props.initialSpeciesId);
-  const speciesName = ref<string>('');
+  const parentId = ref<string>(props.initialParentId);
+  const parentName = ref<string>('');
   const briefDescription = ref<string>(props.initialDescription);
   const generatedName = ref<string>('');
   const generatedDescription = ref<string>('');
@@ -193,14 +197,9 @@
     type.value = newType;
   };
 
-  const onSpeciesSelectionMade = async (species: { id: string; label: string },): Promise<void> => {
-    speciesId.value = species.id;
-    speciesName.value = species.label;
-  };
-
-  const onSpeciesItemAdded = async (newSpecies: { id: string; label: string }): Promise<void> => {
-    speciesId.value = newSpecies.id;
-    speciesName.value = newSpecies.label;
+  const onParentSelectionMade = async (id: string, label?: string | undefined): Promise<void> => {
+    parentId.value = id;
+    parentName.value = label || '';
   };
 
   const onGenerateClick = async function() {
@@ -211,33 +210,33 @@
     generateComplete.value = false;
     generateError.value = '';
 
-    let speciesDescription = '';
+    let parent: Entry | null = null;
+    let grandparent: Entry | null = null;
 
-    const speciesList = ModuleSettings.get(SettingKey.speciesList);
+    if (parentId.value) {
+      parent = await Entry.fromUuid(parentId.value);
 
-    // randomize species if needed
-    if (speciesName.value === '') {
-      const randomSpecies = speciesList[Math.floor(Math.random() * speciesList.length)];
-      speciesName.value = randomSpecies.name;
-    }
-    
-    if (speciesName.value === '') {
-      // didn't find it - must be a custom name
-      speciesDescription = '';
-    } else {
-      const speciesToUse = speciesList.find(s => s.id === speciesId.value);
-      speciesDescription = speciesToUse?.description || '';  // might not be there because could be just added
+      if (parent) {
+        const grandparentId = await parent.getParentId();
+        if (grandparentId) {
+          grandparent = await Entry.fromUuid(grandparentId);
+        }
+      }
     }
     
     // pull the other things we need  
-    let result: Awaited<ReturnType<typeof Backend.api.apiCharacterGeneratePost>>;
+    let result: Awaited<ReturnType<typeof Backend.api.apiLocationGeneratePost>>;
     try {
-      result = await Backend.api.apiCharacterGeneratePost({
+      result = await Backend.api.apiLocationGeneratePost({
         genre: currentWorld.value.genre,
         worldFeeling: currentWorld.value.worldFeeling,
         type: type.value,
-        species: speciesName.value,
-        speciesDescription: speciesDescription,
+        parentName: parent?.name,
+        parentType: parent?.type,
+        parentDescription: parent?.description,
+        grandparentName: grandparent?.name,
+        grandparentType: grandparent?.type,
+        grandparentDescription: grandparent?.description,
         name: name.value,
         briefDescription: briefDescription.value,
       });
@@ -256,15 +255,12 @@
   }
 
   const onAcceptClick = async function() {
-    // see if speciesId was made up or is an existing one
-    const validSpecies = ModuleSettings.get(SettingKey.speciesList).map((s) => s.id);
-
     // emit an event that has the new name and description
-    emit('characterGenerated', { 
+    emit('locationGenerated', { 
       name: generatedName.value, 
       description: generatedTextToHTML(generatedDescription.value),
       type: type.value,
-      speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
+      parentId: parentId.value,
     });
     resetDialog();
   };
@@ -288,15 +284,13 @@
     if (newValue) {
       name.value = props.initialName;
       type.value = props.initialType;
-      speciesId.value = props.initialSpeciesId;
+      parentId.value = props.initialParentId;
 
-      // Set the species name if we have a species ID
-      if (props.initialSpeciesId) {
-        const speciesList = ModuleSettings.get(SettingKey.speciesList);
-        const species = speciesList.find(s => s.id === props.initialSpeciesId);
-        speciesName.value = species?.name || '';
+      // Set the parent name if we have a species ID
+      if (props.initialParentId) {
+        parentName.value = props.validParents.find(p => p.id === props.initialParentId)?.label || '';
       } else {
-        speciesName.value = '';
+        parentName.value = '';
       }
 
       briefDescription.value = props.initialDescription;

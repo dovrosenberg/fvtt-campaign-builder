@@ -2,6 +2,13 @@
 export type GeneratedCharacterDetails = {
   name: string;
   description: string;
-  type: string; 
+  type: string;
   speciesId: string;
+};
+
+export type GeneratedLocationDetails = {
+  name: string;
+  description: string;
+  type: string;
+  parentId: string;
 };
