@@ -22,7 +22,7 @@
             />
           </h1>
           <div v-if="currentWorld">
-            <div class="form-group">
+            <div class="flexrow form-group">
               <label>{{ localize('labels.fields.worldGenre') }} <span class="wcb-header-notes">{{ localize('help.worldGenre') }}</span></label><br/>
               <InputText
                 v-model="currentWorld.genre"
@@ -31,7 +31,7 @@
                 @update:model-value="onGenreSaved"
               />
             </div>
-            <div class="form-group">
+            <div class="flexrow form-group">
               <label>{{ localize('labels.fields.worldFeeling') }} <span class="wcb-header-notes">{{ localize('help.worldFeeling') }}</span></label><br/>
               <Textarea
                 v-model="currentWorld.worldFeeling"

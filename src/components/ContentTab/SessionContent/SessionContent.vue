@@ -33,7 +33,7 @@
               }" 
               @update:model-value="onNumberUpdate"
             />
-          </div><br/>
+          </div>
           <div class="flexrow form-group">
             <label>{{ localize('labels.fields.sessionDate') }}</label>
             <DatePicker 

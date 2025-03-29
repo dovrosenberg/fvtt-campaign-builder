@@ -28,7 +28,7 @@
               <i class="fas fa-head-side-virus"></i>
             </button>
           </h1>
-          <div class="form-group">
+          <div class="flexrow form-group">
             <label>{{ localize('labels.fields.type') }}</label>
             <TypeSelect
               :initial-value="currentEntry?.type || ''"
@@ -40,7 +40,7 @@
           <!-- show the species for characters -->
           <div 
             v-if="topic===Topics.Character"
-            class="form-group"
+            class="flexrow form-group"
           >
             <label>{{ localize('labels.fields.species') }}</label>
             <SpeciesSelect
@@ -52,7 +52,7 @@
 
           <div 
             v-if="showHierarchy"
-            class="form-group"
+            class="flexrow form-group"
           >
             <label>{{ localize('labels.fields.parent') }}</label>
             <TypeAhead 
