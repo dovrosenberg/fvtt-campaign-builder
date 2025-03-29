@@ -2,6 +2,10 @@
   <form class="'flexcol wcb-journal-subsheet ' + topic">
     <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-journal-sheet-header flexrow">
+        <ImagePicker
+          v-model="sessionImg"
+          :title="`Select Image for ${currentSession?.name || 'Session'}`"
+        />
         <div class="wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${getTabTypeIcon(WindowTabType.Session)} sheet-icon`"></i>
@@ -17,27 +21,25 @@
               @update:model-value="onNameUpdate"
             />
           </h1>
-          <div class="flexrow">
-            <div class="form-group">
-              <label>{{ localize('labels.fields.sessionNumber') }}</label>
-              <InputText
-                v-model="sessionNumber"
-                for="wcb-input-number" 
-                unstyled
-                :placeholder="localize('placeholders.sessionNumber')"
-                :pt="{
-                  root: { class: 'full-height' } 
-                }" 
-                @update:model-value="onNumberUpdate"
-              />
-            </div>
-            <div class="form-group">
-              <label>{{ localize('labels.fields.sessionDate') }}</label>
-              <DatePicker 
-                v-model="sessionDate"
-                :show-button-bar="true"
-              />   
-            </div>
+          <div class="flexrow form-group">
+            <label>{{ localize('labels.fields.sessionNumber') }}</label>
+            <InputText
+              v-model="sessionNumber"
+              for="wcb-input-number" 
+              unstyled
+              :placeholder="localize('placeholders.sessionNumber')"
+              :pt="{
+                root: { class: 'full-height' } 
+              }" 
+              @update:model-value="onNumberUpdate"
+            />
+          </div><br/>
+          <div class="flexrow form-group">
+            <label>{{ localize('labels.fields.sessionDate') }}</label>
+            <DatePicker 
+              v-model="sessionDate"
+              :show-button-bar="true"
+            />   
           </div>
         </div>
       </header>
@@ -115,7 +117,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { nextTick, ref, watch, onMounted } from 'vue';
+  import { nextTick, ref, watch, onMounted, computed } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
@@ -136,6 +138,7 @@
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
   import SessionSceneTab from '@/components/ContentTab/SessionContent/SessionSceneTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
+  import ImagePicker from '@/components/ImagePicker.vue';
 
   // types
   import { Session } from '@/classes';
@@ -165,6 +168,15 @@
 
   ////////////////////////////////
   // computed data
+  const sessionImg = computed({
+    get: (): string => currentSession.value?.img || '',
+    set: async (value: string) => {
+      if (currentSession.value) {
+        currentSession.value.img = value;
+        await currentSession.value.save();
+      }
+    }
+  });
 
   ////////////////////////////////
   // methods

@@ -96,6 +96,7 @@ export class Session {
       system: {
         number: campaign.nextSessionNumber,
         description: '',
+        img: '',
       }
     }],{
       parent: campaign.raw as JournalEntry,
@@ -185,6 +186,20 @@ export class Session {
       ...this._cumulativeUpdate,
       system: {
         startingAction: value,
+      }
+    };
+  }
+
+  get img(): string {
+    return this._sessionDoc.system.img || '';
+  }
+
+  set img(value: string) {
+    this._sessionDoc.system.img = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        img: value,
       }
     };
   }

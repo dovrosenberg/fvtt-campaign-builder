@@ -2,6 +2,10 @@
   <form :class="'flexcol wcb-journal-subsheet'">
     <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-journal-sheet-header flexrow">
+        <ImagePicker
+          v-model="campaignImg"
+          :title="`Select Image for ${currentCampaign?.name || 'Campaign'}`"
+        />
         <div class="wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${icon} sheet-icon`"></i>
@@ -26,9 +30,6 @@
       </nav>
       <div class="wcb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
-          <div class="wcb-sheet-image">
-            <!-- <img class="profile" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
-          </div>
           <div v-if="currentCampaign" class="tab-inner flexcol">
             <Editor 
               :initial-content="currentCampaign.description || ''"
@@ -71,6 +72,7 @@
   import Editor from '@/components/Editor.vue';
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
+  import ImagePicker from '@/components/ImagePicker.vue';
   
   // types
   import { WindowTabType, } from '@/types';
@@ -100,6 +102,15 @@
   ////////////////////////////////
   // computed data
   const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
+  const campaignImg = computed({
+    get: (): string => currentCampaign.value?.img || '',
+    set: async (value: string) => {
+      if (currentCampaign.value) {
+        currentCampaign.value.img = value;
+        await currentCampaign.value.save();
+      }
+    }
+  });
   
   ////////////////////////////////
   // methods
