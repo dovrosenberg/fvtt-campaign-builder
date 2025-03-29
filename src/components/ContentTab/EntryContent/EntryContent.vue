@@ -156,6 +156,8 @@
   import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
+  import { Backend } from '@/classes/Backend';
+  import { ModuleSettings, SettingKey } from '@/settings';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -172,7 +174,7 @@
   import ImagePicker from '@/components/ImagePicker.vue'; 
 
   // types
-  import { DocumentLinkType, Topics, ValidTopic, GeneratedCharacterDetails } from '@/types';
+  import { DocumentLinkType, Topics, ValidTopic, GeneratedCharacterDetails, Species } from '@/types';
   import { Entry, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////
@@ -205,7 +207,7 @@
     { tab: 'events', label: 'labels.tabs.entry.events', },
   ] as { tab: string; label: string }[];
 
-  const tabs = ref<Tabs>();
+  const tabs = ref<foundry.applications.ux.Tabs>();
   const topic = ref<Topics | null>(null);
   const name = ref<string>('');
 
@@ -213,14 +215,23 @@
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
   const showGenerateCharacter = ref<boolean>(false);
+  const isGeneratingImage = ref<boolean>(false); // Flag to track whether image generation is in progress
   const defaultImage = 'icons/svg/mystery-man.svg'; // Default Foundry image
-
+  
   ////////////////////////////////
   // computed data
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
-  const entryImg = computed((): string | undefined => currentEntry.value?.img);
+  const entryImg = computed({
+    get: (): string => currentEntry.value?.img || defaultImage,
+    set: async (value: string) => {
+      if (currentEntry.value) {
+        currentEntry.value.img = value;
+        await currentEntry.value.save();
+      }
+    }
+  });
 
   ////////////////////////////////
   // methods
@@ -335,14 +346,56 @@
         {
           icon: 'fa-image',
           iconFontClass: 'fas',
-          label: 'Generate image',
-          onClick: () => {
-            // TODO: Implement image generation functionality
-            console.log('Generate image clicked');
+          label: `Generate image ${isGeneratingImage.value ? ' (in progress)' : ''}`,
+          disabled: isGeneratingImage.value,
+          onClick: async () => {
+            await generateImage();
           }
         },
       ]
     });
+  };
+
+  const generateImage = async (): Promise<void> => {
+    if (!currentEntry.value || !currentWorld.value || isGeneratingImage.value || currentEntry.value.topic !== Topics.Character) {
+      return;
+    }
+
+    try {
+      isGeneratingImage.value = true;
+
+      // Show a notification that we're generating an image
+      ui.notifications?.info(`Generating image for ${currentEntry.value.name}. This may take a minute...`);
+
+      // Get species name if this is a character
+      let species: Species | undefined;
+      const speciesList = ModuleSettings.get(SettingKey.speciesList);
+      if (currentEntry.value.speciesId) {
+        species = speciesList.find(s => s.id === currentEntry.value?.speciesId);
+      }
+
+      // Call the API to generate an image
+      const result = await Backend.api.apiCharacterGenerateImagePost({
+        genre: currentWorld.value.genre,
+        worldFeeling: currentWorld.value.worldFeeling,
+        type: currentEntry.value.type,
+        species: species?.name || '',
+        speciesDescription: species?.description || '',
+        briefDescription: currentEntry.value.description,
+      });
+
+      // Update the entry with the generated image
+      if (result.data.filePath) {
+        currentEntry.value.img = result.data.filePath;
+        await currentEntry.value.save();
+      } else {
+        throw new Error('Failed to generate image: No image path returned');
+      }
+    } catch (error) {
+      throw new Error(`Failed to generate image: ${(error as Error).message}`);
+    } finally {
+      isGeneratingImage.value = false;
+    }
   };
 
   const onCharacterGenerated = async (details: GeneratedCharacterDetails) => {
@@ -395,7 +448,7 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.wcb-tab-body', initial: 'description', /*callback: null*/ });
+    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.wcb-tab-body', initial: 'description', /*callback: null*/ });
 
     // update the store when tab changes
     tabs.value.callback = () => {

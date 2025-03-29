@@ -8,7 +8,7 @@ export function registerForReadyHook() {
 
 async function ready(): Promise<void> {
   // register handlebars helpers
-  await loadTemplates([]);
+  await foundry.applications.handlebars.loadTemplates([]);
 
   // setup the enricher
   setupEnricher();

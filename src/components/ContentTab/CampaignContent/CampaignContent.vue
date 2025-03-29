@@ -93,7 +93,7 @@
   ////////////////////////////////
   // data
 
-  const tabs = ref<Tabs>();
+  const tabs = ref<foundry.applications.ux.Tabs>();
   const name = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);
@@ -188,7 +188,7 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    tabs.value = new Tabs({ navSelector: '.tabs', contentSelector: '.wcb-tab-body', initial: 'description', /*callback: null*/ });
+    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.wcb-tab-body', initial: 'description', /*callback: null*/ });
 
     // update the store when tab changes
     tabs.value.callback = () => {
