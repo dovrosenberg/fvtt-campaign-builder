@@ -39,6 +39,12 @@ export interface ApiLocationGeneratePostRequest {
      */
     'type'?: string;
     /**
+     * The generated location\'s name.  If blank, one will be generated (text gen only)
+     * @type {string}
+     * @memberof ApiLocationGeneratePostRequest
+     */
+    'name'?: string;
+    /**
      * A brief description of the location to factor into the produced text
      * @type {string}
      * @memberof ApiLocationGeneratePostRequest

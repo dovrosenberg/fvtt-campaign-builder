@@ -51,7 +51,7 @@ export interface ApiCharacterGeneratePostRequest {
      */
     'speciesDescription'?: string;
     /**
-     * The generated character\'s name.  If blank, one will be generated
+     * The generated character\'s name.  If blank, one will be generated (text gen only)
      * @type {string}
      * @memberof ApiCharacterGeneratePostRequest
      */
