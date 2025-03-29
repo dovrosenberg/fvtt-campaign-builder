@@ -265,7 +265,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       refreshCurrentEntry.value = true;      
     }
 
-    await refreshTopicDirectoryTree([parentId, oldParentId].filter((id)=>id!==null));
+    await refreshTopicDirectoryTree([parentId, oldParentId, childId].filter((id)=>id!==null));
 
     return true;
   };
