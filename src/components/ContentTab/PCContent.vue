@@ -3,7 +3,7 @@
     <div ref="contentRef" class="wcb-sheet-container flexcol" style="overflow-y: auto">
       <header class="wcb-journal-sheet-header flexrow">
         <div 
-          class="sheet-image" 
+          class="wcb-sheet-image" 
           @drop="onDropActor"
           @dragover="onDragoverActor"
           @click="onActorImageClick"

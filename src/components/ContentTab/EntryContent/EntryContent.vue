@@ -2,8 +2,12 @@
   <form class="'flexcol wcb-journal-subsheet ' + topic">
     <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-journal-sheet-header flexrow">
-        <div class="sheet-image">
-          <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
+        <div class="sheet-image" @click="onImageClick">
+          <img
+            class="profile nopopout"
+            :src="entryImg || defaultImage"
+            @error="onImageError"
+          >
         </div>
         <div class="wcb-content-header">
           <h1 class="header-name flexrow">
@@ -173,22 +177,6 @@
   import { DocumentLinkType, Topics, ValidTopic, GeneratedCharacterDetails } from '@/types';
   import { Entry, WBWorld, TopicFolder } from '@/classes';
 
-  // Declare the Tabs class from Foundry VTT global
-  declare global {
-    class Tabs {
-      constructor(options: {
-        navSelector: string;
-        contentSelector: string;
-        initial: string;
-        callback?: () => void;
-      });
-      bind(element: HTMLElement): void;
-      activate(tabName: string): void;
-      callback?: () => void;
-      active: string | null;
-    }
-  }
-
   ////////////////////////////////
   // props
 
@@ -227,12 +215,14 @@
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
   const showGenerateCharacter = ref<boolean>(false);
+  const defaultImage = 'icons/svg/mystery-man.svg'; // Default Foundry image
 
   ////////////////////////////////
   // computed data
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
+  const entryImg = computed((): string | undefined => currentEntry.value?.img);
 
   ////////////////////////////////
   // methods
@@ -378,6 +368,41 @@
     await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
     await navigationStore.propagateNameChange(currentEntry.value.uuid, details.name);
     await relationshipStore.propagateNameChange(currentEntry.value);
+  };
+
+    // Handle image click to open FilePicker
+  const onImageClick = async (event: MouseEvent) => {
+    event.preventDefault();
+
+    if (!currentEntry.value) return;
+
+    const fp = new FilePicker({
+      type: "image",
+      current: currentEntry.value.img || "",
+      callback: async (path) => {
+        if (currentEntry.value) {
+          // Update the image path
+          currentEntry.value.img = path;
+
+          // Save the entry
+          await currentEntry.value.save();
+        }
+      },
+      title: `Select Image for ${currentEntry.value.name || 'Entry'}`
+    });
+
+    // Display the FilePicker
+    fp.browse();
+  };
+
+
+  // Handle image loading errors
+  const onImageError = (event: Event) => {
+    const target = event.target as HTMLImageElement;
+    if (target && !target.dataset.errorHandled) {
+      target.dataset.errorHandled = 'true';
+      target.src = defaultImage;
+    }
   };
 
   ////////////////////////////////

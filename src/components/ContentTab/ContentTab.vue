@@ -129,6 +129,7 @@
           font-weight: 700;
           font-family: var(--wcb-font-family);
           align-items: flex-start;
+          align-self: flex-start;
           overflow-y: visible;
           
           input {
@@ -224,16 +225,17 @@
           }
         }
 
-        .sheet-image {
+        .wcb-sheet-image {
           flex: 0 0 160px;
           font-size: 13px;
-          max-width: 160px;
-          height: 160px;
+          height: 240px;
+          width: 180px;
           position: relative;
           border-radius: 5px;
           border: 1px solid var(--wcb-icon-outline);
           margin-right: 6px;
           overflow: hidden;
+          cursor: pointer;
       
           img.profile {
             width: 100%;

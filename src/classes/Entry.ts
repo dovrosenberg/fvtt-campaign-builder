@@ -92,6 +92,7 @@ export class Entry {
         },
         actors: [],
         scenes: [],
+        img: '',
       }
     }],{
       parent: topicFolder.raw,
@@ -174,6 +175,21 @@ export class Entry {
       ...this._cumulativeUpdate,
       text: {
         content: value,
+      }
+    };
+  }
+
+  get img(): string | undefined {
+    return this._entryDoc.system.img || undefined;
+  }
+
+  set img(value: string | undefined) {
+    this._entryDoc.system.img = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        img: value,
       }
     };
   }
@@ -306,9 +322,7 @@ export class Entry {
     // TODO - remove from search
   }
 
-  
-
-    
+      
   /**
    * Find all journal entries of a given topic
    * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 

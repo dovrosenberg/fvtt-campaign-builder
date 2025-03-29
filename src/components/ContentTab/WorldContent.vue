@@ -24,7 +24,7 @@
       </nav>
       <div class="wcb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
-          <div class="sheet-image">
+          <div class="wcb-sheet-image">
             <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
           </div>
           <div v-if="currentWorld" class="tab-inner flexcol">
