@@ -135,22 +135,24 @@
       </div>
     </div>
   </form>
-  <GenerateCharacter
+  <GenerateDialog
     v-model="showGenerateCharacter"
+    :topic="Topics.Character"
     :initial-name="currentEntry?.name || ''"
     :initial-type="currentEntry?.type || ''"
     :initial-species-id="currentEntry?.speciesId || ''"
     :initial-description="currentEntry?.description ? htmlToPlainText(currentEntry.description) : ''"
-    @character-generated="onCharacterGenerated"
+    @generation-complete="onCharacterGenerated"
   />
-  <GenerateLocation
+  <GenerateDialog
     v-model="showGenerateLocation"
+    :topic="Topics.Location"
     :initial-name="currentEntry?.name || ''"
     :initial-type="currentEntry?.type || ''"
     :valid-parents="validParents"
     :initial-parent-id="parentId || ''"
     :initial-description="currentEntry?.description ? htmlToPlainText(currentEntry.description) : ''"
-    @character-generated="onLocationGenerated"
+    @generation-complete="onLocationGenerated"
   />
 </template>
 
@@ -179,8 +181,7 @@
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
-  import GenerateCharacter from '@/components/AIGeneration/GenerateCharacter.vue';
-  import GenerateLocation from '@/components/AIGeneration/GenerateLocation.vue';
+  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
   import ImagePicker from '@/components/ImagePicker.vue'; 
 
   // types
