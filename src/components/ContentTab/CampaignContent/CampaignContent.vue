@@ -27,7 +27,7 @@
       <div class="wcb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
           <div class="wcb-sheet-image">
-            <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
+            <!-- <img class="profile" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
           </div>
           <div v-if="currentCampaign" class="tab-inner flexcol">
             <Editor 

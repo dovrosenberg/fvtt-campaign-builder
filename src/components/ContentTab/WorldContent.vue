@@ -1,22 +1,46 @@
 <template>
-  <form :class="'flexcol wcb-journal-subsheet'">
+  <form class="flexcol wcb-journal-subsheet">
     <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-journal-sheet-header flexrow">
+        <ImagePicker
+          v-model="worldImg"
+          :title="`Select Image for ${currentWorld?.name || 'World'}`"
+        />
         <div class="wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${icon} sheet-icon`"></i>
             <InputText
               v-model="name"
-              for="wcb-input-name" 
+              for="wcb-input-name"
               class="wcb-input-name"
               unstyled
-              :placeholder="namePlaceholder"                
+              :placeholder="namePlaceholder"
               :pt="{
-                root: { class: 'full-height' } 
-              }" 
+                root: { class: 'full-height' }
+              }"
               @update:model-value="onNameUpdate"
             />
           </h1>
+          <div v-if="currentWorld">
+            <div class="form-group">
+              <label>{{ localize('labels.fields.worldGenre') }} <span class="wcb-header-notes">{{ localize('help.worldGenre') }}</span></label><br/>
+              <InputText
+                v-model="currentWorld.genre"
+                type="text"
+                style="width: 250px"
+                @update:model-value="onGenreSaved"
+              />
+            </div>
+            <div class="form-group">
+              <label>{{ localize('labels.fields.worldFeeling') }} <span class="wcb-header-notes">{{ localize('help.worldFeeling') }}</span></label><br/>
+              <Textarea
+                v-model="currentWorld.worldFeeling"
+                rows="3"
+                style="width: calc(100% - 2px)"
+                @update:model-value="onWorldFeelingSaved"
+              />
+            </div>
+          </div>
         </div>
       </header>
       <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
@@ -24,32 +48,15 @@
       </nav>
       <div class="wcb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
-          <div class="wcb-sheet-image">
-            <!-- <img class="profile nopopout" src="{{data.src}}" data-edit="src" onerror="if (!this.imgerr) { this.imgerr = true; this.src = 'modules/monks-enhanced-journal/assets/person.png' }"> -->
-          </div>
           <div v-if="currentWorld" class="tab-inner flexcol">
-            <h6>Genre (ex. "Fantasy" - Needed for AI generation)</h6>
-            <InputText
-              v-model="currentWorld.genre"
-              type="text" 
-              style="width: 250px"
-              @update:model-value="onGenreSaved"
-            />
-            <h6>World Feeling (ex. "Rugged and dangerous with low level of magic, reserved for the elites" - Improves AI generation)</h6>
-            <Textarea 
-              v-model="currentWorld.worldFeeling"
-              rows="2"
-              @update:model-value="onWorldFeelingSaved"
-            />
-            <h6>Description/Notes</h6>
-            <Editor 
+            <Editor
               :initial-content="currentWorld.description || ''"
               :has-button="true"
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>
         </div>
-      </div> 
+      </div>
     </div>
   </form>	 
 </template>
@@ -71,7 +78,8 @@
 
   // local components
   import Editor from '@/components/Editor.vue';
-  
+  import ImagePicker from '@/components/ImagePicker.vue';
+
   // types
   import { WindowTabType, } from '@/types';
   
@@ -96,16 +104,27 @@
 
   const contentRef = ref<HTMLElement | null>(null);
   const icon =  getTabTypeIcon(WindowTabType.Campaign);
- 
+
   ////////////////////////////////
   // computed data
   const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
+  const worldImg = computed({
+    get: (): string => currentWorld.value?.img || '',
+    set: async (value: string) => {
+      if (currentWorld.value) {
+        currentWorld.value.img = value;
+        await currentWorld.value.save();
+      }
+    }
+  });
   
   ////////////////////////////////
   // methods
 
   ////////////////////////////////
   // event handlers
+
+
 
   // debounce changes to name
   let debounceTimer: NodeJS.Timeout | undefined = undefined;
@@ -190,5 +209,10 @@
 </script>
 
 <style lang="scss">
-
+  .wcb-header-notes {
+    font-size: 0.85em;
+    font-weight: normal;
+    font-style: italic;
+    color: var(--color-text-dark-secondary, #7a7971);
+  }
 </style>

@@ -226,7 +226,7 @@
         }
 
         .wcb-sheet-image {
-          flex: 0 0 160px;
+          flex: 0 0 180px;
           font-size: 13px;
           height: 240px;
           width: 180px;

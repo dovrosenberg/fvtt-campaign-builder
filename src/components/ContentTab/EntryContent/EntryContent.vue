@@ -1,14 +1,11 @@
 <template>
-  <form class="'flexcol wcb-journal-subsheet ' + topic">
+  <form :class="'flexcol wcb-journal-subsheet ' + topic">
     <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-journal-sheet-header flexrow">
-        <div class="sheet-image" @click="onImageClick">
-          <img
-            class="profile nopopout"
-            :src="entryImg || defaultImage"
-            @error="onImageError"
-          >
-        </div>
+        <ImagePicker
+          v-model="entryImg"
+          :title="`Select Image for ${currentEntry?.name || 'Entry'}`"
+        />        
         <div class="wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${icon} sheet-icon`"></i>
@@ -172,6 +169,7 @@
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
   import GenerateCharacter from '@/components/AIGeneration/GenerateCharacter.vue';
+  import ImagePicker from '@/components/ImagePicker.vue'; 
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, GeneratedCharacterDetails } from '@/types';
@@ -368,41 +366,6 @@
     await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
     await navigationStore.propagateNameChange(currentEntry.value.uuid, details.name);
     await relationshipStore.propagateNameChange(currentEntry.value);
-  };
-
-    // Handle image click to open FilePicker
-  const onImageClick = async (event: MouseEvent) => {
-    event.preventDefault();
-
-    if (!currentEntry.value) return;
-
-    const fp = new FilePicker({
-      type: "image",
-      current: currentEntry.value.img || "",
-      callback: async (path) => {
-        if (currentEntry.value) {
-          // Update the image path
-          currentEntry.value.img = path;
-
-          // Save the entry
-          await currentEntry.value.save();
-        }
-      },
-      title: `Select Image for ${currentEntry.value.name || 'Entry'}`
-    });
-
-    // Display the FilePicker
-    fp.browse();
-  };
-
-
-  // Handle image loading errors
-  const onImageError = (event: Event) => {
-    const target = event.target as HTMLImageElement;
-    if (target && !target.dataset.errorHandled) {
-      target.dataset.errorHandled = 'true';
-      target.src = defaultImage;
-    }
   };
 
   ////////////////////////////////

@@ -31,6 +31,7 @@ export class WBWorld {
   private _description: string;
   private _genre: string;
   private _worldFeeling: string;
+  private _img: string;
 
   /**
    * Note: you should always call validate() after creating a new WBWorld - this ensures the 
@@ -54,6 +55,7 @@ export class WBWorld {
     this._description = getFlag(this._worldDoc, WorldFlagKey.description) || '';
     this._genre = getFlag(this._worldDoc, WorldFlagKey.genre) || '';
     this._worldFeeling = getFlag(this._worldDoc, WorldFlagKey.worldFeeling) || '';
+    this._img = getFlag(this._worldDoc, WorldFlagKey.img) || '';
     this._name = this._worldDoc.name;
     if (this._compendiumId) {
       const compendium = game.packs?.get(this._compendiumId);
@@ -242,6 +244,21 @@ export class WBWorld {
       [`flags.${moduleId}`]: {
         ...this._cumulativeUpdate[`flags.${moduleId}`],
         worldFeeling: value,
+      }
+    };
+  }
+
+  public get img(): string {
+    return this._img;
+  }
+
+  public set img(value: string) {
+    this._img = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        img: value,
       }
     };
   }

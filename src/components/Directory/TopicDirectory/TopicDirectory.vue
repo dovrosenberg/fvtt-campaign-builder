@@ -296,6 +296,7 @@
       border-bottom: none;
       width: 100%;
       flex: 1;
+      cursor: pointer;
     }
 
     // world folder styling

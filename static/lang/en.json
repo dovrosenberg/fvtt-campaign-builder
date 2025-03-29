@@ -31,6 +31,10 @@
         }
       }
     },
+    "help": {
+      "worldGenre": "(ex. \"Fantasy\" - Needed for AI generation)",
+      "worldFeeling": "(ex. \"Rugged and dangerous with low level of magic\" - Improves AI generation)"
+    },
     "labels": {
       "newTab": "New Tab",
       "saveChanges": "Save Changes",
@@ -44,7 +48,9 @@
         "backgroundPoints": "Background Points",
         "otherPlotPoints": "Other Plot Points",
         "desiredMagicItems": "Desired Magic Items",
-        "species": "Species"
+        "species": "Species",
+        "worldGenre": "Genre",
+        "worldFeeling": "World Feeling"
       },
       "addTopic": {
         "character": "Add Character",

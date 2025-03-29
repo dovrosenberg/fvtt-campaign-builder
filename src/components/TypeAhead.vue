@@ -292,13 +292,13 @@
       padding: 0;
       display: flex;
       flex-direction: column;
+      background-color: var(--wcb-ta-list-background);
       box-shadow: 0 0 5px #555555;
       border-radius: 3px;
       width: calc(100% - 2px);
       z-index: 1;
       
       .typeahead-entry {
-        background-color: var(--wcb-ta-list-background);
         padding: 1px 3px;
         font-size: 1rem;
         font-weight: normal;

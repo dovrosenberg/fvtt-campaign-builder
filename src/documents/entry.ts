@@ -21,7 +21,7 @@ const entrySchema = {
   speciesId: new fields.StringField({ required: false, nullable: false, textSearch: false, }),
 
   // Image for the entry
-  img: new fields.FilePathField({required: false, nullable: true, initial: '', categories: ['IMAGE']}),
+  img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
 
   // description: new fields.SchemaField({
   //   short: new fields.HTMLField({required: false, blank: true})
@@ -81,7 +81,7 @@ export interface EntryDoc extends JournalEntryPage {
 
     speciesId?: string | undefined;
 
-    img?: string | undefined;
+    img: string; 
 
     scenes: string[];
     actors: string[];
