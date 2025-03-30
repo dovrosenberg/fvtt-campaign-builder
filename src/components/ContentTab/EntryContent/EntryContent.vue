@@ -440,11 +440,19 @@
       // Show a notification that we're generating an image
       ui.notifications?.info(`Generating image for ${currentEntry.value.name}. This may take a minute...`);
 
-      // Get species name if this is a character
-      let species: Species | undefined;
-      const speciesList = ModuleSettings.get(SettingKey.speciesList);
-      if (currentEntry.value.speciesId) {
-        species = speciesList.find(s => s.id === currentEntry.value?.speciesId);
+      // get parent/grandparent
+      let parent: Entry | null = null;
+      let grandparent: Entry | null = null;
+
+      if (parentId.value) {
+        parent = await Entry.fromUuid(parentId.value);
+
+        if (parent) {
+          const grandparentId = await parent.getParentId();
+          if (grandparentId) {
+            grandparent = await Entry.fromUuid(grandparentId);
+          }
+        }
       }
 
       // Call the API to generate an image
@@ -452,8 +460,13 @@
         genre: currentWorld.value.genre,
         worldFeeling: currentWorld.value.worldFeeling,
         type: currentEntry.value.type,
-        species: species?.name || '',
-        speciesDescription: species?.description || '',
+        name: currentEntry.value.name,
+        parentName: parent?.name,
+        parentType: parent?.type,
+        parentDescription: parent?.description,
+        grandparentName: grandparent?.name,
+        grandparentType: grandparent?.type,
+        grandparentDescription: grandparent?.description,
         briefDescription: currentEntry.value.description,
       });
 

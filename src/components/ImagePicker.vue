@@ -121,8 +121,9 @@
     if (!props.modelValue) return;
 
     // Create a new ImagePopout instance
-    const popout = new foundry.applications.apps.ImagePopout(props.modelValue, {
-      title: props.title || 'View Image',
+    const popout = new foundry.applications.apps.ImagePopout({
+      window: { title: props.title || 'View Image' },
+      src: props.modelValue,
       shareable: false,
       editable: false
     });
