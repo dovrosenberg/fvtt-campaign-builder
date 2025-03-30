@@ -228,7 +228,7 @@
     GeneratedOrganizationDetails |
     GeneratedLocationDetails;
     
-  const onGenerated = async <T extends GeneratedDetails>(details: T) => {
+  const onGenerated = async (details: GeneratedDetails) => {
     const { name, description, type, } = details;
     const topicFolder = currentWorld.value?.topicFolders[generateTopic.value];
 

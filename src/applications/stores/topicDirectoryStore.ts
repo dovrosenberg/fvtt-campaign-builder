@@ -33,7 +33,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
   ///////////////////////////////
   // external state
-  
+
   // the top-level folder structure
   const currentWorldTree = reactive<{value: DirectoryWorld[]}>({value:[]});
 
@@ -48,7 +48,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
   // currently displayed nodes and types
   const filterNodes = ref<Record<ValidTopic, string[]>>({} as Record<ValidTopic, string[]>);
-   
+
   ///////////////////////////////
   // actions
   const createWorld = async(): Promise<void> => {
@@ -438,33 +438,38 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     isTopicTreeRefreshing.value = false;
   };
 
-  const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string): MenuItem[] => {
+  const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string, generateClick: () => void): MenuItem[] => {
     if (!topic || !currentWorld.value)
       throw new Error('Invalid topic in getTopicNodeContextMenuItems()');
 
     return [{ 
-      icon: 'fa-atlas',
-      iconFontClass: 'fas',
-      label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child', 
-      onClick: async () => {
-        const topicFolder = currentWorld.value?.topicFolders[topic];
-  
-        const entry = await createEntry(topicFolder as TopicFolder, { parentId: entryId} );
-      
-        if (entry) {
-          await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+        icon: 'fa-atlas',
+        iconFontClass: 'fas',
+        label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child',
+        onClick: async () => {
+          const topicFolder = currentWorld.value?.topicFolders[topic];
+
+          const entry = await createEntry(topicFolder as TopicFolder, { parentId: entryId} );
+
+          if (entry) {
+            await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
+          }
         }
-      }
-    },{
+      },{
+        icon: 'fa-head-side-virus',
+        iconFontClass: 'fas',
+        label: localize(`contextMenus.topicFolder.generate.${topic}`) + ' as child',
+        onClick: () => { generateClick(); }
+      },{
       icon: 'fa-trash',
       iconFontClass: 'fas',
-      label: localize('contextMenus.directoryEntry.delete'), 
+      label: localize('contextMenus.directoryEntry.delete'),
       onClick: async () => {
         await deleteEntry(topic, entryId);
       }
     }]
-    .filter((item)=>(hasHierarchy(topic) || item.icon!=='fa-atlas'))
-    // the line above is to remove the "add child" option from entries that don't have hierarchy;
+    .filter((item)=>(hasHierarchy(topic) || (item.icon!=='fa-atlas' && item.icon!=='fa-head-side-virus')))
+    // the line above is to remove the "add/generate child" option from entries that don't have hierarchy;
     // not really ideal but a bit cleaner than having two separate arrays and concatening
   }
 
@@ -518,9 +523,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       iconFontClass: 'fas',
       label: localize(`contextMenus.topicFolder.generate.${topicFolder.topic}`), 
       disabled: !Backend.available,
-      onClick: () => {
-        generateClick();
-      }
+      onClick: () => { generateClick(); }
     }].filter((item)=>(allowedGenerateTopics.includes(topicFolder.topic) || item.icon!=='fa-head-side-virus'));
 }
 

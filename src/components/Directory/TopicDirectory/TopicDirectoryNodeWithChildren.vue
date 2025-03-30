@@ -38,6 +38,13 @@
       </ul>
     </div>
   </li>
+  <GenerateDialog 
+    v-model="showGenerate"
+    :topic="generateTopic"
+    :initial-parent-id="props.node.id || ''"
+    :valid-parents="validGenerateParents"
+    @generation-complete="onGenerated" 
+  />
 </template>
 
 <script setup lang="ts">
@@ -48,7 +55,6 @@
   // local imports
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
-  import { localize } from '@/utils/game';
   import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
@@ -56,9 +62,10 @@
 
   // local components
   import TopicDirectoryNodeComponent from './TopicDirectoryNode.vue';
+  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
 
   // types
-  import { ValidTopic } from '@/types';
+  import { GeneratedLocationDetails, GeneratedOrganizationDetails, Topics, ValidTopic } from '@/types';
   import { Entry, DirectoryEntryNode, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////
@@ -97,7 +104,10 @@
   // we don't just use props node because in toggleWithLoad we want to swap it out without rebuilding
   //   the whole tree
   const currentNode = ref<DirectoryEntryNode>(props.node);
-
+  const showGenerate = ref<boolean>(false);
+  const generateTopic = ref<ValidTopic>(Topics.Character);
+  const validGenerateParents = ref<{id: string; label: string}[]>([]);
+  
   ////////////////////////////////
   // computed data
   const sortedChildren = computed((): DirectoryEntryNode[] => {
@@ -181,13 +191,11 @@
     await topicDirectoryStore.setNodeParent(topicFolder as TopicFolder, data.childId, parentId);
   };
 
+
   const onEntryContextMenu = (event: MouseEvent): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();
-
-    if (!currentWorld.value)
-      return;
 
     //show our menu
     ContextMenu.showContextMenu({
@@ -195,9 +203,63 @@
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: topicDirectoryStore.getTopicNodeContextMenuItems(props.topic, props.node.id)
+      items: topicDirectoryStore.getTopicNodeContextMenuItems(
+        props.topic, 
+        props.node.id,
+        () => {
+          // load up valid parents (and the set the parent)
+          if (hasHierarchy(props.topic)) {
+            const topicFolder = currentWorld.value?.topicFolders[props.topic];
+            if (currentWorld.value && topicFolder) {
+              validGenerateParents.value = topicFolder.allEntries()
+                .map((e: Entry)=>({ label: e.name, id: e.uuid}));
+            } else {
+              validGenerateParents.value = [];
+            }
+
+            showGenerate.value = true; 
+            generateTopic.value = props.topic;
+          }
+        }
+      )
     });
   };
+
+  type GeneratedDetails = GeneratedOrganizationDetails | GeneratedLocationDetails;
+  const onGenerated = async (details: GeneratedDetails) => {
+    const { name, description, type, } = details;
+    const topicFolder = currentWorld.value?.topicFolders[generateTopic.value];
+
+    if (!topicFolder)
+      return;
+
+    // create the entry
+    const entry = await topicDirectoryStore.createEntry(topicFolder, { name: name, type: type } );
+
+    if (!entry)
+      throw new Error('Failed to create entry in TopicDirectoryNode.onGenerated()');
+
+    entry.description = description;
+
+    // add the other things based on topic
+    switch (topicFolder.topic) {
+      case Topics.Character:
+        throw new Error('To to generate child for parent in TopicDirectoryNode.onGenerated()');
+        break;
+      case Topics.Location:
+        await topicDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId || null);
+        break;
+      case Topics.Organization:
+        await topicDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId || null);
+        break;
+    }
+    await entry.save();
+
+    // open the entry in a new tab
+    if (entry) {
+      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+    }   
+  }
 
   ////////////////////////////////
   // watchers

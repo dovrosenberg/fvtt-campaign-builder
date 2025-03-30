@@ -130,7 +130,7 @@
   import TypeAhead from '@/components/TypeAhead.vue'; 
 
   // types
-  import { Topics, GeneratedCharacterDetails, GeneratedLocationDetails, ValidTopic } from '@/types';
+  import { Topics, GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -177,7 +177,7 @@
   // emits
   const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
-    (e: 'generationComplete', results: GeneratedCharacterDetails | GeneratedLocationDetails): void;
+    (e: 'generationComplete', results: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails) : void;
   }>();
 
 
