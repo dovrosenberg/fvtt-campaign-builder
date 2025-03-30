@@ -99,13 +99,14 @@ export const useMainStore = defineStore('main', () => {
         }
         break;
       case WindowTabType.World:
-          if (tab.header.uuid) {
-            _currentEntry.value = null;
-            _currentWorld.value = await WBWorld.fromUuid(tab.header.uuid);
-            if (!_currentWorld.value)
-              throw new Error('Invalid entry uuid in mainStore.setNewTab()');
-          }
-          break;
+        // we can only set tabs within a world, so we don't actually need to do anything here
+        // if (tab.header.uuid) {
+        //   _currentEntry.value = null;
+        //   _currentWorld.value = await WBWorld.fromUuid(tab.header.uuid);
+        //   if (!_currentWorld.value)
+        //     throw new Error('Invalid entry uuid in mainStore.setNewTab()');
+        // }
+        break;
       case WindowTabType.Campaign:
         if (tab.header.uuid) {
           _currentCampaign.value = await Campaign.fromUuid(tab.header.uuid);
@@ -190,11 +191,24 @@ export const useMainStore = defineStore('main', () => {
   };
 
   const refreshCurrentContent = async function (): Promise<void> {
-    await refreshEntry();
-    await refreshCampaign();
-    await refreshSession();
-    await refreshPC();
-    await refreshWorld();
+    switch (currentContentType.value) {
+      case WindowTabType.Entry:
+        await refreshEntry();
+        break;
+      case WindowTabType.Campaign:
+        await refreshCampaign();
+        break;
+      case WindowTabType.Session:
+        await refreshSession();
+        break;
+      case WindowTabType.PC:
+        await refreshPC();
+        break;
+      case WindowTabType.World:
+        await refreshWorld();
+        break;
+      default:
+    }
   }
 
   ///////////////////////////////

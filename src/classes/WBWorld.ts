@@ -79,7 +79,7 @@ export class WBWorld {
       return null;
     else {
       const newWorld = new WBWorld(worldDoc);
-      await newWorld.validate();
+      await newWorld.validate();  // will also load topic folders
       return newWorld;
     }
   }

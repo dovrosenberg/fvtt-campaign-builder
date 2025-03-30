@@ -422,11 +422,10 @@ export const useNavigationStore = defineStore('navigation', () => {
       tabs.value = tempTabs;
       await _saveTabs();
 
-      // refresh the current tab just in case it was displaying
-      //   the now-deleted item
+      // refresh the current tab just in case it was displaying the now-deleted item
       const activeTab = getActiveTab(false);
       if (activeTab) 
-        await mainStore.refreshCurrentContent();
+        await mainStore.setNewTab(activeTab);
     }
 
     // now remove from bookmarks
