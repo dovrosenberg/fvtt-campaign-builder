@@ -35,7 +35,7 @@ export class Entry {
   static async fromUuid(entryId: string, topicFolder?: TopicFolder, options?: Record<string, any>): Promise<Entry | null> {
     const entryDoc = await fromUuid(entryId, options) as EntryDoc;
 
-    if (!entryDoc)
+    if (!entryDoc || entryDoc.type !== DOCUMENT_TYPES.Entry)
       return null;
     else {
       return new Entry(entryDoc, topicFolder);
