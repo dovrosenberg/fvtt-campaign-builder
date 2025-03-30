@@ -6,8 +6,8 @@ import { ModuleSettings, SettingKey } from '@/settings';
 export class Backend {
   static config: Configuration;
   static available: boolean;
-
-  private static _api: FCBApi;
+  
+  static api: FCBApi;
 
   static async configure() {
     Backend.available = false;
@@ -22,12 +22,12 @@ export class Backend {
     }
 
     // make sure credentials are valid by checking the version
-    Backend._api = new FCBApi(Backend.config);
+    Backend.api = new FCBApi(Backend.config);
 
     let versionResult: Awaited<ReturnType<FCBApi['apiVersionGet']>>;
 
     try {
-      versionResult = await Backend._api.apiVersionGet();
+      versionResult = await Backend.api.apiVersionGet();
     } catch (e) {
       ui.notifications?.notify(`Failed to connect to backend - check your "advanced" settings to make sure they properly match the backend server you deployed.  You'll be unable to used advanced features in the meantime.`, 'error');
       return;

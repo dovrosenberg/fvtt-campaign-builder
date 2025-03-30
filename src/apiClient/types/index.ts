@@ -1,3 +1,4 @@
+export * from './api-character-generate-image-post200-response';
 export * from './api-character-generate-post200-response';
 export * from './api-character-generate-post-request';
 export * from './api-location-generate-post200-response';

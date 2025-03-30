@@ -133,6 +133,11 @@
     // bold the active one
     .wcb-current-directory-entry {
       font-weight: bold;
+      cursor: pointer;
+    }
+
+    .wcb-directory-entry {
+      cursor: pointer;
     }
 
     ul {
@@ -187,7 +192,7 @@
         border-radius: 50em;
         left: -1.2em;
         top: 0.5em;
-        z-index: 999;
+        z-index: 1;
       }
 
       div.summary.top .wcb-directory-expand-button {

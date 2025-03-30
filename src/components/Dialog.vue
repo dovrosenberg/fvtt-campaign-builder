@@ -203,6 +203,10 @@
         // flex-direction: column;
         // flex: 1;
         font-size: var(--font-size-14);
+
+        input, textarea { 
+          font-size: var(--font-size-14) !important;
+        }
       }
 
       .wcb-dialog-buttons {

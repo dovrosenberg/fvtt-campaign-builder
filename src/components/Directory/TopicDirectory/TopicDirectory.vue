@@ -56,16 +56,24 @@
       </ol>
     </li>
   </ol>
+  <GenerateDialog 
+    v-model="showGenerate"
+    :topic="generateTopic"
+    :valid-parents="validGenerateParents"
+    @generation-complete="onGenerated" 
+  />
 </template>
 
 <script setup lang="ts">
   // library imports
   import { storeToRefs } from 'pinia';
+  import { ref } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
+  import { hasHierarchy, } from '@/utils/hierarchy';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -73,10 +81,11 @@
   // local components
   import TopicDirectoryNestedTree from './TopicDirectoryNestedTree.vue';
   import TopicDirectoryGroupedTree from './TopicDirectoryGroupedTree.vue';
-  
+  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
+
   // types
-  import { WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, } from '@/classes';
+  import { GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, Topics, ValidTopic, WindowTabType } from '@/types';
+  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, Entry,  } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -95,7 +104,10 @@
 
   ////////////////////////////////
   // data
-  
+  const showGenerate = ref<boolean>(false);
+  const generateTopic = ref<ValidTopic>(Topics.Character);
+  const validGenerateParents = ref<{id: string; label: string}[]>([]);
+
   ////////////////////////////////
   // computed data
 
@@ -105,14 +117,26 @@
   ////////////////////////////////
   // event handlers
 
-  // change world
+  /**
+   * Handles clicking on a world folder to activate it and navigate to it.
+   * @param event The click event
+   * @param worldId The UUID of the selected world
+   */
   const onWorldFolderClick = async (event: MouseEvent, worldId: string) => {
+    event.preventDefault();
     event.stopPropagation();
 
-    if (worldId)
+    if (worldId) {
       await mainStore.setNewWorld(worldId);
+      await navigationStore.openWorld(worldId, {newTab: event.ctrlKey});
+    }
   };
 
+  /**
+   * Handles right-click context menu on a world folder, offering actions like delete or create campaign.
+   * @param event The contextmenu event
+   * @param worldId The UUID of the world
+   */
   const onWorldContextMenu = (event: MouseEvent, worldId: string | null): void => {
     //prevent the browser's default menu
     event.preventDefault();
@@ -155,6 +179,12 @@
     });
   };
 
+  /**
+   * Handles right-click context menu on a topic folder, offering actions like creating an entry or generating a character.
+   * @param event The contextmenu event
+   * @param worldId The UUID of the parent world
+   * @param topicFolder The TopicFolder object representing the clicked topic
+   */
   const onTopicContextMenu = (event: MouseEvent, worldId: string, topicFolder: TopicFolder): void => {
     //prevent the browser's default menu
     event.preventDefault();
@@ -166,35 +196,75 @@
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: [
-        { 
-          icon: 'fa-atlas',
-          iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
-          onClick: async () => {
-            // get the right folder
-            const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as Folder;
-
-            if (!worldFolder || !topicFolder)
-              throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
-
-            const entry = await topicDirectoryStore.createEntry(topicFolder, {} );
-
-            if (entry) {
-              await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
-            }
+      items: topicDirectoryStore.getTopicContextMenuItems(
+        topicFolder, 
+        () => { 
+          // load up valid parents
+          if (hasHierarchy(topicFolder.topic)) {
+            validGenerateParents.value = topicFolder.allEntries()
+              .map((e: Entry)=>({ label: e.name, id: e.uuid}));
           }
-        },
-      ]
+
+          showGenerate.value = true; 
+          generateTopic.value = topicFolder.topic;
+        }
+      )
     });
   };
 
-  // open/close a topic
+ /**
+   * Toggles expansion of a topic node when clicked.
+   * @param event The click event
+   * @param directoryTopic The DirectoryTopicNode being toggled
+   */
   const onTopicFolderClick = async (event: MouseEvent, directoryTopic: DirectoryTopicNode) => { 
     event.stopPropagation();
 
     await topicDirectoryStore.toggleTopic(directoryTopic);
   };
+
+  type GeneratedDetails = 
+    GeneratedCharacterDetails |
+    GeneratedOrganizationDetails |
+    GeneratedLocationDetails;
+    
+  const onGenerated = async (details: GeneratedDetails) => {
+    const { name, description, type, } = details;
+    const topicFolder = currentWorld.value?.topicFolders[generateTopic.value];
+
+    if (!topicFolder)
+      return;
+
+    // create the entry
+    const entry = await topicDirectoryStore.createEntry(topicFolder, { name: name, type: type } );
+
+    if (!entry)
+      throw new Error('Failed to create entry in TopicDirectory.onGenerated()');
+
+    entry.description = description;
+
+    // add the other things based on topic
+    switch (topicFolder.topic) {
+      case Topics.Character:
+        // @ts-ignore - we know it's the right type
+        entry.speciesId = details.speciesId || undefined;
+        break;
+      case Topics.Location:
+        // @ts-ignore - we know it's the right type
+        await topicDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId || null);
+        break;
+      case Topics.Organization:
+        // @ts-ignore - we know it's the right type
+        await topicDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId || null);
+        break;
+    }
+    await entry.save();
+
+    // open the entry in a new tab
+    if (entry) {
+      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+    }   
+  }
 
   ////////////////////////////////
   // watchers
@@ -233,6 +303,7 @@
       border-bottom: none;
       width: 100%;
       flex: 1;
+      cursor: pointer;
     }
 
     // world folder styling
@@ -294,6 +365,11 @@
     // bold the active one
     .wcb-current-directory-entry {
       font-weight: bold;
+      cursor: pointer;
+    }
+
+    .wcb-directory-entry {
+      cursor: pointer;
     }
 
     ul {
@@ -348,7 +424,7 @@
         border-radius: 50em;
         left: -1.2em;
         top: 0.5em;
-        z-index: 999;
+        z-index: 1;
       }
 
       div.summary.top .wcb-directory-expand-button {

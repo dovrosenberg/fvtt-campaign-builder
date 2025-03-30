@@ -8,7 +8,7 @@
   />
   <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
-      :class="`${props.node.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : ''}`"
+      :class="`${props.node.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : 'wcb-directory-entry'}`"
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick"
@@ -20,16 +20,22 @@
       {{ props.node.name }}
     </div>
   </li>
+  <GenerateDialog 
+    v-model="showGenerate"
+    :topic="generateTopic"
+    :initial-parent-id="props.node.id || ''"
+    :valid-parents="validGenerateParents"
+    @generation-complete="onGenerated" 
+  />
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { PropType } from 'vue';
+  import { PropType, ref } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
-  import { localize } from '@/utils/game';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getValidatedData } from '@/utils/dragdrop';
 
@@ -38,9 +44,10 @@
 
   // local components
   import TopicDirectoryNodeWithChildren from './TopicDirectoryNodeWithChildren.vue';
+  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
 
   // types
-  import { ValidTopic } from '@/types';
+  import { GeneratedLocationDetails, GeneratedOrganizationDetails, Topics, ValidTopic } from '@/types';
   import { DirectoryEntryNode, Entry, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////
@@ -77,6 +84,9 @@
   
   ////////////////////////////////
   // data
+  const showGenerate = ref<boolean>(false);
+  const generateTopic = ref<ValidTopic>(Topics.Character);
+  const validGenerateParents = ref<{id: string; label: string}[]>([]);
 
   ////////////////////////////////
   // computed data
@@ -146,7 +156,7 @@
     if (!childEntry)
       return;
 
-    if (!(validParentItems(currentWorld.value as WBWorld, topicFolder as TopicFolder, childEntry)).find(e=>e.id===parentId))
+    if (!(validParentItems(currentWorld.value as WBWorld, childEntry)).find(e=>e.id===parentId))
       return;
 
     // add the dropped item as a child on the other  (will also refresh the tree)
@@ -164,46 +174,64 @@
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: [
-        { 
-          icon: 'fa-atlas',
-          iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
-
-          onClick: async () => {
-            if (!currentWorld.value)
-              return;
-
-            const topicFolder = currentWorld.value.topicFolders[props.topic];
-
-            // get the right folder
-            const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as Folder;
-
-            if (!worldFolder || !topicFolder)
-              throw new Error('Invalid header in TopicDirectoryNode.onEntryContextMenu.onClick');
-
-            const entry = await topicDirectoryStore.createEntry(topicFolder, { parentId: props.node.id} );
-
-            if (entry) {
-              await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+      items: topicDirectoryStore.getTopicNodeContextMenuItems(
+        props.topic, 
+        props.node.id,
+        () => {
+          // load up valid parents (and the set the parent)
+          if (hasHierarchy(props.topic)) {
+            const topicFolder = currentWorld.value?.topicFolders[props.topic];
+            if (currentWorld.value && topicFolder) {
+              validGenerateParents.value = topicFolder.allEntries()
+                .map((e: Entry)=>({ label: e.name, id: e.uuid}));
+            } else {
+              validGenerateParents.value = [];
             }
-          }
-        },
-        { 
-          icon: 'fa-trash',
-          iconFontClass: 'fas',
-          label: localize('contextMenus.directoryEntry.delete'), 
-          onClick: async () => {
-            await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
-          }
-        },
-      ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))
 
-      // the line above is to remove the "add child" option from entries that don't have hierarchy
-      // not really ideal but a bit cleaner than having two separate arrays and concatening
+            showGenerate.value = true; 
+            generateTopic.value = props.topic;
+          }
+        }
+      )
     });
   };
 
+  type GeneratedDetails = GeneratedOrganizationDetails | GeneratedLocationDetails;
+  const onGenerated = async (details: GeneratedDetails) => {
+    const { name, description, type, } = details;
+    const topicFolder = currentWorld.value?.topicFolders[generateTopic.value];
+
+    if (!topicFolder)
+      return;
+
+    // create the entry
+    const entry = await topicDirectoryStore.createEntry(topicFolder, { name: name, type: type } );
+
+    if (!entry)
+      throw new Error('Failed to create entry in TopicDirectoryNode.onGenerated()');
+
+    entry.description = description;
+
+    // add the other things based on topic
+    switch (topicFolder.topic) {
+      case Topics.Character:
+        throw new Error('To to generate child for parent in TopicDirectoryNode.onGenerated()');
+        break;
+      case Topics.Location:
+        await topicDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId || null);
+        break;
+      case Topics.Organization:
+        await topicDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId || null);
+        break;
+    }
+    await entry.save();
+
+    // open the entry in a new tab
+    if (entry) {
+      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+    }   
+  }
+  
 
   ////////////////////////////////
   // watchers

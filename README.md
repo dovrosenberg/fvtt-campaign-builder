@@ -17,7 +17,6 @@ I plan to use the module to support a live game where only combat is being done 
 The campaign planning component is modeled after [The Lazy Dungeon Master](https://slyflourish.com/lazydm/), which I highly recommend.  There is a [freely available copy of the original book](https://slyflourish.com/the_lazy_dungeon_master_cc.html) and I also recommend the newer [Return of the Lazy Dungeon Master](https://www.amazon.com/Flourishs-Return-Lazy-Dungeon-Master/dp/B0B8F1G5G7) (though you have to buy that version).
 
 
-
 ## Important note
 This module is VERY early in development.  It's really an alpha.  The UX is not great.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.
 
@@ -66,11 +65,27 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
 - Algolia integration (free tier) for complex full-text search
 
 
-
 ## How it works
-- Instructions, screenshots, etc.
+The general flow of using the module to prep and play games:
 
-### Advanced features
+1. **(Optional) Build your world.** My preferred approach is to world build in real time while playing the game, but if you prefer to build every little detail out ahead of time, you can do that.
+
+2. **Prep for a session.** Go through the full Lazy DM method and prepare for your session.  Use AI to flesh out
+your characters, locations, etc. (and even create images) or do it all yourself.
+
+3. **Play your game.** Reference your prep, create new PCs, locations, etc. on the fly (including AI generation) and record important details of things that were improv-ed during the session.
+
+4. **Record the results.** Capture the things that did (or didn't) happen - fleshing out the world for easy reference in the future and giving you a headstart on the next session prep.
+
+### Build the world
+
+### Prep for a session
+
+### Play the game
+
+### Record the results
+
+## Advanced features
 - There are some advanced features (and more planned) that require you to setup a backend server.  In particular the AI features.  This approach has the advantages of:
   - You don't need to store sensitive credentials (i.e. OpenAI tokens) in Foundry (which would then be visible by whoever is hosting the session), and 
   - Activities that take some time (particularly image generation) can be done much more effectively
@@ -80,7 +95,7 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
   - Account creation (currently Google Cloud and OpenAPI).  The backend is designed to stay within the Google Cloud free tier (assuming you're not running anything else) and the OpenAPI costs are minimal (ex. you can create ~5000 AI-generated character descriptions for $0.15), but both services will require you to provide a credit card.
   - Full details on the setup are here: https://github.com/dovrosenberg/fvtt-fcb-backend
 
-### Note on characters, actors, and PCs
+## Note on characters, actors, and PCs
 - Characters (in worlds) can be PCs if you'd like, but they're really intended primarily to represent all the NPCs.  
   - Characters can be tied to multiple Actors (ex. if you want to represent a young version and an old version or track the human form 
   of a werewolf separately from the wolf form, etc.) though typically it would be 1:1

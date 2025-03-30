@@ -5,6 +5,7 @@ import { RelatedItemDetails, ValidTopic, Topics } from '@/types';
 import { inputDialog } from '@/dialogs/input';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, WBWorld } from '@/classes';
+import { getParentId } from '@/utils/hierarchy';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -34,7 +35,7 @@ export class Entry {
   static async fromUuid(entryId: string, topicFolder?: TopicFolder, options?: Record<string, any>): Promise<Entry | null> {
     const entryDoc = await fromUuid(entryId, options) as EntryDoc;
 
-    if (!entryDoc)
+    if (!entryDoc || entryDoc.type !== DOCUMENT_TYPES.Entry)
       return null;
     else {
       return new Entry(entryDoc, topicFolder);
@@ -92,6 +93,7 @@ export class Entry {
         },
         actors: [],
         scenes: [],
+        img: '',
       }
     }],{
       parent: topicFolder.raw,
@@ -178,6 +180,21 @@ export class Entry {
     };
   }
 
+  get img(): string | undefined {
+    return this._entryDoc.system.img || undefined;
+  }
+
+  set img(value: string | undefined) {
+    this._entryDoc.system.img = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        img: value,
+      }
+    };
+  }
+
   // get direct access to the document (ex. to hook to foundry's editor)
   get raw(): EntryDoc {
     return this._entryDoc;
@@ -221,6 +238,11 @@ export class Entry {
 
   set actors(value: string[]) {
     this._entryDoc.system.actors = value;
+  }
+
+  public async getParentId(): Promise<string | null> {
+    const world = await this.getWorld();
+    return getParentId(world, this);
   }
 
   /**
@@ -306,9 +328,7 @@ export class Entry {
     // TODO - remove from search
   }
 
-  
-
-    
+      
   /**
    * Find all journal entries of a given topic
    * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 

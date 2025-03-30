@@ -43,6 +43,7 @@ const sessionSchema = {
   monsters: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionMonster[] }),  
   scenes: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionScene[] }),  
   lore: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionLore[] }),  
+  img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
 };
 
 type SessionSchemaType = typeof sessionSchema;
@@ -71,5 +72,6 @@ export interface SessionDoc extends JournalEntryPage {
     monsters: SessionMonster[];
     scenes: SessionScene[];
     lore: SessionLore[];
+    img: string;
   };
 }

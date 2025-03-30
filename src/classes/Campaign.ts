@@ -19,6 +19,7 @@ export class Campaign {
   // saved in flags
   private _description: string;
   private _lore: SessionLore[];
+  private _img: string;
 
   /**
    * 
@@ -37,9 +38,11 @@ export class Campaign {
 
     this._description = getFlag(this._campaignDoc, CampaignFlagKey.description) || '';
     this._lore = getFlag(this._campaignDoc, CampaignFlagKey.lore) || [];
+    this._img = getFlag(this._campaignDoc, CampaignFlagKey.img) || '';
     this._name = campaignDoc.name;
   }
 
+  /** note: DOES NOT attach the world */
   static async fromUuid(campaignId: string, options?: Record<string, any>): Promise<Campaign | null> {
     const campaignDoc = await fromUuid(campaignId, options) as CampaignDoc;
 
@@ -47,7 +50,6 @@ export class Campaign {
       return null;
     else {
       const campaign = new Campaign(campaignDoc);
-      await campaign.loadWorld();
       return campaign;
     }
   }
@@ -81,12 +83,11 @@ export class Campaign {
     if (!this._campaignDoc.collection?.folder)
       throw new Error('Invalid folder id in Campaign.loadWorld()');
     
-    const worldDoc = await fromUuid(this._campaignDoc.collection.folder.uuid) as unknown as WorldDoc;
+    this.world = await WBWorld.fromUuid(this._campaignDoc.collection.folder.uuid);
 
-    if (!worldDoc)
-      throw new Error('Invalid folder id in Campaign.loadWorld()');
+    if (!this.world)
+      throw new Error('Error loading world in Campaign.loadWorld()');
 
-    this.world = new WBWorld(worldDoc);
     return this.world;
   }
   
@@ -136,6 +137,21 @@ export class Campaign {
       [`flags.${moduleId}`]: {
         ...this._cumulativeUpdate[`flags.${moduleId}`],
         description: value,
+      }
+    };
+  }
+
+  public get img(): string {
+    return this._img;
+  }
+
+  public set img(value: string) {
+    this._img = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`],
+        img: value,
       }
     };
   }

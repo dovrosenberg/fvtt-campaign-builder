@@ -20,10 +20,12 @@ const entrySchema = {
   // used only for characters
   speciesId: new fields.StringField({ required: false, nullable: false, textSearch: false, }),
 
+  // Image for the entry
+  img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
+
   // description: new fields.SchemaField({
   //   short: new fields.HTMLField({required: false, blank: true})
   // }),
-  // img: new fields.FilePathField({required: false, categories: ['IMAGE']}),
   // steps: new fields.ArrayField(new fields.StringField({blank: true}))
 };
 
@@ -72,12 +74,14 @@ export interface EntryDoc extends JournalEntryPage {
     topic: ValidTopic;
     type: string;
 
-    /** 
-     * Keyed by topic, then entryId 
-     */ 
+    /**
+     * Keyed by topic, then entryId
+     */
     relationships: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;  // keyed by topic then by entryId
 
     speciesId?: string | undefined;
+
+    img: string; 
 
     scenes: string[];
     actors: string[];

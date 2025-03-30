@@ -13,7 +13,7 @@ import { useMainStore } from './mainStore';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, PC } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, PC, WBWorld } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -55,6 +55,20 @@ export const useNavigationStore = defineStore('navigation', () => {
    */
   const openEntry = async function(entryId = null as string | null, options?: OpenContentOptions) {
     await openContent(entryId, WindowTabType.Entry, options );
+  };
+
+  /**
+   * Open a new tab to the given world. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * 
+   * @param contentId The uuid of the world to open in the tab. If null, a blank tab is opened.
+   * @param options Options for the tab.
+   * @param options.activate Should we switch to the tab after creating? Defaults to true.
+   * @param options.newTab Should the entry open in a new tab? Defaults to true.
+   * @param options.updateHistory Should the world be added to the history of the tab? Defaults to true.
+   * @returns The newly opened tab.
+   */
+  const openWorld = async function(worldId = null as string | null, options?: OpenContentOptions) {
+    await openContent(worldId, WindowTabType.World, options );
   };
 
   /**
@@ -134,6 +148,15 @@ export const useNavigationStore = defineStore('navigation', () => {
         } else {
           name = entry.name;
           icon = getTopicIcon(entry.topic);
+        }
+      } break;
+      case WindowTabType.World: {
+        const world = contentId ? await WBWorld.fromUuid(contentId) : null;
+        if (!world) {
+          badId = true;
+        } else {
+          name = world.name;
+          icon = getTabTypeIcon(WindowTabType.World);
         }
       } break;
       case WindowTabType.Campaign: {
@@ -264,7 +287,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       }
     }
 
-    // force a refresh
+    // force a refresh of the display
     // tabs.value = [ ...tabs.value ];
   };
 
@@ -315,7 +338,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    */
   const cleanupDeletedEntry = async (contentId: string): Promise<void> => {
     // get the current set of tabs
-    const tempTabs = tabs.value;
+    const tempTabs = foundry.utils.deepClone(tabs.value);
 
     if (tempTabs) {
       // loop over each one and remove from the history; set tabIndex to point to the subsequent entry
@@ -323,6 +346,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       // go backward in case we need to remove one
       for (let i = tempTabs.length-1; i>=0; i--) {
         const tab = tempTabs[i];
+        let tabRemoved = false;
 
         // loop over the whole history
         for (let j = tab.history.length-1; j>=0; j--) {
@@ -330,16 +354,17 @@ export const useNavigationStore = defineStore('navigation', () => {
 
           if (history.contentId === contentId) {
             if (tab.historyIdx === j && tab.history.length===1) {
+              tabRemoved = true;
               await removeTab(tab.id);
               tempTabs.splice(i, 1);
 
-              // let's say this way the only remaining tab; then when we
-              //    delete it, there's a new tab 0 (the default) that we 
+              // let's say this was the only remaining tab; then when we
+              //    delete it, there's a new tab 0 (the default) that we
               //    need to retain
               // but if we finish the loop, we're going to screw it up because
               //    `tempTabs` doesn't reflect that change yet
-              if (tempTabs.length===1 && i===0) {
-                tempTabs[0] = tabs.value[0];
+              if (tempTabs.length===0 && i===0) {
+                tempTabs.push(tabs.value[0]);
               }
 
               break;
@@ -358,11 +383,49 @@ export const useNavigationStore = defineStore('navigation', () => {
             tab.history.splice(j, 1);
           }
         }
+
+        // Update the header if it was pointing to the deleted entry
+        if (!tabRemoved && tab.header?.uuid === contentId) {
+          // Update the header to match the current history item
+          const currentHistory = tab.history[tab.historyIdx];
+          if (currentHistory && currentHistory.contentId) {
+            let name = '';
+
+            // if it's an entry, we need to get the topic
+            let topic;
+            if (currentHistory.tabType===WindowTabType.Entry) {
+              const entry = await Entry.fromUuid(currentHistory.contentId);
+              if (!entry)
+                throw new Error('Invalid entry uuid in cleanupDeletedEntry()');
+              topic = entry.topic;
+              name = entry.name;
+            }
+
+            // Update the header to match the current history item
+            tab.header = {
+              uuid: currentHistory.contentId,
+              name: name,
+              icon: currentHistory.tabType===WindowTabType.Entry ? getTopicIcon(topic) : getTabTypeIcon(currentHistory.tabType)
+            };
+          } else if (currentHistory) {
+            // If there's no content ID, it's a new tab
+            tab.header = {
+              uuid: null,
+              name: localize('labels.newTab') || '',
+              icon: getTabTypeIcon(currentHistory.tabType)
+            };
+          }
+        }
       }
 
       // save the tabs
       tabs.value = tempTabs;
       await _saveTabs();
+
+      // refresh the current tab just in case it was displaying the now-deleted item
+      const activeTab = getActiveTab(false);
+      if (activeTab) 
+        await mainStore.setNewTab(activeTab);
     }
 
     // now remove from bookmarks
@@ -496,6 +559,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     openEntry,
     openSession,
     openCampaign,
+    openWorld,
     openPC,
     openContent,
     getActiveTab,

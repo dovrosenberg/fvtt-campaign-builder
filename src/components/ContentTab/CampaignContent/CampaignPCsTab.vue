@@ -9,7 +9,6 @@
     :allowEdit="false"
     :delete-item-label="localize('tooltips.deleteRelationship')"
     :add-button-label="localize('labels.campaign.addPC')"
-
     @add-item="onAddItemClick"
     @delete-item="onDeleteItemClick"
     @row-select="onRowSelect"

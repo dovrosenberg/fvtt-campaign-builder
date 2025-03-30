@@ -31,6 +31,10 @@
         }
       }
     },
+    "help": {
+      "worldGenre": "(ex. \"Fantasy\" - Needed for AI generation)",
+      "worldFeeling": "(ex. \"Rugged and dangerous with low level of magic\" - Improves AI generation)"
+    },
     "labels": {
       "newTab": "New Tab",
       "saveChanges": "Save Changes",
@@ -44,7 +48,9 @@
         "backgroundPoints": "Background Points",
         "otherPlotPoints": "Other Plot Points",
         "desiredMagicItems": "Desired Magic Items",
-        "species": "Species"
+        "species": "Species",
+        "worldGenre": "Genre",
+        "worldFeeling": "World Feeling"
       },
       "addTopic": {
         "character": "Add Character",
@@ -141,6 +147,15 @@
       "organizations": "Organizations"
     },
     "dialogs": {
+      "generateCharacter": {
+        "title": "Generate Character"
+      },
+      "generateLocation": {
+        "title": "Generate Location"
+      },
+      "generateOrganization": {
+        "title": "Generate Organization"
+      },
       "confirmDeleteRelationship": {
         "title": "Remove from relationship?",
         "message": "Are you sure you want to delete this relationship?"
@@ -191,6 +206,12 @@
           "2": "Create new location",
           "3": "Create new organization",
           "4": "Create new event"
+        },
+        "generate": {
+          "1": "Generate new character",
+          "2": "Generate new location",
+          "3": "Generate new organization",
+          "4": "Generate new event"
         }
       },
       "directoryEntry": {
@@ -219,7 +240,9 @@
       "deleteLore": "Delete lore",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
-      "moveToNextSession": "Move to next session"
+      "moveToNextSession": "Move to next session",
+      "generateContent": "Generate content",
+      "backendNotAvailable": "Backend not available"
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"

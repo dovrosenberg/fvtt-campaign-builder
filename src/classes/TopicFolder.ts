@@ -204,6 +204,15 @@ export class TopicFolder {
       .filter((e: Entry)=> filterFn(e));
   }
 
+  /**
+   * Returns all the entries inside this topic
+   * 
+   * @returns {Entry[]} The entries
+   */
+  public allEntries(): Entry[] { 
+    return this.filterEntries(() => true);
+  }
+
    /**
    * Returns the specified entry from inside this topic, if it exists
    * 

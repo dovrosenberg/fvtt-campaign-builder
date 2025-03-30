@@ -1,5 +1,6 @@
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
+import { font } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/prosemirror/schema/marks.mjs';
 
 export default definePreset(Aura, {
   components: {
@@ -35,8 +36,28 @@ export default definePreset(Aura, {
       },
     },
     inputtext: {
-      background: 'inherit', // change to var  
-      color: 'black',       // change to var
+      background: 'rgba(0, 0, 0, 0.05)', 
+      color: 'black',   //'var(--color-text-primary)',       // change to var
+      borderRadius: '4px',
+      focusBorderColor: 'black',  // change to var
+      padding: {
+        x: '3px',
+        y: '1px',
+      },
+      focusRing: {
+        color: '#c9593f',  // change to var
+        width: '2px',
+        style: 'solid',
+      }
+    },
+    textarea: {
+      background: 'rgba(0, 0, 0, 0.05)', 
+      color: 'black',   //'var(--color-text-primary)',       // change to var
+      borderRadius: '4px',
+      padding: {
+        x: '3px',
+        y: '1px',
+      },
       focusBorderColor: 'black',  // change to var
       focusRing: {
         color: '#c9593f',  // change to var

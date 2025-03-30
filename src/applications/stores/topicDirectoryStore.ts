@@ -9,10 +9,13 @@ import { ModuleSettings, SettingKey, } from '@/settings';
 import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
+import { localize } from '@/utils/game';
+import { Backend } from '@/classes/Backend';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, TopicFolder, } from '@/classes';
 import { DirectoryWorld, Hierarchy, Topics, ValidTopic, } from '@/types';
+import { MenuItem } from '@imengyu/vue3-context-menu';
 
 // the store definition
 export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
@@ -30,7 +33,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
   ///////////////////////////////
   // external state
-  
+
   // the top-level folder structure
   const currentWorldTree = reactive<{value: DirectoryWorld[]}>({value:[]});
 
@@ -45,7 +48,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
   // currently displayed nodes and types
   const filterNodes = ref<Record<ValidTopic, string[]>>({} as Record<ValidTopic, string[]>);
-   
+
   ///////////////////////////////
   // actions
   const createWorld = async(): Promise<void> => {
@@ -265,7 +268,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       refreshCurrentEntry.value = true;      
     }
 
-    await refreshTopicDirectoryTree([parentId, oldParentId].filter((id)=>id!==null));
+    await refreshTopicDirectoryTree([parentId, oldParentId, childId].filter((id)=>id!==null));
 
     return true;
   };
@@ -434,7 +437,96 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     isTopicTreeRefreshing.value = false;
   };
-  
+
+  const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string, generateClick: () => void): MenuItem[] => {
+    if (!topic || !currentWorld.value)
+      throw new Error('Invalid topic in getTopicNodeContextMenuItems()');
+
+    return [{ 
+        icon: 'fa-atlas',
+        iconFontClass: 'fas',
+        label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child',
+        onClick: async () => {
+          const topicFolder = currentWorld.value?.topicFolders[topic];
+
+          const entry = await createEntry(topicFolder as TopicFolder, { parentId: entryId} );
+
+          if (entry) {
+            await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
+          }
+        }
+      },{
+        icon: 'fa-head-side-virus',
+        iconFontClass: 'fas',
+        label: localize(`contextMenus.topicFolder.generate.${topic}`) + ' as child',
+        onClick: () => { generateClick(); }
+      },{
+      icon: 'fa-trash',
+      iconFontClass: 'fas',
+      label: localize('contextMenus.directoryEntry.delete'),
+      onClick: async () => {
+        await deleteEntry(topic, entryId);
+      }
+    }]
+    .filter((item)=>(hasHierarchy(topic) || (item.icon!=='fa-atlas' && item.icon!=='fa-head-side-virus')))
+    // the line above is to remove the "add/generate child" option from entries that don't have hierarchy;
+    // not really ideal but a bit cleaner than having two separate arrays and concatening
+  }
+
+  const getGroupedTypeNodeContextMenuItems = (topic: ValidTopic, type: string): MenuItem[] => {
+    if (!topic || !type ||!currentWorld.value)
+      throw new Error('Invalid topic in getGroupedTypeNodeContextMenuItems()');
+
+    return [{ 
+      icon: 'fa-atlas',
+      iconFontClass: 'fas',
+      label: `${localize('contextMenus.typeFolder.create')} ${type}`, 
+      onClick: async () => {
+        // get the right topic
+        if (!currentWorld.value)
+        return;
+
+        const topicFolder = currentWorld.value.topicFolders[topic];
+        
+        const entry = await createEntry(topicFolder as TopicFolder, { type: type } );
+
+        if (entry) {
+          await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+        }
+      }
+    }];
+  }
+
+  const getTopicContextMenuItems = (topicFolder: TopicFolder, generateClick: () => void): MenuItem[] => {
+    const allowedGenerateTopics = [ Topics.Character, Topics.Location, Topics.Organization ]; 
+
+    return [{ 
+      icon: 'fa-atlas',
+      iconFontClass: 'fas',
+      label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
+      onClick: async () => {
+        // get the right folder
+        const worldFolder = game.folders?.find((f)=>f.uuid===currentWorld.value?.uuid) as Folder;
+
+        if (!worldFolder || !topicFolder)
+          throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
+
+        const entry = await createEntry(topicFolder, {} );
+
+        if (entry) {
+          await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+        }
+      }
+    },
+    { 
+      icon: 'fa-head-side-virus',
+      iconFontClass: 'fas',
+      label: localize(`contextMenus.topicFolder.generate.${topicFolder.topic}`), 
+      disabled: !Backend.available,
+      onClick: () => { generateClick(); }
+    }].filter((item)=>(allowedGenerateTopics.includes(topicFolder.topic) || item.icon!=='fa-head-side-virus'));
+}
+
   ///////////////////////////////
   // computed state
 
@@ -543,5 +635,8 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     createWorld,
     createEntry,
     deleteEntry,
+    getTopicNodeContextMenuItems,
+    getGroupedTypeNodeContextMenuItems,
+    getTopicContextMenuItems,
   };
 });

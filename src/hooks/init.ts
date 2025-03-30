@@ -24,15 +24,15 @@ async function init(): Promise<void> {
     [DOCUMENT_TYPES.PC]: PCDataModel,
   });
 
-  DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, JournalPageSheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
     types: [DOCUMENT_TYPES.Entry],
     makeDefault: true
   });
-  DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, JournalPageSheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
     types: [DOCUMENT_TYPES.Session],
     makeDefault: true
   });
-  DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, JournalPageSheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
     types: [DOCUMENT_TYPES.PC],
     makeDefault: true
   });

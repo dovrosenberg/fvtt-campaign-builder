@@ -8,6 +8,7 @@ common.ts
 configuration.ts
 git_push.sh
 index.ts
+types/api-character-generate-image-post200-response.ts
 types/api-character-generate-post-request.ts
 types/api-character-generate-post200-response.ts
 types/api-location-generate-post-request.ts

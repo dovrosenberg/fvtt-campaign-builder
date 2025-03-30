@@ -3,10 +3,13 @@
     "APIURL",
     "Ifta",
     "iftalabel",
+    "imengyu",
     "inputtext",
     "npcs",
+    "progressspinner",
     "SHADOWROOT",
     "splitterpanel",
     "Unmark"
-  ]
+  ],
+  "zencoder.enableRepoIndexing": true
 }

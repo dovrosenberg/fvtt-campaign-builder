@@ -10,7 +10,7 @@ import { UserFlagKey, UserFlags, } from '@/settings';
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, PC, CollapsibleNode, } from '@/classes';
-import { EntryDoc, SessionDoc, CampaignDoc, PCDoc } from '@/documents';
+import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, WorldDoc } from '@/documents';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
@@ -98,6 +98,15 @@ export const useMainStore = defineStore('main', () => {
           _currentEntry.value.topicFolder = currentWorld.value.topicFolders[_currentEntry.value.topic];
         }
         break;
+      case WindowTabType.World:
+        // we can only set tabs within a world, so we don't actually need to do anything here
+        // if (tab.header.uuid) {
+        //   _currentEntry.value = null;
+        //   _currentWorld.value = await WBWorld.fromUuid(tab.header.uuid);
+        //   if (!_currentWorld.value)
+        //     throw new Error('Invalid entry uuid in mainStore.setNewTab()');
+        // }
+        break;
       case WindowTabType.Campaign:
         if (tab.header.uuid) {
           _currentCampaign.value = await Campaign.fromUuid(tab.header.uuid);
@@ -152,6 +161,17 @@ export const useMainStore = defineStore('main', () => {
     _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentWorld.value as WBWorld);
   };
 
+  const refreshWorld = async function (): Promise<void> {
+    if (!_currentWorld.value)
+      return;
+
+    // just force all reactivity to update
+    _currentWorld.value = new WBWorld(_currentWorld.value.raw as WorldDoc);
+
+    // have to load the topic folders
+    await _currentWorld.value?.loadTopics();
+  };
+
   const refreshSession = async function (): Promise<void> {
     if (!_currentSession.value)
       return;
@@ -169,6 +189,27 @@ export const useMainStore = defineStore('main', () => {
 
     await _currentPC.value.getActor();
   };
+
+  const refreshCurrentContent = async function (): Promise<void> {
+    switch (currentContentType.value) {
+      case WindowTabType.Entry:
+        await refreshEntry();
+        break;
+      case WindowTabType.Campaign:
+        await refreshCampaign();
+        break;
+      case WindowTabType.Session:
+        await refreshSession();
+        break;
+      case WindowTabType.PC:
+        await refreshPC();
+        break;
+      case WindowTabType.World:
+        await refreshWorld();
+        break;
+      default:
+    }
+  }
 
   ///////////////////////////////
   // computed state
@@ -224,5 +265,7 @@ export const useMainStore = defineStore('main', () => {
     refreshCampaign,
     refreshSession,
     refreshPC,
+    refreshWorld,
+    refreshCurrentContent,
   };
 });

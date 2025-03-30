@@ -43,15 +43,18 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    initialValue: {         // the initial value (string or id)
+    /**  the initial value (string or id) */
+    initialValue: {         
       type: String,
       required: true,
     },
-    initialList: {   // the initial list of items to include
+    /**  the initial list of items to include */
+    initialList: {    
       type: Array as PropType<T[]>,
       required: true,
     },
-    allowNewItems: {   // can we add new items?  can't be used if the items are objects
+    /** can we add new items?  can't be used if the items are objects */
+    allowNewItems: {   
       type: Boolean,
       required: false,
       default: true,
@@ -61,8 +64,10 @@
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
-    (e: 'itemAdded', newValue: string): void;
-    (e: 'selectionMade', selectedValue: string): void;
+    (e: 'itemAdded', newValue: { id: string; label: string; } | string): void;
+
+    /** in object mode returns key, value; is value mode 1st param is the text and 2nd is undefined */
+    (e: 'selectionMade', selectedValue: string, selectedName?: string): void;
   }>();
 
   ////////////////////////////////
@@ -78,19 +83,33 @@
 
   ////////////////////////////////
   // computed data
-  const objectMode = computed(() => props.initialList.length>0 && isObject(props.initialList[0]));
+   /** Determines whether we're in object mode (id/label) or string mode */
+   const objectMode = computed(() => props.initialList.length>0 && isObject(props.initialList[0]));
 
   ////////////////////////////////
   // methods
+    /**
+   * Type guard to check if a value is a ListItem object.
+   * @param value The value to check
+   * @returns True if the value is an object with id and label
+   */
   function isObject(value: unknown): value is { id: string; label: string } {
     return typeof value === 'object' && value !== null && 'id' in value && 'label' in value;
   }
 
+ /**
+   * Returns the display label for the given filtered item index.
+   * @param i Index of the item
+   * @returns Label string
+   */
   const getLabel = (i: number) => (objectMode.value ? (filteredItems.value[i] as ListItem).label : (filteredItems.value[i] as string));
 
   ////////////////////////////////
   // event handlers
   // listen for input changes
+  /**
+   * Handles text input changes and filters the list of items.
+   */
   const onInput = () => {
     // note that we have the focus
     hasFocus.value = true;
@@ -109,11 +128,15 @@
     }
 
     // Render the filtered items
-    // we clear the index if we're typing
-    idx.value = -1;
+    // pick the first item if there is one
+    idx.value = filteredItems.value.length > 0 ? 0 : -1;
   };
 
-  // Event listener for item clicks
+
+  /**
+   * Handles a click on an item in the dropdown list.
+   * @param event Mouse click event
+   */
   const onDropdownClick = async (event: MouseEvent) => {
     const target = event.target as HTMLElement;
 
@@ -127,11 +150,14 @@
       filteredItems.value = [];
 
       hasFocus.value = false;
-      emit('selectionMade', selection);
+      emit('selectionMade', selection, target.textContent || '' );
     }
   };
 
-  // capture keydown for up, down, enter
+  /**
+   * Handles keyboard navigation and selection.
+   * @param event Keyboard event
+   */
   const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
     // if no list, don't need to do anything
     if (!filteredItems.value)
@@ -165,17 +191,28 @@
         // if box is empty, we don't add a new value, but we still say blank was seleted
         if (idx.value===-1 && currentValue.value) {
           // exact match only to let us add values that are just different cases
-          const match = objectMode.value ? (list.value as ListItem[]).find(item=>item.label===selection.toString())?.id : (list.value as string[]).find(item=>item===selection.toString());
+          const match = objectMode.value ? (list.value as ListItem[]).find(item=>item.label===currentValue.value)?.id : (list.value as string[]).find(item=>item===currentValue.value);
           if (match) {
             // it's match, so we'll select that item but don't need to add anything (we don't use the text
             //    in the box because it might have different case)
             selection = match;
-          } else if (props.allowNewItems && !objectMode.value) {
-            selection = currentValue.value;
-            (list.value as string[]).push(selection);
-            hasFocus.value = false;
+          } else if (props.allowNewItems) {
+            if (objectMode.value) {
+              selection = currentValue.value;
+              // we give it an arbitrary id for now
+              const id = foundry.utils.randomID(12);
+              (list.value as ListItem[]).push({id: id, label: selection});
 
-            emit('itemAdded', selection);
+              hasFocus.value = false;
+              emit('itemAdded', {id: id, label: selection});
+            } else {
+              selection = currentValue.value;
+              (list.value as string[]).push(selection);
+              hasFocus.value = false;
+
+              emit('itemAdded', selection);
+            }
+
           } else {
             // there's no match but we're not allowed to add - reset back to the original
             // find the initial item
@@ -184,24 +221,30 @@
               currentValue.value = initialItem.label;
 
               // set the selection to be the id of the current item (this assumes there is only 1 valid match)
-              selection = initialItem.id;
+              if (props.initialList.length > 0) {
+                selection = initialItem.id;
+                emit('selectionMade', selection, getLabel(0));
+              }
             } else {
               selection = props.initialValue;
               currentValue.value = selection;
+              emit('selectionMade', selection);
             }
           }
+        } else if (idx.value===-1 && !currentValue.value) {
+          // it's blank - but need to emit that
+          emit('selectionMade', '', '');
         } else if (idx.value!==-1) {
           // fill in the input value
-          selection = objectMode.value ? (filteredItems.value as ListItem[])[idx.value].id : (filteredItems.value as string[])[idx.value];
+          selection = objectMode.value ? (filteredItems.value as ListItem[])[idx.value].id : getLabel(idx.value);
           currentValue.value = getLabel(idx.value);
+          emit('selectionMade', selection, getLabel(idx.value));
         }
   
         // close the list
         idx.value = -1;
         filteredItems.value = [];
         hasFocus.value = false;
-
-        emit('selectionMade', selection);
 
         return;
       }
@@ -243,7 +286,8 @@
   .wcb-typeahead {
     position: relative;
     overflow-y: visible;
-    z-index: 1000;
+    z-index: auto;
+    outline: 2px solid var(--input-focus-outline-color);
 
     .wcb-ta-dropdown {
       position: absolute;
@@ -251,14 +295,14 @@
       padding: 0;
       display: flex;
       flex-direction: column;
+      background-color: var(--wcb-ta-list-background);
       box-shadow: 0 0 5px #555555;
       border-radius: 3px;
       width: calc(100% - 2px);
+      z-index: 1;
       
       .typeahead-entry {
-        background-color: var(--wcb-header-tab-background);
         padding: 1px 3px;
-        margin: 1px 0;
         font-size: 1rem;
         font-weight: normal;
         font-family: Signika, sans-serif;

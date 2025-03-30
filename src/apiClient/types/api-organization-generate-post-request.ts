@@ -39,6 +39,12 @@ export interface ApiOrganizationGeneratePostRequest {
      */
     'type'?: string;
     /**
+     * The generated organization\'s name.  If blank, one will be generated (text gen only)
+     * @type {string}
+     * @memberof ApiOrganizationGeneratePostRequest
+     */
+    'name'?: string;
+    /**
      * A brief description of the organization to factor into the produced text
      * @type {string}
      * @memberof ApiOrganizationGeneratePostRequest
@@ -62,5 +68,23 @@ export interface ApiOrganizationGeneratePostRequest {
      * @memberof ApiOrganizationGeneratePostRequest
      */
     'parentDescription'?: string;
+    /**
+     * The type of the grandparent organization
+     * @type {string}
+     * @memberof ApiOrganizationGeneratePostRequest
+     */
+    'grandparentName'?: string;
+    /**
+     * The type of grandparent organization
+     * @type {string}
+     * @memberof ApiOrganizationGeneratePostRequest
+     */
+    'grandparentType'?: string;
+    /**
+     * The current description of the organization\'s grandparent
+     * @type {string}
+     * @memberof ApiOrganizationGeneratePostRequest
+     */
+    'grandparentDescription'?: string;
 }
 

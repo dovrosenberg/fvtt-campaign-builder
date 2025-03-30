@@ -1,9 +1,9 @@
 <template>
   <form class="'flexcol wcb-journal-subsheet ' + topic">
-    <div ref="contentRef" class="wcb-sheet-container detailed flexcol" style="overflow-y: auto">
+    <div ref="contentRef" class="wcb-sheet-container flexcol" style="overflow-y: auto">
       <header class="wcb-journal-sheet-header flexrow">
         <div 
-          class="sheet-image" 
+          class="wcb-sheet-image" 
           @drop="onDropActor"
           @dragover="onDragoverActor"
           @click="onActorImageClick"
@@ -22,7 +22,7 @@
             Drag an actor here to link it
           </div>
         </div>
-        <div class="header-details wcb-content-header">
+        <div class="wcb-content-header">
           <h1 class="header-name flexrow">
             <i :class="`fas ${getTabTypeIcon(WindowTabType.PC)} sheet-icon`"></i>
             <InputText
@@ -30,6 +30,7 @@
               for="wcb-input-name" 
               unstyled
               :disabled="true"
+              class="wcb-input-name"
               :pt="{
                 root: { class: 'full-height' } 
               }" 
@@ -45,6 +46,7 @@
           <InputText
             v-model="playerName"
             for="wcb-input-name" 
+            class="wcb-input-name"
             unstyled
             @update:model-value="onPlayerNameUpdate"
             :pt="{

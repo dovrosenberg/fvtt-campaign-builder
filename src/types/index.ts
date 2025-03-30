@@ -4,6 +4,7 @@ export type * from './relationships.d.ts';
 export type * from './hierarchy.d.ts';
 export type * from './global.d.ts';
 export type * from './species.d.ts';
+export type * from './dialogs.d.ts';
 
 // used to determine which component to display in the tab
 export enum WindowTabType  {
@@ -12,10 +13,11 @@ export enum WindowTabType  {
   Campaign,
   Session,
   PC,
+  World,
 }
 
 export type WindowTabHistory = {
-  contentId: string | null;
+  contentId: string | null;   // the uuid of the entry, campaign, etc.
   tabType: WindowTabType;
 }
 
@@ -26,9 +28,14 @@ export type Bookmark = {
 }
 
 export type TabHeader = {
+  /** uuid of the entity being displayed */
   uuid: string | null;   
+
+  /** name to display in header */
   name: string;
-  icon: string;  // class of icon to display
+
+  /** class of icon to display in the header */
+  icon: string; 
 }
 
 export type TabSummary = {

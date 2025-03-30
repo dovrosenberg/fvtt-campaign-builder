@@ -35,7 +35,7 @@ export class WindowTab {
   public historyIdx: number;   
 
   /**
-   * Reference to journal entry  -- leaving open possibility of expanding this type in the future
+   * Header data for the tab - including uuid for the content
    *
    * @type {TabHeader}
    * @memberof WindowTab
