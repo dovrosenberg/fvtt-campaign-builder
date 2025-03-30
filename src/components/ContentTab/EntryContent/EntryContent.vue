@@ -136,23 +136,16 @@
     </div>
   </form>
   <GenerateDialog
-    v-model="showGenerateCharacter"
-    :topic="Topics.Character"
+    v-if="topic"
+    v-model="showGenerate"
+    :topic="topic"
     :initial-name="currentEntry?.name || ''"
     :initial-type="currentEntry?.type || ''"
     :initial-species-id="currentEntry?.speciesId || ''"
-    :initial-description="currentEntry?.description ? htmlToPlainText(currentEntry.description) : ''"
-    @generation-complete="onCharacterGenerated"
-  />
-  <GenerateDialog
-    v-model="showGenerateLocation"
-    :topic="Topics.Location"
-    :initial-name="currentEntry?.name || ''"
-    :initial-type="currentEntry?.type || ''"
     :valid-parents="validParents"
     :initial-parent-id="parentId || ''"
     :initial-description="currentEntry?.description ? htmlToPlainText(currentEntry.description) : ''"
-    @generation-complete="onLocationGenerated"
+    @generation-complete="onGenerationComplete"
   />
 </template>
 
@@ -225,8 +218,7 @@
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
-  const showGenerateCharacter = ref<boolean>(false);
-  const showGenerateLocation = ref<boolean>(false);
+  const showGenerate = ref<boolean>(false);
   const isGeneratingImage = ref<boolean>(false); // Flag to track whether image generation is in progress
   const defaultImage = 'icons/svg/mystery-man.svg'; // Default Foundry image
   
@@ -352,7 +344,7 @@
           iconFontClass: 'fas',
           label: 'Generate text',
           onClick: () => {
-            showGenerateCharacter.value = true;
+            showGenerate.value = true;
           }
         },
         {
@@ -371,7 +363,7 @@
           iconFontClass: 'fas',
           label: 'Generate text',
           onClick: () => {
-            showGenerateLocation.value = true;
+            showGenerate.value = true;
           }
         },
         {
@@ -479,38 +471,18 @@
     }
   };
 
-  const onCharacterGenerated = async (details: GeneratedCharacterDetails) => {
+  const onGenerationComplete = async (details: GeneratedCharacterDetails | GeneratedLocationDetails) => {
     if (!currentEntry.value) return;
 
     // Update the entry with the generated content
     currentEntry.value.name = details.name;
     currentEntry.value.description = details.description;
     currentEntry.value.type = details.type;
-    if (details.speciesId) {
-      currentEntry.value.speciesId = details.speciesId;
+    if ((details as GeneratedCharacterDetails).speciesId) {
+      currentEntry.value.speciesId = (details as GeneratedCharacterDetails).speciesId;
     }
-
-    // Save the entry
-    await currentEntry.value.save();
-
-    // Update the UI
-    name.value = details.name;
-
-    // Refresh the directory tree to show the updated name
-    await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
-    await navigationStore.propagateNameChange(currentEntry.value.uuid, details.name);
-    await relationshipStore.propagateNameChange(currentEntry.value);
-  };
-
-  const onLocationGenerated = async (details: GeneratedLocationDetails) => {
-    if (!currentEntry.value) return;
-
-    // Update the entry with the generated content
-    currentEntry.value.name = details.name;
-    currentEntry.value.description = details.description;
-    currentEntry.value.type = details.type;
-    if (details.parentId) {
-      await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder as TopicFolder, currentEntry.value.uuid, details.parentId || null);
+    if ((details as GeneratedLocationDetails).parentId) {
+      await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder as TopicFolder, currentEntry.value.uuid, (details as GeneratedLocationDetails).parentId || null);
     }
 
     // Save the entry

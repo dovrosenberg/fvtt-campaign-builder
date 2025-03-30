@@ -56,9 +56,10 @@
       </ol>
     </li>
   </ol>
-  <GenerateCharacter 
-    v-model="showGenerateCharacter"
-    @character-generated="onCharacterGenerated" 
+  <GenerateDialog 
+    v-model="showGenerate"
+    :topic="Topics.Character"
+    @character-generated="onGenerated" 
   />
 </template>
 
@@ -79,11 +80,11 @@
   // local components
   import TopicDirectoryNestedTree from './TopicDirectoryNestedTree.vue';
   import TopicDirectoryGroupedTree from './TopicDirectoryGroupedTree.vue';
-  import GenerateCharacter from '@/components/AIGeneration/GenerateCharacter.vue';
+  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
 
   // types
   import { GeneratedCharacterDetails, Topics, WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, Entry, } from '@/classes';
+  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder,  } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -102,7 +103,7 @@
 
   ////////////////////////////////
   // data
-  const showGenerateCharacter = ref<boolean>(false);
+  const showGenerate = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
@@ -217,7 +218,7 @@
           label: 'Generate character', 
           disabled: !Backend.available,
           onClick: async () => {
-            showGenerateCharacter.value = true;
+            showGenerate.value = true;
           }
         },
       ]
@@ -235,7 +236,7 @@
     await topicDirectoryStore.toggleTopic(directoryTopic);
   };
 
-  const onCharacterGenerated = async (details: GeneratedCharacterDetails ) => {
+  const onGenerated = async (details: GeneratedCharacterDetails ) => {
     const { name, description, type, speciesId } = details;
     const topicFolder = currentWorld.value?.topicFolders[Topics.Character];
 
