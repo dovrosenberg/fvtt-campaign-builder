@@ -258,7 +258,8 @@
 
     let result: Awaited<ReturnType<
       typeof Backend.api.apiCharacterGeneratePost |
-      typeof Backend.api.apiLocationGeneratePost 
+      typeof Backend.api.apiLocationGeneratePost |
+      typeof Backend.api.apiOrganizationGeneratePost 
     >>;
 
     if (props.topic === Topics.Character) {
@@ -316,12 +317,12 @@
           genre: currentWorld.value.genre,
           worldFeeling: currentWorld.value.worldFeeling,
           type: type.value,
-          parentName: parent?.name,
-          parentType: parent?.type,
-          parentDescription: parent?.description,
-          grandparentName: grandparent?.name,
-          grandparentType: grandparent?.type,
-          grandparentDescription: grandparent?.description,
+          parentName: parent?.name || '',
+          parentType: parent?.type || '',
+          parentDescription: parent?.description || '',
+          grandparentName: grandparent?.name || '',
+          grandparentType: grandparent?.type || '',
+          grandparentDescription: grandparent?.description || '',
           name: name.value,
           briefDescription: briefDescription.value,
         });
@@ -431,10 +432,6 @@
     margin-top: 8px;
     display: flex;
     align-items: center;
-
-    &:first-child {
-      margin-top: 0;
-    }
 
     .tooltip-icon {
       margin-left: 5px;

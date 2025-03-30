@@ -12,3 +12,5 @@ export type GeneratedLocationDetails = {
   type: string;
   parentId: string;
 };
+
+export type GeneratedOrganizationDetails = GeneratedLocationDetails;

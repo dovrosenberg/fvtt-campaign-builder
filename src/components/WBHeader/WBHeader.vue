@@ -220,6 +220,14 @@
     color: var(--wcb-header-tab-color);
   }
 
+  #wcb-add-tab {
+    flex: 0 0 30px;
+    justify-content: center;
+
+    .wcb-tab-icon {
+      margin: 0px;
+    }
+  }
 
   // Bookmark bar
   .wcb-bookmark-bar {
@@ -309,15 +317,6 @@
 
     #context-menu li {
       text-align: left;
-    }
-
-    #wcb-add-tab {
-      flex: 0 0 30px;
-      justify-content: center;
-
-      .wcb-tab-icon {
-        margin: 0px;
-      }
     }
   }
 }

@@ -206,6 +206,12 @@
           "2": "Create new location",
           "3": "Create new organization",
           "4": "Create new event"
+        },
+        "generate": {
+          "1": "Generate new character",
+          "2": "Generate new location",
+          "3": "Generate new organization",
+          "4": "Generate new event"
         }
       },
       "directoryEntry": {

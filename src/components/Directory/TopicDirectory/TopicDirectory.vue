@@ -58,8 +58,9 @@
   </ol>
   <GenerateDialog 
     v-model="showGenerate"
-    :topic="Topics.Character"
-    @character-generated="onGenerated" 
+    :topic="generateTopic"
+    :valid-parents="validGenerateParents"
+    @generation-complete="onGenerated" 
   />
 </template>
 
@@ -72,7 +73,7 @@
   import { localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
-  import { Backend } from '@/classes/Backend';
+  import { hasHierarchy, } from '@/utils/hierarchy';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -83,8 +84,8 @@
   import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
 
   // types
-  import { GeneratedCharacterDetails, Topics, WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder,  } from '@/classes';
+  import { GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, Topics, ValidTopic, WindowTabType } from '@/types';
+  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, Entry,  } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -104,6 +105,8 @@
   ////////////////////////////////
   // data
   const showGenerate = ref<boolean>(false);
+  const generateTopic = ref<ValidTopic>(Topics.Character);
+  const validGenerateParents = ref<{id: string; label: string}[]>([]);
 
   ////////////////////////////////
   // computed data
@@ -193,35 +196,19 @@
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: [
-        { 
-          icon: 'fa-atlas',
-          iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
-          onClick: async () => {
-            // get the right folder
-            const worldFolder = game.folders?.find((f)=>f.uuid===worldId) as Folder;
-
-            if (!worldFolder || !topicFolder)
-              throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
-
-            const entry = await topicDirectoryStore.createEntry(topicFolder, {} );
-
-            if (entry) {
-              await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
-            }
+      items: topicDirectoryStore.getTopicContextMenuItems(
+        topicFolder, 
+        () => { 
+          // load up valid parents
+          if (hasHierarchy(topicFolder.topic)) {
+            validGenerateParents.value = topicFolder.allEntries()
+              .map((e: Entry)=>({ label: e.name, id: e.uuid}));
           }
-        },
-        { 
-          icon: 'fa-head-side-virus',
-          iconFontClass: 'fas',
-          label: 'Generate character', 
-          disabled: !Backend.available,
-          onClick: async () => {
-            showGenerate.value = true;
-          }
-        },
-      ]
+
+          showGenerate.value = true; 
+          generateTopic.value = topicFolder.topic;
+        }
+      )
     });
   };
 
@@ -236,22 +223,41 @@
     await topicDirectoryStore.toggleTopic(directoryTopic);
   };
 
-  const onGenerated = async (details: GeneratedCharacterDetails ) => {
-    const { name, description, type, speciesId } = details;
-    const topicFolder = currentWorld.value?.topicFolders[Topics.Character];
+  type GeneratedDetails = 
+    GeneratedCharacterDetails |
+    GeneratedOrganizationDetails |
+    GeneratedLocationDetails;
+    
+  const onGenerated = async <T extends GeneratedDetails>(details: T) => {
+    const { name, description, type, } = details;
+    const topicFolder = currentWorld.value?.topicFolders[generateTopic.value];
 
     if (!topicFolder)
       return;
 
-    // create the character
+    // create the entry
     const entry = await topicDirectoryStore.createEntry(topicFolder, { name: name, type: type } );
 
     if (!entry)
-      throw new Error('Failed to create entry in TopicDirectory.onCharacterGenerated()');
+      throw new Error('Failed to create entry in TopicDirectory.onGenerated()');
 
     entry.description = description;
-    if (speciesId)
-      entry.speciesId = speciesId;
+
+    // add the other things based on topic
+    switch (topicFolder.topic) {
+      case Topics.Character:
+        // @ts-ignore - we know it's the right type
+        entry.speciesId = details.speciesId || undefined;
+        break;
+      case Topics.Location:
+        // @ts-ignore - we know it's the right type
+        await topicDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId || null);
+        break;
+      case Topics.Organization:
+        // @ts-ignore - we know it's the right type
+        await topicDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId || null);
+        break;
+    }
     await entry.save();
 
     // open the entry in a new tab

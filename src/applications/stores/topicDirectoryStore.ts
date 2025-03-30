@@ -10,6 +10,7 @@ import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
+import { Backend } from '@/classes/Backend';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, TopicFolder, } from '@/classes';
@@ -467,6 +468,62 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     // not really ideal but a bit cleaner than having two separate arrays and concatening
   }
 
+  const getGroupedTypeNodeContextMenuItems = (topic: ValidTopic, type: string): MenuItem[] => {
+    if (!topic || !type ||!currentWorld.value)
+      throw new Error('Invalid topic in getGroupedTypeNodeContextMenuItems()');
+
+    return [{ 
+      icon: 'fa-atlas',
+      iconFontClass: 'fas',
+      label: `${localize('contextMenus.typeFolder.create')} ${type}`, 
+      onClick: async () => {
+        // get the right topic
+        if (!currentWorld.value)
+        return;
+
+        const topicFolder = currentWorld.value.topicFolders[topic];
+        
+        const entry = await createEntry(topicFolder as TopicFolder, { type: type } );
+
+        if (entry) {
+          await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+        }
+      }
+    }];
+  }
+
+  const getTopicContextMenuItems = (topicFolder: TopicFolder, generateClick: () => void): MenuItem[] => {
+    const allowedGenerateTopics = [ Topics.Character, Topics.Location, Topics.Organization ]; 
+
+    return [{ 
+      icon: 'fa-atlas',
+      iconFontClass: 'fas',
+      label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
+      onClick: async () => {
+        // get the right folder
+        const worldFolder = game.folders?.find((f)=>f.uuid===currentWorld.value?.uuid) as Folder;
+
+        if (!worldFolder || !topicFolder)
+          throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
+
+        const entry = await createEntry(topicFolder, {} );
+
+        if (entry) {
+          await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+        }
+      }
+    },
+    { 
+      icon: 'fa-head-side-virus',
+      iconFontClass: 'fas',
+      label: localize(`contextMenus.topicFolder.generate.${topicFolder.topic}`), 
+      disabled: !Backend.available,
+      onClick: () => {
+        generateClick();
+      }
+    }].filter((item)=>(allowedGenerateTopics.includes(topicFolder.topic) || item.icon!=='fa-head-side-virus'));
+}
+
   ///////////////////////////////
   // computed state
 
@@ -576,5 +633,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     createEntry,
     deleteEntry,
     getTopicNodeContextMenuItems,
+    getGroupedTypeNodeContextMenuItems,
+    getTopicContextMenuItems,
   };
 });

@@ -178,26 +178,7 @@
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: [
-        { 
-          icon: 'fa-atlas',
-          iconFontClass: 'fas',
-          label: `${localize('contextMenus.typeFolder.create')} ${props.type.name}`, 
-          onClick: async () => {
-            // get the right topic
-            if (!currentWorld.value)
-            return;
-
-            const topicFolder = currentWorld.value.topicFolders[props.topic];
-            
-            const entry = await topicDirectoryStore.createEntry(topicFolder as TopicFolder, { type: props.type.name } );
-
-            if (entry) {
-              await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
-            }
-          }
-        },
-      ]
+      items: topicDirectoryStore.getGroupedTypeNodeContextMenuItems(props.topic, props.type.name)
     });
   };
 
