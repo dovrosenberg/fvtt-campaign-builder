@@ -1,7 +1,7 @@
 <template>
   <li>
     <div 
-      :class="`${props.sessionNode.id===currentSession?.uuid ? 'wcb-current-directory-entry' : ''}`"
+      :class="`${props.sessionNode.id===currentSession?.uuid ? 'wcb-current-directory-entry' : 'wcb-directory-entry'}`"
       style="pointer-events: auto;"
       draggable="true"
       :data-tooltip="props.sessionNode.tooltip"

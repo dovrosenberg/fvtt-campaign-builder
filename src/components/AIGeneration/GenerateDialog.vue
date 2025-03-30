@@ -296,7 +296,7 @@
         loading.value = false;
         return;
       }
-    } else if (props.topic === Topics.Location) {
+    } else if (props.topic === Topics.Location || props.topic === Topics.Organization) {
       let parent: Entry | null = null;
       let grandparent: Entry | null = null;
 
@@ -313,7 +313,7 @@
       
       // pull the other things we need  
       try {
-        result = await Backend.api.apiLocationGeneratePost({
+        const options = {
           genre: currentWorld.value.genre,
           worldFeeling: currentWorld.value.worldFeeling,
           type: type.value,
@@ -325,15 +325,18 @@
           grandparentDescription: grandparent?.description || '',
           name: name.value,
           briefDescription: briefDescription.value,
-        });
+        };
+
+        if (props.topic === Topics.Location)
+          result = await Backend.api.apiLocationGeneratePost(options);
+        else if (props.topic === Topics.Organization)
+          result = await Backend.api.apiOrganizationGeneratePost(options);
       } catch (error) {
         generateError.value = (error as Error).message;
         generateComplete.value = true;
         loading.value = false;
         return;
       }    
-    // } else if (props.topic === Topics.Organization) {
-      
     } else {
       generateComplete.value = true;
       loading.value = false;
@@ -360,15 +363,13 @@
         type: type.value,
         speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
       });
-    } else if (props.topic === Topics.Location) {
+    } else if (props.topic === Topics.Location || props.topic === Topics.Organization) {
       emit('generationComplete', { 
         name: generatedName.value, 
         description: generatedTextToHTML(generatedDescription.value),
         type: type.value,
         parentId: parentId.value,
       });
-      
-    // } else if (props.topic === Topics.Organization) {      
     }
 
     resetDialog();

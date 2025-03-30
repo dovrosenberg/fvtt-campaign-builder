@@ -2,7 +2,7 @@
   <!-- an entry node beneath a topic -- don't show children -->
   <li v-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
-      :class="`${props.node.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : ''}`"
+      :class="`${props.node.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : 'wcb-directory-entry'}`"
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick"

@@ -240,7 +240,9 @@
       "deleteLore": "Delete lore",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
-      "moveToNextSession": "Move to next session"
+      "moveToNextSession": "Move to next session",
+      "generateContent": "Generate content",
+      "backendNotAvailable": "Backend not available"
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"

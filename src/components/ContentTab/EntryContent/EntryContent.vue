@@ -21,9 +21,11 @@
               @update:model-value="onNameUpdate"
             />
             <button
+              v-if="canGenerate"
               class="wcb-generate-button"
               @click="onGenerateButtonClick"
-              title="Generate content"
+              :disabled="generateDisabled"
+              :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` ${localize('tooltips.backendNotAvailable')}` : ''}`"
             >
               <i class="fas fa-head-side-virus"></i>
             </button>
@@ -178,7 +180,7 @@
   import ImagePicker from '@/components/ImagePicker.vue'; 
 
   // types
-  import { DocumentLinkType, Topics, ValidTopic, GeneratedCharacterDetails, Species, GeneratedLocationDetails } from '@/types';
+  import { DocumentLinkType, Topics, ValidTopic, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails } from '@/types';
   import { Entry, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////
@@ -236,6 +238,8 @@
       }
     }
   });
+  const canGenerate = computed(() => topic.value && [Topics.Character, Topics.Location, Topics.Organization].includes(topic.value));
+  const generateDisabled = computed(() => !Backend.available);
 
   ////////////////////////////////
   // methods
@@ -332,63 +336,42 @@
     event.preventDefault();
     event.stopPropagation();
 
-    if (topic.value !== Topics.Character && topic.value !== Topics.Location) {
+    if (![Topics.Character, Topics.Location, Topics.Organization].includes(topic.value)) {
       return;
     }
 
     // Show context menu
-    const menuItems = {
-      [Topics.Character]: [
-        {
-          icon: 'fa-file-lines',
-          iconFontClass: 'fas',
-          label: 'Generate text',
-          onClick: () => {
-            showGenerate.value = true;
-          }
-        },
-        {
-          icon: 'fa-image',
-          iconFontClass: 'fas',
-          label: `Generate image ${isGeneratingImage.value ? ' (in progress)' : ''}`,
-          disabled: isGeneratingImage.value,
-          onClick: async () => {
-            await generateCharacterImage();
-          }
-        },
-      ],
-      [Topics.Location]: [
+    const menuItems = [
       {
-          icon: 'fa-file-lines',
-          iconFontClass: 'fas',
-          label: 'Generate text',
-          onClick: () => {
-            showGenerate.value = true;
-          }
-        },
-        {
-          icon: 'fa-image',
-          iconFontClass: 'fas',
-          label: `Generate image ${isGeneratingImage.value ? ' (in progress)' : ''}`,
-          disabled: isGeneratingImage.value,
-          onClick: async () => {
-            await generateLocationImage();
-          }
-        },
-      ]
-    };
+        icon: 'fa-file-lines',
+        iconFontClass: 'fas',
+        label: 'Generate text',
+        onClick: () => {
+          showGenerate.value = true;
+        }
+      },
+      {
+        icon: 'fa-image',
+        iconFontClass: 'fas',
+        label: `Generate image ${isGeneratingImage.value ? ' (in progress)' : ''}`,
+        disabled: isGeneratingImage.value,
+        onClick: async () => {
+          await generateImage();
+        }
+      },
+    ];
 
     ContextMenu.showContextMenu({
       customClass: 'wcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: menuItems[topic.value],
+      items: menuItems,
     });
   };
 
-  const generateCharacterImage = async (): Promise<void> => {
-    if (!currentEntry.value || !currentWorld.value || isGeneratingImage.value || currentEntry.value.topic !== Topics.Character) {
+  const generateImage = async (): Promise<void> => {
+    if (!currentEntry.value || !currentWorld.value || isGeneratingImage.value || ![Topics.Character, Topics.Location, Topics.Organization].includes(currentEntry.value.topic)) {
       return;
     }
 
@@ -405,15 +388,58 @@
         species = speciesList.find(s => s.id === currentEntry.value?.speciesId);
       }
 
-      // Call the API to generate an image
-      const result = await Backend.api.apiCharacterGenerateImagePost({
-        genre: currentWorld.value.genre,
-        worldFeeling: currentWorld.value.worldFeeling,
-        type: currentEntry.value.type,
-        species: species?.name || '',
-        speciesDescription: species?.description || '',
-        briefDescription: currentEntry.value.description,
-      });
+      let result;
+      switch (currentEntry.value.topic) {
+        case Topics.Character:
+          // Call the API to generate an image
+           result = await Backend.api.apiCharacterGenerateImagePost({
+            genre: currentWorld.value.genre,
+            worldFeeling: currentWorld.value.worldFeeling,
+            type: currentEntry.value.type,
+            species: species?.name || '',
+            speciesDescription: species?.description || '',
+            briefDescription: currentEntry.value.description,
+          });
+          break;
+        case Topics.Location:
+        case Topics.Organization:
+          // get parent/grandparent
+          let parent: Entry | null = null;
+          let grandparent: Entry | null = null;
+
+          if (parentId.value) {
+            parent = await Entry.fromUuid(parentId.value);
+
+            if (parent) {
+              const grandparentId = await parent.getParentId();
+              if (grandparentId) {
+                grandparent = await Entry.fromUuid(grandparentId);
+              }
+            }
+          }
+
+          // Call the API to generate an image
+          const options = {
+            genre: currentWorld.value.genre,
+            worldFeeling: currentWorld.value.worldFeeling,
+            type: currentEntry.value.type,
+            name: currentEntry.value.name,
+            parentName: parent?.name,
+            parentType: parent?.type,
+            parentDescription: parent?.description,
+            grandparentName: grandparent?.name,
+            grandparentType: grandparent?.type,
+            grandparentDescription: grandparent?.description,
+            briefDescription: currentEntry.value.description,
+          };
+
+          if (currentEntry.value.topic === Topics.Location)  {
+            result = await Backend.api.apiLocationGenerateImagePost(options);
+          } else if (currentEntry.value.topic === Topics.Organization) {
+            result = await Backend.api.apiOrganizationGenerateImagePost(options);
+          }
+          break;
+      }
 
       // Update the entry with the generated image
       if (result.data.filePath) {
@@ -430,73 +456,24 @@
     }
   };
 
-  const generateLocationImage = async (): Promise<void> => {
-    if (!currentEntry.value || !currentWorld.value || isGeneratingImage.value || currentEntry.value.topic !== Topics.Location) {
-      return;
-    }
 
-    try {
-      isGeneratingImage.value = true;
-
-      // Show a notification that we're generating an image
-      ui.notifications?.info(`Generating image for ${currentEntry.value.name}. This may take a minute...`);
-
-      // get parent/grandparent
-      let parent: Entry | null = null;
-      let grandparent: Entry | null = null;
-
-      if (parentId.value) {
-        parent = await Entry.fromUuid(parentId.value);
-
-        if (parent) {
-          const grandparentId = await parent.getParentId();
-          if (grandparentId) {
-            grandparent = await Entry.fromUuid(grandparentId);
-          }
-        }
-      }
-
-      // Call the API to generate an image
-      const result = await Backend.api.apiLocationGenerateImagePost({
-        genre: currentWorld.value.genre,
-        worldFeeling: currentWorld.value.worldFeeling,
-        type: currentEntry.value.type,
-        name: currentEntry.value.name,
-        parentName: parent?.name,
-        parentType: parent?.type,
-        parentDescription: parent?.description,
-        grandparentName: grandparent?.name,
-        grandparentType: grandparent?.type,
-        grandparentDescription: grandparent?.description,
-        briefDescription: currentEntry.value.description,
-      });
-
-      // Update the entry with the generated image
-      if (result.data.filePath) {
-        currentEntry.value.img = result.data.filePath;
-        await currentEntry.value.save();
-      } else {
-        throw new Error('Failed to generate image: No image path returned');
-      }
-    } catch (error) {
-      throw new Error(`Failed to generate image: ${(error as Error).message}`);
-    } finally {
-      isGeneratingImage.value = false;
-    }
-  };
-
-  const onGenerationComplete = async (details: GeneratedCharacterDetails | GeneratedLocationDetails) => {
+  const onGenerationComplete = async (details: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails) => {
     if (!currentEntry.value) return;
 
     // Update the entry with the generated content
     currentEntry.value.name = details.name;
     currentEntry.value.description = details.description;
     currentEntry.value.type = details.type;
-    if ((details as GeneratedCharacterDetails).speciesId) {
-      currentEntry.value.speciesId = (details as GeneratedCharacterDetails).speciesId;
+
+    // @ts-ignore
+    if (details.speciesId) {
+      // @ts-ignore
+      currentEntry.value.speciesId = details.speciesId;
     }
-    if ((details as GeneratedLocationDetails).parentId) {
-      await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder as TopicFolder, currentEntry.value.uuid, (details as GeneratedLocationDetails).parentId || null);
+    // @ts-ignore
+    if (details.parentId) {
+      // @ts-ignore
+      await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder as TopicFolder, currentEntry.value.uuid, details.parentId || null);
     }
 
     // Save the entry

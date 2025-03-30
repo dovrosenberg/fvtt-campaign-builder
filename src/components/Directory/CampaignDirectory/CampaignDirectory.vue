@@ -133,6 +133,11 @@
     // bold the active one
     .wcb-current-directory-entry {
       font-weight: bold;
+      cursor: pointer;
+    }
+
+    .wcb-directory-entry {
+      cursor: pointer;
     }
 
     ul {

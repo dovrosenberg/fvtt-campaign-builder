@@ -12,7 +12,7 @@
           <span v-if="currentNode.expanded">-</span><span v-else>+</span>
         </div>
         <div 
-          :class="`${currentNode.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : ''}`"
+          :class="`${currentNode.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : 'wcb-directory-entry'}`"
           draggable="true"
           @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"
           @dragstart="onDragStart($event, currentNode.id)"
