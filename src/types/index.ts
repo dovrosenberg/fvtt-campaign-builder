@@ -17,7 +17,7 @@ export enum WindowTabType  {
 }
 
 export type WindowTabHistory = {
-  contentId: string | null;
+  contentId: string | null;   // the uuid of the entry, campaign, etc.
   tabType: WindowTabType;
 }
 
@@ -28,9 +28,14 @@ export type Bookmark = {
 }
 
 export type TabHeader = {
+  /** uuid of the entity being displayed */
   uuid: string | null;   
+
+  /** name to display in header */
   name: string;
-  icon: string;  // class of icon to display
+
+  /** class of icon to display in the header */
+  icon: string; 
 }
 
 export type TabSummary = {

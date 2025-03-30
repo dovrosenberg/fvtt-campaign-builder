@@ -10,7 +10,7 @@ import { UserFlagKey, UserFlags, } from '@/settings';
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, PC, CollapsibleNode, } from '@/classes';
-import { EntryDoc, SessionDoc, CampaignDoc, PCDoc } from '@/documents';
+import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, WorldDoc } from '@/documents';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
@@ -160,6 +160,17 @@ export const useMainStore = defineStore('main', () => {
     _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentWorld.value as WBWorld);
   };
 
+  const refreshWorld = async function (): Promise<void> {
+    if (!_currentWorld.value)
+      return;
+
+    // just force all reactivity to update
+    _currentWorld.value = new WBWorld(_currentWorld.value.raw as WorldDoc);
+
+    // have to load the topic folders
+    await _currentWorld.value?.loadTopics();
+  };
+
   const refreshSession = async function (): Promise<void> {
     if (!_currentSession.value)
       return;
@@ -177,6 +188,14 @@ export const useMainStore = defineStore('main', () => {
 
     await _currentPC.value.getActor();
   };
+
+  const refreshCurrentContent = async function (): Promise<void> {
+    await refreshEntry();
+    await refreshCampaign();
+    await refreshSession();
+    await refreshPC();
+    await refreshWorld();
+  }
 
   ///////////////////////////////
   // computed state
@@ -232,5 +251,7 @@ export const useMainStore = defineStore('main', () => {
     refreshCampaign,
     refreshSession,
     refreshPC,
+    refreshWorld,
+    refreshCurrentContent,
   };
 });

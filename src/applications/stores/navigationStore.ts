@@ -346,6 +346,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       // go backward in case we need to remove one
       for (let i = tempTabs.length-1; i>=0; i--) {
         const tab = tempTabs[i];
+        let tabRemoved = false;
 
         // loop over the whole history
         for (let j = tab.history.length-1; j>=0; j--) {
@@ -353,16 +354,17 @@ export const useNavigationStore = defineStore('navigation', () => {
 
           if (history.contentId === contentId) {
             if (tab.historyIdx === j && tab.history.length===1) {
+              tabRemoved = true;
               await removeTab(tab.id);
               tempTabs.splice(i, 1);
 
-              // let's say this way the only remaining tab; then when we
-              //    delete it, there's a new tab 0 (the default) that we 
+              // let's say this was the only remaining tab; then when we
+              //    delete it, there's a new tab 0 (the default) that we
               //    need to retain
               // but if we finish the loop, we're going to screw it up because
               //    `tempTabs` doesn't reflect that change yet
-              if (tempTabs.length===1 && i===0) {
-                tempTabs[0] = tabs.value[0];
+              if (tempTabs.length===0 && i===0) {
+                tempTabs.push(tabs.value[0]);
               }
 
               break;
@@ -381,11 +383,50 @@ export const useNavigationStore = defineStore('navigation', () => {
             tab.history.splice(j, 1);
           }
         }
+
+        // Update the header if it was pointing to the deleted entry
+        if (!tabRemoved && tab.header?.uuid === contentId) {
+          // Update the header to match the current history item
+          const currentHistory = tab.history[tab.historyIdx];
+          if (currentHistory && currentHistory.contentId) {
+            let name = '';
+
+            // if it's an entry, we need to get the topic
+            let topic;
+            if (currentHistory.tabType===WindowTabType.Entry) {
+              const entry = await Entry.fromUuid(currentHistory.contentId);
+              if (!entry)
+                throw new Error('Invalid entry uuid in cleanupDeletedEntry()');
+              topic = entry.topic;
+              name = entry.name;
+            }
+
+            // Update the header to match the current history item
+            tab.header = {
+              uuid: currentHistory.contentId,
+              name: name,
+              icon: currentHistory.tabType===WindowTabType.Entry ? getTopicIcon(topic) : getTabTypeIcon(currentHistory.tabType)
+            };
+          } else if (currentHistory) {
+            // If there's no content ID, it's a new tab
+            tab.header = {
+              uuid: null,
+              name: localize('labels.newTab') || '',
+              icon: getTabTypeIcon(currentHistory.tabType)
+            };
+          }
+        }
       }
 
       // save the tabs
       tabs.value = tempTabs;
       await _saveTabs();
+
+      // refresh the current tab just in case it was displaying
+      //   the now-deleted item
+      const activeTab = getActiveTab(false);
+      if (activeTab) 
+        await mainStore.refreshCurrentContent();
     }
 
     // now remove from bookmarks

@@ -50,15 +50,12 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   ///////////////////////////////
   // actions
+  /** add PC to current campaign */
   const addPC = async (): Promise<PC | null> => {
     if (!currentCampaign.value)
       return null;
 
-    const campaign = await Campaign.fromUuid(currentCampaign.value.uuid);
-    if (!campaign)
-      throw new Error('Bad campaign in campaignStore.addPC()');
-
-    const pc = await PC.create(campaign);
+    const pc = await PC.create(currentCampaign.value);
 
     await _refreshPCRows();
 
