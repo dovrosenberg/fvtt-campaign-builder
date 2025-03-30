@@ -164,43 +164,7 @@
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: [
-        { 
-          icon: 'fa-atlas',
-          iconFontClass: 'fas',
-          label: localize(`contextMenus.topicFolder.create.${props.topic}`) + ' as child', 
-
-          onClick: async () => {
-            if (!currentWorld.value)
-              return;
-
-            const topicFolder = currentWorld.value.topicFolders[props.topic];
-
-            // get the right folder
-            const worldFolder = game.folders?.find((f)=>f.uuid===props.worldId) as Folder;
-
-            if (!worldFolder || !topicFolder)
-              throw new Error('Invalid header in TopicDirectoryNode.onEntryContextMenu.onClick');
-
-            const entry = await topicDirectoryStore.createEntry(topicFolder, { parentId: props.node.id} );
-
-            if (entry) {
-              await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
-            }
-          }
-        },
-        { 
-          icon: 'fa-trash',
-          iconFontClass: 'fas',
-          label: localize('contextMenus.directoryEntry.delete'), 
-          onClick: async () => {
-            await topicDirectoryStore.deleteEntry(props.topic, props.node.id);
-          }
-        },
-      ].filter((item)=>(hasHierarchy(props.topic) || item.icon!=='fa-atlas'))
-
-      // the line above is to remove the "add child" option from entries that don't have hierarchy
-      // not really ideal but a bit cleaner than having two separate arrays and concatening
+      items: topicDirectoryStore.getTopicNodeContextMenuItems(props.topic, props.node.id)
     });
   };
 

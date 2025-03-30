@@ -419,6 +419,7 @@
       if (result.data.filePath) {
         currentEntry.value.img = result.data.filePath;
         await currentEntry.value.save();
+        ui.notifications?.info(`Image completed for ${currentEntry.value.name}.`);
       } else {
         throw new Error('Failed to generate image: No image path returned');
       }

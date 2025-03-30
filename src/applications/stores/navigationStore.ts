@@ -287,7 +287,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       }
     }
 
-    // force a refresh
+    // force a refresh of the display
     // tabs.value = [ ...tabs.value ];
   };
 
@@ -338,7 +338,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    */
   const cleanupDeletedEntry = async (contentId: string): Promise<void> => {
     // get the current set of tabs
-    const tempTabs = tabs.value;
+    const tempTabs = foundry.utils.deepClone(tabs.value);
 
     if (tempTabs) {
       // loop over each one and remove from the history; set tabIndex to point to the subsequent entry

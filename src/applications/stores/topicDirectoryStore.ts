@@ -9,10 +9,12 @@ import { ModuleSettings, SettingKey, } from '@/settings';
 import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
+import { localize } from '@/utils/game';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, TopicFolder, } from '@/classes';
 import { DirectoryWorld, Hierarchy, Topics, ValidTopic, } from '@/types';
+import { MenuItem } from '@imengyu/vue3-context-menu';
 
 // the store definition
 export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
@@ -434,7 +436,37 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     isTopicTreeRefreshing.value = false;
   };
+
+  const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string): MenuItem[] => {
+    if (!topic || !currentWorld.value)
+      throw new Error('Invalid topic in getTopicNodeContextMenuItems()');
+
+    return [{ 
+      icon: 'fa-atlas',
+      iconFontClass: 'fas',
+      label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child', 
+      onClick: async () => {
+        const topicFolder = currentWorld.value?.topicFolders[topic];
   
+        const entry = await createEntry(topicFolder as TopicFolder, { parentId: entryId} );
+      
+        if (entry) {
+          await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+        }
+      }
+    },{
+      icon: 'fa-trash',
+      iconFontClass: 'fas',
+      label: localize('contextMenus.directoryEntry.delete'), 
+      onClick: async () => {
+        await deleteEntry(topic, entryId);
+      }
+    }]
+    .filter((item)=>(hasHierarchy(topic) || item.icon!=='fa-atlas'))
+    // the line above is to remove the "add child" option from entries that don't have hierarchy;
+    // not really ideal but a bit cleaner than having two separate arrays and concatening
+  }
+
   ///////////////////////////////
   // computed state
 
@@ -543,5 +575,6 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     createWorld,
     createEntry,
     deleteEntry,
+    getTopicNodeContextMenuItems,
   };
 });
