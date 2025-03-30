@@ -44,7 +44,7 @@ import type { ApiVersionGet200Response } from '../types';
 export const FCBApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Generate a character
+         * Generate a character image
          * @param {ApiCharacterGeneratePostRequest} apiCharacterGeneratePostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -122,7 +122,7 @@ export const FCBApiAxiosParamCreator = function (configuration?: Configuration) 
             };
         },
         /**
-         * Generate an location
+         * Generate an location image
          * @param {ApiLocationGeneratePostRequest} apiLocationGeneratePostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -193,6 +193,45 @@ export const FCBApiAxiosParamCreator = function (configuration?: Configuration) 
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(apiLocationGeneratePostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Generate an organization image
+         * @param {ApiOrganizationGeneratePostRequest} apiOrganizationGeneratePostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiOrganizationGenerateImagePost: async (apiOrganizationGeneratePostRequest: ApiOrganizationGeneratePostRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'apiOrganizationGeneratePostRequest' is not null or undefined
+            assertParamExists('apiOrganizationGenerateImagePost', 'apiOrganizationGeneratePostRequest', apiOrganizationGeneratePostRequest)
+            const localVarPath = `/api/organization/generate-image`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(apiOrganizationGeneratePostRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -282,7 +321,7 @@ export const FCBApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = FCBApiAxiosParamCreator(configuration)
     return {
         /**
-         * Generate a character
+         * Generate a character image
          * @param {ApiCharacterGeneratePostRequest} apiCharacterGeneratePostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -306,7 +345,7 @@ export const FCBApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Generate an location
+         * Generate an location image
          * @param {ApiLocationGeneratePostRequest} apiLocationGeneratePostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -327,6 +366,18 @@ export const FCBApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.apiLocationGeneratePost(apiLocationGeneratePostRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FCBApi.apiLocationGeneratePost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Generate an organization image
+         * @param {ApiOrganizationGeneratePostRequest} apiOrganizationGeneratePostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiOrganizationGenerateImagePost(apiOrganizationGeneratePostRequest: ApiOrganizationGeneratePostRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiCharacterGenerateImagePost200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiOrganizationGenerateImagePost(apiOrganizationGeneratePostRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FCBApi.apiOrganizationGenerateImagePost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -363,7 +414,7 @@ export const FCBApiFactory = function (configuration?: Configuration, basePath?:
     const localVarFp = FCBApiFp(configuration)
     return {
         /**
-         * Generate a character
+         * Generate a character image
          * @param {ApiCharacterGeneratePostRequest} apiCharacterGeneratePostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -381,7 +432,7 @@ export const FCBApiFactory = function (configuration?: Configuration, basePath?:
             return localVarFp.apiCharacterGeneratePost(apiCharacterGeneratePostRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * Generate an location
+         * Generate an location image
          * @param {ApiLocationGeneratePostRequest} apiLocationGeneratePostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -397,6 +448,15 @@ export const FCBApiFactory = function (configuration?: Configuration, basePath?:
          */
         apiLocationGeneratePost(apiLocationGeneratePostRequest: ApiLocationGeneratePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiLocationGeneratePost200Response> {
             return localVarFp.apiLocationGeneratePost(apiLocationGeneratePostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Generate an organization image
+         * @param {ApiOrganizationGeneratePostRequest} apiOrganizationGeneratePostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiOrganizationGenerateImagePost(apiOrganizationGeneratePostRequest: ApiOrganizationGeneratePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiCharacterGenerateImagePost200Response> {
+            return localVarFp.apiOrganizationGenerateImagePost(apiOrganizationGeneratePostRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Generate an organization
@@ -425,7 +485,7 @@ export const FCBApiFactory = function (configuration?: Configuration, basePath?:
  */
 export interface FCBApiInterface {
     /**
-     * Generate a character
+     * Generate a character image
      * @param {ApiCharacterGeneratePostRequest} apiCharacterGeneratePostRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -443,7 +503,7 @@ export interface FCBApiInterface {
     apiCharacterGeneratePost(apiCharacterGeneratePostRequest: ApiCharacterGeneratePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiCharacterGeneratePost200Response>;
 
     /**
-     * Generate an location
+     * Generate an location image
      * @param {ApiLocationGeneratePostRequest} apiLocationGeneratePostRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -459,6 +519,15 @@ export interface FCBApiInterface {
      * @memberof FCBApiInterface
      */
     apiLocationGeneratePost(apiLocationGeneratePostRequest: ApiLocationGeneratePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiLocationGeneratePost200Response>;
+
+    /**
+     * Generate an organization image
+     * @param {ApiOrganizationGeneratePostRequest} apiOrganizationGeneratePostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApiInterface
+     */
+    apiOrganizationGenerateImagePost(apiOrganizationGeneratePostRequest: ApiOrganizationGeneratePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiCharacterGenerateImagePost200Response>;
 
     /**
      * Generate an organization
@@ -487,7 +556,7 @@ export interface FCBApiInterface {
  */
 export class FCBApi extends BaseAPI implements FCBApiInterface {
     /**
-     * Generate a character
+     * Generate a character image
      * @param {ApiCharacterGeneratePostRequest} apiCharacterGeneratePostRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -509,7 +578,7 @@ export class FCBApi extends BaseAPI implements FCBApiInterface {
     }
 
     /**
-     * Generate an location
+     * Generate an location image
      * @param {ApiLocationGeneratePostRequest} apiLocationGeneratePostRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -528,6 +597,17 @@ export class FCBApi extends BaseAPI implements FCBApiInterface {
      */
     public apiLocationGeneratePost(apiLocationGeneratePostRequest: ApiLocationGeneratePostRequest, options?: RawAxiosRequestConfig) {
         return FCBApiFp(this.configuration).apiLocationGeneratePost(apiLocationGeneratePostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Generate an organization image
+     * @param {ApiOrganizationGeneratePostRequest} apiOrganizationGeneratePostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApi
+     */
+    public apiOrganizationGenerateImagePost(apiOrganizationGeneratePostRequest: ApiOrganizationGeneratePostRequest, options?: RawAxiosRequestConfig) {
+        return FCBApiFp(this.configuration).apiOrganizationGenerateImagePost(apiOrganizationGeneratePostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
