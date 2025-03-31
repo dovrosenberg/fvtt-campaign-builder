@@ -2,14 +2,17 @@
 
 [![Supported Foundry Versions](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/dovrosenberg/fvtt-campaign-builder/raw/master/static/module.json)](https://github.com/dovrosenberg/fvtt-campaign-builder)
 
-The goal of this package is to facilitate creating, planning, and running campaigns in Foundry, while also enabling world-building and lore creation rather than using a third-party tool like WorldAnvil, Kanka, Fantasia Archive, LengendKeeper, etc.  Why would you want to do it this way, even though many of those platforms have integration solutions with Foundry?  
-- It's free
+The goal of this package is to facilitate creating, planning, and running campaigns in Foundry.  It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LengendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to use used with any style of prep) 
+
+You may find this better than the commercial world builders for a few reasons, even though many of those platforms have integration solutions with Foundry: 
+- It's free (without ads)
+- It supports low-cost AI generation of descriptions and images (that works surprisingly well)
 - It may be easier than managing the integration
 - Most importantly, you can **continue to build out lore as you play**.  
 
 You can use the module just to plan/run sessions or just to do world building.  But it will be most useful when used in combination, because it's designed to be easy to pull defined elements from the world into your planning, as well as to easily add to the world during and after sessions.
 
-While I'm seeking to make this module strong enough that it's a reasonable substitute for the primary commercial solutions, it will likely always be missing features that those provide.  Instead, the advantage of FVTT World Builder is that it is easy/fast enough to use that you can refer to it in real-time while running an adventure, and also quickly add notes.  
+While I'm seeking to make this module strong enough that it's a reasonable substitute for the primary commercial solutions, it will likely always be missing features that those provide.  Instead, the advantage of FVTT World Builder is that it is easy/fast enough to use that you can refer to it in real-time while running an adventure, while still  also quickly adding notes to supplement your world encyclopedia later.  
 
 I plan to use the module to support a live game where only combat is being done in Foundry.  I hope to make the tool useful enough that DM's could use it on a laptop even in a game that isn't using Foundry for play at all.
 
@@ -31,7 +34,7 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
 - Create organizational hierarchies (ex. for religions, governing bodies, large familes, criminal organizations, companies, etc.)
 - Define your world's species for assigning to characters (and using for AI prompts)
 - Directory view of all of your world entries
-- AI-driven generation of characters, locations, and organizations (descriptions and images)
+- AI-driven generation of characters, locations, and organizations (descriptions and images) - it's hard to overstate how well the image generation in particular works... you need to try it to believe it
 - Maintain connections to relevant Foundry documents (ex. Scenes and Actors) for quick reference
 
 ## How it works
@@ -51,7 +54,8 @@ your characters, locations, etc. (and even create images) or do it all yourself.
 * Easily see (and click through) the relationships between them
 * Locations and organizations exist in hierarchies
 * Use AI to generate detailed descriptions and images
-* (Future) make specicic entries (and parts of entries) availabile to players
+  - The image generation in particular works best with detailed descriptions of the entry you're trying to create an image for.  The AI will take into account the campaign genre and world feeling, the hierarchy (i.e. it understands if a city falls inside the broader context of a country it knows about), and your definitions of your species (for characters).  The more details it has, the better it works.
+* (Future) make specicic entries (and parts of entries) availabile to players for a common lore understanding you don't have to maintain separately.
 
 ### Prep for a session - layout the key elements for the upcoming session
 * PCs - maintain your list of PCs and associated info - back stories, goals, links to character sheets
