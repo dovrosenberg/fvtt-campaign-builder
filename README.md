@@ -25,45 +25,14 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
 ## Features
 
 ## MVP features
-- Create a (user-specified-name) compendium for storing everything in
-- Journal entry for overall world with key details
+- Create characters, locations, organizations, and events with detailed descriptions and images
+- Easily see (and click through) the relationships between them
 - Create geographical hierarchies (world-continents-countries-regions-towns-etc.)
 - Create organizational hierarchies (ex. for religions, governing bodies, large familes, criminal organizations, companies, etc.)
-- AI-driven generation of characters, locations, and organizations
-- Locations and organizations are stored as custom journal entries
-  - Customizeable templates
-  - Key info
-  - Tree view
-  - Cross-references?  This may be difficult to implement
-- Create characters as journal entry - not necessarily connected to an actor
-- Hierarchy "levels" are customizable
-- Attach associated scenes
-
-## Planned (or at least considered) features
-- Tags for tracking/searching various entries
-- keyboard shortcuts
-  - Quick search - popup just a search box to use fulltext search to try to find something
-  - Quick create - quickly generate NPC/location and interconnect into the world
-- Game notes - take notes during the game 
-  - Allow players to take notes that you can see; auto merge their notes into entities or put into a review queue
-- Create actor with one click from a journal entry character
-- System plugins to specify the bounds of species, classes, etc. to use... will this actually work? Can GPT do it on it's own if you specify the system?
-- Integration with https://foundryvtt.com/packages/shuggaloafs-simple-npc-generator for NPC generation (with optional actor creation... could we include token?)
-- Random shop generation?
-- Random town generation?
-- Random dungeon generation?
-- After generating an NPC, shop, etc. quickly associate it with other things to make it easier to find again
-- Track newly created items during session so make a "to do" log for cleaning them up and merging into the rest of the world
-- Functionality to facilitate that merging
-- Featured images
-- Create events/timelines (TBD if there's value here beyond what Simple Calendar already supports... suspect it's 
--    a timeline view?)
-- Integration with Simple Calendar for dates/timeline
-- Integration with Simple Weather to connect locations to climates
-- Automatically include autocomplete-mentions?
-- ChatGPT and Stable Diffusion integration to quickly fleshout description text and create images 
-- Algolia integration (free tier) for complex full-text search
-
+- Define your world's species for assigning to characters (and using for AI prompts)
+- Directory view of all of your world entries
+- AI-driven generation of characters, locations, and organizations (descriptions and images)
+- Maintain connections to relevant Foundry documents (ex. Scenes and Actors) for quick reference
 
 ## How it works
 The general flow of using the module to prep and play games:
@@ -78,12 +47,40 @@ your characters, locations, etc. (and even create images) or do it all yourself.
 4. **Record the results.** Capture the things that did (or didn't) happen - fleshing out the world for easy reference in the future and giving you a headstart on the next session prep.
 
 ### Build the world
+* Create characters, locations, organizations, and events
+* Easily see (and click through) the relationships between them
+* Locations and organizations exist in hierarchies
+* Use AI to generate detailed descriptions and images
+* (Future) make specicic entries (and parts of entries) availabile to players
 
-### Prep for a session
+### Prep for a session - layout the key elements for the upcoming session
+* PCs - maintain your list of PCs and associated info - back stories, goals, links to character sheets
+* "Strong start" - outline the action
+* Scenes - keep a list of potential scenes
+* Define Lore (what Lazy DM calls "secrets and clues") - flesh out headlines and link to journal entries 
+for more detail/images/handouts
+* Locations - keep a list of locations built in the world that you might use during the session, giving you one-click access to the description, image, association to other world entries, along with links to Foundry Actors and Scenes
+* NPCs - like locations, keep an easy list of the character world entries (including links to Actors) that might 
+come up
+* Monsters - create a list of the monsters likely to be around with easy links to the actors
+* Magic items - a list of Foundry Items that might come up 
 
 ### Play the game
+* Keep notes of what's happening while bringing in the elements you've defined
+* Scenes, lore, locations, etc. - with a single click you can mark off that they came up in the session for
+easy reference later
+* Locations and NPCs
+  - Quickly bring up the full world-building details of your fantastic locations - use the hierarchy (quick - what's the name of that store they came to in this town last time?) and related items (what was the Mayor's sister's name?) to have easy access to the mostly likely topics to come up in that location
+  - 1-click access to activate relevant Foundry Scenes and Actors to drag in
+* Monsters - drag into the scene from your pre-assembled list
+* Magic items - open them, grant players, access, etc.from your pre-assembled list
+
 
 ### Record the results
+* Go through scenes, lore and see which were used; delete or move unused scenes to the next session with a click
+* Add any new locations, NPCs, etc. to the world - you can do this while playing but it may be easier to just take quick notes and do it afterwards 
+* Add anything that's top of mind to the next session to get started for next time
+
 
 ## Advanced features
 - There are some advanced features (and more planned) that require you to setup a backend server.  In particular the AI features.  This approach has the advantages of:
@@ -101,6 +98,30 @@ your characters, locations, etc. (and even create images) or do it all yourself.
   of a werewolf separately from the wolf form, etc.) though typically it would be 1:1
 - PCs (in campaigns) represent the PCs (and to a lesser extent, the players).  They are not tied to world Characters, because I didn't see much value in doing so.  The PCs are where you track storylines, related NPCs and organizations, etc.  This makes them easier to find and review when preparing and running the game.
   - PCs are explicitly tied to a single Actor
+
+## Planned (or at least considered) features
+- Tags for tracking/searching various entries
+- keyboard shortcuts
+  - Quick search - popup just a search box to use fulltext search to try to find something
+  - Quick create - quickly generate NPC/location and interconnect into the world
+- Game notes - take notes during the game 
+  - Allow players to take notes that you can see; auto merge their notes into entities or put into a review queue
+- Create actor with one click from a character entry
+- System plugins to specify the bounds of species, classes, etc. to use... will this actually work? Can GPT do it on it's own if you specify the system?
+- Integration with https://foundryvtt.com/packages/shuggaloafs-simple-npc-generator for NPC generation (with optional actor creation... could we include token?)
+- Random shop generation?
+- Random town generation?
+- Random dungeon generation?
+- Tie events to your calendar
+- After generating an NPC, shop, etc. quickly associate it with other things to make it easier to find again
+- Track newly created items during session so make a "to do" log for cleaning them up and merging into the rest of the world
+- Functionality to facilitate that merging
+- Create events/timelines (TBD if there's value here beyond what Simple Calendar already supports... suspect it's 
+-    a timeline view?)
+- Integration with Simple Calendar for dates/timeline
+- Integration with Simple Weather to connect locations to climates
+- Automatically include autocomplete-mentions?
+- Algolia integration (free tier) for complex full-text search
 
 
 ## Issues?
