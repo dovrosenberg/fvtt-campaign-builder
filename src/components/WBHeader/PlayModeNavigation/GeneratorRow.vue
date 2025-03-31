@@ -1,14 +1,14 @@
 <template>
   <div class="wcb-play-generators flexrow">
-    <button 
-      v-for="generator in generators" 
+    <button
+      v-for="generator in generators"
       :key="generator.id"
       class="wcb-generator-button"
       @click="onGeneratorClick(generator.id)"
       :title="generator.tooltip"
     >
       <i v-if="generator.icon" :class="`fas ${generator.icon}`"></i>
-      {{ generator.label }}
+      <span class="generator-label">{{ generator.label }}</span>
     </button>
   </div>
 </template>
@@ -18,12 +18,12 @@
   import { computed } from 'vue';
 
   // local imports
-  
+
   // types
-  
+
   ////////////////////////////////
   // store
-  
+
   ////////////////////////////////
   // data
   const generators = computed(() => [
@@ -47,9 +47,9 @@
     const storeSuffixes = ['Goods', 'Wares', 'Supplies', 'Emporium', 'Market', 'Shop', 'Store', 'Trading Post'];
     const tavernPrefixes = ['Drunken', 'Laughing', 'Sleeping', 'Dancing', 'Prancing', 'Howling', 'Roaring'];
     const tavernSuffixes = ['Dragon', 'Goblin', 'Unicorn', 'Mermaid', 'Knight', 'Sailor', 'Bard', 'Wizard'];
-    
+
     const randomElement = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
-    
+
     switch (type) {
       case 'npc':
         return `${randomElement(npcFirstNames)} ${randomElement(npcLastNames)}`;
@@ -73,7 +73,7 @@
       'A golden amulet worth 100 gold pieces',
       'A set of fine silverware worth 150 gold pieces'
     ];
-    
+
     return treasureTypes[Math.floor(Math.random() * treasureTypes.length)];
   };
 
@@ -86,13 +86,13 @@
       'A wild animal protecting its territory',
       'A patrol of local guards checking the area'
     ];
-    
+
     return encounters[Math.floor(Math.random() * encounters.length)];
   };
 
   const onGeneratorClick = (generatorId: string) => {
     let result = '';
-    
+
     switch (generatorId) {
       case 'npc':
       case 'town':
@@ -107,11 +107,11 @@
         result = generateEncounter();
         break;
     }
-    
+
     // Display the result
     if (result) {
       ui?.notifications?.info(`Generated: ${result}`);
-      
+
       // Copy to clipboard
       navigator.clipboard.writeText(result).then(() => {
         ui?.notifications?.info('Copied to clipboard!');
@@ -122,25 +122,22 @@
 
 <style lang="scss">
 .wcb-play-generators {
-  display: flex;
-  flex-wrap: wrap;
   padding: 5px;
   background-color: var(--wcb-header-background);
   border-bottom: 1px solid var(--wcb-header-border-color);
+  gap: 4px;
 
   .wcb-generator-button {
     margin: 2px;
-    padding: 5px 10px;
+    padding: 5px 8px;
     border-radius: 4px;
     background-color: var(--wcb-header-nav-btn-background);
     color: var(--wcb-header-nav-color);
     border: 1px solid var(--wcb-header-nav-btn-border);
-    cursor: pointer;
     font-size: 12px;
-    display: flex;
     align-items: center;
     justify-content: center;
-    
+
     i {
       margin-right: 5px;
     }
@@ -148,6 +145,20 @@
     &:hover {
       background-color: var(--wcb-header-nav-btn-background-hover);
       box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+    }
+  }
+
+  @container (max-width: 660px) {
+    .wcb-generator-button {
+      padding: 5px;
+
+      i {
+        margin-right: 0;
+      }
+
+      .generator-label {
+        display: none;
+      }
     }
   }
 }

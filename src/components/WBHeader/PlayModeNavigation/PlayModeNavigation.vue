@@ -3,8 +3,10 @@
     v-if="isInPlayMode"
     class="wcb-play-mode-navigation flexrow"
   >
-    <SessionTabsRow />
-    <GeneratorRow />
+    <div class="play-navigation-container flexcol">
+      <SessionTabsRow />
+      <GeneratorRow />
+    </div>
   </div>
 </template>
 
@@ -26,9 +28,12 @@
 </script>
 
 <style lang="scss">
-.wcb-play-mode-navigation {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
+  .wcb-play-mode-navigation {
+    width: 100%;
+  }
+
+  .play-navigation-container {
+    width: 100%;
+    container-type: inline-size;
+  }
 </style>
