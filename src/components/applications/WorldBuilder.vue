@@ -40,14 +40,16 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, watch, ref } from 'vue';
+  import { onMounted, watch, ref, createApp, h, } from 'vue';
   import { storeToRefs } from 'pinia';
+  import PrimeVue from 'primevue/config';
 
   // local imports
   import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, ModuleSettings, } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import WCBTheme from '@/applications/presetTheme';
 
   // library components
   import Splitter from 'primevue/splitter';
@@ -57,6 +59,7 @@
   import WBHeader from '@/components/WBHeader/WBHeader.vue';
   import ContentTab from '@/components/ContentTab/ContentTab.vue';
   import Directory from '@/components/Directory/Directory.vue';
+  import PrepPlayToggle from '@/components/PrepPlayToggle.vue';
 
   // types
   import { Topics, ValidTopic } from '@/types';
@@ -73,7 +76,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, rootFolder, } = storeToRefs(mainStore);
+  const { currentWorld, rootFolder, isInPrepMode } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -170,6 +173,47 @@
   });
 
   ////////////////////////////////
+  // methods for prep/play toggle
+  const createPrepPlayToggle = () => {
+    // Find the application window header
+    const appId = 'app-wcb-WorldBuilder';
+    const appElement = document.getElementById(appId);
+    if (!appElement) return;
+
+    const headerElement = appElement.querySelector('.window-header');
+    if (!headerElement) return;
+
+    // Check if toggle already exists
+    if (headerElement.querySelector('#wcb-prep-play-toggle')) return;
+
+    // Create a container for our Vue component
+    const toggleContainer = document.createElement('div');
+    toggleContainer.id = 'wcb-prep-play-toggle';
+    toggleContainer.className = 'header-control wcb-mode-toggle';
+
+    // Insert before the close button
+    const closeButton = headerElement.querySelector('[data-action="close"]');
+    if (closeButton) {
+      headerElement.insertBefore(toggleContainer, closeButton);
+    } else {
+      headerElement.appendChild(toggleContainer);
+    }
+
+    // Create and mount the Vue component
+    const app = createApp({
+      render() {
+        return h(PrepPlayToggle, {});
+      }
+    });
+
+    // Use the same plugins as the main app
+    app.use(PrimeVue, { preset: WCBTheme });
+
+    // Mount the component to the container
+    app.mount(toggleContainer);
+  };
+
+  ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
     directoryCollapsed.value = ModuleSettings.get(SettingKey.startCollapsed) || false;
@@ -199,7 +243,7 @@
 
       for (let i=0; i<topics.length; i++) {
         const t = topics[i];
-        
+
         // we need to load the actual entries - not just the index headers
         topicJournals[t] = (await fromUuid(world.topicIds[t])) as JournalEntry | null;
 
@@ -218,6 +262,11 @@
       rootFolder.value = folders.rootFolder;
       mainStore.setNewWorld(folders.world.uuid);
 
+      // Add the prep/play toggle to the header
+      // Use setTimeout to ensure the DOM is fully rendered
+      setTimeout(() => {
+        createPrepPlayToggle();
+      }, 100);
     } else {
       throw new Error('Failed to load or create folder structure');
     }
@@ -311,10 +360,10 @@ div[data-application-part] {
 
 .wcb-sidebar-toggle-tab {
   position: absolute;
-  top: 50%; // Center vertically in the gutter 
-  transform: translateY(-50%); // Adjust for perfect vertical centering 
-  left: calc(100% - 12px); // Position on the edge of the left panel 
-  z-index: 100; 
+  top: 50%; // Center vertically in the gutter
+  transform: translateY(-50%); // Adjust for perfect vertical centering
+  left: calc(100% - 12px); // Position on the edge of the left panel
+  z-index: 100;
   width: 12px;
   height: 40px;
   background-color: var(--color-light-5) !important;
@@ -322,11 +371,11 @@ div[data-application-part] {
   border-color: var(--button-hover-border-color);
   border: 1px;
   border-radius: 4px;
-  cursor: pointer; 
-  display: flex; 
-  align-items: center; 
+  cursor: pointer;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  font-size: 14px; 
+  font-size: 14px;
 
   &:hover {
     background-color: #fda948;

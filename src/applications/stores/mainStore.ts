@@ -33,6 +33,9 @@ export const useMainStore = defineStore('main', () => {
   // can set this to tell current entry tab to refresh everything
   const refreshCurrentEntry = ref<boolean>(false);
 
+  // prep/play mode toggle - true for prep mode, false for play mode
+  const isInPrepMode = ref<boolean>(true);
+
   const currentWorldCompendium = computed((): CompendiumCollection<any> => {
     if (!currentWorld.value)
       throw new Error('No currentWorld in mainStore.currentWorldCompendium()');
@@ -258,7 +261,8 @@ export const useMainStore = defineStore('main', () => {
     rootFolder,
     currentWorldCompendium,
     refreshCurrentEntry,
-   
+    isInPrepMode,
+
     setNewWorld,
     setNewTab,
     refreshEntry,
