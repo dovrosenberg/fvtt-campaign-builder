@@ -107,7 +107,7 @@
 
   ////////////////////////////////
   // computed data
-  const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
+  const namePlaceholder = computed((): string => (localize('placeholders.worldName') || ''));
   const worldImg = computed({
     get: (): string => currentWorld.value?.img || '',
     set: async (value: string) => {
@@ -178,16 +178,6 @@
 
   ////////////////////////////////
   // watchers
-  watch([currentWorld], async (): Promise<void> => {
-    if (!currentWorld.value)
-      return;
-
-    // reset the tab
-    currentContentTab.value = 'description';
-
-    // load starting data values
-    name.value = currentWorld.value.name || '';
-  });
 
   ////////////////////////////////
   // lifecycle events
@@ -203,6 +193,9 @@
     await nextTick();
     if (contentRef.value)
       tabs.value.bind(contentRef.value);
+
+    // load starting data values
+    name.value = currentWorld.value?.name || '';
   });
 
 
