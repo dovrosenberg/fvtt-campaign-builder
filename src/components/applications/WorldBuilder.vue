@@ -76,7 +76,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, rootFolder, isInPrepMode } = storeToRefs(mainStore);
+  const { currentWorld, rootFolder, isInPlayMode } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data

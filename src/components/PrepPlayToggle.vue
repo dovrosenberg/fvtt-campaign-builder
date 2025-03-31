@@ -2,19 +2,19 @@
   <div class="prep-play-toggle">
     <span 
       class="mode-label" 
-      :class="{ active: isInPrepMode }"
+      :class="{ active: !isInPlayMode }"
     >
       Prep
     </span>
-    <ToggleSwitch 
-      v-model="isInPrepMode" 
+    <ToggleSwitch
+      v-model="isInPlayMode"
       :pt="{
         root: { class: 'wcb-toggle-switch' }
       }"
     />
     <span 
       class="mode-label" 
-      :class="{ active: !isInPrepMode }"
+      :class="{ active: isInPlayMode }"
     >
       Play
     </span>
@@ -27,7 +27,7 @@
   import { useMainStore } from '@/applications/stores';
 
   const mainStore = useMainStore();
-  const { isInPrepMode } = storeToRefs(mainStore);
+  const { isInPlayMode } = storeToRefs(mainStore);
 
 </script>
 

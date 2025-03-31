@@ -2,10 +2,10 @@
 
 // library imports
 import { defineStore, } from 'pinia';
-import { computed, ref, } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 // local imports
-import { UserFlagKey, UserFlags, } from '@/settings';
+import { UserFlagKey, UserFlags, ModuleSettings, SettingKey } from '@/settings';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
@@ -30,11 +30,11 @@ export const useMainStore = defineStore('main', () => {
   // external state
   const rootFolder = ref<Folder | null>(null);
 
-  // can set this to tell current entry tab to refresh everything
+  /** can set this to tell current entry tab to refresh everything */
   const refreshCurrentEntry = ref<boolean>(false);
 
-  // prep/play mode toggle - true for prep mode, false for play mode
-  const isInPrepMode = ref<boolean>(true);
+  /** prep/play mode toggle - true for play mode, false for prep mode */
+  const isInPlayMode = ref<boolean>(ModuleSettings.get(SettingKey.isInPlayMode));
 
   const currentWorldCompendium = computed((): CompendiumCollection<any> => {
     if (!currentWorld.value)
@@ -242,6 +242,10 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // watchers
+  // Save isInPlayMode to settings whenever it changes
+  watch(isInPlayMode, async (newValue) => {
+    await ModuleSettings.set(SettingKey.isInPlayMode, newValue);
+  });
 
   ///////////////////////////////
   // lifecycle events
@@ -261,7 +265,7 @@ export const useMainStore = defineStore('main', () => {
     rootFolder,
     currentWorldCompendium,
     refreshCurrentEntry,
-    isInPrepMode,
+    isInPlayMode,
 
     setNewWorld,
     setNewTab,

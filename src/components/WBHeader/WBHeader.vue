@@ -5,17 +5,17 @@
   >
     <div class="wcb-tab-bar flexrow">
       <div class="wcb-tab-row flexrow">
-        <WBHeaderTab 
+        <WBHeaderTab
           v-for="tab in tabs"
           :key="tab.id"
           :tab="tab"
           @close-tab="onCloseTab"
         />
 
-        <div 
-          id="wcb-add-tab" 
-          class="wcb-tab flexrow" 
-          title="Open new tab" 
+        <div
+          id="wcb-add-tab"
+          class="wcb-tab flexrow"
+          title="Open new tab"
           @click="onAddTabClick"
         >
           <div class="wcb-tab-icon">
@@ -24,6 +24,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Play Mode Navigation (only visible in play mode) -->
+    <PlayModeNavigation />
 
     <div class="wcb-bookmark-bar flexrow">
       <div 
@@ -79,6 +82,7 @@
   // local components
   import WBHeaderTab from './WBHeaderTab.vue';
   import WBBookmark from './WBBookmark.vue';
+  import PlayModeNavigation from './PlayModeNavigation/PlayModeNavigation.vue';
 
   // types
   import { Bookmark, } from '@/types';
@@ -94,7 +98,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, } = storeToRefs(mainStore);
+  const { currentWorld, isInPlayMode } = storeToRefs(mainStore);
   const { tabs, bookmarks } = storeToRefs(navigationStore);
 
   ////////////////////////////////
