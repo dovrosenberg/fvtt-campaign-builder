@@ -29,7 +29,7 @@ export class KeyBindings {
         editable: [
           {
             key: 'KeyW',
-            modifiers: [ KeyboardManager.MODIFIER_KEYS.ALT ]
+            modifiers: [ foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.ALT ]
           }
         ],
       },

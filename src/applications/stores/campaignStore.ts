@@ -1,8 +1,8 @@
-// this store handles activities specific to campaigns 
-// 
+// this store handles activities specific to campaigns
+//
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { watch, ref } from 'vue';
+import { watch, ref, computed } from 'vue';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
@@ -24,7 +24,10 @@ export const useCampaignStore = defineStore('campaign', () => {
   // used for tables
   const relatedPCRows = ref<PCDetails[]>([]);
   const relatedLoreRows = ref<CampaignLoreDetails[]>([]);
-  
+
+  // The currently selected campaign in play mode
+  const currentPlayedCampaignId = ref<string | null>(null);
+
   const extraFields = {
     [CampaignTableTypes.None]: [],
     [CampaignTableTypes.PC]: [],
@@ -32,15 +35,15 @@ export const useCampaignStore = defineStore('campaign', () => {
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
       { field: 'lockedToSessionName', style: 'text-align: left', header: 'Delivered in', editable: false },
       { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false },
-    ],  
+    ],
   } as Record<CampaignTableTypes, FieldData>;
-  
+
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentContentTab, } = storeToRefs(mainStore);
+  const { currentCampaign, currentContentTab, currentWorld, isInPlayMode } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -167,9 +170,72 @@ export const useCampaignStore = defineStore('campaign', () => {
   
       await _refreshLoreRows();
     }
+
   
   ///////////////////////////////
   // computed state
+  const availableCampaigns = computed((): Campaign[] => {
+    if (!currentWorld.value) {
+      return [];
+    }
+
+    let campaigns = [] as Campaign[];
+    for (const campaignId in currentWorld.value.campaigns) {
+      campaigns.push(currentWorld.value.campaigns[campaignId]);
+    }
+
+    return campaigns;
+  });
+
+  const playableCampaigns = computed((): Campaign[] => {
+    return availableCampaigns.value.filter((c) => c.sessions.length !== 0);
+  });
+
+  // The currently played campaign object (update it by updating currentPlayedCampaignId)
+  const currentPlayedCampaign = computed((): Campaign | null => {
+    // If we're not in play mode or don't have a world, return null
+    if (!isInPlayMode.value || !currentWorld.value) {
+      return null;
+    }
+
+    // Get all playable campaigns in the current world
+    const campaigns = playableCampaigns.value;
+
+    // If there are no campaigns, return null
+    if (!campaigns || campaigns.length === 0) {
+      currentPlayedCampaignId.value = null;
+      return null;
+    }
+
+    // If there's only one campaign, use that
+    if (campaigns.length === 1) {
+      currentPlayedCampaignId.value = campaigns[0].uuid;
+      return campaigns[0];
+    }
+
+    // If we have a specific campaign ID selected, use that
+    if (currentPlayedCampaignId.value) {
+      const campaign = campaigns.find((c) => c.uuid===currentPlayedCampaignId.value) || null;
+
+      // it's possible that it's no longer playable, so let's check
+      if (!campaign) {
+        return campaign
+      }
+    } 
+
+    // got here, so more than one and we don't have a valid one picked already, so select the first one
+    currentPlayedCampaignId.value = campaigns[0].uuid;
+    return campaigns[0];
+  });
+
+  // get the uuid of the highest session in the campaign being played
+  const playedSessionId = computed((): string | null => {
+     if (!currentPlayedCampaign.value)
+      throw new Error('Invalid session in campaignStore.playedSessionId()');
+
+    return currentPlayedCampaign.value.currentSession?.uuid || null;
+  });
+
 
   ///////////////////////////////
   // internal functions
@@ -296,6 +362,25 @@ export const useCampaignStore = defineStore('campaign', () => {
     await _refreshRows();
   });
 
+  // When play mode changes, update the current played campaign
+  watch(()=> isInPlayMode.value, async (newValue) => {
+    if (newValue) {
+      // When entering play mode, initialize the current played campaign
+      const campaigns = playableCampaigns.value;
+      if (campaigns.length > 0 && !currentPlayedCampaignId.value) {
+        currentPlayedCampaignId.value = campaigns[0].uuid;
+      }
+    } else {
+      // When exiting play mode, clear the current played campaign
+      currentPlayedCampaignId.value = null;
+    }
+  });
+
+  // When the world changes, reset the current played campaign
+  watch(()=> currentWorld.value, () => {
+    currentPlayedCampaignId.value = null;
+  });
+
   ///////////////////////////////
   // lifecycle events 
 
@@ -305,6 +390,11 @@ export const useCampaignStore = defineStore('campaign', () => {
     relatedPCRows,
     relatedLoreRows,
     extraFields,
+    playedSessionId,
+    availableCampaigns,
+    playableCampaigns,
+    currentPlayedCampaign,
+    currentPlayedCampaignId,
 
     addPC,
     deletePC,

@@ -139,12 +139,33 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (session) {
       await refreshCampaignDirectoryTree();
       return session;
-    } else { 
+    } else {
       return null;
     }
   };
 
-  
+  /**
+   * Gets all campaigns in the current world
+   * @returns Array of Campaign objects
+   */
+  const getCampaigns = async (): Promise<Campaign[]> => {
+    if (!currentWorld.value) {
+      return [];
+    }
+
+    await currentWorld.value.loadCampaigns();
+    let campaignList = [] as Campaign[];
+    for (const campaignId in currentWorld.value.campaigns) {
+      campaignList.push(currentWorld.value.campaigns[campaignId]);
+    }
+
+    // Sort alphabetically by name
+    campaignList.sort((a, b) => a.name.localeCompare(b.name));
+
+    return campaignList;
+  };
+
+
   ///////////////////////////////
   // computed state
 
@@ -172,12 +193,13 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // return the public interface
   return {
     currentCampaignTree,
-  
+
     collapseAll,
     toggleWithLoad,
     refreshCampaignDirectoryTree,
     deleteCampaign,
     deleteSession,
     createSession,
+    getCampaigns,
   };
 });

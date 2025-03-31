@@ -1,6 +1,7 @@
 // from mouse0270/fvtt-vue
 
 import { createApp, h, reactive } from 'vue';
+import { useMainStore } from '@/applications/stores';
 
 export const VueApplicationMixinVersion = '0.0.6';
 
@@ -152,11 +153,15 @@ export function VueApplicationMixin(BaseApplication) {
           if (part?.use) {
             for (const [key, plugin] of Object.entries(part.use)) {
               if (this.constructor.DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Mount Vue Instance | Use Plugin |`, key, plugin);
-              if (plugin?.plugin)
+              if (plugin?.plugin) {
                 this.#instance.use(plugin.plugin, plugin?.options ?? {});
+              }
             }
           }
         }
+
+        // make sure pinia is active - important for devtools
+        useMainStore();
 
         // Attach Part Listeners
         this._attachPartListeners(content, options);
@@ -182,6 +187,11 @@ export function VueApplicationMixin(BaseApplication) {
         // Mount the Vue Instance
         if (this.constructor.DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Root |`, root);
         this.#instance.mount(root);
+
+        // dev mode only - devtools hooks up to the play/prep toggle without this
+        if (import.meta.env.MODE === 'development') {
+          window.__VUE_DEVTOOLS_GLOBAL_HOOK__?.emit?.('app:init', this.#instance, '3.5.13', { config: this.#instance.config });
+        }        
       }
     }
 

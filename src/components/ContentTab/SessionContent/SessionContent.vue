@@ -44,8 +44,6 @@
         </div>
       </header>
       <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
-        <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
         <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
         <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
         <a class="item" data-tab="scenes">{{ localize('labels.tabs.session.scenes') }}</a>
@@ -53,6 +51,8 @@
         <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
         <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
         <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
+        <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
+        <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
       </nav>
       <div class="wcb-tab-body flexcol">
         <div class="tab description flexcol" data-group="primary" data-tab="notes">

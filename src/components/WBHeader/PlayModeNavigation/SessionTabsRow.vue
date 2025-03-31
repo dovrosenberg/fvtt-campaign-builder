@@ -19,15 +19,19 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, } from '@/applications/stores';
+  import { useMainStore, useCampaignStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // types
+  import { WindowTabType } from '@/types';
 
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentSession, currentContentTab } = storeToRefs(mainStore);
+  const campaignStore = useCampaignStore();
+  const navigationStore = useNavigationStore();
+  const { currentContentTab } = storeToRefs(mainStore);
+  const { currentPlayedCampaign } = storeToRefs(campaignStore);
 
   ////////////////////////////////
   // data
@@ -44,8 +48,26 @@
 
   ////////////////////////////////
   // methods
-  const onTabClick = (tabId: string) => {
-    if (!currentSession.value) return;
+  /**
+   * Handles the click on a session tab button
+   * @param tabId The ID of the tab that was clicked
+   */
+  const onTabClick = async (tabId: string) => {
+    // First, find the most recent session 
+    const mostRecentSession = currentPlayedCampaign.value?.currentSession
+
+    if (!mostRecentSession) 
+      return;
+
+    // Check if we already have a tab open to that session
+    const activeTab = navigationStore.getActiveTab(false);
+    const isSessionTabOpen = activeTab?.tabType === WindowTabType.Session &&
+                            activeTab.contentId === mostRecentSession.uuid;
+
+    // If there isn't a tab open to the most recent session, open one
+    if (!isSessionTabOpen) {
+      await navigationStore.openSession(mostRecentSession.uuid, { newTab: true });
+    }
 
     // Set the current content tab to the selected tab
     currentContentTab.value = tabId;

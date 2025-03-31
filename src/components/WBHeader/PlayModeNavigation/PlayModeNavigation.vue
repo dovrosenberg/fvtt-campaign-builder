@@ -1,5 +1,5 @@
 <template>
-  <div 
+  <div
     v-if="isInPlayMode"
     class="wcb-play-mode-navigation flexrow"
   >

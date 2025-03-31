@@ -1,8 +1,7 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
-import { createPinia, setActivePinia } from 'pinia';
 import PrimeVue from 'primevue/config';
 import WCBTheme from '@/applications/presetTheme';
-
+import { pinia } from '@/applications/stores';
 import App from '@/components/applications/WorldBuilder.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
@@ -10,8 +9,6 @@ const { ApplicationV2 } = foundry.applications.api;
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 
 // setup pinia
-const pinia = createPinia();
-setActivePinia(pinia);
 
 // the global instance - needed for keybindings, among other things
 export let wbApp: WorldBuilderApplication | null = null;

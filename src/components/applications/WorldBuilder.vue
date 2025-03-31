@@ -45,6 +45,7 @@
   import PrimeVue from 'primevue/config';
 
   // local imports
+  import { pinia } from '@/applications/stores';
   import { getDefaultFolders, } from '@/compendia';
   import { SettingKey, ModuleSettings, } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
@@ -76,7 +77,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, rootFolder, isInPlayMode } = storeToRefs(mainStore);
+  const { currentWorld, rootFolder, } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -174,7 +175,7 @@
 
   ////////////////////////////////
   // methods for prep/play toggle
-  const createPrepPlayToggle = () => {
+  const createPrepPlayToggle = async () => {
     // Find the application window header
     const appId = 'app-wcb-WorldBuilder';
     const appElement = document.getElementById(appId);
@@ -206,8 +207,25 @@
       }
     });
 
+    
     // Use the same plugins as the main app
     app.use(PrimeVue, { preset: WCBTheme });
+    app.use(pinia);
+
+    // this fixes a vue dev tools bug
+    if (import.meta.env.MODE === 'development') {
+      // need to set _customProperties on all stores - use dynamic import to avoid the import in production
+      const module = await import('@/applications/stores/index.ts');
+      const { useMainStore, useNavigationStore, useTopicDirectoryStore, useCampaignDirectoryStore, useRelationshipStore, useCampaignStore, useSessionStore } = module;
+
+      useNavigationStore()._customProperties = new Set();
+      useMainStore()._customProperties = new Set();
+      useTopicDirectoryStore()._customProperties = new Set();
+      useCampaignDirectoryStore()._customProperties = new Set();
+      useRelationshipStore()._customProperties = new Set();
+      useCampaignStore()._customProperties = new Set();
+      useSessionStore()._customProperties = new Set();
+    }
 
     // Mount the component to the container
     app.mount(toggleContainer);
