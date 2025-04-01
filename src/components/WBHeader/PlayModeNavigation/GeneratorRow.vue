@@ -122,13 +122,11 @@
 
 <style lang="scss">
 .wcb-play-generators {
-  padding: 5px;
   background-color: var(--wcb-header-background);
   border-bottom: 1px solid var(--wcb-header-border-color);
-  gap: 4px;
 
   .wcb-generator-button {
-    margin: 2px;
+    margin: 0px;
     padding: 5px 8px;
     border-radius: 4px;
     background-color: var(--wcb-header-nav-btn-background);
@@ -150,8 +148,6 @@
 
   @container (max-width: 660px) {
     .wcb-generator-button {
-      padding: 5px;
-
       i {
         margin-right: 0;
       }

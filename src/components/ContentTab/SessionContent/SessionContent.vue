@@ -241,10 +241,11 @@
 
   ////////////////////////////////
   // watchers
-  // watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
-  //   if (newTab!==oldTab)
-  //     tabs.value?.activate(newTab || 'description');    
-  // });
+  watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
+    if (newTab!==oldTab)
+      tabs.value?.activate(newTab || 'description');    
+  });
+
   let dateDebounceTimer: NodeJS.Timeout | undefined = undefined;
   watch(sessionDate, async (newDate: Date | undefined): Promise<void> => {
     const debounceTime = 500;
@@ -280,11 +281,7 @@
 
     // update the store when tab changes
     tabs.value.callback = () => {
-      // currentContentTab.value = tabs.value?.active || null;
-    };
-
-    tabs.value.callback = () => {
-      // currentContentTab.value = tabs.value?.active || null;
+      currentContentTab.value = tabs.value?.active || null;
     };
 
     // have to wait until they render

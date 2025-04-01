@@ -56,7 +56,7 @@ export const useMainStore = defineStore('main', () => {
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
   const currentWorld = computed((): WBWorld | null => (_currentWorld?.value || null) as WBWorld | null);
 
-  // the currently selected tab for the entry
+  // the currently selected tab for the content page
   const currentContentTab = ref<string | null>(null);
 
   ///////////////////////////////

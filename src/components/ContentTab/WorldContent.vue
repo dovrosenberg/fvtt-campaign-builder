@@ -178,6 +178,10 @@
 
   ////////////////////////////////
   // watchers
+  watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
+    if (newTab!==oldTab)
+      tabs.value?.activate(newTab || 'description');    
+  });
 
   ////////////////////////////////
   // lifecycle events

@@ -174,6 +174,11 @@
 
   ////////////////////////////////
   // watchers
+  watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
+    if (newTab!==oldTab)
+      tabs.value?.activate(newTab || 'description');    
+  });
+
   watch([currentCampaign], async (): Promise<void> => {
     if (!currentCampaign.value)
       return;

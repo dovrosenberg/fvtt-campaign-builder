@@ -1,7 +1,7 @@
 <template>
   <div class="wcb-play-session-tabs flexrow">
     <button
-      v-for="tab in sessionTabs"
+      v-for="tab in sessionButtons"
       :key="tab.id"
       class="wcb-play-tab-button"
       @click="onTabClick(tab.id)"
@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, } from 'vue';
+  import { computed, nextTick, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -23,7 +23,6 @@
   import { localize } from '@/utils/game';
 
   // types
-  import { WindowTabType } from '@/types';
 
   ////////////////////////////////
   // store
@@ -32,10 +31,11 @@
   const navigationStore = useNavigationStore();
   const { currentContentTab } = storeToRefs(mainStore);
   const { currentPlayedCampaign } = storeToRefs(campaignStore);
+  const { tabs } = storeToRefs(navigationStore);
 
   ////////////////////////////////
   // data
-  const sessionTabs = computed(() => [
+  const sessionButtons = computed(() => [
     { id: 'notes', label: localize('labels.tabs.session.notes'), icon: 'fa-pen-to-square' },
     { id: 'start', label: localize('labels.tabs.session.start'), icon: 'fa-play' },
     { id: 'lore', label: localize('labels.tabs.session.lore'), icon: 'fa-book-open' },
@@ -54,41 +54,34 @@
    */
   const onTabClick = async (tabId: string) => {
     // First, find the most recent session 
-    const mostRecentSession = currentPlayedCampaign.value?.currentSession
+    const currentSession = currentPlayedCampaign.value?.currentSession;
 
-    if (!mostRecentSession) 
+    if (!currentSession) 
       return;
 
     // Check if we already have a tab open to that session
-    const activeTab = navigationStore.getActiveTab(false);
-    const isSessionTabOpen = activeTab?.tabType === WindowTabType.Session &&
-                            activeTab.contentId === mostRecentSession.uuid;
+    const sessionTab = tabs.value.find((t) => t.header?.uuid === currentSession.uuid);
 
-    // If there isn't a tab open to the most recent session, open one
-    if (!isSessionTabOpen) {
-      await navigationStore.openSession(mostRecentSession.uuid, { newTab: true });
+      // If there isn't a tab open to the most recent session, open one
+    if (!sessionTab) {
+      await navigationStore.openSession(currentSession.uuid, { newTab: true });
+    } else {
+      // it exists- so switch to it
+      await navigationStore.activateTab(sessionTab.id);
     }
 
-    // Set the current content tab to the selected tab
+    // Set the current content tab to the selected tab based on the button
     currentContentTab.value = tabId;
-
-    // Find the tab element in the DOM and click it to activate it
-    const tabElement = document.querySelector(`.wcb-sheet-navigation a[data-tab="${tabId}"]`);
-    if (tabElement) {
-      (tabElement as HTMLElement).click();
-    }
   };
 </script>
 
 <style lang="scss">
 .wcb-play-session-tabs {
-  padding: 5px;
   background-color: var(--wcb-header-background);
   border-bottom: 1px solid var(--wcb-header-border-color);
-  gap: 4px;
 
   .wcb-play-tab-button {
-    margin: 2px;
+    margin: 0px;
     padding: 5px 8px;
     border-radius: 4px;
     background-color: var(--wcb-header-nav-btn-background);
@@ -110,8 +103,6 @@
 
   @container (max-width: 660px) {
     .wcb-play-tab-button {
-      padding: 5px;
-
       i {
         margin-right: 0;
       }
