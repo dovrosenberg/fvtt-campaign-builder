@@ -97,11 +97,11 @@
 
   ////////////////////////////////
   // event handlers
-  const onBookmarkClick = async () => { 
+  const onBookmarkClick = async (event: MouseEvent) => { 
     if (!props.bookmark)
       return;
 
-    await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: false });
+    await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: event.ctrlKey });
   };
 
   // handle a bookmark or tab dragging
