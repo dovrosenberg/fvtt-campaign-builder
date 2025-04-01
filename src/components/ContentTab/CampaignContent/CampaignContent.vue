@@ -1,7 +1,7 @@
 <template>
   <form :class="'flexcol wcb-journal-subsheet'">
     <div ref="contentRef" class="wcb-sheet-container flexcol">
-      <header class="wcb-journal-sheet-header flexrow">
+      <header class="wcb-name-header flexrow">
         <ImagePicker
           v-model="campaignImg"
           :title="`Select Image for ${currentCampaign?.name || 'Campaign'}`"

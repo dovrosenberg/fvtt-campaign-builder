@@ -1,32 +1,28 @@
 <template>
   <form :class="'flexcol wcb-journal-subsheet ' + topic">
     <div ref="contentRef" class="wcb-sheet-container flexcol">
-      <header class="wcb-journal-sheet-header flexrow">
-        <div class="wcb-content-header">
-          <h1 class="header-name flexrow">
-            <i :class="`fas ${icon} sheet-icon`"></i>
-            <InputText
-              v-model="name"
-              for="wcb-input-name"
-              class="wcb-input-name"
-              unstyled
-              :placeholder="namePlaceholder"
-              :pt="{
-                root: { class: 'full-height' }
-              }"
-              @update:model-value="onNameUpdate"
-            />
-            <button
-              v-if="canGenerate"
-              class="wcb-generate-button"
-              @click="onGenerateButtonClick"
-              :disabled="generateDisabled"
-              :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` ${localize('tooltips.backendNotAvailable')}` : ''}`"
-            >
-              <i class="fas fa-head-side-virus"></i>
-            </button>
-          </h1>
-        </div>
+      <header class="wcb-name-header flexrow">
+        <i :class="`fas ${icon} sheet-icon`"></i>
+        <InputText
+          v-model="name"
+          for="wcb-input-name"
+          class="wcb-input-name"
+          unstyled
+          :placeholder="namePlaceholder"
+          :pt="{
+            root: { class: 'full-height' }
+          }"
+          @update:model-value="onNameUpdate"
+        />
+        <button
+          v-if="canGenerate"
+          class="wcb-generate-button"
+          @click="onGenerateButtonClick"
+          :disabled="generateDisabled"
+          :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` ${localize('tooltips.backendNotAvailable')}` : ''}`"
+        >
+          <i class="fas fa-head-side-virus"></i>
+        </button>
       </header>
       <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
@@ -53,7 +49,7 @@
           {{ localize('labels.tabs.entry.scenes') }}
         </a>
       </nav>
-      <div class="wcb-tab-body flexcol">
+      <div class="wcb-tab-body flexrow">
         <div class="tab description flexcol" data-group="primary" data-tab="description">
           <div v-if="topic"
             class="tab-inner flexcol"

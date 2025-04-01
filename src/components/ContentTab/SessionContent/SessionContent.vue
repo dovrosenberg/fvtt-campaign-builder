@@ -1,7 +1,7 @@
 <template>
   <form class="'flexcol wcb-journal-subsheet ' + topic">
     <div ref="contentRef" class="wcb-sheet-container flexcol">
-      <header class="wcb-journal-sheet-header flexrow">
+      <header class="wcb-name-header flexrow">
         <ImagePicker
           v-model="sessionImg"
           :title="`Select Image for ${currentSession?.name || 'Session'}`"

@@ -1,10 +1,10 @@
 <template>
-  <div class="wcb-journal-sheet-header flexrow">
+  <div class="wcb-description-wrapper flexrow">
     <ImagePicker
       v-model="entryImg"
       :title="`Select Image for ${currentEntry?.name || 'Entry'}`"
     />        
-    <div class="wcb-content-header">
+    <div class="wcb-tab-content flexcol">
       <div class="flexrow form-group">
         <label>{{ localize('labels.fields.type') }}</label>
         <TypeSelect
@@ -39,11 +39,13 @@
         />
       </div>
 
-      <Editor 
-        :initial-content="currentEntry?.description || ''"
-        :has-button="true"
-        @editor-saved="onDescriptionEditorSaved"
-      />
+      <div class="flexrow form-group description">
+        <Editor 
+          :initial-content="currentEntry?.description || ''"
+          :has-button="true"
+          @editor-saved="onDescriptionEditorSaved"
+        />
+      </div>
     </div>
   </div>
 </template>

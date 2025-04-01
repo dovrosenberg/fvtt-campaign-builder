@@ -1,7 +1,7 @@
 <template>
   <form class="'flexcol wcb-journal-subsheet ' + topic">
     <div ref="contentRef" class="wcb-sheet-container flexcol" style="overflow-y: auto">
-      <header class="wcb-journal-sheet-header flexrow">
+      <header class="wcb-name-header flexrow">
         <div 
           class="wcb-sheet-image" 
           @drop="onDropActor"
