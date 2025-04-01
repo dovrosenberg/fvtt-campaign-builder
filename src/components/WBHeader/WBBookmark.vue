@@ -178,8 +178,6 @@
       text-overflow: clip;
       margin-left: 2px;
       overflow: hidden;
-      border: 1px solid var(--wcb-header-nav-btn-border);
-      background: var(--wcb-header-nav-btn-background);
       color: var(--wcb-header-nav-btn-color);
 
       &.disabled {
