@@ -1,5 +1,5 @@
 <template>
-  <form class="'flexcol wcb-journal-subsheet ' + topic">
+  <form>
     <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-name-header flexrow">
         <ImagePicker

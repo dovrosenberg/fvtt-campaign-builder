@@ -253,14 +253,6 @@
         pointer-events: none;
       }
 
-      .wcb-journal-subsheet:not(.gm) .gm-only {
-        display: none;
-      }
-      
-      .wcb-journal-subsheet:not(.owner) .owner-only {
-        display: none;
-      }
-      
       /* Page Controls (Mostly for list)*/
       .page-controls {
         flex-grow: 0;

@@ -1,5 +1,5 @@
 <template>
-  <form :class="'flexcol wcb-journal-subsheet ' + topic">
+  <form>
     <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-name-header flexrow">
         <i :class="`fas ${icon} sheet-icon`"></i>
@@ -57,6 +57,7 @@
             <DescriptionTab 
               :valid-parents="validParents"
               :parent-id="parentId || undefined"
+              :window-type="WindowTabType.Entry"
               :topic="topic"
             />
           </div>
@@ -137,7 +138,7 @@
   import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
 
   // types
-  import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails } from '@/types';
+  import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, WindowTabType } from '@/types';
   import { Entry, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////

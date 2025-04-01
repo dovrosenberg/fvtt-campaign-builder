@@ -1,5 +1,5 @@
 <template>
-  <form class="'flexcol wcb-journal-subsheet ' + topic">
+  <form>
     <div ref="contentRef" class="wcb-sheet-container flexcol" style="overflow-y: auto">
       <header class="wcb-name-header flexrow">
         <div 

@@ -70,7 +70,7 @@
   import ImagePicker from '@/components/ImagePicker.vue'; 
 
   // types
-  import { ValidTopic, Topics, } from '@/types';
+  import { ValidTopic, Topics, WindowTabType, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -80,9 +80,13 @@
       required: false,
       default: [],
     },
+    windowType: {
+      type: Number as PropType<WindowTabType>,
+      required: false,
+    },
     topic: {
       type: Number as PropType<ValidTopic>,
-      required: true,
+      required: false,
     },
     parentId: {
       type: String,
