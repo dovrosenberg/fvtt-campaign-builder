@@ -211,6 +211,7 @@
         }
 
         &.description {
+          overflow: hidden; // keep the editor the right size
           margin-top: 6px;
           flex: 1;
         }

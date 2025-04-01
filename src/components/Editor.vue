@@ -277,20 +277,16 @@
   .wcb-editor {
     height: 100%;
     flex: 1 !important;
+    border: 1px solid var(--wcb-button-border-color);
     overflow-y: auto !important;
-  }
-
-  .theme-light .wcb-editor {
-    border: 1px solid var(--color-dark-6);
-    outline: 1px solid transparent;
     border-radius: 4px;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.05);
     color: var(--color-dark-2);
     font-size: var(--font-size-14);
     padding: 0 0.5rem;
 
-    &:focus {
-      outline-color: var(--color-warm-2);
+    &:focus-within {
+      border: 2px solid var(--color-warm-2);
     }
 
     &:disabled {
