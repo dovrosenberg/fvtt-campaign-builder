@@ -55,7 +55,7 @@
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
       </nav>
       <div class="wcb-tab-body flexcol">
-        <div class="tab description flexcol" data-group="primary" data-tab="notes">
+        <div class="tab flexcol" data-group="primary" data-tab="notes">
           <div class="tab-inner flexcol">
             <Editor 
               :initial-content="currentSession?.notes || ''"
@@ -64,22 +64,22 @@
             />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="pcs">
+        <div class="tab flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner flexcol">
             <CampaignPCsTab />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="npcs">
+        <div class="tab flexcol" data-group="primary" data-tab="npcs">
           <div class="tab-inner flexcol">
             <SessionNPCTab />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="scenes">
+        <div class="tab flexcol" data-group="primary" data-tab="scenes">
           <div class="tab-inner flexcol">
             <SessionSceneTab />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="start">
+        <div class="tab flexcol" data-group="primary" data-tab="start">
           <div class="tab-inner flexcol">
             <Editor 
               :initial-content="currentSession?.startingAction || ''"
@@ -88,22 +88,22 @@
             />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="lore">
+        <div class="tab flexcol" data-group="primary" data-tab="lore">
           <div class="tab-inner flexcol">
             <SessionLoreTab />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="locations">
+        <div class="tab flexcol" data-group="primary" data-tab="locations">
           <div class="tab-inner flexcol">
             <SessionLocationTab />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="monsters">
+        <div class="tab flexcol" data-group="primary" data-tab="monsters">
           <div class="tab-inner flexcol">
             <SessionMonsterTab />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="magic">
+        <div class="tab flexcol" data-group="primary" data-tab="magic">
           <div class="tab-inner flexcol">
             <SessionItemTab />
           </div>  

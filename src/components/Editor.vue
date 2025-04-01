@@ -2,7 +2,7 @@
   <div 
     :id="editorId" 
     ref="wrapperRef"
-    class="wcb-editor flexcol"
+    class="wcb-editor"
     :style="wrapperStyle"
     >
     <!-- this reproduces the Vue editor() Handlebars helper -->
@@ -275,6 +275,7 @@
 
 <style lang="scss">
   .wcb-editor {
+    height: 100%;
     flex: 1 !important;
     overflow-y: auto !important;
   }

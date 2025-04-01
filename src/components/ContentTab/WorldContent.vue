@@ -47,7 +47,7 @@
         <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
       </nav>
       <div class="wcb-tab-body flexcol">
-        <div class="tab description flexcol" data-group="primary" data-tab="description">
+        <div class="tab flexcol" data-group="primary" data-tab="description">
           <div v-if="currentWorld" class="tab-inner flexcol">
             <Editor
               :initial-content="currentWorld.description || ''"

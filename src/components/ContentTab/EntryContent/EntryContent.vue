@@ -50,9 +50,9 @@
         </a>
       </nav>
       <div class="wcb-tab-body flexrow">
-        <div class="tab description flexcol" data-group="primary" data-tab="description">
+        <div class="tab flexcol" data-group="primary" data-tab="description">
           <div v-if="topic"
-            class="tab-inner flexcol"
+            class="tab-inner"
           >
             <DescriptionTab 
               :valid-parents="validParents"
@@ -61,34 +61,34 @@
             />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="characters">
+        <div class="tab flexcol" data-group="primary" data-tab="characters">
           <div class="tab-inner flexcol">
             <RelatedItemTable :topic="Topics.Character" />
           </div>
         </div> 
-        <div class="tab description flexcol" data-group="primary" data-tab="locations">
+        <div class="tab flexcol" data-group="primary" data-tab="locations">
           <div class="tab-inner flexcol">
             <RelatedItemTable :topic="Topics.Location" />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="organizations">
+        <div class="tab flexcol" data-group="primary" data-tab="organizations">
           <div class="tab-inner flexcol">
             <RelatedItemTable :topic="Topics.Organization" />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="events">
+        <div class="tab flexcol" data-group="primary" data-tab="events">
           <div class="tab-inner flexcol">
             <RelatedItemTable :topic="Topics.Event" />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="scenes">
+        <div class="tab flexcol" data-group="primary" data-tab="scenes">
           <div class="tab-inner flexcol">
             <RelatedDocumentTable 
               :document-link-type="DocumentLinkType.Scenes"
             />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="actors">
+        <div class="tab flexcol" data-group="primary" data-tab="actors">
           <div class="tab-inner flexcol">
             <RelatedDocumentTable 
               :document-link-type="DocumentLinkType.Actors"

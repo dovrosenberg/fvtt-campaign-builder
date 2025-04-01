@@ -42,7 +42,7 @@ export const enrichFwbHTML = async(worldId: string | null, text: string): Promis
     worldId: worldId,
   });    
 
-  CONFIG.TextEditor.enrichers.filter((f): boolean => (f!=enricherConfig && f===undefined));
+  CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.filter((f): boolean => (f!=enricherConfig && f!==undefined));
 
   return retval;
 };

@@ -4,7 +4,7 @@
       v-model="entryImg"
       :title="`Select Image for ${currentEntry?.name || 'Entry'}`"
     />        
-    <div class="wcb-tab-content flexcol">
+    <div class="wcb-description-content flexcol">
       <div class="flexrow form-group">
         <label>{{ localize('labels.fields.type') }}</label>
         <TypeSelect
@@ -40,7 +40,7 @@
       </div>
 
       <div class="flexrow form-group description">
-        <Editor 
+        <Editor
           :initial-content="currentEntry?.description || ''"
           :has-button="true"
           @editor-saved="onDescriptionEditorSaved"
@@ -167,5 +167,54 @@
 
 </script>
 
-<style lang="sass">
+<style lang="scss">
+  .wcb-description-wrapper {
+    font-size: var(--font-size-20);
+    font-weight: 700;
+    font-family: var(--wcb-font-family);
+    align-items: flex-start;
+    align-self: flex-start;
+    overflow-y: visible;
+    width: 100%;
+    height: 100%;
+      
+    .wcb-description-content {
+      height: 100%;
+
+      .form-group {
+        margin: 4px 8px 0px 0px;
+      
+        label {
+          max-width: 175px;
+          color: var(--wcb-sheet-header-label-color);
+          text-align: left;
+          background: none;
+          border: none;
+        }
+        input {
+          font-size: var(--font-size-20);
+          color: var(--wcb-sheet-header-detail-input-color);
+        }
+
+        select {
+          border: var(--wcb-sheet-header-input-border);
+          font-size: inherit;
+          font-family: inherit;
+          height: calc(var(--font-size-20) + 6);
+          margin: 0px;
+          color: var(--wcb-sheet-header-detail-input-color);
+          background: var(--wcb-sheet-header-input-background);
+
+          &:hover {
+            box-shadow: 0 0 8px var(--color-shadow-primary);
+          }
+        }
+
+        &.description {
+          margin-top: 6px;
+          flex: 1;
+        }
+      }
+    }
+  }
 </style>

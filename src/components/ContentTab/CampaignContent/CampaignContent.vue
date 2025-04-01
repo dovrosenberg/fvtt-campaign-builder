@@ -29,7 +29,7 @@
         <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
       </nav>
       <div class="wcb-tab-body flexcol">
-        <div class="tab description flexcol" data-group="primary" data-tab="description">
+        <div class="tab flexcol" data-group="primary" data-tab="description">
           <div v-if="currentCampaign" class="tab-inner flexcol">
             <Editor 
               :initial-content="currentCampaign.description || ''"
@@ -38,12 +38,12 @@
             />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="pcs">
+        <div class="tab flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner flexcol">
             <CampaignPCsTab />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="lore">
+        <div class="tab flexcol" data-group="primary" data-tab="lore">
           <div class="tab-inner flexcol">
             <CampaignLoreTab />
           </div>
