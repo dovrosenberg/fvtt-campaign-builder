@@ -218,7 +218,7 @@ export const useCampaignStore = defineStore('campaign', () => {
       const campaign = campaigns.find((c) => c.uuid===currentPlayedCampaignId.value) || null;
 
       // it's possible that it's no longer playable, so let's check
-      if (!campaign) {
+      if (campaign) {
         return campaign
       }
     } 
@@ -366,10 +366,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   watch(()=> isInPlayMode.value, async (newValue) => {
     if (newValue) {
       // When entering play mode, initialize the current played campaign
-      const campaigns = playableCampaigns.value;
-      if (campaigns.length > 0 && !currentPlayedCampaignId.value) {
-        currentPlayedCampaignId.value = campaigns[0].uuid;
-      }
+      currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
     } else {
       // When exiting play mode, clear the current played campaign
       currentPlayedCampaignId.value = null;
@@ -378,7 +375,7 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   // When the world changes, reset the current played campaign
   watch(()=> currentWorld.value, () => {
-    currentPlayedCampaignId.value = null;
+    currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
   });
 
   ///////////////////////////////

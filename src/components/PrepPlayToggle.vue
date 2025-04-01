@@ -76,10 +76,6 @@
 
   // Watchers
   watch(() => isInPlayMode, (newValue) => {
-    if (newValue) {
-      currentPlayedCampaignId.value = null;  // this will reset it to the right campaign, if available
-    }
-
     toggleValue.value = newValue && playableCampaignExists.value;
   });
 
@@ -87,7 +83,6 @@
     if (newWorld) {
       //  make sure the world campaign list is up to date
       await newWorld.loadCampaigns();
-      currentPlayedCampaignId.value = null;  // this will reset it to the right campaign, if available
 
       toggleValue.value = isInPlayMode.value && playableCampaignExists.value;
     }
@@ -95,10 +90,8 @@
 
   // Lifecycle
   onMounted(async () => {
-    currentPlayedCampaignId.value = null;  // this will reset it to the right campaign, if available
-
-      toggleValue.value = isInPlayMode.value && playableCampaignExists.value;
-});
+    toggleValue.value = isInPlayMode.value && playableCampaignExists.value;
+  });
 </script>
 
 <style lang="scss" scoped>
