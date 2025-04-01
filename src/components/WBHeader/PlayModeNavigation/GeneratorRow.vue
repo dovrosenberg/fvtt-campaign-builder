@@ -130,7 +130,7 @@
     padding: 5px 8px;
     border-radius: 4px;
     background-color: var(--wcb-header-nav-btn-background);
-    color: var(--wcb-header-nav-color);
+    color: var(--wcb-header-nav-btn-color);
     border: 1px solid var(--wcb-header-nav-btn-border);
     font-size: 12px;
     align-items: center;

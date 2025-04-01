@@ -30,23 +30,6 @@
 
     <div class="wcb-bookmark-bar flexrow">
       <div 
-        id="wcb-add-bookmark" 
-        :class="(!navigationStore.getActiveTab(false)?.header?.uuid ? 'disabled' : '')"
-        :title="localize('tooltips.addBookmark')"
-        @click="onAddBookmarkClick"
-      >
-        <i class="fas fa-star"></i>
-      </div>
-
-      <WBBookmark 
-        v-for="bookmark in bookmarks"
-        :key="bookmark.id"
-        :bookmark="bookmark"
-      />
-    </div>
-
-    <div class="navigation flexrow">
-      <div 
         id="wcb-history-back" 
         :class="'nav-button ' + (canBack() ? '' : 'disabled')" 
         :title="localize('tooltips.historyBack')"
@@ -62,8 +45,22 @@
       >
         <i class="fas fa-chevron-right"></i>
       </div>
-      <!--<hr class="vertical" />
-      <div class="button-group flexrow" id="journal-buttons"></div>-->
+      <hr class="vertical" />
+
+      <div 
+        id="wcb-add-bookmark" 
+        :class="(!navigationStore.getActiveTab(false)?.header?.uuid ? 'disabled' : '')"
+        :title="localize('tooltips.addBookmark')"
+        @click="onAddBookmarkClick"
+      >
+        <i class="fas fa-star"></i>
+      </div>
+
+      <WBBookmark 
+        v-for="bookmark in bookmarks"
+        :key="bookmark.id"
+        :bookmark="bookmark"
+      />
     </div>
   </header>
 </template> 
@@ -98,7 +95,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, isInPlayMode } = storeToRefs(mainStore);
+  const { currentWorld, } = storeToRefs(mainStore);
   const { tabs, bookmarks } = storeToRefs(navigationStore);
 
   ////////////////////////////////
@@ -237,14 +234,7 @@
   .wcb-bookmark-bar {
     padding-left: 2px;
     flex: 0 0 36px;
-    color: var(--wcb-header-bookmark-color);
-  }
-
-  // Navigation bar 
-  .navigation {
-    color: var(--wcb-header-nav-color);
-    background: var(--wcb-header-nav-background);
-    padding: 2px;
+    color: var(--wcb-header-nav-btn-color);
 
     hr.vertical {
       height: 100%;
@@ -252,11 +242,6 @@
       border-right: 2px groove var(--wcb-header-nav-vertical-line);
       flex: 0 0 1px;
       margin: 0px 2px;
-    }
-
-    .button-group {
-      justify-content: flex-end;
-      flex-wrap: nowrap;
     }
 
     .nav-button {
@@ -271,52 +256,18 @@
       border: 1px solid var(--wcb-header-nav-btn-border);
       margin-top: 1px;
       background: var(--wcb-header-nav-btn-background);
-    }
 
-    .nav-button:not(.disabled):hover {
-      box-shadow: 0 0 5px red;
-      cursor: pointer;
-      background: var(--wcb-header-nav-btn-background-hover);
-    }
+      &:not(.disabled):hover {
+        box-shadow: 0 0 5px red;
+        cursor: pointer;
+        background: var(--wcb-header-nav-btn-background-hover);
+      }
 
-    .nav-button.disabled {
-      color: var(--wcb-header-nav-btn-disabled);
-      background: var(--wcb-header-nav-btn-background-disabled);
-      border-color: var(--wcb-header-nav-btn-border-disabled);
-    }
-
-    .nav-input {
-      margin-right: 4px !important;
-      margin-top: 1px;
-      height: 25px !important;
-      border-radius: 4px;
-      flex: 0 0 200px;
-      border: 1px solid var(--wcb-header-nav-input-border);
-      background: var(--wcb-header-nav-input-background);
-      color: var(--wcb-header-nav-input-color);
-    }
-
-    .nav-input::placeholder {
-      color: var(--wcb-header-nav-input-placeholder-color);
-    }
-
-    .nav-input:focus {
-      background: var(--wcb-header-nav-input-focus-background);
-      border: 1px solid var(--wcb-header-nav-input-focus-border);
-      color: var(--wcb-header-nav-input-focus-color);
-    }
-
-    .nav-text {
-      flex-shrink: 1;
-      flex-basis: auto;
-      flex-grow: 0;
-      padding: 4px;
-      font-size: 12px;
-      line-height: 10px;
-    }
-
-    .button-group .nav-text i.fa-search {
-      padding-top: 4px;
+      &.disabled {
+        color: var(--wcb-header-nav-btn-disabled);
+        background: var(--wcb-header-nav-btn-background-disabled);
+        border-color: var(--wcb-header-nav-btn-border-disabled);
+      }
     }
 
     #context-menu li {

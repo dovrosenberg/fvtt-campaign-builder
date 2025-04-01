@@ -62,7 +62,7 @@
   label {
     margin-right: 8px;
     font-weight: bold;
-    color: var(--wcb-header-nav-color);
+    color: var(--wcb-header-nav-btn-color);
   }
 }
 </style>
