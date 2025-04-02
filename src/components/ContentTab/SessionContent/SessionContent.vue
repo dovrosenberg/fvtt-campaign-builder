@@ -2,25 +2,37 @@
   <form>
     <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-name-header flexrow">
-        <ImagePicker
-          v-model="sessionImg"
-          :title="`Select Image for ${currentSession?.name || 'Session'}`"
+        <i :class="`fas ${getTabTypeIcon(WindowTabType.Session)} sheet-icon`"></i>
+        <InputText
+          v-model="name"
+          for="wcb-input-name" 
+          class="wcb-input-name"
+          unstyled
+          :placeholder="localize('placeholders.sessionName')"
+          :pt="{
+            root: { class: 'full-height' } 
+          }" 
+          @update:model-value="onNameUpdate"
         />
-        <div class="wcb-content-header">
-          <h1 class="header-name flexrow">
-            <i :class="`fas ${getTabTypeIcon(WindowTabType.Session)} sheet-icon`"></i>
-            <InputText
-              v-model="name"
-              for="wcb-input-name" 
-              class="wcb-input-name"
-              unstyled
-              :placeholder="localize('placeholders.sessionName')"
-              :pt="{
-                root: { class: 'full-height' } 
-              }" 
-              @update:model-value="onNameUpdate"
-            />
-          </h1>
+      </header>
+      <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
+        <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
+        <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
+        <a class="item" data-tab="scenes">{{ localize('labels.tabs.session.scenes') }}</a>
+        <a class="item" data-tab="locations">{{ localize('labels.tabs.session.locations') }}</a>
+        <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
+        <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
+        <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
+        <a class="item" data-tab="description">{{ localize('labels.tabs.session.notes') }}</a>
+        <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
+      </nav>
+      <div class="wcb-tab-body flexrow">
+        <DescriptionTab
+          v-if="currentSession"
+          :name="currentSession?.name || 'Session'"
+          :image-url="currentSession?.img"
+          @image-change="onImageChange"
+        >
           <div class="flexrow form-group">
             <label>{{ localize('labels.fields.sessionNumber') }}</label>
             <InputText
@@ -41,29 +53,14 @@
               :show-button-bar="true"
             />   
           </div>
-        </div>
-      </header>
-      <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
-        <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
-        <a class="item" data-tab="scenes">{{ localize('labels.tabs.session.scenes') }}</a>
-        <a class="item" data-tab="locations">{{ localize('labels.tabs.session.locations') }}</a>
-        <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
-        <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
-        <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
-        <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
-        <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
-      </nav>
-      <div class="wcb-tab-body flexcol">
-        <div class="tab flexcol" data-group="primary" data-tab="notes">
-          <div class="tab-inner flexcol">
+          <div class="flexrow form-group description">
             <Editor 
               :initial-content="currentSession?.notes || ''"
               :has-button="true"
               @editor-saved="onNotesEditorSaved"
             />
           </div>
-        </div>
+        </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner flexcol">
             <CampaignPCsTab />
@@ -117,7 +114,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { nextTick, ref, watch, onMounted, computed } from 'vue';
+  import { nextTick, ref, watch, onMounted, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
@@ -138,7 +135,7 @@
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
   import SessionSceneTab from '@/components/ContentTab/SessionContent/SessionSceneTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
-  import ImagePicker from '@/components/ImagePicker.vue';
+  import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
 
   // types
   import { Session } from '@/classes';
@@ -168,15 +165,6 @@
 
   ////////////////////////////////
   // computed data
-  const sessionImg = computed({
-    get: (): string => currentSession.value?.img || '',
-    set: async (value: string) => {
-      if (currentSession.value) {
-        currentSession.value.img = value;
-        await currentSession.value.save();
-      }
-    }
-  });
 
   ////////////////////////////////
   // methods
@@ -237,6 +225,13 @@
     currentSession.value.startingAction = newContent;
     await currentSession.value.save();
   };
+
+  const onImageChange = async (imageUrl: string) => {
+    if (currentSession.value) {
+      currentSession.value.img = imageUrl;
+      await currentSession.value.save();
+    }
+  }
 
 
   ////////////////////////////////
