@@ -52,7 +52,7 @@
       <div class="wcb-tab-body flexrow">
         <DescriptionTab 
           v-if="currentEntry"
-          :name="currentEntry?.name"
+          :name="currentEntry?.name || 'Entry'"
           :image-url="currentEntry?.img"
           @image-change="onImageChange"
         >

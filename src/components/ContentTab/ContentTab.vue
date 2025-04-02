@@ -204,15 +204,20 @@
 
         &.tabs {
           flex-wrap: wrap;
+          justify-content: flex-start;
           
           .item {
-            flex: 1;
+            flex: 0 0 auto;
             height: 30px !important;
             line-height: 32px;
-            margin: 0 24px;
+            margin: 0 12px;
             border-bottom: var(--wcb-sheet-tab-border);
             color: var(--wcb-sheet-tab-color);
             max-width: 150px;
+
+            &.first-child {
+              margin-left: 0;
+            }
           }
 
           .item:hover {

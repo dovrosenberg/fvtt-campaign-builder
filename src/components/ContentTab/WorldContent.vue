@@ -21,7 +21,7 @@
       <div class="wcb-tab-body flexrow">
         <DescriptionTab 
           v-if="currentWorld"
-          :name="currentWorld?.name"
+          :name="currentWorld?.name || 'World'"
           :image-url="currentWorld?.img"
           @image-change="onImageChange"
         >
