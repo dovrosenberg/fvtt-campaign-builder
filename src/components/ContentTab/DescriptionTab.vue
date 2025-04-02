@@ -1,12 +1,16 @@
 <template>
-  <div class="wcb-description-wrapper flexrow">
-    <ImagePicker
-      v-model="currentImageURL"
-      :title="`Select Image for ${props.name || 'Entry'}`"
-      @update:modelValue="emit('imageChange', $event)"
-    />        
-    <div class="wcb-description-content flexcol">
-      <slot></slot>
+  <div class="tab flexcol" data-group="primary" data-tab="description">
+    <div class="tab-inner">
+      <div class="wcb-description-wrapper flexrow">
+        <ImagePicker
+          v-model="currentImageURL"
+          :title="`Select Image for ${props.name || 'Entry'}`"
+          @update:modelValue="emit('imageChange', $event)"
+        />        
+        <div class="wcb-description-content flexcol">
+          <slot></slot>
+        </div>
+      </div>
     </div>
   </div>
 </template>

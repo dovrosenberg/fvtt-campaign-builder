@@ -50,59 +50,54 @@
         </a>
       </nav>
       <div class="wcb-tab-body flexrow">
-        <div class="tab flexcol" data-group="primary" data-tab="description">
-          <div v-if="topic"
-            class="tab-inner"
-          >
-            <DescriptionTab 
-              :name="currentEntry?.name"
-              :image-url="currentEntry?.img"
-              @image-change="onImageChange"
-            >
-            <div class="flexrow form-group">
-              <label>{{ localize('labels.fields.type') }}</label>
-              <TypeSelect
-                :initial-value="currentEntry?.type || ''"
-                :topic="topic"
-                @type-selection-made="onTypeSelectionMade"
-              />
-            </div>
-
-            <!-- show the species for characters -->
-            <div 
-              v-if="topic===Topics.Character"
-              class="flexrow form-group"
-            >
-              <label>{{ localize('labels.fields.species') }}</label>
-              <SpeciesSelect
-                :initial-value="currentEntry?.speciesId || ''"
-                :allow-new-items="false"
-                @species-selection-made="onSpeciesSelectionMade"
-              />
-            </div>
-
-            <div 
-              v-if="showHierarchy"
-              class="flexrow form-group"
-            >
-              <label>{{ localize('labels.fields.parent') }}</label>
-              <TypeAhead 
-                :initial-list="validParents"
-                :initial-value="parentId || ''"
-                @selection-made="onParentSelectionMade"
-              />
-            </div>
-
-            <div class="flexrow form-group description">
-              <Editor
-                :initial-content="currentEntry?.description || ''"
-                :has-button="true"
-                @editor-saved="onDescriptionEditorSaved"
-              />
-            </div>
-            </DescriptionTab>
+        <DescriptionTab 
+          v-if="currentEntry"
+          :name="currentEntry?.name"
+          :image-url="currentEntry?.img"
+          @image-change="onImageChange"
+        >
+          <div class="flexrow form-group">
+            <label>{{ localize('labels.fields.type') }}</label>
+            <TypeSelect
+              :initial-value="currentEntry?.type || ''"
+              :topic="topic as ValidTopic"
+              @type-selection-made="onTypeSelectionMade"
+            />
           </div>
-        </div>
+
+          <!-- show the species for characters -->
+          <div 
+            v-if="topic===Topics.Character"
+            class="flexrow form-group"
+          >
+            <label>{{ localize('labels.fields.species') }}</label>
+            <SpeciesSelect
+              :initial-value="currentEntry?.speciesId || ''"
+              :allow-new-items="false"
+              @species-selection-made="onSpeciesSelectionMade"
+            />
+          </div>
+
+          <div 
+            v-if="showHierarchy"
+            class="flexrow form-group"
+          >
+            <label>{{ localize('labels.fields.parent') }}</label>
+            <TypeAhead 
+              :initial-list="validParents"
+              :initial-value="parentId || ''"
+              @selection-made="onParentSelectionMade"
+            />
+          </div>
+
+          <div class="flexrow form-group description">
+            <Editor
+              :initial-content="currentEntry?.description || ''"
+              :has-button="true"
+              @editor-saved="onDescriptionEditorSaved"
+            />
+          </div>
+        </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="characters">
           <div class="tab-inner flexcol">
             <RelatedItemTable :topic="Topics.Character" />
@@ -173,7 +168,7 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import DescriptionTab from './DescriptionTab.vue';
+  import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
   import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
@@ -183,7 +178,7 @@
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
 
   // types
-  import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, WindowTabType } from '@/types';
+  import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, WindowTabType, ValidTopic } from '@/types';
   import { Entry, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////

@@ -2,60 +2,55 @@
   <form>
     <div ref="contentRef" class="wcb-sheet-container flexcol">
       <header class="wcb-name-header flexrow">
-        <ImagePicker
-          v-model="worldImg"
-          :title="`Select Image for ${currentWorld?.name || 'World'}`"
+        <i :class="`fas ${icon} sheet-icon`"></i>
+        <InputText
+          v-model="name"
+          for="wcb-input-name"
+          class="wcb-input-name"
+          unstyled
+          :placeholder="namePlaceholder"
+          :pt="{
+            root: { class: 'full-height' }
+          }"
+          @update:model-value="onNameUpdate"
         />
-        <div class="wcb-content-header">
-          <h1 class="header-name flexrow">
-            <i :class="`fas ${icon} sheet-icon`"></i>
-            <InputText
-              v-model="name"
-              for="wcb-input-name"
-              class="wcb-input-name"
-              unstyled
-              :placeholder="namePlaceholder"
-              :pt="{
-                root: { class: 'full-height' }
-              }"
-              @update:model-value="onNameUpdate"
-            />
-          </h1>
-          <div v-if="currentWorld">
-            <div class="flexrow form-group">
-              <label>{{ localize('labels.fields.worldGenre') }} <span class="wcb-header-notes">{{ localize('help.worldGenre') }}</span></label><br/>
-              <InputText
-                v-model="currentWorld.genre"
-                type="text"
-                style="width: 250px"
-                @update:model-value="onGenreSaved"
-              />
-            </div>
-            <div class="flexrow form-group">
-              <label>{{ localize('labels.fields.worldFeeling') }} <span class="wcb-header-notes">{{ localize('help.worldFeeling') }}</span></label><br/>
-              <Textarea
-                v-model="currentWorld.worldFeeling"
-                rows="3"
-                style="width: calc(100% - 2px)"
-                @update:model-value="onWorldFeelingSaved"
-              />
-            </div>
-          </div>
-        </div>
       </header>
       <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
       </nav>
-      <div class="wcb-tab-body flexcol">
-        <div class="tab flexcol" data-group="primary" data-tab="description">
-          <div v-if="currentWorld" class="tab-inner flexcol">
-            <Editor
-              :initial-content="currentWorld.description || ''"
-              :has-button="true"
-              @editor-saved="onDescriptionEditorSaved"
+      <div class="wcb-tab-body flexrow">
+        <DescriptionTab 
+          v-if="currentWorld"
+          :name="currentWorld?.name"
+          :image-url="currentWorld?.img"
+          @image-change="onImageChange"
+        >
+          <div class="flexrow form-group">
+            <label>{{ localize('labels.fields.worldGenre') }} <span class="wcb-header-notes">{{ localize('help.worldGenre') }}</span></label><br/>
+            <InputText
+              v-model="currentWorld.genre"
+              type="text"
+              style="width: 250px"
+              @update:model-value="onGenreSaved"
             />
           </div>
-        </div>
+          <div class="flexrow form-group">
+            <label>{{ localize('labels.fields.worldFeeling') }} <span class="wcb-header-notes">{{ localize('help.worldFeeling') }}</span></label><br/>
+            <Textarea
+              v-model="currentWorld.worldFeeling"
+              rows="3"
+              style="width: calc(100% - 2px)"
+              @update:model-value="onWorldFeelingSaved"
+            />
+          </div>
+          <div class="flexrow form-group description">
+            <Editor
+                :initial-content="currentWorld.description || ''"
+                :has-button="true"
+                @editor-saved="onDescriptionEditorSaved"
+              />
+          </div>
+        </DescriptionTab>
       </div>
     </div>
   </form>	 
@@ -78,7 +73,7 @@
 
   // local components
   import Editor from '@/components/Editor.vue';
-  import ImagePicker from '@/components/ImagePicker.vue';
+  import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
 
   // types
   import { WindowTabType, } from '@/types';
@@ -108,23 +103,12 @@
   ////////////////////////////////
   // computed data
   const namePlaceholder = computed((): string => (localize('placeholders.worldName') || ''));
-  const worldImg = computed({
-    get: (): string => currentWorld.value?.img || '',
-    set: async (value: string) => {
-      if (currentWorld.value) {
-        currentWorld.value.img = value;
-        await currentWorld.value.save();
-      }
-    }
-  });
   
   ////////////////////////////////
   // methods
 
   ////////////////////////////////
   // event handlers
-
-
 
   // debounce changes to name
   let debounceTimer: NodeJS.Timeout | undefined = undefined;
@@ -175,6 +159,14 @@
         await currentWorld.value.save();
     }, debounceTime);
   }
+
+  const onImageChange = async (imageUrl: string) => {
+    if (currentWorld.value) {
+      currentWorld.value.img = imageUrl;
+      await currentWorld.value.save();
+    }
+  }
+
 
   ////////////////////////////////
   // watchers
