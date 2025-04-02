@@ -55,11 +55,52 @@
             class="tab-inner"
           >
             <DescriptionTab 
-              :valid-parents="validParents"
-              :parent-id="parentId || undefined"
-              :window-type="WindowTabType.Entry"
-              :topic="topic"
-            />
+              :name="currentEntry?.name"
+              :image-url="currentEntry?.img"
+              @image-change="onImageChange"
+            >
+            <div class="flexrow form-group">
+              <label>{{ localize('labels.fields.type') }}</label>
+              <TypeSelect
+                :initial-value="currentEntry?.type || ''"
+                :topic="topic"
+                @type-selection-made="onTypeSelectionMade"
+              />
+            </div>
+
+            <!-- show the species for characters -->
+            <div 
+              v-if="topic===Topics.Character"
+              class="flexrow form-group"
+            >
+              <label>{{ localize('labels.fields.species') }}</label>
+              <SpeciesSelect
+                :initial-value="currentEntry?.speciesId || ''"
+                :allow-new-items="false"
+                @species-selection-made="onSpeciesSelectionMade"
+              />
+            </div>
+
+            <div 
+              v-if="showHierarchy"
+              class="flexrow form-group"
+            >
+              <label>{{ localize('labels.fields.parent') }}</label>
+              <TypeAhead 
+                :initial-list="validParents"
+                :initial-value="parentId || ''"
+                @selection-made="onParentSelectionMade"
+              />
+            </div>
+
+            <div class="flexrow form-group description">
+              <Editor
+                :initial-content="currentEntry?.description || ''"
+                :has-button="true"
+                @editor-saved="onDescriptionEditorSaved"
+              />
+            </div>
+            </DescriptionTab>
           </div>
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="characters">
@@ -125,8 +166,8 @@
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
   import { Backend } from '@/classes/Backend';
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { validParentItems, } from '@/utils/hierarchy';
-
+  import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
+  
   // library components
   import InputText from 'primevue/inputtext';
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -136,6 +177,10 @@
   import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
   import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
+  import Editor from '@/components/Editor.vue';
+  import TypeAhead from '@/components/TypeAhead.vue';
+  import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
+  import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
 
   // types
   import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, WindowTabType } from '@/types';
@@ -187,6 +232,7 @@
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
   const canGenerate = computed(() => topic.value && [Topics.Character, Topics.Location, Topics.Organization].includes(topic.value));
   const generateDisabled = computed(() => !Backend.available);
+  const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
 
   ////////////////////////////////
   // methods
@@ -367,7 +413,6 @@
     }
   };
 
-
   const onGenerationComplete = async (details: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails) => {
     if (!currentEntry.value) return;
 
@@ -397,6 +442,49 @@
     await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
     await navigationStore.propagateNameChange(currentEntry.value.uuid, details.name);
     await relationshipStore.propagateNameChange(currentEntry.value);
+  };
+
+  const onImageChange = async (imageUrl: string) => {
+    if (currentEntry.value) {
+      currentEntry.value.img = imageUrl;
+      await currentEntry.value.save();
+    }
+  }
+
+  const onTypeSelectionMade = async (selection: string) => {
+    if (currentEntry.value) {
+      const oldType = currentEntry.value.type;
+      currentEntry.value.type = selection;
+      await currentEntry.value.save();
+
+      await topicDirectoryStore.updateEntryType(currentEntry.value, oldType);
+    }
+  };
+
+  const onParentSelectionMade = async (selection: string): Promise<void> => {
+    if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
+      return;
+
+    if (!currentEntry.value.topicFolder)
+      throw new Error('Invalid topic in EntryContent.onParentSelectionMade()');
+
+    await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder, currentEntry.value.uuid, selection || null);
+  };
+
+  const onDescriptionEditorSaved = async (newContent: string) => {
+    if (!currentEntry.value)
+      return;
+
+    currentEntry.value.description = newContent;
+    await currentEntry.value.save();
+  };
+
+  const onSpeciesSelectionMade = async (species: {id: string; label: string}): Promise<void> => {
+    if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
+      return;
+
+    currentEntry.value.speciesId = species.id;
+    await currentEntry.value.save();
   };
 
   ////////////////////////////////
