@@ -1,18 +1,18 @@
 <template>
   <!-- The overall directory sidebar -->
-  <div 
-    id="wcb-directory" 
+  <div
+    id="wcb-directory"
     ref="root"
-    class="tab flexcol journal-directory" 
+    class="tab flexcol journal-directory"
   >
     <!-- Directory Header -->
     <header class="wcb-directory-header">
       <div class="wcb-header-search flexrow">
-        <InputText 
+        <InputText
           v-model="filterText"
-          for="wcb-directory-search" 
+          for="wcb-directory-search"
           unstyled
-          :placeholder="localize('placeholders.search')"                
+          :placeholder="localize('placeholders.search')"
           autocomplete="off"
           :pt="{
             root: {
@@ -20,20 +20,20 @@
             }
           }"
         />
-        <a 
-          class="wcb-header-control create-world create-button" 
+        <a
+          class="wcb-header-control create-world create-button"
           :data-tooltip="localize('tooltips.createWorld')"
           @click="onCreateWorldClick"
         >
           <i class="fas fa-globe"></i>
-          <i 
+          <i
             class="fas fa-plus"
             style="color: black; background: rgba(255, 255, 255, 0.7); font-size: 0.6rem;"
           >
           </i>
         </a>
-        <a 
-          class="wcb-header-control collapse-all" 
+        <a
+          class="wcb-header-control collapse-all"
           :data-tooltip="localize('tooltips.collapseAllTopics')"
           @click="onCollapseAllClick"
         >
@@ -54,7 +54,7 @@
     </header>
 
     <Splitter layout="vertical" class="wcb-directory-spliter">
-      <SplitterPanel :size="60" class="wcb-directory-panel"> 
+      <SplitterPanel :size="60" class="wcb-directory-panel">
         <div v-if="isTopicTreeRefreshing">
           <ProgressSpinner v-if="isTopicTreeRefreshing" />
         </div>
@@ -62,7 +62,7 @@
           <TopicDirectory />
         </div>
       </SplitterPanel>
-      <SplitterPanel :size="40" class="wcb-directory-panel"> 
+      <SplitterPanel :size="40" class="wcb-directory-panel">
         <div class="wcb-directory-panel-wrapper">
           <CampaignDirectory />
         </div>

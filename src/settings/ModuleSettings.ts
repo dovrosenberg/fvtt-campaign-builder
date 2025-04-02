@@ -12,21 +12,23 @@ export enum SettingKey {
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
-  APIURL = 'APIURL',   // URL of backend 
+  APIURL = 'APIURL',   // URL of backend
   APIToken = 'APIToken',
   speciesListMenu = 'speciesListMenu',  // display the species list screen
   speciesList = 'speciesList',
+  isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
 }
 
 export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
-    K extends SettingKey.rootFolderId ? string : 
-    K extends SettingKey.groupTreeByType ? boolean : 
+    K extends SettingKey.rootFolderId ? string :
+    K extends SettingKey.groupTreeByType ? boolean :
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
     K extends SettingKey.speciesList ? Species[] :
-    never;  
+    K extends SettingKey.isInPlayMode ? boolean :
+    never;
 
 export class ModuleSettings {
   // note that this returns the object directly, so if it's an object or array, if a reference
@@ -123,6 +125,11 @@ export class ModuleSettings {
   private static localInternalParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
     {
       settingID: SettingKey.groupTreeByType,
+      default: false,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.isInPlayMode,
       default: false,
       type: Boolean,
     },

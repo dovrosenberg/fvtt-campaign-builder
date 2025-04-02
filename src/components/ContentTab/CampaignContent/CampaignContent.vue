@@ -1,50 +1,46 @@
 <template>
-  <form :class="'flexcol wcb-journal-subsheet'">
+  <form>
     <div ref="contentRef" class="wcb-sheet-container flexcol">
-      <header class="wcb-journal-sheet-header flexrow">
-        <ImagePicker
-          v-model="campaignImg"
-          :title="`Select Image for ${currentCampaign?.name || 'Campaign'}`"
+      <header class="wcb-name-header flexrow">
+        <i :class="`fas ${icon} sheet-icon`"></i>
+        <InputText
+          v-model="name"
+          for="wcb-input-name" 
+          class="wcb-input-name"
+          unstyled
+          :placeholder="namePlaceholder"                
+          :pt="{
+            root: { class: 'full-height' } 
+          }" 
+          @update:model-value="onNameUpdate"
         />
-        <div class="wcb-content-header">
-          <h1 class="header-name flexrow">
-            <i :class="`fas ${icon} sheet-icon`"></i>
-            <InputText
-              v-model="name"
-              for="wcb-input-name" 
-              class="wcb-input-name"
-              unstyled
-              :placeholder="namePlaceholder"                
-              :pt="{
-                root: { class: 'full-height' } 
-              }" 
-              @update:model-value="onNameUpdate"
-            />
-          </h1>
-        </div>
       </header>
       <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.campaign.pcs') }}</a>
         <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
       </nav>
-      <div class="wcb-tab-body flexcol">
-        <div class="tab description flexcol" data-group="primary" data-tab="description">
-          <div v-if="currentCampaign" class="tab-inner flexcol">
+      <div class="wcb-tab-body flexrow">
+        <DescriptionTab 
+          :name="currentCampaign?.name || 'Campaign'"
+          :image-url="currentCampaign?.img"
+          @image-change="onImageChange"
+        >
+          <div class="flexrow form-group">
             <Editor 
-              :initial-content="currentCampaign.description || ''"
+              :initial-content="currentCampaign?.description || ''"
               :has-button="true"
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="pcs">
-          <div class="tab-inner flexcol">
+        </DescriptionTab>
+        <div class="tab flexcol" data-group="primary" data-tab="pcs">
+          <div class="tab-inner">
             <CampaignPCsTab />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="lore">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="lore">
+          <div class="tab-inner">
             <CampaignLoreTab />
           </div>
         </div>
@@ -66,13 +62,12 @@
   
   // library components
   import InputText from 'primevue/inputtext';
-  import Textarea from 'primevue/textarea';
 
   // local components
   import Editor from '@/components/Editor.vue';
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
-  import ImagePicker from '@/components/ImagePicker.vue';
+  import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   
   // types
   import { WindowTabType, } from '@/types';
@@ -102,15 +97,6 @@
   ////////////////////////////////
   // computed data
   const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
-  const campaignImg = computed({
-    get: (): string => currentCampaign.value?.img || '',
-    set: async (value: string) => {
-      if (currentCampaign.value) {
-        currentCampaign.value.img = value;
-        await currentCampaign.value.save();
-      }
-    }
-  });
   
   ////////////////////////////////
   // methods
@@ -150,30 +136,20 @@
     await currentCampaign.value.save();
   };
 
-  const onGenreSaved = async () => {
-    const debounceTime = 500;
-  
-    clearTimeout(debounceTimer);
-    
-    debounceTimer = setTimeout(async () => {
-      if (currentCampaign.value)
-        await currentCampaign.value.save();
-    }, debounceTime);
-  }
-
-  const onWorldFeelingSaved = async () => {
-    const debounceTime = 500;
-  
-    clearTimeout(debounceTimer);
-    
-    debounceTimer = setTimeout(async () => {
-      if (currentCampaign.value)
-        await currentCampaign.value.save();
-    }, debounceTime);
+  const onImageChange = async (imageUrl: string) => {
+    if (currentCampaign.value) {
+      currentCampaign.value.img = imageUrl;
+      await currentCampaign.value.save();
+    }
   }
 
   ////////////////////////////////
   // watchers
+  watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
+    if (newTab!==oldTab)
+      tabs.value?.activate(newTab || 'description');    
+  });
+
   watch([currentCampaign], async (): Promise<void> => {
     if (!currentCampaign.value)
       return;

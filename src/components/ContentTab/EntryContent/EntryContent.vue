@@ -1,35 +1,60 @@
 <template>
-  <form :class="'flexcol wcb-journal-subsheet ' + topic">
+  <form>
     <div ref="contentRef" class="wcb-sheet-container flexcol">
-      <header class="wcb-journal-sheet-header flexrow">
-        <ImagePicker
-          v-model="entryImg"
-          :title="`Select Image for ${currentEntry?.name || 'Entry'}`"
-        />        
-        <div class="wcb-content-header">
-          <h1 class="header-name flexrow">
-            <i :class="`fas ${icon} sheet-icon`"></i>
-            <InputText
-              v-model="name"
-              for="wcb-input-name"
-              class="wcb-input-name"
-              unstyled
-              :placeholder="namePlaceholder"
-              :pt="{
-                root: { class: 'full-height' }
-              }"
-              @update:model-value="onNameUpdate"
-            />
-            <button
-              v-if="canGenerate"
-              class="wcb-generate-button"
-              @click="onGenerateButtonClick"
-              :disabled="generateDisabled"
-              :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` ${localize('tooltips.backendNotAvailable')}` : ''}`"
-            >
-              <i class="fas fa-head-side-virus"></i>
-            </button>
-          </h1>
+      <header class="wcb-name-header flexrow">
+        <i :class="`fas ${icon} sheet-icon`"></i>
+        <InputText
+          v-model="name"
+          for="wcb-input-name"
+          class="wcb-input-name"
+          unstyled
+          :placeholder="namePlaceholder"
+          :pt="{
+            root: { class: 'full-height' }
+          }"
+          @update:model-value="onNameUpdate"
+        />
+        <button
+          v-if="canGenerate"
+          class="wcb-generate-button"
+          @click="onGenerateButtonClick"
+          :disabled="generateDisabled"
+          :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` ${localize('tooltips.backendNotAvailable')}` : ''}`"
+        >
+          <i class="fas fa-head-side-virus"></i>
+        </button>
+      </header>
+      <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
+        <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
+        <a 
+          v-for="relationship in relationships"
+          :key="relationship.label"
+          class="item" 
+          :data-tab="relationship.tab"
+        >
+          {{ localize(relationship.label) }}
+        </a>
+        <a 
+          v-if="topic===Topics.Character"
+          class="item" 
+          data-tab="actors"
+        >
+          {{ localize('labels.tabs.entry.actors') }}
+        </a>
+        <a 
+          v-if="topic===Topics.Location"
+          class="item" 
+          data-tab="scenes"
+        >
+          {{ localize('labels.tabs.entry.scenes') }}
+        </a>
+      </nav>
+      <div class="wcb-tab-body flexrow">
+        <DescriptionTab 
+          :name="currentEntry?.name || 'Entry'"
+          :image-url="currentEntry?.img"
+          @image-change="onImageChange"
+        >
           <div class="flexrow form-group">
             <label>{{ localize('labels.fields.type') }}</label>
             <TypeSelect
@@ -63,72 +88,44 @@
               @selection-made="onParentSelectionMade"
             />
           </div>
-        </div>
-      </header>
-      <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
-        <a 
-          v-for="relationship in relationships"
-          :key="relationship.label"
-          class="item" 
-          :data-tab="relationship.tab"
-        >
-          {{ localize(relationship.label) }}
-        </a>
-        <a 
-          v-if="topic===Topics.Character"
-          class="item" 
-          data-tab="actors"
-        >
-          {{ localize('labels.tabs.entry.actors') }}
-        </a>
-        <a 
-          v-if="topic===Topics.Location"
-          class="item" 
-          data-tab="scenes"
-        >
-          {{ localize('labels.tabs.entry.scenes') }}
-        </a>
-      </nav>
-      <div class="wcb-tab-body flexcol">
-        <div class="tab description flexcol" data-group="primary" data-tab="description">
-          <div class="tab-inner flexcol">
-            <Editor 
+
+          <div class="flexrow form-group description">
+            <Editor
               :initial-content="currentEntry?.description || ''"
               :has-button="true"
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="characters">
-          <div class="tab-inner flexcol">
+        </DescriptionTab>
+        <div class="tab flexcol" data-group="primary" data-tab="characters">
+          <div class="tab-inner">
             <RelatedItemTable :topic="Topics.Character" />
           </div>
         </div> 
-        <div class="tab description flexcol" data-group="primary" data-tab="locations">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="locations">
+          <div class="tab-inner">
             <RelatedItemTable :topic="Topics.Location" />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="organizations">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="organizations">
+          <div class="tab-inner">
             <RelatedItemTable :topic="Topics.Organization" />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="events">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="events">
+          <div class="tab-inner">
             <RelatedItemTable :topic="Topics.Event" />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="scenes">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="scenes">
+          <div class="tab-inner">
             <RelatedDocumentTable 
               :document-link-type="DocumentLinkType.Scenes"
             />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="actors">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="actors">
+          <div class="tab-inner">
             <RelatedDocumentTable 
               :document-link-type="DocumentLinkType.Actors"
             />
@@ -160,28 +157,29 @@
   // local imports
   import { getTopicIcon, htmlToPlainText } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
   import { Backend } from '@/classes/Backend';
   import { ModuleSettings, SettingKey } from '@/settings';
+  import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   
   // library components
   import InputText from 'primevue/inputtext';
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import Editor from '@/components/Editor.vue';
-  import TypeAhead from '@/components/TypeAhead.vue';
+  import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
   import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
+  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
+  import Editor from '@/components/Editor.vue';
+  import TypeAhead from '@/components/TypeAhead.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
-  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
-  import ImagePicker from '@/components/ImagePicker.vue'; 
 
   // types
-  import { DocumentLinkType, Topics, ValidTopic, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails } from '@/types';
+  import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, WindowTabType, ValidTopic } from '@/types';
   import { Entry, WBWorld, TopicFolder } from '@/classes';
+import { Theme } from '@primevue/themes';
 
   ////////////////////////////////
   // props
@@ -222,24 +220,14 @@
   const validParents = ref<{id: string; label: string}[]>([]);
   const showGenerate = ref<boolean>(false);
   const isGeneratingImage = ref<boolean>(false); // Flag to track whether image generation is in progress
-  const defaultImage = 'icons/svg/mystery-man.svg'; // Default Foundry image
   
   ////////////////////////////////
   // computed data
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
-  const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
-  const entryImg = computed({
-    get: (): string => currentEntry.value?.img || defaultImage,
-    set: async (value: string) => {
-      if (currentEntry.value) {
-        currentEntry.value.img = value;
-        await currentEntry.value.save();
-      }
-    }
-  });
   const canGenerate = computed(() => topic.value && [Topics.Character, Topics.Location, Topics.Organization].includes(topic.value));
   const generateDisabled = computed(() => !Backend.available);
+  const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
 
   ////////////////////////////////
   // methods
@@ -293,42 +281,6 @@
         await relationshipStore.propagateNameChange(currentEntry.value);
       }
     }, debounceTime);
-  };
-
-  const onTypeSelectionMade = async (selection: string) => {
-    if (currentEntry.value) {
-      const oldType = currentEntry.value.type;
-      currentEntry.value.type = selection;
-      await currentEntry.value.save();
-
-      await topicDirectoryStore.updateEntryType(currentEntry.value, oldType);
-    }
-  };
-
-  const onParentSelectionMade = async (selection: string): Promise<void> => {
-    if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
-      return;
-
-    if (!currentEntry.value.topicFolder)
-      throw new Error('Invalid topic in EntryContent.onParentSelectionMade()');
-
-    await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder, currentEntry.value.uuid, selection || null);
-  };
-
-  const onDescriptionEditorSaved = async (newContent: string) => {
-    if (!currentEntry.value)
-      return;
-
-    currentEntry.value.description = newContent;
-    await currentEntry.value.save();
-  };
-
-  const onSpeciesSelectionMade = async (species: {id: string; label: string}): Promise<void> => {
-    if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
-      return;
-
-    currentEntry.value.speciesId = species.id;
-    await currentEntry.value.save();
   };
 
   const onGenerateButtonClick = (event: MouseEvent): void => {
@@ -456,7 +408,6 @@
     }
   };
 
-
   const onGenerationComplete = async (details: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails) => {
     if (!currentEntry.value) return;
 
@@ -486,6 +437,49 @@
     await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
     await navigationStore.propagateNameChange(currentEntry.value.uuid, details.name);
     await relationshipStore.propagateNameChange(currentEntry.value);
+  };
+
+  const onImageChange = async (imageUrl: string) => {
+    if (currentEntry.value) {
+      currentEntry.value.img = imageUrl;
+      await currentEntry.value.save();
+    }
+  }
+
+  const onTypeSelectionMade = async (selection: string) => {
+    if (currentEntry.value) {
+      const oldType = currentEntry.value.type;
+      currentEntry.value.type = selection;
+      await currentEntry.value.save();
+
+      await topicDirectoryStore.updateEntryType(currentEntry.value, oldType);
+    }
+  };
+
+  const onParentSelectionMade = async (selection: string): Promise<void> => {
+    if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
+      return;
+
+    if (!currentEntry.value.topicFolder)
+      throw new Error('Invalid topic in EntryContent.onParentSelectionMade()');
+
+    await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder, currentEntry.value.uuid, selection || null);
+  };
+
+  const onDescriptionEditorSaved = async (newContent: string) => {
+    if (!currentEntry.value)
+      return;
+
+    currentEntry.value.description = newContent;
+    await currentEntry.value.save();
+  };
+
+  const onSpeciesSelectionMade = async (species: {id: string; label: string}): Promise<void> => {
+    if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
+      return;
+
+    currentEntry.value.speciesId = species.id;
+    await currentEntry.value.save();
   };
 
   ////////////////////////////////
@@ -524,7 +518,7 @@
 
     // have to wait until they render
     await nextTick();
-    if (contentRef.value)
+    if (contentRef.value) 
       tabs.value.bind(contentRef.value);
   });
 

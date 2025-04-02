@@ -36,15 +36,9 @@ body {
   --wcb-header-tab-active: rgba(255, 255, 255, 0.9);
   --wcb-header-tab-hover: inherit;
   --wcb-header-tab-active-hover: inherit;
-  --wcb-header-bookmark-color: var(--wcb-header-color);
-  --wcb-header-bookmark-background: rgba(255, 255, 255, 0.3);
-  --wcb-header-bookmark-border: rgb(192, 192, 192);
   --wcb-header-bookmark-hover: rgba(0, 0, 0, 0.1);
-  --wcb-header-add-bookmark-background: var(--wcb-header-bookmark-background);
-  --wcb-header-add-bookmark-border: var(--wcb-header-bookmark-border);
-  --wcb-header-add-bookmark-color: var(--wcb-header-bookmark-color);
   --wcb-header-add-bookmark-hover: var(--wcb-header-bookmark-hover);
-  --wcb-header-nav-color: var(--wcb-header-color);
+  --wcb-header-nav-btn-color: var(--wcb-header-color);
   --wcb-header-nav-background: rgb(233, 231, 225);
   --wcb-header-nav-btn-background: var(--wcb-cream);
   --wcb-header-nav-btn-border: rgb(192, 192, 192);
@@ -52,14 +46,6 @@ body {
   --wcb-header-nav-btn-background-disabled: inherit;
   --wcb-header-nav-btn-border-disabled: inherit;
   --wcb-header-nav-btn-background-hover: var(--wcb-header-nav-btn-background);
-  --wcb-header-nav-input-border: rgb(122, 121, 113);
-  --wcb-header-nav-input-background: rgba(0, 0, 0, 0.05);
-  --wcb-header-nav-input-color: rgb(25, 24, 19);
-  --wcb-header-nav-input-placeholder-color: var(--color-text-dark-secondary);
-  --wcb-header-nav-input-focus-background: rgba(255, 255, 250, 0.4);
-  --wcb-header-nav-input-focus-border: rgb(192, 192, 192);
-  --wcb-header-nav-input-focus-color: var(--wcb-header-nav-input-color);
-  --wcb-header-nav-input-error-background: rgba(255, 0, 0, 0.1);
   --wcb-header-nav-vertical-line: rgb(238, 237, 224);
   --wcb-sheet-color: var(--color-text-dark-primary);
   --wcb-sheet-header-border: rgb(120, 46, 34);
@@ -150,15 +136,9 @@ body {
 //   --wcb-header-tab-active: rgba(255, 255, 255, 0.9);//
 //   --wcb-header-tab-hover: inherit;//
 //   --wcb-header-tab-active-hover: inherit;//
-//   --wcb-header-bookmark-color: var(--wcb-header-color);
-//   --wcb-header-bookmark-background: rgba(255, 255, 255, 0.3);//
-//   --wcb-header-bookmark-border: rgb(192, 192, 192);//
 //   --wcb-header-bookmark-hover: rgba(0, 0, 0, 0.1);//
-//   --wcb-header-add-bookmark-background: var(--wcb-header-bookmark-background);
-//   --wcb-header-add-bookmark-border: var(--wcb-header-bookmark-border);
-//   --wcb-header-add-bookmark-color: var(--wcb-header-bookmark-color);
 //   --wcb-header-add-bookmark-hover: var(--wcb-header-bookmark-hover);
-//   --wcb-header-nav-color: var(--wcb-header-color);//
+//   --wcb-header-nav-btn-color: var(--wcb-header-color);//
 //   --wcb-header-nav-background: rgb(233, 231, 225);//
 //   --wcb-header-nav-btn-background: var(--wcb-cream);//
 //   --wcb-header-nav-btn-border: rgb(192, 192, 192);//
@@ -166,14 +146,6 @@ body {
 //   --wcb-header-nav-btn-background-disabled: inherit;//
 //   --wcb-header-nav-btn-border-disabled: inherit;//
 //   --wcb-header-nav-btn-background-hover: var(--wcb-header-nav-btn-background);
-//   --wcb-header-nav-input-border: rgb(122, 121, 113);//
-//   --wcb-header-nav-input-background: rgba(0, 0, 0, 0.05);//
-//   --wcb-header-nav-input-color: rgb(25, 24, 19);//
-//   --wcb-header-nav-input-placeholder-color: var(--color-text-light-secondary);
-//   --wcb-header-nav-input-focus-background: rgba(255, 255, 250, 0.4);//
-//   --wcb-header-nav-input-focus-border: rgb(192, 192, 192);///
-//   --wcb-header-nav-input-focus-color: var(--wcb-header-nav-input-color);
-//   --wcb-header-nav-input-error-background: rgba(255, 0, 0, 0.1);//
 //   --wcb-header-nav-vertical-line: rgb(238, 237, 224);//
 //   --wcb-sheet-color: var(--color-text-dark-primary);
 //   --wcb-sheet-header-border: rgb(120, 46, 34);//

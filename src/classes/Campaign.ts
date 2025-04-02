@@ -91,6 +91,21 @@ export class Campaign {
     return this.world;
   }
   
+  // get the highest numbered session
+  get currentSession (): Session | null {
+    let maxNumber = 0;
+    let doc: SessionDoc | null = null;
+
+    toRaw(this._campaignDoc).pages.forEach((page: JournalEntryPage) => {
+      if (page.type === DOCUMENT_TYPES.Session && (page as unknown as SessionDoc).system.number > maxNumber) {
+        doc = page as unknown as SessionDoc;
+        maxNumber = doc.system.number;
+      }
+    });
+
+    return doc ? new Session(doc, this) : null;
+  }
+
   // we return the next number after the highest currently existing session number
   // we calculate each time because it's fast enough and we don't need to continually be updating 
   //    metadata
@@ -106,7 +121,7 @@ export class Campaign {
 
   // returns the uuids of all the sessions
   get sessions(): string[] {
-    return this._campaignDoc.pages.filter((p) => p.type===DOCUMENT_TYPES.Session).map((page) => page.uuid);
+    return toRaw(this._campaignDoc).pages.filter((p) => p.type===DOCUMENT_TYPES.Session).map((page) => page.uuid);
   }
 
   get name(): string {

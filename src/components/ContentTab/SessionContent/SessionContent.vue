@@ -1,26 +1,37 @@
 <template>
-  <form class="'flexcol wcb-journal-subsheet ' + topic">
+  <form>
     <div ref="contentRef" class="wcb-sheet-container flexcol">
-      <header class="wcb-journal-sheet-header flexrow">
-        <ImagePicker
-          v-model="sessionImg"
-          :title="`Select Image for ${currentSession?.name || 'Session'}`"
+      <header class="wcb-name-header flexrow">
+        <i :class="`fas ${getTabTypeIcon(WindowTabType.Session)} sheet-icon`"></i>
+        <InputText
+          v-model="name"
+          for="wcb-input-name" 
+          class="wcb-input-name"
+          unstyled
+          :placeholder="localize('placeholders.sessionName')"
+          :pt="{
+            root: { class: 'full-height' } 
+          }" 
+          @update:model-value="onNameUpdate"
         />
-        <div class="wcb-content-header">
-          <h1 class="header-name flexrow">
-            <i :class="`fas ${getTabTypeIcon(WindowTabType.Session)} sheet-icon`"></i>
-            <InputText
-              v-model="name"
-              for="wcb-input-name" 
-              class="wcb-input-name"
-              unstyled
-              :placeholder="localize('placeholders.sessionName')"
-              :pt="{
-                root: { class: 'full-height' } 
-              }" 
-              @update:model-value="onNameUpdate"
-            />
-          </h1>
+      </header>
+      <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
+        <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
+        <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
+        <a class="item" data-tab="scenes">{{ localize('labels.tabs.session.scenes') }}</a>
+        <a class="item" data-tab="locations">{{ localize('labels.tabs.session.locations') }}</a>
+        <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
+        <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
+        <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
+        <a class="item" data-tab="description">{{ localize('labels.tabs.session.notes') }}</a>
+        <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
+      </nav>
+      <div class="wcb-tab-body flexrow">
+        <DescriptionTab
+          :name="currentSession?.name || 'Session'"
+          :image-url="currentSession?.img"
+          @image-change="onImageChange"
+        >
           <div class="flexrow form-group">
             <label>{{ localize('labels.fields.sessionNumber') }}</label>
             <InputText
@@ -41,46 +52,31 @@
               :show-button-bar="true"
             />   
           </div>
-        </div>
-      </header>
-      <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
-        <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
-        <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
-        <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
-        <a class="item" data-tab="scenes">{{ localize('labels.tabs.session.scenes') }}</a>
-        <a class="item" data-tab="locations">{{ localize('labels.tabs.session.locations') }}</a>
-        <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
-        <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
-        <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
-      </nav>
-      <div class="wcb-tab-body flexcol">
-        <div class="tab description flexcol" data-group="primary" data-tab="notes">
-          <div class="tab-inner flexcol">
+          <div class="flexrow form-group description">
             <Editor 
               :initial-content="currentSession?.notes || ''"
               :has-button="true"
               @editor-saved="onNotesEditorSaved"
             />
           </div>
-        </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="pcs">
-          <div class="tab-inner flexcol">
+        </DescriptionTab>
+        <div class="tab flexcol" data-group="primary" data-tab="pcs">
+          <div class="tab-inner">
             <CampaignPCsTab />
           </div>
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="npcs">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="npcs">
+          <div class="tab-inner">
             <SessionNPCTab />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="scenes">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="scenes">
+          <div class="tab-inner">
             <SessionSceneTab />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="start">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="start">
+          <div class="tab-inner">
             <Editor 
               :initial-content="currentSession?.startingAction || ''"
               :has-button="true"
@@ -88,23 +84,23 @@
             />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="lore">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="lore">
+          <div class="tab-inner">
             <SessionLoreTab />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="locations">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="locations">
+          <div class="tab-inner">
             <SessionLocationTab />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="monsters">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="monsters">
+          <div class="tab-inner">
             <SessionMonsterTab />
           </div>  
         </div>
-        <div class="tab description flexcol" data-group="primary" data-tab="magic">
-          <div class="tab-inner flexcol">
+        <div class="tab flexcol" data-group="primary" data-tab="magic">
+          <div class="tab-inner">
             <SessionItemTab />
           </div>  
         </div>
@@ -117,7 +113,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { nextTick, ref, watch, onMounted, computed } from 'vue';
+  import { nextTick, ref, watch, onMounted, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
@@ -138,7 +134,7 @@
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
   import SessionSceneTab from '@/components/ContentTab/SessionContent/SessionSceneTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
-  import ImagePicker from '@/components/ImagePicker.vue';
+  import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
 
   // types
   import { Session } from '@/classes';
@@ -168,15 +164,6 @@
 
   ////////////////////////////////
   // computed data
-  const sessionImg = computed({
-    get: (): string => currentSession.value?.img || '',
-    set: async (value: string) => {
-      if (currentSession.value) {
-        currentSession.value.img = value;
-        await currentSession.value.save();
-      }
-    }
-  });
 
   ////////////////////////////////
   // methods
@@ -238,13 +225,21 @@
     await currentSession.value.save();
   };
 
+  const onImageChange = async (imageUrl: string) => {
+    if (currentSession.value) {
+      currentSession.value.img = imageUrl;
+      await currentSession.value.save();
+    }
+  }
+
 
   ////////////////////////////////
   // watchers
-  // watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
-  //   if (newTab!==oldTab)
-  //     tabs.value?.activate(newTab || 'description');    
-  // });
+  watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
+    if (newTab!==oldTab)
+      tabs.value?.activate(newTab || 'description');    
+  });
+
   let dateDebounceTimer: NodeJS.Timeout | undefined = undefined;
   watch(sessionDate, async (newDate: Date | undefined): Promise<void> => {
     const debounceTime = 500;
@@ -280,11 +275,7 @@
 
     // update the store when tab changes
     tabs.value.callback = () => {
-      // currentContentTab.value = tabs.value?.active || null;
-    };
-
-    tabs.value.callback = () => {
-      // currentContentTab.value = tabs.value?.active || null;
+      currentContentTab.value = tabs.value?.active || null;
     };
 
     // have to wait until they render

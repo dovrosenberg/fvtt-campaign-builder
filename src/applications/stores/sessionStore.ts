@@ -19,7 +19,7 @@ import {
   SessionLoreDetails,
 } from '@/types';
 
-import { Session } from '@/classes';
+import { Campaign, Session } from '@/classes';
 
 export enum SessionTableTypes {
   None,

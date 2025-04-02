@@ -97,11 +97,11 @@
 
   ////////////////////////////////
   // event handlers
-  const onBookmarkClick = async () => { 
+  const onBookmarkClick = async (event: MouseEvent) => { 
     if (!props.bookmark)
       return;
 
-    await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: false });
+    await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: event.ctrlKey });
   };
 
   // handle a bookmark or tab dragging
@@ -157,7 +157,7 @@
     height: 28px;
     border-radius: 28px;
     margin-left: 4px;
-    margin-top: 4px;
+    margin-top: 1px;
     line-height: 27px;
     padding: 0px 10px;
     font-size: 14px;
@@ -165,23 +165,20 @@
     flex-wrap: nowrap;
     flex-grow: 0;
     white-space: nowrap;
-    border: 1px solid var(--wcb-header-bookmark-border);
-    background: var(--wcb-header-bookmark-background);
+    border: 1px solid var(--wcb-header-nav-btn-border);
+    background: var(--wcb-header-nav-btn-background);
 
     &#wcb-add-bookmark {
       border-radius: 4px;
       flex: 0 0 24px;
       height: 24px;
-      margin-top: 6px;
       font-size: 16px;
       padding-left: 2px;
       line-height: 22px;
       text-overflow: clip;
       margin-left: 2px;
       overflow: hidden;
-      border: 1px solid var(--wcb-header-add-bookmark-border);
-      background: var(--wcb-header-add-bookmark-background);
-      color: var(--wcb-header-add-bookmark-color);
+      color: var(--wcb-header-nav-btn-color);
 
       &.disabled {
         cursor: default;

@@ -1,5 +1,5 @@
 <template>
-  <div class="flexcol wcb-journal-subsheet blank blank-body">
+  <div class="flexcol wcb-home-page">
     <div class="message">
       <div style="transform: translateY(50%);">
         {{ !message ? '' : localize(message) }}
@@ -127,7 +127,7 @@
 
 <style lang="scss">
   /* Blank */
-  .wcb-journal-subsheet.blank {
+  .wcb-home-page {
     display: flex;
     text-align: center;
     align-items: center;
