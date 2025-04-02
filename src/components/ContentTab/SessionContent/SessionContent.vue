@@ -28,7 +28,6 @@
       </nav>
       <div class="wcb-tab-body flexrow">
         <DescriptionTab
-          v-if="currentSession"
           :name="currentSession?.name || 'Session'"
           :image-url="currentSession?.img"
           @image-change="onImageChange"
@@ -62,22 +61,22 @@
           </div>
         </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="pcs">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <CampaignPCsTab />
           </div>
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="npcs">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <SessionNPCTab />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="scenes">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <SessionSceneTab />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="start">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <Editor 
               :initial-content="currentSession?.startingAction || ''"
               :has-button="true"
@@ -86,22 +85,22 @@
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="lore">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <SessionLoreTab />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="locations">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <SessionLocationTab />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="monsters">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <SessionMonsterTab />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="magic">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <SessionItemTab />
           </div>  
         </div>

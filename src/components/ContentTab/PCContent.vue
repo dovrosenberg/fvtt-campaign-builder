@@ -2,90 +2,73 @@
   <form>
     <div ref="contentRef" class="wcb-sheet-container flexcol" style="overflow-y: auto">
       <header class="wcb-name-header flexrow">
-        <div 
-          class="wcb-sheet-image" 
-          @drop="onDropActor"
-          @dragover="onDragoverActor"
-          @click="onActorImageClick"
-        >
-          <div
-            v-if="currentPC?.actorId"
-          >
-            <img 
-              class="portrait" 
-              :src="currentImage"
-            > 
-          </div>
-          <div
-            v-else
-          >
-            Drag an actor here to link it
-          </div>
-        </div>
-        <div class="wcb-content-header">
-          <h1 class="header-name flexrow">
-            <i :class="`fas ${getTabTypeIcon(WindowTabType.PC)} sheet-icon`"></i>
-            <InputText
-              v-model="name"
-              for="wcb-input-name" 
-              unstyled
-              :disabled="true"
-              class="wcb-input-name"
-              :pt="{
-                root: { class: 'full-height' } 
-              }" 
-            />
-          </h1>
-        </div>
+        <i :class="`fas ${getTabTypeIcon(WindowTabType.PC)} sheet-icon`"></i>
+        <InputText
+          v-model="name"
+          for="wcb-input-name" 
+          unstyled
+          :disabled="true"
+          class="wcb-input-name"
+          :pt="{
+            root: { class: 'full-height' } 
+          }" 
+        />
       </header>
-      <div class="flexcol">
-        <div class="flexrow">
-          <label>{{ localize('labels.fields.playerName') }}</label>
-        </div>
-        <div class="flexrow">
-          <InputText
-            v-model="playerName"
-            for="wcb-input-name" 
-            class="wcb-input-name"
-            unstyled
-            @update:model-value="onPlayerNameUpdate"
-            :pt="{
-              root: { class: 'full-height' } 
-            }" 
-          />
-        </div>
-        <div class="flexrow">
-          <label>{{ localize('labels.fields.backgroundPoints') }}</label>
-        </div>
-        <div class="flexrow editor-container">
-          <Editor 
-            :initial-content="currentPC?.background || ''"
-            :has-button="true"
-            fixed-height="125"
-            @editor-saved="onBackgroundSaved"
-          />
-        </div>
-        <div class="flexrow">
-          <label>{{ localize('labels.fields.otherPlotPoints') }}</label>
-        </div>
-        <div class="flexrow editor-container">
-          <Editor 
-            :initial-content="currentPC?.plotPoints || ''"
-            :has-button="true"
-            fixed-height="125"
-            @editor-saved="onPlotPointsSaved"
-          />
-        </div>
-        <div class="flexrow">
-          <label>{{ localize('labels.fields.desiredMagicItems') }}</label>
-        </div>
-        <div class="flexrow editor-container">
-          <Editor
-            :initial-content="currentPC?.magicItems || ''"
-            :has-button="true"
-            fixed-height="125"
-            @editor-saved="onMagicItemsSaved"
-          />
+      <div class="wcb-tab-body flexrow">
+        <div class="tab flexcol">
+          <div class="tab-inner">
+            <div class="wcb-description-wrapper flexrow">
+              <ImagePicker
+                v-model="currentImage"
+                :title="`Drag an actor here to link it`"
+                @drop="onDropActor"
+                @dragover="onDragoverActor"
+                @click="onActorImageClick"
+              />        
+              <div class="wcb-description-content flexcol" style="height: unset">
+                <div class="flexrow form-group">
+                  <label>{{ localize('labels.fields.playerName') }}</label>
+                  <InputText
+                    v-model="playerName"
+                    for="wcb-input-name" 
+                    class="wcb-input-name"
+                    unstyled
+                    @update:model-value="onPlayerNameUpdate"
+                    :pt="{
+                      root: { class: 'full-height' } 
+                    }" 
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="flexrow">
+              <div class="flexcol">
+                <label>{{ localize('labels.fields.backgroundPoints') }}</label>
+                <Editor 
+                  :initial-content="currentPC?.background || ''"
+                  :has-button="true"
+                  fixed-height="125"
+                  @editor-saved="onBackgroundSaved"
+                />
+
+                <label>{{ localize('labels.fields.otherPlotPoints') }}</label>
+                <Editor 
+                  :initial-content="currentPC?.plotPoints || ''"
+                  :has-button="true"
+                  fixed-height="125"
+                  @editor-saved="onPlotPointsSaved"
+                />
+
+                <label>{{ localize('labels.fields.desiredMagicItems') }}</label>
+                <Editor 
+                  :initial-content="currentPC?.magicItems || ''"
+                  :has-button="true"
+                  fixed-height="125"
+                  @editor-saved="onMagicItemsSaved"
+                />
+              </div>  
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -109,7 +92,8 @@
 
   // local components
   import Editor from '@/components/Editor.vue';
-  
+  import ImagePicker from '@/components/ImagePicker.vue';
+
   // types
   import { PC } from '@/classes';
   
@@ -133,19 +117,8 @@
  
   ////////////////////////////////
   // computed data
-  const name = computed(() => {
-    if (!currentPC.value) 
-      return '';
-
-      return currentPC.value.name || '';
-  });
-
-  const currentImage = computed(() => {
-    if (!currentPC.value) 
-      return '';
-
-    return currentPC.value.actor?.img || '';
-  });
+  const name = computed(() => (currentPC.value?.name || ''));
+  const currentImage = computed(() => (currentPC.value?.actor?.img || ''));
 
   ////////////////////////////////
   // methods

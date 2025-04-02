@@ -22,9 +22,8 @@
       </nav>
       <div class="wcb-tab-body flexrow">
         <DescriptionTab 
-          v-if="currentWorld"
-          :name="currentWorld?.name || 'Campaign'"
-          :image-url="currentWorld?.img"
+          :name="currentCampaign?.name || 'Campaign'"
+          :image-url="currentCampaign?.img"
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
@@ -36,12 +35,12 @@
           </div>
         </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="pcs">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <CampaignPCsTab />
           </div>
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="lore">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <CampaignLoreTab />
           </div>
         </div>

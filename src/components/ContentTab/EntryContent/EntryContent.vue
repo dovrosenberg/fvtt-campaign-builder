@@ -51,7 +51,6 @@
       </nav>
       <div class="wcb-tab-body flexrow">
         <DescriptionTab 
-          v-if="currentEntry"
           :name="currentEntry?.name || 'Entry'"
           :image-url="currentEntry?.img"
           @image-change="onImageChange"
@@ -99,34 +98,34 @@
           </div>
         </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="characters">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <RelatedItemTable :topic="Topics.Character" />
           </div>
         </div> 
         <div class="tab flexcol" data-group="primary" data-tab="locations">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <RelatedItemTable :topic="Topics.Location" />
           </div>
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="organizations">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <RelatedItemTable :topic="Topics.Organization" />
           </div>
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="events">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <RelatedItemTable :topic="Topics.Event" />
           </div>
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="scenes">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <RelatedDocumentTable 
               :document-link-type="DocumentLinkType.Scenes"
             />
           </div>
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="actors">
-          <div class="tab-inner flexcol">
+          <div class="tab-inner">
             <RelatedDocumentTable 
               :document-link-type="DocumentLinkType.Actors"
             />
@@ -180,6 +179,7 @@
   // types
   import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, WindowTabType, ValidTopic } from '@/types';
   import { Entry, WBWorld, TopicFolder } from '@/classes';
+import { Theme } from '@primevue/themes';
 
   ////////////////////////////////
   // props
