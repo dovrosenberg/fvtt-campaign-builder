@@ -18,13 +18,23 @@
         <div class="tab flexcol">
           <div class="tab-inner">
             <div class="wcb-description-wrapper flexrow">
-              <ImagePicker
-                v-model="currentImage"
-                :title="`Drag an actor here to link it`"
+              <div 
+                class="wcb-sheet-image"
                 @drop="onDropActor"
                 @dragover="onDragoverActor"
                 @click="onActorImageClick"
-              />        
+                @contextmenu.prevent="onImageContextMenu"
+              >
+                <div v-if="currentPC?.actorId">
+                  <img 
+                    class="profile"
+                    :src="currentImage"
+                  >
+                </div>
+                <div v-else>
+                  Drag an actor here to link it.
+                </div>
+              </div>
               <div class="wcb-description-content flexcol" style="height: unset">
                 <div class="flexrow form-group">
                   <label>{{ localize('labels.fields.playerName') }}</label>
@@ -39,34 +49,34 @@
                     }" 
                   />
                 </div>
+                <div class="flexrow form-group">
+                  <label>{{ localize('labels.fields.backgroundPoints') }}</label>
+                  <Editor 
+                    :initial-content="currentPC?.background || ''"
+                    :has-button="true"
+                    fixed-height="125"
+                    @editor-saved="onBackgroundSaved"
+                  />
+                </div>
+                <div class="flexrow form-group">
+                  <label>{{ localize('labels.fields.otherPlotPoints') }}</label>
+                  <Editor 
+                    :initial-content="currentPC?.plotPoints || ''"
+                    :has-button="true"
+                    fixed-height="125"
+                    @editor-saved="onPlotPointsSaved"
+                  />
+                </div>
+                <div class="flexrow form-group">
+                  <label>{{ localize('labels.fields.desiredMagicItems') }}</label>
+                  <Editor 
+                    :initial-content="currentPC?.magicItems || ''"
+                    :has-button="true"
+                    fixed-height="125"
+                    @editor-saved="onMagicItemsSaved"
+                  />
+                </div>
               </div>
-            </div>
-            <div class="flexrow">
-              <div class="flexcol">
-                <label>{{ localize('labels.fields.backgroundPoints') }}</label>
-                <Editor 
-                  :initial-content="currentPC?.background || ''"
-                  :has-button="true"
-                  fixed-height="125"
-                  @editor-saved="onBackgroundSaved"
-                />
-
-                <label>{{ localize('labels.fields.otherPlotPoints') }}</label>
-                <Editor 
-                  :initial-content="currentPC?.plotPoints || ''"
-                  :has-button="true"
-                  fixed-height="125"
-                  @editor-saved="onPlotPointsSaved"
-                />
-
-                <label>{{ localize('labels.fields.desiredMagicItems') }}</label>
-                <Editor 
-                  :initial-content="currentPC?.magicItems || ''"
-                  :has-button="true"
-                  fixed-height="125"
-                  @editor-saved="onMagicItemsSaved"
-                />
-              </div>  
             </div>
           </div>
         </div>
@@ -79,7 +89,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { ref, watch, onMounted, computed } from 'vue';
+  import { ref, watch, onMounted, computed, toRaw } from 'vue';
 
   // local imports
   import { useMainStore, useNavigationStore } from '@/applications/stores';
@@ -92,7 +102,6 @@
 
   // local components
   import Editor from '@/components/Editor.vue';
-  import ImagePicker from '@/components/ImagePicker.vue';
 
   // types
   import { PC } from '@/classes';
@@ -160,6 +169,11 @@
     }      
   }
 
+  const onImageContextMenu = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   // debounce changes to name
   let nameDebounceTimer: NodeJS.Timeout | undefined = undefined;
   
@@ -180,7 +194,7 @@
   const onActorImageClick = async () => {
     const actor = await currentPC.value?.getActor();
     if (actor)
-      await actor?.sheet?.render(true);
+      await toRaw(actor)?.sheet?.render(true);
   }
 
   const onBackgroundSaved = async (content: string) => {
