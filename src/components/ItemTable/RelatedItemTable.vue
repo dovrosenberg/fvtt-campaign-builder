@@ -18,19 +18,22 @@
     @dragover="onDragover"
   />
 
-  <EditRelatedItemDialog 
-    v-if="extraColumns.length>0 || useEditDialogForAdd"
+  <RelatedItemDialog
+    v-if="extraColumns.length > 0"
     v-model="editDialogShow"
+    :topic="props.topic"
+    mode="edit"
     :item-id="editItem.itemId"
     :item-name="editItem.itemName"
     :extra-field-values="editItem.extraFields"
-    :topic="props.topic"
-    :add-mode="useEditDialogForAdd"
   />
-  <AddRelatedItemDialog 
+  <RelatedItemDialog
     v-model="addDialogShow"
     :topic="props.topic"
-  /> 
+    :item-id="editItem.itemId"
+    :item-name="editItem.itemName"
+    mode="add"
+  />
 </template>
 
 <script setup lang="ts">
@@ -48,8 +51,7 @@
   // library components
 
   // local components
-  import AddRelatedItemDialog from './AddRelatedItemDialog.vue';
-  import EditRelatedItemDialog from './EditRelatedItemDialog.vue';
+  import RelatedItemDialog from './RelatedItemDialog.vue';
   import BaseTable from '@/components/BaseTable/BaseTable.vue';
 
   // types
@@ -81,7 +83,6 @@
   // data
   const addDialogShow = ref(false);   // should we pop up the add dialog?
   const editDialogShow = ref(false);   // should we pop up the edit dialog?
-  const useEditDialogForAdd = ref(false);  // are we using the edit dialog to add (for drag & drop)
 
   const editItem = ref({
     itemId: '',
@@ -211,9 +212,9 @@
   }
 
   const onDrop = async (event: DragEvent) => {
-    event.preventDefault();  
+    event.preventDefault();
 
-    // parse the data 
+    // parse the data
     let data = getValidatedData(event);
     if (!data)
       return;
@@ -223,18 +224,22 @@
       return;
     }
 
-    // add the item to the relationship 
+    const fullEntry = await Entry.fromUuid(data.childId);
+
+    // add the item to the relationship
     // make the extra fields blank, if there are any
     const extraFieldsToSend = extraFields[currentEntryTopic.value][props.topic].reduce((acc, field) => {
       acc[field.field] = '';
       return acc;
     }, {} as Record<string, string>);
 
-    const fullEntry = await Entry.fromUuid(data.childId);
-    if (fullEntry)
-      await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
-    else
-      return;
+    // open the dialog to complete
+    editItem.value = {
+      itemId: fullEntry?.uuid || '',
+      itemName: fullEntry?.name || '',
+      extraFields: extraFieldsToSend,
+    };
+    addDialogShow.value = true;
   }
 
   // show the edit dialog

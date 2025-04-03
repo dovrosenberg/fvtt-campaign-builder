@@ -1,7 +1,7 @@
 <template>
   <!-- Used for editing the "extra fields" present on the relationships between two items (ex. the role for a character in an organization)-->
-  <Dialog 
-    v-model="show" 
+  <Dialog
+    v-model="show"
     :title="`${topicDetails[props.topic].title}: ${props.itemName}`"
     :buttons="[
       {
@@ -14,30 +14,39 @@
         label: topicDetails[props.topic].buttonTitle,
         default: true,
         close: true,
-        callback: onEditClick
+        callback: onEditClick,
+        icon: 'fa-save'
       }
     ]"
     @close="onClose"
   >
-    <div 
+    <div
       v-if="props.extraFieldValues.length>0"
-      class="flexcol"
+      class="edit-related-items-content"
     >
-      <div class="flexrow">
-        <InputGroup 
-          v-for="(field, index) in extraFieldValues"
-          :key="field.field"
-        >
-          <IftaLabel>
-            <InputText 
-              :id="field.field"
-              v-model="extraFieldValues[index].value"
-              variant="outlined"
-            />
-            <label :for="field.field">{{ field.header }}</label>
-          </IftaLabel>
-        </InputGroup>
+      <div class="fields-container">
+        <div class="fields-grid">
+          <div
+            v-for="(field, index) in extraFieldValues"
+            :key="field.field"
+            class="field-wrapper"
+          >
+            <IftaLabel class="field-label">
+              <InputText
+                :id="field.field"
+                v-model="extraFieldValues[index].value"
+                variant="outlined"
+                class="field-input"
+              />
+              <label :for="field.field">{{ field.header }}</label>
+            </IftaLabel>
+          </div>
+        </div>
       </div>
+    </div>
+    <div v-else class="no-fields-message">
+      <i class="fas fa-info-circle"></i>
+      <span>No additional fields to edit for this relationship.</span>
     </div>
   </Dialog>
 </template>
@@ -177,4 +186,67 @@
 </script>
 
 <style lang="scss" scoped>
+.edit-related-items-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  padding: 0.5rem 0;
+
+  .fields-container {
+    width: 100%;
+
+    .fields-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+
+      .field-wrapper {
+        width: 100%;
+
+        .field-label {
+          width: 100%;
+
+          :deep(label) {
+            font-size: var(--font-size-12);
+            color: var(--color-text-dark-secondary);
+            margin-top: 0.25rem;
+          }
+
+          .field-input {
+            width: 100%;
+            font-size: var(--font-size-14);
+            padding: 0.75rem;
+            border-radius: 6px;
+            background-color: var(--color-bg-field, rgba(0, 0, 0, 0.05));
+            border: 1px solid var(--color-border-input, #666);
+            color: var(--color-text-dark-primary);
+
+            &:focus {
+              box-shadow: 0 0 0 2px var(--color-shadow-primary, rgba(255, 165, 0, 0.25));
+              border-color: var(--color-border-focus, #ffa500);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.no-fields-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: var(--color-bg-notice, rgba(0, 0, 0, 0.05));
+  border-radius: 6px;
+  color: var(--color-text-dark-secondary);
+  font-style: italic;
+  gap: 0.75rem;
+
+  i {
+    font-size: 1.25rem;
+    color: var(--color-text-dark-tertiary);
+  }
+}
 </style>
