@@ -242,7 +242,6 @@
       font-weight: 600;
       margin-bottom: 0.75rem;
       color: var(--color-text-dark-highlight);
-      border-bottom: 1px solid var(--color-border-light, rgba(255, 255, 255, 0.1));
       padding-bottom: 0.5rem;
       width: 80%;
     }
