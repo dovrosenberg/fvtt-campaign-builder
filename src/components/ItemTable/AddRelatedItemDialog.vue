@@ -1,5 +1,5 @@
 <template>
-  <Dialog 
+  <Dialog
     v-model="show"
     :title="topicDetails[props.topic].title"
     :buttons="[
@@ -14,51 +14,49 @@
         disable: !isAddFormValid,
         default: true,
         close: true,
-        callback: onAddClick
+        callback: onAddClick,
+        icon: 'fa-plus'
       }
     ]"
     @close="onClose"
   >
-  <div 
+    <div
       v-if="selectItems.length>0"
-      class="flexcol"
-      style="gap: 5px;"
+      class="add-related-items-content flexcol"
     >
-      <div class="flexrow">
-        <AutoComplete 
-          ref="nameSelectRef"
-          v-model="entry"
-          :dropdown="true"
-          :typeahead="true"
-          :force-selection="true"
-          :suggestions="options"
-          :placeholder="topicDetails[props.topic].title"
-          option-label="name"
-          data-key="uuid"
-          variant="outlined"
-          show-clear
-          @complete="onSearch"
-          @keydown.enter.stop="onAddClick"
-        />
-      </div>
-      <div class="flexrow">
-        <InputGroup 
-          v-for="field in extraFields"
-          :key="field.field"
-        >
-          <IftaLabel>
-            <InputText 
+      <TypeAhead 
+        ref="nameSelectRef"
+        :initial-value="''"
+        :initial-list="selectItems" 
+        :allow-new-items="false"
+        @selection-made="onSelectionMade"
+      />
+      <div class="extra-fields-container" v-if="extraFields.length > 0">
+        <h3 class="extra-fields-title">Additional Information</h3>
+        <div class="extra-fields-grid">
+          <div
+            v-for="field in extraFields"
+            :key="field.field"
+            class="field-wrapper"
+          >
+            <h6>
+              {{ field.header }}
+              <!-- <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you create a new type, it will be added to the master list"></i> -->
+            </h6>
+            <InputText
               :id="field.field"
               v-model="extraFieldValues[field.field]"
-              variant="outlined"
+              type="text"
+              class="field-input"
+              :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
             />
-            <label :for="field.field">{{ field.header }}</label>
-          </IftaLabel>
-        </InputGroup>
+          </div>
+        </div>
       </div>
     </div>
-    <div v-else>
-      All possible related items are already connected.
+    <div v-else class="no-items-message">
+      <i class="fas fa-info-circle"></i>
+      <span>All possible related items are already connected.</span>
     </div>
   </Dialog>
 </template>
@@ -72,11 +70,9 @@
   import { useMainStore, useRelationshipStore, } from '@/applications/stores';
 
   // library components
-  import AutoComplete from 'primevue/autocomplete';
   import InputText from 'primevue/inputtext';
-  import InputGroup from 'primevue/inputgroup';
-  import IftaLabel from 'primevue/iftalabel';
-
+  import TypeAhead from '@/components/TypeAhead.vue';
+  
   // local components
   import Dialog from '@/components/Dialog.vue';
 
@@ -107,7 +103,7 @@
   ////////////////////////////////
   // data
   const show = ref(props.modelValue);
-  const entry = ref<{uuid: string; name: string} | null>(null);  // the selected item from the dropdown
+  const entryToAdd = ref<string | null>(null);  // the selected item from the dropdown (uuid)
   const extraFieldValues = ref<Record<string, string>>({});
   const topicDetails = {
     [Topics.Event]: {
@@ -127,21 +123,20 @@
       buttonTitle: 'Add organization',
     },
   } as Record<ValidTopic, { title: string; buttonTitle: string }>;
-  const selectItems = ref<{uuid: string; name: string}[]>([]);
-  const options = ref<{uuid: string; name: string}[]>([]);
+  const selectItems = ref<{id: string; label: string}[]>([]);
   const extraFields = ref<{field:string; header:string}[]>([]);
-  const nameSelectRef = ref<typeof AutoComplete | null>(null);
+  const nameSelectRef = ref<typeof TypeAhead | null>(null);
 
   ////////////////////////////////
   // computed data
   const isAddFormValid = computed((): boolean => {
-    return (!!entry.value);
+    return (!!entryToAdd.value);
   });
 
   ////////////////////////////////
   // methods
   const resetDialog = function() {
-    entry.value = null;
+    entryToAdd.value = null;
     extraFieldValues.value = {};
     show.value = false;
     emit('update:modelValue', false);
@@ -149,34 +144,26 @@
 
   const mapEntryToOption = function(entry: Entry) {
     return {
-      uuid: entry.uuid,
-      name: entry.type ? `${entry.name} (${entry.type})` : entry.name,
+      id: entry.uuid,
+      label: entry.type ? `${entry.name} (${entry.type})` : entry.name,
     };
   };
 
   ////////////////////////////////
   // event handlers
-  const onSearch = (event: {query: string}) => {
-    const { query } = event;
-
-    if (query === '') {
-      options.value = selectItems.value;
-    }
-    else {
-      const needle = query.toLowerCase();
-      options.value = selectItems.value.filter((item) => (item.name.toLowerCase().indexOf(needle) > -1));
-    }
+  const onSelectionMade = function(uuid: string) {
+    entryToAdd.value = uuid || null;
   };
 
   const onAddClick = async function() {
-    if (entry.value) {
+    if (entryToAdd.value) {
       // replace nulls with empty strings
       const extraFieldsToSend = extraFields.value.reduce((acc, field) => {
         acc[field.field] = extraFieldValues.value[field.field] || '';
         return acc;
       }, {} as Record<string, string>);
 
-      const fullEntry = await Entry.fromUuid(entry.value.uuid);
+      const fullEntry = await Entry.fromUuid(entryToAdd.value);
       if (fullEntry)
         await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
     }
@@ -222,4 +209,66 @@
 </script>
 
 <style lang="scss" scoped>
+.add-related-items-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  padding: 0.5rem 0;
+
+  h6 {
+    margin-bottom: 2px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+
+    .tooltip-icon {
+      margin-left: 5px;
+      font-size: 12px;
+      color: #888;
+      cursor: help;
+
+      &:hover {
+        color: #555;
+      }
+    }
+  }
+
+  .extra-fields-container {
+    width: 100%;
+
+    .extra-fields-title {
+      font-size: var(--font-size-16);
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--color-text-dark-highlight);
+      border-bottom: 1px solid var(--color-border-light, rgba(255, 255, 255, 0.1));
+      padding-bottom: 0.5rem;
+      width: 80%;
+    }
+
+    .extra-fields-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+  }
+}
+
+.no-items-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+  background-color: var(--color-bg-notice, rgba(0, 0, 0, 0.05));
+  border-radius: 6px;
+  color: var(--color-text-dark-secondary);
+  font-style: italic;
+  gap: 0.75rem;
+
+  i {
+    font-size: 1.25rem;
+    color: var(--color-text-dark-tertiary);
+  }
+}
 </style>

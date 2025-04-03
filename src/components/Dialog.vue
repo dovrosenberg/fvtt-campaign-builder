@@ -16,24 +16,24 @@
         @click="() => { show = false; emit('close'); }"
       >
         <i class="fas fa-times"></i>
-        Close
+        <span class="close-text">Close</span>
       </a>
     </header>
-    <section class="window-content" style="gap: 5px">
-      <div class="wcb-dialog-content flexrow">
+    <section class="window-content">
+      <div class="wcb-dialog-content">
         <slot />
       </div>
-      <div class="wcb-dialog-buttons flexrow">
+      <div class="wcb-dialog-buttons">
         <button
           v-for="(btn, key) in props.buttons"
           :key="key"
           type="button"
           :disabled="btn.disable"
-          :class="`wcb-dialog-button flex1 ${btn.default ? 'default' : ''}`"
+          :class="`wcb-dialog-button ${btn.default ? 'default' : ''}`"
           @click="onButtonClick(btn)"
         >
           <i v-if="btn.icon" :class="`fas ${btn.icon}`"></i>
-          {{ btn.label }}
+          <span>{{ btn.label }}</span>
         </button>
       </div>
     </section>
@@ -165,73 +165,111 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 100;
-    background-color: rgba(0, 0, 0, 0);
-    background: inherit;
-    color: var(--color-text-light-highlight);
-    border: unset;
-    border-radius: 5px;
     font-size: var(--font-size-14);
-    width: 400px;
+    width: 550px;
     max-width: 90%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
 
     .wcb-window-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex: 0 0 30px;
+      flex: 0 0 36px;
       gap: 0;
-      border-bottom: 2px groove rgb(48, 40, 49);
+      border-bottom: 1px solid var(--color-border-window, #b5b3a4);
       font-size: var(--font-size-16);
+      // background-color: var(--color-bg-header, #e0e0d0);
+      padding: 0 10px;
 
       .header-button.close {
-        flex: 0 1 80px;
+        flex: 0 0 auto;
         text-align: right;
+        // color: var(--color-text-dark-secondary, #4b4a44);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+
+        i {
+          font-size: 14px;
+        }
+
+        .close-text {
+          font-size: 14px;
+        }
       }
 
       .wcb-window-title {
         margin: 0;
+        font-weight: 600;
       }
     }
 
     .window-content {
-      padding: 8px;
+      padding: 0px 8px 5px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
 
       .wcb-dialog-content {
-        // padding: 1em;
-        // background: var(--color-body, #2a2a2a);
-        // display: flex;
-        // flex-direction: column;
-        // flex: 1;
         font-size: var(--font-size-14);
+        width: 100%;
 
-        input, textarea { 
+        input, textarea {
           font-size: var(--font-size-14) !important;
         }
       }
 
       .wcb-dialog-buttons {
         margin: 0;
-        gap: 5px;
-        // padding: 0.5em 1em;
-        // display: flex;
-        // justify-content: flex-end;
-        // border-top: 1px solid var(--color-border, #555);
-        // background: var(--color-footer, #444);
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 10px;
+        padding-bottom: 3px;
 
         .wcb-dialog-button {
-          background: var(--button-background-color);
-          border: 1px solid var(--button-border-color);
-          color: var(--button-text-color);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          min-width: 100px;
           font-size: var(--font-size-14);
-          border-radius: 4px;
-          padding: 0 0.5rem;
-          gap: 0.25rem;
+          border-radius: 3px;
+          padding: 1px 6px;
           cursor: pointer;
+          transition: all 0.2s ease;
+          font-weight: 500;
+          background: rgba(0, 0, 0, 0.1);
+          border: 2px groove solid rgb(240, 240, 224);
+          color: #000000;
 
-          &:hover {
-            background: var(--button-hover-background-color);
-            border-color: var(--button-hover-border-color);
-            color: var(--button-hover-text-color);
+            &:hover:not(:disabled) {
+              border-color: var(--color-border-button-secondary-hover, #a5a394);
+              box-shadow: 0 0 5px var(--color-shadow-primary);
+            }
+
+          &.default {
+            background: rgba(0, 0, 0, 0.05);
+            border: 2px groove solid rgb(201, 199, 184);
+            color: var(--color-text-dark-primary, #191813);
+
+            &:hover:not(:disabled) {
+              border-color: var(--color-border-button-secondary-hover, #a5a394);
+              box-shadow: 0 0 5px var(--color-shadow-primary);
+            }
+          }
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          i {
+            font-size: 14px;
           }
         }
       }
