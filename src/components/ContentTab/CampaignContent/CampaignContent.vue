@@ -150,12 +150,14 @@
       tabs.value?.activate(newTab || 'description');    
   });
 
-  watch([currentCampaign], async (): Promise<void> => {
+  watch(currentCampaign, async (newCampaign, oldCampaign): Promise<void> => {
     if (!currentCampaign.value)
       return;
 
-    // reset the tab
-    currentContentTab.value = 'description';
+    // Only reset the tab if we're showing a completely different entry (different UUID)
+    // This prevents tab reset when the same entry is refreshed
+    if (newCampaign?.uuid !== oldCampaign?.uuid && newCampaign?.uuid !== undefined && oldCampaign?.uuid !== undefined)
+      currentContentTab.value = 'description';
 
     // load starting data values
     name.value = currentCampaign.value.name || '';
