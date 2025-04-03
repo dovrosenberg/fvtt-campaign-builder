@@ -128,7 +128,16 @@
 
     if (worldId) {
       await mainStore.setNewWorld(worldId);
-      await navigationStore.openWorld(worldId, {newTab: event.ctrlKey});
+
+      // see if there's already a world tab open - if so, switch
+      const existingTab = navigationStore.tabs.find(t => t.contentId === worldId);
+      if (existingTab) {
+        await navigationStore.activateTab(existingTab.id);
+        return;
+      } else {
+        // if not - open one
+        await navigationStore.openWorld(worldId, {newTab: true});
+      }
     }
   };
 

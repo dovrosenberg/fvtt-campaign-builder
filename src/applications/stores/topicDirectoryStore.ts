@@ -55,9 +55,12 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     const world = await WBWorld.create(true);
     if (world) {
       await mainStore.setNewWorld(world.uuid);
-    }
 
-    await refreshTopicDirectoryTree();
+      await refreshTopicDirectoryTree();
+
+      // create a new world tab as a starting point
+      await navigationStore.openWorld(world.uuid, { newTab: true, activate: true });
+    }
   };
 
   /**
