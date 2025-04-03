@@ -268,14 +268,9 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       refreshCurrentEntry.value = true;      
     }
 
-    // if we had a valid parent - make sure it's open
-    if (parentId) {
-      const parentEntry = await Entry.fromUuid(parentId);
-      if (parentEntry) {
-        parentEntry.topicFolder = topicFolder;
-        const parentNode = DirectoryEntryNode.fromEntry(parentEntry);
-        parentNode.expand();
-      }
+    // if we have a valid parent - make sure it's expanded
+    if (parentId && currentWorld.value) {
+      await currentWorld.value.expandNode(parentId);
     }
 
     await refreshTopicDirectoryTree([parentId, oldParentId, childId].filter((id)=>id!==null));
