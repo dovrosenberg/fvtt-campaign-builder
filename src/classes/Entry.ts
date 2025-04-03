@@ -311,7 +311,7 @@ export class Entry {
 
     const id = this.uuid;
     const topicFolder = this.topicFolder;
-
+    
     if (!topicFolder)
       throw new Error('Attempting to delete entry without parent TopicFolder in Entry.delete()');
 
@@ -324,8 +324,7 @@ export class Entry {
 
     await world.lock();
 
-    // TODO - remove from any relationships
-    // TODO - remove from search
+    // TODO - remove from search index
   }
 
       

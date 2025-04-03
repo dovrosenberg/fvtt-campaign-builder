@@ -562,7 +562,7 @@ export class WBWorld {
   // remove an entry from the world metadata
   // note: WORLD MUST BE UNLOCKED FIRST
   public async deleteEntryFromWorld(topicFolder: TopicFolder, entryId: string) {
-    const hierarchy = this.getEntryHierarchy(entryId);
+    const hierarchy = this._hierarchies[entryId];
 
     let topNodesCleaned = false;
     if (hierarchy) {
@@ -570,14 +570,22 @@ export class WBWorld {
       if (hierarchy?.ancestors || hierarchy?.children) {
         await cleanTrees(this, topicFolder, entryId, hierarchy);
         topNodesCleaned = true;
+      } else {
+        // Even if there are no ancestors or children, we still need to delete the hierarchy
+        delete this._hierarchies[entryId];
+        this.hierarchies = this._hierarchies;
+        await this.save();
       }
     }
 
     if (!topNodesCleaned) {
       // remove from the top nodes
-      const topNodes = this.topicFolders[topicFolder.topic].topNodes;
-      this.topicFolders[topicFolder.topic].topNodes = topNodes.filter((id) => id !== entryId);
-      await this.topicFolders[topicFolder.topic].save();
+      const folder = this.topicFolders[topicFolder.topic];
+
+      if (folder.topNodes.includes(entryId)) {
+        folder.topNodes = folder.topNodes.filter(id => id !== entryId);
+        await folder.save();
+      }
     }
 
     // remove from the expanded list

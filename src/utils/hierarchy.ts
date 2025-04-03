@@ -65,36 +65,53 @@ const mapEntryToSummary = (entry: Entry): TabSummary => ({
 // Also cleans up the topic topNodes
 export const cleanTrees = async function(world: WBWorld, topicFolder: TopicFolder, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
   const hierarchies = world.hierarchies;
-  
-  // remove deleted item and all its ancestors from any object who had them as ancestors previously
-  // because we only allow one parent, any ancestor coming from the deleted item cannot be an ancestor of any other item
-  //    so we can just remove all of the deleted item's ancestors from the ancestors list
-  const itemsToRemove = [deletedItemId, ...deletedHierarchy.ancestors];
+
+  // Get the grandparent ID (if any)
+  const grandparentId = deletedHierarchy.parentId || null;
+
+  // Get the children of the deleted item
+  const childrenIds = deletedHierarchy.children || [];
+
 
   const newTopNodes: string[] = [];
-  for (const id in hierarchies) {
-    // if it's the one being deleted, skip it
-    if (id===deletedItemId)
-      continue;
 
-    // if its parent is being removed, move it up one 
-    if (hierarchies[id].parentId===deletedItemId) {
-      hierarchies[id].parentId=deletedHierarchy.parentId;
+  // First, handle the children of the deleted item - connect them to the grandparent
+  for (const childId of childrenIds) {
+    if (!hierarchies[childId]) continue;
 
-      // and add to children of new parent or make a topnode
-      if (deletedHierarchy.parentId) 
-        hierarchies[deletedHierarchy.parentId].children.push(id);
-      else
-        newTopNodes.push(id);
+    // Update the child's parent to be the grandparent
+    hierarchies[childId].parentId = grandparentId;
+
+    // Update the child's ancestors 
+    if (grandparentId) {
+      // If there's a grandparent, add the child to its children and remove the deleted item
+      if (hierarchies[grandparentId]) {
+        hierarchies[grandparentId].children = [
+          ...hierarchies[grandparentId].children.filter(id => id !== deletedItemId),
+          childId
+        ];
+
+        // other ancestors should be fine, except the now-deleted parent 
+        hierarchies[childId].ancestors = hierarchies[childId].ancestors.filter(id => id !== deletedItemId);
+      }
+    } else {
+      // If there's no grandparent, this becomes a top node
+      newTopNodes.push(childId);
+      hierarchies[childId].ancestors = [];
     }
-
-    // remove all the elements
-    hierarchies[id].ancestors = hierarchies[id].ancestors.filter((s: string)=>!itemsToRemove.includes(s));
   }
 
-  // remove it from the children list of its parent
-  if (deletedHierarchy.parentId) {
-    hierarchies[deletedHierarchy.parentId].children = hierarchies[deletedHierarchy.parentId].children.filter((s:string)=>s!=deletedItemId);
+  // Now process all other entries - we're looking for downstream descendents
+  //    that need to have their ancestor list cleaned
+  for (const id in hierarchies) {
+    // if it's the one being deleted or children we've handled, skip
+    if (id === deletedItemId || childrenIds.includes(id))
+      continue;
+
+    // For all other entries, remove the deleted item from ancestors
+    if (hierarchies[id].ancestors) {
+      hierarchies[id].ancestors = hierarchies[id].ancestors.filter(id => id !== deletedItemId);
+    }
   }
 
   // delete the item from hierarchy
@@ -106,7 +123,7 @@ export const cleanTrees = async function(world: WBWorld, topicFolder: TopicFolde
 
   // update topNodes
   const topNodes = topicFolder.topNodes;
-  topicFolder.topNodes = topNodes.filter((s: string)=>s!=deletedItemId).concat(newTopNodes);
+  topicFolder.topNodes = [...topNodes.filter(id => id !== deletedItemId), ...newTopNodes];
   await topicFolder.save();
 };
 

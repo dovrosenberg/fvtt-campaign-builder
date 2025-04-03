@@ -350,7 +350,8 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (!currentWorld.value)
       return;
 
-    const hierarchy = currentWorld.value.getEntryHierarchy(entryId);
+    // save the parent
+    const parentId = currentWorld.value.getEntryHierarchy(entryId)?.parentId || null;
 
     const entry = currentWorld.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId)[0];
     await entry.delete();
@@ -359,7 +360,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     await navigationStore.cleanupDeletedEntry(entryId);
 
     // refresh and force its parent to update
-    await refreshTopicDirectoryTree(hierarchy?.parentId ? [hierarchy?.parentId] : []);
+    await refreshTopicDirectoryTree(parentId ? [parentId] : []);
   };
  
   // refreshes the directory tree 
