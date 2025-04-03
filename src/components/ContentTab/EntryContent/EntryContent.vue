@@ -266,9 +266,9 @@
 
   const onNameUpdate = (newName: string | undefined) => {
     const debounceTime = 500;
-  
+
     clearTimeout(debounceTimer);
-    
+
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
       if (currentEntry.value && currentEntry.value.name!==newValue) {
@@ -277,7 +277,7 @@
 
         await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
         await navigationStore.propagateNameChange(currentEntry.value.uuid, newValue);
-        await relationshipStore.propagateNameChange(currentEntry.value);
+        await relationshipStore.propagateFieldChange(currentEntry.value, 'name');
       }
     }, debounceTime);
   };
@@ -435,7 +435,9 @@
     // Refresh the directory tree to show the updated name
     await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
     await navigationStore.propagateNameChange(currentEntry.value.uuid, details.name);
-    await relationshipStore.propagateNameChange(currentEntry.value);
+
+    // Propagate the name and type changes to all related entries
+    await relationshipStore.propagateFieldChange(currentEntry.value, ['name', 'type']);
   };
 
   const onImageChange = async (imageUrl: string) => {
@@ -451,7 +453,11 @@
       currentEntry.value.type = selection;
       await currentEntry.value.save();
 
+      // Update the type in the directory tree
       await topicDirectoryStore.updateEntryType(currentEntry.value, oldType);
+
+      // Propagate the type change to all related entries
+      await relationshipStore.propagateFieldChange(currentEntry.value, 'type');
     }
   };
 
