@@ -257,8 +257,8 @@
   watch(currentSession, async (newSession: Session | null, oldSession: Session | null): Promise<void> => {
     // Only reset the tab if we're showing a completely different entry (different UUID)
     // This prevents tab reset when the same entry is refreshed
-    if (newSession?.uuid !== oldSession?.uuid && newSession?.uuid !== undefined && oldSession?.uuid !== undefined)
-      currentContentTab.value = 'description';
+    // if (newSession?.uuid !== oldSession?.uuid && newSession?.uuid !== undefined && oldSession?.uuid !== undefined)
+    //   currentContentTab.value = 'description';
 
     if (newSession && newSession.uuid) {
       // load starting data values

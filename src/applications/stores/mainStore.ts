@@ -79,7 +79,7 @@ export const useMainStore = defineStore('main', () => {
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };
 
-  const setNewTab = async function (tab: WindowTab): Promise<void> { 
+  const setNewTab = async function (tab: WindowTab): Promise<void> {
     if (!currentWorld.value)
       return;
 
@@ -90,6 +90,11 @@ export const useMainStore = defineStore('main', () => {
     _currentCampaign.value = null;
     _currentSession.value = null;
     _currentPC.value = null;
+
+    // Restore the content tab from history 
+    // if (tab.contentTab) {
+      currentContentTab.value = tab.contentTab;
+    // }
 
     switch (tab.tabType) {
       case WindowTabType.Entry:
@@ -245,6 +250,13 @@ export const useMainStore = defineStore('main', () => {
   // Save isInPlayMode to settings whenever it changes
   watch(isInPlayMode, async (newValue) => {
     await ModuleSettings.set(SettingKey.isInPlayMode, newValue);
+  });
+
+  // Update the current tab's contentTab property when currentContentTab changes
+  watch(currentContentTab, (newValue) => {
+    if (_currentTab.value && newValue) {
+      _currentTab.value.contentTab = newValue;
+    }
   });
 
   ///////////////////////////////

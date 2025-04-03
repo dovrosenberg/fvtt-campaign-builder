@@ -23,7 +23,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorld, } = storeToRefs(mainStore);
+  const { currentWorld, currentContentTab } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -226,7 +226,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
       // add to history -- it should go immediately after the current tab and all other forward history should go away
       if (headerData.uuid && options.updateHistory) {
-        tab.addToHistory(contentId, contentType);
+        tab.addToHistory(contentId, contentType, currentContentTab.value);
       }
 
       // force a refresh of reactivity
