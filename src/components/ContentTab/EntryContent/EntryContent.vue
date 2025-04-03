@@ -177,9 +177,8 @@
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
 
   // types
-  import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, WindowTabType, ValidTopic } from '@/types';
-  import { Entry, WBWorld, TopicFolder } from '@/classes';
-import { Theme } from '@primevue/themes';
+  import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic } from '@/types';
+  import { Entry, WBWorld, TopicFolder, } from '@/classes';
 
   ////////////////////////////////
   // props

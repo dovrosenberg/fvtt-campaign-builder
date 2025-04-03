@@ -264,8 +264,18 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     await topicFolder.save();
 
     // force current entry to refresh if needed
-    if ([childId, parentId].includes(currentEntry.value?.uuid)) {
+    if ([childId, parentId].includes(currentEntry.value?.uuid || null)) {
       refreshCurrentEntry.value = true;      
+    }
+
+    // if we had a valid parent - make sure it's open
+    if (parentId) {
+      const parentEntry = await Entry.fromUuid(parentId);
+      if (parentEntry) {
+        parentEntry.topicFolder = topicFolder;
+        const parentNode = DirectoryEntryNode.fromEntry(parentEntry);
+        parentNode.expand();
+      }
     }
 
     await refreshTopicDirectoryTree([parentId, oldParentId, childId].filter((id)=>id!==null));
