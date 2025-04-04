@@ -18,7 +18,7 @@
         icon: isAddMode ? 'fa-plus' : 'fa-save'
       }
     ]"
-    @close="onClose"
+    @cancel="onCancel"
   >
     <!-- Add Mode Content -->
     <div
@@ -269,7 +269,7 @@
     resetDialog();
   };
   
-  const onClose = function() {
+  const onCancel = function() {
     resetDialog();
   };
   

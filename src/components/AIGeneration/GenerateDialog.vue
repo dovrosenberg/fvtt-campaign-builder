@@ -24,7 +24,7 @@
         callback: onAcceptClick
       },
     ]"
-    @close="onClose"
+    @cancel="onCancel"
   >
     <div
       class="flexcol generate-dialog"
@@ -375,7 +375,7 @@
     resetDialog();
   };
   
-  const onClose = function() {
+  const onCancel = function() {
     resetDialog();
   };
   

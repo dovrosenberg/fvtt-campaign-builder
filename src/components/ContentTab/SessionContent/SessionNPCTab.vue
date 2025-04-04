@@ -16,10 +16,9 @@
     @dragover="onDragover"
     @drop="onDrop"
   />
-  <EntryPickerDialog
+  <AddRelatedItemDialog
     v-model="showNPCPicker"
     :topic="Topics.Character"
-    @item-picked="onAddNPCPicked"
   />
 </template>
 
@@ -40,7 +39,7 @@
 
   // local components
   import SessionTable from '@/components/Tables/SessionTable.vue';
-  import EntryPickerDialog from '@/components/ContentTab/SessionContent/EntryPickerDialog.vue';
+  import AddRelatedItemDialog from '@/components/Tables/AddRelatedItemDialog.vue';
 
   // types
   
@@ -68,13 +67,9 @@
 
   ////////////////////////////////
   // event handlers
-  const onRowSelect = async function (event: DataTableRowSelectEvent) { 
+  const onRowSelect = async function (event: DataTableRowSelectEvent) {
     await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
-
-  const onAddNPCPicked = async (uuid: string) => {
-    await sessionStore.addNPC(uuid);  
-  }
 
   const onDeleteNPC = async (uuid: string) => {
     await sessionStore.deleteNPC(uuid);

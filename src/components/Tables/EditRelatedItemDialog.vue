@@ -18,7 +18,7 @@
         icon: 'fa-save'
       }
     ]"
-    @close="onClose"
+    @cancel="onCancel"
   >
     <div
       v-if="props.extraFieldValues.length>0"
@@ -158,14 +158,14 @@
     resetDialog();
   };
   
-  const onClose = function() {
+  const onCancel = function() {
     resetDialog();
   };
   
   ////////////////////////////////
   // watchers
   // when the addDialog changes state, alert parent (so v-model works)
-  watch(() => show,  async (newValue) => {
+  watch(() => show.value,  async (newValue) => {
     emit('update:modelValue', newValue);
   });
 

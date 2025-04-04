@@ -17,7 +17,7 @@
         callback: onAddClick
       }
     ]"
-    @close="onClose"
+    @cancel="onCancel"
   >
     <div 
       v-if="selectItems.length>0"
@@ -172,7 +172,7 @@
     resetDialog();
   };
   
-  const onClose = function() {
+  const onCancel = function() {
     resetDialog();
   };
   
