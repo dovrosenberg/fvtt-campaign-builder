@@ -79,8 +79,9 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.bookmarks.openNewTab'), 
           onClick: async () => {
-            if (props.bookmark.header.uuid)
+            if (props.bookmark.header.uuid) {
               await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: true });
+            }
           }
         },
         { 
@@ -97,7 +98,7 @@
 
   ////////////////////////////////
   // event handlers
-  const onBookmarkClick = async (event: MouseEvent) => { 
+  const onBookmarkClick = async (event: MouseEvent) => {
     if (!props.bookmark)
       return;
 

@@ -168,8 +168,8 @@
 
   // local components
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
-  import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
-  import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
+  import RelatedItemTable from '@/components/Tables/RelatedItemTable.vue';
+  import RelatedDocumentTable from '@/components/Tables/RelatedDocumentTable.vue';
   import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
   import Editor from '@/components/Editor.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
@@ -266,9 +266,9 @@
 
   const onNameUpdate = (newName: string | undefined) => {
     const debounceTime = 500;
-  
+
     clearTimeout(debounceTimer);
-    
+
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
       if (currentEntry.value && currentEntry.value.name!==newValue) {
@@ -277,7 +277,7 @@
 
         await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
         await navigationStore.propagateNameChange(currentEntry.value.uuid, newValue);
-        await relationshipStore.propagateNameChange(currentEntry.value);
+        await relationshipStore.propagateFieldChange(currentEntry.value, 'name');
       }
     }, debounceTime);
   };
@@ -435,7 +435,9 @@
     // Refresh the directory tree to show the updated name
     await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
     await navigationStore.propagateNameChange(currentEntry.value.uuid, details.name);
-    await relationshipStore.propagateNameChange(currentEntry.value);
+
+    // Propagate the name and type changes to all related entries
+    await relationshipStore.propagateFieldChange(currentEntry.value, ['name', 'type']);
   };
 
   const onImageChange = async (imageUrl: string) => {
@@ -451,7 +453,11 @@
       currentEntry.value.type = selection;
       await currentEntry.value.save();
 
+      // Update the type in the directory tree
       await topicDirectoryStore.updateEntryType(currentEntry.value, oldType);
+
+      // Propagate the type change to all related entries
+      await relationshipStore.propagateFieldChange(currentEntry.value, 'type');
     }
   };
 
@@ -497,12 +503,13 @@
     }
   });
   
-  watch(currentEntry, async (newEntry: Entry | null, oldEntry: Entry | null): Promise<void> => {
+  watch(currentEntry, async (): Promise<void> => {
     await refreshEntry();
 
-    // if we changed entries, reset the tab
-    if (newEntry?.uuid!==oldEntry?.uuid )
+    if (!currentContentTab.value)
       currentContentTab.value = 'description';
+
+    tabs.value?.activate(currentContentTab.value); 
   });
 
   ////////////////////////////////

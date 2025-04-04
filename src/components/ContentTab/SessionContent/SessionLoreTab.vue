@@ -1,8 +1,8 @@
 <template>
-  <SessionTable 
+  <SessionTable
     :rows="relatedLoreRows"
-    :columns="sessionStore.extraFields[SessionTableTypes.Lore]"  
-    :delete-item-label="localize('tooltips.deleteLore')"   
+    :columns="sessionStore.extraFields[SessionTableTypes.Lore]"
+    :delete-item-label="localize('tooltips.deleteLore')"
     :allow-edit="false"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLore')"
@@ -10,7 +10,7 @@
     @delete-item="onDeleteLore"
     @mark-item-delivered="onMarkLoreDelivered"
     @unmark-item-delivered="onUnmarkLoreDelivered"
-    @move-to-next-session="onMoveLoreToNext"        
+    @move-to-next-session="onMoveLoreToNext"
     @cell-edit-complete="onCellEditComplete"
   />
 </template>
@@ -27,10 +27,10 @@
   // library components
 	
   // local components
-  import SessionTable from '@/components/DocumentTable/SessionTable.vue';
-  import { DataTableCellEditCompleteEvent } from 'primevue';
+  import SessionTable from '@/components/Tables/SessionTable.vue';
 
   // types
+  import { DataTableCellEditCompleteEvent } from 'primevue';
   
   ////////////////////////////////
   // props

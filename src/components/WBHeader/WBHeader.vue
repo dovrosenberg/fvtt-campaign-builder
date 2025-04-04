@@ -139,6 +139,11 @@
 
     tab.historyIdx = newSpot;
     await navigationStore.openContent(tab.history[tab.historyIdx].contentId, tab.history[tab.historyIdx].tabType, { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
+
+    // Restore the content tab from history
+    if (tab.history[tab.historyIdx].contentTab) {
+      mainStore.currentContentTab = tab.history[tab.historyIdx].contentTab;
+    }
   };
 
   ////////////////////////////////

@@ -27,7 +27,7 @@
   // library components
 	
   // local components
-  import SessionTable from '@/components/DocumentTable/SessionTable.vue';
+  import SessionTable from '@/components/Tables/SessionTable.vue';
 
   // types
   

@@ -19,6 +19,7 @@ export enum WindowTabType  {
 export type WindowTabHistory = {
   contentId: string | null;   // the uuid of the entry, campaign, etc.
   tabType: WindowTabType;
+  contentTab: string | null;  // the current content tab (subtab) that was active
 }
 
 export type Bookmark = {

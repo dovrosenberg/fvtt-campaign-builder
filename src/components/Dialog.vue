@@ -13,7 +13,7 @@
       <div class="wcb-window-title">{{ title }}</div>
       <a 
         class="header-button control close"
-        @click="() => { show = false; emit('close'); }"
+        @click="() => { show = false; emit('cancel'); }"
       >
         <i class="fas fa-times"></i>
         <span class="close-text">Close</span>
@@ -80,7 +80,7 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['update:modelValue', 'close']);
+  const emit = defineEmits(['update:modelValue', 'cancel']);
 
   ////////////////////////////////
   // store
@@ -143,7 +143,6 @@
     if (btn.close) {
       show.value = false;
       emit('update:modelValue', false); 
-      emit('close'); 
     }
   }
 
@@ -169,7 +168,7 @@
     width: 550px;
     max-width: 90%;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
+    overflow: visible;
 
     .wcb-window-header {
       display: flex;
@@ -213,10 +212,12 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+      overflow: visible;
 
       .wcb-dialog-content {
         font-size: var(--font-size-14);
         width: 100%;
+        overflow: visible !important; // allow typeaheads to come out
 
         input, textarea {
           font-size: var(--font-size-14) !important;

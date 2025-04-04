@@ -1,6 +1,5 @@
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
-import { font } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/prosemirror/schema/marks.mjs';
 
 export default definePreset(Aura, {
   components: {
@@ -12,8 +11,14 @@ export default definePreset(Aura, {
         background: 'inherit',
         color: '#5d142b',   //'var(--color-warm-3)', - can't seem to set it to a variable?
       },
-      rowBackground: 'inherit',
-      rowColor: 'inherit',
+      row: {
+        background: 'inherit',
+        color: 'black',
+        hover: {
+          background: 'inherit',
+          color: 'black',
+        }
+      },
       bodyCellBorderColor: '#666',   // var(--color-border-dark-5)
       rowStripedBackground: 'inherit',
       footerCellBackground: 'inherit',

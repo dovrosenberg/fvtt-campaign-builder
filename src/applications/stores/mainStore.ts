@@ -54,10 +54,8 @@ export const useMainStore = defineStore('main', () => {
   const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
   const currentPC = computed((): PC | null => (_currentPC?.value || null) as PC | null);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
+  const currentTab = computed((): WindowTab | null => _currentTab?.value);  
   const currentWorld = computed((): WBWorld | null => (_currentWorld?.value || null) as WBWorld | null);
-
-  // the currently selected tab for the content page
-  const currentContentTab = ref<string | null>(null);
 
   ///////////////////////////////
   // actions
@@ -79,7 +77,7 @@ export const useMainStore = defineStore('main', () => {
     await UserFlags.set(UserFlagKey.currentWorld, worldId);
   };
 
-  const setNewTab = async function (tab: WindowTab): Promise<void> { 
+  const setNewTab = async function (tab: WindowTab): Promise<void> {
     if (!currentWorld.value)
       return;
 
@@ -223,7 +221,17 @@ export const useMainStore = defineStore('main', () => {
     return currentEntry.value.topic || Topics.None;
   });
 
-  const currentDocumentTab = computed((): DocumentLinkType => {
+  // the currently selected tab for the content page
+  const currentContentTab = computed({
+    get: (): string | null => _currentTab.value?.contentTab || null,
+    set: (newContentTab: string | null) => {
+        if (_currentTab.value) {
+          _currentTab.value.contentTab = newContentTab;
+        }
+      }
+  });
+
+  const currentDocumentType = computed((): DocumentLinkType => {
     if (!currentContentTab.value)
       return DocumentLinkType.None;
 
@@ -247,6 +255,7 @@ export const useMainStore = defineStore('main', () => {
     await ModuleSettings.set(SettingKey.isInPlayMode, newValue);
   });
 
+
   ///////////////////////////////
   // lifecycle events
 
@@ -254,13 +263,14 @@ export const useMainStore = defineStore('main', () => {
   // return the public interface
   return {
     currentContentTab,
-    currentDocumentTab,
+    currentDocumentType,
     currentWorld,
     currentEntryTopic,
     currentEntry,
     currentCampaign,
     currentSession,
     currentPC,
+    currentTab,
     currentContentType,
     rootFolder,
     currentWorldCompendium,

@@ -54,7 +54,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentContentTab, currentDocumentTab } = storeToRefs(mainStore);
+  const { currentEntry, currentContentTab, currentDocumentType } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -297,17 +297,21 @@ export const useRelationshipStore = defineStore('relationship', () => {
   }
 
   /**
-   * propagate a name change to all related entries.  
-   * @param entryId The id of the entry whose name has changed
-   * @param newName The new name
-   * @returns A promise that resolves when the name change has been propagated
+   * Propagate a field change to all related entries.
+   * @param entry The entry whose field has changed
+   * @param fields The fields to propagate (can include 'name' or 'type') - single field name or an array
+   * @returns A promise that resolves when the field change has been propagated
    */
-  async function propagateNameChange(entry: Entry): Promise<void> {
-    // relationships are bi-directional, so look at all the relationships for the entry    
-    if (!entry || !entry.relationships)
-      return;
+  type ValidFieldNames = 'name' | 'type';
+  async function propagateFieldChange(entry: Entry, fields: ValidFieldNames | ValidFieldNames[]): Promise<void> {
+    const fieldsArray = Array.isArray(fields) ? fields : [fields];
 
-    // for each one, go to the matching (reverse) relationship on the related item and update the name
+    // make sure only valid fields present, etc.
+    if (!entry || !entry.relationships || fieldsArray.find(f => !['name', 'type'].includes(f)))
+      return;
+    
+    // relationships are bi-directional, so look at all the relationships for the entry
+    // for each one, go to the matching (reverse) relationship on the related item and update the field
     for (const topicRelationships of Object.values(entry.relationships)) {
       for (const relatedEntryId in topicRelationships) {
         const relatedEntry = await Entry.fromUuid(relatedEntryId);
@@ -319,12 +323,15 @@ export const useRelationshipStore = defineStore('relationship', () => {
         if (!relatedRelationship)
           continue;
 
-        relatedRelationship.name = entry.name;
+        // Update the field
+        for (let i=0; i< fieldsArray.length; i++) {
+          relatedRelationship[fieldsArray[i]] = entry[fieldsArray[i]];
+        }
         await relatedEntry.save();
       }
     }
   }
-  
+
   // return all of the related items to this one for a given topic
   async function getRelationships<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic>(topic: RelatedTopic): 
       Promise<RelatedItemDetails<PrimaryTopic, RelatedTopic>[]> {
@@ -381,7 +388,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       if (topic !== Topics.None) {
         relatedItemRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]) : [];
         relatedDocumentRows.value = [];
-      } else if (currentDocumentTab.value===DocumentLinkType.Scenes) {
+      } else if (currentDocumentType.value===DocumentLinkType.Scenes) {
         relatedItemRows.value = [];
 
         const sceneList = [] as RelatedDocumentDetails[];
@@ -395,7 +402,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
           });
         }
         relatedDocumentRows.value = sceneList;
-      } else if (currentDocumentTab.value===DocumentLinkType.Actors) {
+      } else if (currentDocumentType.value===DocumentLinkType.Actors) {
         relatedItemRows.value = [];
 
         const actorList = [] as RelatedDocumentDetails[];
@@ -440,7 +447,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     deleteRelationship,
     editRelationship,
     getRelationships,
-    propagateNameChange,
+    propagateFieldChange,
     addScene,
     addActor,
     deleteScene,

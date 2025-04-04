@@ -56,7 +56,8 @@ export class WindowTab {
       this.history = [
         {
           contentId: contentId || null,
-          tabType: tabType ?? WindowTabType.NewTab
+          tabType: tabType ?? WindowTabType.NewTab,
+          contentTab: null   // we'll use null to indicate should pick the 1st tab
         }
       ];
       this.historyIdx = 0;
@@ -105,25 +106,45 @@ export class WindowTab {
   }
 
   /**
-   * Adds a new history entry immediately after the current item and clears all forward history. 
+   * Retrieves the current content tab from the history at the current index.
+   *
+   * @returns The content tab of the currently active history point.
+   */
+  public get contentTab(): string | null {
+    return this.history[this.historyIdx].contentTab;
+  }
+
+  /**
+   * Sets the content tab of the currently active history point.
+   *
+   * @param val The new content tab.
+   */
+  public set contentTab(val : string | null) {
+    this.history[this.historyIdx].contentTab = val;
+  }
+
+  /**
+   * Adds a new history entry immediately after the current item and clears all forward history.
    * Also updates the current history index to point to the new entry.
    *
    * @param contentId - The content ID of the new entry.
    * @param tabType - The type of the new entry.
+   * @param contentTab - The current content tab (subtab) that was active.
    */
-  public addToHistory(contentId: string, tabType: WindowTabType) {
+  public addToHistory(contentId: string, tabType: WindowTabType, contentTab: string | null = null) {
     // if the history is empty other than a 'new tab', clear that out first
     if (this.history.length===1 && this.history[0].tabType===WindowTabType.NewTab) {
       this.history = [];
       this.historyIdx = -1;
     }
-    
+
     // delete all history after the current entry
     this.history = this.history.slice(0, this.historyIdx+1);
 
     this.history.push({
       contentId: contentId,
-      tabType: tabType
+      tabType: tabType,
+      contentTab: contentTab
     });
     this.historyIdx = this.history.length-1;
   }

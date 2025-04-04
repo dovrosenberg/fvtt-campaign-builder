@@ -88,7 +88,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const topicDirectoryStore = useTopicDirectoryStore();
-  const { currentContentTab, currentWorld } = storeToRefs(mainStore);
+  const { currentContentTab, currentWorld, currentTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -172,6 +172,13 @@
   watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
     if (newTab!==oldTab)
       tabs.value?.activate(newTab || 'description');    
+  });
+
+  watch(currentTab, () => {
+    if (!currentContentTab.value)
+        currentContentTab.value = 'description';
+
+      tabs.value?.activate(currentContentTab.value); 
   });
 
   ////////////////////////////////

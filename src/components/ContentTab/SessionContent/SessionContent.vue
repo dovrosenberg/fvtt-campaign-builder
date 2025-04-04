@@ -237,7 +237,7 @@
   // watchers
   watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
     if (newTab!==oldTab)
-      tabs.value?.activate(newTab || 'description');    
+      tabs.value?.activate(newTab || 'start');
   });
 
   let dateDebounceTimer: NodeJS.Timeout | undefined = undefined;
@@ -254,10 +254,11 @@
     }, debounceTime);
   });
 
-  watch(currentSession, async (newSession: Session | null, oldSession: Session | null): Promise<void> => {
-    // if we changed entries, reset the tab
-    if (newSession?.uuid!==oldSession?.uuid )
-      currentContentTab.value = 'description';
+  watch(currentSession, async (newSession: Session | null): Promise<void> => {
+    if (!currentContentTab.value)
+      currentContentTab.value = 'start';
+
+    tabs.value?.activate(currentContentTab.value); 
 
     if (newSession && newSession.uuid) {
       // load starting data values

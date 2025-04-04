@@ -16,10 +16,9 @@
     @dragover="onDragover"
     @drop="onDrop"
   />
-  <EntryPickerDialog
+  <AddRelatedItemDialog
     v-model="showLocationPicker"
     :topic="Topics.Location"
-    @item-picked="onAddLocationPicked"
   />
 </template>
 
@@ -39,8 +38,8 @@
 	import { DataTableRowSelectEvent } from 'primevue/datatable';
 
   // local components
-  import SessionTable from '@/components/DocumentTable/SessionTable.vue';
-  import EntryPickerDialog from '@/components/ContentTab/SessionContent/EntryPickerDialog.vue';
+  import SessionTable from '@/components/Tables/SessionTable.vue';
+  import AddRelatedItemDialog from '@/components/Tables/AddRelatedItemDialog.vue';
 
   // types
   
@@ -68,13 +67,9 @@
 
   ////////////////////////////////
   // event handlers
-  const onRowSelect = async function (event: DataTableRowSelectEvent) { 
+  const onRowSelect = async function (event: DataTableRowSelectEvent) {
     await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
-
-  const onAddLocationPicked = async (uuid: string) => {
-    await sessionStore.addLocation(uuid);  
-  }
 
   const onDeleteLocation = async (uuid: string) => {
     await sessionStore.deleteLocation(uuid);
