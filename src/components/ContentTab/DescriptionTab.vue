@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref } from 'vue';
+  import { ref, watch } from 'vue';
   
   // local imports
   
@@ -68,6 +68,11 @@
 
   ////////////////////////////////
   // watchers
+  watch(() => props.imageUrl, (newImageUrl) => {
+    if (newImageUrl) {
+      currentImageURL.value = newImageUrl || defaultImage ;
+    }
+  });
 
   ////////////////////////////////
   // lifecycle events
