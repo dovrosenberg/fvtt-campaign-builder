@@ -1,8 +1,8 @@
 <template>
-  <SessionTable 
+  <SessionTable
     :rows="relatedSceneRows"
-    :columns="sessionStore.extraFields[SessionTableTypes.Scene]"  
-    :delete-item-label="localize('tooltips.deleteScene')"   
+    :columns="sessionStore.extraFields[SessionTableTypes.Scene]"
+    :delete-item-label="localize('tooltips.deleteScene')"
     :allow-edit="false"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addScene')"
@@ -10,7 +10,7 @@
     @delete-item="onDeleteScene"
     @mark-item-delivered="onMarkSceneDelivered"
     @unmark-item-delivered="onUnmarkSceneDelivered"
-    @move-to-next-session="onMoveSceneToNext"        
+    @move-to-next-session="onMoveSceneToNext"
     @cell-edit-complete="onCellEditComplete"
   />
 </template>
@@ -27,10 +27,10 @@
   // library components
 	
   // local components
-  import SessionTable from '@/components/DocumentTable/SessionTable.vue';
-  import { DataTableCellEditCompleteEvent } from 'primevue';
+  import SessionTable from '@/components/Tables/SessionTable.vue';
 
   // types
+  import { DataTableCellEditCompleteEvent } from 'primevue';
   
   ////////////////////////////////
   // props

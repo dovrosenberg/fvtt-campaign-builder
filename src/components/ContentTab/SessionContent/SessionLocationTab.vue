@@ -39,7 +39,7 @@
 	import { DataTableRowSelectEvent } from 'primevue/datatable';
 
   // local components
-  import SessionTable from '@/components/DocumentTable/SessionTable.vue';
+  import SessionTable from '@/components/Tables/SessionTable.vue';
   import EntryPickerDialog from '@/components/ContentTab/SessionContent/EntryPickerDialog.vue';
 
   // types

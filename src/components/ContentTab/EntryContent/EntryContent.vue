@@ -168,8 +168,8 @@
 
   // local components
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
-  import RelatedItemTable from '@/components/ItemTable/RelatedItemTable.vue';
-  import RelatedDocumentTable from '@/components/DocumentTable/RelatedDocumentTable.vue';
+  import RelatedItemTable from '@/components/Tables/RelatedItemTable.vue';
+  import RelatedDocumentTable from '@/components/Tables/RelatedDocumentTable.vue';
   import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
   import Editor from '@/components/Editor.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
