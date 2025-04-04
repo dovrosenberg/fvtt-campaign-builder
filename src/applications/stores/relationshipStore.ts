@@ -54,7 +54,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentContentTab, currentDocumentTab } = storeToRefs(mainStore);
+  const { currentEntry, currentContentTab, currentDocumentType } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -388,7 +388,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
       if (topic !== Topics.None) {
         relatedItemRows.value = currentEntry.value.relationships ? Object.values(currentEntry.value.relationships[topic]) : [];
         relatedDocumentRows.value = [];
-      } else if (currentDocumentTab.value===DocumentLinkType.Scenes) {
+      } else if (currentDocumentType.value===DocumentLinkType.Scenes) {
         relatedItemRows.value = [];
 
         const sceneList = [] as RelatedDocumentDetails[];
@@ -402,7 +402,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
           });
         }
         relatedDocumentRows.value = sceneList;
-      } else if (currentDocumentTab.value===DocumentLinkType.Actors) {
+      } else if (currentDocumentType.value===DocumentLinkType.Actors) {
         relatedItemRows.value = [];
 
         const actorList = [] as RelatedDocumentDetails[];

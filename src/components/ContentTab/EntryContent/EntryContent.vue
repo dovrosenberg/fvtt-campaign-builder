@@ -503,13 +503,13 @@
     }
   });
   
-  watch(currentEntry, async (newEntry: Entry | null, oldEntry: Entry | null): Promise<void> => {
+  watch(currentEntry, async (): Promise<void> => {
     await refreshEntry();
 
-    // Only reset the tab if we're showing a completely different entry (different UUID)
-    // This prevents tab reset when the same entry is refreshed
-    // if (newEntry?.uuid !== oldEntry?.uuid && newEntry?.uuid !== undefined && oldEntry?.uuid !== undefined)
-    //   currentContentTab.value = 'description';
+    if (!currentContentTab.value)
+      currentContentTab.value = 'description';
+
+    tabs.value?.activate(currentContentTab.value); 
   });
 
   ////////////////////////////////

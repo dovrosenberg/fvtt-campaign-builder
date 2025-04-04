@@ -54,10 +54,8 @@ export const useMainStore = defineStore('main', () => {
   const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
   const currentPC = computed((): PC | null => (_currentPC?.value || null) as PC | null);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
+  const currentTab = computed((): WindowTab | null => _currentTab?.value);  
   const currentWorld = computed((): WBWorld | null => (_currentWorld?.value || null) as WBWorld | null);
-
-  // the currently selected tab for the content page
-  const currentContentTab = ref<string | null>(null);
 
   ///////////////////////////////
   // actions
@@ -90,11 +88,6 @@ export const useMainStore = defineStore('main', () => {
     _currentCampaign.value = null;
     _currentSession.value = null;
     _currentPC.value = null;
-
-    // Restore the content tab from history 
-    // if (tab.contentTab) {
-      currentContentTab.value = tab.contentTab;
-    // }
 
     switch (tab.tabType) {
       case WindowTabType.Entry:
@@ -228,7 +221,17 @@ export const useMainStore = defineStore('main', () => {
     return currentEntry.value.topic || Topics.None;
   });
 
-  const currentDocumentTab = computed((): DocumentLinkType => {
+  // the currently selected tab for the content page
+  const currentContentTab = computed({
+    get: (): string | null => _currentTab.value?.contentTab || null,
+    set: (newContentTab: string | null) => {
+        if (_currentTab.value) {
+          _currentTab.value.contentTab = newContentTab;
+        }
+      }
+  });
+
+  const currentDocumentType = computed((): DocumentLinkType => {
     if (!currentContentTab.value)
       return DocumentLinkType.None;
 
@@ -252,12 +255,6 @@ export const useMainStore = defineStore('main', () => {
     await ModuleSettings.set(SettingKey.isInPlayMode, newValue);
   });
 
-  // Update the current tab's contentTab property when currentContentTab changes
-  watch(currentContentTab, (newValue) => {
-    if (_currentTab.value && newValue) {
-      _currentTab.value.contentTab = newValue;
-    }
-  });
 
   ///////////////////////////////
   // lifecycle events
@@ -266,13 +263,14 @@ export const useMainStore = defineStore('main', () => {
   // return the public interface
   return {
     currentContentTab,
-    currentDocumentTab,
+    currentDocumentType,
     currentWorld,
     currentEntryTopic,
     currentEntry,
     currentCampaign,
     currentSession,
     currentPC,
+    currentTab,
     currentContentType,
     rootFolder,
     currentWorldCompendium,
