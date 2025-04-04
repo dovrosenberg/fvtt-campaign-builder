@@ -127,16 +127,15 @@
         </template>
         <template
           v-if="col.editable"
-          #body="{ data }"
+          #editor="{ data }"
         >
           <div  
             v-if="data.uuid===editingRow"
             @click.stop=""
           >
             <!-- we set the id so that we can pull the value when we change row -->
-             <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
-            <InputText 
-              unstyled
+            <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
+            <TextArea 
               :id="`${data.uuid}-${col.field}`" v-model="data[col.field]" autofocus fluid
             />
           </div>
@@ -165,7 +164,7 @@
   import Button from 'primevue/button';
   import DataTable, { DataTableCellEditCompleteEvent, DataTableRowContextMenuEvent, DataTableRowSelectEvent } from 'primevue/datatable';
   import Column from 'primevue/column';
-  import InputText from 'primevue/inputtext';
+  import Textarea from 'primevue/textarea';
 
   // local components
 
@@ -273,7 +272,7 @@
   }
 
   const onClickEditableCell = (uuid: string) => {
-    // if we were already editing a row, fire of a complete event
+    // if we were already editing a row, fire off a complete event
     if (editingRow.value) {
       // loop over all the inputs
       for (const col of props.columns) {
