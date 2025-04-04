@@ -4,14 +4,12 @@ import { definePreset } from '@primevue/themes';
 export default definePreset(Aura, {
   components: {
     datatable: {
-      header: {
+      headerBackground: 'inherit',
+      headerCellBackground: 'inherit',
+      headerCellColor: 'inherit',
+      headerCellSelected: {
         background: 'inherit',
-        cellBackground: 'inherit',
-        cellColor: 'inherit',
-        cellSelected: {
-          background: 'inherit',
-          color: '#5d142b',   //'var(--color-warm-3)', - can't seem to set it to a variable?
-        }
+        color: '#5d142b',   //'var(--color-warm-3)', - can't seem to set it to a variable?
       },
       row: {
         background: 'inherit',

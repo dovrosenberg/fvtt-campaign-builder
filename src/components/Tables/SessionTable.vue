@@ -127,7 +127,7 @@
         </template>
         <template
           v-if="col.editable"
-          #editor="{ data }"
+          #body="{ data }"
         >
           <div  
             v-if="data.uuid===editingRow"
@@ -135,8 +135,11 @@
           >
             <!-- we set the id so that we can pull the value when we change row -->
             <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
-            <TextArea 
-              :id="`${data.uuid}-${col.field}`" v-model="data[col.field]" autofocus fluid
+            <Textarea 
+              v-model="data[col.field]"
+              style="width: 100%"
+              :id="`${data.uuid}-${col.field}`" 
+              rows="2"
             />
           </div>
           <div 
