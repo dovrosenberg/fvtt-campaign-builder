@@ -6,6 +6,9 @@ export type * from './global.d.ts';
 export type * from './species.d.ts';
 export type * from './dialogs.d.ts';
 
+// @ts-ignore - need to pull enum
+export * from './generators.ts';
+
 // used to determine which component to display in the tab
 export enum WindowTabType  {
   NewTab,

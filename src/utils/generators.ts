@@ -1,0 +1,153 @@
+import { ModuleSettings, SettingKey } from '@/settings';
+import { localize } from '@/utils/game';
+
+import { GeneratorType, GeneratorConfig, } from '@/types';
+export const TABLE_SIZE = 10;  // number of items per table
+
+/**
+ * Initialize the roll tables for all generator types
+ * @param config Optional configuration for the number of entries per generator type
+ */
+export async function initializeRollTables(): Promise<void> {
+  // Get or create the folder for roll tables
+  const folderId = await getOrCreateRollTableFolder();
+  
+  // Get existing generator config or create a new one
+  const existingConfig = ModuleSettings.get(SettingKey.generatorConfig);
+  const generatorConfig: GeneratorConfig = existingConfig || {
+    folderId,
+    tableMapping: {} as Record<GeneratorType, string>
+  };
+  
+  // Ensure all generator types have a roll table
+  for (const type of Object.values(GeneratorType)) {
+    // Check if we already have a table for this type
+    if (generatorConfig.rollTables[type]) {
+      // Verify the table still exists
+      const table = await fromUuid(generatorConfig.rollTables[type]);
+      if (table) {
+        continue; // Table exists, skip to next type
+      }
+    }
+    
+    // Create a new table
+    const table = await createRollTable(type, folderId);
+    
+    // Store the table ID in the mapping
+    generatorConfig.rollTables[type] = table.uuid;
+  }
+  
+  // Save the generator config
+  await ModuleSettings.set(SettingKey.generatorConfig, generatorConfig);
+  
+  // Check if we should auto-refresh
+  const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
+  if (autoRefresh) {
+    await refreshAllRollTables();
+  }
+}
+/**
+ * Get or create the folder for campaign builder roll tables
+ * @returns The ID of the folder
+ */
+const getOrCreateRollTableFolder = async(): Promise<string> => {
+  // Check if we already have a folder ID stored
+  const config = ModuleSettings.get(SettingKey.generatorConfig);
+  if (config?.folderId) {
+    // Verify the folder still exists
+    const folder = game.folders?.get(config.folderId);
+    if (folder) {
+      return config.folderId;
+    }
+  }
+
+  // Create a new folder
+  const newFolder = await Folder.create({
+    name: localize('applications.rollTableSettings.folderName'),
+    type: 'RollTable',
+    parent: null
+  });
+
+  return newFolder.id;
+}
+
+/**
+ * Generate table results for a specific generator type
+ * @param type The generator type
+ * @param count The number of results to generate
+ * @returns An array of table results
+ */
+const generateTableResults = async (type: GeneratorType, count: number): string[] => {
+  const results: string[] = [];
+  
+  // TODO - replace with AI
+  const choices = ['item1', 'item2', 'item3'];
+
+  for (let i=0; i<count; i++) {
+    results.push(choices[i % choices.length]);
+  }
+  
+  return results;
+}
+
+/**
+ * Create a Foundry RollTable for a generator type and populate it
+ * @param type The generator type
+ * @param folderId The ID of the folder to create the table in
+ * @returns The created RollTable
+ */
+async function createRollTable(type: GeneratorType, folderId: string): Promise<RollTable> {
+  const tableName = `${type.charAt(0).toUpperCase() + type.slice(1)} Generator`;
+  
+  // Create the table
+  const table = await RollTable.create({
+    name: tableName,
+    folder: folderId,
+    description: `${localize('applications.rollTableSettings.tableDescription')}-${type}`,
+    formula: `1d${TABLE_SIZE}`,
+    replacement: false, // Don't replace drawn results
+    displayRoll: false, // Don't display the roll publicly
+  });
+  
+
+  await refreshRollTable(table);
+  
+  return table;
+}
+
+/** removes any "used" results and adds replacements for them; tops up to TABLE_SIZE */
+export const refreshRollTable = async (rollTable: RollTable) : Promise<void> => {
+  // delete all the drawn ones 
+  // this finds them - need to remove
+  const drawnResults = rollTable.results.filter(r => r.drawn).map(r => r.id);
+  await rollTable.deleteEmbeddedDocuments("TableResult", drawnResults);
+  
+  // get remaining count - if < TABLE_SIZE, need to make up the difference
+  const neededItems = TABLE_SIZE - rollTable.results.size;
+
+  if (neededItems > 0) {
+    // get all the new results 
+    const newResults = await generateTableResults(type, neededItems);
+
+    // add everything
+    await rollTable.createEmbeddedDocuments("TableResult", 
+      newResults.map(val => ({
+        type: CONST.TABLE_RESULT_TYPES.TEXT,
+        drawn: false,
+        text: val,
+        weight: 1,
+      }))
+    );
+  } 
+
+}
+
+export const refreshAllRollTables = async() : Promise<void> => {
+  const rollTables = ModuleSettings.get(SettingKey.rollTables);
+
+  for (const uuid in rollTables) {
+    const table = await fromUuid(uuid);
+    if (table)
+      await refreshRollTable(table as unknown as RollTable);
+  }
+}

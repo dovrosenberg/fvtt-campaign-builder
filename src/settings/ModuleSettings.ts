@@ -2,32 +2,41 @@ import { localize } from '@/utils/game';
 import { moduleId } from './index';
 import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSettingsApplication';
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
-import { Species } from '@/types';
+import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
+import { GeneratorConfig, Species } from '@/types';
 
 export enum SettingKey {
   // displayed in settings
   startCollapsed = 'startCollapsed',  // should the sidebar start collapsed when we open
+  autoRefreshRollTables = 'autoRefreshRollTables',  // should roll tables be automatically refreshed on load
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
+  rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu
   APIURL = 'APIURL',   // URL of backend
   APIToken = 'APIToken',
   speciesListMenu = 'speciesListMenu',  // display the species list screen
   speciesList = 'speciesList',
   isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
+  rollTables = 'rollTables',  // stores the roll tables for generators (legacy)
+  generatorConfig = 'generatorConfig',  // stores the configuration for Foundry RollTable generators
 }
 
 export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
+    K extends SettingKey.autoRefreshRollTables ? boolean :
     K extends SettingKey.rootFolderId ? string :
     K extends SettingKey.groupTreeByType ? boolean :
     K extends SettingKey.advancedSettingsMenu ? never :
+    K extends SettingKey.rollTableSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
     K extends SettingKey.speciesList ? Species[] :
     K extends SettingKey.isInPlayMode ? boolean :
+    K extends SettingKey.rollTables ? Record<string, any> :
+    K extends SettingKey.generatorConfig ? GeneratorConfig :
     never;
 
 export class ModuleSettings {
@@ -65,7 +74,7 @@ export class ModuleSettings {
       settingID: SettingKey.advancedSettingsMenu,
       name: 'settings.advanced',
       label: 'fcb.settings.advancedLabel',   // localized by Foundry
-      hint: 'settings.advancedHelp',   
+      hint: 'settings.advancedHelp',
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
       permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: AdvancedSettingsApplication,
@@ -74,16 +83,32 @@ export class ModuleSettings {
       settingID: SettingKey.speciesListMenu,
       name: 'settings.speciesList',
       label: 'fcb.settings.speciesListLabel',   // localized by Foundry
-      hint: 'settings.speciesListHelp',   
+      hint: 'settings.speciesListHelp',
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
       permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: SpeciesListApplication,
+    },
+    {
+      settingID: SettingKey.rollTableSettingsMenu,
+      name: 'settings.rollTableSettings',
+      label: 'fcb.settings.rollTableSettingsLabel',   // localized by Foundry
+      hint: 'settings.rollTableSettingsHelp',
+      icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
+      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
+      type: RollTableSettingsApplication,
     }
   ];
 
   // these are globals shown in the options
   // name and hint should be the id of a localization string
   private static displayParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
+    {
+      settingID: SettingKey.autoRefreshRollTables,
+      name: 'settings.autoRefreshRollTables',
+      hint: 'settings.autoRefreshRollTablesHelp',
+      default: false,
+      type: Boolean,
+    },
   ];
 
   // these are client-specific and displayed in settings
@@ -94,6 +119,11 @@ export class ModuleSettings {
       hint: 'settings.startCollapsedHelp',
       default: false,
       type: Boolean,
+    },
+    {
+      settingID: SettingKey.rollTables,
+      default: {},
+      type: Object,
     },
   ];
 
@@ -118,6 +148,16 @@ export class ModuleSettings {
       settingID: SettingKey.speciesList,
       default: [],
       type: Array,
+    },
+    {
+      settingID: SettingKey.rollTables,
+      default: {},
+      type: Object,
+    },
+    {
+      settingID: SettingKey.generatorConfig,
+      default: {},
+      type: Object,
     },
   ];
   

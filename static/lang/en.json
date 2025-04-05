@@ -5,6 +5,11 @@
     "settings": {
       "startCollapsed": "Sidebar starts collapsed?",
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
+      "autoRefreshRollTables": "Automatically refresh RollTables",
+      "autoRefreshRollTablesHelp": "When enabled, roll tables will be automatically refreshed when the module loads",
+      "rollTableSettings": "Roll Table Settings",
+      "rollTableSettingsLabel": "Roll Table Settings",
+      "rollTableSettingsHelp": "Configure settings for the random generators",
       "advanced": "Advanced Settings",
       "advancedLabel": "Open Advanced Settings",
       "advancedHelp": "Configure advanced settings (including AI)",
@@ -27,7 +32,22 @@
           "backendURL": "Backend URL",
           "backendURLHint": "Output from script to deploy the backend.",
           "APIToken": "API Token",
-          "APITokenHint": "Output from script to deploy the backend."  
+          "APITokenHint": "Output from script to deploy the backend."
+        }
+      },
+      "rollTableSettings": {
+        "title": "Configure Roll Table Settings",
+        "folderName": "Campaign Builder Roll Tables",
+        "tableDescription": "Generator table for {type}",
+        "labels": {
+          "refreshRollTablesNow": "Refresh Roll Tables Now",
+          "refreshRollTablesHelp": "Reset all roll tables to make all entries available again",
+          "tableStatistics": "Table Statistics",
+          "entriesUsed": "entries used",
+          "noTablesFound": "No roll tables found",
+          "regenerateTable": "Regenerate",
+          "regenerateAllTables": "Regenerate All Tables",
+          "regenerateAllTablesHelp": "Regenerate all tables with the specified number of entries"
         }
       }
     },

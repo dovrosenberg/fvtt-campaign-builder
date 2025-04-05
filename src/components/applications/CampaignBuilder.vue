@@ -51,6 +51,7 @@
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import WCBTheme from '@/applications/presetTheme';
+  import { initializeRollTables } from '@/utils/generators';
 
   // library components
   import Splitter from 'primevue/splitter';
@@ -295,6 +296,9 @@
 
       rootFolder.value = folders.rootFolder;
       mainStore.setNewWorld(folders.world.uuid);
+
+      // initialize roll tables
+      await initializeRollTables();
 
       // Add the prep/play toggle to the header
       // Use setTimeout to ensure the DOM is fully rendered
