@@ -13,16 +13,16 @@ export class AdvancedSettingsApplication extends VueApplicationMixin(Application
   constructor() { super(); advancedSettingsApp = this; }
 
   static DEFAULT_OPTIONS = {
-    id: `app-wcb-advanced-settings`,
-    classes: ['wcb-advanced-settings'], 
+    id: `app-fcb-advanced-settings`,
+    classes: ['fcb-advanced-settings'], 
     window: {
-      title: 'wcb.applications.advancedSettings.title',
+      title: 'fcb.applications.advancedSettings.title',
       icon: 'fa-solid fa-gear',
       resizable: false,
       // popOut: true,
       // editable: true,
       // //viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
-      // scrollY: ['ol.wcb-world-list']
+      // scrollY: ['ol.fcb-world-list']
     },
     position: {
       width: 600,
@@ -37,7 +37,7 @@ export class AdvancedSettingsApplication extends VueApplicationMixin(Application
 
   static PARTS = {
     app: {
-      id: 'wcb-advanced-settings-app',
+      id: 'fcb-advanced-settings-app',
       component: App,
       props: {},
       use: {
@@ -47,10 +47,10 @@ export class AdvancedSettingsApplication extends VueApplicationMixin(Application
             theme: { 
               preset: WCBTheme,
               options: {
-                // prefix: 'wcb-p',
+                // prefix: 'fcb-p',
                 // cssLayer: {
-                //   name: 'wcb-p',
-                //   order: 'wcb-p',
+                //   name: 'fcb-p',
+                //   order: 'fcb-p',
                 // },
                 //darkModeSelector: '.theme-dark'
               }

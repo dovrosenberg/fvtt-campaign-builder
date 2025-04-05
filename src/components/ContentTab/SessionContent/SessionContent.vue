@@ -1,12 +1,12 @@
 <template>
   <form>
-    <div ref="contentRef" class="wcb-sheet-container flexcol">
-      <header class="wcb-name-header flexrow">
+    <div ref="contentRef" class="fcb-sheet-container flexcol">
+      <header class="fcb-name-header flexrow">
         <i :class="`fas ${getTabTypeIcon(WindowTabType.Session)} sheet-icon`"></i>
         <InputText
           v-model="name"
-          for="wcb-input-name" 
-          class="wcb-input-name"
+          for="fcb-input-name" 
+          class="fcb-input-name"
           unstyled
           :placeholder="localize('placeholders.sessionName')"
           :pt="{
@@ -15,7 +15,7 @@
           @update:model-value="onNameUpdate"
         />
       </header>
-      <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
+      <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
         <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
         <a class="item" data-tab="scenes">{{ localize('labels.tabs.session.scenes') }}</a>
@@ -26,7 +26,7 @@
         <a class="item" data-tab="description">{{ localize('labels.tabs.session.notes') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
       </nav>
-      <div class="wcb-tab-body flexrow">
+      <div class="fcb-tab-body flexrow">
         <DescriptionTab
           :name="currentSession?.name || 'Session'"
           :image-url="currentSession?.img"
@@ -38,7 +38,7 @@
             />
             <InputText
               v-model="sessionNumber"
-              for="wcb-input-number" 
+              for="fcb-input-number" 
               unstyled
               :placeholder="localize('placeholders.sessionNumber')"
               :pt="{
@@ -276,7 +276,7 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.wcb-tab-body', initial: 'description', /*callback: null*/ });
+    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.fcb-tab-body', initial: 'description', /*callback: null*/ });
 
     // update the store when tab changes
     tabs.value.callback = () => {

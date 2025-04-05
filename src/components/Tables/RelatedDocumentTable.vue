@@ -124,7 +124,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'wcb',
+      customClass: 'fcb',
       x: mouseEvent.x,
       y: mouseEvent.y,
       zIndex: 300,

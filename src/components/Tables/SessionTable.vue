@@ -86,7 +86,7 @@
           #body="{ data }"
         >
           <a 
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="props.deleteItemLabel"
             @click.stop="emit('deleteItem', data.uuid)" 
           >
@@ -94,7 +94,7 @@
           </a>
           <a 
             v-if="props.allowEdit"
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="props.editItemLabel"
             @click.stop="emit('editItem', data.uuid)" 
           >
@@ -102,7 +102,7 @@
           </a>
           <a 
             v-if="!data.delivered  && !data.lockedToSessionId"
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="localize('tooltips.markAsDelivered')"
             @click.stop="emit('markItemDelivered', data.uuid)" 
           >
@@ -110,7 +110,7 @@
           </a>
           <a 
             v-if="data.delivered && !data.lockedToSessionId"
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="localize('tooltips.unmarkAsDelivered')"
             @click.stop="emit('unmarkItemDelivered', data.uuid)" 
           >
@@ -118,7 +118,7 @@
           </a>
           <a 
             v-if="!data.lockedToSessionId"
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="localize('tooltips.moveToNextSession')"
             @click.stop="emit('moveToNextSession', data.uuid)" 
           >
@@ -304,7 +304,7 @@
 </script>
 
 <style lang="scss" scoped>
-  .wcb-action-icon {
+  .fcb-action-icon {
     cursor: pointer;
     margin-right: 3px;
   }

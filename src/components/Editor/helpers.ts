@@ -76,7 +76,7 @@ const goodAnchor = <T extends AnyDocument>(doc: T, linkType: WindowTabType, hash
       hash,
       linkType: linkType.toString(),
     }, 
-    classes: ['wcb-content-link'],   // clicks on this class are handled 
+    classes: ['fcb-content-link'],   // clicks on this class are handled 
     icon: icon 
   });
 }
@@ -132,7 +132,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
           if (world.uuid !== worldId) {
             // we're in the wrong world
             return brokenAnchor(data);
-          } else {  // this is an wcb item for this world
+          } else {  // this is an fcb item for this world
             return goodAnchor(unknownItem, WindowTabType.Entry, hash, data.name, `fas ${getTopicIcon(entry.topic)}`); 
           }
         } else 
@@ -147,7 +147,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
         // handle the ones we don't care about
         if (world.uuid !== worldId) {
           return brokenAnchor(data);
-        } else {  // this is an wcb item for this world
+        } else {  // this is an fcb item for this world
           return goodAnchor(unknownItem, WindowTabType.PC, hash, data.name, `fas ${getTabTypeIcon(WindowTabType.PC)}`); 
         }
       }; break;
@@ -160,7 +160,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
         // handle the ones we don't care about
         if (world.uuid !== worldId) {
           return brokenAnchor(data);
-        } else {  // this is an wcb item for this world
+        } else {  // this is an fcb item for this world
           return goodAnchor(unknownItem, WindowTabType.Session, hash, data.name, `fas ${getTabTypeIcon(WindowTabType.Session)}`); 
         }
       }; break;
@@ -173,7 +173,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
       // handle the ones we don't care about
       if (world.uuid !== worldId) {
         return brokenAnchor(data);
-      } else {  // this is an wcb item for this world
+      } else {  // this is an fcb item for this world
         return goodAnchor(unknownItem, WindowTabType.World, hash, data.name, `fas ${getTabTypeIcon(WindowTabType.World)}`); 
       }
     } else if (unknownItem?.getFlag(moduleId, CampaignFlagKey.isCampaign)) {
@@ -183,7 +183,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
       // handle the ones we don't care about
       if (world.uuid !== worldId) {
         return brokenAnchor(data);
-      } else {  // this is an wcb item for this world
+      } else {  // this is an fcb item for this world
         return goodAnchor(unknownItem, WindowTabType.Campaign, hash, data.name, `fas ${getTabTypeIcon(WindowTabType.Campaign)}`); 
       }      
     } else

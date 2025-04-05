@@ -2,7 +2,7 @@
   <div
     :id="editorId"
     ref="wrapperRef"
-    class="wcb-editor"
+    class="fcb-editor"
     :style="wrapperStyle"
     @drop="onDrop"
     @dragover="onDragover"
@@ -366,7 +366,7 @@
       return;
 
     // we create a random ID so we can use multiple instances
-    editorId.value  = 'wcb-editor-' + foundry.utils.randomID();
+    editorId.value  = 'fcb-editor-' + foundry.utils.randomID();
 
     // initialize the editor
     if (!coreEditorRef.value)
@@ -385,10 +385,10 @@
 </script>
 
 <style lang="scss">
-  .wcb-editor {
+  .fcb-editor {
     height: 100%;
     flex: 1 !important;
-    border: 1px solid var(--wcb-button-border-color);
+    border: 1px solid var(--fcb-button-border-color);
     overflow-y: auto !important;
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.05);

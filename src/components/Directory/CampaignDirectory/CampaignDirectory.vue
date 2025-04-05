@@ -1,9 +1,9 @@
 <template>
   <!-- these are the campaigns -->
-  <ol class="wcb-campaign-list">
+  <ol class="fcb-campaign-list">
     <li 
       v-if="currentWorld" 
-      class="wcb-world-folder folder flexcol" 
+      class="fcb-world-folder folder flexcol" 
     >
       <header 
         class="folder-header flexrow"
@@ -76,7 +76,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'wcb',
+      customClass: 'fcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
@@ -105,14 +105,14 @@
 </script>
 
 <style lang="scss">
-  #wcb-directory {
+  #fcb-directory {
     .action-buttons {
       padding-left: 30px;
     }
 
     // the campaign list section
-    .wcb-directory-panel-wrapper {
-      .wcb-campaign-list {
+    .fcb-directory-panel-wrapper {
+      .fcb-campaign-list {
         padding: 0;
         flex-grow: 1;
         overflow: auto;
@@ -123,20 +123,20 @@
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  .wcb-directory-compendium {
-    .wcb-entry-item, .wcb-type-item {
+  .fcb-directory-compendium {
+    .fcb-entry-item, .fcb-type-item {
       position: relative;
       padding-left: 1em;
       cursor: pointer;
     }
 
     // bold the active one
-    .wcb-current-directory-entry {
+    .fcb-current-directory-entry {
       font-weight: bold;
       cursor: pointer;
     }
 
-    .wcb-directory-entry {
+    .fcb-directory-entry {
       cursor: pointer;
     }
 
@@ -180,7 +180,7 @@
       }
 
       // add the little open markers
-      div.summary .wcb-directory-expand-button {
+      div.summary .fcb-directory-expand-button {
         position: absolute;
         text-align: center;
         line-height: 0.80em;
@@ -195,7 +195,7 @@
         z-index: 1;
       }
 
-      div.summary.top .wcb-directory-expand-button {
+      div.summary.top .fcb-directory-expand-button {
         margin-left: 1em;
       }
 
@@ -222,7 +222,7 @@
     }
   }
 
-  ul.wcb-directory-tree > li:after, ul.wcb-directory-tree > li:before {
+  ul.fcb-directory-tree > li:after, ul.fcb-directory-tree > li:before {
     display:none;
   }
 }

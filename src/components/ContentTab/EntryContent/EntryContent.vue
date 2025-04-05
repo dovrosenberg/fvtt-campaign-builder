@@ -1,12 +1,12 @@
 <template>
   <form>
-    <div ref="contentRef" class="wcb-sheet-container flexcol">
-      <header class="wcb-name-header flexrow">
+    <div ref="contentRef" class="fcb-sheet-container flexcol">
+      <header class="fcb-name-header flexrow">
         <i :class="`fas ${icon} sheet-icon`"></i>
         <InputText
           v-model="name"
-          for="wcb-input-name"
-          class="wcb-input-name"
+          for="fcb-input-name"
+          class="fcb-input-name"
           unstyled
           :placeholder="namePlaceholder"
           :pt="{
@@ -16,7 +16,7 @@
         />
         <button
           v-if="canGenerate"
-          class="wcb-generate-button"
+          class="fcb-generate-button"
           @click="onGenerateButtonClick"
           :disabled="generateDisabled"
           :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` ${localize('tooltips.backendNotAvailable')}` : ''}`"
@@ -24,7 +24,7 @@
           <i class="fas fa-head-side-virus"></i>
         </button>
       </header>
-      <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
+      <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
         <a 
           v-for="relationship in relationships"
@@ -49,7 +49,7 @@
           {{ localize('labels.tabs.entry.scenes') }}
         </a>
       </nav>
-      <div class="wcb-tab-body flexrow">
+      <div class="fcb-tab-body flexrow">
         <DescriptionTab 
           :name="currentEntry?.name || 'Entry'"
           :image-url="currentEntry?.img"
@@ -320,7 +320,7 @@
     ];
 
     ContextMenu.showContextMenu({
-      customClass: 'wcb',
+      customClass: 'fcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
@@ -522,7 +522,7 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.wcb-tab-body', initial: 'description', /*callback: null*/ });
+    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.fcb-tab-body', initial: 'description', /*callback: null*/ });
 
     // update the store when tab changes
     tabs.value.callback = () => {

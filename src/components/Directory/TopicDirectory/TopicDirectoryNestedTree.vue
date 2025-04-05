@@ -1,5 +1,5 @@
 <template>
-  <ul class="wcb-directory-tree">
+  <ul class="fcb-directory-tree">
     <NodeComponent 
       v-for="node in sortedChildren"
       :key="node.id"
@@ -8,7 +8,7 @@
       :topic="props.topicNode.topicFolder.topic"
       :pack-id="props.topicNode.topicFolder.uuid"
       :top="true"
-      class="wcb-entry-item" 
+      class="fcb-entry-item" 
       draggable="true"
     />
   </ul>

@@ -2,7 +2,7 @@
   <!-- an entry node beneath a topic -- don't show children -->
   <li v-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
-      :class="`${props.node.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : 'wcb-directory-entry'}`"
+      :class="`${props.node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick"
@@ -88,7 +88,7 @@
     }
 
     // need to get the type and topic so we can compare when dropping
-    const topicElement = (event.currentTarget as HTMLElement).closest('.wcb-topic-folder') as HTMLElement | null;
+    const topicElement = (event.currentTarget as HTMLElement).closest('.fcb-topic-folder') as HTMLElement | null;
     if (!topicElement || !topicElement.dataset.topic) {
       event.preventDefault();
       return;
@@ -111,7 +111,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'wcb',
+      customClass: 'fcb',
       x: event.x,
       y: event.y,
       zIndex: 300,

@@ -97,7 +97,7 @@
           #body="{ data }"
         >
           <a 
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="props.deleteItemLabel"
             @click.stop="emit('deleteItem', data.uuid)" 
           >
@@ -105,7 +105,7 @@
           </a>
           <a 
             v-if="props.allowEdit"
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="props.editItemLabel"
             @click.stop="emit('editItem', data)" 
           >
@@ -248,7 +248,7 @@
 </script>
 
 <style lang="scss" scoped>
-  .wcb-action-icon {
+  .fcb-action-icon {
     cursor: pointer;
     margin-right: 3px;
   }

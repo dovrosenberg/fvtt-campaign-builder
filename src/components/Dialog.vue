@@ -1,16 +1,16 @@
 <template>
   <div
     v-if="show"
-    class="app window-app wcb-dialog themed theme-light"
+    class="app window-app fcb-dialog themed theme-light"
     ref="dialogRef"
     role="dialog"
     :style="style"
   >
     <header 
-      class="wcb-window-header window-header flexrow draggable"
+      class="fcb-window-header window-header flexrow draggable"
       @mousedown="onStartDrag"
     >
-      <div class="wcb-window-title">{{ title }}</div>
+      <div class="fcb-window-title">{{ title }}</div>
       <a 
         class="header-button control close"
         @click="() => { show = false; emit('cancel'); }"
@@ -20,16 +20,16 @@
       </a>
     </header>
     <section class="window-content">
-      <div class="wcb-dialog-content">
+      <div class="fcb-dialog-content">
         <slot />
       </div>
-      <div class="wcb-dialog-buttons">
+      <div class="fcb-dialog-buttons">
         <button
           v-for="(btn, key) in props.buttons"
           :key="key"
           type="button"
           :disabled="btn.disable"
-          :class="`wcb-dialog-button ${btn.default ? 'default' : ''}`"
+          :class="`fcb-dialog-button ${btn.default ? 'default' : ''}`"
           @click="onButtonClick(btn)"
         >
           <i v-if="btn.icon" :class="`fas ${btn.icon}`"></i>
@@ -158,7 +158,7 @@
 </script>
 
 <style lang="scss" scoped>
-  .wcb-dialog {
+  .fcb-dialog {
     position: fixed;
     top: 20%;
     left: 50%;
@@ -170,7 +170,7 @@
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     overflow: visible;
 
-    .wcb-window-header {
+    .fcb-window-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -201,7 +201,7 @@
         }
       }
 
-      .wcb-window-title {
+      .fcb-window-title {
         margin: 0;
         font-weight: 600;
       }
@@ -214,7 +214,7 @@
       gap: 16px;
       overflow: visible;
 
-      .wcb-dialog-content {
+      .fcb-dialog-content {
         font-size: var(--font-size-14);
         width: 100%;
         overflow: visible !important; // allow typeaheads to come out
@@ -224,7 +224,7 @@
         }
       }
 
-      .wcb-dialog-buttons {
+      .fcb-dialog-buttons {
         margin: 0;
         display: flex;
         justify-content: flex-end;
@@ -232,7 +232,7 @@
         padding-top: 10px;
         padding-bottom: 3px;
 
-        .wcb-dialog-button {
+        .fcb-dialog-button {
           display: flex;
           align-items: center;
           justify-content: center;

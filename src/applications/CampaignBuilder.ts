@@ -2,7 +2,7 @@ import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mj
 import PrimeVue from 'primevue/config';
 import WCBTheme from '@/applications/presetTheme';
 import { pinia } from '@/applications/stores';
-import App from '@/components/applications/WorldBuilder.vue';
+import App from '@/components/applications/CampaignBuilder.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -11,27 +11,27 @@ import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 // setup pinia
 
 // the global instance - needed for keybindings, among other things
-export let wbApp: WorldBuilderApplication | null = null;
+export let wbApp: CampaignBuilderApplication | null = null;
 
-export const getWorldBuilderApp = (): WorldBuilderApplication => {
+export const getCampaignBuilderApp = (): CampaignBuilderApplication => {
   if (wbApp)
     return wbApp;
 
-  return wbApp = new WorldBuilderApplication();
+  return wbApp = new CampaignBuilderApplication();
 };
 
-export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) {
+export class CampaignBuilderApplication extends VueApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
-    id: `app-wcb-WorldBuilder`,
-    classes: ['wcb-main-window'], 
+    id: `app-fcb-CampaignBuilder`,
+    classes: ['fcb-main-window'], 
     window: {
-      title: 'wcb.title',
+      title: 'fcb.title',
       icon: 'fa-solid fa-globe',
       resizable: true,
       // popOut: true,
       // editable: true,
       // //viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
-      // scrollY: ['ol.wcb-world-list']
+      // scrollY: ['ol.fcb-world-list']
     },
     position: {
       width: 1025,
@@ -51,7 +51,7 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
 
   static PARTS = {
     app: {
-      id: 'wcb-app',
+      id: 'fcb-app',
       component: App,
       props: {},
       use: {
@@ -67,10 +67,10 @@ export class WorldBuilderApplication extends VueApplicationMixin(ApplicationV2) 
             theme: { 
               preset: WCBTheme,
               options: {
-                // prefix: 'wcb-p',
+                // prefix: 'fcb-p',
                 // cssLayer: {
-                //   name: 'wcb-p',
-                //   order: 'wcb-p',
+                //   name: 'fcb-p',
+                //   order: 'fcb-p',
                 // },
                 //darkModeSelector: '.theme-dark'
               }

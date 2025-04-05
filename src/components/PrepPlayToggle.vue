@@ -15,7 +15,7 @@
       v-model="toggleValue"
       :disabled="!playableCampaignExists"
       :pt="{
-        root: { class: 'wcb-toggle-switch' }
+        root: { class: 'fcb-toggle-switch' }
       }"
       @change="onToggleChange"
     />
@@ -134,7 +134,7 @@
     }
   }
 
-  :deep(.wcb-toggle-switch) {
+  :deep(.fcb-toggle-switch) {
     .p-toggleswitch-slider {
       background-color: #ccc;
     }

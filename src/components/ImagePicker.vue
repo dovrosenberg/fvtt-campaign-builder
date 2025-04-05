@@ -1,6 +1,6 @@
 <template>
   <div
-    class="wcb-sheet-image"
+    class="fcb-sheet-image"
     @click="onImageClick"
     @contextmenu="onContextMenu"
     :title="isDefaultImage ? 'Click to select an image' : 'Click to view image (right-click for more options)'"
@@ -10,7 +10,7 @@
       :src="modelValue || props.defaultImage"
       @error="onImageError"
     >
-    <div v-if="!isDefaultImage" class="wcb-image-controls">
+    <div v-if="!isDefaultImage" class="fcb-image-controls">
       <i class="fas fa-search-plus" title="Click to view image"></i>
     </div>
   </div>
@@ -77,7 +77,7 @@
 
       // Show context menu using the Vue context menu component
       ContextMenu.showContextMenu({
-        customClass: 'wcb',
+        customClass: 'fcb',
         x: event.x,
         y: event.y,
         zIndex: 300,
@@ -143,14 +143,14 @@
 </script>
 
 <style lang="scss">
-  .wcb-sheet-image {
+  .fcb-sheet-image {
     flex: 0 0 180px;
     font-size: 13px;
     height: 240px;
     width: 180px;
     position: relative;
     border-radius: 5px;
-    border: 1px solid var(--wcb-icon-outline);
+    border: 1px solid var(--fcb-icon-outline);
     margin-right: 6px;
     overflow: hidden;
     cursor: pointer;
@@ -161,15 +161,15 @@
       object-fit: contain;
       max-width: 100%;
       border: 0px;
-      background: var(--wcb-icon-background);
-      -webkit-box-shadow: 0 0 10px var(--wcb-icon-shadow) inset;
-      box-shadow: 0 0 10px var(--wcb-icon-shadow) inset;
+      background: var(--fcb-icon-background);
+      -webkit-box-shadow: 0 0 10px var(--fcb-icon-shadow) inset;
+      box-shadow: 0 0 10px var(--fcb-icon-shadow) inset;
       background-repeat: no-repeat;
       background-position: center;
       background-size: contain;
     }
 
-    .wcb-image-controls {
+    .fcb-image-controls {
       position: absolute;
       bottom: 5px;
       right: 5px;

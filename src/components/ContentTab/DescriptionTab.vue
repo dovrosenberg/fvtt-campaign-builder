@@ -1,13 +1,13 @@
 <template>
   <div class="tab flexcol" data-group="primary" data-tab="description">
     <div class="tab-inner">
-      <div class="wcb-description-wrapper flexrow">
+      <div class="fcb-description-wrapper flexrow">
         <ImagePicker
           v-model="currentImageURL"
           :title="`Select Image for ${props.name || 'Entry'}`"
           @update:modelValue="emit('imageChange', $event)"
         />        
-        <div class="wcb-description-content flexcol">
+        <div class="fcb-description-content flexcol">
           <slot></slot>
         </div>
       </div>
@@ -80,17 +80,17 @@
 </script>
 
 <style lang="scss">
-  .wcb-description-wrapper {
+  .fcb-description-wrapper {
     font-size: var(--font-size-20);
     font-weight: 700;
-    font-family: var(--wcb-font-family);
+    font-family: var(--fcb-font-family);
     align-items: flex-start;
     align-self: flex-start;
     overflow-y: visible;
     width: 100%;
     height: 100%;
       
-    .wcb-description-content {
+    .fcb-description-content {
       height: 100%;
 
       .form-group {
@@ -98,24 +98,24 @@
       
         label {
           max-width: 175px;
-          color: var(--wcb-sheet-header-label-color);
+          color: var(--fcb-sheet-header-label-color);
           text-align: left;
           background: none;
           border: none;
         }
         input {
           font-size: var(--font-size-20);
-          color: var(--wcb-sheet-header-detail-input-color);
+          color: var(--fcb-sheet-header-detail-input-color);
         }
 
         select {
-          border: var(--wcb-sheet-header-input-border);
+          border: var(--fcb-sheet-header-input-border);
           font-size: inherit;
           font-family: inherit;
           height: calc(var(--font-size-20) + 6);
           margin: 0px;
-          color: var(--wcb-sheet-header-detail-input-color);
-          background: var(--wcb-sheet-header-input-background);
+          color: var(--fcb-sheet-header-detail-input-color);
+          background: var(--fcb-sheet-header-input-background);
 
           &:hover {
             box-shadow: 0 0 8px var(--color-shadow-primary);

@@ -1,10 +1,10 @@
 <template>
   <!-- these are the worlds -->
-  <ol class="wcb-world-list">
+  <ol class="fcb-world-list">
     <li
       v-for="world in currentWorldTree.value"
       :key="world.id"
-      :class="'wcb-world-folder folder flexcol ' + (currentWorld?.uuid===world.id ? '' : 'collapsed')"
+      :class="'fcb-world-folder folder flexcol ' + (currentWorld?.uuid===world.id ? '' : 'collapsed')"
       draggable="true"
       @dragstart="onWorldDragStart($event, world)"
     >
@@ -22,18 +22,18 @@
       <!-- These are the topic compendia -->
       <ol 
         v-if="currentWorld?.uuid===world.id"
-        class="wcb-world-contents"
+        class="fcb-world-contents"
       >
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
         <li 
           v-for="topicNode in world.topicNodes.sort((a, b) => (a.topicFolder.topic < b.topicFolder.topic ? -1 : 1))"
           :key="topicNode.topicFolder.topic"
-          :class="'wcb-topic-folder folder entry flexcol wcb-directory-compendium ' + (topicNode.expanded ? '' : 'collapsed')"
+          :class="'fcb-topic-folder folder entry flexcol fcb-directory-compendium ' + (topicNode.expanded ? '' : 'collapsed')"
           :data-topic="topicNode.topicFolder.topic" 
         >
           <header class="folder-header flexrow">
             <div 
-              class="wcb-compendium-label noborder" 
+              class="fcb-compendium-label noborder" 
               style="margin-bottom:0px"
               @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
               @contextmenu="onTopicContextMenu($event, world.id, topicNode.topicFolder as TopicFolder)"
@@ -172,7 +172,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'wcb',
+      customClass: 'fcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
@@ -220,7 +220,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'wcb',
+      customClass: 'fcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
@@ -303,21 +303,21 @@
 </script>
 
 <style lang="scss">
-  #wcb-directory {
+  #fcb-directory {
     .action-buttons {
       padding-left: 30px;
     }
   }
 
   // the world list section
-  .wcb-directory-panel-wrapper {
-    .wcb-world-list {
+  .fcb-directory-panel-wrapper {
+    .fcb-world-list {
       padding: 0;
       flex-grow: 1;
       overflow: auto;
       margin-top: 3px;
 
-      .wcb-world-folder {
+      .fcb-world-folder {
         align-items: flex-start;
         justify-content: flex-start;
 
@@ -327,7 +327,7 @@
       }
     }
 
-    .wcb-world-folder > .folder-header {
+    .fcb-world-folder > .folder-header {
       border-bottom: none;
       width: 100%;
       flex: 1;
@@ -335,31 +335,31 @@
     }
 
     // world folder styling
-    .wcb-world-folder:not(.collapsed) > .folder-header {
-      border-top: 1px solid var(--wcb-sidebar-world-border);
-      background: var(--wcb-sidebar-world-background);
-      color: var(--wcb-sidebar-world-color);
+    .fcb-world-folder:not(.collapsed) > .folder-header {
+      border-top: 1px solid var(--fcb-sidebar-world-border);
+      background: var(--fcb-sidebar-world-background);
+      color: var(--fcb-sidebar-world-color);
       text-shadow: none;
     }
 
-    .wcb-world-folder.collapsed > .folder-header {
+    .fcb-world-folder.collapsed > .folder-header {
       cursor: pointer;
-      border-top: 1px solid var(--wcb-sidebar-world-border-collapsed);
-      background: var(--wcb-sidebar-world-background-collapsed);
-      color: var(--wcb-sidebar-world-color-collapsed);
+      border-top: 1px solid var(--fcb-sidebar-world-border-collapsed);
+      background: var(--fcb-sidebar-world-background-collapsed);
+      color: var(--fcb-sidebar-world-color-collapsed);
       text-shadow: none;
     }
 
-    .wcb-world-folder .folder-header.context {
+    .fcb-world-folder .folder-header.context {
       border-top: 1px solid var(--mej-active-color);
       border-bottom: 1px solid var(--mej-active-color);
     }
 
     // topic folder styling
-    .wcb-topic-folder.collapsed > .folder-header, .wcb-topic-folder:not(.collapsed) > .folder-header {
+    .fcb-topic-folder.collapsed > .folder-header, .fcb-topic-folder:not(.collapsed) > .folder-header {
       background: inherit;  // override foundry default
       border: 0px;
-      color: var(--wcb-sidebar-world-color);
+      color: var(--fcb-sidebar-world-color);
       text-shadow: none;   // override foundry default
       cursor: pointer;
 
@@ -369,11 +369,11 @@
     }
 
     // change icon to closed when collapsed
-    .wcb-topic-folder.collapsed > .folder-header i.fa-folder-open:before {
+    .fcb-topic-folder.collapsed > .folder-header i.fa-folder-open:before {
       content: "\f07b";
     }
 
-    .wcb-world-contents {
+    .fcb-world-contents {
       margin: 0px;
       width: 100%;
       padding-left: 10px;
@@ -383,20 +383,20 @@
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  .wcb-directory-compendium {
-    .wcb-entry-item, .wcb-type-item {
+  .fcb-directory-compendium {
+    .fcb-entry-item, .fcb-type-item {
       position: relative;
       padding-left: 1em;
       cursor: pointer;
     }
 
     // bold the active one
-    .wcb-current-directory-entry {
+    .fcb-current-directory-entry {
       font-weight: bold;
       cursor: pointer;
     }
 
-    .wcb-directory-entry {
+    .fcb-directory-entry {
       cursor: pointer;
     }
 
@@ -440,7 +440,7 @@
       }
 
       // add the little open markers
-      div.summary .wcb-directory-expand-button {
+      div.summary .fcb-directory-expand-button {
         position: absolute;
         text-align: center;
         line-height: 0.80em;
@@ -455,7 +455,7 @@
         z-index: 1;
       }
 
-      div.summary.top .wcb-directory-expand-button {
+      div.summary.top .fcb-directory-expand-button {
         margin-left: 1em;
       }
 
@@ -482,7 +482,7 @@
     }
   }
 
-  ul.wcb-directory-tree > li:after, ul.wcb-directory-tree > li:before {
+  ul.fcb-directory-tree > li:after, ul.fcb-directory-tree > li:before {
     display:none;
   }
 

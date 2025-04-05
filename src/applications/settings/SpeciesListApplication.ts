@@ -13,16 +13,16 @@ export class SpeciesListApplication extends VueApplicationMixin(ApplicationV2) {
   constructor() { super(); speciesListApp = this;}
 
   static DEFAULT_OPTIONS = {
-    id: `app-wcb-species-list`,
-    classes: ['wcb-species-list'], 
+    id: `app-fcb-species-list`,
+    classes: ['fcb-species-list'], 
     window: {
-      title: 'wcb.applications.speciesList.title',
+      title: 'fcb.applications.speciesList.title',
       icon: 'fa-solid fa-person-half-dress',
       resizable: true,
       // popOut: true,
       // editable: true,
       // //viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
-      // scrollY: ['ol.wcb-world-list']
+      // scrollY: ['ol.fcb-world-list']
     },
     position: {
       width: 800,
@@ -41,7 +41,7 @@ export class SpeciesListApplication extends VueApplicationMixin(ApplicationV2) {
 
   static PARTS = {
     app: {
-      id: 'wcb-species-list-app',
+      id: 'fcb-species-list-app',
       component: App,
       props: {},
       use: {
@@ -51,10 +51,10 @@ export class SpeciesListApplication extends VueApplicationMixin(ApplicationV2) {
             theme: { 
               preset: WCBTheme,
               options: {
-                // prefix: 'wcb-p',
+                // prefix: 'fcb-p',
                 // cssLayer: {
-                //   name: 'wcb-p',
-                //   order: 'wcb-p',
+                //   name: 'fcb-p',
+                //   order: 'fcb-p',
                 // },
                 //darkModeSelector: '.theme-dark'
               }

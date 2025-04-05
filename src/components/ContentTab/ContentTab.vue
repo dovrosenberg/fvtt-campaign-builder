@@ -1,41 +1,41 @@
 <template>
   <div 
     ref="contentRef"
-    class="sheet wcb-journal-sheet"
+    class="sheet fcb-journal-sheet"
   >      
     <div 
       v-if="currentContentType===WindowTabType.Entry"
-      class="wcb-content-wrapper"
+      class="fcb-content-wrapper"
     >
       <EntryContent />
     </div>
     <div 
       v-else-if="currentContentType===WindowTabType.World"
-      class="wcb-content-wrapper"
+      class="fcb-content-wrapper"
     >
       <WorldContent />
     </div>
     <div 
       v-else-if="currentContentType===WindowTabType.Session"
-      class="wcb-content-wrapper"
+      class="fcb-content-wrapper"
     >
       <SessionContent />
     </div>
     <div 
       v-else-if="currentContentType===WindowTabType.Campaign"
-      class="wcb-content-wrapper"
+      class="fcb-content-wrapper"
     >
       <CampaignContent />
     </div>
     <div 
       v-else-if="currentContentType===WindowTabType.PC"
-      class="wcb-content-wrapper"
+      class="fcb-content-wrapper"
     >
       <PCContent />
     </div>
     <div 
       v-else-if="currentContentType===WindowTabType.NewTab"
-      class="wcb-content-wrapper"
+      class="fcb-content-wrapper"
     >
       <HomePage />
     </div>
@@ -91,7 +91,7 @@
 </script>
 
 <style lang="scss">
-  .wcb-journal-sheet {
+  .fcb-journal-sheet {
     &.sheet {
       height: 100%;
     }
@@ -106,15 +106,15 @@
         height: 100%;
       }
     
-      .wcb-sheet-container {
+      .fcb-sheet-container {
         height: 100%;
         width: 100%;
         overflow: hidden;
-        color: var(--wcb-sheet-color);
+        color: var(--fcb-sheet-color);
         padding: 4px;
       }
       
-      .wcb-sheet-container #context-menu {
+      .fcb-sheet-container #context-menu {
         font-family: var(--font-primary);
       }
       
@@ -122,17 +122,17 @@
         z-index: 100;
       }
 
-      .wcb-name-header {
+      .fcb-name-header {
         font-size: var(--font-size-20);
         font-weight: 700;
-        font-family: var(--wcb-font-family);
+        font-family: var(--fcb-font-family);
         align-items: center;
         overflow-y: visible;
         margin-bottom: 4px;
         
-        .wcb-input-name {
-          background: var(--wcb-sheet-header-name-background);
-          color: var(--wcb-sheet-header-name-color);
+        .fcb-input-name {
+          background: var(--fcb-sheet-header-name-background);
+          color: var(--fcb-sheet-header-name-color);
           margin-left: 3px;
           margin-right: 8px;
           font-size: 32px;
@@ -157,8 +157,8 @@
           padding: 0px 3px;
           cursor: pointer;
           box-shadow: none;
-          color: var(--wcb-sheet-header-button-color);
-          background: var(--wcb-sheet-header-button-background);
+          color: var(--fcb-sheet-header-button-color);
+          background: var(--fcb-sheet-header-button-background);
           border: 1px solid var(--button-border-color);
           border-radius: 4px;
           display: flex;
@@ -185,20 +185,20 @@
         .sheet-icon {
         line-height: 35px;
         margin-top: 0px;
-        color: var(--wcb-sheet-header-icon-color);
+        color: var(--fcb-sheet-header-icon-color);
         flex: 0 0 20px;
         font-size: 20px;
         }
       }
 
       // Nav
-      .wcb-sheet-navigation {
+      .fcb-sheet-navigation {
         flex-grow: 0;
         flex: 0 0 30px !important;
-        background: var(--wcb-sheet-tab-background);
+        background: var(--fcb-sheet-tab-background);
         padding: 0px 4px 5px 4px;
-        border-bottom: 2px groove var(--wcb-sheet-tab-bottom-border);
-        font-family: var(--wcb-font-family);
+        border-bottom: 2px groove var(--fcb-sheet-tab-bottom-border);
+        font-family: var(--fcb-font-family);
         font-size: 18px;
         font-weight: 700;
 
@@ -211,8 +211,8 @@
             height: 30px !important;
             line-height: 32px;
             margin: 0 12px;
-            border-bottom: var(--wcb-sheet-tab-border);
-            color: var(--wcb-sheet-tab-color);
+            border-bottom: var(--fcb-sheet-tab-border);
+            color: var(--fcb-sheet-tab-color);
             max-width: 150px;
 
             &.first-child {
@@ -221,16 +221,16 @@
           }
 
           .item:hover {
-            color: var(--wcb-sheet-tab-color-hover);
+            color: var(--fcb-sheet-tab-color-hover);
           }
 
           .item.hasitems {
-            border-bottom-color: var(--wcb-sheet-tab-border-items);
+            border-bottom-color: var(--fcb-sheet-tab-border-items);
           }
 
           .item.active {
-            border-bottom-color: var(--wcb-sheet-tab-border-active);
-            color: var(--wcb-sheet-tab-color-active);
+            border-bottom-color: var(--fcb-sheet-tab-border-active);
+            color: var(--fcb-sheet-tab-color-active);
           }
 
           .tab {
@@ -245,7 +245,7 @@
       }
 
       // the tab content
-      .wcb-tab-body {
+      .fcb-tab-body {
         flex: 1;
         padding: 4px;
 
@@ -254,7 +254,7 @@
         }
       }
 
-      .wcb-sheet-container a[disabled] {
+      .fcb-sheet-container a[disabled] {
         pointer-events: none;
       }
 
@@ -262,39 +262,39 @@
       .page-controls {
         flex-grow: 0;
         padding-top: 1px;
-        border-bottom: 2px groove var(--wcb-sheet-details-section-border);
+        border-bottom: 2px groove var(--fcb-sheet-details-section-border);
 
         button {
           flex: 0 0 130px;
-          background: var(--wcb-sheet-page-control-background);
-          color: var(--wcb-sheet-page-control-color);
+          background: var(--fcb-sheet-page-control-background);
+          color: var(--fcb-sheet-page-control-color);
         }
 
         button:hover {
-          background: var(--wcb-sheet-page-control-background-hover);
+          background: var(--fcb-sheet-page-control-background-hover);
         }
 
-        button.wcb-header-control {
+        button.fcb-header-control {
           flex: 0 0 30px;
         }
       }
 
       /* Body */
-      .wcb-sheet-container .wcb-tab-body {
+      .fcb-sheet-container .fcb-tab-body {
         height: 100%;
         overflow: hidden;
         position: relative;
       }
 
       /* Tabs */
-      &.sheet .wcb-tab-body .tab {
+      &.sheet .fcb-tab-body .tab {
         height: 100% !important;
         overflow-y: auto !important;
         align-content: flex-start;
         flex: 1;
       }
 
-      &.sheet .wcb-tab-body .tab .tab-inner {
+      &.sheet .fcb-tab-body .tab .tab-inner {
         height: 100%;
         overflow-y: auto !important;
         align-content: flex-start;
@@ -336,7 +336,7 @@
       }
     }
 
-    .wcb-content-wrapper {
+    .fcb-content-wrapper {
       height: 100%;
     } 
   }
