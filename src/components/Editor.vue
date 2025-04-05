@@ -46,7 +46,7 @@
   // local imports
   import { enrichFwbHTML } from './Editor/helpers';
   import { useMainStore } from '@/applications/stores';
-  import { Entry } from '@/classes';
+  import { Campaign, Entry, Session, WBWorld } from '@/classes';
   import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
@@ -271,35 +271,66 @@
     let entryName: string | null = null;
 
     // Handle different data structures from various drag sources
-    if (data.id) {
-      // From TopicDirectoryGroupedNode
-      entryUuid = data.id;
-    } else if (data.childId) {
+    if (data.entryNode) {
       // From TopicDirectoryNodeWithChildren or TopicDirectoryNode
       entryUuid = data.childId;
-    } else if (data.topic !== undefined && data.typeName && data.id) {
-      // Another format from directory
+      entryName = data.name;
+    } else if (data.campaignNode) {
+      // From DirectoryCampaignNode
+      entryUuid = data.campaignId;
+      entryName = data.name;
+    } else if (data.worldNode) {
+      // From TopicDirectory world
+      entryUuid = data.worldId;
+      entryName = data.name;
+    } else if (data.sessionNode) {
+      // From SessionDirectoryNode
       entryUuid = data.id;
+      entryName = data.name;
+    } else {
+      return;  // nothing we can handle
     }
 
     // If we found a valid UUID, create and insert the link
     if (entryUuid) {
-      // Try to get the entry name if not provided
+      // We should already have the name from the drag data, but if not, try to get it
       if (!entryName) {
         try {
-          const entry = await Entry.fromUuid(entryUuid);
-          if (entry) {
-            entryName = entry.name;
+          // Try to get the name based on the type of entity
+          if (data.campaignNode) {
+            // It's a campaign
+            const campaign = await Campaign.fromUuid(entryUuid);
+            if (campaign) {
+              entryName = campaign.name;
+            }
+          } else if (data.sessionNode) {
+            // It's a session
+            const session = await Session.fromUuid(entryUuid);
+            if (session) {
+              entryName = session.name;
+            }
+          } else if (data.worldNode) {
+            // It's a world
+            const world = await WBWorld.fromUuid(entryUuid);
+            if (world) {
+              entryName = world.name;
+            }
+          } else {
+            // Try as a regular entry
+            const entry = await Entry.fromUuid(entryUuid);
+            if (entry) {
+              entryName = entry.name;
+            }
           }
         } catch (e) {
           // If we can't get the name, use a generic one
-          entryName = 'Link to entry';
+          entryName = 'Link to ???';
         }
       }
 
       // Fallback if name is still not available
       if (!entryName) {
-        entryName = 'Link to entry';
+        entryName = 'Link to ???';
       }
 
       // Create a UUID link in the format @UUID[entryUuid]{entryName}
@@ -312,10 +343,8 @@
         const { state, dispatch } = view;
         const tr = state.tr.insertText(linkText);
         dispatch(tr);
-      } else if (props.engine === 'tinymce') {
-        // For TinyMCE
-        // @ts-ignore - editor is a tinymce.Editor
-        editor.value.insertContent(linkText);
+      } else {
+        throw new Error("Unsupported engine in Editor.onDrop");
       }
     }
   };

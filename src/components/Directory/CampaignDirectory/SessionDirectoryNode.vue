@@ -1,12 +1,13 @@
 <template>
   <li>
-    <div 
+    <div
       :class="`${props.sessionNode.id===currentSession?.uuid ? 'wcb-current-directory-entry' : 'wcb-directory-entry'}`"
       style="pointer-events: auto;"
       draggable="true"
       :data-tooltip="props.sessionNode.tooltip"
       @click="onSessionClick"
       @contextmenu="onSessionContextMenu"
+      @dragstart="onDragStart"
     >
       {{ props.sessionNode.name }}
     </div>
@@ -67,10 +68,24 @@
 
   ////////////////////////////////
   // event handlers
+
+  // handle session dragging
+  const onDragStart = (event: DragEvent): void => {
+    event.stopPropagation();
+
+    const dragData = {
+      sessionNode: true,
+      id: props.sessionNode.id,
+      name: props.sessionNode.name
+    };
+
+    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+  };
+
   const onSessionClick = async (event: MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
-    
+
     await navigationStore.openSession(props.sessionNode.id, {newTab: event.ctrlKey});
   };
 

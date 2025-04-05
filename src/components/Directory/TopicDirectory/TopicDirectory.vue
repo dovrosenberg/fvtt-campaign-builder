@@ -1,12 +1,14 @@
 <template>
   <!-- these are the worlds -->
   <ol class="wcb-world-list">
-    <li 
+    <li
       v-for="world in currentWorldTree.value"
       :key="world.id"
-      :class="'wcb-world-folder folder flexcol ' + (currentWorld?.uuid===world.id ? '' : 'collapsed')" 
+      :class="'wcb-world-folder folder flexcol ' + (currentWorld?.uuid===world.id ? '' : 'collapsed')"
+      draggable="true"
+      @dragstart="onWorldDragStart($event, world)"
     >
-      <header 
+      <header
         class="folder-header flexrow"
         @contextmenu="onWorldContextMenu($event, world.id)"
         @click="onWorldFolderClick($event, world.id)"
@@ -85,7 +87,7 @@
 
   // types
   import { GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, Topics, ValidTopic, WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, Entry,  } from '@/classes';
+  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, Entry, DirectoryWorld } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -116,6 +118,23 @@
 
   ////////////////////////////////
   // event handlers
+
+  /**
+   * Handles dragging a world folder.
+   * @param event The drag event
+   * @param world The world object being dragged
+   */
+  const onWorldDragStart = (event: DragEvent, world: DirectoryWorld): void => {
+    event.stopPropagation();
+
+    const dragData = {
+      worldNode: true,
+      worldId: world.id,
+      name: world.name
+    };
+
+    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+  };
 
   /**
    * Handles clicking on a world folder to activate it and navigate to it.

@@ -80,6 +80,8 @@
   };
 
   const onDragStart = (event: DragEvent): void => {
+    event.stopPropagation();
+    
     if (!currentWorld.value) { 
       event.preventDefault();
       return;
@@ -93,10 +95,11 @@
     }
 
     const dragData = { 
+      typeNode: true,
       topic: toTopic(topicElement.dataset.topic),
-      typeName: props.typeName,
+      name: props.typeName,
       id: props.node.id,
-    } as { topic: ValidTopic; typeName: string; id: string};
+    } as { typeNode: true, topic: ValidTopic; name: string; id: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };

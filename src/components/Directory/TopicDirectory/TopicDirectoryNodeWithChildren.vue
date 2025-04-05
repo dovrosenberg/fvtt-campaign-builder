@@ -15,7 +15,7 @@
           :class="`${currentNode.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : 'wcb-directory-entry'}`"
           draggable="true"
           @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"
-          @dragstart="onDragStart($event, currentNode.id)"
+          @dragstart="onDragStart($event, currentNode.id, currentNode.name)"
           @drop="onDrop"
           @dragover="onDragover"
           @contextmenu="onEntryContextMenu"
@@ -135,16 +135,20 @@
 
   
   // handle an entry dragging to another to nest
-  const onDragStart = (event: DragEvent, id: string): void => {
+  const onDragStart = (event: DragEvent, id: string, name: string): void => {
+    event.stopPropagation();
+    
     if (!currentWorld.value) { 
       event.preventDefault();
       return;
     }
 
     const dragData = { 
-      topic:  props.topic,
+      entryNode: true,
+      topic: props.topic,
+      name: name,
       childId: id,
-    } as { topic: ValidTopic; childId: string};
+    } as { topic: ValidTopic; name: string; childId: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };

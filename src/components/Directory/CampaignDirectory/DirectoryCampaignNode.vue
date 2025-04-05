@@ -1,16 +1,18 @@
 <template>
-  <li 
-    :class="'wcb-campaign-folder folder entry flexcol wcb-directory-compendium ' + (props.campaignNode.expanded ? '' : 'collapsed')" 
+  <li
+    :class="'wcb-campaign-folder folder entry flexcol wcb-directory-compendium ' + (props.campaignNode.expanded ? '' : 'collapsed')"
     :data-campaign="props.campaignNode.id"
+    draggable="true"
+    @dragstart="onDragStart"
   >
     <header class="folder-header flexrow">
-      <div 
-        class="wcb-compendium-label noborder" 
+      <div
+        class="wcb-compendium-label noborder"
         style="margin-bottom:0px"
         @contextmenu="onCampaignContextMenu"
       >
-        <i 
-          class="fas fa-folder-open fa-fw" 
+        <i
+          class="fas fa-folder-open fa-fw"
           style="margin-right: 4px;"
           @click="onCampaignFolderClick"
         ></i>
@@ -91,6 +93,19 @@
 
   ////////////////////////////////
   // event handlers
+
+  // handle campaign dragging
+  const onDragStart = (event: DragEvent): void => {
+    event.stopPropagation();
+
+    const dragData = {
+      campaignNode: true,
+      campaignId: props.campaignNode.id,
+      name: props.campaignNode.name
+    };
+
+    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+  };
 
   // change campaign
   const onCampaignFolderClick = async (_event: MouseEvent) => {
