@@ -1,17 +1,18 @@
 <template>
-  <SessionTable 
+  <SessionTable
     :rows="relatedItemRows"
-    :columns="sessionStore.extraFields[SessionTableTypes.Item]"  
-    :delete-item-label="localize('tooltips.deleteItem')"   
+    :columns="sessionStore.extraFields[SessionTableTypes.Item]"
+    :delete-item-label="localize('tooltips.deleteItem')"
     :allow-edit="false"
     :show-add-button="false"
-    @row-select="onRowSelect($event.data.uuid)"  
+    @row-select="onRowSelect($event.data.uuid)"
     @drop="onDrop"
     @dragover="onDragover"
     @delete-item="onDeleteItem"
     @mark-item-delivered="onMarkItemDelivered"
     @unmark-item-delivered="onUnmarkItemDelivered"
-    @move-to-next-session="onMoveItemToNext"        
+    @move-to-next-session="onMoveItemToNext"
+    @dragstart="onDragStart"
   />
 </template>
 
@@ -21,8 +22,8 @@
 
   // local imports
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
-  import { localize } from '@/utils/game'
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { localize, } from '@/utils/game'
+  import { getValidatedData, itemDragStart } from '@/utils/dragdrop';
 
   // library components
 	
@@ -96,13 +97,17 @@
     await sessionStore.moveItemToNext(uuid);
   }
 
+  const onDragStart = async (event: DragEvent, uuid: string) => {
+    await itemDragStart(event, uuid);
+  }
+
   ////////////////////////////////
   // watchers
-  
+
 
   ////////////////////////////////
   // lifecycle events
-  
+
 
 </script>
 

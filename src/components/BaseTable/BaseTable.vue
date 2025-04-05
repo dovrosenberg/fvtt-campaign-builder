@@ -112,6 +112,18 @@
             <i class="fas fa-pen"></i>
           </a>
         </template>
+        <template
+          v-else
+          #body="{ data }"
+        >
+          <div 
+            @dragstart="onRowDragStart($event, data.uuid)"
+            draggable="true"
+            style="cursor: grab;"
+          >
+            {{ data[col.field] }}
+          </div>
+        </template>
 
         <!-- template to add the filter headers fof name/type/role columns -->
         <!-- <template 
@@ -201,7 +213,14 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['rowSelect', 'editItem', 'deleteItem', 'addItem', 'rowContextMenu']);
+  const emit = defineEmits<{
+    (e: 'rowSelect', originalEvent: DataTableRowSelectEvent): void;
+    (e: 'editItem', uuid: string): void;
+    (e: 'deleteItem', uuid: string): void;
+    (e: 'addItem'): void;
+    (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
+    (e: 'dragstart', event: DragEvent, uuid: string): void;
+  }>();
 
   ////////////////////////////////
   // store
@@ -236,6 +255,13 @@
 
   ////////////////////////////////
   // event handlers
+  const onRowDragStart = (event: DragEvent, uuid: string) => {
+    if (!event.target || !uuid) return;
+
+    // Emit the dragstart event with the uuid
+    // This lets the parent component handle the drag data
+    emit('dragstart', event, uuid);
+  }
 
   ////////////////////////////////
   // watchers

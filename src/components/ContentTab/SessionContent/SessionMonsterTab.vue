@@ -1,18 +1,19 @@
 <template>
-  <SessionTable 
+  <SessionTable
     :rows="relatedMonsterRows"
-    :columns="sessionStore.extraFields[SessionTableTypes.Monster]"  
-    :delete-item-label="localize('tooltips.deleteMonster')"   
+    :columns="sessionStore.extraFields[SessionTableTypes.Monster]"
+    :delete-item-label="localize('tooltips.deleteMonster')"
     :allow-edit="false"
     :show-add-button="false"
-    @row-select="onRowSelect($event.data.uuid)"  
+    @row-select="onRowSelect($event.data.uuid)"
     @drop="onDrop"
     @dragover="onDragover"
     @delete-item="onDeleteMonster"
     @mark-item-delivered="onMarkMonsterDelivered"
     @unmark-item-delivered="onUnmarkMonsterDelivered"
-    @move-to-next-session="onMoveMonsterToNext"        
+    @move-to-next-session="onMoveMonsterToNext"
     @cell-edit-complete="onCellEditComplete"
+    @dragstart="onDragStart"
   />
 </template>
 
@@ -25,7 +26,7 @@
   // local imports
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getValidatedData, actorDragStart } from '@/utils/dragdrop';
 
   // library components
 	
@@ -119,13 +120,17 @@
     await sessionStore.moveMonsterToNext(uuid);
   }
 
+  const onDragStart = async (event: DragEvent, uuid: string) => {
+    await actorDragStart(event, uuid);
+  }
+
   ////////////////////////////////
   // watchers
-  
+
 
   ////////////////////////////////
   // lifecycle events
-  
+
 
 </script>
 

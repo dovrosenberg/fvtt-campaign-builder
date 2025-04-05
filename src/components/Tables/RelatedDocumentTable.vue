@@ -14,6 +14,7 @@
     @row-context-menu="onRowContextMenu"
     @drop="onDrop"
     @dragover="onDragover"
+    @dragstart="onDragStart"
   />
 </template>
 
@@ -26,7 +27,7 @@
   // local imports
   import { useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { getValidatedData } from '@/utils/dragdrop';
+  import { getValidatedData, actorDragStart, itemDragStart } from '@/utils/dragdrop';
 
   // library components
   import { DataTableRowContextMenuEvent } from 'primevue/datatable';
@@ -233,7 +234,18 @@
       await relationshipStore.addActor(data.uuid);
     }
   };
-  
+
+  const onDragStart = async (event: DragEvent, uuid: string) => {
+    switch (props.documentLinkType) {
+      case DocumentLinkType.Actors:
+        return await actorDragStart(event, uuid);
+      case DocumentLinkType.Items:
+        return await itemDragStart(event, uuid);
+    }
+
+    return;    
+  }
+
   ////////////////////////////////
   // watchers
   // reload when topic changes
