@@ -35,7 +35,7 @@
         />
         <div class="extra-fields-container" v-if="extraFields.length > 0">
           <h3 class="extra-fields-title">Additional Information</h3>
-          <div class="extra-fields-grid">
+          <div class="extra-fields-group">
             <div
               v-for="field in extraFields"
               :key="field.field"
@@ -343,21 +343,15 @@
 
   .extra-fields-container {
     width: 100%;
+    margin-top: 20px;
 
     .extra-fields-title {
       font-size: var(--font-size-16);
       font-weight: 600;
       margin-bottom: 0.75rem;
-      color: var(--color-text-dark-highlight);
-      border-bottom: 1px solid var(--color-border-light, rgba(255, 255, 255, 0.1));
-      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--color-underline-header, rgba(255, 255, 255, 0.1));
+      padding-bottom: 0.25rem;
       width: 80%;
-    }
-
-    .extra-fields-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
     }
   }
 }
