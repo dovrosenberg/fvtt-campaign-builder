@@ -8,6 +8,7 @@
     :allowEdit="true"
     :edit-item-label="localize('tooltips.editRelationship')"
     :delete-item-label="localize('tooltips.deleteRelationship')"
+    :draggable-rows="[DocumentLinkType.Actors, DocumentLinkType.Items].includes(props.documentLinkType)"
 
     @delete-item="onDeleteItemClick"
     @row-select="onRowSelect"

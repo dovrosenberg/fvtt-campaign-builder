@@ -5,6 +5,7 @@
     :delete-item-label="localize('tooltips.deleteItem')"
     :allow-edit="false"
     :show-add-button="false"
+    :draggable-rows="true"
     @row-select="onRowSelect($event.data.uuid)"
     @drop="onDrop"
     @dragover="onDragover"

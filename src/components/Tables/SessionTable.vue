@@ -143,24 +143,24 @@
             />
           </div>
           <div 
-            v-else
+            v-if="data.uuid!==editingRow"
             @click.stop="onClickEditableCell(data.uuid)"
             @dragstart="onRowDragStart($event, data.uuid)"
-            draggable="true"
-            style="cursor: grab;"
+            :draggable="props.draggableRows"
+            :style="props.draggableRows ? `cursor: grab;` : ''"
           >
             <!-- we're not editing this row, but need to put a click event on columns that are editable -->
             {{ data[col.field] }} &nbsp;
           </div>
         </template>
         <template
-          v-else
+          v-if="!col.editable && col.field!=='actions'"
           #body="{ data }"
         >
           <div 
             @dragstart="onRowDragStart($event, data.uuid)"
-            draggable="true"
-            style="cursor: grab;"
+            :draggable="props.draggableRows"
+            :style="props.draggableRows ? `cursor: grab;` : ''"
           >
             {{ data[col.field] }}
           </div>
@@ -227,6 +227,11 @@
     },
     showMoveToCampaign: {
       type: Boolean,
+      default: false,
+    },
+    draggableRows: {
+      type: Boolean,
+      required: false,
       default: false,
     },
   });
