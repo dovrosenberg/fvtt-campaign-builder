@@ -35,6 +35,16 @@
       "worldGenre": "ex. \"Fantasy\" - Needed for AI generation",
       "worldFeeling": "ex. \"Rugged and dangerous with low level of magic\" - Improves AI generation"
     },
+    "TYPES": {
+      "NOTE": "These tie to document types and are used as the tooltip for editor links, among other things",
+      "JournalEntryPage": {
+        "campaign-builder": {
+          "entry": "Campaign Builder Entry",
+          "session": "Campaign Builder Session",
+          "pc": "Campaign Builder PC"
+        }
+      }
+    },
     "labels": {
       "newTab": "New Tab",
       "saveChanges": "Save Changes",

@@ -63,7 +63,7 @@
   import PrepPlayToggle from '@/components/PrepPlayToggle.vue';
 
   // types
-  import { Topics, ValidTopic } from '@/types';
+  import { WindowTabType, Topics, ValidTopic } from '@/types';
   import { WBWorld, } from '@/classes';
   import { CampaignDoc } from '@/documents';
   
@@ -127,7 +127,23 @@
     event.stopPropagation();
     
     // the only things tagged wcb-content-link are ones for the world we're looking at, so just need to open it
-    void navigationStore.openEntry(target.dataset.uuid, { newTab: event.ctrlKey});
+    switch (parseInt(target.dataset.linkType ?? '-1')) {
+      case WindowTabType.Entry:
+        void navigationStore.openEntry(target.dataset.uuid, { newTab: event.ctrlKey});
+        break;
+      case WindowTabType.Campaign:
+        void navigationStore.openCampaign(target.dataset.uuid, { newTab: event.ctrlKey});
+        break;
+      case WindowTabType.Session:
+        void navigationStore.openSession(target.dataset.uuid, { newTab: event.ctrlKey});
+        break;
+      case WindowTabType.PC:
+        void navigationStore.openPC(target.dataset.uuid, { newTab: event.ctrlKey});
+        break;
+      case WindowTabType.World:
+        void navigationStore.openWorld(target.dataset.uuid, { newTab: event.ctrlKey});
+        break;
+    }  
   };
 
   ////////////////////////////////

@@ -1,11 +1,14 @@
 // helper functions for the Editor component
 
-import { getTopicIcon } from '@/utils/misc';
+import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
 
 // types
-import { EntryDoc } from '@/documents';
-import { WBWorld, Entry } from '@/classes';
+import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES, EntryDoc, PCDoc, SessionDoc, WorldDoc, WorldFlagKey } from '@/documents';
+import { WBWorld, Entry, Campaign, Session, PC } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
+import { WindowTabType } from '@/types';
+import { AnyDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs';
+import { moduleId } from '@/settings';
 
 let enricherConfig: {
   pattern: RegExp;
@@ -47,6 +50,37 @@ export const enrichFwbHTML = async(worldId: string | null, text: string): Promis
   return retval;
 };
 
+type LinkData = {
+  classes: string[];
+  attrs: { draggable?: string };
+  dataset: { link?: string }
+  name: string;
+  icon: string;
+}
+const brokenAnchor = (data: LinkData, name = 'Cross-world links are not supported'): HTMLAnchorElement => {
+  // this is a cross-world item; basically treat it like broken
+  delete data.dataset.link;
+  delete data.attrs.draggable;
+  data.icon = 'fas fa-unlink';
+  data.name = name;
+  data.classes.push('broken');
+
+  return TextEditor.createAnchor(data);
+}
+
+/** Only for JournalEntry types */
+const goodAnchor = <T extends AnyDocument>(doc: T, linkType: WindowTabType, hash:string, name: string, icon: string): HTMLAnchorElement => {
+  return doc.toAnchor({ 
+    name: name, 
+    dataset: { 
+      hash,
+      linkType: linkType.toString(),
+    }, 
+    classes: ['wcb-content-link'],   // clicks on this class are handled 
+    icon: icon 
+  });
+}
+
 // most of this is from TextEditor._createContentLink
 /**
    * Create a dynamic document link from a regular expression match
@@ -57,24 +91,24 @@ export const enrichFwbHTML = async(worldId: string | null, text: string): Promis
    * @protected
    */
 
-const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worldId?: string; relativeTo?: EntryDoc}): Promise<HTMLElement | null> => {
+const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worldId?: string}): Promise<HTMLElement | null> => {
   const [type, target, hash, name] = match.slice(1, 5);
-  const { relativeTo, worldId } = options || { relativeTo: undefined, worldId: undefined };
+    const { worldId } = options || { worldId: undefined };
 
   // Prepare replacement data
   const data = {
     classes: ['content-link'],
-    attrs: { draggable: 'true' } as { draggable?: string },
-    dataset: { link: '' } as { link?: string },
+    attrs: { draggable: 'true' },
+    dataset: { link: '' },
     name,
     icon: '',
-  };
+  } as LinkData;
 
-  let entry: Entry | null = null;
+  let unknownItem: AnyDocument | null = null;
   let broken = false;
   if ( type === 'UUID' ) {
     Object.assign(data.dataset, {link: '', uuid: target});
-    entry = await Entry.fromUuid(target, undefined, {relative: relativeTo});
+    unknownItem = await fromUuid(target);
   }
   else {
     broken = createLegacyContentLink(type as WORLD_DOCUMENT_TYPES, target, name, data);
@@ -82,49 +116,85 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
 
   // for now, we only care about the ones in the current world (for performance purposes and because
   //    I don't think you should be referencing across worlds (and we don't make that easy to do, in any case))
-  if (entry) {
+  if (unknownItem) {
     // if we're not in a world builder app, just do the default
     if (!worldId)
-      return entry.raw.toAnchor({ name: data.name, dataset: { hash } });
+      return unknownItem.raw.toAnchor({ name: data.name, dataset: { hash } });
 
-    if (entry.raw.documentName && entry.topic) {
-      // check the pack to see if it's cross-world by seeing if the parent journal entry matches the 
-      //    main one for the current world
-      const correctPack = (await WBWorld.fromUuid(worldId))?.topicIds?.[entry.topic];
+    switch (unknownItem.type) {
+      case DOCUMENT_TYPES.Entry: {
+        const entry = new Entry(unknownItem as unknown as EntryDoc);
+
+        if (entry.topic) {
+          const world = await entry.getWorld();
+
+          // handle the ones we don't care about
+          if (world.uuid !== worldId) {
+            // we're in the wrong world
+            return brokenAnchor(data);
+          } else {  // this is an wcb item for this world
+            return goodAnchor(unknownItem, WindowTabType.Entry, hash, data.name, `fas ${getTopicIcon(entry.topic)}`); 
+          }
+        } else 
+          return brokenAnchor(data, 'Invalid topic');
+      }; break;
+      case DOCUMENT_TYPES.PC: {
+        const pc = new PC(unknownItem as unknown as PCDoc);
+
+        // check if it's the right world
+        const world = await pc.getWorld();
+  
+        // handle the ones we don't care about
+        if (world.uuid !== worldId) {
+          return brokenAnchor(data);
+        } else {  // this is an wcb item for this world
+          return goodAnchor(unknownItem, WindowTabType.PC, hash, data.name, `fas ${getTabTypeIcon(WindowTabType.PC)}`); 
+        }
+      }; break;
+      case DOCUMENT_TYPES.Session: {
+        const session = new Session(unknownItem as unknown as SessionDoc);
+
+        // check if it's the right world
+        const world = await session.getWorld();
+  
+        // handle the ones we don't care about
+        if (world.uuid !== worldId) {
+          return brokenAnchor(data);
+        } else {  // this is an wcb item for this world
+          return goodAnchor(unknownItem, WindowTabType.Session, hash, data.name, `fas ${getTabTypeIcon(WindowTabType.Session)}`); 
+        }
+      }; break;
+    }
+
+    // now handle the folder types
+    if (unknownItem?.getFlag(moduleId, WorldFlagKey.isWorld)) {
+      const world = new WBWorld(unknownItem as unknown as WorldDoc);
 
       // handle the ones we don't care about
-      if (correctPack !== entry.raw.parent?.uuid) {
-        // we're in the wrong world
-        // this is a cross-world item; basically treat it like broken
-        delete data.dataset.link;
-        delete data.attrs.draggable;
-        data.icon = 'fas fa-unlink';
-        data.name = 'Cross-world links are not supported';
-        data.classes.push('broken');
-
-        return TextEditor.createAnchor(data);
+      if (world.uuid !== worldId) {
+        return brokenAnchor(data);
       } else {  // this is an wcb item for this world
-        return entry.raw.toAnchor({ 
-          name: data.name, dataset: { hash }, classes: ['wcb-content-link'],   // clicks on this class are handled 
-          icon: `fas ${getTopicIcon(entry.topic)}` 
-        });
+        return goodAnchor(unknownItem, WindowTabType.World, hash, data.name, `fas ${getTabTypeIcon(WindowTabType.World)}`); 
       }
-    } else {
-      throw new Error('Document missing type in customEnrichContentLinks()');
-    }    
-  }
+    } else if (unknownItem?.getFlag(moduleId, CampaignFlagKey.isCampaign)) {
+      const campaign = new Campaign(unknownItem as unknown as CampaignDoc); 
+      const world = await campaign.getWorld();
 
-  // The UUID lookup failed so this is a broken link.
-  else if ( type === 'UUID' ) broken = true;
+      // handle the ones we don't care about
+      if (world.uuid !== worldId) {
+        return brokenAnchor(data);
+      } else {  // this is an wcb item for this world
+        return goodAnchor(unknownItem, WindowTabType.Campaign, hash, data.name, `fas ${getTabTypeIcon(WindowTabType.Campaign)}`); 
+      }      
+    } else
+      broken = true;
+  } else if (type==='UUID') {
+    // The UUID lookup failed so this is a broken link.
+    broken = true;
+  }
 
   // Broken links
-  if ( broken ) {
-    delete data.dataset.link;
-    delete data.attrs.draggable;
-    data.icon = 'fas fa-unlink';
-    data.classes.push('broken');
-  }
-  return TextEditor.createAnchor(data);
+  return brokenAnchor(data, '');
 };
 
 /**

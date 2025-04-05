@@ -285,7 +285,7 @@
       entryName = data.name;
     } else if (data.sessionNode) {
       // From SessionDirectoryNode
-      entryUuid = data.id;
+      entryUuid = data.sessionId;
       entryName = data.name;
     } else {
       return;  // nothing we can handle

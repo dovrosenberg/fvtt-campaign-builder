@@ -75,7 +75,7 @@
 
     const dragData = {
       sessionNode: true,
-      id: props.sessionNode.id,
+      sessionId: props.sessionNode.id,
       name: props.sessionNode.name
     };
 
