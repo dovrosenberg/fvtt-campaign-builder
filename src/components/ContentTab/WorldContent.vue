@@ -25,7 +25,10 @@
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
-            <label>{{ localize('labels.fields.worldGenre') }} <span class="wcb-header-notes">{{ localize('help.worldGenre') }}</span></label><br/>
+            <LabelWithHelp
+              label-text="labels.fields.worldGenre"
+              help-text="help.worldGenre" 
+            />
             <InputText
               v-model="currentWorld.genre"
               type="text"
@@ -34,7 +37,10 @@
             />
           </div>
           <div class="flexrow form-group">
-            <label>{{ localize('labels.fields.worldFeeling') }} <span class="wcb-header-notes">{{ localize('help.worldFeeling') }}</span></label><br/>
+            <LabelWithHelp
+              label-text="labels.fields.worldFeeling"
+              help-text="help.worldFeeling" 
+            />
             <Textarea
               v-model="currentWorld.worldFeeling"
               rows="3"
@@ -73,6 +79,7 @@
   // local components
   import Editor from '@/components/Editor.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
+  import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
   // types
   import { WindowTabType, } from '@/types';
@@ -204,10 +211,4 @@
 </script>
 
 <style lang="scss">
-  .wcb-header-notes {
-    font-size: 0.85em;
-    font-weight: normal;
-    font-style: italic;
-    color: var(--color-text-dark-secondary, #7a7971);
-  }
 </style>

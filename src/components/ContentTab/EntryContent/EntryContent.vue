@@ -56,7 +56,9 @@
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
-            <label>{{ localize('labels.fields.type') }}</label>
+            <LabelWithHelp
+              label-text="labels.fields.type"
+            />
             <TypeSelect
               :initial-value="currentEntry?.type || ''"
               :topic="topic as ValidTopic"
@@ -69,7 +71,9 @@
             v-if="topic===Topics.Character"
             class="flexrow form-group"
           >
-            <label>{{ localize('labels.fields.species') }}</label>
+            <LabelWithHelp
+              label-text="labels.fields.species"
+            />
             <SpeciesSelect
               :initial-value="currentEntry?.speciesId || ''"
               :allow-new-items="false"
@@ -81,7 +85,9 @@
             v-if="showHierarchy"
             class="flexrow form-group"
           >
-            <label>{{ localize('labels.fields.parent') }}</label>
+            <LabelWithHelp
+              label-text="labels.fields.parent"
+            />
             <TypeAhead 
               :initial-list="validParents"
               :initial-value="parentId || ''"
@@ -175,6 +181,7 @@
   import TypeAhead from '@/components/TypeAhead.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
+  import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
   // types
   import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic } from '@/types';

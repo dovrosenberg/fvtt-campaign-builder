@@ -37,7 +37,9 @@
               </div>
               <div class="wcb-description-content flexcol" style="height: unset">
                 <div class="flexrow form-group">
-                  <label>{{ localize('labels.fields.playerName') }}</label>
+                  <LabelWithHelp
+                    label-text="labels.fields.playerName"
+                  />
                   <InputText
                     v-model="playerName"
                     for="wcb-input-name" 
@@ -50,29 +52,41 @@
                   />
                 </div>
                 <div class="flexrow form-group">
-                  <label>{{ localize('labels.fields.backgroundPoints') }}</label>
-                  <Editor 
+                  <LabelWithHelp
+                    label-text="labels.fields.backgroundPoints"
+                  />
+                </div>
+                <div class="flexrow form-group">
+                    <Editor 
                     :initial-content="currentPC?.background || ''"
                     :has-button="true"
-                    fixed-height="125"
+                    :style="{ 'height': '240px', 'margin-bottom': '6px'}"
                     @editor-saved="onBackgroundSaved"
                   />
                 </div>
                 <div class="flexrow form-group">
-                  <label>{{ localize('labels.fields.otherPlotPoints') }}</label>
+                  <LabelWithHelp
+                    label-text="labels.fields.otherPlotPoints"
+                  />
+                </div>
+                <div class="flexrow form-group">
                   <Editor 
                     :initial-content="currentPC?.plotPoints || ''"
                     :has-button="true"
-                    fixed-height="125"
+                    :style="{ 'height': '240px', 'margin-bottom': '6px'}"
                     @editor-saved="onPlotPointsSaved"
                   />
                 </div>
                 <div class="flexrow form-group">
-                  <label>{{ localize('labels.fields.desiredMagicItems') }}</label>
+                  <LabelWithHelp
+                    label-text="labels.fields.desiredMagicItems"
+                  />
+                </div>
+                <div class="flexrow form-group">
                   <Editor 
                     :initial-content="currentPC?.magicItems || ''"
                     :has-button="true"
-                    fixed-height="125"
+                    :style="{ 'height': '240px', 'margin-bottom': '6px'}"
                     @editor-saved="onMagicItemsSaved"
                   />
                 </div>

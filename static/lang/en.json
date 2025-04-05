@@ -32,8 +32,8 @@
       }
     },
     "help": {
-      "worldGenre": "(ex. \"Fantasy\" - Needed for AI generation)",
-      "worldFeeling": "(ex. \"Rugged and dangerous with low level of magic\" - Improves AI generation)"
+      "worldGenre": "ex. \"Fantasy\" - Needed for AI generation",
+      "worldFeeling": "ex. \"Rugged and dangerous with low level of magic\" - Improves AI generation"
     },
     "labels": {
       "newTab": "New Tab",

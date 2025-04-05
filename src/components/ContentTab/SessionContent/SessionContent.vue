@@ -33,7 +33,9 @@
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
-            <label>{{ localize('labels.fields.sessionNumber') }}</label>
+            <LabelWithHelp
+              label-text="labels.fields.sessionNumber"
+            />
             <InputText
               v-model="sessionNumber"
               for="wcb-input-number" 
@@ -46,7 +48,9 @@
             />
           </div>
           <div class="flexrow form-group">
-            <label>{{ localize('labels.fields.sessionDate') }}</label>
+            <LabelWithHelp
+              label-text="labels.fields.sessionDate"
+            />
             <DatePicker 
               v-model="sessionDate"
               :show-button-bar="true"

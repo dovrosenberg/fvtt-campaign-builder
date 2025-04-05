@@ -1,20 +1,22 @@
 <template>
-  <div 
-    :id="editorId" 
+  <div
+    :id="editorId"
     ref="wrapperRef"
     class="wcb-editor"
     :style="wrapperStyle"
+    @drop="onDrop"
+    @dragover="onDragover"
     >
     <!-- this reproduces the Vue editor() Handlebars helper -->
     <!-- editorVisible used to reset the DOM by toggling-->
-    <div 
-      v-if="editorVisible"  
+    <div
+      v-if="editorVisible"
       ref="editorRef"
       :class="'editor ' + props.class"
       :style="innerStyle"
     >
       <!-- activation button -->
-      <a 
+      <a
         v-if="props.hasButton && props.editable"
         ref="buttonRef"
         class="editor-edit"
@@ -23,9 +25,9 @@
       >
         <i class="fa-solid fa-edit"></i>
       </a>
-      <div 
+      <div
         ref="coreEditorRef"
-        class="editor-content" 
+        class="editor-content"
         v-bind="datasetProperties"
         v-html="enrichedInitialContent"
       >
@@ -44,6 +46,8 @@
   // local imports
   import { enrichFwbHTML } from './Editor/helpers';
   import { useMainStore } from '@/applications/stores';
+  import { Entry } from '@/classes';
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
 
@@ -237,6 +241,84 @@
   
   ////////////////////////////////
   // event handlers
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
+
+  const onDrop = async (event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // If the editor is not active, activate it first
+    if (!editor.value && props.editable) {
+      await activateEditor();
+      // Give the editor time to initialize
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    // If editor is still not active or not editable, return
+    if (!editor.value || !props.editable) return;
+
+    // Parse the data using the utility function
+    const data = getValidatedData(event);
+    if (!data) return;
+
+    let entryUuid: string | null = null;
+    let entryName: string | null = null;
+
+    // Handle different data structures from various drag sources
+    if (data.id) {
+      // From TopicDirectoryGroupedNode
+      entryUuid = data.id;
+    } else if (data.childId) {
+      // From TopicDirectoryNodeWithChildren or TopicDirectoryNode
+      entryUuid = data.childId;
+    } else if (data.topic !== undefined && data.typeName && data.id) {
+      // Another format from directory
+      entryUuid = data.id;
+    }
+
+    // If we found a valid UUID, create and insert the link
+    if (entryUuid) {
+      // Try to get the entry name if not provided
+      if (!entryName) {
+        try {
+          const entry = await Entry.fromUuid(entryUuid);
+          if (entry) {
+            entryName = entry.name;
+          }
+        } catch (e) {
+          // If we can't get the name, use a generic one
+          entryName = 'Link to entry';
+        }
+      }
+
+      // Fallback if name is still not available
+      if (!entryName) {
+        entryName = 'Link to entry';
+      }
+
+      // Create a UUID link in the format @UUID[entryUuid]{entryName}
+      const linkText = `@UUID[${entryUuid}]{${entryName}}`;
+
+      // Insert the link at the current cursor position
+      if (props.engine === 'prosemirror') {
+        // For ProseMirror
+        const view = toRaw(editor.value).view;
+        const { state, dispatch } = view;
+        const tr = state.tr.insertText(linkText);
+        dispatch(tr);
+      } else if (props.engine === 'tinymce') {
+        // For TinyMCE
+        // @ts-ignore - editor is a tinymce.Editor
+        editor.value.insertContent(linkText);
+      }
+    }
+  };
 
   ////////////////////////////////
   // watchers
