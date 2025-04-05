@@ -438,12 +438,12 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
   
   /**
-   * When an entry's name changes, propagate that change to the header of all open tabs referring to that entry.
+   * When an entry's name changes, propagate that change to the header of all open tabs and bookmarks referring to that entry.
    * @param contentId - The ID of the entry whose name changed.
    * @param newName - The new name of the entry.
    */
   const propagateNameChange = async (contentId: string, newName: string):Promise<void> => {
-    // update the tabs 
+    // Update the tabs
     let updated = false;
     tabs.value.forEach((t: WindowTab): void => {
       if (t.header.uuid===contentId) {
@@ -454,6 +454,30 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     if (updated)
       await _saveTabs();
+
+    // Update bookmarks
+    updated = false;
+    bookmarks.value.forEach((b: Bookmark): void => {
+      if (b.header.uuid===contentId) {
+        b.header.name = newName;
+        updated = true;
+      }
+    });
+
+    if (updated)
+      await _saveBookmarks();
+
+    // Update recent items
+    updated = false;
+    recent.value.forEach((r: TabHeader): void => {
+      if (r.uuid===contentId) {
+        r.name = newName;
+        updated = true;
+      }
+    });
+
+    if (updated)
+      await _saveRecent();   
   };
 
   const loadTabs = async function () {
