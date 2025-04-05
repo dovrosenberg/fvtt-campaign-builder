@@ -12,7 +12,7 @@ You may find this better than the commercial world builders for a few reasons, e
 
 You can use the module just to plan/run sessions or just to do world building.  But it will be most useful when used in combination, because it's designed to be easy to pull defined elements from the world into your planning, as well as to easily add to the world during and after sessions.
 
-While I'm seeking to make this module strong enough that it's a reasonable substitute for the primary commercial solutions, it will likely always be missing features that those provide.  Instead, the advantage of FVTT World Builder is that it is easy/fast enough to use that you can refer to it in real-time while running an adventure, while still  also quickly adding notes to supplement your world encyclopedia later.  
+While I'm seeking to make this module strong enough that it's a reasonable substitute for the primary commercial solutions, it will likely always be missing features that those provide.  Instead, the advantage of FVTT Campaign Builder is that it is easy/fast enough to use that you can refer to it in real-time while running an adventure, while still  also quickly adding notes to supplement your world encyclopedia later.  
 
 I plan to use the module to support a live game where only combat is being done in Foundry.  I hope to make the tool useful enough that DM's could use it on a laptop even in a game that isn't using Foundry for play at all.
 
@@ -60,7 +60,7 @@ your characters, locations, etc. (and even create images) or do it all yourself.
 ### Prep for a session - layout the key elements for the upcoming session
 * PCs - maintain your list of PCs and associated info - back stories, goals, links to character sheets
 * "Strong start" - outline the action
-* Scenes - keep a list of potential scenes
+* Vignettes - keep a list of potential scenes (see note below on why they're called Vignettes)
 * Define Lore (what Lazy DM calls "secrets and clues") - flesh out headlines and link to journal entries 
 for more detail/images/handouts
 * Locations - keep a list of locations built in the world that you might use during the session, giving you one-click access to the description, image, association to other world entries, along with links to Foundry Actors and Scenes
@@ -81,7 +81,7 @@ easy reference later
 
 
 ### Record the results
-* Go through scenes, lore and see which were used; delete or move unused scenes to the next session with a click
+* Go through vignettes, lore and see which were used; delete or move unused ones to the next session with a click
 * Add any new locations, NPCs, etc. to the world - you can do this while playing but it may be easier to just take quick notes and do it afterwards 
 * Add anything that's top of mind to the next session to get started for next time
 
@@ -98,10 +98,15 @@ easy reference later
 
 ## Note on characters, actors, and PCs
 - Characters (in worlds) can be PCs if you'd like, but they're really intended primarily to represent all the NPCs.  
-  - Characters can be tied to multiple Actors (ex. if you want to represent a young version and an old version or track the human form 
-  of a werewolf separately from the wolf form, etc.) though typically it would be 1:1
+  - Characters can be tied to multiple Actors (ex. if you want to represent a young version and an old version or track the human form of a werewolf separately from the wolf form, etc.) though typically it would be 1:1
 - PCs (in campaigns) represent the PCs (and to a lesser extent, the players).  They are not tied to world Characters, because I didn't see much value in doing so.  The PCs are where you track storylines, related NPCs and organizations, etc.  This makes them easier to find and review when preparing and running the game.
   - PCs are explicitly tied to a single Actor
+
+## Note on locations, vignettes and scenes
+- Locations are places (in worlds) that represent a country, a city, a building (or a room in building), etc. They can be tied to Foundry scenes - and more than one, in case you want to use them for different parts of the location or different times (pre/post a fire, for ex. or night vs day)
+- Locations can be added to sessions and then with a click you can get the lore you've built in the world around that location, as well as 1-click access to activate any of the related scenes
+- Campaign vignettes what the Lazy DM calls scenes.  The are short descriptions of a scene that could happen during a session. I renamed them to vignettes to avoid confusion with Foundry scenes.
+
 
 ## Planned (or at least considered) features
 - Tags for tracking/searching various entries
@@ -112,9 +117,9 @@ easy reference later
   - Allow players to take notes that you can see; auto merge their notes into entities or put into a review queue
 - Create actor with one click from a character entry
 - System plugins to specify the bounds of species, classes, etc. to use... will this actually work? Can GPT do it on it's own if you specify the system?
-- Integration with https://foundryvtt.com/packages/shuggaloafs-simple-npc-generator for NPC generation (with optional actor creation... could we include token?)
-- Random shop generation?
-- Random town generation?
+- Integration with (or similar functionality to) https://foundryvtt.com/packages/shuggaloafs-simple-npc-generator for NPC generation (with optional actor creation... could we include token?)
+- Random shop generation (i.e. contents)?
+- Random town generation (i.e. buildings, other features)?
 - Random dungeon generation?
 - Tie events to your calendar
 - After generating an NPC, shop, etc. quickly associate it with other things to make it easier to find again
@@ -136,15 +141,11 @@ If you believe you found a bug or would like to post a feature request, head ove
 
 I'm happy to do this for free, as I primarily work on things I like to use myself.  But if you'd like to [buy me a root beer](https://ko-fi.com/phloro), I love knowing that people are using my projects and like them enough to make the effort. It's really appreciated!  
 
-## Credits
-
-World Builder is the result of the effort of many people (whether they know it or not). Please refer to [CREDITS.md](https://github.com/dovrosenberg/fvtt-campaign-builder/blob/master/CREDITS.md) for the full list.
-
 
 ## Copyright and usage
 THIS ENTIRE REPOSITORY IS COVERED BY THIS LICENSE AND COPYRIGHT NOTICE
 
-Copyright 2023 Dov Rosenberg
+Copyright 2025 Dov Rosenberg
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

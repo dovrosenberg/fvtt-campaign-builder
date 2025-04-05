@@ -19,7 +19,7 @@ export type SessionMonster = {
   number: number;
 }
 
-export type SessionScene = {
+export type SessionVignette = {
   uuid: string;
   delivered: boolean;
   description: string;
@@ -41,7 +41,7 @@ const sessionSchema = {
   npcs: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionNPC[] }),  
   items: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionItem[] }),  
   monsters: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionMonster[] }),  
-  scenes: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionScene[] }),  
+  vignettes: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionScene[] }),  
   lore: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionLore[] }),  
   img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
 };
@@ -70,7 +70,7 @@ export interface SessionDoc extends JournalEntryPage {
     items: SessionItem[];
     npcs: SessionNPC[];
     monsters: SessionMonster[];
-    scenes: SessionScene[];
+    vignettes: SessionVignette[];
     lore: SessionLore[];
     img: string;
   };

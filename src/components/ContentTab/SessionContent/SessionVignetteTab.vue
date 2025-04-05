@@ -1,16 +1,16 @@
 <template>
   <SessionTable
-    :rows="relatedSceneRows"
-    :columns="sessionStore.extraFields[SessionTableTypes.Scene]"
-    :delete-item-label="localize('tooltips.deleteScene')"
+    :rows="relatedVignetteRows"
+    :columns="sessionStore.extraFields[SessionTableTypes.Vignette]"
+    :delete-item-label="localize('tooltips.deleteVignette')"
     :allow-edit="false"
     :show-add-button="true"
-    :add-button-label="localize('labels.session.addScene')"
-    @add-item="onAddScene"
-    @delete-item="onDeleteScene"
-    @mark-item-delivered="onMarkSceneDelivered"
-    @unmark-item-delivered="onUnmarkSceneDelivered"
-    @move-to-next-session="onMoveSceneToNext"
+    :add-button-label="localize('labels.session.addVignette')"
+    @add-item="onAddVignette"
+    @delete-item="onDeleteVignette"
+    @mark-item-delivered="onMarkVignetteDelivered"
+    @unmark-item-delivered="onUnmarkVignetteDelivered"
+    @move-to-next-session="onMoveVignetteToNext"
     @cell-edit-complete="onCellEditComplete"
   />
 </template>
@@ -41,7 +41,7 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const { relatedSceneRows } = storeToRefs(sessionStore);
+  const { relatedVignetteRows } = storeToRefs(sessionStore);
   
   ////////////////////////////////
   // data
@@ -54,8 +54,8 @@
 
   ////////////////////////////////
   // event handlers
-  const onAddScene = async () => {
-    await sessionStore.addScene();
+  const onAddVignette = async () => {
+    await sessionStore.addVignette();
   }
 
   const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
@@ -63,7 +63,7 @@
 
     switch (field) {
       case 'description':
-        await sessionStore.updateSceneDescription(data.uuid, newValue);
+        await sessionStore.updateVignetteDescription(data.uuid, newValue);
         break;
 
       default:
@@ -72,20 +72,20 @@
     }  
   }
 
-  const onDeleteScene = async (uuid: string) => {
-    await sessionStore.deleteScene(uuid);
+  const onDeleteVignette = async (uuid: string) => {
+    await sessionStore.deleteVignette(uuid);
   }
 
-  const onMarkSceneDelivered = async (uuid: string) => {
-    await sessionStore.markSceneDelivered(uuid, true);
+  const onMarkVignetteDelivered = async (uuid: string) => {
+    await sessionStore.markVignetteDelivered(uuid, true);
   }
 
-  const onUnmarkSceneDelivered = async (uuid: string) => {
-    await sessionStore.markSceneDelivered(uuid, false);
+  const onUnmarkVignetteDelivered = async (uuid: string) => {
+    await sessionStore.markVignetteDelivered(uuid, false);
   }
 
-  const onMoveSceneToNext = async (uuid: string) => {
-    await sessionStore.moveSceneToNext(uuid);
+  const onMoveVignetteToNext = async (uuid: string) => {
+    await sessionStore.moveVignetteToNext(uuid);
   }
 
   ////////////////////////////////

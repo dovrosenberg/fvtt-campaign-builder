@@ -27,12 +27,12 @@
   ////////////////////////////////
   // data
   const generators = computed(() => [
-    { id: 'npc', label: 'NPC', icon: 'fa-user', tooltip: 'Generate a random NPC name' },
-    { id: 'town', label: 'Town', icon: 'fa-city', tooltip: 'Generate a random town name' },
-    { id: 'store', label: 'Store', icon: 'fa-shop', tooltip: 'Generate a random store name' },
-    { id: 'tavern', label: 'Tavern', icon: 'fa-beer-mug-empty', tooltip: 'Generate a random tavern name' },
-    { id: 'treasure', label: 'Treasure', icon: 'fa-coins', tooltip: 'Generate random treasure' },
-    { id: 'encounter', label: 'Encounter', icon: 'fa-skull', tooltip: 'Generate a random encounter' },
+    { id: 'npc', label: 'NPC Name', icon: 'fa-user', tooltip: 'Generate a random NPC name' },
+    { id: 'town', label: 'Town Name', icon: 'fa-city', tooltip: 'Generate a random town name' },
+    { id: 'store', label: 'Store Name', icon: 'fa-shop', tooltip: 'Generate a random store name' },
+    { id: 'tavern', label: 'Tavern Name', icon: 'fa-beer-mug-empty', tooltip: 'Generate a random tavern name' },
+    // { id: 'treasure', label: 'Treasure', icon: 'fa-coins', tooltip: 'Generate random treasure' },
+    // { id: 'encounter', label: 'Encounter', icon: 'fa-skull', tooltip: 'Generate a random encounter' },
   ]);
 
   ////////////////////////////////

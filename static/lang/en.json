@@ -1,7 +1,7 @@
 {
   "fcb": {
-    "title": "World Builder",
-    "defaultRootFolderName": "World Builder",
+    "title": "Campaign Builder",
+    "defaultRootFolderName": "Campaign Builder",
     "settings": {
       "startCollapsed": "Sidebar starts collapsed?",
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
@@ -74,7 +74,7 @@
         "pc": "PC",
         "addLocation": "Add location",
         "addLocationDrag": "(or drag/drop a location)",
-        "addScene": "Add scene",
+        "addVignette": "Add vignette",
         "addLore": "Add lore",
         "addNPC": "Add NPC",
         "addNPCDrag": "(or drag/drop a character)",
@@ -110,7 +110,7 @@
           "pcs": "PCs",
           "start": "Start",
           "lore": "Lore",
-          "scenes": "Scenes",
+          "vignettes": "Vignettes",
           "locations": "Locations",
           "npcs": "NPCs",
           "monsters": "Monsters",
@@ -238,6 +238,7 @@
       "deleteItem": "Delete item",
       "deleteMonster": "Delete monster",
       "deleteScene": "Delete scene",
+      "deleteVignette": "Delete vignette",
       "deleteLore": "Delete lore",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",

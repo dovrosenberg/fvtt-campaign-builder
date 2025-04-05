@@ -85,7 +85,7 @@ Maybe color code or two sets of tabs or something to separate the topic tabs on 
 
 Items - consider making a topic for these to track possible magic items, etc.?
 
-Location - use these for "scenes" in lazy DM language
+Location - use these for "locations" in lazy DM language
   - Short description of what it is
   - Link to Foundry scenes that might work (want >1 in case there's a light/dark version, etc.)
   - Link to Foundry actors for NPCs/monsters likely to be there
