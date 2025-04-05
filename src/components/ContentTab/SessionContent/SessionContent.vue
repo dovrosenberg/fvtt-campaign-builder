@@ -136,7 +136,7 @@
   import SessionItemTab from '@/components/ContentTab/SessionContent/SessionItemTab.vue';
   import SessionNPCTab from '@/components/ContentTab/SessionContent/SessionNPCTab.vue';
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
-  import SessionSceneTab from '@/components/ContentTab/SessionContent/SessionSceneTab.vue';
+  import SessionVignetteTab from '@/components/ContentTab/SessionContent/SessionVignetteTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
 

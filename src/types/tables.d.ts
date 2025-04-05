@@ -59,7 +59,7 @@ export type SessionMonsterDetails = {
   location: string;
 }
 
-export type SessionSceneDetails = {
+export type SessionVignetteDetails = {
   uuid: string;   // the Actor document
   description: string;
   delivered: boolean;
