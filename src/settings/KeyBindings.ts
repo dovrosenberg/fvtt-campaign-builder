@@ -1,5 +1,5 @@
 import moduleJson from '@module';
-import { wbApp } from '@/applications/WorldBuilder';
+import { wbApp } from '@/applications/CampaignBuilder';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
 
 export enum KeyBindingKeys {
@@ -14,8 +14,8 @@ export class KeyBindings {
     const keybindings = [
       {
         bindingId: KeyBindingKeys.closeTab,
-        name: 'wcb.keybindings.closeTab',
-        hint: 'wcb.keybindings.closeTabHelp',
+        name: 'fcb.keybindings.closeTab',
+        hint: 'fcb.keybindings.closeTabHelp',
         onDown: () => { 
           // only trap this when the window is open
           if (wbApp && wbApp.rendered) {

@@ -1,16 +1,18 @@
 <template>
-  <li 
-    :class="'wcb-campaign-folder folder entry flexcol wcb-directory-compendium ' + (props.campaignNode.expanded ? '' : 'collapsed')" 
+  <li
+    :class="'fcb-campaign-folder folder entry flexcol fcb-directory-compendium ' + (props.campaignNode.expanded ? '' : 'collapsed')"
     :data-campaign="props.campaignNode.id"
+    draggable="true"
+    @dragstart="onDragStart"
   >
     <header class="folder-header flexrow">
-      <div 
-        class="wcb-compendium-label noborder" 
+      <div
+        class="fcb-compendium-label noborder"
         style="margin-bottom:0px"
         @contextmenu="onCampaignContextMenu"
       >
-        <i 
-          class="fas fa-folder-open fa-fw" 
+        <i
+          class="fas fa-folder-open fa-fw"
           style="margin-right: 4px;"
           @click="onCampaignFolderClick"
         ></i>
@@ -23,14 +25,14 @@
     <!-- These are the sessions -->
     <ul 
       v-if="props.campaignNode.expanded"
-      class="campaign-contents wcb-directory-tree"
+      class="campaign-contents fcb-directory-tree"
     >
       <SessionDirectoryNode 
         v-for="node in sortedChildren"
         :key="node.id"
         :session-node="node"
         :top="true"
-        class="wcb-entry-item" 
+        class="fcb-entry-item" 
         draggable="true"
       />
     </ul>
@@ -92,6 +94,19 @@
   ////////////////////////////////
   // event handlers
 
+  // handle campaign dragging
+  const onDragStart = (event: DragEvent): void => {
+    event.stopPropagation();
+
+    const dragData = {
+      campaignNode: true,
+      campaignId: props.campaignNode.id,
+      name: props.campaignNode.name
+    };
+
+    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+  };
+
   // change campaign
   const onCampaignFolderClick = async (_event: MouseEvent) => {
     currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as DirectoryCampaignNode, !currentNode.value.expanded);
@@ -108,7 +123,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'wcb',
+      customClass: 'fcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
@@ -147,11 +162,11 @@
 </script>
 
 <style lang="scss">
-  #wcb-directory {
+  #fcb-directory {
     // the campaign list section
-    .wcb-directory-panel-wrapper {
-      .wcb-campaign-list {
-        .wcb-campaign-folder {
+    .fcb-directory-panel-wrapper {
+      .fcb-campaign-list {
+        .fcb-campaign-folder {
           align-items: flex-start;
           justify-content: flex-start;
 
@@ -160,24 +175,24 @@
           }
         }
 
-        .wcb-campaign-folder > .folder-header {
+        .fcb-campaign-folder > .folder-header {
           border-bottom: none;
           width: 100%;
           flex: 1;
         }
 
-        .wcb-campaign-folder:not(.collapsed) > .folder-header {
-          background: var(--wcb-sidebar-campaign-background);
-          color: var(--wcb-sidebar-campaign-color);
+        .fcb-campaign-folder:not(.collapsed) > .folder-header {
+          background: var(--fcb-sidebar-campaign-background);
+          color: var(--fcb-sidebar-campaign-color);
         }
 
-        .wcb-campaign-folder.collapsed > .folder-header {
-          background: var(--wcb-sidebar-campaign-background-collapsed);
-          color: var(--wcb-sidebar-campaign-color-collapsed);
+        .fcb-campaign-folder.collapsed > .folder-header {
+          background: var(--fcb-sidebar-campaign-background-collapsed);
+          color: var(--fcb-sidebar-campaign-color-collapsed);
           text-shadow: none;
         }
 
-        .wcb-campaign-folder .folder-header {
+        .fcb-campaign-folder .folder-header {
           background: inherit;
           border: 0px;
           text-shadow: none;   // override foundry default
@@ -189,7 +204,7 @@
         }
 
         // change icon to closed when collapsed
-        .wcb-campaign-folder.collapsed > .folder-header i.fa-folder-open:before {
+        .fcb-campaign-folder.collapsed > .folder-header i.fa-folder-open:before {
           content: "\f07b";
         }
 
@@ -205,20 +220,20 @@
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  .wcb-directory-compendium {
-    .wcb-entry-item, .wcb-type-item {
+  .fcb-directory-compendium {
+    .fcb-entry-item, .fcb-type-item {
       position: relative;
       padding-left: 1em;
       cursor: pointer;
     }
 
     // bold the active one
-    .wcb-current-directory-entry {
+    .fcb-current-directory-entry {
       font-weight: bold;
       cursor: pointer;
     }
 
-    .wcb-directory-entry {
+    .fcb-directory-entry {
       cursor: pointer;
     }
 
@@ -262,7 +277,7 @@
       }
 
       // add the little open markers
-      div.summary .wcb-directory-expand-button {
+      div.summary .fcb-directory-expand-button {
         position: absolute;
         text-align: center;
         line-height: 0.80em;
@@ -277,7 +292,7 @@
         z-index: 1;
       }
 
-      div.summary.top .wcb-directory-expand-button {
+      div.summary.top .fcb-directory-expand-button {
         margin-left: 1em;
       }
 
@@ -304,7 +319,7 @@
     }
   }
 
-  ul.wcb-directory-tree > li:after, ul.wcb-directory-tree > li:before {
+  ul.fcb-directory-tree > li:after, ul.fcb-directory-tree > li:before {
     display:none;
   }
 

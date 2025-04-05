@@ -64,7 +64,7 @@ export class ModuleSettings {
     {
       settingID: SettingKey.advancedSettingsMenu,
       name: 'settings.advanced',
-      label: 'wcb.settings.advancedLabel',   // localized by Foundry
+      label: 'fcb.settings.advancedLabel',   // localized by Foundry
       hint: 'settings.advancedHelp',   
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
       permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
@@ -73,7 +73,7 @@ export class ModuleSettings {
     {
       settingID: SettingKey.speciesListMenu,
       name: 'settings.speciesList',
-      label: 'wcb.settings.speciesListLabel',   // localized by Foundry
+      label: 'fcb.settings.speciesListLabel',   // localized by Foundry
       hint: 'settings.speciesListHelp',   
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
       permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only

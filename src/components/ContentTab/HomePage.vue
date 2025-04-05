@@ -1,5 +1,5 @@
 <template>
-  <div class="flexcol wcb-home-page">
+  <div class="flexcol fcb-home-page">
     <div class="message">
       <div style="transform: translateY(50%);">
         {{ !message ? '' : localize(message) }}
@@ -127,13 +127,13 @@
 
 <style lang="scss">
   /* Blank */
-  .wcb-home-page {
+  .fcb-home-page {
     display: flex;
     text-align: center;
     align-items: center;
     justify-content: center;
     font-size: var(--font-size-16);
-    color: var(--wcb-blank-color);
+    color: var(--fcb-blank-color);
     font-weight: bold;
 
     .message {
@@ -148,8 +148,8 @@
     .recently-viewed {
       margin-bottom: 20px;
       border-radius: 6px;
-      background-color: var(--wcb-blank-recent-background);
-      border: 1px solid var(--wcb-blank-recent-border);
+      background-color: var(--fcb-blank-recent-background);
+      border: 1px solid var(--fcb-blank-recent-border);
       font-size: 20px;
       padding: 4px;
     }
@@ -162,7 +162,7 @@
 
     .recent-link:hover,
     .new-link:hover {
-      color: var(--wcb-blank-link-hover);
+      color: var(--fcb-blank-link-hover);
     }
   }
 </style>

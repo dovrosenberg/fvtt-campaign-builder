@@ -6,16 +6,16 @@
     >
       <div :class="'summary ' + (props.top ? 'top' : '')">      
         <div 
-          class="wcb-directory-expand-button"
+          class="fcb-directory-expand-button"
           @click="onEntryToggleClick"
         >
           <span v-if="currentNode.expanded">-</span><span v-else>+</span>
         </div>
         <div 
-          :class="`${currentNode.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : 'wcb-directory-entry'}`"
+          :class="`${currentNode.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
           draggable="true"
           @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"
-          @dragstart="onDragStart($event, currentNode.id)"
+          @dragstart="onDragStart($event, currentNode.id, currentNode.name)"
           @drop="onDrop"
           @dragover="onDragover"
           @contextmenu="onEntryContextMenu"
@@ -135,16 +135,20 @@
 
   
   // handle an entry dragging to another to nest
-  const onDragStart = (event: DragEvent, id: string): void => {
+  const onDragStart = (event: DragEvent, id: string, name: string): void => {
+    event.stopPropagation();
+    
     if (!currentWorld.value) { 
       event.preventDefault();
       return;
     }
 
     const dragData = { 
-      topic:  props.topic,
+      entryNode: true,
+      topic: props.topic,
+      name: name,
       childId: id,
-    } as { topic: ValidTopic; childId: string};
+    } as { topic: ValidTopic; name: string; childId: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
@@ -199,7 +203,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'wcb',
+      customClass: 'fcb',
       x: event.x,
       y: event.y,
       zIndex: 300,

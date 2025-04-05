@@ -15,17 +15,17 @@
       :default-sort-order="1"
       :total-records="rows.length"
       :rows="pagination.rowsPerPage"
-      selection-mode="single" 
+      selection-mode="single"
       :pt="{
         header: { style: 'border: none' },
         thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
-        row: { 
-          style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
+        bodyRow: {
+          style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;',
         },
-        pcPaginator: { 
+        pcPaginator: {
           // these are needed to override the foundry button styling
           first: {
-            style: 'width: auto', 
+            style: 'width: auto',
           },
           root: { style: 'background: inherit', }
         },
@@ -86,7 +86,7 @@
           #body="{ data }"
         >
           <a 
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="props.deleteItemLabel"
             @click.stop="emit('deleteItem', data.uuid)" 
           >
@@ -94,7 +94,7 @@
           </a>
           <a 
             v-if="props.allowEdit"
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="props.editItemLabel"
             @click.stop="emit('editItem', data.uuid)" 
           >
@@ -102,7 +102,7 @@
           </a>
           <a 
             v-if="!data.delivered  && !data.lockedToSessionId"
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="localize('tooltips.markAsDelivered')"
             @click.stop="emit('markItemDelivered', data.uuid)" 
           >
@@ -110,7 +110,7 @@
           </a>
           <a 
             v-if="data.delivered && !data.lockedToSessionId"
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="localize('tooltips.unmarkAsDelivered')"
             @click.stop="emit('unmarkItemDelivered', data.uuid)" 
           >
@@ -118,7 +118,7 @@
           </a>
           <a 
             v-if="!data.lockedToSessionId"
-            class="wcb-action-icon" 
+            class="fcb-action-icon" 
             :data-tooltip="localize('tooltips.moveToNextSession')"
             @click.stop="emit('moveToNextSession', data.uuid)" 
           >
@@ -145,9 +145,24 @@
           <div 
             v-else
             @click.stop="onClickEditableCell(data.uuid)"
+            @dragstart="onRowDragStart($event, data.uuid)"
+            draggable="true"
+            style="cursor: grab;"
           >
             <!-- we're not editing this row, but need to put a click event on columns that are editable -->
             {{ data[col.field] }} &nbsp;
+          </div>
+        </template>
+        <template
+          v-else
+          #body="{ data }"
+        >
+          <div 
+            @dragstart="onRowDragStart($event, data.uuid)"
+            draggable="true"
+            style="cursor: grab;"
+          >
+            {{ data[col.field] }}
           </div>
         </template>
       </Column>
@@ -178,16 +193,16 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    showAddButton: { 
-      type: Boolean, 
+    showAddButton: {
+      type: Boolean,
       default: false,
     },
-    addButtonLabel: { 
-      type: String, 
+    addButtonLabel: {
+      type: String,
       default: '',
     },
     extraAddText: {   // displays as text next to the add button (even if no button)
-      type: String, 
+      type: String,
       default: '',
     },
     rows: {
@@ -210,8 +225,8 @@
       type: String,
       required: true,
     },
-    showMoveToCampaign: { 
-      type: Boolean, 
+    showMoveToCampaign: {
+      type: Boolean,
       default: false,
     },
   });
@@ -229,6 +244,7 @@
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;
     (e: 'moveToCampaign', uuid: string): void;
+    (e: 'dragstart', event: DragEvent, uuid: string): void;
   }>();
 
   ////////////////////////////////
@@ -293,6 +309,14 @@
     editingRow.value = uuid;
   }
 
+  const onRowDragStart = (event: DragEvent, uuid: string) => {
+    if (!event.target || !uuid) return;
+
+    // Emit the dragstart event with the uuid
+    // This lets the parent component handle the drag data
+    emit('dragstart', event, uuid);
+  }
+
   ////////////////////////////////
   // watchers
   // reload when topic changes
@@ -304,7 +328,7 @@
 </script>
 
 <style lang="scss" scoped>
-  .wcb-action-icon {
+  .fcb-action-icon {
     cursor: pointer;
     margin-right: 3px;
   }

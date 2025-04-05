@@ -8,11 +8,11 @@
   />
   <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)">
     <div 
-      :class="`${props.node.id===currentEntry?.uuid ? 'wcb-current-directory-entry' : 'wcb-directory-entry'}`"
+      :class="`${props.node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
       style="pointer-events: auto;"
       draggable="true"
       @click="onDirectoryItemClick"
-      @dragstart="onDragStart"
+      @dragstart="onDragStart($event, props.node.id, props.node.name)"
       @drop="onDrop"
       @dragover="onDragover"
       @contextmenu="onEntryContextMenu"
@@ -106,16 +106,20 @@
   };
 
   // handle an entry dragging to another to nest
-  const onDragStart = (event: DragEvent): void => {
+  const onDragStart = (event: DragEvent, id: string, name: string): void => {
+    event.stopPropagation();
+    
     if (!currentWorld.value) { 
       event.preventDefault();
       return;
     }
 
     const dragData = { 
-      topic:  props.topic,
-      childId: props.node.id,
-    } as { topic: ValidTopic; childId: string};
+      entryNode: true,
+      topic: props.topic,
+      name: name,
+      childId: id,
+    } as { topic: ValidTopic; name: string; childId: string};
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
@@ -170,7 +174,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'wcb',
+      customClass: 'fcb',
       x: event.x,
       y: event.y,
       zIndex: 300,

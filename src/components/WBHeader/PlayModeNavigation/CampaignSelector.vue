@@ -9,10 +9,10 @@
       optionValue="uuid"
       size="small"
       :pt="{
-        root: { class: 'wcb-dropdown' },
-        input: { class: 'wcb-dropdown-input' },
-        panel: { class: 'wcb-dropdown-panel' },
-        item: { class: 'wcb-dropdown-item' }
+        root: { class: 'fcb-dropdown' },
+        input: { class: 'fcb-dropdown-input' },
+        panel: { class: 'fcb-dropdown-panel' },
+        item: { class: 'fcb-dropdown-item' }
       }"
     />
   </div>
@@ -69,14 +69,14 @@
   label {
     margin-right: 8px;
     font-weight: bold;
-    color: var(--wcb-header-nav-btn-color);
+    color: var(--fcb-header-nav-btn-color);
   }
 
-  .wcb-dropdown {
+  .fcb-dropdown {
     min-width: 150px;
     font-size: 12px;
 
-    .wcb-dropdown-input {
+    .fcb-dropdown-input {
       padding: 2px 5px;
       border-radius: 3px;
       border: 1px solid #ccc;
@@ -98,11 +98,11 @@
   }
 }
 
-.wcb-dropdown-panel {
+.fcb-dropdown-panel {
   border-radius: 3px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 
-  .wcb-dropdown-item {
+  .fcb-dropdown-item {
     padding: 4px 8px;
     font-size: 12px;
 

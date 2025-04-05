@@ -1,25 +1,25 @@
 <template>
   <form>
-    <div ref="contentRef" class="wcb-sheet-container flexcol" style="overflow-y: auto">
-      <header class="wcb-name-header flexrow">
+    <div ref="contentRef" class="fcb-sheet-container flexcol" style="overflow-y: auto">
+      <header class="fcb-name-header flexrow">
         <i :class="`fas ${getTabTypeIcon(WindowTabType.PC)} sheet-icon`"></i>
         <InputText
           v-model="name"
-          for="wcb-input-name" 
+          for="fcb-input-name" 
           unstyled
           :disabled="true"
-          class="wcb-input-name"
+          class="fcb-input-name"
           :pt="{
             root: { class: 'full-height' } 
           }" 
         />
       </header>
-      <div class="wcb-tab-body flexrow">
+      <div class="fcb-tab-body flexrow">
         <div class="tab flexcol">
           <div class="tab-inner">
-            <div class="wcb-description-wrapper flexrow">
+            <div class="fcb-description-wrapper flexrow">
               <div 
-                class="wcb-sheet-image"
+                class="fcb-sheet-image"
                 @drop="onDropActor"
                 @dragover="onDragoverActor"
                 @click="onActorImageClick"
@@ -35,13 +35,15 @@
                   Drag an actor here to link it.
                 </div>
               </div>
-              <div class="wcb-description-content flexcol" style="height: unset">
+              <div class="fcb-description-content flexcol" style="height: unset">
                 <div class="flexrow form-group">
-                  <label>{{ localize('labels.fields.playerName') }}</label>
+                  <LabelWithHelp
+                    label-text="labels.fields.playerName"
+                  />
                   <InputText
                     v-model="playerName"
-                    for="wcb-input-name" 
-                    class="wcb-input-name"
+                    for="fcb-input-name" 
+                    class="fcb-input-name"
                     unstyled
                     @update:model-value="onPlayerNameUpdate"
                     :pt="{
@@ -50,29 +52,41 @@
                   />
                 </div>
                 <div class="flexrow form-group">
-                  <label>{{ localize('labels.fields.backgroundPoints') }}</label>
-                  <Editor 
+                  <LabelWithHelp
+                    label-text="labels.fields.backgroundPoints"
+                  />
+                </div>
+                <div class="flexrow form-group">
+                    <Editor 
                     :initial-content="currentPC?.background || ''"
                     :has-button="true"
-                    fixed-height="125"
+                    :style="{ 'height': '240px', 'margin-bottom': '6px'}"
                     @editor-saved="onBackgroundSaved"
                   />
                 </div>
                 <div class="flexrow form-group">
-                  <label>{{ localize('labels.fields.otherPlotPoints') }}</label>
+                  <LabelWithHelp
+                    label-text="labels.fields.otherPlotPoints"
+                  />
+                </div>
+                <div class="flexrow form-group">
                   <Editor 
                     :initial-content="currentPC?.plotPoints || ''"
                     :has-button="true"
-                    fixed-height="125"
+                    :style="{ 'height': '240px', 'margin-bottom': '6px'}"
                     @editor-saved="onPlotPointsSaved"
                   />
                 </div>
                 <div class="flexrow form-group">
-                  <label>{{ localize('labels.fields.desiredMagicItems') }}</label>
+                  <LabelWithHelp
+                    label-text="labels.fields.desiredMagicItems"
+                  />
+                </div>
+                <div class="flexrow form-group">
                   <Editor 
                     :initial-content="currentPC?.magicItems || ''"
                     :has-button="true"
-                    fixed-height="125"
+                    :style="{ 'height': '240px', 'margin-bottom': '6px'}"
                     @editor-saved="onMagicItemsSaved"
                   />
                 </div>

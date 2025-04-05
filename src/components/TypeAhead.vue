@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="wcb-typeahead"
+    class="fcb-typeahead"
     @keydown="onKeyDown"
   >
     <input 
@@ -10,8 +10,8 @@
       @input="onInput"
     >
     <div 
-      id="wcb-ta-dropdown" 
-      class="wcb-ta-dropdown"
+      id="fcb-ta-dropdown" 
+      class="fcb-ta-dropdown"
       @click="onDropdownClick"
     >
       <div
@@ -269,7 +269,7 @@
   onMounted(() => {
     // watch for clicks anywhere outside the control
     document.addEventListener('click', async (event: MouseEvent) => {
-      if (hasFocus.value && event.target && (!event.target.closest || !(event.target as HTMLElement)?.closest('.wcb-typeahead'))) {
+      if (hasFocus.value && event.target && (!event.target.closest || !(event.target as HTMLElement)?.closest('.fcb-typeahead'))) {
         // we were in it, but now we're not; treat as if we'd tabbed out
         await onKeyDown({key:'Tab'} as KeyboardEvent);
       }
@@ -283,19 +283,19 @@
 </script>
 
 <style lang="scss">
-  .wcb-typeahead {
+  .fcb-typeahead {
     position: relative;
     overflow-y: visible;
     z-index: auto;
     outline: 2px solid var(--input-focus-outline-color);
 
-    .wcb-ta-dropdown {
+    .fcb-ta-dropdown {
       position: absolute;
       margin-top: 2px;
       padding: 0;
       display: flex;
       flex-direction: column;
-      background-color: var(--wcb-ta-list-background);
+      background-color: var(--fcb-ta-list-background);
       box-shadow: 0 0 5px #555555;
       border-radius: 3px;
       width: calc(100% - 2px);

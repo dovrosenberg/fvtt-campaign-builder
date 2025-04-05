@@ -1,27 +1,27 @@
 <template>
   <div  
-    class="wcb"
+    class="fcb"
     @click="onClickApplication"
   >
     <Splitter 
       ref="splitterRef"
       layout="horizontal" 
       :gutter-size="2"
-      class="wcb-splitter"
+      class="fcb-splitter"
     >
       <SplitterPanel 
         :size="directoryCollapsed ? 99 : 76" 
         :min-size="directoryCollapsed ? 99 : 50" 
-        class="wcb-left-panel"
+        class="fcb-left-panel"
       > 
-        <div class="wcb-body flexcol">
+        <div class="fcb-body flexcol">
           <WBHeader />
-          <div class="wcb-content flexcol editable">
+          <div class="fcb-content flexcol editable">
             <ContentTab />
           </div>
         </div>
         <div
-          class="wcb-sidebar-toggle-tab"
+          class="fcb-sidebar-toggle-tab"
           @click.stop="onSidebarToggleClick"
           :class="{ collapsed: directoryCollapsed }"
           :data-tooltip="directoryCollapsed ? localize('tooltips.expandDirectory') : localize('tooltips.collapseDirectory')"
@@ -30,7 +30,7 @@
       </div>
       </SplitterPanel>
       <SplitterPanel :size="directoryCollapsed ? 1 :24" :min-size="directoryCollapsed ? 1 : 18" class=""> 
-        <div id="wcb-directory-sidebar" class="flexcol" :style="{display: directoryCollapsed ? 'none' : ''}">
+        <div id="fcb-directory-sidebar" class="flexcol" :style="{display: directoryCollapsed ? 'none' : ''}">
           <Directory @world-selected="onDirectoryWorldSelected" />
         </div> 
       </SplitterPanel>
@@ -63,7 +63,7 @@
   import PrepPlayToggle from '@/components/PrepPlayToggle.vue';
 
   // types
-  import { Topics, ValidTopic } from '@/types';
+  import { WindowTabType, Topics, ValidTopic } from '@/types';
   import { WBWorld, } from '@/classes';
   import { CampaignDoc } from '@/documents';
   
@@ -115,7 +115,7 @@
 
     let found=false;
     for (let i=0; i< target.classList.length; i++) {
-      if (target.classList[i]==='wcb-content-link' && target.dataset.uuid) {
+      if (target.classList[i]==='fcb-content-link' && target.dataset.uuid) {
         found=true; 
         break;
       }
@@ -126,8 +126,24 @@
     // cancel any other actions
     event.stopPropagation();
     
-    // the only things tagged wcb-content-link are ones for the world we're looking at, so just need to open it
-    void navigationStore.openEntry(target.dataset.uuid, { newTab: event.ctrlKey});
+    // the only things tagged fcb-content-link are ones for the world we're looking at, so just need to open it
+    switch (parseInt(target.dataset.linkType ?? '-1')) {
+      case WindowTabType.Entry:
+        void navigationStore.openEntry(target.dataset.uuid, { newTab: event.ctrlKey});
+        break;
+      case WindowTabType.Campaign:
+        void navigationStore.openCampaign(target.dataset.uuid, { newTab: event.ctrlKey});
+        break;
+      case WindowTabType.Session:
+        void navigationStore.openSession(target.dataset.uuid, { newTab: event.ctrlKey});
+        break;
+      case WindowTabType.PC:
+        void navigationStore.openPC(target.dataset.uuid, { newTab: event.ctrlKey});
+        break;
+      case WindowTabType.World:
+        void navigationStore.openWorld(target.dataset.uuid, { newTab: event.ctrlKey});
+        break;
+    }  
   };
 
   ////////////////////////////////
@@ -140,7 +156,7 @@
       const worldCompendium = currentWorld.value.compendium || null;
 
       if (!worldCompendium)
-        throw new Error(`Could not find compendium for world ${worldId} in WorldBuilder.onMounted()`);
+        throw new Error(`Could not find compendium for world ${worldId} in CampaignBuilder.onMounted()`);
 
       const topicIds = currentWorld.value.topicIds;
       const campaignNames = currentWorld.value.campaignNames;
@@ -177,7 +193,7 @@
   // methods for prep/play toggle
   const createPrepPlayToggle = async () => {
     // Find the application window header
-    const appId = 'app-wcb-WorldBuilder';
+    const appId = 'app-fcb-CampaignBuilder';
     const appElement = document.getElementById(appId);
     if (!appElement) return;
 
@@ -185,12 +201,12 @@
     if (!headerElement) return;
 
     // Check if toggle already exists
-    if (headerElement.querySelector('#wcb-prep-play-toggle')) return;
+    if (headerElement.querySelector('#fcb-prep-play-toggle')) return;
 
     // Create a container for our Vue component
     const toggleContainer = document.createElement('div');
-    toggleContainer.id = 'wcb-prep-play-toggle';
-    toggleContainer.className = 'header-control wcb-mode-toggle';
+    toggleContainer.id = 'fcb-prep-play-toggle';
+    toggleContainer.className = 'header-control fcb-mode-toggle';
 
     // Insert before the close button
     const closeButton = headerElement.querySelector('[data-action="close"]');
@@ -239,14 +255,14 @@
     const folders = await getDefaultFolders();
 
     if (!folders || !folders.rootFolder)
-        throw new Error(`Couldn't get folders in WorldBuilder.onMounted()`);
+        throw new Error(`Couldn't get folders in CampaignBuilder.onMounted()`);
 
     const world = folders.world;
     const worldId = folders.world?.uuid;
     const worldCompendium = folders.world?.compendium || null;
 
     if (!world || !worldId || !worldCompendium)
-        throw new Error(`Could not find world/compendium for world ${worldId} in WorldBuilder.onMounted()`);
+        throw new Error(`Could not find world/compendium for world ${worldId} in CampaignBuilder.onMounted()`);
 
     if (world.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
@@ -306,13 +322,13 @@ div[data-application-part] {
 
 
 // the launch button in the top right corner
-#wcb-launch {
+#fcb-launch {
   background-color: rgba(0,0,0,.5);
   color: var(--color-text-light-highlight);
 }
 
 
-.wcb-main-window {  
+.fcb-main-window {  
   min-width: 640px;
 
   .window-content {
@@ -323,7 +339,7 @@ div[data-application-part] {
     overflow: hidden;
   }
 
-  .wcb {
+  .fcb {
     height: 100%;
     width: 100%;
     margin-top: 0px;
@@ -331,13 +347,13 @@ div[data-application-part] {
     padding: 0.1rem;
 
     // Sidebar 
-    #wcb-directory-sidebar {
+    #fcb-directory-sidebar {
       display: flex;
       flex: 0 0 250px;
       height: 100%;
       overflow: hidden;
-      background: var(--wcb-sidebar-background);
-      border-left: 1px solid var(--wcb-header-border-color);
+      background: var(--fcb-sidebar-background);
+      border-left: 1px solid var(--fcb-header-border-color);
       transition: width 0.5s, flex 0.5s;
 
       & > div {
@@ -346,18 +362,18 @@ div[data-application-part] {
       }
     }
 
-    #wcb-directory .entry-name > i {
+    #fcb-directory .entry-name > i {
       margin-right: 8px;
       margin-left: 4px;
       flex: 0 0 15px;
     }
 
-    .wcb-body {
+    .fcb-body {
       height: 100%;
     }
   }
 
-  .wcb-content {
+  .fcb-content {
     flex: 1;
     height: 100%;
     overflow: hidden;
@@ -367,16 +383,16 @@ div[data-application-part] {
   
 }
 
-.wcb-splitter {
+.fcb-splitter {
   height: 100%;
 }
 
-.wcb-left-panel {
+.fcb-left-panel {
   position: relative;
   overflow: visible !important;  // make sure the tab shows
 }
 
-.wcb-sidebar-toggle-tab {
+.fcb-sidebar-toggle-tab {
   position: absolute;
   top: 50%; // Center vertically in the gutter
   transform: translateY(-50%); // Adjust for perfect vertical centering

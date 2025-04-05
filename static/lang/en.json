@@ -1,5 +1,5 @@
 {
-  "wcb": {
+  "fcb": {
     "title": "World Builder",
     "defaultRootFolderName": "World Builder",
     "settings": {
@@ -32,8 +32,8 @@
       }
     },
     "help": {
-      "worldGenre": "(ex. \"Fantasy\" - Needed for AI generation)",
-      "worldFeeling": "(ex. \"Rugged and dangerous with low level of magic\" - Improves AI generation)"
+      "worldGenre": "ex. \"Fantasy\" - Needed for AI generation",
+      "worldFeeling": "ex. \"Rugged and dangerous with low level of magic\" - Improves AI generation"
     },
     "labels": {
       "newTab": "New Tab",
@@ -243,7 +243,19 @@
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",
       "generateContent": "Generate content",
-      "backendNotAvailable": "Backend not available"
+      "backendNotAvailable": "Backend not available",
+      "contentLinks": {
+        "1": {
+          "1": "Character",
+          "2": "Location",
+          "3": "Organization",        
+          "4": "Event"
+        },
+        "2": "Campaign",
+        "3": "Session",
+        "4": "PC",
+        "5": "World"
+      }
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"

@@ -1,20 +1,22 @@
 <template>
-  <div 
-    :id="editorId" 
+  <div
+    :id="editorId"
     ref="wrapperRef"
-    class="wcb-editor"
+    class="fcb-editor"
     :style="wrapperStyle"
+    @drop="onDrop"
+    @dragover="onDragover"
     >
     <!-- this reproduces the Vue editor() Handlebars helper -->
     <!-- editorVisible used to reset the DOM by toggling-->
-    <div 
-      v-if="editorVisible"  
+    <div
+      v-if="editorVisible"
       ref="editorRef"
       :class="'editor ' + props.class"
       :style="innerStyle"
     >
       <!-- activation button -->
-      <a 
+      <a
         v-if="props.hasButton && props.editable"
         ref="buttonRef"
         class="editor-edit"
@@ -23,9 +25,9 @@
       >
         <i class="fa-solid fa-edit"></i>
       </a>
-      <div 
+      <div
         ref="coreEditorRef"
-        class="editor-content" 
+        class="editor-content"
         v-bind="datasetProperties"
         v-html="enrichedInitialContent"
       >
@@ -44,6 +46,8 @@
   // local imports
   import { enrichFwbHTML } from './Editor/helpers';
   import { useMainStore } from '@/applications/stores';
+  import { Campaign, Entry, Session, WBWorld } from '@/classes';
+  import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
 
@@ -237,6 +241,113 @@
   
   ////////////////////////////////
   // event handlers
+  const onDragover = (event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.dataTransfer && !event.dataTransfer?.types.includes('text/plain'))
+      event.dataTransfer.dropEffect = 'none';
+  }
+
+  const onDrop = async (event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // If the editor is not active, activate it first
+    if (!editor.value && props.editable) {
+      await activateEditor();
+      // Give the editor time to initialize
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    // If editor is still not active or not editable, return
+    if (!editor.value || !props.editable) return;
+
+    // Parse the data using the utility function
+    const data = getValidatedData(event);
+    if (!data) return;
+
+    let entryUuid: string | null = null;
+    let entryName: string | null = null;
+
+    // Handle different data structures from various drag sources
+    if (data.entryNode) {
+      // From TopicDirectoryNodeWithChildren or TopicDirectoryNode
+      entryUuid = data.childId;
+      entryName = data.name;
+    } else if (data.campaignNode) {
+      // From DirectoryCampaignNode
+      entryUuid = data.campaignId;
+      entryName = data.name;
+    } else if (data.worldNode) {
+      // From TopicDirectory world
+      entryUuid = data.worldId;
+      entryName = data.name;
+    } else if (data.sessionNode) {
+      // From SessionDirectoryNode
+      entryUuid = data.sessionId;
+      entryName = data.name;
+    } else {
+      return;  // nothing we can handle
+    }
+
+    // If we found a valid UUID, create and insert the link
+    if (entryUuid) {
+      // We should already have the name from the drag data, but if not, try to get it
+      if (!entryName) {
+        try {
+          // Try to get the name based on the type of entity
+          if (data.campaignNode) {
+            // It's a campaign
+            const campaign = await Campaign.fromUuid(entryUuid);
+            if (campaign) {
+              entryName = campaign.name;
+            }
+          } else if (data.sessionNode) {
+            // It's a session
+            const session = await Session.fromUuid(entryUuid);
+            if (session) {
+              entryName = session.name;
+            }
+          } else if (data.worldNode) {
+            // It's a world
+            const world = await WBWorld.fromUuid(entryUuid);
+            if (world) {
+              entryName = world.name;
+            }
+          } else {
+            // Try as a regular entry
+            const entry = await Entry.fromUuid(entryUuid);
+            if (entry) {
+              entryName = entry.name;
+            }
+          }
+        } catch (e) {
+          // If we can't get the name, use a generic one
+          entryName = 'Link to ???';
+        }
+      }
+
+      // Fallback if name is still not available
+      if (!entryName) {
+        entryName = 'Link to ???';
+      }
+
+      // Create a UUID link in the format @UUID[entryUuid]{entryName}
+      const linkText = `@UUID[${entryUuid}]{${entryName}}`;
+
+      // Insert the link at the current cursor position
+      if (props.engine === 'prosemirror') {
+        // For ProseMirror
+        const view = toRaw(editor.value).view;
+        const { state, dispatch } = view;
+        const tr = state.tr.insertText(linkText);
+        dispatch(tr);
+      } else {
+        throw new Error("Unsupported engine in Editor.onDrop");
+      }
+    }
+  };
 
   ////////////////////////////////
   // watchers
@@ -255,7 +366,7 @@
       return;
 
     // we create a random ID so we can use multiple instances
-    editorId.value  = 'wcb-editor-' + foundry.utils.randomID();
+    editorId.value  = 'fcb-editor-' + foundry.utils.randomID();
 
     // initialize the editor
     if (!coreEditorRef.value)
@@ -274,10 +385,10 @@
 </script>
 
 <style lang="scss">
-  .wcb-editor {
+  .fcb-editor {
     height: 100%;
     flex: 1 !important;
-    border: 1px solid var(--wcb-button-border-color);
+    border: 1px solid var(--fcb-button-border-color);
     overflow-y: auto !important;
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.05);

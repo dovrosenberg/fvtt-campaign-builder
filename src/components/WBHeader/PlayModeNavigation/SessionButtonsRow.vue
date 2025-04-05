@@ -1,9 +1,9 @@
 <template>
-  <div class="wcb-play-session-tabs flexrow">
+  <div class="fcb-play-session-tabs flexrow">
     <button
       v-for="tab in sessionButtons"
       :key="tab.id"
-      class="wcb-play-tab-button"
+      class="fcb-play-tab-button"
       @click="onTabClick(tab.id)"
       :title="tab.label"
     >
@@ -76,17 +76,17 @@
 </script>
 
 <style lang="scss">
-.wcb-play-session-tabs {
-  background-color: var(--wcb-header-background);
-  border-bottom: 1px solid var(--wcb-header-border-color);
+.fcb-play-session-tabs {
+  background-color: var(--fcb-header-background);
+  border-bottom: 1px solid var(--fcb-header-border-color);
 
-  .wcb-play-tab-button {
+  .fcb-play-tab-button {
     margin: 0px;
     padding: 5px 8px;
     border-radius: 4px;
-    background-color: var(--wcb-header-nav-btn-background);
-    color: var(--wcb-header-nav-btn-color);
-    border: 1px solid var(--wcb-header-nav-btn-border);
+    background-color: var(--fcb-header-nav-btn-background);
+    color: var(--fcb-header-nav-btn-color);
+    border: 1px solid var(--fcb-header-nav-btn-border);
     font-size: 12px;
     align-items: center;
     justify-content: center;
@@ -96,13 +96,13 @@
     }
 
     &:hover {
-      background-color: var(--wcb-header-nav-btn-background-hover);
+      background-color: var(--fcb-header-nav-btn-background-hover);
       box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
     }
   }
 
   @container (max-width: 660px) {
-    .wcb-play-tab-button {
+    .fcb-play-tab-button {
       i {
         margin-right: 0;
       }

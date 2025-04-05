@@ -1,16 +1,16 @@
 <template>
   <!-- The overall directory sidebar -->
   <div
-    id="wcb-directory"
+    id="fcb-directory"
     ref="root"
     class="tab flexcol journal-directory"
   >
     <!-- Directory Header -->
-    <header class="wcb-directory-header">
-      <div class="wcb-header-search flexrow">
+    <header class="fcb-directory-header">
+      <div class="fcb-header-search flexrow">
         <InputText
           v-model="filterText"
-          for="wcb-directory-search"
+          for="fcb-directory-search"
           unstyled
           :placeholder="localize('placeholders.search')"
           autocomplete="off"
@@ -21,7 +21,7 @@
           }"
         />
         <a
-          class="wcb-header-control create-world create-button"
+          class="fcb-header-control create-world create-button"
           :data-tooltip="localize('tooltips.createWorld')"
           @click="onCreateWorldClick"
         >
@@ -33,37 +33,37 @@
           </i>
         </a>
         <a
-          class="wcb-header-control collapse-all"
+          class="fcb-header-control collapse-all"
           :data-tooltip="localize('tooltips.collapseAllTopics')"
           @click="onCollapseAllClick"
         >
           <i class="fa-duotone fa-folder-tree"></i>
         </a>
       </div>
-      <div class="wcb-header-group-type flexrow">
+      <div class="fcb-header-group-type flexrow">
         <input
-          id="wcb-group-by-type"
+          id="fcb-group-by-type"
           type="checkbox"
           :checked="isGroupedByType"
           @change="onGroupTypeChange"
         >
-        <label for="wcb-group-by-type">
+        <label for="fcb-group-by-type">
           {{ localize('labels.groupTree') }}
         </label>
       </div>
     </header>
 
-    <Splitter layout="vertical" class="wcb-directory-spliter">
-      <SplitterPanel :size="60" class="wcb-directory-panel">
+    <Splitter layout="vertical" class="fcb-directory-spliter">
+      <SplitterPanel :size="60" class="fcb-directory-panel">
         <div v-if="isTopicTreeRefreshing">
           <ProgressSpinner v-if="isTopicTreeRefreshing" />
         </div>
-        <div v-else class="wcb-directory-panel-wrapper">
+        <div v-else class="fcb-directory-panel-wrapper">
           <TopicDirectory />
         </div>
       </SplitterPanel>
-      <SplitterPanel :size="40" class="wcb-directory-panel">
-        <div class="wcb-directory-panel-wrapper">
+      <SplitterPanel :size="40" class="fcb-directory-panel">
+        <div class="fcb-directory-panel-wrapper">
           <CampaignDirectory />
         </div>
       </SplitterPanel>
@@ -162,24 +162,24 @@
 </script>
 
 <style lang="scss">
-  #wcb-directory {
+  #fcb-directory {
     .action-buttons {
       padding-left: 30px;
     }
 
-    .wcb-directory-spliter {
+    .fcb-directory-spliter {
       flex: 1 1 auto;  // take up all remaining space
       overflow: hidden;
       display: flex;
       flex-direction: column;
 
-      .wcb-directory-panel-wrapper {
+      .fcb-directory-panel-wrapper {
         flex: 1;
         overflow-y: auto;
         height: 100%;
       } 
 
-      .wcb-directory-panel {
+      .fcb-directory-panel {
         display: flex;
         flex-direction: column;
         overflow: hidden; 
@@ -188,21 +188,21 @@
       }
     }
 
-    .wcb-directory-header {
+    .fcb-directory-header {
       flex: 0;
-      background-color: var(--wcb-header-background);
-      border-bottom: 1px solid var(--wcb-header-border-color);
-      color: var(--wcb-sidebar-label-color);
+      background-color: var(--fcb-header-background);
+      border-bottom: 1px solid var(--fcb-header-border-color);
+      color: var(--fcb-sidebar-label-color);
       margin-bottom: 0px;
       padding: 8px 0px 8px 8px;
 
-      .wcb-header-search {
-        #wcb-directory-search {
+      .fcb-header-search {
+        #fcb-directory-search {
           flex: 1;
           height: var(--form-field-height);
         }
 
-        .wcb-header-control {
+        .fcb-header-control {
           flex: 0 0 32px;
           justify-content: center;
           text-align: center;
@@ -226,11 +226,11 @@
         }
       }
 
-      .wcb-header-group-type {
+      .fcb-header-group-type {
         flex: 1;
         height: var(--form-field-height);
 
-        #wcb-group-by-type {
+        #fcb-group-by-type {
           flex: 0;
         }
       }
@@ -240,7 +240,7 @@
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  ul.wcb-directory-tree > li:after, ul.wcb-directory-tree > li:before {
+  ul.fcb-directory-tree > li:after, ul.fcb-directory-tree > li:before {
     display:none;
   }
 

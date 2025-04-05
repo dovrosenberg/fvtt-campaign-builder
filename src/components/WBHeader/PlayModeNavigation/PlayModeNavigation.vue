@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="isInPlayMode"
-    class="wcb-play-mode-navigation flexrow"
+    class="fcb-play-mode-navigation flexrow"
   >
     <div class="play-navigation-container flexcol">
       <SessionButtonsRow />
@@ -28,7 +28,7 @@
 </script>
 
 <style lang="scss">
-  .wcb-play-mode-navigation {
+  .fcb-play-mode-navigation {
     width: 100%;
   }
 

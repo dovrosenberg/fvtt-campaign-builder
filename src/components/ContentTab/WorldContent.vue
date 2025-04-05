@@ -1,12 +1,12 @@
 <template>
   <form>
-    <div ref="contentRef" class="wcb-sheet-container flexcol">
-      <header class="wcb-name-header flexrow">
+    <div ref="contentRef" class="fcb-sheet-container flexcol">
+      <header class="fcb-name-header flexrow">
         <i :class="`fas ${icon} sheet-icon`"></i>
         <InputText
           v-model="name"
-          for="wcb-input-name"
-          class="wcb-input-name"
+          for="fcb-input-name"
+          class="fcb-input-name"
           unstyled
           :placeholder="namePlaceholder"
           :pt="{
@@ -15,17 +15,20 @@
           @update:model-value="onNameUpdate"
         />
       </header>
-      <nav class="wcb-sheet-navigation flexrow tabs" data-group="primary">
+      <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
       </nav>
-      <div class="wcb-tab-body flexrow">
+      <div class="fcb-tab-body flexrow">
         <DescriptionTab 
           :name="currentWorld?.name || 'World'"
           :image-url="currentWorld?.img"
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
-            <label>{{ localize('labels.fields.worldGenre') }} <span class="wcb-header-notes">{{ localize('help.worldGenre') }}</span></label><br/>
+            <LabelWithHelp
+              label-text="labels.fields.worldGenre"
+              help-text="help.worldGenre" 
+            />
             <InputText
               v-model="currentWorld.genre"
               type="text"
@@ -34,7 +37,10 @@
             />
           </div>
           <div class="flexrow form-group">
-            <label>{{ localize('labels.fields.worldFeeling') }} <span class="wcb-header-notes">{{ localize('help.worldFeeling') }}</span></label><br/>
+            <LabelWithHelp
+              label-text="labels.fields.worldFeeling"
+              help-text="help.worldFeeling" 
+            />
             <Textarea
               v-model="currentWorld.worldFeeling"
               rows="3"
@@ -73,6 +79,7 @@
   // local components
   import Editor from '@/components/Editor.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
+  import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
   // types
   import { WindowTabType, } from '@/types';
@@ -184,7 +191,7 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.wcb-tab-body', initial: 'description', /*callback: null*/ });
+    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.fcb-tab-body', initial: 'description', /*callback: null*/ });
 
     // update the store when tab changes
     tabs.value.callback = () => {
@@ -204,10 +211,4 @@
 </script>
 
 <style lang="scss">
-  .wcb-header-notes {
-    font-size: 0.85em;
-    font-weight: normal;
-    font-style: italic;
-    color: var(--color-text-dark-secondary, #7a7971);
-  }
 </style>

@@ -1,10 +1,10 @@
 <template>
   <header 
     ref="root"
-    class="wcb-header flexcol"
+    class="fcb-header flexcol"
   >
-    <div class="wcb-tab-bar flexrow">
-      <div class="wcb-tab-row flexrow">
+    <div class="fcb-tab-bar flexrow">
+      <div class="fcb-tab-row flexrow">
         <WBHeaderTab
           v-for="tab in tabs"
           :key="tab.id"
@@ -13,12 +13,12 @@
         />
 
         <div
-          id="wcb-add-tab"
-          class="wcb-tab flexrow"
+          id="fcb-add-tab"
+          class="fcb-tab flexrow"
           title="Open new tab"
           @click="onAddTabClick"
         >
-          <div class="wcb-tab-icon">
+          <div class="fcb-tab-icon">
             <i class="fas fa-plus"></i>
           </div>
         </div>
@@ -28,9 +28,9 @@
     <!-- Play Mode Navigation (only visible in play mode) -->
     <PlayModeNavigation />
 
-    <div class="wcb-bookmark-bar flexrow">
+    <div class="fcb-bookmark-bar flexrow">
       <div 
-        id="wcb-history-back" 
+        id="fcb-history-back" 
         :class="'nav-button ' + (canBack() ? '' : 'disabled')" 
         :title="localize('tooltips.historyBack')"
         @click="onHistoryBackClick"
@@ -38,7 +38,7 @@
         <i class="fas fa-chevron-left"></i>
       </div>
       <div 
-        id="wcb-history-forward" 
+        id="fcb-history-forward" 
         :class="'nav-button ' + (canForward() ? '' : 'disabled')" 
         :title="localize('tooltips.historyForward')"
         @click="onHistoryForwardClick"
@@ -48,7 +48,7 @@
       <hr class="vertical" />
 
       <div 
-        id="wcb-add-bookmark" 
+        id="fcb-add-bookmark" 
         :class="(!navigationStore.getActiveTab(false)?.header?.uuid ? 'disabled' : '')"
         :title="localize('tooltips.addBookmark')"
         @click="onAddBookmarkClick"
@@ -207,44 +207,44 @@
 </script>
 
 <style lang="scss">
-.wcb-header {
-  color: var(--wcb-header-color);
-  background-color: var(--wcb-header-background);
+.fcb-header {
+  color: var(--fcb-header-color);
+  background-color: var(--fcb-header-background);
   flex-grow: 0;
 
   & > * {
     flex: 0 0 30px;
-    border-bottom: 1px solid var(--wcb-header-border-color);
+    border-bottom: 1px solid var(--fcb-header-border-color);
   }
 
   // tab bar
-  .wcb-tab-bar {
+  .fcb-tab-bar {
     position: relative;
     transition: padding-right 0.5s;
     padding: 4px 2px 0px 4px;
     flex: 0 0 34px;
-    color: var(--wcb-header-tab-color);
+    color: var(--fcb-header-tab-color);
   }
 
-  #wcb-add-tab {
+  #fcb-add-tab {
     flex: 0 0 30px;
     justify-content: center;
 
-    .wcb-tab-icon {
+    .fcb-tab-icon {
       margin: 0px;
     }
   }
 
   // Bookmark bar
-  .wcb-bookmark-bar {
+  .fcb-bookmark-bar {
     padding-left: 2px;
     flex: 0 0 36px;
-    color: var(--wcb-header-nav-btn-color);
+    color: var(--fcb-header-nav-btn-color);
 
     hr.vertical {
       height: 100%;
       width: 1px;
-      border-right: 2px groove var(--wcb-header-nav-vertical-line);
+      border-right: 2px groove var(--fcb-header-nav-vertical-line);
       flex: 0 0 1px;
       margin: 0px 2px;
     }
@@ -258,20 +258,20 @@
       width: 24px;
       height: 24px;
       border-radius: 4px;
-      border: 1px solid var(--wcb-header-nav-btn-border);
+      border: 1px solid var(--fcb-header-nav-btn-border);
       margin-top: 1px;
-      background: var(--wcb-header-nav-btn-background);
+      background: var(--fcb-header-nav-btn-background);
 
       &:not(.disabled):hover {
         box-shadow: 0 0 5px red;
         cursor: pointer;
-        background: var(--wcb-header-nav-btn-background-hover);
+        background: var(--fcb-header-nav-btn-background-hover);
       }
 
       &.disabled {
-        color: var(--wcb-header-nav-btn-disabled);
-        background: var(--wcb-header-nav-btn-background-disabled);
-        border-color: var(--wcb-header-nav-btn-border-disabled);
+        color: var(--fcb-header-nav-btn-disabled);
+        background: var(--fcb-header-nav-btn-background-disabled);
+        border-color: var(--fcb-header-nav-btn-border-disabled);
       }
     }
 

@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="wcb-bookmark-button" 
+    class="fcb-bookmark-button" 
     :title="bookmark.header.name" 
     draggable="true"
     @click.left="onBookmarkClick"
@@ -69,7 +69,7 @@
 
     //show our menu
     ContextMenu.showContextMenu({
-      customClass: 'wcb',
+      customClass: 'fcb',
       x: event.x,
       y: event.y,
       zIndex: 300,
@@ -111,7 +111,7 @@
       //from: this.object.uuid 
     } as { type: string; bookmarkId?: string};
 
-    dragData.type = 'wcb-bookmark';
+    dragData.type = 'fcb-bookmark';
     dragData.bookmarkId = props.bookmark.id;
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
@@ -133,7 +133,7 @@
     if (!data)
       return;
 
-    const target = (event.currentTarget as HTMLElement).closest('.wcb-bookmark-button') as HTMLElement;
+    const target = (event.currentTarget as HTMLElement).closest('.fcb-bookmark-button') as HTMLElement;
     if (!target)
       return;
 
@@ -154,7 +154,7 @@
 </script>
 
 <style lang="scss">
-  .wcb-bookmark-button, #wcb-add-bookmark {
+  .fcb-bookmark-button, #fcb-add-bookmark {
     height: 28px;
     border-radius: 28px;
     margin-left: 4px;
@@ -166,10 +166,10 @@
     flex-wrap: nowrap;
     flex-grow: 0;
     white-space: nowrap;
-    border: 1px solid var(--wcb-header-nav-btn-border);
-    background: var(--wcb-header-nav-btn-background);
+    border: 1px solid var(--fcb-header-nav-btn-border);
+    background: var(--fcb-header-nav-btn-background);
 
-    &#wcb-add-bookmark {
+    &#fcb-add-bookmark {
       border-radius: 4px;
       flex: 0 0 24px;
       height: 24px;
@@ -179,7 +179,7 @@
       text-overflow: clip;
       margin-left: 2px;
       overflow: hidden;
-      color: var(--wcb-header-nav-btn-color);
+      color: var(--fcb-header-nav-btn-color);
 
       &.disabled {
         cursor: default;
@@ -194,17 +194,17 @@
       width: 100%;
     }
 
-    &:not(#wcb-add-bookmark) i {
+    &:not(#fcb-add-bookmark) i {
       margin-top: 4px;
       margin-right: 2px;
     }
 
     &:hover {
-      background: var(--wcb-header-bookmark-hover);
+      background: var(--fcb-header-bookmark-hover);
     }
 
-    &#wcb-add-bookmark:not(.disabled):hover {
-      background: var(--wcb-header-add-bookmark-hover);
+    &#fcb-add-bookmark:not(.disabled):hover {
+      background: var(--fcb-header-add-bookmark-hover);
     }
 }
 </style>
