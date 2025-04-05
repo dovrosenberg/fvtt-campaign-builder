@@ -1,13 +1,13 @@
 // helper functions for the Editor component
-
 import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
+import { localize } from '@/utils/game';
 
 // types
 import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES, EntryDoc, PCDoc, SessionDoc, WorldDoc, WorldFlagKey } from '@/documents';
 import { WBWorld, Entry, Campaign, Session, PC } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 import { WindowTabType } from '@/types';
-import { AnyDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs';
+import { InternalClientDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs';
 import { moduleId } from '@/settings';
 
 let enricherConfig: {
@@ -68,17 +68,22 @@ const brokenAnchor = (data: LinkData, name = 'Cross-world links are not supporte
   return TextEditor.createAnchor(data);
 }
 
-/** Only for JournalEntry types */
-const goodAnchor = <T extends AnyDocument>(doc: T, linkType: WindowTabType, hash:string, name: string, icon: string): HTMLAnchorElement => {
-  return doc.toAnchor({ 
-    name: name, 
-    dataset: { 
-      hash,
-      linkType: linkType.toString(),
-    }, 
-    classes: ['fcb-content-link'],   // clicks on this class are handled 
-    icon: icon 
-  });
+/** topic required for Entry linkType */
+const goodAnchor = <T extends InternalClientDocument>(doc: T, linkType: WindowTabType, hash:string, name: string, icon: string, topic?: ValidTopic): HTMLAnchorElement => {
+  const attrs = { draggable: 'true' };
+  const dataset = {
+    hash,
+    linkType: linkType.toString(),
+    link: '',
+    uuid: doc.uuid,
+    id: doc.id,
+    type: doc.documentName,
+    pack: doc.pack,
+    tooltip: linkType === WindowTabType.Entry ? localize(`tooltips.contentLinks.${linkType}.${topic}`) : localize(`tooltips.contentLinks.${linkType}`)
+  };
+
+  const classes = ['content-link','fcb-content-link'];   // clicks on this class are handled 
+  return TextEditor.createAnchor({ attrs, dataset, name, classes, icon });
 }
 
 // most of this is from TextEditor._createContentLink
@@ -104,11 +109,11 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
     icon: '',
   } as LinkData;
 
-  let unknownItem: AnyDocument | null = null;
+  let unknownItem: InternalClientDocument | null = null;
   let broken = false;
   if ( type === 'UUID' ) {
     Object.assign(data.dataset, {link: '', uuid: target});
-    unknownItem = await fromUuid(target);
+    unknownItem = await fromUuid(target) as unknown as InternalClientDocument;
   }
   else {
     broken = createLegacyContentLink(type as WORLD_DOCUMENT_TYPES, target, name, data);
@@ -116,10 +121,10 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
 
   // for now, we only care about the ones in the current world (for performance purposes and because
   //    I don't think you should be referencing across worlds (and we don't make that easy to do, in any case))
-  if (unknownItem) {
+  if (unknownItem && !broken) {
     // if we're not in a world builder app, just do the default
     if (!worldId)
-      return unknownItem.raw.toAnchor({ name: data.name, dataset: { hash } });
+      return unknownItem.toAnchor({ name: data.name, dataset: { hash } });
 
     switch (unknownItem.type) {
       case DOCUMENT_TYPES.Entry: {
@@ -133,7 +138,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
             // we're in the wrong world
             return brokenAnchor(data);
           } else {  // this is an fcb item for this world
-            return goodAnchor(unknownItem, WindowTabType.Entry, hash, data.name, `fas ${getTopicIcon(entry.topic)}`); 
+            return goodAnchor(unknownItem, WindowTabType.Entry, hash, data.name, `fas ${getTopicIcon(entry.topic)}`, entry.topic); 
           }
         } else 
           return brokenAnchor(data, 'Invalid topic');
@@ -186,11 +191,10 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
       } else {  // this is an fcb item for this world
         return goodAnchor(unknownItem, WindowTabType.Campaign, hash, data.name, `fas ${getTabTypeIcon(WindowTabType.Campaign)}`); 
       }      
-    } else
-      broken = true;
-  } else if (type==='UUID') {
-    // The UUID lookup failed so this is a broken link.
-    broken = true;
+    } else if (type==='UUID' && unknownItem) {
+      // handle like default
+      return unknownItem.toAnchor({ name: data.name, dataset: { hash } });
+    }
   }
 
   // Broken links
