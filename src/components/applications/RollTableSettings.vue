@@ -14,6 +14,54 @@
           {{ localize('settings.autoRefreshRollTablesHelp') }}
         </p>
       </div>
+      <div class="form-group">
+        <label style="flex:8">{{ localize('settings.rollTableConfig.defaultTypeNPC') }}</label>
+        <div class="form-fields">
+          <Inputtext
+            v-model="defaultTypes[GeneratorType.NPC]"
+            unstyled
+          />
+        </div>
+        <p class="hint">
+          {{ localize('settings.rollTableConfig.defaultTypeNPCHelp') }}
+        </p>
+      </div>
+      <div class="form-group">
+        <label style="flex:8">{{ localize('settings.rollTableConfig.defaultTypeTown') }}</label>
+        <div class="form-fields">
+          <Inputtext
+          v-model="defaultTypes[GeneratorType.Town]"
+          unstyled
+          />
+        </div>
+        <p class="hint">
+          {{ localize('settings.rollTableConfig.defaultTypeTownHelp') }}
+        </p>
+      </div>
+      <div class="form-group">
+        <label style="flex:8">{{ localize('settings.rollTableConfig.defaultTypeStore') }}</label>
+        <div class="form-fields">
+          <Inputtext
+          v-model="defaultTypes[GeneratorType.Store]"
+          unstyled
+          />
+        </div>
+        <p class="hint">
+          {{ localize('settings.rollTableConfig.defaultTypeStoreHelp') }}
+        </p>
+      </div>
+      <div class="form-group">
+        <label style="flex:8">{{ localize('settings.rollTableConfig.defaultTypeTavern') }}</label>
+        <div class="form-fields">
+          <Inputtext
+          v-model="defaultTypes[GeneratorType.Tavern]"
+          unstyled
+          />
+        </div>
+        <p class="hint">
+          {{ localize('settings.rollTableConfig.defaultTypeTavernHelp') }}
+        </p>
+      </div>
 
       <footer class="form-footer" data-application-part="footer">
         <button
@@ -48,10 +96,12 @@
 
   // library components
   import Checkbox from 'primevue/checkbox';
+  import Inputtext from 'primevue/inputtext';
 
   // local components
 
   // types
+  import { GeneratorType } from '@/types';
 
   ////////////////////////////////
   // props
@@ -65,7 +115,13 @@
   ////////////////////////////////
   // data
   const autoRefresh = ref<boolean>(ModuleSettings.get(SettingKey.autoRefreshRollTables));
-  
+  const defaultTypes = ref<Record<GeneratorType, string>>({
+    [GeneratorType.NPC]: '',
+    [GeneratorType.Town]: '',
+    [GeneratorType.Store]: '',
+    [GeneratorType.Tavern]: '',
+  });
+
   ////////////////////////////////
   // computed data
 
@@ -76,6 +132,12 @@
   // event handlers
   const onSubmitClick = async () => {
     await ModuleSettings.set(SettingKey.autoRefreshRollTables, autoRefresh.value);
+
+    // @ts-ignore - we know that we have a valid config to start with
+    await ModuleSettings.set(SettingKey.generatorConfig, {
+      ...ModuleSettings.get(SettingKey.generatorConfig),
+      defaultTypes: defaultTypes.value,
+    });
     rollTableSettingsApp?.close();
   };
 
@@ -89,8 +151,19 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
+    // make sure we have the config object
+    if (!ModuleSettings.get(SettingKey.generatorConfig)) {
+      throw new Error('No config set up in RollTableSettings.onMounted');
+    }
+
     // load the settings
     autoRefresh.value = ModuleSettings.get(SettingKey.autoRefreshRollTables);
+    defaultTypes.value = ModuleSettings.get(SettingKey.generatorConfig)?.defaultTypes || {
+      [GeneratorType.NPC]: '',
+      [GeneratorType.Town]: '',
+      [GeneratorType.Store]: '',
+      [GeneratorType.Tavern]: '',
+    };
   });
 
 </script>
