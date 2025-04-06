@@ -171,6 +171,9 @@
       "generateOrganization": {
         "title": "Generate Organization"
       },
+      "generateOptions": {
+        "title": "Select an Option"
+      },
       "confirmDeleteRelationship": {
         "title": "Remove from relationship?",
         "message": "Are you sure you want to delete this relationship?"

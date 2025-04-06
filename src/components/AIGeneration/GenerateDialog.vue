@@ -290,6 +290,9 @@
           name: name.value,
           briefDescription: briefDescription.value,
         });
+
+        generatedName.value = result.data.name;
+        generatedDescription.value = result.data.description;
       } catch (error) {
         generateError.value = (error as Error).message;
         generateComplete.value = true;
@@ -331,6 +334,9 @@
           result = await Backend.api.apiLocationGeneratePost(options);
         else if (props.topic === Topics.Organization)
           result = await Backend.api.apiOrganizationGeneratePost(options);
+
+        generatedName.value = result.data.name;
+        generatedDescription.value = result.data.description;
       } catch (error) {
         generateError.value = (error as Error).message;
         generateComplete.value = true;
@@ -343,10 +349,6 @@
       return;
     }
     
-
-    generatedName.value = result.data.name;
-    generatedDescription.value = result.data.description;
-
     generateComplete.value = true;
     loading.value = false;
   }

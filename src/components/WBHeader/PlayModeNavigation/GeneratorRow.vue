@@ -11,14 +11,25 @@
       <span class="generator-label">{{ generator.label }}</span>
     </button>
   </div>
+
+  <GenerateOptionDialog
+    v-model="showGenerateDialog"
+    :generator-type="currentGeneratorType"
+    @use="onOptionUse"
+    @add-to-world="onOptionAddToWorld"
+  />
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { computed } from 'vue';
+  import { computed, ref } from 'vue';
 
   // local imports
-  
+  import { ModuleSettings, SettingKey } from '@/settings';
+
+  // local components
+  import GenerateOptionDialog from '@/components/AIGeneration/GenerateOptionDialog.vue';
+
   // types
   import { GeneratorType } from '@/types';
 
@@ -34,23 +45,37 @@
     { id: GeneratorType.Tavern, label: 'Tavern Name', icon: 'fa-beer-mug-empty', tooltip: 'Generate a random tavern name' },
   ]);
 
+  const showGenerateDialog = ref<boolean>(false);
+  const currentGeneratorType = ref<GeneratorType>(GeneratorType.NPC);
+
   ////////////////////////////////
   // methods
   const onGeneratorClick = (type: GeneratorType) => {
-    // Roll on the appropriate table
-    const result = 'aaa'; // rollOnTable(type);
+    currentGeneratorType.value = type;
+    showGenerateDialog.value = true;
+  };
 
+  const onOptionUse = (value: string) => {
     // Display the result
-    if (result) {
-      ui?.notifications?.info(`Generated: ${result}`);
+    ui?.notifications?.info(`Generated: ${value}`);
 
-      // Copy to clipboard
-      navigator.clipboard.writeText(result).then(() => {
-        ui?.notifications?.info('Copied to clipboard!');
-      });
-    } else {
-      ui?.notifications?.warn(`All entries in the ${type} table have been used. Please refresh the tables.`);
-    }
+    // Copy to clipboard
+    navigator.clipboard.writeText(value).then(() => {
+      ui?.notifications?.info('Copied to clipboard!');
+    });
+  };
+
+  const onOptionAddToWorld = (value: string) => {
+    // Display the result
+    ui?.notifications?.info(`Generated and added to world: ${value}`);
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(value).then(() => {
+      ui?.notifications?.info('Copied to clipboard!');
+    });
+
+    // TODO: Implement adding to world based on generator type
+    // This would involve creating a new entry in the appropriate topic folder
   };
 </script>
 
