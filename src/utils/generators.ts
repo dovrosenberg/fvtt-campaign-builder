@@ -1,4 +1,4 @@
-import { ModuleSettings, SettingKey } from '@/settings';
+import { moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { localize } from '@/utils/game';
 
 import { GeneratorType, GeneratorConfig, } from '@/types';
@@ -14,19 +14,21 @@ export async function initializeRollTables(): Promise<void> {
   
   // Get existing generator config or create a new one
   const existingConfig = ModuleSettings.get(SettingKey.generatorConfig);
-  const generatorConfig: GeneratorConfig = existingConfig || {
-    folderId,
-    tableMapping: {} as Record<GeneratorType, string>
+  const generatorConfig: GeneratorConfig = {
+    folderId: folderId,
+    rollTables: {} as Record<GeneratorType, string>,
+    ...existingConfig
   };
   
   // Ensure all generator types have a roll table
   for (const type of Object.values(GeneratorType)) {
     // Check if we already have a table for this type
     if (generatorConfig.rollTables[type]) {
-      // Verify the table still exists
+      // Verify the table still exists and is the right type
       const table = await fromUuid(generatorConfig.rollTables[type]);
       if (table) {
-        continue; // Table exists, skip to next type
+        if (table.getFlag(moduleId, 'type')===type)
+          continue; // Table exists, skip to next type
       }
     }
     
@@ -109,6 +111,8 @@ async function createRollTable(type: GeneratorType, folderId: string): Promise<R
     displayRoll: false, // Don't display the roll publicly
   });
   
+  
+  await table.setFlag(moduleId, 'type', type);
 
   await refreshRollTable(table);
   
@@ -117,36 +121,45 @@ async function createRollTable(type: GeneratorType, folderId: string): Promise<R
 
 /** removes any "used" results and adds replacements for them; tops up to TABLE_SIZE */
 export const refreshRollTable = async (rollTable: RollTable) : Promise<void> => {
-  // delete all the drawn ones 
-  // this finds them - need to remove
-  const drawnResults = rollTable.results.filter(r => r.drawn).map(r => r.id);
-  await rollTable.deleteEmbeddedDocuments("TableResult", drawnResults);
+  // get the type
+  const type = rollTable.getFlag(moduleId, 'type');
+
+  // find all the drawn ones that need to be replaced
+  const drawnResults = rollTable.results.filter(r => r.drawn).map(r => r.id) as string[];
   
   // get remaining count - if < TABLE_SIZE, need to make up the difference
-  const neededItems = TABLE_SIZE - rollTable.results.size;
+  const neededItems = TABLE_SIZE - rollTable.results.size + drawnResults.length;
 
   if (neededItems > 0) {
     // get all the new results 
     const newResults = await generateTableResults(type, neededItems);
 
-    // add everything
+    // replace the drawn items first
+    await rollTable.updateEmbeddedDocuments("TableResult", drawnResults.map((id: string, i: number) => ({
+      _id: id,
+      text: newResults[i],
+      drawn: false,
+    })));
+
+    // now add any extras
+    const numUsed = drawnResults.length;
     await rollTable.createEmbeddedDocuments("TableResult", 
-      newResults.map(val => ({
+      newResults.slice(numUsed).map((val: string, index: number) => ({
         type: CONST.TABLE_RESULT_TYPES.TEXT,
         drawn: false,
         text: val,
         weight: 1,
+        range: [index+numUsed+1, index+numUsed+1],
       }))
     );
   } 
-
 }
 
 export const refreshAllRollTables = async() : Promise<void> => {
-  const rollTables = ModuleSettings.get(SettingKey.rollTables);
+  const config = ModuleSettings.get(SettingKey.generatorConfig);
 
-  for (const uuid in rollTables) {
-    const table = await fromUuid(uuid);
+  for (const key in config?.rollTables) {
+    const table = await fromUuid(config.rollTables[key]);
     if (table)
       await refreshRollTable(table as unknown as RollTable);
   }

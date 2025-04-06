@@ -6,37 +6,39 @@ import { RollTableSettingsApplication } from '@/applications/settings/RollTableS
 import { GeneratorConfig, Species } from '@/types';
 
 export enum SettingKey {
-  // displayed in settings
+  // displayed in main settings window
   startCollapsed = 'startCollapsed',  // should the sidebar start collapsed when we open
-  autoRefreshRollTables = 'autoRefreshRollTables',  // should roll tables be automatically refreshed on load
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
+  isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
+  generatorConfig = 'generatorConfig',  // stores the configuration for Foundry RollTable generators
+
+  // menus
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
-  rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu
   APIURL = 'APIURL',   // URL of backend
   APIToken = 'APIToken',
+
+  rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu
+  autoRefreshRollTables = 'autoRefreshRollTables',  // should roll tables be automatically refreshed on load
+
   speciesListMenu = 'speciesListMenu',  // display the species list screen
   speciesList = 'speciesList',
-  isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
-  rollTables = 'rollTables',  // stores the roll tables for generators (legacy)
-  generatorConfig = 'generatorConfig',  // stores the configuration for Foundry RollTable generators
 }
 
 export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
-    K extends SettingKey.autoRefreshRollTables ? boolean :
     K extends SettingKey.rootFolderId ? string :
     K extends SettingKey.groupTreeByType ? boolean :
+    K extends SettingKey.isInPlayMode ? boolean :
+    K extends SettingKey.generatorConfig ? GeneratorConfig | null:
     K extends SettingKey.advancedSettingsMenu ? never :
-    K extends SettingKey.rollTableSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
+    K extends SettingKey.rollTableSettingsMenu ? never :
+    K extends SettingKey.autoRefreshRollTables ? boolean :
     K extends SettingKey.speciesList ? Species[] :
-    K extends SettingKey.isInPlayMode ? boolean :
-    K extends SettingKey.rollTables ? Record<string, any> :
-    K extends SettingKey.generatorConfig ? GeneratorConfig :
     never;
 
 export class ModuleSettings {
@@ -102,13 +104,6 @@ export class ModuleSettings {
   // these are globals shown in the options
   // name and hint should be the id of a localization string
   private static displayParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
-    {
-      settingID: SettingKey.autoRefreshRollTables,
-      name: 'settings.autoRefreshRollTables',
-      hint: 'settings.autoRefreshRollTablesHelp',
-      default: false,
-      type: Boolean,
-    },
   ];
 
   // these are client-specific and displayed in settings
@@ -119,11 +114,6 @@ export class ModuleSettings {
       hint: 'settings.startCollapsedHelp',
       default: false,
       type: Boolean,
-    },
-    {
-      settingID: SettingKey.rollTables,
-      default: {},
-      type: Object,
     },
   ];
 
@@ -145,18 +135,18 @@ export class ModuleSettings {
       type: String,
     },
     {
+      settingID: SettingKey.autoRefreshRollTables,
+      default: false,
+      type: Boolean,
+    },
+    {
       settingID: SettingKey.speciesList,
       default: [],
       type: Array,
     },
     {
-      settingID: SettingKey.rollTables,
-      default: {},
-      type: Object,
-    },
-    {
       settingID: SettingKey.generatorConfig,
-      default: {},
+      default: null,
       type: Object,
     },
   ];
