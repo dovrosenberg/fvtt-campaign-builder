@@ -15,7 +15,7 @@ import {
   Topics, 
   SessionNPCDetails, 
   SessionMonsterDetails, 
-  SessionSceneDetails,
+  SessionVignetteDetails,
   SessionLoreDetails,
 } from '@/types';
 
@@ -27,7 +27,7 @@ export enum SessionTableTypes {
   Item,
   NPC,
   Monster,
-  Scene,
+  Vignette,
   Lore,
 }
 
@@ -40,7 +40,7 @@ export const useSessionStore = defineStore('session', () => {
   const relatedItemRows = ref<SessionItemDetails[]>([]);
   const relatedNPCRows = ref<SessionNPCDetails[]>([]);
   const relatedMonsterRows = ref<SessionMonsterDetails[]>([]);
-  const relatedSceneRows = ref<SessionSceneDetails[]>([]);
+  const relatedVignetteRows = ref<SessionVignetteDetails[]>([]);
   const relatedLoreRows = ref<SessionLoreDetails[]>([]); 
   
 
@@ -61,7 +61,7 @@ export const useSessionStore = defineStore('session', () => {
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
       { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
     ], 
-    [SessionTableTypes.Scene]: [
+    [SessionTableTypes.Vignette]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
     ],
     [SessionTableTypes.Lore]: [
@@ -201,58 +201,58 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   /**
-   * Adds a scene to the session.
+   * Adds a vignette to the session.
    */
-  const addScene = async (description = ''): Promise<void> => {
+  const addVignette = async (description = ''): Promise<void> => {
     if (!currentSession.value)
-      throw new Error('Invalid session in sessionStore.addScene()');
+      throw new Error('Invalid session in sessionStore.addVignette()');
 
-    await currentSession.value.addScene(description);
-    await _refreshSceneRows();
+    await currentSession.value.addVignette(description);
+    await _refreshVignetteRows();
   }
 
   /**
-   * Updates the description associated with a scene row
-   * @param uuid the UUID of the scene
+   * Updates the description associated with a vignette row
+   * @param uuid the UUID of the vignette
    */
-  const updateSceneDescription = async (uuid: string, description: string): Promise<void> => {
+  const updateVignetteDescription = async (uuid: string, description: string): Promise<void> => {
     if (!currentSession.value)
-      throw new Error('Invalid session in sessionStore.updateSceneDescription()');
+      throw new Error('Invalid session in sessionStore.updateVignetteDescription()');
 
-    await currentSession.value.updateSceneDescription(uuid, description);
-    await _refreshSceneRows();
+    await currentSession.value.updateVignetteDescription(uuid, description);
+    await _refreshVignetteRows();
   }
   
   /**
-   * Deletes a scene from the session
-   * @param uuid the UUID of the scene
+   * Deletes a vignette from the session
+   * @param uuid the UUID of the vignette
    */
-  const deleteScene = async (uuid: string): Promise<void> => {
+  const deleteVignette = async (uuid: string): Promise<void> => {
     if (!currentSession.value)
-      throw new Error('Invalid session in sessionStore.deleteScene()');
+      throw new Error('Invalid session in sessionStore.deleteVignette()');
 
-    await currentSession.value.deleteScene(uuid);
-    await _refreshSceneRows();
+    await currentSession.value.deleteVignette(uuid);
+    await _refreshVignetteRows();
   }
 
   /**
-   * Set the delivered status for a given scene.
-   * @param uuid the UUID of the scene
+   * Set the delivered status for a given vignette.
+   * @param uuid the UUID of the vignette
    * @param delivered the new delivered status
    */
-  const markSceneDelivered = async (uuid: string, delivered: boolean): Promise<void> => {
+  const markVignetteDelivered = async (uuid: string, delivered: boolean): Promise<void> => {
     if (!currentSession.value)
-      throw new Error('Invalid session in sessionStore.markSceneDelivered()');
+      throw new Error('Invalid session in sessionStore.markVignetteDelivered()');
 
-    await currentSession.value.markSceneDelivered(uuid, delivered);
-    await _refreshSceneRows();
+    await currentSession.value.markVignetteDelivered(uuid, delivered);
+    await _refreshVignetteRows();
   }
 
   /**
-   * Move a scene to the next session in the campaign, creating it if needed.
-   * @param uuid the UUID of the scene to move
+   * Move a vignette to the next session in the campaign, creating it if needed.
+   * @param uuid the UUID of the vignette to move
    */
-  const moveSceneToNext = async (uuid: string): Promise<void> => {
+  const moveVignetteToNext = async (uuid: string): Promise<void> => {
     if (!currentSession.value)
       return;
 
@@ -261,16 +261,16 @@ export const useSessionStore = defineStore('session', () => {
     if (!nextSession)
       return;
 
-    const currentScene = currentSession.value.scenes.find(s=> s.uuid===uuid);
+    const currentVignette = currentSession.value.vignettes.find(s=> s.uuid===uuid);
 
-    if (!currentScene)
+    if (!currentVignette)
       return;
 
     // have a next session - add there and delete here
-    await nextSession.addScene(currentScene.description);
-    await currentSession.value.deleteScene(uuid);
+    await nextSession.addVignette(currentVignette.description);
+    await currentSession.value.deleteVignette(uuid);
 
-    await _refreshSceneRows();
+    await _refreshVignetteRows();
   }
 
   /**
@@ -524,7 +524,7 @@ export const useSessionStore = defineStore('session', () => {
     relatedItemRows.value = [];
     relatedNPCRows.value = [];
     relatedMonsterRows.value = [];
-    relatedSceneRows.value = [];
+    relatedVignetteRows.value = [];
     relatedLoreRows.value = [];
 
     if (!currentSession.value)
@@ -534,7 +534,7 @@ export const useSessionStore = defineStore('session', () => {
     await _refreshItemRows();
     await _refreshNPCRows();
     await _refreshMonsterRows();
-    await _refreshSceneRows();
+    await _refreshVignetteRows();
     await _refreshLoreRows();
   };
 
@@ -637,21 +637,21 @@ export const useSessionStore = defineStore('session', () => {
   }
 
 
-  const _refreshSceneRows = async () => {
+  const _refreshVignetteRows = async () => {
     if (!currentSession.value)
       return;
 
-    const retval = [] as SessionSceneDetails[];
+    const retval = [] as SessionVignetteDetails[];
 
-    for (const scene of currentSession.value?.scenes) {
+    for (const vignette of currentSession.value?.vignettes) {
       retval.push({
-        uuid: scene.uuid,
-        delivered: scene.delivered,
-        description: scene.description,
+        uuid: vignette.uuid,
+        delivered: vignette.delivered,
+        description: vignette.description,
       });
     }
 
-    relatedSceneRows.value = retval;
+    relatedVignetteRows.value = retval;
   }
 
   const _refreshLoreRows = async () => {
@@ -701,7 +701,7 @@ export const useSessionStore = defineStore('session', () => {
     relatedItemRows,
     relatedNPCRows,
     relatedMonsterRows,
-    relatedSceneRows,
+    relatedVignetteRows,
     relatedLoreRows,
     extraFields,
     addLocation,
@@ -721,11 +721,11 @@ export const useSessionStore = defineStore('session', () => {
     updateMonsterNumber,
     markMonsterDelivered,
     moveMonsterToNext,
-    addScene,
-    deleteScene,
-    updateSceneDescription,
-    markSceneDelivered,
-    moveSceneToNext,
+    addVignette,
+    deleteVignette,
+    updateVignetteDescription,
+    markVignetteDelivered,
+    moveVignetteToNext,
     addLore,
     deleteLore,
     updateLoreDescription,

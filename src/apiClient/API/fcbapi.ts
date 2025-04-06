@@ -32,6 +32,22 @@ import type { ApiLocationGeneratePost200Response } from '../types';
 // @ts-ignore
 import type { ApiLocationGeneratePostRequest } from '../types';
 // @ts-ignore
+import type { ApiNameCharactersPost200Response } from '../types';
+// @ts-ignore
+import type { ApiNameCharactersPostRequest } from '../types';
+// @ts-ignore
+import type { ApiNameStoresPost200Response } from '../types';
+// @ts-ignore
+import type { ApiNameStoresPostRequest } from '../types';
+// @ts-ignore
+import type { ApiNameTavernsPost200Response } from '../types';
+// @ts-ignore
+import type { ApiNameTavernsPostRequest } from '../types';
+// @ts-ignore
+import type { ApiNameTownsPost200Response } from '../types';
+// @ts-ignore
+import type { ApiNameTownsPostRequest } from '../types';
+// @ts-ignore
 import type { ApiOrganizationGeneratePost200Response } from '../types';
 // @ts-ignore
 import type { ApiOrganizationGeneratePostRequest } from '../types';
@@ -193,6 +209,162 @@ export const FCBApiAxiosParamCreator = function (configuration?: Configuration) 
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(apiLocationGeneratePostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Generate character names
+         * @param {ApiNameCharactersPostRequest} apiNameCharactersPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNameCharactersPost: async (apiNameCharactersPostRequest: ApiNameCharactersPostRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'apiNameCharactersPostRequest' is not null or undefined
+            assertParamExists('apiNameCharactersPost', 'apiNameCharactersPostRequest', apiNameCharactersPostRequest)
+            const localVarPath = `/api/name/characters`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(apiNameCharactersPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Generate store names
+         * @param {ApiNameStoresPostRequest} apiNameStoresPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNameStoresPost: async (apiNameStoresPostRequest: ApiNameStoresPostRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'apiNameStoresPostRequest' is not null or undefined
+            assertParamExists('apiNameStoresPost', 'apiNameStoresPostRequest', apiNameStoresPostRequest)
+            const localVarPath = `/api/name/stores`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(apiNameStoresPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Generate tavern names
+         * @param {ApiNameTavernsPostRequest} apiNameTavernsPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNameTavernsPost: async (apiNameTavernsPostRequest: ApiNameTavernsPostRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'apiNameTavernsPostRequest' is not null or undefined
+            assertParamExists('apiNameTavernsPost', 'apiNameTavernsPostRequest', apiNameTavernsPostRequest)
+            const localVarPath = `/api/name/taverns`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(apiNameTavernsPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Generate town names
+         * @param {ApiNameTownsPostRequest} apiNameTownsPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNameTownsPost: async (apiNameTownsPostRequest: ApiNameTownsPostRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'apiNameTownsPostRequest' is not null or undefined
+            assertParamExists('apiNameTownsPost', 'apiNameTownsPostRequest', apiNameTownsPostRequest)
+            const localVarPath = `/api/name/towns`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(apiNameTownsPostRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -369,6 +541,54 @@ export const FCBApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Generate character names
+         * @param {ApiNameCharactersPostRequest} apiNameCharactersPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiNameCharactersPost(apiNameCharactersPostRequest: ApiNameCharactersPostRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiNameCharactersPost200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiNameCharactersPost(apiNameCharactersPostRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FCBApi.apiNameCharactersPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Generate store names
+         * @param {ApiNameStoresPostRequest} apiNameStoresPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiNameStoresPost(apiNameStoresPostRequest: ApiNameStoresPostRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiNameStoresPost200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiNameStoresPost(apiNameStoresPostRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FCBApi.apiNameStoresPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Generate tavern names
+         * @param {ApiNameTavernsPostRequest} apiNameTavernsPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiNameTavernsPost(apiNameTavernsPostRequest: ApiNameTavernsPostRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiNameTavernsPost200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiNameTavernsPost(apiNameTavernsPostRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FCBApi.apiNameTavernsPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Generate town names
+         * @param {ApiNameTownsPostRequest} apiNameTownsPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiNameTownsPost(apiNameTownsPostRequest: ApiNameTownsPostRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiNameTownsPost200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiNameTownsPost(apiNameTownsPostRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FCBApi.apiNameTownsPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Generate an organization image
          * @param {ApiOrganizationGeneratePostRequest} apiOrganizationGeneratePostRequest 
          * @param {*} [options] Override http request option.
@@ -450,6 +670,42 @@ export const FCBApiFactory = function (configuration?: Configuration, basePath?:
             return localVarFp.apiLocationGeneratePost(apiLocationGeneratePostRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * Generate character names
+         * @param {ApiNameCharactersPostRequest} apiNameCharactersPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNameCharactersPost(apiNameCharactersPostRequest: ApiNameCharactersPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiNameCharactersPost200Response> {
+            return localVarFp.apiNameCharactersPost(apiNameCharactersPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Generate store names
+         * @param {ApiNameStoresPostRequest} apiNameStoresPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNameStoresPost(apiNameStoresPostRequest: ApiNameStoresPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiNameStoresPost200Response> {
+            return localVarFp.apiNameStoresPost(apiNameStoresPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Generate tavern names
+         * @param {ApiNameTavernsPostRequest} apiNameTavernsPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNameTavernsPost(apiNameTavernsPostRequest: ApiNameTavernsPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiNameTavernsPost200Response> {
+            return localVarFp.apiNameTavernsPost(apiNameTavernsPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Generate town names
+         * @param {ApiNameTownsPostRequest} apiNameTownsPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNameTownsPost(apiNameTownsPostRequest: ApiNameTownsPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiNameTownsPost200Response> {
+            return localVarFp.apiNameTownsPost(apiNameTownsPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Generate an organization image
          * @param {ApiOrganizationGeneratePostRequest} apiOrganizationGeneratePostRequest 
          * @param {*} [options] Override http request option.
@@ -519,6 +775,42 @@ export interface FCBApiInterface {
      * @memberof FCBApiInterface
      */
     apiLocationGeneratePost(apiLocationGeneratePostRequest: ApiLocationGeneratePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiLocationGeneratePost200Response>;
+
+    /**
+     * Generate character names
+     * @param {ApiNameCharactersPostRequest} apiNameCharactersPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApiInterface
+     */
+    apiNameCharactersPost(apiNameCharactersPostRequest: ApiNameCharactersPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiNameCharactersPost200Response>;
+
+    /**
+     * Generate store names
+     * @param {ApiNameStoresPostRequest} apiNameStoresPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApiInterface
+     */
+    apiNameStoresPost(apiNameStoresPostRequest: ApiNameStoresPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiNameStoresPost200Response>;
+
+    /**
+     * Generate tavern names
+     * @param {ApiNameTavernsPostRequest} apiNameTavernsPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApiInterface
+     */
+    apiNameTavernsPost(apiNameTavernsPostRequest: ApiNameTavernsPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiNameTavernsPost200Response>;
+
+    /**
+     * Generate town names
+     * @param {ApiNameTownsPostRequest} apiNameTownsPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApiInterface
+     */
+    apiNameTownsPost(apiNameTownsPostRequest: ApiNameTownsPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiNameTownsPost200Response>;
 
     /**
      * Generate an organization image
@@ -597,6 +889,50 @@ export class FCBApi extends BaseAPI implements FCBApiInterface {
      */
     public apiLocationGeneratePost(apiLocationGeneratePostRequest: ApiLocationGeneratePostRequest, options?: RawAxiosRequestConfig) {
         return FCBApiFp(this.configuration).apiLocationGeneratePost(apiLocationGeneratePostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Generate character names
+     * @param {ApiNameCharactersPostRequest} apiNameCharactersPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApi
+     */
+    public apiNameCharactersPost(apiNameCharactersPostRequest: ApiNameCharactersPostRequest, options?: RawAxiosRequestConfig) {
+        return FCBApiFp(this.configuration).apiNameCharactersPost(apiNameCharactersPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Generate store names
+     * @param {ApiNameStoresPostRequest} apiNameStoresPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApi
+     */
+    public apiNameStoresPost(apiNameStoresPostRequest: ApiNameStoresPostRequest, options?: RawAxiosRequestConfig) {
+        return FCBApiFp(this.configuration).apiNameStoresPost(apiNameStoresPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Generate tavern names
+     * @param {ApiNameTavernsPostRequest} apiNameTavernsPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApi
+     */
+    public apiNameTavernsPost(apiNameTavernsPostRequest: ApiNameTavernsPostRequest, options?: RawAxiosRequestConfig) {
+        return FCBApiFp(this.configuration).apiNameTavernsPost(apiNameTavernsPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Generate town names
+     * @param {ApiNameTownsPostRequest} apiNameTownsPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApi
+     */
+    public apiNameTownsPost(apiNameTownsPostRequest: ApiNameTownsPostRequest, options?: RawAxiosRequestConfig) {
+        return FCBApiFp(this.configuration).apiNameTownsPost(apiNameTownsPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

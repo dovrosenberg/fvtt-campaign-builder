@@ -29,13 +29,13 @@
 
       <footer class="form-footer" data-application-part="footer">
         <button 
-          @click="onClickReset"
+          @click="onResetClick"
         >
           <i class="fa-solid fa-undo"></i>
           <label>{{ localize('labels.reset') }}</label>
         </button>
         <button 
-          @click="onClickSubmit"
+          @click="onSubmitClick"
         >
           <i class="fa-solid fa-save"></i>
           <label>{{ localize('labels.saveChanges') }}</label>
@@ -84,7 +84,7 @@
 
   ////////////////////////////////
   // event handlers
-  const onClickSubmit = async () => {
+  const onSubmitClick = async () => {
     await ModuleSettings.set(SettingKey.APIURL, APIURL.value);
     await ModuleSettings.set(SettingKey.APIToken, APIToken.value);
 
@@ -95,7 +95,7 @@
     advancedSettingsApp?.close();
   }
 
-  const onClickReset = async () => {
+  const onResetClick = async () => {
     APIURL.value =  ModuleSettings.get(SettingKey.APIURL);
     APIToken.value = ModuleSettings.get(SettingKey.APIToken);
   }

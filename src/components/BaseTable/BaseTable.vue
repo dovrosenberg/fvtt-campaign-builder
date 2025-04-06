@@ -113,13 +113,13 @@
           </a>
         </template>
         <template
-          v-else
+          v-if="col.field!=='actions'"
           #body="{ data }"
         >
           <div 
             @dragstart="onRowDragStart($event, data.uuid)"
-            draggable="true"
-            style="cursor: grab;"
+            :draggable="props.draggableRows"
+            :style="props.draggableRows ? `cursor: grab;` : ''"
           >
             {{ data[col.field] }}
           </div>
@@ -209,6 +209,11 @@
       type: String,
       required: true,
     },
+    draggableRows: {
+      type: Boolean,
+      required: false,
+      default: false,
+    }
   });
 
   ////////////////////////////////

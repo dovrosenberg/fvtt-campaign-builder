@@ -2,32 +2,43 @@ import { localize } from '@/utils/game';
 import { moduleId } from './index';
 import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSettingsApplication';
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
-import { Species } from '@/types';
+import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
+import { GeneratorConfig, Species } from '@/types';
 
 export enum SettingKey {
-  // displayed in settings
+  // displayed in main settings window
   startCollapsed = 'startCollapsed',  // should the sidebar start collapsed when we open
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
+  isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
+  generatorConfig = 'generatorConfig',  // stores the configuration for Foundry RollTable generators
+
+  // menus
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
   APIURL = 'APIURL',   // URL of backend
   APIToken = 'APIToken',
+
+  rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu
+  autoRefreshRollTables = 'autoRefreshRollTables',  // should roll tables be automatically refreshed on load
+
   speciesListMenu = 'speciesListMenu',  // display the species list screen
   speciesList = 'speciesList',
-  isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
 }
 
 export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
     K extends SettingKey.rootFolderId ? string :
     K extends SettingKey.groupTreeByType ? boolean :
+    K extends SettingKey.isInPlayMode ? boolean :
+    K extends SettingKey.generatorConfig ? GeneratorConfig | null:
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
+    K extends SettingKey.rollTableSettingsMenu ? never :
+    K extends SettingKey.autoRefreshRollTables ? boolean :
     K extends SettingKey.speciesList ? Species[] :
-    K extends SettingKey.isInPlayMode ? boolean :
     never;
 
 export class ModuleSettings {
@@ -65,7 +76,7 @@ export class ModuleSettings {
       settingID: SettingKey.advancedSettingsMenu,
       name: 'settings.advanced',
       label: 'fcb.settings.advancedLabel',   // localized by Foundry
-      hint: 'settings.advancedHelp',   
+      hint: 'settings.advancedHelp',
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
       permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: AdvancedSettingsApplication,
@@ -74,10 +85,19 @@ export class ModuleSettings {
       settingID: SettingKey.speciesListMenu,
       name: 'settings.speciesList',
       label: 'fcb.settings.speciesListLabel',   // localized by Foundry
-      hint: 'settings.speciesListHelp',   
+      hint: 'settings.speciesListHelp',
       icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
       permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
       type: SpeciesListApplication,
+    },
+    {
+      settingID: SettingKey.rollTableSettingsMenu,
+      name: 'settings.rollTableSettings',
+      label: 'fcb.settings.rollTableSettingsLabel',   // localized by Foundry
+      hint: 'settings.rollTableSettingsHelp',
+      icon: 'fas fa-bars',               // A Font Awesome icon used in the submenu button
+      permissions: ['SETTINGS_WRITE'], // Optional: restrict to GM only
+      type: RollTableSettingsApplication,
     }
   ];
 
@@ -115,9 +135,19 @@ export class ModuleSettings {
       type: String,
     },
     {
+      settingID: SettingKey.autoRefreshRollTables,
+      default: false,
+      type: Boolean,
+    },
+    {
       settingID: SettingKey.speciesList,
       default: [],
       type: Array,
+    },
+    {
+      settingID: SettingKey.generatorConfig,
+      default: null,
+      type: Object,
     },
   ];
   

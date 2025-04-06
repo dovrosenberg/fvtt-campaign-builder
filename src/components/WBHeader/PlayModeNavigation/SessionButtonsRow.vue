@@ -39,7 +39,7 @@
     { id: 'notes', label: localize('labels.tabs.session.notes'), icon: 'fa-pen-to-square' },
     { id: 'start', label: localize('labels.tabs.session.start'), icon: 'fa-play' },
     { id: 'lore', label: localize('labels.tabs.session.lore'), icon: 'fa-book-open' },
-    { id: 'scenes', label: localize('labels.tabs.session.scenes'), icon: 'fa-map' },
+    { id: 'vignettes', label: localize('labels.tabs.session.vignettes'), icon: 'fa-map' },
     { id: 'locations', label: localize('labels.tabs.session.locations'), icon: 'fa-location-dot' },
     { id: 'npcs', label: localize('labels.tabs.session.npcs'), icon: 'fa-user' },
     { id: 'monsters', label: localize('labels.tabs.session.monsters'), icon: 'fa-dragon' },

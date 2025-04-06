@@ -11,113 +11,156 @@
       <span class="generator-label">{{ generator.label }}</span>
     </button>
   </div>
+
+  <GenerateNameDialog
+    v-model="showGenerateNameDialog"
+    :generator-type="currentGeneratorType"
+    @use="onOptionUse"
+    @add-to-world="onOptionAddToWorld"
+    @generate="onOptionGenerate"
+  />
+
+  <GenerateDialog
+    v-model="showGenerateDialog"
+    :topic="generateTopic"
+    :initial-name="initialName || ''"
+    :initial-type="''"
+    :valid-parents="validGenerateParents"
+    @generation-complete="onFullGenerationComplete"
+  />
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { computed } from 'vue';
+  import { computed, ref } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
+  import { useMainStore, useTopicDirectoryStore, } from '@/applications/stores';
+  import { handleGeneratedEntry, GeneratedDetails } from '@/utils/generation';
+  import { hasHierarchy, } from '@/utils/hierarchy';
+  
+  // local components
+  import GenerateNameDialog from '@/components/AIGeneration/GenerateNameDialog.vue';
+  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
 
   // types
+  import { GeneratorType, Topics, ValidTopic} from '@/types';
+  import { Entry} from '@/classes';
 
   ////////////////////////////////
   // store
+  const mainStore = useMainStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
+  const { currentWorld } = storeToRefs(mainStore);
+
 
   ////////////////////////////////
   // data
   const generators = computed(() => [
-    { id: 'npc', label: 'NPC', icon: 'fa-user', tooltip: 'Generate a random NPC name' },
-    { id: 'town', label: 'Town', icon: 'fa-city', tooltip: 'Generate a random town name' },
-    { id: 'store', label: 'Store', icon: 'fa-shop', tooltip: 'Generate a random store name' },
-    { id: 'tavern', label: 'Tavern', icon: 'fa-beer-mug-empty', tooltip: 'Generate a random tavern name' },
-    { id: 'treasure', label: 'Treasure', icon: 'fa-coins', tooltip: 'Generate random treasure' },
-    { id: 'encounter', label: 'Encounter', icon: 'fa-skull', tooltip: 'Generate a random encounter' },
+    { id: GeneratorType.NPC, label: 'NPC Name', icon: 'fa-user', tooltip: 'Generate a random NPC name' },
+    { id: GeneratorType.Town, label: 'Town Name', icon: 'fa-city', tooltip: 'Generate a random town name' },
+    { id: GeneratorType.Store, label: 'Store Name', icon: 'fa-shop', tooltip: 'Generate a random store name' },
+    { id: GeneratorType.Tavern, label: 'Tavern Name', icon: 'fa-beer-mug-empty', tooltip: 'Generate a random tavern name' },
   ]);
+
+  const showGenerateNameDialog = ref<boolean>(false);
+  const currentGeneratorType = ref<GeneratorType>(GeneratorType.NPC);
+
+  // used to do a full generation
+  const showGenerateDialog = ref<boolean>(false);
+  const generateTopic = ref<ValidTopic>(Topics.Character);
+  const initialName = ref<string>('');
+  const validGenerateParents = ref<{id: string; label: string}[]>([]);
 
   ////////////////////////////////
   // methods
-  const generateRandomName = (type: string): string => {
-    // Simple name generators - in a real implementation, these would be more sophisticated
-    const npcFirstNames = ['Alaric', 'Brenna', 'Cedric', 'Daria', 'Elric', 'Fiona', 'Gareth', 'Hilda', 'Ivar', 'Jora'];
-    const npcLastNames = ['Blackwood', 'Crestfall', 'Dawnbringer', 'Evenwood', 'Frostmantle', 'Grimhammer', 'Highwind'];
-    const townPrefixes = ['North', 'South', 'East', 'West', 'Old', 'New', 'Great', 'Little', 'Upper', 'Lower'];
-    const townSuffixes = ['haven', 'ford', 'bridge', 'shire', 'vale', 'wood', 'field', 'ton', 'wick', 'port'];
-    const storePrefixes = ['Golden', 'Silver', 'Rusty', 'Shining', 'Mystic', 'Trusty', 'Reliable', 'Exotic'];
-    const storeSuffixes = ['Goods', 'Wares', 'Supplies', 'Emporium', 'Market', 'Shop', 'Store', 'Trading Post'];
-    const tavernPrefixes = ['Drunken', 'Laughing', 'Sleeping', 'Dancing', 'Prancing', 'Howling', 'Roaring'];
-    const tavernSuffixes = ['Dragon', 'Goblin', 'Unicorn', 'Mermaid', 'Knight', 'Sailor', 'Bard', 'Wizard'];
+  const onGeneratorClick = (type: GeneratorType) => {
+    currentGeneratorType.value = type;
+    showGenerateNameDialog.value = true;
+  };
 
-    const randomElement = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+  const onOptionUse = (value: string) => {
+    // Display the result
+    ui?.notifications?.info(`Name: ${value}`);
 
-    switch (type) {
-      case 'npc':
-        return `${randomElement(npcFirstNames)} ${randomElement(npcLastNames)}`;
-      case 'town':
-        return `${randomElement(townPrefixes)}${randomElement(townSuffixes)}`;
-      case 'store':
-        return `The ${randomElement(storePrefixes)} ${randomElement(storeSuffixes)}`;
-      case 'tavern':
-        return `The ${randomElement(tavernPrefixes)} ${randomElement(tavernSuffixes)}`;
-      default:
-        return 'Random Name';
+    // Copy to clipboard
+    navigator.clipboard.writeText(value).then(() => {
+      ui?.notifications?.info('Copied to clipboard!');
+    });
+  };
+
+  const onOptionAddToWorld = async (value: string) => {
+    if (!currentWorld.value) {
+      return;
     }
-  };
 
-  const generateTreasure = (): string => {
-    const treasureTypes = [
-      'A small pouch containing 2d6 gold pieces',
-      'A silver ring worth 25 gold pieces',
-      'A gemstone worth 50 gold pieces',
-      'A small ornate box worth 75 gold pieces',
-      'A golden amulet worth 100 gold pieces',
-      'A set of fine silverware worth 150 gold pieces'
-    ];
-
-    return treasureTypes[Math.floor(Math.random() * treasureTypes.length)];
-  };
-
-  const generateEncounter = (): string => {
-    const encounters = [
-      '1d4 goblins searching for food',
-      'A traveling merchant with unusual wares',
-      'A wounded traveler seeking help',
-      'A small group of bandits preparing an ambush',
-      'A wild animal protecting its territory',
-      'A patrol of local guards checking the area'
-    ];
-
-    return encounters[Math.floor(Math.random() * encounters.length)];
-  };
-
-  const onGeneratorClick = (generatorId: string) => {
-    let result = '';
-
-    switch (generatorId) {
-      case 'npc':
-      case 'town':
-      case 'store':
-      case 'tavern':
-        result = generateRandomName(generatorId);
+    switch (currentGeneratorType.value) {
+      case GeneratorType.NPC:
+        // For NPCs, create a character entry
+        await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Character], { name: value });
         break;
-      case 'treasure':
-        result = generateTreasure();
+
+      case GeneratorType.Town:
+      case GeneratorType.Store:
+      case GeneratorType.Tavern:
+        // For all other types, create a location entry
+        await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Location], { name: value });
         break;
-      case 'encounter':
-        result = generateEncounter();
-        break;
+
+      default:
+        throw new Error('Invalid generator type in GeneratorRow.onOptionAddToWorld()');
     }
 
     // Display the result
-    if (result) {
-      ui?.notifications?.info(`Generated: ${result}`);
+    ui?.notifications?.info(`Added to world: ${value}`);
 
-      // Copy to clipboard
-      navigator.clipboard.writeText(result).then(() => {
-        ui?.notifications?.info('Copied to clipboard!');
-      });
-    }
+    // Copy to clipboard
+    navigator.clipboard.writeText(value).then(() => {
+      ui?.notifications?.info('Copied to clipboard!');
+    });
   };
+
+  const onOptionGenerate = async (value: string) => {
+    if (!currentWorld.value) {
+      return;
+    }
+
+    // Map generator type to topic and do prep
+    switch (currentGeneratorType.value) {
+      case GeneratorType.NPC:
+        generateTopic.value = Topics.Character;
+        break;
+      case GeneratorType.Town:
+        generateTopic.value = Topics.Location;
+        break;
+      case GeneratorType.Store:
+        generateTopic.value = Topics.Location;
+        break;
+      case GeneratorType.Tavern:
+        generateTopic.value = Topics.Location;
+        break;
+      default:
+        return;
+    }
+
+    // load up valid parents
+    if (hasHierarchy(generateTopic.value)) {
+      const topicFolder = currentWorld.value.topicFolders[generateTopic.value];
+      validGenerateParents.value = topicFolder.allEntries()
+        .map((e: Entry)=>({ label: e.name, id: e.uuid}));
+    }
+
+    initialName.value = value;
+    showGenerateDialog.value = true;
+  };
+
+  const onFullGenerationComplete = async (details: GeneratedDetails) => {
+    if (!currentWorld.value)
+      return;
+    
+    await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value]);
+  }
 </script>
 
 <style lang="scss">

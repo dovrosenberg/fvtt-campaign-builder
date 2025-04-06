@@ -18,7 +18,7 @@
       <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
         <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
-        <a class="item" data-tab="scenes">{{ localize('labels.tabs.session.scenes') }}</a>
+        <a class="item" data-tab="vignettes">{{ localize('labels.tabs.session.vignettes') }}</a>
         <a class="item" data-tab="locations">{{ localize('labels.tabs.session.locations') }}</a>
         <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
         <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
@@ -74,9 +74,9 @@
             <SessionNPCTab />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="scenes">
+        <div class="tab flexcol" data-group="primary" data-tab="vignettes">
           <div class="tab-inner">
-            <SessionSceneTab />
+            <SessionVignetteTab />
           </div>  
         </div>
         <div class="tab flexcol" data-group="primary" data-tab="start">
@@ -136,7 +136,7 @@
   import SessionItemTab from '@/components/ContentTab/SessionContent/SessionItemTab.vue';
   import SessionNPCTab from '@/components/ContentTab/SessionContent/SessionNPCTab.vue';
   import SessionMonsterTab from '@/components/ContentTab/SessionContent/SessionMonsterTab.vue';
-  import SessionSceneTab from '@/components/ContentTab/SessionContent/SessionSceneTab.vue';
+  import SessionVignetteTab from '@/components/ContentTab/SessionContent/SessionVignetteTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
 

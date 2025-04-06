@@ -134,7 +134,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     const entry = currentEntry.value;
 
     if (!entry || !sceneId)
-      throw new Error('Invalid entry in relationshipStore.addSceme()');
+      throw new Error('Invalid entry in relationshipStore.addScene()');
 
     // update the entry
     if (!entry.scenes.includes(sceneId)) {
@@ -166,7 +166,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   }
 
   /**
-   * Removea scene from the current entry
+   * Remove a scene from the current entry
    * @param sceneId The id of the scene to remove
    */
   async function deleteScene(sceneId: string): Promise<void> {

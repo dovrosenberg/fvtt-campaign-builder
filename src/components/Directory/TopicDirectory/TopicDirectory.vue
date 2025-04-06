@@ -76,7 +76,8 @@
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
   import { hasHierarchy, } from '@/utils/hierarchy';
-  
+  import { handleGeneratedEntry, GeneratedDetails } from '@/utils/generation';
+
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
 
@@ -86,7 +87,7 @@
   import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
 
   // types
-  import { GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, Topics, ValidTopic, WindowTabType } from '@/types';
+  import { Topics, ValidTopic, WindowTabType } from '@/types';
   import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, Entry, DirectoryWorld } from '@/classes';
   
   ////////////////////////////////
@@ -251,47 +252,11 @@
     await topicDirectoryStore.toggleTopic(directoryTopic);
   };
 
-  type GeneratedDetails = 
-    GeneratedCharacterDetails |
-    GeneratedOrganizationDetails |
-    GeneratedLocationDetails;
-    
   const onGenerated = async (details: GeneratedDetails) => {
-    const { name, description, type, } = details;
-    const topicFolder = currentWorld.value?.topicFolders[generateTopic.value];
-
-    if (!topicFolder)
+    if (!currentWorld.value)
       return;
-
-    // create the entry
-    const entry = await topicDirectoryStore.createEntry(topicFolder, { name: name, type: type } );
-
-    if (!entry)
-      throw new Error('Failed to create entry in TopicDirectory.onGenerated()');
-
-    entry.description = description;
-
-    // add the other things based on topic
-    switch (topicFolder.topic) {
-      case Topics.Character:
-        // @ts-ignore - we know it's the right type
-        entry.speciesId = details.speciesId || undefined;
-        break;
-      case Topics.Location:
-        // @ts-ignore - we know it's the right type
-        await topicDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId || null);
-        break;
-      case Topics.Organization:
-        // @ts-ignore - we know it's the right type
-        await topicDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId || null);
-        break;
-    }
-    await entry.save();
-
-    // open the entry in a new tab
-    if (entry) {
-      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
-    }   
+    
+    await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value]);
   }
 
   ////////////////////////////////

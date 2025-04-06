@@ -51,6 +51,7 @@
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import WCBTheme from '@/applications/presetTheme';
+  import { initializeRollTables } from '@/utils/nameGenerators';
 
   // library components
   import Splitter from 'primevue/splitter';
@@ -295,6 +296,18 @@
 
       rootFolder.value = folders.rootFolder;
       mainStore.setNewWorld(folders.world.uuid);
+
+      // initialize roll tables
+      await initializeRollTables();
+
+      // Check if backend is available and show warning if not
+      const { Backend } = await import('@/classes/Backend');
+      if (!Backend.available) {
+        ui.notifications?.warn(
+          "Backend is not available. Automatic RollTables  will not be refrehed. " +
+          "Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
+        );
+      }
 
       // Add the prep/play toggle to the header
       // Use setTimeout to ensure the DOM is fully rendered

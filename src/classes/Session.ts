@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionScene, SessionLore } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore } from '@/documents';
 import { inputDialog } from '@/dialogs/input';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
@@ -310,14 +310,14 @@ export class Session {
     await this.save();
   }
 
-  get scenes(): readonly SessionScene[] {
-    return this._sessionDoc.system.scenes || [];
+  get vignettes(): readonly SessionVignette[] {
+    return this._sessionDoc.system.vignettes || [];
   }
 
-  async addScene(description: string): Promise<void> {
+  async addVignette(description: string): Promise<void> {
     const uuid = foundry.utils.randomID();
 
-    this._sessionDoc.system.scenes.push({
+    this._sessionDoc.system.vignettes.push({
       uuid: uuid,
       description: description,
       delivered: false
@@ -326,25 +326,25 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
-        scenes: this._sessionDoc.system.scenes
+        vignettes: this._sessionDoc.system.vignettes
       }
     };
 
     await this.save();
   }
 
-  async updateSceneDescription(uuid: string, description: string): Promise<void> {
-    const scene = this._sessionDoc.system.scenes.find(s=> s.uuid===uuid);
+  async updateVignetteDescription(uuid: string, description: string): Promise<void> {
+    const vignette = this._sessionDoc.system.vignettes.find(s=> s.uuid===uuid);
 
-    if (!scene)
+    if (!vignette)
       return;
 
-    scene.description = description;
+    vignette.description = description;
 
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
-        scenes: this._sessionDoc.system.scenes
+        vignettes: this._sessionDoc.system.vignettes
       }
     };
 
@@ -352,30 +352,30 @@ export class Session {
   }
 
 
-  async deleteScene(uuid: string): Promise<void> {
-    this._sessionDoc.system.scenes = this._sessionDoc.system.scenes.filter(l=> l.uuid!==uuid);
+  async deleteVignette(uuid: string): Promise<void> {
+    this._sessionDoc.system.vignettes = this._sessionDoc.system.vignettes.filter(l=> l.uuid!==uuid);
 
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
-        scenes: this._sessionDoc.system.scenes
+        vignettes: this._sessionDoc.system.vignettes
       }
     };
 
     await this.save();
   }
 
-  async markSceneDelivered(uuid: string, delivered: boolean): Promise<void> {
-    const scene = this._sessionDoc.system.scenes.find((s) => s.uuid===uuid);
-    if (!scene)
+  async markVignetteDelivered(uuid: string, delivered: boolean): Promise<void> {
+    const vignette = this._sessionDoc.system.vignettes.find((s) => s.uuid===uuid);
+    if (!vignette)
       return;
     
-    scene.delivered = delivered;
+    vignette.delivered = delivered;
 
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
-        scenes: this._sessionDoc.system.scenes
+        vignettes: this._sessionDoc.system.vignettes
       }
     };
 
