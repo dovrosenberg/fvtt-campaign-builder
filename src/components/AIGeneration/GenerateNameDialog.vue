@@ -16,17 +16,24 @@
       },
       {
         label: 'Use',
-        default: true,
+        default: false,
         close: true,
         disable: !selectedOption,
         callback: onUseClick
       },
       {
-        label: 'Add to World',
+        label: 'Add to world',
         default: false,
         close: true,
         disable: !selectedOption,
         callback: onAddToWorldClick
+      },
+      {
+        label: 'Generate and add to world',
+        default: false,
+        close: true,
+        disable: !selectedOption,
+        callback: onGenerateClick
       },
     ]"
     @cancel="onCancel"
@@ -92,6 +99,7 @@
     (e: 'update:modelValue', value: boolean): void;
     (e: 'use', value: string): void;
     (e: 'addToWorld', value: string): void;
+    (e: 'generate', value: string): void;
   }>();
 
   ////////////////////////////////
@@ -111,7 +119,9 @@
   });
 
   const selectedOption = computed((): string | null => {
-    if (selectedOptionIndex.value === null) return null;
+    if (selectedOptionIndex.value === null) 
+      return null;
+    
     return options.value[selectedOptionIndex.value].description;
   });
 
@@ -151,12 +161,10 @@
       options.value = draws.results;
       
       // If we got results, select the first one by default
-      if (options.value.length > 0) {
-        selectedOptionIndex.value = 0;
-      } else {
+      if (options.value.length === 0) {
         // could happen... we're showing 3 at a time of 100... 
         // TODO - when we load the dialog, if there are too few left, refresh the generator
-        throw new Error('Ran out of results in GenerateOptionDialog.drawOptions');
+        throw new Error('Ran out of results in GenerateNameDialog.drawOptions');
       }
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);
@@ -199,6 +207,14 @@
     if (selectedOption.value) {
       await markUnusedOptionsAsUndrawn();
       emit('addToWorld', selectedOption.value);
+    }
+    resetDialog();
+  };
+
+  const onGenerateClick = async () => {
+    if (selectedOption.value) {
+      await markUnusedOptionsAsUndrawn();
+      emit('generate', selectedOption.value);
     }
     resetDialog();
   };
@@ -287,7 +303,7 @@
           background-color: rgba(0, 0, 0, 0.1);
           border-color: var(--color-border-highlight);
         }
-        
+
         .option-content {
           font-size: var(--font-size-14);
         }

@@ -1,8 +1,10 @@
 import { moduleId, ModuleSettings, SettingKey } from '@/settings';
+import { useMainStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
+import { Backend } from '@/classes/Backend';
 
 import { GeneratorType, GeneratorConfig, } from '@/types';
-export const TABLE_SIZE = 10;  // number of items per table
+export const TABLE_SIZE = 15;  // number of items per table
 
 /**
  * Initialize the roll tables for all generator types
@@ -74,22 +76,59 @@ const getOrCreateRollTableFolder = async(): Promise<string> => {
 }
 
 /**
- * Generate table results for a specific generator type
+ * Generate table results for a specific generator type using the backend API
  * @param type The generator type
  * @param count The number of results to generate
  * @returns An array of table results
  */
 const generateTableResults = async (type: GeneratorType, count: number): string[] => {
   const results: string[] = [];
-  
-  // TODO - replace with AI
-  const choices = ['item1', 'item2', 'item3'];
 
-  for (let i=0; i<count; i++) {
-    results.push(choices[i % choices.length]);
+  // If backend is not available, return fallback results
+  if (!Backend.available || !Backend.api) {
+    return [];
   }
-  
-  return results;
+
+  try {
+    // Get world settings for genre and feeling
+    const world = useMainStore().currentWorld;
+    const genre = world?.genre || 'fantasy';
+    const worldFeeling = world?.feeling || '';
+
+    // For now, they all have the same request format
+    const request = {
+      count,
+      genre,
+      worldFeeling
+    };
+
+    // Call the appropriate backend API based on the generator type
+    let response;
+    switch (type) {
+      case GeneratorType.NPC:
+        response = await Backend.api.apiNameCharactersPost(request);
+        break;
+
+      case GeneratorType.Store:
+        response = await Backend.api.apiNameStoresPost(request);
+        break;
+
+      case GeneratorType.Tavern:
+        response = await Backend.api.apiNameTavernsPost(request);
+        break;
+
+      case GeneratorType.Town:
+        response = await Backend.api.apiNameTownsPost(request);
+        break;
+
+      default:
+        throw new Error('Unknown generator type: ${type} in generators.generateTableResults()');
+    }
+
+    return response.data.names;
+  } catch (error) {
+    throw new Error(`Error in generators.generateTableResults() generating names for ${type}:, ${error}`);
+  }
 }
 
 /**

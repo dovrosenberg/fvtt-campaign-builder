@@ -12,29 +12,45 @@
     </button>
   </div>
 
-  <GenerateOptionDialog
-    v-model="showGenerateDialog"
+  <GenerateNameDialog
+    v-model="showGenerateNameDialog"
     :generator-type="currentGeneratorType"
     @use="onOptionUse"
     @add-to-world="onOptionAddToWorld"
+    @generate="onOptionGenerate"
+  />
+
+  <GenerateDialog
+    v-model="showGenerateDialog"
+    :topic="generateTopic"
+    :initial-name="initialName || ''"
+    :initial-type="''"
+    @generation-complete="onFulLGenerationComplete"
   />
 </template>
 
 <script setup lang="ts">
   // library imports
   import { computed, ref } from 'vue';
+  import { storeToRefs } from 'pinia';
 
   // local imports
-  import { ModuleSettings, SettingKey } from '@/settings';
+  import { useMainStore, useTopicDirectoryStore, } from '@/applications/stores';
+  import { Entry } from '@/classes';
 
   // local components
-  import GenerateOptionDialog from '@/components/AIGeneration/GenerateOptionDialog.vue';
+  import GenerateNameDialog from '@/components/AIGeneration/GenerateNameDialog.vue';
+  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
 
   // types
-  import { GeneratorType } from '@/types';
+  import { GeneratorType, Topics, ValidTopic } from '@/types';
 
   ////////////////////////////////
   // store
+  const mainStore = useMainStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
+  const { currentWorld } = storeToRefs(mainStore);
+
 
   ////////////////////////////////
   // data
@@ -45,19 +61,23 @@
     { id: GeneratorType.Tavern, label: 'Tavern Name', icon: 'fa-beer-mug-empty', tooltip: 'Generate a random tavern name' },
   ]);
 
-  const showGenerateDialog = ref<boolean>(false);
+  const showGenerateNameDialog = ref<boolean>(false);
   const currentGeneratorType = ref<GeneratorType>(GeneratorType.NPC);
+  
+  const showGenerateDialog = ref<boolean>(false);
+  const generateTopic = ref<ValidTopic>(Topics.Character);
+  const initialName = ref<string>('');
 
   ////////////////////////////////
   // methods
   const onGeneratorClick = (type: GeneratorType) => {
     currentGeneratorType.value = type;
-    showGenerateDialog.value = true;
+    showGenerateNameDialog.value = true;
   };
 
   const onOptionUse = (value: string) => {
     // Display the result
-    ui?.notifications?.info(`Generated: ${value}`);
+    ui?.notifications?.info(`Name: ${value}`);
 
     // Copy to clipboard
     navigator.clipboard.writeText(value).then(() => {
@@ -65,17 +85,62 @@
     });
   };
 
-  const onOptionAddToWorld = (value: string) => {
+  const onOptionAddToWorld = async (value: string) => {
+    if (!currentWorld.value) {
+      return;
+    }
+
+    switch (currentGeneratorType.value) {
+      case GeneratorType.NPC:
+        // For NPCs, create a character entry
+        await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Character], { name: value });
+        break;
+
+      case GeneratorType.Town:
+      case GeneratorType.Store:
+      case GeneratorType.Tavern:
+        // For all other types, create a location entry
+        await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Location], { name: value });
+        break;
+
+      default:
+        throw new Error('Invalid generator type in GeneratorRow.onOptionAddToWorld()');
+    }
+
     // Display the result
-    ui?.notifications?.info(`Generated and added to world: ${value}`);
+    ui?.notifications?.info(`Added to world: ${value}`);
 
     // Copy to clipboard
     navigator.clipboard.writeText(value).then(() => {
       ui?.notifications?.info('Copied to clipboard!');
     });
+  };
 
-    // TODO: Implement adding to world based on generator type
-    // This would involve creating a new entry in the appropriate topic folder
+  const onOptionGenerate = async (value: string) => {
+    if (!currentWorld) {
+      return;
+    }
+
+    // Map generator type to topic
+    switch (currentGeneratorType.value) {
+      case GeneratorType.NPC:
+        generateTopic.value = Topics.Character;
+        break;
+      case GeneratorType.Town:
+        generateTopic.value = Topics.Location;
+        break;
+      case GeneratorType.Store:
+        generateTopic.value = Topics.Location;
+        break;
+      case GeneratorType.Tavern:
+        generateTopic.value = Topics.Location;
+        break;
+      default:
+        return;
+    }
+
+    initialName.value = value;
+    showGenerateDialog.value = true;
   };
 </script>
 
