@@ -51,7 +51,7 @@
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import WCBTheme from '@/applications/presetTheme';
-  import { initializeRollTables } from '@/utils/generators';
+  import { initializeRollTables } from '@/utils/nameGenerators';
 
   // library components
   import Splitter from 'primevue/splitter';

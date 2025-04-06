@@ -42,7 +42,7 @@
 
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { refreshAllRollTables, } from '@/utils/generators';
+  import { refreshAllRollTables, } from '@/utils/nameGenerators';
   import { rollTableSettingsApp } from '@/applications/settings/RollTableSettingsApplication';
   import { localize } from '@/utils/game';
 

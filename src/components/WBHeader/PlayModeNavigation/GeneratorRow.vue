@@ -25,7 +25,8 @@
     :topic="generateTopic"
     :initial-name="initialName || ''"
     :initial-type="''"
-    @generation-complete="onFulLGenerationComplete"
+    :valid-parents="validGenerateParents"
+    @generation-complete="onFullGenerationComplete"
   />
 </template>
 
@@ -36,14 +37,16 @@
 
   // local imports
   import { useMainStore, useTopicDirectoryStore, } from '@/applications/stores';
-  import { Entry } from '@/classes';
-
+  import { handleGeneratedEntry, GeneratedDetails } from '@/utils/generation';
+  import { hasHierarchy, } from '@/utils/hierarchy';
+  
   // local components
   import GenerateNameDialog from '@/components/AIGeneration/GenerateNameDialog.vue';
   import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
 
   // types
-  import { GeneratorType, Topics, ValidTopic } from '@/types';
+  import { GeneratorType, Topics, ValidTopic} from '@/types';
+  import { Entry} from '@/classes';
 
   ////////////////////////////////
   // store
@@ -63,10 +66,12 @@
 
   const showGenerateNameDialog = ref<boolean>(false);
   const currentGeneratorType = ref<GeneratorType>(GeneratorType.NPC);
-  
+
+  // used to do a full generation
   const showGenerateDialog = ref<boolean>(false);
   const generateTopic = ref<ValidTopic>(Topics.Character);
   const initialName = ref<string>('');
+  const validGenerateParents = ref<{id: string; label: string}[]>([]);
 
   ////////////////////////////////
   // methods
@@ -117,11 +122,11 @@
   };
 
   const onOptionGenerate = async (value: string) => {
-    if (!currentWorld) {
+    if (!currentWorld.value) {
       return;
     }
 
-    // Map generator type to topic
+    // Map generator type to topic and do prep
     switch (currentGeneratorType.value) {
       case GeneratorType.NPC:
         generateTopic.value = Topics.Character;
@@ -139,9 +144,23 @@
         return;
     }
 
+    // load up valid parents
+    if (hasHierarchy(generateTopic.value)) {
+      const topicFolder = currentWorld.value.topicFolders[generateTopic.value];
+      validGenerateParents.value = topicFolder.allEntries()
+        .map((e: Entry)=>({ label: e.name, id: e.uuid}));
+    }
+
     initialName.value = value;
     showGenerateDialog.value = true;
   };
+
+  const onFullGenerationComplete = async (details: GeneratedDetails) => {
+    if (!currentWorld.value)
+      return;
+    
+    await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value]);
+  }
 </script>
 
 <style lang="scss">

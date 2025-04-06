@@ -29,7 +29,7 @@
         callback: onAddToWorldClick
       },
       {
-        label: 'Generate and add to world',
+        label: 'Generate details',
         default: false,
         close: true,
         disable: !selectedOption,
