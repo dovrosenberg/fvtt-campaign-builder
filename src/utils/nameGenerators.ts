@@ -19,6 +19,12 @@ export async function initializeRollTables(): Promise<void> {
   const generatorConfig: GeneratorConfig = {
     folderId: folderId,
     rollTables: {} as Record<GeneratorType, string>,
+    defaultTypes: {
+      [GeneratorType.NPC]: 'NPC',
+      [GeneratorType.Store]: 'Store',
+      [GeneratorType.Town]: 'Town',
+      [GeneratorType.Tavern]: 'Tavern',
+    },
     ...existingConfig
   };
   

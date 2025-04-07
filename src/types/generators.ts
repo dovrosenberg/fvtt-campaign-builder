@@ -21,4 +21,9 @@ export interface GeneratorConfig {
    * Mapping of generator types to roll table IDs
    */
   rollTables: Record<GeneratorType, string>;  // maps generator type to uuid
+
+  /** 
+   * Default type to use for each thing that can be randomly generated
+   */
+  defaultTypes: Record<GeneratorType, string>;
 }

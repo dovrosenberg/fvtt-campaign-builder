@@ -27,7 +27,7 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
 
 ## Features
 
-## MVP features
+## Current features
 - Create characters, locations, organizations, and events with detailed descriptions and images
 - Easily see (and click through) the relationships between them
 - Create geographical hierarchies (world-continents-countries-regions-towns-etc.)
@@ -36,6 +36,9 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
 - Directory view of all of your world entries
 - AI-driven generation of characters, locations, and organizations (descriptions and images) - it's hard to overstate how well the image generation in particular works... you need to try it to believe it
 - Maintain connections to relevant Foundry documents (ex. Scenes and Actors) for quick reference
+- Quick links to AI-refreshed RollTables for creating NPC, town, store, and tavern names
+- Easily plan your play sessions (in Lazy DM style) and track what happens to blend it back into your world
+- Lots more - see more details below and in the [user documentation](DOCUMENTATION.md)
 
 ## How it works
 The general flow of using the module to prep and play games:
@@ -53,7 +56,7 @@ your characters, locations, etc. (and even create images) or do it all yourself.
 * Create characters, locations, organizations, and events
 * Easily see (and click through) the relationships between them
 * Locations and organizations exist in hierarchies
-* Use AI to generate detailed descriptions and images
+* [Advanced -- see below] Use AI to generate detailed descriptions and images
   - The image generation in particular works best with detailed descriptions of the entry you're trying to create an image for.  The AI will take into account the campaign genre and world feeling, the hierarchy (i.e. it understands if a city falls inside the broader context of a country it knows about), and your definitions of your species (for characters).  The more details it has, the better it works.
 * (Future) make specicic entries (and parts of entries) availabile to players for a common lore understanding you don't have to maintain separately.
 
@@ -64,20 +67,19 @@ your characters, locations, etc. (and even create images) or do it all yourself.
 * Define Lore (what Lazy DM calls "secrets and clues") - flesh out headlines and link to journal entries 
 for more detail/images/handouts
 * Locations - keep a list of locations built in the world that you might use during the session, giving you one-click access to the description, image, association to other world entries, along with links to Foundry Actors and Scenes
-* NPCs - like locations, keep an easy list of the character world entries (including links to Actors) that might 
-come up
+* NPCs - like locations, keep an easy list of the character world entries (including links to Actors) that might come up
 * Monsters - create a list of the monsters likely to be around with easy links to the actors
 * Magic items - a list of Foundry Items that might come up 
 
 ### Play the game
 * Keep notes of what's happening while bringing in the elements you've defined
-* Scenes, lore, locations, etc. - with a single click you can mark off that they came up in the session for
-easy reference later
+* Scenes, lore, locations, etc. - with a single click you can mark off that they came up in the session for easy reference later
 * Locations and NPCs
   - Quickly bring up the full world-building details of your fantastic locations - use the hierarchy (quick - what's the name of that store they came to in this town last time?) and related items (what was the Mayor's sister's name?) to have easy access to the mostly likely topics to come up in that location
   - 1-click access to activate relevant Foundry Scenes and Actors to drag in
 * Monsters - drag into the scene from your pre-assembled list
 * Magic items - open them, grant players, access, etc.from your pre-assembled list
+* [Advanced] Instantly generate names for NPCs, towns, shops, and taverns.  This uses RollTables that are populated by AI in the background. With another click you can add them to your world for future reference (or AI generate a full description for them before adding).
 
 
 ### Record the results
@@ -87,7 +89,7 @@ easy reference later
 
 
 ## Advanced features
-- There are some advanced features (and more planned) that require you to setup a backend server.  In particular the AI features.  This approach has the advantages of:
+- There are some advanced features (and more planned) that require you to setup a backend server.  These are noted above, but basically come down to the AI features.  This approach has the advantages of:
   - You don't need to store sensitive credentials (i.e. OpenAI tokens) in Foundry (which would then be visible by whoever is hosting the session), and 
   - Activities that take some time (particularly image generation) can be done much more effectively
   - Future-proof for more complex features in the future
@@ -106,32 +108,6 @@ easy reference later
 - Locations are places (in worlds) that represent a country, a city, a building (or a room in building), etc. They can be tied to Foundry scenes - and more than one, in case you want to use them for different parts of the location or different times (pre/post a fire, for ex. or night vs day)
 - Locations can be added to sessions and then with a click you can get the lore you've built in the world around that location, as well as 1-click access to activate any of the related scenes
 - Campaign vignettes what the Lazy DM calls scenes.  The are short descriptions of a scene that could happen during a session. I renamed them to vignettes to avoid confusion with Foundry scenes.
-
-
-## Planned (or at least considered) features
-- Tags for tracking/searching various entries
-- keyboard shortcuts
-  - Quick search - popup just a search box to use fulltext search to try to find something
-  - Quick create - quickly generate NPC/location and interconnect into the world
-- Game notes - take notes during the game 
-  - Allow players to take notes that you can see; auto merge their notes into entities or put into a review queue
-- Create actor with one click from a character entry
-- System plugins to specify the bounds of species, classes, etc. to use... will this actually work? Can GPT do it on it's own if you specify the system?
-- Integration with (or similar functionality to) https://foundryvtt.com/packages/shuggaloafs-simple-npc-generator for NPC generation (with optional actor creation... could we include token?)
-- Random shop generation (i.e. contents)?
-- Random town generation (i.e. buildings, other features)?
-- Random dungeon generation?
-- Tie events to your calendar
-- After generating an NPC, shop, etc. quickly associate it with other things to make it easier to find again
-- Track newly created items during session so make a "to do" log for cleaning them up and merging into the rest of the world
-- Functionality to facilitate that merging
-- Create events/timelines (TBD if there's value here beyond what Simple Calendar already supports... suspect it's 
--    a timeline view?)
-- Integration with Simple Calendar for dates/timeline
-- Integration with Simple Weather to connect locations to climates
-- Automatically include autocomplete-mentions?
-- Algolia integration (free tier) for complex full-text search
-
 
 ## Issues?
 

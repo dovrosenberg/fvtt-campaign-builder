@@ -24,7 +24,7 @@
     v-model="showGenerateDialog"
     :topic="generateTopic"
     :initial-name="initialName || ''"
-    :initial-type="''"
+    :initial-type="initialType || ''"
     :valid-parents="validGenerateParents"
     @generation-complete="onFullGenerationComplete"
   />
@@ -39,6 +39,7 @@
   import { useMainStore, useTopicDirectoryStore, } from '@/applications/stores';
   import { handleGeneratedEntry, GeneratedDetails } from '@/utils/generation';
   import { hasHierarchy, } from '@/utils/hierarchy';
+  import { SettingKey, ModuleSettings } from '@/settings/ModuleSettings';
   
   // local components
   import GenerateNameDialog from '@/components/AIGeneration/GenerateNameDialog.vue';
@@ -71,6 +72,7 @@
   const showGenerateDialog = ref<boolean>(false);
   const generateTopic = ref<ValidTopic>(Topics.Character);
   const initialName = ref<string>('');
+  const initialType = ref<string>('');
   const validGenerateParents = ref<{id: string; label: string}[]>([]);
 
   ////////////////////////////////
@@ -151,7 +153,9 @@
         .map((e: Entry)=>({ label: e.name, id: e.uuid}));
     }
 
+    const config = ModuleSettings.get(SettingKey.generatorConfig);
     initialName.value = value;
+    initialType.value = config?.defaultTypes[currentGeneratorType.value] || '';
     showGenerateDialog.value = true;
   };
 
