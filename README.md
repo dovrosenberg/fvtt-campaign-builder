@@ -36,6 +36,9 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
 - Directory view of all of your world entries
 - AI-driven generation of characters, locations, and organizations (descriptions and images) - it's hard to overstate how well the image generation in particular works... you need to try it to believe it
 - Maintain connections to relevant Foundry documents (ex. Scenes and Actors) for quick reference
+- Quick links to AI-refreshed RollTables for creating NPC, town, store, and tavern names
+- Easily plan your play sessions (in Lazy DM style) and track what happens to blend it back into your world
+- Lots more - see more details below and in the [user documentation](DOCUMENTATION.md)
 
 ## How it works
 The general flow of using the module to prep and play games:
