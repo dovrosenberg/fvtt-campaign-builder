@@ -109,33 +109,6 @@ for more detail/images/handouts
 - Locations can be added to sessions and then with a click you can get the lore you've built in the world around that location, as well as 1-click access to activate any of the related scenes
 - Campaign vignettes what the Lazy DM calls scenes.  The are short descriptions of a scene that could happen during a session. I renamed them to vignettes to avoid confusion with Foundry scenes.
 
-
-## Planned (or at least considered) features
-- Tags for tracking/searching various entries
-- keyboard shortcuts
-  - Quick search - popup just a search box to use fulltext search to try to find something
-  - Quick create - quickly generate NPC/location and interconnect into the world
-- Game notes - take notes during the game 
-  - Allow players to take notes that you can see; auto merge their notes into entities or put into a review queue
-- Create actor with one click from a character entry
-- System plugins to specify the bounds of species, classes, etc. to use... will this actually work? Can GPT do it on it's own if you specify the system?
-- Integration with (or similar functionality to) https://foundryvtt.com/packages/shuggaloafs-simple-npc-generator for NPC description generation (with optional actor creation... could we include token?)
-- Use your own RollTables instead of the AI-generated ones
-- Random shop generation (i.e. contents)?
-- Random town generation (i.e. buildings, other features)?
-- Random dungeon generation?
-- Tie events to your calendar
-- After generating an NPC, shop, etc. quickly associate it with other things to make it easier to find again
-- Track newly created items during session so make a "to do" log for cleaning them up and merging into the rest of the world
-- Functionality to facilitate that merging
-- Create events/timelines (TBD if there's value here beyond what Simple Calendar already supports... suspect it's 
--    a timeline view?)
-- Integration with Simple Calendar for dates/timeline
-- Integration with Simple Weather to connect locations to climates
-- Automatically include autocomplete-mentions?
-- Algolia integration (free tier) for complex full-text search
-
-
 ## Issues?
 
 If you believe you found a bug or would like to post a feature request, head over to the module's [Github repo](https://github.com/dovrosenberg/fvtt-campaign-builder) and [open a new issue](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose).
