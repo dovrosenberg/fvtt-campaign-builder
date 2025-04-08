@@ -8,6 +8,7 @@ import { GeneratorConfig, Species } from '@/types';
 export enum SettingKey {
   // displayed in main settings window
   startCollapsed = 'startCollapsed',  // should the sidebar start collapsed when we open
+  displaySessionNotes = 'displaySessionNotes',  // should the session notes window automatically open
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
@@ -29,6 +30,7 @@ export enum SettingKey {
 
 export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
+    K extends SettingKey.displaySessionNotes ? boolean :
     K extends SettingKey.rootFolderId ? string :
     K extends SettingKey.groupTreeByType ? boolean :
     K extends SettingKey.isInPlayMode ? boolean :
@@ -113,6 +115,13 @@ export class ModuleSettings {
       name: 'settings.startCollapsed',
       hint: 'settings.startCollapsedHelp',
       default: false,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.displaySessionNotes,
+      name: 'settings.displaySessionNotes',
+      hint: 'settings.displaySessionNotesHelp',
+      default: true,
       type: Boolean,
     },
   ];

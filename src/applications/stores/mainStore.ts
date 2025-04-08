@@ -14,6 +14,7 @@ import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, WorldDoc } from '@/documents'
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
+
   ///////////////////////////////
   // the state
 
@@ -252,7 +253,7 @@ export const useMainStore = defineStore('main', () => {
   // watchers
   // Save isInPlayMode to settings whenever it changes
   watch(isInPlayMode, async (newValue) => {
-    await ModuleSettings.set(SettingKey.isInPlayMode, newValue);
+    await ModuleSettings.set(SettingKey.isInPlayMode, newValue);   
   });
 
 

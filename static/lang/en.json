@@ -5,6 +5,8 @@
     "settings": {
       "startCollapsed": "Sidebar starts collapsed?",
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
+      "displaySessionNotes": "Display pop-up session notes",
+      "displaySessionNotesHelp": "When enabled, a session notes window will automatically open when a play session starts",
       "autoRefreshRollTables": "Automatically refresh RollTables",
       "autoRefreshRollTablesHelp": "When enabled, generator roll tables will be automatically refreshed with new values when the module loads",
       "rollTableSettings": "Roll Table Settings",
@@ -18,6 +20,9 @@
       "speciesListHelp": "Define the species to make available.  These cross all worlds - file an issue if you have need more different lists per world."
     },
     "applications": {
+      "sessionNotes": {
+        "title": "Session Notes"
+      },
       "speciesList": {
         "title": "Configure Species List",
         "labels": {
