@@ -77,7 +77,8 @@
         "desiredMagicItems": "Desired Magic Items",
         "species": "Species",
         "worldGenre": "Genre",
-        "worldFeeling": "World Feeling"
+        "worldFeeling": "World Feeling",
+        "campaignDescription": "Campaign description, notes, ideas, etc..."
       },
       "addTopic": {
         "character": "Add Character",

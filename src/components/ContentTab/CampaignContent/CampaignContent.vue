@@ -27,7 +27,7 @@
           @image-change="onImageChange"
         >
           <LabelWithHelp
-            label-text="Campaign description, notes, ideas, etc..."
+            label-text="labels.fields.campaignDescription"
           />
           <div class="flexrow form-group" style="height: 100%">
             <Editor 
@@ -72,7 +72,7 @@
   import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
-  
+
   // types
   import { WindowTabType, } from '@/types';
   
