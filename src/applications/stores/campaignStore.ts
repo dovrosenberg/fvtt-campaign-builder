@@ -10,6 +10,8 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/a
 // types
 import { PCDetails, FieldData, CampaignLoreDetails} from '@/types';
 import { Campaign, PC, Session } from '@/classes';
+import { ModuleSettings, SettingKey } from '@/settings';
+import { openSessionNotes } from '@/applications/SessionNotes';
 
 export enum CampaignTableTypes {
   None,
@@ -370,6 +372,11 @@ export const useCampaignStore = defineStore('campaign', () => {
     } else {
       // When exiting play mode, clear the current played campaign
       currentPlayedCampaignId.value = null;
+    }
+
+    // If entering play mode, open the session notes window
+    if (newValue && ModuleSettings.get(SettingKey.displaySessionNotes) && currentPlayedCampaign.value?.currentSession) {
+      await openSessionNotes(currentPlayedCampaign.value.currentSession);
     }
   });
 

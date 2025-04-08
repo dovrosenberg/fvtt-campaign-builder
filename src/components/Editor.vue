@@ -148,6 +148,10 @@
   const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight + 'px'}` : ''));
   const innerStyle = computed((): string => (props.height ? `height: ${props.height + 'px'}` : ''));
 
+  const editOnlyMode = computed((): boolean => {
+    return props.editable && !props.hasButton
+  });
+
   ////////////////////////////////
   // methods
   // shouldn't be called unless there's already a document
@@ -161,8 +165,8 @@
     // if the window content is shorter, we want to handle that case (rare)
     const wc = coreEditorRef.value.closest('.window-content') as HTMLElement;
 
-    if (!buttonRef.value || !wrapperRef.value)
-      throw new Error('Missing name or button in activateEditor()');
+    if (!wrapperRef.value)
+      throw new Error('Missing name in activateEditor()');
 
     // Determine the preferred editor height
     const heights = [wrapperRef.value.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
@@ -195,10 +199,10 @@
     return {
       menu: ProseMirror.ProseMirrorMenu.build(ProseMirror.defaultSchema, {
         destroyOnSave: true,  // note! this controls whether the save button or save & close button is shown,
-        onSave: () => saveEditor()
+        onSave: () => saveEditor({ remove: !editOnlyMode.value})
       }),
       keyMaps: ProseMirror.ProseMirrorKeyMaps.build(ProseMirror.defaultSchema, {
-        onSave: () => saveEditor()
+        onSave: () => saveEditor({ remove: !editOnlyMode.value})
       })
     };
   };
@@ -233,6 +237,9 @@
       editorVisible.value = false;
       await nextTick();
       editorVisible.value = true;
+    } else {
+      // if we're not removing it, then do a ui confirmation
+      ui.notifications?.notify('Changes saved');
     }
     
     emit('editorSaved', content);
@@ -356,6 +363,11 @@
       return;
       
     enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
+
+    // if edit-only, activate it
+    if (editOnlyMode.value) {
+      await activateEditor();
+    }
   });
 
   
@@ -387,14 +399,15 @@
 <style lang="scss">
   .fcb-editor {
     height: 100%;
-    flex: 1 !important;
+    display: flex;
+    flex: 1;
     border: 1px solid var(--fcb-button-border-color);
     overflow-y: auto !important;
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.05);
     color: var(--color-dark-2);
     font-size: var(--font-size-14);
-    padding: 0 0.5rem;
+    padding: 0;
 
     &:focus-within {
       border: 2px solid var(--color-warm-2);
@@ -402,6 +415,21 @@
 
     &:disabled {
       color: var(--color-dark-4);
+    }
+
+    .prosemirror {
+      width: 100%;
+      
+      .editor-menu {
+        padding: 4px 0 4px 8px;
+      }
+      .editor-container {
+        margin: 0px;
+
+        .editor-content {
+          padding: 0 8px 0 3px;
+        }
+      }
     }
   }
 

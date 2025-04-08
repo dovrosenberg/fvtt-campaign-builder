@@ -28,13 +28,6 @@
         disable: !selectedOption,
         callback: onAddToWorldClick
       },
-      {
-        label: 'Generate details',
-        default: false,
-        close: true,
-        disable: !selectedOption,
-        callback: onGenerateClick
-      },
     ]"
     @cancel="onCancel"
   >
@@ -207,14 +200,6 @@
     if (selectedOption.value) {
       await markUnusedOptionsAsUndrawn();
       emit('addToWorld', selectedOption.value);
-    }
-    resetDialog();
-  };
-
-  const onGenerateClick = async () => {
-    if (selectedOption.value) {
-      await markUnusedOptionsAsUndrawn();
-      emit('generate', selectedOption.value);
     }
     resetDialog();
   };

@@ -17,7 +17,6 @@
     :generator-type="currentGeneratorType"
     @use="onOptionUse"
     @add-to-world="onOptionAddToWorld"
-    @generate="onOptionGenerate"
   />
 
   <GenerateDialog
@@ -93,37 +92,6 @@
   };
 
   const onOptionAddToWorld = async (value: string) => {
-    if (!currentWorld.value) {
-      return;
-    }
-
-    switch (currentGeneratorType.value) {
-      case GeneratorType.NPC:
-        // For NPCs, create a character entry
-        await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Character], { name: value });
-        break;
-
-      case GeneratorType.Town:
-      case GeneratorType.Store:
-      case GeneratorType.Tavern:
-        // For all other types, create a location entry
-        await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Location], { name: value });
-        break;
-
-      default:
-        throw new Error('Invalid generator type in GeneratorRow.onOptionAddToWorld()');
-    }
-
-    // Display the result
-    ui?.notifications?.info(`Added to world: ${value}`);
-
-    // Copy to clipboard
-    navigator.clipboard.writeText(value).then(() => {
-      ui?.notifications?.info('Copied to clipboard!');
-    });
-  };
-
-  const onOptionGenerate = async (value: string) => {
     if (!currentWorld.value) {
       return;
     }

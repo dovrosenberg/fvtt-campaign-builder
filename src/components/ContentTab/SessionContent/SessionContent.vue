@@ -139,6 +139,7 @@
   import SessionVignetteTab from '@/components/ContentTab/SessionContent/SessionVignetteTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
+  import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
   // types
   import { Session } from '@/classes';

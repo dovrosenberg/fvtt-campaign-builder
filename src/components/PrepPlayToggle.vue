@@ -1,5 +1,8 @@
 <template>
-  <div class="prep-play-toggle">
+  <div 
+    class="prep-play-toggle"
+    @click.stop=""
+  >
     <CampaignSelector 
       v-if="showCampaignSelector"
     />
