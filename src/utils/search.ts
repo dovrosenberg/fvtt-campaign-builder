@@ -213,12 +213,12 @@ class SearchService {
     if (!this.searchIndex)
       throw new Error('Couldn\'t create search index in search.addOrUpdateEntry()');
 
-    // Remove existing entry if present
-    this.removeEntry(entry.uuid);
-    
     // Create and add the new searchable item
     const item = await this.createSearchableItem(entry, world);
-    this.searchIndex.add(item);
+    if (this.searchIndex.has(entry.uuid))
+      this.searchIndex.replace(item);
+    else
+      this.searchIndex.add(item);
   }
 
   /**
@@ -231,9 +231,8 @@ class SearchService {
     }
     
     // Remove from the index
-    this.searchIndex.discard(uuid);
-
-    // TODO - need to vacuum the index periodically
+    if (this.searchIndex.has(uuid))
+      this.searchIndex.discard(uuid);
   }
 }
 

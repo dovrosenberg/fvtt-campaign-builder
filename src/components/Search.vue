@@ -20,7 +20,7 @@
         {{ localize('labels.searching') }}...
       </div>
       
-      <div v-else-if="searchResults.length === 0 && searchQuery.trim() !== ''" class="fcb-search-no-results">
+      <div v-else-if="searchResults.length === 0 && searchQuery.trim().length >= 3" class="fcb-search-no-results">
         {{ localize('labels.noResults') }}
       </div>
       
@@ -112,7 +112,10 @@
    * Performs a search with the current query
    */
   const performSearch = async () => {
-    if (!searchQuery.value.trim()) {
+    const trimmedQuery = searchQuery.value.trim();
+    
+    // Don't search if query is empty or less than 3 characters
+    if (!trimmedQuery || trimmedQuery.length < 3) {
       searchResults.value = [];
       isSearching.value = false;
       return;
@@ -121,7 +124,7 @@
     isSearching.value = true;
     
     try {
-      searchResults.value = await searchService.search(searchQuery.value, 5);
+      searchResults.value = await searchService.search(trimmedQuery, 5);
     } catch (error) {
       console.error('Search error:', error);
       searchResults.value = [];
@@ -142,10 +145,11 @@
     // Set a new timeout to perform the search after a delay
     searchTimeout.value = window.setTimeout(() => {
       performSearch();
-    }, 300); // 300ms debounce
+    }, 200); // 200ms debounce
     
-    // Show results panel when typing
-    showResults.value = true;
+    // Show results panel when typing if we have at least 3 characters
+    const trimmedQuery = searchQuery.value.trim();
+    showResults.value = trimmedQuery.length >= 3;
     
     // Reset selected index when input changes
     selectedIndex.value = -1;
