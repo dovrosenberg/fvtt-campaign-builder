@@ -15,37 +15,44 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useCampaignStore, } from '@/applications/stores';
+  import { useCampaignStore, useMainStore, } from '@/applications/stores';
   import Editor from '@/components/Editor.vue';
 
   // stores
+  const mainStore = useMainStore();
   const campaignStore = useCampaignStore();
   const { currentPlayedCampaign } = storeToRefs(campaignStore);
+  const { currentSession } = storeToRefs(mainStore);
 
   // data
   const sessionNotes = ref<string>('');
 
   // computed
-  const currentSession = computed(() => {
+  const playedSession = computed(() => {
     return currentPlayedCampaign.value?.currentSession || null;
   });
 
   // methods
   const onNotesEditorSaved = async (newContent: string) => {
-    if (!currentSession.value) return;
+    if (!playedSession.value) return;
 
-    currentSession.value.notes = newContent;
-    await currentSession.value.save();
+    playedSession.value.notes = newContent;
+    await playedSession.value.save();
+
+    // if we're showing the session, refresh it
+    if (currentSession.value && currentSession.value.uuid===playedSession.value.uuid) {
+      await mainStore.refreshEntry();
+    }
   };
 
   // watchers
-  watch(() => currentSession.value, async () => {
-    sessionNotes.value = currentSession.value?.notes || '';
+  watch(() => playedSession.value, async () => {
+    sessionNotes.value = playedSession.value?.notes || '';
   }, { immediate: true });
 
   // lifecycle
   onMounted(() => {
-    sessionNotes.value = currentSession.value?.notes || '';
+    sessionNotes.value = playedSession.value?.notes || '';
   })
 </script>
 

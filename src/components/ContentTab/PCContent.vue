@@ -109,13 +109,13 @@
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { WindowTabType } from '@/types';
   import { getTabTypeIcon, } from '@/utils/misc';
-  import { localize, } from '@/utils/game';
   
   // library components
   import InputText from 'primevue/inputtext';
 
   // local components
   import Editor from '@/components/Editor.vue';
+  import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
   // types
   import { PC } from '@/classes';
