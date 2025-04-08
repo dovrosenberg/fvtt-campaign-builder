@@ -4,25 +4,25 @@
     :title="dialogTitle"
     :buttons="[
       {
-        label: 'Cancel',
+        label: localize('labels.cancel'),
         default: false,
         close: true,
       },
       {
-        label: 'Try again',
+        label: localize('labels.tryAgain'),
         default: false,
         close: false,
         callback: onTryAgainClick
       },
       {
-        label: 'Use',
+        label: localize('labels.use'),
         default: false,
         close: true,
         disable: !selectedOption,
         callback: onUseClick
       },
       {
-        label: 'Add to world',
+        label: localize('labels.addToWorld'),
         default: false,
         close: true,
         disable: !selectedOption,
@@ -40,7 +40,7 @@
           <ProgressSpinner />
         </div>
         <div v-else-if="error" class="error-message">
-          <span class="error-label">There was an error:</span> {{ error }}
+          <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ error }}
         </div>
         <div v-else class="options-list">
           <div 
@@ -51,9 +51,6 @@
             @click="selectOption(index)"
           >
             <div class="option-content">{{ option.description }}</div>
-          </div>
-          <div v-if="options.length === 0" class="no-options-message">
-            No options available. Click "Try again" to generate options.
           </div>
         </div>
       </div>
@@ -292,13 +289,6 @@
         .option-content {
           font-size: var(--font-size-14);
         }
-      }
-      
-      .no-options-message {
-        text-align: center;
-        font-style: italic;
-        color: var(--color-text-dark-secondary);
-        padding: 2rem 0;
       }
     }
   }

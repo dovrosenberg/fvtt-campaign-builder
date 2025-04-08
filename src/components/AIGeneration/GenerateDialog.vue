@@ -4,20 +4,20 @@
     :title="localize(titles[props.topic])"
     :buttons="[
       {
-        label: 'Cancel',
+        label: localize('labels.cancel'),
         default: false,
         close: true,
         callback: () => { show=false; }
       },
       {
-        label: 'Generate',
+        label: localize('labels.generate'),
         default: false,
         close: false,
         disable: loading,
         callback: onGenerateClick
       },
       {
-        label: 'Accept',
+        label: localize('labels.accept'),
         default: false,
         close: true,
         disable: !generateComplete,

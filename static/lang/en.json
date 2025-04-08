@@ -58,6 +58,14 @@
       "newTab": "New Tab",
       "saveChanges": "Save Changes",
       "reset": "Reset",
+      "cancel": "Cancel",
+      "generate": "Generate",
+      "accept": "Accept",
+      "use": "Use",
+      "tryAgain": "Try Again",
+      "addToWorld": "Add to world",
+      "prep": "Prep",
+      "play": "Play",
       "fields": {
         "type": "Type",
         "parent": "Parent",
@@ -176,6 +184,9 @@
       "generateOrganization": {
         "title": "Generate Organization"
       },
+      "generateNameDialog": {
+        "errorMessage": "There was an error:"
+      },
       "generateOptions": {
         "title": "Select an Option"
       },
@@ -267,6 +278,7 @@
       "moveToNextSession": "Move to next session",
       "generateContent": "Generate content",
       "backendNotAvailable": "Backend not available",
+      "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",
       "contentLinks": {
         "1": {
           "1": "Character",

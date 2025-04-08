@@ -12,7 +12,7 @@
       class="mode-label"
       :class="{ active: !isInPlayMode }"
     >
-      Prep
+      {{ localize('labels.prep' )}}
     </span>
     <ToggleSwitch
       v-model="toggleValue"
@@ -26,13 +26,13 @@
       class="mode-label"
       :class="{ active: isInPlayMode && playableCampaignExists }"
     >
-      Play
+    {{ localize('labels.play' )}}
     </span>
     <span
       v-if="!playableCampaignExists"
       style="margin-left: 5px; cursor: default"
     >
-      <i class="fas fa-info-circle tooltip-icon" data-tooltip="You need to have at least one campaign with a session in order to use Play mode"></i>
+      <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.playModeNoCampaigns')"></i>
     </span>
   </div>
 </template>
@@ -44,6 +44,7 @@
 
   // local imports
   import { useMainStore, useCampaignStore } from '@/applications/stores';
+  import { localize } from '@/utils/game';
 
   // library components
   import ToggleSwitch from 'primevue/toggleswitch';
@@ -55,7 +56,7 @@
   const mainStore = useMainStore();
   const campaignStore = useCampaignStore();
   const { isInPlayMode, currentWorld } = storeToRefs(mainStore);
-  const { currentPlayedCampaignId, playableCampaigns } = storeToRefs(campaignStore);
+  const { playableCampaigns } = storeToRefs(campaignStore);
 
   // Data
   const toggleValue = ref<boolean>(isInPlayMode.value);
