@@ -21,8 +21,8 @@
         </div>
       </div>
 
-      <div class="recently-viewed">
-        MAKE THIS A SEARCH BAR
+      <div class="search-container">
+        <Search class="fcb-global-search" @result-selected="onSearchResultSelected" />
       </div>
 
       <div class="flexrow">
@@ -55,6 +55,7 @@
   // library components
 
   // local components
+  import Search from '../Search.vue';
 
   // types
   import { TabHeader, Topics, WindowTabType } from '@/types';
@@ -84,6 +85,13 @@
 
   ////////////////////////////////
   // event handlers
+  
+  // Handle search result selection
+  const onSearchResultSelected = (uuid: string) => {
+    // The navigation is handled in the Search component
+    // This is just a hook for any additional processing needed at the home page level
+  };
+  
   const onRecentClick = async (item: TabHeader) => {
     if (item.uuid) {
       // a little goofy, but we do it by icon
@@ -145,13 +153,16 @@
       font-style: italic;
     }
 
-    .recently-viewed {
+    .search-container {
       margin-bottom: 20px;
-      border-radius: 6px;
-      background-color: var(--fcb-blank-recent-background);
-      border: 1px solid var(--fcb-blank-recent-border);
-      font-size: 20px;
-      padding: 4px;
+      width: 100%;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      
+      .fcb-global-search {
+        width: 100%;
+      }
     }
 
     .recent-link,

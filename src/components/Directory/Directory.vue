@@ -152,7 +152,7 @@
   const onGroupTypeChange = async (event: Event) => {
     isGroupedByType.value = (event.currentTarget as HTMLInputElement)?.checked || false;
   };
-
+  
   ////////////////////////////////
   // watchers
 
