@@ -79,14 +79,15 @@
 .fcb-play-session-tabs {
   background-color: var(--fcb-header-background);
   border-bottom: 1px solid var(--fcb-header-border-color);
+  gap: 2px;
 
   .fcb-play-tab-button {
     margin: 0px;
     padding: 5px 8px;
     border-radius: 4px;
-    background-color: var(--fcb-header-nav-btn-background);
-    color: var(--fcb-header-nav-btn-color);
-    border: 1px solid var(--fcb-header-nav-btn-border);
+    background-color: var(--color-light-5);
+    color: white;
+    border: 1px solid transparent;
     font-size: 12px;
     align-items: center;
     justify-content: center;
@@ -96,6 +97,7 @@
     }
 
     &:hover {
+      color: var(--fcb-header-nav-btn-color-hover);
       background-color: var(--fcb-header-nav-btn-background-hover);
       box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
     }

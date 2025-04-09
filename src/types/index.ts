@@ -75,3 +75,10 @@ export type TreeNode = {
   children: TreeNode[];   // the children, if any
   expanded?: boolean;   // is it expanded
 }
+
+// session display mode in directory
+export enum SessionDisplayMode {
+  Number = 'number',
+  Date = 'date',
+  Name = 'name'
+}

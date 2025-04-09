@@ -1,5 +1,6 @@
 <template>
   <div class="fcb-play-generators flexrow">
+    <div class="fcb-generate-label">Generate</div>
     <button
       v-for="generator in generators"
       :key="generator.id"
@@ -35,7 +36,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useTopicDirectoryStore, } from '@/applications/stores';
+  import { useMainStore, } from '@/applications/stores';
   import { handleGeneratedEntry, GeneratedDetails } from '@/utils/generation';
   import { hasHierarchy, } from '@/utils/hierarchy';
   import { SettingKey, ModuleSettings } from '@/settings/ModuleSettings';
@@ -51,17 +52,16 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const topicDirectoryStore = useTopicDirectoryStore();
   const { currentWorld } = storeToRefs(mainStore);
 
 
   ////////////////////////////////
   // data
   const generators = computed(() => [
-    { id: GeneratorType.NPC, label: 'NPC Name', icon: 'fa-user', tooltip: 'Generate a random NPC name' },
-    { id: GeneratorType.Town, label: 'Town Name', icon: 'fa-city', tooltip: 'Generate a random town name' },
-    { id: GeneratorType.Store, label: 'Store Name', icon: 'fa-shop', tooltip: 'Generate a random store name' },
-    { id: GeneratorType.Tavern, label: 'Tavern Name', icon: 'fa-beer-mug-empty', tooltip: 'Generate a random tavern name' },
+    { id: GeneratorType.NPC, label: 'NPC', icon: 'fa-user', tooltip: 'Generate a random NPC name' },
+    { id: GeneratorType.Town, label: 'Town', icon: 'fa-city', tooltip: 'Generate a random town name' },
+    { id: GeneratorType.Store, label: 'Store', icon: 'fa-shop', tooltip: 'Generate a random store name' },
+    { id: GeneratorType.Tavern, label: 'Tavern', icon: 'fa-beer-mug-empty', tooltip: 'Generate a random tavern name' },
   ]);
 
   const showGenerateNameDialog = ref<boolean>(false);
@@ -139,23 +139,34 @@
 .fcb-play-generators {
   background-color: var(--fcb-header-background);
   border-bottom: 1px solid var(--fcb-header-border-color);
+  gap: 2px;
+
+  .fcb-generate-label {
+    margin: 0px;
+    padding: 5px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    flex: 0 1;
+  }
 
   .fcb-generator-button {
     margin: 0px;
     padding: 5px 8px;
     border-radius: 4px;
-    background-color: var(--fcb-header-nav-btn-background);
-    color: var(--fcb-header-nav-btn-color);
-    border: 1px solid var(--fcb-header-nav-btn-border);
+    background-color: var(--color-light-6);
+    color: white;
+    border: 1px solid transparent;
     font-size: 12px;
     align-items: center;
     justify-content: center;
+    max-width: 100px;
 
     i {
       margin-right: 5px;
     }
 
     &:hover {
+      color: var(--fcb-header-nav-btn-color-hover);
       background-color: var(--fcb-header-nav-btn-background-hover);
       box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
     }
