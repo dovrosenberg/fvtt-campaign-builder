@@ -90,7 +90,7 @@ const goodAnchor = <T extends InternalClientDocument>(doc: T, linkType: WindowTa
 /**
    * Create a dynamic document link from a regular expression match
    * @param {RegExpMatchArray} match         The regular expression match
-   * @param {object} [options]               Additional options to configure enrichment behaviour
+   * @param {object} [options]               Additional options to configure enrichment behavior
    * @param {Document} [options.relativeTo]  A document to resolve relative UUIDs against.
    * @returns {Promise<HTMLAnchorElement>}   An HTML element for the document link.
    * @protected

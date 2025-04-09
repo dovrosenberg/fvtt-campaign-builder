@@ -224,10 +224,6 @@
             color: var(--fcb-sheet-tab-color-hover);
           }
 
-          .item.hasitems {
-            border-bottom-color: var(--fcb-sheet-tab-border-items);
-          }
-
           .item.active {
             border-bottom-color: var(--fcb-sheet-tab-border-active);
             color: var(--fcb-sheet-tab-color-active);

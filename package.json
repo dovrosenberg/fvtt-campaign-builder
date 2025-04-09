@@ -62,6 +62,7 @@
   "dependencies": {
     "@imengyu/vue3-context-menu": "^1.4.4",
     "@primevue/themes": "^4.2.5",
+    "minisearch": "^7.1.2",
     "pinia": "^2.3.0",
     "primevue": "^4.2.5",
     "vue": "^3.5.13"

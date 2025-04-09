@@ -5,6 +5,7 @@ export type * from './hierarchy.d.ts';
 export type * from './global.d.ts';
 export type * from './species.d.ts';
 export type * from './dialogs.d.ts';
+export type * from './flexsearch.d.ts';
 
 // @ts-ignore - need to pull enum
 export * from './generators.ts';

@@ -189,7 +189,7 @@ export class WBWorld {
   }
 
   /**
-   * The IDs of nodes that are expanded in the cirectory.
+   * The IDs of nodes that are expanded in the directory.
    * Could include compendia, entries, or subentries, or campaigns.
    */
   public get expandedIds(): Record<string, boolean | null> {

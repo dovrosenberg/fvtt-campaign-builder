@@ -10,9 +10,9 @@
       <div class="fcb-header-search flexrow">
         <InputText
           v-model="filterText"
-          for="fcb-directory-search"
+          for="fcb-directory-filter"
           unstyled
-          :placeholder="localize('placeholders.search')"
+          :placeholder="localize('placeholders.filter')"
           autocomplete="off"
           :pt="{
             root: {
@@ -53,7 +53,7 @@
       </div>
     </header>
 
-    <Splitter layout="vertical" class="fcb-directory-spliter">
+    <Splitter layout="vertical" class="fcb-directory-splitter">
       <SplitterPanel :size="60" class="fcb-directory-panel">
         <div v-if="isTopicTreeRefreshing">
           <ProgressSpinner v-if="isTopicTreeRefreshing" />
@@ -152,7 +152,7 @@
   const onGroupTypeChange = async (event: Event) => {
     isGroupedByType.value = (event.currentTarget as HTMLInputElement)?.checked || false;
   };
-
+  
   ////////////////////////////////
   // watchers
 
@@ -167,7 +167,7 @@
       padding-left: 30px;
     }
 
-    .fcb-directory-spliter {
+    .fcb-directory-splitter {
       flex: 1 1 auto;  // take up all remaining space
       overflow: hidden;
       display: flex;
@@ -197,7 +197,7 @@
       padding: 8px 0px 8px 8px;
 
       .fcb-header-search {
-        #fcb-directory-search {
+        #fcb-directory-filter {
           flex: 1;
           height: var(--form-field-height);
         }

@@ -185,6 +185,11 @@
 
       case 'Enter':
       case 'Tab': {
+        // if it's enter, preventDefault, but tab we need to allow it
+        if (event.key==='Enter') {
+          event.preventDefault();
+        }
+
         let selection = '';
 
         // if nothing selected, check for a match or add something new

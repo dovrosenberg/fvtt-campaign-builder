@@ -245,13 +245,13 @@
   // show the edit dialog
   const onEditItemClick = function(row: RelatedItemGridRow) {
     // assemble the extra field data
-    const fieldsToAdd = extraColumns.value.reduce((accum, col) => {
-      accum.push({
+    const fieldsToAdd = extraColumns.value.reduce((result, col) => {
+      result.push({
         field: col.field,
         header:col.header,
         value: row[col.field as keyof typeof row]
       });
-      return accum;
+      return result;
     }, [] as {field: string; header: string; value: string}[]);
 
     // set up the parameter and open the dialog

@@ -479,7 +479,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     }]
     .filter((item)=>(hasHierarchy(topic) || (item.icon!=='fa-atlas' && item.icon!=='fa-head-side-virus')))
     // the line above is to remove the "add/generate child" option from entries that don't have hierarchy;
-    // not really ideal but a bit cleaner than having two separate arrays and concatening
+    // not really ideal but a bit cleaner than having two separate arrays and concatenating
   }
 
   const getGroupedTypeNodeContextMenuItems = (topic: ValidTopic, type: string): MenuItem[] => {

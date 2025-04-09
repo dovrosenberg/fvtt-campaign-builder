@@ -6,6 +6,7 @@ import { inputDialog } from '@/dialogs/input';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, WBWorld } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
+import { searchService } from '@/utils/search';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -103,6 +104,14 @@ export class Entry {
 
     if (entryDoc) {
       const entry = new Entry(entryDoc[0], topicFolder);
+      
+      // Add to search index
+      try {
+        await searchService.addOrUpdateEntry(entry, world);
+      } catch (error) {
+        console.error('Failed to add entry to search index:', error);
+      }
+      
       return entry;
     } else {
       return null;
@@ -303,6 +312,15 @@ export class Entry {
 
     await world.lock();
 
+    // Update the search index
+    try {
+      if (retval) {
+        await searchService.addOrUpdateEntry(this, world);
+      }
+    } catch (error) {
+      console.error('Failed to update search index:', error);
+    }
+
     return retval ? this : null;
   }
 
@@ -324,7 +342,12 @@ export class Entry {
 
     await world.lock();
 
-    // TODO - remove from search index
+    // Remove from search index
+    try {
+      searchService.removeEntry(id);
+    } catch (error) {
+      console.error('Failed to remove entry from search index:', error);
+    }
   }
 
       

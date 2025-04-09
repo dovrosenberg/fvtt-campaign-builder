@@ -222,7 +222,7 @@
       // @ts-ignore - editor is a tinymce.Editor
       content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
     } else {
-      throw new Error(`Unrecognized enginer in saveEditor(): ${props.engine}`);
+      throw new Error(`Unrecognized engine in saveEditor(): ${props.engine}`);
     }
 
     // Remove the editor
@@ -407,6 +407,8 @@
     background: rgba(0, 0, 0, 0.05);
     color: var(--color-dark-2);
     font-size: var(--font-size-14);
+    font-weight: normal;
+    font-family: var(--font-body);
     padding: 0;
 
     &:focus-within {
