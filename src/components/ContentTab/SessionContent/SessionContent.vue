@@ -16,6 +16,7 @@
         />
       </header>
       <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
+        <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
         <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
         <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
         <a class="item" data-tab="vignettes">{{ localize('labels.tabs.session.vignettes') }}</a>
@@ -23,13 +24,13 @@
         <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
         <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
         <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
-        <a class="item" data-tab="description">{{ localize('labels.tabs.session.notes') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
       </nav>
       <div class="fcb-tab-body flexrow">
         <DescriptionTab
           :name="currentSession?.name || 'Session'"
           :image-url="currentSession?.img"
+          alt-tab-id="notes"
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
@@ -261,7 +262,7 @@
 
   watch(currentSession, async (newSession: Session | null): Promise<void> => {
     if (!currentContentTab.value)
-      currentContentTab.value = 'start';
+      currentContentTab.value = 'description';
 
     tabs.value?.activate(currentContentTab.value); 
 

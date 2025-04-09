@@ -1,5 +1,5 @@
 <template>
-  <div class="tab flexcol" data-group="primary" data-tab="description">
+  <div class="tab flexcol" data-group="primary" :data-tab="props.altTabId">
     <div class="tab-inner">
       <div class="fcb-description-wrapper flexrow">
         <ImagePicker
@@ -40,6 +40,11 @@
       type: String,
       default: '',
       required: true,
+    },    
+    altTabId: {
+      type: String,
+      default: 'description',
+      required: false,
     },    
   });
 

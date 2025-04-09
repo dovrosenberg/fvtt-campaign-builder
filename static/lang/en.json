@@ -7,6 +7,13 @@
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
       "displaySessionNotes": "Display pop-up session notes",
       "displaySessionNotesHelp": "When enabled, a session notes window will automatically open when a play session starts",
+      "sessionDisplayMode": "Session display format",
+      "sessionDisplayModeHelp": "Choose how sessions are displayed in the campaign directory",
+      "sessionDisplayModeOptions": {
+        "number": "Session Number",
+        "date": "Session Date",
+        "name": "Session Name"
+      },
       "autoRefreshRollTables": "Automatically refresh RollTables",
       "autoRefreshRollTablesHelp": "When enabled, generator roll tables will be automatically refreshed with new values when the module loads",
       "rollTableSettings": "Roll Table Settings",
