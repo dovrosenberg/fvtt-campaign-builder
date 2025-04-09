@@ -17,11 +17,10 @@
         callback: onGenerateClick
       },
       {
-        label: localize('labels.accept'),
+        label: localize('labels.use'),
         default: false,
         close: true,
-        disable: !generateComplete,
-        callback: onAcceptClick
+        callback: onUseClick
       },
     ]"
     @cancel="onCancel"
@@ -86,9 +85,22 @@
       <hr>
       <div class="results-container">
         <div v-if="generateError" class="error-message">
-          <span class="error-label">There was an error:</span> {{ generateError }}
+          <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ generateError }}
         </div>
         <div v-else-if="generateComplete" class="generated-content">
+          <div class="generate-image-option">
+            <Checkbox 
+              v-model="generateImageAfterAccept" 
+              :binary="true"
+              :disabled="!generateComplete"
+              inputId="generate-image-checkbox"
+            />
+            <input type="checkbox" />
+            <label for="generate-image-checkbox" class="generate-image-label">
+              Generate image
+              <i class="fas fa-info-circle tooltip-icon" data-tooltip="Generate a new image in the background after creating"></i>
+            </label>
+          </div>
           <div><span class="label">Generated name:</span> {{ generatedName }}</div>
           <div class="description">
             <span class="label">Generated description:</span> {{ generatedDescription }}
@@ -114,7 +126,7 @@
   import { useMainStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend } from '@/classes/Backend';
+  import { Backend } from '@/classes';
   import { generatedTextToHTML } from '@/utils/misc';
   import { hasHierarchy, } from '@/utils/hierarchy';
     
@@ -122,6 +134,7 @@
   import InputText from 'primevue/inputtext';
   import ProgressSpinner from 'primevue/progressspinner';
   import Textarea from 'primevue/textarea';
+  import Checkbox from 'primevue/checkbox';
 
   // local components
   import Dialog from '@/components/Dialog.vue';
@@ -177,7 +190,7 @@
   // emits
   const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
-    (e: 'generationComplete', results: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails) : void;
+    (e: 'generationComplete', results: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails, generateImage: boolean) : void;
   }>();
 
 
@@ -197,6 +210,7 @@
   const generateComplete = ref<boolean>(false);
   const loading = ref<boolean>(false);
   const generateError = ref<string>('');
+  const generateImageAfterAccept = ref<boolean>(false);
 
   // for characters
   const speciesId = ref<string>(props.initialSpeciesId);
@@ -223,6 +237,7 @@
     generateComplete.value = false;
     generateError.value = '';
     loading.value = false;
+    generateImageAfterAccept.value = false;
     show.value = false;
     emit('update:modelValue', false);
   };
@@ -353,25 +368,28 @@
     loading.value = false;
   }
 
-  const onAcceptClick = async function() {
+  const onUseClick = async function() {
     // see if speciesId was made up or is an existing one
     const validSpecies = ModuleSettings.get(SettingKey.speciesList).map((s) => s.id);
 
     // emit an event that has the new name and description
+    // if we haven't generated a description, use whatever's in brief description
+    // the idea is that - especially when we're dealing with a rolltable name - user can use this form as a sort of
+    //    quick create
     if (props.topic === Topics.Character) {
       emit('generationComplete', { 
-        name: generatedName.value, 
-        description: generatedTextToHTML(generatedDescription.value),
+        name: generateComplete.value ? generatedName.value : name.value,
+        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
         type: type.value,
         speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
-      });
+      }, generateImageAfterAccept.value);
     } else if (props.topic === Topics.Location || props.topic === Topics.Organization) {
       emit('generationComplete', { 
-        name: generatedName.value, 
-        description: generatedTextToHTML(generatedDescription.value),
+        name: generateComplete.value ? generatedName.value : name.value,
+        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
         type: type.value,
         parentId: parentId.value,
-      });
+      }, generateImageAfterAccept.value);
     }
 
     resetDialog();
@@ -490,6 +508,21 @@
       .description {
         white-space: pre-wrap;
         margin-top: 8px;
+      }
+
+      .generate-image-option {
+        display: flex;
+        align-items: center;
+        margin-top: 16px;
+        padding: 8px 0 8px 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+        .generate-image-label {
+          margin-left: 8px;
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+        }
       }
     }
   }

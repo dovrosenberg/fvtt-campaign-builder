@@ -1,5 +1,8 @@
 <template>
-  <div class="fcb-play-generators flexrow">
+  <div 
+    v-if="Backend.available"
+    class="fcb-play-generators flexrow"
+  >
     <div class="fcb-generate-label">Generate</div>
     <button
       v-for="generator in generators"
@@ -36,10 +39,11 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, } from '@/applications/stores';
+  import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { handleGeneratedEntry, GeneratedDetails } from '@/utils/generation';
   import { hasHierarchy, } from '@/utils/hierarchy';
   import { SettingKey, ModuleSettings } from '@/settings/ModuleSettings';
+  import { Backend } from '@/classes'
   
   // local components
   import GenerateNameDialog from '@/components/AIGeneration/GenerateNameDialog.vue';
@@ -52,6 +56,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
   const { currentWorld } = storeToRefs(mainStore);
 
 
@@ -127,11 +132,16 @@
     showGenerateDialog.value = true;
   };
 
-  const onFullGenerationComplete = async (details: GeneratedDetails) => {
+  const onFullGenerationComplete = async (details: GeneratedDetails, generateImage: boolean) => {
     if (!currentWorld.value)
       return;
     
-    await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value]);
+    const entry = await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value], generateImage);
+
+    // open the entry in a new tab
+    if (entry) {
+      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: false });
+    }
   }
 </script>
 

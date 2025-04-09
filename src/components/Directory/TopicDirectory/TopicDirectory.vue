@@ -252,11 +252,16 @@
     await topicDirectoryStore.toggleTopic(directoryTopic);
   };
 
-  const onGenerated = async (details: GeneratedDetails) => {
+  const onGenerated = async (details: GeneratedDetails, generateImage: boolean) => {
     if (!currentWorld.value)
       return;
     
-    await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value]);
+    const entry = await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value], generateImage);
+
+    // open the entry in a new tab
+    if (entry) {
+      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true });
+    }
   }
 
   ////////////////////////////////

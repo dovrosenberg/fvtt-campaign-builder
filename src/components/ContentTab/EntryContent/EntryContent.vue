@@ -164,7 +164,7 @@
   import { getTopicIcon, htmlToPlainText } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
-  import { Backend } from '@/classes/Backend';
+  import { Backend } from '@/classes';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   
@@ -314,7 +314,11 @@
         label: `Generate image ${isGeneratingImage.value ? ' (in progress)' : ''}`,
         disabled: isGeneratingImage.value,
         onClick: async () => {
-          await generateImage();
+          if (!isGeneratingImage.value) {
+            isGeneratingImage.value = true;
+            await generateImage();
+            isGeneratingImage.value = false;
+          }
         }
       },
     ];
@@ -328,93 +332,10 @@
     });
   };
 
-  const generateImage = async (): Promise<void> => {
-    if (!currentEntry.value || !currentWorld.value || isGeneratingImage.value || ![Topics.Character, Topics.Location, Topics.Organization].includes(currentEntry.value.topic)) {
-      return;
-    }
-
-    try {
-      isGeneratingImage.value = true;
-
-      // Show a notification that we're generating an image
-      ui.notifications?.info(`Generating image for ${currentEntry.value.name}. This may take a minute...`);
-
-      // Get species name if this is a character
-      let species: Species | undefined;
-      const speciesList = ModuleSettings.get(SettingKey.speciesList);
-      if (currentEntry.value.speciesId) {
-        species = speciesList.find(s => s.id === currentEntry.value?.speciesId);
-      }
-
-      let result;
-      switch (currentEntry.value.topic) {
-        case Topics.Character:
-          // Call the API to generate an image
-           result = await Backend.api.apiCharacterGenerateImagePost({
-            genre: currentWorld.value.genre,
-            worldFeeling: currentWorld.value.worldFeeling,
-            type: currentEntry.value.type,
-            species: species?.name || '',
-            speciesDescription: species?.description || '',
-            briefDescription: currentEntry.value.description,
-          });
-          break;
-        case Topics.Location:
-        case Topics.Organization:
-          // get parent/grandparent
-          let parent: Entry | null = null;
-          let grandparent: Entry | null = null;
-
-          if (parentId.value) {
-            parent = await Entry.fromUuid(parentId.value);
-
-            if (parent) {
-              const grandparentId = await parent.getParentId();
-              if (grandparentId) {
-                grandparent = await Entry.fromUuid(grandparentId);
-              }
-            }
-          }
-
-          // Call the API to generate an image
-          const options = {
-            genre: currentWorld.value.genre,
-            worldFeeling: currentWorld.value.worldFeeling,
-            type: currentEntry.value.type,
-            name: currentEntry.value.name,
-            parentName: parent?.name,
-            parentType: parent?.type,
-            parentDescription: parent?.description,
-            grandparentName: grandparent?.name,
-            grandparentType: grandparent?.type,
-            grandparentDescription: grandparent?.description,
-            briefDescription: currentEntry.value.description,
-          };
-
-          if (currentEntry.value.topic === Topics.Location)  {
-            result = await Backend.api.apiLocationGenerateImagePost(options);
-          } else if (currentEntry.value.topic === Topics.Organization) {
-            result = await Backend.api.apiOrganizationGenerateImagePost(options);
-          }
-          break;
-      }
-
-      // Update the entry with the generated image
-      if (result.data.filePath) {
-        currentEntry.value.img = result.data.filePath;
-        await currentEntry.value.save();
-        ui.notifications?.info(`Image completed for ${currentEntry.value.name}.`);
-      } else {
-        throw new Error('Failed to generate image: No image path returned');
-      }
-    } catch (error) {
-      throw new Error(`Failed to generate image: ${(error as Error).message}`);
-    } finally {
-      isGeneratingImage.value = false;
-    }
-  };
-
-  const onGenerationComplete = async (details: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails) => {
+  const onGenerationComplete = async (
+    details: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails, 
+    needToGenerateImage: boolean
+  ) => {
     if (!currentEntry.value) return;
 
     // Update the entry with the generated content
@@ -445,6 +366,11 @@
 
     // Propagate the name and type changes to all related entries
     await relationshipStore.propagateFieldChange(currentEntry.value, ['name', 'type']);
+
+    // Generate an image if requested
+    if (needToGenerateImage) {
+      await generateImage();
+    }
   };
 
   const onImageChange = async (imageUrl: string) => {
