@@ -222,7 +222,7 @@
       // @ts-ignore - editor is a tinymce.Editor
       content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
     } else {
-      throw new Error(`Unrecognized enginer in saveEditor(): ${props.engine}`);
+      throw new Error(`Unrecognized engine in saveEditor(): ${props.engine}`);
     }
 
     // Remove the editor

@@ -53,7 +53,7 @@
       </div>
     </header>
 
-    <Splitter layout="vertical" class="fcb-directory-spliter">
+    <Splitter layout="vertical" class="fcb-directory-splitter">
       <SplitterPanel :size="60" class="fcb-directory-panel">
         <div v-if="isTopicTreeRefreshing">
           <ProgressSpinner v-if="isTopicTreeRefreshing" />
@@ -167,7 +167,7 @@
       padding-left: 30px;
     }
 
-    .fcb-directory-spliter {
+    .fcb-directory-splitter {
       flex: 1 1 auto;  // take up all remaining space
       overflow: hidden;
       display: flex;

@@ -2,7 +2,7 @@
 
 [![Supported Foundry Versions](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/dovrosenberg/fvtt-campaign-builder/raw/master/static/module.json)](https://github.com/dovrosenberg/fvtt-campaign-builder)
 
-The goal of this package is to facilitate creating, planning, and running campaigns in Foundry.  It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LengendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to use used with any style of prep) 
+The goal of this package is to facilitate creating, planning, and running campaigns in Foundry.  It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to use used with any style of prep) 
 
 You may find this better than the commercial world builders for a few reasons, even though many of those platforms have integration solutions with Foundry: 
 - It's free (without ads)
@@ -31,7 +31,7 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
 - Create characters, locations, organizations, and events with detailed descriptions and images
 - Easily see (and click through) the relationships between them
 - Create geographical hierarchies (world-continents-countries-regions-towns-etc.)
-- Create organizational hierarchies (ex. for religions, governing bodies, large familes, criminal organizations, companies, etc.)
+- Create organizational hierarchies (ex. for religions, governing bodies, large families, criminal organizations, companies, etc.)
 - Define your world's species for assigning to characters (and using for AI prompts)
 - Directory view of all of your world entries
 - AI-driven generation of characters, locations, and organizations (descriptions and images) - it's hard to overstate how well the image generation in particular works... you need to try it to believe it
@@ -50,7 +50,7 @@ your characters, locations, etc. (and even create images) or do it all yourself.
 
 3. **Play your game.** Reference your prep, create new PCs, locations, etc. on the fly (including AI generation) and record important details of things that were improv-ed during the session.
 
-4. **Record the results.** Capture the things that did (or didn't) happen - fleshing out the world for easy reference in the future and giving you a headstart on the next session prep.
+4. **Record the results.** Capture the things that did (or didn't) happen - fleshing out the world for easy reference in the future and giving you a head-start on the next session prep.
 
 ### Build the world
 * Create characters, locations, organizations, and events
@@ -58,7 +58,7 @@ your characters, locations, etc. (and even create images) or do it all yourself.
 * Locations and organizations exist in hierarchies
 * [Advanced -- see below] Use AI to generate detailed descriptions and images
   - The image generation in particular works best with detailed descriptions of the entry you're trying to create an image for.  The AI will take into account the campaign genre and world feeling, the hierarchy (i.e. it understands if a city falls inside the broader context of a country it knows about), and your definitions of your species (for characters).  The more details it has, the better it works.
-* (Future) make specicic entries (and parts of entries) availabile to players for a common lore understanding you don't have to maintain separately.
+* (Future) make specific entries (and parts of entries) available to players for a common lore understanding you don't have to maintain separately.
 
 ### Prep for a session - layout the key elements for the upcoming session
 * PCs - maintain your list of PCs and associated info - back stories, goals, links to character sheets

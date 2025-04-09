@@ -13,7 +13,7 @@ export const hasHierarchy = (topic: Topics): boolean => [Topics.Organization, To
 // returns a list of valid possible children for a node
 // this is to populate a list of possible children for a node (ex. a dropdown)
 // a valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself
-// only works for topics that have hierachy
+// only works for topics that have hierarchy
 export function validChildItems(world: WBWorld, entry: Entry): TabSummary[] {
   if (!entry.uuid)
     return [];
@@ -29,7 +29,7 @@ export function validChildItems(world: WBWorld, entry: Entry): TabSummary[] {
 
 // returns a list of valid possible parents for a node
 // a valid parent is anything that does not have this object as an ancestor (to avoid creating loops) 
-// only works for topics that have hierachy
+// only works for topics that have hierarchy
 export function validParentItems(world: WBWorld, entry: Entry): {name: string; id: string}[] {
   if (!entry.uuid)
     return [];
@@ -100,7 +100,7 @@ export const cleanTrees = async function(world: WBWorld, topicFolder: TopicFolde
     ];
 }
 
-  // Now process all other entries - we're looking for downstream descendents
+  // Now process all other entries - we're looking for downstream descendants
   //    that need to have their ancestor list cleaned
   for (const id in hierarchies) {
     // if it's the one being deleted or children we've handled, skip

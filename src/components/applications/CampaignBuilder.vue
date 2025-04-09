@@ -304,7 +304,7 @@
       const { Backend } = await import('@/classes/Backend');
       if (!Backend.available) {
         ui.notifications?.warn(
-          "Backend is not available. Automatic RollTables  will not be refrehed. " +
+          "Backend is not available. Automatic RollTables  will not be refreshed. " +
           "Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
         );
       }
