@@ -15,7 +15,7 @@
         callback: onTryAgainClick
       },
       {
-        label: localize('labels.use'),
+        label: localize('labels.useOnce'),
         default: false,
         close: true,
         disable: !selectedOption,
