@@ -2,6 +2,15 @@
 
 [![Supported Foundry Versions](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/dovrosenberg/fvtt-campaign-builder/raw/master/static/module.json)](https://github.com/dovrosenberg/fvtt-campaign-builder)
 
+## Important note
+**This module is VERY early in development.**  It's really an alpha.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.  To be clear, it's pretty stable.  You're highly unlikely to suffer data loss of the world data you put in.  You may end up in a state where we'll need to manually fix something to give you access to that data again.  I have only had one bug recently (last month or so of development) that caused the latter issue, and it's been fixed.  So, I don't say this to scare you, but if you want to use this for a live campaign:
+  1. Backup often
+  2. Just know what you're signing up for
+  
+
+______
+
+## Description
 The goal of this package is to facilitate creating, planning, and running campaigns in Foundry.  It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to use used with any style of prep) 
 
 You may find this better than the commercial world builders for a few reasons, even though many of those platforms have integration solutions with Foundry: 
@@ -20,12 +29,8 @@ I plan to use the module to support a live game where only combat is being done 
 The campaign planning component is modeled after [The Lazy Dungeon Master](https://slyflourish.com/lazydm/), which I highly recommend.  There is a [freely available copy of the original book](https://slyflourish.com/the_lazy_dungeon_master_cc.html) and I also recommend the newer [Return of the Lazy Dungeon Master](https://www.amazon.com/Flourishs-Return-Lazy-Dungeon-Master/dp/B0B8F1G5G7) (though you have to buy that version).
 
 
-## Important note
-This module is VERY early in development.  It's really an alpha.  The UX is not great.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.
-
-[Feature requests?](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose)
-
 ## Features
+[Feature requests?](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose)
 
 ## Current features
 - Create characters, locations, organizations, and events with detailed descriptions and images
@@ -41,9 +46,9 @@ This module is VERY early in development.  It's really an alpha.  The UX is not 
 - Lots more - see more details below and in the [user documentation](DOCUMENTATION.md)
 
 ## How it works
-The general flow of using the module to prep and play games:
+The module is designed to support the full cycle preparation and playing your game.  The general flow of using the module to prep and play games is:
 
-1. **(Optional) Build your world.** My preferred approach is to world build in real time while playing the game, but if you prefer to build every little detail out ahead of time, you can do that.
+1. **(Optional) Build your world.** If your preferred approach is to build every little detail out ahead of time, you can do that.
 
 2. **Prep for a session.** Go through the full Lazy DM method and prepare for your session.  Use AI to flesh out
 your characters, locations, etc. (and even create images) or do it all yourself.

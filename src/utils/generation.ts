@@ -1,7 +1,7 @@
 // library imports
 
 // local imports
-import { useTopicDirectoryStore, useNavigationStore } from '@/applications/stores';
+import { useTopicDirectoryStore, } from '@/applications/stores';
 
 // types
 import { 
@@ -34,7 +34,6 @@ export type GeneratedDetails =
 export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolder: TopicFolder, needToGenerateImage: boolean = false): Promise<Entry | undefined> => {
   const { name, description, type } = details;
   const topicDirectoryStore = useTopicDirectoryStore();
-  const navigationStore = useNavigationStore();
   
   if (!topicFolder)
     return undefined;
@@ -64,11 +63,6 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
   }
   
   await entry.save();
-
-  // open the entry in a new tab
-  if (entry) {
-    await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true });
-  }
   
   if (needToGenerateImage)
     void generateImage(await topicFolder.getWorld(), entry);

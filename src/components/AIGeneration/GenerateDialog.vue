@@ -17,11 +17,10 @@
         callback: onGenerateClick
       },
       {
-        label: localize('labels.accept'),
+        label: localize('labels.use'),
         default: false,
         close: true,
-        disable: !generateComplete,
-        callback: onAcceptClick
+        callback: onUseClick
       },
     ]"
     @cancel="onCancel"
@@ -94,9 +93,9 @@
               v-model="generateImageAfterAccept" 
               :binary="true"
               :disabled="!generateComplete"
-              unstyled
               inputId="generate-image-checkbox"
             />
+            <input type="checkbox" />
             <label for="generate-image-checkbox" class="generate-image-label">
               Generate image
               <i class="fas fa-info-circle tooltip-icon" data-tooltip="Generate a new image in the background after creating"></i>
@@ -369,22 +368,25 @@
     loading.value = false;
   }
 
-  const onAcceptClick = async function() {
+  const onUseClick = async function() {
     // see if speciesId was made up or is an existing one
     const validSpecies = ModuleSettings.get(SettingKey.speciesList).map((s) => s.id);
 
     // emit an event that has the new name and description
+    // if we haven't generated a description, use whatever's in brief description
+    // the idea is that - especially when we're dealing with a rolltable name - user can use this form as a sort of
+    //    quick create
     if (props.topic === Topics.Character) {
       emit('generationComplete', { 
-        name: generatedName.value, 
-        description: generatedTextToHTML(generatedDescription.value),
+        name: generateComplete.value ? generatedName.value : name.value,
+        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
         type: type.value,
         speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
       }, generateImageAfterAccept.value);
     } else if (props.topic === Topics.Location || props.topic === Topics.Organization) {
       emit('generationComplete', { 
-        name: generatedName.value, 
-        description: generatedTextToHTML(generatedDescription.value),
+        name: generateComplete.value ? generatedName.value : name.value,
+        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
         type: type.value,
         parentId: parentId.value,
       }, generateImageAfterAccept.value);
@@ -512,7 +514,7 @@
         display: flex;
         align-items: center;
         margin-top: 16px;
-        padding-top: 8px;
+        padding: 8px 0 8px 0;
         border-top: 1px solid rgba(0, 0, 0, 0.1);
 
         .generate-image-label {
