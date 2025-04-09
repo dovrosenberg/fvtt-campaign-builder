@@ -48,12 +48,17 @@ class SearchService {
 
       searchOptions: {
         boost: { 
-          name: 6,  // Prioritize name matches
-          description: 4,
-          topic: 2, 
+          name: 5,  // Prioritize name matches
+          description: 2,
+          topic: 1, 
           type: 2,
           species: 2,
-          relationships: 1,   // TODO: we could also include descriptions of the related entities with a lower score?
+          // TODO: we could also include descriptions of the related entities with a lower score?
+          // we make this high because if we match on the related record and the role, for ex.
+          //    then the relationship should score higher than just a match on name (that way
+          //    "mayor of Smallville" will match on the person that's the mayor higher than the
+          //     town itself - but less than a match for 'mayor of smallville' in a description)
+          relationships: 3   
         }, 
         fuzzy: 0.2, // Enable fuzzy matching (20% of term length)
         maxFuzzy: 4,
