@@ -51,7 +51,7 @@
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend } from '@/classes/Backend';
+  import { Backend } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
 

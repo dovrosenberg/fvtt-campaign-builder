@@ -1,7 +1,7 @@
 import { moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { useMainStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
-import { Backend } from '@/classes/Backend';
+import { Backend } from '@/classes';
 
 import { GeneratorType, GeneratorConfig, } from '@/types';
 export const TABLE_SIZE = 15;  // number of items per table

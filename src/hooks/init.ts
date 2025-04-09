@@ -1,7 +1,7 @@
 import { moduleId, ModuleSettings, } from '@/settings';
 import { KeyBindings } from '@/settings/KeyBindings';
 import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel, PCDataModel } from '@/documents';
-import { Backend } from '@/classes/Backend';
+import { Backend } from '@/classes';
 
 export function registerForInitHook() {
   Hooks.once('init', init);

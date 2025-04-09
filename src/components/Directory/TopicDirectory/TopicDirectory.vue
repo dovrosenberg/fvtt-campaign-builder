@@ -252,11 +252,11 @@
     await topicDirectoryStore.toggleTopic(directoryTopic);
   };
 
-  const onGenerated = async (details: GeneratedDetails) => {
+  const onGenerated = async (details: GeneratedDetails, generateImage: boolean) => {
     if (!currentWorld.value)
       return;
     
-    await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value]);
+    await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value], generateImage);
   }
 
   ////////////////////////////////

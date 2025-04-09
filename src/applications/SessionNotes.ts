@@ -4,7 +4,7 @@ import WCBTheme from '@/applications/presetTheme';
 
 import App from '@/components/applications/SessionNotes.vue';
 import { localize } from '@/utils/game';
-import { Session } from 'src/classes';
+import { Session } from '@/classes';
 
 const { ApplicationV2 } = foundry.applications.api;
 
