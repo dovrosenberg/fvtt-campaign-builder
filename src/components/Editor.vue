@@ -407,6 +407,8 @@
     background: rgba(0, 0, 0, 0.05);
     color: var(--color-dark-2);
     font-size: var(--font-size-14);
+    font-weight: normal;
+    font-family: var(--font-body);
     padding: 0;
 
     &:focus-within {

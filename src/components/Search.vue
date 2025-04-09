@@ -32,26 +32,11 @@
         @mouseenter="selectedIndex = index"
       >
         <div class="fcb-search-result-header">
-          <span class="fcb-search-result-name">{{ result.name }} {{ result.type ? `(${result.type})` : ''}}</span>
-          <!-- <span class="fcb-search-result-topic-type">{{ result.topic }}</span> -->
+          <!-- If there's a type use that, otherwise, use the topic -->
+          <span class="fcb-search-result-name">
+            {{ result.name }} ({{ result.type ? result.type : result.topic }})
+          </span>
         </div>
-        
-        <!-- <div class="fcb-search-result-description" v-if="result.description">
-          {{ truncateText(result.description, 100) }}
-        </div> -->
-        
-        <!-- <div class="fcb-search-result-snippets" v-if="result.snippets.length > 0">
-          <div 
-            v-for="(snippet, snippetIndex) in result.snippets.slice(0, 2)" 
-            :key="snippetIndex"
-            class="fcb-search-result-snippet"
-          >
-            {{ truncateText(snippet, 80) }}
-          </div>
-          <div v-if="result.snippets.length > 2" class="fcb-search-result-more">
-            +{{ result.snippets.length - 2 }} more
-          </div>
-        </div> -->
       </div>
     </div>
   </div>
@@ -68,10 +53,15 @@
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   
   // types
-  import { Topics } from '@/types';
   
   ////////////////////////////////
   // props
+  const props = defineProps({
+    maxResults: {
+      type: Number,
+      default: 5
+    }
+  });
   
   ////////////////////////////////
   // emits
@@ -124,7 +114,7 @@
     isSearching.value = true;
     
     try {
-      searchResults.value = await searchService.search(trimmedQuery, 5);
+      searchResults.value = await searchService.search(trimmedQuery, props.maxResults);
     } catch (error) {
       console.error('Search error:', error);
       searchResults.value = [];
@@ -271,10 +261,10 @@
     .fcb-search-input {
       width: 100%;
       padding: 8px 32px 8px 12px;
-      border: 1px solid var(--color-border-light-primary);
+      border: 1px solid var(--color-border-primary);
       border-radius: 4px;
-      background: var(--color-bg-field);
-      color: var(--color-text-dark-primary);
+      background: white;
+      color: var(--color-text-primary);
       font-size: 14px;
       
       &:focus {
@@ -289,7 +279,7 @@
       right: 10px;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--color-text-dark-secondary);
+      color: var(--color-text-secondary);
       pointer-events: none;
     }
   }
@@ -302,7 +292,7 @@
     max-height: 400px;
     overflow-y: auto;
     background-color: white; //var(--color-bg-app);
-    border: 1px solid var(--color-border-light-primary);
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
@@ -312,12 +302,12 @@
     .fcb-search-no-results {
       padding: 12px;
       text-align: center;
-      color: var(--color-text-dark-secondary);
+      color: var(--color-text-secondary);
     }
     
     .fcb-search-result {
       padding: 10px 12px;
-      border-bottom: 1px solid var(--color-border-light-secondary);
+      border-bottom: 1px solid var(--color-border-secondary);
       cursor: pointer;
       background-color: white;
       
@@ -338,32 +328,12 @@
         
         .fcb-search-result-name {
           font-weight: bold;
-          color: var(--color-text-dark-primary);
+          color: var(--color-text-primary);
         }
         
         .fcb-search-result-topic-type {
           font-size: 12px;
-          color: var(--color-text-dark-secondary);
-        }
-      }
-      
-      .fcb-search-result-description {
-        font-size: 13px;
-        color: var(--color-text-dark-primary);
-        margin-bottom: 6px;
-      }
-      
-      .fcb-search-result-snippets {
-        .fcb-search-result-snippet {
-          font-size: 12px;
-          color: var(--color-text-dark-secondary);
-          margin-bottom: 2px;
-        }
-        
-        .fcb-search-result-more {
-          font-size: 11px;
-          color: var(--color-text-dark-tertiary);
-          font-style: italic;
+          color: var(--color-text-secondary);
         }
       }
     }

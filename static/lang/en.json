@@ -150,6 +150,7 @@
     },
     "placeholders": {
       "search": "Search",
+      "filter": "Filter",
       "characterName": "Character Name",
       "eventName": "Event Name",
       "locationName": "Location Name",

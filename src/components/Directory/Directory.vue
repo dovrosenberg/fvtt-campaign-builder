@@ -10,9 +10,9 @@
       <div class="fcb-header-search flexrow">
         <InputText
           v-model="filterText"
-          for="fcb-directory-search"
+          for="fcb-directory-filter"
           unstyled
-          :placeholder="localize('placeholders.search')"
+          :placeholder="localize('placeholders.filter')"
           autocomplete="off"
           :pt="{
             root: {
@@ -197,7 +197,7 @@
       padding: 8px 0px 8px 8px;
 
       .fcb-header-search {
-        #fcb-directory-search {
+        #fcb-directory-filter {
           flex: 1;
           height: var(--form-field-height);
         }

@@ -61,7 +61,7 @@
   import WBHeader from '@/components/WBHeader/WBHeader.vue';
   import ContentTab from '@/components/ContentTab/ContentTab.vue';
   import Directory from '@/components/Directory/Directory.vue';
-  import PrepPlayToggle from '@/components/PrepPlayToggle.vue';
+  import TitleBarComponents from '@/components/TitleBarComponents.vue';
 
   // types
   import { WindowTabType, Topics, ValidTopic } from '@/types';
@@ -192,7 +192,7 @@
 
   ////////////////////////////////
   // methods for prep/play toggle
-  const createPrepPlayToggle = async () => {
+  const createTitleBarComponents = async () => {
     // Find the application window header
     const appId = 'app-fcb-CampaignBuilder';
     const appElement = document.getElementById(appId);
@@ -220,7 +220,7 @@
     // Create and mount the Vue component
     const app = createApp({
       render() {
-        return h(PrepPlayToggle, {});
+        return h(TitleBarComponents, {});
       }
     });
 
@@ -312,7 +312,7 @@
       // Add the prep/play toggle to the header
       // Use setTimeout to ensure the DOM is fully rendered
       setTimeout(() => {
-        createPrepPlayToggle();
+        createTitleBarComponents();
       }, 100);
     } else {
       throw new Error('Failed to load or create folder structure');
@@ -333,16 +333,18 @@ div[data-application-part] {
   flex: 1;
 }
 
-
 // the launch button in the top right corner
 #fcb-launch {
   background-color: rgba(0,0,0,.5);
   color: var(--color-text-light-highlight);
 }
 
-
 .fcb-main-window {  
   min-width: 640px;
+
+  .window-header {
+    overflow: visible;  // for the search drop down
+  }
 
   .window-content {
     padding: 0;
