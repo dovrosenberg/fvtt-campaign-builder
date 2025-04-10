@@ -2,11 +2,30 @@
 
 [![Supported Foundry Versions](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/dovrosenberg/fvtt-campaign-builder/raw/master/static/module.json)](https://github.com/dovrosenberg/fvtt-campaign-builder)
 
-## Important note
-**This module is VERY early in development.**  It's really a beta.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.  To be clear, it's pretty stable.  You're highly unlikely to suffer data loss of the world data you put in.  You may end up in a state where we'll need to manually fix something to give you access to that data again.  I have only had one bug recently (last month or so of development) that caused the latter issue, and it's been fixed.  So, I don't say this to scare you, but if you want to use this for a live campaign:
+## Important notes
+
+### This module is VERY early in development.
+It's really a beta.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.  To be clear, it's pretty stable.  You're highly unlikely to suffer data loss of the world data you put in.  You may end up in a state where we'll need to manually fix something to give you access to that data again.  I have only had one bug recently (last month or so of development) that caused the latter issue, and it's been fixed.  So, I don't say this to scare you, but if you want to use this for a live campaign:
   1. Backup often
   2. Just know what you're signing up for
   
+### A note on AI and "Advanced Features"
+You'll see lots of references to AI capabilities in the instructions and feature lists.  There is no AI-generated content (or any other content) provided by the module - merely the capability to use AI to generate various things if you desire.
+
+The module is *fully functional and useful without any use of AI*, and by default there are no AI features/functions enabled.  You'll never know it's there.
+
+That said, here's the scoop on what you'll need to do if you do want to access the AI features:
+
+- The first advanced features require you to setup a backend server.  Which features fall in this category are noted below, but basically it comes down to the AI features.  This approach of using a backend has the advantages of:
+  - You don't need to store sensitive credentials (i.e. OpenAI tokens) in Foundry (which would then be visible by whoever is hosting the session), and 
+  - Activities that take some time (particularly image generation) can be done much more effectively
+  - Future-proof for more complex features in the future
+- Setting up these features is not particularly complicated, but does require:
+  - Some basic comfort with running command-line scripts
+  - Account creation (currently Google Cloud, OpenAPI, and Replicate.com).  The backend is designed to stay within the Google Cloud free tier (assuming you're not running anything else) and the OpenAPI/Replicate costs are minimal (ex. you can create ~5000 AI-generated character descriptions for $0.15 and image generation is about $0.01), but all 3 services will require you to provide a credit card.
+  - Full details on the setup are here: https://github.com/dovrosenberg/fvtt-fcb-backend
+
+
 ______
 
 ## User Documentation
@@ -92,17 +111,6 @@ for more detail/images/handouts
 * Go through vignettes, lore and see which were used; delete or move unused ones to the next session with a click
 * Add any new locations, NPCs, etc. to the world - you can do this while playing but it may be easier to just take quick notes and do it afterwards 
 * Add anything that's top of mind to the next session to get started for next time
-
-
-## Advanced features
-- There are some advanced features (and more planned) that require you to setup a backend server.  These are noted above, but basically come down to the AI features.  This approach has the advantages of:
-  - You don't need to store sensitive credentials (i.e. OpenAI tokens) in Foundry (which would then be visible by whoever is hosting the session), and 
-  - Activities that take some time (particularly image generation) can be done much more effectively
-  - Future-proof for more complex features in the future
-- Setting up these features is not particularly complicated, but does require:
-  - Some basic comfort with running command-line scripts
-  - Account creation (currently Google Cloud and OpenAPI).  The backend is designed to stay within the Google Cloud free tier (assuming you're not running anything else) and the OpenAPI costs are minimal (ex. you can create ~5000 AI-generated character descriptions for $0.15), but both services will require you to provide a credit card.
-  - Full details on the setup are here: https://github.com/dovrosenberg/fvtt-fcb-backend
 
 ## Note on characters, actors, and PCs
 - Characters (in worlds) can be PCs if you'd like, but they're really intended primarily to represent all the NPCs.  
