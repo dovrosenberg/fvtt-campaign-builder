@@ -198,11 +198,12 @@
   const configureProseMirrorPlugins = () => {
     return {
       menu: ProseMirror.ProseMirrorMenu.build(ProseMirror.defaultSchema, {
-        destroyOnSave: true,  // note! this controls whether the save button or save & close button is shown,
-        onSave: () => saveEditor({ remove: !editOnlyMode.value})
+        // In edit-only mode, we want to keep the editor open after saving
+        destroyOnSave: !editOnlyMode.value,  // Controls whether the save button or save & close button is shown
+        onSave: () => saveEditor({ remove: !editOnlyMode.value })
       }),
       keyMaps: ProseMirror.ProseMirrorKeyMaps.build(ProseMirror.defaultSchema, {
-        onSave: () => saveEditor({ remove: !editOnlyMode.value})
+        onSave: () => saveEditor({ remove: !editOnlyMode.value })
       })
     };
   };
@@ -225,8 +226,8 @@
       throw new Error(`Unrecognized engine in saveEditor(): ${props.engine}`);
     }
 
-    // Remove the editor
-    if (remove) {
+    // For edit-only mode (like in SessionNotes), don't destroy the editor
+    if (remove && !editOnlyMode.value) {
       // this also blows up the DOM... don't think we actually need it
       toRaw(editor.value).destroy();  
       editor.value = null;
@@ -364,8 +365,8 @@
       
     enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
 
-    // if edit-only, activate it
-    if (editOnlyMode.value) {
+    // if edit-only and no editor exists yet, activate it
+    if (editOnlyMode.value && !editor.value) {
       await activateEditor();
     }
   });
