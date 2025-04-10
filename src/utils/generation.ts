@@ -70,7 +70,7 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
   return entry;
 };
 
-const generateImage = async (currentWorld: WBWorld, entry: Entry): Promise<void> => {
+export const generateImage = async (currentWorld: WBWorld, entry: Entry): Promise<void> => {
   if (!entry || !currentWorld || ![Topics.Character, Topics.Location, Topics.Organization].includes(entry.topic)) {
     return;
   }
@@ -144,6 +144,7 @@ const generateImage = async (currentWorld: WBWorld, entry: Entry): Promise<void>
     if (result.data.filePath) {
       entry.img = result.data.filePath;
       await entry.save();
+
       ui.notifications?.info(`Image completed for ${entry.name}.`);
     } else {
       throw new Error('Failed to generate image: No image path returned');

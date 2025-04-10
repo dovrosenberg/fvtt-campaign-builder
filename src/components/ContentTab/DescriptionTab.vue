@@ -60,7 +60,7 @@
   ////////////////////////////////
   // data
   const defaultImage = 'icons/svg/mystery-man.svg'; // Default Foundry image
-  const currentImageURL = ref<string>(props.imageUrl ||  defaultImage); // 
+  const currentImageURL = ref<string>(props.imageUrl ||  defaultImage); 
 
   ////////////////////////////////
   // computed data
@@ -74,9 +74,8 @@
   ////////////////////////////////
   // watchers
   watch(() => props.imageUrl, (newImageUrl) => {
-    if (newImageUrl) {
-      currentImageURL.value = newImageUrl || defaultImage ;
-    }
+    // Always update the image URL, even when it's empty or undefined
+    currentImageURL.value = newImageUrl || defaultImage;
   });
 
   ////////////////////////////////

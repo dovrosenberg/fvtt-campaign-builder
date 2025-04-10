@@ -165,8 +165,8 @@
   import { localize } from '@/utils/game';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
   import { Backend } from '@/classes';
-  import { ModuleSettings, SettingKey } from '@/settings';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
+  import { generateImage } from '@/utils/generation';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -314,9 +314,17 @@
         label: `Generate image ${isGeneratingImage.value ? ' (in progress)' : ''}`,
         disabled: isGeneratingImage.value,
         onClick: async () => {
-          if (!isGeneratingImage.value) {
+          if (!isGeneratingImage.value && currentWorld.value && currentEntry.value) {
             isGeneratingImage.value = true;
-            await generateImage();
+
+            // save entry because it could change before generation is done
+            const entryGenerated = currentEntry.value.uuid;
+
+            await generateImage(currentWorld.value, currentEntry.value);
+
+            if (entryGenerated===currentEntry.value.uuid)
+              mainStore.refreshEntry();
+
             isGeneratingImage.value = false;
           }
         }
