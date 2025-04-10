@@ -6,6 +6,7 @@ import { watch, ref, computed } from 'vue';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+import { confirmDialog } from '@/dialogs';
 
 // types
 import { PCDetails, FieldData, CampaignLoreDetails} from '@/types';
@@ -76,6 +77,10 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!pc) 
       throw new Error('Bad session in campaignDirectoryStore.deletePC()');
 
+    // confirm
+    if (!(await confirmDialog('Delete PC?', 'Are you sure you want to delete this PC?')))
+      return;
+
     await pc.delete();
 
     // update tabs/bookmarks
@@ -123,12 +128,16 @@ export const useCampaignStore = defineStore('campaign', () => {
   
     /**
      * Deletes a lore from the session
-     * @param uuid the UUID of the l0ore
+     * @param uuid the UUID of the lore
      */
     const deleteLore = async (uuid: string): Promise<void> => {
       if (!currentCampaign.value)
         throw new Error('Invalid session in campaignStore.deleteLore()');
   
+      // confirm
+      if (!(await confirmDialog('Delete Lore?', 'Are you sure you want to delete this lore?')))
+        return;
+
       await currentCampaign.value.deleteLore(uuid);
       await _refreshLoreRows();
     }

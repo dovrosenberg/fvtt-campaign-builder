@@ -6,6 +6,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
+import { confirmDialog } from '@/dialogs';
 
 // types
 import { 
@@ -19,7 +20,7 @@ import {
   SessionLoreDetails,
 } from '@/types';
 
-import { Campaign, Session } from '@/classes';
+import { Session } from '@/classes';
 
 export enum SessionTableTypes {
   None,
@@ -106,6 +107,10 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteLocation()');
 
+    // confirm
+    if (!(await confirmDialog('Delete location?', 'Are you sure you want to delete this location?')))
+      return;
+
     await currentSession.value.deleteLocation(uuid);
     await _refreshLocationRows();
   }
@@ -163,6 +168,10 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteNPC()');
 
+    // confirm
+    if (!(await confirmDialog('Delete NPC?', 'Are you sure you want to delete this NPC?')))
+      return;
+    
     await currentSession.value.deleteNPC(uuid);
     await _refreshNPCRows();
   }
@@ -231,6 +240,10 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteVignette()');
 
+    // confirm
+    if (!(await confirmDialog('Delete vignette?', 'Are you sure you want to delete this vignette?')))
+      return;
+    
     await currentSession.value.deleteVignette(uuid);
     await _refreshVignetteRows();
   }
@@ -317,6 +330,10 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteLore()');
 
+    // confirm
+    if (!(await confirmDialog('Delete lore?', 'Are you sure you want to delete this lore?')))
+      return;
+    
     await currentSession.value.deleteLore(uuid);
     await _refreshLoreRows();
   }
@@ -379,6 +396,10 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteItem()');
 
+    // confirm
+    if (!(await confirmDialog('Delete item?', 'Are you sure you want to delete this item?')))
+      return;
+    
     await currentSession.value.deleteItem(uuid);
     await _refreshItemRows();
   }
@@ -436,6 +457,10 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteMonster()');
 
+    // confirm
+    if (!(await confirmDialog('Delete monster?', 'Are you sure you want to delete this monster?')))
+      return;
+    
     await currentSession.value.deleteMonster(uuid);
     await _refreshMonsterRows();
   }

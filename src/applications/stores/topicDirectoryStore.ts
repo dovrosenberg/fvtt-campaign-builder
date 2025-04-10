@@ -11,6 +11,7 @@ import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { Backend } from '@/classes';
+import { confirmDialog } from '@/dialogs';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, TopicFolder, } from '@/classes';
@@ -340,6 +341,10 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (!world)
       return;
 
+    // confirm
+    if (!(await confirmDialog('Delete world?', 'Are you sure you want to delete this world?')))
+      return;
+    
     await world.delete();
 
     // pick another world
@@ -356,6 +361,10 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // delete an entry from the world
   const deleteEntry = async (topic: ValidTopic, entryId: string) => {
     if (!currentWorld.value)
+      return;
+
+    // confirm
+    if (!(await confirmDialog('Delete entry?', 'Are you sure you want to delete this entry?')))
       return;
 
     // save the parent
