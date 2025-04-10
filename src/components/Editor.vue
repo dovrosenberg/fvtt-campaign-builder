@@ -92,11 +92,6 @@
       required: false,
       default: false,
     },
-    engine: {
-      type: String as PropType<'tinymce' | 'prosemirror'>,
-      required: false,
-      default: 'prosemirror',
-    },
     height: {
       type: String,
       required: false,
@@ -138,7 +133,7 @@
   // computed data
   const datasetProperties = computed((): Record<string, string> => {
     const dataset = {
-      engine: props.engine,
+      engine: 'prosemirror',
       collaborate: props.collaborate.toString(),
     } as Record<string, string>;
 
@@ -177,13 +172,12 @@
       // document: props.document,
       target: coreEditorRef.value,
       height, 
-      engine: props.engine, 
+      engine: 'prosemirror', 
       collaborate: props.collaborate,
       plugins: undefined as { menu: any; keyMaps: any } | undefined,
     };
 
-    if (props.engine === 'prosemirror') 
-      options.plugins = configureProseMirrorPlugins();
+    options.plugins = configureProseMirrorPlugins();
 
     if (!fitToSize && options.target.offsetHeight) 
       options.height = options.target.offsetHeight;
@@ -192,7 +186,7 @@
     
     editor.value = await TextEditor.create(options, props.initialContent);
    
-    options.target.closest('.editor')?.classList.add(props.engine);
+    options.target.closest('.editor')?.classList.add('prosemirror');
   };
 
   const configureProseMirrorPlugins = () => {
@@ -214,17 +208,8 @@
 
     // get the new content
     let content;
-    if (props.engine === 'tinymce') {
-      // @ts-ignore - editor is a tinymce.Editor
-      const mceContent = editor.value.getContent();
-      //this.delete(editor.value.id); // Delete hidden MCE inputs
-      content = mceContent;
-    } else if (props.engine === 'prosemirror') {
-      // @ts-ignore - editor is a tinymce.Editor
-      content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
-    } else {
-      throw new Error(`Unrecognized engine in saveEditor(): ${props.engine}`);
-    }
+    // @ts-ignore - editor is a tinymce.Editor
+    content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
 
     // For edit-only mode (like in SessionNotes), don't destroy the editor
     if (remove && !editOnlyMode.value) {
@@ -345,15 +330,11 @@
       const linkText = `@UUID[${entryUuid}]{${entryName}}`;
 
       // Insert the link at the current cursor position
-      if (props.engine === 'prosemirror') {
-        // For ProseMirror
-        const view = toRaw(editor.value).view;
-        const { state, dispatch } = view;
-        const tr = state.tr.insertText(linkText);
-        dispatch(tr);
-      } else {
-        throw new Error("Unsupported engine in Editor.onDrop");
-      }
+      // For ProseMirror
+      const view = toRaw(editor.value).view;
+      const { state, dispatch } = view;
+      const tr = state.tr.insertText(linkText);
+      dispatch(tr);
     }
   };
 
@@ -368,6 +349,20 @@
     // if edit-only and no editor exists yet, activate it
     if (editOnlyMode.value && !editor.value) {
       await activateEditor();
+    }
+    // If editor is already active, update its content
+    else if (editor.value) {
+      // Update the editor content
+      const view = toRaw(editor.value).view;
+      const { state, dispatch } = view;
+      
+      // Create a transaction that replaces the entire document content
+      const schema = state.schema;
+      const newDoc = ProseMirror.dom.parseString(enrichedInitialContent.value || '', schema);
+      const tr = state.tr.replaceWith(0, state.doc.content.size, newDoc.content);
+      
+      // Apply the transaction
+      dispatch(tr);
     }
   });
 
