@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed } from 'vue';
+  import { computed, } from 'vue';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -140,6 +140,9 @@
       target.src = props.defaultImage;
     }
   };
+
+  ////////////////////////////////
+  // watchers
 </script>
 
 <style lang="scss">

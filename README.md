@@ -3,7 +3,7 @@
 [![Supported Foundry Versions](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/dovrosenberg/fvtt-campaign-builder/raw/master/static/module.json)](https://github.com/dovrosenberg/fvtt-campaign-builder)
 
 ## Important note
-**This module is VERY early in development.**  It's really an alpha.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.  To be clear, it's pretty stable.  You're highly unlikely to suffer data loss of the world data you put in.  You may end up in a state where we'll need to manually fix something to give you access to that data again.  I have only had one bug recently (last month or so of development) that caused the latter issue, and it's been fixed.  So, I don't say this to scare you, but if you want to use this for a live campaign:
+**This module is VERY early in development.**  It's really a beta.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.  To be clear, it's pretty stable.  You're highly unlikely to suffer data loss of the world data you put in.  You may end up in a state where we'll need to manually fix something to give you access to that data again.  I have only had one bug recently (last month or so of development) that caused the latter issue, and it's been fixed.  So, I don't say this to scare you, but if you want to use this for a live campaign:
   1. Backup often
   2. Just know what you're signing up for
   
@@ -31,10 +31,9 @@ I plan to use the module to support a live game where only combat is being done 
 The campaign planning component is modeled after [The Lazy Dungeon Master](https://slyflourish.com/lazydm/), which I highly recommend.  There is a [freely available copy of the original book](https://slyflourish.com/the_lazy_dungeon_master_cc.html) and I also recommend the newer [Return of the Lazy Dungeon Master](https://www.amazon.com/Flourishs-Return-Lazy-Dungeon-Master/dp/B0B8F1G5G7) (though you have to buy that version).
 
 
-## Features
+## Current features
 [Feature requests?](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose)
 
-## Current features
 - Create characters, locations, organizations, and events with detailed descriptions and images
 - Easily see (and click through) the relationships between them
 - Create geographical hierarchies (world-continents-countries-regions-towns-etc.)
@@ -130,14 +129,8 @@ THIS ENTIRE REPOSITORY IS COVERED BY THIS LICENSE AND COPYRIGHT NOTICE
 
 Copyright 2025 Dov Rosenberg
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
   http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.

@@ -1,5 +1,8 @@
 # Foundry Campaign Builder (a world & campaign builder for Foundry VTT) - User Documentation
 
+## Note: The instructions are still a bit of a work in progress.  I think everything here is correct, but there
+are likely things mising things may not be in the most obvious place.  Suggested edits or PRs for edits welcome.
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Installation](#installation)
@@ -64,7 +67,9 @@ The module has three primary components:
 - **Campaign Planning**: Plan and organize your sessions using the Lazy DM method
 - **Playing a Session**: Tools to run your game session more easily, while seamlessly collecting notes to be able to capture what happened and begin your prep for the next session
 
-When you first open the module, you'll be prompted to create your first world.  Almost everything that happens in FCB is inside of a world.  You can have multiple FCB worlds inside one Foundry world/game, but all of your characters, locations, and campaign information reside within a single FCB world and can't cross over.
+When you first open the module, you'll be prompted to create your first world. Almost everything that happens in FCB is inside of a world. You can have multiple FCB worlds inside one Foundry world/game, but all of your characters, locations, and campaign information reside within a single FCB world and can't cross over.
+
+**Important:** Throughout the application, right-click context menus are available on most elements. These menus provide quick access to common actions like editing, deleting, creating relationships, and more. Be sure to explore these context menus as they significantly enhance your workflow.
 
 ## World Building
 
@@ -78,39 +83,25 @@ To create a character:
 1. Navigate to the World Building tab
 2. Click "Characters" in the sidebar
 3. Click the "+" button to create a new character
-4. Fill in the details:
-   - Name
-   - Description
-   - Species (from your defined species list)
-   - Appearance
-   - Personality
-   - Background
-   - Goals
-   - Connections to other world elements
-5. Optionally, link to a Foundry Actor
-6. Click "Save"
+4. Fill in the character details and click "Save"
 
 Characters can be NPCs or important historical figures. For player characters, it's recommended to use the PC section in Campaign Planning.
 
+**Note:** You can delete a character by right-clicking on it in the directory.
+
 ### Locations
 
-Locations are the places in your world, from continents and countries down to individual buildings or rooms.
+Locations are the places in your world, from continents and countries down to individual buildings or rooms. 
 
 To create a location:
 1. Navigate to the World Building tab
 2. Click "Locations" in the sidebar
 3. Click the "+" button to create a new location
-4. Fill in the details:
-   - Name
-   - Description
-   - Type (continent, country, city, building, etc.)
-   - Parent location (if applicable)
-   - Notable features
-   - Connections to other world elements
-5. Optionally, link to one or more Foundry Scenes
-6. Click "Save"
+4. Fill in the location details and click "Save"
 
-Locations can be organized hierarchically (e.g., a city within a country within a continent).
+Locations can be organized hierarchically (e.g., a city within a country within a continent) and can be linked to one or more Foundry Scenes.
+
+**Note:** The right-click menu for Locations includes deleting the location, as well as adding a child.  If you have AI features enabled, it also includes AI generation of a new child location.
 
 ### Organizations
 
@@ -120,16 +111,11 @@ To create an organization:
 1. Navigate to the World Building tab
 2. Click "Organizations" in the sidebar
 3. Click the "+" button to create a new organization
-4. Fill in the details:
-   - Name
-   - Description
-   - Type (government, religion, guild, family, etc.)
-   - Parent organization (if applicable)
-   - Notable members
-   - Connections to other world elements
-5. Click "Save"
+4. Fill in the organization details and click "Save"
 
 Like locations, organizations can be organized hierarchically.
+
+**Note:** The right-click menu for Organizations includes deleting the organization, as well as adding a child.  If you have AI features enabled, it also includes AI generation of a new child organization.
 
 ### Events
 
@@ -139,40 +125,30 @@ To create an event:
 1. Navigate to the World Building tab
 2. Click "Events" in the sidebar
 3. Click the "+" button to create a new event
-4. Fill in the details:
-   - Name
-   - Description
-   - Date/time
-   - Participants (characters, organizations)
-   - Locations
-   - Consequences
-   - Connections to other world elements
-5. Click "Save"
+4. Fill in the event details and click "Save"
+
+**Note:** You can delete a character by right-clicking on it in the directory.
 
 ### Species
 
-The Species section allows you to define the various sentient species in your world. These definitions are used when creating characters and can be referenced in AI generation.
+You can have a list of species (only one - not one per world).  This list is used to populate the species drop-down
+for characters.  If you are using AI generation, the description of the species is also used there to help refine character 
+suggestions and images.
 
 To define a species:
 1. Navigate to the Settings menu
 2. Select "Species List"
 3. Click "Add Species"
-4. Fill in the details:
-   - Name
-   - Description
-   - Physical characteristics
-   - Cultural traits
-   - Any other relevant information
-5. Click "Save"
+4. Fill in the species details and click "Save"
 
 ### Hierarchies
 
 Both locations and organizations can be organized into hierarchies. This makes it easy to navigate your world and understand relationships between elements.
 
 To create a hierarchy:
-1. When creating or editing a location or organization, select a parent from the dropdown menu
+1. When creating or editing a location or organization, you can select a parent from the dropdown menu
 2. The element will be placed as a child of the selected parent
-3. You can view the full hierarchy in the respective section of the World Building tab
+3. You can view the full hierarchy in the directory
 
 ## Campaign Planning
 
@@ -190,21 +166,21 @@ The PCs section allows you to track information about player characters.
 To add a PC:
 1. In your session, click the "PCs" tab
 2. Click "Add PC"
-3. Fill in the details:
-   - Name
-   - Player name
-   - Background
-   - Goals
-   - Plot points
-   - Magic items
-   - Link to Actor
+3. Fill in the PC details and link to the appropriate Actor
 4. Click "Save"
 
+### Creating a campaign
+
+To create a new campaign:
+1. Right click on the world header in the campaign directory (bottom section of the directory and select "Create Campaign"
+2. Give the campaign a name
+
+In the settings menu, there is an option to display your sessions in the directory by name, number, or date.
 
 ### Session Preparation
 
 To create a new session:
-1. Right click on the campaign the session is part of in the campaign directory and select "Create New Session"
+1. Right click on the campaign the session is part of in the campaign directory and select "Create a session"
 2. Give the session a name (it can be a placeholder if you like to name your sessions after they're done)
 
 Sessions are identified by number and by name, as well as with a date.  They are currently shown in the directory by number.
@@ -213,7 +189,12 @@ Once you've created a session, you can add the various elements described below.
 
 ### Session description
 
-On this screen, you can change the name, number, and date.  Only one session can have each number, so [WHAT HAPPENS IF YOU ASSIGN A DUPLICATE - DOES IT INSERT IT THERE?]
+On this screen, you can change the session name, number, and date. **Each session must have a unique number within a campaign.**
+
+Sessions are sorted in the campaign directory by number (even if you're displaying them by name or date), and the most recent
+session date is used to determing the "current session" when you're in Play mode.
+
+**Note:** Right-click a session or campaign in the campaign directory to delete it.
 
 ### Strong Start
 
@@ -231,14 +212,10 @@ Vignettes are potential scenes that might occur during your session. They're cal
 To add a vignette:
 1. In your session, click the "Vignettes" tab
 2. Click "Add Vignette"
-3. Fill in the details:
-   - Title
-   - Description
-   - Participants
-   - Location
+3. Fill in the vignette details
 4. Click "Save"
 
-During or after the session, you can mark vignettes as "used" or move unused ones to the next session. [MOVE THIS DESCRIPTION TO A COMMON SECTION ACROSS ALL THESE TABS... EXPLAIN THAT MARKING USED IS GOOD WAY TO EASILY TRACK WHAT HAPPENED WITHOUT TAKING A BUNCH OF NOTES AND THEN POST-SESSION, MAKE IT EASY TO ADVANCE TO THE NEXT SESSION OR DELETE THINGS THAT NO LONGER MATTER]
+During or after the session, you can mark vignettes as "used" or move unused ones to the next session.
 
 ### Lore
 
@@ -247,10 +224,7 @@ The Lore section (what the Lazy DM calls "secrets and clues") allows you to prep
 To add lore:
 1. In your session, click the "Lore" tab
 2. Click "Add Lore"
-3. Fill in the details:
-   - Title
-   - Description
-   - Related world elements
+3. Fill in the lore details
 4. Click "Save"
 
 Like vignettes, you can mark lore as "revealed" during or after the session.
@@ -262,9 +236,8 @@ This section allows you to prepare a list of locations from your world that migh
 To add a location:
 1. In your session, click the "Locations" tab
 2. Click "Add Location"
-3. Select a location from your world
-4. Add any session-specific notes
-5. Click "Save"
+3. Select a location from your world and add any session-specific notes
+4. Click "Save"
 
 ### NPCs
 
@@ -273,9 +246,8 @@ Similar to locations, this section allows you to prepare a list of NPCs from you
 To add an NPC:
 1. In your session, click the "NPCs" tab
 2. Click "Add NPC"
-3. Select a character from your world
-4. Add any session-specific notes
-5. Click "Save"
+3. Select a character from your world and add any session-specific notes
+4. Click "Save"
 
 ### Monsters
 
@@ -283,10 +255,8 @@ The Monsters section allows you to prepare a list of monsters that players might
 
 To add a monster:
 1. In your session, click the "Monsters" tab
-2. Click "Add Monster"
-3. Select an Actor from your Foundry world
-4. Add any notes
-5. Click "Save"
+2. Drag an actor from somewhere else in Foundry onto the list.
+3. You can then click on the "number" to edit it.  Press enter while in the input box to save.
 
 ### Magic Items
 
@@ -294,10 +264,7 @@ The Magic Items section allows you to prepare a list of magic items that might a
 
 To add a magic item:
 1. In your session, click the "Magic Items" tab
-2. Click "Add Magic Item"
-3. Select an Item from your Foundry world
-4. Add any notes
-5. Click "Save"
+2. Drag an item from somewhere else in Foundry onto the list.
 
 ## Running Your Game
 
@@ -318,7 +285,7 @@ The module provides quick access to:
 - Foundry Actors linked to your characters
 - Foundry Items linked to your magic items
 
-Simply click the appropriate icon next to an element to access it.
+Simply click the appropriate icon next to an element to access it. Context menus are also available for additional options.
 
 ### Note Taking
 
@@ -326,6 +293,12 @@ You can take notes during the session:
 1. In your session, click the "Notes" tab
 2. Enter your notes
 3. Click "Save"
+
+Entering play mode will (assuming you have the setting turned on in Module Settings) automatically open a separate window
+that is tied to the notes of the current session.  This can make it easier to take quick notes without needing to change your tab, etc.
+inside the main window.  
+
+Changes in one spot will be reflected in the other when you save.
 
 ## Post-Session
 
@@ -339,7 +312,7 @@ After a session, you can:
 
 ### AI Integration
 
-The module includes optional AI-powered features for generating descriptions and images. These features require setting up a backend server.
+The module includes optional AI-powered features for generating descriptions and images. These features require setting up a backend server, which is much easier than it sounds (see below).
 
 With AI integration, you can:
 - Generate detailed descriptions for characters, locations, and organizations
@@ -349,16 +322,17 @@ With AI integration, you can:
 To use AI generation:
 1. Set up the backend server (see below)
 2. In the module settings, enter your API URL and token
-3. When creating or editing a world element, click the "Generate" button next to the appropriate field
+3. When creating or editing a world element, click the "Generate" button
 
 ### Backend Setup
 
 Setting up the backend server requires:
 1. Basic comfort with command-line scripts
-2. Accounts with Google Cloud and OpenAI
-3. Following the setup instructions at: https://github.com/dovrosenberg/fvtt-fcb-backend
+2. Accounts with Google Cloud, OpenAI, and Replicate.com (for images)
+3. Full instructions are at: https://github.com/dovrosenberg/fvtt-fcb-backend
 
 The backend is designed to stay within the Google Cloud free tier, and OpenAI costs are minimal (approximately $0.15 for 5000 AI-generated character descriptions).
+Image generation is approximately $0.01 per image.
 
 ## Settings
 
