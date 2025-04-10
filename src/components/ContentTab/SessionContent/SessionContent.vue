@@ -225,6 +225,8 @@
     currentSession.value.notes = newContent;
     await currentSession.value.save();
 
+    mainStore.refreshSession();
+
     if (currentPlayedSession.value?.uuid===currentSession.value.uuid) {
       // trigger reactivity on the session notes window
       currentPlayedSession.value.notes = newContent;
