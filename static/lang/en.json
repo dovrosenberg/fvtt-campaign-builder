@@ -254,6 +254,12 @@
       "session": {
         "delete": "Delete session"
       },
+      "image": {
+        "viewImage": "View Image",
+        "changeImage": "Change Image",
+        "removeImage": "Remove Image",
+        "postToChat": "Post To Chat"
+      },
       "topicFolder": {
         "create": {
           "1": "Create new character",
