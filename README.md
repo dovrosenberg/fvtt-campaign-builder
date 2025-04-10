@@ -8,9 +8,11 @@
 It's really a beta.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.  To be clear, it's pretty stable.  You're highly unlikely to suffer data loss of the world data you put in.  You may end up in a state where we'll need to manually fix something to give you access to that data again.  I have only had one bug recently (last month or so of development) that caused the latter issue, and it's been fixed.  So, I don't say this to scare you, but if you want to use this for a live campaign:
   1. Backup often
   2. Just know what you're signing up for
+
+ [Let me know](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose) if you have any trouble or suggestions/requests.
   
 ### A note on AI and "Advanced Features"
-You'll see lots of references to AI capabilities in the instructions and feature lists.  There is no AI-generated content (or any other content) provided by the module - merely the capability to use AI to generate various things if you desire.
+You'll see lots of references to AI capabilities in the instructions and feature lists.  There is no AI-generated content (or any other content) provided by the module (other than foreign language translations of UI elements). It merely has the capability to use AI to generate various things if you desire.  
 
 The module is *fully functional and useful without any use of AI*, and by default there are no AI features/functions enabled.  You'll never know it's there.
 
@@ -126,6 +128,10 @@ for more detail/images/handouts
 ## Issues?
 
 If you believe you found a bug or would like to post a feature request, head over to the module's [Github repo](https://github.com/dovrosenberg/fvtt-campaign-builder) and [open a new issue](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose).
+
+## Languages
+
+French and German currently supported.  Let me know if you want others.  PRs also welcome for either new languages or fixes to bad translations in the current ones.  
 
 ## Support
 
