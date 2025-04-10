@@ -55,21 +55,6 @@ export default definePreset(Aura, {
         style: 'solid',
       }
     },
-    inputtext: {
-      background: 'rgba(0, 0, 0, 0.05)', 
-      color: 'black',   //'var(--color-text-primary)',       // change to var
-      borderRadius: '4px',
-      focusBorderColor: 'black',  // change to var
-      padding: {
-        x: '3px',
-        y: '1px',
-      },
-      focusRing: {
-        color: '#c9593f',  // change to var
-        width: '2px',
-        style: 'solid',
-      }
-    },
     textarea: {
       background: 'rgba(0, 0, 0, 0.05)', 
       color: 'black',   //'var(--color-text-primary)',       // change to var

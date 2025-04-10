@@ -81,7 +81,7 @@ jobs:
           name: ${{ github.event.release.name }}
           draft: false
           prerelease: false
-          token: ${{ secrets.RELEASE_TOKEN }}  # needs access to repo scope
+          token: ${{ secrets.RELEASE_TOKEN }}  # needs access to repo scope in classic tokens
           artifacts: './module.json, ./module.zip'
           tag: ${{ github.event.release.tag_name }}
           body: ${{ github.event.release.body }}
