@@ -286,8 +286,9 @@
   });
   
   // Watch for changes to the played session (which might include a refresh that changes the notes)
-  watch(() => playedSession.value, async () => {
-    sessionNotes.value = playedSession.value?.notes || '';
+  watch(() => currentPlayedSession.value, async () => {
+    if (currentPlayedSession.value?.uuid === currentSession.value?.uuid)
+      sessionNotesContent.value = currentPlayedSession.value?.notes || '';
   }, { immediate: true });
 
 
