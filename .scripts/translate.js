@@ -106,21 +106,25 @@ function getLanguageName(langCode) {
   return languages[langCode] || langCode;
 }
 
+// Define target languages to translate to
+const TARGET_LANGUAGES = ['fr', 'de']; // Currently French and German as mentioned in CHANGELOG
+// Add more languages here as needed: 'es', 'it', 'ja', 'ko', 'pt', 'ru', 'zh'
+
 // Main execution
 async function main() {
   const sourceFile = 'static/lang/en.json';
-  const targetLang = process.argv[2];
   
-  if (!targetLang) {
-    console.error('Please provide a target language code');
-    process.exit(1);
-  }
+  console.log(`Starting translation for languages: ${TARGET_LANGUAGES.join(', ')}`);
   
-  try {
-    await translateJson(sourceFile, targetLang);
-  } catch (error) {
-    console.error('Failed to translate:', error);
-    process.exit(1);
+  // Process each language
+  for (const lang of TARGET_LANGUAGES) {
+    try {
+      console.log(`\n=== Processing ${getLanguageName(lang)} (${lang}) ===`);
+      await translateJson(sourceFile, lang);
+    } catch (error) {
+      console.error(`Failed to translate to ${lang}:`, error);
+      // Continue with other languages even if one fails
+    }
   }
 }
 
