@@ -1,11 +1,15 @@
 name: Translate Language Files
 
 on:
+  # Run automatically when en.json is updated on dev branch
   push:
     branches:
       - dev
     paths:
       - 'static/lang/en.json'
+  
+  # Allow manual triggering of the workflow
+  workflow_dispatch:
 
 jobs:
   translate:
