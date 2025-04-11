@@ -7,6 +7,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 // local imports
 import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
 import { confirmDialog } from '@/dialogs';
+import { localize } from '@/utils/game'; 
 
 // types
 import { 
@@ -51,6 +52,7 @@ export const useSessionStore = defineStore('session', () => {
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
     ],
     [SessionTableTypes.Item]: [
+      { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
       { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
     ],  
@@ -58,6 +60,7 @@ export const useSessionStore = defineStore('session', () => {
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
     ],
     [SessionTableTypes.Monster]: [
+      { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'number', header: 'Number', editable: true },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
       { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
@@ -630,6 +633,7 @@ export const useSessionStore = defineStore('session', () => {
           name: entry.name, 
           packId: entry.pack,
           location: entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World',
+          dragTooltip: localize('tooltips.dragItemFromSession'),
         });
       }
     }
@@ -654,6 +658,7 @@ export const useSessionStore = defineStore('session', () => {
           name: entry.name, 
           packId: entry.pack,
           location: entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World',
+          dragTooltip: localize('tooltips.dragMonsterFromSession'),
         });
       }
     }
