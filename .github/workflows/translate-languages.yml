@@ -10,9 +10,6 @@ on:
 jobs:
   translate:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        language: [fr, de]  # French and German as mentioned in CHANGELOG
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -25,47 +22,17 @@ jobs:
       - name: Install dependencies
         run: npm install openai
 
-      - name: Translate to ${{ matrix.language }}
+      - name: Translate to all languages
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: node .scripts/translate.js ${{ matrix.language }}
-
-      - name: Update module.json with new language
-        run: |
-          # Check if language entry already exists
-          LANG_EXISTS=$(grep -c "\"lang\": \"${{ matrix.language }}\"" static/module.json || true)
+        run: node .scripts/translate.js
           
-          if [ "$LANG_EXISTS" -eq 0 ]; then
-            # Language doesn't exist, add it to the languages array
-            LANG_NAME=$(node -e "
-              const langs = {
-                fr: 'French',
-                de: 'German',
-                es: 'Spanish',
-                it: 'Italian',
-                ja: 'Japanese',
-                ko: 'Korean',
-                pt: 'Portuguese',
-                ru: 'Russian',
-                zh: 'Chinese'
-              };
-              console.log(langs['${{ matrix.language }}'] || '${{ matrix.language }}');
-            ")
-            
-            # Use jq to add the new language entry
-            jq --arg lang "${{ matrix.language }}" --arg name "$LANG_NAME" --arg path "lang/${{ matrix.language }}.json" '.languages += [{"lang": $lang, "name": $name, "path": $path}]' static/module.json > temp.json
-            mv temp.json static/module.json
-          fi
-
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Add ${{ matrix.language }} translation"
-          title: "Add ${{ matrix.language }} translation"
-          body: |
-            This PR adds or updates the ${{ matrix.language }} translation file based on the latest changes to en.json.
-            
-            Generated automatically by the translation workflow.
-          branch: translation-${{ matrix.language }}-${{ github.sha }}
-          base: master
+          commit-message: "Update translations"
+          title: "Update translations"
+          body-file: pr_body.txt
+          branch: translations-${{ github.sha }}
+          base: dev
