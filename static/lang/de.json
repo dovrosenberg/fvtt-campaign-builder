@@ -34,9 +34,7 @@
       "advancedHelp": "Erweiterte Einstellungen konfigurieren (einschließlich KI)",
       "speciesList": "Artenliste verwalten",
       "speciesListLabel": "Artenliste",
-      "speciesListHelp": "Definieren Sie die Arten, die verfügbar sein sollen. Diese gelten für alle Welten - melden Sie ein Problem, wenn Sie mehr verschiedene Listen pro Welt benötigen.",
-      "test": "Test",
-      "testing2": "sdfsdf"
+      "speciesListHelp": "Definieren Sie die Arten, die verfügbar sein sollen. Diese gelten für alle Welten - melden Sie ein Problem, wenn Sie mehr verschiedene Listen pro Welt benötigen."
     },
     "applications": {
       "sessionNotes": {
@@ -126,7 +124,10 @@
         "addLore": "Überlieferung hinzufügen",
         "addNPC": "NPC hinzufügen",
         "addNPCDrag": "(oder einen Charakter ziehen/ablegen)",
-        "addItem": "Gegenstand hinzufügen"
+        "addItem": "Gegenstand hinzufügen",
+        "addItemDrag": "(oder ein Element ziehen/ablegen)",
+        "addMonster": "Monster hinzufügen",
+        "addMonsterDrag": "(oder einen Schauspieler ziehen/ablegen)"
       },
       "campaign": {
         "addPC": "PC hinzufügen",

@@ -34,9 +34,7 @@
       "advancedHelp": "Configurer les paramètres avancés (y compris l'IA)",
       "speciesList": "Gérer la Liste des Espèces",
       "speciesListLabel": "Liste des Espèces",
-      "speciesListHelp": "Définir les espèces à rendre disponibles. Celles-ci traversent tous les mondes - déposez un problème si vous avez besoin de listes différentes par monde.",
-      "test": "test",
-      "testing2": "sdfsdf"
+      "speciesListHelp": "Définir les espèces à rendre disponibles. Celles-ci traversent tous les mondes - déposez un problème si vous avez besoin de listes différentes par monde."
     },
     "applications": {
       "sessionNotes": {
@@ -126,7 +124,10 @@
         "addLore": "Ajouter un savoir",
         "addNPC": "Ajouter un PNJ",
         "addNPCDrag": "(ou glisser/déposer un personnage)",
-        "addItem": "Ajouter un objet"
+        "addItem": "Ajouter un objet",
+        "addItemDrag": "(ou glisser/déposer un article)",
+        "addMonster": "Ajouter un monstre",
+        "addMonsterDrag": "(ou glisser/déposer un acteur)"
       },
       "campaign": {
         "addPC": "Ajouter un PJ",
