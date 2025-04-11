@@ -14,3 +14,4 @@ The initial public release.
 
 - Added confirmations before deleting entries, etc.
 - Added French and German translations.
+- Ability to post images from entries directly to chat (right click on the image)
