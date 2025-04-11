@@ -1,0 +1,198 @@
+<template>
+  <Dialog
+    v-model="show"
+    :title="dialogTitle"
+    :buttons="[
+      {
+        label: 'Cancel',
+        default: false,
+        close: true,
+        callback: () => { show=false;}
+      },
+      {
+        label: actionButtonLabel,
+        disable: !isAddFormValid,
+        default: true,
+        close: true,
+        callback: onActionClick,
+        icon: 'fa-plus'
+      }
+    ]"
+    @cancel="onCancel"
+  >
+    <div class="related-documents-content flexcol">
+      <div class="search-container">
+        <h6>Select {{ documentTypeName }}</h6>
+        <TypeAhead 
+          :initial-value="selectedDocumentId"
+          :initial-list="documentOptions"
+          :allow-new-items="false"
+          @selection-made="onSelectionMade"
+        />
+      </div>
+    </div>
+  </Dialog>
+</template>
+
+<script setup lang="ts">
+  // library imports
+  import { ref, computed, PropType, watch, onMounted } from 'vue';
+
+  // local imports
+  import { useSessionStore } from '@/applications/stores';
+
+  // local components
+  import Dialog from '@/components/Dialog.vue';
+  import TypeAhead from '@/components/TypeAhead.vue';
+
+  // types
+  type DocumentType = 'actor' | 'item';
+  type DocumentOption = {
+    id: string;  // uuid
+    label: string; // name with type
+  };
+
+  ////////////////////////////////
+  // props
+  const props = defineProps({
+    modelValue: Boolean,  // show/hide dialog
+    documentType: {
+      type: String as PropType<DocumentType>,
+      required: true,
+    }
+  });
+
+  ////////////////////////////////
+  // emits
+  const emit = defineEmits(['update:modelValue']);
+
+  ////////////////////////////////
+  // store
+  const sessionStore = useSessionStore();
+
+  ////////////////////////////////
+  // data
+  const show = ref(props.modelValue);
+  const documentOptions = ref<DocumentOption[]>([]);
+  const selectedDocumentId = ref('');
+
+  ////////////////////////////////
+  // computed data
+  const documentTypeName = computed(() => {
+    return props.documentType === 'actor' ? 'Actors' : 'Items';
+  });
+
+  const dialogTitle = computed(() => {
+    return `Add ${props.documentType === 'actor' ? 'Actor' : 'Item'}`;
+  });
+
+  const actionButtonLabel = computed(() => {
+    return `Add ${props.documentType === 'actor' ? 'Actor' : 'Item'}`;
+  });
+
+  const isAddFormValid = computed((): boolean => {
+    return !!selectedDocumentId.value;
+  });
+
+  ////////////////////////////////
+  // methods
+  const resetDialog = function() {
+    selectedDocumentId.value = '';
+    show.value = false;
+    emit('update:modelValue', false);
+  };
+
+  /**
+   * Loads all available documents from Foundry
+   */
+  const loadDocuments = () => {
+    try {
+      // Get collection based on document type
+      const collection = props.documentType === 'actor' ? game.actors : game.items;
+      
+      // Map to document options format
+      documentOptions.value = collection.map(doc => ({
+        id: doc.uuid,
+        label: doc.type ? `${doc.name} (${doc.type})` : doc.name
+      }));
+    } catch (error) {
+      console.error('Error loading documents:', error);
+      documentOptions.value = [];
+    }
+  };
+
+  /**
+   * Handles selection from the TypeAhead component
+   */
+  const onSelectionMade = (uuid: string) => {
+    selectedDocumentId.value = uuid;
+  };
+
+  /**
+   * Handles the action button click
+   */
+  const onActionClick = async function() {
+    if (!selectedDocumentId.value) return;
+
+    if (props.documentType === 'actor') {
+      await sessionStore.addMonster(selectedDocumentId.value, 1); // Always use 1 as the default
+    } else {
+      await sessionStore.addItem(selectedDocumentId.value);
+    }
+
+    resetDialog();
+  };
+  
+  /**
+   * Handles the cancel button click
+   */
+  const onCancel = function() {
+    resetDialog();
+  };
+
+  ////////////////////////////////
+  // watchers
+  // when the dialog changes state, alert parent (so v-model works)
+  watch(() => show, async (newValue) => {
+    emit('update:modelValue', newValue);
+  });
+
+  // when the prop changes state, update internal value
+  watch(() => props.modelValue, async (newValue) => {
+    show.value = newValue;
+    if (newValue) {
+      // Load documents when dialog is opened
+      loadDocuments();
+    }
+  });
+
+  ////////////////////////////////
+  // lifecycle events
+  onMounted(() => {
+    // Load documents initially
+    loadDocuments();
+  });
+
+</script>
+
+<style lang="scss" scoped>
+.related-documents-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  padding: 0.5rem 0;
+
+  h6 {
+    margin-bottom: 8px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-container {
+    position: relative;
+    width: 100%;
+  }
+}
+</style>
