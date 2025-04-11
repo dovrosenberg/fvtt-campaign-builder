@@ -3,6 +3,7 @@
     "title": "Campaign Builder",
     "defaultRootFolderName": "Campaign Builder",
     "settings": {
+      "test": "testing",
       "startCollapsed": "Sidebar starts collapsed?",
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
       "displaySessionNotes": "Display pop-up session notes",
