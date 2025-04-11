@@ -4,9 +4,9 @@
     "defaultRootFolderName": "Kampagnen-Builder",
     "settings": {
       "startCollapsed": "Seitenleiste startet eingeklappt?",
-      "startCollapsedHelp": "Soll die Seitenleiste geschlossen starten, wenn das Fenster zum ersten Mal geöffnet wird?",
-      "displaySessionNotes": "Pop-up-Sitzungsnotizen anzeigen",
-      "displaySessionNotesHelp": "Wenn aktiviert, öffnet sich ein Fenster mit Sitzungsnotizen automatisch, wenn eine Spielsitzung beginnt",
+      "startCollapsedHelp": "Soll die Seitenleiste beim ersten Öffnen des Fensters geschlossen starten?",
+      "displaySessionNotes": "Sitzungsnotizen als Pop-up anzeigen",
+      "displaySessionNotesHelp": "Wenn aktiviert, wird ein Fenster mit Sitzungsnotizen automatisch geöffnet, wenn eine Spielsitzung beginnt",
       "sessionDisplayMode": "Sitzungsanzeigeformat",
       "sessionDisplayModeHelp": "Wählen Sie, wie Sitzungen im Kampagnenverzeichnis angezeigt werden",
       "sessionDisplayModeOptions": {
@@ -15,7 +15,7 @@
         "name": "Sitzungsname"
       },
       "autoRefreshRollTables": "Rolltabellen automatisch aktualisieren",
-      "autoRefreshRollTablesHelp": "Wenn aktiviert, werden Generator-Rolltabellen automatisch mit neuen Werten aktualisiert, wenn das Modul geladen wird",
+      "autoRefreshRollTablesHelp": "Wenn aktiviert, werden Generatortabellen automatisch mit neuen Werten aktualisiert, wenn das Modul geladen wird",
       "rollTableSettings": "Rolltabelleneinstellungen",
       "rollTableSettingsLabel": "Rolltabelleneinstellungen",
       "rollTableSettingsHelp": "Einstellungen für die Zufallsgeneratoren konfigurieren",
@@ -26,15 +26,16 @@
         "defaultTypeTownHelp": "Standardtyp, der beim Erstellen eines Stadteintrags verwendet wird",
         "defaultTypeStore": "Standard-Ladentyp",
         "defaultTypeStoreHelp": "Standardtyp, der beim Erstellen eines Ladeneintrags verwendet wird",
-        "defaultTypeTavern": "Standard-Gasthoftyp",
-        "defaultTypeTavernHelp": "Standardtyp, der beim Erstellen eines Gasthofeintrags verwendet wird"
+        "defaultTypeTavern": "Standard-Taverntyp",
+        "defaultTypeTavernHelp": "Standardtyp, der beim Erstellen eines Tavernen-Eintrags verwendet wird"
       },
       "advanced": "Erweiterte Einstellungen",
       "advancedLabel": "Erweiterte Einstellungen öffnen",
       "advancedHelp": "Erweiterte Einstellungen konfigurieren (einschließlich KI)",
       "speciesList": "Artenliste verwalten",
       "speciesListLabel": "Artenliste",
-      "speciesListHelp": "Definieren Sie die verfügbaren Arten. Diese gelten für alle Welten - melden Sie ein Problem, wenn Sie mehr unterschiedliche Listen pro Welt benötigen."
+      "speciesListHelp": "Definieren Sie die verfügbaren Arten. Diese gelten für alle Welten - melden Sie ein Problem, wenn Sie mehr verschiedene Listen pro Welt benötigen.",
+      "test": "testen"
     },
     "applications": {
       "sessionNotes": {
@@ -52,14 +53,14 @@
         "title": "Erweiterte Einstellungen konfigurieren",
         "labels": {
           "backendURL": "Backend-URL",
-          "backendURLHint": "Ausgabe des Skripts zum Bereitstellen des Backends.",
+          "backendURLHint": "Ausgabe aus dem Skript zum Bereitstellen des Backends.",
           "APIToken": "API-Token",
-          "APITokenHint": "Ausgabe des Skripts zum Bereitstellen des Backends."
+          "APITokenHint": "Ausgabe aus dem Skript zum Bereitstellen des Backends."
         }
       },
       "rollTableSettings": {
         "title": "Rolltabelleneinstellungen konfigurieren",
-        "folderName": "Kampagnen-Builder Rolltabellen",
+        "folderName": "Kampagnen-Builder-Rolltabellen",
         "tableDescription": "Generatortabelle für {type}",
         "labels": {
           "refreshAll": "Alle Tabellen aktualisieren",
@@ -86,14 +87,14 @@
       "play": "Spielen",
       "fields": {
         "type": "Typ",
-        "parent": "Übergeordnet",
+        "parent": "Eltern",
         "sessionNumber": "Nummer",
         "sessionDate": "Sitzungsdatum",
         "playerName": "Spielername",
         "backgroundPoints": "Hintergrundpunkte",
         "otherPlotPoints": "Andere Handlungspunkte",
         "desiredMagicItems": "Gewünschte magische Gegenstände",
-        "species": "Art",
+        "species": "Arten",
         "worldGenre": "Genre",
         "worldFeeling": "Weltgefühl",
         "campaignDescription": "Kampagnenbeschreibung, Notizen, Ideen, etc..."
@@ -282,7 +283,7 @@
       }
     },
     "tooltips": {
-      "mainButton": "Welt-Builder starten",
+      "mainButton": "World Builder starten",
       "createWorld": "Welt erstellen",
       "expandDirectory": "Verzeichnis erweitern",
       "collapseDirectory": "Verzeichnis einklappen",

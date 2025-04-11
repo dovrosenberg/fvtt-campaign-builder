@@ -4,7 +4,7 @@
     "defaultRootFolderName": "Constructeur de Campagne",
     "settings": {
       "startCollapsed": "La barre latérale commence-t-elle repliée ?",
-      "startCollapsedHelp": "La barre latérale doit-elle être fermée lors de la première ouverture de la fenêtre ?",
+      "startCollapsedHelp": "La barre latérale doit-elle commencer fermée lors de l'ouverture de la fenêtre pour la première fois ?",
       "displaySessionNotes": "Afficher les notes de session pop-up",
       "displaySessionNotesHelp": "Lorsqu'elle est activée, une fenêtre de notes de session s'ouvrira automatiquement au début d'une session de jeu",
       "sessionDisplayMode": "Format d'affichage de la session",
@@ -15,13 +15,13 @@
         "name": "Nom de Session"
       },
       "autoRefreshRollTables": "Rafraîchir automatiquement les RollTables",
-      "autoRefreshRollTablesHelp": "Lorsqu'elle est activée, les tables de génération seront automatiquement rafraîchies avec de nouvelles valeurs lors du chargement du module",
+      "autoRefreshRollTablesHelp": "Lorsqu'il est activé, les tables de génération seront automatiquement rafraîchies avec de nouvelles valeurs lorsque le module se charge",
       "rollTableSettings": "Paramètres des Roll Tables",
       "rollTableSettingsLabel": "Paramètres des Roll Tables",
       "rollTableSettingsHelp": "Configurer les paramètres pour les générateurs aléatoires",
       "rollTableConfig": {
-        "defaultTypeNPC": "Type de PNJ par défaut",
-        "defaultTypeNPCHelp": "Type par défaut à utiliser lors de la création d'une entrée de personnage PNJ",
+        "defaultTypeNPC": "Type NPC par défaut",
+        "defaultTypeNPCHelp": "Type par défaut à utiliser lors de la création d'une entrée de personnage NPC",
         "defaultTypeTown": "Type de Ville par défaut",
         "defaultTypeTownHelp": "Type par défaut à utiliser lors de la création d'une entrée de localisation de ville",
         "defaultTypeStore": "Type de Magasin par défaut",
@@ -34,7 +34,8 @@
       "advancedHelp": "Configurer les paramètres avancés (y compris l'IA)",
       "speciesList": "Gérer la Liste des Espèces",
       "speciesListLabel": "Liste des Espèces",
-      "speciesListHelp": "Définir les espèces à rendre disponibles. Celles-ci traversent tous les mondes - signalez un problème si vous avez besoin de listes différentes par monde."
+      "speciesListHelp": "Définir les espèces à rendre disponibles. Celles-ci traversent tous les mondes - déposez un problème si vous avez besoin de listes différentes par monde.",
+      "test": "test"
     },
     "applications": {
       "sessionNotes": {
@@ -51,7 +52,7 @@
       "advancedSettings": {
         "title": "Configurer les Paramètres Avancés",
         "labels": {
-          "backendURL": "URL du Backend",
+          "backendURL": "URL Backend",
           "backendURLHint": "Sortie du script pour déployer le backend.",
           "APIToken": "Jeton API",
           "APITokenHint": "Sortie du script pour déployer le backend."
@@ -60,7 +61,7 @@
       "rollTableSettings": {
         "title": "Configurer les Paramètres des Roll Tables",
         "folderName": "Tables de Roll du Constructeur de Campagne",
-        "tableDescription": "Tableau générateur pour {type}",
+        "tableDescription": "Table de génération pour {type}",
         "labels": {
           "refreshAll": "Rafraîchir toutes les tables",
           "refreshAllHelp": "Remplacer tous les éléments utilisés par de nouveaux"
@@ -68,8 +69,8 @@
       }
     },
     "help": {
-      "worldGenre": "ex. \"Fantasy\" - Nécessaire pour la génération AI",
-      "worldFeeling": "ex. \"Rugueux et dangereux avec un faible niveau de magie\" - Améliore la génération AI"
+      "worldGenre": "ex. \"Fantasy\" - Nécessaire pour la génération IA",
+      "worldFeeling": "ex. \"Rugueux et dangereux avec un faible niveau de magie\" - Améliore la génération IA"
     },
     "labels": {
       "newTab": "Nouvel Onglet",
@@ -91,7 +92,7 @@
         "sessionDate": "Date de Session",
         "playerName": "Nom du Joueur",
         "backgroundPoints": "Points de Contexte",
-        "otherPlotPoints": "Autres Points de Scénario",
+        "otherPlotPoints": "Autres Points d'Intrigue",
         "desiredMagicItems": "Objets Magiques Désirés",
         "species": "Espèces",
         "worldGenre": "Genre",
@@ -111,7 +112,7 @@
         "organization": "(ou glisser/déposer une organisation)"
       },
       "entry": {
-        "topic": "DossierSujet",
+        "topic": "DossierThématique",
         "type": "Type",
         "relationships": "Relations"
       },
@@ -121,7 +122,7 @@
         "addLocation": "Ajouter un lieu",
         "addLocationDrag": "(ou glisser/déposer un lieu)",
         "addVignette": "Ajouter une vignette",
-        "addLore": "Ajouter un savoir",
+        "addLore": "Ajouter un lore",
         "addNPC": "Ajouter un PNJ",
         "addNPCDrag": "(ou glisser/déposer un personnage)",
         "addItem": "Ajouter un objet"
@@ -154,8 +155,8 @@
         "session": {
           "notes": "Notes",
           "pcs": "PJs",
-          "start": "Début",
-          "lore": "Savoir",
+          "start": "Démarrer",
+          "lore": "Lore",
           "vignettes": "Vignettes",
           "locations": "Lieux",
           "npcs": "PNJs",
@@ -205,7 +206,7 @@
         "title": "Générer une Organisation"
       },
       "generateNameDialog": {
-        "errorMessage": "Il y a eu une erreur :"
+        "errorMessage": "Une erreur est survenue :"
       },
       "generateOptions": {
         "title": "Sélectionner une Option"
@@ -278,7 +279,7 @@
         "delete": "Supprimer l'entrée"
       },
       "typeFolder": {
-        "create": "Créer un nouveau"
+        "create": "Créer nouveau"
       }
     },
     "tooltips": {
