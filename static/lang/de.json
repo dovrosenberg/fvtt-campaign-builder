@@ -4,9 +4,9 @@
     "defaultRootFolderName": "Kampagnen-Builder",
     "settings": {
       "startCollapsed": "Seitenleiste startet eingeklappt?",
-      "startCollapsedHelp": "Soll die Seitenleiste beim ersten Öffnen des Fensters geschlossen starten?",
+      "startCollapsedHelp": "Soll die Seitenleiste geschlossen starten, wenn das Fenster zum ersten Mal geöffnet wird?",
       "displaySessionNotes": "Pop-up-Sitzungsnotizen anzeigen",
-      "displaySessionNotesHelp": "Wenn aktiviert, wird ein Fenster mit Sitzungsnotizen automatisch geöffnet, wenn eine Spielsitzung beginnt",
+      "displaySessionNotesHelp": "Wenn aktiviert, öffnet sich ein Fenster mit Sitzungsnotizen automatisch, wenn eine Spielsitzung beginnt",
       "sessionDisplayMode": "Sitzungsanzeigeformat",
       "sessionDisplayModeHelp": "Wählen Sie, wie Sitzungen im Kampagnenverzeichnis angezeigt werden",
       "sessionDisplayModeOptions": {
@@ -15,26 +15,26 @@
         "name": "Sitzungsname"
       },
       "autoRefreshRollTables": "Rolltabellen automatisch aktualisieren",
-      "autoRefreshRollTablesHelp": "Wenn aktiviert, werden Generator-Rolltabellen beim Laden des Moduls automatisch mit neuen Werten aktualisiert",
-      "rollTableSettings": "Rolltabellen-Einstellungen",
-      "rollTableSettingsLabel": "Rolltabellen-Einstellungen",
+      "autoRefreshRollTablesHelp": "Wenn aktiviert, werden Generator-Rolltabellen automatisch mit neuen Werten aktualisiert, wenn das Modul geladen wird",
+      "rollTableSettings": "Rolltabelleneinstellungen",
+      "rollTableSettingsLabel": "Rolltabelleneinstellungen",
       "rollTableSettingsHelp": "Einstellungen für die Zufallsgeneratoren konfigurieren",
       "rollTableConfig": {
         "defaultTypeNPC": "Standard-NPC-Typ",
         "defaultTypeNPCHelp": "Standardtyp, der beim Erstellen eines NPC-Charaktereintrags verwendet wird",
         "defaultTypeTown": "Standard-Stadttyp",
         "defaultTypeTownHelp": "Standardtyp, der beim Erstellen eines Stadteintrags verwendet wird",
-        "defaultTypeStore": "Standard-Geschäftstyp",
-        "defaultTypeStoreHelp": "Standardtyp, der beim Erstellen eines Geschäftseintrags verwendet wird",
-        "defaultTypeTavern": "Standard-Tavernen-Typ",
-        "defaultTypeTavernHelp": "Standardtyp, der beim Erstellen eines Tavernen-Eintrags verwendet wird"
+        "defaultTypeStore": "Standard-Ladentyp",
+        "defaultTypeStoreHelp": "Standardtyp, der beim Erstellen eines Ladeneintrags verwendet wird",
+        "defaultTypeTavern": "Standard-Gasthoftyp",
+        "defaultTypeTavernHelp": "Standardtyp, der beim Erstellen eines Gasthofeintrags verwendet wird"
       },
       "advanced": "Erweiterte Einstellungen",
       "advancedLabel": "Erweiterte Einstellungen öffnen",
       "advancedHelp": "Erweiterte Einstellungen konfigurieren (einschließlich KI)",
       "speciesList": "Artenliste verwalten",
       "speciesListLabel": "Artenliste",
-      "speciesListHelp": "Definieren Sie die Arten, die verfügbar sein sollen. Diese gelten für alle Welten - melden Sie ein Problem, wenn Sie mehr verschiedene Listen pro Welt benötigen."
+      "speciesListHelp": "Definieren Sie die verfügbaren Arten. Diese gelten für alle Welten - melden Sie ein Problem, wenn Sie mehr unterschiedliche Listen pro Welt benötigen."
     },
     "applications": {
       "sessionNotes": {
@@ -58,9 +58,9 @@
         }
       },
       "rollTableSettings": {
-        "title": "Rolltabellen-Einstellungen konfigurieren",
+        "title": "Rolltabelleneinstellungen konfigurieren",
         "folderName": "Kampagnen-Builder Rolltabellen",
-        "tableDescription": "Generator-Tabelle für {type}",
+        "tableDescription": "Generatortabelle für {type}",
         "labels": {
           "refreshAll": "Alle Tabellen aktualisieren",
           "refreshAllHelp": "Ersetze alle verwendeten Elemente durch neue"
@@ -69,7 +69,7 @@
     },
     "help": {
       "worldGenre": "z.B. \"Fantasy\" - Erforderlich für KI-Generierung",
-      "worldFeeling": "z.B. \"Rau und gefährlich mit niedrigem Magielevel\" - Verbessert die KI-Generierung"
+      "worldFeeling": "z.B. \"Rau und gefährlich mit niedrigem Magieniveau\" - Verbessert die KI-Generierung"
     },
     "labels": {
       "newTab": "Neuer Tab",
@@ -128,10 +128,10 @@
       },
       "campaign": {
         "addPC": "PC hinzufügen",
-        "addPCDrag": "(oder einen Darsteller ziehen/ablegen)"
+        "addPCDrag": "(oder einen Schauspieler ziehen/ablegen)"
       },
       "pc": {
-        "linkToNewActor": "Mit neuem Darsteller verknüpfen"
+        "linkToNewActor": "Mit neuem Schauspieler verknüpfen"
       },
       "groupTree": "Baum nach Typ gruppieren",
       "tabs": {
@@ -144,7 +144,7 @@
           "organizations": "Organisationen",
           "organizationChildren": "Unterorganisationen",
           "scenes": "Szenen",
-          "actors": "Darsteller"
+          "actors": "Schauspieler"
         },
         "campaign": {
           "description": "Beschreibung",
@@ -178,7 +178,7 @@
       "sessionName": "Sitzungsname",
       "sessionDate": "Datum",
       "sessionNumber": "Sitzungsnummer",
-      "linkToActor": "Mit Darsteller verknüpfen"
+      "linkToActor": "Mit Schauspieler verknüpfen"
     },
     "compendia": {
       "entry": "Einträge",
@@ -208,7 +208,7 @@
         "errorMessage": "Es gab einen Fehler:"
       },
       "generateOptions": {
-        "title": "Wählen Sie eine Option"
+        "title": "Option auswählen"
       },
       "confirmDeleteRelationship": {
         "title": "Aus Beziehung entfernen?",
@@ -248,7 +248,7 @@
         "createCampaign": "Kampagne erstellen"
       },
       "campaignFolder": {
-        "createSession": "Eine Sitzung erstellen",
+        "createSession": "Sitzung erstellen",
         "delete": "Kampagne löschen"
       },
       "session": {
@@ -300,11 +300,13 @@
       "deleteVignette": "Vignette löschen",
       "deleteLore": "Überlieferung löschen",
       "markAsDelivered": "Als geliefert markieren",
-      "unmarkAsDelivered": "Lieferung aufheben",
+      "unmarkAsDelivered": "Lieferstatus aufheben",
       "moveToNextSession": "Zur nächsten Sitzung verschieben",
       "generateContent": "Inhalt generieren",
       "backendNotAvailable": "Backend nicht verfügbar",
       "playModeNoCampaigns": "Sie müssen mindestens eine Kampagne mit einer Sitzung haben, um den Spielmodus zu verwenden",
+      "dragMonsterFromSession": "In Szene ziehen",
+      "dragItemFromSession": "Zu Schauspieler ziehen, etc.",
       "contentLinks": {
         "1": {
           "1": "Charakter",
