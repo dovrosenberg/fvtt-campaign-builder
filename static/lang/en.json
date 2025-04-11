@@ -305,6 +305,8 @@
       "generateContent": "Generate content",
       "backendNotAvailable": "Backend not available",
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",
+      "dragMonsterFromSession": "Drag to scene",
+      "dragItemFromSession": "Drag to actor, etc.",
       "contentLinks": {
         "1": {
           "1": "Character",

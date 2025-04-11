@@ -28,13 +28,25 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
         // Set the drag data using the actor's toDragData method
         event.dataTransfer.setData("text/plain", JSON.stringify(actor.toDragData()));
 
-        // Optional: Set a drag image if needed
+        // Set a drag image 
         if (actor.img && canvas.ready) {
           // size depends on canvas
           const pt = actor.prototypeToken;
-          const w = pt.width * canvas.dimensions.size * Math.abs(pt.texture.scaleX) * canvas.stage.scale.x;
-          const h = pt.height * canvas.dimensions.size * Math.abs(pt.texture.scaleY) * canvas.stage.scale.y;
-          const preview = foundry.applications.ux.DragDrop.implementation.createDragImage(actor.img, w, h);
+          let w, h;
+
+          // Make sure pt.texture exists and has the required properties
+          if (pt && pt.texture && typeof pt.texture.scaleX === 'number' && typeof pt.texture.scaleY === 'number') {
+            w = pt.width * canvas.dimensions.size * Math.abs(pt.texture.scaleX) * canvas.stage.scale.x;
+            h = pt.height * canvas.dimensions.size * Math.abs(pt.texture.scaleY) * canvas.stage.scale.y;
+          } else {
+            // Fallback to a simpler approach if texture properties aren't available
+            const size = canvas.dimensions.size;
+            const scale = canvas.stage.scale.x;
+            w = size * scale;
+            h = size * scale;
+          }
+
+          const preview = foundry.applications.ux.DragDrop.implementation.createDragImage({ src: actor.img }, w, h);
           event.dataTransfer.setDragImage(preview, w / 2, h / 2);
         }
 
@@ -45,8 +57,8 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
       console.error("Error setting up drag data:", error);
     }
   }
-
-  export const itemDragStart = async(event: DragEvent, uuid: string): Promise<void> => {
+  
+    export const itemDragStart = async(event: DragEvent, uuid: string): Promise<void> => {
     // Remove these lines - they're preventing the drag from working
     // event.preventDefault();
     event.stopPropagation();
@@ -58,16 +70,21 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
       const item = await fromUuid(uuid) as Item;
 
       if (item) {
-        // Set the drag data using the actor's toDragData method
         event.dataTransfer.setData("text/plain", JSON.stringify(item.toDragData()));
 
-        // Optional: Set a drag image if needed
+        // Set a drag image 
         if (item.img && canvas.ready) {
-          // size depends on canvas
-          const pt = item.prototypeToken;
-          const w = pt.width * canvas.dimensions.size * Math.abs(pt.texture.scaleX) * canvas.stage.scale.x;
-          const h = pt.height * canvas.dimensions.size * Math.abs(pt.texture.scaleY) * canvas.stage.scale.y;
-          const preview = foundry.applications.ux.DragDrop.implementation.createDragImage(item.img, w, h);
+          const size = canvas.dimensions.size;
+          const scale = canvas.stage.scale.x;
+          const w = size * scale;
+          const h = size * scale;
+          
+          // prevent image caching if foundry does  
+          const existingPreview = document.getElementById("drag-preview");
+          if (existingPreview) existingPreview.remove();
+                   
+          const preview = foundry.applications.ux.DragDrop.implementation.createDragImage({ src: item.img }, w, h);
+
           event.dataTransfer.setDragImage(preview, w / 2, h / 2);
         }
 

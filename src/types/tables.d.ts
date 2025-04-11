@@ -48,6 +48,7 @@ export type SessionItemDetails = {
   delivered: boolean;
   packId: string | null;
   location: string;
+  dragTooltip?: string;
 }
 
 export type SessionMonsterDetails = {
@@ -57,6 +58,7 @@ export type SessionMonsterDetails = {
   delivered: boolean;
   packId: string | null;
   location: string;
+  dragTooltip?: string;
 }
 
 export type SessionVignetteDetails = {
