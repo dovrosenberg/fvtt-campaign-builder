@@ -16,10 +16,12 @@
     @dragover="onDragover"
     @drop="onDrop"
   />
-  <AddRelatedItemDialog
+  <RelatedItemDialog
     v-model="showLocationPicker"
     :topic="Topics.Location"
+    mode="add"
   />
+
 </template>
 
 <script setup lang="ts">
@@ -39,7 +41,7 @@
 
   // local components
   import SessionTable from '@/components/Tables/SessionTable.vue';
-  import AddRelatedItemDialog from '@/components/Tables/AddRelatedItemDialog.vue';
+  import RelatedItemDialog from '@/components/Tables/RelatedItemDialog.vue';
 
   // types
   

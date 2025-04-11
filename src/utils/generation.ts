@@ -144,7 +144,6 @@ export const generateImage = async (currentWorld: WBWorld, entry: Entry): Promis
     if (result.data.filePath) {
       entry.img = result.data.filePath;
       await entry.save();
-
       ui.notifications?.info(`Image completed for ${entry.name}.`);
     } else {
       throw new Error('Failed to generate image: No image path returned');

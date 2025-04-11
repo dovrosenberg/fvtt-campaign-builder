@@ -1,5 +1,6 @@
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
+import { withDirectives } from 'vue';
 
 export default definePreset(Aura, {
   components: {
@@ -54,6 +55,25 @@ export default definePreset(Aura, {
         width: '2px',
         style: 'solid',
       }
+    },
+    checkbox: {
+      background: 'rgba(0, 0, 0, 0.05)',
+      hoverBackground: 'rgba(0, 0, 0, 0.05)',
+      borderRadius: '3px',
+      checked: {
+        background: '#ee9b3a',   
+        hoverBackground: '#ee9b3a',
+        borderColor: 'black',
+        hoverBorderColor: 'black',
+        focusBorderColor: 'black',  
+      },
+      icon: {
+        checked: {
+          color: 'black',   
+          hoverColor: 'black',
+        }
+      },
+      focusBorderColor: 'black',
     },
     textarea: {
       background: 'rgba(0, 0, 0, 0.05)', 
