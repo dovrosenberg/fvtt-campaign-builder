@@ -6,6 +6,7 @@ import { watch, ref, computed } from 'vue';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+import { confirmDialog } from '@/dialogs';
 
 // types
 import { PCDetails, FieldData, CampaignLoreDetails} from '@/types';
@@ -23,12 +24,10 @@ export enum CampaignTableTypes {
 export const useCampaignStore = defineStore('campaign', () => {
   ///////////////////////////////
   // the state
+
   // used for tables
   const relatedPCRows = ref<PCDetails[]>([]);
   const relatedLoreRows = ref<CampaignLoreDetails[]>([]);
-
-  // The currently selected campaign in play mode
-  const currentPlayedCampaignId = ref<string | null>(null);
 
   const extraFields = {
     [CampaignTableTypes.None]: [],
@@ -78,6 +77,10 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!pc) 
       throw new Error('Bad session in campaignDirectoryStore.deletePC()');
 
+    // confirm
+    if (!(await confirmDialog('Delete PC?', 'Are you sure you want to delete this PC?')))
+      return;
+
     await pc.delete();
 
     // update tabs/bookmarks
@@ -125,12 +128,16 @@ export const useCampaignStore = defineStore('campaign', () => {
   
     /**
      * Deletes a lore from the session
-     * @param uuid the UUID of the l0ore
+     * @param uuid the UUID of the lore
      */
     const deleteLore = async (uuid: string): Promise<void> => {
       if (!currentCampaign.value)
         throw new Error('Invalid session in campaignStore.deleteLore()');
   
+      // confirm
+      if (!(await confirmDialog('Delete Lore?', 'Are you sure you want to delete this lore?')))
+        return;
+
       await currentCampaign.value.deleteLore(uuid);
       await _refreshLoreRows();
     }
@@ -176,6 +183,9 @@ export const useCampaignStore = defineStore('campaign', () => {
   
   ///////////////////////////////
   // computed state
+  const currentPlayedSession = computed((): Session | null => (currentPlayedCampaign?.value?.currentSession || null) as Session | null);
+  const currentPlayedCampaignId = computed((): string | null => (currentPlayedCampaign.value?.uuid || null));
+
   const availableCampaigns = computed((): Campaign[] => {
     if (!currentWorld.value) {
       return [];
@@ -205,13 +215,11 @@ export const useCampaignStore = defineStore('campaign', () => {
 
     // If there are no campaigns, return null
     if (!campaigns || campaigns.length === 0) {
-      currentPlayedCampaignId.value = null;
       return null;
     }
 
     // If there's only one campaign, use that
     if (campaigns.length === 1) {
-      currentPlayedCampaignId.value = campaigns[0].uuid;
       return campaigns[0];
     }
 
@@ -226,16 +234,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     } 
 
     // got here, so more than one and we don't have a valid one picked already, so select the first one
-    currentPlayedCampaignId.value = campaigns[0].uuid;
     return campaigns[0];
-  });
-
-  // get the uuid of the highest session in the campaign being played
-  const playedSessionId = computed((): string | null => {
-     if (!currentPlayedCampaign.value)
-      throw new Error('Invalid session in campaignStore.playedSessionId()');
-
-    return currentPlayedCampaign.value.currentSession?.uuid || null;
   });
 
 
@@ -394,10 +393,10 @@ export const useCampaignStore = defineStore('campaign', () => {
     relatedPCRows,
     relatedLoreRows,
     extraFields,
-    playedSessionId,
     availableCampaigns,
     playableCampaigns,
     currentPlayedCampaign,
+    currentPlayedSession,
     currentPlayedCampaignId,
 
     addPC,

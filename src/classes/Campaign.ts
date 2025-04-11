@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 import { getFlag, moduleId, prepareFlagsForUpdate, setFlagDefaults, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, WorldDoc } from '@/documents';
 import { PC, Session, WBWorld } from '@/classes';
-import { inputDialog } from '@/dialogs/input';
+import { inputDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';
 

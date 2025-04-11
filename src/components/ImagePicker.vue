@@ -7,7 +7,7 @@
   >
     <img
       class="profile"
-      :src="modelValue || props.defaultImage"
+      :src="modelValue || getDefaultImage"
       @error="onImageError"
     >
     <div v-if="!isDefaultImage" class="fcb-image-controls">
@@ -18,10 +18,14 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed } from 'vue';
+  import { computed, } from 'vue';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
+  import { localize } from '@/utils/game';
+
+  // types
+  import { Topics, ValidTopic, WindowTabType } from '@/types';
 
   ////////////////////////////////
   // props
@@ -35,8 +39,17 @@
     defaultImage: {
       type: String,
       required: false,
-      default: 'icons/svg/mystery-man.svg', // Default Foundry image
+      default: '', // Will be determined by topic or windowType if not provided
     },
+    topic: {
+      type: Number as () => ValidTopic,
+      required: false,
+      default: null,
+    },
+    windowType: {
+      type: Number as () => WindowTabType,
+      required: true,
+    }
   });
 
   ////////////////////////////////
@@ -47,11 +60,48 @@
 
   ////////////////////////////////
   // data
+  const WINDOW_TYPE_IMAGES = {
+    [WindowTabType.World]: 'icons/svg/castle.svg',
+    [WindowTabType.Campaign]: 'icons/svg/ruins.svg',
+    [WindowTabType.Session]: 'icons/svg/combat.svg',
+    [WindowTabType.PC]: 'icons/svg/mystery-man.svg',
+  };
 
+  const TOPIC_IMAGES = {
+    [Topics.Character]: 'icons/svg/mystery-man.svg',
+    [Topics.Location]: 'icons/svg/oak.svg',
+    [Topics.Organization]: 'icons/svg/temple.svg',
+    [Topics.Event]: 'icons/svg/obelisk.svg',
+  };
+  
   ////////////////////////////////
   // computed
+  const getDefaultImage = computed((): string => {
+    // If a specific default image is provided, use it
+    if (props.defaultImage) {
+      return props.defaultImage;
+    }
+    
+    switch (props.windowType) {
+      case WindowTabType.Entry:
+        return TOPIC_IMAGES[props.topic];
+
+      case WindowTabType.World:
+        return WINDOW_TYPE_IMAGES[WindowTabType.World];
+
+      case WindowTabType.Campaign:
+        return WINDOW_TYPE_IMAGES[WindowTabType.Campaign];
+
+      case WindowTabType.Session:
+        return WINDOW_TYPE_IMAGES[WindowTabType.Session];
+
+      default:
+        throw new Error('Invalid window type in ImagePicker');
+    }
+  });
+
   const isDefaultImage = computed((): boolean => {
-    return !props.modelValue || props.modelValue === props.defaultImage;
+    return !props.modelValue || props.modelValue === getDefaultImage.value;
   });
 
   ////////////////////////////////
@@ -85,14 +135,26 @@
           {
             icon: 'fa-eye',
             iconFontClass: 'fas',
-            label: 'View Image',
+            label: localize('contextMenus.image.viewImage'),
             onClick: () => showImagePopout()
           },
           {
             icon: 'fa-edit',
             iconFontClass: 'fas',
-            label: 'Change Image',
+            label: localize('contextMenus.image.changeImage'),
             onClick: () => openFilePicker()
+          },
+          {
+            icon: 'fa-trash',
+            iconFontClass: 'fas',
+            label: localize('contextMenus.image.removeImage'),
+            onClick: () => removeImage()
+          },
+          {
+            icon: 'fa-comment',
+            iconFontClass: 'fas',
+            label: localize('contextMenus.image.postToChat'),
+            onClick: () => postToChat()
           }
         ]
       });
@@ -137,9 +199,20 @@
     const target = event.target as HTMLImageElement;
     if (target && !target.dataset.errorHandled) {
       target.dataset.errorHandled = 'true';
-      target.src = props.defaultImage;
+      target.src = getDefaultImage.value;
     }
   };
+
+  const removeImage = () => {
+    emit('update:modelValue', '');
+  };
+
+  const postToChat = () => {
+    ChatMessage.create({ content: `<img src="${props.modelValue}" alt="Campaign Builder Image">` });
+  };
+
+  ////////////////////////////////
+  // watchers
 </script>
 
 <style lang="scss">

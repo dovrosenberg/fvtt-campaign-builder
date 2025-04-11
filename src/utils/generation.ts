@@ -70,7 +70,7 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
   return entry;
 };
 
-const generateImage = async (currentWorld: WBWorld, entry: Entry): Promise<void> => {
+export const generateImage = async (currentWorld: WBWorld, entry: Entry): Promise<void> => {
   if (!entry || !currentWorld || ![Topics.Character, Topics.Location, Topics.Organization].includes(entry.topic)) {
     return;
   }

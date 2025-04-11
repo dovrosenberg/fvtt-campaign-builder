@@ -252,6 +252,13 @@
   // lifecycle events
   onMounted(async () => {
     directoryCollapsed.value = ModuleSettings.get(SettingKey.startCollapsed) || false;
+    
+    // Make sure the splitter state is reset to reflect the collapsed state
+    if (directoryCollapsed.value && splitterRef.value) {
+      setTimeout(() => {
+        splitterRef.value?.resetState();
+      }, 0);
+    }
 
     const folders = await getDefaultFolders();
 

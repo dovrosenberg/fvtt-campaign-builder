@@ -30,6 +30,7 @@
         <DescriptionTab
           :name="currentSession?.name || 'Session'"
           :image-url="currentSession?.img"
+          :window-type="WindowTabType.Session"
           alt-tab-id="notes"
           @image-change="onImageChange"
         >
@@ -59,7 +60,7 @@
           </div>
           <div class="flexrow form-group description">
             <Editor 
-              :initial-content="currentSession?.notes || ''"
+              :initial-content="sessionNotesContent"
               :has-button="true"
               @editor-saved="onNotesEditorSaved"
             />
@@ -121,7 +122,7 @@
   import { nextTick, ref, watch, onMounted, } from 'vue';
 
   // local imports
-  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
+  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useCampaignStore } from '@/applications/stores';
   import { WindowTabType } from '@/types';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
@@ -156,7 +157,9 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentSession, currentContentTab } = storeToRefs(mainStore);
+  const campaignStore = useCampaignStore();
+  const { currentSession, currentContentTab, } = storeToRefs(mainStore);
+  const { currentPlayedSession } = storeToRefs(campaignStore);
   
   ////////////////////////////////
   // data
@@ -165,6 +168,7 @@
   const name = ref<string>('');
   const sessionNumber = ref<string>('');
   const sessionDate = ref<Date | undefined>(undefined);
+  const sessionNotesContent = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);
 
@@ -221,6 +225,13 @@
 
     currentSession.value.notes = newContent;
     await currentSession.value.save();
+
+    mainStore.refreshSession();
+
+    if (currentPlayedSession.value?.uuid===currentSession.value.uuid) {
+      // trigger reactivity on the session notes window
+      currentPlayedSession.value.notes = newContent;
+    }
   };
 
   const onStartEditorSaved = async (newContent: string) => {
@@ -271,8 +282,16 @@
       name.value = newSession.name || '';
       sessionNumber.value = newSession.number?.toString() || '';
       sessionDate.value = newSession.date || undefined;
+      sessionNotesContent.value = newSession.notes || '';
     }
   });
+  
+  // Watch for changes to the played session (which might include a refresh that changes the notes)
+  watch(() => currentPlayedSession.value, async () => {
+    if (currentPlayedSession.value?.uuid === currentSession.value?.uuid)
+      sessionNotesContent.value = currentPlayedSession.value?.notes || '';
+  }, { immediate: true });
+
 
 
   ////////////////////////////////

@@ -21,38 +21,40 @@
   // stores
   const mainStore = useMainStore();
   const campaignStore = useCampaignStore();
-  const { currentPlayedCampaign } = storeToRefs(campaignStore);
+  const { currentPlayedSession } = storeToRefs(campaignStore);
   const { currentSession } = storeToRefs(mainStore);
 
   // data
   const sessionNotes = ref<string>('');
 
   // computed
-  const playedSession = computed(() => {
-    return currentPlayedCampaign.value?.currentSession || null;
-  });
 
   // methods
   const onNotesEditorSaved = async (newContent: string) => {
-    if (!playedSession.value) return;
+    if (!currentPlayedSession.value) return;
 
-    playedSession.value.notes = newContent;
-    await playedSession.value.save();
+    currentPlayedSession.value.notes = newContent;
+    await currentPlayedSession.value.save();
 
     // if we're showing the session, refresh it
-    if (currentSession.value && currentSession.value.uuid===playedSession.value.uuid) {
-      await mainStore.refreshEntry();
+    if (currentSession.value && currentSession.value.uuid===currentPlayedSession.value.uuid) {
+      await mainStore.refreshSession();
     }
   };
 
   // watchers
-  watch(() => playedSession.value, async () => {
-    sessionNotes.value = playedSession.value?.notes || '';
+  // changes to the played session 
+  watch(() => currentPlayedSession.value, async () => {
+    sessionNotes.value = currentPlayedSession.value?.notes || '';
+  }, { immediate: true });
+
+  watch(() => currentPlayedSession.value?.notes, async () => {
+    sessionNotes.value = currentPlayedSession.value?.notes || '';
   }, { immediate: true });
 
   // lifecycle
   onMounted(() => {
-    sessionNotes.value = playedSession.value?.notes || '';
+    sessionNotes.value = currentPlayedSession.value?.notes || '';
   })
 </script>
 

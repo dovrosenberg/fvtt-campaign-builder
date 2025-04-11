@@ -2,13 +2,38 @@
 
 [![Supported Foundry Versions](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/dovrosenberg/fvtt-campaign-builder/raw/master/static/module.json)](https://github.com/dovrosenberg/fvtt-campaign-builder)
 
-## Important note
-**This module is VERY early in development.**  It's really an alpha.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.  To be clear, it's pretty stable.  You're highly unlikely to suffer data loss of the world data you put in.  You may end up in a state where we'll need to manually fix something to give you access to that data again.  I have only had one bug recently (last month or so of development) that caused the latter issue, and it's been fixed.  So, I don't say this to scare you, but if you want to use this for a live campaign:
+World & Campaign Builder is designed to streamline every part of your TTRPG prep and gameplay—from deep worldbuilding to session planning and live play tracking. Whether you're building a sprawling lore-rich universe or following the Lazy DM approach to lightweight prep, this tool lets you create interconnected characters, locations, organizations, and events with ease, all inside Foundry. It’s fast enough to use in real time during a session, and flexible enough to evolve as your world grows. Optional AI-assisted content and image generation offer powerful creative boosts, but the module is fully usable without them. 
+
+## Important notes
+
+### This module is VERY early in development.
+It's really a beta.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.  To be clear, it's pretty stable.  You're highly unlikely to suffer data loss of the world data you put in.  You may end up in a state where we'll need to manually fix something to give you access to that data again.  I have only had one bug recently (last month or so of development) that caused the latter issue, and it's been fixed.  So, I don't say this to scare you, but if you want to use this for a live campaign:
   1. Backup often
   2. Just know what you're signing up for
+
+ [Let me know](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose) if you have any trouble or suggestions/requests.
   
+### A note on AI and "Advanced Features"
+You'll see lots of references to AI capabilities in the instructions and feature lists.  There is no AI-generated content (or any other content) provided by the module (other than foreign language translations of UI elements). It merely has the capability to use AI to generate various things if you desire.  
+
+The module is *fully functional and useful without any use of AI*, and by default there are no AI features/functions enabled.  You'll never know it's there.
+
+That said, here's the scoop on what you'll need to do if you do want to access the AI features:
+
+- The first advanced features require you to setup a backend server.  Which features fall in this category are noted below, but basically it comes down to the AI features.  This approach of using a backend has the advantages of:
+  - You don't need to store sensitive credentials (i.e. OpenAI tokens) in Foundry (which would then be visible by whoever is hosting the session), and 
+  - Activities that take some time (particularly image generation) can be done much more effectively
+  - Future-proof for more complex features in the future
+- Setting up these features is not particularly complicated, but does require:
+  - Some basic comfort with running command-line scripts
+  - Account creation (currently Google Cloud, OpenAPI, and Replicate.com).  The backend is designed to stay within the Google Cloud free tier (assuming you're not running anything else) and the OpenAPI/Replicate costs are minimal (ex. you can create ~5000 AI-generated character descriptions for $0.15 and image generation is about $0.01), but all 3 services will require you to provide a credit card.
+  - Full details on the setup are here: https://github.com/dovrosenberg/fvtt-fcb-backend
+
 
 ______
+
+## User Documentation
+Convinced already?  Head over to our [User Documentation](DOCUMENTATION.md) page for instructions on how to use the module. 
 
 ## Description
 The goal of this package is to facilitate creating, planning, and running campaigns in Foundry.  It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to use used with any style of prep) 
@@ -29,10 +54,9 @@ I plan to use the module to support a live game where only combat is being done 
 The campaign planning component is modeled after [The Lazy Dungeon Master](https://slyflourish.com/lazydm/), which I highly recommend.  There is a [freely available copy of the original book](https://slyflourish.com/the_lazy_dungeon_master_cc.html) and I also recommend the newer [Return of the Lazy Dungeon Master](https://www.amazon.com/Flourishs-Return-Lazy-Dungeon-Master/dp/B0B8F1G5G7) (though you have to buy that version).
 
 
-## Features
+## Current features
 [Feature requests?](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose)
 
-## Current features
 - Create characters, locations, organizations, and events with detailed descriptions and images
 - Easily see (and click through) the relationships between them
 - Create geographical hierarchies (world-continents-countries-regions-towns-etc.)
@@ -92,17 +116,6 @@ for more detail/images/handouts
 * Add any new locations, NPCs, etc. to the world - you can do this while playing but it may be easier to just take quick notes and do it afterwards 
 * Add anything that's top of mind to the next session to get started for next time
 
-
-## Advanced features
-- There are some advanced features (and more planned) that require you to setup a backend server.  These are noted above, but basically come down to the AI features.  This approach has the advantages of:
-  - You don't need to store sensitive credentials (i.e. OpenAI tokens) in Foundry (which would then be visible by whoever is hosting the session), and 
-  - Activities that take some time (particularly image generation) can be done much more effectively
-  - Future-proof for more complex features in the future
-- Setting up these features is not particularly complicated, but does require:
-  - Some basic comfort with running command-line scripts
-  - Account creation (currently Google Cloud and OpenAPI).  The backend is designed to stay within the Google Cloud free tier (assuming you're not running anything else) and the OpenAPI costs are minimal (ex. you can create ~5000 AI-generated character descriptions for $0.15), but both services will require you to provide a credit card.
-  - Full details on the setup are here: https://github.com/dovrosenberg/fvtt-fcb-backend
-
 ## Note on characters, actors, and PCs
 - Characters (in worlds) can be PCs if you'd like, but they're really intended primarily to represent all the NPCs.  
   - Characters can be tied to multiple Actors (ex. if you want to represent a young version and an old version or track the human form of a werewolf separately from the wolf form, etc.) though typically it would be 1:1
@@ -118,6 +131,10 @@ for more detail/images/handouts
 
 If you believe you found a bug or would like to post a feature request, head over to the module's [Github repo](https://github.com/dovrosenberg/fvtt-campaign-builder) and [open a new issue](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose).
 
+## Languages
+
+French and German currently supported.  Let me know if you want others.  PRs also welcome for either new languages or fixes to bad translations in the current ones.  
+
 ## Support
 
 I'm happy to do this for free, as I primarily work on things I like to use myself.  But if you'd like to [buy me a root beer](https://ko-fi.com/phloro), I love knowing that people are using my projects and like them enough to make the effort. It's really appreciated!  
@@ -128,14 +145,8 @@ THIS ENTIRE REPOSITORY IS COVERED BY THIS LICENSE AND COPYRIGHT NOTICE
 
 Copyright 2025 Dov Rosenberg
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
   http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
