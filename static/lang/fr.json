@@ -34,7 +34,9 @@
       "advancedHelp": "Configurer les paramètres avancés (y compris l'IA)",
       "speciesList": "Gérer la Liste des Espèces",
       "speciesListLabel": "Liste des Espèces",
-      "speciesListHelp": "Définir les espèces à rendre disponibles. Celles-ci traversent tous les mondes - signalez un problème si vous avez besoin de listes différentes par monde."
+      "speciesListHelp": "Définir les espèces à rendre disponibles. Celles-ci traversent tous les mondes - déposez un problème si vous avez besoin de listes différentes par monde.",
+      "test": "test",
+      "testing2": "sdfsdf"
     },
     "applications": {
       "sessionNotes": {
