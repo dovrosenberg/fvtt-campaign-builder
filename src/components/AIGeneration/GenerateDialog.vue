@@ -95,7 +95,6 @@
               :disabled="!generateComplete"
               inputId="generate-image-checkbox"
             />
-            <input type="checkbox" />
             <label for="generate-image-checkbox" class="generate-image-label">
               Generate image
               <i class="fas fa-info-circle tooltip-icon" data-tooltip="Generate a new image in the background after creating"></i>
@@ -453,16 +452,16 @@
     margin-top: 8px;
     display: flex;
     align-items: center;
+  }
 
-    .tooltip-icon {
-      margin-left: 5px;
-      font-size: 12px;
-      color: #888;
-      cursor: help;
+  .tooltip-icon {
+    margin-left: 5px;
+    font-size: 12px;
+    color: #888;
+    cursor: help;
 
-      &:hover {
-        color: #555;
-      }
+    &:hover {
+      color: #555;
     }
   }
 

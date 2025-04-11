@@ -1,5 +1,6 @@
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
+import { withDirectives } from 'vue';
 
 export default definePreset(Aura, {
   components: {
@@ -55,20 +56,24 @@ export default definePreset(Aura, {
         style: 'solid',
       }
     },
-    inputtext: {
-      background: 'rgba(0, 0, 0, 0.05)', 
-      color: 'black',   //'var(--color-text-primary)',       // change to var
-      borderRadius: '4px',
-      focusBorderColor: 'black',  // change to var
-      padding: {
-        x: '3px',
-        y: '1px',
+    checkbox: {
+      background: 'rgba(0, 0, 0, 0.05)',
+      hoverBackground: 'rgba(0, 0, 0, 0.05)',
+      borderRadius: '3px',
+      checked: {
+        background: '#ee9b3a',   
+        hoverBackground: '#ee9b3a',
+        borderColor: 'black',
+        hoverBorderColor: 'black',
+        focusBorderColor: 'black',  
       },
-      focusRing: {
-        color: '#c9593f',  // change to var
-        width: '2px',
-        style: 'solid',
-      }
+      icon: {
+        checked: {
+          color: 'black',   
+          hoverColor: 'black',
+        }
+      },
+      focusBorderColor: 'black',
     },
     textarea: {
       background: 'rgba(0, 0, 0, 0.05)', 
