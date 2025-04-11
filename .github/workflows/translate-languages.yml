@@ -34,7 +34,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_TOKEN }}  # needs access to repo scope in classic tokens (can be same as release script)
           commit-message: "Update translations"
           title: "Update translations"
           body: "Update translations"
