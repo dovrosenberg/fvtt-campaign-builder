@@ -1,139 +1,139 @@
 {
   "fcb": {
-    "title": "Créateur de campagne",
-    "defaultRootFolderName": "Créateur de campagne",
+    "title": "Constructeur de Campagne",
+    "defaultRootFolderName": "Constructeur de Campagne",
     "settings": {
-      "startCollapsed": "La barre latérale commence à s'effondrer?",
-      "startCollapsedHelp": "La barre latérale devrait-elle commencer à être fermée lors de l'ouverture de la fenêtre pour la première fois?",
-      "displaySessionNotes": "Afficher les notes de session contextuelles",
-      "displaySessionNotesHelp": "Lorsqu'il est activé, une fenêtre de notes de session s'ouvrira automatiquement lorsqu'une session de lecture commencera",
-      "sessionDisplayMode": "Format d'affichage de session",
+      "startCollapsed": "La barre latérale commence-t-elle réduite ?",
+      "startCollapsedHelp": "La barre latérale doit-elle commencer fermée lors de la première ouverture de la fenêtre ?",
+      "displaySessionNotes": "Afficher les notes de session pop-up",
+      "displaySessionNotesHelp": "Lorsqu'il est activé, une fenêtre de notes de session s'ouvrira automatiquement au début d'une session de jeu",
+      "sessionDisplayMode": "Format d'affichage de la session",
       "sessionDisplayModeHelp": "Choisissez comment les sessions sont affichées dans le répertoire de la campagne",
       "sessionDisplayModeOptions": {
-        "number": "Numéro de session",
-        "date": "Date de session",
-        "name": "Nom de session"
+        "number": "Numéro de Session",
+        "date": "Date de Session",
+        "name": "Nom de Session"
       },
-      "autoRefreshRollTables": "Actualiser automatiquement les rouleaux",
-      "autoRefreshRollTablesHelp": "Lorsqu'elles sont activées, les tables de roulis du générateur seront automatiquement actualisées avec de nouvelles valeurs lorsque le module se charge",
-      "rollTableSettings": "Paramètres de la table de rouleau",
-      "rollTableSettingsLabel": "Paramètres de la table de rouleau",
-      "rollTableSettingsHelp": "Configurer les paramètres des générateurs aléatoires",
+      "autoRefreshRollTables": "Rafraîchir automatiquement les RollTables",
+      "autoRefreshRollTablesHelp": "Lorsqu'il est activé, les tables de génération seront automatiquement rafraîchies avec de nouvelles valeurs lors du chargement du module",
+      "rollTableSettings": "Paramètres des Roll Tables",
+      "rollTableSettingsLabel": "Paramètres des Roll Tables",
+      "rollTableSettingsHelp": "Configurer les paramètres pour les générateurs aléatoires",
       "rollTableConfig": {
         "defaultTypeNPC": "Type de PNJ par défaut",
-        "defaultTypeNPCHelp": "Type par défaut à utiliser lors de la création d'une entrée de caractères NPC",
-        "defaultTypeTown": "Type de ville par défaut",
-        "defaultTypeTownHelp": "Type par défaut à utiliser lors de la création d'une entrée de localisation de la ville",
-        "defaultTypeStore": "Type de magasin par défaut",
-        "defaultTypeStoreHelp": "Type par défaut à utiliser lors de la création d'une entrée d'emplacement en magasin",
-        "defaultTypeTavern": "Type de taverne par défaut",
-        "defaultTypeTavernHelp": "Type par défaut à utiliser lors de la création d'une entrée d'emplacement de taverne"
+        "defaultTypeNPCHelp": "Type par défaut à utiliser lors de la création d'une entrée de personnage PNJ",
+        "defaultTypeTown": "Type de Ville par défaut",
+        "defaultTypeTownHelp": "Type par défaut à utiliser lors de la création d'une entrée de localisation de ville",
+        "defaultTypeStore": "Type de Magasin par défaut",
+        "defaultTypeStoreHelp": "Type par défaut à utiliser lors de la création d'une entrée de localisation de magasin",
+        "defaultTypeTavern": "Type de Taverne par défaut",
+        "defaultTypeTavernHelp": "Type par défaut à utiliser lors de la création d'une entrée de localisation de taverne"
       },
-      "advanced": "Paramètres avancés",
-      "advancedLabel": "Ouvrir les paramètres avancés",
+      "advanced": "Paramètres Avancés",
+      "advancedLabel": "Ouvrir les Paramètres Avancés",
       "advancedHelp": "Configurer les paramètres avancés (y compris l'IA)",
-      "speciesList": "Gérer la liste des espèces",
-      "speciesListLabel": "Liste des espèces",
-      "speciesListHelp": "Définissez les espèces à mettre à disposition.  "
+      "speciesList": "Gérer la Liste des Espèces",
+      "speciesListLabel": "Liste des Espèces",
+      "speciesListHelp": "Définir les espèces à rendre disponibles. Celles-ci traversent tous les mondes - déposez un problème si vous avez besoin de listes différentes par monde."
     },
     "applications": {
       "sessionNotes": {
-        "title": "Notes de session"
+        "title": "Notes de Session"
       },
       "speciesList": {
-        "title": "Configurer la liste des espèces",
+        "title": "Configurer la Liste des Espèces",
         "labels": {
-          "add": "Ajouter des espèces",
-          "edit": "Modifier les espèces",
-          "delete": "Supprimer les espèces"
+          "add": "Ajouter une espèce",
+          "edit": "Modifier une espèce",
+          "delete": "Supprimer une espèce"
         }
       },
       "advancedSettings": {
-        "title": "Configurer les paramètres avancés",
+        "title": "Configurer les Paramètres Avancés",
         "labels": {
-          "backendURL": "URL backend",
+          "backendURL": "URL du Backend",
           "backendURLHint": "Sortie du script pour déployer le backend.",
           "APIToken": "Jeton API",
           "APITokenHint": "Sortie du script pour déployer le backend."
         }
       },
       "rollTableSettings": {
-        "title": "Configurer les paramètres de la table de roulis",
-        "folderName": "Tables de rouleau du constructeur de campagnes",
-        "tableDescription": "Tableau de générateur pour {type}",
+        "title": "Configurer les Paramètres des Roll Tables",
+        "folderName": "Tables de Roll du Constructeur de Campagne",
+        "tableDescription": "Table de génération pour {type}",
         "labels": {
-          "refreshAll": "Actualiser toutes les tables",
-          "refreshAllHelp": "Remplacez tous les articles utilisés par de nouveaux"
+          "refreshAll": "Rafraîchir toutes les tables",
+          "refreshAllHelp": "Remplacer tous les éléments utilisés par de nouveaux"
         }
       }
     },
     "help": {
-      "worldGenre": "ex. ",
-      "worldFeeling": "ex. "
+      "worldGenre": "ex. \"Fantasy\" - Nécessaire pour la génération IA",
+      "worldFeeling": "ex. \"Rugueux et dangereux avec un faible niveau de magie\" - Améliore la génération IA"
     },
     "labels": {
-      "newTab": "Nouveau onglet",
-      "saveChanges": "Enregistrer les modifications",
+      "newTab": "Nouvel Onglet",
+      "saveChanges": "Enregistrer les Modifications",
       "reset": "Réinitialiser",
       "cancel": "Annuler",
       "generate": "Générer",
       "accept": "Accepter",
       "use": "Utiliser",
       "useOnce": "Utiliser une fois",
-      "tryAgain": "Essayer à nouveau",
+      "tryAgain": "Réessayer",
       "addToWorld": "Ajouter au monde",
-      "prep": "Préparation",
+      "prep": "Préparer",
       "play": "Jouer",
       "fields": {
-        "type": "Taper",
-        "parent": "Mère",
-        "sessionNumber": "Nombre",
-        "sessionDate": "Date de session",
-        "playerName": "Nom du joueur",
-        "backgroundPoints": "Points de fond",
-        "otherPlotPoints": "Autres points de l'intrigue",
-        "desiredMagicItems": "Objets magiques souhaités",
+        "type": "Type",
+        "parent": "Parent",
+        "sessionNumber": "Numéro",
+        "sessionDate": "Date de Session",
+        "playerName": "Nom du Joueur",
+        "backgroundPoints": "Points de Contexte",
+        "otherPlotPoints": "Autres Points de Scénario",
+        "desiredMagicItems": "Objets Magiques Désirés",
         "species": "Espèces",
         "worldGenre": "Genre",
-        "worldFeeling": "Sentiment du monde",
-        "campaignDescription": "Description de la campagne, notes, idées, etc ..."
+        "worldFeeling": "Ambiance du Monde",
+        "campaignDescription": "Description de la campagne, notes, idées, etc..."
       },
       "addTopic": {
-        "character": "Ajouter du caractère",
-        "event": "Ajouter l'événement",
-        "location": "Ajouter l'emplacement",
-        "organization": "Ajouter une organisation"
+        "character": "Ajouter un Personnage",
+        "event": "Ajouter un Événement",
+        "location": "Ajouter un Lieu",
+        "organization": "Ajouter une Organisation"
       },
       "addTopicDrag": {
-        "character": "(ou faire glisser / déposer un personnage)",
-        "event": "(ou faire glisser / déposer un événement)",
-        "location": "(ou faire glisser / déposer un emplacement)",
-        "organization": "(ou faire glisser / déposer une organisation)"
+        "character": "(ou glisser/déposer un personnage)",
+        "event": "(ou glisser/déposer un événement)",
+        "location": "(ou glisser/déposer un lieu)",
+        "organization": "(ou glisser/déposer une organisation)"
       },
       "entry": {
-        "topic": "Sujet de sujet",
-        "type": "Taper",
+        "topic": "DossierThématique",
+        "type": "Type",
         "relationships": "Relations"
       },
       "session": {
         "session": "Session",
-        "pc": "PC",
-        "addLocation": "Ajouter l'emplacement",
-        "addLocationDrag": "(ou faire glisser / déposer un emplacement)",
-        "addVignette": "Ajouter Vignette",
-        "addLore": "Ajouter",
-        "addNPC": "Ajouter NPC",
-        "addNPCDrag": "(ou faire glisser / déposer un personnage)",
-        "addItem": "Ajouter"
+        "pc": "PJ",
+        "addLocation": "Ajouter un lieu",
+        "addLocationDrag": "(ou glisser/déposer un lieu)",
+        "addVignette": "Ajouter une vignette",
+        "addLore": "Ajouter du lore",
+        "addNPC": "Ajouter un PNJ",
+        "addNPCDrag": "(ou glisser/déposer un personnage)",
+        "addItem": "Ajouter un objet"
       },
       "campaign": {
-        "addPC": "Ajouter PC",
-        "addPCDrag": "(ou faire glisser / déposer un acteur)"
+        "addPC": "Ajouter un PJ",
+        "addPCDrag": "(ou glisser/déposer un acteur)"
       },
       "pc": {
-        "linkToNewActor": "Lien vers un nouvel acteur"
+        "linkToNewActor": "Lier à un nouvel acteur"
       },
-      "groupTree": "Arbre de groupe par type",
+      "groupTree": "Grouper l'arbre par type",
       "tabs": {
         "entry": {
           "description": "Description",
@@ -148,46 +148,46 @@
         },
         "campaign": {
           "description": "Description",
-          "pcs": "PCS",
-          "lore": "Traditions"
+          "pcs": "PJs",
+          "lore": "Lore"
         },
         "session": {
           "notes": "Notes",
-          "pcs": "PCS",
-          "start": "Commencer",
-          "lore": "Traditions",
+          "pcs": "PJs",
+          "start": "Début",
+          "lore": "Lore",
           "vignettes": "Vignettes",
           "locations": "Lieux",
-          "npcs": "PNJ",
+          "npcs": "PNJs",
           "monsters": "Monstres",
-          "magic": "Objets magiques"
+          "magic": "Objets Magiques"
         }
       },
       "noResults": "Rien ici",
       "loading": "Chargement"
     },
     "placeholders": {
-      "search": "Recherche",
-      "filter": "Filtre",
-      "characterName": "Nom de personnage",
-      "eventName": "Nom de l'événement",
-      "locationName": "Nom de lieu",
-      "organizationName": "Nom de l'organisation",
-      "campaignName": "Nom de campagne",
-      "worldName": "Nom mondial",
-      "sessionName": "Nom de session",
+      "search": "Rechercher",
+      "filter": "Filtrer",
+      "characterName": "Nom du Personnage",
+      "eventName": "Nom de l'Événement",
+      "locationName": "Nom du Lieu",
+      "organizationName": "Nom de l'Organisation",
+      "campaignName": "Nom de la Campagne",
+      "worldName": "Nom du Monde",
+      "sessionName": "Nom de la Session",
       "sessionDate": "Date",
-      "sessionNumber": "Numéro de session",
-      "linkToActor": "Lien avec l'acteur"
+      "sessionNumber": "Numéro de Session",
+      "linkToActor": "Lier à l'Acteur"
     },
     "compendia": {
       "entry": "Entrées",
-      "session": "Séances"
+      "session": "Sessions"
     },
     "topics": {
       "character": "Personnage",
       "event": "Événement",
-      "location": "Emplacement",
+      "location": "Lieu",
       "organization": "Organisation",
       "characters": "Personnages",
       "events": "Événements",
@@ -196,49 +196,49 @@
     },
     "dialogs": {
       "generateCharacter": {
-        "title": "Générer un caractère"
+        "title": "Générer un Personnage"
       },
       "generateLocation": {
-        "title": "Générer l'emplacement"
+        "title": "Générer un Lieu"
       },
       "generateOrganization": {
-        "title": "Générer une organisation"
+        "title": "Générer une Organisation"
       },
       "generateNameDialog": {
-        "errorMessage": "Il y a eu une erreur:"
+        "errorMessage": "Il y a eu une erreur :"
       },
       "generateOptions": {
-        "title": "Sélectionnez une option"
+        "title": "Sélectionner une Option"
       },
       "confirmDeleteRelationship": {
-        "title": "Supprimer de la relation?",
-        "message": "Êtes-vous sûr de vouloir supprimer cette relation?"
+        "title": "Retirer de la relation ?",
+        "message": "Êtes-vous sûr de vouloir supprimer cette relation ?"
       },
       "confirmDeletePC": {
-        "title": "Supprimer PC?",
-        "message": "Êtes-vous sûr de vouloir supprimer ce PC de la campagne?"
+        "title": "Supprimer le PJ ?",
+        "message": "Êtes-vous sûr de vouloir supprimer ce PJ de la campagne ?"
       },
       "createPC": {
-        "title": "Créer PC",
-        "playerName": "Nom du joueur"
+        "title": "Créer un PJ",
+        "playerName": "Nom du Joueur"
       },
       "createCampaign": {
-        "title": "Créer une campagne",
-        "campaignName": "Nom de campagne"
+        "title": "Créer une Campagne",
+        "campaignName": "Nom de la Campagne"
       },
       "createSession": {
-        "title": "Créer une session",
-        "sessionName": "Nom de session"
+        "title": "Créer une Session",
+        "sessionName": "Nom de la Session"
       },
       "createWorld": {
-        "title": "Créer un monde",
-        "worldName": "Nom mondial"
+        "title": "Créer un Monde",
+        "worldName": "Nom du Monde"
       }
     },
     "contextMenus": {
       "bookmarks": {
-        "openNewTab": "Ouvert dans un nouvel onglet",
-        "delete": "Supprimer le signet"
+        "openNewTab": "Ouvrir dans un nouvel Onglet",
+        "delete": "Supprimer le favori"
       },
       "worldFolder": {
         "delete": "Supprimer le monde",
@@ -254,16 +254,22 @@
       "session": {
         "delete": "Supprimer la session"
       },
+      "image": {
+        "viewImage": "Voir l'Image",
+        "changeImage": "Changer l'Image",
+        "removeImage": "Supprimer l'Image",
+        "postToChat": "Publier dans le Chat"
+      },
       "topicFolder": {
         "create": {
           "1": "Créer un nouveau personnage",
-          "2": "Créer un nouvel emplacement",
+          "2": "Créer un nouveau lieu",
           "3": "Créer une nouvelle organisation",
           "4": "Créer un nouvel événement"
         },
         "generate": {
-          "1": "Générer un nouveau caractère",
-          "2": "Générer un nouvel emplacement",
+          "1": "Générer un nouveau personnage",
+          "2": "Générer un nouveau lieu",
           "3": "Générer une nouvelle organisation",
           "4": "Générer un nouvel événement"
         }
@@ -276,44 +282,44 @@
       }
     },
     "tooltips": {
-      "mainButton": "Launch World Builder",
+      "mainButton": "Lancer le Constructeur de Monde",
       "createWorld": "Créer un monde",
       "expandDirectory": "Développer le répertoire",
-      "collapseDirectory": "Répertoire d'effondrement",
-      "collapseAllTopics": "S'effondrer tout",
-      "addBookmark": "Ajouter des signets",
-      "historyBack": "Dos",
-      "historyForward": "Avant",
+      "collapseDirectory": "Réduire le répertoire",
+      "collapseAllTopics": "Réduire tout",
+      "addBookmark": "Ajouter un favori",
+      "historyBack": "Retour",
+      "historyForward": "Avancer",
       "editRelationship": "Modifier la relation",
       "deleteRelationship": "Supprimer la relation",
-      "deleteLocation": "Supprimer l'emplacement",
-      "deleteNPC": "Supprimer les PNJ",
-      "deleteItem": "Supprimer",
+      "deleteLocation": "Supprimer le lieu",
+      "deleteNPC": "Supprimer le PNJ",
+      "deleteItem": "Supprimer l'objet",
       "deleteMonster": "Supprimer le monstre",
       "deleteScene": "Supprimer la scène",
       "deleteVignette": "Supprimer la vignette",
-      "deleteLore": "Supprimer",
-      "markAsDelivered": "Marquez comme livré",
-      "unmarkAsDelivered": "Un non marqué comme livré",
-      "moveToNextSession": "Passez à la prochaine session",
+      "deleteLore": "Supprimer le lore",
+      "markAsDelivered": "Marquer comme livré",
+      "unmarkAsDelivered": "Démarquer comme livré",
+      "moveToNextSession": "Déplacer à la session suivante",
       "generateContent": "Générer du contenu",
       "backendNotAvailable": "Backend non disponible",
-      "playModeNoCampaigns": "Vous devez avoir au moins une campagne avec une session afin d'utiliser le mode de lecture",
+      "playModeNoCampaigns": "Vous devez avoir au moins une campagne avec une session pour utiliser le mode Jeu",
       "contentLinks": {
         "1": {
           "1": "Personnage",
-          "2": "Emplacement",
+          "2": "Lieu",
           "3": "Organisation",
           "4": "Événement"
         },
         "2": "Campagne",
         "3": "Session",
-        "4": "PC",
+        "4": "PJ",
         "5": "Monde"
       }
     },
     "errors": {
-      "duplicateBookmark": "Déjà stocké comme signet"
+      "duplicateBookmark": "Déjà enregistré comme favori"
     }
   }
 }
