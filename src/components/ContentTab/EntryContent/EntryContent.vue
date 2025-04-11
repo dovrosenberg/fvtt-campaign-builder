@@ -53,6 +53,8 @@
         <DescriptionTab 
           :name="currentEntry?.name || 'Entry'"
           :image-url="currentEntry?.img"
+          :window-type="WindowTabType.Entry"
+          :topic="topic as ValidTopic"
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
@@ -184,7 +186,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
   // types
-  import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic } from '@/types';
+  import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic, WindowTabType } from '@/types';
   import { Entry, WBWorld, TopicFolder, } from '@/classes';
 
   ////////////////////////////////

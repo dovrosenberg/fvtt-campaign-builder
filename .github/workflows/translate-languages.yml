@@ -1,0 +1,96 @@
+name: Translate Language Files
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'static/lang/en.json'
+
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.changed }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check if en.json was changed in the latest commit
+        id: check
+        run: |
+          # Get the list of files changed in the latest commit
+          CHANGED=$(git diff --name-only HEAD^ HEAD)
+          
+          # Check if en.json is in the list of changed files
+          if echo "$CHANGED" | grep -q "static/lang/en.json"; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+  translate:
+    needs: check-changes
+    if: needs.check-changes.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language: [fr, de]  # French and German as mentioned in CHANGELOG
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Install dependencies
+        run: npm install openai
+
+      - name: Translate to ${{ matrix.language }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node .scripts/translate.js ${{ matrix.language }}
+
+      - name: Update module.json with new language
+        run: |
+          # Check if language entry already exists
+          LANG_EXISTS=$(grep -c "\"lang\": \"${{ matrix.language }}\"" static/module.json || true)
+          
+          if [ "$LANG_EXISTS" -eq 0 ]; then
+            # Language doesn't exist, add it to the languages array
+            LANG_NAME=$(node -e "
+              const langs = {
+                fr: 'French',
+                de: 'German',
+                es: 'Spanish',
+                it: 'Italian',
+                ja: 'Japanese',
+                ko: 'Korean',
+                pt: 'Portuguese',
+                ru: 'Russian',
+                zh: 'Chinese'
+              };
+              console.log(langs['${{ matrix.language }}'] || '${{ matrix.language }}');
+            ")
+            
+            # Use jq to add the new language entry
+            jq --arg lang "${{ matrix.language }}" --arg name "$LANG_NAME" --arg path "lang/${{ matrix.language }}.json" '.languages += [{"lang": $lang, "name": $name, "path": $path}]' static/module.json > temp.json
+            mv temp.json static/module.json
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Add ${{ matrix.language }} translation"
+          title: "Add ${{ matrix.language }} translation"
+          body: |
+            This PR adds or updates the ${{ matrix.language }} translation file based on the latest changes to en.json.
+            
+            Generated automatically by the translation workflow.
+          branch: translation-${{ matrix.language }}-${{ github.sha }}
+          base: master

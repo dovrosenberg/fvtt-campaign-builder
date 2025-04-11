@@ -24,6 +24,7 @@
         <DescriptionTab 
           :name="currentCampaign?.name || 'Campaign'"
           :image-url="currentCampaign?.img"
+          :window-type="WindowTabType.Campaign"
           @image-change="onImageChange"
         >
           <LabelWithHelp

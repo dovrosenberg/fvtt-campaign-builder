@@ -55,7 +55,7 @@
 
     <Splitter layout="vertical" class="fcb-directory-splitter">
       <SplitterPanel :size="60" class="fcb-directory-panel">
-        <div v-if="isTopicTreeRefreshing">
+        <div v-if="isTopicTreeRefreshing" class="fcb-loading-container">
           <ProgressSpinner v-if="isTopicTreeRefreshing" />
         </div>
         <div v-else class="fcb-directory-panel-wrapper">
@@ -244,4 +244,11 @@
     display:none;
   }
 
+  .fcb-loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
 </style>

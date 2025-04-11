@@ -30,6 +30,7 @@
         <DescriptionTab
           :name="currentSession?.name || 'Session'"
           :image-url="currentSession?.img"
+          :window-type="WindowTabType.Session"
           alt-tab-id="notes"
           @image-change="onImageChange"
         >
