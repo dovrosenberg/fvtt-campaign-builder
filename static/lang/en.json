@@ -124,7 +124,10 @@
         "addLore": "Add lore",
         "addNPC": "Add NPC",
         "addNPCDrag": "(or drag/drop a character)",
-        "addItem": "Add item"
+        "addItem": "Add item",
+        "addItemDrag": "(or drag/drop an item)",
+        "addMonster": "Add monster",
+        "addMonsterDrag": "(or drag/drop an actor)"
       },
       "campaign": {
         "addPC": "Add PC",
