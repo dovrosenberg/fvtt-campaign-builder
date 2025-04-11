@@ -37,6 +37,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update translations"
           title: "Update translations"
-          body-file: pr_body.txt
+          body: "Update translations"
           branch: translations-${{ github.sha }}
           base: dev
