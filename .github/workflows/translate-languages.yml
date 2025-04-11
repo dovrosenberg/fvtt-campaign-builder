@@ -8,32 +8,7 @@ on:
       - 'static/lang/en.json'
 
 jobs:
-  check-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      should_run: ${{ steps.check.outputs.changed }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Check if en.json was changed in the latest commit
-        id: check
-        run: |
-          # Get the list of files changed in the latest commit
-          CHANGED=$(git diff --name-only HEAD^ HEAD)
-          
-          # Check if en.json is in the list of changed files
-          if echo "$CHANGED" | grep -q "static/lang/en.json"; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-          fi
-
   translate:
-    needs: check-changes
-    if: needs.check-changes.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
