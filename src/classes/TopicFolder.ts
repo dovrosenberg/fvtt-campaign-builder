@@ -41,7 +41,7 @@ export class TopicFolder {
   }
 
   static async fromUuid(topicId: string, options?: Record<string, any>): Promise<TopicFolder | null> {
-    const topicDoc = await fromUuid(topicId, options) as TopicDoc;
+    const topicDoc = await fromUuid(topicId, options) as TopicDoc | null;
 
     if (!topicDoc)
       return null;
@@ -79,7 +79,7 @@ export class TopicFolder {
     if (!this._topicDoc.collection?.folder)
       throw new Error('Invalid folder id in Topics.loadWorld()');
 
-    const worldDoc = await fromUuid(this._topicDoc.collection.folder.uuid) as WorldDoc;
+    const worldDoc = await fromUuid(this._topicDoc.collection.folder.uuid) as WorldDoc | null;
 
     if (!worldDoc)
       throw new Error('Invalid folder id in Topics.loadWorld()');

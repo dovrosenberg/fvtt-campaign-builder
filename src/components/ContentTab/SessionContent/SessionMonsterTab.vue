@@ -109,7 +109,7 @@
   }
 
   const onRowSelect = async (uuid: string) => {
-    const monster = await fromUuid(uuid) as Actor;
+    const monster = await fromUuid(uuid) as Actor | null;
     await monster?.sheet?.render(true);
   }
 

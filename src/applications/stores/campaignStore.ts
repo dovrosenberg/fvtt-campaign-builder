@@ -312,7 +312,7 @@ export const useCampaignStore = defineStore('campaign', () => {
         let entry: JournalEntryPage | null = null;
 
         if (lore.journalEntryPageId)
-          entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage;
+          entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage | null;
   
         retval.push({
           uuid: lore.uuid,
@@ -333,7 +333,7 @@ export const useCampaignStore = defineStore('campaign', () => {
       let entry: JournalEntryPage | null = null;
 
       if (lore.journalEntryPageId)
-        entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage;
+        entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage | null;
 
       retval.push({
         uuid: lore.uuid,

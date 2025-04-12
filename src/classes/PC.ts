@@ -27,7 +27,7 @@ export class PC {
   }
 
   static async fromUuid(pcId: string, options?: Record<string, any>): Promise<PC | null> {
-    const pcDoc = await fromUuid(pcId, options) as PCDoc;
+    const pcDoc = await fromUuid(pcId, options) as PCDoc | null;
 
     if (!pcDoc)
       return null;

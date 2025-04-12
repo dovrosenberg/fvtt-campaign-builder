@@ -44,7 +44,7 @@ export class Campaign {
 
   /** note: DOES NOT attach the world */
   static async fromUuid(campaignId: string, options?: Record<string, any>): Promise<Campaign | null> {
-    const campaignDoc = await fromUuid(campaignId, options) as CampaignDoc;
+    const campaignDoc = await fromUuid(campaignId, options) as CampaignDoc | null;
 
     if (!campaignDoc)
       return null;
