@@ -91,14 +91,17 @@ export const useCampaignStore = defineStore('campaign', () => {
   };
   
     /**
-   * Adds a lore to the session.
+   * Adds a lore to the campaign.
+   * @param description The description for the lore entry
+   * @returns The UUID of the created lore entry
    */
-    const addLore = async (description = ''): Promise<void> => {
+    const addLore = async (description = ''): Promise<string | null> => {
       if (!currentCampaign.value)
-        throw new Error('Invalid session in campaignStore.addLore()');
+        throw new Error('Invalid campaign in campaignStore.addLore()');
   
-      await currentCampaign.value.addLore(description);
+      const loreUuid = await currentCampaign.value.addLore(description);
       await _refreshLoreRows();
+      return loreUuid;
     }
   
     /**
