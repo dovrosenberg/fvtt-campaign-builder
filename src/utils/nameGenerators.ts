@@ -97,7 +97,7 @@ const generateTableResults = async (type: GeneratorType, count: number): string[
     // Get world settings for genre and feeling
     const world = useMainStore().currentWorld;
     const genre = world?.genre || 'fantasy';
-    const worldFeeling = world?.feeling || '';
+    const worldFeeling = world?.worldFeeling || '';
 
     // For now, they all have the same request format
     const request = {
