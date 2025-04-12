@@ -4,9 +4,12 @@
     :columns="sessionStore.extraFields[SessionTableTypes.Monster]"
     :delete-item-label="localize('tooltips.deleteMonster')"
     :allow-edit="false"
-    :show-add-button="false"
+    :show-add-button="true"
+    :add-button-label="localize('labels.session.addMonster')"
+    :extra-add-text="localize('labels.session.addMonsterDrag')"
     :draggable-rows="true"
     @row-select="onRowSelect($event.data.uuid)"
+    @add-item="showMonsterPicker=true"
     @drop="onDrop"
     @dragover="onDragover"
     @delete-item="onDeleteMonster"
@@ -15,6 +18,10 @@
     @move-to-next-session="onMoveMonsterToNext"
     @cell-edit-complete="onCellEditComplete"
     @dragstart="onDragStart"
+  />
+  <RelatedDocumentsDialog
+    v-model="showMonsterPicker"
+    document-type="actor"
   />
 </template>
 
@@ -33,6 +40,7 @@
 	
   // local components
   import SessionTable from '@/components/Tables/SessionTable.vue';
+  import RelatedDocumentsDialog from '@/components/Tables/RelatedDocumentsDialog.vue';
   import { DataTableCellEditCompleteEvent } from 'primevue';
 
   // types
@@ -101,7 +109,7 @@
   }
 
   const onRowSelect = async (uuid: string) => {
-    const monster = await fromUuid(uuid) as Actor;
+    const monster = await fromUuid(uuid) as Actor | null;
     await monster?.sheet?.render(true);
   }
 

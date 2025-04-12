@@ -1,0 +1,44 @@
+name: Translate Language Files
+
+on:
+  # Run automatically when en.json is updated on dev branch
+  push:
+    branches:
+      - dev
+    paths:
+      - 'static/lang/en.json'
+  
+  # Allow manual triggering of the workflow
+  workflow_dispatch:
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for all branches and tags
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Install OpenAI (one-off, no save)
+        run: npm install openai --no-save
+
+      - name: Translate to all languages
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node .scripts/translate.js
+          
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}  # needs access to repo scope in classic tokens (can be same as release script)
+          commit-message: "Update translations"
+          title: "Update translations"
+          body: "Update translations"
+          branch: translations-${{ github.sha }}
+          base: dev

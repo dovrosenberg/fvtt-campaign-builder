@@ -102,7 +102,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useRelationshipStore } from '@/applications/stores';
+  import { useMainStore, useRelationshipStore, useSessionStore } from '@/applications/stores';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -159,7 +159,8 @@
   // store
   const relationshipStore = useRelationshipStore();
   const mainStore = useMainStore();
-  const { currentEntry, currentWorld, currentEntryTopic } = storeToRefs(mainStore);
+  const sessionStore = useSessionStore();
+  const { currentEntry, currentWorld, currentEntryTopic, currentSession } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -259,8 +260,29 @@
     if (isAddMode.value) {
       if (entryToAdd.value) {
         const fullEntry = await Entry.fromUuid(entryToAdd.value);
-        if (fullEntry)
-          await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
+
+        if (fullEntry) {
+          // Check if we're in a session context
+          if (currentSession.value) {
+            // Handle session-specific relationships
+            if (props.topic === Topics.Character) {
+              await sessionStore.addNPC(entryToAdd.value);
+            } else if (props.topic === Topics.Location) {
+              await sessionStore.addLocation(entryToAdd.value);
+            } else {
+              throw new Error('Trying to add invalid topic to session in RelatedItemDialog.onActionClick');
+            }
+          } else {
+            // Standard relationship
+            // replace nulls with empty strings
+            const extraFieldsToSend = extraFields.value.reduce((acc, field) => {
+              acc[field.field] = extraFieldValues.value[field.field] || '';
+              return acc;
+            }, {} as Record<string, string>);
+
+            await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
+          }
+        }
       }
     } else {
       await relationshipStore.editRelationship(props.itemId, extraFieldsToSend);
@@ -290,10 +312,11 @@
         if (!currentWorld.value)
           return;
 
-        if (!currentEntry.value || !currentEntryTopic.value)
-          throw new Error('Trying to show RelatedItemDialog without a current entry');
+        if (!currentSession.value && !(currentEntry.value && currentEntryTopic.value))
 
-        selectItems.value = (await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder, currentEntry.value)).map(mapEntryToOption);
+          throw new Error('Trying to show RelatedItemDialog without a current entry/session');
+
+        selectItems.value = (await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder, currentEntry.value || undefined)).map(mapEntryToOption);
         extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
         extraFieldValuesObj.value = {};
         if (props.itemId)

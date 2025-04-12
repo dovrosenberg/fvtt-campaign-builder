@@ -4,9 +4,12 @@
     :columns="sessionStore.extraFields[SessionTableTypes.Item]"
     :delete-item-label="localize('tooltips.deleteItem')"
     :allow-edit="false"
-    :show-add-button="false"
+    :show-add-button="true"
+    :add-button-label="localize('labels.session.addItem')"
+    :extra-add-text="localize('labels.session.addItemDrag')"
     :draggable-rows="true"
     @row-select="onRowSelect($event.data.uuid)"
+    @add-item="showItemPicker=true"
     @drop="onDrop"
     @dragover="onDragover"
     @delete-item="onDeleteItem"
@@ -15,10 +18,15 @@
     @move-to-next-session="onMoveItemToNext"
     @dragstart="onDragStart"
   />
+  <RelatedDocumentsDialog
+    v-model="showItemPicker"
+    document-type="item"
+  />
 </template>
 
 <script setup lang="ts">
   // library imports
+  import { ref } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -30,6 +38,7 @@
 	
   // local components
   import SessionTable from '@/components/Tables/SessionTable.vue';
+  import RelatedDocumentsDialog from '@/components/Tables/RelatedDocumentsDialog.vue';
 
   // types
   
@@ -46,6 +55,7 @@
   
   ////////////////////////////////
   // data
+  const showItemPicker = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
@@ -78,7 +88,7 @@
   }
 
   const onRowSelect = async (uuid: string) => {
-    const item = await fromUuid(uuid) as Item;
+    const item = await fromUuid(uuid) as Item | null;
     await item?.sheet?.render(true);
   }
 

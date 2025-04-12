@@ -2,7 +2,7 @@ import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, unsetFlag, 
 import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
-import { inputDialog } from '@/dialogs/input';
+import { inputDialog } from '@/dialogs';
 import { Campaign, TopicFolder } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
@@ -73,7 +73,7 @@ export class WBWorld {
   }
 
   static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
-    const worldDoc = await fromUuid(worldId, options) as WorldDoc;
+    const worldDoc = await fromUuid(worldId, options) as WorldDoc | null;
 
     if (!worldDoc)
       return null;

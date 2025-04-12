@@ -1,7 +1,7 @@
 import { DOCUMENT_TYPES, PCDoc } from '@/documents';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
-import { inputDialog } from '@/dialogs/input';
+import { inputDialog } from '@/dialogs';
 import { toRaw } from 'vue';
 
 // represents a PC - these are stored in flag inside campaigns so saving, etc. is handled by campaign
@@ -27,7 +27,7 @@ export class PC {
   }
 
   static async fromUuid(pcId: string, options?: Record<string, any>): Promise<PC | null> {
-    const pcDoc = await fromUuid(pcId, options) as PCDoc;
+    const pcDoc = await fromUuid(pcId, options) as PCDoc | null;
 
     if (!pcDoc)
       return null;

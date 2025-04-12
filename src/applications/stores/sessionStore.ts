@@ -6,6 +6,8 @@ import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
+import { confirmDialog } from '@/dialogs';
+import { localize } from '@/utils/game'; 
 
 // types
 import { 
@@ -19,7 +21,7 @@ import {
   SessionLoreDetails,
 } from '@/types';
 
-import { Campaign, Session } from '@/classes';
+import { Session } from '@/classes';
 
 export enum SessionTableTypes {
   None,
@@ -50,16 +52,16 @@ export const useSessionStore = defineStore('session', () => {
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
     ],
     [SessionTableTypes.Item]: [
+      { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
-      { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
     ],  
     [SessionTableTypes.NPC]: [
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
     ],
     [SessionTableTypes.Monster]: [
+      { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'number', header: 'Number', editable: true },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
-      { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
     ], 
     [SessionTableTypes.Vignette]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
@@ -67,7 +69,6 @@ export const useSessionStore = defineStore('session', () => {
     [SessionTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
       { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false },
-      { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
     ],  
   } as Record<SessionTableTypes, FieldData>;
   
@@ -105,6 +106,10 @@ export const useSessionStore = defineStore('session', () => {
   const deleteLocation = async (uuid: string): Promise<void> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteLocation()');
+
+    // confirm
+    if (!(await confirmDialog('Delete location?', 'Are you sure you want to delete this location?')))
+      return;
 
     await currentSession.value.deleteLocation(uuid);
     await _refreshLocationRows();
@@ -163,6 +168,10 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteNPC()');
 
+    // confirm
+    if (!(await confirmDialog('Delete NPC?', 'Are you sure you want to delete this NPC?')))
+      return;
+    
     await currentSession.value.deleteNPC(uuid);
     await _refreshNPCRows();
   }
@@ -231,6 +240,10 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteVignette()');
 
+    // confirm
+    if (!(await confirmDialog('Delete vignette?', 'Are you sure you want to delete this vignette?')))
+      return;
+    
     await currentSession.value.deleteVignette(uuid);
     await _refreshVignetteRows();
   }
@@ -275,13 +288,16 @@ export const useSessionStore = defineStore('session', () => {
 
   /**
    * Adds a lore to the session.
+   * @param description The description for the lore entry
+   * @returns The UUID of the created lore entry
    */
-  const addLore = async (description = ''): Promise<void> => {
+  const addLore = async (description = ''): Promise<string | null> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.addLore()');
 
-    await currentSession.value.addLore(description);
+    const loreUuid = await currentSession.value.addLore(description);
     await _refreshLoreRows();
+    return loreUuid;
   }
 
   /**
@@ -317,6 +333,10 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteLore()');
 
+    // confirm
+    if (!(await confirmDialog('Delete lore?', 'Are you sure you want to delete this lore?')))
+      return;
+    
     await currentSession.value.deleteLore(uuid);
     await _refreshLoreRows();
   }
@@ -379,6 +399,10 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteItem()');
 
+    // confirm
+    if (!(await confirmDialog('Delete item?', 'Are you sure you want to delete this item?')))
+      return;
+    
     await currentSession.value.deleteItem(uuid);
     await _refreshItemRows();
   }
@@ -436,6 +460,10 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.deleteMonster()');
 
+    // confirm
+    if (!(await confirmDialog('Delete monster?', 'Are you sure you want to delete this monster?')))
+      return;
+    
     await currentSession.value.deleteMonster(uuid);
     await _refreshMonsterRows();
   }
@@ -596,15 +624,14 @@ export const useSessionStore = defineStore('session', () => {
     const retval = [] as SessionItemDetails[];
 
     for (const item of currentSession.value?.items) {
-      const entry = await fromUuid(item.uuid) as Item;
+      const entry = await fromUuid(item.uuid) as Item | null;
 
       if (entry) {
         retval.push({
           uuid: item.uuid,
           delivered: item.delivered,
           name: entry.name, 
-          packId: entry.pack,
-          location: entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World',
+          dragTooltip: localize('tooltips.dragItemFromSession'),
         });
       }
     }
@@ -619,7 +646,7 @@ export const useSessionStore = defineStore('session', () => {
     const retval = [] as SessionMonsterDetails[];
 
     for (const monster of currentSession.value?.monsters) {
-      const entry = await fromUuid(monster.uuid) as Actor;
+      const entry = await fromUuid(monster.uuid) as Actor | null;
 
       if (entry) {
         retval.push({
@@ -627,8 +654,7 @@ export const useSessionStore = defineStore('session', () => {
           delivered: monster.delivered,
           number: monster.number,
           name: entry.name, 
-          packId: entry.pack,
-          location: entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World',
+          dragTooltip: localize('tooltips.dragMonsterFromSession'),
         });
       }
     }
@@ -664,7 +690,7 @@ export const useSessionStore = defineStore('session', () => {
       let entry: JournalEntryPage | null = null;
 
       if (lore.journalEntryPageId)
-        entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage;
+        entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage | null;
 
       retval.push({
         uuid: lore.uuid,
@@ -672,10 +698,7 @@ export const useSessionStore = defineStore('session', () => {
         description: lore.description,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
-        packId: !entry ? null : entry.pack,
-        location: !entry ? '' : 
-          (entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World'),
-    });
+      });
     }
 
     relatedLoreRows.value = retval;

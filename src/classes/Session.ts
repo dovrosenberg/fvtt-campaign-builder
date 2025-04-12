@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore } from '@/documents';
-import { inputDialog } from '@/dialogs/input';
+import { inputDialog } from '@/dialogs';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
 
@@ -28,7 +28,7 @@ export class Session {
   }
 
   static async fromUuid(sessionId: string, options?: Record<string, any>): Promise<Session | null> {
-    const sessionDoc = await fromUuid(sessionId, options) as SessionDoc;
+    const sessionDoc = await fromUuid(sessionId, options) as SessionDoc | null;
 
     if (!sessionDoc)
       return null;
@@ -386,7 +386,7 @@ export class Session {
     return this._sessionDoc.system.lore || [];
   }
 
-  async addLore(description: string): Promise<void> {
+  async addLore(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 
     this._sessionDoc.system.lore.push({
@@ -404,6 +404,7 @@ export class Session {
     };
 
     await this.save();
+    return uuid;
   }
 
   async updateLoreDescription(uuid: string, description: string): Promise<void> {

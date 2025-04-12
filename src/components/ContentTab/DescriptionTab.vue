@@ -5,6 +5,8 @@
         <ImagePicker
           v-model="currentImageURL"
           :title="`Select Image for ${props.name || 'Entry'}`"
+          :topic="props.topic"
+          :window-type="props.windowType"
           @update:modelValue="emit('imageChange', $event)"
         />        
         <div class="fcb-description-content flexcol">
@@ -17,7 +19,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch } from 'vue';
+  import { ref, watch, computed } from 'vue';
   
   // local imports
   
@@ -27,6 +29,7 @@
   import ImagePicker from '@/components/ImagePicker.vue'; 
 
   // types
+  import { Topics, ValidTopic, WindowTabType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -45,7 +48,17 @@
       type: String,
       default: 'description',
       required: false,
-    },    
+    },
+    topic: {
+      type: Number as () => ValidTopic,
+      required: false,
+      default: null,
+    },
+    windowType: {
+      type: Number as () => WindowTabType,
+      required: false,
+      default: null,
+    },
   });
 
   ////////////////////////////////
@@ -59,8 +72,7 @@
 
   ////////////////////////////////
   // data
-  const defaultImage = 'icons/svg/mystery-man.svg'; // Default Foundry image
-  const currentImageURL = ref<string>(props.imageUrl ||  defaultImage); 
+  const currentImageURL = ref<string>(props.imageUrl || ''); 
 
   ////////////////////////////////
   // computed data
@@ -75,7 +87,7 @@
   // watchers
   watch(() => props.imageUrl, (newImageUrl) => {
     // Always update the image URL, even when it's empty or undefined
-    currentImageURL.value = newImageUrl || defaultImage;
+    currentImageURL.value = newImageUrl || '';
   });
 
   ////////////////////////////////

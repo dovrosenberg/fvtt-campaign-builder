@@ -88,8 +88,6 @@ const getOrCreateRollTableFolder = async(): Promise<string> => {
  * @returns An array of table results
  */
 const generateTableResults = async (type: GeneratorType, count: number): string[] => {
-  const results: string[] = [];
-
   // If backend is not available, return fallback results
   if (!Backend.available || !Backend.api) {
     return [];

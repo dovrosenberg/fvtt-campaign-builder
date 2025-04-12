@@ -1,8 +1,8 @@
 import { toRaw } from 'vue';
 import { getFlag, moduleId, prepareFlagsForUpdate, setFlagDefaults, } from '@/settings'; 
-import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, WorldDoc } from '@/documents';
+import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, } from '@/documents';
 import { PC, Session, WBWorld } from '@/classes';
-import { inputDialog } from '@/dialogs/input';
+import { inputDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';
 
@@ -44,7 +44,7 @@ export class Campaign {
 
   /** note: DOES NOT attach the world */
   static async fromUuid(campaignId: string, options?: Record<string, any>): Promise<Campaign | null> {
-    const campaignDoc = await fromUuid(campaignId, options) as CampaignDoc;
+    const campaignDoc = await fromUuid(campaignId, options) as CampaignDoc | null;
 
     if (!campaignDoc)
       return null;
@@ -175,7 +175,7 @@ export class Campaign {
     return this._lore;
   }
   
-  async addLore(description: string): Promise<void> {
+  async addLore(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 
     this._lore.push({
@@ -194,6 +194,7 @@ export class Campaign {
     };
 
     await this.save();
+    return uuid;
   }
 
   async updateLoreDescription(uuid: string, description: string): Promise<void> {

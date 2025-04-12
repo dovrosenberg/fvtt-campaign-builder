@@ -22,6 +22,7 @@
         <DescriptionTab 
           :name="currentWorld?.name || 'World'"
           :image-url="currentWorld?.img"
+          :window-type="WindowTabType.World"
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">

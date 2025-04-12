@@ -101,10 +101,10 @@
     const { data } = event;
 
     if (props.documentLinkType===DocumentLinkType.Actors) {
-      const actor = await fromUuid(data.uuid) as Actor;
+      const actor = await fromUuid(data.uuid) as Actor | null;
       await actor?.sheet?.render(true);
     } else if (props.documentLinkType===DocumentLinkType.Scenes) {
-      const scene = await fromUuid(data.uuid) as Scene;
+      const scene = await fromUuid(data.uuid) as Scene | null;
       await scene?.sheet?.render(true);
     }
   
@@ -136,7 +136,7 @@
           iconFontClass: 'fas',
           label: game.i18n.localize('SCENES.View'), 
           onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
+            const scene = await fromUuid(data.uuid) as Scene | null;
             await scene?.view();
           }
         },
@@ -146,7 +146,7 @@
           label: game.i18n.localize('SCENES.Activate'), 
           hidden: !!data.packId,   // can't activate in compendium
           onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
+            const scene = await fromUuid(data.uuid) as Scene | null;
             await scene?.activate();
           }
         },
@@ -162,7 +162,7 @@
           iconFontClass: 'fas',
           label: game.i18n.localize('SCENES.Configure'), 
           onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
+            const scene = await fromUuid(data.uuid) as Scene | null;
             await scene?.sheet?.render(true);
           }
         },
@@ -172,7 +172,7 @@
           label: game.i18n.localize('SCENES.ToggleNav'), 
           hidden: !!data.packId,   // can't nav in compendium
           onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
+            const scene = await fromUuid(data.uuid) as Scene | null;
             if (!scene)
               throw new Error('Failed to load scene in RelatedDocumentTable.onRowContextMenu()');
             
