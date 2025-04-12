@@ -142,7 +142,7 @@
       const tableUuid = config?.rollTables[props.generatorType];
       
       // Load the roll table
-      rollTable.value = await fromUuid(tableUuid) as unknown as RollTable;
+      rollTable.value = await fromUuid(tableUuid) as unknown as RollTable | null;
       
       // Draw 3 results from the table
       const draws = await toRaw(rollTable.value).drawMany(3, {

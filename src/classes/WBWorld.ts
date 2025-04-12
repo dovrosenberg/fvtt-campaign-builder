@@ -73,7 +73,7 @@ export class WBWorld {
   }
 
   static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
-    const worldDoc = await fromUuid(worldId, options) as WorldDoc;
+    const worldDoc = await fromUuid(worldId, options) as WorldDoc | null;
 
     if (!worldDoc)
       return null;

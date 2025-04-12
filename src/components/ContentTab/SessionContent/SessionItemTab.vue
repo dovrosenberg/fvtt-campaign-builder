@@ -88,7 +88,7 @@
   }
 
   const onRowSelect = async (uuid: string) => {
-    const item = await fromUuid(uuid) as Item;
+    const item = await fromUuid(uuid) as Item | null;
     await item?.sheet?.render(true);
   }
 

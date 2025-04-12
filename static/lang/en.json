@@ -122,6 +122,7 @@
         "addLocationDrag": "(or drag/drop a location)",
         "addVignette": "Add vignette",
         "addLore": "Add lore",
+        "addLoreDrag": "(or drag/drop a journal entry)",
         "addNPC": "Add NPC",
         "addNPCDrag": "(or drag/drop a character)",
         "addItem": "Add item",

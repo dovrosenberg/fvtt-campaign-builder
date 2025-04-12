@@ -288,13 +288,16 @@ export const useSessionStore = defineStore('session', () => {
 
   /**
    * Adds a lore to the session.
+   * @param description The description for the lore entry
+   * @returns The UUID of the created lore entry
    */
-  const addLore = async (description = ''): Promise<void> => {
+  const addLore = async (description = ''): Promise<string | null> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.addLore()');
 
-    await currentSession.value.addLore(description);
+    const loreUuid = await currentSession.value.addLore(description);
     await _refreshLoreRows();
+    return loreUuid;
   }
 
   /**
@@ -621,7 +624,7 @@ export const useSessionStore = defineStore('session', () => {
     const retval = [] as SessionItemDetails[];
 
     for (const item of currentSession.value?.items) {
-      const entry = await fromUuid(item.uuid) as Item;
+      const entry = await fromUuid(item.uuid) as Item | null;
 
       if (entry) {
         retval.push({
@@ -643,7 +646,7 @@ export const useSessionStore = defineStore('session', () => {
     const retval = [] as SessionMonsterDetails[];
 
     for (const monster of currentSession.value?.monsters) {
-      const entry = await fromUuid(monster.uuid) as Actor;
+      const entry = await fromUuid(monster.uuid) as Actor | null;
 
       if (entry) {
         retval.push({
@@ -687,7 +690,7 @@ export const useSessionStore = defineStore('session', () => {
       let entry: JournalEntryPage | null = null;
 
       if (lore.journalEntryPageId)
-        entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage;
+        entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage | null;
 
       retval.push({
         uuid: lore.uuid,
