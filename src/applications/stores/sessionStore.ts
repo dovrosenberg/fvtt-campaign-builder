@@ -54,7 +54,6 @@ export const useSessionStore = defineStore('session', () => {
     [SessionTableTypes.Item]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
-      { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
     ],  
     [SessionTableTypes.NPC]: [
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
@@ -63,7 +62,6 @@ export const useSessionStore = defineStore('session', () => {
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'number', header: 'Number', editable: true },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
-      { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
     ], 
     [SessionTableTypes.Vignette]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
@@ -71,7 +69,6 @@ export const useSessionStore = defineStore('session', () => {
     [SessionTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
       { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false },
-      { field: 'location', style: 'text-align: left', header: 'Location', sortable: true },
     ],  
   } as Record<SessionTableTypes, FieldData>;
   
@@ -631,8 +628,6 @@ export const useSessionStore = defineStore('session', () => {
           uuid: item.uuid,
           delivered: item.delivered,
           name: entry.name, 
-          packId: entry.pack,
-          location: entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World',
           dragTooltip: localize('tooltips.dragItemFromSession'),
         });
       }
@@ -656,8 +651,6 @@ export const useSessionStore = defineStore('session', () => {
           delivered: monster.delivered,
           number: monster.number,
           name: entry.name, 
-          packId: entry.pack,
-          location: entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World',
           dragTooltip: localize('tooltips.dragMonsterFromSession'),
         });
       }
@@ -702,10 +695,7 @@ export const useSessionStore = defineStore('session', () => {
         description: lore.description,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
-        packId: !entry ? null : entry.pack,
-        location: !entry ? '' : 
-          (entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World'),
-    });
+      });
     }
 
     relatedLoreRows.value = retval;
