@@ -1,6 +1,6 @@
 # Change Log
 
-## v0.1.0 - [IN PROGRESS]
+## v0.1.0 - Ready for beta
 
 ![](https://img.shields.io/badge/release%20date-April%2012%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.1.0/module.zip)
