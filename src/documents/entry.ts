@@ -4,6 +4,7 @@ const fields = foundry.data.fields;
 const entrySchema = {
   topic: new fields.NumberField({ required: true, nullable: false, validate: (value: number) => { return Object.values(Topics).includes(value); }, textSearch: true, }),
   type: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
+  tags: new fields.ArrayField(new fields.StringField(), { required: true, initial: [], }),
 
   relationships: new fields.ObjectField({ required: true, nullable: false, initial: {
     [Topics.Character]: {},
@@ -73,6 +74,7 @@ export interface EntryDoc extends JournalEntryPage {
   system: {
     topic: ValidTopic;
     type: string;
+    tags: string[];
 
     /**
      * Keyed by topic, then entryId

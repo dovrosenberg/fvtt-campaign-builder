@@ -134,6 +134,21 @@ export class Entry {
     };
   }
 
+  get tags(): string[] {
+    return this._entryDoc.system.tags;
+  }
+
+  set tags(value: string[]) {
+    this._entryDoc.system.tags = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        tags: value,
+      }
+    };
+  }
+
   get speciesId(): string | undefined {
     if (!this._entryDoc.system.speciesId)
       return undefined;

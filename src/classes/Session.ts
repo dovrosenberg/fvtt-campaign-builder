@@ -128,6 +128,21 @@ export class Session {
     };
   }
 
+  get tags(): string[] {
+    return this._sessionDoc.system.tags;
+  }
+
+  set tags(value: string[]) {
+    this._sessionDoc.system.tags = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        tags: value,
+      }
+    };
+  }
+
   get notes(): string {
     return this._sessionDoc.text?.content || '';
   }
