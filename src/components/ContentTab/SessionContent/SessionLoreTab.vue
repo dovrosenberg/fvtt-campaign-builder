@@ -78,7 +78,6 @@
   }
 
   const onRowSelect = async (journalEntryPageId: string) => {
-    // the uuid is of the lore, not the journal entry
     const page = await fromUuid(journalEntryPageId) as JournalEntryPage | null
     ;
     await page?.sheet?.render(true);
