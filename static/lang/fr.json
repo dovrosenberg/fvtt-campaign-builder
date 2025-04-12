@@ -127,7 +127,8 @@
         "addItem": "Ajouter un objet",
         "addItemDrag": "(ou glisser/déposer un article)",
         "addMonster": "Ajouter un monstre",
-        "addMonsterDrag": "(ou glisser/déposer un acteur)"
+        "addMonsterDrag": "(ou glisser/déposer un acteur)",
+        "addLoreDrag": "(ou faites glisser/déposer une entrée de journal)"
       },
       "campaign": {
         "addPC": "Ajouter un PJ",

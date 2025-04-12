@@ -127,7 +127,8 @@
         "addItem": "Gegenstand hinzufügen",
         "addItemDrag": "(oder ein Element ziehen/ablegen)",
         "addMonster": "Monster hinzufügen",
-        "addMonsterDrag": "(oder einen Schauspieler ziehen/ablegen)"
+        "addMonsterDrag": "(oder einen Schauspieler ziehen/ablegen)",
+        "addLoreDrag": "(oder ziehen/ablegen eines Journaleintrags)"
       },
       "campaign": {
         "addPC": "PC hinzufügen",
