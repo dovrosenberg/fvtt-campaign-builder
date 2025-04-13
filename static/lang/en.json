@@ -34,7 +34,9 @@
       "advancedHelp": "Configure advanced settings (including AI)",
       "speciesList": "Manage Species List",
       "speciesListLabel": "Species List",
-      "speciesListHelp": "Define the species to make available.  These cross all worlds - file an issue if you have need more different lists per world."
+      "speciesListHelp": "Define the species to make available.  These cross all worlds - file an issue if you have need more different lists per world.",
+      "hideBackendWarning": "Hide missing backend warning?",
+      "hideBackendWarningHelp": "If you're not using the backend, this lets you turn off the notification that it's missing"
     },
     "applications": {
       "sessionNotes": {
