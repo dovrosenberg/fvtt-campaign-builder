@@ -3,7 +3,7 @@ import { moduleId } from './index';
 import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSettingsApplication';
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
-import { GeneratorConfig, SessionDisplayMode, Species, TagCounts } from '@/types';
+import { GeneratorConfig, SessionDisplayMode, Species, TagList } from '@/types';
 
 export enum SettingKey {
   // displayed in main settings window
@@ -46,8 +46,8 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.rollTableSettingsMenu ? never :
     K extends SettingKey.autoRefreshRollTables ? boolean :
     K extends SettingKey.speciesList ? Species[] :
-    K extends SettingKey.entryTags ? TagCounts :
-    K extends SettingKey.sessionTags ? TagCounts :
+    K extends SettingKey.entryTags ? TagList :
+    K extends SettingKey.sessionTags ? TagList :
     never;
 
 export class ModuleSettings {

@@ -25,6 +25,7 @@
     __tagId: string;
     __isValid: boolean | string;
     value: string;
+    color: string;
   };
 
   ////////////////////////////////
@@ -79,10 +80,10 @@
   }
 
   const getWhitelist = () => {
-    const tagCounts = ModuleSettings.get(props.tagSetting);
+    const tagList = ModuleSettings.get(props.tagSetting);
     const whitelist = [] as string[];
-    for (const tag in tagCounts) {
-      if (tagCounts[tag] > 0)  // make sure count > 0
+    for (const tag in tagList) {
+      if (tagList[tag].count > 0)  // make sure count > 0
         whitelist.push(tag);
     }
 
@@ -95,6 +96,7 @@
   const onTagAdded = async (event: CustomEvent<Tagify.AddEventData<any>>): Promise<void> => {
     const tagInfo = event.detail.data as TagEventData;
     const value = tagInfo.value;
+    const color = tagInfo.color;
 
     if (!tagify.value)
       return;
@@ -104,11 +106,15 @@
       return;
 
     // add to the setting
-    const tagCounts = ModuleSettings.get(props.tagSetting);
+    const tagList = ModuleSettings.get(props.tagSetting);
 
-    tagCounts[value] = (tagCounts[value] || 0) +1;
+    tagList[value] = {
+      count: (tagList[value]?.count || 0) + 1,
+      color: color || undefined,
+      style: color ? `--tag-bg:${color}` : undefined,
+    };
 
-    await ModuleSettings.set(props.tagSetting, tagCounts);
+    await ModuleSettings.set(props.tagSetting, tagList);
 
     // trigger reactivity
     currentValue.value = tagify.value.value;
@@ -133,17 +139,20 @@
       return;
 
     // reduce the setting count and remove if this was the last use
-    const tagCounts = ModuleSettings.get(props.tagSetting);
-    tagCounts[value] = (tagCounts[value] || 1) - 1;
+    const tagList = ModuleSettings.get(props.tagSetting);
+    tagList[value] = {
+      ...tagList[value],
+      count: (tagList[value].count || 1) - 1,
+    };
 
-    if (!tagCounts[value]) 
-      delete tagCounts[value];
+    if (!tagList[value].count) 
+      delete tagList[value];
 
-    await ModuleSettings.set(props.tagSetting, tagCounts);
+    await ModuleSettings.set(props.tagSetting, tagList);
 
     // update the whitelist
     tagify.value.whitelist = getWhitelist();
-    
+
     currentValue.value = tagify.value.value;
 
     // emit to the parent to update the field
