@@ -66,7 +66,10 @@
   const rand = (min, max) => (min + Math.random() * (max - min));
 
   // generate a random color
-  const transformTag = ( tagData: TagInfo ) => {
+  const transformTag = ( tagData: TagInfo & { color?: string; style?: string; } ) => {
+    // see if there's a color
+    tagData.color = ModuleSettings.get(props.tagSetting)[tagData.value]?.color;
+    
     // only change it if it doesn't already have a color
     if (!tagData.color) {
       var h = rand(1, 360)|0,
@@ -110,14 +113,13 @@
 
     tagList[value] = {
       count: (tagList[value]?.count || 0) + 1,
-      color: color || undefined,
-      style: color ? `--tag-bg:${color}` : undefined,
+      color: color || undefined
     };
 
     await ModuleSettings.set(props.tagSetting, tagList);
 
-    // trigger reactivity
-    currentValue.value = tagify.value.value;
+    // trigger reactivity - map back to just the name of the tag
+    currentValue.value = tagify.value.value.map((t) => ({ value: t.value }));
 
     // don't need to update the whitelist on an add because we shouldn't be adding it again
     // anyway
@@ -171,10 +173,10 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(() => {
-    const tagCounts = ModuleSettings.get(props.tagSetting);
+    const tagList = ModuleSettings.get(props.tagSetting);
     const whitelist = [] as string[];
-    for (const tag in tagCounts) {
-      if (tagCounts[tag] > 0)  // make sure count > 0
+    for (const tag in tagList) {
+      if (tagList[tag].count > 0)  // make sure count > 0
         whitelist.push(tag);
     }
 
