@@ -2,7 +2,7 @@
   <input 
     id="fcb-tags-input" 
     class="tags-input" 
-    :value="currentValue" 
+    :value="JSON.stringify(currentValue)" 
     :placeholder="'Tags...'"
   />
 </template>
@@ -59,7 +59,7 @@
   ////////////////////////////////
   // data
   const tagify = ref<Tagify>();
-  const currentValue = ref<TagInfo[]>([]);
+  const currentValue = ref<TagInfo[]>(props.modelValue);
 
   ////////////////////////////////
   // computed data
@@ -118,7 +118,8 @@
 
   ////////////////////////////////
   // watchers
-  watch(props.modelValue, (newVal) => {
+  watch(props.modelValue, (newVal: TagInfo[]) => {
+    currentValue.value = newVal;
     tagify.value.loadOriginalValues(newVal)
   });
 

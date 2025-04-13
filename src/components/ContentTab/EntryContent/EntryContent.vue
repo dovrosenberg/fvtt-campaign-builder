@@ -356,7 +356,7 @@
     details: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails, 
     needToGenerateImage: boolean
   ) => {
-    if (!currentEntry.value) return;
+    if (!currentEntry.value || !currentWorld.value) return;
 
     // Update the entry with the generated content
     currentEntry.value.name = details.name;
@@ -389,7 +389,7 @@
 
     // Generate an image if requested
     if (needToGenerateImage) {
-      await generateImage();
+      await generateImage(currentWorld.value, currentEntry.value);
     }
   };
 
