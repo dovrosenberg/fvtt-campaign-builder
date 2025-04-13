@@ -7,7 +7,6 @@
 
 - Added tags for entries and sessions
 
-
 ## v0.1.0 - Ready for beta
 
 ![](https://img.shields.io/badge/release%20date-April%2012%2C%202025-blue)
