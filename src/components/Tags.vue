@@ -101,6 +101,10 @@
     const value = tagInfo.value;
     const color = tagInfo.color;
 
+    // tagify calls add unnecesarily when rebuilding its internal list
+    if (currentValue.value.find((t) => t.value === value))  
+      return;
+ 
     if (!tagify.value)
       return;
 
