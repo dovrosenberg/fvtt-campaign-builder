@@ -10,12 +10,15 @@ export enum SettingKey {
   startCollapsed = 'startCollapsed',  // should the sidebar start collapsed when we open
   displaySessionNotes = 'displaySessionNotes',  // should the session notes window automatically open
   sessionDisplayMode = 'sessionDisplayMode',  // how to display sessions in the directory
+  hideBackendWarning = 'hideBackendWarning', // don't show the warning about no backend
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
   isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
   generatorConfig = 'generatorConfig',  // stores the configuration for Foundry RollTable generators
+  entryTags = 'entryTags',
+  sessionTags = 'sessionTags',
 
   // menus
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
@@ -27,9 +30,6 @@ export enum SettingKey {
 
   speciesListMenu = 'speciesListMenu',  // display the species list screen
   speciesList = 'speciesList',
-
-  entryTags = 'entryTags',
-  sessionTags = 'sessionTags',
 }
 
 export type SettingKeyType<K extends SettingKey> =
@@ -48,7 +48,8 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.speciesList ? Species[] :
     K extends SettingKey.entryTags ? TagList :
     K extends SettingKey.sessionTags ? TagList :
-    never;
+    K extends SettingKey.hideBackendWarning ? boolean :
+    never;  
 
 export class ModuleSettings {
   // note that this returns the object directly, so if it's an object or array, if a reference
@@ -113,6 +114,13 @@ export class ModuleSettings {
   // these are globals shown in the options
   // name and hint should be the id of a localization string
   private static displayParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
+    {
+      settingID: SettingKey.hideBackendWarning,
+      default: false,
+      name: 'settings.hideBackendWarning',   // localized by Foundry
+      hint: 'settings.hideBackendWarningHelp',
+      type: Boolean,
+    },
   ];
 
   // these are client-specific and displayed in settings
