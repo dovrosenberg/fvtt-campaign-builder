@@ -7,6 +7,7 @@ import App from '@/components/applications/CampaignBuilder.vue';
 const { ApplicationV2 } = foundry.applications.api;
 
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
+import '@yaireo/tagify/dist/tagify.css';
 
 // setup pinia
 

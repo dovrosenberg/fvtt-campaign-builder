@@ -1,3 +1,5 @@
+import { TagInfo } from 'src/types';
+
 export type SessionLocation = {
   uuid: string;
   delivered: boolean;
@@ -44,7 +46,10 @@ const sessionSchema = {
   vignettes: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionVignette[] }),  
   lore: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionLore[] }),  
   img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
-  tags: new fields.ArrayField(new fields.StringField(), { required: true, initial: [], }),
+  tags: new fields.ArrayField(
+    new fields.ObjectField({ required: true, nullable: false, }), 
+    { required: true, initial: [], }
+  ),
 };
 
 type SessionSchemaType = typeof sessionSchema;
@@ -74,6 +79,6 @@ export interface SessionDoc extends JournalEntryPage {
     vignettes: SessionVignette[];
     lore: SessionLore[];
     img: string;
-    tags: string[];
+    tags: TagInfo[];
   };
 }

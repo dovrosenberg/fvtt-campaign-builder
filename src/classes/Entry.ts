@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace,  } from '@/documents';
-import { RelatedItemDetails, ValidTopic, Topics } from '@/types';
+import { RelatedItemDetails, ValidTopic, Topics, TagInfo } from '@/types';
 import { inputDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, WBWorld } from '@/classes';
@@ -134,11 +134,11 @@ export class Entry {
     };
   }
 
-  get tags(): string[] {
+  get tags(): TagInfo[] {
     return this._entryDoc.system.tags;
   }
 
-  set tags(value: string[]) {
+  set tags(value: TagInfo[]) {
     this._entryDoc.system.tags = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,

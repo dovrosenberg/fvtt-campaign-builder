@@ -24,6 +24,15 @@
           <i class="fas fa-head-side-virus"></i>
         </button>
       </header>
+      <div class="flexrow">
+        <Tags
+          v-if="currentEntry"
+          v-model="currentEntry.tags"
+          :tag-setting="SettingKey.entryTags"
+          @tag-added="onTagChange"
+          @tag-removed="onTagChange"
+        />
+      </div>
       <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
         <a 
@@ -166,9 +175,9 @@
   import { getTopicIcon, htmlToPlainText } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
-  import { Backend } from '@/classes';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
+  import { SettingKey } from '@/settings';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -184,10 +193,11 @@
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
+  import Tags from '@/components/Tags.vue';
 
   // types
-  import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic, WindowTabType } from '@/types';
-  import { Entry, WBWorld, TopicFolder, } from '@/classes';
+  import { DocumentLinkType, Topics, GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic, WindowTabType } from '@/types';
+  import { WBWorld, TopicFolder, Backend } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -388,6 +398,14 @@
       currentEntry.value.img = imageUrl;
       await currentEntry.value.save();
     }
+  }
+
+  // we can use this for add and remove because the change was already passed back to 
+  //    currentEntry - we just need to save
+  const onTagChange = async (): Promise<void> => {
+    if (!currentEntry.value)
+      return;
+    await currentEntry.value.save();
   }
 
   const onTypeSelectionMade = async (selection: string) => {

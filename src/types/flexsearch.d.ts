@@ -60,3 +60,5 @@ declare namespace Search {
     remove(id: string): this;
   }
 }
+
+export {};
