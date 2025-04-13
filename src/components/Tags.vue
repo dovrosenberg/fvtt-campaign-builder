@@ -62,26 +62,33 @@
 
   ////////////////////////////////
   // methods
-  // generate a random color
-  const getRandomColor = () => {
-      function rand(min, max) {
-          return min + Math.random() * (max - min);
-      }
+  const rand = (min, max) => (min + Math.random() * (max - min));
 
+  // generate a random color
+  const transformTag = ( tagData: TagInfo ) => {
+    // only change it if it doesn't already have a color
+    if (!tagData.color) {
       var h = rand(1, 360)|0,
           s = rand(40, 70)|0,
           l = rand(65, 72)|0;
 
-      return 'hsl(' + h + ',' + s + '%,' + l + '%)';
-  }
-
-  const transformTag = ( tagData: TagInfo ) => {
-    // only change it if it doesn't already have a color
-    if (!tagData.color)
-      tagData.color = getRandomColor();
+      tagData.color = 'hsl(' + h + ',' + s + '%,' + l + '%)';
+    }
 
     tagData.style = "--tag-bg:" + tagData.color;
   }
+
+  const getWhitelist = () => {
+    const tagCounts = ModuleSettings.get(props.tagSetting);
+    const whitelist = [] as string[];
+    for (const tag in tagCounts) {
+      if (tagCounts[tag] > 0)  // make sure count > 0
+        whitelist.push(tag);
+    }
+
+    return whitelist;
+  }
+
 
   ////////////////////////////////
   // event handlers
@@ -105,6 +112,9 @@
 
     // trigger reactivity
     currentValue.value = tagify.value.value;
+
+    // don't need to update the whitelist on an add because we shouldn't be adding it again
+    // anyway
 
     // emit to the parent to update the field
     emit('update:modelValue', currentValue.value);
@@ -131,6 +141,9 @@
 
     await ModuleSettings.set(props.tagSetting, tagCounts);
 
+    // update the whitelist
+    tagify.value.whitelist = getWhitelist();
+    
     currentValue.value = tagify.value.value;
 
     // emit to the parent to update the field
@@ -158,7 +171,7 @@
 
     var input = document.getElementById("fcb-tags-input") as HTMLInputElement;
     tagify.value = new Tagify(input, {
-      whitelist: whitelist,
+      whitelist: getWhitelist(),
       dropdown: {
         enabled: 1,
         position: 'text',
