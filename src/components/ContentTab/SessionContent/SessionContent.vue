@@ -15,6 +15,15 @@
           @update:model-value="onNameUpdate"
         />
       </header>
+      <div class="flexrow">
+        <Tags
+          v-if="currentSession"
+          v-model="currentSession.tags"
+          :tag-setting="SettingKey.sessionTags"
+          @tag-added="onTagChange"
+          @tag-removed="onTagChange"
+        />
+      </div>
       <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
         <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
@@ -123,9 +132,9 @@
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useCampaignStore } from '@/applications/stores';
-  import { WindowTabType } from '@/types';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
+  import { SettingKey } from '@/settings';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -142,8 +151,10 @@
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
-
+  import Tags from '@/components/Tags.vue';
+  
   // types
+  import { WindowTabType } from '@/types';
   import { Session } from '@/classes';
   
   ////////////////////////////////
@@ -249,6 +260,13 @@
     }
   }
 
+  // we can use this for add and remove because the change was already passed back to 
+  //    currentSession - we just need to save
+  const onTagChange = async (): Promise<void> => {
+    if (!currentSession.value)
+      return;
+    await currentSession.value.save();
+  }
 
   ////////////////////////////////
   // watchers

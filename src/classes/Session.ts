@@ -4,6 +4,7 @@ import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, S
 import { inputDialog } from '@/dialogs';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
+import { TagInfo } from '@/types';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Session {
@@ -125,6 +126,21 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       name: value,
+    };
+  }
+
+  get tags(): TagInfo[] {
+    return this._sessionDoc.system.tags;
+  }
+
+  set tags(value: TagInfo[]) {
+    this._sessionDoc.system.tags = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        tags: value,
+      }
     };
   }
 

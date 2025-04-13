@@ -310,10 +310,12 @@
       // Check if backend is available and show warning if not
       const { Backend } = await import('@/classes/Backend');
       if (!Backend.available) {
-        ui.notifications?.warn(
-          "Backend is not available. Automatic RollTables  will not be refreshed. " +
-          "Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
-        );
+        if (!ModuleSettings.get(SettingKey.hideBackendWarning)) {
+          ui.notifications?.warn(
+            "Backend is not available. Automatic RollTables  will not be refreshed. " +
+            "Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
+          );
+        }
       }
 
       // Add the prep/play toggle to the header

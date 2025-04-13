@@ -57,8 +57,10 @@ export default defineConfig({
       api: 'modern',
       output: 'styles/style.css',
       sourceMap: true,
-      include: ['src/**/*.scss', 'src/**/*.css', 'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css'],
-      // include: ['node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css'],  //'src/**/*.scss', 'src/**/*.css',
+      include: ['src/**/*.scss', 'src/**/*.css', 
+        'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css',
+        'node_modules/@yaireo/tagify/dist/tagify.css'
+      ],
       watch: ['src/**/*.scss', 'src/**/*.css', 'src/'],
     }),
     viteCommonjs(),
