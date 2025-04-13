@@ -1,5 +1,7 @@
 export interface TagInfo {
   value: string;
+  color?: string;
+  style?: string;
 };
 
 // used for the module setting

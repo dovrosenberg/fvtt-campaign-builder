@@ -21,14 +21,10 @@
   // local components
 
   // types
-  type TagEvent = {
-    detail: {
-      data: {
-        __tagId: string;
-        __isValid: boolean | string;
-        value: string;
-      };
-    };
+  type TagEventData = {
+    __tagId: string;
+    __isValid: boolean | string;
+    value: string;
   };
 
   ////////////////////////////////
@@ -66,12 +62,35 @@
 
   ////////////////////////////////
   // methods
+  // generate a random color
+  const getRandomColor = () => {
+      function rand(min, max) {
+          return min + Math.random() * (max - min);
+      }
+
+      var h = rand(1, 360)|0,
+          s = rand(40, 70)|0,
+          l = rand(65, 72)|0;
+
+      return 'hsl(' + h + ',' + s + '%,' + l + '%)';
+  }
+
+  const transformTag = ( tagData: TagInfo ) => {
+    // only change it if it doesn't already have a color
+    if (!tagData.color)
+      tagData.color = getRandomColor();
+
+    tagData.style = "--tag-bg:" + tagData.color;
+  }
 
   ////////////////////////////////
   // event handlers
-  const onTagAdded = async (event: TagEvent): Promise<void> => {
-    const tagInfo = event.detail.data;
+  const onTagAdded = async (event: CustomEvent<Tagify.AddEventData<any>>): Promise<void> => {
+    const tagInfo = event.detail.data as TagEventData;
     const value = tagInfo.value;
+
+    if (!tagify.value)
+      return;
 
     // see if it's valid (which includes checking for duplicates)
     if (tagInfo.__isValid !== true) 
@@ -85,16 +104,19 @@
     await ModuleSettings.set(props.tagSetting, tagCounts);
 
     // trigger reactivity
-    currentValue.value = [...currentValue.value, { value }]; 
+    currentValue.value = tagify.value.value;
 
     // emit to the parent to update the field
     emit('update:modelValue', currentValue.value);
     emit('tagAdded', { value });  
   };
 
-  const onTagRemoved = async (event: TagEvent): Promise<void> => {
-    const tagInfo = event.detail.data;
+  const onTagRemoved = async (event: CustomEvent<Tagify.AddEventData<any>>): Promise<void> => {
+    const tagInfo = event.detail.data as TagEventData;
     const value = tagInfo.value;
+
+    if (!tagify.value)
+      return;
 
     // see if it's valid (which it should be when removing, but just in case
     if (tagInfo.__isValid !== true) 
@@ -109,7 +131,7 @@
 
     await ModuleSettings.set(props.tagSetting, tagCounts);
 
-    currentValue.value = currentValue.value.filter((t) => t.value !== value);
+    currentValue.value = tagify.value.value;
 
     // emit to the parent to update the field
     emit('update:modelValue', currentValue.value);
@@ -120,7 +142,8 @@
   // watchers
   watch(props.modelValue, (newVal: TagInfo[]) => {
     currentValue.value = newVal;
-    tagify.value.loadOriginalValues(newVal)
+    // @ts-ignore - I think the type here is specified wrong
+    // tagify.value?.loadOriginalValues(newVal);
   });
 
   ////////////////////////////////
@@ -138,11 +161,11 @@
       whitelist: whitelist,
       dropdown: {
         enabled: 1,
-        delimiters: null,
         position: 'text',
         searchKeys: ['value'],
         tabKey: true,
       },
+      transformTag: transformTag,
       callbacks: {
         add: (e) => { onTagAdded(e); },
         remove: (e) => { onTagRemoved(e); },
