@@ -34,7 +34,9 @@
       "advancedHelp": "Configurer les paramètres avancés (y compris l'IA)",
       "speciesList": "Gérer la Liste des Espèces",
       "speciesListLabel": "Liste des Espèces",
-      "speciesListHelp": "Définir les espèces à rendre disponibles. Celles-ci traversent tous les mondes - déposez un problème si vous avez besoin de listes différentes par monde."
+      "speciesListHelp": "Définir les espèces à rendre disponibles. Celles-ci traversent tous les mondes - déposez un problème si vous avez besoin de listes différentes par monde.",
+      "hideBackendWarning": "Masquer l'avertissement de backend manquant ?",
+      "hideBackendWarningHelp": "Si vous n'utilisez pas le backend, cela vous permet de désactiver la notification indiquant qu'il est manquant"
     },
     "applications": {
       "sessionNotes": {
