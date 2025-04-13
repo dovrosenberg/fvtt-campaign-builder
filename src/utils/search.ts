@@ -7,6 +7,7 @@ import { ModuleSettings, SettingKey } from '@/settings';
 export interface SearchableItem {
   uuid: string;
   name: string;
+  tags: string;
   description: string;
   relationships: string; // generated from relationships and hierarchy
   topic: string;
@@ -41,7 +42,7 @@ class SearchService {
       idField: 'uuid',
 
       // Fields to index for searching
-      fields: ['name', 'description', 'relationships', 'topic', 'type', 'species'],
+      fields: ['name', 'tags', 'description', 'relationships', 'topic', 'type', 'species'],
 
       // Fields to include in search results
       storeFields: ['name', 'topic', 'type', 'description'],
@@ -49,6 +50,7 @@ class SearchService {
       searchOptions: {
         boost: { 
           name: 5,  // Prioritize name matches
+          tag: 5, // Prioritize tag matches
           description: 2,
           topic: 1, 
           type: 2,
@@ -169,6 +171,7 @@ class SearchService {
     return {
       uuid: entry.uuid,
       name: entry.name,
+      tags: entry.tags.map(t=>t.value).join(', '),
       description: entry.description,
       topic: Topics[entry.topic],
       species: entry.topic===Topics.Character && entry.speciesId ? ModuleSettings.get(SettingKey.speciesList)[entry.speciesId] : '',

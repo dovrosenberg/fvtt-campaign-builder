@@ -29,6 +29,7 @@
     "@primevue/auto-import-resolver": "^4.2.5",
     "@types/jquery": "^3.5.32",
     "@types/lodash": "^4.17.13",
+    "@types/yaireo__tagify": "^4.27.0",
     "@typescript-eslint/eslint-plugin": "^8.18.2",
     "@typescript-eslint/parser": "^8.18.2",
     "@vitejs/plugin-vue": "^5.2.1",
@@ -62,6 +63,7 @@
   "dependencies": {
     "@imengyu/vue3-context-menu": "^1.4.4",
     "@primevue/themes": "^4.2.5",
+    "@yaireo/tagify": "^4.34.0",
     "minisearch": "^7.1.2",
     "pinia": "^2.3.0",
     "primevue": "^4.2.5",
