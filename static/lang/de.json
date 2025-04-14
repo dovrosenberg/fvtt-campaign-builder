@@ -288,7 +288,7 @@
       }
     },
     "tooltips": {
-      "mainButton": "Welt-Builder starten",
+      "mainButton": "Kampagnen-Builder starten",
       "createWorld": "Welt erstellen",
       "expandDirectory": "Verzeichnis erweitern",
       "collapseDirectory": "Verzeichnis einklappen",
