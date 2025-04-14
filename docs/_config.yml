@@ -3,9 +3,21 @@ description: A Foundry VTT module for worldbuilding and campaign management
 url: "https://dovrosenberg.github.io"
 baseurl: "/fvtt-campaign-builder"
 
-# Theme settings
-remote_theme: just-the-docs/just-the-docs
+# Build settings
+markdown: kramdown
+remote_theme: just-the-docs/just-the-docs@v0.4.2
 color_scheme: light
+
+# GitHub Pages specific settings
+lsi: false
+safe: true
+incremental: false
+highlighter: rouge
+gist:
+  noscript: false
+kramdown:
+  math_engine: mathjax
+  syntax_highlighter: rouge
 
 # Enable or disable the site search
 search_enabled: true

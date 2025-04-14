@@ -56,7 +56,22 @@ This directory contains the source files for the World & Campaign Builder docume
 
 ## Deployment
 
-The documentation is automatically deployed to GitHub Pages when changes are pushed to the master branch. No additional steps are required.
+The documentation is automatically deployed to GitHub Pages using GitHub Actions when changes are pushed to the master branch. The workflow is defined in `.github/workflows/jekyll-gh-pages.yml`.
+
+### Setting Up GitHub Pages
+
+1. Go to your repository settings
+2. Navigate to "Pages" under "Code and automation"
+3. Under "Build and deployment", select "GitHub Actions" as the source
+4. The site will be built and deployed automatically when you push to the master branch
+
+## Troubleshooting
+
+If you encounter dependency issues when running locally:
+
+1. Try updating your gems: `bundle update`
+2. If you see warnings about the github-pages gem, you can ignore them for local development
+3. For specific dependency errors, check the [GitHub Pages Dependency Versions](https://pages.github.com/versions/) to ensure compatibility
 
 ## Theme Customization
 
