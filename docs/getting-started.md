@@ -1,3 +1,7 @@
+---
+layout: default
+title: Getting Started
+---
 # Getting Started
 
 After installation and activation, you'll find a new button with a globe icon to the left of your scene selection dropdown. Clicking this button opens the main interface.
