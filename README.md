@@ -33,7 +33,7 @@ That said, here's the scoop on what you'll need to do if you do want to access t
 ______
 
 ## User Documentation
-Convinced already?  Head over to our [User Documentation](DOCUMENTATION.md) page for instructions on how to use the module. 
+Convinced already?  Head over to the [User Documentation Wiki](https://github.com/dovrosenberg/fvtt-campaign-builder/wiki) for instructions on how to use the module. 
 
 ## Description
 The goal of this package is to facilitate creating, planning, and running campaigns in Foundry.  It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to use used with any style of prep) 
@@ -63,11 +63,12 @@ The campaign planning component is modeled after [The Lazy Dungeon Master](https
 - Create organizational hierarchies (ex. for religions, governing bodies, large families, criminal organizations, companies, etc.)
 - Define your world's species for assigning to characters (and using for AI prompts)
 - Directory view of all of your world entries
+- Powerful search based on names, descriptions, relationships, tags, etc.
 - AI-driven generation of characters, locations, and organizations (descriptions and images) - it's hard to overstate how well the image generation in particular works... you need to try it to believe it
 - Maintain connections to relevant Foundry documents (ex. Scenes and Actors) for quick reference
 - Quick links to AI-refreshed RollTables for creating NPC, town, store, and tavern names
 - Easily plan your play sessions (in Lazy DM style) and track what happens to blend it back into your world
-- Lots more - see more details below and in the [user documentation](DOCUMENTATION.md)
+- Lots more - see more details below and in the [user documentation](https://github.com/dovrosenberg/fvtt-campaign-builder/wiki)
 
 ## How it works
 The module is designed to support the full cycle preparation and playing your game.  The general flow of using the module to prep and play games is:
