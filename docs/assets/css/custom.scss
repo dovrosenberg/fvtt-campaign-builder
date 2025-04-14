@@ -18,6 +18,13 @@
 //   }
 // }
 
-.wrapper {
-  max-width: unset;
+
+body {
+  .wrapper {
+    max-width: 1024px;
+
+    header, section {
+      max-width: 1024px;
+    }
+  }
 }
