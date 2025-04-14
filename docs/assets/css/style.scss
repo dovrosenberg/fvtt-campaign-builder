@@ -8,6 +8,15 @@ body {
   line-height: 1.6;
 }
 
+/* Set max-width for wrapper, header, and section */
+.wrapper {
+  max-width: 1024px;
+}
+
+header, section {
+  max-width: 1024px;
+}
+
 h1, h2, h3, h4, h5, h6 {
   margin-top: 1.5em;
   margin-bottom: 0.5em;
