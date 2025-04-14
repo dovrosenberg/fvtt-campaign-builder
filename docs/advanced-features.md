@@ -1,0 +1,26 @@
+# Advanced Features (aka the Backend, aka the "AI Stuff")
+
+## AI Integration
+
+The module includes optional AI-powered features for generating descriptions and images. These features require setting up a backend server, which is much easier than it sounds (see below).
+
+With AI integration, you can:
+- Generate detailed descriptions for characters, locations, and organizations
+- Create images based on your descriptions
+- Generate names for NPCs, towns, shops, and taverns
+
+To use AI generation:
+1. Set up the backend server (see below)
+2. In the module settings, enter your API URL and token
+3. When creating or editing a world element, click the "Generate" button
+
+## Backend Setup
+
+Setting up the backend server requires:
+1. Basic comfort with command-line scripts
+2. Accounts with Google Cloud, OpenAI, and Replicate.com (for images)
+3. Full instructions are at: https://github.com/dovrosenberg/fvtt-fcb-backend
+
+The backend is designed to stay within the Google Cloud free tier, and OpenAI costs are minimal (approximately $0.15 for 5000 AI-generated character descriptions).
+Image generation is approximately $0.01 per image.
+

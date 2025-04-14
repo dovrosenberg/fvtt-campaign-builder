@@ -288,7 +288,7 @@
       }
     },
     "tooltips": {
-      "mainButton": "Launch World Builder",
+      "mainButton": "Launch Campaign Builder",
       "createWorld": "Create world",
       "expandDirectory": "Expand directory",
       "collapseDirectory": "Collapse directory",
