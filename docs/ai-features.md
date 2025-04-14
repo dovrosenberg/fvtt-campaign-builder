@@ -1,8 +1,6 @@
 ---
 layout: default
 title: AI Features
-parent: User Guide
-nav_order: 4
 ---
 
 # AI Features

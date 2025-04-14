@@ -1,14 +1,14 @@
 source "https://rubygems.org"
 
 # Use the github-pages gem for GitHub Pages compatibility
-gem "github-pages", group: :jekyll_plugins
+# This includes Jekyll and other dependencies at versions that GitHub Pages supports
+gem "github-pages", "232", group: :jekyll_plugins
 
-# Additional dependencies
+# Required for Ruby 3+ (not included in github-pages dependencies)
 gem "webrick", "~> 1.8"
-gem "faraday-retry"
 
-# Theme
-gem "just-the-docs", "0.4.2"
+# Required for Faraday retry functionality
+gem "faraday-retry"
 
 # Windows and JRuby does not include zoneinfo files, so bundle the tzinfo-data gem
 # and associated library.
@@ -19,6 +19,3 @@ end
 
 # Performance-booster for watching directories on Windows
 gem "wdm", "~> 0.1.1", :platforms => [:mingw, :x64_mingw, :mswin]
-
-# Lock jekyll-sass-converter to 1.5.2 to maintain compatibility
-gem "jekyll-sass-converter", "~> 1.5.2"

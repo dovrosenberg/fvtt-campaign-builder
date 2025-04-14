@@ -75,4 +75,11 @@ If you encounter dependency issues when running locally:
 
 ## Theme Customization
 
-This site uses the [Just the Docs](https://just-the-docs.github.io/just-the-docs/) theme. See their documentation for customization options.
+This site uses the [Midnight](https://github.com/pages-themes/midnight) theme, which is one of the built-in GitHub Pages themes. The theme has been customized with:
+
+1. A custom sidebar navigation menu
+2. Additional CSS styles in `assets/css/style.scss`
+
+To modify the theme:
+- Edit the `_layouts/default.html` file to change the page structure
+- Edit the `assets/css/style.scss` file to change the styling

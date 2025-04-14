@@ -1,8 +1,6 @@
 ---
 layout: default
 title: Campaign Planning
-parent: User Guide
-nav_order: 2
 ---
 
 # Campaign Planning

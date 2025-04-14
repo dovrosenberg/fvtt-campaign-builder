@@ -5,8 +5,7 @@ baseurl: "/fvtt-campaign-builder"
 
 # Build settings
 markdown: kramdown
-remote_theme: just-the-docs/just-the-docs@v0.4.2
-color_scheme: light
+theme: jekyll-theme-midnight
 
 # GitHub Pages specific settings
 lsi: false
@@ -19,35 +18,23 @@ kramdown:
   math_engine: mathjax
   syntax_highlighter: rouge
 
-# Enable or disable the site search
-search_enabled: true
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
 
-# Aux links for the upper right navigation
-aux_links:
-  "World & Campaign Builder on GitHub":
-    - "//github.com/dovrosenberg/fvtt-campaign-builder"
 
-# Makes Aux links open in a new tab
-aux_links_new_tab: true
 
-# Sort order for navigation links
-nav_sort: case_sensitive # Capital letters sorted before lowercase
+# GitHub repository
+github:
+  repository_url: https://github.com/dovrosenberg/fvtt-campaign-builder
+  owner_name: dovrosenberg
+  repository_name: fvtt-campaign-builder
 
-# Footer content
-footer_content: "Copyright &copy; 2025 Dov Rosenberg. Licensed under the Apache License, Version 2.0."
-
-# Back to top link
-back_to_top: true
-back_to_top_text: "Back to top"
-
-# Footer last edited timestamp
-last_edit_timestamp: true # show or hide edit time
-last_edit_time_format: "%b %e %Y at %I:%M %p" # format as 'Jan 1 2020 at 12:00 AM'
-
-# Footer "Edit this page on GitHub" link
-gh_edit_link: true # show or hide edit this page link
-gh_edit_link_text: "Edit this page on GitHub"
-gh_edit_repository: "https://github.com/dovrosenberg/fvtt-campaign-builder" # the github URL for your repo
-gh_edit_branch: "master" # the branch that your docs is served from
-gh_edit_source: docs # the source that your files originate from
-gh_edit_view_mode: "tree" # "tree" or "edit" if you want the user to jump into the editor immediately
+# Custom footer content
+footer: "Copyright &copy; 2025 Dov Rosenberg. Licensed under the Apache License, Version 2.0."

@@ -1,8 +1,6 @@
 ---
 layout: default
 title: Session Management
-parent: User Guide
-nav_order: 3
 ---
 
 # Session Management

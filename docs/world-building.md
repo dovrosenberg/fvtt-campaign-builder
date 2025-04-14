@@ -1,8 +1,6 @@
 ---
 layout: default
 title: World Building
-parent: User Guide
-nav_order: 1
 ---
 
 # World Building

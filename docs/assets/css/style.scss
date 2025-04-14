@@ -1,0 +1,79 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+/* Custom styles */
+body {
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+a {
+  transition: color 0.3s ease;
+}
+
+code {
+  padding: 2px 4px;
+  background-color: #333;
+  border-radius: 3px;
+}
+
+pre {
+  padding: 10px;
+  overflow: auto;
+  background-color: #222;
+  border-radius: 4px;
+}
+
+blockquote {
+  border-left: 3px solid #444;
+  padding-left: 15px;
+  color: #aaa;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #444;
+}
+
+th {
+  background-color: #222;
+}
+
+tr:hover {
+  background-color: #222;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 20px 0;
+}
+
+.highlight {
+  background-color: #222;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .sidebar {
+    float: none;
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: 20px;
+  }
+}
