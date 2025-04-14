@@ -4,7 +4,9 @@ title: Getting Started
 ---
 # Getting Started
 
-After installation and activation, you'll find a new button with a globe icon to the left of your scene selection dropdown. Clicking this button opens the main interface.
+After installation and activation, you'll find a new button with a globe icon to the left of your scene selection dropdown in the top left corner of your Foundry screen. Clicking this button opens the main interface.
+![Launch button](assets/launch-button.webp)
+
 
 The module has three primary components:
 - **World Building**: Create and manage your world's lore, characters, locations, and more
