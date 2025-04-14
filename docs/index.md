@@ -1,40 +1,28 @@
 ---
 layout: default
-title: World & Campaign Builder
+title: Foundry World & Campaign Builder
 ---
+# Foundry Campaign Builder (a world & campaign builder for Foundry VTT)
 
-# World & Campaign Builder for Foundry VTT
+*Note: The instructions are still a bit of a work in progress.  I think everything here is correct, but there are likely things missing and things may not be in the most obvious place.  Suggested edits or PRs for edits welcome.*
 
-[![Supported Foundry Versions](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/dovrosenberg/fvtt-campaign-builder/raw/master/static/module.json)](https://github.com/dovrosenberg/fvtt-campaign-builder)
+## Introduction
+The goal of this package is to facilitate creating, planning, and running campaigns in Foundry.  It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to use used with any style of prep).
 
-World & Campaign Builder is designed to streamline every part of your TTRPG prep and gameplay—from deep worldbuilding to session planning and live play tracking. Whether you're building a sprawling lore-rich universe or following the Lazy DM approach to lightweight prep, this tool lets you create interconnected characters, locations, organizations, and events with ease, all inside Foundry.
+See the [official description](https://github.com/dovrosenberg/fvtt-campaign-builder) for a longer summary of features and functionality.
 
-## Features
+## Important note on players vs GM
+The module currently only works for the GM.  Players may see some settings available, but they won't do anything and there is no way to open the main window without having GM permission.
 
-- Create characters, locations, organizations, and events with detailed descriptions and images
-- Easily see (and click through) the relationships between them
-- Create geographical hierarchies (world-continents-countries-regions-towns-etc.)
-- Create organizational hierarchies (ex. for religions, governing bodies, large families, criminal organizations, companies, etc.)
-- Define your world's species for assigning to characters (and using for AI prompts)
-- Directory view of all of your world entries
-- Powerful search based on names, descriptions, relationships, tags, etc.
-- AI-driven generation of characters, locations, and organizations (descriptions and images)
-- Maintain connections to relevant Foundry documents (ex. Scenes and Actors) for quick reference
-- Quick links to AI-refreshed RollTables for creating NPC, town, store, and tavern names
-- Easily plan your play sessions (in Lazy DM style) and track what happens to blend it back into your world
+I intend to change that at some point - in particular creating ways for everyone to contribute to the worldbuilding and for the GM to selectively share pieces of world information/lore with players.  But for now, GM only.
 
-## Getting Started
-
-Check out our [Installation Guide](./installation.html) to get started with the module.
-
-## Documentation
-
-- [User Guide](./user-guide.html)
-- [World Building](./world-building.html)
-- [Campaign Planning](./campaign-planning.html)
-- [Session Management](./session-management.html)
-- [AI Features](./ai-features.html)
+## Terminology
+[TODO - explain "directory", "entry", "world", etc.  Probably move the section from the main description here?]
 
 ## Support
 
-If you believe you found a bug or would like to post a feature request, head over to the module's [Github repo](https://github.com/dovrosenberg/fvtt-campaign-builder) and [open a new issue](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose).
+If you encounter issues or have feature requests:
+1. Visit the [GitHub repository](https://github.com/dovrosenberg/fvtt-campaign-builder/issues)
+2. [Open a new issue](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose)
+
+If you'd like to support the developer, you can [buy me a root beer](https://ko-fi.com/phloro).
