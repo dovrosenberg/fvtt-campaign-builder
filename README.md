@@ -68,7 +68,7 @@ The campaign planning component is modeled after [The Lazy Dungeon Master](https
 - Maintain connections to relevant Foundry documents (ex. Scenes and Actors) for quick reference
 - Quick links to AI-refreshed RollTables for creating NPC, town, store, and tavern names
 - Easily plan your play sessions (in Lazy DM style) and track what happens to blend it back into your world
-- Lots more - see more details below and in the [user documentation](https://github.com/dovrosenberg/fvtt-campaign-builder/wiki)
+- Lots more - see more details below and in the [user documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/)
 
 ## How it works
 The module is designed to support the full cycle preparation and playing your game.  The general flow of using the module to prep and play games is:
