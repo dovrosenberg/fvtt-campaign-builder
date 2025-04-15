@@ -5,6 +5,3 @@ gem "github-pages", "232", group: :jekyll_plugins
 
 # Required for Ruby 3+
 gem "webrick", "~> 1.8"
-
-# Glossary tooltip plugin
-gem "jekyll-glossary_tooltip", "~> 1.5"

@@ -7,16 +7,6 @@ baseurl: "/fvtt-campaign-builder"
 markdown: kramdown
 theme: jekyll-theme-midnight
 
-# Plugins
-plugins:
-  - jekyll-glossary_tooltip
-
-# Glossary tooltip configuration
-glossary_tooltip:
-  dictionary: glossary.yml
-  style: "border-bottom: 1px dotted #3eb0ef; text-decoration: none;"
-  tooltip_style: "background-color: #2c2c2c; color: #fff; padding: 10px; border-radius: 5px; font-size: 14px; max-width: 300px;"
-
 # GitHub Pages specific settings
 lsi: false
 safe: true

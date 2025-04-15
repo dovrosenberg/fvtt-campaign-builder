@@ -25,12 +25,12 @@ I intend to change that at some point - in particular creating ways for everyone
 ## Terminology
 This documentation uses several specific terms related to the World & Campaign Builder. Hover over highlighted terms to see their definitions:
 
-- {% glossary World %}: The fictional setting where your campaign takes place
-- {% glossary Entry %}: A document containing information about a specific element of your world
-- {% glossary Directory %}: The hierarchical structure that organizes your campaign's elements
-- {% glossary Topic %}: A category that organizes related entries
-- {% glossary Campaign %}: A series of adventures that form a coherent story
-- {% glossary Session %}: A single play session or meeting
+- World: The fictional setting where your campaign takes place
+- Entry: A document containing information about a specific element of your world
+- Directory: The hierarchical structure that organizes your campaign's elements
+- Topic: A category that organizes related entries
+- Campaign: A series of adventures that form a coherent story
+- Session: A single play session or meeting
 
 ## Support
 
