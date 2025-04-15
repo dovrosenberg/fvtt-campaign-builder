@@ -288,7 +288,7 @@
       }
     },
     "tooltips": {
-      "mainButton": "Lancer le Constructeur de Monde",
+      "mainButton": "Lancer le Créateur de Campagne",
       "createWorld": "Créer un monde",
       "expandDirectory": "Développer le répertoire",
       "collapseDirectory": "Réduire le répertoire",

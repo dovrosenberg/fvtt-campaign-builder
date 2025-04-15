@@ -1,0 +1,7 @@
+source "https://rubygems.org"
+
+# Lock to the GitHub Pages gem version you want
+gem "github-pages", "232", group: :jekyll_plugins
+
+# Required for Ruby 3+
+gem "webrick", "~> 1.8"
