@@ -23,7 +23,14 @@ The module currently only works for the GM.  Players may see some settings avail
 I intend to change that at some point - in particular creating ways for everyone to contribute to the worldbuilding and for the GM to selectively share pieces of world information/lore with players.  But for now, GM only.
 
 ## Terminology
-[TODO - explain "directory", "entry", "world", etc.  Probably move the section from the main description here?]
+This documentation uses several specific terms related to the World & Campaign Builder. Hover over highlighted terms to see their definitions:
+
+- World: The fictional setting where your campaign takes place
+- Entry: A document containing information about a specific element of your world
+- Directory: The hierarchical structure that organizes your campaign's elements
+- Topic: A category that organizes related entries
+- Campaign: A series of adventures that form a coherent story
+- Session: A single play session or meeting
 
 ## Support
 
