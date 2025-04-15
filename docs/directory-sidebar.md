@@ -6,14 +6,49 @@ The sidebar can be dragged to make it wider or narrower.  You can also click the
 
 By default, the sidebar is open whenever you open the Campaign Builder window.  There is a module setting to change this behavior to instead start collapsed.
 
+![Directory sidebar](assets/images/directory-sidebar.webp)
+
 ## The world directory (aka the entry directory)
-The top half of the diretory sidebar is the world directory.  Also known as the entry directory, this is where you can find all of entries (character, locations, organizations, and events) of your worlds.
+The top half of the diretory sidebar is the World directory.  Also known as the Entry directory, this is where you can find all of entries (Character, Locations, Organizations, and Events) of your worlds.
 
-Each world has a header, and you click the world name to make it the active world.....
+Each world has a header, and you click the World name to make it the active world.  In the image above, *Mallindor* has been selected as the active World.  The active world is also shown in the the main window title bar.
 
-[TODO: flesh this out; pics, dragging up/down, context menus, add world button, filter, group by type]
+By default, the World is organized by Topic.  Each Topic is a folder, clicking the folder will expand/collapse its contents.  Clicking an Entry will select it as the active Entry in the main panel to the left.  The currently visible entry is bolded in the sidebar.  Within each Topic, the Entries are sorted alphabetically.
+
+You create new worlds by clicking the "New World" button at the top of the sidebar: 
+
+![New world button](assets/images/new-world-button.webp)
+
+The button next to the "New World" button collapses the entire sidebar.
+
+### Hierarchies
+You can create Hierarchies within Locations and Organizations to represent how they are related.  For example, you might put the Entries for towns inside the region they are in.  Hierarchies can have as many levels as you want. In addition to making it faster to find related things, Hierarchies are used in Search [TODO: Link] and to improve AI generation [Advanced Feature].  You can see hierarchies illustrated in the sidebar above.
+
+You can create and adjust Hierarchies in two ways: 
+1. Dragging entries within the sidebar.  By dragging an Entry onto another, the dragged Entry will become a child of the target.
+2. Using the Parent field in the Entry editor.  Simply choose the parent you want (or set it to blank to make the Entry a top-level one).
+
+### Context menus
+Right clicking on items in the Entry tree provides additional options depending on the item type:
+1. Worlds - Delete World, Create campaign
+2. Topics - Create a new Entry in that Topic, Generate a new Entry [Advanced Feature]
+3. Entries - Delete Entry
+
+### Group by type
+Using the "Group tree by type" checkbox at the top of the sidebar, you can choose to organize the entries by Type instead of Topic.  This will eliminate the Hierarchy representation and instead show all of the Entries grouped by their Types.  Entries without a Type will not be shown.
+
+![Group by type tree](assets/images/group-by-type.webp)
+
+### Filtering
+Typing text in the "Filter" box at the top of the sidebar... [TODO]
 
 ## The campaign directory
 The bottom half of the directory sidebar is the campaign directory.  This shows all of the campaigns for the currently active world.  If you want to see campaigns for a different world, you need to change the world first.
 
 [TODO: flesh this out]
+
+### Context menus
+Right clicking on items in the Campaign tree provides additional options depending on the item type:
+1. World folder - Create campaign
+2. Campaign - Create a session, Delete the Campaign
+3. Session - Delete Session

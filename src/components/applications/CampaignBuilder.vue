@@ -52,6 +52,7 @@
   import { localize } from '@/utils/game';
   import WCBTheme from '@/applications/presetTheme';
   import { initializeRollTables } from '@/utils/nameGenerators';
+  import { updateWindowTitle } from '@/utils/titleUpdater';
 
   // library components
   import Splitter from 'primevue/splitter';
@@ -150,6 +151,9 @@
   ////////////////////////////////
   // watchers
   watch(currentWorld, async (newWorld: WBWorld | null, oldWorld: WBWorld | null) => {
+    // Update the window title when the world changes
+    updateWindowTitle(newWorld?.name || null);
+    
     if (currentWorld.value && currentWorld.value.topicIds && newWorld?.uuid!==oldWorld?.uuid) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = currentWorld.value.uuid;
@@ -322,6 +326,8 @@
       // Use setTimeout to ensure the DOM is fully rendered
       setTimeout(() => {
         createTitleBarComponents();
+        // Initialize the window title with the current world name
+        updateWindowTitle(currentWorld.value?.name || null);
       }, 100);
     } else {
       throw new Error('Failed to load or create folder structure');
