@@ -33,7 +33,7 @@ That said, here's the scoop on what you'll need to do if you do want to access t
 ______
 
 ## User Documentation
-Convinced already?  Head over to the [User Documentation Wiki](https://github.com/dovrosenberg/fvtt-campaign-builder/wiki) for instructions on how to use the module. 
+Convinced already?  Head over to the [User Documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/) for instructions on how to use the module. 
 
 ## Description
 The goal of this package is to facilitate creating, planning, and running campaigns in Foundry.  It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to use used with any style of prep) 
