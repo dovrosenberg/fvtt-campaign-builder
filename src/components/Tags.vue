@@ -202,5 +202,12 @@
   });
 </script>
 
-<style lang="sass">
+<style lang="scss">
+.tagify {
+  &:focus-within {
+    outline: none;
+    border-color: var(--color-border-highlight);
+    box-shadow: 0 0 0 1px var(--color-border-highlight);
+  }
+}
 </style>

@@ -16,6 +16,8 @@ The module has three primary components:
 
 See the [official description](https://github.com/dovrosenberg/fvtt-campaign-builder) for a longer summary of features and functionality.
 
+## Advanced features
+You'll see features throughout this documentation labeled "[Advanced]".  These features require the setup and configuration described under [Advanced Features](advanced-features.html) to make them available.
 
 ## GM-only, for now
 The module currently only works for the GM.  Players may see some settings available, but they won't do anything and there is no way to open the main window without having GM permission.
