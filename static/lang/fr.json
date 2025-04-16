@@ -130,7 +130,11 @@
         "addItemDrag": "(ou glisser/déposer un article)",
         "addMonster": "Ajouter un monstre",
         "addMonsterDrag": "(ou glisser/déposer un acteur)",
-        "addLoreDrag": "(ou faites glisser/déposer une entrée de journal)"
+        "addLoreDrag": "(ou faites glisser/déposer une entrée de journal)",
+        "addActor": "Ajouter un acteur",
+        "addActorDrag": "(ou glisser/déposer un acteur)",
+        "addScene": "Ajouter une scène",
+        "addSceneDrag": "(ou glisser/déposer une scène)"
       },
       "campaign": {
         "addPC": "Ajouter un PJ",
@@ -324,7 +328,9 @@
         "3": "Session",
         "4": "PJ",
         "5": "Monde"
-      }
+      },
+      "dragActorFromEntry": "Glisser vers la scène",
+      "dragSceneFromEntry": "Glisser pour activer"
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori"
