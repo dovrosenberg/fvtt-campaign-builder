@@ -1,5 +1,12 @@
 # Change Log
 
+## v0.1.2 - [ IN PROGRESS ]
+
+![](https://img.shields.io/badge/release%20date-April%2013%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.1.2/module.zip)
+
+- Bug fix - collapse all now works
+
 ## v0.1.1 - Tags and quality of life
 
 ![](https://img.shields.io/badge/release%20date-April%2013%2C%202025-blue)

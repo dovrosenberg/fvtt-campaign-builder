@@ -1,3 +1,7 @@
+---
+layout: default
+title: Campaign Planning
+---
 # Campaign Planning
 
 The Campaign Planning section helps you prepare for your sessions using the Lazy DM method. It provides tools for organizing the key elements of your upcoming session.  You can define multiple campaigns inside a single FCB world, which is useful if you use the same setting across multiple groups who play at different times.  

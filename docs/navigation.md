@@ -1,3 +1,7 @@
+---
+layout: default
+title: Navigation
+---
 # Navigation
 
 This section describes the functionality of the navigation bar at the top of the main window:

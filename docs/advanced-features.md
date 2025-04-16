@@ -1,3 +1,7 @@
+---
+layout: default
+title: Advanced Features
+---
 # Advanced Features (aka the Backend, aka the "AI Stuff")
 
 You'll see features throughout this documentation labeled "[Advanced]".  These features require the setup and configuration described here to make them available.
