@@ -315,7 +315,7 @@
       {
         icon: 'fa-file-lines',
         iconFontClass: 'fas',
-        label: 'Generate text',
+        label: 'Generate description',
         onClick: () => {
           showGenerate.value = true;
         }

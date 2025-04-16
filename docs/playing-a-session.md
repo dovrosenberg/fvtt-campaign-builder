@@ -1,3 +1,8 @@
+---
+layout: default
+title: Playing a Session
+---
+
 # Playing a Session
 
 The module provides several features to help you run your game smoothly.

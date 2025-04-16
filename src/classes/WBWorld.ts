@@ -547,6 +547,10 @@ export class WBWorld {
   public async collapseTopicDirectory() {
     // we just unset the entire expandedIds flag
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds);
+
+    // then need to reset it
+    this.expandedIds = {};
+    await this.save();
   }
 
   /**

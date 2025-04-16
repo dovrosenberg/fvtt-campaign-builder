@@ -25,14 +25,14 @@ The module currently only works for the GM.  Players may see some settings avail
 I intend to change that at some point - in particular creating ways for everyone to contribute to the worldbuilding and for the GM to selectively share pieces of world information/lore with players.  But for now, GM only.
 
 ## Terminology
-This documentation uses several specific terms related to the World & Campaign Builder. Hover over highlighted terms to see their definitions:
+This documentation uses several specific terms related to the World & Campaign Builder (though many are commonly used in TTRPG, as well). Hover over highlighted terms to see their definitions:
 
-- World: The fictional setting where your campaign takes place
-- Entry: A document containing information about a specific element of your world
-- Directory: The hierarchical structure that organizes your campaign's elements
-- Topic: A category that organizes related entries
-- Campaign: A series of adventures that form a coherent story
-- Session: A single play session or meeting
+- World: The fictional setting where your Campaigns take place
+- Entry: A document containing information about a specific element of your world (ex. a Character or Location)
+- Topic: A category that organizes related Entries. There are four Topics: *Characters*, *Locations*, *Organizations*, and *Events*
+- Type: [TODO]
+- Campaign: A collection of Sessions played by the same (or generally the same) group of players.  It is primarily just for grouping Sessions together.
+- Session: A single play session.  When running in "Play Mode" [TODO:Link], the most recent Session is enabled with additional functionality.
 
 ## Support
 

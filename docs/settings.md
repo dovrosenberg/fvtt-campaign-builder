@@ -1,3 +1,7 @@
+---
+layout: default
+title: Settings
+---
 # Settings
 
 ## Basic settings

@@ -113,13 +113,26 @@
           </a>
         </template>
         <template
-          v-if="col.field!=='actions'"
+          v-if="col.field==='drag'"
+          #body="{ data }"
+        >
+          <div 
+            class="fcb-drag-handle"
+            @dragstart="onRowDragStart($event, data.uuid)"
+            :draggable="props.draggableRows"
+            :data-tooltip="data.dragTooltip || 'Drag'"
+          >
+            <i class="fas fa-bars"></i>
+          </div>
+        </template>
+        <template
+          v-if="col.field!=='actions' && col.field!=='drag'"
           #body="{ data }"
         >
           <div 
             @dragstart="onRowDragStart($event, data.uuid)"
             :draggable="props.draggableRows"
-            :style="props.draggableRows ? `cursor: grab;` : ''"
+            :style="props.draggableRows ? `cursor: pointer;` : ''"
           >
             {{ data[col.field] }}
           </div>
@@ -282,5 +295,21 @@
   .fcb-action-icon {
     cursor: pointer;
     margin-right: 3px;
+  }
+  
+  .fcb-drag-handle {
+    cursor: grab;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    
+    i {
+      color: var(--color-text-dark-secondary);
+    }
+    
+    &:hover i {
+      color: var(--color-text-hyperlink);
+    }
   }
 </style>
