@@ -78,9 +78,8 @@ class SearchService {
    * @param world The world containing entries to index
    */
   public async buildIndex(world: WBWorld): Promise<void> {
-    if (!this.initialized || !this.searchIndex) {
-      await this.initIndex();
-    }
+    // always reinitialize because otherwise we'll be added duplicates
+    await this.initIndex();
 
     if (!this.searchIndex)
       throw new Error('Unable to create searchIndex in SearchService.buildIndex()');

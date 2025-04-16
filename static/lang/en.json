@@ -318,7 +318,6 @@
       "dragMonsterFromSession": "Drag to scene",
       "dragItemFromSession": "Drag to actor, etc.",
       "dragActorFromEntry": "Drag to scene",
-      "dragSceneFromEntry": "Drag to activate",
       "contentLinks": {
         "1": {
           "1": "Character",
