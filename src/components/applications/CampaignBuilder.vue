@@ -322,6 +322,8 @@
         }
       }
 
+      mainStore.refreshCurrentContent();
+
       // Add the prep/play toggle to the header
       // Use setTimeout to ensure the DOM is fully rendered
       setTimeout(() => {

@@ -236,6 +236,12 @@
     .fcb-directory-entry {
       cursor: pointer;
     }
+    
+    // add margin when these are immediate children of summary
+    div.summary.top > .fcb-directory-entry,
+    div.summary.top > .fcb-current-directory-entry {
+      margin-left: 8px;
+    }
 
     ul {
       list-style: none;

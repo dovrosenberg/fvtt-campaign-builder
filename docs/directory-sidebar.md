@@ -44,7 +44,10 @@ Using the "Group tree by type" checkbox at the top of the sidebar, you can choos
 ![Group by type tree](assets/images/group-by-type.webp)
 
 ### Filtering
-Typing text in the "Filter" box at the top of the sidebar... [TODO]
+Typing text in the "Filter" box at the top of the sidebar filters the Entry tree to only show:
+- All entries whose names contain the filter string
+- All types that contain the filter string (when in "Group tree by type" mode)
+- Any ancestors of those Entries (to show where they are in the Hierarchy)
 
 ## The campaign directory
 The bottom half of the directory sidebar is the campaign directory.  This shows all of the campaigns for the currently active world.  If you want to see campaigns for a different world, you need to change the world first.
