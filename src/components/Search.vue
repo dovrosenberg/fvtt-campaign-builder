@@ -28,13 +28,13 @@
         v-for="(result, index) in searchResults" 
         :key="result.uuid"
         :class="['fcb-search-result', { 'fcb-search-result-selected': index === selectedIndex }]"
-        @click="selectResult(result)"
+        @click="selectResult($event, result)"
         @mouseenter="selectedIndex = index"
       >
         <div class="fcb-search-result-header">
           <!-- If there's a type use that, otherwise, use the topic -->
           <span class="fcb-search-result-name">
-            {{ result.name }} ({{ result.type ? result.type : result.topic }})
+            {{ result.name }} ({{ result.isEntry ? (result.type ? result.type : result.topic) : 'Session' }})
           </span>
         </div>
       </div>
@@ -150,10 +150,10 @@
    */
   const onEnterPress = () => {
     if (selectedIndex.value >= 0 && selectedIndex.value < searchResults.value.length) {
-      selectResult(searchResults.value[selectedIndex.value]);
+      selectResult(null, searchResults.value[selectedIndex.value]);
     } else if (searchResults.value.length > 0) {
       // Select the first result if none is selected
-      selectResult(searchResults.value[0]);
+      selectResult(null, searchResults.value[0]);
     }
   };
   
@@ -180,14 +180,14 @@
   /**
    * Selects a search result and opens it
    */
-  const selectResult = (result: FCBSearchResult) => {
+  const selectResult = (_event: MouseEvent | null,result: FCBSearchResult) => {
     // Close the results panel
     showResults.value = false;
     
     // Clear the search input
     searchQuery.value = '';
     
-    // Open the selected entry
+    // Open the selected entry - always a new tab
     navigationStore.openEntry(result.uuid, { newTab: true, activate: true });
     
     // Emit the selected result

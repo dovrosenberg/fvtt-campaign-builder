@@ -111,7 +111,7 @@ export class Entry {
       
       // Add to search index
       try {
-        await searchService.addOrUpdateEntry(entry, world);
+        await searchService.addOrUpdateIndex(entry, world, true);
       } catch (error) {
         console.error('Failed to add entry to search index:', error);
       }
@@ -341,7 +341,7 @@ export class Entry {
     // Update the search index
     try {
       if (retval) {
-        await searchService.addOrUpdateEntry(this, world);
+        await searchService.addOrUpdateIndex(this, world, true);
       }
     } catch (error) {
       console.error('Failed to update search index:', error);
