@@ -130,7 +130,11 @@
         "addItemDrag": "(oder ein Element ziehen/ablegen)",
         "addMonster": "Monster hinzufügen",
         "addMonsterDrag": "(oder einen Schauspieler ziehen/ablegen)",
-        "addLoreDrag": "(oder ziehen/ablegen eines Journaleintrags)"
+        "addLoreDrag": "(oder ziehen/ablegen eines Journaleintrags)",
+        "addActor": "Schauspieler hinzufügen",
+        "addActorDrag": "(oder Schauspieler ziehen/ablegen)",
+        "addScene": "Szene hinzufügen",
+        "addSceneDrag": "(oder Szene ziehen/ablegen)"
       },
       "campaign": {
         "addPC": "PC hinzufügen",
@@ -324,7 +328,9 @@
         "3": "Sitzung",
         "4": "PC",
         "5": "Welt"
-      }
+      },
+      "dragActorFromEntry": "In Szene ziehen",
+      "dragSceneFromEntry": "Zum Aktivieren ziehen"
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert"
