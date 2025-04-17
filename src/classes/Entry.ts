@@ -100,6 +100,10 @@ export class Entry {
       parent: topicFolder.raw,
     }) as unknown as EntryDoc[];
 
+    if (options.type) {
+      await Entry.addTypeIfNeeded(topicFolder, options.type);
+    }
+
     await world.lock();
 
     if (entryDoc) {
@@ -304,6 +308,13 @@ export class Entry {
     // unlock compendium to make the change
     await world.unlock();
 
+    // add the type to the master list if it was changed and doesn't exist
+    if (updateData.system?.type) {
+      const topicFolder = world.topicFolders[this.topic];
+
+      await Entry.addTypeIfNeeded(topicFolder, updateData.system?.type);
+    }
+
     let oldRelationships;
     
     if (updateData.system?.relationships) {
@@ -406,5 +417,20 @@ export class Entry {
     // if the flag has this topic, it's a Record keyed by uuid
     return Object.keys(relationships[topicFolder.topic]);
   }
-  
+
+  /** Adds the type to the list on the topic, if it's not there already.
+   *  Requires the world to be unlocked already
+   */
+  private static async addTypeIfNeeded(topicFolder: TopicFolder, type: string): Promise<void> {
+    const currentTypes = topicFolder.types;
+
+    // if not a duplicate, add to the valid type lists 
+    if (!currentTypes?.includes(type)) {
+      const updatedTypes = currentTypes.concat(type);
+
+      topicFolder.types = updatedTypes;
+      await topicFolder.save();
+    }
+  }
+ 
 }
