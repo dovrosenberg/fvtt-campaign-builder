@@ -7,3 +7,4 @@ export * from './WBWorld';
 export * from './Session';
 export * from './PC';
 export * from './Backend';
+export * from './ExternalAPI';
