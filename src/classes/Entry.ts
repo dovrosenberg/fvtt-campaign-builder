@@ -88,7 +88,7 @@ export class Entry {
         topic: topicFolder.topic,
         relationships: {
           [Topics.Character]: {},
-          [Topics.Event]: {},
+          // [Topics.Event]: {},
           [Topics.Location]: {},
           [Topics.Organization]: {},
         },

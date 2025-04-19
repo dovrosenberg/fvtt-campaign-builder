@@ -3,18 +3,27 @@
  */
 import { useMainStore } from '@/applications/stores';
 import { Topics, ValidTopic } from '@/types';
+import { log } from '@/utils/log';
 
 type GetListReturnValue = { uuid: string; name: string};
 
 export class ExternalAPI {
+  public TOPICS = {
+    Character: Topics.Character,
+    Location: Topics.Location,
+    Organization: Topics.Organization,
+  };
+
   /**
    * Initialize the API
    */
   constructor() {
-    console.log('Campaign Builder External API initialized');
+    log(false, 'Campaign Builder External API initialized');
   }
 
-  private _getTopicList(topic: ValidTopic): GetListReturnValue[] {
+
+
+  public getEntries(topic: ValidTopic): GetListReturnValue[] {
     const world = useMainStore().currentWorld;
 
     if (!world)
@@ -34,27 +43,6 @@ export class ExternalAPI {
       return [];
     }
   } 
-
-  /**
-   * Get all characters in the world (uuid and name)
-   */
-  getCharacters(): GetListReturnValue[] {
-    return this._getTopicList(Topics.Character);
-  }
-
-  /**
-   * Get all characters in the world (uuid and name)
-   */
-  getLocations(): GetListReturnValue[] {
-    return this._getTopicList(Topics.Location);
-  }
-
-  /**
-   * Get all characters in the world (uuid and name)
-   */
-  getOrganizations(): GetListReturnValue[] {
-    return this._getTopicList(Topics.Organization);
-  }
 
 
     /**

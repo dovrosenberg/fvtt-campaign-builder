@@ -462,7 +462,7 @@ export class WBWorld {
   private async populateTopics() {
     let updated = false;
 
-    const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
+    const topics = [Topics.Character, /*Topics.Event, */ Topics.Location, Topics.Organization] as ValidTopic[];
     let topicIds = this._topicIds;
     const topicObjects = {} as Record<ValidTopic, TopicFolder>;
 

@@ -129,11 +129,13 @@
             <RelatedItemTable :topic="Topics.Organization" />
           </div>
         </div>
+        <!-- Events tab commented 
         <div class="tab flexcol" data-group="primary" data-tab="events">
           <div class="tab-inner">
             <RelatedItemTable :topic="Topics.Event" />
           </div>
         </div>
+        -->
         <div class="tab flexcol" data-group="primary" data-tab="scenes">
           <div class="tab-inner">
             <RelatedDocumentTable 
@@ -217,7 +219,7 @@
   // data
   const topicData = {
     [Topics.Character]: { namePlaceholder: 'placeholders.characterName', },
-    [Topics.Event]: { namePlaceholder: 'placeholders.characterName', },
+    // [Topics.Event]: { namePlaceholder: 'placeholders.characterName', }, // Commented out as events are not currently needed
     [Topics.Location]: { namePlaceholder: 'placeholders.characterName', },
     [Topics.Organization]: { namePlaceholder: 'placeholders.characterName', },
   };
@@ -226,7 +228,7 @@
     { tab: 'characters', label: 'labels.tabs.entry.characters', },
     { tab: 'locations', label: 'labels.tabs.entry.locations',},
     { tab: 'organizations', label: 'labels.tabs.entry.organizations', },
-    { tab: 'events', label: 'labels.tabs.entry.events', },
+    // { tab: 'events', label: 'labels.tabs.entry.events', }, // Commented out as events are not currently needed
   ] as { tab: string; label: string }[];
 
   const tabs = ref<foundry.applications.ux.Tabs>();
