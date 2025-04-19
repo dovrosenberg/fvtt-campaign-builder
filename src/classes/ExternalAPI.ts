@@ -1,6 +1,11 @@
 /**
  * ExternalAPI class that provides external access to the campaign builder module functionality
  */
+import { useMainStore } from '@/applications/stores';
+import { Topics, ValidTopic } from '@/types';
+
+type GetListReturnValue = { uuid: string; name: string};
+
 export class ExternalAPI {
   /**
    * Initialize the API
@@ -9,66 +14,95 @@ export class ExternalAPI {
     console.log('Campaign Builder External API initialized');
   }
 
+  private _getTopicList(topic: ValidTopic): GetListReturnValue[] {
+    const world = useMainStore().currentWorld;
+
+    if (!world)
+      return [];
+
+    try {
+      const topicFolder = world.topicFolders[topic];
+
+      const results = [] as GetListReturnValue[];
+
+      topicFolder.allEntries().forEach((entry) => {
+        results.push({ uuid: entry.uuid, name: entry.name });
+      })
+
+      return results;
+    } catch (_e) {
+      return [];
+    }
+  } 
+
   /**
-   * Get all campaigns in the world
-   * @returns Array of campaign objects
+   * Get all characters in the world (uuid and name)
    */
-  getCampaigns() {
-    // Implementation will depend on how campaigns are stored
-    // This is a placeholder
-    return game.journal.filter(j => j.getFlag('campaign-builder', 'isCampaign'));
+  getCharacters(): GetListReturnValue[] {
+    return this._getTopicList(Topics.Character);
   }
 
   /**
-   * Get all entries for a specific campaign
-   * @param campaignId - The ID of the campaign
-   * @returns Array of entry objects
+   * Get all characters in the world (uuid and name)
    */
-  getCampaignEntries(campaignId: string) {
-    // Implementation will depend on how entries are stored
-    // This is a placeholder
-    const campaign = game.journal.get(campaignId);
-    if (!campaign) return [];
-    
-    // Return entries associated with this campaign
-    return game.journal.filter(j => j.getFlag('campaign-builder', 'campaignId') === campaignId);
+  getLocations(): GetListReturnValue[] {
+    return this._getTopicList(Topics.Location);
   }
 
   /**
-   * Get all sessions for a specific campaign
-   * @param campaignId - The ID of the campaign
-   * @returns Array of session objects
+   * Get all characters in the world (uuid and name)
    */
-  getCampaignSessions(campaignId: string) {
-    // Implementation will depend on how sessions are stored
-    // This is a placeholder
-    const campaign = game.journal.get(campaignId);
-    if (!campaign) return [];
-    
-    // Return sessions associated with this campaign
-    return game.journal.filter(j => {
-      const type = j.getFlag('campaign-builder', 'type');
-      const cId = j.getFlag('campaign-builder', 'campaignId');
-      return type === 'session' && cId === campaignId;
-    });
+  getOrganizations(): GetListReturnValue[] {
+    return this._getTopicList(Topics.Organization);
   }
 
-  /**
-   * Get all PCs for a specific campaign
-   * @param campaignId - The ID of the campaign
-   * @returns Array of PC objects
+
+    /**
+   * Get all campaigns in the world (uuid and name)
    */
-  getCampaignPCs(campaignId: string) {
-    // Implementation will depend on how PCs are stored
-    // This is a placeholder
-    const campaign = game.journal.get(campaignId);
-    if (!campaign) return [];
-    
-    // Return PCs associated with this campaign
-    return game.journal.filter(j => {
-      const type = j.getFlag('campaign-builder', 'type');
-      const cId = j.getFlag('campaign-builder', 'campaignId');
-      return type === 'pc' && cId === campaignId;
-    });
+    getCampaigns(): GetListReturnValue[] {
+      const world = useMainStore().currentWorld;
+  
+      if (!world)
+        return [];
+  
+      const retval = [] as GetListReturnValue[];
+      for (const campaignId in world.campaignNames) {
+        retval.push({ uuid: campaignId, name: world.campaignNames[campaignId]})
+      }
+  
+      return retval;
+    }
+
+ 
+  /**
+   * Get all sessions in the world (uuid and name)
+   */
+  async getSessions(): Promise<GetListReturnValue[]> {
+    const world = useMainStore().currentWorld;
+
+    if (!world)
+      return [];
+
+    const retval = [] as GetListReturnValue[];
+    for (const campaignId in world.campaigns) {
+      const campaign = world.campaigns[campaignId];
+      const sessions = await campaign.getSessions();
+
+      for (let i=0; i<sessions.length; i++) {
+        retval.push({ uuid: sessions[i].uuid, name: sessions[i].name })
+      }
+    }
+
+    return retval;
   }
+
+    /**
+   * Get the current world (uuid and name)
+   */
+    getWorld(): GetListReturnValue[] {
+      const world = useMainStore().currentWorld;
+  
+      return world ? [{ uuid: world.uuid, name: world.name }] : [];
+    }  
 }
