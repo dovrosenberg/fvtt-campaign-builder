@@ -21,8 +21,6 @@ export class ExternalAPI {
     log(false, 'Campaign Builder External API initialized');
   }
 
-
-
   public getEntries(topic: ValidTopic): GetListReturnValue[] {
     const world = useMainStore().currentWorld;
 
