@@ -7,7 +7,7 @@
 
 - Added buttons to add actors/scenes and drag indicator to scenes in Entry document relationship tabs
 - Support for Autocomplete Mentions module 
-- Added sessions to search
+- Made sessions searchable
 - Lots of documentation improvements
 - Various minor bug fixes
 

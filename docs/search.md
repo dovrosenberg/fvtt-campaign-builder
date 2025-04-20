@@ -7,13 +7,15 @@ The top right corner of the window's title bar has the search box.
 
 ![search](assets//images/search.webp)
 
+Search terms are not case sensitive.  Clicking a search result opens it in a new tab.
+
 This box searches all entries, looking across these fields:
 * Name
 * Tags
 * Description
 * Topic
-* Type
-* Species for characters
+* Type 
+* Species for characters 
 * Names and roles of relationships  [TODO: link to relationships]
 
 So, searching for "Sally sibling" would return an entry with a relationship of "sibling" to a character named Sally.  That result would be lower on the list, though, than Sally herself.
