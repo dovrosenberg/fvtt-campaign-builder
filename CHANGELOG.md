@@ -6,6 +6,7 @@
 ![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.1.2/module.zip)
 
 - Added buttons to add actors/scenes and drag indicator to scenes in Entry document relationship tabs
+- Support for Autocomplete Mentions module 
 - Added sessions to search
 - Lots of documentation improvements
 - Various minor bug fixes
