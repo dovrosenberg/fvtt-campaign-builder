@@ -29,8 +29,8 @@ This documentation uses several specific terms related to the World & Campaign B
 
 - World: The fictional setting where your Campaigns take place
 - Entry: A document containing information about a specific element of your world (ex. a Character or Location)
-- Topic: A category that organizes related Entries. There are four Topics: *Characters*, *Locations*, and *Organizations*
-- Type: [TODO]
+- Topic: A category that organizes related Entries. There are three Topics: *Characters*, *Locations*, and *Organizations*
+- Type: A user-defined categorization of Entries to assist in finding Entries within a Topic. For example, Characters might have Types such as NPC, PC, Monster, etc.; Locations could have Types such as City, Town, Dungeon, Ruin, etc.
 - Campaign: A collection of Sessions played by the same (or generally the same) group of players.  It is primarily just for grouping Sessions together.
 - Session: A single play session.  When running in "Play Mode" [TODO:Link], the most recent Session is enabled with additional functionality.
 
