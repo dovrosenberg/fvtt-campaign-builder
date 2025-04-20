@@ -417,7 +417,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (currentWorldBlock && currentWorldFound && currentWorld.value) {
       const expandedNodes = currentWorld.value.expandedIds;
 
-      const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
+      const topics = [Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${(currentWorld.value as WBWorld).uuid}.topic.${topic}`;
         const topicObj = (currentWorld.value as WBWorld).topicFolders[topic] as TopicFolder;
@@ -569,7 +569,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     const hierarchies = currentWorld.value.hierarchies;
 
     const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
-    const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
+    const topics = [Topics.Character, /* Topics.Event, */Topics.Location, Topics.Organization] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
       const topicObj = currentWorld.value.topicFolders[topics[i]];

@@ -27,25 +27,25 @@ export const useRelationshipStore = defineStore('relationship', () => {
   const extraFields = {
     [Topics.Character]: {
       [Topics.Character]: [],
-      [Topics.Event]: [],
+      // [Topics.Event]: [],
       [Topics.Location]: [{field:'role', header:'Role'}],
       [Topics.Organization]: [{field:'role', header:'Role'}],
     },
-    [Topics.Event]: {
-      [Topics.Character]: [],
-      [Topics.Event]: [],
-      [Topics.Location]: [],
-      [Topics.Organization]: [],
-    },
+    // [Topics.Event]: {
+    //   [Topics.Character]: [],
+    //   [Topics.Event]: [],
+    //   [Topics.Location]: [],
+    //   [Topics.Organization]: [],
+    // },
     [Topics.Location]: {
       [Topics.Character]: [{field:'role', header:'Role'}],
-      [Topics.Event]: [],
+      // [Topics.Event]: [],
       [Topics.Location]: [],
       [Topics.Organization]: [],
     },
     [Topics.Organization]: {
       [Topics.Character]: [{field:'role', header:'Role'}],
-      [Topics.Event]: [],
+      // [Topics.Event]: [],
       [Topics.Location]: [],
       [Topics.Organization]: [],
     },    
@@ -366,9 +366,9 @@ export const useRelationshipStore = defineStore('relationship', () => {
         case 'characters':
           topic = Topics.Character;
           break;
-        case 'events':
-          topic = Topics.Event;
-          break;
+        // case 'events':
+        //   topic = Topics.Event;
+        //   break;
         case 'locations':
           topic = Topics.Location;
           break;

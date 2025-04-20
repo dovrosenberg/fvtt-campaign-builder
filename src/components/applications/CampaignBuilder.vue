@@ -165,10 +165,10 @@
 
       const topicIds = currentWorld.value.topicIds;
       const campaignNames = currentWorld.value.campaignNames;
-      const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
-        [Topics.Event]: null,
+        // [Topics.Event]: null,
         [Topics.Location]: null,
         [Topics.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;
@@ -278,10 +278,10 @@
 
     if (world.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
-        [Topics.Event]: null,
+        // [Topics.Event]: null,
         [Topics.Location]: null,
         [Topics.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;

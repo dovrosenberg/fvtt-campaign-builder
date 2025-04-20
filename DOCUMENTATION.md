@@ -11,7 +11,6 @@ are likely things mising things may not be in the most obvious place.  Suggested
    - [Characters](#characters)
    - [Locations](#locations)
    - [Organizations](#organizations)
-   - [Events](#events)
    - [Species](#species)
    - [Hierarchies](#hierarchies)
 5. [Campaign Planning](#campaign-planning)
@@ -117,17 +116,6 @@ Like locations, organizations can be organized hierarchically.
 
 **Note:** The right-click menu for Organizations includes deleting the organization, as well as adding a child.  If you have AI features enabled, it also includes AI generation of a new child organization.
 
-### Events
-
-Events represent significant occurrences in your world's history or future.
-
-To create an event:
-1. Navigate to the World Building tab
-2. Click "Events" in the sidebar
-3. Click the "+" button to create a new event
-4. Fill in the event details and click "Save"
-
-**Note:** You can delete a character by right-clicking on it in the directory.
 
 ### Species
 
