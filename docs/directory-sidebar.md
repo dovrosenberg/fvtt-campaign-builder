@@ -13,7 +13,7 @@ By default, the sidebar is open whenever you open the Campaign Builder window.  
 ![Directory sidebar](assets/images/directory-sidebar.webp)
 
 ## The world directory (aka the entry directory)
-The top half of the directory sidebar is the World directory.  Also known as the Entry directory, this is where you can find all of entries (Character, Locations, Organizations, and Events) of your worlds.
+The top half of the directory sidebar is the World directory.  Also known as the Entry directory, this is where you can find all of entries (Character, Locations, and Organizations) of your worlds.
 
 Each world has a header, and you click the World name to make it the active world.  In the image above, *Mallindor* has been selected as the active World.  The active world is also shown in the the main window title bar.
 

@@ -49,13 +49,13 @@ export type TabSummary = {
   name: string;
 }
 
-// this oder is also the order that they get sorted in
+// this order is also the order that they get sorted in
 export enum Topics {
   None = 0,
   Character = 1,
   Location = 2,
   Organization = 3,
-  Event = 4,
+  // Event = 4, // Commented out for now
 }
 
 // topics except None

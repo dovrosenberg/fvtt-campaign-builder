@@ -1,35 +1,26 @@
-import { TagInfo } from 'src/types';
+import { TagInfo } from '@/types';
+import { extend } from 'jquery';
 
-export type SessionLocation = {
+export interface SessionRelatedItem {
   uuid: string;
   delivered: boolean;
 }
 
-export type SessionItem = {
-  uuid: string;
-  delivered: boolean;
-}
+export interface SessionLocation extends SessionRelatedItem {}
 
-export type SessionNPC = {
-  uuid: string;
-  delivered: boolean;
-}
+export interface SessionItem extends SessionRelatedItem {}
 
-export type SessionMonster = {
-  uuid: string;
-  delivered: boolean;
+export interface SessionNPC extends SessionRelatedItem {}
+
+export interface SessionMonster extends SessionRelatedItem {
   number: number;
 }
 
-export type SessionVignette = {
-  uuid: string;
-  delivered: boolean;
+export interface SessionVignette extends SessionRelatedItem {
   description: string;
 }
 
-export type SessionLore = {
-  uuid: string;
-  delivered: boolean;
+export interface SessionLore extends SessionRelatedItem {
   description: string;
   journalEntryPageId: string | null;
 }

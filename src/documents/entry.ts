@@ -11,7 +11,7 @@ const entrySchema = {
 
   relationships: new fields.ObjectField({ required: true, nullable: false, initial: {
     [Topics.Character]: {},
-    [Topics.Event]: {},
+    // [Topics.Event]: {}, // Commented out as events are not currently needed
     [Topics.Location]: {},
     [Topics.Organization]: {},
   } as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>   // all the things related to this item, grouped by topic
