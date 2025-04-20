@@ -1,8 +1,8 @@
 # Change Log
 
-## v0.1.2 - [ IN PROGRESS ]
+## v0.1.2
 
-![](https://img.shields.io/badge/release%20date-April%2013%2C%202025-blue)
+![](https://img.shields.io/badge/release%20date-April%2020%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.1.2/module.zip)
 
 - Added buttons to add actors/scenes and drag indicator to scenes in Entry document relationship tabs
