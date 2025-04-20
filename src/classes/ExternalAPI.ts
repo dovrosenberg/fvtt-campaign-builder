@@ -1,9 +1,11 @@
 /**
  * ExternalAPI class that provides external access to the campaign builder module functionality
  */
-import { useMainStore } from '@/applications/stores';
+import { useCampaignDirectoryStore, useMainStore, useTopicDirectoryStore } from '@/applications/stores';
 import { Topics, ValidTopic } from '@/types';
 import { log } from '@/utils/log';
+import { Campaign } from '@/classes/Campaign';
+import { Entry } from './Entry';
 
 type GetListReturnValue = { uuid: string; name: string};
 
@@ -42,28 +44,52 @@ export class ExternalAPI {
     }
   } 
 
+  // creates an entry in the current world
+  async createEntry(topic: ValidTopic): Promise<{uuid: string; name: string}| null> {
+    const world = useMainStore().currentWorld;
 
-    /**
-   * Get all campaigns in the world (uuid and name)
-   */
-    getCampaigns(): GetListReturnValue[] {
-      const world = useMainStore().currentWorld;
-  
-      if (!world)
-        return [];
-  
-      const retval = [] as GetListReturnValue[];
-      for (const campaignId in world.campaignNames) {
-        retval.push({ uuid: campaignId, name: world.campaignNames[campaignId]})
-      }
-  
-      return retval;
+    let entry: Entry | null = null;
+    if (world) {
+      entry = await useTopicDirectoryStore().createEntry(world.topicFolders[topic], {});
     }
 
- 
-  /**
-   * Get all sessions in the world (uuid and name)
-   */
+    if (entry) {
+      return { uuid: entry.uuid, name: entry.name };
+    } else {
+      return null;
+    }
+  }
+
+  getCampaigns(): GetListReturnValue[] {
+    const world = useMainStore().currentWorld;
+
+    if (!world)
+      return [];
+
+    const retval = [] as GetListReturnValue[];
+    for (const campaignId in world.campaignNames) {
+      retval.push({ uuid: campaignId, name: world.campaignNames[campaignId]})
+    }
+
+    return retval;
+  }
+
+  async createCampaign(): Promise<{uuid: string; name: string}| null> {
+    const world = useMainStore().currentWorld;
+
+    let campaign: Campaign | null = null;
+    if (world) {
+      campaign = await Campaign.create(world);
+    }
+
+    if (campaign) {
+      await useCampaignDirectoryStore().refreshCampaignDirectoryTree();
+      return { uuid: campaign.uuid, name: campaign.name };
+    } else {
+      return null;
+    }
+  }
+
   async getSessions(): Promise<GetListReturnValue[]> {
     const world = useMainStore().currentWorld;
 
@@ -83,12 +109,11 @@ export class ExternalAPI {
     return retval;
   }
 
-    /**
-   * Get the current world (uuid and name)
-   */
-    getWorld(): GetListReturnValue[] {
-      const world = useMainStore().currentWorld;
-  
-      return world ? [{ uuid: world.uuid, name: world.name }] : [];
-    }  
+  // for now, no create session because it requires a campaign be specified
+
+  getWorld(): GetListReturnValue[] {
+    const world = useMainStore().currentWorld;
+
+    return world ? [{ uuid: world.uuid, name: world.name }] : [];
+  }  
 }
