@@ -561,7 +561,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     const retval: Record<ValidTopic, string[]> = {
       [Topics.Character]: [],
-      [Topics.Event]: [],
+      // [Topics.Event]: [],
       [Topics.Location]: [],
       [Topics.Organization]: [],
     };
