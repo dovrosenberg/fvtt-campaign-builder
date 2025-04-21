@@ -46,7 +46,7 @@
   import TypeAhead from '@/components/TypeAhead.vue';
 
   // types
-  type DocumentType = 'actor' | 'item';
+  type DocumentType = 'actor' | 'item' | 'scene';
   type DocumentOption = {
     id: string;  // uuid
     label: string; // name with type
@@ -64,7 +64,10 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits(['update:modelValue']);
+  const emit = defineEmits<{
+    (e: 'update:modelValue', newValue: boolean): void;
+    (e: 'added', documentUuid: string): void;
+  }>();
 
   ////////////////////////////////
   // store
@@ -108,7 +111,20 @@
   const loadDocuments = () => {
     try {
       // Get collection based on document type
-      const collection = props.documentType === 'actor' ? game.actors : game.items;
+      let collection;
+      switch (props.documentType) {
+        case 'actor':
+          collection = game.actors;
+          break;
+        case 'item':
+          collection = game.items;
+          break;
+        case 'scene':
+          collection = game.scenes;
+          break;
+        default:
+          throw new Error(`Invalid document type: ${props.documentType}`);
+      }
       
       // Map to document options format
       documentOptions.value = collection.map(doc => ({
@@ -134,11 +150,7 @@
   const onActionClick = async function() {
     if (!selectedDocumentId.value) return;
 
-    if (props.documentType === 'actor') {
-      await sessionStore.addMonster(selectedDocumentId.value, 1); // Always use 1 as the default
-    } else {
-      await sessionStore.addItem(selectedDocumentId.value);
-    }
+    emit('added', selectedDocumentId.value);
 
     resetDialog();
   };

@@ -21,6 +21,7 @@
   <RelatedDocumentsDialog
     v-model="showItemPicker"
     document-type="item"
+    @added="onItemAdded"
   />
 </template>
 
@@ -65,6 +66,10 @@
 
   ////////////////////////////////
   // event handlers
+  const onItemAdded = async (documentUuid: string) => {
+    await sessionStore.addItem(documentUuid);
+  }
+
   const onDragover = (event: DragEvent) => {
     event.preventDefault();  
     event.stopPropagation();

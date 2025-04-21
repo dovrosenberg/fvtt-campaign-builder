@@ -6,6 +6,7 @@ import { computed, ref, watch } from 'vue';
 
 // local imports
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey } from '@/settings';
+import { updateWindowTitle } from '@/utils/titleUpdater';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
@@ -256,6 +257,12 @@ export const useMainStore = defineStore('main', () => {
     await ModuleSettings.set(SettingKey.isInPlayMode, newValue);   
   });
 
+  /**
+  * Updates the main window title to include the current world name
+  */
+  watch(currentWorld, (newWorld) => {
+    updateWindowTitle(newWorld?.name ?? null);
+  });
 
   ///////////////////////////////
   // lifecycle events

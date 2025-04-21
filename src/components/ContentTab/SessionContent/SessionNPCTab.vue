@@ -17,8 +17,8 @@
     @drop="onDrop"
   />
   <RelatedItemDialog
-    v-model="showLocationPicker"
-    :topic="Topics.Location"
+    v-model="showNPCPicker"
+    :topic="Topics.Character"
     mode="add"
   />
 </template>

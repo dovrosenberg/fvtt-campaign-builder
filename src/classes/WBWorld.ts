@@ -462,7 +462,7 @@ export class WBWorld {
   private async populateTopics() {
     let updated = false;
 
-    const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
+    const topics = [Topics.Character, /*Topics.Event, */ Topics.Location, Topics.Organization] as ValidTopic[];
     let topicIds = this._topicIds;
     const topicObjects = {} as Record<ValidTopic, TopicFolder>;
 
@@ -547,6 +547,10 @@ export class WBWorld {
   public async collapseTopicDirectory() {
     // we just unset the entire expandedIds flag
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds);
+
+    // then need to reset it
+    this.expandedIds = {};
+    await this.save();
   }
 
   /**

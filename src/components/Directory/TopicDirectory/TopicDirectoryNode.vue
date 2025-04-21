@@ -1,6 +1,6 @@
 <template>
   <TopicDirectoryNodeWithChildren 
-    v-if="props.node.children.length" 
+    v-if="props.node.children.length && filterNodes[props.topic]?.includes(props.node.id)" 
     :node="props.node"
     :world-id="props.worldId"
     :topic="props.topic"

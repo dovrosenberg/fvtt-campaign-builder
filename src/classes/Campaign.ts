@@ -119,7 +119,7 @@ export class Campaign {
     return maxNumber + 1;
   }
 
-  // returns the uuids of all the sessions
+  /** returns the uuids of all the sessions */
   get sessions(): string[] {
     return toRaw(this._campaignDoc).pages.filter((p) => p.type===DOCUMENT_TYPES.Session).map((page) => page.uuid);
   }

@@ -16,6 +16,8 @@ The module has three primary components:
 
 See the [official description](https://github.com/dovrosenberg/fvtt-campaign-builder) for a longer summary of features and functionality.
 
+## Advanced features
+You'll see features throughout this documentation labeled "[Advanced]".  These features require the setup and configuration described under [Advanced Features](advanced-features.html) to make them available.
 
 ## GM-only, for now
 The module currently only works for the GM.  Players may see some settings available, but they won't do anything and there is no way to open the main window without having GM permission.
@@ -23,14 +25,14 @@ The module currently only works for the GM.  Players may see some settings avail
 I intend to change that at some point - in particular creating ways for everyone to contribute to the worldbuilding and for the GM to selectively share pieces of world information/lore with players.  But for now, GM only.
 
 ## Terminology
-This documentation uses several specific terms related to the World & Campaign Builder. Hover over highlighted terms to see their definitions:
+This documentation uses several specific terms related to the World & Campaign Builder (though many are commonly used in TTRPG, as well):
 
-- World: The fictional setting where your campaign takes place
-- Entry: A document containing information about a specific element of your world
-- Directory: The hierarchical structure that organizes your campaign's elements
-- Topic: A category that organizes related entries
-- Campaign: A series of adventures that form a coherent story
-- Session: A single play session or meeting
+- World: The fictional setting where your Campaigns take place
+- Entry: A document containing information about a specific element of your world (ex. a Character or Location)
+- Topic: A category that organizes related Entries. There are three Topics: *Characters*, *Locations*, and *Organizations*
+- Type: A user-defined categorization of Entries to assist in finding Entries within a Topic. For example, Characters might have Types such as NPC, PC, Monster, etc.; Locations could have Types such as City, Town, Dungeon, Ruin, etc.
+- Campaign: A collection of Sessions played by the same (or generally the same) group of players.  It is primarily just for grouping Sessions together.
+- Session: A single play session.  When running in "Play Mode" [TODO:Link], the most recent Session is enabled with additional functionality.
 
 ## Support
 

@@ -22,6 +22,7 @@
   <RelatedDocumentsDialog
     v-model="showMonsterPicker"
     document-type="actor"
+    @added="onActorAdded"
   />
 </template>
 
@@ -68,6 +69,10 @@
 
   ////////////////////////////////
   // event handlers
+  const onActorAdded = async (documentUuid: string) => {
+    await sessionStore.addMonster(documentUuid, 1); // Always use 1 as the default
+  }
+
   const onDragover = (event: DragEvent) => {
     event.preventDefault();  
     event.stopPropagation();

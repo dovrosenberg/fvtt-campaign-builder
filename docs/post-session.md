@@ -1,5 +1,10 @@
+---
+layout: default
+title: Post-Session
+---
 # Post-Session
 
+[TODO]
 After a session, you can:
 1. Review which vignettes and lore were used
 2. Move unused elements to the next session with a click

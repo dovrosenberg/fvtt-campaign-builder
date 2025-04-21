@@ -130,7 +130,11 @@
         "addItem": "Add item",
         "addItemDrag": "(or drag/drop an item)",
         "addMonster": "Add monster",
-        "addMonsterDrag": "(or drag/drop an actor)"
+        "addMonsterDrag": "(or drag/drop an actor)",
+        "addActor": "Add actor",
+        "addActorDrag": "(or drag/drop an actor)",
+        "addScene": "Add scene",
+        "addSceneDrag": "(or drag/drop a scene)"
       },
       "campaign": {
         "addPC": "Add PC",
@@ -313,6 +317,7 @@
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",
       "dragMonsterFromSession": "Drag to scene",
       "dragItemFromSession": "Drag to actor, etc.",
+      "dragActorFromEntry": "Drag to scene",
       "contentLinks": {
         "1": {
           "1": "Character",

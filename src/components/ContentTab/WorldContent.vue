@@ -72,7 +72,8 @@
   import { getTabTypeIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import { useMainStore, useNavigationStore, useTopicDirectoryStore } from '@/applications/stores';
-  
+  import { updateWindowTitle } from '@/utils/titleUpdater';
+
   // library components
   import InputText from 'primevue/inputtext';
   import Textarea from 'primevue/textarea';
@@ -131,6 +132,7 @@
         currentWorld.value.name = newValue;
         await currentWorld.value.save();
 
+        updateWindowTitle(newName || null);
         await topicDirectoryStore.refreshTopicDirectoryTree([currentWorld.value.uuid]);
         await navigationStore.propagateNameChange(currentWorld.value.uuid, newValue);
       }

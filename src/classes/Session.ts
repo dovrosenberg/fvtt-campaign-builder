@@ -1,6 +1,7 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore } from '@/documents';
+import { searchService } from '@/utils/search';
 import { inputDialog } from '@/dialogs';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
@@ -107,6 +108,14 @@ export class Session {
 
     if (sessionDoc) {
       const session = new Session(sessionDoc[0], campaign);
+
+      // Add to search index
+      try {
+        await searchService.addOrUpdateIndex(session, world, false);
+      } catch (error) {
+        console.error('Failed to add session to search index:', error);
+      }
+
       return session;
     } else {
       return null;
@@ -646,6 +655,15 @@ export class Session {
     this._cumulativeUpdate = {};
 
     await world.lock();
+
+     // Update the search index
+     try {
+      if (retval) {
+        await searchService.addOrUpdateIndex(this, world, false);
+      }
+    } catch (error) {
+      console.error('Failed to update search index:', error);
+    }
 
     return retval ? this : null;
   }

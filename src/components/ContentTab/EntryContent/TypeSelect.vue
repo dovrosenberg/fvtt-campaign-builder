@@ -68,21 +68,7 @@
 
   // new type added in the typeahead
   const onTypeItemAdded = async (added: string) => {
-    if (props.topic === null || !currentWorld.value)
-      return;
-
-    const topicFolder = currentWorld.value.topicFolders[props.topic as ValidTopic];
-    const currentTypes = topicFolder.types;
-
-    // if not a duplicate, add to the valid type lists 
-    if (!currentTypes?.includes(added)) {
-      const updatedTypes = currentTypes.concat(added);
-
-      topicFolder.types = updatedTypes;
-      await topicFolder.save();
-    }
-
-    currentType.value = added;
+    currentType.value = added;    
     await onTypeSelectionMade(added);
   };
 

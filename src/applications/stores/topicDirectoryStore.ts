@@ -417,7 +417,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (currentWorldBlock && currentWorldFound && currentWorld.value) {
       const expandedNodes = currentWorld.value.expandedIds;
 
-      const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
+      const topics = [Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${(currentWorld.value as WBWorld).uuid}.topic.${topic}`;
         const topicObj = (currentWorld.value as WBWorld).topicFolders[topic] as TopicFolder;
@@ -555,14 +555,13 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // this includes: all nodes matching the filterText, all of their ancestors, and
   //    all of their types (we also ways leave the packs)
   // it's an object keyed by topic with a list of all the ids to include
-  // TODO - a checkbox option that uses search to filter by all searchable fields vs just name
   const updateFilterNodes = (): void => {
     if (!currentWorld.value)
       return;
 
     const retval: Record<ValidTopic, string[]> = {
       [Topics.Character]: [],
-      [Topics.Event]: [],
+      // [Topics.Event]: [],
       [Topics.Location]: [],
       [Topics.Organization]: [],
     };
@@ -570,7 +569,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     const hierarchies = currentWorld.value.hierarchies;
 
     const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
-    const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
+    const topics = [Topics.Character, /* Topics.Event, */Topics.Location, Topics.Organization] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
       const topicObj = currentWorld.value.topicFolders[topics[i]];
@@ -578,6 +577,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       // filter on name and type
       let matchedEntries = topicObj.filterEntries((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )))
         .map((e: Entry): string=>e.uuid) as string[];
+
   
       // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding
       for (let j=matchedEntries.length-1; j>=0; j--) {

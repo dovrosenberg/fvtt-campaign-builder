@@ -1,8 +1,6 @@
 import {type DevModeApi} from '@/libraries/foundry/devMode';
 import { moduleId } from '@/settings';
 
-const messagePrefix = `${moduleId} | `;
-
 // log the given text, so long as our current log level is at least the one given
 declare global {
   interface RequiredModules {
@@ -18,6 +16,7 @@ declare global {
 
 export function log(force: boolean, ...args): void {
   try {
+    const messagePrefix = `${moduleId} | `;
     const isDebugging = game.modules.get('_dev-mode')?.api?.getPackageDebugValue(moduleId) || false;
 
     if (force || isDebugging) {

@@ -78,7 +78,7 @@
 //     this.items = [];
     
 //     // Process each topic
-//     const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
+//     const topics = [Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization] as ValidTopic[];
     
 //     for (const topic of topics) {
 //       const topicFolder = world.topicFolders[topic];

@@ -52,6 +52,7 @@
   import { localize } from '@/utils/game';
   import WCBTheme from '@/applications/presetTheme';
   import { initializeRollTables } from '@/utils/nameGenerators';
+  import { updateWindowTitle } from '@/utils/titleUpdater';
 
   // library components
   import Splitter from 'primevue/splitter';
@@ -150,6 +151,9 @@
   ////////////////////////////////
   // watchers
   watch(currentWorld, async (newWorld: WBWorld | null, oldWorld: WBWorld | null) => {
+    // Update the window title when the world changes
+    updateWindowTitle(newWorld?.name || null);
+    
     if (currentWorld.value && currentWorld.value.topicIds && newWorld?.uuid!==oldWorld?.uuid) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = currentWorld.value.uuid;
@@ -161,10 +165,10 @@
 
       const topicIds = currentWorld.value.topicIds;
       const campaignNames = currentWorld.value.campaignNames;
-      const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
-        [Topics.Event]: null,
+        // [Topics.Event]: null,
         [Topics.Location]: null,
         [Topics.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;
@@ -274,10 +278,10 @@
 
     if (world.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
-        [Topics.Event]: null,
+        // [Topics.Event]: null,
         [Topics.Location]: null,
         [Topics.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;
@@ -318,10 +322,14 @@
         }
       }
 
+      mainStore.refreshCurrentContent();
+
       // Add the prep/play toggle to the header
       // Use setTimeout to ensure the DOM is fully rendered
       setTimeout(() => {
         createTitleBarComponents();
+        // Initialize the window title with the current world name
+        updateWindowTitle(currentWorld.value?.name || null);
       }, 100);
     } else {
       throw new Error('Failed to load or create folder structure');
