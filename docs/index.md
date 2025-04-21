@@ -25,7 +25,7 @@ The module currently only works for the GM.  Players may see some settings avail
 I intend to change that at some point - in particular creating ways for everyone to contribute to the worldbuilding and for the GM to selectively share pieces of world information/lore with players.  But for now, GM only.
 
 ## Terminology
-This documentation uses several specific terms related to the World & Campaign Builder (though many are commonly used in TTRPG, as well). Hover over highlighted terms to see their definitions:
+This documentation uses several specific terms related to the World & Campaign Builder (though many are commonly used in TTRPG, as well):
 
 - World: The fictional setting where your Campaigns take place
 - Entry: A document containing information about a specific element of your world (ex. a Character or Location)
