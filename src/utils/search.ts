@@ -199,6 +199,7 @@ class SearchService {
     } else {
       const session = item as Session;
       description = session.notes + '|' + session.startingAction;
+      topic = 'session';
 
       // Add relationship snippets
       // locations, npcs - entries
