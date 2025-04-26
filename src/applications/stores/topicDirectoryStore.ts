@@ -415,12 +415,14 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     // find the record for the current world and set the entries for each topic
     const currentWorldBlock = tree.find((w)=>w.id===currentWorld.value?.uuid);
     if (currentWorldBlock && currentWorldFound && currentWorld.value) {
+      // make sure the folders have been loaded
+      const topicFolders = await currentWorld.value.loadTopics();
       const expandedNodes = currentWorld.value.expandedIds;
 
       const topics = [Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${(currentWorld.value as WBWorld).uuid}.topic.${topic}`;
-        const topicObj = (currentWorld.value as WBWorld).topicFolders[topic] as TopicFolder;
+        const topicObj = topicFolders[topic] as TopicFolder;
 
         return new DirectoryTopicNode(
           id,
@@ -444,7 +446,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         await directoryTopicNode.recursivelyLoadNode(expandedNodes, updateEntryIds);
 
         // load the type-grouped entries
-        await directoryTopicNode.loadTypeEntries(currentWorld.value.topicFolders[directoryTopicNode.topicFolder.topic].types, expandedNodes);
+        await directoryTopicNode.loadTypeEntries(topicFolders[directoryTopicNode.topicFolder.topic].types, expandedNodes);
       }
     }
 
@@ -466,7 +468,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child',
         onClick: async () => {
           const topicFolder = currentWorld.value?.topicFolders[topic];
-
+          
           const entry = await createEntry(topicFolder as TopicFolder, { parentId: entryId} );
 
           if (entry) {
