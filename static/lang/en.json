@@ -268,7 +268,8 @@
         "viewImage": "View Image",
         "changeImage": "Change Image",
         "removeImage": "Remove Image",
-        "postToChat": "Post To Chat"
+        "postToChat": "Post To Chat",
+        "createScene": "Create Scene"
       },
       "topicFolder": {
         "create": {

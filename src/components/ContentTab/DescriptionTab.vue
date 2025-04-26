@@ -8,6 +8,7 @@
           :topic="props.topic"
           :window-type="props.windowType"
           @update:modelValue="emit('imageChange', $event)"
+          @create-scene="onCreateScene"
         />        
         <div class="fcb-description-content flexcol">
           <slot></slot>
@@ -19,9 +20,10 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, computed } from 'vue';
+  import { ref, watch, } from 'vue';
   
   // local imports
+  import { useRelationshipStore } from '@/applications/stores';
   
   // library components
 
@@ -29,7 +31,7 @@
   import ImagePicker from '@/components/ImagePicker.vue'; 
 
   // types
-  import { Topics, ValidTopic, WindowTabType } from '@/types';
+  import { ValidTopic, WindowTabType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -69,6 +71,7 @@
 
   ////////////////////////////////
   // store
+  const relationshipStore = useRelationshipStore();
 
   ////////////////////////////////
   // data
@@ -82,6 +85,25 @@
 
   ////////////////////////////////
   // event handlers
+  const onCreateScene = async (imageURL: string) => {
+    // create the scene
+    const scene = await Scene.createDocuments([{
+      // @ts-ignore- we know this type is valid
+      type: 'Scene',
+      name: props.name,
+      background: {
+        src: imageURL,
+      },
+      grid: {
+        type: foundry.CONST.GRID_TYPES.GRIDLESS,
+      }
+    }]);
+
+    // add it to the linked list
+    if (scene) {
+      relationshipStore.addScene(scene[0].uuid);    
+    }
+  };
 
   ////////////////////////////////
   // watchers
