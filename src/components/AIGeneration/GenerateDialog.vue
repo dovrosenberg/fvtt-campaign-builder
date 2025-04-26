@@ -142,7 +142,7 @@
   import TypeAhead from '@/components/TypeAhead.vue'; 
 
   // types
-  import { Topics, GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic } from '@/types';
+  import { Topics, GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic, Species } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -270,19 +270,14 @@
     generateComplete.value = false;
     generateError.value = '';
 
-    let result: Awaited<ReturnType<
-      typeof Backend.api.apiCharacterGeneratePost |
-      typeof Backend.api.apiLocationGeneratePost |
-      typeof Backend.api.apiOrganizationGeneratePost 
-    >>;
-
     if (props.topic === Topics.Character) {
       let speciesDescription = '';
       const speciesList = ModuleSettings.get(SettingKey.speciesList);
 
       // randomize species if needed
+      let randomSpecies: Species | null = null;
       if (speciesName.value === '') {
-        const randomSpecies = speciesList[Math.floor(Math.random() * speciesList.length)];
+        randomSpecies = speciesList[Math.floor(Math.random() * speciesList.length)];
         speciesName.value = randomSpecies.name;
       }
       
@@ -295,6 +290,8 @@
       }
 
       try {
+        let result: Awaited<ReturnType<typeof Backend.api.apiCharacterGeneratePost>>;
+
         result = await Backend.api.apiCharacterGeneratePost({
           genre: currentWorld.value.genre,
           worldFeeling: currentWorld.value.worldFeeling,
@@ -307,6 +304,14 @@
 
         generatedName.value = result.data.name;
         generatedDescription.value = result.data.description;
+        
+        // also fill into the name block
+        name.value = result.data.name;
+
+        // apply the species here if needed - we don't do it above because it makes the species show up before the
+        //    generation happens, which looks weird
+        if (randomSpecies)
+          speciesId.value = randomSpecies.id;
       } catch (error) {
         generateError.value = (error as Error).message;
         generateComplete.value = true;
@@ -344,13 +349,17 @@
           briefDescription: briefDescription.value,
         };
 
+        let result: Awaited<ReturnType<typeof Backend.api.apiOrganizationGeneratePost | typeof Backend.api.apiLocationGeneratePost>>;
         if (props.topic === Topics.Location)
           result = await Backend.api.apiLocationGeneratePost(options);
-        else if (props.topic === Topics.Organization)
+        else 
           result = await Backend.api.apiOrganizationGeneratePost(options);
-
+          
         generatedName.value = result.data.name;
         generatedDescription.value = result.data.description;
+
+        // also fill into the name block
+        name.value = result.data.name;
       } catch (error) {
         generateError.value = (error as Error).message;
         generateComplete.value = true;

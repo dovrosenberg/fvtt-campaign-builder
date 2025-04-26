@@ -4,7 +4,7 @@
       <div class="fcb-description-wrapper flexrow">
         <ImagePicker
           v-model="currentImageURL"
-          :title="`Select Image for ${props.name || 'Entry'}`"
+          :title="props.name"
           :topic="props.topic"
           :window-type="props.windowType"
           @update:modelValue="emit('imageChange', $event)"
