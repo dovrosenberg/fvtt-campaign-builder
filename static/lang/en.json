@@ -56,7 +56,9 @@
           "backendURL": "Backend URL",
           "backendURLHint": "Output from script to deploy the backend.",
           "APIToken": "API Token",
-          "APITokenHint": "Output from script to deploy the backend."
+          "APITokenHint": "Output from script to deploy the backend.",
+          "defaultToLong": "Default to long descriptions",
+          "defaultToLongHint": "Controls the default setting for creating a long vs short description when doing AI generation."
         }
       },
       "rollTableSettings": {
@@ -95,10 +97,14 @@
         "backgroundPoints": "Background Points",
         "otherPlotPoints": "Other Plot Points",
         "desiredMagicItems": "Desired Magic Items",
+        "name": "Name",
         "species": "Species",
         "worldGenre": "Genre",
         "worldFeeling": "World Feeling",
-        "campaignDescription": "Campaign description, notes, ideas, etc..."
+        "campaignDescription": "Campaign description, notes, ideas, etc...",
+        "briefDescription": "Brief description",
+        "longDescriptions": "Generate long descriptions",
+        "generateImage": "Generate Image"
       },
       "addTopic": {
         "character": "Add Character",
@@ -330,7 +336,9 @@
         "3": "Session",
         "4": "PC",
         "5": "World"
-      }
+      },
+      "longDescriptions": "Generate detailed description or a short summary?",
+      "generateImage": "Generate a new image in the background after creating"
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"

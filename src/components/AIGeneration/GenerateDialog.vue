@@ -29,7 +29,7 @@
       class="flexcol generate-dialog"
     >
       <h6>
-        Name
+        {{ localize('labels.fields.name')}}
         <i class="fas fa-info-circle tooltip-icon" data-tooltip="If left blank, a name will be generated automatically"></i>
       </h6>
       <InputText
@@ -39,7 +39,7 @@
       />
 
       <h6>
-        Type
+        {{ localize('labels.fields.type')}}
         <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you create a new type, it will be added to the master list"></i>
       </h6>
       <TypeSelect
@@ -50,7 +50,7 @@
 
       <div v-if="props.topic === Topics.Character">
         <h6>
-          Species
+          {{ localize('labels.fields.species')}}
           <i class="fas fa-info-circle tooltip-icon" data-tooltip="If blank, a random species from your world will be used. Custom entries will be passed to the AI but not added to your species list"></i>
         </h6>
         <SpeciesSelect
@@ -62,7 +62,7 @@
       </div>
       <div v-else-if="hasHierarchy(props.topic)">
         <h6>
-          Parent
+          {{ localize('labels.fields.parent')}}
           <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you set the parent, it will save the new value. May influence generated text in some cases"></i>
         </h6>
         <TypeAhead 
@@ -73,7 +73,7 @@
       </div>
 
       <h6>
-        Brief description
+        {{ localize('labels.fields.briefDescription')}}
         <i class="fas fa-info-circle tooltip-icon" data-tooltip="Optional. Use to specify physical features or personality traits you want included"></i>
       </h6>
       <Textarea
@@ -82,24 +82,36 @@
         autoResize
         :pt="{ root: { style: { 'font-size': 'var(--font-size-14)', 'min-height': '6rem' }}}"
       />
+      <div class="generation-option">
+        <div class="generation-option-wrapper">
+          <Checkbox 
+            v-model="longDescriptions" 
+            :binary="true"
+            inputId="long-description-checkbox"
+          />
+          <label for="long-description-checkbox" class="generation-label">
+            {{ localize('labels.fields.longDescriptions') }}
+            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.longDescriptions')"></i>
+          </label>
+        </div>
+        <div class="generation-option-wrapper" style="margin-left: 20px">
+          <Checkbox 
+            v-model="generateImageAfterAccept" 
+            :binary="true"
+            inputId="generate-image-checkbox"
+          />
+          <label for="generate-image-checkbox" class="generation-label">
+            {{ localize('labels.fields.generateImage') }}
+            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.generateImage')"></i>
+          </label>
+        </div>
+      </div>
       <hr>
       <div class="results-container">
         <div v-if="generateError" class="error-message">
           <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ generateError }}
         </div>
         <div v-else-if="generateComplete" class="generated-content">
-          <div class="generate-image-option">
-            <Checkbox 
-              v-model="generateImageAfterAccept" 
-              :binary="true"
-              :disabled="!generateComplete"
-              inputId="generate-image-checkbox"
-            />
-            <label for="generate-image-checkbox" class="generate-image-label">
-              Generate image
-              <i class="fas fa-info-circle tooltip-icon" data-tooltip="Generate a new image in the background after creating"></i>
-            </label>
-          </div>
           <div><span class="label">Generated name:</span> {{ generatedName }}</div>
           <div class="description">
             <span class="label">Generated description:</span> {{ generatedDescription }}
@@ -210,6 +222,7 @@
   const loading = ref<boolean>(false);
   const generateError = ref<string>('');
   const generateImageAfterAccept = ref<boolean>(false);
+  const longDescriptions = ref<boolean>(true);
 
   // for characters
   const speciesId = ref<string>(props.initialSpeciesId);
@@ -238,6 +251,7 @@
     loading.value = false;
     generateImageAfterAccept.value = false;
     show.value = false;
+    longDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
     emit('update:modelValue', false);
   };
 
@@ -441,9 +455,9 @@
         parentName.value = '';
       }
 
-
       briefDescription.value = props.initialDescription;
       generateComplete.value = false;
+      longDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
       generateError.value = '';
       loading.value = false;
     }
@@ -477,6 +491,27 @@
   .p-inputtext, .p-dropdown {
     margin-bottom: 4px;
   }
+
+  .generation-option {
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      margin-top: 16px;
+      padding: 8px 0 8px 0;
+      // border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+      .generation-option-wrapper {
+        width: 50%;
+        display: flex;
+
+        .generation-label {
+          margin-left: 8px;
+          display: inline-flex;
+          align-items: center;
+          cursor: pointer;
+        }
+        }
+    }
 
   .results-container {
     overflow: auto;
@@ -516,21 +551,6 @@
       .description {
         white-space: pre-wrap;
         margin-top: 8px;
-      }
-
-      .generate-image-option {
-        display: flex;
-        align-items: center;
-        margin-top: 16px;
-        padding: 8px 0 8px 0;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-
-        .generate-image-label {
-          margin-left: 8px;
-          display: flex;
-          align-items: center;
-          cursor: pointer;
-        }
       }
     }
   }
