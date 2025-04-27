@@ -114,7 +114,8 @@
         <div v-else-if="generateComplete" class="generated-content">
           <div><span class="label">Generated name:</span> {{ generatedName }}</div>
           <div class="description">
-            <span class="label">Generated description:</span> {{ generatedDescription }}
+            <p><span class="label">Generated description:</span></p>
+            {{ generatedDescription }}
           </div>
         </div>
         <div v-else-if="loading" class="loading-container">
