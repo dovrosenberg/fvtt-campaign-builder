@@ -314,6 +314,7 @@
           speciesDescription: speciesDescription,
           name: name.value,
           briefDescription: briefDescription.value,
+          createLongDescription: longDescriptions.value,
         });
 
         generatedName.value = result.data.name;
@@ -361,6 +362,7 @@
           grandparentDescription: grandparent?.description || '',
           name: name.value,
           briefDescription: briefDescription.value,
+          createLongDescription: longDescriptions.value,
         };
 
         let result: Awaited<ReturnType<typeof Backend.api.apiOrganizationGeneratePost | typeof Backend.api.apiLocationGeneratePost>>;
