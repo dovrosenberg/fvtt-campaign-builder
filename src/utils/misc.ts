@@ -61,6 +61,9 @@ export function generatedTextToHTML(text: string) {
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#039;')
 
+  // mark bold (for short descriptions)
+  .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+
   // change newlines to paragraphs
   .split('\n')
   .map(line => line.trim())

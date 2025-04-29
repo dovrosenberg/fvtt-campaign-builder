@@ -10,13 +10,13 @@ import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
-import { Backend } from '@/classes';
 import { confirmDialog } from '@/dialogs';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, TopicFolder, } from '@/classes';
 import { DirectoryWorld, Hierarchy, Topics, ValidTopic, } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
+import { createEntryDialog } from '@/dialogs/createEntry';
 
 // the store definition
 export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
@@ -415,12 +415,14 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     // find the record for the current world and set the entries for each topic
     const currentWorldBlock = tree.find((w)=>w.id===currentWorld.value?.uuid);
     if (currentWorldBlock && currentWorldFound && currentWorld.value) {
+      // make sure the folders have been loaded
+      const topicFolders = await currentWorld.value.loadTopics();
       const expandedNodes = currentWorld.value.expandedIds;
 
       const topics = [Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${(currentWorld.value as WBWorld).uuid}.topic.${topic}`;
-        const topicObj = (currentWorld.value as WBWorld).topicFolders[topic] as TopicFolder;
+        const topicObj = topicFolders[topic] as TopicFolder;
 
         return new DirectoryTopicNode(
           id,
@@ -444,7 +446,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         await directoryTopicNode.recursivelyLoadNode(expandedNodes, updateEntryIds);
 
         // load the type-grouped entries
-        await directoryTopicNode.loadTypeEntries(currentWorld.value.topicFolders[directoryTopicNode.topicFolder.topic].types, expandedNodes);
+        await directoryTopicNode.loadTypeEntries(topicFolders[directoryTopicNode.topicFolder.topic].types, expandedNodes);
       }
     }
 
@@ -456,7 +458,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     isTopicTreeRefreshing.value = false;
   };
 
-  const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string, generateClick: () => void): MenuItem[] => {
+  const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string): MenuItem[] => {
     if (!topic || !currentWorld.value)
       throw new Error('Invalid topic in getTopicNodeContextMenuItems()');
 
@@ -465,20 +467,14 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         iconFontClass: 'fas',
         label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child',
         onClick: async () => {
-          const topicFolder = currentWorld.value?.topicFolders[topic];
-
-          const entry = await createEntry(topicFolder as TopicFolder, { parentId: entryId} );
+          const entry = await createEntryDialog(topic, { parentId: entryId} );
 
           if (entry) {
             await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
           }
         }
-      },{
-        icon: 'fa-head-side-virus',
-        iconFontClass: 'fas',
-        label: localize(`contextMenus.topicFolder.generate.${topic}`) + ' as child',
-        onClick: () => { generateClick(); }
-      },{
+      },
+      {
       icon: 'fa-trash',
       iconFontClass: 'fas',
       label: localize('contextMenus.directoryEntry.delete'),
@@ -486,7 +482,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         await deleteEntry(topic, entryId);
       }
     }]
-    .filter((item)=>(hasHierarchy(topic) || (item.icon!=='fa-atlas' && item.icon!=='fa-head-side-virus')))
+    .filter((item)=>(hasHierarchy(topic) || (item.icon!=='fa-atlas')))
     // the line above is to remove the "add/generate child" option from entries that don't have hierarchy;
     // not really ideal but a bit cleaner than having two separate arrays and concatenating
   }
@@ -504,9 +500,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         if (!currentWorld.value)
         return;
 
-        const topicFolder = currentWorld.value.topicFolders[topic];
-        
-        const entry = await createEntry(topicFolder as TopicFolder, { type: type } );
+        const entry = await createEntryDialog(topic, { type: type } );
 
         if (entry) {
           await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -515,9 +509,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     }];
   }
 
-  const getTopicContextMenuItems = (topicFolder: TopicFolder, generateClick: () => void): MenuItem[] => {
-    const allowedGenerateTopics = [ Topics.Character, Topics.Location, Topics.Organization ]; 
-
+  const getTopicContextMenuItems = (topicFolder: TopicFolder): MenuItem[] => {
     return [{ 
       icon: 'fa-atlas',
       iconFontClass: 'fas',
@@ -529,20 +521,13 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         if (!worldFolder || !topicFolder)
           throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
-        const entry = await createEntry(topicFolder, {} );
+        const entry = await createEntryDialog(topicFolder.topic, { } );
 
         if (entry) {
           await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
         }
       }
-    },
-    { 
-      icon: 'fa-head-side-virus',
-      iconFontClass: 'fas',
-      label: localize(`contextMenus.topicFolder.generate.${topicFolder.topic}`), 
-      disabled: !Backend.available,
-      onClick: () => { generateClick(); }
-    }].filter((item)=>(allowedGenerateTopics.includes(topicFolder.topic) || item.icon!=='fa-head-side-virus'));
+    }];
 }
 
   ///////////////////////////////
