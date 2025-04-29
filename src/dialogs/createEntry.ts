@@ -16,8 +16,8 @@ class CreateEntryApplication extends VueApplicationMixin(ApplicationV2) {
     id: `app-fcb-create-entry`,
     classes: ['fcb-create-entry'], 
     window: {
-      title: 'fcb.applications.createEntry.title',
-      icon: 'fa-solid fa-gear',
+      title: '',
+      icon: '',
       resizable: false,
       // popOut: true,
       // editable: true,

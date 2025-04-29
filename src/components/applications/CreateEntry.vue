@@ -1,7 +1,7 @@
 <template>
   <Dialog 
     v-model="show"
-    :title="localize(titles[props.topic])"
+    :title="localize(createTitles[props.topic])"
     :buttons="[
       {
         label: localize('labels.cancel'),
@@ -220,10 +220,15 @@
   const parentId = ref<string>(props.initialParentId);
   const parentName = ref<string>('');
 
-  const titles = {
-    [Topics.Character]: 'dialogs.generateCharacter.title',
-    [Topics.Location]: 'dialogs.generateLocation.title',
-    [Topics.Organization]: 'dialogs.generateOrganization.title',
+  const createTitles = {
+    [Topics.Character]: 'applications.createEntry.titles.create.character',
+    [Topics.Location]: 'applications.createEntry.titles.create.location',
+    [Topics.Organization]: 'applications.createEntry.titles.create.organization',
+  }
+  const generateTitles = {
+    [Topics.Character]: 'applications.generateEntry.titles.create.character',
+    [Topics.Location]: 'applications.generateEntry.titles.create.location',
+    [Topics.Organization]: 'applications.generateEntry.titles.create.organization',
   }
 
   ////////////////////////////////

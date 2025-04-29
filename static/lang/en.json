@@ -69,7 +69,18 @@
         }
       },
       "createEntry": {
-        "title": "Create Entry",
+        "titles": {
+          "create": {
+            "character": "Create Character",
+            "location": "Create Location",
+            "organization": "Create Organization"
+          },
+          "generate": {
+            "character": "Generate Character",
+            "location": "Generate Location",
+            "organization": "Generate Organization"
+          }
+        },
         "labels": {
           "generateImage": "Generate image",
           "generateImageTooltip": "Generate a new image in the background after creating",
@@ -214,15 +225,6 @@
       "organizations": "Organizations"
     },
     "dialogs": {
-      "generateCharacter": {
-        "title": "Generate Character"
-      },
-      "generateLocation": {
-        "title": "Generate Location"
-      },
-      "generateOrganization": {
-        "title": "Generate Organization"
-      },
       "generateNameDialog": {
         "errorMessage": "There was an error:"
       },
@@ -285,12 +287,6 @@
           "2": "Create new location",
           "3": "Create new organization",
           "4": "Create new event"
-        },
-        "generate": {
-          "1": "Generate new character",
-          "2": "Generate new location",
-          "3": "Generate new organization",
-          "4": "Generate new event"
         }
       },
       "directoryEntry": {

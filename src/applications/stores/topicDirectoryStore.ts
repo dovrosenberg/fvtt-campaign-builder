@@ -474,12 +474,8 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
             await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
           }
         }
-      },{
-        icon: 'fa-head-side-virus',
-        iconFontClass: 'fas',
-        label: localize(`contextMenus.topicFolder.generate.${topic}`) + ' as child',
-        onClick: () => { generateClick(); }
-      },{
+      },
+      {
       icon: 'fa-trash',
       iconFontClass: 'fas',
       label: localize('contextMenus.directoryEntry.delete'),
@@ -514,9 +510,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     }];
   }
 
-  const getTopicContextMenuItems = (topicFolder: TopicFolder, generateClick: () => void): MenuItem[] => {
-    const allowedGenerateTopics = [ Topics.Character, Topics.Location, Topics.Organization ]; 
-
+  const getTopicContextMenuItems = (topicFolder: TopicFolder): MenuItem[] => {
     return [{ 
       icon: 'fa-atlas',
       iconFontClass: 'fas',
@@ -534,14 +528,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
           await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
         }
       }
-    },
-    { 
-      icon: 'fa-head-side-virus',
-      iconFontClass: 'fas',
-      label: localize(`contextMenus.topicFolder.generate.${topicFolder.topic}`), 
-      disabled: !Backend.available,
-      onClick: () => { generateClick(); }
-    }].filter((item)=>(allowedGenerateTopics.includes(topicFolder.topic) || item.icon!=='fa-head-side-virus'));
+    }];
 }
 
   ///////////////////////////////
