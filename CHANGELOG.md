@@ -1,5 +1,18 @@
 # Change Log
 
+## v0.2.0 - Lots of quality of life improvements
+
+![](https://img.shields.io/badge/release%20date-April%2029%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.2.0/module.zip)
+
+- Simplified create/update/generate into one dialog for easier access and consistency
+- Added ability to randomly generate "short descriptions" -- better for quickly understanding a generated Entry while playing
+- Made location images landscape
+- Ability to create a scene from the image of a location - perfect for a quick theatre of the mind
+- Improved ability to search sessions
+- Misc bug fixes
+
+
 ## v0.1.2
 
 ![](https://img.shields.io/badge/release%20date-April%2020%2C%202025-blue)
