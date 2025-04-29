@@ -156,7 +156,7 @@
   import TypeAhead from '@/components/TypeAhead.vue'; 
 
   // types
-  import { Topics, GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic, Species } from '@/types';
+  import { Topics, ValidTopic, Species } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -227,7 +227,8 @@
   const generateError = ref<string>('');
   const generateImageAfterAccept = ref<boolean>(false);
   const longDescriptions = ref<boolean>(true);
-
+  const show = ref<boolean>(true);
+  
   // for characters
   const speciesId = ref<string>(props.initialSpeciesId);
   const speciesName = ref<string>('');

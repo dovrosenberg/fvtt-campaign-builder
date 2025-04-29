@@ -25,8 +25,6 @@ const generateTitles = {
   [Topics.Organization]: 'applications.createEntry.titles.create.organization',
 }
 
-
-
 class CreateEntryApplication extends VueApplicationMixin(ApplicationV2) {
   constructor() { super(); }
 
