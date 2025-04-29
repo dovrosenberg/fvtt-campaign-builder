@@ -262,6 +262,9 @@ export const useMainStore = defineStore('main', () => {
   */
   watch(currentWorld, (newWorld) => {
     updateWindowTitle(newWorld?.name ?? null);
+
+    // when changing world, turn off play mode
+    isInPlayMode.value = false;
   });
 
   ///////////////////////////////

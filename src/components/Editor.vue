@@ -40,7 +40,7 @@
   // !!! TODO - use vue-safe-html instead of v-html!!!
 
   // library imports
-  import { computed, nextTick, onMounted, PropType, ref, toRaw, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -48,6 +48,7 @@
   import { useMainStore } from '@/applications/stores';
   import { Campaign, Entry, Session, WBWorld } from '@/classes';
   import { getValidatedData } from '@/utils/dragdrop';
+  import { notifyInfo } from '@/utils/notifications';
 
   // library components
 
@@ -225,7 +226,7 @@
       editorVisible.value = true;
     } else {
       // if we're not removing it, then do a ui confirmation
-      ui.notifications?.notify('Changes saved');
+      notifyInfo('Changes saved');
     }
     
     emit('editorSaved', content);

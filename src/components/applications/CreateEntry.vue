@@ -30,7 +30,7 @@
       class="flexcol create-entry-dialog"
     >
       <h6>
-        Name
+        {{ localize('labels.fields.name')}}
         <i class="fas fa-info-circle tooltip-icon" data-tooltip="If left blank, a name will be generated automatically"></i>
       </h6>
       <InputText
@@ -40,7 +40,7 @@
       />
 
       <h6>
-        Type
+        {{ localize('labels.fields.type')}}
         <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you create a new type, it will be added to the master list"></i>
       </h6>
       <TypeSelect
@@ -51,7 +51,7 @@
 
       <div v-if="props.topic === Topics.Character">
         <h6>
-          Species
+          {{ localize('labels.fields.species')}}
           <i class="fas fa-info-circle tooltip-icon" data-tooltip="If blank, a random species from your world will be used. Custom entries will be passed to the AI but not added to your species list"></i>
         </h6>
         <SpeciesSelect
@@ -63,7 +63,7 @@
       </div>
       <div v-else-if="hasHierarchy(props.topic)">
         <h6>
-          Parent
+          {{ localize('labels.fields.parent')}}
           <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you set the parent, it will save the new value. May influence generated text in some cases"></i>
         </h6>
         <TypeAhead 
@@ -74,7 +74,7 @@
       </div>
 
       <h6>
-        Brief description
+        {{ localize('labels.fields.briefDescription')}}
         <i class="fas fa-info-circle tooltip-icon" data-tooltip="Optional. Use to specify physical features or personality traits you want included"></i>
       </h6>
       <Textarea
@@ -83,27 +83,40 @@
         autoResize
         :pt="{ root: { style: { 'font-size': 'var(--font-size-14)', 'min-height': '6rem' }}}"
       />
+      <div class="generation-option">
+        <div class="generation-option-wrapper">
+          <Checkbox 
+            v-model="longDescriptions" 
+            :binary="true"
+            inputId="long-description-checkbox"
+          />
+          <label for="long-description-checkbox" class="generation-label">
+            {{ localize('labels.fields.longDescriptions') }}
+            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.longDescriptions')"></i>
+          </label>
+        </div>
+        <div class="generation-option-wrapper" style="margin-left: 20px">
+          <Checkbox 
+            v-model="generateImageAfterAccept" 
+            :binary="true"
+            inputId="generate-image-checkbox"
+          />
+          <label for="generate-image-checkbox" class="generation-label">
+            {{ localize('labels.fields.generateImage') }}
+            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.generateImage')"></i>
+          </label>
+        </div>
+      </div>
       <hr>
       <div class="results-container">
         <div v-if="generateError" class="error-message">
           <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ generateError }}
         </div>
         <div v-else-if="generateComplete" class="generated-content">
-          <div class="generate-image-option">
-            <Checkbox 
-              v-model="generateImageAfterAccept" 
-              :binary="true"
-              :disabled="!generateComplete"
-              inputId="generate-image-checkbox"
-            />
-            <label for="generate-image-checkbox" class="generate-image-label">
-              {{ localize('applications.createEntry.labels.generateImage') }}
-              <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('applications.createEntry.labels.generateImageTooltip')"></i>
-            </label>
-          </div>
-          <div><span class="label">{{ localize('applications.createEntry.labels.generatedName') }}:</span> {{ generatedName }}</div>
+          <div><span class="label">Generated name:</span> {{ generatedName }}</div>
           <div class="description">
-            <span class="label">{{ localize('applications.createEntry.labels.generatedDescription') }}::</span> {{ generatedDescription }}
+            <p><span class="label">Generated description:</span></p>
+            {{ generatedDescription }}
           </div>
         </div>
         <div v-else-if="loading" class="loading-container">
@@ -143,7 +156,7 @@
   import TypeAhead from '@/components/TypeAhead.vue'; 
 
   // types
-  import { CharacterDetails, LocationDetails, OrganizationDetails, Topics, ValidTopic } from '@/types';
+  import { Topics, GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic, Species } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -213,7 +226,7 @@
   const loading = ref<boolean>(false);
   const generateError = ref<string>('');
   const generateImageAfterAccept = ref<boolean>(false);
-  const show = ref<boolean>(true);
+  const longDescriptions = ref<boolean>(true);
 
   // for characters
   const speciesId = ref<string>(props.initialSpeciesId);
@@ -258,19 +271,14 @@
     generateComplete.value = false;
     generateError.value = '';
 
-    let result: Awaited<ReturnType<
-      typeof Backend.api.apiCharacterGeneratePost |
-      typeof Backend.api.apiLocationGeneratePost |
-      typeof Backend.api.apiOrganizationGeneratePost 
-    >>;
-
     if (props.topic === Topics.Character) {
       let speciesDescription = '';
       const speciesList = ModuleSettings.get(SettingKey.speciesList);
 
       // randomize species if needed
+      let randomSpecies: Species | null = null;
       if (speciesName.value === '') {
-        const randomSpecies = speciesList[Math.floor(Math.random() * speciesList.length)];
+        randomSpecies = speciesList[Math.floor(Math.random() * speciesList.length)];
         speciesName.value = randomSpecies.name;
       }
       
@@ -283,6 +291,8 @@
       }
 
       try {
+        let result: Awaited<ReturnType<typeof Backend.api.apiCharacterGeneratePost>>;
+
         result = await Backend.api.apiCharacterGeneratePost({
           genre: currentWorld.value.genre,
           worldFeeling: currentWorld.value.worldFeeling,
@@ -291,10 +301,19 @@
           speciesDescription: speciesDescription,
           name: name.value,
           briefDescription: briefDescription.value,
+          createLongDescription: longDescriptions.value,
         });
 
         generatedName.value = result.data.name;
         generatedDescription.value = result.data.description;
+        
+        // also fill into the name block
+        name.value = result.data.name;
+
+        // apply the species here if needed - we don't do it above because it makes the species show up before the
+        //    generation happens, which looks weird
+        if (randomSpecies)
+          speciesId.value = randomSpecies.id;
       } catch (error) {
         generateError.value = (error as Error).message;
         generateComplete.value = true;
@@ -330,15 +349,20 @@
           grandparentDescription: grandparent?.description || '',
           name: name.value,
           briefDescription: briefDescription.value,
+          createLongDescription: longDescriptions.value,
         };
 
+        let result: Awaited<ReturnType<typeof Backend.api.apiOrganizationGeneratePost | typeof Backend.api.apiLocationGeneratePost>>;
         if (props.topic === Topics.Location)
           result = await Backend.api.apiLocationGeneratePost(options);
         else
           result = await Backend.api.apiOrganizationGeneratePost(options);
-
+          
         generatedName.value = result.data.name;
         generatedDescription.value = result.data.description;
+
+        // also fill into the name block
+        name.value = result.data.name;
       } catch (error) {
         generateError.value = (error as Error).message;
         generateComplete.value = true;
@@ -455,6 +479,7 @@
       parentName.value = '';
     }
 
+    longDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
     briefDescription.value = props.initialDescription;
     generateComplete.value = false;
     generateError.value = '';
@@ -480,6 +505,27 @@
       margin-top: 8px;
       display: flex;
       align-items: center;
+    }
+
+    .generation-option {
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      margin-top: 16px;
+      padding: 8px 0 8px 0;
+      // border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+      .generation-option-wrapper {
+        width: 50%;
+        display: flex;
+
+        .generation-label {
+          margin-left: 8px;
+          display: inline-flex;
+          align-items: center;
+          cursor: pointer;
+        }
+      }
     }
 
     .tooltip-icon {
@@ -517,40 +563,6 @@
         color: var(--color-text-dark-secondary);
         margin-top: 100px;
         font-style: italic;
-      }
-
-      .loading-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-      }
-
-      .generated-content {
-        .label {
-          font-weight: bold;
-          margin-right: 4px;
-        }
-
-        .description {
-          white-space: pre-wrap;
-          margin-top: 8px;
-        }
-
-        .generate-image-option {
-          display: flex;
-          align-items: center;
-          margin-top: 16px;
-          padding: 8px 0 8px 0;
-          border-top: 1px solid rgba(0, 0, 0, 0.1);
-
-          .generate-image-label {
-            margin-left: 8px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-          }
-        }
       }
     }
   }
