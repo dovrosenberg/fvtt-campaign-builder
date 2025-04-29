@@ -14,7 +14,3 @@ export type GeneratedLocationDetails = {
 };
 
 export type GeneratedOrganizationDetails = GeneratedLocationDetails;
-
-export type CreatedCharacterDetails = GeneratedCharacterDetails;
-export type CreatedLocationDetails = GeneratedLocationDetails;
-export type CreatedOrganizationDetails = GeneratedOrganizationDetails;

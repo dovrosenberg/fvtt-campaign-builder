@@ -67,6 +67,15 @@
           "refreshAll": "Refresh all tables",
           "refreshAllHelp": "Replace any used items with new ones"
         }
+      },
+      "createEntry": {
+        "title": "Create Entry",
+        "labels": {
+          "generateImage": "Generate image",
+          "generateImageTooltip": "Generate a new image in the background after creating",
+          "generatedName":"Generated Name",
+          "generatedDescription": "Generated Description"
+        }
       }
     },
     "help": {

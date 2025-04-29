@@ -17,6 +17,7 @@ import { confirmDialog } from '@/dialogs';
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, TopicFolder, } from '@/classes';
 import { DirectoryWorld, Hierarchy, Topics, ValidTopic, } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
+import { createEntryDialog } from '@/dialogs/createEntry';
 
 // the store definition
 export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
@@ -467,9 +468,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         iconFontClass: 'fas',
         label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child',
         onClick: async () => {
-          const topicFolder = currentWorld.value?.topicFolders[topic];
-          
-          const entry = await createEntry(topicFolder as TopicFolder, { parentId: entryId} );
+          const entry = await createEntryDialog(topic, { parentId: entryId} );
 
           if (entry) {
             await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
@@ -506,9 +505,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         if (!currentWorld.value)
         return;
 
-        const topicFolder = currentWorld.value.topicFolders[topic];
-        
-        const entry = await createEntry(topicFolder as TopicFolder, { type: type } );
+        const entry = await createEntryDialog(topic, { type: type } );
 
         if (entry) {
           await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -531,7 +528,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         if (!worldFolder || !topicFolder)
           throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
-        const entry = await createEntry(topicFolder, {} );
+        const entry = await createEntryDialog(topicFolder.topic, { } );
 
         if (entry) {
           await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
