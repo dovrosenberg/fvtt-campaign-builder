@@ -1,7 +1,7 @@
 <template>
   <Dialog 
     v-model="show"
-    :title="localize(props.generateMode ? generateTitles[props.topic] : createTitles[props.topic])"
+    :title="props.title"
     :buttons="[
       {
         label: localize('labels.cancel'),
@@ -149,10 +149,9 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    generateMode: {
-      type: Boolean,
-      required: false,
-      default: false,
+    title: {
+      type: String,
+      required: true,
     },
     topic: {
       type: Number as PropType<ValidTopic>,
@@ -223,17 +222,6 @@
   // for locations/organizations
   const parentId = ref<string>(props.initialParentId);
   const parentName = ref<string>('');
-
-  const createTitles = {
-    [Topics.Character]: 'applications.createEntry.titles.create.character',
-    [Topics.Location]: 'applications.createEntry.titles.create.location',
-    [Topics.Organization]: 'applications.createEntry.titles.create.organization',
-  }
-  const generateTitles = {
-    [Topics.Character]: 'applications.generateEntry.titles.create.character',
-    [Topics.Location]: 'applications.generateEntry.titles.create.location',
-    [Topics.Organization]: 'applications.generateEntry.titles.create.organization',
-  }
 
   ////////////////////////////////
   // computed data

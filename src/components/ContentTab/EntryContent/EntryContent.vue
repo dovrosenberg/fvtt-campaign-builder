@@ -188,7 +188,7 @@
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
   import { WBWorld, TopicFolder, Backend, Entry } from '@/classes';
-  import { createGenerateDialog } from '@/dialogs/createEntry';
+  import { updateEntryDialog } from '@/dialogs/createEntry';
 
   ////////////////////////////////
   // props
@@ -306,15 +306,8 @@
         icon: 'fa-file-lines',
         iconFontClass: 'fas',
         label: localize('contextMenus.generate.description'),        onClick: async () => {
-          const entry = await createGenerateDialog(topic, { 
-            name: currentEntry.value?.name || '',
-            type: currentEntry.value?.type || '',
-            speciesId: currentEntry.value?.speciesId || '',
-            parentId: parentId || '',
-            description: currentEntry.value?.description ? htmlToPlainText(currentEntry.value.description) : ''
-          } );
-
-          onGenerationComplete(entry);
+          if (currentEntry.value)
+            await updateEntryDialog(currentEntry.value);
         }
       },
       {
@@ -349,37 +342,7 @@
     });
   };
 
-  const onGenerationComplete = async (newEntry: Entry) => {
-    if (!currentEntry.value || !currentWorld.value) return;
-
-    // Update the entry with the generated content
-    currentEntry.value.name = newEntry.name;
-    currentEntry.value.description = newEntry.description;
-    currentEntry.value.type = newEntry.type;
-
-    if (newEntry.speciesId) {
-      currentEntry.value.speciesId = newEntry.speciesId;
-    }
-    const newParentId = await newEntry.getParentId();
-
-    if (newParentId) {
-      await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder as TopicFolder, currentEntry.value.uuid, newParentId || null);
-    }
-
-    // Save the entry
-    await currentEntry.value.save();
-
-    // Update the UI
-    name.value = newEntry.name;
-
-    // Refresh the directory tree to show the updated name
-    await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
-    await navigationStore.propagateNameChange(currentEntry.value.uuid, newEntry.name);
-
-    // Propagate the name and type changes to all related entries
-    await relationshipStore.propagateFieldChange(currentEntry.value, ['name', 'type']);
-  };
-
+  
   const onImageChange = async (imageUrl: string) => {
     if (currentEntry.value) {
       currentEntry.value.img = imageUrl;

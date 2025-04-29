@@ -10,7 +10,6 @@ import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
-import { Backend } from '@/classes';
 import { confirmDialog } from '@/dialogs';
 
 // types
