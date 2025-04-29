@@ -129,8 +129,7 @@
   import { Backend } from '@/classes';
   import { generatedTextToHTML } from '@/utils/misc';
   import { hasHierarchy, } from '@/utils/hierarchy';
-  import { generateImage, handleGeneratedEntry } from '@/utils/generation';
-
+  
   // library components
   import InputText from 'primevue/inputtext';
   import ProgressSpinner from 'primevue/progressspinner';
@@ -144,7 +143,7 @@
   import TypeAhead from '@/components/TypeAhead.vue'; 
 
   // types
-  import { Topics, ValidTopic } from '@/types';
+  import { CharacterDetails, LocationDetails, OrganizationDetails, Topics, ValidTopic } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -190,7 +189,7 @@
       default: '',
     },
     callback: {
-      type: Function as PropType<(entry: Entry | null) => void>,
+      type: Function as PropType<(details: CharacterDetails | LocationDetails | OrganizationDetails | null) => void>,
       required: false,
     },
   });
@@ -372,59 +371,33 @@
     if (!currentWorld.value)
       return;
 
-    // see if speciesId was made up or is an existing one
-    const validSpecies = ModuleSettings.get(SettingKey.speciesList).map((s) => s.id);
-
     // create the entry and kick off image generation if needed
     // if we haven't generated a description, use whatever's in brief description
     // the idea is that - especially when we're dealing with a rolltable name - user can use this form as a sort of quick create
-    const topicFolder = currentWorld.value.topicFolders[props.topic];
-    let entry: Entry | undefined;
-    
-    if (props.topic === Topics.Character) {
-      TODO - how to make a temporary entry we can return - or better -
-      SOMETHING LIKE HANDLEGENERATEDENTRY BUT WE PASS THE EXISTING ENTRYID AND JUST UPDATE IT
-      if (props.generateMode) {
-        // make the temporary entry
-        const entry = new Entry.create();
-        entry.name = generateComplete.value ? generatedName.value : name.value;
-        entry.type = type.value;
-        entry.description = generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value;
-        entry.speciesId = validSpecies.includes(speciesId.value) ? speciesId.value : '';
+    let details: CharacterDetails | LocationDetails | OrganizationDetails | null = null;if (props.topic === Topics.Character) {
+      // see if speciesId was made up or is an existing one
+      const validSpecies = ModuleSettings.get(SettingKey.speciesList).map((s) => s.id);
 
-        if (generateImageAfterAccept)
-          await generateImage(currentWorld.value, entry);
-      } else {
-        entry = await handleGeneratedEntry(
-          {
-            name: generateComplete.value ? generatedName.value : name.value,
-            type: type.value,
-            description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
-            speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
-          }, 
-          topicFolder,
-          generateImageAfterAccept.value
-        );
+      details = {
+        name: generateComplete.value ? generatedName.value : name.value,
+        type: type.value,
+        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
+        speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
+        generateImage: generateImageAfterAccept.value
       }
     } else if (props.topic === Topics.Location || props.topic === Topics.Organization) {
-      if (props.generateMode) {
-      } else {
-        entry = await handleGeneratedEntry(
-          {
-            name: generateComplete.value ? generatedName.value : name.value,
-            type: type.value,
-            parentId: parentId.value,
-            description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
-          }, 
-          topicFolder,
-          generateImageAfterAccept.value
-        );
+      details = {
+        name: generateComplete.value ? generatedName.value : name.value,
+        type: type.value,
+        parentId: parentId.value,
+        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
+        generateImage: generateImageAfterAccept.value
       }
     }
 
     // Call the callback with the created entry if it exists
     if (props.callback) {
-      props.callback(entry || null);
+      props.callback(details);
     }
   };
   

@@ -5,9 +5,9 @@ import { useTopicDirectoryStore, } from '@/applications/stores';
 
 // types
 import { 
-  GeneratedCharacterDetails, 
-  GeneratedLocationDetails, 
-  GeneratedOrganizationDetails, 
+  CharacterDetails, 
+  LocationDetails, 
+  OrganizationDetails, 
   Species, 
   Topics, 
 } from '@/types';
@@ -19,9 +19,9 @@ import { ModuleSettings, SettingKey } from '@/settings';
  * Type representing all possible generated content details
  */
 export type GeneratedDetails = 
-  GeneratedCharacterDetails |
-  GeneratedOrganizationDetails |
-  GeneratedLocationDetails;
+  CharacterDetails |
+  OrganizationDetails |
+  LocationDetails;
 
 /**
  * Handles the creation and setup of a newly generated entry
@@ -31,7 +31,7 @@ export type GeneratedDetails =
  * @param generateImage Whether to generate an image for the entry after creation
  * @returns The created entry or undefined if creation failed
  */
-export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolder: TopicFolder, needToGenerateImage: boolean = false): Promise<Entry | undefined> => {
+export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolder: TopicFolder): Promise<Entry | undefined> => {
   const { name, description, type } = details;
   const topicDirectoryStore = useTopicDirectoryStore();
   
@@ -64,7 +64,7 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
   
   await entry.save();
   
-  if (needToGenerateImage)
+  if (details.generateImage)
     void generateImage(await topicFolder.getWorld(), entry);
 
   return entry;

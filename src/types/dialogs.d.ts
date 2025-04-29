@@ -1,16 +1,18 @@
 // types used in event handlers for dialogs
-export type GeneratedCharacterDetails = {
+export type CharacterDetails = {
   name: string;
   description: string;
   type: string;
   speciesId: string;
+  generateImage: boolean;
 };
 
-export type GeneratedLocationDetails = {
+export type LocationDetails = {
   name: string;
   description: string;
   type: string;
   parentId: string;
+  generateImage: boolean;
 };
 
-export type GeneratedOrganizationDetails = GeneratedLocationDetails;
+export type OrganizationDetails = LocationDetails;

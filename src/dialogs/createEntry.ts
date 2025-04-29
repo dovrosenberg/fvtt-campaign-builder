@@ -4,10 +4,14 @@ import WCBTheme from '@/applications/presetTheme';
 import App from '@/components/applications/CreateEntry.vue';
 import { hasHierarchy, } from '@/utils/hierarchy';
 import { useMainStore } from '@/applications/stores'; 
-import { ValidTopic } from '@/types';
-import { Entry } from 'src/classes';
+import { CharacterDetails, LocationDetails, OrganizationDetails, ValidTopic } from '@/types';
+import { Entry, TopicFolder } from '@/classes';
+import { handleGeneratedEntry } from '@/utils/generation';
 
 const { ApplicationV2 } = foundry.applications.api;
+
+
+type AnyDetails = CharacterDetails | OrganizationDetails | LocationDetails;
 
 class CreateEntryApplication extends VueApplicationMixin(ApplicationV2) {
   constructor() { super(); }
@@ -89,11 +93,27 @@ async function createEntryDialog(topic: ValidTopic,
       validParents: validParents,
       initialParentId: parentId || '',
       initialType: type || '',
-      callback: (e: Entry | null) => { dialog.close(); resolve(e) }
+      callback: async (details: AnyDetails | null) => {
+        dialog.close(); 
+
+        const entry = await createdCallback(topicFolder, details);
+        await resolve(entry) 
+      }        
     };
    
     dialog.render(true, { props });
   });
+}
+
+const createdCallback = async (topicFolder: TopicFolder, details: AnyDetails | null): Promise<Entry | null> => {
+  const currentWorld = useMainStore().currentWorld;
+
+  if (!currentWorld || !details) 
+    return null;
+
+  const entry = await handleGeneratedEntry(details, topicFolder);
+
+  return entry || null;
 }
 
 async function createGenerateDialog(topic: ValidTopic, 

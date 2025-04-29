@@ -69,8 +69,7 @@
   import { localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
-  import { handleGeneratedEntry, GeneratedDetails } from '@/utils/generation';
-
+  
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
 
