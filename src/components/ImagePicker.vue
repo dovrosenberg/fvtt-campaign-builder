@@ -49,13 +49,14 @@
     windowType: {
       type: Number as () => WindowTabType,
       required: true,
-    }
+    },
   });
 
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
+    (e: 'create-scene', value: string): void; 
   }>();
 
   ////////////////////////////////
@@ -155,8 +156,16 @@
             iconFontClass: 'fas',
             label: localize('contextMenus.image.postToChat'),
             onClick: () => postToChat()
-          }
-        ]
+          },
+        ].concat(props.topic === Topics.Location ?
+          [{
+            icon: 'fa-comment',
+            iconFontClass: 'fas',
+            label: localize('contextMenus.image.createScene'),
+            onClick: () => createScene()
+          }] :
+          []
+        ),
       });
     }
   };
@@ -211,6 +220,10 @@
     ChatMessage.create({ content: `<img src="${props.modelValue}" alt="Campaign Builder Image">` });
   };
 
+  const createScene = () => {
+    emit('create-scene', props.modelValue);
+  };
+
   ////////////////////////////////
   // watchers
 </script>
@@ -231,7 +244,7 @@
     img.profile {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       max-width: 100%;
       border: 0px;
       background: var(--fcb-icon-background);

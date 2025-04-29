@@ -56,7 +56,9 @@
           "backendURL": "Backend URL",
           "backendURLHint": "Output from script to deploy the backend.",
           "APIToken": "API Token",
-          "APITokenHint": "Output from script to deploy the backend."
+          "APITokenHint": "Output from script to deploy the backend.",
+          "defaultToLong": "Default to long descriptions",
+          "defaultToLongHint": "Controls the default setting for creating a long vs short description when doing AI generation."
         }
       },
       "rollTableSettings": {
@@ -66,6 +68,26 @@
         "labels": {
           "refreshAll": "Refresh all tables",
           "refreshAllHelp": "Replace any used items with new ones"
+        }
+      },
+      "createEntry": {
+        "titles": {
+          "create": {
+            "character": "Create Character",
+            "location": "Create Location",
+            "organization": "Create Organization"
+          },
+          "generate": {
+            "character": "Generate Character",
+            "location": "Generate Location",
+            "organization": "Generate Organization"
+          }
+        },
+        "labels": {
+          "generateImage": "Generate image",
+          "generateImageTooltip": "Generate a new image in the background after creating",
+          "generatedName":"Generated Name",
+          "generatedDescription": "Generated Description"
         }
       }
     },
@@ -95,10 +117,14 @@
         "backgroundPoints": "Background Points",
         "otherPlotPoints": "Other Plot Points",
         "desiredMagicItems": "Desired Magic Items",
+        "name": "Name",
         "species": "Species",
         "worldGenre": "Genre",
         "worldFeeling": "World Feeling",
-        "campaignDescription": "Campaign description, notes, ideas, etc..."
+        "campaignDescription": "Campaign description, notes, ideas, etc...",
+        "briefDescription": "Brief description",
+        "longDescriptions": "Generate long descriptions",
+        "generateImage": "Generate Image"
       },
       "addTopic": {
         "character": "Add Character",
@@ -205,15 +231,6 @@
       "organizations": "Organizations"
     },
     "dialogs": {
-      "generateCharacter": {
-        "title": "Generate Character"
-      },
-      "generateLocation": {
-        "title": "Generate Location"
-      },
-      "generateOrganization": {
-        "title": "Generate Organization"
-      },
       "generateNameDialog": {
         "errorMessage": "There was an error:"
       },
@@ -268,7 +285,8 @@
         "viewImage": "View Image",
         "changeImage": "Change Image",
         "removeImage": "Remove Image",
-        "postToChat": "Post To Chat"
+        "postToChat": "Post To Chat",
+        "createScene": "Create Scene"
       },
       "topicFolder": {
         "create": {
@@ -276,12 +294,6 @@
           "2": "Create new location",
           "3": "Create new organization",
           "4": "Create new event"
-        },
-        "generate": {
-          "1": "Generate new character",
-          "2": "Generate new location",
-          "3": "Generate new organization",
-          "4": "Generate new event"
         }
       },
       "directoryEntry": {
@@ -289,6 +301,11 @@
       },
       "typeFolder": {
         "create": "Create new"
+      },
+      "generate":  {
+        "description": "Generate description",
+        "image": "Generate image",
+        "inProgress": "in progress"
       }
     },
     "tooltips": {
@@ -329,7 +346,9 @@
         "3": "Session",
         "4": "PC",
         "5": "World"
-      }
+      },
+      "longDescriptions": "Generate detailed description or a short summary?",
+      "generateImage": "Generate a new image in the background after creating"
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"
