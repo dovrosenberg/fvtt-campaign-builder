@@ -122,60 +122,6 @@ export class Entry {
     }
   }
 
-  // creates a new entry in the proper compendium in the given world
-  // if name is populated will skip the dialog
-  static async create2(topicFolder: TopicFolder, options: CreateEntryOptions): Promise<Entry | null> 
-  {
-    const world = await topicFolder.getWorld();
-
-    let nameToUse = options.name;
-
-    // create the entry
-    await world.unlock();
-
-    const entryDoc = await JournalEntryPage.createDocuments([{
-      // @ts-ignore- we know this type is valid
-      type: DOCUMENT_TYPES.Entry,
-      name: nameToUse,
-      system: {
-        type: options.type || '',
-        topic: topicFolder.topic,
-        relationships: {
-          [Topics.Character]: {},
-          // [Topics.Event]: {},
-          [Topics.Location]: {},
-          [Topics.Organization]: {},
-        },
-        actors: [],
-        scenes: [],
-        img: '',
-      }
-    }],{
-      parent: topicFolder.raw,
-    }) as unknown as EntryDoc[];
-
-    if (options.type) {
-      await Entry.addTypeIfNeeded(topicFolder, options.type);
-    }
-
-    await world.lock();
-
-    if (entryDoc) {
-      const entry = new Entry(entryDoc[0], topicFolder);
-      
-      // Add to search index
-      try {
-        await searchService.addOrUpdateIndex(entry, world, true);
-      } catch (error) {
-        console.error('Failed to add entry to search index:', error);
-      }
-      
-      return entry;
-    } else {
-      return null;
-    }
-  }
-
   get uuid(): string {
     return this._entryDoc.uuid;
   }

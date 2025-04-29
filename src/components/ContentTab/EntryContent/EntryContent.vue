@@ -305,7 +305,8 @@
       {
         icon: 'fa-file-lines',
         iconFontClass: 'fas',
-        label: localize('contextMenus.generate.description'),        onClick: async () => {
+        label: localize('contextMenus.generate.description'),        
+        onClick: async () => {
           if (currentEntry.value)
             await updateEntryDialog(currentEntry.value);
         }
