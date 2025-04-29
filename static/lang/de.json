@@ -56,7 +56,9 @@
           "backendURL": "Backend-URL",
           "backendURLHint": "Ausgabe des Skripts zum Bereitstellen des Backends.",
           "APIToken": "API-Token",
-          "APITokenHint": "Ausgabe des Skripts zum Bereitstellen des Backends."
+          "APITokenHint": "Ausgabe des Skripts zum Bereitstellen des Backends.",
+          "defaultToLong": "Standardmäßig lange Beschreibungen verwenden",
+          "defaultToLongHint": "Steuert die Standardeinstellung für die Erstellung einer langen oder kurzen Beschreibung bei der KI-Generierung."
         }
       },
       "rollTableSettings": {
@@ -66,6 +68,26 @@
         "labels": {
           "refreshAll": "Alle Tabellen aktualisieren",
           "refreshAllHelp": "Ersetze alle verwendeten Elemente durch neue"
+        }
+      },
+      "createEntry": {
+        "titles": {
+          "create": {
+            "character": "Charakter erstellen",
+            "location": "Ort erstellen",
+            "organization": "Organisation erstellen"
+          },
+          "generate": {
+            "character": "Charakter generieren",
+            "location": "Ort generieren",
+            "organization": "Organisation generieren"
+          }
+        },
+        "labels": {
+          "generateImage": "Bild generieren",
+          "generateImageTooltip": "Ein neues Bild im Hintergrund nach der Erstellung generieren",
+          "generatedName": "Generierter Name",
+          "generatedDescription": "Generierte Beschreibung"
         }
       }
     },
@@ -98,7 +120,11 @@
         "species": "Art",
         "worldGenre": "Genre",
         "worldFeeling": "Weltgefühl",
-        "campaignDescription": "Kampagnenbeschreibung, Notizen, Ideen, etc..."
+        "campaignDescription": "Kampagnenbeschreibung, Notizen, Ideen, etc...",
+        "name": "Name",
+        "briefDescription": "Kurze Beschreibung",
+        "longDescriptions": "Lange Beschreibungen generieren",
+        "generateImage": "Bild generieren"
       },
       "addTopic": {
         "character": "Charakter hinzufügen",
@@ -205,15 +231,6 @@
       "organizations": "Organisationen"
     },
     "dialogs": {
-      "generateCharacter": {
-        "title": "Charakter generieren"
-      },
-      "generateLocation": {
-        "title": "Ort generieren"
-      },
-      "generateOrganization": {
-        "title": "Organisation generieren"
-      },
       "generateNameDialog": {
         "errorMessage": "Es gab einen Fehler:"
       },
@@ -268,7 +285,8 @@
         "viewImage": "Bild anzeigen",
         "changeImage": "Bild ändern",
         "removeImage": "Bild entfernen",
-        "postToChat": "Im Chat posten"
+        "postToChat": "Im Chat posten",
+        "createScene": "Szene erstellen"
       },
       "topicFolder": {
         "create": {
@@ -276,12 +294,6 @@
           "2": "Neuen Ort erstellen",
           "3": "Neue Organisation erstellen",
           "4": "Neues Ereignis erstellen"
-        },
-        "generate": {
-          "1": "Neuen Charakter generieren",
-          "2": "Neuen Ort generieren",
-          "3": "Neue Organisation generieren",
-          "4": "Neues Ereignis generieren"
         }
       },
       "directoryEntry": {
@@ -289,6 +301,11 @@
       },
       "typeFolder": {
         "create": "Neu erstellen"
+      },
+      "generate": {
+        "description": "Beschreibung generieren",
+        "image": "Bild generieren",
+        "inProgress": "in Bearbeitung"
       }
     },
     "tooltips": {
@@ -330,7 +347,8 @@
         "5": "Welt"
       },
       "dragActorFromEntry": "In Szene ziehen",
-      "dragSceneFromEntry": "Zum Aktivieren ziehen"
+      "longDescriptions": "Detaillierte Beschreibung oder kurze Zusammenfassung generieren?",
+      "generateImage": "Ein neues Bild im Hintergrund nach der Erstellung generieren"
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert"

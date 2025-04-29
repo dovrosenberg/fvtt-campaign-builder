@@ -56,7 +56,9 @@
           "backendURL": "URL du Backend",
           "backendURLHint": "Sortie du script pour déployer le backend.",
           "APIToken": "Jeton API",
-          "APITokenHint": "Sortie du script pour déployer le backend."
+          "APITokenHint": "Sortie du script pour déployer le backend.",
+          "defaultToLong": "Par défaut, utiliser des descriptions longues",
+          "defaultToLongHint": "Contrôle le paramètre par défaut pour créer une description longue ou courte lors de la génération par IA."
         }
       },
       "rollTableSettings": {
@@ -66,6 +68,26 @@
         "labels": {
           "refreshAll": "Rafraîchir toutes les tables",
           "refreshAllHelp": "Remplacer tous les éléments utilisés par de nouveaux"
+        }
+      },
+      "createEntry": {
+        "titles": {
+          "create": {
+            "character": "Créer un personnage",
+            "location": "Créer un lieu",
+            "organization": "Créer une organisation"
+          },
+          "generate": {
+            "character": "Générer un personnage",
+            "location": "Générer un lieu",
+            "organization": "Générer une organisation"
+          }
+        },
+        "labels": {
+          "generateImage": "Générer une image",
+          "generateImageTooltip": "Générer une nouvelle image en arrière-plan après la création",
+          "generatedName": "Nom généré",
+          "generatedDescription": "Description générée"
         }
       }
     },
@@ -98,7 +120,11 @@
         "species": "Espèces",
         "worldGenre": "Genre",
         "worldFeeling": "Ambiance du Monde",
-        "campaignDescription": "Description de la campagne, notes, idées, etc..."
+        "campaignDescription": "Description de la campagne, notes, idées, etc...",
+        "name": "Nom",
+        "briefDescription": "Brève description",
+        "longDescriptions": "Générer des descriptions longues",
+        "generateImage": "Générer une image"
       },
       "addTopic": {
         "character": "Ajouter un Personnage",
@@ -205,15 +231,6 @@
       "organizations": "Organisations"
     },
     "dialogs": {
-      "generateCharacter": {
-        "title": "Générer un Personnage"
-      },
-      "generateLocation": {
-        "title": "Générer un Lieu"
-      },
-      "generateOrganization": {
-        "title": "Générer une Organisation"
-      },
       "generateNameDialog": {
         "errorMessage": "Il y a eu une erreur :"
       },
@@ -268,7 +285,8 @@
         "viewImage": "Voir l'Image",
         "changeImage": "Changer l'Image",
         "removeImage": "Retirer l'Image",
-        "postToChat": "Publier dans le Chat"
+        "postToChat": "Publier dans le Chat",
+        "createScene": "Créer une scène"
       },
       "topicFolder": {
         "create": {
@@ -276,12 +294,6 @@
           "2": "Créer un nouveau lieu",
           "3": "Créer une nouvelle organisation",
           "4": "Créer un nouvel événement"
-        },
-        "generate": {
-          "1": "Générer un nouveau personnage",
-          "2": "Générer un nouveau lieu",
-          "3": "Générer une nouvelle organisation",
-          "4": "Générer un nouvel événement"
         }
       },
       "directoryEntry": {
@@ -289,6 +301,11 @@
       },
       "typeFolder": {
         "create": "Créer un nouveau"
+      },
+      "generate": {
+        "description": "Générer une description",
+        "image": "Générer une image",
+        "inProgress": "en cours"
       }
     },
     "tooltips": {
@@ -330,7 +347,8 @@
         "5": "Monde"
       },
       "dragActorFromEntry": "Glisser vers la scène",
-      "dragSceneFromEntry": "Glisser pour activer"
+      "longDescriptions": "Générer une description détaillée ou un court résumé ?",
+      "generateImage": "Générer une nouvelle image en arrière-plan après la création"
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori"
