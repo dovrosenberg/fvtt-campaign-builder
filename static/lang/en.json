@@ -294,6 +294,11 @@
       },
       "typeFolder": {
         "create": "Create new"
+      },
+      "generate":  {
+        "description": "Generate description",
+        "image": "Generate image",
+        "inProgress": "in progress"
       }
     },
     "tooltips": {

@@ -153,18 +153,6 @@
       </div>
     </div>
   </form>
-  <GenerateDialog
-    v-if="topic"
-    v-model="showGenerate"
-    :topic="topic"
-    :initial-name="currentEntry?.name || ''"
-    :initial-type="currentEntry?.type || ''"
-    :initial-species-id="currentEntry?.speciesId || ''"
-    :valid-parents="validParents"
-    :initial-parent-id="parentId || ''"
-    :initial-description="currentEntry?.description ? htmlToPlainText(currentEntry.description) : ''"
-    @generation-complete="onGenerationComplete"
-  />
 </template>
 
 <script setup lang="ts">
@@ -189,7 +177,7 @@
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import RelatedItemTable from '@/components/Tables/RelatedItemTable.vue';
   import RelatedDocumentTable from '@/components/Tables/RelatedDocumentTable.vue';
-  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
+  
   import Editor from '@/components/Editor.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
@@ -198,8 +186,9 @@
   import Tags from '@/components/Tags.vue';
 
   // types
-  import { DocumentLinkType, Topics, GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic, WindowTabType } from '@/types';
-  import { WBWorld, TopicFolder, Backend } from '@/classes';
+  import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
+  import { WBWorld, TopicFolder, Backend, Entry } from '@/classes';
+  import { createGenerateDialog } from '@/dialogs/createEntry';
 
   ////////////////////////////////
   // props
@@ -238,7 +227,6 @@
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
-  const showGenerate = ref<boolean>(false);
   const isGeneratingImage = ref<boolean>(false); // Flag to track whether image generation is in progress
   
   ////////////////////////////////
@@ -308,7 +296,7 @@
     event.preventDefault();
     event.stopPropagation();
 
-    if (![Topics.Character, Topics.Location, Topics.Organization].includes(topic.value)) {
+    if (topic.value != null && ![Topics.Character, Topics.Location, Topics.Organization].includes(topic.value)) {
       return;
     }
 
@@ -317,15 +305,22 @@
       {
         icon: 'fa-file-lines',
         iconFontClass: 'fas',
-        label: 'Generate description',
-        onClick: () => {
-          showGenerate.value = true;
+        label: localize('contextMenus.generate.description'),        onClick: async () => {
+          const entry = await createGenerateDialog(topic, { 
+            name: currentEntry.value?.name || '',
+            type: currentEntry.value?.type || '',
+            speciesId: currentEntry.value?.speciesId || '',
+            parentId: parentId || '',
+            description: currentEntry.value?.description ? htmlToPlainText(currentEntry.value.description) : ''
+          } );
+
+          onGenerationComplete(entry);
         }
       },
       {
         icon: 'fa-image',
         iconFontClass: 'fas',
-        label: `Generate image ${isGeneratingImage.value ? ' (in progress)' : ''}`,
+        label: `${localize('contextMenus.generate.image')} ${isGeneratingImage.value ? ` (${localize('contextMenus.generate.inProgress')})` : ''}`,
         disabled: isGeneratingImage.value,
         onClick: async () => {
           if (!isGeneratingImage.value && currentWorld.value && currentEntry.value) {
@@ -354,45 +349,35 @@
     });
   };
 
-  const onGenerationComplete = async (
-    details: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails, 
-    needToGenerateImage: boolean
-  ) => {
+  const onGenerationComplete = async (newEntry: Entry) => {
     if (!currentEntry.value || !currentWorld.value) return;
 
     // Update the entry with the generated content
-    currentEntry.value.name = details.name;
-    currentEntry.value.description = details.description;
-    currentEntry.value.type = details.type;
+    currentEntry.value.name = newEntry.name;
+    currentEntry.value.description = newEntry.description;
+    currentEntry.value.type = newEntry.type;
 
-    // @ts-ignore
-    if (details.speciesId) {
-      // @ts-ignore
-      currentEntry.value.speciesId = details.speciesId;
+    if (newEntry.speciesId) {
+      currentEntry.value.speciesId = newEntry.speciesId;
     }
-    // @ts-ignore
-    if (details.parentId) {
-      // @ts-ignore
-      await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder as TopicFolder, currentEntry.value.uuid, details.parentId || null);
+    const newParentId = await newEntry.getParentId();
+
+    if (newParentId) {
+      await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder as TopicFolder, currentEntry.value.uuid, newParentId || null);
     }
 
     // Save the entry
     await currentEntry.value.save();
 
     // Update the UI
-    name.value = details.name;
+    name.value = newEntry.name;
 
     // Refresh the directory tree to show the updated name
     await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
-    await navigationStore.propagateNameChange(currentEntry.value.uuid, details.name);
+    await navigationStore.propagateNameChange(currentEntry.value.uuid, newEntry.name);
 
     // Propagate the name and type changes to all related entries
     await relationshipStore.propagateFieldChange(currentEntry.value, ['name', 'type']);
-
-    // Generate an image if requested
-    if (needToGenerateImage) {
-      await generateImage(currentWorld.value, currentEntry.value);
-    }
   };
 
   const onImageChange = async (imageUrl: string) => {

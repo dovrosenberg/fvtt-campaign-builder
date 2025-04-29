@@ -96,7 +96,52 @@ async function createEntryDialog(topic: ValidTopic,
   });
 }
 
+async function createGenerateDialog(topic: ValidTopic, 
+  options?: { 
+    name?: string;
+    type?: string; 
+    speciesId?: string;
+    parentId?: string;
+    description?: string;
+  }): Promise<Entry | null> {
+  const currentWorld = useMainStore().currentWorld;
+
+  if (!currentWorld) 
+    return null;
+
+  const { name, description, type, speciesId, parentId } = options ?? {};
+
+  // get the valid parents
+  let validParents = [] as { id: string; label: string }[];
+  const topicFolder = currentWorld.topicFolders[topic];
+
+  if (topicFolder && hasHierarchy(topic)) {
+    validParents = topicFolder
+      .allEntries().map((e: Entry)=>({ label: e.name, id: e.uuid}));
+  }
+  
+  // construct a promise that returns when the callback is called
+  return new Promise<Entry | null>((resolve) => {
+    const dialog = new CreateEntryApplication();
+
+    const props = { 
+      generateMode: true,
+      topic: topic, 
+      validParents: validParents,
+      initialName: name || '',
+      initialDescription: description || '',
+      initialSpeciesId: speciesId || '',
+      initialParentId: parentId || '',
+      initialType: type || '',
+      callback: (e: Entry | null) => { dialog.close(); resolve(e) }
+    };
+   
+    dialog.render(true, { props });
+  });
+}
+
 export { 
   createEntryDialog,
+  createGenerateDialog,
 }
 

@@ -58,12 +58,6 @@
       </ol>
     </li>
   </ol>
-  <GenerateDialog 
-    v-model="showGenerate"
-    :topic="generateTopic"
-    :valid-parents="validGenerateParents"
-    @generation-complete="onGenerated" 
-  />
 </template>
 
 <script setup lang="ts">
@@ -75,7 +69,6 @@
   import { localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
-  import { hasHierarchy, } from '@/utils/hierarchy';
   import { handleGeneratedEntry, GeneratedDetails } from '@/utils/generation';
 
   // library components
@@ -84,11 +77,11 @@
   // local components
   import TopicDirectoryNestedTree from './TopicDirectoryNestedTree.vue';
   import TopicDirectoryGroupedTree from './TopicDirectoryGroupedTree.vue';
-  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
+
 
   // types
-  import { Topics, ValidTopic, WindowTabType } from '@/types';
-  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, Entry, DirectoryWorld } from '@/classes';
+  import { Topics, ValidTopic, WindowTabType, DirectoryWorld } from '@/types';
+  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -107,10 +100,8 @@
 
   ////////////////////////////////
   // data
-  const showGenerate = ref<boolean>(false);
   const generateTopic = ref<ValidTopic>(Topics.Character);
-  const validGenerateParents = ref<{id: string; label: string}[]>([]);
-
+  
   ////////////////////////////////
   // computed data
 
@@ -225,19 +216,7 @@
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: topicDirectoryStore.getTopicContextMenuItems(
-        topicFolder, 
-        () => { 
-          // load up valid parents
-          if (hasHierarchy(topicFolder.topic)) {
-            validGenerateParents.value = topicFolder.allEntries()
-              .map((e: Entry)=>({ label: e.name, id: e.uuid}));
-          }
-
-          showGenerate.value = true; 
-          generateTopic.value = topicFolder.topic;
-        }
-      )
+      items: topicDirectoryStore.getTopicContextMenuItems(topicFolder)
     });
   };
 
@@ -251,18 +230,6 @@
 
     await topicDirectoryStore.toggleTopic(directoryTopic);
   };
-
-  const onGenerated = async (details: GeneratedDetails, generateImage: boolean) => {
-    if (!currentWorld.value)
-      return;
-    
-    const entry = await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value], generateImage);
-
-    // open the entry in a new tab
-    if (entry) {
-      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true });
-    }
-  }
 
   ////////////////////////////////
   // watchers

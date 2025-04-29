@@ -459,7 +459,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     isTopicTreeRefreshing.value = false;
   };
 
-  const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string, generateClick: () => void): MenuItem[] => {
+  const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string): MenuItem[] => {
     if (!topic || !currentWorld.value)
       throw new Error('Invalid topic in getTopicNodeContextMenuItems()');
 
@@ -483,7 +483,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         await deleteEntry(topic, entryId);
       }
     }]
-    .filter((item)=>(hasHierarchy(topic) || (item.icon!=='fa-atlas' && item.icon!=='fa-head-side-virus')))
+    .filter((item)=>(hasHierarchy(topic) || (item.icon!=='fa-atlas')))
     // the line above is to remove the "add/generate child" option from entries that don't have hierarchy;
     // not really ideal but a bit cleaner than having two separate arrays and concatenating
   }

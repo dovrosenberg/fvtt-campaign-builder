@@ -1,7 +1,7 @@
 <template>
   <Dialog 
     v-model="show"
-    :title="localize(createTitles[props.topic])"
+    :title="localize(props.generateMode ? generateTitles[props.topic] : createTitles[props.topic])"
     :buttons="[
       {
         label: localize('labels.cancel'),
@@ -119,7 +119,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, onMounted, PropType } from 'vue';
+  import { ref, onMounted, PropType, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -129,7 +129,7 @@
   import { Backend } from '@/classes';
   import { generatedTextToHTML } from '@/utils/misc';
   import { hasHierarchy, } from '@/utils/hierarchy';
-  import { handleGeneratedEntry } from '@/utils/generation';
+  import { generateImage, handleGeneratedEntry } from '@/utils/generation';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -150,6 +150,11 @@
   ////////////////////////////////
   // props
   const props = defineProps({
+    generateMode: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     topic: {
       type: Number as PropType<ValidTopic>,
       required: true,
@@ -377,27 +382,44 @@
     let entry: Entry | undefined;
     
     if (props.topic === Topics.Character) {
-      entry = await handleGeneratedEntry(
-        {
-          name: generateComplete.value ? generatedName.value : name.value,
-          type: type.value,
-          description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
-          speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
-        }, 
-        topicFolder,
-        generateImageAfterAccept.value
-      );
+      TODO - how to make a temporary entry we can return - or better -
+      SOMETHING LIKE HANDLEGENERATEDENTRY BUT WE PASS THE EXISTING ENTRYID AND JUST UPDATE IT
+      if (props.generateMode) {
+        // make the temporary entry
+        const entry = new Entry.create();
+        entry.name = generateComplete.value ? generatedName.value : name.value;
+        entry.type = type.value;
+        entry.description = generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value;
+        entry.speciesId = validSpecies.includes(speciesId.value) ? speciesId.value : '';
+
+        if (generateImageAfterAccept)
+          await generateImage(currentWorld.value, entry);
+      } else {
+        entry = await handleGeneratedEntry(
+          {
+            name: generateComplete.value ? generatedName.value : name.value,
+            type: type.value,
+            description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
+            speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
+          }, 
+          topicFolder,
+          generateImageAfterAccept.value
+        );
+      }
     } else if (props.topic === Topics.Location || props.topic === Topics.Organization) {
-      entry = await handleGeneratedEntry(
-        {
-          name: generateComplete.value ? generatedName.value : name.value,
-          type: type.value,
-          parentId: parentId.value,
-          description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
-        }, 
-        topicFolder,
-        generateImageAfterAccept.value
-      );
+      if (props.generateMode) {
+      } else {
+        entry = await handleGeneratedEntry(
+          {
+            name: generateComplete.value ? generatedName.value : name.value,
+            type: type.value,
+            parentId: parentId.value,
+            description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
+          }, 
+          topicFolder,
+          generateImageAfterAccept.value
+        );
+      }
     }
 
     // Call the callback with the created entry if it exists
@@ -415,7 +437,41 @@
   
   ////////////////////////////////
   // watchers
+  // 
   // when the prop changes state, update internal value
+  watch(() => props.initialName, () => {
+    name.value = props.initialName;
+  });
+  watch(() => props.initialType, () => {
+    type.value = props.initialType;
+  }
+  );
+  watch(() => props.initialSpeciesId, () => {
+    speciesId.value = props.initialSpeciesId;
+
+    // Set the species name if we have a species ID
+    if (props.initialSpeciesId) {
+      const speciesList = ModuleSettings.get(SettingKey.speciesList);
+      const species = speciesList.find(s => s.id === props.initialSpeciesId);
+      speciesName.value = species?.name || '';
+    } else {
+      speciesName.value = '';
+    }
+  });
+  watch(() => props.initialParentId, () => {
+    // Set the parent name if we have a parent ID
+    if (props.initialParentId) {
+      parentName.value = props.validParents.find(p => p.id === props.initialParentId)?.label || '';
+    } else {
+      parentName.value = '';
+    }
+  });
+  watch(() => props.initialDescription, (newValue) => {
+    briefDescription.value = newValue;
+  });
+
+  ////////////////////////////////
+  // lifecycle events
   onMounted(async () => {
     name.value = props.initialName;
     type.value = props.initialType;
@@ -438,15 +494,11 @@
       parentName.value = '';
     }
 
-
     briefDescription.value = props.initialDescription;
     generateComplete.value = false;
     generateError.value = '';
     loading.value = false;
   });
-
-  ////////////////////////////////
-  // lifecycle events
 
 </script>
 
