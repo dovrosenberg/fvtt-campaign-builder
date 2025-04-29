@@ -98,8 +98,9 @@ export class WBWorld {
     if (!this._topicIds)
       throw new Error('Invalid WBWorld.loadTopics() called before IDs loaded');
 
-    for (const topic in Topics) {
-      if (!this.topicFolders[topic]) {
+    // loop over just the numeric values
+    for (const topic of Object.values(Topics).filter(t=>typeof t === 'number')) {
+      if (topic !== Topics.None && !this.topicFolders[topic]) {
         const topicObj = await TopicFolder.fromUuid(this._topicIds[topic]);
         if (!topicObj)
           throw new Error('Invalid topic uuid in WBWorld.loadTopics()');

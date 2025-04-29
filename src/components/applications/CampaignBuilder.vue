@@ -344,7 +344,7 @@
 
 // this is from the Vue handler, but we need it to be a flexbox so the overall app window controls the size the rest
 //    of the way down
-div[data-application-part] {
+div[data-application-part="app"]:has(> div.fcb) {
   display: flex;
   flex-direction: column;
   flex: 1;

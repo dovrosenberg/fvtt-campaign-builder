@@ -1,11 +1,11 @@
 /**
  * ExternalAPI class that provides external access to the campaign builder module functionality
  */
-import { useCampaignDirectoryStore, useMainStore, useTopicDirectoryStore } from '@/applications/stores';
+import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
 import { Topics, ValidTopic } from '@/types';
 import { log } from '@/utils/log';
 import { Campaign } from '@/classes/Campaign';
-import { Entry } from './Entry';
+import { createEntryDialog } from '@/dialogs/createEntry';
 
 type GetListReturnValue = { uuid: string; name: string};
 
@@ -46,12 +46,7 @@ export class ExternalAPI {
 
   // creates an entry in the current world
   async createEntry(topic: ValidTopic): Promise<{uuid: string; name: string}| null> {
-    const world = useMainStore().currentWorld;
-
-    let entry: Entry | null = null;
-    if (world) {
-      entry = await useTopicDirectoryStore().createEntry(world.topicFolders[topic], {});
-    }
+    const entry = await createEntryDialog(topic, { } );
 
     if (entry) {
       return { uuid: entry.uuid, name: entry.name };

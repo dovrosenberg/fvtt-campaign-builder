@@ -23,14 +23,6 @@
     @add-to-world="onOptionAddToWorld"
   />
 
-  <GenerateDialog
-    v-model="showGenerateDialog"
-    :topic="generateTopic"
-    :initial-name="initialName || ''"
-    :initial-type="initialType || ''"
-    :valid-parents="validGenerateParents"
-    @generation-complete="onFullGenerationComplete"
-  />
 </template>
 
 <script setup lang="ts">
@@ -40,18 +32,15 @@
 
   // local imports
   import { useMainStore, useNavigationStore } from '@/applications/stores';
-  import { handleGeneratedEntry, GeneratedDetails } from '@/utils/generation';
-  import { hasHierarchy, } from '@/utils/hierarchy';
   import { SettingKey, ModuleSettings } from '@/settings/ModuleSettings';
   import { Backend } from '@/classes'
+  import { createEntryDialog } from '@/dialogs/createEntry';
   
   // local components
   import GenerateNameDialog from '@/components/AIGeneration/GenerateNameDialog.vue';
-  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
-
+  
   // types
   import { GeneratorType, Topics, ValidTopic} from '@/types';
-  import { Entry} from '@/classes';
 
   ////////////////////////////////
   // store
@@ -73,12 +62,9 @@
   const currentGeneratorType = ref<GeneratorType>(GeneratorType.NPC);
 
   // used to do a full generation
-  const showGenerateDialog = ref<boolean>(false);
-  const generateTopic = ref<ValidTopic>(Topics.Character);
   const initialName = ref<string>('');
   const initialType = ref<string>('');
-  const validGenerateParents = ref<{id: string; label: string}[]>([]);
-
+  
   ////////////////////////////////
   // methods
   const onGeneratorClick = (type: GeneratorType) => {
@@ -102,47 +88,38 @@
     }
 
     // Map generator type to topic and do prep
+    let topic: ValidTopic;
     switch (currentGeneratorType.value) {
       case GeneratorType.NPC:
-        generateTopic.value = Topics.Character;
+        topic = Topics.Character;
         break;
       case GeneratorType.Town:
-        generateTopic.value = Topics.Location;
+        topic = Topics.Location;
         break;
       case GeneratorType.Store:
-        generateTopic.value = Topics.Location;
+        topic = Topics.Location;
         break;
       case GeneratorType.Tavern:
-        generateTopic.value = Topics.Location;
+        topic = Topics.Location;
         break;
       default:
         return;
     }
 
-    // load up valid parents
-    if (hasHierarchy(generateTopic.value)) {
-      const topicFolder = currentWorld.value.topicFolders[generateTopic.value];
-      validGenerateParents.value = topicFolder.allEntries()
-        .map((e: Entry)=>({ label: e.name, id: e.uuid}));
-    }
-
     const config = ModuleSettings.get(SettingKey.generatorConfig);
     initialName.value = value;
     initialType.value = config?.defaultTypes[currentGeneratorType.value] || '';
-    showGenerateDialog.value = true;
-  };
-
-  const onFullGenerationComplete = async (details: GeneratedDetails, generateImage: boolean) => {
-    if (!currentWorld.value)
-      return;
     
-    const entry = await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value], generateImage);
+    const entry = await createEntryDialog(topic, { 
+      name: initialName || '',
+      type: initialType || '',
+    });
 
-    // open the entry in a new tab
     if (entry) {
       await navigationStore.openEntry(entry.uuid, { newTab: true, activate: false });
     }
-  }
+  };
+
 </script>
 
 <style lang="scss">

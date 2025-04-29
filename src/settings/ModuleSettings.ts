@@ -24,6 +24,7 @@ export enum SettingKey {
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
   APIURL = 'APIURL',   // URL of backend
   APIToken = 'APIToken',
+  defaultToLongDescriptions = 'defaultToLongDescriptions',
 
   rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu
   autoRefreshRollTables = 'autoRefreshRollTables',  // should roll tables be automatically refreshed on load
@@ -43,6 +44,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
+    K extends SettingKey.defaultToLongDescriptions ? boolean :
     K extends SettingKey.rollTableSettingsMenu ? never :
     K extends SettingKey.autoRefreshRollTables ? boolean :
     K extends SettingKey.speciesList ? Species[] :
@@ -162,16 +164,6 @@ export class ModuleSettings {
       type: String,
     },
     {
-      settingID: SettingKey.APIURL,
-      default: '',
-      type: String,
-    },
-    {
-      settingID: SettingKey.APIToken,
-      default: '',
-      type: String,
-    },
-    {
       settingID: SettingKey.autoRefreshRollTables,
       default: false,
       type: Boolean,
@@ -195,6 +187,21 @@ export class ModuleSettings {
       settingID: SettingKey.sessionTags,
       default: {},
       type: Object,
+    },
+    {
+      settingID: SettingKey.APIURL,
+      default: '',
+      type: String,
+    },
+    {
+      settingID: SettingKey.APIToken,
+      default: '',
+      type: String,
+    },
+    {
+      settingID: SettingKey.defaultToLongDescriptions,
+      default: true,
+      type: Boolean,
     },
   ];
   

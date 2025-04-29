@@ -1,7 +1,7 @@
 <template>
   <Dialog 
     v-model="show"
-    :title="localize(titles[props.topic])"
+    :title="props.title"
     :buttons="[
       {
         label: localize('labels.cancel'),
@@ -20,16 +20,17 @@
         label: localize('labels.use'),
         default: false,
         close: true,
+        disable: !name,
         callback: onUseClick
       },
     ]"
     @cancel="onCancel"
   >
     <div
-      class="flexcol generate-dialog"
+      class="flexcol create-entry-dialog"
     >
       <h6>
-        Name
+        {{ localize('labels.fields.name')}}
         <i class="fas fa-info-circle tooltip-icon" data-tooltip="If left blank, a name will be generated automatically"></i>
       </h6>
       <InputText
@@ -39,7 +40,7 @@
       />
 
       <h6>
-        Type
+        {{ localize('labels.fields.type')}}
         <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you create a new type, it will be added to the master list"></i>
       </h6>
       <TypeSelect
@@ -50,7 +51,7 @@
 
       <div v-if="props.topic === Topics.Character">
         <h6>
-          Species
+          {{ localize('labels.fields.species')}}
           <i class="fas fa-info-circle tooltip-icon" data-tooltip="If blank, a random species from your world will be used. Custom entries will be passed to the AI but not added to your species list"></i>
         </h6>
         <SpeciesSelect
@@ -62,7 +63,7 @@
       </div>
       <div v-else-if="hasHierarchy(props.topic)">
         <h6>
-          Parent
+          {{ localize('labels.fields.parent')}}
           <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you set the parent, it will save the new value. May influence generated text in some cases"></i>
         </h6>
         <TypeAhead 
@@ -73,7 +74,7 @@
       </div>
 
       <h6>
-        Brief description
+        {{ localize('labels.fields.briefDescription')}}
         <i class="fas fa-info-circle tooltip-icon" data-tooltip="Optional. Use to specify physical features or personality traits you want included"></i>
       </h6>
       <Textarea
@@ -82,27 +83,40 @@
         autoResize
         :pt="{ root: { style: { 'font-size': 'var(--font-size-14)', 'min-height': '6rem' }}}"
       />
+      <div class="generation-option">
+        <div class="generation-option-wrapper">
+          <Checkbox 
+            v-model="longDescriptions" 
+            :binary="true"
+            inputId="long-description-checkbox"
+          />
+          <label for="long-description-checkbox" class="generation-label">
+            {{ localize('labels.fields.longDescriptions') }}
+            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.longDescriptions')"></i>
+          </label>
+        </div>
+        <div class="generation-option-wrapper" style="margin-left: 20px">
+          <Checkbox 
+            v-model="generateImageAfterAccept" 
+            :binary="true"
+            inputId="generate-image-checkbox"
+          />
+          <label for="generate-image-checkbox" class="generation-label">
+            {{ localize('labels.fields.generateImage') }}
+            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.generateImage')"></i>
+          </label>
+        </div>
+      </div>
       <hr>
       <div class="results-container">
         <div v-if="generateError" class="error-message">
           <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ generateError }}
         </div>
         <div v-else-if="generateComplete" class="generated-content">
-          <div class="generate-image-option">
-            <Checkbox 
-              v-model="generateImageAfterAccept" 
-              :binary="true"
-              :disabled="!generateComplete"
-              inputId="generate-image-checkbox"
-            />
-            <label for="generate-image-checkbox" class="generate-image-label">
-              Generate image
-              <i class="fas fa-info-circle tooltip-icon" data-tooltip="Generate a new image in the background after creating"></i>
-            </label>
-          </div>
           <div><span class="label">Generated name:</span> {{ generatedName }}</div>
           <div class="description">
-            <span class="label">Generated description:</span> {{ generatedDescription }}
+            <p><span class="label">Generated description:</span></p>
+            {{ generatedDescription }}
           </div>
         </div>
         <div v-else-if="loading" class="loading-container">
@@ -118,7 +132,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, PropType } from 'vue';
+  import { ref, onMounted, PropType, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -128,27 +142,30 @@
   import { Backend } from '@/classes';
   import { generatedTextToHTML } from '@/utils/misc';
   import { hasHierarchy, } from '@/utils/hierarchy';
-    
+  
   // library components
   import InputText from 'primevue/inputtext';
   import ProgressSpinner from 'primevue/progressspinner';
   import Textarea from 'primevue/textarea';
   import Checkbox from 'primevue/checkbox';
-
-  // local components
   import Dialog from '@/components/Dialog.vue';
+  
+  // local components
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeAhead from '@/components/TypeAhead.vue'; 
 
   // types
-  import { Topics, GeneratedCharacterDetails, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic } from '@/types';
+  import { Topics, ValidTopic, Species } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
   // props
   const props = defineProps({
-    modelValue: Boolean,  // show/hide dialog
+    title: {
+      type: String,
+      required: true,
+    },
     topic: {
       type: Number as PropType<ValidTopic>,
       required: true,
@@ -183,14 +200,14 @@
       required: false,
       default: '',
     },
+    callback: {
+      type: Function as PropType<(details: CharacterDetails | LocationDetails | OrganizationDetails | null) => void>,
+      required: false,
+    },
   });
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits<{
-    (e: 'update:modelValue', value: boolean): void;
-    (e: 'generationComplete', results: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails, generateImage: boolean) : void;
-  }>();
 
 
   ////////////////////////////////
@@ -200,7 +217,6 @@
 
   ////////////////////////////////
   // data
-  const show = ref<boolean>(props.modelValue);
   const name = ref<string>(props.initialName);
   const type = ref<string>(props.initialType);
   const briefDescription = ref<string>(props.initialDescription);
@@ -210,7 +226,9 @@
   const loading = ref<boolean>(false);
   const generateError = ref<string>('');
   const generateImageAfterAccept = ref<boolean>(false);
-
+  const longDescriptions = ref<boolean>(true);
+  const show = ref<boolean>(true);
+  
   // for characters
   const speciesId = ref<string>(props.initialSpeciesId);
   const speciesName = ref<string>('');
@@ -219,27 +237,11 @@
   const parentId = ref<string>(props.initialParentId);
   const parentName = ref<string>('');
 
-  const titles = {
-    [Topics.Character]: 'dialogs.generateCharacter.title',
-    [Topics.Location]: 'dialogs.generateLocation.title',
-    [Topics.Organization]: 'dialogs.generateOrganization.title',
-  }
-
   ////////////////////////////////
   // computed data
 
   ////////////////////////////////
   // methods
-  const resetDialog = function() {
-    // Just close the dialog without clearing values
-    // Values will be updated when the dialog is opened again
-    generateComplete.value = false;
-    generateError.value = '';
-    loading.value = false;
-    generateImageAfterAccept.value = false;
-    show.value = false;
-    emit('update:modelValue', false);
-  };
 
   ////////////////////////////////
   // event handlers
@@ -270,19 +272,14 @@
     generateComplete.value = false;
     generateError.value = '';
 
-    let result: Awaited<ReturnType<
-      typeof Backend.api.apiCharacterGeneratePost |
-      typeof Backend.api.apiLocationGeneratePost |
-      typeof Backend.api.apiOrganizationGeneratePost 
-    >>;
-
     if (props.topic === Topics.Character) {
       let speciesDescription = '';
       const speciesList = ModuleSettings.get(SettingKey.speciesList);
 
       // randomize species if needed
+      let randomSpecies: Species | null = null;
       if (speciesName.value === '') {
-        const randomSpecies = speciesList[Math.floor(Math.random() * speciesList.length)];
+        randomSpecies = speciesList[Math.floor(Math.random() * speciesList.length)];
         speciesName.value = randomSpecies.name;
       }
       
@@ -295,6 +292,8 @@
       }
 
       try {
+        let result: Awaited<ReturnType<typeof Backend.api.apiCharacterGeneratePost>>;
+
         result = await Backend.api.apiCharacterGeneratePost({
           genre: currentWorld.value.genre,
           worldFeeling: currentWorld.value.worldFeeling,
@@ -303,10 +302,19 @@
           speciesDescription: speciesDescription,
           name: name.value,
           briefDescription: briefDescription.value,
+          createLongDescription: longDescriptions.value,
         });
 
         generatedName.value = result.data.name;
         generatedDescription.value = result.data.description;
+        
+        // also fill into the name block
+        name.value = result.data.name;
+
+        // apply the species here if needed - we don't do it above because it makes the species show up before the
+        //    generation happens, which looks weird
+        if (randomSpecies)
+          speciesId.value = randomSpecies.id;
       } catch (error) {
         generateError.value = (error as Error).message;
         generateComplete.value = true;
@@ -342,15 +350,20 @@
           grandparentDescription: grandparent?.description || '',
           name: name.value,
           briefDescription: briefDescription.value,
+          createLongDescription: longDescriptions.value,
         };
 
+        let result: Awaited<ReturnType<typeof Backend.api.apiOrganizationGeneratePost | typeof Backend.api.apiLocationGeneratePost>>;
         if (props.topic === Topics.Location)
           result = await Backend.api.apiLocationGeneratePost(options);
-        else if (props.topic === Topics.Organization)
+        else
           result = await Backend.api.apiOrganizationGeneratePost(options);
-
+          
         generatedName.value = result.data.name;
         generatedDescription.value = result.data.description;
+
+        // also fill into the name block
+        name.value = result.data.name;
       } catch (error) {
         generateError.value = (error as Error).message;
         generateComplete.value = true;
@@ -368,160 +381,189 @@
   }
 
   const onUseClick = async function() {
-    // see if speciesId was made up or is an existing one
-    const validSpecies = ModuleSettings.get(SettingKey.speciesList).map((s) => s.id);
+    if (!currentWorld.value)
+      return;
 
-    // emit an event that has the new name and description
+    // create the entry and kick off image generation if needed
     // if we haven't generated a description, use whatever's in brief description
-    // the idea is that - especially when we're dealing with a rolltable name - user can use this form as a sort of
-    //    quick create
-    if (props.topic === Topics.Character) {
-      emit('generationComplete', { 
+    // the idea is that - especially when we're dealing with a rolltable name - user can use this form as a sort of quick create
+    let details: CharacterDetails | LocationDetails | OrganizationDetails | null = null;if (props.topic === Topics.Character) {
+      // see if speciesId was made up or is an existing one
+      const validSpecies = ModuleSettings.get(SettingKey.speciesList).map((s) => s.id);
+
+      details = {
         name: generateComplete.value ? generatedName.value : name.value,
-        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
         type: type.value,
-        speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
-      }, generateImageAfterAccept.value);
-    } else if (props.topic === Topics.Location || props.topic === Topics.Organization) {
-      emit('generationComplete', { 
-        name: generateComplete.value ? generatedName.value : name.value,
         description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
+        speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
+        generateImage: generateImageAfterAccept.value
+      }
+    } else if (props.topic === Topics.Location || props.topic === Topics.Organization) {
+      details = {
+        name: generateComplete.value ? generatedName.value : name.value,
         type: type.value,
         parentId: parentId.value,
-      }, generateImageAfterAccept.value);
+        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
+        generateImage: generateImageAfterAccept.value
+      }
     }
 
-    resetDialog();
+    // Call the callback with the created entry if it exists
+    if (props.callback) {
+      props.callback(details);
+    }
   };
   
   const onCancel = function() {
-    resetDialog();
+    // Call the callback with null to indicate cancellation
+    if (props.callback) {
+      props.callback(null);
+    }
   };
   
   ////////////////////////////////
   // watchers
-  // when the addDialog changes state, alert parent (so v-model works)
-  watch(() => show.value, async (newValue) => {
-    emit('update:modelValue', newValue);
-  });
-
+  // 
   // when the prop changes state, update internal value
-  watch(() => props.modelValue, async (newValue) => {
-    show.value = newValue;
+  watch(() => props.initialName, () => {
+    name.value = props.initialName;
+  });
+  watch(() => props.initialType, () => {
+    type.value = props.initialType;
+  }
+  );
+  watch(() => props.initialSpeciesId, () => {
+    speciesId.value = props.initialSpeciesId;
 
-    // If the dialog is being opened, update the values from props
-    if (newValue) {
-      name.value = props.initialName;
-      type.value = props.initialType;
-      speciesId.value = props.initialSpeciesId;
-      parentId.value = props.initialParentId;
-
-      // Set the species name if we have a species ID
-      if (props.initialSpeciesId) {
-        const speciesList = ModuleSettings.get(SettingKey.speciesList);
-        const species = speciesList.find(s => s.id === props.initialSpeciesId);
-        speciesName.value = species?.name || '';
-      } else {
-        speciesName.value = '';
-      }
-
-      // Set the parent name if we have a parent ID
-      if (props.initialParentId) {
-        parentName.value = props.validParents.find(p => p.id === props.initialParentId)?.label || '';
-      } else {
-        parentName.value = '';
-      }
-
-
-      briefDescription.value = props.initialDescription;
-      generateComplete.value = false;
-      generateError.value = '';
-      loading.value = false;
+    // Set the species name if we have a species ID
+    if (props.initialSpeciesId) {
+      const speciesList = ModuleSettings.get(SettingKey.speciesList);
+      const species = speciesList.find(s => s.id === props.initialSpeciesId);
+      speciesName.value = species?.name || '';
+    } else {
+      speciesName.value = '';
     }
+  });
+  watch(() => props.initialParentId, () => {
+    // Set the parent name if we have a parent ID
+    if (props.initialParentId) {
+      parentName.value = props.validParents.find(p => p.id === props.initialParentId)?.label || '';
+    } else {
+      parentName.value = '';
+    }
+  });
+  watch(() => props.initialDescription, (newValue) => {
+    briefDescription.value = newValue;
   });
 
   ////////////////////////////////
   // lifecycle events
+  onMounted(async () => {
+    name.value = props.initialName;
+    type.value = props.initialType;
+    speciesId.value = props.initialSpeciesId;
+    parentId.value = props.initialParentId;
+
+    // Set the species name if we have a species ID
+    if (props.initialSpeciesId) {
+      const speciesList = ModuleSettings.get(SettingKey.speciesList);
+      const species = speciesList.find(s => s.id === props.initialSpeciesId);
+      speciesName.value = species?.name || '';
+    } else {
+      speciesName.value = '';
+    }
+
+    // Set the parent name if we have a parent ID
+    if (props.initialParentId) {
+      parentName.value = props.validParents.find(p => p.id === props.initialParentId)?.label || '';
+    } else {
+      parentName.value = '';
+    }
+
+    longDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
+    briefDescription.value = props.initialDescription;
+    generateComplete.value = false;
+    generateError.value = '';
+    loading.value = false;
+  });
 
 </script>
 
-<style lang="scss" scoped>
-.generate-dialog {
-  h6 {
-    margin-bottom: 2px;
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
+<style lang="scss">
+.application.fcb-create-entry {
+  // hide the wrapper window
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  header {
+    display:none;
   }
 
-  .tooltip-icon {
-    margin-left: 5px;
-    font-size: 12px;
-    color: #888;
-    cursor: help;
-
-    &:hover {
-      color: #555;
-    }
-  }
-
-  .p-inputtext, .p-dropdown {
-    margin-bottom: 4px;
-  }
-
-  .results-container {
-    overflow: auto;
-    height: 250px;
-    min-height: 250px;
-    max-height: 250px;
-    margin-top: 4px;
-
-    .error-message {
-      color: red;
-
-      .error-label {
-        font-weight: bold;
-      }
-    }
-
-    .prompt-message {
-      text-align: center;
-      color: var(--color-text-dark-secondary);
-      margin-top: 100px;
-      font-style: italic;
-    }
-
-    .loading-container {
+  .create-entry-dialog {
+    h6 {
+      margin-bottom: 2px;
+      margin-top: 8px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      height: 100%;
     }
 
-    .generated-content {
-      .label {
-        font-weight: bold;
-        margin-right: 4px;
-      }
+    .generation-option {
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      margin-top: 16px;
+      padding: 8px 0 8px 0;
+      // border-top: 1px solid rgba(0, 0, 0, 0.1);
 
-      .description {
-        white-space: pre-wrap;
-        margin-top: 8px;
-      }
-
-      .generate-image-option {
+      .generation-option-wrapper {
+        width: 50%;
         display: flex;
-        align-items: center;
-        margin-top: 16px;
-        padding: 8px 0 8px 0;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
 
-        .generate-image-label {
+        .generation-label {
           margin-left: 8px;
-          display: flex;
+          display: inline-flex;
           align-items: center;
           cursor: pointer;
         }
+      }
+    }
+
+    .tooltip-icon {
+      margin-left: 5px;
+      font-size: 12px;
+      color: #888;
+      cursor: help;
+
+      &:hover {
+        color: #555;
+      }
+    }
+
+    .p-inputtext, .p-dropdown {
+      margin-bottom: 4px;
+    }
+
+    .results-container {
+      overflow: auto;
+      height: 250px;
+      min-height: 250px;
+      max-height: 250px;
+      margin-top: 4px;
+
+      .error-message {
+        color: red;
+
+        .error-label {
+          font-weight: bold;
+        }
+      }
+
+      .prompt-message {
+        text-align: center;
+        color: var(--color-text-dark-secondary);
+        margin-top: 100px;
+        font-style: italic;
       }
     }
   }
