@@ -1,5 +1,13 @@
 # Change Log
 
+## v0.2.1 - Fixed some minor but irritating UX issues
+
+![](https://img.shields.io/badge/release%20date-April%2030%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.2.1/module.zip)
+
+- Made create boxes display properly when not using AI
+- Other minor bug fixes
+
 ## v0.2.0 - Lots of quality of life improvements
 
 ![](https://img.shields.io/badge/release%20date-April%2029%2C%202025-blue)
