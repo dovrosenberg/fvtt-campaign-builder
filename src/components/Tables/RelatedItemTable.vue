@@ -104,7 +104,7 @@
 
   const newItemLabel = computed(() => {
     switch (props.topic) {
-      case Topics.Event: return localize('labels.addTopic.event');
+      // case Topics.Event: return localize('labels.addTopic.event'); 
       case Topics.Character: return localize('labels.addTopic.character'); 
       case Topics.Location: return localize('labels.addTopic.location');
       case Topics.Organization: return localize('labels.addTopic.organization');
@@ -113,7 +113,7 @@
 
   const newItemDragLabel = computed(() => {
     switch (props.topic) {
-      case Topics.Event: return localize('labels.addTopicDrag.event');
+      // case Topics.Event: return localize('labels.addTopicDrag.event'); 
       case Topics.Character: return localize('labels.addTopicDrag.character'); 
       case Topics.Location: return localize('labels.addTopicDrag.location');
       case Topics.Organization: return localize('labels.addTopicDrag.organization');
@@ -154,11 +154,11 @@
     const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 
 
     const columns = {
-      [Topics.Event]: [
-        actionColumn,
-        nameColumn,
-        dateColumn,
-      ],
+      // [Topics.Event]: [ 
+      //   actionColumn,
+      //   nameColumn,
+      //   dateColumn,
+      // ],
       [Topics.Character]: [
         actionColumn,
         nameColumn,
@@ -245,13 +245,13 @@
   // show the edit dialog
   const onEditItemClick = function(row: RelatedItemGridRow) {
     // assemble the extra field data
-    const fieldsToAdd = extraColumns.value.reduce((accum, col) => {
-      accum.push({
+    const fieldsToAdd = extraColumns.value.reduce((result, col) => {
+      result.push({
         field: col.field,
         header:col.header,
         value: row[col.field as keyof typeof row]
       });
-      return accum;
+      return result;
     }, [] as {field: string; header: string; value: string}[]);
 
     // set up the parameter and open the dialog

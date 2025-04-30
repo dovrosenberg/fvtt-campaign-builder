@@ -22,8 +22,8 @@ export function getTopicIcon(topic: string | number | Topics | null | undefined)
       return 'fa-location-dot';   //'fa-place-of-worship';
     case Topics.Organization: 
       return 'fa-flag';
-    case Topics.Event: 
-      return 'fa-calendar-days';
+    // case Topics.Event: 
+    //   return 'fa-calendar-days';
     default: 
       return '';
   }
@@ -60,6 +60,9 @@ export function generatedTextToHTML(text: string) {
   .replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#039;')
+
+  // mark bold (for short descriptions)
+  .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
 
   // change newlines to paragraphs
   .split('\n')

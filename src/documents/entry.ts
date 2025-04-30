@@ -1,13 +1,17 @@
-import { RelatedItemDetails, Topics, ValidTopic } from '@/types';
+import { RelatedItemDetails, TagInfo, Topics, ValidTopic } from '@/types';
 
 const fields = foundry.data.fields;
 const entrySchema = {
   topic: new fields.NumberField({ required: true, nullable: false, validate: (value: number) => { return Object.values(Topics).includes(value); }, textSearch: true, }),
   type: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
+  tags: new fields.ArrayField(
+    new fields.ObjectField({ required: true, nullable: false, }), 
+    { required: true, initial: [], }
+  ),
 
   relationships: new fields.ObjectField({ required: true, nullable: false, initial: {
     [Topics.Character]: {},
-    [Topics.Event]: {},
+    // [Topics.Event]: {}, // Commented out as events are not currently needed
     [Topics.Location]: {},
     [Topics.Organization]: {},
   } as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>   // all the things related to this item, grouped by topic
@@ -73,6 +77,7 @@ export interface EntryDoc extends JournalEntryPage {
   system: {
     topic: ValidTopic;
     type: string;
+    tags: TagInfo[];
 
     /**
      * Keyed by topic, then entryId

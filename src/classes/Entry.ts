@@ -1,11 +1,12 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace,  } from '@/documents';
-import { RelatedItemDetails, ValidTopic, Topics } from '@/types';
-import { inputDialog } from '@/dialogs/input';
+import { RelatedItemDetails, ValidTopic, Topics, TagInfo } from '@/types';
+import { inputDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, WBWorld } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
+import { searchService } from '@/utils/search';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -33,7 +34,7 @@ export class Entry {
 
   // does not set the parent topic
   static async fromUuid(entryId: string, topicFolder?: TopicFolder, options?: Record<string, any>): Promise<Entry | null> {
-    const entryDoc = await fromUuid(entryId, options) as EntryDoc;
+    const entryDoc = await fromUuid(entryId, options) as EntryDoc | null;
 
     if (!entryDoc || entryDoc.type !== DOCUMENT_TYPES.Entry)
       return null;
@@ -87,7 +88,7 @@ export class Entry {
         topic: topicFolder.topic,
         relationships: {
           [Topics.Character]: {},
-          [Topics.Event]: {},
+          // [Topics.Event]: {},
           [Topics.Location]: {},
           [Topics.Organization]: {},
         },
@@ -99,10 +100,22 @@ export class Entry {
       parent: topicFolder.raw,
     }) as unknown as EntryDoc[];
 
+    if (options.type) {
+      await Entry.addTypeIfNeeded(topicFolder, options.type);
+    }
+
     await world.lock();
 
     if (entryDoc) {
       const entry = new Entry(entryDoc[0], topicFolder);
+      
+      // Add to search index
+      try {
+        await searchService.addOrUpdateIndex(entry, world, true);
+      } catch (error) {
+        console.error('Failed to add entry to search index:', error);
+      }
+      
       return entry;
     } else {
       return null;
@@ -122,6 +135,21 @@ export class Entry {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       name: value,
+    };
+  }
+
+  get tags(): TagInfo[] {
+    return this._entryDoc.system.tags;
+  }
+
+  set tags(value: TagInfo[]) {
+    this._entryDoc.system.tags = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        tags: value,
+      }
     };
   }
 
@@ -280,6 +308,13 @@ export class Entry {
     // unlock compendium to make the change
     await world.unlock();
 
+    // add the type to the master list if it was changed and doesn't exist
+    if (updateData.system?.type) {
+      const topicFolder = world.topicFolders[this.topic];
+
+      await Entry.addTypeIfNeeded(topicFolder, updateData.system?.type);
+    }
+
     let oldRelationships;
     
     if (updateData.system?.relationships) {
@@ -303,6 +338,15 @@ export class Entry {
 
     await world.lock();
 
+    // Update the search index
+    try {
+      if (retval) {
+        await searchService.addOrUpdateIndex(this, world, true);
+      }
+    } catch (error) {
+      console.error('Failed to update search index:', error);
+    }
+
     return retval ? this : null;
   }
 
@@ -324,7 +368,12 @@ export class Entry {
 
     await world.lock();
 
-    // TODO - remove from search index
+    // Remove from search index
+    try {
+      searchService.removeEntry(id);
+    } catch (error) {
+      console.error('Failed to remove entry from search index:', error);
+    }
   }
 
       
@@ -368,5 +417,20 @@ export class Entry {
     // if the flag has this topic, it's a Record keyed by uuid
     return Object.keys(relationships[topicFolder.topic]);
   }
-  
+
+  /** Adds the type to the list on the topic, if it's not there already.
+   *  Requires the world to be unlocked already
+   */
+  private static async addTypeIfNeeded(topicFolder: TopicFolder, type: string): Promise<void> {
+    const currentTypes = topicFolder.types;
+
+    // if not a duplicate, add to the valid type lists 
+    if (!currentTypes?.includes(type)) {
+      const updatedTypes = currentTypes.concat(type);
+
+      topicFolder.types = updatedTypes;
+      await topicFolder.save();
+    }
+  }
+ 
 }

@@ -1,6 +1,6 @@
 <template>
   <TopicDirectoryNodeWithChildren 
-    v-if="props.node.children.length" 
+    v-if="props.node.children.length && filterNodes[props.topic]?.includes(props.node.id)" 
     :node="props.node"
     :world-id="props.worldId"
     :topic="props.topic"
@@ -20,35 +20,26 @@
       {{ props.node.name }}
     </div>
   </li>
-  <GenerateDialog 
-    v-model="showGenerate"
-    :topic="generateTopic"
-    :initial-parent-id="props.node.id || ''"
-    :valid-parents="validGenerateParents"
-    @generation-complete="onGenerated" 
-  />
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { PropType, ref } from 'vue';
+  import { PropType, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getValidatedData } from '@/utils/dragdrop';
-  import { handleGeneratedEntry, GeneratedDetails } from '@/utils/generation';
-
+  
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
   import TopicDirectoryNodeWithChildren from './TopicDirectoryNodeWithChildren.vue';
-  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
-
+  
   // types
-  import { Topics, ValidTopic } from '@/types';
+  import { ValidTopic } from '@/types';
   import { DirectoryEntryNode, Entry, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////
@@ -85,9 +76,6 @@
   
   ////////////////////////////////
   // data
-  const showGenerate = ref<boolean>(false);
-  const generateTopic = ref<ValidTopic>(Topics.Character);
-  const validGenerateParents = ref<{id: string; label: string}[]>([]);
 
   ////////////////////////////////
   // computed data
@@ -181,33 +169,11 @@
       zIndex: 300,
       items: topicDirectoryStore.getTopicNodeContextMenuItems(
         props.topic, 
-        props.node.id,
-        () => {
-          // load up valid parents (and the set the parent)
-          if (hasHierarchy(props.topic)) {
-            const topicFolder = currentWorld.value?.topicFolders[props.topic];
-            if (currentWorld.value && topicFolder) {
-              validGenerateParents.value = topicFolder.allEntries()
-                .map((e: Entry)=>({ label: e.name, id: e.uuid}));
-            } else {
-              validGenerateParents.value = [];
-            }
-
-            showGenerate.value = true; 
-            generateTopic.value = props.topic;
-          }
-        }
+        props.node.id
       )
     });
   };
 
-  const onGenerated = async (details: GeneratedDetails) => {
-    if (!currentWorld.value)
-      return;
-    
-    await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value]);
-  }
-  
 
   ////////////////////////////////
   // watchers

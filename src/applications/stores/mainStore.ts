@@ -6,6 +6,7 @@ import { computed, ref, watch } from 'vue';
 
 // local imports
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey } from '@/settings';
+import { updateWindowTitle } from '@/utils/titleUpdater';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
@@ -14,6 +15,7 @@ import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, WorldDoc } from '@/documents'
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
+
   ///////////////////////////////
   // the state
 
@@ -252,9 +254,18 @@ export const useMainStore = defineStore('main', () => {
   // watchers
   // Save isInPlayMode to settings whenever it changes
   watch(isInPlayMode, async (newValue) => {
-    await ModuleSettings.set(SettingKey.isInPlayMode, newValue);
+    await ModuleSettings.set(SettingKey.isInPlayMode, newValue);   
   });
 
+  /**
+  * Updates the main window title to include the current world name
+  */
+  watch(currentWorld, (newWorld) => {
+    updateWindowTitle(newWorld?.name ?? null);
+
+    // when changing world, turn off play mode
+    isInPlayMode.value = false;
+  });
 
   ///////////////////////////////
   // lifecycle events

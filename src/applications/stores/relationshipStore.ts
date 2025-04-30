@@ -27,25 +27,25 @@ export const useRelationshipStore = defineStore('relationship', () => {
   const extraFields = {
     [Topics.Character]: {
       [Topics.Character]: [],
-      [Topics.Event]: [],
+      // [Topics.Event]: [],
       [Topics.Location]: [{field:'role', header:'Role'}],
       [Topics.Organization]: [{field:'role', header:'Role'}],
     },
-    [Topics.Event]: {
-      [Topics.Character]: [],
-      [Topics.Event]: [],
-      [Topics.Location]: [],
-      [Topics.Organization]: [],
-    },
+    // [Topics.Event]: {
+    //   [Topics.Character]: [],
+    //   [Topics.Event]: [],
+    //   [Topics.Location]: [],
+    //   [Topics.Organization]: [],
+    // },
     [Topics.Location]: {
       [Topics.Character]: [{field:'role', header:'Role'}],
-      [Topics.Event]: [],
+      // [Topics.Event]: [],
       [Topics.Location]: [],
       [Topics.Organization]: [],
     },
     [Topics.Organization]: {
       [Topics.Character]: [{field:'role', header:'Role'}],
-      [Topics.Event]: [],
+      // [Topics.Event]: [],
       [Topics.Location]: [],
       [Topics.Organization]: [],
     },    
@@ -366,9 +366,9 @@ export const useRelationshipStore = defineStore('relationship', () => {
         case 'characters':
           topic = Topics.Character;
           break;
-        case 'events':
-          topic = Topics.Event;
-          break;
+        // case 'events':
+        //   topic = Topics.Event;
+        //   break;
         case 'locations':
           topic = Topics.Location;
           break;
@@ -393,7 +393,10 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
         const sceneList = [] as RelatedDocumentDetails[];
         for (let i=0; i<currentEntry.value.scenes.length; i++) {
-          const scene = (await fromUuid(currentEntry.value.scenes[i])) as Scene;
+          const scene = (await fromUuid(currentEntry.value.scenes[i])) as Scene | null;
+          if (!scene)
+            continue;
+          
           sceneList.push({
             uuid: currentEntry.value.scenes[i],
             name: scene.name,
@@ -407,7 +410,10 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
         const actorList = [] as RelatedDocumentDetails[];
         for (let i=0; i<currentEntry.value.actors.length; i++) {
-          const actor = (await fromUuid(currentEntry.value.actors[i])) as Actor;
+          const actor = (await fromUuid(currentEntry.value.actors[i])) as Actor | null;
+          if (!actor)
+            continue;
+
           actorList.push({
             uuid: currentEntry.value.actors[i],
             name: actor.name,

@@ -4,8 +4,8 @@
     class="fcb-play-mode-navigation flexrow"
   >
     <div class="play-navigation-container flexcol">
-      <SessionButtonsRow />
-      <GeneratorRow />
+      <SessionButtonsBar />
+      <GeneratorBar />
     </div>
   </div>
 </template>
@@ -18,8 +18,8 @@
   import { useMainStore } from '@/applications/stores';
 
   // components
-  import SessionButtonsRow from '@/components/WBHeader/PlayModeNavigation/SessionButtonsRow.vue';
-  import GeneratorRow from '@/components/WBHeader/PlayModeNavigation/GeneratorRow.vue';
+  import SessionButtonsBar from '@/components/WBHeader/PlayModeNavigation/SessionButtonsBar.vue';
+  import GeneratorBar from '@/components/WBHeader/PlayModeNavigation/GeneratorBar.vue';
 
   ////////////////////////////////
   // store

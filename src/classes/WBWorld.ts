@@ -2,7 +2,7 @@ import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, unsetFlag, 
 import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
-import { inputDialog } from '@/dialogs/input';
+import { inputDialog } from '@/dialogs';
 import { Campaign, TopicFolder } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
@@ -73,7 +73,7 @@ export class WBWorld {
   }
 
   static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
-    const worldDoc = await fromUuid(worldId, options) as WorldDoc;
+    const worldDoc = await fromUuid(worldId, options) as WorldDoc | null;
 
     if (!worldDoc)
       return null;
@@ -98,8 +98,9 @@ export class WBWorld {
     if (!this._topicIds)
       throw new Error('Invalid WBWorld.loadTopics() called before IDs loaded');
 
-    for (const topic in Topics) {
-      if (!this.topicFolders[topic]) {
+    // loop over just the numeric values
+    for (const topic of Object.values(Topics).filter(t=>typeof t === 'number')) {
+      if (topic !== Topics.None && !this.topicFolders[topic]) {
         const topicObj = await TopicFolder.fromUuid(this._topicIds[topic]);
         if (!topicObj)
           throw new Error('Invalid topic uuid in WBWorld.loadTopics()');
@@ -189,7 +190,7 @@ export class WBWorld {
   }
 
   /**
-   * The IDs of nodes that are expanded in the cirectory.
+   * The IDs of nodes that are expanded in the directory.
    * Could include compendia, entries, or subentries, or campaigns.
    */
   public get expandedIds(): Record<string, boolean | null> {
@@ -462,7 +463,7 @@ export class WBWorld {
   private async populateTopics() {
     let updated = false;
 
-    const topics = [Topics.Character, Topics.Event, Topics.Location, Topics.Organization] as ValidTopic[];
+    const topics = [Topics.Character, /*Topics.Event, */ Topics.Location, Topics.Organization] as ValidTopic[];
     let topicIds = this._topicIds;
     const topicObjects = {} as Record<ValidTopic, TopicFolder>;
 
@@ -547,6 +548,10 @@ export class WBWorld {
   public async collapseTopicDirectory() {
     // we just unset the entire expandedIds flag
     await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds);
+
+    // then need to reset it
+    this.expandedIds = {};
+    await this.save();
   }
 
   /**

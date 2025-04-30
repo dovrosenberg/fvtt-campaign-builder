@@ -125,6 +125,20 @@
             <i class="fas fa-share"></i>
           </a>
         </template>
+        <!-- Drag column format -->
+        <template
+          v-if="col.field==='drag'"
+          #body="{ data }"
+        >
+          <div 
+            class="fcb-drag-handle"
+            @dragstart="onRowDragStart($event, data.uuid)"
+            :draggable="props.draggableRows"
+            :data-tooltip="data.dragTooltip || 'Drag'"
+          >
+            <i class="fas fa-bars"></i>
+          </div>
+        </template>
         <template
           v-if="col.editable"
           #body="{ data }"
@@ -145,23 +159,17 @@
           <div 
             v-if="data.uuid!==editingRow"
             @click.stop="onClickEditableCell(data.uuid)"
-            @dragstart="onRowDragStart($event, data.uuid)"
-            :draggable="props.draggableRows"
-            :style="props.draggableRows ? `cursor: grab;` : ''"
           >
             <!-- we're not editing this row, but need to put a click event on columns that are editable -->
             {{ data[col.field] }} &nbsp;
           </div>
         </template>
+        <!-- Standard column format -->
         <template
-          v-if="!col.editable && col.field!=='actions'"
+          v-if="!col.editable && col.field!=='actions' && col.field!=='drag'"
           #body="{ data }"
         >
-          <div 
-            @dragstart="onRowDragStart($event, data.uuid)"
-            :draggable="props.draggableRows"
-            :style="props.draggableRows ? `cursor: grab;` : ''"
-          >
+          <div>
             {{ data[col.field] }}
           </div>
         </template>
@@ -336,5 +344,19 @@
   .fcb-action-icon {
     cursor: pointer;
     margin-right: 3px;
+  }
+  
+  .fcb-drag-handle {
+    cursor: grab;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    color: var(--color-text-dark-secondary);
+    
+    &:hover {
+      color: var(--color-text-hyperlink);
+    }
   }
 </style>

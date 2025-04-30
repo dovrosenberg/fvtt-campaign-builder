@@ -52,7 +52,7 @@
   import { localize } from '@/utils/game';
   import WCBTheme from '@/applications/presetTheme';
   import { initializeRollTables } from '@/utils/nameGenerators';
-  import { Backend } from '@/classes/Backend';
+  import { updateWindowTitle } from '@/utils/titleUpdater';
 
   // library components
   import Splitter from 'primevue/splitter';
@@ -62,11 +62,11 @@
   import WBHeader from '@/components/WBHeader/WBHeader.vue';
   import ContentTab from '@/components/ContentTab/ContentTab.vue';
   import Directory from '@/components/Directory/Directory.vue';
-  import PrepPlayToggle from '@/components/PrepPlayToggle.vue';
+  import TitleBarComponents from '@/components/TitleBarComponents.vue';
 
   // types
   import { WindowTabType, Topics, ValidTopic } from '@/types';
-  import { WBWorld, } from '@/classes';
+  import { Backend, WBWorld, } from '@/classes';
   import { CampaignDoc } from '@/documents';
   
   ////////////////////////////////
@@ -151,6 +151,9 @@
   ////////////////////////////////
   // watchers
   watch(currentWorld, async (newWorld: WBWorld | null, oldWorld: WBWorld | null) => {
+    // Update the window title when the world changes
+    updateWindowTitle(newWorld?.name || null);
+    
     if (currentWorld.value && currentWorld.value.topicIds && newWorld?.uuid!==oldWorld?.uuid) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = currentWorld.value.uuid;
@@ -162,10 +165,10 @@
 
       const topicIds = currentWorld.value.topicIds;
       const campaignNames = currentWorld.value.campaignNames;
-      const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
-        [Topics.Event]: null,
+        // [Topics.Event]: null,
         [Topics.Location]: null,
         [Topics.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;
@@ -193,7 +196,7 @@
 
   ////////////////////////////////
   // methods for prep/play toggle
-  const createPrepPlayToggle = async () => {
+  const createTitleBarComponents = async () => {
     // Find the application window header
     const appId = 'app-fcb-CampaignBuilder';
     const appElement = document.getElementById(appId);
@@ -221,7 +224,7 @@
     // Create and mount the Vue component
     const app = createApp({
       render() {
-        return h(PrepPlayToggle, {});
+        return h(TitleBarComponents, {});
       }
     });
 
@@ -253,6 +256,13 @@
   // lifecycle events
   onMounted(async () => {
     directoryCollapsed.value = ModuleSettings.get(SettingKey.startCollapsed) || false;
+    
+    // Make sure the splitter state is reset to reflect the collapsed state
+    if (directoryCollapsed.value && splitterRef.value) {
+      setTimeout(() => {
+        splitterRef.value?.resetState();
+      }, 0);
+    }
 
     const folders = await getDefaultFolders();
 
@@ -268,10 +278,10 @@
 
     if (world.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const topics = [ Topics.Character, Topics.Event, Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
-        [Topics.Event]: null,
+        // [Topics.Event]: null,
         [Topics.Location]: null,
         [Topics.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;
@@ -303,16 +313,22 @@
 
       // Check if backend is available and show warning if not
       if (!Backend.available) {
-        ui.notifications?.warn(
-          "Backend is not available. Automatic RollTables  will not be refreshed. " +
-          "Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
-        );
+        if (!ModuleSettings.get(SettingKey.hideBackendWarning)) {
+          ui.notifications?.warn(
+            "Backend is not available. Automatic RollTables  will not be refreshed. " +
+            "Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
+          );
+        }
       }
+
+      mainStore.refreshCurrentContent();
 
       // Add the prep/play toggle to the header
       // Use setTimeout to ensure the DOM is fully rendered
       setTimeout(() => {
-        createPrepPlayToggle();
+        createTitleBarComponents();
+        // Initialize the window title with the current world name
+        updateWindowTitle(currentWorld.value?.name || null);
       }, 100);
     } else {
       throw new Error('Failed to load or create folder structure');
@@ -327,12 +343,11 @@
 
 // this is from the Vue handler, but we need it to be a flexbox so the overall app window controls the size the rest
 //    of the way down
-div[data-application-part] {
+div[data-application-part="app"]:has(> div.fcb) {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
-
 
 // the launch button in the top right corner
 #fcb-launch {
@@ -340,9 +355,12 @@ div[data-application-part] {
   color: var(--color-text-light-highlight);
 }
 
-
 .fcb-main-window {  
   min-width: 640px;
+
+  .window-header {
+    overflow: visible;  // for the search drop down
+  }
 
   .window-content {
     padding: 0;

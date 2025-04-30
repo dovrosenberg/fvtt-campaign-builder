@@ -1,5 +1,5 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
-import { Backend } from '@/classes/Backend';
+import { Backend } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import * as sinon from 'sinon';
 

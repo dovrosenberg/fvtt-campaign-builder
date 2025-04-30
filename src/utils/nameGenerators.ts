@@ -1,7 +1,7 @@
 import { moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { useMainStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
-import { Backend } from '@/classes/Backend';
+import { Backend } from '@/classes';
 
 import { GeneratorType, GeneratorConfig, } from '@/types';
 export const TABLE_SIZE = 15;  // number of items per table
@@ -88,8 +88,6 @@ const getOrCreateRollTableFolder = async(): Promise<string> => {
  * @returns An array of table results
  */
 const generateTableResults = async (type: GeneratorType, count: number): string[] => {
-  const results: string[] = [];
-
   // If backend is not available, return fallback results
   if (!Backend.available || !Backend.api) {
     return [];
@@ -99,7 +97,7 @@ const generateTableResults = async (type: GeneratorType, count: number): string[
     // Get world settings for genre and feeling
     const world = useMainStore().currentWorld;
     const genre = world?.genre || 'fantasy';
-    const worldFeeling = world?.feeling || '';
+    const worldFeeling = world?.worldFeeling || '';
 
     // For now, they all have the same request format
     const request = {

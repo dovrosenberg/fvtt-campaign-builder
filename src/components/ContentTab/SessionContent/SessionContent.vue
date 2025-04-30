@@ -15,7 +15,17 @@
           @update:model-value="onNameUpdate"
         />
       </header>
+      <div class="flexrow">
+        <Tags
+          v-if="currentSession"
+          v-model="currentSession.tags"
+          :tag-setting="SettingKey.sessionTags"
+          @tag-added="onTagChange"
+          @tag-removed="onTagChange"
+        />
+      </div>
       <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
+        <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
         <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
         <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
         <a class="item" data-tab="vignettes">{{ localize('labels.tabs.session.vignettes') }}</a>
@@ -23,13 +33,14 @@
         <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
         <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
         <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
-        <a class="item" data-tab="description">{{ localize('labels.tabs.session.notes') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
       </nav>
       <div class="fcb-tab-body flexrow">
         <DescriptionTab
           :name="currentSession?.name || 'Session'"
           :image-url="currentSession?.img"
+          :window-type="WindowTabType.Session"
+          alt-tab-id="notes"
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
@@ -58,7 +69,7 @@
           </div>
           <div class="flexrow form-group description">
             <Editor 
-              :initial-content="currentSession?.notes || ''"
+              :initial-content="sessionNotesContent"
               :has-button="true"
               @editor-saved="onNotesEditorSaved"
             />
@@ -120,10 +131,10 @@
   import { nextTick, ref, watch, onMounted, } from 'vue';
 
   // local imports
-  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
-  import { WindowTabType } from '@/types';
+  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useCampaignStore } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
+  import { SettingKey } from '@/settings';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -139,8 +150,11 @@
   import SessionVignetteTab from '@/components/ContentTab/SessionContent/SessionVignetteTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
-
+  import LabelWithHelp from '@/components/LabelWithHelp.vue';
+  import Tags from '@/components/Tags.vue';
+  
   // types
+  import { WindowTabType } from '@/types';
   import { Session } from '@/classes';
   
   ////////////////////////////////
@@ -154,7 +168,9 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentSession, currentContentTab } = storeToRefs(mainStore);
+  const campaignStore = useCampaignStore();
+  const { currentSession, currentContentTab, } = storeToRefs(mainStore);
+  const { currentPlayedSession } = storeToRefs(campaignStore);
   
   ////////////////////////////////
   // data
@@ -163,6 +179,7 @@
   const name = ref<string>('');
   const sessionNumber = ref<string>('');
   const sessionDate = ref<Date | undefined>(undefined);
+  const sessionNotesContent = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);
 
@@ -219,6 +236,13 @@
 
     currentSession.value.notes = newContent;
     await currentSession.value.save();
+
+    mainStore.refreshSession();
+
+    if (currentPlayedSession.value?.uuid===currentSession.value.uuid) {
+      // trigger reactivity on the session notes window
+      currentPlayedSession.value.notes = newContent;
+    }
   };
 
   const onStartEditorSaved = async (newContent: string) => {
@@ -236,6 +260,13 @@
     }
   }
 
+  // we can use this for add and remove because the change was already passed back to 
+  //    currentSession - we just need to save
+  const onTagChange = async (): Promise<void> => {
+    if (!currentSession.value)
+      return;
+    await currentSession.value.save();
+  }
 
   ////////////////////////////////
   // watchers
@@ -260,7 +291,7 @@
 
   watch(currentSession, async (newSession: Session | null): Promise<void> => {
     if (!currentContentTab.value)
-      currentContentTab.value = 'start';
+      currentContentTab.value = 'description';
 
     tabs.value?.activate(currentContentTab.value); 
 
@@ -269,8 +300,16 @@
       name.value = newSession.name || '';
       sessionNumber.value = newSession.number?.toString() || '';
       sessionDate.value = newSession.date || undefined;
+      sessionNotesContent.value = newSession.notes || '';
     }
   });
+  
+  // Watch for changes to the played session (which might include a refresh that changes the notes)
+  watch(() => currentPlayedSession.value, async () => {
+    if (currentPlayedSession.value?.uuid === currentSession.value?.uuid)
+      sessionNotesContent.value = currentPlayedSession.value?.notes || '';
+  }, { immediate: true });
+
 
 
   ////////////////////////////////

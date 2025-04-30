@@ -46,8 +46,7 @@ export type SessionItemDetails = {
   uuid: string;   // the Item document
   name: string;
   delivered: boolean;
-  packId: string | null;
-  location: string;
+  dragTooltip?: string;
 }
 
 export type SessionMonsterDetails = {
@@ -55,8 +54,7 @@ export type SessionMonsterDetails = {
   name: string;
   number: number;
   delivered: boolean;
-  packId: string | null;
-  location: string;
+  dragTooltip?: string;
 }
 
 export type SessionVignetteDetails = {
@@ -70,8 +68,6 @@ export type SessionLoreDetails = {
   description: string;
   journalEntryPageId: string | null;  // the JournalEntryPage document
   journalEntryPageName: string | null;  
-  packId: string | null;
-  location: string;
   delivered: boolean;
 }
 

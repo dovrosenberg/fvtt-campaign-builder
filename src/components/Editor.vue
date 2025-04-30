@@ -40,7 +40,7 @@
   // !!! TODO - use vue-safe-html instead of v-html!!!
 
   // library imports
-  import { computed, nextTick, onMounted, PropType, ref, toRaw, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -48,6 +48,7 @@
   import { useMainStore } from '@/applications/stores';
   import { Campaign, Entry, Session, WBWorld } from '@/classes';
   import { getValidatedData } from '@/utils/dragdrop';
+  import { notifyInfo } from '@/utils/notifications';
 
   // library components
 
@@ -92,11 +93,6 @@
       required: false,
       default: false,
     },
-    engine: {
-      type: String as PropType<'tinymce' | 'prosemirror'>,
-      required: false,
-      default: 'prosemirror',
-    },
     height: {
       type: String,
       required: false,
@@ -138,7 +134,7 @@
   // computed data
   const datasetProperties = computed((): Record<string, string> => {
     const dataset = {
-      engine: props.engine,
+      engine: 'prosemirror',
       collaborate: props.collaborate.toString(),
     } as Record<string, string>;
 
@@ -147,6 +143,10 @@
 
   const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight + 'px'}` : ''));
   const innerStyle = computed((): string => (props.height ? `height: ${props.height + 'px'}` : ''));
+
+  const editOnlyMode = computed((): boolean => {
+    return props.editable && !props.hasButton
+  });
 
   ////////////////////////////////
   // methods
@@ -161,8 +161,8 @@
     // if the window content is shorter, we want to handle that case (rare)
     const wc = coreEditorRef.value.closest('.window-content') as HTMLElement;
 
-    if (!buttonRef.value || !wrapperRef.value)
-      throw new Error('Missing name or button in activateEditor()');
+    if (!wrapperRef.value)
+      throw new Error('Missing name in activateEditor()');
 
     // Determine the preferred editor height
     const heights = [wrapperRef.value.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
@@ -173,13 +173,12 @@
       // document: props.document,
       target: coreEditorRef.value,
       height, 
-      engine: props.engine, 
+      engine: 'prosemirror', 
       collaborate: props.collaborate,
       plugins: undefined as { menu: any; keyMaps: any } | undefined,
     };
 
-    if (props.engine === 'prosemirror') 
-      options.plugins = configureProseMirrorPlugins();
+    options.plugins = configureProseMirrorPlugins();
 
     if (!fitToSize && options.target.offsetHeight) 
       options.height = options.target.offsetHeight;
@@ -188,17 +187,18 @@
     
     editor.value = await TextEditor.create(options, props.initialContent);
    
-    options.target.closest('.editor')?.classList.add(props.engine);
+    options.target.closest('.editor')?.classList.add('prosemirror');
   };
 
   const configureProseMirrorPlugins = () => {
     return {
       menu: ProseMirror.ProseMirrorMenu.build(ProseMirror.defaultSchema, {
-        destroyOnSave: true,  // note! this controls whether the save button or save & close button is shown,
-        onSave: () => saveEditor()
+        // In edit-only mode, we want to keep the editor open after saving
+        destroyOnSave: !editOnlyMode.value,  // Controls whether the save button or save & close button is shown
+        onSave: () => saveEditor({ remove: !editOnlyMode.value })
       }),
       keyMaps: ProseMirror.ProseMirrorKeyMaps.build(ProseMirror.defaultSchema, {
-        onSave: () => saveEditor()
+        onSave: () => saveEditor({ remove: !editOnlyMode.value })
       })
     };
   };
@@ -209,20 +209,11 @@
 
     // get the new content
     let content;
-    if (props.engine === 'tinymce') {
-      // @ts-ignore - editor is a tinymce.Editor
-      const mceContent = editor.value.getContent();
-      //this.delete(editor.value.id); // Delete hidden MCE inputs
-      content = mceContent;
-    } else if (props.engine === 'prosemirror') {
-      // @ts-ignore - editor is a tinymce.Editor
-      content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
-    } else {
-      throw new Error(`Unrecognized enginer in saveEditor(): ${props.engine}`);
-    }
+    // @ts-ignore - editor is a tinymce.Editor
+    content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
 
-    // Remove the editor
-    if (remove) {
+    // For edit-only mode (like in SessionNotes), don't destroy the editor
+    if (remove && !editOnlyMode.value) {
       // this also blows up the DOM... don't think we actually need it
       toRaw(editor.value).destroy();  
       editor.value = null;
@@ -233,6 +224,9 @@
       editorVisible.value = false;
       await nextTick();
       editorVisible.value = true;
+    } else {
+      // if we're not removing it, then do a ui confirmation
+      notifyInfo('Changes saved');
     }
     
     emit('editorSaved', content);
@@ -337,15 +331,11 @@
       const linkText = `@UUID[${entryUuid}]{${entryName}}`;
 
       // Insert the link at the current cursor position
-      if (props.engine === 'prosemirror') {
-        // For ProseMirror
-        const view = toRaw(editor.value).view;
-        const { state, dispatch } = view;
-        const tr = state.tr.insertText(linkText);
-        dispatch(tr);
-      } else {
-        throw new Error("Unsupported engine in Editor.onDrop");
-      }
+      // For ProseMirror
+      const view = toRaw(editor.value).view;
+      const { state, dispatch } = view;
+      const tr = state.tr.insertText(linkText);
+      dispatch(tr);
     }
   };
 
@@ -356,6 +346,25 @@
       return;
       
     enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
+
+    // if edit-only and no editor exists yet, activate it
+    if (editOnlyMode.value && !editor.value) {
+      await activateEditor();
+    }
+    // If editor is already active, update its content
+    else if (editor.value) {
+      // Update the editor content
+      const view = toRaw(editor.value).view;
+      const { state, dispatch } = view;
+      
+      // Create a transaction that replaces the entire document content
+      const schema = state.schema;
+      const newDoc = ProseMirror.dom.parseString(enrichedInitialContent.value || '', schema);
+      const tr = state.tr.replaceWith(0, state.doc.content.size, newDoc.content);
+      
+      // Apply the transaction
+      dispatch(tr);
+    }
   });
 
   
@@ -387,14 +396,17 @@
 <style lang="scss">
   .fcb-editor {
     height: 100%;
-    flex: 1 !important;
+    display: flex;
+    flex: 1;
     border: 1px solid var(--fcb-button-border-color);
     overflow-y: auto !important;
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.05);
     color: var(--color-dark-2);
     font-size: var(--font-size-14);
-    padding: 0 0.5rem;
+    font-weight: normal;
+    font-family: var(--font-body);
+    padding: 0;
 
     &:focus-within {
       border: 2px solid var(--color-warm-2);
@@ -402,6 +414,21 @@
 
     &:disabled {
       color: var(--color-dark-4);
+    }
+
+    .prosemirror {
+      width: 100%;
+      
+      .editor-menu {
+        padding: 4px 0 4px 8px;
+      }
+      .editor-container {
+        margin: 0px;
+
+        .editor-content {
+          padding: 0 8px 0 3px;
+        }
+      }
     }
   }
 

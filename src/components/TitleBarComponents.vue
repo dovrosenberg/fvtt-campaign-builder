@@ -1,5 +1,9 @@
 <template>
-  <div class="prep-play-toggle">
+  <div 
+    class="prep-play-toggle"
+    @click.stop=""
+  >
+    <!-- Campaign drop down if more than one option -->
     <CampaignSelector 
       v-if="showCampaignSelector"
     />
@@ -9,7 +13,7 @@
       class="mode-label"
       :class="{ active: !isInPlayMode }"
     >
-      Prep
+      {{ localize('labels.prep' )}}
     </span>
     <ToggleSwitch
       v-model="toggleValue"
@@ -23,14 +27,24 @@
       class="mode-label"
       :class="{ active: isInPlayMode && playableCampaignExists }"
     >
-      Play
+    {{ localize('labels.play' )}}
     </span>
     <span
       v-if="!playableCampaignExists"
       style="margin-left: 5px; cursor: default"
     >
-      <i class="fas fa-info-circle tooltip-icon" data-tooltip="You need to have at least one campaign with a session in order to use Play mode"></i>
+      <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.playModeNoCampaigns')"></i>
     </span>
+    
+    <!-- Separator -->
+    <div class="separator"></div>
+    
+    <!-- Global Search Box -->
+    <div class="header-search-container">
+      <Search 
+        :max-results="5"
+      />
+    </div>
   </div>
 </template>
 
@@ -41,18 +55,20 @@
 
   // local imports
   import { useMainStore, useCampaignStore } from '@/applications/stores';
+  import { localize } from '@/utils/game';
 
   // library components
   import ToggleSwitch from 'primevue/toggleswitch';
 
   // local components
   import CampaignSelector from '@/components/WBHeader/PlayModeNavigation/CampaignSelector.vue';
+  import Search from '@/components/Search.vue';
   
   // Store references
   const mainStore = useMainStore();
   const campaignStore = useCampaignStore();
   const { isInPlayMode, currentWorld } = storeToRefs(mainStore);
-  const { currentPlayedCampaignId, playableCampaigns } = storeToRefs(campaignStore);
+  const { playableCampaigns } = storeToRefs(campaignStore);
 
   // Data
   const toggleValue = ref<boolean>(isInPlayMode.value);
@@ -100,8 +116,58 @@
   align-items: center;
   margin-right: 10px;
 
+  // Separator styling
+  .separator {
+    height: 20px;
+    width: 1px;
+    background-color: #ccc;
+    margin: 0 10px;
+  }
+  
+  // Header search styling
+  .header-search-container {
+    max-width: 200px;
+    margin-left: 5px;
+    
+    :deep(.fcb-search-container) {
+      .fcb-search-input-container {
+        .fcb-search-input {
+          width: 180px;
+          height: 24px;
+          padding: 4px 24px 4px 8px;
+          font-size: 12px;
+          border-radius: 3px;
+        }
+        
+        .fcb-search-icon {
+          right: 6px;
+          font-size: 12px;
+        }
+      }
+      
+      .fcb-search-results {
+        max-height: 300px;
+        font-size: 12px;
+        z-index: 1001; // Higher z-index to appear above other elements
+        
+        .fcb-search-result {
+          padding: 6px 8px;
+          
+          .fcb-search-result-header {
+            margin-bottom: 2px;
+            
+            .fcb-search-result-name {
+              font-size: 12px;
+            }
+          }
+        }
+      }
+    }
+  }
+
   .campaign-selector-container {
     margin-right: 10px;
+    margin-left: 10px;
 
     select {
       padding: 2px 5px;

@@ -5,19 +5,43 @@
     "settings": {
       "startCollapsed": "Sidebar starts collapsed?",
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
+      "displaySessionNotes": "Display pop-up session notes",
+      "displaySessionNotesHelp": "When enabled, a session notes window will automatically open when a play session starts",
+      "sessionDisplayMode": "Session display format",
+      "sessionDisplayModeHelp": "Choose how sessions are displayed in the campaign directory",
+      "sessionDisplayModeOptions": {
+        "number": "Session Number",
+        "date": "Session Date",
+        "name": "Session Name"
+      },
       "autoRefreshRollTables": "Automatically refresh RollTables",
       "autoRefreshRollTablesHelp": "When enabled, generator roll tables will be automatically refreshed with new values when the module loads",
       "rollTableSettings": "Roll Table Settings",
       "rollTableSettingsLabel": "Roll Table Settings",
       "rollTableSettingsHelp": "Configure settings for the random generators",
+      "rollTableConfig": {
+        "defaultTypeNPC": "Default NPC type",
+        "defaultTypeNPCHelp": "Default type to use when creating an NPC character entry",
+        "defaultTypeTown": "Default Town type",
+        "defaultTypeTownHelp": "Default type to use when creating a town location entry",
+        "defaultTypeStore": "Default Store type",
+        "defaultTypeStoreHelp": "Default type to use when creating a store location entry",
+        "defaultTypeTavern": "Default Tavern type",
+        "defaultTypeTavernHelp": "Default type to use when creating a tavern location entry"
+      },
       "advanced": "Advanced Settings",
       "advancedLabel": "Open Advanced Settings",
       "advancedHelp": "Configure advanced settings (including AI)",
       "speciesList": "Manage Species List",
       "speciesListLabel": "Species List",
-      "speciesListHelp": "Define the species to make available.  These cross all worlds - file an issue if you have need more different lists per world."
+      "speciesListHelp": "Define the species to make available.  These cross all worlds - file an issue if you have need more different lists per world.",
+      "hideBackendWarning": "Hide missing backend warning?",
+      "hideBackendWarningHelp": "If you're not using the backend, this lets you turn off the notification that it's missing"
     },
     "applications": {
+      "sessionNotes": {
+        "title": "Session Notes"
+      },
       "speciesList": {
         "title": "Configure Species List",
         "labels": {
@@ -32,7 +56,9 @@
           "backendURL": "Backend URL",
           "backendURLHint": "Output from script to deploy the backend.",
           "APIToken": "API Token",
-          "APITokenHint": "Output from script to deploy the backend."
+          "APITokenHint": "Output from script to deploy the backend.",
+          "defaultToLong": "Default to long descriptions",
+          "defaultToLongHint": "Controls the default setting for creating a long vs short description when doing AI generation."
         }
       },
       "rollTableSettings": {
@@ -42,6 +68,26 @@
         "labels": {
           "refreshAll": "Refresh all tables",
           "refreshAllHelp": "Replace any used items with new ones"
+        }
+      },
+      "createEntry": {
+        "titles": {
+          "create": {
+            "character": "Create Character",
+            "location": "Create Location",
+            "organization": "Create Organization"
+          },
+          "generate": {
+            "character": "Generate Character",
+            "location": "Generate Location",
+            "organization": "Generate Organization"
+          }
+        },
+        "labels": {
+          "generateImage": "Generate image",
+          "generateImageTooltip": "Generate a new image in the background after creating",
+          "generatedName":"Generated Name",
+          "generatedDescription": "Generated Description"
         }
       }
     },
@@ -53,6 +99,15 @@
       "newTab": "New Tab",
       "saveChanges": "Save Changes",
       "reset": "Reset",
+      "cancel": "Cancel",
+      "generate": "Generate",
+      "accept": "Accept",
+      "use": "Use",
+      "useOnce": "Use once",
+      "tryAgain": "Try Again",
+      "addToWorld": "Add to world",
+      "prep": "Prep",
+      "play": "Play",
       "fields": {
         "type": "Type",
         "parent": "Parent",
@@ -62,9 +117,15 @@
         "backgroundPoints": "Background Points",
         "otherPlotPoints": "Other Plot Points",
         "desiredMagicItems": "Desired Magic Items",
+        "name": "Name",
         "species": "Species",
         "worldGenre": "Genre",
-        "worldFeeling": "World Feeling"
+        "worldFeeling": "World Feeling",
+        "campaignDescription": "Campaign description, notes, ideas, etc...",
+        "briefDescription": "Brief description",
+        "description": "Description",
+        "longDescriptions": "Generate long descriptions",
+        "generateImage": "Generate Image"
       },
       "addTopic": {
         "character": "Add Character",
@@ -90,9 +151,17 @@
         "addLocationDrag": "(or drag/drop a location)",
         "addVignette": "Add vignette",
         "addLore": "Add lore",
+        "addLoreDrag": "(or drag/drop a journal entry)",
         "addNPC": "Add NPC",
         "addNPCDrag": "(or drag/drop a character)",
-        "addItem": "Add item"
+        "addItem": "Add item",
+        "addItemDrag": "(or drag/drop an item)",
+        "addMonster": "Add monster",
+        "addMonsterDrag": "(or drag/drop an actor)",
+        "addActor": "Add actor",
+        "addActorDrag": "(or drag/drop an actor)",
+        "addScene": "Add scene",
+        "addSceneDrag": "(or drag/drop a scene)"
       },
       "campaign": {
         "addPC": "Add PC",
@@ -136,6 +205,7 @@
     },
     "placeholders": {
       "search": "Search",
+      "filter": "Filter",
       "characterName": "Character Name",
       "eventName": "Event Name",
       "locationName": "Location Name",
@@ -162,14 +232,8 @@
       "organizations": "Organizations"
     },
     "dialogs": {
-      "generateCharacter": {
-        "title": "Generate Character"
-      },
-      "generateLocation": {
-        "title": "Generate Location"
-      },
-      "generateOrganization": {
-        "title": "Generate Organization"
+      "generateNameDialog": {
+        "errorMessage": "There was an error:"
       },
       "generateOptions": {
         "title": "Select an Option"
@@ -181,6 +245,12 @@
       "confirmDeletePC": {
         "title": "Delete PC?",
         "message": "Are you sure you want to delete this PC from the campaign?"
+      },
+      "createEntry": {
+        "generatedName": "Generated name",
+        "generatedDescription": "Generated description",
+        "generatePrompt": "Press generate for results",
+        "generatePrompt2": "Otherwise, \"Brief Description\" will be used as the new Entry description."
       },
       "createPC": {
         "title": "Create PC",
@@ -218,18 +288,19 @@
       "session": {
         "delete": "Delete session"
       },
+      "image": {
+        "viewImage": "View Image",
+        "changeImage": "Change Image",
+        "removeImage": "Remove Image",
+        "postToChat": "Post To Chat",
+        "createScene": "Create Scene"
+      },
       "topicFolder": {
         "create": {
           "1": "Create new character",
           "2": "Create new location",
           "3": "Create new organization",
           "4": "Create new event"
-        },
-        "generate": {
-          "1": "Generate new character",
-          "2": "Generate new location",
-          "3": "Generate new organization",
-          "4": "Generate new event"
         }
       },
       "directoryEntry": {
@@ -237,10 +308,15 @@
       },
       "typeFolder": {
         "create": "Create new"
+      },
+      "generate":  {
+        "description": "Generate description",
+        "image": "Generate image",
+        "inProgress": "in progress"
       }
     },
     "tooltips": {
-      "mainButton": "Launch World Builder",
+      "mainButton": "Launch Campaign Builder",
       "createWorld": "Create world",
       "expandDirectory": "Expand directory",
       "collapseDirectory": "Collapse directory",
@@ -262,6 +338,10 @@
       "moveToNextSession": "Move to next session",
       "generateContent": "Generate content",
       "backendNotAvailable": "Backend not available",
+      "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",
+      "dragMonsterFromSession": "Drag to scene",
+      "dragItemFromSession": "Drag to actor, etc.",
+      "dragActorFromEntry": "Drag to scene",
       "contentLinks": {
         "1": {
           "1": "Character",
@@ -273,7 +353,9 @@
         "3": "Session",
         "4": "PC",
         "5": "World"
-      }
+      },
+      "longDescriptions": "Generate detailed description or a short summary?",
+      "generateImage": "Generate a new image in the background after creating"
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"

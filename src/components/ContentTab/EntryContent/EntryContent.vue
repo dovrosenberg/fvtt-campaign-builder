@@ -19,11 +19,20 @@
           class="fcb-generate-button"
           @click="onGenerateButtonClick"
           :disabled="generateDisabled"
-          :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` ${localize('tooltips.backendNotAvailable')}` : ''}`"
+          :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"
         >
           <i class="fas fa-head-side-virus"></i>
         </button>
       </header>
+      <div class="flexrow">
+        <Tags
+          v-if="currentEntry"
+          v-model="currentEntry.tags"
+          :tag-setting="SettingKey.entryTags"
+          @tag-added="onTagChange"
+          @tag-removed="onTagChange"
+        />
+      </div>
       <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
         <a 
@@ -53,6 +62,8 @@
         <DescriptionTab 
           :name="currentEntry?.name || 'Entry'"
           :image-url="currentEntry?.img"
+          :window-type="WindowTabType.Entry"
+          :topic="topic as ValidTopic"
           @image-change="onImageChange"
         >
           <div class="flexrow form-group">
@@ -118,11 +129,13 @@
             <RelatedItemTable :topic="Topics.Organization" />
           </div>
         </div>
+        <!-- Events tab commented 
         <div class="tab flexcol" data-group="primary" data-tab="events">
           <div class="tab-inner">
             <RelatedItemTable :topic="Topics.Event" />
           </div>
         </div>
+        -->
         <div class="tab flexcol" data-group="primary" data-tab="scenes">
           <div class="tab-inner">
             <RelatedDocumentTable 
@@ -140,18 +153,6 @@
       </div>
     </div>
   </form>
-  <GenerateDialog
-    v-if="topic"
-    v-model="showGenerate"
-    :topic="topic"
-    :initial-name="currentEntry?.name || ''"
-    :initial-type="currentEntry?.type || ''"
-    :initial-species-id="currentEntry?.speciesId || ''"
-    :valid-parents="validParents"
-    :initial-parent-id="parentId || ''"
-    :initial-description="currentEntry?.description ? htmlToPlainText(currentEntry.description) : ''"
-    @generation-complete="onGenerationComplete"
-  />
 </template>
 
 <script setup lang="ts">
@@ -164,9 +165,9 @@
   import { getTopicIcon, htmlToPlainText } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
-  import { Backend } from '@/classes/Backend';
-  import { ModuleSettings, SettingKey } from '@/settings';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
+  import { generateImage } from '@/utils/generation';
+  import { SettingKey } from '@/settings';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -176,16 +177,18 @@
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import RelatedItemTable from '@/components/Tables/RelatedItemTable.vue';
   import RelatedDocumentTable from '@/components/Tables/RelatedDocumentTable.vue';
-  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
+  
   import Editor from '@/components/Editor.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
+  import Tags from '@/components/Tags.vue';
 
   // types
-  import { DocumentLinkType, Topics, GeneratedCharacterDetails, Species, GeneratedLocationDetails, GeneratedOrganizationDetails, ValidTopic } from '@/types';
-  import { Entry, WBWorld, TopicFolder, } from '@/classes';
+  import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
+  import { WBWorld, TopicFolder, Backend, Entry } from '@/classes';
+  import { updateEntryDialog } from '@/dialogs/createEntry';
 
   ////////////////////////////////
   // props
@@ -205,7 +208,7 @@
   // data
   const topicData = {
     [Topics.Character]: { namePlaceholder: 'placeholders.characterName', },
-    [Topics.Event]: { namePlaceholder: 'placeholders.characterName', },
+    // [Topics.Event]: { namePlaceholder: 'placeholders.characterName', }, // Commented out as events are not currently needed
     [Topics.Location]: { namePlaceholder: 'placeholders.characterName', },
     [Topics.Organization]: { namePlaceholder: 'placeholders.characterName', },
   };
@@ -214,7 +217,7 @@
     { tab: 'characters', label: 'labels.tabs.entry.characters', },
     { tab: 'locations', label: 'labels.tabs.entry.locations',},
     { tab: 'organizations', label: 'labels.tabs.entry.organizations', },
-    { tab: 'events', label: 'labels.tabs.entry.events', },
+    // { tab: 'events', label: 'labels.tabs.entry.events', }, // Commented out as events are not currently needed
   ] as { tab: string; label: string }[];
 
   const tabs = ref<foundry.applications.ux.Tabs>();
@@ -224,7 +227,6 @@
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
-  const showGenerate = ref<boolean>(false);
   const isGeneratingImage = ref<boolean>(false); // Flag to track whether image generation is in progress
   
   ////////////////////////////////
@@ -294,7 +296,7 @@
     event.preventDefault();
     event.stopPropagation();
 
-    if (![Topics.Character, Topics.Location, Topics.Organization].includes(topic.value)) {
+    if (topic.value != null && ![Topics.Character, Topics.Location, Topics.Organization].includes(topic.value)) {
       return;
     }
 
@@ -303,18 +305,31 @@
       {
         icon: 'fa-file-lines',
         iconFontClass: 'fas',
-        label: 'Generate text',
-        onClick: () => {
-          showGenerate.value = true;
+        label: localize('contextMenus.generate.description'),        
+        onClick: async () => {
+          if (currentEntry.value)
+            await updateEntryDialog(currentEntry.value);
         }
       },
       {
         icon: 'fa-image',
         iconFontClass: 'fas',
-        label: `Generate image ${isGeneratingImage.value ? ' (in progress)' : ''}`,
+        label: `${localize('contextMenus.generate.image')} ${isGeneratingImage.value ? ` (${localize('contextMenus.generate.inProgress')})` : ''}`,
         disabled: isGeneratingImage.value,
         onClick: async () => {
-          await generateImage();
+          if (!isGeneratingImage.value && currentWorld.value && currentEntry.value) {
+            isGeneratingImage.value = true;
+
+            // save entry because it could change before generation is done
+            const entryGenerated = currentEntry.value.uuid;
+
+            await generateImage(currentWorld.value, currentEntry.value);
+
+            if (entryGenerated===currentEntry.value.uuid)
+              mainStore.refreshEntry();
+
+            isGeneratingImage.value = false;
+          }
         }
       },
     ];
@@ -328,130 +343,20 @@
     });
   };
 
-  const generateImage = async (): Promise<void> => {
-    if (!currentEntry.value || !currentWorld.value || isGeneratingImage.value || ![Topics.Character, Topics.Location, Topics.Organization].includes(currentEntry.value.topic)) {
-      return;
-    }
-
-    try {
-      isGeneratingImage.value = true;
-
-      // Show a notification that we're generating an image
-      ui.notifications?.info(`Generating image for ${currentEntry.value.name}. This may take a minute...`);
-
-      // Get species name if this is a character
-      let species: Species | undefined;
-      const speciesList = ModuleSettings.get(SettingKey.speciesList);
-      if (currentEntry.value.speciesId) {
-        species = speciesList.find(s => s.id === currentEntry.value?.speciesId);
-      }
-
-      let result;
-      switch (currentEntry.value.topic) {
-        case Topics.Character:
-          // Call the API to generate an image
-           result = await Backend.api.apiCharacterGenerateImagePost({
-            genre: currentWorld.value.genre,
-            worldFeeling: currentWorld.value.worldFeeling,
-            type: currentEntry.value.type,
-            species: species?.name || '',
-            speciesDescription: species?.description || '',
-            briefDescription: currentEntry.value.description,
-          });
-          break;
-        case Topics.Location:
-        case Topics.Organization:
-          // get parent/grandparent
-          let parent: Entry | null = null;
-          let grandparent: Entry | null = null;
-
-          if (parentId.value) {
-            parent = await Entry.fromUuid(parentId.value);
-
-            if (parent) {
-              const grandparentId = await parent.getParentId();
-              if (grandparentId) {
-                grandparent = await Entry.fromUuid(grandparentId);
-              }
-            }
-          }
-
-          // Call the API to generate an image
-          const options = {
-            genre: currentWorld.value.genre,
-            worldFeeling: currentWorld.value.worldFeeling,
-            type: currentEntry.value.type,
-            name: currentEntry.value.name,
-            parentName: parent?.name,
-            parentType: parent?.type,
-            parentDescription: parent?.description,
-            grandparentName: grandparent?.name,
-            grandparentType: grandparent?.type,
-            grandparentDescription: grandparent?.description,
-            briefDescription: currentEntry.value.description,
-          };
-
-          if (currentEntry.value.topic === Topics.Location)  {
-            result = await Backend.api.apiLocationGenerateImagePost(options);
-          } else if (currentEntry.value.topic === Topics.Organization) {
-            result = await Backend.api.apiOrganizationGenerateImagePost(options);
-          }
-          break;
-      }
-
-      // Update the entry with the generated image
-      if (result.data.filePath) {
-        currentEntry.value.img = result.data.filePath;
-        await currentEntry.value.save();
-        ui.notifications?.info(`Image completed for ${currentEntry.value.name}.`);
-      } else {
-        throw new Error('Failed to generate image: No image path returned');
-      }
-    } catch (error) {
-      throw new Error(`Failed to generate image: ${(error as Error).message}`);
-    } finally {
-      isGeneratingImage.value = false;
-    }
-  };
-
-  const onGenerationComplete = async (details: GeneratedCharacterDetails | GeneratedLocationDetails | GeneratedOrganizationDetails) => {
-    if (!currentEntry.value) return;
-
-    // Update the entry with the generated content
-    currentEntry.value.name = details.name;
-    currentEntry.value.description = details.description;
-    currentEntry.value.type = details.type;
-
-    // @ts-ignore
-    if (details.speciesId) {
-      // @ts-ignore
-      currentEntry.value.speciesId = details.speciesId;
-    }
-    // @ts-ignore
-    if (details.parentId) {
-      // @ts-ignore
-      await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder as TopicFolder, currentEntry.value.uuid, details.parentId || null);
-    }
-
-    // Save the entry
-    await currentEntry.value.save();
-
-    // Update the UI
-    name.value = details.name;
-
-    // Refresh the directory tree to show the updated name
-    await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
-    await navigationStore.propagateNameChange(currentEntry.value.uuid, details.name);
-
-    // Propagate the name and type changes to all related entries
-    await relationshipStore.propagateFieldChange(currentEntry.value, ['name', 'type']);
-  };
-
+  
   const onImageChange = async (imageUrl: string) => {
     if (currentEntry.value) {
       currentEntry.value.img = imageUrl;
       await currentEntry.value.save();
     }
+  }
+
+  // we can use this for add and remove because the change was already passed back to 
+  //    currentEntry - we just need to save
+  const onTagChange = async (): Promise<void> => {
+    if (!currentEntry.value)
+      return;
+    await currentEntry.value.save();
   }
 
   const onTypeSelectionMade = async (selection: string) => {
@@ -538,5 +443,11 @@
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+  .fcb-generate-button {
+    &:hover:disabled {
+      // prevent button from looking like you can click it if you can't
+      background: unset;
+    }
+  }
 </style>

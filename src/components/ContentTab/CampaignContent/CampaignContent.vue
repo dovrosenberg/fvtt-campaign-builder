@@ -24,9 +24,13 @@
         <DescriptionTab 
           :name="currentCampaign?.name || 'Campaign'"
           :image-url="currentCampaign?.img"
+          :window-type="WindowTabType.Campaign"
           @image-change="onImageChange"
         >
-          <div class="flexrow form-group">
+          <LabelWithHelp
+            label-text="labels.fields.campaignDescription"
+          />
+          <div class="flexrow form-group" style="height: 100%">
             <Editor 
               :initial-content="currentCampaign?.description || ''"
               :has-button="true"
@@ -68,7 +72,8 @@
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
-  
+  import LabelWithHelp from '@/components/LabelWithHelp.vue';
+
   // types
   import { WindowTabType, } from '@/types';
   

@@ -103,7 +103,7 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder; world: 
 export function getTopicText(topic: Topics): string {
   switch (toTopic(topic)) {
     case Topics.Character: return localize('topics.character') || ''; 
-    case Topics.Event: return localize('topics.event') || ''; 
+    // case Topics.Event: return localize('topics.event') || ''; 
     case Topics.Location: return localize('topics.location') || ''; 
     case Topics.Organization: return localize('topics.organization') || ''; 
     case Topics.None:
@@ -122,7 +122,7 @@ export function getTopicText(topic: Topics): string {
 export function getTopicTextPlural(topic: Topics): string {
   switch (toTopic(topic)) {
     case Topics.Character: return localize('topics.characters') || ''; 
-    case Topics.Event: return localize('topics.events') || ''; 
+    // case Topics.Event: return localize('topics.events') || ''; 
     case Topics.Location: return localize('topics.locations') || ''; 
     case Topics.Organization: return localize('topics.organizations') || ''; 
     case Topics.None:

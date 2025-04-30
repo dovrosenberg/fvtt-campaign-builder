@@ -38,13 +38,6 @@
       </ul>
     </div>
   </li>
-  <GenerateDialog 
-    v-model="showGenerate"
-    :topic="generateTopic"
-    :initial-parent-id="props.node.id || ''"
-    :valid-parents="validGenerateParents"
-    @generation-complete="onGenerated" 
-  />
 </template>
 
 <script setup lang="ts">
@@ -56,17 +49,15 @@
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getValidatedData } from '@/utils/dragdrop';
-  import { handleGeneratedEntry, GeneratedDetails } from '@/utils/generation';
-
+  
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
   import TopicDirectoryNodeComponent from './TopicDirectoryNode.vue';
-  import GenerateDialog from '@/components/AIGeneration/GenerateDialog.vue';
-
+  
   // types
-  import { Topics, ValidTopic } from '@/types';
+  import { ValidTopic } from '@/types';
   import { Entry, DirectoryEntryNode, WBWorld, TopicFolder } from '@/classes';
 
   ////////////////////////////////
@@ -105,9 +96,6 @@
   // we don't just use props node because in toggleWithLoad we want to swap it out without rebuilding
   //   the whole tree
   const currentNode = ref<DirectoryEntryNode>(props.node);
-  const showGenerate = ref<boolean>(false);
-  const generateTopic = ref<ValidTopic>(Topics.Character);
-  const validGenerateParents = ref<{id: string; label: string}[]>([]);
   
   ////////////////////////////////
   // computed data
@@ -210,32 +198,10 @@
       zIndex: 300,
       items: topicDirectoryStore.getTopicNodeContextMenuItems(
         props.topic, 
-        props.node.id,
-        () => {
-          // load up valid parents (and the set the parent)
-          if (hasHierarchy(props.topic)) {
-            const topicFolder = currentWorld.value?.topicFolders[props.topic];
-            if (currentWorld.value && topicFolder) {
-              validGenerateParents.value = topicFolder.allEntries()
-                .map((e: Entry)=>({ label: e.name, id: e.uuid}));
-            } else {
-              validGenerateParents.value = [];
-            }
-
-            showGenerate.value = true; 
-            generateTopic.value = props.topic;
-          }
-        }
+        props.node.id
       )
     });
   };
-
-  const onGenerated = async (details: GeneratedDetails) => {
-    if (!currentWorld.value)
-      return;
-
-    await handleGeneratedEntry(details, currentWorld.value.topicFolders[generateTopic.value]);
-  }
 
   ////////////////////////////////
   // watchers

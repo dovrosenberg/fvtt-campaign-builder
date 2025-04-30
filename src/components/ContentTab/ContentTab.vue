@@ -224,10 +224,6 @@
             color: var(--fcb-sheet-tab-color-hover);
           }
 
-          .item.hasitems {
-            border-bottom-color: var(--fcb-sheet-tab-border-items);
-          }
-
           .item.active {
             border-bottom-color: var(--fcb-sheet-tab-border-active);
             color: var(--fcb-sheet-tab-color-active);
@@ -310,7 +306,9 @@
       .editor {
         overflow: visible;
         height: 100%;
+        width: 100%;
         min-height: 100%;
+        position: relative;
 
         .editor-content {
           overflow-y: visible;
@@ -324,10 +322,11 @@
 
     // the button to open the editor
     .editor-edit {
-      position: relative;
+      position: absolute;
       z-index: 1;
-      left: calc(100% - 15px);
+      right: 4px;
       top: 3px;
+      color: coral;
 
       &:hover {
         color: green;

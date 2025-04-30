@@ -4,36 +4,29 @@
     :title="dialogTitle"
     :buttons="[
       {
-        label: 'Cancel',
+        label: localize('labels.cancel'),
         default: false,
         close: true,
       },
       {
-        label: 'Try again',
+        label: localize('labels.tryAgain'),
         default: false,
         close: false,
         callback: onTryAgainClick
       },
       {
-        label: 'Use',
+        label: localize('labels.useOnce'),
         default: false,
         close: true,
         disable: !selectedOption,
         callback: onUseClick
       },
       {
-        label: 'Add to world',
+        label: localize('labels.addToWorld'),
         default: false,
         close: true,
         disable: !selectedOption,
         callback: onAddToWorldClick
-      },
-      {
-        label: 'Generate details',
-        default: false,
-        close: true,
-        disable: !selectedOption,
-        callback: onGenerateClick
       },
     ]"
     @cancel="onCancel"
@@ -47,7 +40,7 @@
           <ProgressSpinner />
         </div>
         <div v-else-if="error" class="error-message">
-          <span class="error-label">There was an error:</span> {{ error }}
+          <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ error }}
         </div>
         <div v-else class="options-list">
           <div 
@@ -58,9 +51,6 @@
             @click="selectOption(index)"
           >
             <div class="option-content">{{ option.description }}</div>
-          </div>
-          <div v-if="options.length === 0" class="no-options-message">
-            No options available. Click "Try again" to generate options.
           </div>
         </div>
       </div>
@@ -152,7 +142,7 @@
       const tableUuid = config?.rollTables[props.generatorType];
       
       // Load the roll table
-      rollTable.value = await fromUuid(tableUuid) as unknown as RollTable;
+      rollTable.value = await fromUuid(tableUuid) as unknown as RollTable | null;
       
       // Draw 3 results from the table
       const draws = await toRaw(rollTable.value).drawMany(3, {
@@ -207,14 +197,6 @@
     if (selectedOption.value) {
       await markUnusedOptionsAsUndrawn();
       emit('addToWorld', selectedOption.value);
-    }
-    resetDialog();
-  };
-
-  const onGenerateClick = async () => {
-    if (selectedOption.value) {
-      await markUnusedOptionsAsUndrawn();
-      emit('generate', selectedOption.value);
     }
     resetDialog();
   };
@@ -307,13 +289,6 @@
         .option-content {
           font-size: var(--font-size-14);
         }
-      }
-      
-      .no-options-message {
-        text-align: center;
-        font-style: italic;
-        color: var(--color-text-dark-secondary);
-        padding: 2rem 0;
       }
     }
   }

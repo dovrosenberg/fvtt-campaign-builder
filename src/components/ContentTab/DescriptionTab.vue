@@ -1,11 +1,14 @@
 <template>
-  <div class="tab flexcol" data-group="primary" data-tab="description">
+  <div class="tab flexcol" data-group="primary" :data-tab="props.altTabId">
     <div class="tab-inner">
       <div class="fcb-description-wrapper flexrow">
         <ImagePicker
           v-model="currentImageURL"
-          :title="`Select Image for ${props.name || 'Entry'}`"
+          :title="props.name"
+          :topic="props.topic"
+          :window-type="props.windowType"
           @update:modelValue="emit('imageChange', $event)"
+          @create-scene="onCreateScene"
         />        
         <div class="fcb-description-content flexcol">
           <slot></slot>
@@ -17,9 +20,10 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch } from 'vue';
+  import { ref, watch, } from 'vue';
   
   // local imports
+  import { useRelationshipStore } from '@/applications/stores';
   
   // library components
 
@@ -27,6 +31,7 @@
   import ImagePicker from '@/components/ImagePicker.vue'; 
 
   // types
+  import { ValidTopic, WindowTabType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -41,6 +46,21 @@
       default: '',
       required: true,
     },    
+    altTabId: {
+      type: String,
+      default: 'description',
+      required: false,
+    },
+    topic: {
+      type: Number as () => ValidTopic,
+      required: false,
+      default: null,
+    },
+    windowType: {
+      type: Number as () => WindowTabType,
+      required: false,
+      default: null,
+    },
   });
 
   ////////////////////////////////
@@ -51,11 +71,11 @@
 
   ////////////////////////////////
   // store
+  const relationshipStore = useRelationshipStore();
 
   ////////////////////////////////
   // data
-  const defaultImage = 'icons/svg/mystery-man.svg'; // Default Foundry image
-  const currentImageURL = ref<string>(props.imageUrl ||  defaultImage); // 
+  const currentImageURL = ref<string>(props.imageUrl || ''); 
 
   ////////////////////////////////
   // computed data
@@ -65,13 +85,31 @@
 
   ////////////////////////////////
   // event handlers
+  const onCreateScene = async (imageURL: string) => {
+    // create the scene
+    const scene = await Scene.createDocuments([{
+      // @ts-ignore- we know this type is valid
+      type: 'Scene',
+      name: props.name,
+      background: {
+        src: imageURL,
+      },
+      grid: {
+        type: foundry.CONST.GRID_TYPES.GRIDLESS,
+      }
+    }]);
+
+    // add it to the linked list
+    if (scene) {
+      relationshipStore.addScene(scene[0].uuid);    
+    }
+  };
 
   ////////////////////////////////
   // watchers
   watch(() => props.imageUrl, (newImageUrl) => {
-    if (newImageUrl) {
-      currentImageURL.value = newImageUrl || defaultImage ;
-    }
+    // Always update the image URL, even when it's empty or undefined
+    currentImageURL.value = newImageUrl || '';
   });
 
   ////////////////////////////////

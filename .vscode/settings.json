@@ -1,15 +1,31 @@
 {
   "cSpell.words": [
     "APIURL",
+    "datatable",
+    "dragdrop",
+    "iconfield",
     "Ifta",
     "iftalabel",
     "imengyu",
+    "improv",
+    "inputicon",
     "inputtext",
+    "minisearch",
     "npcs",
     "progressspinner",
+    "prosemirror",
     "SHADOWROOT",
     "splitterpanel",
+    "subsheet",
+    "tinymce",
+    "toggleswitch",
+    "Undrawn",
     "Unmark"
   ],
-  "zencoder.enableRepoIndexing": true
+  "zencoder.enableRepoIndexing": true,
+  "cSpell.ignoreWords": [
+    "Fori",
+    "Kanka",
+    "xmark"
+  ]
 }

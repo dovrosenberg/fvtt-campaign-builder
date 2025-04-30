@@ -3,22 +3,28 @@ import { moduleId } from './index';
 import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSettingsApplication';
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
-import { GeneratorConfig, Species } from '@/types';
+import { GeneratorConfig, SessionDisplayMode, Species, TagList } from '@/types';
 
 export enum SettingKey {
   // displayed in main settings window
   startCollapsed = 'startCollapsed',  // should the sidebar start collapsed when we open
+  displaySessionNotes = 'displaySessionNotes',  // should the session notes window automatically open
+  sessionDisplayMode = 'sessionDisplayMode',  // how to display sessions in the directory
+  hideBackendWarning = 'hideBackendWarning', // don't show the warning about no backend
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
   isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
   generatorConfig = 'generatorConfig',  // stores the configuration for Foundry RollTable generators
+  entryTags = 'entryTags',
+  sessionTags = 'sessionTags',
 
   // menus
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
   APIURL = 'APIURL',   // URL of backend
   APIToken = 'APIToken',
+  defaultToLongDescriptions = 'defaultToLongDescriptions',
 
   rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu
   autoRefreshRollTables = 'autoRefreshRollTables',  // should roll tables be automatically refreshed on load
@@ -29,6 +35,8 @@ export enum SettingKey {
 
 export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.startCollapsed ? boolean :
+    K extends SettingKey.displaySessionNotes ? boolean :
+    K extends SettingKey.sessionDisplayMode ? SessionDisplayMode :
     K extends SettingKey.rootFolderId ? string :
     K extends SettingKey.groupTreeByType ? boolean :
     K extends SettingKey.isInPlayMode ? boolean :
@@ -36,10 +44,14 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
+    K extends SettingKey.defaultToLongDescriptions ? boolean :
     K extends SettingKey.rollTableSettingsMenu ? never :
     K extends SettingKey.autoRefreshRollTables ? boolean :
     K extends SettingKey.speciesList ? Species[] :
-    never;
+    K extends SettingKey.entryTags ? TagList :
+    K extends SettingKey.sessionTags ? TagList :
+    K extends SettingKey.hideBackendWarning ? boolean :
+    never;  
 
 export class ModuleSettings {
   // note that this returns the object directly, so if it's an object or array, if a reference
@@ -104,6 +116,13 @@ export class ModuleSettings {
   // these are globals shown in the options
   // name and hint should be the id of a localization string
   private static displayParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
+    {
+      settingID: SettingKey.hideBackendWarning,
+      default: false,
+      name: 'settings.hideBackendWarning',   // localized by Foundry
+      hint: 'settings.hideBackendWarningHelp',
+      type: Boolean,
+    },
   ];
 
   // these are client-specific and displayed in settings
@@ -115,6 +134,26 @@ export class ModuleSettings {
       default: false,
       type: Boolean,
     },
+    {
+      settingID: SettingKey.displaySessionNotes,
+      name: 'settings.displaySessionNotes',
+      hint: 'settings.displaySessionNotesHelp',
+      default: true,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.sessionDisplayMode,
+      name: 'settings.sessionDisplayMode',
+      hint: 'settings.sessionDisplayModeHelp',
+      default: SessionDisplayMode.Number,
+      type: String,
+      requiresReload: true,
+      choices: {
+        [SessionDisplayMode.Number]: 'fcb.settings.sessionDisplayModeOptions.number',
+        [SessionDisplayMode.Date]: 'fcb.settings.sessionDisplayModeOptions.date',
+        [SessionDisplayMode.Name]: 'fcb.settings.sessionDisplayModeOptions.name'
+      }
+    },
   ];
 
   // these are globals only used internally
@@ -122,16 +161,6 @@ export class ModuleSettings {
     {
       settingID: SettingKey.rootFolderId,
       default: null,
-      type: String,
-    },
-    {
-      settingID: SettingKey.APIURL,
-      default: '',
-      type: String,
-    },
-    {
-      settingID: SettingKey.APIToken,
-      default: '',
       type: String,
     },
     {
@@ -148,6 +177,33 @@ export class ModuleSettings {
       settingID: SettingKey.generatorConfig,
       default: null,
       type: Object,
+    },
+    {
+      settingID: SettingKey.entryTags,
+      default: {},
+      type: Object,
+    },
+    {
+      settingID: SettingKey.sessionTags,
+      default: {},
+      type: Object,
+    },
+    {
+      settingID: SettingKey.APIURL,
+      default: '',
+      requiresReload: true,
+      type: String,
+    },
+    {
+      settingID: SettingKey.APIToken,
+      default: '',
+      requiresReload: true,
+      type: String,
+    },
+    {
+      settingID: SettingKey.defaultToLongDescriptions,
+      default: true,
+      type: Boolean,
     },
   ];
   

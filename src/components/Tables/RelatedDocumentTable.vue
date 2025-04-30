@@ -3,7 +3,9 @@
   <BaseTable
     :rows="rows"
     :columns="columns"
-    :showAddButton="false"
+    :showAddButton="[DocumentLinkType.Actors, DocumentLinkType.Scenes].includes(props.documentLinkType)"
+    :addButtonLabel="addButtonLabel"
+    :extraAddText="extraAddText"
     :filterFields="filterFields"
     :allowEdit="true"
     :edit-item-label="localize('tooltips.editRelationship')"
@@ -16,12 +18,19 @@
     @drop="onDrop"
     @dragover="onDragover"
     @dragstart="onDragStart"
+    @add-item="onAddItem"
+  />
+  <RelatedDocumentsDialog
+    v-if="[DocumentLinkType.Actors, DocumentLinkType.Scenes].includes(props.documentLinkType)"
+    v-model="showPicker"
+    :document-type="props.documentLinkType===DocumentLinkType.Actors ? 'actor' : 'scene'"
+    @added="onDocumentAddedClick"
   />
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { computed, PropType,} from 'vue';
+  import { computed, PropType, ref } from 'vue';
   import { storeToRefs } from 'pinia';
   import ContextMenu from '@imengyu/vue3-context-menu';
 
@@ -35,6 +44,7 @@
 
   // local components
   import BaseTable from '@/components/BaseTable/BaseTable.vue';
+  import RelatedDocumentsDialog from '@/components/Tables/RelatedDocumentsDialog.vue';
 
   // types
   import { RelatedDocumentDetails, DocumentLinkType } from '@/types';
@@ -59,6 +69,7 @@
 
   ////////////////////////////////
   // data
+  const showPicker = ref<boolean>(false);
     
   ////////////////////////////////
   // computed data
@@ -67,6 +78,25 @@
 
     return base;
   });
+
+  const addButtonLabel = computed((): string => {
+    if (props.documentLinkType === DocumentLinkType.Actors) {
+      return localize('labels.session.addActor');
+    } else if (props.documentLinkType === DocumentLinkType.Scenes) {
+      return localize('labels.session.addScene');
+    }
+    return '';
+  });
+
+  const extraAddText = computed((): string => {
+    if (props.documentLinkType === DocumentLinkType.Actors) {
+      return localize('labels.session.addActorDrag');
+    } else if (props.documentLinkType === DocumentLinkType.Scenes) {
+      return localize('labels.session.addSceneDrag');
+    }
+    return '';
+  });
+
 
   type RelatedDocumentGridRow = { uuid: string; name: string };
 
@@ -79,6 +109,14 @@
         location: item.packId ? `Compendium: ${item.packName}` : 'World',
       };
 
+      // Add dragTooltip for actors
+      if (props.documentLinkType === DocumentLinkType.Actors) {
+        return {
+          ...base,
+          dragTooltip: localize('tooltips.dragActorFromEntry')
+        };
+      }
+
       return base;
     })
   );
@@ -88,6 +126,12 @@
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
     const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
     const locationColumn = { field: 'location', style: 'text-align: left', header: 'Location', sortable: true }; 
+    
+    // Add drag column for actors
+    if (props.documentLinkType === DocumentLinkType.Actors) {
+      const dragColumn = { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' };
+      return [actionColumn, dragColumn, nameColumn, locationColumn];
+    }
 
     return [actionColumn, nameColumn, locationColumn];
   });
@@ -97,21 +141,29 @@
 
   ////////////////////////////////
   // event handlers
-  const onRowSelect = async function (event: { data: RelatedDocumentGridRow} ) { 
+  const onDocumentAddedClick = async (documentUuid: string) => {
+    if (props.documentLinkType===DocumentLinkType.Actors) {
+      await relationshipStore.addActor(documentUuid);
+    } else if (props.documentLinkType===DocumentLinkType.Scenes) {
+      await relationshipStore.addScene(documentUuid);
+    }
+  };
+
+  const onRowSelect = async (event: { data: RelatedDocumentGridRow}) => { 
     const { data } = event;
 
     if (props.documentLinkType===DocumentLinkType.Actors) {
-      const actor = await fromUuid(data.uuid) as Actor;
+      const actor = await fromUuid(data.uuid) as Actor | null;
       await actor?.sheet?.render(true);
     } else if (props.documentLinkType===DocumentLinkType.Scenes) {
-      const scene = await fromUuid(data.uuid) as Scene;
+      const scene = await fromUuid(data.uuid) as Scene | null;
       await scene?.sheet?.render(true);
     }
   
     // Need to test open/activate for things in compendiums
   };
 
-  const onRowContextMenu = async function (event: DataTableRowContextMenuEvent): Promise<boolean> {
+  const onRowContextMenu = async (event: DataTableRowContextMenuEvent): Promise<boolean> => {
     const { originalEvent, data } = event;
     const mouseEvent = originalEvent as MouseEvent;
 
@@ -134,19 +186,19 @@
         { 
           icon: 'fa-eye', 
           iconFontClass: 'fas',
-          label: game.i18n.localize('SCENES.View'), 
+          label: game.i18n.localize('SCENE.View'), 
           onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
+            const scene = await fromUuid(data.uuid) as Scene | null;
             await scene?.view();
           }
         },
         { 
           icon: 'fa-bullseye', 
           iconFontClass: 'fas',
-          label: game.i18n.localize('SCENES.Activate'), 
+          label: game.i18n.localize('SCENE.Activate'), 
           hidden: !!data.packId,   // can't activate in compendium
           onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
+            const scene = await fromUuid(data.uuid) as Scene | null;
             await scene?.activate();
           }
         },
@@ -160,19 +212,19 @@
         { 
           icon: 'fa-cogs', 
           iconFontClass: 'fas',
-          label: game.i18n.localize('SCENES.Configure'), 
+          label: game.i18n.localize('SCENE.Configure'), 
           onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
+            const scene = await fromUuid(data.uuid) as Scene | null;
             await scene?.sheet?.render(true);
           }
         },
         { 
           icon: 'fa-compass', 
           iconFontClass: 'fas',
-          label: game.i18n.localize('SCENES.ToggleNav'), 
+          label: game.i18n.localize('SCENE.ToggleNav'), 
           hidden: !!data.packId,   // can't nav in compendium
           onClick: async () => {
-            const scene = await fromUuid(data.uuid) as Scene;
+            const scene = await fromUuid(data.uuid) as Scene | null;
             if (!scene)
               throw new Error('Failed to load scene in RelatedDocumentTable.onRowContextMenu()');
             
@@ -197,7 +249,7 @@
   };
 
   // call mutation to remove item  from relationship
-  const onDeleteItemClick = async function(_id: string) {
+  const onDeleteItemClick = async (_id: string) => {
     // show the confirmation dialog 
     await Dialog.confirm({
       title: localize('dialogs.confirmDeleteRelationship.title'),
@@ -245,6 +297,14 @@
     }
 
     return;    
+  }
+
+  const onAddItem = () => {
+    if (props.documentLinkType === DocumentLinkType.Actors) {
+      showPicker.value = true;
+    } else if (props.documentLinkType === DocumentLinkType.Scenes) {
+      showPicker.value = true;
+    }
   }
 
   ////////////////////////////////

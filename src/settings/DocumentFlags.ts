@@ -242,10 +242,11 @@ export const unsetFlag = async <
 
   if (config.keyedByUUID && key) {
     await doc.unsetFlag(moduleId, `${flag}.${swapString(key, true)}`);
-  } else if (!config.keyedByUUID){
+  } else if (!config.keyedByUUID && key){
     await doc.unsetFlag(moduleId, `${flag}${key ? '.' + key : ''}`);
   } else {
-    throw new Error('key missing in DocumentFlags.unsetFlag()');
+    // try to unset the whole flag
+    await doc.unsetFlag(moduleId, flag);
   }
 };
 

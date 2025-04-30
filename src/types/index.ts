@@ -5,6 +5,8 @@ export type * from './hierarchy.d.ts';
 export type * from './global.d.ts';
 export type * from './species.d.ts';
 export type * from './dialogs.d.ts';
+export type * from './search.d.ts';
+export type * from './tags.d.ts';
 
 // @ts-ignore - need to pull enum
 export * from './generators.ts';
@@ -47,13 +49,13 @@ export type TabSummary = {
   name: string;
 }
 
-// this oder is also the order that they get sorted in
+// this order is also the order that they get sorted in
 export enum Topics {
   None = 0,
   Character = 1,
   Location = 2,
   Organization = 3,
-  Event = 4,
+  // Event = 4, // Commented out for now
 }
 
 // topics except None
@@ -73,4 +75,11 @@ export type TreeNode = {
   value: string;   // a value to be passed up when clicked (ex. a uuid)
   children: TreeNode[];   // the children, if any
   expanded?: boolean;   // is it expanded
+}
+
+// session display mode in directory
+export enum SessionDisplayMode {
+  Number = 'number',
+  Date = 'date',
+  Name = 'name'
 }

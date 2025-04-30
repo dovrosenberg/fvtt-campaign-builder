@@ -1,9 +1,11 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore } from '@/documents';
-import { inputDialog } from '@/dialogs/input';
+import { searchService } from '@/utils/search';
+import { inputDialog } from '@/dialogs';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
+import { TagInfo } from '@/types';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Session {
@@ -28,7 +30,7 @@ export class Session {
   }
 
   static async fromUuid(sessionId: string, options?: Record<string, any>): Promise<Session | null> {
-    const sessionDoc = await fromUuid(sessionId, options) as SessionDoc;
+    const sessionDoc = await fromUuid(sessionId, options) as SessionDoc | null;
 
     if (!sessionDoc)
       return null;
@@ -106,6 +108,14 @@ export class Session {
 
     if (sessionDoc) {
       const session = new Session(sessionDoc[0], campaign);
+
+      // Add to search index
+      try {
+        await searchService.addOrUpdateIndex(session, world, false);
+      } catch (error) {
+        console.error('Failed to add session to search index:', error);
+      }
+
       return session;
     } else {
       return null;
@@ -125,6 +135,21 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       name: value,
+    };
+  }
+
+  get tags(): TagInfo[] {
+    return this._sessionDoc.system.tags;
+  }
+
+  set tags(value: TagInfo[]) {
+    this._sessionDoc.system.tags = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        tags: value,
+      }
     };
   }
 
@@ -386,7 +411,7 @@ export class Session {
     return this._sessionDoc.system.lore || [];
   }
 
-  async addLore(description: string): Promise<void> {
+  async addLore(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 
     this._sessionDoc.system.lore.push({
@@ -404,6 +429,7 @@ export class Session {
     };
 
     await this.save();
+    return uuid;
   }
 
   async updateLoreDescription(uuid: string, description: string): Promise<void> {
@@ -629,6 +655,15 @@ export class Session {
     this._cumulativeUpdate = {};
 
     await world.lock();
+
+     // Update the search index
+     try {
+      if (retval) {
+        await searchService.addOrUpdateIndex(this, world, false);
+      }
+    } catch (error) {
+      console.error('Failed to update search index:', error);
+    }
 
     return retval ? this : null;
   }

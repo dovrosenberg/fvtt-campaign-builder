@@ -27,6 +27,19 @@
         </p>
       </div>
 
+      <div class="form-group">
+        <label>{{ localize('applications.advancedSettings.labels.defaultToLong') }}</label>
+        <div class="form-fields">
+          <Checkbox 
+              v-model="defaultToLongDescriptions" 
+              :binary="true"
+            />
+        </div>
+        <p class="hint">
+          {{ localize('applications.advancedSettings.labels.defaultToLongHint') }}
+        </p>
+      </div>
+
       <footer class="form-footer" data-application-part="footer">
         <button 
           @click="onResetClick"
@@ -51,12 +64,13 @@
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend } from '@/classes/Backend';
+  import { Backend } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
 
   // library components
   import InputText from 'primevue/inputtext';
+  import Checkbox from 'primevue/checkbox';
 
   // local components
 
@@ -75,6 +89,7 @@
   // data
   const APIURL = ref<string>('');
   const APIToken = ref<string>('');
+  const defaultToLongDescriptions = ref<boolean>(true);
 
   ////////////////////////////////
   // computed data
@@ -87,6 +102,7 @@
   const onSubmitClick = async () => {
     await ModuleSettings.set(SettingKey.APIURL, APIURL.value);
     await ModuleSettings.set(SettingKey.APIToken, APIToken.value);
+    await ModuleSettings.set(SettingKey.defaultToLongDescriptions, defaultToLongDescriptions.value);
 
     // reset the backend
     await Backend.configure();
@@ -98,6 +114,7 @@
   const onResetClick = async () => {
     APIURL.value =  ModuleSettings.get(SettingKey.APIURL);
     APIToken.value = ModuleSettings.get(SettingKey.APIToken);
+    defaultToLongDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
   }
 
   ////////////////////////////////
@@ -109,6 +126,7 @@
     // load the settings
     APIURL.value =  ModuleSettings.get(SettingKey.APIURL);
     APIToken.value = ModuleSettings.get(SettingKey.APIToken);
+    defaultToLongDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
   })
   
 
