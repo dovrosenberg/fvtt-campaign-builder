@@ -158,11 +158,11 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, watch, reactive } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { getTopicIcon, htmlToPlainText } from '@/utils/misc';
+  import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
@@ -187,7 +187,7 @@
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
-  import { WBWorld, TopicFolder, Backend, Entry } from '@/classes';
+  import { WBWorld, TopicFolder, Backend, } from '@/classes';
   import { updateEntryDialog } from '@/dialogs/createEntry';
 
   ////////////////////////////////
@@ -227,7 +227,7 @@
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
-  const isGeneratingImage = ref<boolean>(false); // Flag to track whether image generation is in progress
+  const isGeneratingImage = reactive<Record<string, boolean>>({}); // Flag to track whether image generation is in progress - only one per id at a time
   
   ////////////////////////////////
   // computed data
@@ -314,11 +314,11 @@
       {
         icon: 'fa-image',
         iconFontClass: 'fas',
-        label: `${localize('contextMenus.generate.image')} ${isGeneratingImage.value ? ` (${localize('contextMenus.generate.inProgress')})` : ''}`,
-        disabled: isGeneratingImage.value,
+        label: `${localize('contextMenus.generate.image')} ${isGeneratingImage[currentEntry.value?.uuid as string] ? ` (${localize('contextMenus.generate.inProgress')})` : ''}`,
+        disabled: isGeneratingImage[currentEntry.value?.uuid as string],
         onClick: async () => {
-          if (!isGeneratingImage.value && currentWorld.value && currentEntry.value) {
-            isGeneratingImage.value = true;
+          if (!isGeneratingImage[currentEntry.value?.uuid as string] && currentWorld.value && currentEntry.value) {
+            isGeneratingImage[currentEntry.value?.uuid as string] = true;
 
             // save entry because it could change before generation is done
             const entryGenerated = currentEntry.value.uuid;
@@ -328,7 +328,7 @@
             if (entryGenerated===currentEntry.value.uuid)
               mainStore.refreshEntry();
 
-            isGeneratingImage.value = false;
+            isGeneratingImage[currentEntry.value?.uuid as string] = false;
           }
         }
       },
