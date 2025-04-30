@@ -314,21 +314,21 @@
       {
         icon: 'fa-image',
         iconFontClass: 'fas',
-        label: `${localize('contextMenus.generate.image')} ${isGeneratingImage[currentEntry.value?.uuid as string] ? ` (${localize('contextMenus.generate.inProgress')})` : ''}`,
+        label: `${localize('contextMenus.generate.image')} ${isGeneratingImage[currentEntry.value?.uuid as string] ? ` - ${localize('contextMenus.generate.inProgress')}` : ''}`,
         disabled: isGeneratingImage[currentEntry.value?.uuid as string],
         onClick: async () => {
           if (!isGeneratingImage[currentEntry.value?.uuid as string] && currentWorld.value && currentEntry.value) {
-            isGeneratingImage[currentEntry.value?.uuid as string] = true;
-
             // save entry because it could change before generation is done
             const entryGenerated = currentEntry.value.uuid;
+
+            isGeneratingImage[entryGenerated] = true;
 
             await generateImage(currentWorld.value, currentEntry.value);
 
             if (entryGenerated===currentEntry.value.uuid)
               mainStore.refreshEntry();
 
-            isGeneratingImage[currentEntry.value?.uuid as string] = false;
+            isGeneratingImage[entryGenerated] = false;
           }
         }
       },
