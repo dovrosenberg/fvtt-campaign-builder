@@ -1,7 +1,7 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
 import PrimeVue from 'primevue/config';
 import WCBTheme from '@/applications/presetTheme';
-import App from '@/components/applications/CreateEntry.vue';
+import App from '@/components/applications/CreateEntryDialog.vue';
 import { hasHierarchy, } from '@/utils/hierarchy';
 import { useMainStore, useTopicDirectoryStore, useRelationshipStore, useNavigationStore } from '@/applications/stores'; 
 import { CharacterDetails, LocationDetails, OrganizationDetails, Topics, ValidTopic } from '@/types';

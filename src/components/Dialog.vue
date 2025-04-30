@@ -29,6 +29,7 @@
           :key="key"
           type="button"
           :disabled="btn.disable"
+          :style="btn.hidden ? {display:'none'} : {}"
           :class="`fcb-dialog-button ${btn.default ? 'default' : ''}`"
           @click="onButtonClick(btn)"
         >
@@ -57,6 +58,7 @@
     default?: boolean;
     icon?: string;
     disable?: boolean;
+    hidden?: boolean;
     callback?: () => void;
   };
 
