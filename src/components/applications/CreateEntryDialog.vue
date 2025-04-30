@@ -591,6 +591,14 @@
         margin-top: 100px;
         font-style: italic;
       }
+
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+      }
     }
   }
 }

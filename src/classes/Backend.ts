@@ -2,7 +2,7 @@ import { version } from '@module'
 import { Configuration, FCBApi } from '@/apiClient';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyGMError, notifyGMInfo, notifyGMWarn } from '@/utils/notifications';
-import { localize } from 'src/utils/game';
+import { localize } from '@/utils/game';
 
 // this is the backend version that needs to be used with this version of the module
 // generally, we'll try to keep them more or less in sync, at least at the minor release level
