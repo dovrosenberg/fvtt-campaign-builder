@@ -191,11 +191,13 @@ export class ModuleSettings {
     {
       settingID: SettingKey.APIURL,
       default: '',
+      requiresReload: true,
       type: String,
     },
     {
       settingID: SettingKey.APIToken,
       default: '',
+      requiresReload: true,
       type: String,
     },
     {

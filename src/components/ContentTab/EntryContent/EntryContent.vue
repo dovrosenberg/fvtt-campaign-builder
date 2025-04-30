@@ -19,7 +19,7 @@
           class="fcb-generate-button"
           @click="onGenerateButtonClick"
           :disabled="generateDisabled"
-          :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` ${localize('tooltips.backendNotAvailable')}` : ''}`"
+          :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"
         >
           <i class="fas fa-head-side-virus"></i>
         </button>
@@ -443,5 +443,11 @@
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+  .fcb-generate-button {
+    &:hover:disabled {
+      // prevent button from looking like you can click it if you can't
+      background: unset;
+    }
+  }
 </style>
