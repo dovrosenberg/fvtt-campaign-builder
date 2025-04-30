@@ -1,7 +1,8 @@
 import { version } from '@module'
 import { Configuration, FCBApi } from '@/apiClient';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { notifyGMError, notifyGMWarn } from '@/utils/notifications';
+import { notifyGMError, notifyGMInfo, notifyGMWarn } from '@/utils/notifications';
+import { localize } from 'src/utils/game';
 
 // this is the backend version that needs to be used with this version of the module
 // generally, we'll try to keep them more or less in sync, at least at the minor release level
@@ -35,7 +36,7 @@ export class Backend {
       versionResult = await Backend.api.apiVersionGet();
     } catch (e) {
       if (!ModuleSettings.get(SettingKey.hideBackendWarning)) 
-        notifyGMError(`Failed to connect to backend - check your "advanced" settings to make sure they properly match the backend server you deployed.  You'll be unable to used advanced features in the meantime.`);
+        notifyGMError(localize('notifications.backend.failedConnection'));
 
       return;
     }
@@ -53,13 +54,16 @@ export class Backend {
         } else {
           // anything else means the version is wrong
           // output a foundry error message
-          notifyGMError(`The version of your World & Campaign Builder backend (${versionResult.data.version}) doesn't match the version required by 
-            the module version you have installed (${REQUIRED_VERSION}).  Please update one or the other (or both).  You'll be unable to used advanced features in the meantime.`);
+          notifyGMError(localize('notifications.backend.versionMismatch')
+            .replace('$1', `${versionResult.data.version}`)
+            .replace('$2', `${REQUIRED_VERSION}`));
+
           return;
         }; break;
       }
     
     // made it here - good to go!
+    notifyGMInfo(localize('notifications.backend.successfulConnection'));
     Backend.available = true;
   }
 }
