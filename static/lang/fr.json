@@ -124,7 +124,8 @@
         "name": "Nom",
         "briefDescription": "Brève description",
         "longDescriptions": "Générer des descriptions longues",
-        "generateImage": "Générer une image"
+        "generateImage": "Générer une image",
+        "description": "Description"
       },
       "addTopic": {
         "character": "Ajouter un Personnage",
@@ -260,6 +261,12 @@
       "createWorld": {
         "title": "Créer un Monde",
         "worldName": "Nom du Monde"
+      },
+      "createEntry": {
+        "generatedName": "Nom généré",
+        "generatedDescription": "Description générée",
+        "generatePrompt": "Appuyez sur générer pour obtenir des résultats",
+        "generatePrompt2": "Sinon, \"Brève Description\" sera utilisée comme nouvelle description de l'entrée."
       }
     },
     "contextMenus": {

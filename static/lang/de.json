@@ -124,7 +124,8 @@
         "name": "Name",
         "briefDescription": "Kurze Beschreibung",
         "longDescriptions": "Lange Beschreibungen generieren",
-        "generateImage": "Bild generieren"
+        "generateImage": "Bild generieren",
+        "description": "Beschreibung"
       },
       "addTopic": {
         "character": "Charakter hinzufügen",
@@ -260,6 +261,12 @@
       "createWorld": {
         "title": "Welt erstellen",
         "worldName": "Weltname"
+      },
+      "createEntry": {
+        "generatedName": "Generierter Name",
+        "generatedDescription": "Generierte Beschreibung",
+        "generatePrompt": "Drücken Sie auf generieren, um Ergebnisse zu erhalten",
+        "generatePrompt2": "Andernfalls wird \"Kurze Beschreibung\" als neue Eintragsbeschreibung verwendet."
       }
     },
     "contextMenus": {
