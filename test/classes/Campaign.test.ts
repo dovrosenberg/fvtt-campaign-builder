@@ -17,9 +17,9 @@ export const registerCampaignTests = () => {
         let mockWorld: WBWorld;
         let campaign: Campaign;
         let fromUuidStub;
-        let getFlag;
-        let setFlag;
-        let inputDialogStub;
+        // let inputDialogStub;
+        let getFlagStub;
+        let setFlagStub;
 
         beforeEach(() => {
           // Stub fromUuid since we don't want to actually look up documents
@@ -33,17 +33,17 @@ export const registerCampaignTests = () => {
             delete: sinon.stub().resolves(undefined),
           });
           
-          // Stub getFlag and setFlag
-          getFlag = sinon.stub(globalThis, 'getFlag');
-          getFlag.withArgs(sinon.match.any, CampaignFlagKey.isCampaign).returns(true);
-          getFlag.withArgs(sinon.match.any, CampaignFlagKey.description).returns('Test description');
-          getFlag.withArgs(sinon.match.any, CampaignFlagKey.lore).returns([]);
-          getFlag.withArgs(sinon.match.any, CampaignFlagKey.img).returns('test-image.jpg');
+          // Create getFlag and setFlag stubs
+          getFlagStub = sinon.stub();
+          getFlagStub.withArgs(moduleId, CampaignFlagKey.isCampaign).returns(true);
+          getFlagStub.withArgs(moduleId, CampaignFlagKey.description).returns('Test description');
+          getFlagStub.withArgs(moduleId, CampaignFlagKey.lore).returns([]);
+          getFlagStub.withArgs(moduleId, CampaignFlagKey.img).returns('test-image.jpg');
           
-          setFlag = sinon.stub(globalThis, 'setFlag');
+          setFlagStub = sinon.stub().resolves(undefined);
           
           // Stub inputDialog
-          inputDialogStub = sinon.stub(globalThis, 'inputDialog').resolves('New Campaign');
+          // inputDialogStub = sinon.stub(globalThis, 'inputDialog').resolves('New Campaign');
 
           // Create a mock CampaignDoc
           mockCampaignDoc = {
@@ -66,6 +66,9 @@ export const registerCampaignTests = () => {
             },
             update: sinon.stub().resolves({}),
             delete: sinon.stub().resolves(undefined),
+            getFlag: getFlagStub,
+            setFlag: setFlagStub,
+            unsetFlag: sinon.stub().resolves(undefined)
           } as unknown as CampaignDoc;
 
           // Create a mock World
@@ -93,9 +96,15 @@ export const registerCampaignTests = () => {
 
         describe('constructor', () => {
           it('should throw an error if document type is invalid', () => {
-            // Create an invalid document
-            const invalidDoc = { ...mockCampaignDoc, documentName: 'Actor' };
-            getFlag.withArgs(invalidDoc, CampaignFlagKey.isCampaign).returns(false);
+            // Create an invalid document with its own getFlag stub
+            const invalidGetFlagStub = sinon.stub();
+            invalidGetFlagStub.withArgs(moduleId, CampaignFlagKey.isCampaign).returns(false);
+            
+            const invalidDoc = { 
+              ...mockCampaignDoc, 
+              documentName: 'Actor',
+              getFlag: invalidGetFlagStub
+            };
             
             expect(() => new Campaign(invalidDoc as any)).to.throw('Invalid document type in Campaign constructor');
           });
@@ -255,7 +264,9 @@ export const registerCampaignTests = () => {
             const testLore: SessionLore[] = [
               { uuid: 'lore1', description: 'Lore 1', delivered: false, journalEntryPageId: null }
             ];
-            getFlag.withArgs(sinon.match.any, CampaignFlagKey.lore).returns(testLore);
+            
+            // Update the getFlag stub to return the test lore
+            getFlagStub.withArgs(moduleId, CampaignFlagKey.lore).returns(testLore);
             
             // Create a new campaign to pick up the updated lore
             const campaignWithLore = new Campaign(mockCampaignDoc, mockWorld);
@@ -417,7 +428,7 @@ export const registerCampaignTests = () => {
 
           it('should return null if name input is cancelled', async () => {
             // Setup inputDialog to return null (cancelled)
-            inputDialogStub.resolves(null);
+            // inputDialogStub.resolves(null);
             
             // Call create
             const result = await Campaign.create(mockWorld);
