@@ -1,5 +1,5 @@
 import { toRaw } from 'vue';
-import { moduleId, setFlagDefaults, } from '@/settings'; 
+import { moduleId, } from '@/settings'; 
 import { TopicDoc, WorldDoc, TopicFlagKey, topicFlagSettings, EntryDoc } from '@/documents';
 import { DocumentWithFlags, Entry, WBWorld } from '@/classes';
 import { ValidTopic } from '@/types';
@@ -7,8 +7,8 @@ import { getTopicTextPlural } from '@/compendia';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class TopicFolder extends DocumentWithFlags<TopicDoc> {
-  protected static _documentName = 'JournlEntry';
-  protected static _flagSettings = topicFlagSettings;
+  static override _documentName = 'JournalEntry';
+  static override _flagSettings = topicFlagSettings;
 
   public world: WBWorld | null;  // the world the topic is in (if we don't setup up front, we can load it later)
 
@@ -170,16 +170,14 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
       pack: world.compendium.metadata.id,
     }) as unknown as TopicDoc;
 
-    if (newTopicDoc) {
-      await setFlagDefaults(newTopicDoc, topicFlagSettings);
-    }
-
     await world.lock();
 
     if (!newTopicDoc)
       throw new Error('Couldn\'t create new topic');
 
     const newTopic = new TopicFolder(newTopicDoc, world);
+    await newTopic.setup();
+
     newTopic.topic = topic;
     await newTopic.save();
 

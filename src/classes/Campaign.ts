@@ -1,5 +1,5 @@
 import { toRaw } from 'vue';
-import { moduleId, setFlagDefaults, } from '@/settings'; 
+import { moduleId, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, } from '@/documents';
 import { DocumentWithFlags, PC, Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs';
@@ -8,8 +8,8 @@ import { SessionLore } from '@/documents/session';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign extends DocumentWithFlags<CampaignDoc> {
-  protected static _documentName = 'JournalEntry';
-  protected _flagSettings = campaignFlagSettings;
+  static override _documentName = 'JournalEntry';
+  static override _flagSettings = campaignFlagSettings;
 
   public world: WBWorld | null;  // the world the campaign is in (if we don't setup up front, we can load it later)
 
@@ -291,11 +291,10 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
         if (!newCampaignDoc)
           throw new Error('Couldn\'t create new journal entry for campaign');
 
-        await setFlagDefaults(newCampaignDoc, campaignFlagSettings);
-
         await world.lock();
 
         const newCampaign = new Campaign(newCampaignDoc, world);
+        await newCampaign.setup();
 
         world.campaignNames = {
           ...world.campaignNames,

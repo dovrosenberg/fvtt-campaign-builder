@@ -1,10 +1,7 @@
 import { 
   CampaignDoc, 
-  campaignFlagSettings, 
   WorldDoc, 
-  worldFlagSettings, 
   TopicDoc,
-  topicFlagSettings,
   WorldFlagKey,
   CampaignFlagKey,
   TopicFlagKey,
@@ -52,14 +49,10 @@ type FlagType<T extends ValidDocTypes, K extends FlagKey<T>=FlagKey<T>> =
   T extends TopicDoc ? (K extends TopicFlagKey ? TopicFlagType<K> : never) :
   never;
 
-
-type DocFlagSettings<T extends ValidDocTypes> = 
-  T extends WorldDoc ? typeof worldFlagSettings :
-  T extends CampaignDoc ? typeof campaignFlagSettings :
-  T extends TopicDoc ? typeof topicFlagSettings :
-  never;
-
-
+  interface DocumentWithFlagsConstructor {
+    _documentName: string;
+    _flagSettings: FlagSettings<any, any>[];
+  }
 
 export class DocumentWithFlags<DocType extends ValidDocTypes> {
   /** the document name of the foundry document we're wrapping */
@@ -67,23 +60,30 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
 
   // not static because I couldn't figure out the typescript way to 
   // tie it to DocType
-  protected _flagSettings: FlagSettings<
-    FlagKey<DocType>, 
-    {[K in FlagKey<DocType>]: FlagType<DocType>}
+  protected static _flagSettings: FlagSettings<
+    FlagKey<ValidDocTypes>, 
+    {[K in FlagKey<ValidDocTypes>]: FlagType<ValidDocTypes>}
   >[];
+  
   protected _doc: DocType;
   protected _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
 
   constructor(doc: DocType, typeFlagKey: FlagKey<DocType>) {
-    // make sure it's the right kind of document
-    if (doc.documentName !== DocumentWithFlags._documentName || !this.getFlag(typeFlagKey))
-      throw new Error('Invalid document type in Campaign constructor');
-
     // clone it to avoid unexpected changes, also drop the proxy
     this._doc = foundry.utils.deepClone(doc);
+
+    // make sure it's the right kind of document
+    if (doc.documentName !== (this.constructor as unknown as  DocumentWithFlagsConstructor)._documentName || !this.getFlag(typeFlagKey))
+      throw new Error('Invalid document type in DocumentWithFlags constructor');
+
     this._cumulativeUpdate = {};
   }
   
+  /** This should be called after construction to ensure everything asynchronous is ready */
+  public setup = async (): Promise<void> => {
+    return this.setFlagDefaults();
+  }
+
   protected getFlag = <
     FK extends FlagKey<DocType> = FlagKey<DocType>,
     FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
@@ -103,7 +103,7 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
     FK extends FlagKey<DocType> = FlagKey<DocType>,
     FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
   >(flag: FK): FlagSettings<FK, {[K in FK]: FT}> => {
-    const config = this._flagSettings.find((s)=>s.flagId===flag);
+    const config = (this.constructor as unknown as  DocumentWithFlagsConstructor)._flagSettings.find((s)=>s.flagId===flag);
 
     if (!config)
       throw new Error('Bad flag in DocumentFlags.getConfig()');
@@ -163,16 +163,14 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
   };
 
   /**
-   * Adds all the default flag values to the document.  Overrides anything already there.  Does not automatically determine the flags because
-   * the doc type identifier (ex. isWorld) may not yet be set.  
-   * @param doc
+   * Adds all the default flag values to the document.  Overrides anything already there.  
    * @returns 
    */
-  private setFlagDefaults = async <
-   DocType extends ValidDocTypes,
-  > (doc: DocType, flagSettings: DocFlagSettings<DocType>): Promise<void> => {
-    if (!doc || !flagSettings)
-      throw new Error('Bad document/flag in DocumentFlags.setFlagDefaults()');
+  private setFlagDefaults = async (): Promise<void> => {
+    const flagSettings = (this.constructor as unknown as  DocumentWithFlagsConstructor)._flagSettings;
+
+    if (!this._doc || !flagSettings)
+      throw new Error('Bad document/flag in DocumentWithFlags.setFlagDefaults()');
 
     // We can't use get() or set() because they rely on the doc type being set already
 
@@ -183,10 +181,10 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
 
       if (flagSettings[i].keyedByUUID && value) {
         // @ts-ignore
-        await doc.setFlag(moduleId, flagId, protect(value as Record<string, any>) as FlagType<DocType, typeof flagId>);
+        await this._doc.setFlag(moduleId, flagId, protect(value as Record<string, any>) as FlagType<DocType, typeof flagId>);
       } else {
         // @ts-ignore
-        await doc.setFlag(moduleId, flagId, value as FlagType<DocType, typeof flagId>);
+        await this._doc.setFlag(moduleId, flagId, value as FlagType<DocType, typeof flagId>);
       }        
     }
 

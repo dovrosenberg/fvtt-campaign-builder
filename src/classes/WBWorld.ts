@@ -1,4 +1,4 @@
-import { moduleId, setFlagDefaults, UserFlags, UserFlagKey, } from '@/settings'; 
+import { moduleId, UserFlags, UserFlagKey, } from '@/settings'; 
 import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
@@ -11,8 +11,8 @@ type WBWorldCompendium = CompendiumCollection<JournalEntry.Metadata>;
 
 // represents a campaign setting
 export class WBWorld extends DocumentWithFlags<WorldDoc>{
-  protected static _documentName = 'Folder';
-  protected static _flagSettings = worldFlagSettings;
+  static override _documentName = 'Folder';
+  static override _flagSettings = worldFlagSettings;
 
   private _compendium: WBWorldCompendium;   // this is the main compendium
 
@@ -410,9 +410,8 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
 
         const worldDoc = worldDocs[0];
 
-        await setFlagDefaults(worldDoc, worldFlagSettings);
-
         const newWorld = new WBWorld(worldDoc);
+        await newWorld.setup();
 
         // set as the current world
         if (makeCurrent) {
