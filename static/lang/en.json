@@ -343,6 +343,8 @@
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",
+      "addToSession": "Add to current session",
+      "sessionUnavailable": "There is no session available",
       "generateContent": "Generate content",
       "backendNotAvailable": "Backend not available",
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",

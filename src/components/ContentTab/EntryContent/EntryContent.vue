@@ -15,6 +15,15 @@
           @update:model-value="onNameUpdate"
         />
         <button
+          v-if="topic===Topics.Character || topic===Topics.Location"
+          class="fcb-push-to-session-button"
+          @click="onPushToSessionClick"
+          :disabled="!sessionAvailable"
+          :title="sessionAvailable ? localize('tooltips.addToSession') : localize('tooltips.sessionUnavailable')"
+        >
+          <i class="fas fa-share"></i>
+        </button>
+        <button
           v-if="canGenerate"
           class="fcb-generate-button"
           @click="onGenerateButtonClick"
@@ -164,7 +173,7 @@
   // local imports
   import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, useCampaignStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
   import { SettingKey } from '@/settings';
@@ -187,8 +196,9 @@
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
-  import { WBWorld, TopicFolder, Backend, } from '@/classes';
+  import { WBWorld, TopicFolder, Backend, Campaign, } from '@/classes';
   import { updateEntryDialog } from '@/dialogs/createEntry';
+import { TOKEN_DISPLAY_MODES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 
   ////////////////////////////////
   // props
@@ -202,7 +212,9 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
+  const campaignStore = useCampaignStore();
   const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, } = storeToRefs(mainStore);
+  const { currentPlayedCampaign } = storeToRefs(campaignStore);
 
   ////////////////////////////////
   // data
@@ -231,6 +243,9 @@
   
   ////////////////////////////////
   // computed data
+  TODO - WE DON'T HAVE A CURRENT CAMPAIGN NECESSARILY AND IF THERE ARE MULTIPLE WE DON'T KNOW WHICH SESSION TO... WILL NEED SOME SORT OF LIST LIKE THE PLAY CAMPAIGN SELECTOR TO COME UP WHEN YOU PRESS THE BUTTON SO YOU CAN SELECT ONE - ACTUALLY JUST MAKE IT A MENU 
+  const sessionAvailable = computed<boolean>(() => !!currentPlayedCampaign.value?.currentSession);
+
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
   const canGenerate = computed(() => topic.value && [Topics.Character, Topics.Location, Topics.Organization].includes(topic.value));
@@ -290,6 +305,28 @@
       }
     }, debounceTime);
   };
+
+  const onPushToSessionClick = async (event: MouseEvent) : Promise<void> => {
+    // Prevent default behavior
+    event.preventDefault();
+    event.stopPropagation();
+
+    // get the session
+    const session = currentPlayedCampaign.value?.currentSession;
+    if (!session || !currentEntry.value)
+      return;
+
+    if (topic.value===Topics.Character) {
+      // add to NPC list
+      await session.addNPC(currentEntry.value.uuid);
+
+      // no refresh needed since we know we're not on the session tab
+    } else if (topic.value===Topics.Location) {
+      // add to location list
+      await session.addLocation(currentEntry.value.uuid);
+    }
+    
+  }
 
   const onGenerateButtonClick = (event: MouseEvent): void => {
     // Prevent default behavior
@@ -444,7 +481,7 @@
 </script>
 
 <style lang="scss" scoped>
-  .fcb-generate-button {
+  .fcb-generate-button, .fcb-push-to-session-button {
     &:hover:disabled {
       // prevent button from looking like you can click it if you can't
       background: unset;
