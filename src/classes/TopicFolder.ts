@@ -1,14 +1,14 @@
 import { toRaw } from 'vue';
-import { getFlag, moduleId, prepareFlagsForUpdate, setFlag, setFlagDefaults, } from '@/settings'; 
+import { DocumentWithFlags, moduleId, setFlagDefaults, } from '@/settings'; 
 import { TopicDoc, WorldDoc, TopicFlagKey, topicFlagSettings, EntryDoc } from '@/documents';
 import { Entry, WBWorld } from '@/classes';
 import { ValidTopic } from '@/types';
 import { getTopicTextPlural } from '@/compendia';
 
 // represents a topic entry (ex. a character, location, etc.)
-export class TopicFolder {
-  private _topicDoc: TopicDoc;
-  private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
+export class TopicFolder extends DocumentWithFlags<TopicDoc> {
+  protected static _documentName = 'JournlEntry';
+  protected static _flagSettings = topicFlagSettings;
 
   public world: WBWorld | null;  // the world the topic is in (if we don't setup up front, we can load it later)
 
@@ -26,18 +26,13 @@ export class TopicFolder {
    * @param {WBWorld} world - The world the campaign is in
    */
   constructor(topicDoc: TopicDoc, world?: WBWorld) {
-    // make sure it's the right kind of document
-    if (topicDoc.documentName !== 'JournalEntry' || !getFlag(topicDoc, TopicFlagKey.isTopic))
-      throw new Error('Invalid document type in Campaign constructor');
+    super(topicDoc, TopicFlagKey.isTopic);
 
-    // clone it to avoid unexpected changes, also drop the proxy
-    this._topicDoc = foundry.utils.deepClone(topicDoc);
-    this._cumulativeUpdate = {};
     this.world = world || null;
 
-    this._topNodes = getFlag(this._topicDoc, TopicFlagKey.topNodes);
-    this._types = getFlag(this._topicDoc, TopicFlagKey.types);
-    this._topic = getFlag(this._topicDoc, TopicFlagKey.topic);
+    this._topNodes = this.getFlag(TopicFlagKey.topNodes);
+    this._types = this.getFlag(TopicFlagKey.types);
+    this._topic = this.getFlag(TopicFlagKey.topic);
   }
 
   static async fromUuid(topicId: string, options?: Record<string, any>): Promise<TopicFolder | null> {
@@ -51,7 +46,7 @@ export class TopicFolder {
   }
 
   get uuid(): string {
-    return this._topicDoc.uuid;
+    return this._doc.uuid;
   }
 
   /**
@@ -76,10 +71,10 @@ export class TopicFolder {
     if (this.world)
       return this.world;
     
-    if (!this._topicDoc.collection?.folder)
+    if (!this._doc.collection?.folder)
       throw new Error('Invalid folder id in Topics.loadWorld()');
 
-    const worldDoc = await fromUuid(this._topicDoc.collection.folder.uuid) as WorldDoc | null;
+    const worldDoc = await fromUuid(this._doc.collection.folder.uuid) as WorldDoc | null;
 
     if (!worldDoc)
       throw new Error('Invalid folder id in Topics.loadWorld()');
@@ -153,7 +148,7 @@ export class TopicFolder {
   
   // get direct access to the document (ex. to hook to foundry's editor)
   get raw(): TopicDoc {
-    return this._topicDoc;
+    return this._doc;
   }
 
   /**
@@ -179,15 +174,15 @@ export class TopicFolder {
       await setFlagDefaults(newTopicDoc, topicFlagSettings);
     }
 
-    await setFlag(newTopicDoc, TopicFlagKey.topic, topic);
-
     await world.lock();
 
     if (!newTopicDoc)
       throw new Error('Couldn\'t create new topic');
 
     const newTopic = new TopicFolder(newTopicDoc, world);
-    
+    newTopic.topic = topic;
+    await newTopic.save();
+
     return newTopic;
   }
   
@@ -199,7 +194,7 @@ export class TopicFolder {
    * @returns {Entry[]} The entries that pass the filter
    */
   public filterEntries(filterFn: (e: Entry) => boolean): Entry[] { 
-    return (toRaw(this._topicDoc).pages.contents as unknown as EntryDoc[])
+    return (toRaw(this._doc).pages.contents as unknown as EntryDoc[])
       .map((e: EntryDoc)=> new Entry(e, this))
       .filter((e: Entry)=> filterFn(e));
   }
@@ -220,7 +215,7 @@ export class TopicFolder {
    * @returns {Entry | null} The matchingentry
    */
    public findEntry(uuid: string): Entry | null { 
-    const match: EntryDoc | undefined = (toRaw(this._topicDoc).pages.contents as unknown as EntryDoc[]).find((e: EntryDoc)=> e.uuid === uuid);
+    const match: EntryDoc | undefined = (toRaw(this._doc).pages.contents as unknown as EntryDoc[]).find((e: EntryDoc)=> e.uuid === uuid);
 
     return match ? new Entry(match, this) : null;
   }
@@ -245,11 +240,11 @@ export class TopicFolder {
     if (Object.keys(updateData).length !== 0) {
       // protect any complex flags
       if (updateData[`flags.${moduleId}`])
-        updateData[`flags.${moduleId}`] = prepareFlagsForUpdate(this._topicDoc, updateData[`flags.${moduleId}`]);
+        updateData[`flags.${moduleId}`] = this.prepareFlagsForUpdate(updateData[`flags.${moduleId}`]);
 
-      const retval = await toRaw(this._topicDoc).update(updateData) || null;
+      const retval = await toRaw(this._doc).update(updateData) || null;
       if (retval) {
-        this._topicDoc = retval;
+        this._doc = retval;
         this._cumulativeUpdate = {};
 
         success = true;
@@ -266,7 +261,7 @@ export class TopicFolder {
    * @returns {Promise<void>}
    */
   public async delete() {
-    if (!this._topicDoc)
+    if (!this._doc)
       return;
 
     let world = this.world;
@@ -276,7 +271,7 @@ export class TopicFolder {
     // have to unlock the pack
     await world.unlock();
 
-    await this._topicDoc.delete();
+    await this._doc.delete();
 
     await world.lock();
   }

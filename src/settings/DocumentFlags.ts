@@ -27,7 +27,7 @@ type ValidDocTypes = WorldDoc | CampaignDoc | TopicDoc;
 /** 
  * The subset of FK (which should be an enum of keys) that are Record<string, any> 
  **/
-export type ProtectedKeys<FK extends string, FT extends { [K in FK]: any }> = {
+type ProtectedKeys<FK extends string, FT extends { [K in FK]: any }> = {
   [K in FK]: FT extends { [K in FK]: infer KeyType }
     ? KeyType extends Record<string, any>
       ? 1
@@ -66,7 +66,7 @@ type FlagKey<T extends ValidDocTypes> =
   T extends CampaignDoc ? CampaignFlagKey :
   T extends TopicDoc ? TopicFlagKey :
   never;
-type FlagType<T extends ValidDocTypes, K extends FlagKey<T>> = 
+type FlagType<T extends ValidDocTypes, K extends FlagKey<T>=FlagKey<T>> = 
   T extends WorldDoc ? (K extends WorldFlagKey ? WorldFlagType<K> : never) :
   T extends CampaignDoc ? (K extends CampaignFlagKey ? CampaignFlagType<K> : never) :
   T extends TopicDoc ? (K extends TopicFlagKey ? TopicFlagType<K> : never) :
@@ -78,51 +78,111 @@ type DocFlagSettings<T extends ValidDocTypes> =
   T extends TopicDoc ? typeof topicFlagSettings :
   never;
   
-  
-export function isWorldDoc(doc: ValidDocTypes): doc is WorldDoc {
-  // @ts-ignore - not entirely sure why TS can't figure this out
-  return doc.getFlag(moduleId, 'isWorld') === true;
-}
-
-
-export function isCampaignDoc(doc: ValidDocTypes): doc is CampaignDoc {
-  // @ts-ignore - not entirely sure why TS can't figure this out
-  return doc.getFlag(moduleId, 'isCampaign') === true;
-}
-
-export function isTopicDoc(doc: ValidDocTypes): doc is TopicDoc {
-  // @ts-ignore - not entirely sure why TS can't figure this out
-  return doc.getFlag(moduleId, 'isTopic') === true;
-}
-
-const getFlagSettingsFromDoc = <DocType extends ValidDocTypes>(doc: DocType): DocFlagSettings<DocType> => {
-  if (isWorldDoc(doc)) 
-    return worldFlagSettings as DocFlagSettings<DocType>;
-
-  if (isCampaignDoc(doc)) 
-    return campaignFlagSettings as DocFlagSettings<DocType>;
-  
-  if (isTopicDoc(doc)) 
-    return topicFlagSettings as DocFlagSettings<DocType>;
-
-  throw new Error('Invalid document type');
-};
-
-const getConfig = <
+export class DocumentWithFlags<
   DocType extends ValidDocTypes,
-  FK extends FlagKey<DocType> = FlagKey<DocType>,
-  FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
->(doc: DocType, flag: FK): FlagSettings<FK, {[K in FK]: FT}> => {
-  if (!doc)
-    throw new Error('Bad document in DocumentFlags.getConfig()');
+> {
+  /** the document name of the foundry document we're wrapping */
+  protected static _documentName: string;
 
-  const config = getFlagSettingsFromDoc(doc).find((s)=>s.flagId===flag);
+  // not static because I couldn't figure out the typescript way to 
+  // tie it to DocType
+  protected _flagSettings: FlagSettings<
+    FlagKey<DocType>, 
+    {[K in FlagKey<DocType>]: FlagType<DocType>}
+  >[];
+  protected _doc: DocType;
+  protected _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
 
-  if (!config)
-    throw new Error('Bad flag in DocumentFlags.getConfig()');
+  constructor(doc: DocType, typeFlagKey: FlagKey<DocType>) {
+    // make sure it's the right kind of document
+    if (doc.documentName !== DocumentWithFlags._documentName || !this.getFlag(typeFlagKey))
+      throw new Error('Invalid document type in Campaign constructor');
 
-  return config as FlagSettings<FK, {[K in FK]: FT}>;  
-};
+    // clone it to avoid unexpected changes, also drop the proxy
+    this._doc = foundry.utils.deepClone(doc);
+    this._cumulativeUpdate = {};
+  }
+  
+  protected getFlag = <
+    FK extends FlagKey<DocType> = FlagKey<DocType>,
+    FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
+  > (flag: FK): FT => {
+    const config = this.getConfig(flag);
+
+    // @ts-ignore - not sure how to fix the typing
+    const setting = (this._doc.getFlag(moduleId, flag) || foundry.utils.deepClone(config.default));
+
+    if (config.keyedByUUID)
+      return unprotect(setting as Record<string, any>) as FT;
+    else
+      return setting;
+  };
+
+  private getConfig = <
+    FK extends FlagKey<DocType> = FlagKey<DocType>,
+    FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
+  >(flag: FK): FlagSettings<FK, {[K in FK]: FT}> => {
+    const config = this._flagSettings.find((s)=>s.flagId===flag);
+
+    if (!config)
+      throw new Error('Bad flag in DocumentFlags.getConfig()');
+
+    return config as FlagSettings<FK, {[K in FK]: FT}>;  
+  };
+
+  protected setFlag = async <
+    FK extends FlagKey<DocType> = FlagKey<DocType>,
+    FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
+  > (flag: FK, value: FT | null): Promise<void> => {
+    const config = this.getConfig(flag);
+
+    if (config.keyedByUUID && value) {
+      // @ts-ignore - not sure how to fix the typing
+      await this._doc.setFlag(moduleId, flag, protect(value as Record<string, any>));
+    } else {
+      // @ts-ignore - not sure how to fix the typing
+      await this._doc.setFlag(moduleId, flag, value);
+    }
+  };
+
+  /** 
+   * Remove a key from an object flag.  Generally most useful for things keyed by uuid.  For other fields, it will
+   * attempt to unset `flag.key`, or if key is missing just unsets `flag`
+   */
+  protected unsetFlag = async <
+    FK extends FlagKey<DocType> = FlagKey<DocType>,
+  > (flag: FK, key?: string): Promise<void> => {
+    const config = this.getConfig(flag);
+
+    if (config.keyedByUUID && key) {
+      await this._doc.unsetFlag(moduleId, `${flag}.${swapString(key, true)}`);
+    } else if (!config.keyedByUUID && key){
+      await this._doc.unsetFlag(moduleId, `${flag}${key ? '.' + key : ''}`);
+    } else {
+      // try to unset the whole flag
+      await this._doc.unsetFlag(moduleId, flag);
+    }
+  };
+
+  protected prepareFlagsForUpdate = <
+    FK extends FlagKey<DocType> = FlagKey<DocType>,
+  > (flagsObject: FlagsObject<DocType, FK>): FlagsObject<DocType, FK> => {
+    const retval = foundry.utils.deepClone(flagsObject);
+
+    // loop over each member of the flags object and see what needs to be protected
+    for (const flag in retval) {
+      const config = getConfig(flag as FK);
+
+      if (config.keyedByUUID && retval[flag]) {
+        retval[flag] = protect(retval[flag] as Record<string, any>) as FlagType<DocType, FK>;
+      }
+    }
+
+    return retval;
+  };
+
+}
+
 
 /**
  * Swaps characters in a string based on the protect flag.
@@ -165,37 +225,6 @@ const unprotect = <T extends Record<string, any>>(flagValue: T): T => {
   return retval as T;
 };
 
-export const getFlag = <
-  DocType extends ValidDocTypes,
-  FK extends FlagKey<DocType> = FlagKey<DocType>,
-  FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
-> (doc: DocType, flag: FK): FT => {
-  const config = getConfig(doc, flag);
-
-  // @ts-ignore - not sure how to fix the typing
-  const setting = (doc.getFlag(moduleId, flag) || foundry.utils.deepClone(config.default));
-
-  if (config.keyedByUUID)
-    return unprotect(setting as Record<string, any>) as FT;
-  else
-    return setting;
-};
-
-export const setFlag = async <
-  DocType extends ValidDocTypes,
-  FK extends FlagKey<DocType> = FlagKey<DocType>,
-  FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
-> (doc: DocType, flag: FK, value: FT | null): Promise<void> => {
-  const config = getConfig(doc, flag);
-
-  if (config.keyedByUUID && value) {
-    // @ts-ignore - not sure how to fix the typing
-    await doc.setFlag(moduleId, flag, protect(value as Record<string, any>));
-  } else {
-    // @ts-ignore - not sure how to fix the typing
-    await doc.setFlag(moduleId, flag, value);
-  }
-};
 
 /**
  * Sometimes we want to save multiple flags at once as part of an update.  But we need to make
@@ -210,44 +239,6 @@ type FlagsObject<
   FK extends FlagKey<DocType> = FlagKey<DocType>
 > = {
   [Flag in FK]: FlagType<DocType, Flag>
-};
-
-export const prepareFlagsForUpdate = <
-  DocType extends ValidDocTypes,
-  FK extends FlagKey<DocType> = FlagKey<DocType>,
-> (doc: DocType, flagsObject: FlagsObject<DocType, FK>): FlagsObject<DocType, FK> => {
-  const retval = foundry.utils.deepClone(flagsObject);
-
-  // loop over each member of the flags object and see what needs to be protected
-  for (const flag in retval) {
-    const config = getConfig(doc, flag as FK);
-
-    if (config.keyedByUUID && retval[flag]) {
-      retval[flag] = protect(retval[flag] as Record<string, any>) as FlagType<DocType, FK>;
-    }
-  }
-
-  return retval;
-};
-
-/** 
- * Remove a key from an object flag.  Generally most useful for things keyed by uuid.  For other fields, it will
- * attempt to unset `flag.key`, or if key is missing just unsets `flag`
- */
-export const unsetFlag = async <
-  DocType extends ValidDocTypes,
-  FK extends FlagKey<DocType> = FlagKey<DocType>,
-> (doc: DocType, flag: FK, key?: string): Promise<void> => {
-  const config = getConfig(doc, flag);
-
-  if (config.keyedByUUID && key) {
-    await doc.unsetFlag(moduleId, `${flag}.${swapString(key, true)}`);
-  } else if (!config.keyedByUUID && key){
-    await doc.unsetFlag(moduleId, `${flag}${key ? '.' + key : ''}`);
-  } else {
-    // try to unset the whole flag
-    await doc.unsetFlag(moduleId, flag);
-  }
 };
 
 
