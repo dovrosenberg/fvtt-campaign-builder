@@ -24,7 +24,7 @@
           <i class="fas fa-head-side-virus"></i>
         </button>
       </header>
-      <div class="flexrow">
+      <div class="flexrow tags-container">
         <Tags
           v-if="currentEntry"
           v-model="currentEntry.tags"
@@ -449,5 +449,10 @@
       // prevent button from looking like you can click it if you can't
       background: unset;
     }
+  }
+  
+  .tags-container {
+    min-height: 43px; /* Set a fixed minimum height for the tags container */
+    position: relative;
   }
 </style>

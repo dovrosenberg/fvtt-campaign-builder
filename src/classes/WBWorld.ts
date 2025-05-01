@@ -1,17 +1,19 @@
-import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, unsetFlag, setFlag, prepareFlagsForUpdate, } from '@/settings'; 
+import { moduleId, UserFlags, UserFlagKey, } from '@/settings'; 
 import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
 import { inputDialog } from '@/dialogs';
-import { Campaign, TopicFolder } from '@/classes';
+import { DocumentWithFlags, Campaign, TopicFolder } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 
 type WBWorldCompendium = CompendiumCollection<JournalEntry.Metadata>;
 
 // represents a campaign setting
-export class WBWorld {
-  private _worldDoc: WorldDoc;   // this is the foundry folder
+export class WBWorld extends DocumentWithFlags<WorldDoc>{
+  static override _documentName = 'Folder';
+  static override _flagSettings = worldFlagSettings;
+
   private _compendium: WBWorldCompendium;   // this is the main compendium
 
   // JournalEntries
@@ -22,7 +24,6 @@ export class WBWorld {
   private _name;
 
   // saved in flags
-  private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made (saved into 'flags')
   private _campaignNames: Record<string, string>;  //name of each campaign; keyed by journal entry uuid
   private _expandedIds: Record<string, boolean | null>;  // ids of nodes that are expanded in the tree (could be compendia or entries or subentries) - handles topic tree
   private _hierarchies: Record<string, Hierarchy>;  // the full tree hierarchy or null for topics without hierarchy
@@ -39,24 +40,18 @@ export class WBWorld {
    * @param {WorldDoc} worldDoc - The WBWorld Foundry document
    */
   constructor(worldDoc: WorldDoc) {
-    // make sure it's the right kind of document
-    if (worldDoc.documentName !== 'Folder' || !worldDoc.getFlag(moduleId, WorldFlagKey.isWorld))
-      throw new Error('Invalid document type in WBWorld constructor');
+    super(worldDoc, WorldFlagKey.isWorld);
 
-    // clone it to avoid unexpected changes, also drop the proxy
-    this._worldDoc = foundry.utils.deepClone(worldDoc);
-    this._cumulativeUpdate = {};
-
-    this._campaignNames = getFlag(this._worldDoc, WorldFlagKey.campaignNames);
-    this._expandedIds = getFlag(this._worldDoc, WorldFlagKey.expandedIds);
-    this._hierarchies = getFlag(this._worldDoc, WorldFlagKey.hierarchies);
-    this._topicIds = getFlag(this._worldDoc, WorldFlagKey.topicIds);
-    this._compendiumId = getFlag(this._worldDoc, WorldFlagKey.compendiumId);
-    this._description = getFlag(this._worldDoc, WorldFlagKey.description) || '';
-    this._genre = getFlag(this._worldDoc, WorldFlagKey.genre) || '';
-    this._worldFeeling = getFlag(this._worldDoc, WorldFlagKey.worldFeeling) || '';
-    this._img = getFlag(this._worldDoc, WorldFlagKey.img) || '';
-    this._name = this._worldDoc.name;
+    this._campaignNames = this.getFlag(WorldFlagKey.campaignNames);
+    this._expandedIds = this.getFlag(WorldFlagKey.expandedIds);
+    this._hierarchies = this.getFlag(WorldFlagKey.hierarchies);
+    this._topicIds = this.getFlag(WorldFlagKey.topicIds);
+    this._compendiumId = this.getFlag(WorldFlagKey.compendiumId);
+    this._description = this.getFlag(WorldFlagKey.description) || '';
+    this._genre = this.getFlag(WorldFlagKey.genre) || '';
+    this._worldFeeling = this.getFlag(WorldFlagKey.worldFeeling) || '';
+    this._img = this.getFlag(WorldFlagKey.img) || '';
+    this._name = this._doc.name;
     if (this._compendiumId) {
       const compendium = game.packs?.get(this._compendiumId);
       
@@ -86,7 +81,7 @@ export class WBWorld {
 
   // get direct access to the document (ex. to hook to foundry's editor)
   get raw(): WorldDoc {
-    return this._worldDoc;
+    return this._doc;
   }
 
   /**
@@ -142,7 +137,7 @@ export class WBWorld {
    * The uuid
    */
   public get uuid(): string {
-    return this._worldDoc.uuid;
+    return this._doc.uuid;
   }
 
   /** 
@@ -331,7 +326,7 @@ export class WBWorld {
     if (expandedIds[id])
       delete expandedIds[id];
     this._expandedIds = expandedIds;
-    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, id);
+    await this.unsetFlag(WorldFlagKey.expandedIds, id);
   }
 
   public async expandNode(id: string): Promise<void> {
@@ -371,11 +366,11 @@ export class WBWorld {
 
       // protect any complex flags
       if (updateData[`flags.${moduleId}`])
-        updateData[`flags.${moduleId}`] = prepareFlagsForUpdate(this._worldDoc, updateData[`flags.${moduleId}`]);
+        updateData[`flags.${moduleId}`] = this.prepareFlagsForUpdate(updateData[`flags.${moduleId}`]);
 
-      const retval = await this._worldDoc.update(updateData) || null;
+      const retval = await this._doc.update(updateData) || null;
       if (retval) {
-        this._worldDoc = retval;
+        this._doc = retval;
         this._cumulativeUpdate = {};
 
         success = true;
@@ -415,9 +410,8 @@ export class WBWorld {
 
         const worldDoc = worldDocs[0];
 
-        await setFlagDefaults(worldDoc, worldFlagSettings);
-
         const newWorld = new WBWorld(worldDoc);
+        await newWorld.setup();
 
         // set as the current world
         if (makeCurrent) {
@@ -518,12 +512,12 @@ export class WBWorld {
     };
 
     const pack = await CompendiumCollection.createCompendium(metadata);
-    await pack.setFolder(this._worldDoc as Folder);
+    await pack.setFolder(this._doc as Folder);
     await pack.configure({ locked:true });
 
     this._compendium = pack;
     this._compendiumId = pack.metadata.id;
-    await setFlag(this._worldDoc, WorldFlagKey.compendiumId, this._compendiumId);
+    await this.setFlag(WorldFlagKey.compendiumId, this._compendiumId);
   }
   
   /**
@@ -542,12 +536,12 @@ export class WBWorld {
   
   public async collapseCampaignDirectory() {
     // we just unset the entire expandedIds flag
-    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds);
+    await this.unsetFlag(WorldFlagKey.expandedIds);
   }
 
   public async collapseTopicDirectory() {
     // we just unset the entire expandedIds flag
-    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds);
+    await this.unsetFlag(WorldFlagKey.expandedIds);
 
     // then need to reset it
     this.expandedIds = {};
@@ -560,8 +554,8 @@ export class WBWorld {
    */
   // TODO: should delete all the sessions from expanded entries, too
   public async deleteCampaignFromWorld(campaignId: string) {
-    await unsetFlag(this._worldDoc, WorldFlagKey.campaignNames, campaignId);
-    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, campaignId);
+    await this.unsetFlag(WorldFlagKey.campaignNames, campaignId);
+    await this.unsetFlag(WorldFlagKey.expandedIds, campaignId);
   }  
 
   // remove an entry from the world metadata
@@ -594,13 +588,13 @@ export class WBWorld {
     }
 
     // remove from the expanded list
-    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, entryId);
+    await this.unsetFlag(WorldFlagKey.expandedIds, entryId);
   }  
 
   // remove a session from the world metadata
   // note: WORLD MUST BE UNLOCKED FIRST
   public async deleteSessionFromWorld(sessionId: string) {
-    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, sessionId);
+    await this.unsetFlag(WorldFlagKey.expandedIds, sessionId);
   }  
 
   // change a campaign name inside all the world metadata
@@ -608,8 +602,8 @@ export class WBWorld {
   public async updateCampaignName(campaignId: string, name: string) {
     this._campaignNames[campaignId] = name;
     
-    await setFlag(this._worldDoc, WorldFlagKey.campaignNames, {
-      ... (getFlag(this._worldDoc, WorldFlagKey.campaignNames) || {}),
+    await this.setFlag(WorldFlagKey.campaignNames, {
+      ... (this.getFlag(WorldFlagKey.campaignNames) || {}),
       [campaignId]: name
     });
   }
@@ -623,6 +617,6 @@ export class WBWorld {
       await this._compendium.deleteCompendium();
     }
     // delete the world folder
-    await this._worldDoc.delete();
+    await this._doc.delete();
   }
 }

@@ -5,7 +5,7 @@
 		"target": "es2018",
 		"module": "esnext",
 		"lib": [ "es2021", "dom" ],
-		"typeRoots": [ "./src/types", "node", "@league-of-foundry-developers/foundry-vtt-types"],
+		"typeRoots": [ "./src/types", "node", "@league-of-foundry-developers/foundry-vtt-types", "@ethaks/fvtt-quench"],
 		"moduleResolution": "node",
 		"sourceMap": true,
 		"strict": true,
@@ -34,6 +34,7 @@
 		"paths": {
 			"src/*": ["./src/*"],
 			"@/*": ["./src/*"],
+			"@test/*": ["./test/*"],
 			"@module": ["./static/module.json"]
 		}
 	},

@@ -1,6 +1,7 @@
 export * from './Directory';
 export * from './WindowTab';
 export * from './Entry';
+export * from './DocumentWithFlags';
 export * from './Campaign';
 export * from './TopicFolder';
 export * from './WBWorld';

@@ -1,15 +1,15 @@
 import { toRaw } from 'vue';
-import { getFlag, moduleId, prepareFlagsForUpdate, setFlagDefaults, } from '@/settings'; 
+import { moduleId, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, } from '@/documents';
-import { PC, Session, WBWorld } from '@/classes';
+import { DocumentWithFlags, PC, Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';
 
 // represents a topic entry (ex. a character, location, etc.)
-export class Campaign {
-  private _campaignDoc: CampaignDoc;
-  private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
+export class Campaign extends DocumentWithFlags<CampaignDoc> {
+  static override _documentName = 'JournalEntry';
+  static override _flagSettings = campaignFlagSettings;
 
   public world: WBWorld | null;  // the world the campaign is in (if we don't setup up front, we can load it later)
 
@@ -27,18 +27,13 @@ export class Campaign {
    * @param {WBWorld} world - The world the campaign is in
    */
   constructor(campaignDoc: CampaignDoc, world?: WBWorld) {
-    // make sure it's the right kind of document
-    if (campaignDoc.documentName !== 'JournalEntry' || !getFlag(campaignDoc, CampaignFlagKey.isCampaign))
-      throw new Error('Invalid document type in Campaign constructor');
+    super(campaignDoc, CampaignFlagKey.isCampaign);
 
-    // clone it to avoid unexpected changes, also drop the proxy
-    this._campaignDoc = foundry.utils.deepClone(campaignDoc);
-    this._cumulativeUpdate = {};
     this.world = world || null;
 
-    this._description = getFlag(this._campaignDoc, CampaignFlagKey.description) || '';
-    this._lore = getFlag(this._campaignDoc, CampaignFlagKey.lore) || [];
-    this._img = getFlag(this._campaignDoc, CampaignFlagKey.img) || '';
+    this._description = this.getFlag(CampaignFlagKey.description) || '';
+    this._lore = this.getFlag(CampaignFlagKey.lore) || [];
+    this._img = this.getFlag(CampaignFlagKey.img) || '';
     this._name = campaignDoc.name;
   }
 
@@ -55,7 +50,7 @@ export class Campaign {
   }
 
   get uuid(): string {
-    return this._campaignDoc.uuid;
+    return this._doc.uuid;
   }
 
   /**
@@ -80,10 +75,10 @@ export class Campaign {
     if (this.world)
       return this.world;
 
-    if (!this._campaignDoc.collection?.folder)
+    if (!this._doc.collection?.folder)
       throw new Error('Invalid folder id in Campaign.loadWorld()');
     
-    this.world = await WBWorld.fromUuid(this._campaignDoc.collection.folder.uuid);
+    this.world = await WBWorld.fromUuid(this._doc.collection.folder.uuid);
 
     if (!this.world)
       throw new Error('Error loading world in Campaign.loadWorld()');
@@ -96,7 +91,7 @@ export class Campaign {
     let maxNumber = 0;
     let doc: SessionDoc | null = null;
 
-    toRaw(this._campaignDoc).pages.forEach((page: JournalEntryPage) => {
+    toRaw(this._doc).pages.forEach((page: JournalEntryPage) => {
       if (page.type === DOCUMENT_TYPES.Session && (page as unknown as SessionDoc).system.number > maxNumber) {
         doc = page as unknown as SessionDoc;
         maxNumber = doc.system.number;
@@ -111,7 +106,7 @@ export class Campaign {
   //    metadata
   get nextSessionNumber(): number {
     let maxNumber = 0;
-    toRaw(this._campaignDoc).pages.forEach((page: JournalEntryPage) => {
+    toRaw(this._doc).pages.forEach((page: JournalEntryPage) => {
       if (page.type === DOCUMENT_TYPES.Session && (page as unknown as SessionDoc).system.number > maxNumber)
         maxNumber = (page as unknown as SessionDoc).system.number;
     });
@@ -121,7 +116,7 @@ export class Campaign {
 
   /** returns the uuids of all the sessions */
   get sessions(): string[] {
-    return toRaw(this._campaignDoc).pages.filter((p) => p.type===DOCUMENT_TYPES.Session).map((page) => page.uuid);
+    return toRaw(this._doc).pages.filter((p) => p.type===DOCUMENT_TYPES.Session).map((page) => page.uuid);
   }
 
   get name(): string {
@@ -138,7 +133,7 @@ export class Campaign {
 
   // get direct access to the document (ex. to hook to foundry's editor)
   get raw(): CampaignDoc {
-    return this._campaignDoc;
+    return this._doc;
   }
 
   get description(): string {
@@ -296,11 +291,10 @@ export class Campaign {
         if (!newCampaignDoc)
           throw new Error('Couldn\'t create new journal entry for campaign');
 
-        await setFlagDefaults(newCampaignDoc, campaignFlagSettings);
-
         await world.lock();
 
         const newCampaign = new Campaign(newCampaignDoc, world);
+        await newCampaign.setup();
 
         world.campaignNames = {
           ...world.campaignNames,
@@ -361,7 +355,7 @@ export class Campaign {
    * @returns {Session[]} The entries that pass the filter
    */
   public filterSessions(filterFn: (e: Session) => boolean): Session[] { 
-    return (toRaw(this._campaignDoc).pages.contents as unknown as SessionDoc[])
+    return (toRaw(this._doc).pages.contents as unknown as SessionDoc[])
       .filter((p) => p.type===DOCUMENT_TYPES.Session)
       .map((s: SessionDoc)=> new Session(s, this))
       .filter((s: Session)=> filterFn(s));
@@ -375,7 +369,7 @@ export class Campaign {
    * @returns {PC[]} The entries that pass the filter
    */
   public async filterPCs(filterFn: (e: PC) => boolean): Promise<PC[]> { 
-    const retval = (toRaw(this._campaignDoc).pages.contents as unknown as PCDoc[])
+    const retval = (toRaw(this._doc).pages.contents as unknown as PCDoc[])
       .filter((p) => p.type===DOCUMENT_TYPES.PC)
       .map((s: PCDoc)=> new PC(s, this))
       .filter((s: PC)=> filterFn(s));
@@ -403,11 +397,11 @@ export class Campaign {
     if (Object.keys(updateData).length !== 0) {
       // protect any complex flags
       if (updateData[`flags.${moduleId}`])
-        updateData[`flags.${moduleId}`] = prepareFlagsForUpdate(this._campaignDoc, updateData[`flags.${moduleId}`]);
+        updateData[`flags.${moduleId}`] = this.prepareFlagsForUpdate(updateData[`flags.${moduleId}`]);
 
-      const retval = await toRaw(this._campaignDoc).update(updateData) || null;
+      const retval = await toRaw(this._doc).update(updateData) || null;
       if (retval) {
-        this._campaignDoc = retval;
+        this._doc = retval;
         this._cumulativeUpdate = {};
 
         success = true;
@@ -429,17 +423,17 @@ export class Campaign {
    * @returns {Promise<void>}
    */
   public async delete() {
-    if (!this._campaignDoc)
+    if (!this._doc)
       return;
 
-    const id = this._campaignDoc.uuid;
+    const id = this._doc.uuid;
 
     let world = await this.getWorld();
 
     // have to unlock the pack
     await world.unlock();
 
-    await this._campaignDoc.delete();
+    await this._doc.delete();
 
     await world.lock();
 

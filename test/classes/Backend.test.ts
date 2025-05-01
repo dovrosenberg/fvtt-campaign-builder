@@ -3,6 +3,18 @@ import { Backend } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import * as sinon from 'sinon';
 
+// Create a mock FCBApi class
+class MockFCBApi {
+  apiVersionGet: sinon.SinonStub;
+  
+  constructor() {
+    this.apiVersionGet = sinon.stub();
+  }
+}
+
+// Import the actual module to replace its exports
+import * as apiClientModule from '@/apiClient';
+
 export const registerBackendTests = () => {
   quench.registerBatch(
     'campaign-builder.classes.Backend',
@@ -12,15 +24,24 @@ export const registerBackendTests = () => {
       describe('Backend', () => {
         // Setup stubs
         let getStub;
-        let fcbApiStub;
         let apiVersionGetStub;
         let notifyStub;
         let originalVersion;
+        let mockFCBApi;
+        let originalFCBApi;
 
         // Reset stubs before each test
         beforeEach(() => {
           // Store original values if they exist
           originalVersion = game.version || '1.0.0';
+          originalFCBApi = apiClientModule.FCBApi;
+
+          // Create mock FCBApi instance
+          mockFCBApi = new MockFCBApi();
+          apiVersionGetStub = mockFCBApi.apiVersionGet;
+          
+          // Stub the FCBApi constructor to return the mock instance
+          sinon.stub(apiClientModule, 'FCBApi').callsFake(() => mockFCBApi);
 
           // Reset Backend
           Backend.available = false;
@@ -29,9 +50,6 @@ export const registerBackendTests = () => {
 
           // Create stubs
           getStub = sinon.stub(ModuleSettings, 'get');
-          fcbApiStub = sinon.stub(globalThis, 'FCBApi').returns({
-            apiVersionGet: apiVersionGetStub = sinon.stub()
-          });
 
           // Stub UI notifications to avoid actual notifications during tests
           notifyStub = sinon.stub(ui.notifications, 'notify');
@@ -64,7 +82,7 @@ export const registerBackendTests = () => {
             await Backend.configure();
 
             // Assert
-            expect(fcbApiStub.called).to.equal(false);
+            expect(apiVersionGetStub.called).to.equal(false);
             expect(Backend.available).to.equal(false);
           });
 
@@ -73,14 +91,13 @@ export const registerBackendTests = () => {
             getStub.withArgs(SettingKey.APIToken).returns('test-token');
             getStub.withArgs(SettingKey.APIURL).returns('http://test-url');
             apiVersionGetStub.resolves({
-              data: { version: '1.0.0' }
+              data: { version: '0.0.7' }
             });
 
             // Act
             await Backend.configure();
 
             // Assert
-            expect(fcbApiStub.calledOnce).to.equal(true);
             expect(Backend.config.accessToken).to.equal('test-token');
             expect(Backend.config.basePath).to.equal('http://test-url');
             expect(apiVersionGetStub.calledOnce).to.equal(true);
@@ -91,7 +108,7 @@ export const registerBackendTests = () => {
             getStub.withArgs(SettingKey.APIToken).returns('test-token');
             getStub.withArgs(SettingKey.APIURL).returns('http://test-url');
             apiVersionGetStub.resolves({
-              data: { version: '1.0.0' }
+              data: { version: '0.0.7' }
             });
 
             // Act
@@ -110,6 +127,7 @@ export const registerBackendTests = () => {
             });
 
             // Set development version
+            const actualVersion = globalThis.version;
             globalThis.version = '#{VERSION}#';
 
             // Act
@@ -121,6 +139,8 @@ export const registerBackendTests = () => {
               'warning'
             )).to.equal(true);
             expect(Backend.available).to.equal(true);
+
+            globalThis.version = actualVersion;
           });
 
           it('should show error notification when versions mismatch', async () => {
