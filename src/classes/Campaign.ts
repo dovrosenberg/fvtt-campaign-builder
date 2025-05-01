@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
-import { DocumentWithFlags, moduleId, setFlagDefaults, } from '@/settings'; 
+import { moduleId, setFlagDefaults, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, } from '@/documents';
-import { PC, Session, WBWorld } from '@/classes';
+import { DocumentWithFlags, PC, Session, WBWorld } from '@/classes';
 import { inputDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';

@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
-import { DocumentWithFlags, moduleId, setFlagDefaults, } from '@/settings'; 
+import { moduleId, setFlagDefaults, } from '@/settings'; 
 import { TopicDoc, WorldDoc, TopicFlagKey, topicFlagSettings, EntryDoc } from '@/documents';
-import { Entry, WBWorld } from '@/classes';
+import { DocumentWithFlags, Entry, WBWorld } from '@/classes';
 import { ValidTopic } from '@/types';
 import { getTopicTextPlural } from '@/compendia';
 

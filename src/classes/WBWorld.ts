@@ -1,9 +1,9 @@
-import { moduleId, getFlag, setFlagDefaults, UserFlags, UserFlagKey, DocumentWithFlags, } from '@/settings'; 
+import { moduleId, setFlagDefaults, UserFlags, UserFlagKey, } from '@/settings'; 
 import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
 import { inputDialog } from '@/dialogs';
-import { Campaign, TopicFolder } from '@/classes';
+import { DocumentWithFlags, Campaign, TopicFolder } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 
