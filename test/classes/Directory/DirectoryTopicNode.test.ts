@@ -1,6 +1,5 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { DirectoryTopicNode } from '@/classes/Directory/DirectoryTopicNode';
-import { DirectoryTypeNode } from '@/classes/Directory/DirectoryTypeNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
 import { TopicFolder } from '@/classes/TopicFolder';
 import { Entry } from '@/classes/Entry';
@@ -60,8 +59,8 @@ export const registerDirectoryTopicNodeTests = () => {
           // Create a topic node
           topicNode = new DirectoryTopicNode(
             'topic-folder-uuid',
+            'topic-folder-uuid',
             mockTopicFolder,
-            true
           );
         });
 
