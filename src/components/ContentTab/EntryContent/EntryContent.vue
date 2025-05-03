@@ -415,7 +415,7 @@
       return;
 
     // get the session
-    const session = currentPlayedCampaign.value?.currentSession;
+    const session = campaign.currentSession;
     if (!session || !currentEntry.value)
       return;
 
