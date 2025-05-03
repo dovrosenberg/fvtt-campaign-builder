@@ -49,6 +49,7 @@
   import { Campaign, Entry, Session, WBWorld } from '@/classes';
   import { getValidatedData } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
+  import { localize } from '@/utils/game';
 
   // library components
 
@@ -226,7 +227,7 @@
       editorVisible.value = true;
     } else {
       // if we're not removing it, then do a ui confirmation
-      notifyInfo('Changes saved');
+      notifyInfo(localize('notifications.changesSaved'));
     }
     
     emit('editorSaved', content);

@@ -236,7 +236,9 @@
         "successfulConnection": "Successfully connected to Campaign Builder backend.",
         "failedConnection": "Failed to connect to backend - check your \"advanced\" settings to make sure they properly match the backend server you deployed.  You'll be unable to used advanced features in the meantime.",
         "versionMismatch": "The version of your World & Campaign Builder backend ($1) doesn't match the version required by the module version you have installed ($2).  Please update one or the other (or both).  You'll be unable to use advanced features in the meantime."
-      }
+      },
+      "addedToSession": "added to session",
+      "changesSaved": "changes saved"
     },
     "dialogs": {
       "generateNameDialog": {
@@ -343,9 +345,8 @@
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",
-      "addToCurrentSession": "Add to current session",
       "addToASession": "Add to a session",
-      "sessionUnavailable": "There is no session available",
+      "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",
       "generateContent": "Generate content",
       "backendNotAvailable": "Backend not available",
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",

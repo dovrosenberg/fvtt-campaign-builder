@@ -108,7 +108,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteLocation()');
 
     // confirm
-    if (!(await confirmDialog('Delete location?', 'Are you sure you want to delete this location?')))
+    if (!(await confirmDialog('Delete location?', 'Are you sure you want to delete this location? This will not impact the associated world Location')))
       return;
 
     await currentSession.value.deleteLocation(uuid);
@@ -169,7 +169,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteNPC()');
 
     // confirm
-    if (!(await confirmDialog('Delete NPC?', 'Are you sure you want to delete this NPC?')))
+    if (!(await confirmDialog('Delete NPC?', 'Are you sure you want to delete this NPC? This will not impact the associated Character')))
       return;
     
     await currentSession.value.deleteNPC(uuid);

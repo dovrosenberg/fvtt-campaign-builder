@@ -131,16 +131,14 @@ export class WBWorld {
       if (!campaignObj) {
         // clean it up
         const names = this.campaignNames;
-        if (names[id]) {
-          delete names.id;
-          this.campaignNames = names;
-        }
+        delete names[id];
+        this.campaignNames = names;
 
         const campaigns = this.campaigns;
-        if (campaigns[id]) {
-          delete campaigns.id;
-          this.campaigns = campaigns;
-        }
+        delete campaigns[id];
+        this.campaigns = campaigns;
+
+        await this.save();
       } else {
         campaignObj.world = this;
         this.campaigns[id] = campaignObj;

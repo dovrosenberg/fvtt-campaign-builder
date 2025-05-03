@@ -20,7 +20,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, } = storeToRefs(mainStore); 
+  const { currentWorld, currentEntry} = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -95,6 +95,10 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       // have to check all children are loaded and expanded properly
       await campaignNode.recursivelyLoadNode(expandedNodes, updateIds);
     } 
+
+    // refresh the entry - this will update the push to session button
+    if (currentEntry.value)
+      await mainStore.refreshEntry();
 
     isCampaignTreeLoading.value = false;
   };
