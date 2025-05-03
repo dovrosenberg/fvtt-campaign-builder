@@ -18,8 +18,8 @@
           v-if="topic===Topics.Character || topic===Topics.Location"
           class="fcb-push-to-session-button"
           @click="onPushToSessionClick"
-          :disabled="!sessionAvailable"
-          :title="sessionAvailable ? localize('tooltips.addToSession') : localize('tooltips.sessionUnavailable')"
+          :disabled="numAvailableSessions()===0"
+          :title="pushButtonTitle"
         >
           <i class="fas fa-share"></i>
         </button>
@@ -196,7 +196,7 @@
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
-  import { WBWorld, TopicFolder, Backend, Campaign, } from '@/classes';
+  import { WBWorld, TopicFolder, Backend, } from '@/classes';
   import { updateEntryDialog } from '@/dialogs/createEntry';
 
   ////////////////////////////////
@@ -239,30 +239,38 @@
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
   const isGeneratingImage = reactive<Record<string, boolean>>({}); // Flag to track whether image generation is in progress - only one per id at a time
-  
+  let pushButtonTitle = '';  
+
   ////////////////////////////////
   // computed data
     
-  /** whether we're going to push to an active play session */
-  const activePlaySessionAvailable = computed<boolean>(() => (isInPlayMode.value && !!currentPlayedCampaign.value?.currentSession));
-
-  /** are there any sessions available? */
-  const sessionAvailable = computed<boolean>(() => {
+  /** how many campaigns have available sessions */
+  const numAvailableSessions = (): number => {
     if (!currentWorld.value)
-      return false;
+      return 0;
 
-    // if we're in play mode, get the current session
-    if (isInPlayMode.value && currentPlayedCampaign.value?.currentSession) 
-      return true;
-
+    let num = 0;
     // otherwise check all campaigns until we find one with sessions
     for (const campaignId of Object.keys(currentWorld.value?.campaigns || {})) {
       if (currentWorld.value?.campaigns[campaignId].sessions.length > 0)
-        return true;
+        num++;
     }
 
-    return false;
-  });
+    return num;
+  };
+
+  // this is a bit odd, but using computed functions doesn't work because they don't update when campaigns are added, etc. and it seemed like a lot of overhead to capture changes there just for this title
+  const getPushButtonTitle = (): string => {
+    const numSessions = numAvailableSessions();
+    
+    if (numSessions===0) 
+      return localize('tooltips.sessionUnavailable');
+
+    if (numSessions===1)
+      return localize('tooltips.addToCurrentSession');
+
+    return localize('tooltips.addToASession')
+  }
 
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
@@ -273,6 +281,8 @@
   ////////////////////////////////
   // methods
   const refreshEntry = async () => {
+    pushButtonTitle = getPushButtonTitle(); 
+
     if (!currentEntry.value || !currentEntry.value.uuid) {
       topic.value = null;
     } else {
@@ -483,12 +493,18 @@
   // we can use this for add and remove because the change was already passed back to 
   //    currentEntry - we just need to save
   const onTagChange = async (): Promise<void> => {
+    // refresh this often so we can capture changes to campaigns as soon as they happen
+    pushButtonTitle = getPushButtonTitle(); 
+
     if (!currentEntry.value)
       return;
     await currentEntry.value.save();
   }
 
   const onTypeSelectionMade = async (selection: string) => {
+    // refresh this often so we can capture changes to campaigns as soon as they happen
+    pushButtonTitle = getPushButtonTitle(); 
+
     if (currentEntry.value) {
       const oldType = currentEntry.value.type;
       currentEntry.value.type = selection;
@@ -503,6 +519,9 @@
   };
 
   const onParentSelectionMade = async (selection: string): Promise<void> => {
+    // refresh this often so we can capture changes to campaigns as soon as they happen
+    pushButtonTitle = getPushButtonTitle(); 
+
     if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
       return;
 
@@ -513,6 +532,9 @@
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
+    // refresh this often so we can capture changes to campaigns as soon as they happen
+    pushButtonTitle = getPushButtonTitle(); 
+
     if (!currentEntry.value)
       return;
 
@@ -521,6 +543,9 @@
   };
 
   const onSpeciesSelectionMade = async (species: {id: string; label: string}): Promise<void> => {
+    // refresh this often so we can capture changes to campaigns as soon as they happen
+    pushButtonTitle = getPushButtonTitle(); 
+
     if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
       return;
 
@@ -532,6 +557,9 @@
   // watchers
   // in case the tab is changed externally
   watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
+    // refresh this often so we can capture changes to campaigns as soon as they happen
+    pushButtonTitle = getPushButtonTitle(); 
+
     if (newTab!==oldTab)
       tabs.value?.activate(newTab || 'description');    
   });

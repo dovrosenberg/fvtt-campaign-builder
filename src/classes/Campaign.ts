@@ -417,8 +417,8 @@ export class Campaign {
 
     await this._campaignDoc.delete();
 
-    await world.lock();
-
     await world.deleteCampaignFromWorld(id);
+
+    await world.lock();
   }
 }

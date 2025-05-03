@@ -128,11 +128,23 @@ export class WBWorld {
 
     for (const id in this._campaignNames) {
       const campaignObj = await Campaign.fromUuid(id);
-      if (!campaignObj)
-        throw new Error('Invalid campaign uuid in WBWorld.loadCampaigns()');
+      if (!campaignObj) {
+        // clean it up
+        const names = this.campaignNames;
+        if (names[id]) {
+          delete names.id;
+          this.campaignNames = names;
+        }
 
-      campaignObj.world = this;
-      this.campaigns[id] = campaignObj;
+        const campaigns = this.campaigns;
+        if (campaigns[id]) {
+          delete campaigns.id;
+          this.campaigns = campaigns;
+        }
+      } else {
+        campaignObj.world = this;
+        this.campaigns[id] = campaignObj;
+      }
     }
 
     return this.campaigns;
@@ -560,8 +572,25 @@ export class WBWorld {
    */
   // TODO: should delete all the sessions from expanded entries, too
   public async deleteCampaignFromWorld(campaignId: string) {
-    await unsetFlag(this._worldDoc, WorldFlagKey.campaignNames, campaignId);
-    await unsetFlag(this._worldDoc, WorldFlagKey.expandedIds, campaignId);
+    const campaigns = this.campaigns;
+    if (campaigns[campaignId]) {
+      delete campaigns[campaignId];
+      this.campaigns = campaigns;
+    }
+
+    const campaignNames = this.campaignNames;
+    if (campaignNames[campaignId]) {
+      delete campaignNames[campaignId];
+      this.campaignNames = campaignNames;
+    }
+
+    const expandedIds = this.expandedIds;
+    if (expandedIds[campaignId]) {
+      delete expandedIds[campaignId];
+      this.expandedIds = expandedIds;
+    }
+
+    await this.save();
   }  
 
   // remove an entry from the world metadata

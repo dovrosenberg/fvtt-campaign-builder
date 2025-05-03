@@ -57,23 +57,27 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
     isCampaignTreeLoading.value = true;
 
-    const campaigns = currentWorld.value?.campaignNames || {};  
-    const expandedNodes = currentWorld.value?.expandedIds || {};
+    const expandedNodes = currentWorld.value.expandedIds || {};
 
     currentCampaignTree.value = [];
     
-    // get the all the campaigns 
+    // get all the campaigns - we could just use campaignNames but this will clean up any bad ones (i.e. got deleted incompletely)
+    await currentWorld.value.loadCampaigns();
+    const campaigns = currentWorld.value.campaigns;
+
     for (const id in campaigns) {
       const campaign = await Campaign.fromUuid(id);
 
-      if (!campaign)
-        throw new Error('Bad campaign in campaignDirectoryStore.refreshCampaignDirectoryTree()');
+      // shouldn't happen but maybe something didn't get cleaned up; we'll clean it up in WBWorld.loadCampaigns() at some point
+      if (!campaign) {
+        continue;
+      }
 
       const children = campaign.sessions.map(session => session.uuid);
 
       currentCampaignTree.value.push(new DirectoryCampaignNode(
         id,
-        campaigns[id],  // name
+        campaigns[id].name,  // name
         children,
         [],
         expandedNodes[id] || false,
