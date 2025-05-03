@@ -140,7 +140,7 @@
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend } from '@/classes';
-  import { generatedTextToHTML } from '@/utils/misc';
+  import { generatedTextToHTML, htmlToPlainText } from '@/utils/misc';
   import { hasHierarchy, } from '@/utils/hierarchy';
   
   // library components
@@ -156,7 +156,7 @@
   import TypeAhead from '@/components/TypeAhead.vue'; 
 
   // types
-  import { Topics, ValidTopic, Species } from '@/types';
+  import { Topics, ValidTopic, Species, OrganizationDetails, LocationDetails, CharacterDetails } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -219,7 +219,7 @@
   // data
   const name = ref<string>(props.initialName);
   const type = ref<string>(props.initialType);
-  const briefDescription = ref<string>(props.initialDescription);
+  const briefDescription = ref<string>(htmlToPlainText(props.initialDescription));
   const generatedName = ref<string>('');
   const generatedDescription = ref<string>('');
   const generateComplete = ref<boolean>(false);

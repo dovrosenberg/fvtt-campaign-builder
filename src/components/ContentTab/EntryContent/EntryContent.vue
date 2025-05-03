@@ -198,7 +198,6 @@
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
   import { WBWorld, TopicFolder, Backend, Campaign, } from '@/classes';
   import { updateEntryDialog } from '@/dialogs/createEntry';
-import { TOKEN_DISPLAY_MODES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 
   ////////////////////////////////
   // props
@@ -213,7 +212,7 @@ import { TOKEN_DISPLAY_MODES } from '@league-of-foundry-developers/foundry-vtt-t
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
   const campaignStore = useCampaignStore();
-  const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, } = storeToRefs(mainStore);
+  const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, isInPlayMode } = storeToRefs(mainStore);
   const { currentPlayedCampaign } = storeToRefs(campaignStore);
 
   ////////////////////////////////
@@ -243,8 +242,27 @@ import { TOKEN_DISPLAY_MODES } from '@league-of-foundry-developers/foundry-vtt-t
   
   ////////////////////////////////
   // computed data
-  TODO - WE DON'T HAVE A CURRENT CAMPAIGN NECESSARILY AND IF THERE ARE MULTIPLE WE DON'T KNOW WHICH SESSION TO... WILL NEED SOME SORT OF LIST LIKE THE PLAY CAMPAIGN SELECTOR TO COME UP WHEN YOU PRESS THE BUTTON SO YOU CAN SELECT ONE - ACTUALLY JUST MAKE IT A MENU 
-  const sessionAvailable = computed<boolean>(() => !!currentPlayedCampaign.value?.currentSession);
+    
+  /** whether we're going to push to an active play session */
+  const activePlaySessionAvailable = computed<boolean>(() => (isInPlayMode.value && !!currentPlayedCampaign.value?.currentSession));
+
+  /** are there any sessions available? */
+  const sessionAvailable = computed<boolean>(() => {
+    if (!currentWorld.value)
+      return false;
+
+    // if we're in play mode, get the current session
+    if (isInPlayMode.value && currentPlayedCampaign.value?.currentSession) 
+      return true;
+
+    // otherwise check all campaigns until we find one with sessions
+    for (const campaignId of Object.keys(currentWorld.value?.campaigns || {})) {
+      if (currentWorld.value?.campaigns[campaignId].sessions.length > 0)
+        return true;
+    }
+
+    return false;
+  });
 
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
@@ -311,6 +329,81 @@ import { TOKEN_DISPLAY_MODES } from '@league-of-foundry-developers/foundry-vtt-t
     event.preventDefault();
     event.stopPropagation();
 
+    if (!currentWorld.value)
+      return;
+
+    // find all the campaigns with an active session
+    let campaignsWithSessions = [] as { uuid: string; name: string}[];
+
+    for (const campaignId of Object.keys(currentWorld.value.campaigns)) {
+      if (currentWorld.value.campaigns[campaignId].currentSession)
+        campaignsWithSessions.push({ uuid: campaignId, name: currentWorld.value.campaigns[campaignId].name });
+    }
+
+    // if there aren't any, we're done (though this should never happen because the button shouldn't be enabled)
+    if (campaignsWithSessions.length===0) {
+      return;
+    }
+
+    // if there's more than one, we need the menu
+    if (campaignsWithSessions.length > 1) {
+      let menuItems = [] as {
+        label: string;
+        onClick: () => void | Promise<void>;
+        customClass?: string;
+        divided?: 'down' | undefined;
+      }[];
+
+      // if we're in play mode with an active session, put that at the top
+      let currentCampaignId: string | null = null;
+      if (currentPlayedCampaign.value?.currentSession) {
+        currentCampaignId = currentPlayedCampaign.value.uuid;
+        
+        menuItems.push({
+          label: currentPlayedCampaign.value?.currentSession?.name,        
+          customClass: 'push-to-active-campaign',
+          onClick: async () => { await selectCampaignForPush(currentCampaignId as string); },
+          divided: campaignsWithSessions.length > 1 ? 'down' : undefined,
+        });
+      }
+
+      // check for any other campaigns
+      const campaigns = currentWorld.value.campaigns;
+
+      for (const campaignId of Object.keys(campaigns)) {
+        // skip the one we added above
+        if (campaignId === currentCampaignId)
+          continue;
+
+        // skip ones without sessions
+        if (!campaigns[campaignId].currentSession)
+          continue;
+
+        menuItems.push({
+          label:  campaigns[campaignId].currentSession?.name,        
+          onClick: async () => { await selectCampaignForPush(campaignId); },
+        });
+      }
+
+      ContextMenu.showContextMenu({
+        customClass: 'fcb',
+        x: event.x,
+        y: event.y,
+        zIndex: 300,
+        items: menuItems,
+      });
+    } else {
+      // otherwise just push
+      await selectCampaignForPush(campaignsWithSessions[0].uuid);
+    }    
+  }
+
+  const selectCampaignForPush = async (campaignUuid: string): Promise<void> => {
+    // get the campaign
+    const campaign = await currentWorld.value?.campaigns[campaignUuid];
+    if (!campaign)
+      return;
+
     // get the session
     const session = currentPlayedCampaign.value?.currentSession;
     if (!session || !currentEntry.value)
@@ -325,8 +418,7 @@ import { TOKEN_DISPLAY_MODES } from '@league-of-foundry-developers/foundry-vtt-t
       // add to location list
       await session.addLocation(currentEntry.value.uuid);
     }
-    
-  }
+   }
 
   const onGenerateButtonClick = (event: MouseEvent): void => {
     // Prevent default behavior

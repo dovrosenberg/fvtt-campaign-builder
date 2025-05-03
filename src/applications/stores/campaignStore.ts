@@ -248,7 +248,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!currentCampaign.value)
       return null;
 
-    const sessions = await currentCampaign.value.getSessions(); 
+    const sessions = currentCampaign.value.sessions; 
 
     if (sessions.length!==0) {
       return sessions.reduce((session, maxSession) => {
@@ -307,7 +307,7 @@ export const useCampaignStore = defineStore('campaign', () => {
 
     // at the top of the list, put all the ones from the sessions... 
     // TODO: mark these differently so they can't be moved, unmarked, etc. and sort separately
-    for (const session of await currentCampaign.value.getSessions()) {
+    for (const session of currentCampaign.value.sessions) {
       for (const lore of session.lore) {
         if (!lore.delivered)
           continue;

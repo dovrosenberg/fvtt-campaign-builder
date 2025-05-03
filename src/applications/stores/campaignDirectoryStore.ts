@@ -69,7 +69,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       if (!campaign)
         throw new Error('Bad campaign in campaignDirectoryStore.refreshCampaignDirectoryTree()');
 
-      const children = (await campaign.getSessions()).map(session => session.uuid);
+      const children = campaign.sessions.map(session => session.uuid);
 
       currentCampaignTree.value.push(new DirectoryCampaignNode(
         id,
@@ -107,7 +107,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (!(await confirmDialog('Delete campaign?', 'Are you sure you want to delete this campaign?')))
       return;
   
-    const sessions = await campaign.getSessions();
+    const sessions = campaign.sessions;
     for (let i=0; i<sessions.length; i++) {
       await navigationStore.cleanupDeletedEntry(sessions[i].uuid);
     }
