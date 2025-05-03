@@ -19,7 +19,7 @@
   <RelatedItemDialog
     v-model="showNPCPicker"
     :topic="Topics.Character"
-    mode="add"
+    :mode="RelatedItemDialogModes.Session"
   />
 </template>
 
@@ -31,7 +31,7 @@
 
   // local imports
   import { useSessionStore, useNavigationStore, SessionTableTypes} from '@/applications/stores';
-  import { Topics, } from '@/types';
+  import { Topics, RelatedItemDialogModes,} from '@/types';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
 

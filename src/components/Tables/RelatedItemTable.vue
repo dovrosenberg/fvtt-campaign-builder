@@ -22,7 +22,7 @@
     v-if="extraColumns.length > 0"
     v-model="editDialogShow"
     :topic="props.topic"
-    mode="edit"
+    :mode="RelatedItemDialogModes.Edit"
     :item-id="editItem.itemId"
     :item-name="editItem.itemName"
     :extra-field-values="editItem.extraFields"
@@ -32,7 +32,7 @@
     :topic="props.topic"
     :item-id="editItem.itemId"
     :item-name="editItem.itemName"
-    mode="add"
+    :mode="RelatedItemDialogModes.Add"
   />
 </template>
 
@@ -55,7 +55,7 @@
   import BaseTable from '@/components/BaseTable/BaseTable.vue';
 
   // types
-  import { Topics, ValidTopic, RelatedItemDetails, } from '@/types';
+  import { Topics, ValidTopic, RelatedItemDetails, RelatedItemDialogModes } from '@/types';
   
   ////////////////////////////////
   // props

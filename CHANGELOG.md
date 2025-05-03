@@ -7,6 +7,7 @@
 
 - Enabled pushing to the current session from character/location entries to avoid having to go back and forth to the session while preparing
 - Allow multiple image generations to be happening at once
+- Ability to create new entries when adding to a relationship or a session
 - Minor bug fixes
 
 ## v0.2.1 - Fixed some minor but irritating UX issues

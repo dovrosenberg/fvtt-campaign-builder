@@ -83,3 +83,9 @@ export enum SessionDisplayMode {
   Date = 'date',
   Name = 'name'
 }
+
+export enum RelatedItemDialogModes {
+  Add = 'add',
+  Edit = 'edit',
+  Session = 'session' // for adding to sessions
+}
