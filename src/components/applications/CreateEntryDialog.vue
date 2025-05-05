@@ -21,7 +21,7 @@
         label: localize('labels.use'),
         default: false,
         close: true,
-        disable: !name,
+        disable: !name || (props.generateMode && !generatedDescription),
         callback: onUseClick
       },
     ]"
@@ -149,7 +149,7 @@
         </div>
         <div v-else class="prompt-message">
           {{ localize('dialogs.createEntry.generatePrompt')}}...<br/><br/>
-          {{ localize('dialogs.createEntry.generatePrompt2')}}
+          {{ props.generateMode ? '' : localize('dialogs.createEntry.generatePrompt2')}}
         </div>
       </div>
     </div>
@@ -166,7 +166,7 @@
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend } from '@/classes';
-  import { generatedTextToHTML } from '@/utils/misc';
+  import { generatedTextToHTML, htmlToPlainText } from '@/utils/misc';
   import { hasHierarchy, } from '@/utils/hierarchy';
   
   // library components
@@ -182,7 +182,7 @@
   import TypeAhead from '@/components/TypeAhead.vue'; 
 
   // types
-  import { Topics, ValidTopic, Species } from '@/types';
+  import { Topics, ValidTopic, Species, CharacterDetails, LocationDetails, OrganizationDetails } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -191,6 +191,12 @@
     title: {
       type: String,
       required: true,
+    },
+    /** this is used to edit records that already exist */
+    generateMode: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
     topic: {
       type: Number as PropType<ValidTopic>,
@@ -245,7 +251,7 @@
   // data
   const name = ref<string>(props.initialName);
   const type = ref<string>(props.initialType);
-  const briefDescription = ref<string>(props.initialDescription);
+  const briefDescription = ref<string>('');
   const generatedName = ref<string>('');
   const generatedDescription = ref<string>('');
   const generateComplete = ref<boolean>(false);
@@ -479,7 +485,7 @@
     }
   });
   watch(() => props.initialDescription, (newValue) => {
-    briefDescription.value = newValue;
+    briefDescription.value = htmlToPlainText(newValue);
   });
 
   ////////////////////////////////
@@ -507,7 +513,7 @@
     }
 
     longDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
-    briefDescription.value = props.initialDescription;
+    briefDescription.value = htmlToPlainText(props.initialDescription);
     generateComplete.value = false;
     generateError.value = '';
     loading.value = false;

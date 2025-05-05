@@ -73,24 +73,23 @@ export function generatedTextToHTML(text: string) {
 }
 
 /**
- * Convert HTML text back to plain text.
- * This is the reverse of generatedTextToHTML.
- * @param html HTML string with <p> tags
+ * Convert HTML text back to plain text.  Most tags are stripped, but <br> and <p> become newlines.
+ * This is the reverse of generatedTextToHTML, but they are not symmetric - you should not expect that calling both functions will give you your original text.
+ * @param html HTML string 
  * @returns Plain text with newlines
  */
-export function htmlToPlainText(html: string) {
+export function htmlToPlainText(html: string): string {
   if (!html) return '';
 
-  // Remove all HTML tags and convert to plain text
-  return html
-    // Replace paragraph tags with newlines
-    .replace(/<p>(.*?)<\/p>/g, '$1\n')
-    // Decode HTML entities
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    // Trim extra whitespace
-    .trim();
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+
+  // Convert <br> and <p> to newlines before stripping tags
+  tempDiv.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+  tempDiv.querySelectorAll('p').forEach(p => {
+    const newline = document.createTextNode('\n\n');
+    p.appendChild(newline);
+  });
+
+  return tempDiv.textContent?.trim() ?? '';
 }

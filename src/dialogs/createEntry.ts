@@ -158,6 +158,7 @@ async function updateEntryDialog(entry: Entry): Promise<Entry | null> {
     const dialog = new CreateEntryApplication();
 
     const props = { 
+      generateMode: true,
       topic: topic, 
       title: localize(generateTitles[topic]),
       validParents: validParents,
