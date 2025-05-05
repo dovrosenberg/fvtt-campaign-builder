@@ -33,12 +33,17 @@ export type PCDetails = {
 export type SessionLocationDetails = {
   uuid: string;   // the location entry
   name: string;
+  type: string;
+  parent: string;
+  description: string;
   delivered: boolean;
 }
 
 export type SessionNPCDetails = {
   uuid: string;   // the character entry
   name: string;
+  type: string;
+  description: string;
   delivered: boolean;
 }
 

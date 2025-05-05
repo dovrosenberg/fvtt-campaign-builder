@@ -1,7 +1,7 @@
 {
   "name": "fvtt-campaign-builder",
   "title": "World & Campaign Builder for Foundry",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Create regions, organizations, culture, and other elements of your world, right in Foundry.",
   "repository": {
     "type": "git",

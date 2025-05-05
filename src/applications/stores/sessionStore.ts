@@ -8,6 +8,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
 import { confirmDialog } from '@/dialogs';
 import { localize } from '@/utils/game'; 
+import { htmlToPlainText } from '@/utils/misc';
 
 // types
 import { 
@@ -21,7 +22,7 @@ import {
   SessionLoreDetails,
 } from '@/types';
 
-import { Session } from '@/classes';
+import { Entry, Session } from '@/classes';
 
 export enum SessionTableTypes {
   None,
@@ -50,6 +51,9 @@ export const useSessionStore = defineStore('session', () => {
     [SessionTableTypes.None]: [],
     [SessionTableTypes.Location]: [
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
+      { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
+      { field: 'parent', style: 'text-align: left', header: 'Parent', sortable: true },
+      { field: 'description', style: 'text-align: left', header: 'Description', sortable: false},
     ],
     [SessionTableTypes.Item]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
@@ -57,6 +61,8 @@ export const useSessionStore = defineStore('session', () => {
     ],  
     [SessionTableTypes.NPC]: [
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
+      { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
+      { field: 'description', style: 'text-align: left', header: 'Description', sortable: false},
     ],
     [SessionTableTypes.Monster]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
@@ -579,11 +585,21 @@ export const useSessionStore = defineStore('session', () => {
     for (const location of currentSession.value?.locations) {
       const entry = await topicFolder.findEntry(location.uuid);
 
+      if (!entry)
+        continue;
+
+      const parentId = await entry.getParentId();
+      const parent = parentId ? await Entry.fromUuid(parentId) : null;
+      const cleanDescription = htmlToPlainText(entry.description);
+
       if (entry) {
         retval.push({
           uuid: location.uuid,
           delivered: location.delivered,
           name: entry.name, 
+          type: entry.type,
+          parent: parent?.name || '-',
+          description: cleanDescription.substring(0, 99) + (cleanDescription.length>100 ? '...' : ''),
         });
       }
     }
@@ -606,10 +622,14 @@ export const useSessionStore = defineStore('session', () => {
       const entry = await topicFolder.findEntry(npc.uuid);
 
       if (entry) {
+        const cleanDescription = htmlToPlainText(entry.description);
+
         retval.push({
           uuid: npc.uuid,
           delivered: npc.delivered,
           name: entry.name, 
+          type: entry.type,
+          description: cleanDescription.substring(0, 99) + (cleanDescription.length>100 ? '...' : ''),
         });
       }
     }
