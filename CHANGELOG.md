@@ -9,6 +9,7 @@
 - Cleaned up the UX of the create/generate dialog boxes
 - Allow multiple image generations to be happening at once
 - Ability to create new entries when adding to a relationship or a session
+- Made it more clear on various tables what clicking different cells will do
 - Added mode details to session location and NPC tables
 - Minor bug fixes
 
