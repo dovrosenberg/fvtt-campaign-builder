@@ -100,7 +100,13 @@
         v-model="briefDescription"
         :rows="4"
         autoResize
-        :pt="{ root: { style: { 'font-size': 'var(--font-size-14)', 'min-height': '6rem' }}}"
+        :pt="{ root: { 
+          style: { 
+            'font-size': 'var(--font-size-14)', 
+            'min-height': '6rem',
+            'background': !props.generateMode && !generateComplete ? 'rgba(255, 228, 196, .3)' : '',
+          }
+        }}"
       />
       <div 
         v-if="Backend.available"
@@ -137,7 +143,7 @@
         <div v-if="generateError" class="error-message">
           <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ generateError }}
         </div>
-        <div v-else-if="generateComplete" class="generated-content">
+        <div v-else-if="generateComplete" class="generated-content" style="background: rgba(255, 228, 196, .3)">
           <div><span class="label">{{ localize('dialogs.createEntry.generatedName')}}:</span> {{ generatedName }}</div>
           <div class="description">
             <p><span class="label">{{ localize('dialogs.createEntry.generatedDescription')}}:</span></p>
