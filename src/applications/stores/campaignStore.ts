@@ -34,7 +34,9 @@ export const useCampaignStore = defineStore('campaign', () => {
     [CampaignTableTypes.PC]: [],
     [CampaignTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
-      { field: 'lockedToSessionName', style: 'text-align: left', header: 'Delivered in', editable: false },
+      { field: 'lockedToSessionName', style: 'text-align: left', header: 'Delivered in', sortable: true, 
+        editable: false, onClick: onLoreSessionClick
+      },
       { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false },
     ],
   } as Record<CampaignTableTypes, FieldData>;
@@ -243,6 +245,12 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   ///////////////////////////////
   // internal functions
+  // when we click on a session in the lore, open the session tab
+  function onLoreSessionClick (event: MouseEvent, uuid: string) {
+    // get session Id
+    const sessionId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.lockedToSessionId;
+    useNavigationStore().openSession(sessionId, { newTab: event.ctrlKey, activate: true });
+  }
 
   const _getLastSession = async (): Promise<Session | null> => {
     if (!currentCampaign.value)
@@ -320,7 +328,7 @@ export const useCampaignStore = defineStore('campaign', () => {
         retval.push({
           uuid: lore.uuid,
           lockedToSessionId: session.uuid,
-          lockedToSessionName: session.name,
+          lockedToSessionName: `${session.number}- ${session.name}`,
           delivered: lore.delivered,
           description: lore.description,
           journalEntryPageId: lore.journalEntryPageId,
@@ -412,3 +420,4 @@ export const useCampaignStore = defineStore('campaign', () => {
     moveLoreToLastSession,
   };
 });
+

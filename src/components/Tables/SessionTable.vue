@@ -169,7 +169,7 @@
           v-if="!col.editable && col.field!=='actions' && col.field!=='drag'"
           #body="{ data }"
         >
-          <div>
+          <div @click.stop="col.onClick($event, data.uuid)">
             {{ data[col.field] }}
           </div>
         </template>
