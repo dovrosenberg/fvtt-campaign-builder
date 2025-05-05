@@ -8,7 +8,6 @@
     :add-button-label="localize('labels.session.addMonster')"
     :extra-add-text="localize('labels.session.addMonsterDrag')"
     :draggable-rows="true"
-    @row-select="onRowSelect($event.data.uuid)"
     @add-item="showMonsterPicker=true"
     @drop="onDrop"
     @dragover="onDragover"
@@ -111,11 +110,6 @@
         originalEvent.preventDefault();
         break;
     }  
-  }
-
-  const onRowSelect = async (uuid: string) => {
-    const monster = await fromUuid(uuid) as Actor | null;
-    await monster?.sheet?.render(true);
   }
 
   const onDeleteMonster = async (uuid: string) => {

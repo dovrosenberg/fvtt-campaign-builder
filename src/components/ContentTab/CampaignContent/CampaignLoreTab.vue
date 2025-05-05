@@ -8,7 +8,6 @@
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLore')"
     :extra-add-text="localize('labels.session.addLoreDrag')"
-    @row-select="onRowSelect($event.data.journalEntryPageId)"
     @add-item="onAddLore"
     @delete-item="onDeleteLore"
     @mark-item-delivered="onMarkLoreDelivered"
@@ -76,11 +75,6 @@
         originalEvent?.preventDefault();
         break;
     }  
-  }
-
-  const onRowSelect = async (journalEntryPageId: string) => {
-    const page = await fromUuid(journalEntryPageId) as JournalEntryPage | null;
-    await page?.sheet?.render(true);
   }
 
   const onDeleteLore = async (uuid: string) => {

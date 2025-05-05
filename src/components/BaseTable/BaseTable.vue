@@ -16,9 +16,10 @@
       :rows="pagination.rowsPerPage"
       :filters="pagination.filters"
       :filter-display="filterDisplay"
-      selection-mode="single" 
       :pt="{
+        table: { style: 'table-layout: fixed;' },
         header: { style: 'border: none' },
+        table: { style: 'margin: 0px; table-layout: fixed;' },
         thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
         row: { 
           style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
@@ -30,10 +31,8 @@
           },
           root: { style: 'background: inherit', }
         },
-        table: { style: 'margin: 0px;'},
       }"
 
-      @row-select="emit('rowSelect', $event)"
       @row-contextmenu="emit('rowContextMenu', $event)"
     >
       <template #header>
@@ -130,6 +129,8 @@
           #body="{ data }"
         >
           <div 
+            :class="['fcb-table-body-text', col.onClick ? 'clickable' : '']"
+            @click.stop="col.onClick && col.onClick($event, data.uuid)" 
             @dragstart="onRowDragStart($event, data.uuid)"
             :draggable="props.draggableRows"
             :style="props.draggableRows ? `cursor: pointer;` : ''"
@@ -292,7 +293,7 @@
 </script>
 
 <style lang="scss" scoped>
-  .fcb-action-icon {
+    .fcb-action-icon {
     cursor: pointer;
     margin-right: 3px;
   }
@@ -303,13 +304,22 @@
     justify-content: center;
     align-items: center;
     height: 100%;
+    width: 100%;
+    color: var(--color-text-dark-secondary);
     
-    i {
-      color: var(--color-text-dark-secondary);
-    }
-    
-    &:hover i {
+    &:hover {
       color: var(--color-text-hyperlink);
+    }
+  }
+
+  // make links bold on hover
+  .fcb-table-body-text {
+    &.clickable {
+      cursor: pointer;
+
+      &:hover {
+        font-weight: bold;
+      }
     }
   }
 </style>

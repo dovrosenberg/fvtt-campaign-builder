@@ -35,9 +35,11 @@ export const useCampaignStore = defineStore('campaign', () => {
     [CampaignTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
       { field: 'lockedToSessionName', style: 'text-align: left', header: 'Delivered in', sortable: true, 
-        editable: false, onClick: onLoreSessionClick
+        editable: false, onClick: onSessionClick
       },
-      { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false },
+      { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false, 
+        onClick: onJournalClick
+      },
     ],
   } as Record<CampaignTableTypes, FieldData>;
 
@@ -246,7 +248,17 @@ export const useCampaignStore = defineStore('campaign', () => {
   ///////////////////////////////
   // internal functions
   // when we click on a session in the lore, open the session tab
-  function onLoreSessionClick (event: MouseEvent, uuid: string) {
+  async function onJournalClick (_event: MouseEvent, uuid: string) {
+    // get session Id
+    const journalEntryPageId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
+    const journalEntryPage = await fromUuid(journalEntryPageId) as JournalEntryPage | null;
+
+    if (journalEntryPage)
+      journalEntryPage.sheet?.render(true);
+  }
+
+  // when we click on a journal in the lore, open it
+  function onSessionClick (event: MouseEvent, uuid: string) {
     // get session Id
     const sessionId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.lockedToSessionId;
     useNavigationStore().openSession(sessionId, { newTab: event.ctrlKey, activate: true });

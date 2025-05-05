@@ -13,7 +13,6 @@
     @add-item="onAddItemClick"
     @delete-item="onDeleteItemClick"
     @edit-item="onEditItemClick"
-    @row-select="onRowSelect"
     @drop="onDrop"
     @dragover="onDragover"
   />
@@ -149,7 +148,7 @@
   const columns = computed((): any[] => {
     // they all have some standard columns
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
-    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
+    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick }; 
     const typeColumn = { field: 'type', style: 'text-align: left', header: 'Type', sortable: true }; 
     const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 
 
@@ -192,15 +191,15 @@
 
   ////////////////////////////////
   // methods
+  // when we click on a name, open the entry
+  async function onNameClick (event: MouseEvent, uuid: string) {
+    navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
+  }
 
   ////////////////////////////////
   // event handlers
   const onAddItemClick = () => {
     addDialogShow.value = true;
-  };
-
-  const onRowSelect = async function (event: { originalEvent: PointerEvent; data: RelatedItemGridRow} ) { 
-    await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
 
   const onDragover = (event: DragEvent) => {

@@ -15,9 +15,9 @@
       :default-sort-order="1"
       :total-records="rows.length"
       :rows="pagination.rowsPerPage"
-      selection-mode="single"
       :pt="{
         header: { style: 'border: none' },
+        table: { style: 'margin: 0px; table-layout: fixed;' },
         thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
         bodyRow: {
           style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;',
@@ -29,10 +29,8 @@
           },
           root: { style: 'background: inherit', }
         },
-        table: { style: 'margin: 0px;'},
       }"
 
-      @row-select="emit('rowSelect', $event)"
       @row-contextmenu="emit('rowContextMenu', $event)"
       @cell-edit-complete="onCellEditComplete"
       @cell-edit-cancel="editingRow = null"
@@ -169,7 +167,10 @@
           v-if="!col.editable && col.field!=='actions' && col.field!=='drag'"
           #body="{ data }"
         >
-          <div @click.stop="col.onClick($event, data.uuid)">
+          <div 
+            :class="['fcb-table-body-text', col.onClick ? 'clickable' : '']"
+            @click.stop="col.onClick && col.onClick($event, data.uuid)"
+          >
             {{ data[col.field] }}
           </div>
         </template>
@@ -357,6 +358,17 @@
     
     &:hover {
       color: var(--color-text-hyperlink);
+    }
+  }
+
+  // make links bold on hover
+  .fcb-table-body-text {
+    &.clickable {
+      cursor: pointer;
+
+      &:hover {
+        font-weight: bold;
+      }
     }
   }
 </style>

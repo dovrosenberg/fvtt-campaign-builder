@@ -35,6 +35,7 @@ export type SessionLocationDetails = {
   name: string;
   type: string;
   parent: string;
+  parentId: string | null;
   description: string;
   delivered: boolean;
 }
@@ -74,6 +75,7 @@ export type SessionLoreDetails = {
   journalEntryPageId: string | null;  // the JournalEntryPage document
   journalEntryPageName: string | null;  
   delivered: boolean;
+  onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
 }
 
 export type CampaignLoreDetails = SessionLoreDetails & {

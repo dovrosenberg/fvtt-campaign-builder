@@ -7,7 +7,6 @@
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLocation')" 
     :extra-add-text="localize('labels.session.addLocationDrag')"
-    @row-select="onRowSelect"
     @add-item="showLocationPicker=true"
     @delete-item="onDeleteLocation"
     @mark-item-delivered="onMarkLocationDelivered"
@@ -69,10 +68,6 @@
 
   ////////////////////////////////
   // event handlers
-  const onRowSelect = async function (event: DataTableRowSelectEvent) {
-    await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
-  };
-
   const onDeleteLocation = async (uuid: string) => {
     await sessionStore.deleteLocation(uuid);
   }

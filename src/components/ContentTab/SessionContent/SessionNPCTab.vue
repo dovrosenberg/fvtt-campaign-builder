@@ -7,7 +7,6 @@
     :show-add-button="true"
     :add-button-label="localize('labels.session.addNPC')" 
     :extra-add-text="localize('labels.session.addNPCDrag')"
-    @row-select="onRowSelect"
     @add-item="showNPCPicker=true"
     @delete-item="onDeleteNPC"
     @mark-item-delivered="onMarkNPCDelivered"
@@ -68,10 +67,6 @@
 
   ////////////////////////////////
   // event handlers
-  const onRowSelect = async function (event: DataTableRowSelectEvent) {
-    await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
-  };
-
   const onDeleteNPC = async (uuid: string) => {
     await sessionStore.deleteNPC(uuid);
   }
