@@ -53,19 +53,13 @@
             <div 
               v-if="props.extraAddText"
               :class="['fcb-table-new-drop-box', isValidDragOver ? 'valid-drag-over' : '']"
-              @dragover="onDragoverNewInternal"
+              @dragover="onDragoverNew"
               @dragleave="onDragLeaveNew"
-              @drop="onDropNewInternal"
+              @drop="onDropNew"
             >
               {{ props.extraAddText}}
             </div>
           </div>
-          <!-- <q-btn v-if="showGenerate"
-            color="primary" 
-            icon="psychology" 
-            label="Generate" 
-            @click=""
-          /> -->
         </div>
       </template>
       <template #empty>
@@ -89,45 +83,52 @@
           v-if="col.field==='actions'"
           #body="{ data }"
         >
-          <a 
-            class="fcb-action-icon" 
-            :data-tooltip="props.deleteItemLabel"
-            @click.stop="emit('deleteItem', data.uuid)" 
+          <div 
+          :class="['fcb-row-wrapper', isValidDragOverRow===data.uuid ? 'valid-drag-over' : '',
+            ]"
+            @dragover="onDragoverRow($event, data.uuid)"
+            @drop="onDropRow($event, data.uuid)"
           >
-            <i class="fas fa-trash"></i>
-          </a>
-          <a 
-            v-if="props.allowEdit"
-            class="fcb-action-icon" 
-            :data-tooltip="props.editItemLabel"
-            @click.stop="emit('editItem', data.uuid)" 
-          >
-            <i class="fas fa-pen"></i>
-          </a>
-          <a 
-            v-if="!data.delivered  && !data.lockedToSessionId"
-            class="fcb-action-icon" 
-            :data-tooltip="localize('tooltips.markAsDelivered')"
-            @click.stop="emit('markItemDelivered', data.uuid)" 
-          >
-            <i class="fas fa-check"></i>
-          </a>
-          <a 
-            v-if="data.delivered && !data.lockedToSessionId"
-            class="fcb-action-icon" 
-            :data-tooltip="localize('tooltips.unmarkAsDelivered')"
-            @click.stop="emit('unmarkItemDelivered', data.uuid)" 
-          >
-            <i class="fas fa-circle-xmark"></i>
-          </a>
-          <a 
-            v-if="!data.lockedToSessionId"
-            class="fcb-action-icon" 
-            :data-tooltip="localize('tooltips.moveToNextSession')"
-            @click.stop="emit('moveToNextSession', data.uuid)" 
-          >
-            <i class="fas fa-share"></i>
-          </a>
+            <a 
+              class="fcb-action-icon" 
+              :data-tooltip="props.deleteItemLabel"
+              @click.stop="emit('deleteItem', data.uuid)" 
+            >
+              <i class="fas fa-trash"></i>
+            </a>
+            <a 
+              v-if="props.allowEdit"
+              class="fcb-action-icon" 
+              :data-tooltip="props.editItemLabel"
+              @click.stop="emit('editItem', data.uuid)" 
+            >
+              <i class="fas fa-pen"></i>
+            </a>
+            <a 
+              v-if="!data.delivered  && !data.lockedToSessionId"
+              class="fcb-action-icon" 
+              :data-tooltip="localize('tooltips.markAsDelivered')"
+              @click.stop="emit('markItemDelivered', data.uuid)" 
+            >
+              <i class="fas fa-check"></i>
+            </a>
+            <a 
+              v-if="data.delivered && !data.lockedToSessionId"
+              class="fcb-action-icon" 
+              :data-tooltip="localize('tooltips.unmarkAsDelivered')"
+              @click.stop="emit('unmarkItemDelivered', data.uuid)" 
+            >
+              <i class="fas fa-circle-xmark"></i>
+            </a>
+            <a 
+              v-if="!data.lockedToSessionId"
+              class="fcb-action-icon" 
+              :data-tooltip="localize('tooltips.moveToNextSession')"
+              @click.stop="emit('moveToNextSession', data.uuid)" 
+            >
+              <i class="fas fa-share"></i>
+            </a>
+          </div>
         </template>
         <!-- Drag column format -->
         <template
@@ -135,37 +136,51 @@
           #body="{ data }"
         >
           <div 
-            class="fcb-drag-handle"
-            @dragstart="onRowDragstart($event, data.uuid)"
-            :draggable="props.draggableRows"
-            :data-tooltip="data.dragTooltip || 'Drag'"
+            :class="['fcb-row-wrapper', isValidDragOverRow===data.uuid ? 'valid-drag-over' : '',
+            ]"
+            @dragover="onDragoverRow($event, data.uuid)"
+            @drop="onDropRow($event, data.uuid)"
           >
-            <i class="fas fa-bars"></i>
+            <div 
+              class="fcb-drag-handle"
+              @dragstart="onRowDragstart($event, data.uuid)"
+              :draggable="props.draggableRows"
+              :data-tooltip="data.dragTooltip || 'Drag'"
+            >
+              <i class="fas fa-bars"></i>
+            </div>
           </div>
         </template>
         <template
           v-if="col.editable"
           #body="{ data }"
         >
-          <div  
-            v-if="data.uuid===editingRow"
-            @click.stop=""
-          >
-            <!-- we set the id so that we can pull the value when we change row -->
-            <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
-            <Textarea 
-              v-model="data[col.field]"
-              style="width: 100%"
-              :id="`${data.uuid}-${col.field}`" 
-              rows="2"
-            />
-          </div>
           <div 
-            v-if="data.uuid!==editingRow"
-            @click.stop="onClickEditableCell(data.uuid)"
+            :class="['fcb-row-wrapper', isValidDragOverRow===data.uuid ? 'valid-drag-over' : '',
+            ]"
+            @dragover="onDragoverRow($event, data.uuid)"
+            @drop="onDropRow($event, data.uuid)"
           >
-            <!-- we're not editing this row, but need to put a click event on columns that are editable -->
-            {{ data[col.field] }} &nbsp;
+            <div  
+              v-if="data.uuid===editingRow"
+              @click.stop=""
+            >
+              <!-- we set the id so that we can pull the value when we change row -->
+              <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
+              <Textarea 
+                v-model="data[col.field]"
+                style="width: 100%"
+                :id="`${data.uuid}-${col.field}`" 
+                rows="2"
+              />
+            </div>
+            <div 
+              v-if="data.uuid!==editingRow"
+              @click.stop="onClickEditableCell(data.uuid)"
+            >
+              <!-- we're not editing this row, but need to put a click event on columns that are editable -->
+              {{ data[col.field] }} &nbsp;
+            </div>
           </div>
         </template>
         <!-- Standard column format -->
@@ -174,12 +189,21 @@
           #body="{ data }"
         >
           <div 
-            :class="['fcb-table-body-text', col.onClick ? 'clickable' : '']"
-            @click.stop="col.onClick && col.onClick($event, data.uuid)"
-            @dragOver="onDragoverRowInternal($event, data.uuid)"
-            @drop="onDropRowInternal($event, data.uuid)"
+            :class="['fcb-row-wrapper', isValidDragOverRow===data.uuid ? 'valid-drag-over' : '',
+            ]"
+
+            @dragover="onDragoverRow($event, data.uuid)"
+            @drop="onDropRow($event, data.uuid)"
           >
-            {{ data[col.field] }}
+            <div 
+              :class="[
+                'fcb-table-body-text', 
+                col.onClick ? 'clickable' : '',
+              ]"
+              @click.stop="col.onClick && col.onClick($event, data.uuid)"
+            >
+              {{ data[col.field] }}
+            </div>
           </div>
         </template>
       </Column>
@@ -296,6 +320,7 @@
   
   /** track if a valid drag is currently over the drop zone */
   const isValidDragOver = ref<boolean>(false);
+  const isValidDragOverRow = ref<string | null>(null);
 
   ////////////////////////////////
   // computed data
@@ -350,7 +375,7 @@
     emit('dragstart', event, uuid);
   }
 
-  const onDragoverNewInternal = (event: DragEvent) => {
+  const onDragoverNew = (event: DragEvent) => {
     // First, call the parent's dragover handler
     emit('dragoverNew', event);
     
@@ -362,10 +387,17 @@
     }
   }
 
-  const onDragoverRowInternal = (event: DragEvent, uuid: string) => {
+  const onDragoverRow = (event: DragEvent, uuid: string) => {
     if (props.allowDropRow) {
       // First, call the parent's dragover handler
       emit('dragoverRow', event, uuid);
+
+      // Check if this is a valid drag (has text/plain data)
+      if (event.dataTransfer && event.dataTransfer.types.includes('text/plain')) {
+        isValidDragOverRow.value = uuid;
+      } else {
+        isValidDragOverRow.value = null;
+      }
     }
   }
 
@@ -374,7 +406,13 @@
     isValidDragOver.value = false;
   }
 
-  const onDropNewInternal = (event: DragEvent) => {
+  const onDragLeaveRow = (uuid: string) => {
+    // Reset the valid drag state when the drag leaves the drop zone
+    if (isValidDragOverRow.value===uuid)
+      isValidDragOverRow.value = null;
+  }
+
+  const onDropNew = (event: DragEvent) => {
     // Reset the valid drag state
     isValidDragOver.value = false;
     
@@ -382,10 +420,11 @@
     emit('dropNew', event);
   }
 
-  const onDropRowInternal = (event: DragEvent, uuid: string) => {
+  const onDropRow = (event: DragEvent, uuid: string) => {
     if (props.allowDropRow) {
       // Reset the valid drag state
-      isValidDragOver.value = false;
+      if (isValidDragOverRow.value===uuid)
+        isValidDragOverRow.value = null;
     
       // Call the parent's drop handler
       emit('dropRow', event, uuid);
@@ -423,6 +462,13 @@
   }
 
   // make links bold on hover
+  .fcb-row-wrapper {
+    &.valid-drag-over {
+      color: var(--color-text-accent);
+      border-color: var(--color-text-accent);
+    }
+  }
+
   .fcb-table-body-text {
     &.clickable {
       cursor: pointer;
