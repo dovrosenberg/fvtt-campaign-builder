@@ -30,6 +30,7 @@
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
+  import { confirmDialog } from '@/dialogs';
 
   // library components
 	
@@ -131,10 +132,15 @@
       return;
 
     // make sure it's the right format - looking for JournalEntryPage
-    if (data.type === 'JournalEntryPage' && data.uuid) {
-      if (rowUuid) {
-        await sessionStore.updateLoreJournalEntry(rowUuid, data.uuid);
+    if (data.type === 'JournalEntryPage' && data.uuid && rowUuid) {
+      const lore = relatedLoreRows.value.find((l)=>l.uuid===rowUuid);
+      
+      if (lore?.journalEntryPageId && 
+          !(await confirmDialog('Update lore?', 'Are you sure you want to replace the journal entry tied to this lore?'))) {
+        return;
       }
+      
+      await sessionStore.updateLoreJournalEntry(rowUuid, data.uuid);
     }
   }
 
