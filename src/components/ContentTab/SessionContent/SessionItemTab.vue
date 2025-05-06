@@ -9,8 +9,8 @@
     :extra-add-text="localize('labels.session.addItemDrag')"
     :draggable-rows="true"
     @add-item="showItemPicker=true"
-    @drop="onDrop"
-    @dragover="onDragover"
+    @dragoverNew="onDragoverNew"
+    @dropNew="onDropNew"
     @delete-item="onDeleteItem"
     @mark-item-delivered="onMarkItemDelivered"
     @unmark-item-delivered="onUnmarkItemDelivered"
@@ -69,7 +69,7 @@
     await sessionStore.addItem(documentUuid);
   }
 
-  const onDragover = (event: DragEvent) => {
+  const onDragoverNew = (event: DragEvent) => {
     event.preventDefault();  
     event.stopPropagation();
 
@@ -77,7 +77,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async (event: DragEvent) => {
+  const onDropNew = async (event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data 

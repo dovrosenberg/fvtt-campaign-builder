@@ -9,8 +9,8 @@
     :extra-add-text="localize('labels.session.addMonsterDrag')"
     :draggable-rows="true"
     @add-item="showMonsterPicker=true"
-    @drop="onDrop"
-    @dragover="onDragover"
+    @dropNew="onDropNew"
+    @dragoverNew="onDragoverNew"
     @delete-item="onDeleteMonster"
     @mark-item-delivered="onMarkMonsterDelivered"
     @unmark-item-delivered="onUnmarkMonsterDelivered"
@@ -72,7 +72,7 @@
     await sessionStore.addMonster(documentUuid, 1); // Always use 1 as the default
   }
 
-  const onDragover = (event: DragEvent) => {
+  const onDragoverNew = (event: DragEvent) => {
     event.preventDefault();  
     event.stopPropagation();
 
@@ -80,7 +80,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async (event: DragEvent) => {
+  const onDropNew = async (event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data 

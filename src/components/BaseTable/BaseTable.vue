@@ -17,7 +17,6 @@
       :filters="pagination.filters"
       :filter-display="filterDisplay"
       :pt="{
-        table: { style: 'table-layout: fixed;' },
         header: { style: 'border: none' },
         table: { style: 'margin: 0px; table-layout: fixed;' },
         thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },

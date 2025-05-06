@@ -12,8 +12,8 @@
     @mark-item-delivered="onMarkNPCDelivered"
     @unmark-item-delivered="onUnmarkNPCDelivered"
     @move-to-next-session="onMoveNPCToNext"        
-    @dragover="onDragover"
-    @drop="onDrop"
+    @dragoverNew="onDragoverNew"
+    @dropNew="onDropNew"
   />
   <RelatedItemDialog
     v-model="showNPCPicker"
@@ -83,7 +83,7 @@
     await sessionStore.moveNPCToNext(uuid);
   }
 
-  const onDragover = (event: DragEvent) => {
+  const onDragoverNew = (event: DragEvent) => {
     event.preventDefault();  
     event.stopPropagation();
 
@@ -91,7 +91,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async(event: DragEvent) => {
+  const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data 

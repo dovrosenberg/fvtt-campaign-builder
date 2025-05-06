@@ -8,14 +8,17 @@
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLore')"
     :extra-add-text="localize('labels.session.addLoreDrag')"
+    :allow-drop-row="true"
     @add-item="onAddLore"
     @delete-item="onDeleteLore"
     @mark-item-delivered="onMarkLoreDelivered"
     @unmark-item-delivered="onUnmarkLoreDelivered"
     @move-to-next-session="onMoveLoreToNext"
     @cell-edit-complete="onCellEditComplete"
-    @dragover="onDragover"
-    @drop="onDrop"
+    @dragoverNew="onDragover"
+    @dragoverRow="onDragover"
+    @dropRow="onDropRow"
+    @dropNew="onDropNew"
   />
 </template>
 
@@ -101,7 +104,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async (event: DragEvent) => {
+  const onDropNew = async (event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data 
@@ -112,9 +115,26 @@
     // make sure it's the right format - looking for JournalEntryPage
     if (data.type === 'JournalEntryPage' && data.uuid) {
       // Create a new lore entry and associate it with the journal entry page
-      const lore = await campaignStore.addLore('');
-      if (lore) {
-        await campaignStore.updateLoreJournalEntry(lore, data.uuid);
+      const loreId = await campaignStore.addLore('');
+
+      if (loreId) {
+        await campaignStore.updateLoreJournalEntry(loreId, data.uuid);
+      }
+    }
+  }
+
+  const onDropRow = async (event: DragEvent, rowUuid: string) => {
+    event.preventDefault();  
+
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
+
+    // make sure it's the right format - looking for JournalEntryPage
+    if (data.type === 'JournalEntryPage' && data.uuid) {
+      if (rowUuid) {
+        await campaignStore.updateLoreJournalEntry(rowUuid, data.uuid);
       }
     }
   }

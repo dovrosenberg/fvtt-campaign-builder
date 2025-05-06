@@ -12,8 +12,8 @@
     @mark-item-delivered="onMarkLocationDelivered"
     @unmark-item-delivered="onUnmarkLocationDelivered"
     @move-to-next-session="onMoveLocationToNext"        
-    @dragover="onDragover"
-    @drop="onDrop"
+    @dragoverNew="onDragoverNew"
+    @dropNew="onDropNew"
   />
   <RelatedItemDialog
     v-model="showLocationPicker"
@@ -30,13 +30,12 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, useNavigationStore, SessionTableTypes } from '@/applications/stores';
+  import { useSessionStore, SessionTableTypes } from '@/applications/stores';
   import { Topics, RelatedItemDialogModes, } from '@/types';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
-	import { DataTableRowSelectEvent } from 'primevue/datatable';
 
   // local components
   import SessionTable from '@/components/Tables/SessionTable.vue';
@@ -53,7 +52,6 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const navigationStore = useNavigationStore();
   const { relatedLocationRows } = storeToRefs(sessionStore);
   
   ////////////////////////////////
@@ -84,7 +82,7 @@
     await sessionStore.moveLocationToNext(uuid);
   }
 
-  const onDragover = (event: DragEvent) => {
+  const onDragoverNew = (event: DragEvent) => {
     event.preventDefault();  
     event.stopPropagation();
 
@@ -92,7 +90,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async(event: DragEvent) => {
+  const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data 

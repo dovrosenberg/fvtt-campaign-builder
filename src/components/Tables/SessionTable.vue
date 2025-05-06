@@ -50,7 +50,13 @@
                 <i class="fas fa-plus"></i>
               </template>
             </Button>
-            <div style="line-height:var(--input-height); color: var(--color-text-primary); margin-left: 0.75rem;">
+            <div 
+              v-if="props.extraAddText"
+              :class="['fcb-table-new-drop-box', isValidDragOver ? 'valid-drag-over' : '']"
+              @dragover="onDragoverNewInternal"
+              @dragleave="onDragLeaveNew"
+              @drop="onDropNewInternal"
+            >
               {{ props.extraAddText}}
             </div>
           </div>
@@ -130,7 +136,7 @@
         >
           <div 
             class="fcb-drag-handle"
-            @dragstart="onRowDragStart($event, data.uuid)"
+            @dragstart="onRowDragstart($event, data.uuid)"
             :draggable="props.draggableRows"
             :data-tooltip="data.dragTooltip || 'Drag'"
           >
@@ -170,6 +176,8 @@
           <div 
             :class="['fcb-table-body-text', col.onClick ? 'clickable' : '']"
             @click.stop="col.onClick && col.onClick($event, data.uuid)"
+            @dragOver="onDragoverRowInternal($event, data.uuid)"
+            @drop="onDropRowInternal($event, data.uuid)"
           >
             {{ data[col.field] }}
           </div>
@@ -213,6 +221,10 @@
     extraAddText: {   // displays as text next to the add button (even if no button)
       type: String,
       default: '',
+    },
+    allowDropRow: {   // allow dropping on a row (i.e. as an edit action)
+      type: Boolean,
+      default: false,
     },
     rows: {
       type: Array as PropType<SessionTableGridRow[]>,
@@ -259,6 +271,10 @@
     (e: 'moveToNextSession', uuid: string): void;
     (e: 'moveToCampaign', uuid: string): void;
     (e: 'dragstart', event: DragEvent, uuid: string): void;
+    (e: 'dragoverNew', event: DragEvent): void;
+    (e: 'dragoverRow', event: DragEvent, uuid: string): void;
+    (e: 'dropRow', event: DragEvent, uuid: string): void;
+    (e: 'dropNew', event: DragEvent): void;
   }>();
 
   ////////////////////////////////
@@ -277,6 +293,9 @@
   
   /** are we editing and row, and which one (uuid) */
   const editingRow = ref<string | null>(null);
+  
+  /** track if a valid drag is currently over the drop zone */
+  const isValidDragOver = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
@@ -323,12 +342,54 @@
     editingRow.value = uuid;
   }
 
-  const onRowDragStart = (event: DragEvent, uuid: string) => {
+  const onRowDragstart = (event: DragEvent, uuid: string) => {
     if (!event.target || !uuid) return;
 
     // Emit the dragstart event with the uuid
     // This lets the parent component handle the drag data
     emit('dragstart', event, uuid);
+  }
+
+  const onDragoverNewInternal = (event: DragEvent) => {
+    // First, call the parent's dragover handler
+    emit('dragoverNew', event);
+    
+    // Check if this is a valid drag (has text/plain data)
+    if (event.dataTransfer && event.dataTransfer.types.includes('text/plain')) {
+      isValidDragOver.value = true;
+    } else {
+      isValidDragOver.value = false;
+    }
+  }
+
+  const onDragoverRowInternal = (event: DragEvent, uuid: string) => {
+    if (props.allowDropRow) {
+      // First, call the parent's dragover handler
+      emit('dragoverRow', event, uuid);
+    }
+  }
+
+  const onDragLeaveNew = () => {
+    // Reset the valid drag state when the drag leaves the drop zone
+    isValidDragOver.value = false;
+  }
+
+  const onDropNewInternal = (event: DragEvent) => {
+    // Reset the valid drag state
+    isValidDragOver.value = false;
+    
+    // Call the parent's drop handler
+    emit('dropNew', event);
+  }
+
+  const onDropRowInternal = (event: DragEvent, uuid: string) => {
+    if (props.allowDropRow) {
+      // Reset the valid drag state
+      isValidDragOver.value = false;
+    
+      // Call the parent's drop handler
+      emit('dropRow', event, uuid);
+    }
   }
 
   ////////////////////////////////
@@ -369,6 +430,21 @@
       &:hover {
         font-weight: bold;
       }
+    }
+  }
+
+  .fcb-table-new-drop-box {
+    line-height:var(--input-height); 
+    color: var(--color-text-primary); 
+    margin-left: 0.75rem; 
+    margin-top: -2px;
+    border: var(--color-text-primary) 1px dashed; 
+    padding: 0 2px 0 2px;
+    transition: all 0.2s ease;
+    
+    &.valid-drag-over {
+      color: var(--color-text-accent);
+      border-color: var(--color-text-accent);
     }
   }
 </style>

@@ -1,3 +1,4 @@
+/** Make sure the event has 'text/plain' data and return the data as a JSON object.  Note that this doesn't check the particular type of Entry/Document/Etc being dropped (or even if the data is valid other than it's text and valid JSON) */
 export const getValidatedData = (event: DragEvent): Record<string, any> | undefined => {
   if (event.dataTransfer?.types[0]!=='text/plain') 
     return undefined;

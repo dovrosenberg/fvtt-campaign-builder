@@ -66,8 +66,8 @@ export const useSessionStore = defineStore('session', () => {
     ],
     [SessionTableTypes.Monster]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
-      { field: 'number', header: 'Number', editable: true },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onMonsterClick },
+      { field: 'number', header: 'Number', editable: true },
     ], 
     [SessionTableTypes.Vignette]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
