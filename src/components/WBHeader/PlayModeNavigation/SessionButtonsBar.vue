@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, nextTick, } from 'vue';
+  import { computed,  } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports

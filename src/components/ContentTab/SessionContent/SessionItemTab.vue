@@ -8,10 +8,9 @@
     :add-button-label="localize('labels.session.addItem')"
     :extra-add-text="localize('labels.session.addItemDrag')"
     :draggable-rows="true"
-    @row-select="onRowSelect($event.data.uuid)"
     @add-item="showItemPicker=true"
-    @drop="onDrop"
-    @dragover="onDragover"
+    @dragoverNew="onDragoverNew"
+    @dropNew="onDropNew"
     @delete-item="onDeleteItem"
     @mark-item-delivered="onMarkItemDelivered"
     @unmark-item-delivered="onUnmarkItemDelivered"
@@ -70,7 +69,7 @@
     await sessionStore.addItem(documentUuid);
   }
 
-  const onDragover = (event: DragEvent) => {
+  const onDragoverNew = (event: DragEvent) => {
     event.preventDefault();  
     event.stopPropagation();
 
@@ -78,7 +77,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async (event: DragEvent) => {
+  const onDropNew = async (event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data 
@@ -90,11 +89,6 @@
     if (data.type==='Item' && data.uuid) {
       await sessionStore.addItem(data.uuid);  
     }
-  }
-
-  const onRowSelect = async (uuid: string) => {
-    const item = await fromUuid(uuid) as Item | null;
-    await item?.sheet?.render(true);
   }
 
   const onDeleteItem = async (uuid: string) => {

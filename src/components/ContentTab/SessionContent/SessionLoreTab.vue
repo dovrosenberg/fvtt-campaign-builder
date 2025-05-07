@@ -7,15 +7,17 @@
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLore')"
     :extra-add-text="localize('labels.session.addLoreDrag')"
-    @row-select="onRowSelect($event.data.journalEntryPageId)"
+    :allow-drop-row="true"
     @add-item="onAddLore"
     @delete-item="onDeleteLore"
     @mark-item-delivered="onMarkLoreDelivered"
     @unmark-item-delivered="onUnmarkLoreDelivered"
     @move-to-next-session="onMoveLoreToNext"
     @cell-edit-complete="onCellEditComplete"
-    @dragover="onDragover"
-    @drop="onDrop"
+    @dragoverNew="onDragover"
+    @dragoverRow="onDragover"
+    @dropRow="onDropRow"
+    @dropNew="onDropNew"
   />
 </template>
 
@@ -28,6 +30,7 @@
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
+  import { confirmDialog } from '@/dialogs';
 
   // library components
 	
@@ -77,12 +80,6 @@
     }  
   }
 
-  const onRowSelect = async (journalEntryPageId: string) => {
-    const page = await fromUuid(journalEntryPageId) as JournalEntryPage | null
-    ;
-    await page?.sheet?.render(true);
-  }
-
   const onDeleteLore = async (uuid: string) => {
     await sessionStore.deleteLore(uuid);
   }
@@ -107,7 +104,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async (event: DragEvent) => {
+  const onDropNew = async (event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data 
@@ -118,10 +115,32 @@
     // make sure it's the right format - looking for JournalEntryPage
     if (data.type === 'JournalEntryPage' && data.uuid) {
       // Create a new lore entry and associate it with the journal entry page
-      const lore = await sessionStore.addLore('');
-      if (lore) {
-        await sessionStore.updateLoreJournalEntry(lore, data.uuid);
+      const loreId = await sessionStore.addLore('');
+
+      if (loreId) {
+        await sessionStore.updateLoreJournalEntry(loreId, data.uuid);
       }
+    }
+  }
+
+  const onDropRow = async (event: DragEvent, rowUuid: string) => {
+    event.preventDefault();  
+
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
+
+    // make sure it's the right format - looking for JournalEntryPage
+    if (data.type === 'JournalEntryPage' && data.uuid && rowUuid) {
+      const lore = relatedLoreRows.value.find((l)=>l.uuid===rowUuid);
+      
+      if (lore?.journalEntryPageId && 
+          !(await confirmDialog('Update lore?', 'Are you sure you want to replace the journal entry tied to this lore?'))) {
+        return;
+      }
+      
+      await sessionStore.updateLoreJournalEntry(rowUuid, data.uuid);
     }
   }
 

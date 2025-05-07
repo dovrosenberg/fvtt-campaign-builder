@@ -15,6 +15,15 @@
           @update:model-value="onNameUpdate"
         />
         <button
+          v-if="topic===Topics.Character || topic===Topics.Location"
+          class="fcb-push-to-session-button"
+          @click="onPushToSessionClick"
+          :disabled="pushButtonDisabled"
+          :title="pushButtonTitle"
+        >
+          <i class="fas fa-share"></i>
+        </button>
+        <button
           v-if="canGenerate"
           class="fcb-generate-button"
           @click="onGenerateButtonClick"
@@ -158,17 +167,18 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, watch, reactive } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { getTopicIcon, htmlToPlainText } from '@/utils/misc';
+  import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, } from '@/applications/stores';
+  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, useCampaignStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
   import { SettingKey } from '@/settings';
-  
+  import { notifyInfo } from '@/utils/notifications';  
+
   // library components
   import InputText from 'primevue/inputtext';
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -187,8 +197,9 @@
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
-  import { WBWorld, TopicFolder, Backend, Entry } from '@/classes';
+  import { WBWorld, TopicFolder, Backend, } from '@/classes';
   import { updateEntryDialog } from '@/dialogs/createEntry';
+
 
   ////////////////////////////////
   // props
@@ -202,7 +213,9 @@
   const topicDirectoryStore = useTopicDirectoryStore();
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
-  const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, } = storeToRefs(mainStore);
+  const campaignStore = useCampaignStore();
+  const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, isInPlayMode } = storeToRefs(mainStore);
+  const { currentPlayedCampaign } = storeToRefs(campaignStore);
 
   ////////////////////////////////
   // data
@@ -227,10 +240,13 @@
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
-  const isGeneratingImage = ref<boolean>(false); // Flag to track whether image generation is in progress
-  
+  const isGeneratingImage = reactive<Record<string, boolean>>({}); // Flag to track whether image generation is in progress - only one per id at a time
+  const pushButtonTitle = ref<string>('');
+  const pushButtonDisabled = ref<boolean>(false);
+
   ////////////////////////////////
   // computed data
+    
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
   const canGenerate = computed(() => topic.value && [Topics.Character, Topics.Location, Topics.Organization].includes(topic.value));
@@ -240,6 +256,9 @@
   ////////////////////////////////
   // methods
   const refreshEntry = async () => {
+    // refresh this so we can capture changes to campaigns as soon as they happen
+    updatePushButton();
+
     if (!currentEntry.value || !currentEntry.value.uuid) {
       topic.value = null;
     } else {
@@ -267,6 +286,36 @@
     }
   };
 
+    /** how many campaigns have available sessions */
+    const numAvailableSessions = (): number => {
+    if (!currentWorld.value)
+      return 0;
+
+    let num = 0;
+    // otherwise check all campaigns until we find one with sessions that don't have it
+    for (const campaignId of Object.keys(currentWorld.value?.campaigns || {})) {
+      if (currentWorld.value?.campaigns[campaignId].currentSession && !currentWorld.value.campaigns[campaignId].currentSession.npcs.find((npc) => npc.uuid===currentEntry.value?.uuid)) {
+        num++;
+      }
+    }
+
+    return num;
+  };
+
+  // this is a bit odd, but using computed functions doesn't work because they don't update when campaigns are added, etc. and it seemed like a lot of overhead to capture changes there just for this title
+  const updatePushButton = (): void => {
+    const numSessions = numAvailableSessions();
+    
+    if (numSessions===0) {
+      pushButtonTitle.value = localize('tooltips.sessionUnavailable');
+      pushButtonDisabled.value = true;
+    } else {
+      // note that we're counting sessions without this entry, so there may be some others that do have it
+      pushButtonTitle.value = localize('tooltips.addToASession')
+      pushButtonDisabled.value = false;
+    }
+  }
+
   ////////////////////////////////
   // event handlers
 
@@ -291,6 +340,110 @@
     }, debounceTime);
   };
 
+  const onPushToSessionClick = async (event: MouseEvent) : Promise<void> => {
+    // Prevent default behavior
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!currentWorld.value)
+      return;
+
+    // find all the campaigns with an active session
+    let campaignsWithSessions = [] as { uuid: string; name: string}[];
+
+    for (const campaignId of Object.keys(currentWorld.value.campaigns)) {
+      if (currentWorld.value?.campaigns[campaignId].currentSession && !currentWorld.value.campaigns[campaignId].currentSession.npcs.find((npc) => npc.uuid===currentEntry.value?.uuid)) {
+        campaignsWithSessions.push({ uuid: campaignId, name: currentWorld.value.campaigns[campaignId].name });
+      }
+    }
+
+    // if there aren't any, we're done (though this should never happen because the button shouldn't be enabled)
+    if (campaignsWithSessions.length===0) {
+      return;
+    }
+
+    // if there's more than one, we need the menu
+    const campaigns = currentWorld.value.campaigns;
+
+    type MenuItem = {
+      label: string;
+      onClick: () => void | Promise<void>;
+      customClass?: string;
+      divided?: 'down' | undefined;
+    };
+
+    let menuItems = [] as MenuItem[];
+
+    // if we're in play mode with an active session, put that at the top
+    let currentCampaignId: string | null = null;
+    let activeItem: MenuItem | null = null;
+    if (currentPlayedCampaign.value?.currentSession) {
+      currentCampaignId = currentPlayedCampaign.value.uuid;
+      
+      activeItem = {
+        label: `${campaigns[currentCampaignId].name} (#${campaigns[currentCampaignId].currentSession?.number})`,        
+        customClass: 'push-to-active-campaign-menu-item',
+        onClick: async () => { await selectCampaignForPush(currentCampaignId as string); },
+        divided: campaignsWithSessions.length > 1 ? 'down' : undefined,
+      };
+    }
+
+    // check for any other campaigns
+    for (const campaignId of Object.keys(campaigns)) {
+      // skip the one we added above
+      if (campaignId === currentCampaignId)
+        continue;
+
+      // skip ones without sessions
+      if (!campaigns[campaignId].currentSession)
+        continue;
+
+      menuItems.push({
+        label: `${campaigns[campaignId].name} (#${campaigns[campaignId].currentSession?.number})`,        
+        onClick: async () => { await selectCampaignForPush(campaignId); },
+      });
+    }
+
+    menuItems = menuItems.sort((a,b) => a.label.localeCompare(b.label));
+    if (activeItem)
+      menuItems = [activeItem, ...menuItems];
+
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: menuItems,
+    });
+  }
+
+  const selectCampaignForPush = async (campaignUuid: string): Promise<void> => {
+    // get the campaign
+    const campaign = await currentWorld.value?.campaigns[campaignUuid];
+    if (!campaign)
+      return;
+
+    // get the session
+    const session = campaign.currentSession;
+    if (!session || !currentEntry.value)
+      return;
+
+    if (topic.value===Topics.Character) {
+      // add to NPC list
+      await session.addNPC(currentEntry.value.uuid);
+
+      // no refresh needed since we know we're not on the session tab
+    } else if (topic.value===Topics.Location) {
+      // add to location list
+      await session.addLocation(currentEntry.value.uuid);
+    } else {
+      return;
+    }
+
+    notifyInfo(`${currentEntry.value.name} ${localize('notifications.addedToSession')}`);
+    updatePushButton();// # of available changed
+   }
+
   const onGenerateButtonClick = (event: MouseEvent): void => {
     // Prevent default behavior
     event.preventDefault();
@@ -314,21 +467,21 @@
       {
         icon: 'fa-image',
         iconFontClass: 'fas',
-        label: `${localize('contextMenus.generate.image')} ${isGeneratingImage.value ? ` (${localize('contextMenus.generate.inProgress')})` : ''}`,
-        disabled: isGeneratingImage.value,
+        label: `${localize('contextMenus.generate.image')} ${isGeneratingImage[currentEntry.value?.uuid as string] ? ` - ${localize('contextMenus.generate.inProgress')}` : ''}`,
+        disabled: isGeneratingImage[currentEntry.value?.uuid as string],
         onClick: async () => {
-          if (!isGeneratingImage.value && currentWorld.value && currentEntry.value) {
-            isGeneratingImage.value = true;
-
+          if (!isGeneratingImage[currentEntry.value?.uuid as string] && currentWorld.value && currentEntry.value) {
             // save entry because it could change before generation is done
             const entryGenerated = currentEntry.value.uuid;
+
+            isGeneratingImage[entryGenerated] = true;
 
             await generateImage(currentWorld.value, currentEntry.value);
 
             if (entryGenerated===currentEntry.value.uuid)
               mainStore.refreshEntry();
 
-            isGeneratingImage.value = false;
+            isGeneratingImage[entryGenerated] = false;
           }
         }
       },
@@ -444,11 +597,15 @@
 </script>
 
 <style lang="scss" scoped>
-  .fcb-generate-button {
+  .fcb-generate-button, .fcb-push-to-session-button {
     &:hover:disabled {
       // prevent button from looking like you can click it if you can't
       background: unset;
     }
+  }
+
+  .push-to-active-campaign-menu-item {
+    font-weight: bold;
   }
   
   .tags-container {

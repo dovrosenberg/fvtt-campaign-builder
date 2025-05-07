@@ -193,6 +193,7 @@ export const useMainStore = defineStore('main', () => {
     await _currentPC.value.getActor();
   };
 
+  /** Refresh whatever content is currently showing */
   const refreshCurrentContent = async function (): Promise<void> {
     switch (currentContentType.value) {
       case WindowTabType.Entry:

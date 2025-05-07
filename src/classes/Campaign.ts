@@ -114,9 +114,9 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     return maxNumber + 1;
   }
 
-  /** returns the uuids of all the sessions */
-  get sessions(): string[] {
-    return toRaw(this._doc).pages.filter((p) => p.type===DOCUMENT_TYPES.Session).map((page) => page.uuid);
+  get sessions(): Session[] {
+    // just return all the sessions
+    return this.filterSessions(()=>true);
   }
 
   get name(): string {
@@ -309,30 +309,6 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     // if name isn't '' and we're here, then we cancelled the dialog
     return null;
   }
-
-  /**
-   * Find all sessions for a given campaign
-   * @todo   At some point, may need to make reactive (i.e. filter by what's been entered so far) or use algolia if lists are too long; 
-   *            might also consider making every topic a different subtype and then using DocumentIndex.lookup  -- that might give performance
-   *            improvements in lots of places
-   * @param campaignId the campaign to search
-   * @param notRelatedTo if present, only return sessions that are not already linked to this session
-   * @returns a list of Entries
-   */
-  public async getSessions(notRelatedTo?: Session | undefined): Promise<Session[]> {
-    // we find all journal entries with this topic
-    let sessions = this.filterSessions(()=>true);
-  
-    // filter unique ones if needed
-    if (notRelatedTo) {
-      const relatedEntries = notRelatedTo.getAllRelatedSessions(this.uuid);
-  
-      // also remove the current one
-      sessions = sessions.filter((session) => !relatedEntries.includes(session.uuid) && session.uuid !== notRelatedTo.uuid);
-    }
-  
-    return sessions;
-  }
   
   /**
    * Find all PCs for a given campaign
@@ -435,8 +411,8 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     await this._doc.delete();
 
-    await world.lock();
-
     await world.deleteCampaignFromWorld(id);
+
+    await world.lock();
   }
 }

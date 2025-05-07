@@ -245,6 +245,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      min-height: 240px;
       max-width: 100%;
       border: 0px;
       background: var(--fcb-icon-background);
