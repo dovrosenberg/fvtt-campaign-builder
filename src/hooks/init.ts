@@ -8,6 +8,11 @@ export function registerForInitHook() {
 }
 
 async function init(): Promise<void> {
+  // Load Quench test in development environment
+  if (import.meta.env.MODE === 'development') {
+    await import('@test/index');
+  }
+
   // initialize settings first, so other things can use them
   ModuleSettings.register();
 
