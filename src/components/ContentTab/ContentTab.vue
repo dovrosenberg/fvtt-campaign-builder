@@ -131,8 +131,8 @@
         margin-bottom: 4px;
         
         .fcb-input-name {
-          background: var(--fcb-sheet-header-name-background);
-          color: var(--fcb-sheet-header-name-color);
+          background: none;
+          color: var(--color-text-primary);
           margin-left: 3px;
           margin-right: 8px;
           font-size: 32px;

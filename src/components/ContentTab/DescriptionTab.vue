@@ -143,7 +143,7 @@
         }
         input {
           font-size: var(--font-size-20);
-          color: var(--fcb-sheet-header-detail-input-color);
+          color: var(fcb-sheet-header-detail-input-color);
         }
 
         select {
