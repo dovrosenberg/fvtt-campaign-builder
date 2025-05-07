@@ -52,8 +52,9 @@ body {
   --fcb-sheet-header-border: rgb(120, 46, 34);
   --fcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);
   --fcb-sheet-header-input-background: rgba(0, 0, 0, 0.05);
-  --fcb-sheet-header-label-color: rgb(75, 74, 68);
-  --fcb-sheet-header-button-color: var(--primary-font);
+  --fcb-sheet-header-label-color: var(--color-text-secondary);
+  --fcb-sheet-header-button-border-color: var(--color-text-subtle);
+  --fcb-sheet-header-button-color: var(--color-text-primary);
   --fcb-sheet-header-button-background: var(--button-background-color);
   --fcb-sheet-header-detail-input-color: var(--color-text-primary);
   --fcb-sheet-header-icon-color: #777;
@@ -63,10 +64,8 @@ body {
   --fcb-sheet-header-search-background-hover: var(--fcb-sheet-header-input-background);
   --fcb-sheet-header-search-border: --fcb-sheet-header-input-border;
   --fcb-sheet-header-border: rgb(238, 237, 224);
-  --fcb-sheet-tab-color: var(--fcb-sheet-color);
-  --fcb-sheet-tab-color-hover: inherit;
-  --fcb-sheet-tab-color-active: var(--fcb-sheet-tab-color);
-  --fcb-sheet-tab-background: rgba(255, 255, 255, 0.3);
+  // --fcb-sheet-tab-background: rgba(255, 255, 255, 0.3);
+  --fcb-content-body-background: rgba(0, 0, 0, 0.05);
   --fcb-sheet-tab-bottom-border: rgb(238, 237, 224);
   --fcb-sheet-tab-border: 3px solid rgb(181, 179, 164);
   --fcb-sheet-tab-border-active: rgb(68, 25, 26);
@@ -150,18 +149,14 @@ body.theme-dark {
 //   --fcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);//
 //   --fcb-sheet-header-input-background: rgba(0, 0, 0, 0.05);//
 //   --fcb-sheet-header-label-color: rgb(75, 74, 68);//
-//   --fcb-sheet-header-button-color: var(--primary-font);//
-//   --fcb-sheet-header-button-background: rgba(0, 0, 0, 0.1);//
 //   --fcb-sheet-header-search-color: var(--color-text-primary);
 //   --fcb-sheet-header-search-placeholder: var(--color-text-light-secondary);
 //   --fcb-sheet-header-search-background: var(--fcb-sheet-header-input-background);
 //   --fcb-sheet-header-search-background-hover: var(--fcb-sheet-header-input-background);
 //   --fcb-sheet-header-search-border: --fcb-sheet-header-input-border;//
 //   --fcb-sheet-detailed-header-border: rgb(238, 237, 224);//
-//   --fcb-sheet-tab-color: var(--fcb-sheet-color);
-//   --fcb-sheet-tab-color-hover: inherit;//
-//   --fcb-sheet-tab-color-active: var(--fcb-sheet-tab-color);//
 //   --fcb-sheet-tab-background: rgba(255, 255, 255, 0.3);//
+--fcb-content-body-background: rgba(255, 255, 255, 0.1);
 //   --fcb-sheet-tab-bottom-border: rgb(238, 237, 224);//
 //   --fcb-sheet-tab-border: 3px solid rgb(181, 179, 164);//
 //   --fcb-sheet-tab-border-active: rgb(68, 25, 26);//
@@ -175,7 +170,6 @@ body.theme-dark {
 //   --fcb-sheet-input-color: var(--color-text-light-primary);
 //   --fcb-sheet-button-background: rgb(192, 192, 192);
 //   --fcb-sheet-button-background-hover: var(--fcb-sheet-button-background);
-//   --fcb-sheet-button-color: var(--fcb-sheet-color);
 
 //   --fcb-active-color: rgb(255, 100, 0);//
 //   --fcb-icon-background: rgba(236, 233, 223, 1);//
