@@ -354,11 +354,29 @@
         "5": "Monde"
       },
       "dragActorFromEntry": "Glisser vers la scène",
-      "longDescriptions": "Générer une description détaillée ou un court résumé ?",
-      "generateImage": "Générer une nouvelle image en arrière-plan après la création"
+      "addToASession": "Ajouter à une session",
+      "sessionUnavailable": "Aucune campagne avec une session active, ou cette entrée est déjà attachée à toutes",
+      "createEntry": {
+        "name": "Si laissé vide, un nom sera généré automatiquement",
+        "type": "Si vous créez un nouveau type, il sera ajouté à la liste principale",
+        "description": "Facultatif. Utilisez pour spécifier les caractéristiques physiques ou traits de personnalité que vous souhaitez inclure",
+        "parent": "Peut influencer le texte généré dans certains cas",
+        "species": "Si vide, une espèce aléatoire de votre monde sera utilisée pour la génération AI. Les entrées personnalisées seront transmises à l'AI mais ne seront pas ajoutées à votre liste d'espèces",
+        "longDescriptions": "Générer une description détaillée ou un court résumé ?",
+        "generateImage": "Générer une nouvelle image en arrière-plan après la création"
+      }
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori"
+    },
+    "notifications": {
+      "backend": {
+        "successfulConnection": "Connexion réussie au backend de Campaign Builder.",
+        "failedConnection": "Échec de la connexion au backend - vérifiez vos paramètres \"avancés\" pour vous assurer qu'ils correspondent correctement au serveur backend que vous avez déployé. Vous ne pourrez pas utiliser les fonctionnalités avancées entre-temps.",
+        "versionMismatch": "La version de votre backend World & Campaign Builder ($1) ne correspond pas à la version requise par la version du module que vous avez installée ($2). Veuillez mettre à jour l'un ou l'autre (ou les deux). Vous ne pourrez pas utiliser les fonctionnalités avancées entre-temps."
+      },
+      "addedToSession": "ajouté à la session",
+      "changesSaved": "modifications enregistrées"
     }
   }
 }

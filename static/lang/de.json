@@ -354,11 +354,29 @@
         "5": "Welt"
       },
       "dragActorFromEntry": "In Szene ziehen",
-      "longDescriptions": "Detaillierte Beschreibung oder kurze Zusammenfassung generieren?",
-      "generateImage": "Ein neues Bild im Hintergrund nach der Erstellung generieren"
+      "addToASession": "Zu einer Sitzung hinzufügen",
+      "sessionUnavailable": "Keine Kampagnen mit einer aktiven Sitzung oder dieser Eintrag ist bereits an alle angehängt",
+      "createEntry": {
+        "name": "Wenn leer gelassen, wird automatisch ein Name generiert",
+        "type": "Wenn Sie einen neuen Typ erstellen, wird er zur Hauptliste hinzugefügt",
+        "description": "Optional. Verwenden Sie es, um physische Merkmale oder Persönlichkeitseigenschaften anzugeben, die Sie einbeziehen möchten",
+        "parent": "Kann in einigen Fällen den generierten Text beeinflussen",
+        "species": "Wenn leer, wird eine zufällige Spezies aus Ihrer Welt für die AI-Generierung verwendet. Benutzerdefinierte Einträge werden an die AI übergeben, aber nicht zu Ihrer Artenliste hinzugefügt",
+        "longDescriptions": "Detaillierte Beschreibung oder kurze Zusammenfassung generieren?",
+        "generateImage": "Nach der Erstellung ein neues Bild im Hintergrund generieren"
+      }
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert"
+    },
+    "notifications": {
+      "backend": {
+        "successfulConnection": "Erfolgreich mit dem Campaign Builder-Backend verbunden.",
+        "failedConnection": "Verbindung zum Backend fehlgeschlagen - überprüfen Sie Ihre \"erweiterten\" Einstellungen, um sicherzustellen, dass sie korrekt mit dem bereitgestellten Backend-Server übereinstimmen. Sie können in der Zwischenzeit keine erweiterten Funktionen verwenden.",
+        "versionMismatch": "Die Version Ihres World & Campaign Builder-Backends ($1) stimmt nicht mit der von der installierten Modulversion benötigten Version ($2) überein. Bitte aktualisieren Sie eines von beiden (oder beide). Sie können in der Zwischenzeit keine erweiterten Funktionen verwenden."
+      },
+      "addedToSession": "zur Sitzung hinzugefügt",
+      "changesSaved": "Änderungen gespeichert"
     }
   }
 }
