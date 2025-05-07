@@ -1,6 +1,5 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
 import PrimeVue from 'primevue/config';
-import WCBTheme from '@/applications/presetTheme';
 import { pinia } from '@/applications/stores';
 import App from '@/components/applications/CampaignBuilder.vue';
 
@@ -8,6 +7,7 @@ const { ApplicationV2 } = foundry.applications.api;
 
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import '@yaireo/tagify/dist/tagify.css';
+import { theme } from '@/components/styles/primeVue';
 
 // setup pinia
 
@@ -63,19 +63,7 @@ export class CampaignBuilderApplication extends VueApplicationMixin(ApplicationV
         primevue: { 
           plugin: PrimeVue, 
           options: {
-            // theme: 'none',  -- can do this if you want to just style everything manually; could also define a theme without a preset?
-            // for now - trying to just use "unstyled" on all the inputs, buttons, etc. to make it easier to style
-            theme: { 
-              preset: WCBTheme,
-              options: {
-                // prefix: 'fcb-p',
-                // cssLayer: {
-                //   name: 'fcb-p',
-                //   order: 'fcb-p',
-                // },
-                //darkModeSelector: '.theme-dark'
-              }
-            }
+            theme: theme
           }
         },
       }

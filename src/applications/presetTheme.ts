@@ -1,6 +1,5 @@
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
-import { withDirectives } from 'vue';
 
 export default definePreset(Aura, {
   components: {

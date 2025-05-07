@@ -1,8 +1,8 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
 import PrimeVue from 'primevue/config';
-import WCBTheme from '@/applications/presetTheme';
 
 import App from '@/components/applications/AdvancedSettings.vue';
+import { theme } from '@/components/styles/primeVue';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -44,17 +44,7 @@ export class AdvancedSettingsApplication extends VueApplicationMixin(Application
         primevue: { 
           plugin: PrimeVue, 
           options: {
-            theme: { 
-              preset: WCBTheme,
-              options: {
-                // prefix: 'fcb-p',
-                // cssLayer: {
-                //   name: 'fcb-p',
-                //   order: 'fcb-p',
-                // },
-                //darkModeSelector: '.theme-dark'
-              }
-            }
+            theme: theme
           }
         },
       }

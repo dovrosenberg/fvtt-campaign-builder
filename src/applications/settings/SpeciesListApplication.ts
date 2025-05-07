@@ -1,8 +1,8 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
 import PrimeVue from 'primevue/config';
-import WCBTheme from '@/applications/presetTheme';
 
 import App from '@/components/applications/SpeciesList.vue';
+import { theme } from '@/components/styles/primeVue';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -48,17 +48,7 @@ export class SpeciesListApplication extends VueApplicationMixin(ApplicationV2) {
         primevue: { 
           plugin: PrimeVue, 
           options: {
-            theme: { 
-              preset: WCBTheme,
-              options: {
-                // prefix: 'fcb-p',
-                // cssLayer: {
-                //   name: 'fcb-p',
-                //   order: 'fcb-p',
-                // },
-                //darkModeSelector: '.theme-dark'
-              }
-            }
+            theme: theme
           }
         },
       }

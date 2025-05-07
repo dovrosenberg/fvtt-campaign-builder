@@ -59,8 +59,13 @@
 </script>
 
 <style lang="scss">
-  .fcb-session-notes-container {
-    flex: 1;
-    margin: -15px;  // to override the padding from the app
+  .fcb-session-notes {
+    [data-application-part="app"], .fcb-session-notes-container {
+      flex: 1 1 auto;
+      display: flex;
+    }
+    .fcb-session-notes-container {
+      margin: -15px;  // to override the padding from the app
+    }
   }
 </style>

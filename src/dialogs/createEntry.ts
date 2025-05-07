@@ -1,6 +1,5 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
 import PrimeVue from 'primevue/config';
-import WCBTheme from '@/applications/presetTheme';
 import App from '@/components/applications/CreateEntryDialog.vue';
 import { hasHierarchy, } from '@/utils/hierarchy';
 import { useMainStore, useTopicDirectoryStore, useRelationshipStore, useNavigationStore } from '@/applications/stores'; 
@@ -8,6 +7,7 @@ import { CharacterDetails, LocationDetails, OrganizationDetails, Topics, ValidTo
 import { Entry, TopicFolder } from '@/classes';
 import { generateImage, handleGeneratedEntry } from '@/utils/generation';
 import { localize } from '@/utils/game';
+import { theme } from '@/components/styles/primeVue';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -60,17 +60,7 @@ class CreateEntryApplication extends VueApplicationMixin(ApplicationV2) {
         primevue: { 
           plugin: PrimeVue, 
           options: {
-            theme: { 
-              preset: WCBTheme,
-              options: {
-                // prefix: 'fcb-p',
-                // cssLayer: {
-                //   name: 'fcb-p',
-                //   order: 'fcb-p',
-                // },
-                //darkModeSelector: '.theme-dark'
-              }
-            }
+            theme: theme
           }
         },
       }
