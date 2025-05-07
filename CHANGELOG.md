@@ -2,7 +2,7 @@
 
 ## v0.3.0 - Quality of life improvements
 
-![](https://img.shields.io/badge/release%20date-May%20__%2C%202025-blue)
+![](https://img.shields.io/badge/release%20date-May%207%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.3.0/module.zip)
 
 - Enabled pushing to the current session from character/location entries to avoid having to go back and forth to the session while preparing
