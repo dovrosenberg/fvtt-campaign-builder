@@ -248,7 +248,7 @@
           font-weight: 500;
           background: rgba(0, 0, 0, 0.1);
           border: 2px groove solid rgb(240, 240, 224);
-          color: #000000;
+          color: var(--color-text-primary);
 
             &:hover:not(:disabled) {
               border-color: var(--color-border-button-secondary-hover, #a5a394);

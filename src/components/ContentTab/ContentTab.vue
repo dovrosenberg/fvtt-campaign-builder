@@ -198,7 +198,6 @@
       .fcb-sheet-navigation {
         flex-grow: 0;
         flex: 0 0 30px !important;
-        // background: var(--fcb-sheet-tab-background);
         padding: 0px 4px 5px 4px;
         border-bottom: 2px groove var(--fcb-sheet-tab-bottom-border);
         font-family: var(--fcb-font-family);

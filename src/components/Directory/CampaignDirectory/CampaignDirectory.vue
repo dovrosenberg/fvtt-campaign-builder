@@ -185,7 +185,7 @@
         text-align: center;
         line-height: 0.80em;
         color: black;
-        background: #777;
+        background: var(--fcb-directory-expand-button-background);
         display: block;
         width: 15px;
         height: 15px;

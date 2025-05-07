@@ -23,8 +23,6 @@ export default definePreset(Aura, {
       rowStripedBackground: 'inherit',
       footerCellBackground: 'inherit',
       footerBackground: 'inherit',
-      // paginatorTopBorderColor: 'black',
-      // paginatorBottomBorderColor: 'black',
       paginatorTopBorderWidth: '0px',
       paginatorBottomBorderWidth: '0px',
     },
@@ -42,6 +40,8 @@ export default definePreset(Aura, {
     },
     inputtext: {
       background: 'rgba(0, 0, 0, 0.05)', 
+      borderColor: 'rgb(122, 121, 113)',   // fcb-sheet-input-border
+ 
       color: 'black',   //'var(--color-text-primary)',       // change to var
       borderRadius: '4px',
       focusBorderColor: 'black',  // change to var
@@ -76,6 +76,7 @@ export default definePreset(Aura, {
     },
     textarea: {
       background: 'rgba(0, 0, 0, 0.05)', 
+      borderColor: 'rgb(122, 121, 113)',   // fcb-sheet-input-border
       color: 'black',   //'var(--color-text-primary)',       // change to var
       borderRadius: '4px',
       padding: {
@@ -109,14 +110,6 @@ export default definePreset(Aura, {
     //     },
     //   }
     // },
-    // probably want to redo the dialogs in vue to avoid the css complexity of trying to fix them
-    dialog: {
-      borderRadius: '6px',
-      header: {
-        padding: '0 .5rem',
-        color: 'inherit',
-      }
-    },
     splitter: {
       root: {
         background: 'inherit',
