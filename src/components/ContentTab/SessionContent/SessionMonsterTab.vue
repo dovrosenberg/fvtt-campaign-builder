@@ -8,10 +8,9 @@
     :add-button-label="localize('labels.session.addMonster')"
     :extra-add-text="localize('labels.session.addMonsterDrag')"
     :draggable-rows="true"
-    @row-select="onRowSelect($event.data.uuid)"
     @add-item="showMonsterPicker=true"
-    @drop="onDrop"
-    @dragover="onDragover"
+    @dropNew="onDropNew"
+    @dragoverNew="onDragoverNew"
     @delete-item="onDeleteMonster"
     @mark-item-delivered="onMarkMonsterDelivered"
     @unmark-item-delivered="onUnmarkMonsterDelivered"
@@ -73,7 +72,7 @@
     await sessionStore.addMonster(documentUuid, 1); // Always use 1 as the default
   }
 
-  const onDragover = (event: DragEvent) => {
+  const onDragoverNew = (event: DragEvent) => {
     event.preventDefault();  
     event.stopPropagation();
 
@@ -81,7 +80,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async (event: DragEvent) => {
+  const onDropNew = async (event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data 
@@ -111,11 +110,6 @@
         originalEvent.preventDefault();
         break;
     }  
-  }
-
-  const onRowSelect = async (uuid: string) => {
-    const monster = await fromUuid(uuid) as Actor | null;
-    await monster?.sheet?.render(true);
   }
 
   const onDeleteMonster = async (uuid: string) => {

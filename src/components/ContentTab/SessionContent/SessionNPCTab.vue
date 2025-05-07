@@ -7,19 +7,18 @@
     :show-add-button="true"
     :add-button-label="localize('labels.session.addNPC')" 
     :extra-add-text="localize('labels.session.addNPCDrag')"
-    @row-select="onRowSelect"
     @add-item="showNPCPicker=true"
     @delete-item="onDeleteNPC"
     @mark-item-delivered="onMarkNPCDelivered"
     @unmark-item-delivered="onUnmarkNPCDelivered"
     @move-to-next-session="onMoveNPCToNext"        
-    @dragover="onDragover"
-    @drop="onDrop"
+    @dragoverNew="onDragoverNew"
+    @dropNew="onDropNew"
   />
   <RelatedItemDialog
     v-model="showNPCPicker"
     :topic="Topics.Character"
-    mode="add"
+    :mode="RelatedItemDialogModes.Session"
   />
 </template>
 
@@ -31,7 +30,7 @@
 
   // local imports
   import { useSessionStore, useNavigationStore, SessionTableTypes} from '@/applications/stores';
-  import { Topics, } from '@/types';
+  import { Topics, RelatedItemDialogModes,} from '@/types';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
 
@@ -68,10 +67,6 @@
 
   ////////////////////////////////
   // event handlers
-  const onRowSelect = async function (event: DataTableRowSelectEvent) {
-    await navigationStore.openEntry(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
-  };
-
   const onDeleteNPC = async (uuid: string) => {
     await sessionStore.deleteNPC(uuid);
   }
@@ -88,7 +83,7 @@
     await sessionStore.moveNPCToNext(uuid);
   }
 
-  const onDragover = (event: DragEvent) => {
+  const onDragoverNew = (event: DragEvent) => {
     event.preventDefault();  
     event.stopPropagation();
 
@@ -96,7 +91,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async(event: DragEvent) => {
+  const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data 

@@ -13,7 +13,6 @@
     :draggable-rows="[DocumentLinkType.Actors, DocumentLinkType.Items].includes(props.documentLinkType)"
 
     @delete-item="onDeleteItemClick"
-    @row-select="onRowSelect"
     @row-context-menu="onRowContextMenu"
     @drop="onDrop"
     @dragover="onDragover"
@@ -124,7 +123,7 @@
   const columns = computed((): any[] => {
     // for now, just action and name
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
-    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
+    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick }; 
     const locationColumn = { field: 'location', style: 'text-align: left', header: 'Location', sortable: true }; 
     
     // Add drag column for actors
@@ -149,14 +148,12 @@
     }
   };
 
-  const onRowSelect = async (event: { data: RelatedDocumentGridRow}) => { 
-    const { data } = event;
-
+  const onNameClick = async (_event: MouseEvent, uuid: string) => { 
     if (props.documentLinkType===DocumentLinkType.Actors) {
-      const actor = await fromUuid(data.uuid) as Actor | null;
+      const actor = await fromUuid(uuid) as Actor | null;
       await actor?.sheet?.render(true);
     } else if (props.documentLinkType===DocumentLinkType.Scenes) {
-      const scene = await fromUuid(data.uuid) as Scene | null;
+      const scene = await fromUuid(uuid) as Scene | null;
       await scene?.sheet?.render(true);
     }
   

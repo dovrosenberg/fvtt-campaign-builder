@@ -1,5 +1,19 @@
 # Change Log
 
+## v0.3.0 - Quality of life improvements
+
+![](https://img.shields.io/badge/release%20date-May%207%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.3.0/module.zip)
+
+- Enabled pushing to the current session from character/location entries to avoid having to go back and forth to the session while preparing
+- Cleaned up the UX of the create/generate dialog boxes
+- Allow multiple image generations to be happening at once
+- Ability to create new entries when adding to a relationship or a session
+- Made it more clear on various tables what clicking different cells will do
+- Added mode details to session location and NPC tables
+- Improvements to table drag/drop interface
+- Minor bug fixes
+
 ## v0.2.1 - Fixed some minor but irritating UX issues
 
 ![](https://img.shields.io/badge/release%20date-April%2030%2C%202025-blue)

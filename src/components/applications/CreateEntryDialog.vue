@@ -21,7 +21,7 @@
         label: localize('labels.use'),
         default: false,
         close: true,
-        disable: !name,
+        disable: !name || (props.generateMode && !generatedDescription),
         callback: onUseClick
       },
     ]"
@@ -32,7 +32,11 @@
     >
       <h6>
         {{ localize('labels.fields.name')}}
-        <i class="fas fa-info-circle tooltip-icon" data-tooltip="If left blank, a name will be generated automatically"></i>
+        <i 
+          v-if="Backend.available"
+          class="fas fa-info-circle tooltip-icon" 
+          :data-tooltip="localize('tooltips.createEntry.name')"
+        ></i>
       </h6>
       <InputText
         v-model="name"
@@ -42,7 +46,9 @@
 
       <h6>
         {{ localize('labels.fields.type')}}
-        <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you create a new type, it will be added to the master list"></i>
+        <i 
+          class="fas fa-info-circle tooltip-icon" 
+          :data-tooltip="localize('tooltips.createEntry.type')"></i>
       </h6>
       <TypeSelect
         :initial-value="type"
@@ -53,7 +59,11 @@
       <div v-if="props.topic === Topics.Character">
         <h6>
           {{ localize('labels.fields.species')}}
-          <i class="fas fa-info-circle tooltip-icon" data-tooltip="If blank, a random species from your world will be used. Custom entries will be passed to the AI but not added to your species list"></i>
+          <i 
+            v-if="Backend.available"
+            class="fas fa-info-circle tooltip-icon" 
+            :data-tooltip="localize('tooltips.createEntry.species')"
+          ></i>
         </h6>
         <SpeciesSelect
           :initial-value="speciesId"
@@ -65,7 +75,11 @@
       <div v-else-if="hasHierarchy(props.topic)">
         <h6>
           {{ localize('labels.fields.parent')}}
-          <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you set the parent, it will save the new value. May influence generated text in some cases"></i>
+          <i 
+            v-if="Backend.available"
+            class="fas fa-info-circle tooltip-icon" 
+            :data-tooltip="localize('tooltips.createEntry.parent')"
+          ></i>
         </h6>
         <TypeAhead 
           :initial-list="validParents"
@@ -76,13 +90,23 @@
 
       <h6>
         {{ Backend.available ? localize('labels.fields.briefDescription') : localize('labels.fields.description') }}
-        <i class="fas fa-info-circle tooltip-icon" data-tooltip="Optional. Use to specify physical features or personality traits you want included"></i>
+        <i
+          v-if="Backend.available" 
+          class="fas fa-info-circle tooltip-icon" 
+          :data-tooltip="localize('tooltips.createEntry.description')"
+        ></i>
       </h6>
       <Textarea
         v-model="briefDescription"
         :rows="4"
         autoResize
-        :pt="{ root: { style: { 'font-size': 'var(--font-size-14)', 'min-height': '6rem' }}}"
+        :pt="{ root: { 
+          style: { 
+            'font-size': 'var(--font-size-14)', 
+            'min-height': '6rem',
+            'background': !props.generateMode && !generateComplete ? 'rgba(255, 228, 196, .3)' : '',
+          }
+        }}"
       />
       <div 
         v-if="Backend.available"
@@ -96,7 +120,7 @@
           />
           <label for="long-description-checkbox" class="generation-label">
             {{ localize('labels.fields.longDescriptions') }}
-            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.longDescriptions')"></i>
+            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.createEntry.longDescriptions')"></i>
           </label>
         </div>
         <div class="generation-option-wrapper" style="margin-left: 20px">
@@ -107,7 +131,7 @@
           />
           <label for="generate-image-checkbox" class="generation-label">
             {{ localize('labels.fields.generateImage') }}
-            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.generateImage')"></i>
+            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.createEntry.generateImage')"></i>
           </label>
         </div>
       </div>
@@ -119,7 +143,7 @@
         <div v-if="generateError" class="error-message">
           <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ generateError }}
         </div>
-        <div v-else-if="generateComplete" class="generated-content">
+        <div v-else-if="generateComplete" class="generated-content" style="background: rgba(255, 228, 196, .3)">
           <div><span class="label">{{ localize('dialogs.createEntry.generatedName')}}:</span> {{ generatedName }}</div>
           <div class="description">
             <p><span class="label">{{ localize('dialogs.createEntry.generatedDescription')}}:</span></p>
@@ -131,7 +155,7 @@
         </div>
         <div v-else class="prompt-message">
           {{ localize('dialogs.createEntry.generatePrompt')}}...<br/><br/>
-          {{ localize('dialogs.createEntry.generatePrompt2')}}
+          {{ props.generateMode ? '' : localize('dialogs.createEntry.generatePrompt2')}}
         </div>
       </div>
     </div>
@@ -148,7 +172,7 @@
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend } from '@/classes';
-  import { generatedTextToHTML } from '@/utils/misc';
+  import { generatedTextToHTML, htmlToPlainText } from '@/utils/misc';
   import { hasHierarchy, } from '@/utils/hierarchy';
   
   // library components
@@ -164,7 +188,7 @@
   import TypeAhead from '@/components/TypeAhead.vue'; 
 
   // types
-  import { Topics, ValidTopic, Species } from '@/types';
+  import { Topics, ValidTopic, Species, CharacterDetails, LocationDetails, OrganizationDetails } from '@/types';
   import { Entry } from '@/classes';
 
   ////////////////////////////////
@@ -173,6 +197,12 @@
     title: {
       type: String,
       required: true,
+    },
+    /** this is used to edit records that already exist */
+    generateMode: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
     topic: {
       type: Number as PropType<ValidTopic>,
@@ -227,7 +257,7 @@
   // data
   const name = ref<string>(props.initialName);
   const type = ref<string>(props.initialType);
-  const briefDescription = ref<string>(props.initialDescription);
+  const briefDescription = ref<string>('');
   const generatedName = ref<string>('');
   const generatedDescription = ref<string>('');
   const generateComplete = ref<boolean>(false);
@@ -461,7 +491,7 @@
     }
   });
   watch(() => props.initialDescription, (newValue) => {
-    briefDescription.value = newValue;
+    briefDescription.value = htmlToPlainText(newValue);
   });
 
   ////////////////////////////////
@@ -489,7 +519,7 @@
     }
 
     longDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
-    briefDescription.value = props.initialDescription;
+    briefDescription.value = htmlToPlainText(props.initialDescription);
     generateComplete.value = false;
     generateError.value = '';
     loading.value = false;
@@ -572,6 +602,14 @@
         color: var(--color-text-dark-secondary);
         margin-top: 100px;
         font-style: italic;
+      }
+
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
       }
     }
   }

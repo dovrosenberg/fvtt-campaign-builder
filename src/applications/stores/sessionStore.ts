@@ -5,9 +5,10 @@ import { ref, watch } from 'vue';
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
+import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
 import { confirmDialog } from '@/dialogs';
 import { localize } from '@/utils/game'; 
+import { htmlToPlainText } from '@/utils/misc';
 
 // types
 import { 
@@ -21,7 +22,7 @@ import {
   SessionLoreDetails,
 } from '@/types';
 
-import { Session } from '@/classes';
+import { Entry, Session } from '@/classes';
 
 export enum SessionTableTypes {
   None,
@@ -49,32 +50,40 @@ export const useSessionStore = defineStore('session', () => {
   const extraFields = {
     [SessionTableTypes.None]: [],
     [SessionTableTypes.Location]: [
-      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
+      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
+      { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
+      { field: 'parent', style: 'text-align: left', header: 'Parent', sortable: true, onClick: onParentClick},
+      { field: 'description', style: 'text-align: left', header: 'Description', sortable: false},
     ],
     [SessionTableTypes.Item]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
-      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
+      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onItemClick },
     ],  
     [SessionTableTypes.NPC]: [
-      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
+      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
+      { field: 'type', style: 'text-align: left', header: 'Type', sortable: true },
+      { field: 'description', style: 'text-align: left', header: 'Description', sortable: false},
     ],
     [SessionTableTypes.Monster]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
+      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onMonsterClick },
       { field: 'number', header: 'Number', editable: true },
-      { field: 'name', style: 'text-align: left', header: 'Name', sortable: true },
     ], 
     [SessionTableTypes.Vignette]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
     ],
     [SessionTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
-      { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false },
+      { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false,
+        onClick: onJournalClick
+      },
     ],  
   } as Record<SessionTableTypes, FieldData>;
   
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
+  const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentWorld, currentContentTab, currentSession, } = storeToRefs(mainStore);
 
@@ -108,7 +117,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteLocation()');
 
     // confirm
-    if (!(await confirmDialog('Delete location?', 'Are you sure you want to delete this location?')))
+    if (!(await confirmDialog('Delete location?', 'Are you sure you want to delete this location? This will not impact the associated world Location')))
       return;
 
     await currentSession.value.deleteLocation(uuid);
@@ -169,7 +178,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteNPC()');
 
     // confirm
-    if (!(await confirmDialog('Delete NPC?', 'Are you sure you want to delete this NPC?')))
+    if (!(await confirmDialog('Delete NPC?', 'Are you sure you want to delete this NPC? This will not impact the associated Character')))
       return;
     
     await currentSession.value.deleteNPC(uuid);
@@ -547,6 +556,46 @@ export const useSessionStore = defineStore('session', () => {
 
   ///////////////////////////////
   // internal functions
+  // when we click on a journal entry, open it
+  async function onJournalClick (_event: MouseEvent, uuid: string) {
+    // get session Id
+    const journalEntryPageId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
+    const journalEntryPage = await fromUuid(journalEntryPageId) as JournalEntryPage | null;
+
+    if (journalEntryPage)
+      journalEntryPage.sheet?.render(true);
+  }
+
+  // when we click on an item, open it
+  async function onItemClick (_event: MouseEvent, uuid: string) {
+    const item = await fromUuid(uuid) as Item | null;
+
+    if (item)
+      item.sheet?.render(true);
+  }
+
+  // when we click on an monster, open it
+  async function onMonsterClick (_event: MouseEvent, uuid: string) {
+    const monster = await fromUuid(uuid) as Actor | null;
+
+    if (monster)
+      monster.sheet?.render(true);
+  }
+
+  // when we click on a name, open the entry
+  async function onNameClick (event: MouseEvent, uuid: string) {
+    navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
+  }
+
+  // when we click on a parent, open the entry
+  async function onParentClick (event: MouseEvent, uuid: string) {
+    // get entry Id
+    const parentId = relatedLocationRows.value.find(r=> r.uuid===uuid)?.parentId;
+
+    if (parentId)
+      navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true });
+  }
+
   const _refreshRows = async () => {
     relatedLocationRows.value = [];
     relatedItemRows.value = [];
@@ -579,11 +628,22 @@ export const useSessionStore = defineStore('session', () => {
     for (const location of currentSession.value?.locations) {
       const entry = await topicFolder.findEntry(location.uuid);
 
+      if (!entry)
+        continue;
+
+      const parentId = await entry.getParentId();
+      const parent = parentId ? await Entry.fromUuid(parentId) : null;
+      const cleanDescription = htmlToPlainText(entry.description);
+
       if (entry) {
         retval.push({
           uuid: location.uuid,
           delivered: location.delivered,
           name: entry.name, 
+          type: entry.type,
+          parent: parent?.name || '-',
+          parentId: parent?.uuid,
+          description: cleanDescription.substring(0, 99) + (cleanDescription.length>100 ? '...' : ''),
         });
       }
     }
@@ -606,10 +666,14 @@ export const useSessionStore = defineStore('session', () => {
       const entry = await topicFolder.findEntry(npc.uuid);
 
       if (entry) {
+        const cleanDescription = htmlToPlainText(entry.description);
+
         retval.push({
           uuid: npc.uuid,
           delivered: npc.delivered,
           name: entry.name, 
+          type: entry.type,
+          description: cleanDescription.substring(0, 99) + (cleanDescription.length>100 ? '...' : ''),
         });
       }
     }

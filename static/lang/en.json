@@ -231,6 +231,15 @@
       "locations": "Locations",
       "organizations": "Organizations"
     },
+    "notifications": {
+      "backend": {
+        "successfulConnection": "Successfully connected to Campaign Builder backend.",
+        "failedConnection": "Failed to connect to backend - check your \"advanced\" settings to make sure they properly match the backend server you deployed.  You'll be unable to used advanced features in the meantime.",
+        "versionMismatch": "The version of your World & Campaign Builder backend ($1) doesn't match the version required by the module version you have installed ($2).  Please update one or the other (or both).  You'll be unable to use advanced features in the meantime."
+      },
+      "addedToSession": "added to session",
+      "changesSaved": "changes saved"
+    },
     "dialogs": {
       "generateNameDialog": {
         "errorMessage": "There was an error:"
@@ -336,6 +345,8 @@
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",
+      "addToASession": "Add to a session",
+      "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",
       "generateContent": "Generate content",
       "backendNotAvailable": "Backend not available",
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",
@@ -354,8 +365,15 @@
         "4": "PC",
         "5": "World"
       },
-      "longDescriptions": "Generate detailed description or a short summary?",
-      "generateImage": "Generate a new image in the background after creating"
+      "createEntry": {
+        "name": "If left blank, a name will be generated automatically",
+        "type": "If you create a new type, it will be added to the master list",
+        "description": "Optional. Use to specify physical features or personality traits you want included",
+        "parent": "May influence generated text in some cases",
+        "species": "If blank, a random species from your world will be used for AI generation. Custom entries will be passed to the AI but not added to your species list",
+        "longDescriptions": "Generate detailed description or a short summary?",
+        "generateImage": "Generate a new image in the background after creating"
+      }
     },
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"

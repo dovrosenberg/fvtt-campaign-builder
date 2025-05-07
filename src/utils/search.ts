@@ -111,7 +111,7 @@ class SearchService {
     // add all the sessions, by campaign
     for (const campaignId in world.campaigns) {
       const campaign = world.campaigns[campaignId];
-      for (const session of await campaign.getSessions()) { 
+      for (const session of campaign.sessions) { 
         // Create a searchable item for each session
         const item = await this.createSearchableItem(session, world, false);
         items.push(item);

@@ -2,31 +2,13 @@
   <Dialog
     v-model="show"
     :title="dialogTitle"
-    :buttons="[
-      {
-        label: 'Cancel',
-        default: false,
-        close: true,
-        callback: () => { show=false;}
-      },
-      {
-        label: actionButtonLabel,
-        disable: isAddMode && !isAddFormValid,
-        default: true,
-        close: true,
-        callback: onActionClick,
-        icon: isAddMode ? 'fa-plus' : 'fa-save'
-      }
-    ]"
+    :buttons="dialogButtons"
     @cancel="onCancel"
   >
-    <!-- Add Mode Content -->
-    <div
-      v-if="isAddMode"
-      class="add-related-items-content flexcol"
-    >
+    <div class="add-related-items-content flexcol">
       <div v-if="selectItems.length > 0">
         <TypeAhead 
+          v-if="isEitherAddMode"
           ref="nameSelectRef"
           :initial-value="props.itemId || ''"
           :initial-list="selectItems" 
@@ -47,7 +29,7 @@
               </h6>
               <InputText
                 :id="field.field"
-                v-model="extraFieldValues[field.field]"
+                v-model="extraFieldValuesObj[field.field]"
                 type="text"
                 class="field-input"
                 :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
@@ -61,38 +43,6 @@
         <span>All possible related items are already connected.</span>
       </div>
     </div>
-
-    <!-- Edit Mode Content -->
-    <div
-      v-else
-      class="add-related-items-content"
-    >
-      <div v-if="extraFieldValuesArray.length > 0">
-        <div class="extra-fields-container">
-          <h3 class="extra-fields-title">Additional Information</h3>
-          <div class="extra-fields-grid">
-            <div
-              v-for="(field, index) in extraFieldValuesArray"
-              :key="field.field"
-              class="field-wrapper"
-            >
-              <h6>{{ field.header }}</h6>
-              <InputText
-                :id="field.field"
-                v-model="extraFieldValuesArray[index].value"
-                type="text"
-                class="field-input"
-                :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div v-else class="no-items-message">
-        <i class="fas fa-info-circle"></i>
-        <span>No additional fields to edit for this relationship.</span>
-      </div>
-    </div>
   </Dialog>
 </template>
 
@@ -103,6 +53,7 @@
 
   // local imports
   import { useMainStore, useRelationshipStore, useSessionStore } from '@/applications/stores';
+  import { createEntryDialog } from '@/dialogs/createEntry';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -112,7 +63,7 @@
   import Dialog from '@/components/Dialog.vue';
 
   // types
-  import { Topics, ValidTopic } from '@/types';
+  import { Topics, ValidTopic, RelatedItemDialogModes } from '@/types';
   import { Entry, TopicFolder } from '@/classes';
 
   type ExtraFieldValue = {
@@ -130,8 +81,8 @@
       required: true,
     },
     mode: {
-      type: String as PropType<'add' | 'edit'>,
-      default: 'add',
+      type: String as PropType<RelatedItemDialogModes>,
+      default: RelatedItemDialogModes.Add,
     },
     itemId: { 
       type: String as PropType<string>, 
@@ -147,7 +98,7 @@
     extraFieldValues: { 
       type: Array as PropType<ExtraFieldValue[]>, 
       required: false,
-      default: () => ([]),
+      default: [],
     },
   });
 
@@ -167,7 +118,6 @@
   const show = ref(props.modelValue);
   const entryToAdd = ref<string | null>(null);  // the selected item from the dropdown (uuid)
   const extraFieldValuesObj = ref<Record<string, string>>({});
-  const extraFieldValuesArray = ref<ExtraFieldValue[]>([]);
   const selectItems = ref<{id: string; label: string}[]>([]);
   const extraFields = ref<{field:string; header:string}[]>([]);
   const nameSelectRef = ref<typeof TypeAhead | null>(null);
@@ -182,49 +132,93 @@
     [Topics.Character]: {
       title: 'Add a character',
       editTitle: 'Edit character',
-      buttonTitle: 'Add character',
+      createButtonTitle: 'Create character',
+      buttonTitle: 'Add relationship',
       editButtonTitle: 'Save character',
     },
     [Topics.Location]: {
       title: 'Add a location',
       editTitle: 'Edit location',
-      buttonTitle: 'Add location',
+      createButtonTitle: 'Create location',
+      buttonTitle: 'Add relationship',
       editButtonTitle: 'Save location',
     },
     [Topics.Organization]: {
       title: 'Add an organization',
       editTitle: 'Edit organization',
-      buttonTitle: 'Add organization',
+      createButtonTitle: 'Create organization',
+      buttonTitle: 'Add relationship',
       editButtonTitle: 'Save organization',
     },
-  } as Record<ValidTopic, { title: string; editTitle: string; buttonTitle: string; editButtonTitle: string }>;
+  } as Record<ValidTopic, { 
+    title: string; 
+    editTitle: string; 
+    buttonTitle: string; 
+    createButtonTitle: string;
+    editButtonTitle: string 
+  }>;
 
   ////////////////////////////////
   // computed data
-  const isAddMode = computed(() => props.mode === 'add');
-
   const dialogTitle = computed(() => {
-    if (isAddMode.value) {
-      return topicDetails[props.topic].title;
-    } else {
+    if (props.mode === RelatedItemDialogModes.Edit) {
       return `${topicDetails[props.topic].editTitle}: ${props.itemName}`;
+    } else {
+      return topicDetails[props.topic].title;
     }
   });
 
   const actionButtonLabel = computed(() => {
-    if (isAddMode.value) {
-      return topicDetails[props.topic].buttonTitle;
-    } else {
-      return topicDetails[props.topic].editButtonTitle;
+    switch (props.mode) {
+      case RelatedItemDialogModes.Add:
+      case RelatedItemDialogModes.Session:
+        return topicDetails[props.topic].buttonTitle;
+      case RelatedItemDialogModes.Edit:
+        return topicDetails[props.topic].editButtonTitle;
     }
+  });
+
+  // add mode or session mode
+  const isEitherAddMode  = computed(()=> ([RelatedItemDialogModes.Session, RelatedItemDialogModes.Add].includes(props.mode))); 
+
+  const createButtonLabel = computed(() => {
+    return topicDetails[props.topic].createButtonTitle;
   });
 
   const isAddFormValid = computed((): boolean => {
     return !!entryToAdd.value;
   });
 
-  const extraFieldValues = computed(() => {
-    return extraFieldValuesObj.value;
+  const dialogButtons = computed((): ButtonProp[] => {
+    const buttons = [] as ButtonProp[];
+
+    buttons.push({
+      label: 'Cancel',
+      default: false,
+      close: true,
+      callback: () => { show.value=false;}
+    });
+
+    if (isEitherAddMode.value) {
+      buttons.push({
+        label: createButtonLabel,
+        default: false,
+        close: true,
+        callback: onCreateClick,
+        icon: 'fa-plus'
+      });
+    }
+
+    buttons.push({
+      label: actionButtonLabel,
+      disable: isEitherAddMode.value && !isAddFormValid,
+      default: true,
+      close: true,
+      callback: onActionClick,
+      icon: 'fa-save'
+    });
+
+    return buttons;
   });
 
   ////////////////////////////////
@@ -232,7 +226,6 @@
   const resetDialog = function() {
     entryToAdd.value = null;
     extraFieldValuesObj.value = {};
-    extraFieldValuesArray.value = [];
     show.value = false;
     emit('update:modelValue', false);
   };
@@ -257,13 +250,22 @@
       return acc;
     }, {} as Record<string, string>);
 
-    if (isAddMode.value) {
-      if (entryToAdd.value) {
-        const fullEntry = await Entry.fromUuid(entryToAdd.value);
+    switch (props.mode) {
+      case RelatedItemDialogModes.Add:
+        if (entryToAdd.value) {
+          const fullEntry = await Entry.fromUuid(entryToAdd.value);
 
-        if (fullEntry) {
-          // Check if we're in a session context
-          if (currentSession.value) {
+          if (fullEntry) {
+            await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
+          }
+        };
+        break;
+      
+      case RelatedItemDialogModes.Session:
+        if (entryToAdd.value) {
+          const fullEntry = await Entry.fromUuid(entryToAdd.value);
+
+          if (fullEntry) {
             // Handle session-specific relationships
             if (props.topic === Topics.Character) {
               await sessionStore.addNPC(entryToAdd.value);
@@ -272,25 +274,29 @@
             } else {
               throw new Error('Trying to add invalid topic to session in RelatedItemDialog.onActionClick');
             }
-          } else {
-            // Standard relationship
-            // replace nulls with empty strings
-            const extraFieldsToSend = extraFields.value.reduce((acc, field) => {
-              acc[field.field] = extraFieldValues.value[field.field] || '';
-              return acc;
-            }, {} as Record<string, string>);
-
-            await relationshipStore.addRelationship(fullEntry, extraFieldsToSend);
           }
-        }
-      }
-    } else {
-      await relationshipStore.editRelationship(props.itemId, extraFieldsToSend);
+        };
+        break;
+      case RelatedItemDialogModes.Edit:
+        await relationshipStore.editRelationship(props.itemId, extraFieldsToSend);
+        break;
     }
 
     resetDialog();
   };
   
+  const onCreateClick = async function() {
+    // the simplest way to do this is do the create box first and then just pretend like we added it
+    const newEntry = await createEntryDialog(props.topic);
+
+    if (newEntry) {
+      entryToAdd.value = newEntry.uuid;
+      await onActionClick();
+    }
+
+    resetDialog();
+  }
+
   const onCancel = function() {
     resetDialog();
   };
@@ -307,17 +313,17 @@
     show.value = newValue; 
 
     if (newValue) {
-      if (isAddMode.value) {
-        // Add mode initialization
-        if (!currentWorld.value)
-          return;
+      if (!currentWorld.value)
+        return;
 
-        if (!currentSession.value && !(currentEntry.value && currentEntryTopic.value))
-
-          throw new Error('Trying to show RelatedItemDialog without a current entry/session');
-
+      if (!currentSession.value && !(currentEntry.value && currentEntryTopic.value))
+        throw new Error('Trying to show RelatedItemDialog without a current entry/session');
+      
         selectItems.value = (await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder, currentEntry.value || undefined)).map(mapEntryToOption);
-        extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
+      
+      if (isEitherAddMode.value) {
+
+        extraFields.value = currentSession.value ? [] : relationshipStore.extraFields[currentEntryTopic.value][props.topic];
         extraFieldValuesObj.value = {};
         if (props.itemId)
           entryToAdd.value = props.itemId;  // assign starting value, if any
@@ -328,7 +334,13 @@
         nameSelectRef.value?.$el?.querySelector('input')?.focus();
       } else {
         // Edit mode initialization
-        extraFieldValuesArray.value = foundry.utils.deepClone(props.extraFieldValues);
+        extraFields.value = relationshipStore.extraFields[currentEntryTopic.value][props.topic];
+
+        // map the prop to the obj
+        extraFieldValuesObj.value = props.extraFieldValues.reduce((acc, extraFieldValue)=> ({
+          ...acc,
+          [extraFieldValue.field]: extraFieldValue.value
+        }), {} as Record<string, string>);
       }
     }
   });

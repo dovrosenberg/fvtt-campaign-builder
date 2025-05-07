@@ -1,7 +1,7 @@
 // library imports
 
 // local imports
-import { useTopicDirectoryStore, } from '@/applications/stores';
+import { useMainStore, useTopicDirectoryStore, } from '@/applications/stores';
 
 // types
 import { 
@@ -145,6 +145,9 @@ export const generateImage = async (currentWorld: WBWorld, entry: Entry): Promis
       entry.img = result.data.filePath;
       await entry.save();
       ui.notifications?.info(`Image completed for ${entry.name}.`);
+
+      // refresh the current content, just in case
+      await useMainStore().refreshCurrentContent();
     } else {
       throw new Error('Failed to generate image: No image path returned');
     }

@@ -85,6 +85,7 @@ export class ExternalAPI {
     }
   }
 
+  // leaving async for now for backwards compatibility, even though not actually needed any more
   async getSessions(): Promise<GetListReturnValue[]> {
     const world = useMainStore().currentWorld;
 
@@ -94,7 +95,7 @@ export class ExternalAPI {
     const retval = [] as GetListReturnValue[];
     for (const campaignId in world.campaigns) {
       const campaign = world.campaigns[campaignId];
-      const sessions = await campaign.getSessions();
+      const sessions = campaign.sessions;
 
       for (let i=0; i<sessions.length; i++) {
         retval.push({ uuid: sessions[i].uuid, name: sessions[i].name })

@@ -11,7 +11,6 @@
     :add-button-label="localize('labels.campaign.addPC')"
     @add-item="onAddItemClick"
     @delete-item="onDeleteItemClick"
-    @row-select="onRowSelect"
     @drop="onDrop"
     @dragover="onDragover"
   />
@@ -69,7 +68,7 @@
   const columns = computed((): any[] => {
     // for now, just action and name
     const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
-    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
+    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick }; 
     const playerNameColumn = { field: 'playerName', style: 'text-align: left', header: 'Player', sortable: true }; 
 
     return [actionColumn, nameColumn, playerNameColumn];
@@ -77,6 +76,9 @@
 
   ////////////////////////////////
   // methods
+  const onNameClick = async function (event: MouseEvent, uuid: string) { 
+    await navigationStore.openPC(uuid, { newTab: event.ctrlKey });
+  };
 
   ////////////////////////////////
   // event handlers
@@ -85,10 +87,6 @@
 
     if (newPC)
       await navigationStore.openPC(newPC.uuid, { newTab: true });
-  };
-
-  const onRowSelect = async function (event: { originalEvent: PointerEvent; data: CampaignPCsGridRow} ) { 
-    await navigationStore.openPC(event.data.uuid, { newTab: event.originalEvent?.ctrlKey });
   };
 
   // call mutation to remove item from relationship

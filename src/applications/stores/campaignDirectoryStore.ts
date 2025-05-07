@@ -20,7 +20,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, } = storeToRefs(mainStore); 
+  const { currentWorld, currentEntry} = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -57,23 +57,27 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
     isCampaignTreeLoading.value = true;
 
-    const campaigns = currentWorld.value?.campaignNames || {};  
-    const expandedNodes = currentWorld.value?.expandedIds || {};
+    const expandedNodes = currentWorld.value.expandedIds || {};
 
     currentCampaignTree.value = [];
     
-    // get the all the campaigns 
+    // get all the campaigns - we could just use campaignNames but this will clean up any bad ones (i.e. got deleted incompletely)
+    await currentWorld.value.loadCampaigns();
+    const campaigns = currentWorld.value.campaigns;
+
     for (const id in campaigns) {
       const campaign = await Campaign.fromUuid(id);
 
-      if (!campaign)
-        throw new Error('Bad campaign in campaignDirectoryStore.refreshCampaignDirectoryTree()');
+      // shouldn't happen but maybe something didn't get cleaned up; we'll clean it up in WBWorld.loadCampaigns() at some point
+      if (!campaign) {
+        continue;
+      }
 
-      const children = (await campaign.getSessions()).map(session => session.uuid);
+      const children = campaign.sessions.map(session => session.uuid);
 
       currentCampaignTree.value.push(new DirectoryCampaignNode(
         id,
-        campaigns[id],  // name
+        campaigns[id].name,  // name
         children,
         [],
         expandedNodes[id] || false,
@@ -92,6 +96,10 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       await campaignNode.recursivelyLoadNode(expandedNodes, updateIds);
     } 
 
+    // refresh the entry - this will update the push to session button
+    if (currentEntry.value)
+      await mainStore.refreshEntry();
+
     isCampaignTreeLoading.value = false;
   };
 
@@ -107,7 +115,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (!(await confirmDialog('Delete campaign?', 'Are you sure you want to delete this campaign?')))
       return;
   
-    const sessions = await campaign.getSessions();
+    const sessions = campaign.sessions;
     for (let i=0; i<sessions.length; i++) {
       await navigationStore.cleanupDeletedEntry(sessions[i].uuid);
     }

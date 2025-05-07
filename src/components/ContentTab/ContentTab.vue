@@ -164,7 +164,11 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 3px 5px 0px 8px;
+          margin: 3px 5px 0px 0px;
+
+          &:first-child {
+            margin-left: 5px;
+          }
 
           &:last-child {
             margin-right: 8px;
