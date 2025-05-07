@@ -85,18 +85,9 @@ body {
   --fcb-icon-shadow: rgba(0, 0, 0, 0.4);
   --fcb-icon-outline: rgba(0, 0, 0, 0.4);
   --fcb-blank-color: rgba(0, 0, 0, 0.5);
-  --fcb-blank-recent-background: rgba(255, 255, 255, 0.3);
-  --fcb-blank-recent-border: rgba(255, 255, 255, 0.5);
   --fcb-blank-link-hover: rgba(0, 0, 0, 0.8);
   
   --fcb-sidebar-background: url(../../../ui/parchment.jpg) repeat;
-  --fcb-sidebar-button-background: rgba(0, 0, 0, 0.1);
-  --fcb-sidebar-button-border: rgb(238, 237, 224);
-  --fcb-sidebar-input-border: rgb(192, 192, 192);
-  --fcb-sidebar-input-background: var(--fcb-cream);
-  --fcb-sidebar-input-background-focus: var(--fcb-cream);
-  --fcb-sidebar-input-color: var(--color-text-dark-primary);
-  --fcb-sidebar-input-placeholder-color: var(--color-text-dark-secondary);
   --fcb-sidebar-label-color: var(--fcb-sheet-color);
   --fcb-sidebar-world-color: var(--color-text-light-highlight);
   --fcb-sidebar-world-background: rgb(201, 201, 182);
@@ -104,20 +95,12 @@ body {
   --fcb-sidebar-world-color-collapsed: rgb(130, 130, 130);
   --fcb-sidebar-world-background-collapsed: rgb(219, 219, 219);
   --fcb-sidebar-world-border-collapsed: rgb(199, 199, 199);
-  --fcb-sidebar-world-context-color: var(--color-text-dark-primary);
   --fcb-sidebar-campaign-color: var(--fcb-sidebar-world-color);
   --fcb-sidebar-campaign-background: inherit;    // var(--fcb-sidebar-world-background);
   --fcb-sidebar-campaign-border: var(--fcb-sidebar-world-border);;
   --fcb-sidebar-campaign-color-collapsed: var(--fcb-sidebar-campaign-color);
   --fcb-sidebar-campaign-background-collapsed: inherit;  //var(--fcb-sidebar-world-background-collapsed);
   --fcb-sidebar-campaign-border-collapsed: var(--fcb-sidebar-world-border-collapsed);
-  --fcb-sidebar-campaign-context-color: var(--fcb-sidebar-world-context-color);
-  --fcb-sidebar-create-entry-color: var(--fcb-dark-3);
-  --fcb-sidebar-create-entry-secondary-color: var(--fcb-dark-5);
-  --fcb-sidebar-subfolder-border: rgb(156, 154, 148);
-  --fcb-sidebar-document-color: var(--color-text-dark-primary);
-  --fcb-sidebar-document-border-top: rgb(195, 193, 182);
-  --fcb-sidebar-document-border-bottom: rgb(154, 152, 144);
 
   --fcb-ta-list-background: rgb(220, 220, 220);
 }
@@ -176,18 +159,9 @@ body.theme-dark {
 //   --fcb-icon-shadow: rgba(0, 0, 0, 0.4);//
 //   --fcb-icon-outline: rgba(0, 0, 0, 0.4);//
 //   --fcb-blank-color: rgba(0, 0, 0, 0.5);//
-//   --fcb-blank-recent-background: rgba(255, 255, 255, 0.3);//
-//   --fcb-blank-recent-border: rgba(255, 255, 255, 0.5);//
 //   --fcb-blank-link-hover: rgba(0, 0, 0, 0.8);//
   
 //   --fcb-sidebar-background: black;
-//   --fcb-sidebar-button-background: rgba(0, 0, 0, 0.1);  //
-//   --fcb-sidebar-button-border: rgb(238, 237, 224);//
-//   --fcb-sidebar-input-border: rgb(192, 192, 192);//
-//   --fcb-sidebar-input-background: black;
-//   --fcb-sidebar-input-background-focus: black;
-//   --fcb-sidebar-input-color: var(--color-text-light-primary);
-//   --fcb-sidebar-input-placeholder-color: var(--color-text-light-secondary);
 //   --fcb-sidebar-label-color: var(--fcb-sheet-color);//
 //   --fcb-sidebar-world-color: var(--color-text-dark-highlight);
 //   --fcb-sidebar-world-background: rgb(133, 131, 124);//
@@ -195,11 +169,4 @@ body.theme-dark {
 //   --fcb-sidebar-world-color-collapsed: var(--fcb-light-2);
 //   --fcb-sidebar-world-background-collapsed: var(--fcb-dark-2);
 //   --fcb-sidebar-world-border-collapsed: rgb(139, 138, 131);//
-//   --fcb-sidebar-world-context-color: var(--color-text-light-primary);
-//   --fcb-sidebar-create-entry-color: var(--fcb-light-3);
-//   --fcb-sidebar-create-entry-secondary-color: var(--fcb-light-5);
-//   --fcb-sidebar-subfolder-border: rgb(156, 154, 148);//
-//   --fcb-sidebar-document-color: var(--color-text-light-primary);
-//   --fcb-sidebar-document-border-top: rgb(195, 193, 182);//
-//   --fcb-sidebar-document-border-botom: rgb(154, 152, 144);//
-}
+s}
