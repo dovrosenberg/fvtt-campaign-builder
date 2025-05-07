@@ -251,6 +251,10 @@
     }
   }
 
+  .tags-input {
+    width: 100%;
+  }
+
   #fcb-tags-input.uninitialized {
     visibility: hidden;
   }
