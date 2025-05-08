@@ -1,15 +1,17 @@
 <template>
-  <input 
-    id="fcb-tags-input" 
-    class="tags-input" 
-    :value="JSON.stringify(currentValue)" 
-    :placeholder="'Tags...'"
-  />
+  <div class="tags-wrapper">
+    <input 
+      id="fcb-tags-input" 
+      :class="'tags-input' + (isInitialized ? '' : ' uninitialized')" 
+      :value="JSON.stringify(currentValue)" 
+      :placeholder="'Tags...'"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, PropType, ref, watch } from "vue";
+  import { onMounted, onBeforeUnmount, PropType, ref, watch } from "vue";
 
   // local imports
   import { ModuleSettings, SettingKey } from "@/settings";
@@ -57,6 +59,7 @@
   // data
   const tagify = ref<Tagify>();
   const currentValue = ref<TagInfo[]>(props.modelValue);
+  const isInitialized = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
@@ -170,8 +173,17 @@
   // watchers
   watch(props.modelValue, (newVal: TagInfo[]) => {
     currentValue.value = newVal;
-    // @ts-ignore - I think the type here is specified wrong
-    // tagify.value?.loadOriginalValues(newVal);
+    
+    // If tagify is already initialized, we can update it directly
+    if (tagify.value && isInitialized.value) {
+      // We don't need to reset isInitialized here since Tagify is already set up
+      // @ts-ignore - I think the type here is specified wrong
+      tagify.value?.loadOriginalValues(newVal);
+    } else {
+      // If we're getting new values but Tagify isn't initialized yet,
+      // make sure we're showing the loading state
+      isInitialized.value = false;
+    }
   });
 
   ////////////////////////////////
@@ -202,20 +214,48 @@
           remove: (e) => { onTagRemoved(e); },
         }
       });
+      
+      // Mark as initialized after Tagify has been created
+      isInitialized.value = true;
     }, 100);
 
+  });
+  
+  // Clean up when component is unmounted
+  onBeforeUnmount(() => {
+    // Reset initialization state
+    isInitialized.value = false;
+    
+    // Destroy tagify instance if it exists
+    if (tagify.value) {
+      tagify.value.destroy();
+      tagify.value = undefined;
+    }
   });
 </script>
 
 <style lang="scss">
+  .tags-wrapper {
+    min-height: 31px;
+    width: 100%;
+    position: relative;
+  }
+
   .tagify {
+    min-height: 31px; /* Ensure consistent height even when empty */
+    
     &:focus-within {
       outline: none;
       border-color: var(--color-border-highlight);
       box-shadow: 0 0 0 1px var(--color-border-highlight);
     }
   }
+
   .tags-input {
-    padding-right: 8px;
+    width: 100%;
+  }
+
+  #fcb-tags-input.uninitialized {
+    visibility: hidden;
   }
 </style>

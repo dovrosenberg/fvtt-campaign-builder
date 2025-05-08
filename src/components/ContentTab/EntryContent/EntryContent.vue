@@ -33,7 +33,7 @@
           <i class="fas fa-head-side-virus"></i>
         </button>
       </header>
-      <div class="flexrow">
+      <div class="flexrow tags-container">
         <Tags
           v-if="currentEntry"
           v-model="currentEntry.tags"
@@ -606,5 +606,10 @@
 
   .push-to-active-campaign-menu-item {
     font-weight: bold;
+  }
+  
+  .tags-container {
+    min-height: 43px; /* Set a fixed minimum height for the tags container */
+    position: relative;
   }
 </style>

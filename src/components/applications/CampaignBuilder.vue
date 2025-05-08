@@ -66,7 +66,7 @@
 
   // types
   import { WindowTabType, Topics, ValidTopic } from '@/types';
-  import { WBWorld, } from '@/classes';
+  import { Backend, WBWorld, } from '@/classes';
   import { CampaignDoc } from '@/documents';
 
   
@@ -313,7 +313,6 @@
       await initializeRollTables();
 
       // Check if backend is available and show warning if not
-      const { Backend } = await import('@/classes/Backend');
       if (!Backend.available) {
         if (!ModuleSettings.get(SettingKey.hideBackendWarning)) {
           ui.notifications?.warn(
