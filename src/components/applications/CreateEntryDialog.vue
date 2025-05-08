@@ -180,12 +180,12 @@
   import ProgressSpinner from 'primevue/progressspinner';
   import Textarea from 'primevue/textarea';
   import Checkbox from 'primevue/checkbox';
-  import Dialog from '@/components/Dialog.vue';
   
   // local components
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeAhead from '@/components/TypeAhead.vue'; 
+  import Dialog from '@/components/Dialog.vue';
 
   // types
   import { Topics, ValidTopic, Species, CharacterDetails, LocationDetails, OrganizationDetails } from '@/types';
