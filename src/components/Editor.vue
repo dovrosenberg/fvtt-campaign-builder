@@ -402,7 +402,7 @@
     border: 1px solid var(--fcb-button-border-color);
     overflow-y: auto !important;
     border-radius: 4px;
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--fcb-dark-overlay);
     color: var(--color-dark-2);
     font-size: var(--font-size-14);
     font-weight: normal;

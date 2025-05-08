@@ -1,21 +1,36 @@
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 
+const foundryVariables = {
+  colorTextDarkPrimary: 'rgb(25, 24, 19)',    //'#191813',
+  colorTextLightPrimary: 'rgb(181, 179, 164)',  //#b5b3a4',
+  colorWarm1: 'rgb(238, 155, 58)',  //'ee9b3a',
+  colorWarm2: 'rgb(201, 89, 63)',   //'c9593f'
+  colorWarm3: 'rgb(93, 20, 43)',   //'#5d142b',  
+  colorBorderDark5: 'rgb(102, 102, 102)',   //'#666',   
+};
+
+const fcbVariables = {
+  fcbDarkOverlay: 'rgba(0, 0, 0, 0.05)',
+  fcbLightOverlay: 'rgba(255, 255, 255, 0.10)',
+  fcbSheetInputBorder: 'rgb(122, 121, 113)',
+};
+
 export default definePreset(Aura, {
   components: {
     datatable: {
       colorScheme: {
         light: {
-          headerCellSelectedColor: '#5d142b',   //'var(--color-warm-3)', - can't seem to set it to a variable?
-          rowColor: 'black',
-          rowHoverColor: 'black',
-          bodyCellBorderColor: '#666',   // var(--color-border-dark-5)
+          headerCellSelectedColor: foundryVariables.colorWarm3,
+          rowColor: foundryVariables.colorTextDarkPrimary,
+          rowHoverColor: foundryVariables.colorTextDarkPrimary,
+          bodyCellBorderColor: foundryVariables.colorBorderDark5,
         },
         dark: {
-          headerCellSelectedColor: '#5d142b',   //'var(--color-warm-3)', - can't seem to set it to a variable?
-          rowColor: 'black',
-          rowHoverColor: 'black',
-          bodyCellBorderColor: '#666',   // var(--color-border-dark-5)
+          headerCellSelectedColor: foundryVariables.colorWarm2,
+          rowColor: foundryVariables.colorTextLightPrimary,
+          rowHoverColor: foundryVariables.colorTextLightPrimary,
+          bodyCellBorderColor: foundryVariables.colorBorderDark5,
         }
       },
       headerBackground: 'inherit',
@@ -45,18 +60,18 @@ export default definePreset(Aura, {
     inputtext: {
       colorScheme: {
         light: {
-          color: 'black',   //'var(--color-text-primary)',       // change to var
-          background: 'rgba(0, 0, 0, 0.05)', 
-          borderColor: 'rgb(122, 121, 113)',   // fcb-sheet-input-border
+          color: foundryVariables.colorTextDarkPrimary,
+          background: fcbVariables.fcbDarkOverlay,
+          borderColor: fcbVariables.fcbSheetInputBorder,
           focusBorderColor: 'black',  // change to var
-          focusRingColor: '#c9593f',  // change to var
+          focusRingColor: foundryVariables.colorWarm2,
         },
         dark: {
-          color: 'black',   //'var(--color-text-primary)',       // change to var
-          background: 'rgba(0, 0, 0, 0.05)', 
-          borderColor: 'rgb(122, 121, 113)',   // fcb-sheet-input-border
+          color: foundryVariables.colorTextLightPrimary,
+          background: fcbVariables.fcbLightOverlay,
+          borderColor: fcbVariables.fcbSheetInputBorder,
           focusBorderColor: 'black',  // change to var
-          focusRingColor: '#c9593f',  // change to var
+          focusRingColor: foundryVariables.colorWarm2,
         }
       },
  
@@ -73,11 +88,11 @@ export default definePreset(Aura, {
     checkbox: {
       colorScheme: {
         light: {
-          background: 'rgba(0, 0, 0, 0.05)',
-          hoverBackground: 'rgba(0, 0, 0, 0.05)',
+          background: fcbVariables.fcbDarkOverlay,
+          hoverBackground: fcbVariables.fcbDarkOverlay,
           checked: {
-            background: '#ee9b3a',   
-            hoverBackground: '#ee9b3a',
+            background: foundryVariables.colorWarm1,   
+            hoverBackground: foundryVariables.colorWarm1,
             borderColor: 'black',
             hoverBorderColor: 'black',
             focusBorderColor: 'black',  
@@ -91,11 +106,11 @@ export default definePreset(Aura, {
           focusBorderColor: 'black',
         },
         dark: {
-          background: 'rgba(0, 0, 0, 0.05)',
-          hoverBackground: 'rgba(0, 0, 0, 0.05)',
+          background: fcbVariables.fcbLightOverlay,
+          hoverBackground: fcbVariables.fcbLightOverlay,
           checked: {
-            background: '#ee9b3a',   
-            hoverBackground: '#ee9b3a',
+            background: foundryVariables.colorWarm1,   
+            hoverBackground: foundryVariables.colorWarm1,
             borderColor: 'black',
             hoverBorderColor: 'black',
             focusBorderColor: 'black',  
@@ -114,18 +129,18 @@ export default definePreset(Aura, {
     textarea: {
       colorScheme: {
         light: {
-          color: 'black',   //'var(--color-text-primary)',       // change to var
-          background: 'rgba(0, 0, 0, 0.05)', 
-          borderColor: 'rgb(122, 121, 113)',   // fcb-sheet-input-border
-          focusBorderColor: 'black',  // change to var
-          focusRingColor: '#c9593f',  // change to var
+          color: foundryVariables.colorTextLightPrimary,
+          background: fcbVariables.fcbDarkOverlay, 
+          borderColor: fcbVariables.fcbSheetInputBorder,
+          focusBorderColor: 'black',  
+          focusRingColor: foundryVariables.colorWarm2,
         },
         dark: {
-          color: 'black',   //'var(--color-text-primary)',       // change to var
-          background: 'rgba(0, 0, 0, 0.05)', 
-          borderColor: 'rgb(122, 121, 113)',   // fcb-sheet-input-border
-          focusBorderColor: 'black',  // change to var
-          focusRingColor: '#c9593f',  // change to var
+          color: foundryVariables.colorTextDarkPrimary,
+          background: fcbVariables.fcbLightOverlay, 
+          borderColor: fcbVariables.fcbSheetInputBorder,
+          focusBorderColor: 'black',  
+          focusRingColor: foundryVariables.colorWarm2,
         }
       },
       borderRadius: '4px',
