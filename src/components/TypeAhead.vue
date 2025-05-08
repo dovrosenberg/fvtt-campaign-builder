@@ -3,12 +3,12 @@
     class="fcb-typeahead"
     @keydown="onKeyDown"
   >
-    <input 
+    <InputText 
       v-model="currentValue" 
       type="text"
       :placeholder="`${localize('placeholders.search')}...`"
       @input="onInput"
-    >
+    />
     <div 
       id="fcb-ta-dropdown" 
       class="fcb-ta-dropdown"
@@ -34,6 +34,7 @@
   import { localize } from '@/utils/game';
 
   // library components
+  import InputText from 'primevue/inputtext';
 
   // local components
 
@@ -292,7 +293,11 @@
     position: relative;
     overflow-y: visible;
     z-index: auto;
-    outline: 2px solid var(--input-focus-outline-color);
+    
+    // <!-- :deep(.p-inputtext) {
+    //   width: 100%;
+    //   font-family: Signika, sans-serif;
+    // } -->
 
     .fcb-ta-dropdown {
       position: absolute;
@@ -300,6 +305,7 @@
       padding: 0;
       display: flex;
       flex-direction: column;
+      color: var(--color-text-primary);
       background-color: var(--fcb-ta-list-background);
       box-shadow: 0 0 5px #555555;
       border-radius: 3px;

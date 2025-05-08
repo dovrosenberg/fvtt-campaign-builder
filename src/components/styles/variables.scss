@@ -72,6 +72,7 @@ body {
   --fcb-sidebar-topic-icon-color: #999;
 
   --fcb-ta-list-background: var(--color-light-2);
+  --fcb-color-text-generate-message: var(--color-text-dark-secondary);
 }
 
 
@@ -137,4 +138,5 @@ body.theme-dark {
   --fcb-sidebar-topic-icon-color: var(--color-light-6);
 
   --fcb-ta-list-background: var(--color-dark-2);
+  --fcb-color-text-generate-message: var(--color-text-light-secondary);
 }

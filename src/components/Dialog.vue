@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="show"
-    class="app window-app fcb-dialog themed"
+    class="application window-app fcb-dialog themed"
     ref="dialogRef"
     role="dialog"
     :style="style"
@@ -20,22 +20,24 @@
       </a>
     </header>
     <section class="window-content">
-      <div class="fcb-dialog-content">
-        <slot />
-      </div>
-      <div class="fcb-dialog-buttons">
-        <button
-          v-for="(btn, key) in props.buttons"
-          :key="key"
-          type="button"
-          :disabled="btn.disable"
-          :style="btn.hidden ? {display:'none'} : {}"
-          :class="`fcb-dialog-button ${btn.default ? 'default' : ''}`"
-          @click="onButtonClick(btn)"
-        >
-          <i v-if="btn.icon" :class="`fas ${btn.icon}`"></i>
-          <span>{{ btn.label }}</span>
-        </button>
+      <div class="fcb-dialog-content-wrapper">
+        <div class="fcb-dialog-content">
+          <slot />
+        </div>
+        <div class="fcb-dialog-buttons">
+          <button
+            v-for="(btn, key) in props.buttons"
+            :key="key"
+            type="button"
+            :disabled="btn.disable"
+            :style="btn.hidden ? {display:'none'} : {}"
+            :class="`fcb-dialog-button ${btn.default ? 'default' : ''}`"
+            @click="onButtonClick(btn)"
+          >
+            <i v-if="btn.icon" :class="`fas ${btn.icon}`"></i>
+            <span>{{ btn.label }}</span>
+          </button>
+        </div>
       </div>
     </section>
   </div>
@@ -159,7 +161,13 @@
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+
+  .window-content:has(.fcb-dialog) {
+    // this causes all sorts of problems when in dark mode, so let's turn it off
+    backdrop-filter: unset;
+  }
+
   .fcb-dialog {
     position: fixed;
     top: 20%;
@@ -178,15 +186,11 @@
       justify-content: space-between;
       flex: 0 0 36px;
       gap: 0;
-      border-bottom: 1px solid var(--color-border-window, #b5b3a4);
-      font-size: var(--font-size-16);
-      // background-color: var(--color-bg-header, #e0e0d0);
       padding: 0 10px;
 
       .header-button.close {
         flex: 0 0 auto;
         text-align: right;
-        // color: var(--color-text-dark-secondary, #4b4a44);
         display: flex;
         align-items: center;
         gap: 5px;
@@ -210,9 +214,9 @@
     }
 
     .window-content {
-      padding: 0px 8px 5px 8px;
       display: flex;
       flex-direction: column;
+      padding: 0px 8px 5px 8px;
       gap: 16px;
       overflow: visible;
 
