@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="show"
-    class="app window-app fcb-dialog themed theme-light"
+    class="app window-app fcb-dialog themed"
     ref="dialogRef"
     role="dialog"
     :style="style"

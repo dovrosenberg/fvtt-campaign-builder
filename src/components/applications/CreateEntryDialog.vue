@@ -1,4 +1,5 @@
 <template>
+  <!-- don't need to teleport because we should only instantiate this manually -->
   <Dialog 
     v-model="show"
     :title="props.title"
@@ -28,7 +29,7 @@
     @cancel="onCancel"
   >
     <div
-      class="flexcol create-entry-dialog"
+      class="flexcol create-entry-dialog-content"
     >
       <h6>
         {{ localize('labels.fields.name')}}
@@ -538,11 +539,11 @@
     display:none;
   }
 
-  .create-entry-dialog {
+  .create-entry-dialog-content {
     h6 {
+      display: flex;
       margin-bottom: 2px;
       margin-top: 8px;
-      display: flex;
       align-items: center;
     }
 

@@ -1,37 +1,39 @@
 <template>
-  <Dialog
-    v-model="show"
-    :title="dialogTitle"
-    :buttons="[
-      {
-        label: 'Cancel',
-        default: false,
-        close: true,
-        callback: () => { show=false;}
-      },
-      {
-        label: actionButtonLabel,
-        disable: !isAddFormValid,
-        default: true,
-        close: true,
-        callback: onActionClick,
-        icon: 'fa-plus'
-      }
-    ]"
-    @cancel="onCancel"
-  >
-    <div class="related-documents-content flexcol">
-      <div class="search-container">
-        <h6>Select {{ documentTypeName }}</h6>
-        <TypeAhead 
-          :initial-value="selectedDocumentId"
-          :initial-list="documentOptions"
-          :allow-new-items="false"
-          @selection-made="onSelectionMade"
-        />
+  <Teleport to="body">
+    <Dialog
+      v-model="show"
+      :title="dialogTitle"
+      :buttons="[
+        {
+          label: 'Cancel',
+          default: false,
+          close: true,
+          callback: () => { show=false;}
+        },
+        {
+          label: actionButtonLabel,
+          disable: !isAddFormValid,
+          default: true,
+          close: true,
+          callback: onActionClick,
+          icon: 'fa-plus'
+        }
+      ]"
+      @cancel="onCancel"
+    >
+      <div class="related-documents-content flexcol">
+        <div class="search-container">
+          <h6>Select {{ documentTypeName }}</h6>
+          <TypeAhead 
+            :initial-value="selectedDocumentId"
+            :initial-list="documentOptions"
+            :allow-new-items="false"
+            @selection-made="onSelectionMade"
+          />
+        </div>
       </div>
-    </div>
-  </Dialog>
+    </Dialog>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
