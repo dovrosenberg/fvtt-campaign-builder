@@ -27,7 +27,6 @@ body {
   --fcb-header-nav-btn-background-hover: var(--fcb-header-nav-btn-background);
   --fcb-header-nav-btn-color-hover: var(--fcb-header-nav-btn-color);
   --fcb-header-nav-vertical-line: var(--color-light-1);
-  --fcb-sheet-color: var(--color-text-dark-primary);
   --fcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);
   --fcb-sheet-header-input-background: var(--fcb-dark-overlay);
   --fcb-sheet-header-label-color: var(--color-text-secondary);
@@ -40,14 +39,14 @@ body {
   --fcb-sheet-tab-bottom-border: var(--color-light-1);
   --fcb-sheet-tab-border: 3px solid var(--color-light-4);
   --fcb-sheet-tab-border-active: rgb(68, 25, 26);
-  --fcb-sheet-page-control-color: var(--fcb-sheet-color);
+  --fcb-sheet-page-control-color: var(--color-text-dark-primary);
   --fcb-sheet-page-control-background: var(--color-light-4);
   --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
   --fcb-sheet-details-section-border: var(--color-light-1);
   --fcb-sheet-input-border: 1px solid rgb(122, 121, 113);
   --fcb-sheet-input-background: var(--fcb-dark-overlay);
   --fcb-sheet-input-color: var(--color-text-dark-primary);
-  --fcb-sheet-button-color: var(--fcb-sheet-color);
+  --fcb-sheet-button-color: var(--color-text-dark-primary);
   --fcb-active-color: rgb(255, 100, 0);
   --fcb-icon-background: var(--color-light-1);
   --fcb-icon-shadow: rgba(0, 0, 0, 0.4);
@@ -56,7 +55,7 @@ body {
   --fcb-blank-link-hover: rgba(0, 0, 0, 0.8);
   
   --fcb-sidebar-background: url(../../../ui/parchment.jpg) repeat;
-  --fcb-sidebar-label-color: var(--fcb-sheet-color);
+  --fcb-sidebar-label-color: var(--color-text-dark-primary);
   --fcb-sidebar-world-color: var(--color-text-light-highlight);
   --fcb-sidebar-world-background: var(--color-light-3);
   --fcb-sidebar-world-border: var(--color-light-2);
@@ -96,7 +95,6 @@ body.theme-dark {
   --fcb-header-nav-btn-color-hover: var(--fcb-header-nav-btn-color);
   --fcb-header-nav-vertical-line: var(--color-dark-3);
 
-  --fcb-sheet-color: var(--color-text-light-primary);
   --fcb-sheet-header-input-border: 1px solid var(--color-dark-5);
   --fcb-sheet-header-input-background: var(--fcb-light-overlay);
   --fcb-sheet-header-label-color: var(--color-text-secondary);
@@ -109,14 +107,14 @@ body.theme-dark {
   --fcb-sheet-tab-bottom-border: var(--color-dark-1);
   --fcb-sheet-tab-border: 3px solid var(--color-dark-4);
   --fcb-sheet-tab-border-active: rgb(255, 120, 90);
-  --fcb-sheet-page-control-color: var(--fcb-sheet-color);
+  --fcb-sheet-page-control-color: var(--color-text-light-primary);
   --fcb-sheet-page-control-background: var(--color-dark-4);
   --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
   --fcb-sheet-details-section-border: var(--color-dark-1);
   --fcb-sheet-input-border: 1px solid rgb(122, 121, 113);
   --fcb-sheet-input-background: var(--fcb-light-overlay);
   --fcb-sheet-input-color: var(--color-text-dark-primary);
-  --fcb-sheet-button-color: var(--fcb-sheet-color);
+  --fcb-sheet-button-color: var(--color-text-light-primary);
   --fcb-icon-background: var(--color-dark-1);
   --fcb-icon-shadow: rgba(0, 0, 0, 0.5);
   --fcb-icon-outline: rgba(255, 255, 255, 0.1);
@@ -124,7 +122,7 @@ body.theme-dark {
   --fcb-blank-link-hover: rgba(255, 255, 255, 0.6);
   
   --fcb-sidebar-background: inherit;  //url(../../../ui/parchment.jpg) repeat;
-  --fcb-sidebar-label-color: var(--fcb-sheet-color);
+  --fcb-sidebar-label-color: var(--color-text-light-primary);
   --fcb-sidebar-world-color: var(--color-text-light-highlight);
   --fcb-sidebar-world-background: var(--color-dark-3);
   --fcb-sidebar-world-border: var(--color-dark-2);

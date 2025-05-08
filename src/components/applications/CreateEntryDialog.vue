@@ -539,6 +539,11 @@
     display:none;
   }
 
+  // this causes all sorts of problems when in dark mode, so let's turn it off
+  .window-content {
+    backdrop-filter: unset;
+  }
+
   .create-entry-dialog-content {
     h6 {
       display: flex;
