@@ -259,13 +259,11 @@
     width: 100%;
     
     .fcb-search-input {
-      width: 100%;
-      padding: 8px 32px 8px 12px;
-      border: 1px solid var(--color-border-primary);
-      border-radius: 4px;
-      background: white;
-      color: var(--color-text-primary);
-      font-size: 14px;
+      width: 180px;
+      height: 24px;
+      padding: 4px 24px 4px 8px;
+      font-size: 12px;
+      border-radius: 3px;
       
       &:focus {
         outline: none;
@@ -276,7 +274,8 @@
     
     .fcb-search-icon {
       position: absolute;
-      right: 10px;
+      right: 6px;
+      font-size: 12px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--color-text-secondary);
@@ -284,30 +283,33 @@
     }
   }
   
+  // we intentionally use white background here regardless of light/dark scheme
   .fcb-search-results {
     position: absolute;
     top: 100%;
     left: 0;
     width: 100%;
-    max-height: 400px;
+    max-height: 300px;
     overflow-y: auto;
-    background-color: white; //var(--color-bg-app);
-    border: 1px solid var(--color-border-primary);
+    background-color: white; 
+    border: 1px solid var(--color-border-dark-primary);
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     margin-top: 4px;
-    
+    font-size: 12px;
+    z-index: 1001; // Higher z-index to appear above other elements
+ 
     .fcb-search-loading,
     .fcb-search-no-results {
       padding: 12px;
       text-align: center;
-      color: var(--color-text-secondary);
+      color: var(--color-text-dark-secondary);
     }
     
     .fcb-search-result {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--color-border-secondary);
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--color-border-dark-secondary);
       cursor: pointer;
       background-color: white;
       
@@ -324,16 +326,17 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
         
         .fcb-search-result-name {
+          font-size: 12px;
           font-weight: bold;
-          color: var(--color-text-primary);
+          color: var(--color-text-dark-primary);
         }
         
         .fcb-search-result-topic-type {
           font-size: 12px;
-          color: var(--color-text-secondary);
+          color: var(--color-text-dark-secondary);
         }
       }
     }

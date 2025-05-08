@@ -251,17 +251,17 @@
           color: var(--color-text-primary);
 
             &:hover:not(:disabled) {
-              border-color: var(--color-border-button-secondary-hover, #a5a394);
+              border-color: #a5a394;
               box-shadow: 0 0 5px var(--color-shadow-primary);
             }
 
           &.default {
             background: rgba(0, 0, 0, 0.05);
             border: 2px groove solid rgb(201, 199, 184);
-            color: var(--color-text-dark-primary, #191813);
+            color: var(--color-text-primary);
 
             &:hover:not(:disabled) {
-              border-color: var(--color-border-button-secondary-hover, #a5a394);
+              border-color: #a5a394;
               box-shadow: 0 0 5px var(--color-shadow-primary);
             }
           }

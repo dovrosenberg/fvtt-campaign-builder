@@ -260,7 +260,7 @@
       position: absolute;
       bottom: 5px;
       right: 5px;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: var(--fcb-dark-overlay);
       color: white;
       border-radius: 3px;
       padding: 3px 5px;
