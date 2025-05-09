@@ -89,24 +89,22 @@ export class Session {
 
     const world = await campaign.getWorld();
 
-    // create the entry
-    await world.unlock();
+    let sessionDoc: SessionDoc[] = [];
+    await world.executeUnlocked(async () => {
+      sessionDoc = await JournalEntryPage.createDocuments([{
+        type: DOCUMENT_TYPES.Session,
+        name: nameToUse,
+        system: {
+          number: campaign.nextSessionNumber,
+          description: '',
+          img: '',
+        }
+      }],{
+        parent: campaign.raw as JournalEntry,
+      }) as unknown as SessionDoc[];
+    });
 
-    const sessionDoc = await JournalEntryPage.createDocuments([{
-      type: DOCUMENT_TYPES.Session,
-      name: nameToUse,
-      system: {
-        number: campaign.nextSessionNumber,
-        description: '',
-        img: '',
-      }
-    }],{
-      parent: campaign.raw as JournalEntry,
-    }) as unknown as SessionDoc[];
-
-    await world.lock();
-
-    if (sessionDoc) {
+    if (sessionDoc && sessionDoc.length > 0) {
       const session = new Session(sessionDoc[0], campaign);
 
       // Add to search index
@@ -644,17 +642,15 @@ export class Session {
 
     const updateData = this._cumulativeUpdate;
 
-    // unlock compendium to make the change
-    await world.unlock();
+    let retval: SessionDoc | null = null;
+    await world.executeUnlocked(async () => {
+      retval = await toRaw(this._sessionDoc).update(updateData) || null;
+      if (retval) {
+        this._sessionDoc = retval;
+      }
 
-    const retval = await toRaw(this._sessionDoc).update(updateData) || null;
-    if (retval) {
-      this._sessionDoc = retval;
-    }
-
-    this._cumulativeUpdate = {};
-
-    await world.lock();
+      this._cumulativeUpdate = {};
+    });
 
      // Update the search index
      try {
@@ -675,15 +671,12 @@ export class Session {
     const id = this._sessionDoc.uuid;
     const world = await this.getWorld() as WBWorld;
 
-    // have to unlock the pack
-    await world.unlock();
+    await world.executeUnlocked(async () => {
+      await this._sessionDoc.delete();
 
-    await this._sessionDoc.delete();
-
-    // remove from the expanded list
-    await world.deleteSessionFromWorld(id);
-
-    await world.lock();
+      // remove from the expanded list
+      await world.deleteSessionFromWorld(id);
+    });
   }
   
   /**
