@@ -67,3 +67,10 @@ export async function openSessionNotes(session: Session): Promise<void> {
   
   await sessionNotesApp.render(true);
 }
+
+export async function closeSessionNotes(): Promise<void> {
+  if (!sessionNotesApp) 
+    return;
+
+  sessionNotesApp.close();
+}

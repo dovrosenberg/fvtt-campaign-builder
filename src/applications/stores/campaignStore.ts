@@ -12,7 +12,7 @@ import { confirmDialog } from '@/dialogs';
 import { PCDetails, FieldData, CampaignLoreDetails} from '@/types';
 import { Campaign, PC, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { openSessionNotes } from '@/applications/SessionNotes';
+import { closeSessionNotes, openSessionNotes } from '@/applications/SessionNotes';
 
 export enum CampaignTableTypes {
   None,
@@ -52,7 +52,8 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   ///////////////////////////////
   // internal state
-
+  const currentPlayedCampaignId = ref<string | null>(null);
+  
   ///////////////////////////////
   // external state
 
@@ -191,8 +192,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   ///////////////////////////////
   // computed state
   const currentPlayedSession = computed((): Session | null => (currentPlayedCampaign?.value?.currentSession || null) as Session | null);
-  const currentPlayedCampaignId = computed((): string | null => (currentPlayedCampaign.value?.uuid || null));
-
+  
   const availableCampaigns = computed((): Campaign[] => {
     if (!currentWorld.value) {
       return [];
@@ -241,6 +241,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     } 
 
     // got here, so more than one and we don't have a valid one picked already, so select the first one
+    currentPlayedCampaignId.value = campaigns[0].uuid;
     return campaigns[0];
   });
 
@@ -391,15 +392,19 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (newValue) {
       // When entering play mode, initialize the current played campaign
       currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
+
+      // If entering play mode, open the session notes window
+      if (ModuleSettings.get(SettingKey.displaySessionNotes) && currentPlayedCampaign.value?.currentSession) {
+        await openSessionNotes(currentPlayedCampaign.value.currentSession);
+    }
     } else {
       // When exiting play mode, clear the current played campaign
       currentPlayedCampaignId.value = null;
+
+      // close the notes
+      await closeSessionNotes();
     }
 
-    // If entering play mode, open the session notes window
-    if (newValue && ModuleSettings.get(SettingKey.displaySessionNotes) && currentPlayedCampaign.value?.currentSession) {
-      await openSessionNotes(currentPlayedCampaign.value.currentSession);
-    }
   });
 
   // When the world changes, reset the current played campaign
