@@ -408,6 +408,8 @@
     if (activeItem)
       menuItems = [activeItem, ...menuItems];
 
+    
+    // for now, we're showing here even if there's only one just to make totally clear where it's going to end up
     ContextMenu.showContextMenu({
       customClass: 'fcb',
       x: event.x,
