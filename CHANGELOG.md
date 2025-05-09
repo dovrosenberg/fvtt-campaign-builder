@@ -1,5 +1,12 @@
 # Change Log
 
+## v0.4.1 - Bug fix
+
+![](https://img.shields.io/badge/release%20date-May%209%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.4.1/module.zip)
+
+- Fixed issue with lots of operations sometimes failing because the compendium is locked
+
 ## v0.4.0 - Dark mode
 
 ![](https://img.shields.io/badge/release%20date-May%20__%2C%202025-blue)

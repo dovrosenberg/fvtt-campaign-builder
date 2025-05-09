@@ -37,6 +37,10 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this._name = campaignDoc.name;
   }
 
+  override async _getWorld(): Promise<WBWorld> {
+    return await this.getWorld();
+  };
+
   /** note: DOES NOT attach the world */
   static async fromUuid(campaignId: string, options?: Record<string, any>): Promise<Campaign | null> {
     const campaignDoc = await fromUuid(campaignId, options) as CampaignDoc | null;
@@ -277,22 +281,22 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       name = await inputDialog(localize('dialogs.createCampaign.title'), `${localize('dialogs.createCampaign.campaignName')}:`); 
 
       if (name) {
-        // unlock the world to allow edits
-        await world.unlock();
+        let newCampaignDoc: CampaignDoc;
 
-        // create a journal entry for the campaign
-        const newCampaignDoc = await JournalEntry.create({
-          name: name,
-          folder: foundry.utils.parseUuid(world.uuid).id,
-        },{
-          pack: world.compendium.metadata.id,
-        }) as unknown as CampaignDoc;  
+        await world.executeUnlocked(async () => {
+          // create a journal entry for the campaign
+          newCampaignDoc = await JournalEntry.create({
+            name: name,
+            folder: foundry.utils.parseUuid(world.uuid).id,
+          },{
+            pack: world.compendium.metadata.id,
+          }) as unknown as CampaignDoc;  
 
-        if (!newCampaignDoc)
-          throw new Error('Couldn\'t create new journal entry for campaign');
+          if (!newCampaignDoc)
+            throw new Error('Couldn\'t create new journal entry for campaign');
+        });
 
-        await world.lock();
-
+        // @ts-ignore - assigned in executeUnlocked
         const newCampaign = new Campaign(newCampaignDoc, world);
         await newCampaign.setup();
 
@@ -364,32 +368,31 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   public async save(): Promise<Campaign | null> {
     const updateData = this._cumulativeUpdate;
 
+    // unlock compendium to make the change
+    let success = false;
     let world = await this.getWorld();
 
-    // unlock compendium to make the change
-    await world.unlock();
+    await world.executeUnlocked(async () => {
+      if (Object.keys(updateData).length !== 0) {
+        // protect any complex flags
+        if (updateData[`flags.${moduleId}`])
+          updateData[`flags.${moduleId}`] = this.prepareFlagsForUpdate(updateData[`flags.${moduleId}`]);
 
-    let success = false;
-    if (Object.keys(updateData).length !== 0) {
-      // protect any complex flags
-      if (updateData[`flags.${moduleId}`])
-        updateData[`flags.${moduleId}`] = this.prepareFlagsForUpdate(updateData[`flags.${moduleId}`]);
+        const retval = await toRaw(this._doc).update(updateData) || null;
+        if (retval) {
+          this._doc = retval;
+          this._cumulativeUpdate = {};
 
-      const retval = await toRaw(this._doc).update(updateData) || null;
-      if (retval) {
-        this._doc = retval;
-        this._cumulativeUpdate = {};
+          success = true;
+        }
 
-        success = true;
+        // update the name
+        if (updateData.name !== undefined) {
+          await world.updateCampaignName(this.uuid, updateData.name);
+        }
       }
-
-      // update the name
-      if (updateData.name !== undefined) {
-        await world.updateCampaignName(this.uuid, updateData.name);
-      }
-    }
-    await world.lock();
-
+    });
+    
     return success ? this : null;
   }
 
@@ -406,13 +409,10 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     let world = await this.getWorld();
 
-    // have to unlock the pack
-    await world.unlock();
+    await world.executeUnlocked(async () => {
+      await this._doc.delete();
 
-    await this._doc.delete();
-
-    await world.deleteCampaignFromWorld(id);
-
-    await world.lock();
+      await world.deleteCampaignFromWorld(id);
+    });
   }
 }

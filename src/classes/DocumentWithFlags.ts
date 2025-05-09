@@ -11,6 +11,7 @@ import {
 } from '@/documents';
 import { FlagSettings, } from '@/settings/DocumentFlags';
 import { moduleId } from '@/settings';
+import { WBWorld } from './WBWorld';
 
 
 /**
@@ -79,6 +80,17 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
     this._cumulativeUpdate = {};
   }
   
+  /** needed so we can unlock it if needed */
+  protected async _getWorld(): Promise<WBWorld> {
+    throw new Error('Failed to implement DocumentWithFlags._getWorld');
+  }
+
+  /** some classes - specifically WBWorld - don't need to be unlocked to modify flags */
+  protected get requiresUnlock(): boolean {
+    return true;
+  }
+
+
   /** This should be called after construction to ensure everything asynchronous is ready */
   public setup = async (): Promise<void> => {
     return this.setFlagDefaults();
@@ -117,12 +129,21 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
   > (flag: FK, value: FT | null): Promise<void> => {
     const config = this.getConfig(flag);
 
-    if (config.keyedByUUID && value) {
-      // @ts-ignore - not sure how to fix the typing
-      await this._doc.setFlag(moduleId, flag, protect(value as Record<string, any>));
+    const setFunction = async () => {
+      if (config.keyedByUUID && value) {
+        // @ts-ignore - not sure how to fix the typing
+        await this._doc.setFlag(moduleId, flag, protect(value as Record<string, any>));
+      } else {
+        // @ts-ignore - not sure how to fix the typing
+        await this._doc.setFlag(moduleId, flag, value);
+      }
+    };
+
+    if (this.requiresUnlock) {
+      const world = await this._getWorld();
+      await world.executeUnlocked(setFunction);
     } else {
-      // @ts-ignore - not sure how to fix the typing
-      await this._doc.setFlag(moduleId, flag, value);
+      await setFunction();
     }
   };
 
@@ -135,13 +156,22 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
   > (flag: FK, key?: string): Promise<void> => {
     const config = this.getConfig(flag);
 
-    if (config.keyedByUUID && key) {
-      await this._doc.unsetFlag(moduleId, `${flag}.${swapString(key, true)}`);
-    } else if (!config.keyedByUUID && key){
-      await this._doc.unsetFlag(moduleId, `${flag}${key ? '.' + key : ''}`);
+    const unsetFunction = async () => {
+      if (config.keyedByUUID && key) {
+        await this._doc.unsetFlag(moduleId, `${flag}.${swapString(key, true)}`);
+      } else if (!config.keyedByUUID && key){
+        await this._doc.unsetFlag(moduleId, `${flag}${key ? '.' + key : ''}`);
+      } else {
+        // try to unset the whole flag
+        await this._doc.unsetFlag(moduleId, flag);
+      }
+    }
+
+    if (this.requiresUnlock) {
+      const world = await this._getWorld();
+      await world.executeUnlocked(unsetFunction);
     } else {
-      // try to unset the whole flag
-      await this._doc.unsetFlag(moduleId, flag);
+      await unsetFunction();
     }
   };
 
@@ -174,18 +204,27 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
 
     // We can't use get() or set() because they rely on the doc type being set already
 
-    for (let i=0; i < flagSettings.length; i++) {
-      const flagId = flagSettings[i].flagId as FlagKey<DocType>;
+    const setFunction = async () => {
+      for (let i=0; i < flagSettings.length; i++) {
+        const flagId = flagSettings[i].flagId as FlagKey<DocType>;
 
-      const value = foundry.utils.deepClone(flagSettings[i].default);
+        const value = foundry.utils.deepClone(flagSettings[i].default);
 
-      if (flagSettings[i].keyedByUUID && value) {
-        // @ts-ignore
-        await this._doc.setFlag(moduleId, flagId, protect(value as Record<string, any>) as FlagType<DocType, typeof flagId>);
-      } else {
-        // @ts-ignore
-        await this._doc.setFlag(moduleId, flagId, value as FlagType<DocType, typeof flagId>);
-      }        
+        if (flagSettings[i].keyedByUUID && value) {
+          // @ts-ignore
+          await this._doc.setFlag(moduleId, flagId, protect(value as Record<string, any>) as FlagType<DocType, typeof flagId>);
+        } else {
+          // @ts-ignore
+          await this._doc.setFlag(moduleId, flagId, value as FlagType<DocType, typeof flagId>);
+        }        
+      }
+    }
+    
+    if (this.requiresUnlock) {
+      const world = await this._getWorld();
+      await world.executeUnlocked(setFunction);
+    } else {
+      await setFunction();
     }
 
     return;
