@@ -1,7 +1,7 @@
 import { DOCUMENT_TYPES, PCDoc } from '@/documents';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
-import { inputDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 import { toRaw } from 'vue';
 
 // represents a PC - these are stored in flag inside campaigns so saving, etc. is handled by campaign
@@ -102,7 +102,7 @@ export class PC {
   {
     let nameToUse = '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await inputDialog(localize('dialogs.createPC.title'), `${localize('dialogs.createPC.playerName')}:`); 
+      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createPC.title'), `${localize('dialogs.createPC.playerName')}:`); 
     }  
     
     // if name is null, then we cancelled the dialog

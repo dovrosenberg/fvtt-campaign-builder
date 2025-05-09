@@ -7,7 +7,7 @@ import { reactive, ref, watch, } from 'vue';
 // local imports
 import { useMainStore, useNavigationStore } from '@/applications/stores';
 import { DirectoryCampaignNode, Campaign, Session, WBWorld, } from '@/classes';
-import { confirmDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 
 // types
 
@@ -112,7 +112,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       throw new Error('Bad campaign in campaignDirectoryStore.deleteCampaign()');
 
     // confirm
-    if (!(await confirmDialog('Delete campaign?', 'Are you sure you want to delete this campaign?')))
+    if (!(await FCBDialog.confirmDialog('Delete campaign?', 'Are you sure you want to delete this campaign?')))
       return;
   
     const sessions = campaign.sessions;
@@ -135,7 +135,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       throw new Error('Bad session in campaignDirectoryStore.deleteSession()');
 
       // confirm
-      if (!(await confirmDialog('Delete session?', 'Are you sure you want to delete this session?')))
+      if (!(await FCBDialog.confirmDialog('Delete session?', 'Are you sure you want to delete this session?')))
         return;
   
     await session.delete();

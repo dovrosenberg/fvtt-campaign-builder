@@ -2,7 +2,7 @@ import { moduleId, UserFlags, UserFlagKey, } from '@/settings';
 import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic } from '@/types';
 import { getRootFolder,  } from '@/compendia';
-import { inputDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 import { DocumentWithFlags, Campaign, TopicFolder } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
@@ -411,7 +411,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     let name;
 
     do {
-      name = await inputDialog(localize('dialogs.createWorld.title'), `${localize('dialogs.createWorld.worldName')}:`); 
+      name = await FCBDialog.inputDialog(localize('dialogs.createWorld.title'), `${localize('dialogs.createWorld.worldName')}:`); 
       
       if (name) {
         // create the world folder

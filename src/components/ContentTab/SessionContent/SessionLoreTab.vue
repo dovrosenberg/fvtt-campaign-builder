@@ -30,7 +30,7 @@
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
-  import { confirmDialog } from '@/dialogs';
+  import { FCBDialog } from '@/dialogs';
 
   // library components
 	
@@ -136,7 +136,7 @@
       const lore = relatedLoreRows.value.find((l)=>l.uuid===rowUuid);
       
       if (lore?.journalEntryPageId && 
-          !(await confirmDialog('Update lore?', 'Are you sure you want to replace the journal entry tied to this lore?'))) {
+          !(await FCBDialog.confirmDialog('Update lore?', 'Are you sure you want to replace the journal entry tied to this lore?'))) {
         return;
       }
       

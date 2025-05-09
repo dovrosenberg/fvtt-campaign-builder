@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore } from '@/documents';
 import { searchService } from '@/utils/search';
-import { inputDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
 import { TagInfo } from '@/types';
@@ -80,7 +80,7 @@ export class Session {
   {
     let nameToUse = '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`); 
+      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`); 
     }  
     
     // if name is null, then we cancelled the dialog

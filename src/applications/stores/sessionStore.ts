@@ -6,7 +6,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
-import { confirmDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game'; 
 import { htmlToPlainText } from '@/utils/misc';
 
@@ -117,7 +117,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteLocation()');
 
     // confirm
-    if (!(await confirmDialog('Delete location?', 'Are you sure you want to delete this location? This will not impact the associated world Location')))
+    if (!(await FCBDialog.confirmDialog('Delete location?', 'Are you sure you want to delete this location? This will not impact the associated world Location')))
       return;
 
     await currentSession.value.deleteLocation(uuid);
@@ -178,7 +178,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteNPC()');
 
     // confirm
-    if (!(await confirmDialog('Delete NPC?', 'Are you sure you want to delete this NPC? This will not impact the associated Character')))
+    if (!(await FCBDialog.confirmDialog('Delete NPC?', 'Are you sure you want to delete this NPC? This will not impact the associated Character')))
       return;
     
     await currentSession.value.deleteNPC(uuid);
@@ -250,7 +250,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteVignette()');
 
     // confirm
-    if (!(await confirmDialog('Delete vignette?', 'Are you sure you want to delete this vignette?')))
+    if (!(await FCBDialog.confirmDialog('Delete vignette?', 'Are you sure you want to delete this vignette?')))
       return;
     
     await currentSession.value.deleteVignette(uuid);
@@ -343,7 +343,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteLore()');
 
     // confirm
-    if (!(await confirmDialog('Delete lore?', 'Are you sure you want to delete this lore?')))
+    if (!(await FCBDialog.confirmDialog('Delete lore?', 'Are you sure you want to delete this lore?')))
       return;
     
     await currentSession.value.deleteLore(uuid);
@@ -409,7 +409,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteItem()');
 
     // confirm
-    if (!(await confirmDialog('Delete item?', 'Are you sure you want to delete this item?')))
+    if (!(await FCBDialog.confirmDialog('Delete item?', 'Are you sure you want to delete this item?')))
       return;
     
     await currentSession.value.deleteItem(uuid);
@@ -470,7 +470,7 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.deleteMonster()');
 
     // confirm
-    if (!(await confirmDialog('Delete monster?', 'Are you sure you want to delete this monster?')))
+    if (!(await FCBDialog.confirmDialog('Delete monster?', 'Are you sure you want to delete this monster?')))
       return;
     
     await currentSession.value.deleteMonster(uuid);

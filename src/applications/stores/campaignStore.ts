@@ -6,7 +6,7 @@ import { watch, ref, computed } from 'vue';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
-import { confirmDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 
 // types
 import { PCDetails, FieldData, CampaignLoreDetails} from '@/types';
@@ -83,7 +83,7 @@ export const useCampaignStore = defineStore('campaign', () => {
       throw new Error('Bad session in campaignDirectoryStore.deletePC()');
 
     // confirm
-    if (!(await confirmDialog('Delete PC?', 'Are you sure you want to delete this PC?')))
+    if (!(await FCBDialog.confirmDialog('Delete PC?', 'Are you sure you want to delete this PC?')))
       return;
 
     await pc.delete();
@@ -143,7 +143,7 @@ export const useCampaignStore = defineStore('campaign', () => {
         throw new Error('Invalid session in campaignStore.deleteLore()');
   
       // confirm
-      if (!(await confirmDialog('Delete Lore?', 'Are you sure you want to delete this lore?')))
+      if (!(await FCBDialog.confirmDialog('Delete Lore?', 'Are you sure you want to delete this lore?')))
         return;
 
       await currentCampaign.value.deleteLore(uuid);

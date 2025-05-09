@@ -35,7 +35,7 @@ export const registerWBWorldTests = () => {
           }]);
           
           // Stub getFlag, setFlag, and unsetFlag
-          getFlag = sinon.stub(globalThis, 'getFlag');
+          getFlag = sinon.stub(Folder.prototype, 'getFlag');
           getFlag.withArgs(sinon.match.any, WorldFlagKey.isWorld).returns(true);
           getFlag.withArgs(sinon.match.any, WorldFlagKey.campaignNames).returns({
             'campaign1-uuid': 'Campaign 1',
@@ -61,8 +61,8 @@ export const registerWBWorldTests = () => {
           getFlag.withArgs(sinon.match.any, WorldFlagKey.worldFeeling).returns('Epic');
           getFlag.withArgs(sinon.match.any, WorldFlagKey.img).returns('test-image.jpg');
           
-          setFlag = sinon.stub(globalThis, 'setFlag');
-          unsetFlag = sinon.stub(globalThis, 'unsetFlag');
+          setFlag = sinon.stub(Folder.prototype, 'setFlag');
+          unsetFlag = sinon.stub(Folder.prototype, 'unsetFlag');
           
           // Stub inputDialog
           inputDialogStub = sinon.stub(globalThis, 'inputDialog').resolves('New World');

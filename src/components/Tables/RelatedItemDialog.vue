@@ -55,7 +55,7 @@
 
   // local imports
   import { useMainStore, useRelationshipStore, useSessionStore } from '@/applications/stores';
-  import { createEntryDialog } from '@/dialogs/createEntry';
+  import { FCBDialog } from '@/dialogs';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -289,7 +289,7 @@
   
   const onCreateClick = async function() {
     // the simplest way to do this is do the create box first and then just pretend like we added it
-    const newEntry = await createEntryDialog(props.topic);
+    const newEntry = await FCBDialog.createEntryDialog(props.topic);
 
     if (newEntry) {
       entryToAdd.value = newEntry.uuid;

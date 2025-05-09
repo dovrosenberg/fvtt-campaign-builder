@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace,  } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topics, TagInfo } from '@/types';
-import { inputDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, WBWorld } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
@@ -69,7 +69,7 @@ export class Entry {
 
     let nameToUse = options.name || '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
+      nameToUse = await FCBDialog.inputDialog(`Create ${topicText}`, `${topicText} Name:`);
     }  
     
     // if name is null, then we cancelled the dialog
