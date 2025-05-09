@@ -35,6 +35,10 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     this._topic = this.getFlag(TopicFlagKey.topic);
   }
 
+  override async _getWorld(): Promise<WBWorld> {
+    return await this.getWorld();
+  };
+  
   static async fromUuid(topicId: string, options?: Record<string, any>): Promise<TopicFolder | null> {
     const topicDoc = await fromUuid(topicId, options) as TopicDoc | null;
 
@@ -159,18 +163,17 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    * @returns A promise that resolves when the topic has been created, with either the resulting entry or null on error
    */
   static async create(world: WBWorld, topic: ValidTopic): Promise<TopicFolder | null> {
-    // unlock the world to allow edits
-    await world.unlock();
+    let newTopicDoc: TopicDoc | null = null;
 
-    // create a journal entry for the campaign
-    const newTopicDoc = await JournalEntry.create({
-      name: getTopicTextPlural(topic),
-      folder: foundry.utils.parseUuid(world.uuid).id,
-    },{
-      pack: world.compendium.metadata.id,
-    }) as unknown as TopicDoc;
-
-    await world.lock();
+    await world.executeUnlocked(async () => {
+      // create a journal entry for the campaign
+      newTopicDoc = await JournalEntry.create({
+        name: getTopicTextPlural(topic),
+        folder: foundry.utils.parseUuid(world.uuid).id,
+      },{
+        pack: world.compendium.metadata.id,
+      }) as unknown as TopicDoc;
+    });
 
     if (!newTopicDoc)
       throw new Error('Couldn\'t create new topic');
@@ -231,25 +234,23 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     if (!world)
       world = await this.loadWorld();
 
-    // unlock compendium to make the change
-    await world.unlock();
-
     let success = false;
-    if (Object.keys(updateData).length !== 0) {
-      // protect any complex flags
-      if (updateData[`flags.${moduleId}`])
-        updateData[`flags.${moduleId}`] = this.prepareFlagsForUpdate(updateData[`flags.${moduleId}`]);
+    await world.executeUnlocked(async () => {
+      if (Object.keys(updateData).length !== 0) {
+        // protect any complex flags
+        if (updateData[`flags.${moduleId}`])
+          updateData[`flags.${moduleId}`] = this.prepareFlagsForUpdate(updateData[`flags.${moduleId}`]);
 
-      const retval = await toRaw(this._doc).update(updateData) || null;
-      if (retval) {
-        this._doc = retval;
-        this._cumulativeUpdate = {};
+        const retval = await toRaw(this._doc).update(updateData) || null;
+        if (retval) {
+          this._doc = retval;
+          this._cumulativeUpdate = {};
 
-        success = true;
+          success = true;
+        }
       }
-    }
-    await world.lock();
-
+    });
+    
     return success ? this : null;
   }
 
@@ -266,11 +267,8 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     if (!world)
       world = await this.loadWorld();
 
-    // have to unlock the pack
-    await world.unlock();
-
-    await this._doc.delete();
-
-    await world.lock();
+    await world.executeUnlocked(async () => {
+      await this._doc.delete();
+    });
   }
 }
