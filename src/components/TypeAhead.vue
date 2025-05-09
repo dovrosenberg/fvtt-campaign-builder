@@ -300,7 +300,7 @@
       display: flex;
       flex-direction: column;
       color: var(--color-text-primary);
-      background-color: var(--fcb-ta-list-background);
+      background-color: var(--fcb-list-background);
       box-shadow: 0 0 5px #555555;
       border-radius: 3px;
       width: calc(100% - 2px);
@@ -312,8 +312,9 @@
         font-weight: normal;
         font-family: Signika, sans-serif;
 
-        &.highlighted {
-          background: #55559922;
+        &.highlighted,
+        &:hover {
+          background: var(--fcb-list-highlight); 
         }
       }
     }

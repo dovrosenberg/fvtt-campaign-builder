@@ -110,6 +110,7 @@ export default definePreset(Aura, {
         dark: {
           background: fcbVariables.fcbLightOverlay,
           hoverBackground: fcbVariables.fcbLightOverlay,
+          borderColor: fcbVariables.fcbButtonBorderColor,
           checked: {
             background: foundryVariables.colorWarm1,   
             hoverBackground: foundryVariables.colorWarm1,

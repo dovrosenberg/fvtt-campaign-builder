@@ -1,5 +1,4 @@
 <template>
-  <!-- don't need to teleport because we should only instantiate this manually -->
    <Teleport to="body">
     <Dialog 
       v-model="show"
@@ -100,14 +99,13 @@
         </h6>
         <Textarea
           v-model="briefDescription"
-          :rows="4"
-          autoResize
           :pt="{ root: { 
             style: { 
               'font-size': 'var(--font-size-14)', 
               'color': 'var(--input-text-color)',
               'min-height': '6rem',
-              'background': !props.generateMode && !generateComplete ? 'rgba(255, 228, 196, .3)' : '',
+              'max-height': '6rem',
+              'background': !props.generateMode || !generateComplete ? 'rgba(255, 228, 196, .3)' : '',
             }
           }}"
         />
@@ -138,7 +136,10 @@
             </label>
           </div>
         </div>
-        <hr v-if="Backend.available">
+        <hr 
+          v-if="Backend.available"
+          style="background-image: none; border: 1px solid #aaa"          
+        >
         <div 
           v-if="Backend.available"
           class="results-container"
@@ -535,6 +536,11 @@
   .application.fcb-create-entry {
     // hide the wrapper window
     display:none;
+  }
+  
+  // Ensure dialog is always on top of Foundry UI
+  body > .fcb-dialog {
+    z-index: 9999 !important;
   }
 
   .create-entry-dialog-content {

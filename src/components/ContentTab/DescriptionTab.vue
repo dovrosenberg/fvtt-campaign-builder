@@ -143,7 +143,6 @@
         }
         input {
           font-size: var(--font-size-20);
-          color: var(fcb-sheet-header-detail-input-color);
         }
 
         select {
@@ -152,7 +151,6 @@
           font-family: inherit;
           height: calc(var(--font-size-20) + 6);
           margin: 0px;
-          color: var(--fcb-sheet-header-detail-input-color);
           background: var(--fcb-sheet-header-input-background);
 
           &:hover {

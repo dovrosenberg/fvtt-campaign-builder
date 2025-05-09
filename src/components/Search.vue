@@ -295,7 +295,7 @@
     width: 100%;
     max-height: 300px;
     overflow-y: auto;
-    background-color: white; 
+    background-color: var(--fcb-list-background); 
     border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -315,7 +315,7 @@
       padding: 6px 8px;
       border-bottom: 1px solid var(--color-border-secondary);
       cursor: pointer;
-      background-color: white;
+      background-color: var(--fcb-list-background);
       
       &:last-child {
         border-bottom: none;
@@ -323,7 +323,7 @@
       
       &:hover,
       &.fcb-search-result-selected {
-        background-color: var(--color-light-2);
+        background-color: var(--fcb-list-highlight);
       }
       
       .fcb-search-result-header {

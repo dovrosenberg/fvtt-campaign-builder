@@ -70,7 +70,9 @@ body {
   --fcb-directory-expand-button-background: #999;
   --fcb-sidebar-topic-icon-color: #999;
 
-  --fcb-ta-list-background: rgb(220, 220, 220);
+  // for typeaheads, search
+  --fcb-list-background: rgb(220, 220, 220);
+  --fcb-list-highlight: rgba(85, 85, 153, 0.13);
   --fcb-color-text-generate-message: var(--color-text-dark-secondary);
 }
 
@@ -135,6 +137,7 @@ body.theme-dark {
   --fcb-directory-expand-button-background: var(--color-light-6);
   --fcb-sidebar-topic-icon-color: var(--color-light-6);
 
-  --fcb-ta-list-background: var(--color-dark-2);
+  --fcb-list-background: var(--color-dark-2);
+  --fcb-list-highlight: rgba(85, 85, 153, 0.13);
   --fcb-color-text-generate-message: var(--color-text-light-secondary);
 }

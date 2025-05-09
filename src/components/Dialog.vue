@@ -99,8 +99,9 @@
 
   ////////////////////////////////
   // computed data
+  // Use a very high z-index to ensure the dialog stays on top of everything
   const style = computed(() => ({
-    "z-index": `106`,
+    "z-index": `9999`,
     width: `500px`,
     left: `${position.left}px`,
     top: `${position.top}px`,
@@ -173,7 +174,6 @@
     top: 20%;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 100;
     font-size: var(--font-size-14);
     width: 550px;
     max-width: 90%;

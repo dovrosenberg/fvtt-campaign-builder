@@ -6,6 +6,7 @@
 ![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.4.0/module.zip)
 
 - Proper dark mode support
+- Minor bug fixes
 
 ## v0.3.0 - Quality of life improvements
 
