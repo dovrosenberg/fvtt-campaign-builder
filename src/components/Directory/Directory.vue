@@ -190,7 +190,7 @@
 
     .fcb-directory-header {
       flex: 0;
-      background-color: var(--fcb-header-background);
+      // background-color: var(--fcb-header-background);
       border-bottom: 1px solid var(--fcb-header-border-color);
       color: var(--fcb-sidebar-label-color);
       margin-bottom: 0px;

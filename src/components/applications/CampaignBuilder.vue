@@ -360,11 +360,15 @@ div[data-application-part="app"]:has(> div.fcb) {
   min-width: 640px;
 
   .window-header {
+    // we need it to be higher than the content so search results can cover
+    z-index: 2;
+
     overflow: visible;  // for the search drop down
   }
 
   .window-content {
     padding: 0;
+    z-index: 1;
   }
 
   .window-content > div {

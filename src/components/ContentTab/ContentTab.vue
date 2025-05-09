@@ -240,7 +240,6 @@
       .fcb-tab-body {
         flex: 1;
         padding: 4px;
-        background-color: var(--fcb-content-body-background);
 
         h6 {
           margin-top: 1rem;

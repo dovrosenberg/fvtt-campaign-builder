@@ -14,6 +14,7 @@ const fcbVariables = {
   fcbDarkOverlay: 'rgba(0, 0, 0, 0.05)',
   fcbLightOverlay: 'rgba(255, 255, 255, 0.10)',
   fcbSheetInputBorder: 'rgb(122, 121, 113)',
+  fcbButtonBorderColor: '#444',
 };
 
 export default definePreset(Aura, {
@@ -90,6 +91,7 @@ export default definePreset(Aura, {
         light: {
           background: fcbVariables.fcbDarkOverlay,
           hoverBackground: fcbVariables.fcbDarkOverlay,
+          borderColor: fcbVariables.fcbButtonBorderColor,
           checked: {
             background: foundryVariables.colorWarm1,   
             hoverBackground: foundryVariables.colorWarm1,

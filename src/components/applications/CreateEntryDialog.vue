@@ -105,6 +105,7 @@
           :pt="{ root: { 
             style: { 
               'font-size': 'var(--font-size-14)', 
+              'color': 'var(--input-text-color)',
               'min-height': '6rem',
               'background': !props.generateMode && !generateComplete ? 'rgba(255, 228, 196, .3)' : '',
             }
@@ -574,10 +575,6 @@
       &:hover {
         color: #555;
       }
-    }
-
-    .p-inputtext, .p-dropdown {
-      margin-bottom: 4px;
     }
 
     .results-container {

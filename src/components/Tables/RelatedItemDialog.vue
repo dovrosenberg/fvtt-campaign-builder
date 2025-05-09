@@ -384,7 +384,7 @@
       font-size: var(--font-size-16);
       font-weight: 600;
       margin-bottom: 0.75rem;
-      border-bottom: 1px solid var(--color-underline-header, rgba(255, 255, 255, 0.1));
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding-bottom: 0.25rem;
       width: 80%;
     }
@@ -396,7 +396,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem 0;
-  background-color: var(--color-bg-notice, rgba(0, 0, 0, 0.05));
+  background-color: rgba(0, 0, 0, 0.05);
   border-radius: 6px;
   color: var(--color-text-dark-secondary);
   font-style: italic;

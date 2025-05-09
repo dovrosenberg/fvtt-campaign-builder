@@ -3,7 +3,7 @@
     class="fcb-typeahead"
     @keydown="onKeyDown"
   >
-    <InputText 
+    <input 
       v-model="currentValue" 
       type="text"
       :placeholder="`${localize('placeholders.search')}...`"
@@ -34,7 +34,6 @@
   import { localize } from '@/utils/game';
 
   // library components
-  import InputText from 'primevue/inputtext';
 
   // local components
 
@@ -293,11 +292,6 @@
     position: relative;
     overflow-y: visible;
     z-index: auto;
-    
-    // <!-- :deep(.p-inputtext) {
-    //   width: 100%;
-    //   font-family: Signika, sans-serif;
-    // } -->
 
     .fcb-ta-dropdown {
       position: absolute;
