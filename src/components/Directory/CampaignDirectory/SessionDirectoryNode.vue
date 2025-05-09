@@ -52,7 +52,7 @@
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const mainStore = useMainStore();
-  const { currentSession, } = storeToRefs(mainStore);
+  const { currentSession, isInPlayMode, } = storeToRefs(mainStore);
   // const { filterNodes } = storeToRefs(topicDirectoryStore);
   
   ////////////////////////////////
@@ -105,6 +105,7 @@
           icon: 'fa-trash',
           iconFontClass: 'fas',
           label: localize('contextMenus.session.delete'), 
+          disabled: isInPlayMode.value,
           onClick: async () => {
             await campaignDirectoryStore.deleteSession(props.sessionNode.id);
           }

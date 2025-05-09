@@ -1,5 +1,13 @@
 # Change Log
 
+## v1.0.0 - ______________
+
+![](https://img.shields.io/badge/release%20date-May%20__%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.4.0/module.zip)
+
+- Made session notes window handle properly when changing campaigns, leaving play mode, etc.
+- Minor bug fixes
+
 ## v0.4.0 - Dark mode
 
 ![](https://img.shields.io/badge/release%20date-May%20__%2C%202025-blue)
