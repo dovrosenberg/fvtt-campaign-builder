@@ -77,7 +77,7 @@
 
 <style lang="scss">
 .fcb-play-session-tabs {
-  background-color: var(--fcb-header-background);
+  // background-color: var(--fcb-header-background);
   border-bottom: 1px solid var(--fcb-header-border-color);
   gap: 2px;
 

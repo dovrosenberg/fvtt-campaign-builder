@@ -8,6 +8,7 @@
         :placeholder="localize('placeholders.search')"
         @input="onSearchInput"
         @keydown.enter="onEnterPress"
+        @keydown.escape="manuallyHiddenResults=true"
         @keydown.down="onArrowDown"
         @keydown.up="onArrowUp"
       >
@@ -20,7 +21,10 @@
         {{ localize('labels.searching') }}...
       </div>
       
-      <div v-else-if="searchResults.length === 0 && searchQuery.trim().length >= 3" class="fcb-search-no-results">
+      <div 
+        v-else-if="searchResults.length === 0 && searchQuery.trim().length >= 3" 
+        class="fcb-search-no-results"
+      >
         {{ localize('labels.noResults') }}
       </div>
       
@@ -44,7 +48,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, onMounted, onUnmounted } from 'vue';
+  import { ref, watch, onMounted, onUnmounted, computed } from 'vue';
   import { storeToRefs } from 'pinia';
   
   // local imports
@@ -80,23 +84,18 @@
   const searchQuery = ref('');
   const searchResults = ref<FCBSearchResult[]>([]);
   const isSearching = ref(false);
-  const showResults = ref(false);
   const selectedIndex = ref(-1);
   const searchTimeout = ref<number | null>(null);
-  
+
+  /** did the user hit 'escape' to close the results */
+  const manuallyHiddenResults = ref(false);
+
   ////////////////////////////////
   // computed data
-  
+  const showResults = computed(() => ( searchQuery.value.trim().length >= 3 && !manuallyHiddenResults.value));
+
   ////////////////////////////////
   // methods
-  
-  /**
-   * Truncates text to a specified length and adds ellipsis if needed
-   */
-  const truncateText = (text: string, maxLength: number): string => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
   
   /**
    * Performs a search with the current query
@@ -131,15 +130,14 @@
     if (searchTimeout.value !== null) {
       window.clearTimeout(searchTimeout.value);
     }
+
+    // clear the manual disabling
+    manuallyHiddenResults.value = false;
     
     // Set a new timeout to perform the search after a delay
     searchTimeout.value = window.setTimeout(() => {
       performSearch();
     }, 200); // 200ms debounce
-    
-    // Show results panel when typing if we have at least 3 characters
-    const trimmedQuery = searchQuery.value.trim();
-    showResults.value = trimmedQuery.length >= 3;
     
     // Reset selected index when input changes
     selectedIndex.value = -1;
@@ -253,30 +251,35 @@
   position: relative;
   width: 100%;
   max-width: 400px;
+  z-index: 10;  // try to bring the whole container forward
   
   .fcb-search-input-container {
     position: relative;
     width: 100%;
     
     .fcb-search-input {
-      width: 100%;
-      padding: 8px 32px 8px 12px;
-      border: 1px solid var(--color-border-primary);
-      border-radius: 4px;
-      background: white;
-      color: var(--color-text-primary);
-      font-size: 14px;
+      width: 180px;
+      height: 24px;
+      padding: 4px 24px 4px 8px;
+      font-size: 12px;
+      border-radius: 3px;
       
       &:focus {
         outline: none;
         border-color: var(--color-border-highlight);
         box-shadow: 0 0 0 1px var(--color-border-highlight);
       }
+
+      // in light mode, inputs are darker than background, so need to override
+      .theme-light & {
+        background: white;
+      }
     }
     
     .fcb-search-icon {
       position: absolute;
-      right: 10px;
+      right: 6px;
+      font-size: 12px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--color-text-secondary);
@@ -284,20 +287,23 @@
     }
   }
   
+  // we intentionally use white background here regardless of light/dark scheme
   .fcb-search-results {
     position: absolute;
     top: 100%;
     left: 0;
     width: 100%;
-    max-height: 400px;
+    max-height: 300px;
     overflow-y: auto;
-    background-color: white; //var(--color-bg-app);
+    background-color: var(--fcb-list-background); 
     border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     margin-top: 4px;
-    
+    font-size: 12px;
+    z-index: 10; // Higher z-index to appear above other elements
+ 
     .fcb-search-loading,
     .fcb-search-no-results {
       padding: 12px;
@@ -306,10 +312,10 @@
     }
     
     .fcb-search-result {
-      padding: 10px 12px;
+      padding: 6px 8px;
       border-bottom: 1px solid var(--color-border-secondary);
       cursor: pointer;
-      background-color: white;
+      background-color: var(--fcb-list-background);
       
       &:last-child {
         border-bottom: none;
@@ -317,16 +323,17 @@
       
       &:hover,
       &.fcb-search-result-selected {
-        background-color: var(--color-bg-highlight);
+        background-color: var(--fcb-list-highlight);
       }
       
       .fcb-search-result-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
         
         .fcb-search-result-name {
+          font-size: 12px;
           font-weight: bold;
           color: var(--color-text-primary);
         }

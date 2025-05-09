@@ -1,31 +1,54 @@
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
-import { withDirectives } from 'vue';
+
+const foundryVariables = {
+  colorTextDarkPrimary: 'rgb(25, 24, 19)',    //'#191813',
+  colorTextLightPrimary: 'rgb(181, 179, 164)',  //#b5b3a4',
+  colorWarm1: 'rgb(238, 155, 58)',  //'ee9b3a',
+  colorWarm2: 'rgb(201, 89, 63)',   //'c9593f'
+  colorWarm3: 'rgb(93, 20, 43)',   //'#5d142b',  
+  colorBorderDark5: 'rgb(102, 102, 102)',   //'#666',   
+};
+
+const fcbVariables = {
+  fcbDarkOverlay: 'rgba(0, 0, 0, 0.05)',
+  fcbLightOverlay: 'rgba(255, 255, 255, 0.10)',
+  fcbSheetInputBorder: 'rgb(122, 121, 113)',
+  fcbButtonBorderColor: '#444',
+};
 
 export default definePreset(Aura, {
   components: {
     datatable: {
+      colorScheme: {
+        light: {
+          headerCellSelectedColor: foundryVariables.colorWarm3,
+          rowColor: foundryVariables.colorTextDarkPrimary,
+          rowHoverColor: foundryVariables.colorTextDarkPrimary,
+          bodyCellBorderColor: foundryVariables.colorBorderDark5,
+        },
+        dark: {
+          headerCellSelectedColor: foundryVariables.colorWarm2,
+          rowColor: foundryVariables.colorTextLightPrimary,
+          rowHoverColor: foundryVariables.colorTextLightPrimary,
+          bodyCellBorderColor: foundryVariables.colorBorderDark5,
+        }
+      },
       headerBackground: 'inherit',
       headerCellBackground: 'inherit',
       headerCellColor: 'inherit',
       headerCellSelected: {
         background: 'inherit',
-        color: '#5d142b',   //'var(--color-warm-3)', - can't seem to set it to a variable?
       },
       row: {
         background: 'inherit',
-        color: 'black',
         hover: {
           background: 'inherit',
-          color: 'black',
         }
       },
-      bodyCellBorderColor: '#666',   // var(--color-border-dark-5)
       rowStripedBackground: 'inherit',
       footerCellBackground: 'inherit',
       footerBackground: 'inherit',
-      // paginatorTopBorderColor: 'black',
-      // paginatorBottomBorderColor: 'black',
       paginatorTopBorderWidth: '0px',
       paginatorBottomBorderWidth: '0px',
     },
@@ -35,87 +58,102 @@ export default definePreset(Aura, {
         width: '1rem',
       }
     },
-    autocomplete: {
-      dropdownBackground: {
-        background: 'red',
-        color: 'purple',
-      },
-    },
     inputtext: {
-      background: 'rgba(0, 0, 0, 0.05)', 
-      color: 'black',   //'var(--color-text-primary)',       // change to var
+      colorScheme: {
+        light: {
+          color: foundryVariables.colorTextDarkPrimary,
+          background: fcbVariables.fcbDarkOverlay,
+          borderColor: fcbVariables.fcbSheetInputBorder,
+          focusBorderColor: 'black',  // change to var
+          focusRingColor: foundryVariables.colorWarm2,
+        },
+        dark: {
+          color: foundryVariables.colorTextLightPrimary,
+          background: fcbVariables.fcbLightOverlay,
+          borderColor: fcbVariables.fcbSheetInputBorder,
+          focusBorderColor: 'black',  // change to var
+          focusRingColor: foundryVariables.colorWarm2,
+        }
+      },
+ 
       borderRadius: '4px',
-      focusBorderColor: 'black',  // change to var
       padding: {
         x: '3px',
         y: '1px',
       },
       focusRing: {
-        color: '#c9593f',  // change to var
         width: '2px',
         style: 'solid',
       }
     },
     checkbox: {
-      background: 'rgba(0, 0, 0, 0.05)',
-      hoverBackground: 'rgba(0, 0, 0, 0.05)',
-      borderRadius: '3px',
-      checked: {
-        background: '#ee9b3a',   
-        hoverBackground: '#ee9b3a',
-        borderColor: 'black',
-        hoverBorderColor: 'black',
-        focusBorderColor: 'black',  
-      },
-      icon: {
-        checked: {
-          color: 'black',   
-          hoverColor: 'black',
+      colorScheme: {
+        light: {
+          background: fcbVariables.fcbDarkOverlay,
+          hoverBackground: fcbVariables.fcbDarkOverlay,
+          borderColor: fcbVariables.fcbButtonBorderColor,
+          checked: {
+            background: foundryVariables.colorWarm1,   
+            hoverBackground: foundryVariables.colorWarm1,
+            borderColor: 'black',
+            hoverBorderColor: 'black',
+            focusBorderColor: 'black',  
+          },
+          icon: {
+            checked: {
+              color: 'black',   
+              hoverColor: 'black',
+            }
+          },
+          focusBorderColor: 'black',
+        },
+        dark: {
+          background: fcbVariables.fcbLightOverlay,
+          hoverBackground: fcbVariables.fcbLightOverlay,
+          borderColor: fcbVariables.fcbButtonBorderColor,
+          checked: {
+            background: foundryVariables.colorWarm1,   
+            hoverBackground: foundryVariables.colorWarm1,
+            borderColor: 'black',
+            hoverBorderColor: 'black',
+            focusBorderColor: 'black',  
+          },
+          icon: {
+            checked: {
+              color: 'black',   
+              hoverColor: 'black',
+            }
+          },
+          focusBorderColor: 'black',
         }
       },
-      focusBorderColor: 'black',
+      borderRadius: '3px',
     },
     textarea: {
-      background: 'rgba(0, 0, 0, 0.05)', 
-      color: 'black',   //'var(--color-text-primary)',       // change to var
+      colorScheme: {
+        light: {
+          color: foundryVariables.colorTextLightPrimary,
+          background: fcbVariables.fcbDarkOverlay, 
+          borderColor: fcbVariables.fcbSheetInputBorder,
+          focusBorderColor: 'black',  
+          focusRingColor: foundryVariables.colorWarm2,
+        },
+        dark: {
+          color: foundryVariables.colorTextDarkPrimary,
+          background: fcbVariables.fcbLightOverlay, 
+          borderColor: fcbVariables.fcbSheetInputBorder,
+          focusBorderColor: 'black',  
+          focusRingColor: foundryVariables.colorWarm2,
+        }
+      },
       borderRadius: '4px',
       padding: {
         x: '3px',
         y: '1px',
       },
-      focusBorderColor: 'black',  // change to var
       focusRing: {
-        color: '#c9593f',  // change to var
         width: '2px',
         style: 'solid',
-      }
-    },
-    // button: {
-    //   colorScheme: { 
-    //     light: {
-    //       primaryHoverBackground: 'inherit',
-    //       primaryHoverBorderColor: 'inherit',
-    //       primaryHoverColor: 'inherit',
-    //       primaryActiveBackground: 'inherit',
-    //       primaryAcriveBorderColor: 'inherit',
-    //       primaryActiveColor: 'inherit',
-    //     },
-    //     dark: {
-    //       primaryHoverBackground: 'inherit',
-    //       primaryHoverBorderColor: 'inherit',
-    //       primaryHoverColor: 'inherit',
-    //       primaryActiveBackground: 'inherit',
-    //       primaryAcriveBorderColor: 'inherit',
-    //       primaryActiveColor: 'inherit',
-    //     },
-    //   }
-    // },
-    // probably want to redo the dialogs in vue to avoid the css complexity of trying to fix them
-    dialog: {
-      borderRadius: '6px',
-      header: {
-        padding: '0 .5rem',
-        color: 'inherit',
       }
     },
     splitter: {

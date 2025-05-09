@@ -22,6 +22,7 @@ export async function confirmDialog(title: string, prompt: string): Promise<bool
     default: 'ok',
   };
 
+  // this uses the foundry Dialog
   await Dialog.wait(dialog);
 
   return response;

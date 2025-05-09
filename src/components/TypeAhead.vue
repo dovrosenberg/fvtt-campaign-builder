@@ -8,7 +8,7 @@
       type="text"
       :placeholder="`${localize('placeholders.search')}...`"
       @input="onInput"
-    >
+    />
     <div 
       id="fcb-ta-dropdown" 
       class="fcb-ta-dropdown"
@@ -292,7 +292,6 @@
     position: relative;
     overflow-y: visible;
     z-index: auto;
-    outline: 2px solid var(--input-focus-outline-color);
 
     .fcb-ta-dropdown {
       position: absolute;
@@ -300,7 +299,8 @@
       padding: 0;
       display: flex;
       flex-direction: column;
-      background-color: var(--fcb-ta-list-background);
+      color: var(--color-text-primary);
+      background-color: var(--fcb-list-background);
       box-shadow: 0 0 5px #555555;
       border-radius: 3px;
       width: calc(100% - 2px);
@@ -312,8 +312,9 @@
         font-weight: normal;
         font-family: Signika, sans-serif;
 
-        &.highlighted {
-          background: #55559922;
+        &.highlighted,
+        &:hover {
+          background: var(--fcb-list-highlight); 
         }
       }
     }

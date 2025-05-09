@@ -1,61 +1,63 @@
 <template>
-  <Dialog 
-    v-model="show"
-    :title="dialogTitle"
-    :buttons="[
-      {
-        label: localize('labels.cancel'),
-        default: false,
-        close: true,
-      },
-      {
-        label: localize('labels.tryAgain'),
-        default: false,
-        close: false,
-        callback: onTryAgainClick
-      },
-      {
-        label: localize('labels.useOnce'),
-        default: false,
-        close: true,
-        disable: !selectedOption,
-        callback: onUseClick
-      },
-      {
-        label: localize('labels.addToWorld'),
-        default: false,
-        close: true,
-        disable: !selectedOption,
-        callback: onAddToWorldClick
-      },
-    ]"
-    @cancel="onCancel"
-  >
-    <div
-      class="flexcol generate-options-dialog"
+  <Teleport to="body">
+    <Dialog 
+      v-model="show"
+      :title="dialogTitle"
+      :buttons="[
+        {
+          label: localize('labels.cancel'),
+          default: false,
+          close: true,
+        },
+        {
+          label: localize('labels.tryAgain'),
+          default: false,
+          close: false,
+          callback: onTryAgainClick
+        },
+        {
+          label: localize('labels.useOnce'),
+          default: false,
+          close: true,
+          disable: !selectedOption,
+          callback: onUseClick
+        },
+        {
+          label: localize('labels.addToWorld'),
+          default: false,
+          close: true,
+          disable: !selectedOption,
+          callback: onAddToWorldClick
+        },
+      ]"
+      @cancel="onCancel"
     >
-      <h3>{{ localize('dialogs.generateOptions.title') }}</h3>
-      <div class="options-container">
-        <div v-if="loading" class="loading-container">
-          <ProgressSpinner />
-        </div>
-        <div v-else-if="error" class="error-message">
-          <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ error }}
-        </div>
-        <div v-else class="options-list">
-          <div 
-            v-for="(option, index) in options" 
-            :key="index"
-            class="option-item"
-            :class="{ selected: selectedOptionIndex === index }"
-            @click="selectOption(index)"
-          >
-            <div class="option-content">{{ option.description }}</div>
+      <div
+        class="flexcol generate-options-dialog"
+      >
+        <h3>{{ localize('dialogs.generateOptions.title') }}</h3>
+        <div class="options-container">
+          <div v-if="loading" class="loading-container">
+            <ProgressSpinner />
+          </div>
+          <div v-else-if="error" class="error-message">
+            <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ error }}
+          </div>
+          <div v-else class="options-list">
+            <div 
+              v-for="(option, index) in options" 
+              :key="index"
+              class="option-item"
+              :class="{ selected: selectedOptionIndex === index }"
+              @click="selectOption(index)"
+            >
+              <div class="option-content">{{ option.description }}</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </Dialog>
+    </Dialog>
+  </Teleport>
 </template>
 
 <script setup lang="ts">

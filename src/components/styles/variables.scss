@@ -1,219 +1,143 @@
 body {
-  --fcb-light-0: var(--color-light-0);
-  --fcb-light-1: var(--color-light-1);
-  --fcb-light-2: var(--color-light-2);
-  --fcb-light-3: var(--color-light-3);
-  --fcb-light-4: var(--color-light-4);
-  --fcb-light-5: var(--color-light-5);
-  --fcb-light-6: var(--color-light-6);
-  --fcb-light-7: var(--color-light-7);
-  --fcb-dark-7: var(--color-dark-7);
-  --fcb-dark-6: var(--color-dark-6);
-  --fcb-dark-5: var(--color-dark-5);
-  --fcb-dark-4: var(--color-dark-4);
-  --fcb-dark-3: var(--color-dark-3);
-  --fcb-dark-2: var(--color-dark-2);
-  --fcb-dark-1: var(--color-dark-1);
-  --fcb-dark-0: var(--color-dark-0);
-  --fcb-cream: rgba(255, 255, 240, 0.8);
-
   --fcb-font-family: 'Modesto Condensed', 'Palatino Linotype', serif;
 
-  // context menu offsets
-  --fcb-context-x: 0px;
-  --fcb-context-y: 0px;
+  --fcb-dark-overlay: rgba(0, 0, 0, 0.05);
+  --fcb-light-overlay: rgba(255, 255, 255, 0.10);
 }
 
 // themed variables
 body {
   --fcb-header-border-color: rgb(192, 192, 192);
-  --fcb-header-background: rgb(220, 220, 220);
+  // --fcb-header-background: #e5dbc5;
   --fcb-header-color: var(--color-text-dark-primary);
   --fcb-header-tab-color: var(--fcb-header-color);
   --fcb-header-tab-btn-color: rgb(103, 102, 99);
   --fcb-header-tab-background: rgba(255, 255, 240, 0.5);
   --fcb-header-tab-border: 1px solid rgb(181, 179, 164);
   --fcb-header-tab-active: rgba(255, 255, 255, 0.9);
-  --fcb-header-tab-hover: inherit;
-  --fcb-header-tab-active-hover: inherit;
   --fcb-header-bookmark-hover: rgba(0, 0, 0, 0.1);
   --fcb-header-add-bookmark-hover: var(--fcb-header-bookmark-hover);
   --fcb-header-nav-btn-color: var(--fcb-header-color);
   --fcb-header-nav-background: rgb(233, 231, 225);
-  --fcb-header-nav-btn-background: var(--fcb-cream);
+  --fcb-header-nav-btn-background: rgba(255, 255, 240, 0.8);
   --fcb-header-nav-btn-border: rgb(192, 192, 192);
   --fcb-header-nav-btn-disabled: rgb(136, 136, 136);
   --fcb-header-nav-btn-background-disabled: inherit;
   --fcb-header-nav-btn-border-disabled: inherit;
   --fcb-header-nav-btn-background-hover: var(--fcb-header-nav-btn-background);
   --fcb-header-nav-btn-color-hover: var(--fcb-header-nav-btn-color);
-  --fcb-header-nav-vertical-line: rgb(238, 237, 224);
-  --fcb-sheet-color: var(--color-text-dark-primary);
-  --fcb-sheet-header-border: rgb(120, 46, 34);
-  --fcb-sheet-header-name-color: var(--fcb-sheet-header-input-color);
-  --fcb-sheet-header-name-background: none;
-  --fcb-sheet-header-input-color: var(--color-text-dark-primary);
+  --fcb-header-nav-vertical-line:  rgb(238, 237, 224);
   --fcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);
-  --fcb-sheet-header-input-background: rgba(0, 0, 0, 0.05);
+  --fcb-sheet-header-input-background: var(--fcb-dark-overlay);
   --fcb-sheet-header-label-color: rgb(75, 74, 68);
-  --fcb-sheet-header-button-color: var(--primary-font);
+  --fcb-sheet-header-button-border-color: var(--color-text-subtle);
+  --fcb-sheet-header-button-color: var(--color-text-primary);
   --fcb-sheet-header-button-background: var(--button-background-color);
-  --fcb-sheet-header-detail-input-color: rgb(25, 24, 19);
+  --fcb-sheet-header-detail-input-color: var(--color-text-primary);
   --fcb-sheet-header-icon-color: #777;
-  --fcb-sheet-header-search-color: var(--fcb-sheet-header-input-color);
-  --fcb-sheet-header-search-placeholder: var(--color-text-dark-secondary);
-  --fcb-sheet-header-search-background: var(--fcb-sheet-header-input-background);
-  --fcb-sheet-header-search-background-hover: var(--fcb-sheet-header-input-background);
-  --fcb-sheet-header-search-border: --fcb-sheet-header-input-border;
-  --fcb-sheet-header-border: rgb(238, 237, 224);
-  --fcb-sheet-tab-color: var(--fcb-sheet-color);
-  --fcb-sheet-tab-color-hover: inherit;
-  --fcb-sheet-tab-color-active: var(--fcb-sheet-tab-color);
-  --fcb-sheet-tab-background: rgba(255, 255, 255, 0.3);
   --fcb-sheet-tab-bottom-border: rgb(238, 237, 224);
   --fcb-sheet-tab-border: 3px solid rgb(181, 179, 164);
   --fcb-sheet-tab-border-active: rgb(68, 25, 26);
-  --fcb-sheet-tab-border-items: rgb(187, 178, 114);
-  --fcb-sheet-page-control-color: var(--fcb-sheet-color);
+  --fcb-sheet-page-control-color: var(--color-text-dark-primary);
   --fcb-sheet-page-control-background: rgb(192, 192, 192);
   --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
-  --fcb-sheet-details-section-border: rgb(238, 237, 224);
+  --fcb-sheet-details-section-border:  rgb(238, 237, 224);
   --fcb-sheet-input-border: 1px solid rgb(122, 121, 113);
-  --fcb-sheet-input-background: rgba(0, 0, 0, 0.05);
+  --fcb-sheet-input-background: var(--fcb-dark-overlay);
   --fcb-sheet-input-color: var(--color-text-dark-primary);
-  --fcb-sheet-button-background: rgb(192, 192, 192);
-  --fcb-sheet-button-background-hover: var(--fcb-sheet-button-background);
-  --fcb-sheet-button-color: var(--fcb-sheet-color);
+  --fcb-sheet-button-color: var(--color-text-dark-primary);
   --fcb-active-color: rgb(255, 100, 0);
   --fcb-icon-background: rgba(236, 233, 223, 1);
   --fcb-icon-shadow: rgba(0, 0, 0, 0.4);
   --fcb-icon-outline: rgba(0, 0, 0, 0.4);
   --fcb-blank-color: rgba(0, 0, 0, 0.5);
-  --fcb-blank-recent-background: rgba(255, 255, 255, 0.3);
-  --fcb-blank-recent-border: rgba(255, 255, 255, 0.5);
   --fcb-blank-link-hover: rgba(0, 0, 0, 0.8);
   
   --fcb-sidebar-background: url(../../../ui/parchment.jpg) repeat;
-  --fcb-sidebar-button-background: rgba(0, 0, 0, 0.1);
-  --fcb-sidebar-button-border: rgb(238, 237, 224);
-  --fcb-sidebar-input-border: rgb(192, 192, 192);
-  --fcb-sidebar-input-background: var(--fcb-cream);
-  --fcb-sidebar-input-background-focus: var(--fcb-cream);
-  --fcb-sidebar-input-color: var(--color-text-dark-primary);
-  --fcb-sidebar-input-placeholder-color: var(--color-text-dark-secondary);
-  --fcb-sidebar-label-color: var(--fcb-sheet-color);
+  --fcb-sidebar-label-color: var(--color-text-dark-primary);
   --fcb-sidebar-world-color: var(--color-text-light-highlight);
   --fcb-sidebar-world-background: rgb(201, 201, 182);
   --fcb-sidebar-world-border: rgb(219, 219, 219);
   --fcb-sidebar-world-color-collapsed: rgb(130, 130, 130);
   --fcb-sidebar-world-background-collapsed: rgb(219, 219, 219);
   --fcb-sidebar-world-border-collapsed: rgb(199, 199, 199);
-  --fcb-sidebar-world-context-color: var(--color-text-dark-primary);
   --fcb-sidebar-campaign-color: var(--fcb-sidebar-world-color);
   --fcb-sidebar-campaign-background: inherit;    // var(--fcb-sidebar-world-background);
   --fcb-sidebar-campaign-border: var(--fcb-sidebar-world-border);;
   --fcb-sidebar-campaign-color-collapsed: var(--fcb-sidebar-campaign-color);
   --fcb-sidebar-campaign-background-collapsed: inherit;  //var(--fcb-sidebar-world-background-collapsed);
   --fcb-sidebar-campaign-border-collapsed: var(--fcb-sidebar-world-border-collapsed);
-  --fcb-sidebar-campaign-context-color: var(--fcb-sidebar-world-context-color);
-  --fcb-sidebar-create-entry-color: var(--fcb-dark-3);
-  --fcb-sidebar-create-entry-secondary-color: var(--fcb-dark-5);
-  --fcb-sidebar-subfolder-border: rgb(156, 154, 148);
-  --fcb-sidebar-document-color: var(--color-text-dark-primary);
-  --fcb-sidebar-document-border-top: rgb(195, 193, 182);
-  --fcb-sidebar-document-border-bottom: rgb(154, 152, 144);
+  --fcb-directory-expand-button-background: #999;
+  --fcb-sidebar-topic-icon-color: #999;
 
-  --fcb-ta-list-background: rgb(220, 220, 220);
+  // for typeaheads, search
+  --fcb-list-background: rgb(220, 220, 220);
+  --fcb-list-highlight: rgba(85, 85, 153, 0.13);
+  --fcb-color-text-generate-message: var(--color-text-dark-secondary);
 }
 
-// .theme-dark {
-//   --fcb-header-border-color: rgb(192, 192, 192);//
-//   --fcb-header-background: rgb(220, 220, 220);//
-//   --fcb-header-color: var(--color-text-light-primary);//
-//   --fcb-header-tab-color: var(--fcb-header-color);
-//   --fcb-header-tab-btn-color: rgb(103, 102, 99);//
-//   --fcb-header-tab-background: rgba(255, 255, 240, 0.5);//
-//   --fcb-header-tab-border: 1px solid rgb(181, 179, 164);//
-//   --fcb-header-tab-active: rgba(255, 255, 255, 0.9);//
-//   --fcb-header-tab-hover: inherit;//
-//   --fcb-header-tab-active-hover: inherit;//
-//   --fcb-header-bookmark-hover: rgba(0, 0, 0, 0.1);//
-//   --fcb-header-add-bookmark-hover: var(--fcb-header-bookmark-hover);
-//   --fcb-header-nav-btn-color: var(--fcb-header-color);//
-//   --fcb-header-nav-background: rgb(233, 231, 225);//
-//   --fcb-header-nav-btn-background: var(--fcb-cream);//
-//   --fcb-header-nav-btn-border: rgb(192, 192, 192);//
-//   --fcb-header-nav-btn-disabled: rgb(136, 136, 136);//
-//   --fcb-header-nav-btn-background-disabled: inherit;//
-//   --fcb-header-nav-btn-border-disabled: inherit;//
-//   --fcb-header-nav-btn-background-hover: var(--fcb-header-nav-btn-background);
-//   --fcb-header-nav-vertical-line: rgb(238, 237, 224);//
-//   --fcb-sheet-color: var(--color-text-dark-primary);
-//   --fcb-sheet-header-border: rgb(120, 46, 34);//
-//   --fcb-sheet-header-name-color: var(--fcb-sheet-header-input-color);
-//   --fcb-sheet-header-name-background: none;//
-//   --fcb-sheet-header-name-background-hover: none;//
-//   --fcb-sheet-header-input-color: var(--color-text-light-primary);
-//   --fcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);//
-//   --fcb-sheet-header-input-background: rgba(0, 0, 0, 0.05);//
-//   --fcb-sheet-header-label-color: rgb(75, 74, 68);//
-//   --fcb-sheet-header-button-color: var(--primary-font);//
-//   --fcb-sheet-header-button-background: rgba(0, 0, 0, 0.1);//
-//   --fcb-sheet-header-detail-input-color: rgb(25, 24, 19);//
-//   --fcb-sheet-header-search-color: var(--fcb-sheet-header-input-color);
-//   --fcb-sheet-header-search-placeholder: var(--color-text-light-secondary);
-//   --fcb-sheet-header-search-background: var(--fcb-sheet-header-input-background);
-//   --fcb-sheet-header-search-background-hover: var(--fcb-sheet-header-input-background);
-//   --fcb-sheet-header-search-border: --fcb-sheet-header-input-border;//
-//   --fcb-sheet-detailed-header-border: rgb(238, 237, 224);//
-//   --fcb-sheet-tab-color: var(--fcb-sheet-color);
-//   --fcb-sheet-tab-color-hover: inherit;//
-//   --fcb-sheet-tab-color-active: var(--fcb-sheet-tab-color);//
-//   --fcb-sheet-tab-background: rgba(255, 255, 255, 0.3);//
-//   --fcb-sheet-tab-bottom-border: rgb(238, 237, 224);//
-//   --fcb-sheet-tab-border: 3px solid rgb(181, 179, 164);//
-//   --fcb-sheet-tab-border-active: rgb(68, 25, 26);//
-//   --fcb-sheet-tab-border-items: rgb(187, 178, 114);//
-//   --fcb-sheet-page-control-color: var(--fcb-sheet-color);
-//   --fcb-sheet-page-control-background: rgb(192, 192, 192);//
-//   --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
-//   --fcb-sheet-details-section-border: rgb(238, 237, 224);//
-//   --fcb-sheet-input-border: 1px solid rgb(122, 121, 113);//
-//   --fcb-sheet-input-background: rgba(0, 0, 0, 0.05);//
-//   --fcb-sheet-input-color: var(--color-text-light-primary);
-//   --fcb-sheet-button-background: rgb(192, 192, 192);
-//   --fcb-sheet-button-background-hover: var(--fcb-sheet-button-background);
-//   --fcb-sheet-button-color: var(--fcb-sheet-color);
 
-//   --fcb-active-color: rgb(255, 100, 0);//
-//   --fcb-icon-background: rgba(236, 233, 223, 1);//
-//   --fcb-icon-shadow: rgba(0, 0, 0, 0.4);//
-//   --fcb-icon-outline: rgba(0, 0, 0, 0.4);//
-//   --fcb-blank-color: rgba(0, 0, 0, 0.5);//
-//   --fcb-blank-recent-background: rgba(255, 255, 255, 0.3);//
-//   --fcb-blank-recent-border: rgba(255, 255, 255, 0.5);//
-//   --fcb-blank-link-hover: rgba(0, 0, 0, 0.8);//
+body.theme-dark {
+  --fcb-header-border-color: var(--color-dark-4);
+  // --fcb-header-background: var(--color-dark-2);
+  --fcb-header-color: var(--color-text-light-primary);
+  --fcb-header-tab-color: var(--fcb-header-color);
+  --fcb-header-tab-btn-color: var(--color-dark-6);
+  --fcb-header-tab-background: rgba(255, 255, 240, 0.5);
+  --fcb-header-tab-border: 1px solid var(--color-dark-4);
+  --fcb-header-tab-active: var(--color-dark-1);
+  --fcb-header-bookmark-hover: rgba(0, 0, 0, 0.1);
+  --fcb-header-add-bookmark-hover: var(--fcb-header-bookmark-hover);
+  --fcb-header-nav-btn-color: var(--fcb-header-color);
+  --fcb-header-nav-background: var(--color-dark-1);
+  --fcb-header-nav-btn-background: rgba(255, 255, 255, 0.03);
+  --fcb-header-nav-btn-border: var(--color-dark-4);
+  --fcb-header-nav-btn-disabled: rgb(136, 136, 136);
+  --fcb-header-nav-btn-background-hover: var(--fcb-header-nav-btn-background);
+  --fcb-header-nav-btn-color-hover: var(--fcb-header-nav-btn-color);
+  --fcb-header-nav-vertical-line: var(--color-dark-3);
+
+  --fcb-sheet-header-input-border: 1px solid var(--color-dark-5);
+  --fcb-sheet-header-input-background: var(--fcb-light-overlay);
+  --fcb-sheet-header-label-color: var(--color-text-secondary);
+  --fcb-sheet-header-button-border-color: var(--color-text-subtle);
+  --fcb-sheet-header-button-color: var(--color-text-primary);
+  --fcb-sheet-header-button-background: var(--button-background-color);
+  --fcb-sheet-header-detail-input-color: var(--color-text-primary);
+  --fcb-sheet-header-icon-color: #777;
+  --fcb-sheet-tab-bottom-border: var(--color-dark-1);
+  --fcb-sheet-tab-border: 3px solid var(--color-dark-4);
+  --fcb-sheet-tab-border-active: rgb(255, 120, 90);
+  --fcb-sheet-page-control-color: var(--color-text-light-primary);
+  --fcb-sheet-page-control-background: var(--color-dark-4);
+  --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
+  --fcb-sheet-details-section-border: var(--color-dark-1);
+  --fcb-sheet-input-border: 1px solid rgb(122, 121, 113);
+  --fcb-sheet-input-background: var(--fcb-light-overlay);
+  --fcb-sheet-input-color: var(--color-text-dark-primary);
+  --fcb-sheet-button-color: var(--color-text-light-primary);
+  --fcb-icon-background: var(--color-dark-1);
+  --fcb-icon-shadow: rgba(0, 0, 0, 0.5);
+  --fcb-icon-outline: rgba(255, 255, 255, 0.1);
+  --fcb-blank-color: rgba(255, 255, 255, 0.3);
+  --fcb-blank-link-hover: rgba(255, 255, 255, 0.6);
   
-//   --fcb-sidebar-background: black;
-//   --fcb-sidebar-button-background: rgba(0, 0, 0, 0.1);  //
-//   --fcb-sidebar-button-border: rgb(238, 237, 224);//
-//   --fcb-sidebar-input-border: rgb(192, 192, 192);//
-//   --fcb-sidebar-input-background: black;
-//   --fcb-sidebar-input-background-focus: black;
-//   --fcb-sidebar-input-color: var(--color-text-light-primary);
-//   --fcb-sidebar-input-placeholder-color: var(--color-text-light-secondary);
-//   --fcb-sidebar-label-color: var(--fcb-sheet-color);//
-//   --fcb-sidebar-world-color: var(--color-text-dark-highlight);
-//   --fcb-sidebar-world-background: rgb(133, 131, 124);//
-//   --fcb-sidebar-world-border: rgb(116, 115, 109);//
-//   --fcb-sidebar-world-color-collapsed: var(--fcb-light-2);
-//   --fcb-sidebar-world-background-collapsed: var(--fcb-dark-2);
-//   --fcb-sidebar-world-border-collapsed: rgb(139, 138, 131);//
-//   --fcb-sidebar-world-context-color: var(--color-text-light-primary);
-//   --fcb-sidebar-create-entry-color: var(--fcb-light-3);
-//   --fcb-sidebar-create-entry-secondary-color: var(--fcb-light-5);
-//   --fcb-sidebar-subfolder-border: rgb(156, 154, 148);//
-//   --fcb-sidebar-document-color: var(--color-text-light-primary);
-//   --fcb-sidebar-document-border-top: rgb(195, 193, 182);//
-//   --fcb-sidebar-document-border-botom: rgb(154, 152, 144);//
-// }
+  --fcb-sidebar-background: inherit;  //url(../../../ui/parchment.jpg) repeat;
+  --fcb-sidebar-label-color: var(--color-text-light-primary);
+  --fcb-sidebar-world-color: var(--color-text-light-highlight);
+  --fcb-sidebar-world-background: var(--color-dark-3);
+  --fcb-sidebar-world-border: var(--color-dark-2);
+  --fcb-sidebar-world-color-collapsed: var(--color-dark-6);
+  --fcb-sidebar-world-background-collapsed: var(--color-dark-2);
+  --fcb-sidebar-world-border-collapsed: var(--color-dark-2);
+  --fcb-sidebar-campaign-color: var(--fcb-sidebar-world-color);
+  --fcb-sidebar-campaign-border: var(--fcb-sidebar-world-border);;
+  --fcb-sidebar-campaign-color-collapsed: var(--fcb-sidebar-campaign-color);
+  --fcb-sidebar-campaign-border-collapsed: var(--fcb-sidebar-world-border-collapsed);
+  --fcb-directory-expand-button-background: var(--color-light-6);
+  --fcb-sidebar-topic-icon-color: var(--color-light-6);
+
+  --fcb-list-background: var(--color-dark-2);
+  --fcb-list-highlight: rgba(85, 85, 153, 0.13);
+  --fcb-color-text-generate-message: var(--color-text-light-secondary);
+}

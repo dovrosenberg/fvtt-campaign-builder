@@ -7,7 +7,7 @@
   >
     <!-- Directory Header -->
     <header class="fcb-directory-header">
-      <div class="fcb-header-search flexrow">
+      <div class="fcb-header-filter flexrow">
         <InputText
           v-model="filterText"
           for="fcb-directory-filter"
@@ -190,13 +190,13 @@
 
     .fcb-directory-header {
       flex: 0;
-      background-color: var(--fcb-header-background);
+      // background-color: var(--fcb-header-background);
       border-bottom: 1px solid var(--fcb-header-border-color);
       color: var(--fcb-sidebar-label-color);
       margin-bottom: 0px;
       padding: 8px 0px 8px 8px;
 
-      .fcb-header-search {
+      .fcb-header-filter {
         #fcb-directory-filter {
           flex: 1;
           height: var(--form-field-height);

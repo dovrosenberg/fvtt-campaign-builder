@@ -50,9 +50,9 @@
   import { SettingKey, ModuleSettings, } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import WCBTheme from '@/applications/presetTheme';
   import { initializeRollTables } from '@/utils/nameGenerators';
   import { updateWindowTitle } from '@/utils/titleUpdater';
+  import { theme } from '@/components/styles/primeVue';
 
   // library components
   import Splitter from 'primevue/splitter';
@@ -68,6 +68,7 @@
   import { WindowTabType, Topics, ValidTopic } from '@/types';
   import { Backend, WBWorld, } from '@/classes';
   import { CampaignDoc } from '@/documents';
+
   
   ////////////////////////////////
   // props
@@ -230,7 +231,7 @@
 
     
     // Use the same plugins as the main app
-    app.use(PrimeVue, { preset: WCBTheme });
+    app.use(PrimeVue, { theme: theme });
     app.use(pinia);
 
     // this fixes a vue dev tools bug
@@ -359,11 +360,15 @@ div[data-application-part="app"]:has(> div.fcb) {
   min-width: 640px;
 
   .window-header {
+    // we need it to be higher than the content so search results can cover
+    z-index: 2;
+
     overflow: visible;  // for the search drop down
   }
 
   .window-content {
     padding: 0;
+    z-index: 1;
   }
 
   .window-content > div {

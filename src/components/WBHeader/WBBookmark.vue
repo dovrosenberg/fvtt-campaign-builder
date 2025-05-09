@@ -169,6 +169,10 @@
     border: 1px solid var(--fcb-header-nav-btn-border);
     background: var(--fcb-header-nav-btn-background);
 
+    &:hover {
+      background: var(--fcb-header-nav-btn-background-hover);
+    }
+
     &#fcb-add-bookmark {
       border-radius: 4px;
       flex: 0 0 24px;
