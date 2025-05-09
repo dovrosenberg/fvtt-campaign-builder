@@ -111,26 +111,24 @@ export class PC {
 
     const world = await campaign.getWorld();
 
-    // create the entry
-    await world.unlock();
+    let pcDoc: PCDoc[] = [];
+    await world.executeUnlocked(async () => {
+      pcDoc = await JournalEntryPage.createDocuments([{
+        type: DOCUMENT_TYPES.PC,
+        name: `<${localize('placeholders.linkToActor')}>`,
+        system: {
+          playerName: nameToUse,
+          actorId: null,
+          plotPoints: '',
+          background: '',
+          magicItems: '',
+        }
+      }],{
+        parent: campaign.raw as JournalEntry,
+      }) as unknown as PCDoc[];
+    });
 
-    const pcDoc = await JournalEntryPage.createDocuments([{
-      type: DOCUMENT_TYPES.PC,
-      name: `<${localize('placeholders.linkToActor')}>`,
-      system: {
-        playerName: nameToUse,
-        actorId: null,
-        plotPoints: '',
-        background: '',
-        magicItems: '',
-      }
-    }],{
-      parent: campaign.raw as JournalEntry,
-    }) as unknown as PCDoc[];
-
-    await world.lock();
-
-    if (pcDoc) {
+    if (pcDoc && pcDoc.length > 0) {
       const pc = new PC(pcDoc[0], campaign);
       return pc;
     } else {
@@ -246,17 +244,15 @@ export class PC {
 
     const updateData = this._cumulativeUpdate;
 
-    // unlock compendium to make the change
-    await world.unlock();
+    let retval: PCDoc | null = null;
+    await world.executeUnlocked(async () => {
+      retval = await toRaw(this._pcDoc).update(updateData) || null;
+      if (retval) {
+        this._pcDoc = retval;
+      }
 
-    const retval = await toRaw(this._pcDoc).update(updateData) || null;
-    if (retval) {
-      this._pcDoc = retval;
-    }
-
-    this._cumulativeUpdate = {};
-
-    await world.lock();
+      this._cumulativeUpdate = {};
+    });
 
     return retval ? this : null;
   }
@@ -267,11 +263,8 @@ export class PC {
 
     const world = await this.getWorld() as WBWorld;
 
-    // have to unlock the pack
-    await world.unlock();
-
-    await this._pcDoc.delete();
-
-    await world.lock();
+    await world.executeUnlocked(async () => {
+      await this._pcDoc.delete();
+    });
   }
 }

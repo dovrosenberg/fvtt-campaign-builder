@@ -77,36 +77,35 @@ export class Entry {
       return null;
 
     // create the entry
-    await world.unlock();
+    let entryDoc: EntryDoc[] = [];
+    await world.executeUnlocked(async () => {
+      entryDoc = await JournalEntryPage.createDocuments([{
+        // @ts-ignore- we know this type is valid
+        type: DOCUMENT_TYPES.Entry,
+        name: nameToUse,
+        system: {
+          type: options.type || '',
+          topic: topicFolder.topic,
+          relationships: {
+            [Topics.Character]: {},
+            // [Topics.Event]: {},
+            [Topics.Location]: {},
+            [Topics.Organization]: {},
+          },
+          actors: [],
+          scenes: [],
+          img: '',
+        }
+      }],{
+        parent: topicFolder.raw,
+      }) as unknown as EntryDoc[];
 
-    const entryDoc = await JournalEntryPage.createDocuments([{
-      // @ts-ignore- we know this type is valid
-      type: DOCUMENT_TYPES.Entry,
-      name: nameToUse,
-      system: {
-        type: options.type || '',
-        topic: topicFolder.topic,
-        relationships: {
-          [Topics.Character]: {},
-          // [Topics.Event]: {},
-          [Topics.Location]: {},
-          [Topics.Organization]: {},
-        },
-        actors: [],
-        scenes: [],
-        img: '',
+      if (options.type) {
+        await Entry.addTypeIfNeeded(topicFolder, options.type);
       }
-    }],{
-      parent: topicFolder.raw,
-    }) as unknown as EntryDoc[];
+    });
 
-    if (options.type) {
-      await Entry.addTypeIfNeeded(topicFolder, options.type);
-    }
-
-    await world.lock();
-
-    if (entryDoc) {
+    if (entryDoc && entryDoc.length > 0) {
       const entry = new Entry(entryDoc[0], topicFolder);
       
       // Add to search index
@@ -305,38 +304,37 @@ export class Entry {
       }
     };
 
-    // unlock compendium to make the change
-    await world.unlock();
+    let retval: EntryDoc | null = null;
 
-    // add the type to the master list if it was changed and doesn't exist
-    if (updateData.system?.type) {
-      const topicFolder = world.topicFolders[this.topic];
+    await world.executeUnlocked(async () => {
+      // add the type to the master list if it was changed and doesn't exist
+      if (updateData.system?.type) {
+        const topicFolder = world.topicFolders[this.topic];
 
-      await Entry.addTypeIfNeeded(topicFolder, updateData.system?.type);
-    }
+        await Entry.addTypeIfNeeded(topicFolder, updateData.system?.type);
+      }
 
-    let oldRelationships;
-    
-    if (updateData.system?.relationships) {
-      // do the serialization of the relationships field
-      oldRelationships = updateData.system.relationships;
+      let oldRelationships;
+      
+      if (updateData.system?.relationships) {
+        // do the serialization of the relationships field
+        oldRelationships = updateData.system.relationships;
 
-      updateData.system.relationships = relationshipKeyReplace(updateData.system.relationships || {}, true);
-    }
+        updateData.system.relationships = relationshipKeyReplace(updateData.system.relationships || {}, true);
+      }
 
-    const retval = await toRaw(this._entryDoc).update(updateData) || null;
-    if (retval) {
-      this._entryDoc = retval;
-    }
+      retval = await toRaw(this._entryDoc).update(updateData) || null;
+      if (retval) {
+        this._entryDoc = retval;
+      }
 
-    // swap back
-    if (updateData.system?.relationships) {
-      this._entryDoc.system.relationships = oldRelationships;
-    }
+      // swap back
+      if (updateData.system?.relationships) {
+        this._entryDoc.system.relationships = oldRelationships;
+      }
 
-    this._cumulativeUpdate = {};
-
-    await world.lock();
+      this._cumulativeUpdate = {};
+    });
 
     // Update the search index
     try {
@@ -359,14 +357,11 @@ export class Entry {
     if (!topicFolder)
       throw new Error('Attempting to delete entry without parent TopicFolder in Entry.delete()');
 
-    // have to unlock the pack
-    await world.unlock();
+    await world.executeUnlocked(async () => {
+      await this._entryDoc.delete();
 
-    await this._entryDoc.delete();
-
-    await world.deleteEntryFromWorld(topicFolder, id);
-
-    await world.lock();
+      await world.deleteEntryFromWorld(topicFolder, id);
+    });
 
     // Remove from search index
     try {

@@ -67,6 +67,15 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     this.topicFolders = {} as Record<ValidTopic, TopicFolder>;
   }
 
+  override async _getWorld(): Promise<WBWorld> {
+    return this;
+  };
+
+  // WBWorld is a Folder so it's outside the compendium
+  override get requiresUnlock(): boolean {
+    return false;
+  };
+
   static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
     const worldDoc = await fromUuid(worldId, options) as WorldDoc | null;
 
@@ -369,11 +378,11 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   public async save(): Promise<WBWorld | null> {
     let success = false;
 
-    await this.unlock();
+    // note: no unlock needed for changes to the world because it's not in
+    //    a compendium
 
     const updateData = this._cumulativeUpdate;
     if (Object.keys(updateData).length !== 0) {
-
       // protect any complex flags
       if (updateData[`flags.${moduleId}`])
         updateData[`flags.${moduleId}`] = this.prepareFlagsForUpdate(updateData[`flags.${moduleId}`]);
@@ -386,8 +395,6 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
         success = true;
       }
     }
-
-    await this.lock();
 
     return success ? this : null;
   }  
@@ -427,7 +434,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
         if (makeCurrent) {
           await UserFlags.set(UserFlagKey.currentWorld, newWorld.uuid);
         }
-    
+
         await newWorld.validate();
 
         return newWorld;
@@ -521,7 +528,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
       type: 'JournalEntry' as const, 
     };
 
-    const pack = await CompendiumCollection.createCompendium(metadata);
+    const pack = await CompendiumCollection.createCompendium(metadata) as WBWorldCompendium;
     await pack.setFolder(this._doc as Folder);
     await pack.configure({ locked:true });
 
@@ -542,6 +549,64 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
    */
   public async lock() {
     await this._compendium.configure({locked:true});
+  }
+
+  // Track ongoing unlock operations to prevent race conditions
+  private static _unlockOperations: Record<string, Promise<void> | null> = {};  // mapped by compendiumId
+
+  public get isLocked(): boolean {
+    return this._compendium.config.locked;
+  }
+  
+  /** 
+   * Execute a function after unlocking (if needed), then relock when done.
+   * Uses a queue system to prevent race conditions between multiple calls.
+   * Handles nested calls by checking the actual lock state of the compendium.
+   */
+  public async executeUnlocked(executeFunction: () => Promise<void>): Promise<void> {
+    const compendiumId = this._compendiumId;
+    
+    // If the compendium is already unlocked, just execute the function without locking/unlocking
+    if (!this.isLocked) {
+      return executeFunction();
+    }
+    
+    // Create a new operation that will wait for any existing operation to complete
+    const operation = (async () => {
+      // Wait for any previous operation on this compendium to complete
+      if (WBWorld._unlockOperations[compendiumId]) {
+        try {
+          await WBWorld._unlockOperations[compendiumId];
+        } catch (error) {
+          // If previous operation failed, we still want to continue with our operation
+          console.error("Previous unlock operation failed:", error);
+        }
+      }
+
+      // Check again if the compendium is locked after waiting for previous operations
+      const needsUnlock = this.isLocked;
+      if (needsUnlock) {
+        await this.unlock();
+      }
+
+      try {
+        await executeFunction();
+      } finally {
+        // Always relock, but only if we were the ones who unlocked it
+        if (needsUnlock) {
+          await this.lock();
+        }
+        
+        // Remove our operation from the map once it's done
+        delete WBWorld._unlockOperations[compendiumId];
+      }
+    })();
+
+    // Store the promise so other operations can wait for it
+    WBWorld._unlockOperations[compendiumId] = operation;
+
+    // Wait for our operation to complete
+    return operation;
   }
   
   public async collapseCampaignDirectory() {
@@ -636,7 +701,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   }
 
   public async delete() {
-    // have to unlock the pack
+    // have to unlock the pack - we won't need to lock at the end
     await this.unlock();
 
     // delete the pack
