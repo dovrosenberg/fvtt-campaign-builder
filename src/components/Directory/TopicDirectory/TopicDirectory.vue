@@ -300,7 +300,7 @@
       cursor: pointer;
 
       i.icon {
-        color: #777;
+        color: var(--fcb-sidebar-topic-icon-color);
       }  
     }
 

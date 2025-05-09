@@ -110,7 +110,6 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
-        color: var(--fcb-sheet-color);
         padding: 4px;
       }
       
@@ -131,8 +130,8 @@
         margin-bottom: 4px;
         
         .fcb-input-name {
-          background: var(--fcb-sheet-header-name-background);
-          color: var(--fcb-sheet-header-name-color);
+          background: none;
+          color: var(--color-text-primary);
           margin-left: 3px;
           margin-right: 8px;
           font-size: 32px;
@@ -159,7 +158,7 @@
           box-shadow: none;
           color: var(--fcb-sheet-header-button-color);
           background: var(--fcb-sheet-header-button-background);
-          border: 1px solid var(--button-border-color);
+          border: 1px solid var(--fcb-sheet-header-button-border-color);
           border-radius: 4px;
           display: flex;
           align-items: center;
@@ -199,7 +198,6 @@
       .fcb-sheet-navigation {
         flex-grow: 0;
         flex: 0 0 30px !important;
-        background: var(--fcb-sheet-tab-background);
         padding: 0px 4px 5px 4px;
         border-bottom: 2px groove var(--fcb-sheet-tab-bottom-border);
         font-family: var(--fcb-font-family);
@@ -216,7 +214,6 @@
             line-height: 32px;
             margin: 0 12px;
             border-bottom: var(--fcb-sheet-tab-border);
-            color: var(--fcb-sheet-tab-color);
             max-width: 150px;
 
             &.first-child {
@@ -224,13 +221,8 @@
             }
           }
 
-          .item:hover {
-            color: var(--fcb-sheet-tab-color-hover);
-          }
-
           .item.active {
             border-bottom-color: var(--fcb-sheet-tab-border-active);
-            color: var(--fcb-sheet-tab-color-active);
           }
 
           .tab {

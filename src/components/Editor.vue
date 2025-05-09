@@ -402,12 +402,17 @@
     border: 1px solid var(--fcb-button-border-color);
     overflow-y: auto !important;
     border-radius: 4px;
-    background: rgba(0, 0, 0, 0.05);
-    color: var(--color-dark-2);
+    font-family: var(--font-body);
     font-size: var(--font-size-14);
     font-weight: normal;
-    font-family: var(--font-body);
     padding: 0;
+    background: var(--fcb-dark-overlay);
+    color: var(--color-dark-2);
+
+    .theme-dark & {
+      background: var(--fcb-light-overlay);
+      color: var(--color-light-2);
+    }
 
     &:focus-within {
       border: 2px solid var(--color-warm-2);
@@ -415,6 +420,10 @@
 
     &:disabled {
       color: var(--color-dark-4);
+
+      .theme-dark & {
+         background: var(--color-light-4);
+      }
     }
 
     .prosemirror {

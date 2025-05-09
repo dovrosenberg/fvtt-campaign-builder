@@ -1,165 +1,170 @@
 <template>
-  <Dialog 
-    v-model="show"
-    :title="props.title"
-    :buttons="[
-      {
-        label: localize('labels.cancel'),
-        default: false,
-        close: true,
-        callback: () => { show=false; }
-      },
-      {
-        label: localize('labels.generate'),
-        default: false,
-        close: false,
-        disable: loading,
-        hidden: !Backend.available,
-        callback: onGenerateClick
-      },
-      {
-        label: localize('labels.use'),
-        default: false,
-        close: true,
-        disable: !name || (props.generateMode && !generatedDescription),
-        callback: onUseClick
-      },
-    ]"
-    @cancel="onCancel"
-  >
-    <div
-      class="flexcol create-entry-dialog"
+   <Teleport to="body">
+    <Dialog 
+      v-model="show"
+      :title="props.title"
+      :buttons="[
+        {
+          label: localize('labels.cancel'),
+          default: false,
+          close: true,
+          callback: () => { show=false; }
+        },
+        {
+          label: localize('labels.generate'),
+          default: false,
+          close: false,
+          disable: loading,
+          hidden: !Backend.available,
+          callback: onGenerateClick
+        },
+        {
+          label: localize('labels.use'),
+          default: false,
+          close: true,
+          disable: !name || (props.generateMode && !generatedDescription),
+          callback: onUseClick
+        },
+      ]"
+      @cancel="onCancel"
     >
-      <h6>
-        {{ localize('labels.fields.name')}}
-        <i 
+      <div
+        class="flexcol create-entry-dialog-content"
+      >
+        <h6>
+          {{ localize('labels.fields.name')}}
+          <i 
+            v-if="Backend.available"
+            class="fas fa-info-circle tooltip-icon" 
+            :data-tooltip="localize('tooltips.createEntry.name')"
+          ></i>
+        </h6>
+        <InputText
+          v-model="name"
+          type="text"
+          :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
+        />
+
+        <h6>
+          {{ localize('labels.fields.type')}}
+          <i 
+            class="fas fa-info-circle tooltip-icon" 
+            :data-tooltip="localize('tooltips.createEntry.type')"></i>
+        </h6>
+        <TypeSelect
+          :initial-value="type"
+          :topic="props.topic"
+          @type-selection-made="onTypeSelectionMade"
+        />
+
+        <div v-if="props.topic === Topics.Character">
+          <h6>
+            {{ localize('labels.fields.species')}}
+            <i 
+              v-if="Backend.available"
+              class="fas fa-info-circle tooltip-icon" 
+              :data-tooltip="localize('tooltips.createEntry.species')"
+            ></i>
+          </h6>
+          <SpeciesSelect
+            :initial-value="speciesId"
+            :allow-new-items="true"
+            @species-selection-made="onSpeciesSelectionMade"
+            @species-item-added="onSpeciesItemAdded"
+          />
+        </div>
+        <div v-else-if="hasHierarchy(props.topic)">
+          <h6>
+            {{ localize('labels.fields.parent')}}
+            <i 
+              v-if="Backend.available"
+              class="fas fa-info-circle tooltip-icon" 
+              :data-tooltip="localize('tooltips.createEntry.parent')"
+            ></i>
+          </h6>
+          <TypeAhead 
+            :initial-list="validParents"
+            :initial-value="parentId || ''"
+            @selection-made="onParentSelectionMade"
+          />
+        </div>
+
+        <h6>
+          {{ Backend.available ? localize('labels.fields.briefDescription') : localize('labels.fields.description') }}
+          <i
+            v-if="Backend.available" 
+            class="fas fa-info-circle tooltip-icon" 
+            :data-tooltip="localize('tooltips.createEntry.description')"
+          ></i>
+        </h6>
+        <Textarea
+          v-model="briefDescription"
+          :pt="{ root: { 
+            style: { 
+              'font-size': 'var(--font-size-14)', 
+              'color': 'var(--input-text-color)',
+              'min-height': '6rem',
+              'max-height': '6rem',
+              'background': !props.generateMode || !generateComplete ? 'rgba(255, 228, 196, .3)' : '',
+            }
+          }}"
+        />
+        <div 
           v-if="Backend.available"
-          class="fas fa-info-circle tooltip-icon" 
-          :data-tooltip="localize('tooltips.createEntry.name')"
-        ></i>
-      </h6>
-      <InputText
-        v-model="name"
-        type="text"
-        :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
-      />
-
-      <h6>
-        {{ localize('labels.fields.type')}}
-        <i 
-          class="fas fa-info-circle tooltip-icon" 
-          :data-tooltip="localize('tooltips.createEntry.type')"></i>
-      </h6>
-      <TypeSelect
-        :initial-value="type"
-        :topic="props.topic"
-        @type-selection-made="onTypeSelectionMade"
-      />
-
-      <div v-if="props.topic === Topics.Character">
-        <h6>
-          {{ localize('labels.fields.species')}}
-          <i 
-            v-if="Backend.available"
-            class="fas fa-info-circle tooltip-icon" 
-            :data-tooltip="localize('tooltips.createEntry.species')"
-          ></i>
-        </h6>
-        <SpeciesSelect
-          :initial-value="speciesId"
-          :allow-new-items="true"
-          @species-selection-made="onSpeciesSelectionMade"
-          @species-item-added="onSpeciesItemAdded"
-        />
-      </div>
-      <div v-else-if="hasHierarchy(props.topic)">
-        <h6>
-          {{ localize('labels.fields.parent')}}
-          <i 
-            v-if="Backend.available"
-            class="fas fa-info-circle tooltip-icon" 
-            :data-tooltip="localize('tooltips.createEntry.parent')"
-          ></i>
-        </h6>
-        <TypeAhead 
-          :initial-list="validParents"
-          :initial-value="parentId || ''"
-          @selection-made="onParentSelectionMade"
-        />
-      </div>
-
-      <h6>
-        {{ Backend.available ? localize('labels.fields.briefDescription') : localize('labels.fields.description') }}
-        <i
-          v-if="Backend.available" 
-          class="fas fa-info-circle tooltip-icon" 
-          :data-tooltip="localize('tooltips.createEntry.description')"
-        ></i>
-      </h6>
-      <Textarea
-        v-model="briefDescription"
-        :rows="4"
-        autoResize
-        :pt="{ root: { 
-          style: { 
-            'font-size': 'var(--font-size-14)', 
-            'min-height': '6rem',
-            'background': !props.generateMode && !generateComplete ? 'rgba(255, 228, 196, .3)' : '',
-          }
-        }}"
-      />
-      <div 
-        v-if="Backend.available"
-        class="generation-option"
-      >
-        <div class="generation-option-wrapper">
-          <Checkbox 
-            v-model="longDescriptions" 
-            :binary="true"
-            inputId="long-description-checkbox"
-          />
-          <label for="long-description-checkbox" class="generation-label">
-            {{ localize('labels.fields.longDescriptions') }}
-            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.createEntry.longDescriptions')"></i>
-          </label>
-        </div>
-        <div class="generation-option-wrapper" style="margin-left: 20px">
-          <Checkbox 
-            v-model="generateImageAfterAccept" 
-            :binary="true"
-            inputId="generate-image-checkbox"
-          />
-          <label for="generate-image-checkbox" class="generation-label">
-            {{ localize('labels.fields.generateImage') }}
-            <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.createEntry.generateImage')"></i>
-          </label>
-        </div>
-      </div>
-      <hr v-if="Backend.available">
-      <div 
-        v-if="Backend.available"
-        class="results-container"
-      >
-        <div v-if="generateError" class="error-message">
-          <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ generateError }}
-        </div>
-        <div v-else-if="generateComplete" class="generated-content" style="background: rgba(255, 228, 196, .3)">
-          <div><span class="label">{{ localize('dialogs.createEntry.generatedName')}}:</span> {{ generatedName }}</div>
-          <div class="description">
-            <p><span class="label">{{ localize('dialogs.createEntry.generatedDescription')}}:</span></p>
-            {{ generatedDescription }}
+          class="generation-option"
+        >
+          <div class="generation-option-wrapper">
+            <Checkbox 
+              v-model="longDescriptions" 
+              :binary="true"
+              inputId="long-description-checkbox"
+            />
+            <label for="long-description-checkbox" class="generation-label">
+              {{ localize('labels.fields.longDescriptions') }}
+              <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.createEntry.longDescriptions')"></i>
+            </label>
+          </div>
+          <div class="generation-option-wrapper" style="margin-left: 20px">
+            <Checkbox 
+              v-model="generateImageAfterAccept" 
+              :binary="true"
+              inputId="generate-image-checkbox"
+            />
+            <label for="generate-image-checkbox" class="generation-label">
+              {{ localize('labels.fields.generateImage') }}
+              <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.createEntry.generateImage')"></i>
+            </label>
           </div>
         </div>
-        <div v-else-if="loading" class="loading-container">
-          <ProgressSpinner />
-        </div>
-        <div v-else class="prompt-message">
-          {{ localize('dialogs.createEntry.generatePrompt')}}...<br/><br/>
-          {{ props.generateMode ? '' : localize('dialogs.createEntry.generatePrompt2')}}
+        <hr 
+          v-if="Backend.available"
+          style="background-image: none; border: 1px solid #aaa"          
+        >
+        <div 
+          v-if="Backend.available"
+          class="results-container"
+        >
+          <div v-if="generateError" class="error-message">
+            <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ generateError }}
+          </div>
+          <div v-else-if="generateComplete" class="generated-content" style="background: rgba(255, 228, 196, .3)">
+            <div><span class="label">{{ localize('dialogs.createEntry.generatedName')}}:</span> {{ generatedName }}</div>
+            <div class="description">
+              <p><span class="label">{{ localize('dialogs.createEntry.generatedDescription')}}:</span></p>
+              {{ generatedDescription }}
+            </div>
+          </div>
+          <div v-else-if="loading" class="loading-container">
+            <ProgressSpinner />
+          </div>
+          <div v-else class="prompt-message">
+            {{ localize('dialogs.createEntry.generatePrompt')}}...<br/><br/>
+            {{ props.generateMode ? '' : localize('dialogs.createEntry.generatePrompt2')}}
+          </div>
         </div>
       </div>
-    </div>
-  </Dialog>
+    </Dialog>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -180,12 +185,12 @@
   import ProgressSpinner from 'primevue/progressspinner';
   import Textarea from 'primevue/textarea';
   import Checkbox from 'primevue/checkbox';
-  import Dialog from '@/components/Dialog.vue';
   
   // local components
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
   import TypeAhead from '@/components/TypeAhead.vue'; 
+  import Dialog from '@/components/Dialog.vue';
 
   // types
   import { Topics, ValidTopic, Species, CharacterDetails, LocationDetails, OrganizationDetails } from '@/types';
@@ -528,21 +533,21 @@
 </script>
 
 <style lang="scss">
-.application.fcb-create-entry {
-  // hide the wrapper window
-  background: none;
-  border: none;
-  outline: none;
-  box-shadow: none;
-  header {
+  .application.fcb-create-entry {
+    // hide the wrapper window
     display:none;
   }
+  
+  // Ensure dialog is always on top of Foundry UI
+  body > .fcb-dialog {
+    z-index: 9999 !important;
+  }
 
-  .create-entry-dialog {
+  .create-entry-dialog-content {
     h6 {
+      display: flex;
       margin-bottom: 2px;
       margin-top: 8px;
-      display: flex;
       align-items: center;
     }
 
@@ -578,10 +583,6 @@
       }
     }
 
-    .p-inputtext, .p-dropdown {
-      margin-bottom: 4px;
-    }
-
     .results-container {
       overflow: auto;
       height: 250px;
@@ -599,7 +600,7 @@
 
       .prompt-message {
         text-align: center;
-        color: var(--color-text-dark-secondary);
+        color: var(--fcb-color-text-generate-message);
         margin-top: 100px;
         font-style: italic;
       }
@@ -613,5 +614,4 @@
       }
     }
   }
-}
 </style>

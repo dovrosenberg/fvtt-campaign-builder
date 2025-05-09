@@ -209,7 +209,7 @@
 <style lang="scss">
 .fcb-header {
   color: var(--fcb-header-color);
-  background-color: var(--fcb-header-background);
+  // background-color: var(--fcb-header-background);
   flex-grow: 0;
 
   & > * {

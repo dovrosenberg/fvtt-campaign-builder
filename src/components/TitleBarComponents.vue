@@ -127,42 +127,7 @@
   // Header search styling
   .header-search-container {
     max-width: 200px;
-    margin-left: 5px;
-    
-    :deep(.fcb-search-container) {
-      .fcb-search-input-container {
-        .fcb-search-input {
-          width: 180px;
-          height: 24px;
-          padding: 4px 24px 4px 8px;
-          font-size: 12px;
-          border-radius: 3px;
-        }
-        
-        .fcb-search-icon {
-          right: 6px;
-          font-size: 12px;
-        }
-      }
-      
-      .fcb-search-results {
-        max-height: 300px;
-        font-size: 12px;
-        z-index: 1001; // Higher z-index to appear above other elements
-        
-        .fcb-search-result {
-          padding: 6px 8px;
-          
-          .fcb-search-result-header {
-            margin-bottom: 2px;
-            
-            .fcb-search-result-name {
-              font-size: 12px;
-            }
-          }
-        }
-      }
-    }
+    margin-left: 5px;    
   }
 
   .campaign-selector-container {

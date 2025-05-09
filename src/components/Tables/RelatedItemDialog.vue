@@ -1,49 +1,51 @@
 <template>
-  <Dialog
-    v-model="show"
-    :title="dialogTitle"
-    :buttons="dialogButtons"
-    @cancel="onCancel"
-  >
-    <div class="add-related-items-content flexcol">
-      <div v-if="selectItems.length > 0">
-        <TypeAhead 
-          v-if="isEitherAddMode"
-          ref="nameSelectRef"
-          :initial-value="props.itemId || ''"
-          :initial-list="selectItems" 
-          :allow-new-items="false"
-          @selection-made="onSelectionMade"
-        />
-        <div class="extra-fields-container" v-if="extraFields.length > 0">
-          <h3 class="extra-fields-title">Additional Information</h3>
-          <div class="extra-fields-group">
-            <div
-              v-for="field in extraFields"
-              :key="field.field"
-              class="field-wrapper"
-            >
-              <h6>
-                {{ field.header }}
-                <!-- <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you create a new type, it will be added to the master list"></i> -->
-              </h6>
-              <InputText
-                :id="field.field"
-                v-model="extraFieldValuesObj[field.field]"
-                type="text"
-                class="field-input"
-                :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
-              />
+  <Teleport to="body">
+    <Dialog
+      v-model="show"
+      :title="dialogTitle"
+      :buttons="dialogButtons"
+      @cancel="onCancel"
+    >
+      <div class="add-related-items-content flexcol">
+        <div v-if="selectItems.length > 0">
+          <TypeAhead 
+            v-if="isEitherAddMode"
+            ref="nameSelectRef"
+            :initial-value="props.itemId || ''"
+            :initial-list="selectItems" 
+            :allow-new-items="false"
+            @selection-made="onSelectionMade"
+          />
+          <div class="extra-fields-container" v-if="extraFields.length > 0">
+            <h3 class="extra-fields-title">Additional Information</h3>
+            <div class="extra-fields-group">
+              <div
+                v-for="field in extraFields"
+                :key="field.field"
+                class="field-wrapper"
+              >
+                <h6>
+                  {{ field.header }}
+                  <!-- <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you create a new type, it will be added to the master list"></i> -->
+                </h6>
+                <InputText
+                  :id="field.field"
+                  v-model="extraFieldValuesObj[field.field]"
+                  type="text"
+                  class="field-input"
+                  :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
+                />
+              </div>
             </div>
           </div>
         </div>
+        <div v-else class="no-items-message">
+          <i class="fas fa-info-circle"></i>
+          <span>All possible related items are already connected.</span>
+        </div>
       </div>
-      <div v-else class="no-items-message">
-        <i class="fas fa-info-circle"></i>
-        <span>All possible related items are already connected.</span>
-      </div>
-    </div>
-  </Dialog>
+    </Dialog>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -352,8 +354,6 @@
 
 <style lang="scss" scoped>
 .add-related-items-content {
-  display: flex;
-  flex-direction: column;
   gap: 1.5rem;
   width: 100%;
   padding: 0.5rem 0;
@@ -384,7 +384,7 @@
       font-size: var(--font-size-16);
       font-weight: 600;
       margin-bottom: 0.75rem;
-      border-bottom: 1px solid var(--color-underline-header, rgba(255, 255, 255, 0.1));
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding-bottom: 0.25rem;
       width: 80%;
     }
@@ -396,7 +396,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem 0;
-  background-color: var(--color-bg-notice, rgba(0, 0, 0, 0.05));
+  background-color: rgba(0, 0, 0, 0.05);
   border-radius: 6px;
   color: var(--color-text-dark-secondary);
   font-style: italic;

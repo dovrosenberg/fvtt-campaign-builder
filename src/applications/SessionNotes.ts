@@ -1,10 +1,10 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
 import PrimeVue from 'primevue/config';
-import WCBTheme from '@/applications/presetTheme';
 
 import App from '@/components/applications/SessionNotes.vue';
 import { localize } from '@/utils/game';
 import { Session } from '@/classes';
+import { theme } from '@/components/styles/primeVue';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -49,10 +49,7 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
         primevue: { 
           plugin: PrimeVue, 
           options: {
-            theme: { 
-              preset: WCBTheme,
-              options: {}
-            }
+            theme: theme
           }
         },
       }

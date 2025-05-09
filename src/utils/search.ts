@@ -48,7 +48,7 @@ class SearchService {
       fields: ['name', 'tags', 'description', 'relationships', 'topic', 'type', 'species'],
 
       // Fields to include in search results
-      storeFields: ['name', 'topic', 'type', 'description'],
+      storeFields: ['name', 'topic', 'type', 'description', 'isEntry'],
 
       searchOptions: {
         boost: { 
