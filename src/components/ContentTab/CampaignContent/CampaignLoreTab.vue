@@ -1,6 +1,7 @@
 <template>
   <!-- a table for data inside a session that supports moving rows around to other sessions -->
   <SessionTable
+    ref="sessionTableRef"
     :rows="relatedLoreRows"
     :columns="campaignStore.extraFields[CampaignTableTypes.Lore]"
     :delete-item-label="localize('tooltips.deleteLore')"
@@ -26,6 +27,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
+  import { ref } from 'vue';
 
   // local imports
   import { useCampaignStore, CampaignTableTypes, } from '@/applications/stores';
@@ -53,6 +55,7 @@
   
   ////////////////////////////////
   // data
+  const sessionTableRef = ref<any>(null);
 
   ////////////////////////////////
   // computed data
@@ -63,7 +66,18 @@
   ////////////////////////////////
   // event handlers
   const onAddLore = async () => {
-    await campaignStore.addLore();
+    // Add the lore and get the UUID of the newly added item
+    const loreUuid = await campaignStore.addLore();
+    
+    // If we successfully added a lore item, put its description column into edit mode
+    if (loreUuid) {
+      // We need to wait for the DOM to update first
+      setTimeout(() => {
+        if (sessionTableRef.value) {
+          sessionTableRef.value.setEditingRow(loreUuid);
+        }
+      }, 50); // Small delay to ensure the DOM has updated
+    }
   }
 
   const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {

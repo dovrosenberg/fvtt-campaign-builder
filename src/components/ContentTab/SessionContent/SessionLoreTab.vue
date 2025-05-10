@@ -1,5 +1,6 @@
 <template>
   <SessionTable
+    ref="sessionTableRef"
     :rows="relatedLoreRows"
     :columns="sessionStore.extraFields[SessionTableTypes.Lore]"
     :delete-item-label="localize('tooltips.deleteLore')"
@@ -25,6 +26,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
+  import { ref } from 'vue';
 
   // local imports
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
@@ -53,6 +55,7 @@
   
   ////////////////////////////////
   // data
+  const sessionTableRef = ref<any>(null);
 
   ////////////////////////////////
   // computed data
@@ -63,7 +66,18 @@
   ////////////////////////////////
   // event handlers
   const onAddLore = async () => {
-    await sessionStore.addLore();
+    // Add the lore and get the UUID of the newly added item
+    const loreUuid = await sessionStore.addLore();
+    
+    // If we successfully added a lore item, put its description column into edit mode
+    if (loreUuid) {
+      // We need to wait for the DOM to update first
+      setTimeout(() => {
+        if (sessionTableRef.value) {
+          sessionTableRef.value.setEditingRow(loreUuid);
+        }
+      }, 50); // Small delay to ensure the DOM has updated
+    }
   }
 
   const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {

@@ -339,6 +339,7 @@
     (e: 'dragoverRow', event: DragEvent, uuid: string): void;
     (e: 'dropRow', event: DragEvent, uuid: string): void;
     (e: 'dropNew', event: DragEvent): void;
+    (e: 'setEditingRow', uuid: string): void;
   }>();
 
   ////////////////////////////////
@@ -375,6 +376,19 @@
 
   ////////////////////////////////
   // methods
+  /**
+   * Sets a specific row to edit mode
+   * @param uuid The UUID of the row to edit
+   */
+  const setEditingRow = (uuid: string) => {
+    editingRow.value = uuid;
+    emit('setEditingRow', uuid);
+  }
+
+  // Expose the setEditingRow method to parent components
+  defineExpose({
+    setEditingRow
+  });
 
   ////////////////////////////////
   // event handlers
