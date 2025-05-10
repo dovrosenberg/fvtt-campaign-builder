@@ -8,6 +8,13 @@
 - Session notes now prompt to save when leaving play mode, changing campaigns, etc. (a Foundry bug is currently making them prompt even if unchanged)
 - Minor bug fixes
 
+## v0.4.2 - Fixed text box color
+
+![](https://img.shields.io/badge/release%20date-May%2010%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.4.2/module.zip)
+
+- Color of text in some text boxes (specifically edit boxes in tables like lore) is now readable in light and dark mode
+
 ## v0.4.1 - Bug fix
 
 ![](https://img.shields.io/badge/release%20date-May%209%2C%202025-blue)
