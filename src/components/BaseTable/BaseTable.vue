@@ -188,7 +188,7 @@
               <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
               <Textarea 
                 v-model="data[col.field]"
-                style="width: 100%"
+                style="width: 100%; font-size: inherit;"
                 :id="`${data.uuid}-${col.field}`" 
                 rows="2"
               />
