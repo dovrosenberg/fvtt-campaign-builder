@@ -15,11 +15,11 @@ export async function confirmDialog(title: string, prompt: string): Promise<bool
         callback: (html: JQuery<HTMLElement>): void => { response = true; },
       },
       cancel: {
-        label: 'Cancel',
+        label: 'No',
         callback:  () => { response = false; }
       }
     },
-    default: 'ok',
+    default: 'yes',
   };
 
   // this uses the foundry Dialog

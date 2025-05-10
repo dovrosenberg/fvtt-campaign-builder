@@ -5,6 +5,7 @@ import App from '@/components/applications/SessionNotes.vue';
 import { localize } from '@/utils/game';
 import { Session } from '@/classes';
 import { theme } from '@/components/styles/primeVue';
+import { FCBDialog } from 'src/dialogs';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -29,7 +30,7 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
         resizable: true,
       },
       position: {
-        width: 500,
+        width: 550,
         height: 400,
       },
       actions: {}
@@ -68,9 +69,15 @@ export async function openSessionNotes(session: Session): Promise<void> {
   await sessionNotesApp.render(true);
 }
 
-export async function closeSessionNotes(): Promise<void> {
+// returns the current session notes to be saved or null on an error
+export async function closeSessionNotes(): Promise<string | null> {
   if (!sessionNotesApp) 
-    return;
+    return null;
+
+  // prompt for save changes
+  const text = document.querySelector('#app-fcb-session-notes .editor.prosemirror .editor-content')?.innerHTML || '';
 
   sessionNotesApp.close();
+
+  return text;
 }

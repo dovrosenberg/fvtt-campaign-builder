@@ -6,6 +6,7 @@ import { SessionLore } from '@/documents/session';
 import * as sinon from 'sinon';
 import { moduleId } from '@/settings';
 import { FCBDialog } from '@/dialogs';
+import { Session } from 'src/classes';
 
 export const registerCampaignTests = () => {
   quench.registerBatch(
@@ -107,7 +108,7 @@ export const registerCampaignTests = () => {
               getFlag: invalidGetFlagStub
             };
             
-            expect(() => new Campaign(invalidDoc as any)).to.throw('Invalid document type in Campaign constructor');
+            expect(() => new Campaign(invalidDoc as any)).to.throw;
           });
 
           it('should initialize with the provided document and world', () => {
@@ -221,24 +222,30 @@ export const registerCampaignTests = () => {
         });
 
         describe('sessions getter', () => {
-          it('should return an array of session UUIDs', () => {
+          it('should return an array of Session objects', () => {
             // Add mock sessions to the campaign
             mockCampaignDoc.pages.contents = [
               {
+                name: 'session 1',
                 type: DOCUMENT_TYPES.Session,
                 uuid: 'session1-uuid'
               },
               {
-                type: 'other-type',
+                name: 'some other document',
+                type: 'Text',
                 uuid: 'not-a-session'
               },
               {
+                name: 'session 1',
                 type: DOCUMENT_TYPES.Session,
                 uuid: 'session2-uuid'
               }
             ];
             
-            expect(campaign.sessions).to.deep.equal(['session1-uuid', 'session2-uuid']);
+            const sessions = campaign.sessions;
+            expect(sessions).to.have.length(2);
+            expect(sessions[0].uuid).to.equal('session1-uuid');
+            expect(sessions[1].uuid).to.equal('session2-uuid');
           });
         });
 

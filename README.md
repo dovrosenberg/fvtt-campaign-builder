@@ -128,6 +128,10 @@ for more detail/images/handouts
 - Locations can be added to sessions and then with a click you can get the lore you've built in the world around that location, as well as 1-click access to activate any of the related scenes
 - Campaign vignettes what the Lazy DM calls scenes.  The are short descriptions of a scene that could happen during a session. I renamed them to vignettes to avoid confusion with Foundry scenes.
 
+## Known Issues
+
+- Session notes prompt to save even if unchanged (this is the result of a Foundry bug that I'm working to better understand)
+
 ## Issues?
 
 If you believe you found a bug or would like to post a feature request, head over to the module's [Github repo](https://github.com/dovrosenberg/fvtt-campaign-builder) and [open a new issue](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose).

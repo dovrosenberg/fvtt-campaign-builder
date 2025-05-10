@@ -387,6 +387,27 @@ export const useCampaignStore = defineStore('campaign', () => {
     await _refreshRows();
   });
 
+  // we capture changes to both the played campaign and turning off isInPlayMode here (via campaign going to null)
+  // need to do that here vs isInPlayMode watcher because we need the old campaign value to save the session notes
+  watch(() => currentPlayedSession.value, async (_newSession: Session | null, oldSession: Session | null) => {
+    // if oldSession is null, we're turning on play mode, so no issue
+    if (!oldSession)
+      return;
+
+    // if newSession is null we're closing, otherwise we're changing campaigns (because there's no way to change 
+    //    the played session within a campaign while playing)
+
+    // close the notes
+    const notesToSave = await closeSessionNotes();
+
+    if (notesToSave != null && oldSession?.notes !== notesToSave) {
+      if (await FCBDialog.confirmDialog('Save changes?', 'Do you want to save the current session notes before closing?')) {
+        oldSession.notes = notesToSave;
+        await oldSession?.save();    
+      }
+    }      
+  });
+
   // When play mode changes, update the current played campaign
   watch(()=> isInPlayMode.value, async (newValue) => {
     if (newValue) {
@@ -396,15 +417,11 @@ export const useCampaignStore = defineStore('campaign', () => {
       // If entering play mode, open the session notes window
       if (ModuleSettings.get(SettingKey.displaySessionNotes) && currentPlayedCampaign.value?.currentSession) {
         await openSessionNotes(currentPlayedCampaign.value.currentSession);
-    }
+      }
     } else {
       // When exiting play mode, clear the current played campaign
       currentPlayedCampaignId.value = null;
-
-      // close the notes
-      await closeSessionNotes();
     }
-
   });
 
   // When the world changes, reset the current played campaign
