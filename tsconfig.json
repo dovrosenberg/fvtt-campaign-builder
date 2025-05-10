@@ -38,6 +38,6 @@
 			"@module": ["./static/module.json"]
 		}
 	},
-	"include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", "@league-of-foundry-developers/foundry-vtt-types/src/index.d.mts"], 
+	"include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", ], 
 	"exclude": [ "node_modules", "dist" ]
 }

@@ -5,7 +5,7 @@ import App from '@/components/applications/SessionNotes.vue';
 import { localize } from '@/utils/game';
 import { Session } from '@/classes';
 import { theme } from '@/components/styles/primeVue';
-import { FCBDialog } from 'src/dialogs';
+import { useSessionStore } from '@/applications/stores';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -69,15 +69,16 @@ export async function openSessionNotes(session: Session): Promise<void> {
   await sessionNotesApp.render(true);
 }
 
-// returns the current session notes to be saved or null on an error
+// returns the current session notes to be saved or null if no changes were made
 export async function closeSessionNotes(): Promise<string | null> {
   if (!sessionNotesApp) 
     return null;
 
-  // prompt for save changes
   const text = document.querySelector('#app-fcb-session-notes .editor.prosemirror .editor-content')?.innerHTML || '';
+
+  const isDirty = useSessionStore().lastSavedNotes !== text;
 
   sessionNotesApp.close();
 
-  return text;
+  return isDirty ? text : null;
 }

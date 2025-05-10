@@ -402,8 +402,12 @@ export const useCampaignStore = defineStore('campaign', () => {
 
     if (notesToSave != null && oldSession?.notes !== notesToSave) {
       if (await FCBDialog.confirmDialog('Save changes?', 'Do you want to save the current session notes before closing?')) {
+        // save the session
         oldSession.notes = notesToSave;
         await oldSession?.save();    
+
+        // refresh the content in case we're looking at the notes page for that session
+        await mainStore.refreshCurrentContent();
       }
     }      
   });

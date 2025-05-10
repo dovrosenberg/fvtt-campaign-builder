@@ -46,7 +46,6 @@ export const useSessionStore = defineStore('session', () => {
   const relatedVignetteRows = ref<SessionVignetteDetails[]>([]);
   const relatedLoreRows = ref<SessionLoreDetails[]>([]); 
   
-
   const extraFields = {
     [SessionTableTypes.None]: [],
     [SessionTableTypes.Location]: [
@@ -79,6 +78,9 @@ export const useSessionStore = defineStore('session', () => {
       },
     ],  
   } as Record<SessionTableTypes, FieldData>;
+
+  // track the last value of notes we saved - have to do this 
+  const lastSavedNotes = ref<string>();
   
   ///////////////////////////////
   // other stores
@@ -791,6 +793,7 @@ export const useSessionStore = defineStore('session', () => {
     relatedVignetteRows,
     relatedLoreRows,
     extraFields,
+    lastSavedNotes,
     addLocation,
     deleteLocation,
     markLocationDelivered,
