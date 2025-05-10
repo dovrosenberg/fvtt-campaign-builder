@@ -132,15 +132,15 @@ export default definePreset(Aura, {
     textarea: {
       colorScheme: {
         light: {
-          color: foundryVariables.colorTextLightPrimary,
-          background: fcbVariables.fcbDarkOverlay, 
+          color: foundryVariables.colorTextDarkPrimary,
+          background: 'rgba(0, 0, 0, 0.1)',
           borderColor: fcbVariables.fcbSheetInputBorder,
           focusBorderColor: 'black',  
           focusRingColor: foundryVariables.colorWarm2,
         },
         dark: {
-          color: foundryVariables.colorTextDarkPrimary,
-          background: fcbVariables.fcbLightOverlay, 
+          color: foundryVariables.colorTextLightPrimary,
+          background: 'rgb(48, 40, 49)',
           borderColor: fcbVariables.fcbSheetInputBorder,
           focusBorderColor: 'black',  
           focusRingColor: foundryVariables.colorWarm2,
