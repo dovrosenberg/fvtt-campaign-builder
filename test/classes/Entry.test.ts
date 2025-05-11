@@ -5,6 +5,7 @@ import { Entry } from '@/classes/Entry';
 import { DOCUMENT_TYPES, EntryDoc } from '@/documents';
 
 import { Topics } from '@/types';
+import { moduleId } from '@/settings';
 
 export const registerEntryTests = () => {
   quench.registerBatch(
@@ -17,13 +18,24 @@ export const registerEntryTests = () => {
         let mockTopicFolder: any;
         let entry: Entry;
         let fromUuidStub;
+        let getFlag;
+        let setFlag;
 
         beforeEach(() => {
           // Stub fromUuid since we don't want to actually look up documents
           fromUuidStub = sinon.stub(globalThis, 'fromUuid');
 
           // Stub JournalEntryPage.createDocuments to avoid creating actual documents
-          sinon.stub(JournalEntryPage, 'createDocuments');
+          sinon.stub(JournalEntryPage, 'createDocuments').resolves([{
+            name: 'Test Entry',
+            uuid: 'new-entry-uuid',
+            update: sinon.stub().resolves({}),
+            delete: sinon.stub().resolves(undefined),
+          }]);
+          
+          // Stub getFlag and setFlag
+          getFlag = sinon.stub(globalThis, 'getFlag');
+          setFlag = sinon.stub(globalThis, 'setFlag');
 
           // Create a mock EntryDoc
           mockEntryDoc = {
@@ -43,15 +55,19 @@ export const registerEntryTests = () => {
               speciesId: 'test-species',
               relationships: {
                 [Topics.Character]: {},
-                [Topics.Event]: {},
                 [Topics.Location]: {},
                 [Topics.Organization]: {},
               },
               actors: ['actor1', 'actor2'],
               scenes: ['scene1', 'scene2'],
+              notes: 'Test notes',
+              tags: ['tag1', 'tag2'],
             },
-            update: sinon.stub().resolves(null),
+            update: sinon.stub().resolves(mockEntryDoc),
             delete: sinon.stub().resolves(undefined),
+            getFlag: function(moduleId, key) {
+              return null;
+            },
           } as unknown as EntryDoc;
 
           // Create a mock TopicFolder
@@ -59,9 +75,14 @@ export const registerEntryTests = () => {
             topic: Topics.Character,
             raw: { id: 'folder-id' },
             getWorld: sinon.stub().resolves({
+              uuid: 'world-uuid',
               unlock: sinon.stub().resolves(undefined),
               lock: sinon.stub().resolves(undefined),
               deleteEntryFromWorld: sinon.stub().resolves(undefined),
+              hierarchies: {
+                'test-uuid': { parentId: null, children: [], ancestors: [] }
+              },
+              save: sinon.stub().resolves({}),
             }),
           };
 
@@ -106,6 +127,44 @@ export const registerEntryTests = () => {
             expect(result).to.be.instanceOf(Entry);
             expect(result?.uuid).to.equal('test-uuid');
             expect(result?.topicFolder).to.equal(mockTopicFolder);
+          });
+        });
+
+        describe('create', () => {
+          it('should create a new entry with the provided data', async () => {
+            // Setup mock world
+            const mockWorld = await mockTopicFolder.getWorld();
+            
+            // Call create
+            const result = await Entry.create(mockTopicFolder, {
+              name: 'New Entry',
+              type: 'new-type',
+              description: 'New description',
+              img: 'new-image.jpg',
+            });
+            
+            // Verify JournalEntryPage.createDocuments was called
+            expect(JournalEntryPage.createDocuments.called).to.equal(true);
+            
+            // Verify result
+            expect(result).to.be.instanceOf(Entry);
+            expect(result.name).to.equal('New Entry');
+            expect(result.type).to.equal('new-type');
+            expect(result.description).to.equal('New description');
+            expect(result.img).to.equal('new-image.jpg');
+          });
+          
+          it('should return null if creation fails', async () => {
+            // Setup JournalEntryPage.createDocuments to return null
+            (JournalEntryPage.createDocuments as sinon.SinonStub).resolves(null);
+            
+            // Call create
+            const result = await Entry.create(mockTopicFolder, {
+              name: 'New Entry',
+            });
+            
+            // Verify result
+            expect(result).to.be.null;
           });
         });
 
@@ -158,7 +217,6 @@ export const registerEntryTests = () => {
           it('should get and set relationships correctly', () => {
             const newRelationships = {
               [Topics.Character]: { 'char-id': { name: 'Related Character' } },
-              [Topics.Event]: {},
               [Topics.Location]: {},
               [Topics.Organization]: {},
             } as any;
@@ -181,6 +239,20 @@ export const registerEntryTests = () => {
             expect(entry.actors).to.deep.equal(['actor3', 'actor4']);
             expect(entry.raw.system.actors).to.deep.equal(['actor3', 'actor4']);
           });
+          
+          it('should get and set notes correctly', () => {
+            expect(entry.notes).to.equal('Test notes');
+            entry.notes = 'New notes';
+            expect(entry.notes).to.equal('New notes');
+            expect(entry.raw.system.notes).to.equal('New notes');
+          });
+          
+          it('should get and set tags correctly', () => {
+            expect(entry.tags).to.deep.equal(['tag1', 'tag2']);
+            entry.tags = ['tag3', 'tag4'];
+            expect(entry.tags).to.deep.equal(['tag3', 'tag4']);
+            expect(entry.raw.system.tags).to.deep.equal(['tag3', 'tag4']);
+          });
         });
 
         describe('save', () => {
@@ -189,9 +261,6 @@ export const registerEntryTests = () => {
             entry.name = 'New Name';
             entry.type = 'new-type';
             entry.description = 'New description';
-
-            // Mock successful update
-            (entry.raw.update as sinon.SinonStub).resolves(mockEntryDoc);
 
             // Call save
             const result = await entry.save();
@@ -229,6 +298,29 @@ export const registerEntryTests = () => {
 
             // Verify result
             expect(result).to.be.null;
+          });
+          
+          it('should load topicFolder if not already set', async () => {
+            // Create an entry without a topic folder
+            const entryWithoutTopicFolder = new Entry(mockEntryDoc);
+            
+            // Setup fromUuid to return a topic folder
+            fromUuidStub.withArgs('parent-uuid').resolves({
+              uuid: 'parent-uuid',
+              getWorld: sinon.stub().resolves({
+                unlock: sinon.stub().resolves(undefined),
+                lock: sinon.stub().resolves(undefined)
+              })
+            });
+            
+            // Make a change
+            entryWithoutTopicFolder.name = 'New Name';
+            
+            // Call save
+            await entryWithoutTopicFolder.save();
+            
+            // Verify fromUuid was called to load the topic folder
+            expect(fromUuidStub.calledWith('parent-uuid')).to.equal(true);
           });
         });
 
@@ -270,7 +362,6 @@ export const registerEntryTests = () => {
             // Set up relationships
             entry.relationships = {
               [Topics.Character]: { 'char1': { name: 'Character 1' } as any, 'char2': { name: 'Character 2' } as any },
-              [Topics.Event]: {},
               [Topics.Location]: { 'loc1': { name: 'Location 1' } as any },
               [Topics.Organization]: {},
             };
@@ -284,11 +375,86 @@ export const registerEntryTests = () => {
             const locationFolder = { topic: Topics.Location };
             const relatedLocations = entry.getAllRelatedEntries(locationFolder as any);
             expect(relatedLocations).to.deep.equal(['loc1']);
-
-            // Get related events (empty)
-            const eventFolder = { topic: Topics.Event };
-            const relatedEvents = entry.getAllRelatedEntries(eventFolder as any);
-            expect(relatedEvents).to.deep.equal([]);
+          });
+        });
+        
+        describe('addRelationship', () => {
+          it('should add a relationship to the entry', () => {
+            // Setup related entry
+            const relatedEntry = {
+              uuid: 'related-uuid',
+              name: 'Related Entry',
+              topic: Topics.Location
+            };
+            
+            // Call addRelationship
+            entry.addRelationship(relatedEntry as any);
+            
+            // Verify relationship was added
+            expect(entry.relationships[Topics.Location]['related-uuid']).to.deep.equal({
+              name: 'Related Entry'
+            });
+          });
+          
+          it('should not add duplicate relationships', () => {
+            // Setup existing relationship
+            entry.relationships = {
+              [Topics.Character]: {},
+              [Topics.Location]: { 'related-uuid': { name: 'Related Entry' } },
+              [Topics.Organization]: {},
+            };
+            
+            // Setup related entry
+            const relatedEntry = {
+              uuid: 'related-uuid',
+              name: 'Related Entry',
+              topic: Topics.Location
+            };
+            
+            // Call addRelationship
+            entry.addRelationship(relatedEntry as any);
+            
+            // Verify relationship was not duplicated
+            expect(Object.keys(entry.relationships[Topics.Location])).to.have.lengthOf(1);
+          });
+        });
+        
+        describe('removeRelationship', () => {
+          it('should remove a relationship from the entry', () => {
+            // Setup existing relationship
+            entry.relationships = {
+              [Topics.Character]: {},
+              [Topics.Location]: { 'related-uuid': { name: 'Related Entry' } },
+              [Topics.Organization]: {},
+            };
+            
+            // Setup related entry
+            const relatedEntry = {
+              uuid: 'related-uuid',
+              name: 'Related Entry',
+              topic: Topics.Location
+            };
+            
+            // Call removeRelationship
+            entry.removeRelationship(relatedEntry as any);
+            
+            // Verify relationship was removed
+            expect(entry.relationships[Topics.Location]).to.deep.equal({});
+          });
+          
+          it('should handle removing non-existent relationships', () => {
+            // Setup related entry
+            const relatedEntry = {
+              uuid: 'non-existent-uuid',
+              name: 'Non-existent Entry',
+              topic: Topics.Location
+            };
+            
+            // Call removeRelationship
+            entry.removeRelationship(relatedEntry as any);
+            
+            // Verify no error occurred
+            expect(entry.relationships[Topics.Location]).to.deep.equal({});
           });
         });
       });

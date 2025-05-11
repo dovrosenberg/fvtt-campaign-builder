@@ -55,7 +55,7 @@
 
   // local imports
   import { useMainStore, useRelationshipStore, useSessionStore } from '@/applications/stores';
-  import { createEntryDialog } from '@/dialogs/createEntry';
+  import { FCBDialog } from '@/dialogs';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -125,12 +125,6 @@
   const nameSelectRef = ref<typeof TypeAhead | null>(null);
 
   const topicDetails = {
-    // [Topics.Event]: {
-    //   title: 'Add an event',
-    //   editTitle: 'Edit event',
-    //   buttonTitle: 'Add event',
-    //   editButtonTitle: 'Save event',
-    // },
     [Topics.Character]: {
       title: 'Add a character',
       editTitle: 'Edit character',
@@ -173,8 +167,9 @@
   const actionButtonLabel = computed(() => {
     switch (props.mode) {
       case RelatedItemDialogModes.Add:
-      case RelatedItemDialogModes.Session:
         return topicDetails[props.topic].buttonTitle;
+      case RelatedItemDialogModes.Session:
+        return 'Add to session';
       case RelatedItemDialogModes.Edit:
         return topicDetails[props.topic].editButtonTitle;
     }
@@ -289,7 +284,7 @@
   
   const onCreateClick = async function() {
     // the simplest way to do this is do the create box first and then just pretend like we added it
-    const newEntry = await createEntryDialog(props.topic);
+    const newEntry = await FCBDialog.createEntryDialog(props.topic);
 
     if (newEntry) {
       entryToAdd.value = newEntry.uuid;

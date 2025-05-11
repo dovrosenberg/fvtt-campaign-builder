@@ -110,6 +110,7 @@
   // emits
   const emit = defineEmits<{
     (e: 'editorSaved', content: string): void;
+    (e: 'editorLoaded', content: string): void;  // to catch any initial transforms of the data 
   }>();
 
   ////////////////////////////////
@@ -124,12 +125,13 @@
   const editor = ref<TextEditor | null>(null);
   const buttonDisplay = ref<string>('');   // is button currently visible
   const editorVisible = ref<boolean>(true);
+  const lastSavedContent = ref<string>('');   // the parsemirror serialized content last saved, to see if any changes were made
 
   const coreEditorRef = ref<HTMLDivElement>();
   const editorRef = ref<HTMLDivElement>();
   const wrapperRef = ref<HTMLDivElement>();
   const buttonRef = ref<HTMLElement>();
-
+  
   //
   ////////////////////////////////
   // computed data
@@ -187,6 +189,11 @@
     buttonDisplay.value = 'none';
     
     editor.value = await TextEditor.create(options, props.initialContent);
+
+    // we have to do this whole thing with lastSavedContent and sessionStore.lastSavedNotes because Foundry cleans the html in a different
+    //   way than prosemirror (see https://github.com/foundryvtt/foundryvtt/issues/11021)
+    lastSavedContent.value = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
+    emit('editorLoaded', lastSavedContent.value);
    
     options.target.closest('.editor')?.classList.add('prosemirror');
   };
@@ -210,7 +217,7 @@
 
     // get the new content
     let content;
-    // @ts-ignore - editor is a tinymce.Editor
+    // @ts-ignore 
     content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
 
     // For edit-only mode (like in SessionNotes), don't destroy the editor
@@ -225,14 +232,18 @@
       editorVisible.value = false;
       await nextTick();
       editorVisible.value = true;
-    } else {
+    } else if (isDirty()) {
       // if we're not removing it, then do a ui confirmation
       notifyInfo(localize('notifications.changesSaved'));
     }
     
-    emit('editorSaved', content);
+    if (isDirty()) {
+      lastSavedContent.value = content;
+      emit('editorSaved', content);
+    }
   };
 
+  const isDirty = () => (lastSavedContent.value !== ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content));
   
   ////////////////////////////////
   // event handlers

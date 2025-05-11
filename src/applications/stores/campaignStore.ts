@@ -6,13 +6,13 @@ import { watch, ref, computed } from 'vue';
 
 // local imports
 import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
-import { confirmDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 
 // types
 import { PCDetails, FieldData, CampaignLoreDetails} from '@/types';
 import { Campaign, PC, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { openSessionNotes } from '@/applications/SessionNotes';
+import { closeSessionNotes, openSessionNotes } from '@/applications/SessionNotes';
 
 export enum CampaignTableTypes {
   None,
@@ -52,7 +52,8 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   ///////////////////////////////
   // internal state
-
+  const currentPlayedCampaignId = ref<string | null>(null);
+  
   ///////////////////////////////
   // external state
 
@@ -82,7 +83,7 @@ export const useCampaignStore = defineStore('campaign', () => {
       throw new Error('Bad session in campaignDirectoryStore.deletePC()');
 
     // confirm
-    if (!(await confirmDialog('Delete PC?', 'Are you sure you want to delete this PC?')))
+    if (!(await FCBDialog.confirmDialog('Delete PC?', 'Are you sure you want to delete this PC?')))
       return;
 
     await pc.delete();
@@ -142,7 +143,7 @@ export const useCampaignStore = defineStore('campaign', () => {
         throw new Error('Invalid session in campaignStore.deleteLore()');
   
       // confirm
-      if (!(await confirmDialog('Delete Lore?', 'Are you sure you want to delete this lore?')))
+      if (!(await FCBDialog.confirmDialog('Delete Lore?', 'Are you sure you want to delete this lore?')))
         return;
 
       await currentCampaign.value.deleteLore(uuid);
@@ -191,8 +192,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   ///////////////////////////////
   // computed state
   const currentPlayedSession = computed((): Session | null => (currentPlayedCampaign?.value?.currentSession || null) as Session | null);
-  const currentPlayedCampaignId = computed((): string | null => (currentPlayedCampaign.value?.uuid || null));
-
+  
   const availableCampaigns = computed((): Campaign[] => {
     if (!currentWorld.value) {
       return [];
@@ -241,6 +241,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     } 
 
     // got here, so more than one and we don't have a valid one picked already, so select the first one
+    currentPlayedCampaignId.value = campaigns[0].uuid;
     return campaigns[0];
   });
 
@@ -251,7 +252,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   async function onJournalClick (_event: MouseEvent, uuid: string) {
     // get session Id
     const journalEntryPageId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
-    const journalEntryPage = await fromUuid(journalEntryPageId) as JournalEntryPage | null;
+    const journalEntryPage = await fromUuid<JournalEntryPage>(journalEntryPageId);
 
     if (journalEntryPage)
       journalEntryPage.sheet?.render(true);
@@ -326,7 +327,6 @@ export const useCampaignStore = defineStore('campaign', () => {
     const retval = [] as CampaignLoreDetails[];
 
     // at the top of the list, put all the ones from the sessions... 
-    // TODO: mark these differently so they can't be moved, unmarked, etc. and sort separately
     for (const session of currentCampaign.value.sessions) {
       for (const lore of session.lore) {
         if (!lore.delivered)
@@ -335,7 +335,7 @@ export const useCampaignStore = defineStore('campaign', () => {
         let entry: JournalEntryPage | null = null;
 
         if (lore.journalEntryPageId)
-          entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage | null;
+          entry = await fromUuid<JournalEntryPage>(lore.journalEntryPageId);
   
         retval.push({
           uuid: lore.uuid,
@@ -345,9 +345,7 @@ export const useCampaignStore = defineStore('campaign', () => {
           description: lore.description,
           journalEntryPageId: lore.journalEntryPageId,
           journalEntryPageName: entry?.name || null,
-          packId: !entry ? null : entry.pack,
-          location: !entry ? '' : 
-            (entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World'),
+          packId: entry?.pack ?? null,
         });
       }
     }
@@ -356,7 +354,7 @@ export const useCampaignStore = defineStore('campaign', () => {
       let entry: JournalEntryPage | null = null;
 
       if (lore.journalEntryPageId)
-        entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage | null;
+        entry = await fromUuid<JournalEntryPage>(lore.journalEntryPageId);
 
       retval.push({
         uuid: lore.uuid,
@@ -366,10 +364,8 @@ export const useCampaignStore = defineStore('campaign', () => {
         description: lore.description,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
-        packId: !entry ? null : entry.pack,
-        location: !entry ? '' : 
-          (entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World'),
-});
+        packId: entry?.pack ??null,
+      });
     }
 
     relatedLoreRows.value = retval;
@@ -386,19 +382,49 @@ export const useCampaignStore = defineStore('campaign', () => {
     await _refreshRows();
   });
 
+  // we capture changes to both the played campaign and turning off isInPlayMode here (via campaign going to null)
+  // need to do that here vs isInPlayMode watcher because we need the old campaign value to save the session notes
+  watch(() => currentPlayedSession.value, async (newSession: Session | null, oldSession: Session | null) => {
+    // if oldSession is null, we're turning on play mode, so no issue
+    if (!oldSession)
+      return;
+
+    // if newSession is null we're closing, otherwise we're changing campaigns (because there's no way to change 
+    //    the played session within a campaign while playing)
+
+    // close the notes
+    const notesToSave = await closeSessionNotes();
+
+    if (notesToSave != null && oldSession?.notes !== notesToSave) {
+      if (await FCBDialog.confirmDialog('Save changes?', 'Do you want to save the current session notes before closing?')) {
+        // save the session
+        oldSession.notes = notesToSave;
+        await oldSession?.save();    
+
+        // refresh the content in case we're looking at the notes page for that session
+        await mainStore.refreshCurrentContent();
+      }
+    }      
+
+    // if switching campaigns, open new notes
+    if (ModuleSettings.get(SettingKey.displaySessionNotes) && newSession) {
+      await openSessionNotes(newSession);
+    }
+  });
+
   // When play mode changes, update the current played campaign
   watch(()=> isInPlayMode.value, async (newValue) => {
     if (newValue) {
       // When entering play mode, initialize the current played campaign
       currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
+
+      // If entering play mode, open the session notes window
+      if (ModuleSettings.get(SettingKey.displaySessionNotes) && currentPlayedCampaign.value?.currentSession) {
+        await openSessionNotes(currentPlayedCampaign.value.currentSession);
+      }
     } else {
       // When exiting play mode, clear the current played campaign
       currentPlayedCampaignId.value = null;
-    }
-
-    // If entering play mode, open the session notes window
-    if (newValue && ModuleSettings.get(SettingKey.displaySessionNotes) && currentPlayedCampaign.value?.currentSession) {
-      await openSessionNotes(currentPlayedCampaign.value.currentSession);
     }
   });
 

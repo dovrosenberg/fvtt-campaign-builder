@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace,  } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topics, TagInfo } from '@/types';
-import { inputDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, WBWorld } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
@@ -34,7 +34,7 @@ export class Entry {
 
   // does not set the parent topic
   static async fromUuid(entryId: string, topicFolder?: TopicFolder, options?: Record<string, any>): Promise<Entry | null> {
-    const entryDoc = await fromUuid(entryId, options) as EntryDoc | null;
+    const entryDoc = await fromUuid<EntryDoc>(entryId, options);
 
     if (!entryDoc || entryDoc.type !== DOCUMENT_TYPES.Entry)
       return null;
@@ -52,6 +52,9 @@ export class Entry {
     if (this.topicFolder)
       return this.topicFolder;
     
+    if (!this._entryDoc.parent)
+      throw new Error('call to Entry.loadTopic() without _sessionDoc');
+
     this.topicFolder = await TopicFolder.fromUuid(this._entryDoc.parent.uuid);
 
     if (!this.topicFolder)
@@ -69,7 +72,7 @@ export class Entry {
 
     let nameToUse = options.name || '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await inputDialog(`Create ${topicText}`, `${topicText} Name:`);
+      nameToUse = await FCBDialog.inputDialog(`Create ${topicText}`, `${topicText} Name:`);
     }  
     
     // if name is null, then we cancelled the dialog
@@ -88,7 +91,6 @@ export class Entry {
           topic: topicFolder.topic,
           relationships: {
             [Topics.Character]: {},
-            // [Topics.Event]: {},
             [Topics.Location]: {},
             [Topics.Organization]: {},
           },
@@ -212,7 +214,10 @@ export class Entry {
   }
 
   set img(value: string | undefined) {
-    this._entryDoc.system.img = value;
+    if (!this._entryDoc.system)
+      throw new Error('Call to Entry.img without _entryDoc');
+
+    this._entryDoc.system.img = value || '';
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {

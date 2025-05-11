@@ -7,6 +7,7 @@ import { computed, ref, watch } from 'vue';
 // local imports
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey } from '@/settings';
 import { updateWindowTitle } from '@/utils/titleUpdater';
+import { useNavigationStore } from '@/applications/stores/navigationStore';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
@@ -190,7 +191,8 @@ export const useMainStore = defineStore('main', () => {
     // just force all reactivity to update
     _currentPC.value = new PC(_currentPC.value.raw as PCDoc);
 
-    await _currentPC.value.getActor();
+    if (_currentPC.value)
+      await _currentPC.value.getActor();
   };
 
   /** Refresh whatever content is currently showing */
@@ -227,9 +229,13 @@ export const useMainStore = defineStore('main', () => {
   // the currently selected tab for the content page
   const currentContentTab = computed({
     get: (): string | null => _currentTab.value?.contentTab || null,
-    set: (newContentTab: string | null) => {
+    set: (newContentTab: string) => {
         if (_currentTab.value) {
+          // Update the contentTab property of the current tab
           _currentTab.value.contentTab = newContentTab;
+          
+          // update the tab history in the DB
+          void useNavigationStore().updateContentTab(newContentTab);
         }
       }
   });

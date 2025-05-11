@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 import { moduleId, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, } from '@/documents';
 import { DocumentWithFlags, PC, Session, WBWorld } from '@/classes';
-import { inputDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';
 
@@ -43,7 +43,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
   /** note: DOES NOT attach the world */
   static async fromUuid(campaignId: string, options?: Record<string, any>): Promise<Campaign | null> {
-    const campaignDoc = await fromUuid(campaignId, options) as CampaignDoc | null;
+    const campaignDoc = await fromUuid<CampaignDoc>(campaignId, options);
 
     if (!campaignDoc)
       return null;
@@ -278,7 +278,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     let name;
 
     do {
-      name = await inputDialog(localize('dialogs.createCampaign.title'), `${localize('dialogs.createCampaign.campaignName')}:`); 
+      name = await FCBDialog.inputDialog(localize('dialogs.createCampaign.title'), `${localize('dialogs.createCampaign.campaignName')}:`); 
 
       if (name) {
         let newCampaignDoc: CampaignDoc;

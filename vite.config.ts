@@ -15,91 +15,95 @@ import vue from '@vitejs/plugin-vue';
 // to get the version number
 import npmPackage from './package.json';
 
-export default defineConfig({
-  resolve: {
-    alias: [
-      {
-        find: '@',
-        replacement: path.resolve(__dirname,'src')
-      },
-      {
-        find: '@module',
-        replacement: path.resolve(__dirname,'static/module.json')
-      },
-      {
-        find: '@test',
-        replacement: path.resolve(__dirname,'test')
-      },
-    ],
-    extensions: [
-      '.mjs',
-      '.js',
-      '.ts',
-      '.jsx',
-      '.tsx',
-      '.json',
-      '.vue'
-    ]
-  },
-  plugins: [
-    // copy the static module file
-    copy({
-      targets: [
-        { src: 'static/lang', dest: 'dist' },
-        { src: 'static/templates', dest: 'dist' }
+export default defineConfig(({ mode }) => {
+  const isDevelopment = mode === 'development'; 
+
+  return {
+    resolve: {
+      alias: [
+        {
+          find: '@',
+          replacement: path.resolve(__dirname,'src')
+        },
+        {
+          find: '@module',
+          replacement: path.resolve(__dirname,'static/module.json')
+        },
+        {
+          find: '@test',
+          replacement: path.resolve(__dirname,'test')
+        },
       ],
-      hook: 'writeBundle',
-    }),
-    vue(),
-    // Components({
-    //   resolvers: [
-    //     PrimeVueResolver()
-    //   ]
-    // }),
-    // combine all the scss output into one file
-    scss({
-      api: 'modern',
-      output: 'styles/style.css',
-      sourceMap: true,
-      include: ['src/**/*.scss', 'src/**/*.css', 
-        'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css',
-        'node_modules/@yaireo/tagify/dist/tagify.css'
-      ],
-      watch: ['src/**/*.scss', 'src/**/*.css', 'src/'],
-    }),
-    viteCommonjs(),
-    envCompatible(),
-    createHtmlPlugin({
-      inject: {
-        data: {
-          title: 'campaign-builder'
-        }
-      }
-    }),
-    updateModuleManifestPlugin(),
-  ],
-  build: {
-    sourcemap: true,
-    outDir: 'dist',
-    rollupOptions: {
-      input: 'src/main.ts',
-      output: {
-        // rename output.css to campaign-builder.css
-        assetFileNames: (assetInfo): string => {
-          if (assetInfo.name === 'output.css') 
-            return 'styles/campaign-builder.css';
-          else if (assetInfo.name ==='output.css.map')
-            return 'styles/campaign-builder.css.map';
-          else if (assetInfo.name)
-            return assetInfo.name;
-          else
-            throw 'Asset missing name';
-        },        
-        entryFileNames: (assetInfo): string => 'scripts/index.js',
-        format: 'es',
-      },
+      extensions: [
+        '.mjs',
+        '.js',
+        '.ts',
+        '.jsx',
+        '.tsx',
+        '.json',
+        '.vue'
+      ]
     },
-  }
+    plugins: [
+      // copy the static module file
+      copy({
+        targets: [
+          { src: 'static/lang', dest: 'dist' },
+          { src: 'static/templates', dest: 'dist' }
+        ],
+        hook: 'writeBundle',
+      }),
+      vue(),
+      // Components({
+      //   resolvers: [
+      //     PrimeVueResolver()
+      //   ]
+      // }),
+      // combine all the scss output into one file
+      scss({
+        api: 'modern',
+        output: 'styles/style.css',
+        sourceMap: isDevelopment,
+        include: ['src/**/*.scss', 'src/**/*.css', 
+          'node_modules/@imengyu/vue3-context-menu/lib/vue3-context-menu.css',
+          'node_modules/@yaireo/tagify/dist/tagify.css'
+        ],
+        watch: ['src/**/*.scss', 'src/**/*.css', 'src/'],
+      }),
+      viteCommonjs(),
+      envCompatible(),
+      createHtmlPlugin({
+        inject: {
+          data: {
+            title: 'campaign-builder'
+          }
+        }
+      }),
+      updateModuleManifestPlugin(),
+    ],
+    build: {
+      sourcemap: true,
+      outDir: 'dist',
+      rollupOptions: {
+        input: 'src/main.ts',
+        output: {
+          // rename output.css to campaign-builder.css
+          assetFileNames: (assetInfo): string => {
+            if (assetInfo.name === 'output.css') 
+              return 'styles/campaign-builder.css';
+            else if (assetInfo.name ==='output.css.map')
+              return 'styles/campaign-builder.css.map';
+            else if (assetInfo.name)
+              return assetInfo.name;
+            else
+              throw 'Asset missing name';
+          },        
+          entryFileNames: (assetInfo): string => 'scripts/index.js',
+          format: 'es',
+        },
+      },
+    }
+  };
 });
 
 

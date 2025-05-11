@@ -1,4 +1,4 @@
-import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
+import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin';
 import PrimeVue from 'primevue/config';
 import App from '@/components/applications/CreateEntryDialog.vue';
 import { hasHierarchy, } from '@/utils/hierarchy';
@@ -105,7 +105,7 @@ async function createEntryDialog(topic: ValidTopic,
       }        
     };
    
-    dialog.render(true, { props });
+    dialog.render({ force: true, props });
   });
 }
 

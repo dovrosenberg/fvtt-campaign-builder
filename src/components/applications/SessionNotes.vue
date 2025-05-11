@@ -1,39 +1,48 @@
 <template>
   <div class="fcb-session-notes-container">
     <Editor 
+      ref="editorRef"
       :initial-content="sessionNotes"
       :has-button="false"
       :editable="true"
       @editor-saved="onNotesEditorSaved"
+      @editor-loaded="(notes) => { lastSavedNotes = notes; }"
     />
   </div>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { computed, ref, watch, onMounted } from 'vue';
+  import { ref, watch, onMounted, computed } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useCampaignStore, useMainStore, } from '@/applications/stores';
+  import { useCampaignStore, useMainStore, useSessionStore } from '@/applications/stores';
   import Editor from '@/components/Editor.vue';
 
   // stores
   const mainStore = useMainStore();
   const campaignStore = useCampaignStore();
+  const sessionStore = useSessionStore();
   const { currentPlayedSession } = storeToRefs(campaignStore);
   const { currentSession } = storeToRefs(mainStore);
+  const { lastSavedNotes } = storeToRefs(sessionStore);
 
   // data
   const sessionNotes = ref<string>('');
+  const editorRef = ref<typeof Editor | null>(null);
 
   // computed
+  const dirty = computed((): boolean => (editorRef?.value?.dirty || false));
+
+  defineExpose({ dirty });
 
   // methods
   const onNotesEditorSaved = async (newContent: string) => {
     if (!currentPlayedSession.value) return;
 
     currentPlayedSession.value.notes = newContent;
+    lastSavedNotes.value = newContent;
     await currentPlayedSession.value.save();
 
     // if we're showing the session, refresh it
