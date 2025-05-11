@@ -32,7 +32,7 @@ export const registerDirectorySessionNodeTests = () => {
             uuid: 'session-uuid',
             name: 'Test Session',
             number: 1,
-            date: '2023-01-01'
+            date: new Date('2023-01-01')
           } as unknown as Session;
 
           // Set the current world
@@ -43,7 +43,7 @@ export const registerDirectorySessionNodeTests = () => {
             'session-uuid',
             'Test Session',
             1,
-            '2023-01-01',
+            new Date('2023-01-01'),
             'campaign-uuid'
           );
         });
@@ -57,11 +57,11 @@ export const registerDirectorySessionNodeTests = () => {
           it('should initialize with the provided values', () => {
             expect(sessionNode.id).to.equal('session-uuid');
             expect(sessionNode.name).to.equal('Test Session');
-            expect(sessionNode.number).to.equal(1);
-            expect(sessionNode.date).to.equal('2023-01-01');
-            expect(sessionNode.campaignId).to.equal('campaign-uuid');
-            expect(sessionNode.expanded).to.be.false;
+            expect(sessionNode.sessionNumber).to.equal(1);
+            expect(sessionNode._date).to.be.instanceOf(Date);
+            expect(sessionNode._date?.toISOString().split('T')[0]).to.equal('2023-01-01');
             expect(sessionNode.parentId).to.equal('campaign-uuid');
+            expect(sessionNode.expanded).to.be.false;
             expect(sessionNode.children).to.deep.equal([]);
             expect(sessionNode.loadedChildren).to.deep.equal([]);
             expect(sessionNode.ancestors).to.deep.equal([]);
@@ -76,9 +76,10 @@ export const registerDirectorySessionNodeTests = () => {
             // Verify the result
             expect(result.id).to.equal('session-uuid');
             expect(result.name).to.equal('Test Session');
-            expect(result.number).to.equal(1);
-            expect(result.date).to.equal('2023-01-01');
-            expect(result.campaignId).to.equal('campaign-uuid');
+            expect(result.sessionNumber).to.equal(1);
+            expect(result._date).to.be.instanceOf(Date);
+            expect(result._date?.toISOString().split('T')[0]).to.equal('2023-01-01');
+            expect(result.parentId).to.equal('campaign-uuid');
           });
         });
 
