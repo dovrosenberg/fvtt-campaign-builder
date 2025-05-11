@@ -121,6 +121,7 @@
               <i class="fas fa-pen"></i>
             </a>
             <span v-if="props.trackDelivery">
+              <!-- lockedToSessionId is a way to see if this is a seesion lore list or a campaign list for things that aren't delivered -->
               <a 
                 v-if="!data.delivered  && !data.lockedToSessionId"
                 class="fcb-action-icon" 
@@ -136,6 +137,14 @@
                 @click.stop="emit('unmarkItemDelivered', data.uuid)" 
               >
                 <i class="fas fa-circle-xmark"></i>
+              </a>
+              <a 
+                v-if="props.showMoveToCampaign && !data.delivered && !data.lockedToSessionId"
+                class="fcb-action-icon" 
+                :data-tooltip="localize('tooltips.moveToCampaign')"
+                @click.stop="emit('moveToCampaign', data.uuid)" 
+              >
+                <i class="fas fa-reply"></i>
               </a>
               <a 
                 v-if="!data.lockedToSessionId"

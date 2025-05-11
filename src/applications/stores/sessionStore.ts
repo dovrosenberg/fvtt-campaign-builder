@@ -391,6 +391,31 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   /**
+   * Move a lore back to the campaign as unused.
+   * @param uuid the UUID of the lore to move
+   */
+  const moveLoreToCampaign = async (uuid: string): Promise<void> => {
+    if (!currentSession.value)
+      return;
+
+    const currentLore = currentSession.value.lore.find(l=> l.uuid===uuid);
+
+    if (!currentLore)
+      return;
+
+    const campaign = currentSession.value.parentCampaign;
+
+    if (!campaign) 
+      return;
+    
+    // have a next session - add there and delete here
+    await campaign.addLore(currentLore.description);
+    await currentSession.value.deleteLore(uuid);
+
+    await _refreshLoreRows();
+  }
+
+  /**
    * Adds a magic item to the session.
    * @param uuid the UUID of the item to add.
    */
@@ -823,5 +848,6 @@ export const useSessionStore = defineStore('session', () => {
     updateLoreJournalEntry,
     markLoreDelivered,
     moveLoreToNext,
+    moveLoreToCampaign,
   };
 });

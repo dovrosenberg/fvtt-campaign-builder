@@ -9,11 +9,13 @@
     :add-button-label="localize('labels.session.addLore')"
     :extra-add-text="localize('labels.session.addLoreDrag')"
     :allow-drop-row="true"
+    :show-move-to-campaign="true"
     @add-item="onAddLore"
     @delete-item="onDeleteLore"
     @mark-item-delivered="onMarkLoreDelivered"
     @unmark-item-delivered="onUnmarkLoreDelivered"
     @move-to-next-session="onMoveLoreToNext"
+    @move-to-campaign="onMoveToCampaign"
     @cell-edit-complete="onCellEditComplete"
     @dragoverNew="onDragover"
     @dragoverRow="onDragover"
@@ -106,6 +108,9 @@
     await sessionStore.markLoreDelivered(uuid, false);
   }
 
+  const onMoveToCampaign = async (uuid: string) => {
+    await sessionStore.moveLoreToCampaign(uuid);
+  }
   const onMoveLoreToNext = async (uuid: string) => {
     await sessionStore.moveLoreToNext(uuid);
   }

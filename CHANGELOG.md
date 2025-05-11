@@ -6,6 +6,8 @@
 ![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.4.0/module.zip)
 
 - Session notes now prompt to save when leaving play mode, changing campaigns, etc. 
+- Added ability to move unused lore from a session back to the campaign list
+- Fixed issue with move to next session buttons not always working
 - Fixed issue with not opening back on the right subtab when first opening the main window
 - Minor bug fixes
 
