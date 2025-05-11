@@ -3,7 +3,13 @@
 ## v1.0.0 - ______________
 
 ![](https://img.shields.io/badge/release%20date-May%20__%2C%202025-blue)
-![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.4.0/module.zip)
+![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v1.0.0/module.zip)
+
+
+## v0.5.0 - More quality of life improvements
+
+![](https://img.shields.io/badge/release%20date-May%2011%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.5.0/module.zip)
 
 - Session notes now prompt to save when leaving play mode, changing campaigns, etc. 
 - Added ability to move unused lore from a session back to the campaign list
