@@ -120,7 +120,7 @@
             >
               <i class="fas fa-pen"></i>
             </a>
-            <div v-if="props.trackDelivery">
+            <span v-if="props.trackDelivery">
               <a 
                 v-if="!data.delivered  && !data.lockedToSessionId"
                 class="fcb-action-icon" 
@@ -145,7 +145,7 @@
               >
                 <i class="fas fa-share"></i>
               </a>
-            </div>
+            </span>
           </div>
         </template>
         <template
