@@ -364,7 +364,9 @@
         "species": "Si vide, une espèce aléatoire de votre monde sera utilisée pour la génération AI. Les entrées personnalisées seront transmises à l'AI mais ne seront pas ajoutées à votre liste d'espèces",
         "longDescriptions": "Générer une description détaillée ou un court résumé ?",
         "generateImage": "Générer une nouvelle image en arrière-plan après la création"
-      }
+      },
+      "moveToCampaign": "Déplacer vers la campagne pour une utilisation ultérieure",
+      "addToCampaign": "Ajouter à la campagne"
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori"
