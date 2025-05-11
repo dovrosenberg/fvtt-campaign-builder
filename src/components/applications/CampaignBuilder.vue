@@ -179,7 +179,7 @@
         const t = topics[i];
 
         // we need to load the actual entries - not just the index headers
-        topicJournals[t] = (await fromUuid(topicIds[t])) as JournalEntry | null;
+        topicJournals[t] = (fromUuid<JournalEntry>(;
 
         if (!topicJournals[t])
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
@@ -292,7 +292,7 @@
         const t = topics[i];
 
         // we need to load the actual entries - not just the index headers
-        topicJournals[t] = (await fromUuid(world.topicIds[t])) as JournalEntry | null;
+        topicJournals[t] = (fromUuid<JournalEntry>(;
 
         if (!topicJournals[t])
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
@@ -300,7 +300,7 @@
 
       for (const campaignId in world.campaignNames) {
         // we need to load the actual entries - not just the index headers
-        const j = (await fromUuid(campaignId)) as CampaignDoc | null;
+        const j = (fromUuid<CampaignDoc>(;
         if (j) {
           campaignJournals[j.uuid] = j;
         }

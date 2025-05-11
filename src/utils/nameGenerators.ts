@@ -33,7 +33,7 @@ export async function initializeRollTables(): Promise<void> {
     // Check if we already have a table for this type
     if (generatorConfig.rollTables[type]) {
       // Verify the table still exists and is the right type
-      const table = await fromUuid(generatorConfig.rollTables[type]);
+      const table = await fromUuid<RollTable>(generatorConfig.rollTables[type]);
       if (table) {
         if (table.getFlag(moduleId, 'type')===type)
           continue; // Table exists, skip to next type
@@ -202,8 +202,8 @@ export const refreshAllRollTables = async() : Promise<void> => {
   const config = ModuleSettings.get(SettingKey.generatorConfig);
 
   for (const key in config?.rollTables) {
-    const table = await fromUuid(config.rollTables[key]);
+    const table = await fromUuid<RollTable>(config.rollTables[key]);
     if (table)
-      await refreshRollTable(table as unknown as RollTable);
+      await refreshRollTable(table);
   }
 }

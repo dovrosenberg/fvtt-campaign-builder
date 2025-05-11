@@ -34,7 +34,7 @@ export class Entry {
 
   // does not set the parent topic
   static async fromUuid(entryId: string, topicFolder?: TopicFolder, options?: Record<string, any>): Promise<Entry | null> {
-    const entryDoc = await fromUuid(entryId, options) as EntryDoc | null;
+    const entryDoc = fromUuid<EntryDoc>(;
 
     if (!entryDoc || entryDoc.type !== DOCUMENT_TYPES.Entry)
       return null;

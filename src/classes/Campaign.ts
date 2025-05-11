@@ -43,7 +43,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
   /** note: DOES NOT attach the world */
   static async fromUuid(campaignId: string, options?: Record<string, any>): Promise<Campaign | null> {
-    const campaignDoc = await fromUuid(campaignId, options) as CampaignDoc | null;
+    const campaignDoc = await fromUuid<CampaignDoc>(campaignId, options);
 
     if (!campaignDoc)
       return null;

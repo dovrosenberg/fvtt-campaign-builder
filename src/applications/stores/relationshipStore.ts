@@ -393,7 +393,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
         const sceneList = [] as RelatedDocumentDetails[];
         for (let i=0; i<currentEntry.value.scenes.length; i++) {
-          const scene = (await fromUuid(currentEntry.value.scenes[i])) as Scene | null;
+          const scene = (await fromUuid<Scene>(currentEntry.value.scenes[i]));
 
           if (!scene)
             continue;
@@ -411,7 +411,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
         const actorList = [] as RelatedDocumentDetails[];
         for (let i=0; i<currentEntry.value.actors.length; i++) {
-          const actor = (await fromUuid(currentEntry.value.actors[i])) as Actor | null;
+          const actor = (fromUuid<Actor>(;
           if (!actor)
             continue;
 

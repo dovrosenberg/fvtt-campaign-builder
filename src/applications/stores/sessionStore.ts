@@ -562,7 +562,7 @@ export const useSessionStore = defineStore('session', () => {
   async function onJournalClick (_event: MouseEvent, uuid: string) {
     // get session Id
     const journalEntryPageId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
-    const journalEntryPage = await fromUuid(journalEntryPageId) as JournalEntryPage | null;
+    const journalEntryPage = await fromUuid<JournalEntryPage>(journalEntryPageId);
 
     if (journalEntryPage)
       journalEntryPage.sheet?.render(true);
@@ -570,7 +570,7 @@ export const useSessionStore = defineStore('session', () => {
 
   // when we click on an item, open it
   async function onItemClick (_event: MouseEvent, uuid: string) {
-    const item = await fromUuid(uuid) as Item | null;
+    const item = fromUuid<Item>(;
 
     if (item)
       item.sheet?.render(true);
@@ -578,7 +578,7 @@ export const useSessionStore = defineStore('session', () => {
 
   // when we click on an monster, open it
   async function onMonsterClick (_event: MouseEvent, uuid: string) {
-    const monster = await fromUuid(uuid) as Actor | null;
+    const monster = fromUuid<Actor>(;
 
     if (monster)
       monster.sheet?.render(true);
@@ -690,7 +690,7 @@ export const useSessionStore = defineStore('session', () => {
     const retval = [] as SessionItemDetails[];
 
     for (const item of currentSession.value?.items) {
-      const entry = await fromUuid(item.uuid) as Item | null;
+      const entry = fromUuid<Item>(;
 
       if (entry) {
         retval.push({
@@ -712,7 +712,7 @@ export const useSessionStore = defineStore('session', () => {
     const retval = [] as SessionMonsterDetails[];
 
     for (const monster of currentSession.value?.monsters) {
-      const entry = await fromUuid(monster.uuid) as Actor | null;
+      const entry = fromUuid<Actor>(;
 
       if (entry) {
         retval.push({
@@ -756,7 +756,7 @@ export const useSessionStore = defineStore('session', () => {
       let entry: JournalEntryPage | null = null;
 
       if (lore.journalEntryPageId)
-        entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage | null;
+        entry = await fromUuid<JournalEntryPage>(lore.journalEntryPageId);
 
       retval.push({
         uuid: lore.uuid,

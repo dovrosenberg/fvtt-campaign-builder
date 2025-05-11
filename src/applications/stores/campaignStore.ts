@@ -252,7 +252,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   async function onJournalClick (_event: MouseEvent, uuid: string) {
     // get session Id
     const journalEntryPageId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
-    const journalEntryPage = await fromUuid(journalEntryPageId) as globalThis.JournalEntryPage | null;
+    const journalEntryPage = await fromUuid<JournalEntryPage>(journalEntryPageId);
 
     if (journalEntryPage)
       journalEntryPage.sheet?.render(true);
@@ -335,7 +335,7 @@ export const useCampaignStore = defineStore('campaign', () => {
         let entry: JournalEntryPage | null = null;
 
         if (lore.journalEntryPageId)
-          entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage | null;
+          entry = await fromUuid<JournalEntryPage>(lore.journalEntryPageId);
   
         retval.push({
           uuid: lore.uuid,
@@ -354,7 +354,7 @@ export const useCampaignStore = defineStore('campaign', () => {
       let entry: JournalEntryPage | null = null;
 
       if (lore.journalEntryPageId)
-        entry = await fromUuid(lore.journalEntryPageId) as JournalEntryPage | null;
+        entry = await fromUuid<JournalEntryPage>(lore.journalEntryPageId);
 
       retval.push({
         uuid: lore.uuid,

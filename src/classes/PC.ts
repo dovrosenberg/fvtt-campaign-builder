@@ -27,7 +27,7 @@ export class PC {
   }
 
   static async fromUuid(pcId: string, options?: Record<string, any>): Promise<PC | null> {
-    const pcDoc = await fromUuid(pcId, options) as PCDoc | null;
+    const pcDoc = fromUuid<PCDoc>(;
 
     if (!pcDoc)
       return null;
@@ -68,7 +68,7 @@ export class PC {
     else if (!this._pcDoc.system.actorId)
       return null;
 
-    this._actor = (await fromUuid(this._pcDoc.system.actorId)) as Actor | null;
+    this._actor = (fromUuid<Actor>(;
 
     if (!this._actor)
       throw new Error('Invalid actor in PC.getActor()');

@@ -77,7 +77,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   };
 
   static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
-    const worldDoc = await fromUuid(worldId, options) as WorldDoc | null;
+    const worldDoc = fromUuid<WorldDoc>(;
 
     if (!worldDoc)
       return null;

@@ -5,7 +5,7 @@
 		"target": "es2018",
 		"module": "esnext",
 		"lib": [ "es2021", "dom" ],
-		"typeRoots": [ "./src/types", "@types/fvtt-types", "node", "@ethaks/fvtt-quench"],
+		"typeRoots": [ "./src/types", "node", "@ethaks/fvtt-quench"],
 		"moduleResolution": "bundler",
 		"sourceMap": true,
 		"strict": true,

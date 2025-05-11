@@ -24,7 +24,7 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
 
     try {
       // Get the actor document using fromUuid
-      const actor = await fromUuid(uuid) as Actor | null;
+      const actor = fromUuid<Actor>(;
 
       if (actor) {
         // Set the drag data using the actor's toDragData method
@@ -71,7 +71,7 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
 
     try {
       // Get the Item document using fromUuid
-      const item = await fromUuid(uuid) as Item | null;
+      const item = fromUuid<Item>(;
 
       if (item) {
         event.dataTransfer.setData("text/plain", JSON.stringify(item.toDragData()));

@@ -30,7 +30,7 @@ export class Session {
   }
 
   static async fromUuid(sessionId: string, options?: Record<string, any>): Promise<Session | null> {
-    const sessionDoc = await fromUuid(sessionId, options) as SessionDoc | null;
+    const sessionDoc = fromUuid<SessionDoc>(;
 
     if (!sessionDoc)
       return null;
@@ -628,7 +628,7 @@ export class Session {
   get campaignId(): string {
     if (!this._sessionDoc.parent)
       throw new Error('Call to Session.campaignId without _sessionDoc');
-    
+
     return this._sessionDoc.parent.uuid;
   }
 
