@@ -167,8 +167,9 @@
   const actionButtonLabel = computed(() => {
     switch (props.mode) {
       case RelatedItemDialogModes.Add:
-      case RelatedItemDialogModes.Session:
         return topicDetails[props.topic].buttonTitle;
+      case RelatedItemDialogModes.Session:
+        return 'Add to session';
       case RelatedItemDialogModes.Edit:
         return topicDetails[props.topic].editButtonTitle;
     }
