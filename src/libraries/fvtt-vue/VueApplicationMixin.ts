@@ -1,3 +1,4 @@
+// @ts-nocheck
 // from mouse0270/fvtt-vue
 
 import { App, createApp, h, reactive } from 'vue';
