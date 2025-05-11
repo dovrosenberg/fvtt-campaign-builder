@@ -52,6 +52,9 @@ export class Entry {
     if (this.topicFolder)
       return this.topicFolder;
     
+    if (!this._entryDoc.parent)
+      throw new Error('call to Entry.loadTopic() without _sessionDoc');
+
     this.topicFolder = await TopicFolder.fromUuid(this._entryDoc.parent.uuid);
 
     if (!this.topicFolder)
@@ -212,6 +215,9 @@ export class Entry {
   }
 
   set img(value: string | undefined) {
+    if (!this._entryDoc.system)
+      throw new Error('Call to Entry.img without _entryDoc');
+
     this._entryDoc.system.img = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,

@@ -345,7 +345,7 @@ export const useCampaignStore = defineStore('campaign', () => {
           description: lore.description,
           journalEntryPageId: lore.journalEntryPageId,
           journalEntryPageName: entry?.name || null,
-          packId: entry?.pack ??null,
+          packId: entry?.pack ?? null,
         });
       }
     }

@@ -1,4 +1,4 @@
-export * from '@league-of-foundry-developers/foundry-vtt-types/src/index.d.mts';
+export * from '@types/fvtt-types';
 
 // some global configuration for the types
 declare global {

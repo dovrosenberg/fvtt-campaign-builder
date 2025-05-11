@@ -50,6 +50,9 @@ export class Session {
     if (this.parentCampaign)
       return this.parentCampaign;
 
+    if (!this._sessionDoc.parent)
+      throw new Error('call to Session.loadCampaign() without _sessionDoc');
+
     this.parentCampaign = await Campaign.fromUuid(this._sessionDoc.parent.uuid);
 
     if (!this.parentCampaign)
@@ -623,6 +626,9 @@ export class Session {
   }
 
   get campaignId(): string {
+    if (!this._sessionDoc.parent)
+      throw new Error('Call to Session.campaignId without _sessionDoc');
+    
     return this._sessionDoc.parent.uuid;
   }
 
