@@ -327,7 +327,6 @@ export const useCampaignStore = defineStore('campaign', () => {
     const retval = [] as CampaignLoreDetails[];
 
     // at the top of the list, put all the ones from the sessions... 
-    // TODO: mark these differently so they can't be moved, unmarked, etc. and sort separately
     for (const session of currentCampaign.value.sessions) {
       for (const lore of session.lore) {
         if (!lore.delivered)
@@ -346,9 +345,7 @@ export const useCampaignStore = defineStore('campaign', () => {
           description: lore.description,
           journalEntryPageId: lore.journalEntryPageId,
           journalEntryPageName: entry?.name || null,
-          packId: !entry ? null : entry.pack,
-          location: !entry ? '' : 
-            (entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World'),
+          packId: entry?.pack ??null,
         });
       }
     }
@@ -367,10 +364,8 @@ export const useCampaignStore = defineStore('campaign', () => {
         description: lore.description,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
-        packId: !entry ? null : entry.pack,
-        location: !entry ? '' : 
-          (entry.pack ? `Compendium ${game.packs?.get(entry.pack)?.title}` : 'World'),
-});
+        packId: entry?.pack ??null,
+      });
     }
 
     relatedLoreRows.value = retval;

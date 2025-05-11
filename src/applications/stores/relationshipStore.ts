@@ -394,6 +394,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
         const sceneList = [] as RelatedDocumentDetails[];
         for (let i=0; i<currentEntry.value.scenes.length; i++) {
           const scene = (await fromUuid(currentEntry.value.scenes[i])) as Scene | null;
+
           if (!scene)
             continue;
           
