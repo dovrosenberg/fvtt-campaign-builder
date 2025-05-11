@@ -384,7 +384,7 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   // we capture changes to both the played campaign and turning off isInPlayMode here (via campaign going to null)
   // need to do that here vs isInPlayMode watcher because we need the old campaign value to save the session notes
-  watch(() => currentPlayedSession.value, async (_newSession: Session | null, oldSession: Session | null) => {
+  watch(() => currentPlayedSession.value, async (newSession: Session | null, oldSession: Session | null) => {
     // if oldSession is null, we're turning on play mode, so no issue
     if (!oldSession)
       return;
@@ -405,6 +405,11 @@ export const useCampaignStore = defineStore('campaign', () => {
         await mainStore.refreshCurrentContent();
       }
     }      
+
+    // if switching campaigns, open new notes
+    if (ModuleSettings.get(SettingKey.displaySessionNotes) && newSession) {
+      await openSessionNotes(newSession);
+    }
   });
 
   // When play mode changes, update the current played campaign

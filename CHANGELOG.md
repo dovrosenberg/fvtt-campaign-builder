@@ -6,6 +6,7 @@
 ![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.4.0/module.zip)
 
 - Session notes now prompt to save when leaving play mode, changing campaigns, etc. 
+- Fixed issue with not opening back on the right subtab when first opening the main window
 - Minor bug fixes
 
 ## v0.4.2 - Fixed text box color
