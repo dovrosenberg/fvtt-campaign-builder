@@ -340,7 +340,7 @@ export class Session {
     return this._sessionDoc.system.vignettes || [];
   }
 
-  async addVignette(description: string): Promise<void> {
+  async addVignette(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 
     this._sessionDoc.system.vignettes.push({
@@ -357,6 +357,7 @@ export class Session {
     };
 
     await this.save();
+    return uuid;
   }
 
   async updateVignetteDescription(uuid: string, description: string): Promise<void> {

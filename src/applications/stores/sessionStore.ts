@@ -66,10 +66,10 @@ export const useSessionStore = defineStore('session', () => {
     [SessionTableTypes.Monster]: [
       { field: 'drag', style: 'text-align: center; width: 40px; max-width: 40px', header: '' },
       { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onMonsterClick },
-      { field: 'number', header: 'Number', editable: true },
+      { field: 'number', header: 'Number', editable: true, smallEditBox: true },
     ], 
     [SessionTableTypes.Vignette]: [
-      { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
+      { field: 'description', style: 'text-align: left', header: 'Vignette', editable: true },
     ],
     [SessionTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
@@ -222,13 +222,16 @@ export const useSessionStore = defineStore('session', () => {
 
   /**
    * Adds a vignette to the session.
+   * @param description The description for the entry
+   * @returns The UUID of the created entry
    */
-  const addVignette = async (description = ''): Promise<void> => {
+  const addVignette = async (description = ''): Promise<string | null> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.addVignette()');
 
-    await currentSession.value.addVignette(description);
+    const vignetteUuid = await currentSession.value.addVignette(description);
     await _refreshVignetteRows();
+    return vignetteUuid;
   }
 
   /**

@@ -196,10 +196,17 @@
               <!-- we set the id so that we can pull the value when we change row -->
               <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
               <Textarea 
+                v-if="!col.smallEditBox"
                 v-model="data[col.field]"
                 style="width: 100%; font-size: inherit;"
                 :id="`${data.uuid}-${col.field}`" 
                 rows="2"
+              />
+              <InputText 
+                v-if="col.smallEditBox"
+                v-model="data[col.field]"
+                style="width: 100%; font-size: inherit;"
+                :id="`${data.uuid}-${col.field}`" 
               />
             </div>
             <div 

@@ -7,6 +7,7 @@
 
 - Session notes now prompt to save when leaving play mode, changing campaigns, etc. 
 - Added ability to move unused lore from a session back to the campaign list
+- Lore and Vignettes now immediately open in edit mode after adding a new one
 - Fixed issue with move to next session buttons not always working
 - Fixed issue with not opening back on the right subtab when first opening the main window
 - Minor bug fixes
