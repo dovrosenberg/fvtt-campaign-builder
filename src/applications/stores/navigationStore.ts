@@ -329,6 +329,21 @@ export const useNavigationStore = defineStore('navigation', () => {
     return;
   };
 
+  /** Update the contenttab on the current tab and save to DB */
+  const updateContentTab = async function (newContentTab: string): Promise<void> {
+    const currentTab = getActiveTab(false);
+    
+    if (!currentTab) 
+      return;
+
+    // Update the history of the current tab with the new content tab
+    if (currentTab.history.length > 0 && currentTab.historyIdx >= 0) {
+      currentTab.history[currentTab.historyIdx].contentTab = newContentTab;
+    }
+    
+    await _saveTabs();
+  }
+
   /**
    * Used after deleting an entry/campaign/session to make sure that no current tab or tab history includes 
    * the deleted item.
@@ -586,6 +601,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     openWorld,
     openPC,
     openContent,
+    updateContentTab,
     getActiveTab,
     loadTabs,
     activateTab,
