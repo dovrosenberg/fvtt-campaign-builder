@@ -27,7 +27,7 @@ export class PC {
   }
 
   static async fromUuid(pcId: string, options?: Record<string, any>): Promise<PC | null> {
-    const pcDoc = fromUuid<PCDoc>(;
+    const pcDoc = await fromUuid<PCDoc>(pcId, options);
 
     if (!pcDoc)
       return null;
@@ -47,6 +47,9 @@ export class PC {
   public async loadCampaign(): Promise<Campaign> {
     if (this.parentCampaign)
       return this.parentCampaign;
+
+    if (!this._pcDoc.parent)
+      throw new Error('Invalid parent in PC.loadCampaign()');
 
     this.parentCampaign = await Campaign.fromUuid(this._pcDoc.parent.uuid);
 
@@ -68,7 +71,7 @@ export class PC {
     else if (!this._pcDoc.system.actorId)
       return null;
 
-    this._actor = (fromUuid<Actor>(;
+    this._actor = await fromUuid<Actor>(this._pcDoc.system.actorId);
 
     if (!this._actor)
       throw new Error('Invalid actor in PC.getActor()');
@@ -225,6 +228,9 @@ export class PC {
   }
 
   get campaignId(): string {
+    if (!this._pcDoc.parent)
+      throw new Error('Invalid parent in PC.campaign()');
+    
     return this._pcDoc.parent.uuid;
   }
 

@@ -30,7 +30,7 @@ export class Session {
   }
 
   static async fromUuid(sessionId: string, options?: Record<string, any>): Promise<Session | null> {
-    const sessionDoc = fromUuid<SessionDoc>(;
+    const sessionDoc = await fromUuid<SessionDoc>(sessionId, options);
 
     if (!sessionDoc)
       return null;

@@ -150,7 +150,7 @@
 
   const onNameClick = async (_event: MouseEvent, uuid: string) => { 
     if (props.documentLinkType===DocumentLinkType.Actors) {
-      const actor = fromUuid<Actor>(;
+      const actor = await fromUuid<Actor>(uuid);
       await actor?.sheet?.render(true);
     } else if (props.documentLinkType===DocumentLinkType.Scenes) {
       const scene = await fromUuid<Scene>(uuid);

@@ -51,7 +51,6 @@ export const registerWBWorldTests = () => {
           });
           getFlag.withArgs(sinon.match.any, WorldFlagKey.topicIds).returns({
             [Topics.Character]: 'character-topic-uuid',
-            [Topics.Event]: 'event-topic-uuid',
             [Topics.Location]: 'location-topic-uuid',
             [Topics.Organization]: 'organization-topic-uuid'
           });
@@ -310,7 +309,6 @@ export const registerWBWorldTests = () => {
             
             world.topicIds = {
               [Topics.Character]: 'new-character-topic-uuid',
-              [Topics.Event]: 'new-event-topic-uuid',
               [Topics.Location]: 'new-location-topic-uuid',
               [Topics.Organization]: 'new-organization-topic-uuid'
             };

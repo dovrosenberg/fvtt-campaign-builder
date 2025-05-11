@@ -7,7 +7,7 @@ import { DocumentWithFlags, Campaign, TopicFolder } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 
-type WBWorldCompendium = CompendiumCollection<JournalEntry.Metadata>;
+type WBWorldCompendium = CompendiumCollection<CompendiumCollection.Metadata>;
 
 // represents a campaign setting
 export class WBWorld extends DocumentWithFlags<WorldDoc>{
@@ -77,7 +77,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   };
 
   static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
-    const worldDoc = fromUuid<WorldDoc>(;
+    const worldDoc = await fromUuid<WorldDoc>(worldId, options);
 
     if (!worldDoc)
       return null;
@@ -474,7 +474,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   private async populateTopics() {
     let updated = false;
 
-    const topics = [Topics.Character, /*Topics.Event, */ Topics.Location, Topics.Organization] as ValidTopic[];
+    const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
     let topicIds = this._topicIds;
     const topicObjects = {} as Record<ValidTopic, TopicFolder>;
 

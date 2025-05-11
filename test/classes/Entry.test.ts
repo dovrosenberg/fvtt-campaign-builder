@@ -55,7 +55,6 @@ export const registerEntryTests = () => {
               speciesId: 'test-species',
               relationships: {
                 [Topics.Character]: {},
-                [Topics.Event]: {},
                 [Topics.Location]: {},
                 [Topics.Organization]: {},
               },
@@ -218,7 +217,6 @@ export const registerEntryTests = () => {
           it('should get and set relationships correctly', () => {
             const newRelationships = {
               [Topics.Character]: { 'char-id': { name: 'Related Character' } },
-              [Topics.Event]: {},
               [Topics.Location]: {},
               [Topics.Organization]: {},
             } as any;
@@ -364,7 +362,6 @@ export const registerEntryTests = () => {
             // Set up relationships
             entry.relationships = {
               [Topics.Character]: { 'char1': { name: 'Character 1' } as any, 'char2': { name: 'Character 2' } as any },
-              [Topics.Event]: {},
               [Topics.Location]: { 'loc1': { name: 'Location 1' } as any },
               [Topics.Organization]: {},
             };
@@ -378,11 +375,6 @@ export const registerEntryTests = () => {
             const locationFolder = { topic: Topics.Location };
             const relatedLocations = entry.getAllRelatedEntries(locationFolder as any);
             expect(relatedLocations).to.deep.equal(['loc1']);
-
-            // Get related events (empty)
-            const eventFolder = { topic: Topics.Event };
-            const relatedEvents = entry.getAllRelatedEntries(eventFolder as any);
-            expect(relatedEvents).to.deep.equal([]);
           });
         });
         
@@ -408,7 +400,6 @@ export const registerEntryTests = () => {
             // Setup existing relationship
             entry.relationships = {
               [Topics.Character]: {},
-              [Topics.Event]: {},
               [Topics.Location]: { 'related-uuid': { name: 'Related Entry' } },
               [Topics.Organization]: {},
             };
@@ -433,7 +424,6 @@ export const registerEntryTests = () => {
             // Setup existing relationship
             entry.relationships = {
               [Topics.Character]: {},
-              [Topics.Event]: {},
               [Topics.Location]: { 'related-uuid': { name: 'Related Entry' } },
               [Topics.Organization]: {},
             };

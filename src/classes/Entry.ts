@@ -34,7 +34,7 @@ export class Entry {
 
   // does not set the parent topic
   static async fromUuid(entryId: string, topicFolder?: TopicFolder, options?: Record<string, any>): Promise<Entry | null> {
-    const entryDoc = fromUuid<EntryDoc>(;
+    const entryDoc = await fromUuid<EntryDoc>(entryId, options);
 
     if (!entryDoc || entryDoc.type !== DOCUMENT_TYPES.Entry)
       return null;
@@ -91,7 +91,6 @@ export class Entry {
           topic: topicFolder.topic,
           relationships: {
             [Topics.Character]: {},
-            // [Topics.Event]: {},
             [Topics.Location]: {},
             [Topics.Organization]: {},
           },
@@ -218,7 +217,7 @@ export class Entry {
     if (!this._entryDoc.system)
       throw new Error('Call to Entry.img without _entryDoc');
 
-    this._entryDoc.system.img = value;
+    this._entryDoc.system.img = value || '';
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {

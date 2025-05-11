@@ -88,7 +88,7 @@ class SearchService {
       throw new Error('Unable to create searchIndex in SearchService.buildIndex()');
 
     // Process each topic
-    const topics = [Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization] as ValidTopic[];
+    const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
     
     // Collect all items first
     const items = [] as SearchableItem[];

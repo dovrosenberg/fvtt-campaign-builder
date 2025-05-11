@@ -570,7 +570,7 @@ export const useSessionStore = defineStore('session', () => {
 
   // when we click on an item, open it
   async function onItemClick (_event: MouseEvent, uuid: string) {
-    const item = fromUuid<Item>(;
+    const item = await fromUuid<Item>(uuid);
 
     if (item)
       item.sheet?.render(true);
@@ -578,7 +578,7 @@ export const useSessionStore = defineStore('session', () => {
 
   // when we click on an monster, open it
   async function onMonsterClick (_event: MouseEvent, uuid: string) {
-    const monster = fromUuid<Actor>(;
+    const monster = await fromUuid<Actor>(uuid);
 
     if (monster)
       monster.sheet?.render(true);
@@ -644,7 +644,7 @@ export const useSessionStore = defineStore('session', () => {
           name: entry.name, 
           type: entry.type,
           parent: parent?.name || '-',
-          parentId: parent?.uuid,
+          parentId: parent?.uuid || null,
           description: cleanDescription.substring(0, 99) + (cleanDescription.length>100 ? '...' : ''),
         });
       }
@@ -690,7 +690,7 @@ export const useSessionStore = defineStore('session', () => {
     const retval = [] as SessionItemDetails[];
 
     for (const item of currentSession.value?.items) {
-      const entry = fromUuid<Item>(;
+      const entry = await fromUuid<Item>(item.uuid);
 
       if (entry) {
         retval.push({
@@ -712,7 +712,7 @@ export const useSessionStore = defineStore('session', () => {
     const retval = [] as SessionMonsterDetails[];
 
     for (const monster of currentSession.value?.monsters) {
-      const entry = fromUuid<Actor>(;
+      const entry = await fromUuid<Actor>(monster.uuid);
 
       if (entry) {
         retval.push({
@@ -764,6 +764,7 @@ export const useSessionStore = defineStore('session', () => {
         description: lore.description,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
+        packId: entry?.pack || null,
       });
     }
 

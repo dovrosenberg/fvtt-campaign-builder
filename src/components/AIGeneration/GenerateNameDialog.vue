@@ -144,7 +144,10 @@
       const tableUuid = config?.rollTables[props.generatorType];
       
       // Load the roll table
-      rollTable.value = fromUuid<unknown as RollTable>(;
+      rollTable.value = await fromUuid<RollTable>(tableUuid);
+      
+      if (!rollTable.value)
+        throw new Error('Invalid uuid in GenerateNameDialog.drawOptions()');
       
       // Draw 3 results from the table
       const draws = await toRaw(rollTable.value).drawMany(3, {

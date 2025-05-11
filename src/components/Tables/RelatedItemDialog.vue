@@ -125,12 +125,6 @@
   const nameSelectRef = ref<typeof TypeAhead | null>(null);
 
   const topicDetails = {
-    // [Topics.Event]: {
-    //   title: 'Add an event',
-    //   editTitle: 'Edit event',
-    //   buttonTitle: 'Add event',
-    //   editButtonTitle: 'Save event',
-    // },
     [Topics.Character]: {
       title: 'Add a character',
       editTitle: 'Edit character',
