@@ -252,7 +252,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   async function onJournalClick (_event: MouseEvent, uuid: string) {
     // get session Id
     const journalEntryPageId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
-    const journalEntryPage = await fromUuid(journalEntryPageId) as JournalEntryPage | null;
+    const journalEntryPage = await fromUuid(journalEntryPageId) as globalThis.JournalEntryPage | null;
 
     if (journalEntryPage)
       journalEntryPage.sheet?.render(true);

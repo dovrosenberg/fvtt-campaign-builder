@@ -1,4 +1,4 @@
-import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
+import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin';
 import PrimeVue from 'primevue/config';
 
 import App from '@/components/applications/SessionNotes.vue';
@@ -82,3 +82,6 @@ export async function closeSessionNotes(): Promise<string | null> {
 
   return isDirty ? text : null;
 }
+
+let x = new SessionNotesApplication();
+x.close();
