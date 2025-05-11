@@ -5,7 +5,7 @@
 ![](https://img.shields.io/badge/release%20date-May%20__%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.4.0/module.zip)
 
-- Session notes now prompt to save when leaving play mode, changing campaigns, etc. (a Foundry bug is currently making them prompt even if unchanged)
+- Session notes now prompt to save when leaving play mode, changing campaigns, etc. 
 - Minor bug fixes
 
 ## v0.4.2 - Fixed text box color

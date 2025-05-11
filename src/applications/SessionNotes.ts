@@ -82,6 +82,3 @@ export async function closeSessionNotes(): Promise<string | null> {
 
   return isDirty ? text : null;
 }
-
-let x = new SessionNotesApplication();
-x.close();
