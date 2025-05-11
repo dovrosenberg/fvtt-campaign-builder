@@ -137,6 +137,16 @@ export const useNavigationStore = defineStore('navigation', () => {
     let icon = '';
     let badId = false;
 
+    // these are the default content tabs to open to
+    const defaultContentTab = {
+      [WindowTabType.Entry]: 'description',
+      [WindowTabType.World]: 'description',
+      [WindowTabType.Campaign]: 'description',
+      [WindowTabType.Session]: 'notes',
+      [WindowTabType.PC]: '',  // no tabs
+      [WindowTabType.NewTab]: '',  // no tabs
+    } as Record<WindowTabType, string>;
+
     if (!contentId) 
       contentType = WindowTabType.NewTab;
 
@@ -225,8 +235,9 @@ export const useNavigationStore = defineStore('navigation', () => {
       tab.header = headerData;
 
       // add to history -- it should go immediately after the current tab and all other forward history should go away
+      // this is a new thing so the contentTab should always be the default
       if (headerData.uuid && options.updateHistory) {
-        tab.addToHistory(contentId, contentType, currentContentTab.value);
+        tab.addToHistory(contentId, contentType, defaultContentTab[contentType]);
       }
 
       // force a refresh of reactivity
