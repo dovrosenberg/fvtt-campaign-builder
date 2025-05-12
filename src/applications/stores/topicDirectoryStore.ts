@@ -10,13 +10,12 @@ import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore, } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
-import { confirmDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, TopicFolder, } from '@/classes';
 import { DirectoryWorld, Hierarchy, Topics, ValidTopic, } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
-import { createEntryDialog } from '@/dialogs/createEntry';
 
 // the store definition
 export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
@@ -342,7 +341,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return;
 
     // confirm
-    if (!(await confirmDialog('Delete world?', 'Are you sure you want to delete this world?')))
+    if (!(await FCBDialog.confirmDialog('Delete world?', 'Are you sure you want to delete this world?')))
       return;
     
     await world.delete();
@@ -364,7 +363,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return;
 
     // confirm
-    if (!(await confirmDialog('Delete entry?', 'Are you sure you want to delete this entry?')))
+    if (!(await FCBDialog.confirmDialog('Delete entry?', 'Are you sure you want to delete this entry?')))
       return;
 
     // save the parent
@@ -419,7 +418,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       const topicFolders = await currentWorld.value.loadTopics();
       const expandedNodes = currentWorld.value.expandedIds;
 
-      const topics = [Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization] as ValidTopic[];
+      const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${(currentWorld.value as WBWorld).uuid}.topic.${topic}`;
         const topicObj = topicFolders[topic] as TopicFolder;
@@ -467,7 +466,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         iconFontClass: 'fas',
         label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child',
         onClick: async () => {
-          const entry = await createEntryDialog(topic, { parentId: entryId} );
+          const entry = await FCBDialog.createEntryDialog(topic, { parentId: entryId} );
 
           if (entry) {
             await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
@@ -500,7 +499,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         if (!currentWorld.value)
         return;
 
-        const entry = await createEntryDialog(topic, { type: type } );
+        const entry = await FCBDialog.createEntryDialog(topic, { type: type } );
 
         if (entry) {
           await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -521,7 +520,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
         if (!worldFolder || !topicFolder)
           throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
-        const entry = await createEntryDialog(topicFolder.topic, { } );
+        const entry = await FCBDialog.createEntryDialog(topicFolder.topic, { } );
 
         if (entry) {
           await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -546,7 +545,6 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     const retval: Record<ValidTopic, string[]> = {
       [Topics.Character]: [],
-      // [Topics.Event]: [],
       [Topics.Location]: [],
       [Topics.Organization]: [],
     };
@@ -554,7 +552,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     const hierarchies = currentWorld.value.hierarchies;
 
     const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
-    const topics = [Topics.Character, /* Topics.Event, */Topics.Location, Topics.Organization] as ValidTopic[];
+    const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
       const topicObj = currentWorld.value.topicFolders[topics[i]];

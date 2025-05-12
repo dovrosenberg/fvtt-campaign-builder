@@ -42,10 +42,11 @@
 <script setup lang="ts">
   // library imports
   import { ref, PropType, computed } from 'vue';
+  import { storeToRefs } from 'pinia';
   
   // local imports
   import { localize } from '@/utils/game';
-  import { useCampaignDirectoryStore, useNavigationStore, } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
 
   // library components
@@ -74,6 +75,8 @@
   // store
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const navigationStore = useNavigationStore();
+  const mainStore = useMainStore();
+  const { isInPlayMode } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -131,6 +134,7 @@
         { 
           icon: getTabTypeIcon(WindowTabType.Session),
           iconFontClass: 'fas',
+          disabled: isInPlayMode.value,
           label: localize('contextMenus.campaignFolder.createSession'), 
           onClick: async () => {
             const session = await campaignDirectoryStore.createSession(props.campaignNode.id);
@@ -144,6 +148,7 @@
           icon: 'fa-trash',
           iconFontClass: 'fas',
           label: localize('contextMenus.campaignFolder.delete'), 
+          disabled: isInPlayMode.value,
           onClick: async () => {
             await campaignDirectoryStore.deleteCampaign(props.campaignNode.id);
           }

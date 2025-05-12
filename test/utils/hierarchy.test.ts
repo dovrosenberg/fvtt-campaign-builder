@@ -44,10 +44,6 @@ export const registerHierarchyTests = () => {
           it('should return false for Character topic', () => {
             expect(hasHierarchy(Topics.Character)).to.equal(false);
           });
-
-          it('should return false for Event topic', () => {
-            expect(hasHierarchy(Topics.Event)).to.equal(false);
-          });
         });
 
         describe('getParentId', () => {

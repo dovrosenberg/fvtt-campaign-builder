@@ -1,7 +1,7 @@
 import { DOCUMENT_TYPES, PCDoc } from '@/documents';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
-import { inputDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 import { toRaw } from 'vue';
 
 // represents a PC - these are stored in flag inside campaigns so saving, etc. is handled by campaign
@@ -27,7 +27,7 @@ export class PC {
   }
 
   static async fromUuid(pcId: string, options?: Record<string, any>): Promise<PC | null> {
-    const pcDoc = await fromUuid(pcId, options) as PCDoc | null;
+    const pcDoc = await fromUuid<PCDoc>(pcId, options);
 
     if (!pcDoc)
       return null;
@@ -47,6 +47,9 @@ export class PC {
   public async loadCampaign(): Promise<Campaign> {
     if (this.parentCampaign)
       return this.parentCampaign;
+
+    if (!this._pcDoc.parent)
+      throw new Error('Invalid parent in PC.loadCampaign()');
 
     this.parentCampaign = await Campaign.fromUuid(this._pcDoc.parent.uuid);
 
@@ -68,7 +71,7 @@ export class PC {
     else if (!this._pcDoc.system.actorId)
       return null;
 
-    this._actor = (await fromUuid(this._pcDoc.system.actorId)) as Actor | null;
+    this._actor = await fromUuid<Actor>(this._pcDoc.system.actorId);
 
     if (!this._actor)
       throw new Error('Invalid actor in PC.getActor()');
@@ -102,7 +105,7 @@ export class PC {
   {
     let nameToUse = '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await inputDialog(localize('dialogs.createPC.title'), `${localize('dialogs.createPC.playerName')}:`); 
+      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createPC.title'), `${localize('dialogs.createPC.playerName')}:`); 
     }  
     
     // if name is null, then we cancelled the dialog
@@ -225,6 +228,9 @@ export class PC {
   }
 
   get campaignId(): string {
+    if (!this._pcDoc.parent)
+      throw new Error('Invalid parent in PC.campaign()');
+    
     return this._pcDoc.parent.uuid;
   }
 

@@ -103,7 +103,6 @@
 
   const newItemLabel = computed(() => {
     switch (props.topic) {
-      // case Topics.Event: return localize('labels.addTopic.event'); 
       case Topics.Character: return localize('labels.addTopic.character'); 
       case Topics.Location: return localize('labels.addTopic.location');
       case Topics.Organization: return localize('labels.addTopic.organization');
@@ -112,7 +111,6 @@
 
   const newItemDragLabel = computed(() => {
     switch (props.topic) {
-      // case Topics.Event: return localize('labels.addTopicDrag.event'); 
       case Topics.Character: return localize('labels.addTopicDrag.character'); 
       case Topics.Location: return localize('labels.addTopicDrag.location');
       case Topics.Organization: return localize('labels.addTopicDrag.organization');
@@ -153,11 +151,6 @@
     const dateColumn = { field: 'date', style: 'text-align: left', header: 'Date', format: (val: string) => (/*dateText(calendar.value, val)*/ val), sortable: true}; 
 
     const columns = {
-      // [Topics.Event]: [ 
-      //   actionColumn,
-      //   nameColumn,
-      //   dateColumn,
-      // ],
       [Topics.Character]: [
         actionColumn,
         nameColumn,

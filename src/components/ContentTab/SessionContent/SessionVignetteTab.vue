@@ -1,5 +1,6 @@
 <template>
   <SessionTable
+    ref="sessionTableRef"
     :rows="relatedVignetteRows"
     :columns="sessionStore.extraFields[SessionTableTypes.Vignette]"
     :delete-item-label="localize('tooltips.deleteVignette')"
@@ -18,6 +19,7 @@
 <script setup lang="ts">
 
   // library imports
+  import { ref } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -45,6 +47,7 @@
   
   ////////////////////////////////
   // data
+  const sessionTableRef = ref<any>(null);
 
   ////////////////////////////////
   // computed data
@@ -55,7 +58,18 @@
   ////////////////////////////////
   // event handlers
   const onAddVignette = async () => {
-    await sessionStore.addVignette();
+    const vignetteUuid = await sessionStore.addVignette();
+
+      // If we successfully added an item, put its description column into edit mode
+      if (vignetteUuid) {
+      // We need to wait for the DOM to update first
+      setTimeout(() => {
+        if (sessionTableRef.value) {
+          sessionTableRef.value.setEditingRow(vignetteUuid);
+        }
+      }, 50); // Small delay to ensure the DOM has updated
+    }
+
   }
 
   const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {

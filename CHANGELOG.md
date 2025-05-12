@@ -1,5 +1,17 @@
 # Change Log
 
+## v0.5.0 - More quality of life improvements
+
+![](https://img.shields.io/badge/release%20date-May%2011%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v0.5.0/module.zip)
+
+- Session notes now prompt to save when leaving play mode, changing campaigns, etc. 
+- Added ability to move unused lore from a session back to the campaign list
+- Lore and Vignettes now immediately open in edit mode after adding a new one
+- Fixed issue with move to next session buttons not always working
+- Fixed issue with not opening back on the right subtab when first opening the main window
+- Minor bug fixes
+
 ## v0.4.2 - Fixed text box color
 
 ![](https://img.shields.io/badge/release%20date-May%2010%2C%202025-blue)

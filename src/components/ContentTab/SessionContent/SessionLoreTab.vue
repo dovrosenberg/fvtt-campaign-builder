@@ -1,5 +1,6 @@
 <template>
   <SessionTable
+    ref="sessionTableRef"
     :rows="relatedLoreRows"
     :columns="sessionStore.extraFields[SessionTableTypes.Lore]"
     :delete-item-label="localize('tooltips.deleteLore')"
@@ -8,11 +9,13 @@
     :add-button-label="localize('labels.session.addLore')"
     :extra-add-text="localize('labels.session.addLoreDrag')"
     :allow-drop-row="true"
+    :show-move-to-campaign="true"
     @add-item="onAddLore"
     @delete-item="onDeleteLore"
     @mark-item-delivered="onMarkLoreDelivered"
     @unmark-item-delivered="onUnmarkLoreDelivered"
     @move-to-next-session="onMoveLoreToNext"
+    @move-to-campaign="onMoveToCampaign"
     @cell-edit-complete="onCellEditComplete"
     @dragoverNew="onDragover"
     @dragoverRow="onDragover"
@@ -25,12 +28,13 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
+  import { ref } from 'vue';
 
   // local imports
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
-  import { confirmDialog } from '@/dialogs';
+  import { FCBDialog } from '@/dialogs';
 
   // library components
 	
@@ -53,6 +57,7 @@
   
   ////////////////////////////////
   // data
+  const sessionTableRef = ref<any>(null);
 
   ////////////////////////////////
   // computed data
@@ -63,7 +68,18 @@
   ////////////////////////////////
   // event handlers
   const onAddLore = async () => {
-    await sessionStore.addLore();
+    // Add the lore and get the UUID of the newly added item
+    const loreUuid = await sessionStore.addLore();
+    
+    // If we successfully added a lore item, put its description column into edit mode
+    if (loreUuid) {
+      // We need to wait for the DOM to update first
+      setTimeout(() => {
+        if (sessionTableRef.value) {
+          sessionTableRef.value.setEditingRow(loreUuid);
+        }
+      }, 50); // Small delay to ensure the DOM has updated
+    }
   }
 
   const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
@@ -92,6 +108,9 @@
     await sessionStore.markLoreDelivered(uuid, false);
   }
 
+  const onMoveToCampaign = async (uuid: string) => {
+    await sessionStore.moveLoreToCampaign(uuid);
+  }
   const onMoveLoreToNext = async (uuid: string) => {
     await sessionStore.moveLoreToNext(uuid);
   }
@@ -136,7 +155,7 @@
       const lore = relatedLoreRows.value.find((l)=>l.uuid===rowUuid);
       
       if (lore?.journalEntryPageId && 
-          !(await confirmDialog('Update lore?', 'Are you sure you want to replace the journal entry tied to this lore?'))) {
+          !(await FCBDialog.confirmDialog('Update lore?', 'Are you sure you want to replace the journal entry tied to this lore?'))) {
         return;
       }
       

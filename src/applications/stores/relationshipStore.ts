@@ -27,25 +27,16 @@ export const useRelationshipStore = defineStore('relationship', () => {
   const extraFields = {
     [Topics.Character]: {
       [Topics.Character]: [],
-      // [Topics.Event]: [],
       [Topics.Location]: [{field:'role', header:'Role'}],
       [Topics.Organization]: [{field:'role', header:'Role'}],
     },
-    // [Topics.Event]: {
-    //   [Topics.Character]: [],
-    //   [Topics.Event]: [],
-    //   [Topics.Location]: [],
-    //   [Topics.Organization]: [],
-    // },
     [Topics.Location]: {
       [Topics.Character]: [{field:'role', header:'Role'}],
-      // [Topics.Event]: [],
       [Topics.Location]: [],
       [Topics.Organization]: [],
     },
     [Topics.Organization]: {
       [Topics.Character]: [{field:'role', header:'Role'}],
-      // [Topics.Event]: [],
       [Topics.Location]: [],
       [Topics.Organization]: [],
     },    
@@ -366,9 +357,6 @@ export const useRelationshipStore = defineStore('relationship', () => {
         case 'characters':
           topic = Topics.Character;
           break;
-        // case 'events':
-        //   topic = Topics.Event;
-        //   break;
         case 'locations':
           topic = Topics.Location;
           break;
@@ -393,7 +381,8 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
         const sceneList = [] as RelatedDocumentDetails[];
         for (let i=0; i<currentEntry.value.scenes.length; i++) {
-          const scene = (await fromUuid(currentEntry.value.scenes[i])) as Scene | null;
+          const scene = (await fromUuid<Scene>(currentEntry.value.scenes[i]));
+
           if (!scene)
             continue;
           
@@ -410,7 +399,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
         const actorList = [] as RelatedDocumentDetails[];
         for (let i=0; i<currentEntry.value.actors.length; i++) {
-          const actor = (await fromUuid(currentEntry.value.actors[i])) as Actor | null;
+          const actor = await fromUuid<Actor>(currentEntry.value.actors[i]);
           if (!actor)
             continue;
 

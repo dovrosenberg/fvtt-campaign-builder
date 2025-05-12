@@ -2,7 +2,7 @@ import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { TopicFolder } from '@/classes/TopicFolder';
 import { WBWorld } from '@/classes/WBWorld';
 import { Entry } from '@/classes/Entry';
-import { TopicDoc, TopicFlagKey, EntryDoc } from '@/documents';
+import { TopicDoc, TopicFlagKey, EntryDoc, DOCUMENT_TYPES } from '@/documents';
 import { Topics } from '@/types';
 import * as sinon from 'sinon';
 import { moduleId } from '@/settings';
@@ -20,6 +20,7 @@ export const registerTopicFolderTests = () => {
         let fromUuidStub;
         let getFlag;
         let setFlag;
+        let unsetFlag;
 
         beforeEach(() => {
           // Stub fromUuid since we don't want to actually look up documents
@@ -33,7 +34,16 @@ export const registerTopicFolderTests = () => {
             delete: sinon.stub().resolves(undefined),
           });
           
-          // Stub getFlag and setFlag
+          // Stub JournalEntryPage.createDocuments for Entry creation
+          sinon.stub(JournalEntryPage, 'createDocuments').resolves([{
+            name: 'New Entry',
+            uuid: 'new-entry-uuid',
+            type: DOCUMENT_TYPES.Entry,
+            update: sinon.stub().resolves({}),
+            delete: sinon.stub().resolves(undefined),
+          }]);
+          
+          // Stub getFlag, setFlag, and unsetFlag
           getFlag = sinon.stub(globalThis, 'getFlag');
           getFlag.withArgs(sinon.match.any, TopicFlagKey.isTopic).returns(true);
           getFlag.withArgs(sinon.match.any, TopicFlagKey.topNodes).returns(['node1', 'node2']);
@@ -41,6 +51,7 @@ export const registerTopicFolderTests = () => {
           getFlag.withArgs(sinon.match.any, TopicFlagKey.topic).returns(Topics.Character);
           
           setFlag = sinon.stub(globalThis, 'setFlag');
+          unsetFlag = sinon.stub(globalThis, 'unsetFlag');
           
           // Create a mock TopicDoc
           mockTopicDoc = {
@@ -59,10 +70,16 @@ export const registerTopicFolderTests = () => {
               },
               filter: function(callback) {
                 return this.contents.filter(callback);
-              }
+              },
+              size: 0
             },
             update: sinon.stub().resolves({}),
             delete: sinon.stub().resolves(undefined),
+            getFlag: function(moduleId, key) {
+              if (key === TopicFlagKey.isTopic) return true;
+              if (key === TopicFlagKey.topic) return Topics.Character;
+              return null;
+            },
           } as unknown as TopicDoc;
 
           // Create a mock World
@@ -75,7 +92,10 @@ export const registerTopicFolderTests = () => {
               metadata: {
                 id: 'test-compendium'
               }
-            }
+            },
+            hierarchies: {},
+            expandedIds: {},
+            updateTopicId: sinon.stub().resolves(undefined)
           } as unknown as WBWorld;
 
           // Create a TopicFolder instance
@@ -101,6 +121,17 @@ export const registerTopicFolderTests = () => {
             expect(topicFolder.topic).to.equal(Topics.Character);
             expect(topicFolder.world).to.equal(mockWorld);
           });
+          
+          it('should initialize with default values if flags are not set', () => {
+            // Create a topic doc with no flags
+            getFlag.withArgs(sinon.match.any, TopicFlagKey.topNodes).returns(null);
+            getFlag.withArgs(sinon.match.any, TopicFlagKey.types).returns(null);
+            
+            const topicFolderWithDefaults = new TopicFolder(mockTopicDoc, mockWorld);
+            
+            expect(topicFolderWithDefaults.topNodes).to.deep.equal([]);
+            expect(topicFolderWithDefaults.types).to.deep.equal([]);
+          });
         });
 
         describe('fromUuid', () => {
@@ -115,6 +146,16 @@ export const registerTopicFolderTests = () => {
             const result = await TopicFolder.fromUuid('test-uuid');
             expect(result).to.be.instanceOf(TopicFolder);
             expect(result?.uuid).to.equal('test-topic-uuid');
+          });
+          
+          it('should return null if document is not a topic folder', async () => {
+            // Create a non-topic document
+            const nonTopicDoc = { ...mockTopicDoc };
+            getFlag.withArgs(nonTopicDoc, TopicFlagKey.isTopic).returns(false);
+            
+            fromUuidStub.resolves(nonTopicDoc);
+            const result = await TopicFolder.fromUuid('test-uuid');
+            expect(result).to.be.null;
           });
         });
 
@@ -187,6 +228,10 @@ export const registerTopicFolderTests = () => {
             expect(topicFolder.types).to.deep.equal(['type1', 'type2']);
             topicFolder.types = ['type3', 'type4'];
             expect(topicFolder.types).to.deep.equal(['type3', 'type4']);
+          });
+          
+          it('should get name correctly', () => {
+            expect(topicFolder.name).to.equal('Characters');
           });
         });
 
@@ -313,20 +358,29 @@ export const registerTopicFolderTests = () => {
               expect(error.message).to.equal('Couldn\'t create new topic');
             }
           });
+          
+          it('should update the world with the new topic ID', async () => {
+            // Call create
+            await TopicFolder.create(mockWorld, Topics.Character);
+            
+            // Verify updateTopicId was called
+            expect(mockWorld.updateTopicId.calledWith(Topics.Character, 'test-topic-uuid')).to.equal(true);
+          });
         });
 
         describe('entry management', () => {
           it('should filter entries correctly', () => {
             // Setup mock entries
             mockTopicDoc.pages.contents = [
-              { uuid: 'entry1-uuid', name: 'Entry 1' },
-              { uuid: 'entry2-uuid', name: 'Entry 2' }
+              { uuid: 'entry1-uuid', name: 'Entry 1', type: DOCUMENT_TYPES.Entry },
+              { uuid: 'entry2-uuid', name: 'Entry 2', type: DOCUMENT_TYPES.Entry }
             ] as any[];
             
             // Stub Entry constructor
             const entryStub = sinon.stub(globalThis, 'Entry').callsFake((doc) => ({
               uuid: doc.uuid,
-              name: doc.name
+              name: doc.name,
+              type: DOCUMENT_TYPES.Entry
             }));
             
             // Act
@@ -340,14 +394,15 @@ export const registerTopicFolderTests = () => {
           it('should return all entries', () => {
             // Setup mock entries
             mockTopicDoc.pages.contents = [
-              { uuid: 'entry1-uuid', name: 'Entry 1' },
-              { uuid: 'entry2-uuid', name: 'Entry 2' }
+              { uuid: 'entry1-uuid', name: 'Entry 1', type: DOCUMENT_TYPES.Entry },
+              { uuid: 'entry2-uuid', name: 'Entry 2', type: DOCUMENT_TYPES.Entry }
             ] as any[];
             
             // Stub Entry constructor
             const entryStub = sinon.stub(globalThis, 'Entry').callsFake((doc) => ({
               uuid: doc.uuid,
-              name: doc.name
+              name: doc.name,
+              type: DOCUMENT_TYPES.Entry
             }));
             
             // Act
@@ -362,14 +417,15 @@ export const registerTopicFolderTests = () => {
           it('should find entry by uuid', () => {
             // Setup mock entries
             mockTopicDoc.pages.contents = [
-              { uuid: 'entry1-uuid', name: 'Entry 1' },
-              { uuid: 'entry2-uuid', name: 'Entry 2' }
+              { uuid: 'entry1-uuid', name: 'Entry 1', type: DOCUMENT_TYPES.Entry },
+              { uuid: 'entry2-uuid', name: 'Entry 2', type: DOCUMENT_TYPES.Entry }
             ] as any[];
             
             // Stub Entry constructor
             const entryStub = sinon.stub(globalThis, 'Entry').callsFake((doc) => ({
               uuid: doc.uuid,
-              name: doc.name
+              name: doc.name,
+              type: DOCUMENT_TYPES.Entry
             }));
             
             // Act
@@ -383,7 +439,7 @@ export const registerTopicFolderTests = () => {
           it('should return null when entry is not found', () => {
             // Setup mock entries
             mockTopicDoc.pages.contents = [
-              { uuid: 'entry1-uuid', name: 'Entry 1' }
+              { uuid: 'entry1-uuid', name: 'Entry 1', type: DOCUMENT_TYPES.Entry }
             ] as any[];
             
             // Act
@@ -391,6 +447,82 @@ export const registerTopicFolderTests = () => {
             
             // Assert
             expect(result).to.be.null;
+          });
+          
+          it('should create a new entry', async () => {
+            // Setup Entry.create stub
+            const mockEntry = {
+              uuid: 'new-entry-uuid',
+              name: 'New Entry',
+              type: 'new-type',
+              save: sinon.stub().resolves({})
+            };
+            
+            const Entry = sinon.stub();
+            Entry.create = sinon.stub().resolves(mockEntry);
+            globalThis.Entry = Entry;
+            
+            // Call createEntry
+            const result = await topicFolder.createEntry({
+              name: 'New Entry',
+              type: 'new-type'
+            });
+            
+            // Verify Entry.create was called
+            expect(Entry.create.calledWith(topicFolder, sinon.match({
+              name: 'New Entry',
+              type: 'new-type'
+            }))).to.equal(true);
+            
+            // Verify result
+            expect(result).to.equal(mockEntry);
+          });
+          
+          it('should add entry to top nodes if it has no parent', async () => {
+            // Setup Entry.create stub
+            const mockEntry = {
+              uuid: 'new-entry-uuid',
+              name: 'New Entry',
+              type: 'new-type',
+              save: sinon.stub().resolves({})
+            };
+            
+            const Entry = sinon.stub();
+            Entry.create = sinon.stub().resolves(mockEntry);
+            globalThis.Entry = Entry;
+            
+            // Call createEntry with no parent
+            await topicFolder.createEntry({
+              name: 'New Entry',
+              type: 'new-type'
+            });
+            
+            // Verify topNodes was updated
+            expect(topicFolder.topNodes).to.include('new-entry-uuid');
+          });
+          
+          it('should not add entry to top nodes if it has a parent', async () => {
+            // Setup Entry.create stub
+            const mockEntry = {
+              uuid: 'new-entry-uuid',
+              name: 'New Entry',
+              type: 'new-type',
+              save: sinon.stub().resolves({})
+            };
+            
+            const Entry = sinon.stub();
+            Entry.create = sinon.stub().resolves(mockEntry);
+            globalThis.Entry = Entry;
+            
+            // Call createEntry with a parent
+            await topicFolder.createEntry({
+              name: 'New Entry',
+              type: 'new-type',
+              parentId: 'parent-uuid'
+            });
+            
+            // Verify topNodes was not updated
+            expect(topicFolder.topNodes).not.to.include('new-entry-uuid');
           });
         });
       });

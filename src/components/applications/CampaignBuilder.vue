@@ -166,10 +166,9 @@
 
       const topicIds = currentWorld.value.topicIds;
       const campaignNames = currentWorld.value.campaignNames;
-      const topics = [ Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
-        // [Topics.Event]: null,
         [Topics.Location]: null,
         [Topics.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;
@@ -179,7 +178,7 @@
         const t = topics[i];
 
         // we need to load the actual entries - not just the index headers
-        topicJournals[t] = (await fromUuid(topicIds[t])) as JournalEntry | null;
+        topicJournals[t] = await fromUuid<JournalEntry>(topicIds[t]);
 
         if (!topicJournals[t])
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
@@ -279,10 +278,9 @@
 
     if (world.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const topics = [ Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
-        // [Topics.Event]: null,
         [Topics.Location]: null,
         [Topics.Organization]: null,
       } as Record<ValidTopic, JournalEntry | null>;
@@ -292,7 +290,7 @@
         const t = topics[i];
 
         // we need to load the actual entries - not just the index headers
-        topicJournals[t] = (await fromUuid(world.topicIds[t])) as JournalEntry | null;
+        topicJournals[t] = await fromUuid<JournalEntry>(world.topicIds[t]);
 
         if (!topicJournals[t])
           throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
@@ -300,7 +298,7 @@
 
       for (const campaignId in world.campaignNames) {
         // we need to load the actual entries - not just the index headers
-        const j = (await fromUuid(campaignId)) as CampaignDoc | null;
+        const j = await fromUuid<CampaignDoc>(campaignId);
         if (j) {
           campaignJournals[j.uuid] = j;
         }

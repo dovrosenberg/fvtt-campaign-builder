@@ -22,8 +22,6 @@ export function getTopicIcon(topic: string | number | Topics | null | undefined)
       return 'fa-location-dot';   //'fa-place-of-worship';
     case Topics.Organization: 
       return 'fa-flag';
-    // case Topics.Event: 
-    //   return 'fa-calendar-days';
     default: 
       return '';
   }

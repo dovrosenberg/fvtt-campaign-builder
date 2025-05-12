@@ -55,7 +55,7 @@
   // store
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentWorld, } = storeToRefs(mainStore);
+  const { currentWorld, isInPlayMode } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -85,6 +85,7 @@
           icon: getTabTypeIcon(WindowTabType.Campaign),
           iconFontClass: 'fas',
           label: localize('contextMenus.campaignsHeader.createCampaign'), 
+          disabled: isInPlayMode.value,
           onClick: async () => {
             if (currentWorld.value) {
               await Campaign.create(currentWorld.value as WBWorld);

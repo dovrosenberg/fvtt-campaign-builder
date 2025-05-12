@@ -72,7 +72,6 @@
     [Topics.Character]: 'icons/svg/mystery-man.svg',
     [Topics.Location]: 'icons/svg/oak.svg',
     [Topics.Organization]: 'icons/svg/temple.svg',
-    // [Topics.Event]: 'icons/svg/obelisk.svg',
   };
   
   ////////////////////////////////

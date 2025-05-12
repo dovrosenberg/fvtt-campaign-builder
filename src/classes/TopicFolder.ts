@@ -40,7 +40,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   };
   
   static async fromUuid(topicId: string, options?: Record<string, any>): Promise<TopicFolder | null> {
-    const topicDoc = await fromUuid(topicId, options) as TopicDoc | null;
+    const topicDoc = await fromUuid<TopicDoc>(topicId, options);
 
     if (!topicDoc)
       return null;
@@ -78,7 +78,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     if (!this._doc.collection?.folder)
       throw new Error('Invalid folder id in Topics.loadWorld()');
 
-    const worldDoc = await fromUuid(this._doc.collection.folder.uuid) as WorldDoc | null;
+    const worldDoc = await fromUuid<WorldDoc>(this._doc.collection.folder.uuid);
 
     if (!worldDoc)
       throw new Error('Invalid folder id in Topics.loadWorld()');

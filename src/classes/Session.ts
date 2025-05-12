@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore } from '@/documents';
 import { searchService } from '@/utils/search';
-import { inputDialog } from '@/dialogs';
+import { FCBDialog } from '@/dialogs';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
 import { TagInfo } from '@/types';
@@ -30,7 +30,7 @@ export class Session {
   }
 
   static async fromUuid(sessionId: string, options?: Record<string, any>): Promise<Session | null> {
-    const sessionDoc = await fromUuid(sessionId, options) as SessionDoc | null;
+    const sessionDoc = await fromUuid<SessionDoc>(sessionId, options);
 
     if (!sessionDoc)
       return null;
@@ -49,6 +49,9 @@ export class Session {
   public async loadCampaign(): Promise<Campaign> {
     if (this.parentCampaign)
       return this.parentCampaign;
+
+    if (!this._sessionDoc.parent)
+      throw new Error('call to Session.loadCampaign() without _sessionDoc');
 
     this.parentCampaign = await Campaign.fromUuid(this._sessionDoc.parent.uuid);
 
@@ -80,7 +83,7 @@ export class Session {
   {
     let nameToUse = '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`); 
+      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`); 
     }  
     
     // if name is null, then we cancelled the dialog
@@ -337,7 +340,7 @@ export class Session {
     return this._sessionDoc.system.vignettes || [];
   }
 
-  async addVignette(description: string): Promise<void> {
+  async addVignette(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 
     this._sessionDoc.system.vignettes.push({
@@ -354,6 +357,7 @@ export class Session {
     };
 
     await this.save();
+    return uuid;
   }
 
   async updateVignetteDescription(uuid: string, description: string): Promise<void> {
@@ -623,6 +627,9 @@ export class Session {
   }
 
   get campaignId(): string {
+    if (!this._sessionDoc.parent)
+      throw new Error('Call to Session.campaignId without _sessionDoc');
+
     return this._sessionDoc.parent.uuid;
   }
 
