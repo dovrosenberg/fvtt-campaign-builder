@@ -1,5 +1,6 @@
 <template>
-  <form>
+  <!-- For some reason, submitting this form (and only this form, not of the other content forms) by hitting enter in the name input crashes the browser -->
+  <form @submit.prevent="">
     <div ref="contentRef" class="fcb-sheet-container flexcol">
       <header class="fcb-name-header flexrow">
         <i :class="`fas ${icon} sheet-icon`"></i>

@@ -59,7 +59,7 @@ export const registerDirectoryTopicNodeTests = () => {
           // Create a topic node
           topicNode = new DirectoryTopicNode(
             'topic-folder-uuid',
-            'topic-folder-uuid',
+            'Characters', // Use the proper name for the topic
             mockTopicFolder,
           );
         });
@@ -73,9 +73,13 @@ export const registerDirectoryTopicNodeTests = () => {
           it('should initialize with the provided values', () => {
             expect(topicNode.id).to.equal('topic-folder-uuid');
             expect(topicNode.topicFolder).to.equal(mockTopicFolder);
-            expect(topicNode.expanded).to.be.true;
+            expect(topicNode.expanded).to.be.true; // This is true because 'topic-folder-uuid' is in expandedIds
             expect(topicNode.name).to.equal('Characters');
             expect(topicNode.loadedTypes).to.deep.equal([]);
+            expect(topicNode.parentId).to.be.null;
+            expect(topicNode.children).to.deep.equal([]);
+            expect(topicNode.loadedChildren).to.deep.equal([]);
+            expect(topicNode.ancestors).to.deep.equal([]);
           });
         });
 
@@ -123,10 +127,10 @@ export const registerDirectoryTopicNodeTests = () => {
           });
         });
 
-        describe('loadTypeNodes', () => {
+        describe('loadTypeEntries', () => {
           it('should load type nodes for the topic', async () => {
-            // Call loadTypeNodes
-            await topicNode.loadTypeNodes();
+            // Call loadTypeEntries
+            await topicNode.loadTypeEntries();
             
             // Verify allEntries was called
             expect(mockTopicFolder.allEntries.called).to.be.true;
@@ -147,8 +151,8 @@ export const registerDirectoryTopicNodeTests = () => {
             // Update the mock to return the entry with no type
             (mockTopicFolder.allEntries as sinon.SinonStub).returns([entryWithNoType]);
             
-            // Call loadTypeNodes
-            await topicNode.loadTypeNodes();
+            // Call loadTypeEntries
+            await topicNode.loadTypeEntries();
             
             // Verify a type node was created for the empty type
             expect(topicNode.loadedTypes.length).to.equal(1);
@@ -164,8 +168,8 @@ export const registerDirectoryTopicNodeTests = () => {
             // Update the mock to return entries with different types
             (mockTopicFolder.allEntries as sinon.SinonStub).returns([entry1, entry2, entry3]);
             
-            // Call loadTypeNodes
-            await topicNode.loadTypeNodes();
+            // Call loadTypeEntries
+            await topicNode.loadTypeEntries();
             
             // Verify type nodes were created
             expect(topicNode.loadedTypes.length).to.equal(2);

@@ -19,11 +19,12 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
     // event.preventDefault();
     event.stopPropagation();
 
-    if (!event.dataTransfer) return;
+    if (!event.dataTransfer || !canvas) 
+      return;
 
     try {
       // Get the actor document using fromUuid
-      const actor = await fromUuid(uuid) as Actor | null;
+      const actor = await fromUuid<Actor>(uuid);
 
       if (actor) {
         // Set the drag data using the actor's toDragData method
@@ -36,15 +37,17 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
           let w, h;
 
           // Make sure pt.texture exists and has the required properties
-          if (pt && pt.texture && typeof pt.texture.scaleX === 'number' && typeof pt.texture.scaleY === 'number') {
+          if (pt && pt.texture && typeof pt.texture.scaleX === 'number' && typeof pt.texture.scaleY === 'number' && canvas.dimensions && canvas.stage && pt.width && pt.height) {
             w = pt.width * canvas.dimensions.size * Math.abs(pt.texture.scaleX) * canvas.stage.scale.x;
             h = pt.height * canvas.dimensions.size * Math.abs(pt.texture.scaleY) * canvas.stage.scale.y;
-          } else {
+          } else if (canvas.dimensions && canvas.stage) {
             // Fallback to a simpler approach if texture properties aren't available
             const size = canvas.dimensions.size;
             const scale = canvas.stage.scale.x;
             w = size * scale;
             h = size * scale;
+          } else {
+            throw new Error("Failed to drop actor in dragDrop.actorDragStart");
           }
 
           const preview = foundry.applications.ux.DragDrop.implementation.createDragImage({ src: actor.img }, w, h);
@@ -64,11 +67,11 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
     // event.preventDefault();
     event.stopPropagation();
 
-    if (!event.dataTransfer) return;
+    if (!event.dataTransfer || !canvas?.dimensions || !canvas?.stage) return;
 
     try {
       // Get the Item document using fromUuid
-      const item = await fromUuid(uuid) as Item | null;
+      const item = await fromUuid<Item>(uuid);
 
       if (item) {
         event.dataTransfer.setData("text/plain", JSON.stringify(item.toDragData()));

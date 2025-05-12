@@ -34,7 +34,7 @@
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { SettingKey, ModuleSettings } from '@/settings/ModuleSettings';
   import { Backend } from '@/classes'
-  import { createEntryDialog } from '@/dialogs/createEntry';
+  import { FCBDialog } from '@/dialogs';
   
   // local components
   import GenerateNameDialog from '@/components/AIGeneration/GenerateNameDialog.vue';
@@ -110,9 +110,9 @@
     initialName.value = value;
     initialType.value = config?.defaultTypes[currentGeneratorType.value] || '';
     
-    const entry = await createEntryDialog(topic, { 
-      name: initialName || '',
-      type: initialType || '',
+    const entry = await FCBDialog.createEntryDialog(topic, { 
+      name: initialName.value || '',
+      type: initialType.value || '',
     });
 
     if (entry) {

@@ -62,14 +62,14 @@ export default definePreset(Aura, {
       colorScheme: {
         light: {
           color: foundryVariables.colorTextDarkPrimary,
-          background: fcbVariables.fcbDarkOverlay,
+          background: 'rgba(0, 0, 0, 0.1)',
           borderColor: fcbVariables.fcbSheetInputBorder,
           focusBorderColor: 'black',  // change to var
           focusRingColor: foundryVariables.colorWarm2,
         },
         dark: {
           color: foundryVariables.colorTextLightPrimary,
-          background: fcbVariables.fcbLightOverlay,
+          background: 'rgb(48, 40, 49)',
           borderColor: fcbVariables.fcbSheetInputBorder,
           focusBorderColor: 'black',  // change to var
           focusRingColor: foundryVariables.colorWarm2,

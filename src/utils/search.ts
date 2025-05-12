@@ -88,7 +88,7 @@ class SearchService {
       throw new Error('Unable to create searchIndex in SearchService.buildIndex()');
 
     // Process each topic
-    const topics = [Topics.Character, /*Topics.Event,*/ Topics.Location, Topics.Organization] as ValidTopic[];
+    const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
     
     // Collect all items first
     const items = [] as SearchableItem[];
@@ -205,7 +205,7 @@ class SearchService {
       // locations, npcs - entries
       // items, monsters - documents
       // vignettes, lore - documents
-      const addEntrySnippet = async <T extends SessionRelatedItem>(relatedEntries: Readonly<T[]>, fromUuidCallback: (string)=>Promise<{name:string} | null>) => {
+      const addEntrySnippet = async <T extends SessionRelatedItem>(relatedEntries: Readonly<T[]>, fromUuidCallback: (string)=>Promise<{name?:string | undefined} | null>) => {
         for (const relatedItem of relatedEntries) {
           // only index delivered ones
           if (!relatedItem.delivered) 
@@ -213,7 +213,8 @@ class SearchService {
 
           const fullRelatedItem = await fromUuidCallback(relatedItem.uuid);
           
-          snippets.push(`${fullRelatedItem?.name}`);
+          if (fullRelatedItem?.name)
+            snippets.push(`${fullRelatedItem?.name}`);
         }
       };
       await addEntrySnippet(session.locations, Entry.fromUuid);
