@@ -238,7 +238,8 @@
               ]"
               @click.stop="col.onClick && col.onClick($event, data.uuid)"
             >
-              {{ data[col.field] }}
+              <!-- nbsp because otherwise the cell will have 0 width and the mouse events won't work -->
+              {{ data[col.field] }} &nbsp;
             </div>
           </div>
         </template>
