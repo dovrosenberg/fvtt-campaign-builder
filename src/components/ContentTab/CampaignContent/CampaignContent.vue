@@ -38,6 +38,13 @@
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>
+          <div class="flexrow form-group" style="height: 100%">
+            <Editor 
+              :initial-content="currentCampaign?.houseRules || ''"
+              :has-button="true"
+              @editor-saved="onHouseRulesEditorSaved"
+            />
+        </div>
         </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner">
@@ -139,6 +146,14 @@
       return;
 
     currentCampaign.value.description = newContent;
+    await currentCampaign.value.save();
+  };
+
+  const onHouseRulesEditorSaved = async (newContent: string) => {
+    if (!currentCampaign.value)
+      return;
+
+    currentCampaign.value.houseRules = newContent;
     await currentCampaign.value.save();
   };
 

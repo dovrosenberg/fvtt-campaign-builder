@@ -29,7 +29,7 @@
         ref="coreEditorRef"
         class="editor-content"
         v-bind="datasetProperties"
-        v-html="enrichedInitialContent"
+        v-safe-html="enrichedInitialContent"
       >
       </div>
     </div>
@@ -37,10 +37,8 @@
 </template>
 
 <script setup lang="ts">
-  // !!! TODO - use vue-safe-html instead of v-html!!!
-
   // library imports
-  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, toRaw, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -50,6 +48,7 @@
   import { getValidatedData } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
   import { localize } from '@/utils/game';
+
 
   // library components
 

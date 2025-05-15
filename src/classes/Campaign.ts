@@ -18,6 +18,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
   // saved in flags
   private _description: string;
+  private _houseRules: string;
   private _lore: SessionLore[];
   private _img: string;
 
@@ -32,6 +33,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this.world = world || null;
 
     this._description = this.getFlag(CampaignFlagKey.description) || '';
+    this._houseRules = this.getFlag(CampaignFlagKey.houseRules) || '';
     this._lore = this.getFlag(CampaignFlagKey.lore) || [];
     this._img = this.getFlag(CampaignFlagKey.img) || '';
     this._name = campaignDoc.name;
@@ -154,6 +156,22 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       }
     };
   }
+
+  public get houseRules(): string {
+    return this._houseRules;
+  }
+
+  public set houseRules(value: string) {
+    this._houseRules = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      [`flags.${moduleId}`]: {
+        ...this._cumulativeUpdate[`flags.${moduleId}`], 
+        houseRules: value,
+      }
+    };
+  }
+
 
   public get img(): string {
     return this._img;
