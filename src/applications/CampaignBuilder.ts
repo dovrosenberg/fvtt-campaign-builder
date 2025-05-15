@@ -8,7 +8,7 @@ const { ApplicationV2 } = foundry.applications.api;
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import '@yaireo/tagify/dist/tagify.css';
 import { theme } from '@/components/styles/primeVue';
-import VueSafeHtml from 'vue-safe-html';
+
 // setup pinia
 
 // the global instance - needed for keybindings, among other things
@@ -66,10 +66,6 @@ export class CampaignBuilderApplication extends VueApplicationMixin(ApplicationV
             theme: theme
           }
         },
-        vueSafeHtml: {
-          plugin: VueSafeHtml,
-          options: {}
-        }
       }
     }
   };

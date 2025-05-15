@@ -53,7 +53,7 @@
               :initial-content="currentCampaign?.houseRules || ''"
               :has-button="true"
               :style="{ 'height': '240px', 'margin-bottom': '6px'}"
-ed="onHouseRulesEditorSaved"
+              @editor-saved="onHouseRulesEditorSaved"
             />
         </div>
         </DescriptionTab>
