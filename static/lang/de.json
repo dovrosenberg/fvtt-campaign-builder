@@ -142,7 +142,8 @@
       "entry": {
         "topic": "Themenordner",
         "type": "Typ",
-        "relationships": "Beziehungen"
+        "relationships": "Beziehungen",
+        "sessions": "Sitzungen"
       },
       "session": {
         "session": "Sitzung",
@@ -181,7 +182,8 @@
           "organizations": "Organisationen",
           "organizationChildren": "Unterorganisationen",
           "scenes": "Szenen",
-          "actors": "Schauspieler"
+          "actors": "Schauspieler",
+          "sessions": "Sitzungen"
         },
         "campaign": {
           "description": "Beschreibung",

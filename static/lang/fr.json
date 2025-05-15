@@ -181,7 +181,8 @@
           "organizations": "Organisations",
           "organizationChildren": "Sous-organisations",
           "scenes": "Scènes",
-          "actors": "Acteurs"
+          "actors": "Acteurs",
+          "sessions": "Sessions"
         },
         "campaign": {
           "description": "Description",

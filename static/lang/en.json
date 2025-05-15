@@ -111,6 +111,7 @@
       "fields": {
         "type": "Type",
         "parent": "Parent",
+        "campaign": "Campaign",
         "sessionNumber": "Number",
         "sessionDate": "Session Date",
         "playerName": "Player Name",
@@ -143,7 +144,8 @@
       "entry": {
         "topic": "TopicFolder",
         "type": "Type",
-        "relationships": "Relationships"
+        "relationships": "Relationships",
+        "sessions": "Sessions"
       },
       "session": {
         "session": "Session",
@@ -182,7 +184,8 @@
           "organizations": "Organizations",
           "organizationChildren": "Sub-organizations",
           "scenes": "Scenes",
-          "actors": "Actors"
+          "actors": "Actors",
+          "sessions": "Sessions"
         },
         "campaign": {
           "description": "Description",
