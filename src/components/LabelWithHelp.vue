@@ -1,6 +1,5 @@
-
 <template>
-  <label>
+  <label :class="{ 'side-label': !props.topLabel }">
     {{ localize(props.labelText) }} 
     <i 
       v-if="props.helpText" 
@@ -33,6 +32,11 @@
       type: String,
       required: false,
       default: ''
+    },
+    topLabel: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   })
 

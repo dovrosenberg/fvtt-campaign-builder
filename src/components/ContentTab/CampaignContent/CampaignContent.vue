@@ -28,21 +28,32 @@
           :window-type="WindowTabType.Campaign"
           @image-change="onImageChange"
         >
-          <LabelWithHelp
-            label-text="labels.fields.campaignDescription"
-          />
-          <div class="flexrow form-group" style="height: 100%">
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.campaignDescription"
+              top-label
+            />
+          </div>
+          <div class="flexrow form-group">
             <Editor 
               :initial-content="currentCampaign?.description || ''"
               :has-button="true"
+              :style="{ 'height': '240px', 'margin-bottom': '6px'}"
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>
-          <div class="flexrow form-group" style="height: 100%">
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.campaignHouseRules"
+              top-label
+            />
+          </div>
+          <div class="flexrow form-group">
             <Editor 
               :initial-content="currentCampaign?.houseRules || ''"
               :has-button="true"
-              @editor-saved="onHouseRulesEditorSaved"
+              :style="{ 'height': '240px', 'margin-bottom': '6px'}"
+ed="onHouseRulesEditorSaved"
             />
         </div>
         </DescriptionTab>

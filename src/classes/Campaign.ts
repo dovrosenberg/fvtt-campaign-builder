@@ -150,9 +150,12 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this._description = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        description: value,
+      flags: {
+        ...this._cumulativeUpdate.flags,
+        [moduleId]: {
+          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
+          description: value,
+        }
       }
     };
   }
@@ -165,13 +168,15 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this._houseRules = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`], 
-        houseRules: value,
+      flags: {
+        ...this._cumulativeUpdate.flags,
+        [moduleId]: {
+          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
+          houseRules: value,
+        }
       }
     };
   }
-
 
   public get img(): string {
     return this._img;
@@ -181,9 +186,12 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this._img = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        img: value,
+      flags: {
+        ...this._cumulativeUpdate.flags,
+        [moduleId]: {
+          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
+          img: value,
+        }
       }
     };
   }
@@ -204,9 +212,12 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        lore: this._lore,
+      flags: {
+        ...this._cumulativeUpdate.flags,
+        [moduleId]: {
+          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
+          lore: this._lore,
+        }
       }
     };
 
@@ -224,9 +235,12 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        lore: this._lore,
+      flags: {
+        ...this._cumulativeUpdate.flags,
+        [moduleId]: {
+          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
+          lore: this._lore,
+        }
       }
     };
 
@@ -243,24 +257,29 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        lore: this._lore,
+      flags: {
+        ...this._cumulativeUpdate.flags,
+        [moduleId]: {
+          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
+          lore: this._lore,
+        }
       }
     };
 
     await this.save();
   }
 
-
   async deleteLore(uuid: string): Promise<void> {
     this._lore = this._lore.filter(l=> l.uuid!==uuid);
 
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        lore: this._lore,
+      flags: {
+        ...this._cumulativeUpdate.flags,
+        [moduleId]: {
+          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
+          lore: this._lore,
+        }
       }
     };
 
@@ -276,9 +295,12 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        lore: this._lore,
+      flags: {
+        ...this._cumulativeUpdate.flags,
+        [moduleId]: {
+          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
+          lore: this._lore,
+        }
       }
     };
 

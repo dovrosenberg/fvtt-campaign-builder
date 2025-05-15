@@ -135,12 +135,18 @@
         margin: 4px 8px 0px 0px;
       
         label {
-          max-width: 175px;
           color: var(--fcb-sheet-header-label-color);
           text-align: left;
           background: none;
           border: none;
+
+          // this is for the labels that are on the left side of the field
+          &.side-label {
+            max-width: 175px;
+          }
         }
+
+        // this is for ones 
         input {
           font-size: var(--font-size-20);
         }
