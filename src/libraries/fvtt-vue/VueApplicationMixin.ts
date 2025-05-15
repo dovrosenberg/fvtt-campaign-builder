@@ -1,6 +1,7 @@
+// @ts-nocheck
 // from mouse0270/fvtt-vue
 
-import { createApp, h, reactive } from 'vue';
+import { App, createApp, h, reactive } from 'vue';
 import { useMainStore } from '@/applications/stores';
 
 export const VueApplicationMixinVersion = '0.0.6';
@@ -9,7 +10,17 @@ export const VueApplicationMixinVersion = '0.0.6';
  * A mixin class that extends a base application with Vue.js functionality.
  * @template {typeof BaseApplication} BaseApplication - The base application class to extend.
  */
-export function VueApplicationMixin(BaseApplication) {
+export function VueApplicationMixin<TBase extends new (...args: any[]) => foundry.applications.api.ApplicationV2>(BaseApplication: TBase) {
+
+  type VueApplicationConstructor = typeof VueApplication & {
+    PARTS: Record<string, any>;
+    DEBUG: boolean;
+    SHADOWROOT: boolean;
+    DEFAULT_OPTIONS?: {
+      actions?: Record<string, Function>;
+    }
+  }
+
   class VueApplication extends BaseApplication {
     /**
      * Indicates whether the application is in debug mode.
@@ -46,9 +57,9 @@ export function VueApplicationMixin(BaseApplication) {
 
     /**
      * The private containers for Vue instances.
-     * @type {Object<string, Vue>}
+     * @type {App | null}
      */
-    #instance = null;
+    #instance: App | null = null;
 
     /**
      * The private containers for Vue instances.
@@ -62,7 +73,7 @@ export function VueApplicationMixin(BaseApplication) {
      */
     _configureRenderOptions(options) {
       super._configureRenderOptions(options);
-      options.parts ??= Object.keys(this.constructor.PARTS);
+      options.parts ??= Object.keys((this.constructor as VueApplicationConstructor).PARTS);
     }
 
     /**
@@ -85,12 +96,12 @@ export function VueApplicationMixin(BaseApplication) {
      */
     async _renderHTML(context, options) {
       const rendered = {};
-      if (this.constructor.DEBUG) console.log(`VueApplicationMixin | _renderHTML |`, context, options);
+      if ((this.constructor as VueApplicationConstructor).DEBUG) console.log(`VueApplicationMixin | _renderHTML |`, context, options);
 
       // Loop through the parts and render them
       for (const partId of options.parts) {
         // Get the part from the PARTS object
-        const part = this.constructor.PARTS[partId];
+        const part = (this.constructor as VueApplicationConstructor).PARTS[partId];
 
         // If part is not in the PARTS object, skip it
         if (!part) {
@@ -107,7 +118,7 @@ export function VueApplicationMixin(BaseApplication) {
         rendered[partId] = await (part?.app ?? part?.component ?? part?.template);
       }
 
-      if (this.constructor.DEBUG) console.log(`VueApplicationMixin | _renderHTML | Vue Instances |`, this.#instance);
+      if ((this.constructor as VueApplicationConstructor).DEBUG) console.log(`VueApplicationMixin | _renderHTML | Vue Instances |`, this.#instance);
       return rendered;
     }
 
@@ -118,7 +129,7 @@ export function VueApplicationMixin(BaseApplication) {
      * @param {Object} options - The render options.
      */
     _replaceHTML(result, content, options) {
-      if (this.constructor.DEBUG) console.log(`VueApplicationMixin | _replaceHTML |`, result, content, options);
+      if ((this.constructor as VueApplicationConstructor).DEBUG) console.log(`VueApplicationMixin | _replaceHTML |`, result, content, options);
 
       // Check if the Vue Instance exists, if not create it
       if (!this.#instance) {
@@ -135,7 +146,7 @@ export function VueApplicationMixin(BaseApplication) {
           )
         }).mixin({
           updated() {
-            if (Instance.constructor.DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Vue Instance Updated |`, this, Instance?.options);
+            if ((Instance.constructor as VueApplicationConstructor).DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Vue Instance Updated |`, this, Instance?.options);
 
             // Resize the application window after the Vue Instance is updated
             if (Instance?.options?.position?.height === "auto") Instance.setPosition({ height: "auto" });
@@ -149,10 +160,10 @@ export function VueApplicationMixin(BaseApplication) {
 
         // Attach .use() plugins to the Vue Instance
         for (const partId of options.parts) {
-          const part = this.constructor.PARTS[partId];
+          const part = (this.constructor as VueApplicationConstructor).PARTS[partId];
           if (part?.use) {
             for (const [key, plugin] of Object.entries(part.use)) {
-              if (this.constructor.DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Mount Vue Instance | Use Plugin |`, key, plugin);
+              if ((this.constructor as VueApplicationConstructor).DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Mount Vue Instance | Use Plugin |`, key, plugin);
               if (plugin?.plugin) {
                 this.#instance.use(plugin.plugin, plugin?.options ?? {});
               }
@@ -166,14 +177,14 @@ export function VueApplicationMixin(BaseApplication) {
         // Attach Part Listeners
         this._attachPartListeners(content, options);
 
-        if (this.constructor.DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Mount Vue Instance |`, this.#instance);
+        if ((this.constructor as VueApplicationConstructor).DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Mount Vue Instance |`, this.#instance);
 
         // Attach Shadow Root if Enabled
-        if (this.constructor.SHADOWROOT) content.attachShadow({ mode: 'open' });
-        let root = this.constructor.SHADOWROOT ? content.shadowRoot : content;
+        if ((this.constructor as VueApplicationConstructor).SHADOWROOT) content.attachShadow({ mode: 'open' });
+        let root = (this.constructor as VueApplicationConstructor).SHADOWROOT ? content.shadowRoot : content;
 
         // If Shadow Root is enabled, attach Styles to the Shadow Root
-        if (this.constructor.SHADOWROOT) {
+        if ((this.constructor as VueApplicationConstructor).SHADOWROOT) {
           const link = document.createElement('link');
           link.rel = 'stylesheet';
           link.href = '/modules/fvtt-vue-vite/dist/style.css';
@@ -185,7 +196,7 @@ export function VueApplicationMixin(BaseApplication) {
         }
 
         // Mount the Vue Instance
-        if (this.constructor.DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Root |`, root);
+        if ((this.constructor as VueApplicationConstructor).DEBUG) console.log(`VueApplicationMixin | _replaceHTML | Root |`, root);
         this.#instance.mount(root);
 
         // dev mode only - devtools hooks up to the play/prep toggle without this
@@ -204,6 +215,9 @@ export function VueApplicationMixin(BaseApplication) {
      * @param {Object} options - The options object.
      */
     _attachPartListeners(content, options) {
+      if (!this.#instance)
+        return;
+
       // Attach event listeners to the Vue Instance
       // -- Attach the onChange event listener
       this.#instance.provide('onChange', (componentInstance, ...args) => {
@@ -219,9 +233,9 @@ export function VueApplicationMixin(BaseApplication) {
       });
 
       // Attach this.constructor.DEFAULT_OPTIONS.actions to the Vue Instance
-      if (this.constructor.DEFAULT_OPTIONS?.actions) {
+      if ((this.constructor as VueApplicationConstructor).DEFAULT_OPTIONS?.actions) {
         // Loop through the actions and bind them to the Vue Instance
-        for (const [key, action] of Object.entries(this.constructor.DEFAULT_OPTIONS.actions)) {
+        for (const [key, action] of Object.entries((this.constructor as VueApplicationConstructor).DEFAULT_OPTIONS.actions)) {
           this.#instance.provide(key, action.bind(this));
         }
       }
@@ -241,7 +255,7 @@ export function VueApplicationMixin(BaseApplication) {
       }
       
       // Call the close method of the base application
-      await super.close(options);
+      return await super.close(options);
     }
 
 
@@ -260,7 +274,7 @@ export function VueApplicationMixin(BaseApplication) {
       // Get the part ID from the data attribute
       const partId = htmlElement?.dataset?.applicationPart;
       // Get the part from the PARTS object
-      const part = this.constructor.PARTS[partId];
+      const part = (this.constructor as VueApplicationConstructor).PARTS[partId];
 
       // Skip if part is not found
       if (!part?.forms) return (console.warn('VueApplicationMixin | onSubmitForm | No forms found for part', partId));
@@ -293,7 +307,7 @@ export function VueApplicationMixin(BaseApplication) {
       // Get the part ID from the data attribute
       const partId = htmlElement?.dataset?.applicationPart;
       // Get the part from the PARTS object
-      const part = this.constructor.PARTS[partId];
+      const part = (this.constructor as VueApplicationConstructor).PARTS[partId];
 
       // Skip if part is not found
       if (!part?.forms) return (console.warn('VueApplicationMixin | onChangeForm | No forms found for part', partId));

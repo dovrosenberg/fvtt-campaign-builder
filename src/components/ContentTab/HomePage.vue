@@ -99,7 +99,6 @@
         case getTopicIcon(Topics.Character):
         case getTopicIcon(Topics.Location):
         case getTopicIcon(Topics.Organization):
-        // case getTopicIcon(Topics.Event):
           await navigationStore.openEntry(item.uuid, { newTab: false });
           break;
 

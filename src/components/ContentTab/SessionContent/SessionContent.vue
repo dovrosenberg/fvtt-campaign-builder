@@ -52,6 +52,7 @@
               for="fcb-input-number" 
               unstyled
               :placeholder="localize('placeholders.sessionNumber')"
+              :disabled=isInPlayMode
               :pt="{
                 root: { class: 'full-height' } 
               }" 
@@ -169,7 +170,7 @@
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const campaignStore = useCampaignStore();
-  const { currentSession, currentContentTab, } = storeToRefs(mainStore);
+  const { currentSession, currentContentTab, isInPlayMode } = storeToRefs(mainStore);
   const { currentPlayedSession } = storeToRefs(campaignStore);
   
   ////////////////////////////////

@@ -1,4 +1,4 @@
-import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin.mjs';
+import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin';
 import PrimeVue from 'primevue/config';
 
 import App from '@/components/applications/AdvancedSettings.vue';

@@ -120,7 +120,8 @@
             >
               <i class="fas fa-pen"></i>
             </a>
-            <div v-if="props.trackDelivery">
+            <span v-if="props.trackDelivery">
+              <!-- lockedToSessionId is a way to see if this is a seesion lore list or a campaign list for things that aren't delivered -->
               <a 
                 v-if="!data.delivered  && !data.lockedToSessionId"
                 class="fcb-action-icon" 
@@ -138,6 +139,14 @@
                 <i class="fas fa-circle-xmark"></i>
               </a>
               <a 
+                v-if="props.showMoveToCampaign && !data.delivered && !data.lockedToSessionId"
+                class="fcb-action-icon" 
+                :data-tooltip="localize('tooltips.moveToCampaign')"
+                @click.stop="emit('moveToCampaign', data.uuid)" 
+              >
+                <i class="fas fa-reply"></i>
+              </a>
+              <a 
                 v-if="!data.lockedToSessionId"
                 class="fcb-action-icon" 
                 :data-tooltip="localize('tooltips.moveToNextSession')"
@@ -145,7 +154,7 @@
               >
                 <i class="fas fa-share"></i>
               </a>
-            </div>
+            </span>
           </div>
         </template>
         <template
@@ -187,10 +196,17 @@
               <!-- we set the id so that we can pull the value when we change row -->
               <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
               <Textarea 
+                v-if="!col.smallEditBox"
                 v-model="data[col.field]"
                 style="width: 100%; font-size: inherit;"
                 :id="`${data.uuid}-${col.field}`" 
                 rows="2"
+              />
+              <InputText 
+                v-if="col.smallEditBox"
+                v-model="data[col.field]"
+                style="width: 100%; font-size: inherit;"
+                :id="`${data.uuid}-${col.field}`" 
               />
             </div>
             <div 
@@ -221,8 +237,11 @@
                 col.onClick ? 'clickable' : '',
               ]"
               @click.stop="col.onClick && col.onClick($event, data.uuid)"
-            >
-              {{ data[col.field] }}
+            >              
+              <span :style="col.onClick ? 'text-decoration: underline;' : ''">
+                {{ data[col.field] }}               
+              </span>
+              &nbsp; <!-- nbsp because otherwise the cell will have 0 width and the mouse events won't work; here so it doesn't get underlined -->
             </div>
           </div>
         </template>
@@ -339,6 +358,7 @@
     (e: 'dragoverRow', event: DragEvent, uuid: string): void;
     (e: 'dropRow', event: DragEvent, uuid: string): void;
     (e: 'dropNew', event: DragEvent): void;
+    (e: 'setEditingRow', uuid: string): void;
   }>();
 
   ////////////////////////////////
@@ -375,6 +395,19 @@
 
   ////////////////////////////////
   // methods
+  /**
+   * Sets a specific row to edit mode
+   * @param uuid The UUID of the row to edit
+   */
+  const setEditingRow = (uuid: string) => {
+    editingRow.value = uuid;
+    emit('setEditingRow', uuid);
+  }
+
+  // Expose the setEditingRow method to parent components
+  defineExpose({
+    setEditingRow
+  });
 
   ////////////////////////////////
   // event handlers

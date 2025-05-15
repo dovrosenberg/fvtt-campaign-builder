@@ -2,6 +2,7 @@
   <!-- a table for use in sessions - handles items that can be moved to the next session, marked done, etc. -->
   <div class="primevue-only">
     <BaseTable
+      ref="baseTableRef"
       :show-add-button="props.showAddButton"
       :show-filter="false"
       :filter-fields="[]"
@@ -22,13 +23,14 @@
       @add-item="() => emit('addItem')"
       @row-contextmenu="(event) => emit('rowContextMenu', event)"
       @cell-edit-complete="(event) => emit('cellEditComplete', event)"
-      @mark-item-delivered="(uuid) => emit('rowContextMenu', uuid)"
-      @unmark-item-delivered="(uuid) => emit('rowContextMenu', uuid)"
-      @move-to-next-session="(uuid) => emit('rowContextMenu', uuid)"
-      @move-to-campaign="(uuid) => emit('rowContextMenu', uuid)"
+      @mark-item-delivered="(uuid) => emit('markItemDelivered', uuid)"
+      @unmark-item-delivered="(uuid) => emit('unmarkItemDelivered', uuid)"
+      @move-to-next-session="(uuid) => emit('moveToNextSession', uuid)"
+      @move-to-campaign="(uuid) => emit('moveToCampaign', uuid)"
       @dragstart="(event, uuid) => emit('dragstart', event, uuid)"
       @drop-row="(event, uuid) => emit('dropRow', event, uuid)"
       @drop-new="(event) => emit('dropNew', event)"
+      @set-editing-row="(uuid) => emit('setEditingRow', uuid)"
     >
     </BaseTable>
   </div>
@@ -36,7 +38,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { PropType, computed } from 'vue';
+  import { PropType, computed, ref } from 'vue';
 
   // local imports
   
@@ -115,6 +117,7 @@
     (e: 'dragstart', event: DragEvent, uuid: string): void;
     (e: 'dropRow', event: DragEvent, uuid: string): void;
     (e: 'dropNew', event: DragEvent): void;
+    (e: 'setEditingRow', uuid: string): void;
   }>();
 
   ////////////////////////////////
@@ -122,6 +125,7 @@
 
   ////////////////////////////////
   // data
+  const baseTableRef = ref<any>(null);
 
   ////////////////////////////////
   // computed data
@@ -139,6 +143,21 @@
 
   ////////////////////////////////
   // methods
+  /**
+   * Sets a specific row to edit mode
+   * @param uuid The UUID of the row to edit
+   */
+  const setEditingRow = (uuid: string) => {
+    // Call the setEditingRow method on the BaseTable component
+    if (baseTableRef.value) {
+      baseTableRef.value.setEditingRow(uuid);
+    }
+  }
+
+  // Expose the setEditingRow method to parent components
+  defineExpose({
+    setEditingRow
+  });
 
   ////////////////////////////////
   // event handlers

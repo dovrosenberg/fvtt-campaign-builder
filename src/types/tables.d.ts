@@ -75,6 +75,7 @@ export type SessionLoreDetails = {
   journalEntryPageId: string | null;  // the JournalEntryPage document
   journalEntryPageName: string | null;  
   delivered: boolean;
+  packId: string | null;  // compendium of the document
   onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
 }
 

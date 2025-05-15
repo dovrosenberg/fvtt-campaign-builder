@@ -137,6 +137,16 @@ export const useNavigationStore = defineStore('navigation', () => {
     let icon = '';
     let badId = false;
 
+    // these are the default content tabs to open to
+    const defaultContentTab = {
+      [WindowTabType.Entry]: 'description',
+      [WindowTabType.World]: 'description',
+      [WindowTabType.Campaign]: 'description',
+      [WindowTabType.Session]: 'notes',
+      [WindowTabType.PC]: '',  // no tabs
+      [WindowTabType.NewTab]: '',  // no tabs
+    } as Record<WindowTabType, string>;
+
     if (!contentId) 
       contentType = WindowTabType.NewTab;
 
@@ -225,8 +235,9 @@ export const useNavigationStore = defineStore('navigation', () => {
       tab.header = headerData;
 
       // add to history -- it should go immediately after the current tab and all other forward history should go away
+      // this is a new thing so the contentTab should always be the default
       if (headerData.uuid && options.updateHistory) {
-        tab.addToHistory(contentId, contentType, currentContentTab.value);
+        tab.addToHistory(contentId, contentType, defaultContentTab[contentType]);
       }
 
       // force a refresh of reactivity
@@ -328,6 +339,21 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     return;
   };
+
+  /** Update the contenttab on the current tab and save to DB */
+  const updateContentTab = async function (newContentTab: string): Promise<void> {
+    const currentTab = getActiveTab(false);
+    
+    if (!currentTab) 
+      return;
+
+    // Update the history of the current tab with the new content tab
+    if (currentTab.history.length > 0 && currentTab.historyIdx >= 0) {
+      currentTab.history[currentTab.historyIdx].contentTab = newContentTab;
+    }
+    
+    await _saveTabs();
+  }
 
   /**
    * Used after deleting an entry/campaign/session to make sure that no current tab or tab history includes 
@@ -586,6 +612,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     openWorld,
     openPC,
     openContent,
+    updateContentTab,
     getActiveTab,
     loadTabs,
     activateTab,

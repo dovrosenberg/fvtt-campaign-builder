@@ -33,7 +33,7 @@ export async function initializeRollTables(): Promise<void> {
     // Check if we already have a table for this type
     if (generatorConfig.rollTables[type]) {
       // Verify the table still exists and is the right type
-      const table = await fromUuid(generatorConfig.rollTables[type]);
+      const table = await fromUuid<RollTable>(generatorConfig.rollTables[type]);
       if (table) {
         if (table.getFlag(moduleId, 'type')===type)
           continue; // Table exists, skip to next type
@@ -44,7 +44,8 @@ export async function initializeRollTables(): Promise<void> {
     const table = await createRollTable(type, folderId);
     
     // Store the table ID in the mapping
-    generatorConfig.rollTables[type] = table.uuid;
+    if (table)
+      generatorConfig.rollTables[type] = table.uuid;
   }
   
   // Save the generator config
@@ -141,7 +142,7 @@ const generateTableResults = async (type: GeneratorType, count: number): string[
  * @param folderId The ID of the folder to create the table in
  * @returns The created RollTable
  */
-async function createRollTable(type: GeneratorType, folderId: string): Promise<RollTable> {
+async function createRollTable(type: GeneratorType, folderId: string): Promise<RollTable | null> {
   const tableName = `${type.charAt(0).toUpperCase() + type.slice(1)} Generator`;
   
   // Create the table
@@ -154,12 +155,15 @@ async function createRollTable(type: GeneratorType, folderId: string): Promise<R
     displayRoll: false, // Don't display the roll publicly
   });
   
-  
-  await table.setFlag(moduleId, 'type', type);
+  if (table) {
+    await table.setFlag(moduleId, 'type', type);
 
-  await refreshRollTable(table);
+    await refreshRollTable(table);
   
-  return table;
+    return table;
+  } else {
+    return null;
+  }
 }
 
 /** removes any "used" results and adds replacements for them; tops up to TABLE_SIZE */
@@ -202,8 +206,8 @@ export const refreshAllRollTables = async() : Promise<void> => {
   const config = ModuleSettings.get(SettingKey.generatorConfig);
 
   for (const key in config?.rollTables) {
-    const table = await fromUuid(config.rollTables[key]);
+    const table = await fromUuid<RollTable>(config.rollTables[key]);
     if (table)
-      await refreshRollTable(table as unknown as RollTable);
+      await refreshRollTable(table);
   }
 }
