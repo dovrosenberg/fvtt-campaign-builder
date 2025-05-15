@@ -28,16 +28,34 @@
           :window-type="WindowTabType.Campaign"
           @image-change="onImageChange"
         >
-          <LabelWithHelp
-            label-text="labels.fields.campaignDescription"
-          />
-          <div class="flexrow form-group" style="height: 100%">
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.campaignDescription"
+              top-label
+            />
+          </div>
+          <div class="flexrow form-group">
             <Editor 
               :initial-content="currentCampaign?.description || ''"
               :has-button="true"
+              :style="{ 'height': '240px', 'margin-bottom': '6px'}"
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>
+          <div class="flexrow form-group">
+            <LabelWithHelp
+              label-text="labels.fields.campaignHouseRules"
+              top-label
+            />
+          </div>
+          <div class="flexrow form-group">
+            <Editor 
+              :initial-content="currentCampaign?.houseRules || ''"
+              :has-button="true"
+              :style="{ 'height': '240px', 'margin-bottom': '6px'}"
+              @editor-saved="onHouseRulesEditorSaved"
+            />
+        </div>
         </DescriptionTab>
         <div class="tab flexcol" data-group="primary" data-tab="pcs">
           <div class="tab-inner">
@@ -139,6 +157,14 @@
       return;
 
     currentCampaign.value.description = newContent;
+    await currentCampaign.value.save();
+  };
+
+  const onHouseRulesEditorSaved = async (newContent: string) => {
+    if (!currentCampaign.value)
+      return;
+
+    currentCampaign.value.houseRules = newContent;
     await currentCampaign.value.save();
   };
 

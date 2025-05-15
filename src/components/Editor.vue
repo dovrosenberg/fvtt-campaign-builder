@@ -29,7 +29,7 @@
         ref="coreEditorRef"
         class="editor-content"
         v-bind="datasetProperties"
-        v-html="enrichedInitialContent"
+        v-html="safeEnrichedContent"
       >
       </div>
     </div>
@@ -37,10 +37,8 @@
 </template>
 
 <script setup lang="ts">
-  // !!! TODO - use vue-safe-html instead of v-html!!!
-
   // library imports
-  import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, toRaw, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -50,6 +48,8 @@
   import { getValidatedData } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
   import { localize } from '@/utils/game';
+  import { sanitizeHTML } from '@/utils/sanitizeHtml';
+
 
   // library components
 
@@ -144,6 +144,8 @@
     return dataset;
   });
 
+  const safeEnrichedContent = computed((): string => (sanitizeHTML(enrichedInitialContent.value)));
+
   const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight + 'px'}` : ''));
   const innerStyle = computed((): string => (props.height ? `height: ${props.height + 'px'}` : ''));
 
@@ -220,6 +222,9 @@
     // @ts-ignore 
     content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
 
+    // see if dirty
+    const isDirty = (lastSavedContent.value !== ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content));
+
     // For edit-only mode (like in SessionNotes), don't destroy the editor
     if (remove && !editOnlyMode.value) {
       // this also blows up the DOM... don't think we actually need it
@@ -232,19 +237,18 @@
       editorVisible.value = false;
       await nextTick();
       editorVisible.value = true;
-    } else if (isDirty()) {
+    } else if (isDirty) {
       // if we're not removing it, then do a ui confirmation
       notifyInfo(localize('notifications.changesSaved'));
     }
     
-    if (isDirty()) {
+    if (isDirty) {
       lastSavedContent.value = content;
       emit('editorSaved', content);
     }
   };
 
-  const isDirty = () => (lastSavedContent.value !== ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content));
-  
+
   ////////////////////////////////
   // event handlers
   const onDragover = (event: DragEvent) => {

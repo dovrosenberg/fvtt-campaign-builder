@@ -57,7 +57,7 @@
                   />
                 </div>
                 <div class="flexrow form-group">
-                    <Editor 
+                  <Editor 
                     :initial-content="currentPC?.background || ''"
                     :has-button="true"
                     :style="{ 'height': '240px', 'margin-bottom': '6px'}"

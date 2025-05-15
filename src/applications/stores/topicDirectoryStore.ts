@@ -383,7 +383,6 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // we try to keep it fast by not reloading from disk nodes that we've already loaded before,
   //    but that means that when names change or children change, we're not refreshing them properly
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
-  // TODO: consider wrapping the rootFolder in a class vs. doing this foundry work here
   const refreshTopicDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world and journals loaded
     if (!currentWorld.value)
