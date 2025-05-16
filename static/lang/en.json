@@ -7,6 +7,8 @@
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
       "displaySessionNotes": "Display pop-up session notes",
       "displaySessionNotesHelp": "When enabled, a session notes window will automatically open when a play session starts",
+      "defaultAddToSession": "Default 'Add to current session'",
+      "defaultAddToSessionHelp": "When in play mode, should the checkbox when creating an entry default to on or off?",
       "sessionDisplayMode": "Session display format",
       "sessionDisplayModeHelp": "Choose how sessions are displayed in the campaign directory",
       "sessionDisplayModeOptions": {
@@ -127,7 +129,8 @@
         "briefDescription": "Brief description",
         "description": "Description",
         "longDescriptions": "Generate long descriptions",
-        "generateImage": "Generate Image"
+        "generateImage": "Generate Image",
+        "addToCurrentSession": "Add to current session"
       },
       "addTopic": {
         "character": "Add Character",

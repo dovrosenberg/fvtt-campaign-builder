@@ -11,6 +11,7 @@ export enum SettingKey {
   displaySessionNotes = 'displaySessionNotes',  // should the session notes window automatically open
   sessionDisplayMode = 'sessionDisplayMode',  // how to display sessions in the directory
   hideBackendWarning = 'hideBackendWarning', // don't show the warning about no backend
+  defaultAddToSession = 'defaultAddToSession', // default state of "Add to current session" checkbox
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
@@ -45,6 +46,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
     K extends SettingKey.defaultToLongDescriptions ? boolean :
+    K extends SettingKey.defaultAddToSession ? boolean :
     K extends SettingKey.rollTableSettingsMenu ? never :
     K extends SettingKey.autoRefreshRollTables ? boolean :
     K extends SettingKey.speciesList ? Species[] :
@@ -138,6 +140,13 @@ export class ModuleSettings {
       settingID: SettingKey.displaySessionNotes,
       name: 'settings.displaySessionNotes',
       hint: 'settings.displaySessionNotesHelp',
+      default: true,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.defaultAddToSession,
+      name: 'settings.defaultAddToSession',
+      hint: 'settings.defaultAddToSessionHelp',
       default: true,
       type: Boolean,
     },

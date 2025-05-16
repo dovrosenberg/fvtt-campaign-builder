@@ -436,6 +436,8 @@ export const useRelationshipStore = defineStore('relationship', () => {
     }
   };
 
+  // if this ever becomes too slow, we could store a lookup table on each entry - or a global one on the world - and refresh it
+  //    whenever a link is added/removed on the session side.  But for now, this seems to be fine.
   const _refreshSessionReferences = async () => {
     if (!currentEntry.value || !currentWorld.value) {
       sessionReferences.value = [];

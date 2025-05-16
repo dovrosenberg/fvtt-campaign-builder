@@ -136,6 +136,25 @@
             </label>
           </div>
         </div>
+
+        <!-- Add new checkbox for adding to current session -->
+        <div 
+          v-if="isInPlayMode"
+          class="generation-option"
+        >
+          <div class="generation-option-wrapper">
+            <Checkbox 
+              v-model="addToCurrentSession" 
+              :binary="true"
+              inputId="add-to-session-checkbox"
+            />
+            <label for="add-to-session-checkbox" class="generation-label">
+              {{ localize('labels.fields.addToCurrentSession') }}
+              <i class="fas fa-info-circle tooltip-icon" :data-tooltip="localize('tooltips.createEntry.addToCurrentSession')"></i>
+            </label>
+          </div>
+        </div>
+
         <hr 
           v-if="Backend.available"
           style="background-image: none; border: 1px solid #aaa"          
@@ -173,7 +192,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore } from '@/applications/stores';
+  import { useMainStore, useSessionStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend } from '@/classes';
@@ -256,7 +275,8 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentWorld } = storeToRefs(mainStore);
+  const sessionStore = useSessionStore();
+  const { currentWorld, isInPlayMode } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -279,6 +299,9 @@
   // for locations/organizations
   const parentId = ref<string>(props.initialParentId);
   const parentName = ref<string>('');
+
+  // Add new checkbox for adding to current session
+  const addToCurrentSession = ref<boolean>(ModuleSettings.get(SettingKey.defaultAddToSession));
 
   ////////////////////////////////
   // computed data
@@ -430,7 +453,8 @@
     // create the entry and kick off image generation if needed
     // if we haven't generated a description, use whatever's in brief description
     // the idea is that - especially when we're dealing with a rolltable name - user can use this form as a sort of quick create
-    let details: CharacterDetails | LocationDetails | OrganizationDetails | null = null;if (props.topic === Topics.Character) {
+    let details: CharacterDetails | LocationDetails | OrganizationDetails | null = null;
+    if (props.topic === Topics.Character) {
       // see if speciesId was made up or is an existing one
       const validSpecies = ModuleSettings.get(SettingKey.speciesList).map((s) => s.id);
 
@@ -453,7 +477,19 @@
 
     // Call the callback with the created entry if it exists
     if (props.callback) {
-      props.callback(details);
+      const entry = await props.callback(details);
+
+      // If we're in play mode and the checkbox is checked, add to current session
+      if (isInPlayMode.value && addToCurrentSession.value && entry) {
+        if (props.topic === Topics.Character) {
+          await sessionStore.addNPC(entry.uuid);
+        } else if (props.topic === Topics.Location) {
+          await sessionStore.addLocation(entry.uuid);
+        } else if (props.topic === Topics.Organization) {
+          // For organizations, do nothing for now 
+          // TODO: maybe add to the notes; have to figure out how to deal with open editors
+        }
+      }
     }
   };
   
