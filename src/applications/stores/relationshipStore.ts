@@ -17,12 +17,21 @@ import { watch } from 'vue';
 import { ref } from 'vue';
 import { Entry } from '@/classes';
 
+interface SessionReference {
+  uuid: string;
+  number: number;
+  name: string;
+  date: string | null;
+  campaignName: string;
+}
+
 // the store definition
 export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // the state
   const relatedItemRows = ref<RelatedItemDetails<any, any>[]>([]);
   const relatedDocumentRows = ref<RelatedDocumentDetails[]>([]);
+  const sessionReferences = ref<SessionReference[]>([]);
 
   const extraFields = {
     [Topics.Character]: {
@@ -45,7 +54,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentContentTab, currentDocumentType } = storeToRefs(mainStore);
+  const { currentEntry, currentContentTab, currentDocumentType, currentWorld, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -344,6 +353,10 @@ export const useRelationshipStore = defineStore('relationship', () => {
 
   ///////////////////////////////
   // computed state
+  const findReferencesInNotes = (notes: string, entryUuid: string): boolean => {
+    // We could make sure it's in a link format, but really we just need to know if there's a UUID in it
+    return notes.includes(entryUuid);
+  };
 
   ///////////////////////////////
   // internal functions
@@ -351,6 +364,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     if (!currentEntry.value || !currentContentTab.value) {
       relatedItemRows.value = [];
       relatedDocumentRows.value = [];
+      sessionReferences.value = [];
     } else {
       let topic: Topics;
       switch (currentContentTab.value) {
@@ -368,6 +382,10 @@ export const useRelationshipStore = defineStore('relationship', () => {
           break;
         case 'actors':
           topic = Topics.None;
+          break;
+        case 'sessions':
+          topic = Topics.None;
+          await _refreshSessionReferences();
           break;
         default:
           topic = Topics.None;
@@ -418,6 +436,64 @@ export const useRelationshipStore = defineStore('relationship', () => {
     }
   };
 
+  const _refreshSessionReferences = async () => {
+    if (!currentEntry.value || !currentWorld.value) {
+      sessionReferences.value = [];
+      return;
+    }
+
+    const references: SessionReference[] = [];
+    const campaigns = Object.values(currentWorld.value.campaigns);
+
+    // Go through all campaigns in the world
+    for (const campaign of campaigns) {
+      // Get all sessions in the campaign
+      const sessions = campaign.filterSessions(() => true);
+
+      for (const session of sessions) {
+        let isReferenced = false;
+
+        // Check if entry is referenced as delivered content
+        if (currentEntry.value.topic === Topics.Character) {
+          const npcRef = session.npcs.find(npc => npc.uuid === currentEntry.value?.uuid);
+          if (npcRef) {
+            isReferenced = true;
+          }
+        } else if (currentEntry.value.topic === Topics.Location) {
+          const locationRef = session.locations.find(loc => loc.uuid === currentEntry.value?.uuid);
+          if (locationRef) {
+            isReferenced = true;
+          }
+        }
+
+        // Check if entry is referenced in notes
+        if (!isReferenced && findReferencesInNotes(session.notes, currentEntry.value.uuid)) {
+          isReferenced = true;
+        }
+
+        if (isReferenced) {
+          references.push({
+            uuid: session.uuid,
+            number: session.number,
+            name: session.name,
+            date: session.date?.toLocaleDateString() || null,
+            campaignName: campaign.name
+          });
+        }
+      }
+    }
+
+    // Sort by session number
+    references.sort((a, b) => a.number - b.number);
+    sessionReferences.value = references;
+  };
+
+  ///////////////////////////////
+  // computed state
+
+  ///////////////////////////////
+  // internal functions
+
   ///////////////////////////////
   // watchers
   watch(()=> currentEntry.value, async () => {
@@ -437,6 +513,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     relatedItemRows,
     relatedDocumentRows,
     extraFields,
+    sessionReferences,
 
     addRelationship,
     deleteRelationship,

@@ -226,6 +226,11 @@ export const useMainStore = defineStore('main', () => {
     return currentEntry.value.topic || Topics.None;
   });
 
+  const hasMultipleCampaigns = computed((): boolean => {
+    if (!currentWorld.value) return false;
+    return Object.values(currentWorld.value.campaignNames).length > 1;
+  });
+
   // the currently selected tab for the content page
   const currentContentTab = computed({
     get: (): string | null => _currentTab.value?.contentTab || null,
@@ -294,6 +299,7 @@ export const useMainStore = defineStore('main', () => {
     currentWorldCompendium,
     refreshCurrentEntry,
     isInPlayMode,
+    hasMultipleCampaigns,
 
     setNewWorld,
     setNewTab,

@@ -21,37 +21,22 @@
 
 <script setup lang="ts">
 // library imports
-import { ref, onMounted, watch, computed } from 'vue';
+import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 
 // local imports
-import { useMainStore, useNavigationStore } from '@/applications/stores';
+import { useNavigationStore, useRelationshipStore, useMainStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
-import { htmlToPlainText } from '@/utils/misc';
 
 // library components
 import BaseTable from '@/components/BaseTable/BaseTable.vue';
 
-// types
-import { Session } from '@/classes';
-import { Topics } from '@/types';
-
 // store
-const mainStore = useMainStore();
 const navigationStore = useNavigationStore();
-const { currentEntry, currentWorld } = storeToRefs(mainStore);
-
-// data
-interface SessionReference {
-  uuid: string;
-  number: number;
-  name: string;
-  date: string | null;
-  campaignName: string;
-}
-
-const sessionReferences = ref<SessionReference[]>([]);
-const hasMultipleCampaigns = ref(false);
+const relationshipStore = useRelationshipStore();
+const mainStore = useMainStore();
+const { sessionReferences } = storeToRefs(relationshipStore);
+const { hasMultipleCampaigns } = storeToRefs(mainStore);
 
 // methods
 const onSessionClick = (event: MouseEvent, uuid: string) => {
@@ -90,72 +75,6 @@ const columns = computed(() => {
     }
   ];
 });
-
-const findReferencesInNotes = (notes: string, entryUuid: string): boolean => {
-  // This is a stub function that could be improved to find more sophisticated references
-  // For now just look for the UUID in the notes
-  return notes.includes(entryUuid);
-};
-
-const refreshSessionReferences = async () => {
-  if (!currentEntry.value || !currentWorld.value) {
-    sessionReferences.value = [];
-    return;
-  }
-
-  const references: SessionReference[] = [];
-  const campaigns = Object.values(currentWorld.value.campaigns);
-  hasMultipleCampaigns.value = campaigns.length > 1;
-
-  // Go through all campaigns in the world
-  for (const campaign of campaigns) {
-    // Get all sessions in the campaign
-    const sessions = campaign.filterSessions(() => true);
-
-    for (const session of sessions) {
-      let isReferenced = false;
-
-      // Check if entry is referenced as delivered content
-      if (currentEntry.value.topic === Topics.Character) {
-        const npcRef = session.npcs.find(npc => npc.uuid === currentEntry.value?.uuid);
-        if (npcRef) {
-          isReferenced = true;
-        }
-      } else if (currentEntry.value.topic === Topics.Location) {
-        const locationRef = session.locations.find(loc => loc.uuid === currentEntry.value?.uuid);
-        if (locationRef) {
-          isReferenced = true;
-        }
-      }
-
-      // Check if entry is referenced in notes
-      if (!isReferenced && findReferencesInNotes(session.notes, currentEntry.value.uuid)) {
-        isReferenced = true;
-      }
-
-      if (isReferenced) {
-        references.push({
-          uuid: session.uuid,
-          number: session.number,
-          name: session.name,
-          date: session.date?.toLocaleDateString() || null,
-          campaignName: campaign.name
-        });
-      }
-    }
-  }
-
-  // Sort by session number
-  references.sort((a, b) => a.number - b.number);
-  sessionReferences.value = references;
-};
-
-// watchers
-watch(() => currentEntry.value?.uuid, refreshSessionReferences);
-
-// lifecycle
-onMounted(refreshSessionReferences);
-
 </script>
 
 <style lang="scss" scoped>
