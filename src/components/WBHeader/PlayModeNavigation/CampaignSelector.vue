@@ -1,6 +1,6 @@
 <template>
   <div class="campaign-selector-container" v-if="showSelector">
-    <label for="campaign-selector">Campaign:</label>
+    <label for="campaign-selector">{{localize('fields.campaign')}}:</label>
     <Select
       id="campaign-selector"
       v-model="currentPlayedCampaignId"
@@ -25,9 +25,11 @@
 
   // local imports
   import { useCampaignStore, useMainStore } from '@/applications/stores';
+  import { localize } from '@/utils/game';
 
   // library components
   import Select from 'primevue/select';
+
 
   // types
 
@@ -69,7 +71,7 @@
   label {
     margin-right: 8px;
     font-weight: bold;
-    color: var(--fcb-header-nav-btn-color);
+    color: var(--color-light-1);
   }
 
   .fcb-dropdown {

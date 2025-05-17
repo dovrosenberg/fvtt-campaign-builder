@@ -5,7 +5,7 @@ import { ref, watch } from 'vue';
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
+import { useCampaignDirectoryStore, useCampaignStore, useMainStore, useNavigationStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game'; 
 import { htmlToPlainText } from '@/utils/misc';
@@ -87,7 +87,9 @@ export const useSessionStore = defineStore('session', () => {
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
+  const campaignStore = useCampaignStore();
   const { currentWorld, currentContentTab, currentSession, } = storeToRefs(mainStore);
+  const { currentPlayedSession } = storeToRefs(campaignStore);
 
   ///////////////////////////////
   // internal state
@@ -102,11 +104,23 @@ export const useSessionStore = defineStore('session', () => {
    * Adds a location to the session.
    * @param uuid the UUID of the location to add.
    */
-  const addLocation = async (uuid: string): Promise<void> => {
+  const addLocation = async (uuid: string, delivered: boolean = false): Promise<void> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.addLocation()');
 
-    await currentSession.value.addLocation(uuid);
+    await currentSession.value.addLocation(uuid, delivered);
+    await _refreshLocationRows();
+  }
+
+  /**
+   * Adds a location to the played session.
+   * @param uuid the UUID of the location to add.
+   */
+  const addLocationToPlayedSession = async (uuid: string, delivered: boolean = false): Promise<void> => {
+    if (!currentPlayedSession.value)
+      throw new Error('Invalid session in sessionStore.addLocationToPlayedSession()');
+
+    await currentPlayedSession.value.addLocation(uuid, delivered);
     await _refreshLocationRows();
   }
 
@@ -163,11 +177,23 @@ export const useSessionStore = defineStore('session', () => {
    * Adds a NPC to the session.
    * @param uuid the UUID of the character to add.
    */
-  const addNPC = async (uuid: string): Promise<void> => {
+  const addNPC = async (uuid: string, delivered: boolean = false): Promise<void> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.addNPC()');
 
-    await currentSession.value.addNPC(uuid);
+    await currentSession.value.addNPC(uuid, delivered);
+    await _refreshNPCRows();
+  }
+
+  /**
+   * Adds a NPC to the played session.
+   * @param uuid the UUID of the character to add.
+   */
+  const addNPCToPlayedSession = async (uuid: string, delivered: boolean = false): Promise<void> => {
+    if (!currentPlayedSession.value)
+      throw new Error('Invalid session in sessionStore.addNPCToPlayedSession()');
+
+    await currentPlayedSession.value.addNPC(uuid, delivered);
     await _refreshNPCRows();
   }
 
@@ -824,6 +850,7 @@ export const useSessionStore = defineStore('session', () => {
     extraFields,
     lastSavedNotes,
     addLocation,
+    addLocationToPlayedSession,
     deleteLocation,
     markLocationDelivered,
     moveLocationToNext,
@@ -832,6 +859,7 @@ export const useSessionStore = defineStore('session', () => {
     markItemDelivered,
     moveItemToNext,
     addNPC,
+    addNPCToPlayedSession,
     deleteNPC,
     markNPCDelivered,
     moveNPCToNext,

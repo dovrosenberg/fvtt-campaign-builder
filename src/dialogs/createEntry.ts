@@ -101,7 +101,8 @@ async function createEntryDialog(topic: ValidTopic,
         dialog.close(); 
 
         const entry = await createdCallback(topicFolder, details);
-        await resolve(entry) 
+        resolve(entry) 
+        return entry;
       }        
     };
    
@@ -161,7 +162,8 @@ async function updateEntryDialog(entry: Entry): Promise<Entry | null> {
         dialog.close(); 
 
         await updatedCallback(entry, details);
-        await resolve(entry);
+        resolve(entry);
+        return entry;
       }        
     };
    

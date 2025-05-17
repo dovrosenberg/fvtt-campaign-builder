@@ -482,9 +482,9 @@
       // If we're in play mode and the checkbox is checked, add to current session
       if (isInPlayMode.value && addToCurrentSession.value && entry) {
         if (props.topic === Topics.Character) {
-          await sessionStore.addNPC(entry.uuid);
+          await sessionStore.addNPCToPlayedSession(entry.uuid, true);
         } else if (props.topic === Topics.Location) {
-          await sessionStore.addLocation(entry.uuid);
+          await sessionStore.addLocationToPlayedSession(entry.uuid, true);
         } else if (props.topic === Topics.Organization) {
           // For organizations, do nothing for now 
           // TODO: maybe add to the notes; have to figure out how to deal with open editors
@@ -591,9 +591,7 @@
       display: flex;
       align-items: center;
       flex-direction: row;
-      margin-top: 16px;
-      padding: 8px 0 8px 0;
-      // border-top: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 8px 0 0 0;
 
       .generation-option-wrapper {
         width: 50%;

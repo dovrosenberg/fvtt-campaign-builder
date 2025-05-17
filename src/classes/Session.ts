@@ -234,13 +234,13 @@ export class Session {
     return this._sessionDoc.system.locations || [];
   }
 
-  async addLocation(uuid: string): Promise<void> {
+  async addLocation(uuid: string, delivered: boolean = false): Promise<void> {
     if (this._sessionDoc.system.locations.find(l=> l.uuid===uuid))
       return;
 
     this._sessionDoc.system.locations.push({
       uuid: uuid,
-      delivered: false
+      delivered: delivered
     });
 
     this._cumulativeUpdate = {
@@ -287,13 +287,13 @@ export class Session {
     return this._sessionDoc.system.npcs || [];
   }
 
-  async addNPC(uuid: string): Promise<void> {
+  async addNPC(uuid: string, delivered: boolean = false): Promise<void> {
     if (this._sessionDoc.system.npcs.find(l=> l.uuid===uuid))
       return;
 
     this._sessionDoc.system.npcs.push({
       uuid: uuid,
-      delivered: false
+      delivered: delivered
     });
 
     this._cumulativeUpdate = {
