@@ -217,7 +217,7 @@
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
   const campaignStore = useCampaignStore();
-  const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, isInPlayMode } = storeToRefs(mainStore);
+  const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, } = storeToRefs(mainStore);
   const { currentPlayedCampaign } = storeToRefs(campaignStore);
 
   ////////////////////////////////
@@ -445,7 +445,7 @@
 
     notifyInfo(`${currentEntry.value.name} ${localize('notifications.addedToSession')}`);
     updatePushButton();// # of available changed
-   }
+  };
 
   const onGenerateButtonClick = (event: MouseEvent): void => {
     // Prevent default behavior

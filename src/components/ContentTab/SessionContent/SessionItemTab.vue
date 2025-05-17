@@ -86,7 +86,7 @@
       return;
 
     // make sure it's the right format
-    if (data.type==='Item' && data.uuid) {
+    if (data.type === 'Item' && data.uuid) {
       await sessionStore.addItem(data.uuid);  
     }
   }
