@@ -5,6 +5,7 @@
 ![](https://img.shields.io/badge/release%20date-May%20__%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads-pre/dovrosenberg/fvtt-campaign-builder/v1.0.0/module.zip)
 
+- Added ability to create worlds, campaigns, and entries from the "New Tab"
 - Added tab to all entries to quickly find every session in which they were referenced 
 - Added house rules section to campaign
 - Minor visual improvements

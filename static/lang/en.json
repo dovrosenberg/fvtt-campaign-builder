@@ -110,6 +110,13 @@
       "addToWorld": "Add to world",
       "prep": "Prep",
       "play": "Play",
+      "homePage": {
+        "createWorld": "Create New World",
+        "createCampaign": "Create New Campaign",
+        "createCharacter": "Create New Character",
+        "createLocation": "Create New Location",
+        "createOrganization": "Create New Organization"
+      },
       "fields": {
         "type": "Type",
         "parent": "Parent",
@@ -286,6 +293,9 @@
       }
     },
     "contextMenus": {
+      "tabs": {
+        "closeAll": "Close All Tabs"
+      },
       "bookmarks": {
         "openNewTab": "Open in new Tab",
         "delete": "Delete bookmark"

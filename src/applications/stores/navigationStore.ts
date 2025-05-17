@@ -23,7 +23,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorld, currentContentTab } = storeToRefs(mainStore);
+  const { currentWorld, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state

@@ -11,13 +11,51 @@
     <br>
     <br>
     <div style="flex:2;">
-      <div 
-        class="flexrow" 
-        style="margin-bottom: 20px;"
-      >
-        <div class="new-link">
-          <div><i class="fas fa-book-open"></i></div>
-          Create New Entry
+      <div class="grid-container">
+        <div 
+          class="row-1" 
+        >
+          <div 
+            class="new-link"
+            @click="onCreateWorld"
+          >
+            <div><i class="fas fa-globe"></i></div>
+            {{ localize('labels.homePage.createWorld') }}
+          </div>
+          <div 
+            class="new-link"
+            @click="onCreateCampaign"
+          >
+            <div><i class="fas fa-book"></i></div>
+            {{ localize('labels.homePage.createCampaign') }}
+          </div>
+        </div>
+
+        <div 
+          class="row-2"
+          style="margin-bottom: 20px;"
+        >
+          <div 
+            class="new-link"
+            @click="onCreateCharacter"
+          >
+            <div><i :class="`fas ${getTopicIcon(Topics.Character)}`"></i></div>
+            {{ localize('labels.homePage.createCharacter') }}
+          </div>
+          <div 
+            class="new-link"
+            @click="onCreateLocation"
+          >
+            <div><i :class="`fas ${getTopicIcon(Topics.Location)}`"></i></div>
+            {{ localize('labels.homePage.createLocation') }}
+          </div>
+          <div 
+            class="new-link"
+            @click="onCreateOrganization"
+          >
+            <div><i :class="`fas ${getTopicIcon(Topics.Organization)}`"></i></div>
+            {{ localize('labels.homePage.createOrganization') }}
+          </div>
         </div>
       </div>
 
@@ -50,7 +88,7 @@
   // local imports
   import { localize } from '@/utils/game';
   import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
-  import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useTopicDirectoryStore } from '@/applications/stores';
 
   // library components
 
@@ -70,6 +108,8 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentWorld } = storeToRefs(mainStore);
   const { recent } = storeToRefs(navigationStore);
 
@@ -82,6 +122,34 @@
 
   ////////////////////////////////
   // methods
+  const onCreateWorld = async () => {
+    await topicDirectoryStore.createWorld();
+  };
+
+  const onCreateCampaign = async () => {
+    await campaignDirectoryStore.createCampaign();
+  };
+
+  const onCreateCharacter = async () => {
+    if (!currentWorld.value?.topicFolders[Topics.Character])
+      throw new Error('No character folder in current world in HomePage.onCreateCharacter()');
+
+    await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Character], {});
+  };
+
+  const onCreateLocation = async () => {
+    if (!currentWorld.value?.topicFolders[Topics.Location])
+      throw new Error('No location folder in current world in HomePage.onCreateLocation()');
+
+    await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Location], {});
+  };
+
+  const onCreateOrganization = async () => {
+    if (!currentWorld.value?.topicFolders[Topics.Organization])
+      throw new Error('No organization folder in current world in HomePage.onCreateOrganization()');
+
+    await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Organization], {});
+  };
 
   ////////////////////////////////
   // event handlers
@@ -158,21 +226,78 @@
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       
       .fcb-global-search {
         width: 100%;
+        max-width: 180px;
       }
+    }
+
+    .flexrow {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
     }
 
     .recent-link,
     .new-link {
       cursor: pointer;
-      padding: 4px;
+      padding: 12px 24px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.05);
+
+      i {
+        font-size: 24px;
+        margin-bottom: 8px;
+      }
     }
 
     .recent-link:hover,
     .new-link:hover {
       color: var(--fcb-blank-link-hover);
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 20px;
+      justify-items: center;
+    }
+
+    .row-1 {
+      grid-row: 1;
+      grid-column: 2 / span 2;
+      display: contents;
+    }
+
+    .row-1 > div:nth-child(1) {
+      grid-column: 2;
+    }
+
+    .row-1 > div:nth-child(2) {
+      grid-column: 4;
+    }
+
+    .row-2 {
+      grid-row: 2;
+      grid-column: 1 / -1;
+      display: contents;
+    }
+
+    .row-2 > div:nth-child(1) {
+      grid-column: 1;
+    }
+    .row-2 > div:nth-child(2) {
+      grid-column: 3;
+    }
+    .row-2 > div:nth-child(3) {
+      grid-column: 5;
     }
   }
 </style>

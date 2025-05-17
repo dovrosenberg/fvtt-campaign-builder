@@ -42,7 +42,7 @@
   import DirectoryCampaignNodeComponent from './DirectoryCampaignNode.vue';
   
   // types
-  import { Campaign, DirectoryCampaignNode, WBWorld } from '@/classes';
+  import { DirectoryCampaignNode, } from '@/classes';
   import { WindowTabType } from '@/types';
   
   ////////////////////////////////
@@ -87,10 +87,7 @@
           label: localize('contextMenus.campaignsHeader.createCampaign'), 
           disabled: isInPlayMode.value,
           onClick: async () => {
-            if (currentWorld.value) {
-              await Campaign.create(currentWorld.value as WBWorld);
-              await campaignDirectoryStore.refreshCampaignDirectoryTree();
-            }
+            await campaignDirectoryStore.createCampaign();
           }
         },
       ]
