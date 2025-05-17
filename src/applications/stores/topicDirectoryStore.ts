@@ -7,7 +7,7 @@ import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 // local imports
 import { ModuleSettings, SettingKey, } from '@/settings';
 import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
-import { useMainStore, useNavigationStore, } from '@/applications/stores';
+import { useMainStore, useNavigationStore, useCampaignStore,} from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
@@ -26,7 +26,9 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { rootFolder, currentWorld, currentEntry, refreshCurrentEntry, } = storeToRefs(mainStore); 
+  const campaignStore = useCampaignStore();
+  const { rootFolder, currentWorld, currentEntry, refreshCurrentEntry, isInPlayMode, } = storeToRefs(mainStore); 
+  const { currentPlayedSession } = storeToRefs(campaignStore);
 
   ///////////////////////////////
   // internal state
@@ -290,6 +292,19 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
 
     if (entry) {
       const uuid = entry.uuid;
+
+      // if we're in play mode, add to the todo list
+      if (isInPlayMode.value && currentPlayedSession.value) {
+
+        currentPlayedSession.value.addTodoItem({
+          uuid: uuid,
+          completed: false,
+          name: entry.name, 
+          type: 'monster',
+        });
+      
+        await currentPlayedSession.value.save();
+      } 
 
       // we always add a hierarchy, because we use it for filtering
       currentWorld.value.setEntryHierarchy(uuid, 

@@ -1,5 +1,4 @@
 import { TagInfo } from '@/types';
-import { extend } from 'jquery';
 
 export interface SessionRelatedItem {
   uuid: string;
@@ -25,6 +24,13 @@ export interface SessionLore extends SessionRelatedItem {
   journalEntryPageId: string | null;
 }
 
+export interface TodoItem {
+  uuid: string;  // uuid of the linked entry, lore, etc.
+  name: string;
+  type: 'entry' | 'lore' | 'vignette' | 'monster' | 'item';
+  completed: boolean;
+}
+
 const fields = foundry.data.fields;
 const sessionSchema = {
   number: new fields.NumberField({ required: true, nullable: false }),
@@ -41,6 +47,7 @@ const sessionSchema = {
     new fields.ObjectField({ required: true, nullable: false, }), 
     { required: true, initial: [], }
   ),
+  todoItems: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as TodoItem[] }),
 };
 
 type SessionSchemaType = typeof sessionSchema;
@@ -69,6 +76,7 @@ export interface SessionDoc extends JournalEntryPage {
     monsters: SessionMonster[];
     vignettes: SessionVignette[];
     lore: SessionLore[];
+    todoItems: TodoItem[];
     img: string;
     tags: TagInfo[];
   };

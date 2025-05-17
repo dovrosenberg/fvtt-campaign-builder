@@ -1,7 +1,7 @@
 // this store handles activities specific to campaigns 
 // 
 // library imports
-import { ref, watch } from 'vue';
+import { ref, watch, } from 'vue';
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
@@ -20,6 +20,7 @@ import {
   SessionMonsterDetails, 
   SessionVignetteDetails,
   SessionLoreDetails,
+  TodoItem,
 } from '@/types';
 
 import { Entry, Session } from '@/classes';
@@ -32,6 +33,7 @@ export enum SessionTableTypes {
   Monster,
   Vignette,
   Lore,
+  Todo,
 }
 
 // the store definition
@@ -45,6 +47,7 @@ export const useSessionStore = defineStore('session', () => {
   const relatedMonsterRows = ref<SessionMonsterDetails[]>([]);
   const relatedVignetteRows = ref<SessionVignetteDetails[]>([]);
   const relatedLoreRows = ref<SessionLoreDetails[]>([]); 
+  const todoRows = ref<TodoItem[]>([]);
   
   const extraFields = {
     [SessionTableTypes.None]: [],
@@ -77,6 +80,9 @@ export const useSessionStore = defineStore('session', () => {
         onClick: onJournalClick
       },
     ],  
+    [SessionTableTypes.Todo]: [
+      { field: 'name', style: 'text-align: left', header: 'To Do Item', sortable: true, onClick: onTodoClick },
+    ],
   } as Record<SessionTableTypes, FieldData>;
 
   // track the last value of notes we saved - have to do this 
@@ -150,6 +156,20 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markLocationDelivered()');
 
     await currentSession.value.markLocationDelivered(uuid, delivered);
+
+    const entry = await Entry.fromUuid(uuid);
+
+    if (entry && delivered) {
+      currentSession.value.addTodoItem({
+        uuid: uuid,
+        completed: false,
+        name: entry.name, 
+        type: 'entry',
+      });
+    
+      await currentSession.value.save();
+    }
+
     await _refreshLocationRows();
   }
 
@@ -223,6 +243,20 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markNPCDelivered()');
 
     await currentSession.value.markNPCDelivered(uuid, delivered);
+
+    const entry = await Entry.fromUuid(uuid);
+
+    if (entry && delivered) {
+      currentSession.value.addTodoItem({
+        uuid: uuid,
+        completed: false,
+        name: entry.name, 
+        type: 'entry',
+      });
+    
+      await currentSession.value.save();
+    }
+
     await _refreshNPCRows();
   }
 
@@ -298,6 +332,19 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markVignetteDelivered()');
 
     await currentSession.value.markVignetteDelivered(uuid, delivered);
+
+    const vignette = currentSession.value.vignettes.find(v=> v.uuid===uuid);
+
+    if (vignette && delivered) {
+      currentSession.value.addTodoItem({
+        uuid: uuid,
+        completed: false,
+        name: vignette.description, 
+        type: 'vignette',
+      });
+    
+      await currentSession.value.save();
+    }
     await _refreshVignetteRows();
   }
 
@@ -391,6 +438,20 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markLoreDelivered()');
 
     await currentSession.value.markLoreDelivered(uuid, delivered);
+
+    const lore = currentSession.value.lore.find(l=> l.uuid===uuid);
+
+    if (lore && delivered) {
+      currentSession.value.addTodoItem({
+        uuid: uuid,
+        completed: false,
+        name: lore.description, 
+        type: 'lore',
+      });
+    
+      await currentSession.value.save();
+    }
+
     await _refreshLoreRows();
   }
 
@@ -482,6 +543,20 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markItemDelivered()');
 
     await currentSession.value.markItemDelivered(uuid, delivered);
+
+    const entry = await fromUuid<Item>(uuid);
+
+    if (entry && delivered) {
+      currentSession.value.addTodoItem({
+        uuid: uuid,
+        completed: false,
+        name: entry.name, 
+        type: 'item',
+      });
+    
+      await currentSession.value.save();
+    }
+
     await _refreshItemRows();
   }
 
@@ -555,6 +630,20 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markMonsterDelivered()');
 
     await currentSession.value.markMonsterDelivered(uuid, delivered);
+
+    const entry = await fromUuid<Actor>(uuid);
+
+    if (entry && delivered) {
+      currentSession.value.addTodoItem({
+        uuid: uuid,
+        completed: false,
+        name: entry.name, 
+        type: 'monster',
+      });
+    
+      await currentSession.value.save();
+    }
+
     await _refreshMonsterRows();
   }
 
@@ -652,6 +741,17 @@ export const useSessionStore = defineStore('session', () => {
       navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true });
   }
 
+  // when we click on a todo item that has a UUID, open it
+  async function onTodoClick (event: MouseEvent, uuid: string) {
+    // make sure it's an entry (vs. lore, etc)
+    const entry = await Entry.fromUuid(uuid);
+
+    if (!entry)
+      return;
+        
+    await navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
+  }
+
   const _refreshRows = async () => {
     relatedLocationRows.value = [];
     relatedItemRows.value = [];
@@ -659,6 +759,7 @@ export const useSessionStore = defineStore('session', () => {
     relatedMonsterRows.value = [];
     relatedVignetteRows.value = [];
     relatedLoreRows.value = [];
+    todoRows.value = [];
 
     if (!currentSession.value)
       return;
@@ -669,6 +770,7 @@ export const useSessionStore = defineStore('session', () => {
     await _refreshMonsterRows();
     await _refreshVignetteRows();
     await _refreshLoreRows();
+    await _refreshTodoRows();
   };
 
   const _refreshLocationRows = async () => {
@@ -825,6 +927,24 @@ export const useSessionStore = defineStore('session', () => {
     relatedLoreRows.value = retval;
   }
 
+  const _refreshTodoRows = async () => {
+    if (!currentSession.value)
+      return;
+
+    const retval = [] as TodoItem[];
+
+    for (const item of currentSession.value?.todoItems) {
+      retval.push({
+        uuid: item.uuid,
+        completed: item.completed,
+        name: item.name,
+        type: item.type,
+      });
+    }
+
+    todoRows.value = retval;
+  }
+
   ///////////////////////////////
   // watchers
   watch(()=> currentSession.value, async () => {
@@ -847,6 +967,7 @@ export const useSessionStore = defineStore('session', () => {
     relatedMonsterRows,
     relatedVignetteRows,
     relatedLoreRows,
+    todoRows,
     extraFields,
     lastSavedNotes,
     addLocation,

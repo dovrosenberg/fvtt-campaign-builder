@@ -44,6 +44,7 @@
     { id: 'npcs', label: localize('labels.tabs.session.npcs'), icon: 'fa-user' },
     { id: 'monsters', label: localize('labels.tabs.session.monsters'), icon: 'fa-dragon' },
     { id: 'magic', label: 'Items', icon: 'fa-wand-sparkles' },
+    { id: 'todo', label: localize('labels.tabs.session.todo'), icon: 'fa-check-square' },
   ]);
 
   ////////////////////////////////

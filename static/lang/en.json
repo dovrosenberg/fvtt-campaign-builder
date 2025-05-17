@@ -211,7 +211,8 @@
           "locations": "Locations",
           "npcs": "NPCs",
           "monsters": "Monsters",
-          "magic": "Magic Items"
+          "magic": "Magic Items",
+          "todo": "To Do"
         }
       },
       "noResults": "Nothing here",

@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore, TodoItem } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
 import { Campaign, WBWorld } from '@/classes';
@@ -697,4 +697,75 @@ export class Session {
     return [];
   }
   
+  get todoItems(): readonly TodoItem[] {
+    if (!this._sessionDoc.system.todoItems) {
+      this._sessionDoc.system.todoItems = [];
+    }
+    return this._sessionDoc.system.todoItems;
+  }
+
+  set todoItems(value: TodoItem[]) {
+    this._sessionDoc.system.todoItems = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        todoItems: value
+      }
+    };
+  }
+
+  addTodoItem(item: TodoItem): void {
+    if (!this._sessionDoc.system.todoItems) {
+      this._sessionDoc.system.todoItems = [];
+    }
+
+    // if it exists, just update delievered
+    const existingItem = this._sessionDoc.system.todoItems.find(i => i.uuid === item.uuid);
+    if (existingItem && existingItem.completed) {
+      existingItem.completed = false;
+    } else {
+      this._sessionDoc.system.todoItems.push(item);
+    }
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        todoItems: this._sessionDoc.system.todoItems
+      }
+    };
+  }
+
+  updateTodoItem(uuid: string, completed: boolean): void {
+    if (!this._sessionDoc.system.todoItems) {
+      this._sessionDoc.system.todoItems = [];
+    }
+
+    const item = this._sessionDoc.system.todoItems.find(i => i.uuid === uuid);
+    if (!item)
+      return;
+
+    item.completed = completed;
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        todoItems: this._sessionDoc.system.todoItems
+      }
+    };
+  }
+
+  deleteTodoItem(uuid: string): void {
+    if (!this._sessionDoc.system.todoItems) {
+      this._sessionDoc.system.todoItems = [];
+    }
+
+    this._sessionDoc.system.todoItems = this._sessionDoc.system.todoItems.filter(i => i.uuid !== uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        todoItems: this._sessionDoc.system.todoItems
+      }
+    };
+  }
 }

@@ -34,6 +34,9 @@
         <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
         <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
+        <a 
+          v-if="uncompletedTodoCount > 0"
+          class="item" data-tab="todo">{{ localize('labels.tabs.session.todo') }} ({{ uncompletedTodoCount }})</a>
       </nav>
       <div class="fcb-tab-body flexrow">
         <DescriptionTab
@@ -120,6 +123,14 @@
             <SessionItemTab />
           </div>  
         </div>
+        <div 
+          v-if="uncompletedTodoCount > 0"
+          class="tab flexcol" data-group="primary" data-tab="todo"
+        >
+          <div class="tab-inner">
+            <SessionToDoTab />
+          </div>  
+        </div>
       </div>
     </div>
   </form>	 
@@ -129,7 +140,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { nextTick, ref, watch, onMounted, } from 'vue';
+  import { nextTick, ref, watch, onMounted, computed } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useCampaignStore } from '@/applications/stores';
@@ -153,6 +164,7 @@
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
+  import SessionToDoTab from '@/components/ContentTab/SessionContent/SessionToDoTab.vue';
   
   // types
   import { WindowTabType } from '@/types';
@@ -186,6 +198,9 @@
 
   ////////////////////////////////
   // computed data
+  const uncompletedTodoCount = computed(() => {
+    return currentSession.value?.todoItems?.filter(item => !item.completed).length || 0;
+  });
 
   ////////////////////////////////
   // methods

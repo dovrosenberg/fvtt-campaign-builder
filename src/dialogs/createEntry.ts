@@ -2,9 +2,9 @@ import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin';
 import PrimeVue from 'primevue/config';
 import App from '@/components/applications/CreateEntryDialog.vue';
 import { hasHierarchy, } from '@/utils/hierarchy';
-import { useMainStore, useTopicDirectoryStore, useRelationshipStore, useNavigationStore } from '@/applications/stores'; 
+import { useMainStore, useTopicDirectoryStore, useRelationshipStore, useNavigationStore, useCampaignStore } from '@/applications/stores'; 
 import { CharacterDetails, LocationDetails, OrganizationDetails, Topics, ValidTopic } from '@/types';
-import { Entry, TopicFolder } from '@/classes';
+import { Entry, Session, TopicFolder } from '@/classes';
 import { generateImage, handleGeneratedEntry } from '@/utils/generation';
 import { localize } from '@/utils/game';
 import { theme } from '@/components/styles/primeVue';
@@ -118,6 +118,20 @@ const createdCallback = async (topicFolder: TopicFolder, details: AnyDetails | n
 
   const entry = await handleGeneratedEntry(details, topicFolder);
 
+  // if we're in play mode, add to the todo list
+  if (entry && useMainStore().isInPlayMode && useCampaignStore().currentPlayedSession) {
+    const session = useCampaignStore().currentPlayedSession as Session;
+
+    session.addTodoItem({
+      uuid: entry.uuid,
+      completed: false,
+      name: entry.name, 
+      type: 'monster',
+    });
+  
+    await session.save();
+  } 
+  
   return entry || null;
 }
 
@@ -167,7 +181,7 @@ async function updateEntryDialog(entry: Entry): Promise<Entry | null> {
       }        
     };
    
-    dialog.render(true, { props });
+    dialog.render({ force: true, props });
   });
 }
 
