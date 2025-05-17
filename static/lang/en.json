@@ -111,11 +111,11 @@
       "prep": "Prep",
       "play": "Play",
       "homePage": {
-        "createWorld": "Create New World",
-        "createCampaign": "Create New Campaign",
-        "createCharacter": "Create New Character",
-        "createLocation": "Create New Location",
-        "createOrganization": "Create New Organization"
+        "createWorld": "Create World",
+        "createCampaign": "Create Campaign",
+        "createCharacter": "Create Character",
+        "createLocation": "Create Location",
+        "createOrganization": "Create Organization"
       },
       "fields": {
         "type": "Type",

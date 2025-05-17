@@ -162,14 +162,18 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   };
 
   const createCampaign = async (): Promise<Campaign | null> => {
-    if (currentWorld.value) {
-      let campaign = await Campaign.create(currentWorld.value as WBWorld);
-      await refreshCampaignDirectoryTree();
+    let campaign: Campaign | null = null;
 
-      return campaign;
-    } else { 
-      return null;
+    if (currentWorld.value) {
+      campaign = await Campaign.create(currentWorld.value as WBWorld);
+      await refreshCampaignDirectoryTree();
     }
+
+    if (campaign) {
+      await navigationStore.openCampaign(campaign.uuid, {newTab: true});
+    }
+
+    return campaign;
   };
 
   /**

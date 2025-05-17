@@ -11,51 +11,47 @@
     <br>
     <br>
     <div style="flex:2;">
-      <div class="grid-container">
+      <div class="flexrow">
         <div 
-          class="row-1" 
+          class="new-link"
+          @click="onCreateWorld"
         >
-          <div 
-            class="new-link"
-            @click="onCreateWorld"
-          >
-            <div><i class="fas fa-globe"></i></div>
-            {{ localize('labels.homePage.createWorld') }}
-          </div>
-          <div 
-            class="new-link"
-            @click="onCreateCampaign"
-          >
-            <div><i class="fas fa-book"></i></div>
-            {{ localize('labels.homePage.createCampaign') }}
-          </div>
+          <div><i class="fas fa-globe"></i></div>
+          {{ localize('labels.homePage.createWorld') }}
         </div>
-
         <div 
-          class="row-2"
-          style="margin-bottom: 20px;"
+          class="new-link"
+          @click="onCreateCampaign"
         >
-          <div 
-            class="new-link"
-            @click="onCreateCharacter"
-          >
-            <div><i :class="`fas ${getTopicIcon(Topics.Character)}`"></i></div>
-            {{ localize('labels.homePage.createCharacter') }}
-          </div>
-          <div 
-            class="new-link"
-            @click="onCreateLocation"
-          >
-            <div><i :class="`fas ${getTopicIcon(Topics.Location)}`"></i></div>
-            {{ localize('labels.homePage.createLocation') }}
-          </div>
-          <div 
-            class="new-link"
-            @click="onCreateOrganization"
-          >
-            <div><i :class="`fas ${getTopicIcon(Topics.Organization)}`"></i></div>
-            {{ localize('labels.homePage.createOrganization') }}
-          </div>
+          <div><i class="fas fa-book"></i></div>
+          {{ localize('labels.homePage.createCampaign') }}
+        </div>
+      </div>
+
+      <div 
+        class="flexrow"
+        style="margin-bottom: 20px;"
+      >
+        <div 
+          class="new-link"
+          @click="onCreateCharacter"
+        >
+          <div><i :class="`fas ${getTopicIcon(Topics.Character)}`"></i></div>
+          {{ localize('labels.homePage.createCharacter') }}
+        </div>
+        <div 
+          class="new-link"
+          @click="onCreateLocation"
+        >
+          <div><i :class="`fas ${getTopicIcon(Topics.Location)}`"></i></div>
+          {{ localize('labels.homePage.createLocation') }}
+        </div>
+        <div 
+          class="new-link"
+          @click="onCreateOrganization"
+        >
+          <div><i :class="`fas ${getTopicIcon(Topics.Organization)}`"></i></div>
+          {{ localize('labels.homePage.createOrganization') }}
         </div>
       </div>
 
@@ -89,7 +85,8 @@
   import { localize } from '@/utils/game';
   import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
   import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useTopicDirectoryStore } from '@/applications/stores';
-
+  import { FCBDialog } from '@/dialogs';
+  
   // library components
 
   // local components
@@ -97,6 +94,7 @@
 
   // types
   import { TabHeader, Topics, WindowTabType } from '@/types';
+
 
   ////////////////////////////////
   // props
@@ -131,25 +129,32 @@
   };
 
   const onCreateCharacter = async () => {
-    if (!currentWorld.value?.topicFolders[Topics.Character])
-      throw new Error('No character folder in current world in HomePage.onCreateCharacter()');
-
-    await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Character], {});
+    await onCreateEntry(Topics.Character);
   };
 
   const onCreateLocation = async () => {
-    if (!currentWorld.value?.topicFolders[Topics.Location])
-      throw new Error('No location folder in current world in HomePage.onCreateLocation()');
-
-    await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Location], {});
+    await onCreateEntry(Topics.Location);
   };
 
   const onCreateOrganization = async () => {
-    if (!currentWorld.value?.topicFolders[Topics.Organization])
-      throw new Error('No organization folder in current world in HomePage.onCreateOrganization()');
-
-    await topicDirectoryStore.createEntry(currentWorld.value.topicFolders[Topics.Organization], {});
+    await onCreateEntry(Topics.Organization);
   };
+
+  const onCreateEntry = async (topic: Topics) => {
+    if (!currentWorld.value)
+      throw new Error('No current world in HomePage.onCreateEntry()');
+
+    const topicFolder = currentWorld.value.topicFolders[topic];
+
+    if (!topicFolder)
+      throw new Error('No topic folder in HomePage.onCreateEntry()');
+
+    const entry = await FCBDialog.createEntryDialog(topicFolder.topic, { } );
+
+    if (entry) {
+      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+    }
+  }
 
   ////////////////////////////////
   // event handlers
@@ -245,10 +250,8 @@
     .recent-link,
     .new-link {
       cursor: pointer;
-      padding: 12px 24px;
-      border-radius: 4px;
-      transition: all 0.2s ease;
-      background: rgba(255, 255, 255, 0.05);
+      padding: 12px 0;
+      max-width: 130px;
 
       i {
         font-size: 24px;
@@ -261,43 +264,6 @@
       color: var(--fcb-blank-link-hover);
       background: rgba(255, 255, 255, 0.1);
       transform: translateY(-2px);
-    }
-
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 20px;
-      justify-items: center;
-    }
-
-    .row-1 {
-      grid-row: 1;
-      grid-column: 2 / span 2;
-      display: contents;
-    }
-
-    .row-1 > div:nth-child(1) {
-      grid-column: 2;
-    }
-
-    .row-1 > div:nth-child(2) {
-      grid-column: 4;
-    }
-
-    .row-2 {
-      grid-row: 2;
-      grid-column: 1 / -1;
-      display: contents;
-    }
-
-    .row-2 > div:nth-child(1) {
-      grid-column: 1;
-    }
-    .row-2 > div:nth-child(2) {
-      grid-column: 3;
-    }
-    .row-2 > div:nth-child(3) {
-      grid-column: 5;
     }
   }
 </style>
