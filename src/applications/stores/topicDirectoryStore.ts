@@ -293,19 +293,6 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (entry) {
       const uuid = entry.uuid;
 
-      // if we're in play mode, add to the todo list
-      if (isInPlayMode.value && currentPlayedSession.value) {
-
-        currentPlayedSession.value.addTodoItem({
-          uuid: uuid,
-          completed: false,
-          name: entry.name, 
-          type: 'monster',
-        });
-      
-        await currentPlayedSession.value.save();
-      } 
-
       // we always add a hierarchy, because we use it for filtering
       currentWorld.value.setEntryHierarchy(uuid, 
         {

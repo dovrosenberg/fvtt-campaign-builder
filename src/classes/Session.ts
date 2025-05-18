@@ -6,6 +6,7 @@ import { FCBDialog } from '@/dialogs';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
 import { TagInfo } from '@/types';
+import { ModuleSettings, SettingKey } from '@/settings';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Session {
@@ -715,6 +716,11 @@ export class Session {
   }
 
   addTodoItem(item: TodoItem): void {
+    // Check if todo list is enabled
+    if (!ModuleSettings.get(SettingKey.enableTodoList)) {
+      return;
+    }
+
     if (!this._sessionDoc.system.todoItems) {
       this._sessionDoc.system.todoItems = [];
     }

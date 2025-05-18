@@ -12,6 +12,7 @@ export enum SettingKey {
   sessionDisplayMode = 'sessionDisplayMode',  // how to display sessions in the directory
   hideBackendWarning = 'hideBackendWarning', // don't show the warning about no backend
   defaultAddToSession = 'defaultAddToSession', // default state of "Add to current session" checkbox
+  enableTodoList = 'enableTodoList', // whether the todo list feature is enabled
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
@@ -53,6 +54,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.entryTags ? TagList :
     K extends SettingKey.sessionTags ? TagList :
     K extends SettingKey.hideBackendWarning ? boolean :
+    K extends SettingKey.enableTodoList ? boolean :
     never;  
 
 export class ModuleSettings {
@@ -147,6 +149,13 @@ export class ModuleSettings {
       settingID: SettingKey.defaultAddToSession,
       name: 'settings.defaultAddToSession',
       hint: 'settings.defaultAddToSessionHelp',
+      default: true,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.enableTodoList,
+      name: 'settings.enableTodoList',
+      hint: 'settings.enableTodoListHelp',
       default: true,
       type: Boolean,
     },

@@ -117,20 +117,6 @@ const createdCallback = async (topicFolder: TopicFolder, details: AnyDetails | n
     return null;
 
   const entry = await handleGeneratedEntry(details, topicFolder);
-
-  // if we're in play mode, add to the todo list
-  if (entry && useMainStore().isInPlayMode && useCampaignStore().currentPlayedSession) {
-    const session = useCampaignStore().currentPlayedSession as Session;
-
-    session.addTodoItem({
-      uuid: entry.uuid,
-      completed: false,
-      name: entry.name, 
-      type: 'monster',
-    });
-  
-    await session.save();
-  } 
   
   return entry || null;
 }
