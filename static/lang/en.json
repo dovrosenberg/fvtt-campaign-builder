@@ -180,7 +180,13 @@
       },
       "campaign": {
         "addPC": "Add PC",
-        "addPCDrag": "(or drag/drop an actor)"
+        "addPCDrag": "(or drag/drop an actor)",
+        "description": "Description",
+        "pcs": "PCs",
+        "lore": "Lore",
+        "todo": "To Do",
+        "addTodo": "Add todo",
+        "addTodoDrag": "(or drag/drop a todo)"
       },
       "pc": {
         "linkToNewActor": "Link to new actor"
@@ -293,6 +299,10 @@
       "createWorld": {
         "title": "Create World",
         "worldName": "World Name"
+      },
+      "addTodo": {
+        "title": "Add Todo",
+        "text": "Enter todo text:"
       }
     },
     "contextMenus": {

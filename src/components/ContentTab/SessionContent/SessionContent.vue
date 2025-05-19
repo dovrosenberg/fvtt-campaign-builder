@@ -121,11 +121,6 @@
             <SessionItemTab />
           </div>  
         </div>
-        <div class="tab flexcol" data-group="primary" data-tab="todo">
-          <div class="tab-inner">
-            <SessionToDoTab />
-          </div>  
-        </div>
       </div>
     </div>
   </form>	 
@@ -157,7 +152,6 @@
   import SessionVignetteTab from '@/components/ContentTab/SessionContent/SessionVignetteTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
-  import SessionToDoTab from '@/components/ContentTab/SessionContent/SessionToDoTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
   
@@ -194,24 +188,9 @@
 
   ////////////////////////////////
   // computed data
-  const showTodoTab = computed(() => {
-    return ModuleSettings.get(SettingKey.enableTodoList);
-  });
-
-  const uncompletedTodoCount = computed(() => {
-    if (!ModuleSettings.get(SettingKey.enableTodoList)) {
-      return 0;
-    }
-    return currentSession.value?.todoItems?.filter(item => !item.completed).length || 0;
-  });
 
   ////////////////////////////////
   // methods
-  const onTodoClick = () => {
-    if (currentSession.value) {
-      openSessionTodo(currentSession.value);
-    }
-  };
 
   ////////////////////////////////
   // event handlers

@@ -24,13 +24,6 @@ export interface SessionLore extends SessionRelatedItem {
   journalEntryPageId: string | null;
 }
 
-export interface TodoItem {
-  uuid: string;  // uuid of the linked entry, lore, etc.
-  name: string;
-  type: 'entry' | 'lore' | 'vignette' | 'monster' | 'item';
-  completed: boolean;
-}
-
 const fields = foundry.data.fields;
 const sessionSchema = {
   number: new fields.NumberField({ required: true, nullable: false }),

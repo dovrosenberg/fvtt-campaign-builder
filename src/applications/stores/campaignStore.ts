@@ -9,7 +9,7 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/a
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { PCDetails, FieldData, CampaignLoreDetails} from '@/types';
+import { PCDetails, FieldData, CampaignLoreDetails, TodoItem} from '@/types';
 import { Campaign, PC, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { closeSessionNotes, openSessionNotes } from '@/applications/SessionNotes';
@@ -18,6 +18,7 @@ export enum CampaignTableTypes {
   None,
   PC,
   Lore,
+  Todo,
 }
 
 // the store definition
@@ -28,6 +29,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   // used for tables
   const relatedPCRows = ref<PCDetails[]>([]);
   const relatedLoreRows = ref<CampaignLoreDetails[]>([]);
+  const todoRows = ref<TodoItem[]>([]);
 
   const extraFields = {
     [CampaignTableTypes.None]: [],
@@ -40,6 +42,9 @@ export const useCampaignStore = defineStore('campaign', () => {
       { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false, 
         onClick: onJournalClick
       },
+    ],
+    [CampaignTableTypes.Todo]: [
+      { field: 'text', style: 'text-align: left', header: 'To Do Item', sortable: true, editable: true },
     ],
   } as Record<CampaignTableTypes, FieldData>;
 
@@ -295,12 +300,14 @@ export const useCampaignStore = defineStore('campaign', () => {
   const _refreshRows = async (): Promise<void> => {
     relatedPCRows.value = [];
     relatedLoreRows.value = [];
+    todoRows.value = [];
 
     if (!currentCampaign.value)
       return;
 
     await _refreshPCRows();
     await _refreshLoreRows();
+    await _refreshTodoRows();
   }
 
   const _refreshPCRows = async (): Promise<void> => {
@@ -369,6 +376,24 @@ export const useCampaignStore = defineStore('campaign', () => {
     }
 
     relatedLoreRows.value = retval;
+  }
+
+  const _refreshTodoRows = async () => {
+    if (!currentCampaign.value)
+      return;
+
+    const retval = [] as TodoItem[];
+
+    for (const item of currentCampaign.value?.todoItems) {
+      retval.push({
+        uuid: item.uuid,
+        linkedUuid: item.linkedUuid,
+        text: item.text,
+        type: item.type,
+      });
+    }
+
+    todoRows.value = retval;
   }
 
 

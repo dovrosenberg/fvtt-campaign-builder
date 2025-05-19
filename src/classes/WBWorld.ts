@@ -224,13 +224,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
 
   set description(value: string) {
     this._description = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        description: value,
-      }
-    };
+    this.updateCumulative(WorldFlagKey.description, value);
   }
 
   public get genre(): string {
@@ -239,13 +233,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
 
   public set genre(value: string) {
     this._genre = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        genre: value,
-      }
-    };
+    this.updateCumulative(WorldFlagKey.genre, value);
   }
 
   public get worldFeeling(): string {
@@ -254,13 +242,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
 
   public set worldFeeling(value: string) {
     this._worldFeeling = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        worldFeeling: value,
-      }
-    };
+    this.updateCumulative(WorldFlagKey.worldFeeling, value);
   }
 
   public get img(): string {
@@ -269,13 +251,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
 
   public set img(value: string) {
     this._img = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        img: value,
-      }
-    };
+    this.updateCumulative(WorldFlagKey.img, value);
   }
   
 
@@ -302,13 +278,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
    */
   public set topicIds(value: Record<ValidTopic, string>) {
     this._topicIds = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        topicIds: value,
-      }
-    };
+    this.updateCumulative(WorldFlagKey.topicIds, value);
   }
 
   /**
@@ -316,13 +286,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
    */
   public set campaignNames(value: Record<string, string>) {
     this._campaignNames = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        campaignNames: value,
-      }
-    };
+    this.updateCumulative(WorldFlagKey.campaignNames, value);
   }
 
   /**
@@ -331,13 +295,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
    */
   public set expandedIds(value: Record<string, boolean | null>) {
     this._expandedIds = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        expandedIds: value,
-      }
-    };
+    this.updateCumulative(WorldFlagKey.expandedIds, value);
   }
 
   public async collapseNode(id: string): Promise<void> {
@@ -361,13 +319,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
    */
   public set hierarchies(value: Record<string, Hierarchy>) {
     this._hierarchies = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        hierarchies: value,
-      }
-    };
+    this.updateCumulative(WorldFlagKey.hierarchies, value);
   }
 
   /**

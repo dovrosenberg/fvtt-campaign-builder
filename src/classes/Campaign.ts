@@ -1,10 +1,11 @@
 import { toRaw } from 'vue';
-import { moduleId, } from '@/settings'; 
+import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, } from '@/documents';
 import { DocumentWithFlags, PC, Session, WBWorld } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';
+import { TodoItem } from '@/documents/campaign';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign extends DocumentWithFlags<CampaignDoc> {
@@ -19,8 +20,9 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   // saved in flags
   private _description: string;
   private _houseRules: string;
-  private _lore: SessionLore[];
+  private _lore: CampaignLore[];
   private _img: string;
+  private _todoItems: TodoItem[];
 
   /**
    * 
@@ -37,6 +39,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this._lore = this.getFlag(CampaignFlagKey.lore) || [];
     this._img = this.getFlag(CampaignFlagKey.img) || '';
     this._name = campaignDoc.name;
+    this._todoItems = this.getFlag(CampaignFlagKey.todoItems) || [];
   }
 
   override async _getWorld(): Promise<WBWorld> {
@@ -148,16 +151,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
   set description(value: string) {
     this._description = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      flags: {
-        ...this._cumulativeUpdate.flags,
-        [moduleId]: {
-          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
-          description: value,
-        }
-      }
-    };
+    this.updateCumulative(CampaignFlagKey.description, value);
   }
 
   public get houseRules(): string {
@@ -166,16 +160,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
   public set houseRules(value: string) {
     this._houseRules = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      flags: {
-        ...this._cumulativeUpdate.flags,
-        [moduleId]: {
-          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
-          houseRules: value,
-        }
-      }
-    };
+    this.updateCumulative(CampaignFlagKey.houseRules, value);
   }
 
   public get img(): string {
@@ -184,16 +169,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
   public set img(value: string) {
     this._img = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      flags: {
-        ...this._cumulativeUpdate.flags,
-        [moduleId]: {
-          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
-          img: value,
-        }
-      }
-    };
+    this.updateCumulative(CampaignFlagKey.img, value);
   }
 
   public get lore(): SessionLore[] {
@@ -208,18 +184,11 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       description: description,
       delivered: false,
       journalEntryPageId: null,
+      lockedToSessionId: null,
+      lockedToSessionName: null,
     });
 
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      flags: {
-        ...this._cumulativeUpdate.flags,
-        [moduleId]: {
-          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
-          lore: this._lore,
-        }
-      }
-    };
+    this.updateCumulative(CampaignFlagKey.lore, this._lore);
 
     await this.save();
     return uuid;
@@ -232,17 +201,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       return;
 
     lore.description = description;
-
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      flags: {
-        ...this._cumulativeUpdate.flags,
-        [moduleId]: {
-          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
-          lore: this._lore,
-        }
-      }
-    };
+    this.updateCumulative(CampaignFlagKey.lore, this._lore);
 
     await this.save();
   }
@@ -255,34 +214,14 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     lore.journalEntryPageId = journalEntryPageId;
 
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      flags: {
-        ...this._cumulativeUpdate.flags,
-        [moduleId]: {
-          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
-          lore: this._lore,
-        }
-      }
-    };
-
+    this.updateCumulative(CampaignFlagKey.lore, this._lore);
     await this.save();
   }
 
   async deleteLore(uuid: string): Promise<void> {
     this._lore = this._lore.filter(l=> l.uuid!==uuid);
 
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      flags: {
-        ...this._cumulativeUpdate.flags,
-        [moduleId]: {
-          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
-          lore: this._lore,
-        }
-      }
-    };
-
+    this.updateCumulative(CampaignFlagKey.lore, this._lore);
     await this.save();
   }
 
@@ -293,17 +232,53 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     
     lore.delivered = delivered;
 
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      flags: {
-        ...this._cumulativeUpdate.flags,
-        [moduleId]: {
-          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
-          lore: this._lore,
-        }
-      }
-    };
+    this.updateCumulative(CampaignFlagKey.lore, this._lore);
+    await this.save();
+  }
 
+  get todoItems(): readonly TodoItem[] {
+    return this._todoItems;
+  }
+
+  set todoItems(value: TodoItem[]) {
+    this._todoItems = value;
+    this.updateCumulative(CampaignFlagKey.todoItems, value);
+  }
+
+  /**
+   * Adds a todo item to the campaign.  If there is already a todo for the same uuid, it only updates
+   * the completed status.
+   * 
+   * @param item - The todo item to add
+   */
+  async addTodoItem(item: TodoItem): Promise<void> {
+    // Check if todo list is enabled
+    if (!ModuleSettings.get(SettingKey.enableTodoList)) {
+      return;
+    }
+
+    if (!this._todoItems) {
+      this._todoItems = [];
+    }
+
+    // don't add multiple items with same uuid
+    const existingItem = this._todoItems.find(i => i.uuid === item.uuid);
+    if (existingItem) {
+      throw new Error(`Todo item with uuid ${item.uuid} already exists in Campaign.addTodoItem()`);
+    }
+
+    this._todoItems.push(item);
+    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+    await this.save();
+  }
+
+  async completeTodoItem(uuid: string): Promise<void> {
+    if (!this._todoItems) {
+      this._todoItems = [];
+    }
+
+    this._todoItems = this._todoItems.filter(i => i.uuid !== uuid);
+    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
     await this.save();
   }
 

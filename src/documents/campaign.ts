@@ -1,5 +1,12 @@
 import { FlagSettings } from '@/settings';
-import { SessionLore } from '@/documents/session';
+import { SessionLore, } from '@/documents/session';
+
+export interface TodoItem {
+  uuid: string;  // uuid of the todo item
+  linkedUuid: string | null;  // uuid of the linked entry, lore, etc.
+  text: string;
+  type: 'manual' | 'entry' | 'lore' | 'vignette' | 'monster' | 'item';
+}
 
 // campaigns are journal entries, not documents
 export interface CampaignDoc extends JournalEntry {
@@ -17,6 +24,7 @@ export enum CampaignFlagKey {
   houseRules = 'houseRules',
   lore = 'lore',
   img = 'img',   // image path for the campaign
+  todoItems = 'todoItems',
 }
 
 export type CampaignFlagType<K extends CampaignFlagKey> =
@@ -25,6 +33,7 @@ export type CampaignFlagType<K extends CampaignFlagKey> =
   K extends CampaignFlagKey.houseRules ? string :
   K extends CampaignFlagKey.lore ? CampaignLore[] :
   K extends CampaignFlagKey.img ? string :
+  K extends CampaignFlagKey.todoItems ? TodoItem[] :
   never;  
 
 export const flagSettings = [
@@ -47,6 +56,10 @@ export const flagSettings = [
   {
     flagId: CampaignFlagKey.img,
     default: '' as string,
+  },
+  {
+    flagId: CampaignFlagKey.todoItems,
+    default: [] as TodoItem[],
   },
 ] as FlagSettings<CampaignFlagKey, {[K in CampaignFlagKey]: CampaignFlagType<K>}>[];
 

@@ -193,6 +193,28 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
   };
 
   /**
+   * Updates the _cumulativeUpdate object with a new value for a given flag.
+   * 
+   * @param flag - The flag key to update
+   * @param value - The value to set
+   */
+  protected updateCumulative = <
+    FK extends FlagKey<DocType> = FlagKey<DocType>,
+    FT extends FlagType<DocType, FK> = FlagType<DocType, FK>
+  >(flag: FK, value: FT): void => {
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      flags: {
+        ...this._cumulativeUpdate.flags,
+        [moduleId]: {
+          ...(this._cumulativeUpdate.flags?.[moduleId] || {}),
+          [flag]: value
+        }
+      }
+    };
+  };
+
+  /**
    * Adds all the default flag values to the document.  Overrides anything already there.  
    * @returns 
    */

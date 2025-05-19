@@ -47,7 +47,6 @@ export const useSessionStore = defineStore('session', () => {
   const relatedMonsterRows = ref<SessionMonsterDetails[]>([]);
   const relatedVignetteRows = ref<SessionVignetteDetails[]>([]);
   const relatedLoreRows = ref<SessionLoreDetails[]>([]); 
-  const todoRows = ref<TodoItem[]>([]);
   
   const extraFields = {
     [SessionTableTypes.None]: [],
@@ -759,7 +758,6 @@ export const useSessionStore = defineStore('session', () => {
     relatedMonsterRows.value = [];
     relatedVignetteRows.value = [];
     relatedLoreRows.value = [];
-    todoRows.value = [];
 
     if (!currentSession.value)
       return;
@@ -770,7 +768,6 @@ export const useSessionStore = defineStore('session', () => {
     await _refreshMonsterRows();
     await _refreshVignetteRows();
     await _refreshLoreRows();
-    await _refreshTodoRows();
   };
 
   const _refreshLocationRows = async () => {
@@ -927,23 +924,6 @@ export const useSessionStore = defineStore('session', () => {
     relatedLoreRows.value = retval;
   }
 
-  const _refreshTodoRows = async () => {
-    if (!currentSession.value)
-      return;
-
-    const retval = [] as TodoItem[];
-
-    for (const item of currentSession.value?.todoItems) {
-      retval.push({
-        uuid: item.uuid,
-        completed: item.completed,
-        name: item.name,
-        type: item.type,
-      });
-    }
-
-    todoRows.value = retval;
-  }
 
   ///////////////////////////////
   // watchers
@@ -967,7 +947,6 @@ export const useSessionStore = defineStore('session', () => {
     relatedMonsterRows,
     relatedVignetteRows,
     relatedLoreRows,
-    todoRows,
     extraFields,
     lastSavedNotes,
     addLocation,

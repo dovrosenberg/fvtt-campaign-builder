@@ -20,6 +20,7 @@
         <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.campaign.pcs') }}</a>
         <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
+        <a class="item" v-if="showToDoTab" data-tab="todo">{{ localize('labels.tabs.campaign.todo') }} ({{ currentCampaign?.todoItems.length || 0 }})</a>
       </nav>
       <div class="fcb-tab-body flexrow">
         <DescriptionTab 
@@ -67,6 +68,11 @@
             <CampaignLoreTab />
           </div>
         </div>
+        <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="todo">
+          <div class="tab-inner">
+            <CampaignTodoTab />
+          </div>
+        </div>
       </div> 
     </div>
   </form>	 
@@ -82,6 +88,7 @@
   import { getTabTypeIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+  import { ModuleSettings, SettingKey } from '@/settings';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -90,6 +97,7 @@
   import Editor from '@/components/Editor.vue';
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
+  import CampaignTodoTab from '@/components/ContentTab/CampaignContent/CampaignTodoTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
@@ -121,7 +129,11 @@
   ////////////////////////////////
   // computed data
   const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
-  
+
+  const showToDoTab = computed(() => {
+    return ModuleSettings.get(SettingKey.enableTodoList);
+  });
+
   ////////////////////////////////
   // methods
 
