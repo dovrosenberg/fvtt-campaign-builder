@@ -362,6 +362,7 @@
       "deleteScene": "Delete scene",
       "deleteVignette": "Delete vignette",
       "deleteLore": "Delete lore",
+      "toggleItem": "Toggle item status",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",

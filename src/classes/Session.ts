@@ -715,6 +715,12 @@ export class Session {
     };
   }
 
+  /**
+   * Adds a todo item to the session.  If there is already a todo for the same uuid, it only updates
+   * the completed status.
+   * 
+   * @param item - The todo item to add
+   */
   addTodoItem(item: TodoItem): void {
     // Check if todo list is enabled
     if (!ModuleSettings.get(SettingKey.enableTodoList)) {
@@ -725,10 +731,10 @@ export class Session {
       this._sessionDoc.system.todoItems = [];
     }
 
-    // if it exists, just update delievered
+    // if it exists, just update delivered
     const existingItem = this._sessionDoc.system.todoItems.find(i => i.uuid === item.uuid);
     if (existingItem && existingItem.completed) {
-      existingItem.completed = false;
+      existingItem.completed = item.completed;
     } else {
       this._sessionDoc.system.todoItems.push(item);
     }
@@ -741,7 +747,7 @@ export class Session {
     };
   }
 
-  updateTodoItem(uuid: string, completed: boolean): void {
+  toggleTodoItem(uuid: string): void {
     if (!this._sessionDoc.system.todoItems) {
       this._sessionDoc.system.todoItems = [];
     }
@@ -750,7 +756,7 @@ export class Session {
     if (!item)
       return;
 
-    item.completed = completed;
+    item.completed = !item.completed;
 
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,

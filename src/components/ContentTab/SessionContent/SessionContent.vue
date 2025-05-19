@@ -23,14 +23,6 @@
           @tag-added="onTagChange"
           @tag-removed="onTagChange"
         />
-        <button 
-          v-if="showTodoTab"
-          class="fcb-todo-button"
-          @click="onTodoClick"
-        >
-          <i class="fas fa-check-square"></i>
-          {{ localize('labels.tabs.session.todo') }} ({{ uncompletedTodoCount }})
-        </button>
       </div>
       <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
@@ -42,6 +34,7 @@
         <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
         <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
+        <a class="item" data-tab="todo">{{ localize('labels.tabs.session.todo') }} ({{ uncompletedTodoCount }})</a>
       </nav>
       <div class="fcb-tab-body flexrow">
         <DescriptionTab
@@ -128,6 +121,11 @@
             <SessionItemTab />
           </div>  
         </div>
+        <div class="tab flexcol" data-group="primary" data-tab="todo">
+          <div class="tab-inner">
+            <SessionToDoTab />
+          </div>  
+        </div>
       </div>
     </div>
   </form>	 
@@ -144,7 +142,6 @@
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { SettingKey, ModuleSettings } from '@/settings';
-  import { openSessionTodo } from '@/applications/SessionTodo';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -160,6 +157,7 @@
   import SessionVignetteTab from '@/components/ContentTab/SessionContent/SessionVignetteTab.vue';
   import SessionLoreTab from '@/components/ContentTab/SessionContent/SessionLoreTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue'; 
+  import SessionToDoTab from '@/components/ContentTab/SessionContent/SessionToDoTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
   
@@ -185,6 +183,7 @@
   ////////////////////////////////
   // data
   const tabs = ref<foundry.applications.ux.Tabs>();
+  const tabs2 = ref<foundry.applications.ux.Tabs>();
   
   const name = ref<string>('');
   const sessionNumber = ref<string>('');
@@ -296,8 +295,12 @@
   ////////////////////////////////
   // watchers
   watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
-    if (newTab!==oldTab)
-      tabs.value?.activate(newTab || 'start');
+    if (!tabs.value)
+      return;
+
+    if (newTab!==oldTab) {
+      tabs.value.activate(newTab || 'start');
+    }
   });
 
   let dateDebounceTimer: NodeJS.Timeout | undefined = undefined;
@@ -341,7 +344,6 @@
   // lifecycle events
   onMounted(async () => {
     tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.fcb-tab-body', initial: 'description', /*callback: null*/ });
-
     // update the store when tab changes
     tabs.value.callback = () => {
       currentContentTab.value = tabs.value?.active || null;
@@ -358,25 +360,4 @@
 </script>
 
 <style lang="scss">
-  .fcb-todo-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 10px;
-    border: 1px solid var(--color-border-light-primary);
-    border-radius: 4px;
-    background: var(--color-bg-btn-minor);
-    color: var(--color-text-dark-primary);
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: var(--color-bg-btn-minor-hover);
-      border-color: var(--color-border-highlight);
-    }
-
-    i {
-      font-size: 14px;
-    }
-  }
 </style>

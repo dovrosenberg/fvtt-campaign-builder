@@ -1,14 +1,9 @@
 <template>
   <div class="tab-inner">
-    <SessionTable
+    <SessionToDoTable
       :rows="mappedTodoRows"
       :columns="sessionStore.extraFields[SessionTableTypes.Todo]"
-      :delete-item-label="localize('tooltips.deleteTodo')"
-      :allow-edit="false"
-      :show-add-button="false"
-      :track-delivery="true"
-      @mark-item-delivered="onMarkTodoCompleted"
-      @unmark-item-delivered="onUnmarkTodoCompleted"
+      @toggle-item="onToggleTodoItem"
     />
   </div>
 </template>
@@ -20,11 +15,12 @@
 
   // local imports
   import { SessionTableTypes, useMainStore, useSessionStore, } from '@/applications/stores';
-  import { localize } from '@/utils/game';
 
   // library components
-  import SessionTable from '@/components/Tables/SessionTable.vue';
-  
+
+  // local components
+  import SessionToDoTable from '@/components/Tables/SessionToDoTable.vue';
+
   // store
   const mainStore = useMainStore();
   const sessionStore = useSessionStore();
@@ -42,16 +38,11 @@
   // computed
 
   // methods
-  const onMarkTodoCompleted = async (uuid: string) => {
-    if (currentSession.value) {
-      await currentSession.value.updateTodoItem(uuid, true);
-    }
-  };
+  const onToggleTodoItem = async (uuid: string) => {
+    if (!currentSession.value) 
+      return;
 
-  const onUnmarkTodoCompleted = async (uuid: string) => {
-    if (currentSession.value) {
-      await currentSession.value.updateTodoItem(uuid, false);
-    }
+    await currentSession.value.toggleTodoItem(uuid);
   };
 
   // Watch for new NPCs
