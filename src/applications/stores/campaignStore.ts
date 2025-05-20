@@ -13,6 +13,7 @@ import { PCDetails, FieldData, CampaignLoreDetails, TodoItem} from '@/types';
 import { Campaign, PC, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { closeSessionNotes, openSessionNotes } from '@/applications/SessionNotes';
+import { ToDoTypes } from '@/documents/campaign';
 
 export enum CampaignTableTypes {
   None,
@@ -193,7 +194,30 @@ export const useCampaignStore = defineStore('campaign', () => {
       await _refreshLoreRows();
     }
 
+  const addTodoItem = async (type: ToDoTypes, text: string, linkedUuid?: string): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
+
+    await currentCampaign.value.addNewTodoItem(type, text, linkedUuid);
+    await _refreshTodoRows();
+  }
   
+  const mergeTodoItem = async (type: ToDoTypes, text: string, linkedUuid?: string): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
+
+    await currentCampaign.value.mergeToDoItem(type, text, linkedUuid);
+    await _refreshTodoRows();
+  }
+
+  const completeTodoItem = async (uuid: string): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
+
+    await currentCampaign.value.completeTodoItem(uuid);
+    await _refreshTodoRows();
+  }
+
   ///////////////////////////////
   // computed state
   const currentPlayedSession = computed((): Session | null => (currentPlayedCampaign?.value?.currentSession || null) as Session | null);
@@ -482,6 +506,9 @@ export const useCampaignStore = defineStore('campaign', () => {
     updateLoreJournalEntry,
     markLoreDelivered,
     moveLoreToLastSession,
+    addTodoItem,
+    mergeTodoItem,
+    completeTodoItem,
   };
 });
 

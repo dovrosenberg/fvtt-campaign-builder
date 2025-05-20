@@ -6,7 +6,7 @@
       :show-filter="false"
       :filter-fields="[]"
       :add-button-label="'Put something here'"
-      :track-delivery="true"
+      :track-delivery="false"
       :allow-drop-row="false"
       :rows="mappedTodoRows"
       :columns="columns"
@@ -60,10 +60,7 @@
   
   // methods
   const onDeleteTodoItem = async (uuid: string) => {
-    if (!currentCampaign.value) 
-      return;
-
-    await currentCampaign.value.completeTodoItem(uuid);
+    await campaignStore.completeTodoItem(uuid);
   };
 </script>
 
