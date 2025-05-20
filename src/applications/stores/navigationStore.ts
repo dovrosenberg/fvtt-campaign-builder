@@ -41,6 +41,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     activate?: boolean;
     newTab?: boolean;
     updateHistory?: boolean;
+    contentTabId?: string;
   }
 
   /**
@@ -51,6 +52,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
    * @returns The newly opened tab.
    */
   const openEntry = async function(entryId = null as string | null, options?: OpenContentOptions) {
@@ -65,6 +67,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the world be added to the history of the tab? Defaults to true.
+   * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
    * @returns The newly opened tab.
    */
   const openWorld = async function(worldId = null as string | null, options?: OpenContentOptions) {
@@ -79,6 +82,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the campaign open in a new tab? Defaults to true.
    * @param options.updateHistory Should the campaign be added to the history of the tab? Defaults to true.
+   * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
    * @returns The newly opened tab.
    */
   const openCampaign = async function(campaignId = null as string | null, options?: OpenContentOptions) {
@@ -93,6 +97,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the PC open in a new tab? Defaults to true.
    * @param options.updateHistory Should the PC be added to the history of the tab? Defaults to true.
+   * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
    * @returns The newly opened tab.
    */
   const openPC = async function(pcId = null as string | null, options?: OpenContentOptions) {
@@ -107,6 +112,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the session open in a new tab? Defaults to true.
    * @param options.updateHistory Should the session be added to the history of the tab? Defaults to true.
+   * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
    * @returns The newly opened tab.
    */
   const openSession = async function(sessionId = null as string | null, options?: OpenContentOptions) {
@@ -121,6 +127,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
+   * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
    * @param contentType The type of content to open. If null, defaults to entry.
    * @returns The newly opened tab.
    */
@@ -130,6 +137,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       activate: true,
       newTab: true,
       updateHistory: true,
+      contentTabId: undefined,
       ...options,
     };
 
@@ -220,10 +228,12 @@ export const useNavigationStore = defineStore('navigation', () => {
         headerData.uuid,
         contentType, 
         null,
+        options.contentTabId || defaultContentTab[contentType]
       );
 
       //add to tabs list
       tabs.value.push(tab);
+      tab.addToHistory(contentId, contentType, options.contentTabId || defaultContentTab[contentType]);
     } else {
       tab = getActiveTab(false);
 
@@ -237,7 +247,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       // add to history -- it should go immediately after the current tab and all other forward history should go away
       // this is a new thing so the contentTab should always be the default
       if (headerData.uuid && options.updateHistory) {
-        tab.addToHistory(contentId, contentType, defaultContentTab[contentType]);
+        tab.addToHistory(contentId, contentType, options.contentTabId || defaultContentTab[contentType]);
       }
 
       // force a refresh of reactivity

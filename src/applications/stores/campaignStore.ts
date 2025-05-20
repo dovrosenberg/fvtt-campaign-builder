@@ -195,20 +195,20 @@ export const useCampaignStore = defineStore('campaign', () => {
       await _refreshLoreRows();
     }
 
-  const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string): Promise<ToDoItem | null> => {
+  const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> => {
     if (!currentCampaign.value)
       return null;
 
-    const newItem = await currentCampaign.value.addNewToDoItem(type, text, linkedUuid);
+    const newItem = await currentCampaign.value.addNewToDoItem(type, text, linkedUuid, sessionUuid);
     await _refreshToDoRows();
     return newItem;
   }
   
-  const mergeToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string): Promise<void> => {
+  const mergeToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
 
-    await currentCampaign.value.mergeToDoItem(type, text, linkedUuid);
+    await currentCampaign.value.mergeToDoItem(type, text, linkedUuid, sessionUuid);
     await _refreshToDoRows();
   }
 
@@ -308,12 +308,37 @@ export const useCampaignStore = defineStore('campaign', () => {
   async function onToDoClick (event: MouseEvent, uuid: string) {
     const toDo = toDoRows.value.find(r=> r.uuid===uuid);
 
+    if (!toDo)
+      return;
+
+    // set the tab if needed
+    let tabId = null as string | null;
+    switch (toDo?.type) {
+      case ToDoTypes.Lore:
+        tabId = 'lore';
+        break;
+      case ToDoTypes.Vignette:
+        tabId = 'vignettes';
+        break;
+      case ToDoTypes.Monster:
+        tabId = 'monsters';
+        break;
+      case ToDoTypes.Item:
+        tabId = 'magic';
+        break;
+    }
+
     switch (toDo?.type) {
       case ToDoTypes.Entry:
+        // just open the entry
         navigationStore.openEntry(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true });
         break;
       case ToDoTypes.Lore:
-        navigationStore.openLore(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true });
+      case ToDoTypes.Vignette:
+      case ToDoTypes.Monster:
+      case ToDoTypes.Item:
+        // open the session and set the right tab
+        navigationStore.openSession(toDo.sessionUuid, { newTab: event.ctrlKey, activate: true, contentTabId: tabId || undefined });
         break;
     }
   }

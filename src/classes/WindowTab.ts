@@ -42,7 +42,7 @@ export class WindowTab {
    */
   public header: TabHeader;  
 
-  constructor(active: boolean, header: TabHeader, contentId?: string | null, tabType?: WindowTabType | null, id: string | null = null, history: WindowTabHistory[] =[], historyIdx: number = -1) {
+  constructor(active: boolean, header: TabHeader, contentId?: string | null, tabType?: WindowTabType | null, id: string | null = null, contentTabId: string | null = null, history: WindowTabHistory[] =[], historyIdx: number = -1) {
     if (id===null) {
       this.id = foundry.utils.randomID();
     } else {
@@ -57,7 +57,7 @@ export class WindowTab {
         {
           contentId: contentId || null,
           tabType: tabType ?? WindowTabType.NewTab,
-          contentTab: null   // we'll use null to indicate should pick the 1st tab
+          contentTab: contentTabId   // we'll use null to indicate should pick the 1st tab
         }
       ];
       this.historyIdx = 0;

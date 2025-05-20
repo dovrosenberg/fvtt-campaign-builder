@@ -104,6 +104,7 @@ export interface ToDoItem {
   manuallyUpdated: boolean;   // has the user edited the text yet
   linkedUuid: string | null;  // uuid of the linked entry, lore, etc.
   linkedText: string | null;  // text to display for linked items
+  sessionUuid: string | null; // uuid of the session if it's a session todo (lore, vignette, monster, item)
   text: string;
   type: ToDoTypes;
 }

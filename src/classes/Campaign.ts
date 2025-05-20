@@ -246,7 +246,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   }
 
   /** Creates a new todo item and adds to the campaign*/
-  async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string): Promise<ToDoItem | null> {
+  async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> {
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return null;
 
@@ -269,6 +269,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       lastTouched: new Date(),
       manuallyUpdated: false,
       linkedUuid: linkedUuid || null,
+      sessionUuid: sessionUuid || null,
       linkedText: entry ? entry.name : null,
       text: text || '',
       type: type || ToDoTypes.Manual,
@@ -286,7 +287,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
    * to the end of the current text.  Otherwise, it creates a new one.
    * 
    */
-  async mergeToDoItem(type: ToDoTypes, text: string, linkedUuid?: string): Promise<void> {
+  async mergeToDoItem(type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<void> {
     // Check if todo list is enabled
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return;
@@ -302,7 +303,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     // otherwise, if we have one, add the text to the end of the current text
     // if we don't have one, create a new one
     if (!existingItem) {
-      await this.addNewToDoItem(type, text, linkedUuid);
+      await this.addNewToDoItem(type, text, linkedUuid, sessionUuid);
       return;
     } else if (existingItem.manuallyUpdated) {
         // if it's manually updated, we don't want to add to it but note the timestamp
