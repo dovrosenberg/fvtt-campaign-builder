@@ -125,7 +125,7 @@
 
   ////////////////////////////////
   // data
-  const baseTableRef = ref<any>(null);
+  const baseTableRef = ref<typeof BaseTable | null>(null);
 
   ////////////////////////////////
   // computed data

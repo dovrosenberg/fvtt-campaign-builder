@@ -39,8 +39,8 @@
       "speciesListHelp": "Define the species to make available.  These cross all worlds - file an issue if you have need more different lists per world.",
       "hideBackendWarning": "Hide missing backend warning?",
       "hideBackendWarningHelp": "If you're not using the backend, this lets you turn off the notification that it's missing",
-      "enableTodoList": "Enable Todo List",
-      "enableTodoListHelp": "If disabled, the todo list feature will be turned off."
+      "enableToDoList": "Enable ToDo List",
+      "enableToDoListHelp": "If disabled, the todo list feature will be turned off."
     },
     "applications": {
       "sessionNotes": {
@@ -185,8 +185,7 @@
         "pcs": "PCs",
         "lore": "Lore",
         "todo": "To Do",
-        "addTodo": "Add todo",
-        "addTodoDrag": "(or drag/drop a todo)"
+        "addToDo": "Create new 'To Do'"
       },
       "pc": {
         "linkToNewActor": "Link to new actor"
@@ -301,8 +300,8 @@
         "title": "Create World",
         "worldName": "World Name"
       },
-      "addTodo": {
-        "title": "Add Todo",
+      "addToDo": {
+        "title": "Add ToDo",
         "text": "Enter todo text:"
       }
     },

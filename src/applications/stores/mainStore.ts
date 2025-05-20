@@ -181,7 +181,8 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentSession.value = new Session(_currentSession.value.raw as SessionDoc, _currentSession.value?.campaign || undefined);
+    const campaign = await _currentSession.value.loadCampaign();
+    _currentSession.value = new Session(_currentSession.value.raw as SessionDoc, campaign || undefined);
   };
 
   const refreshPC = async function (): Promise<void> {

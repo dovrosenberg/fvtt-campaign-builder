@@ -70,7 +70,7 @@
         </div>
         <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="todo">
           <div class="tab-inner">
-            <CampaignTodoTab />
+            <CampaignToDoTab />
           </div>
         </div>
       </div> 
@@ -97,7 +97,7 @@
   import Editor from '@/components/Editor.vue';
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
-  import CampaignTodoTab from '@/components/ContentTab/CampaignContent/CampaignTodoTab.vue';
+  import CampaignToDoTab from '@/components/ContentTab/CampaignContent/CampaignToDoTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
@@ -131,7 +131,7 @@
   const namePlaceholder = computed((): string => (localize('placeholders.campaignName') || ''));
 
   const showToDoTab = computed(() => {
-    return ModuleSettings.get(SettingKey.enableTodoList);
+    return ModuleSettings.get(SettingKey.enableToDoList);
   });
 
   ////////////////////////////////

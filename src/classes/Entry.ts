@@ -1,14 +1,13 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace,  } from '@/documents';
-import { RelatedItemDetails, ValidTopic, Topics, TagInfo } from '@/types';
+import { RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, WBWorld } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useCampaignStore, useMainStore } from '@/applications/stores';
-import { ToDoTypes } from '@/documents/campaign';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 

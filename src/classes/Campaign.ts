@@ -1,11 +1,11 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, } from '@/documents';
-import { DocumentWithFlags, PC, Session, WBWorld } from '@/classes';
+import { DocumentWithFlags, Entry, PC, Session, WBWorld } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';
-import { TodoItem, ToDoTypes } from '@/documents/campaign';
+import { ToDoItem, ToDoTypes } from '@/types';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign extends DocumentWithFlags<CampaignDoc> {
@@ -22,7 +22,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   private _houseRules: string;
   private _lore: CampaignLore[];
   private _img: string;
-  private _todoItems: TodoItem[];
+  private _todoItems: ToDoItem[];
 
   /**
    * 
@@ -236,19 +236,19 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     await this.save();
   }
 
-  get todoItems(): readonly TodoItem[] {
+  get todoItems(): readonly ToDoItem[] {
     return this._todoItems;
   }
 
-  set todoItems(value: TodoItem[]) {
+  set todoItems(value: ToDoItem[]) {
     this._todoItems = value;
     this.updateCumulative(CampaignFlagKey.todoItems, value);
   }
 
   /** Creates a new todo item and adds to the campaign*/
-  async addNewTodoItem(type: ToDoTypes, text: string, linkedUuid?: string): Promise<void> {
-    if (!ModuleSettings.get(SettingKey.enableTodoList)) 
-      return;
+  async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string): Promise<ToDoItem | null> {
+    if (!ModuleSettings.get(SettingKey.enableToDoList)) 
+      return null;
 
     if (!this._todoItems) {
       this._todoItems = [];
@@ -256,20 +256,28 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     // manual entries don't have a linked uuid, but the others do
     if ((!linkedUuid && type !== ToDoTypes.Manual) || (linkedUuid && type === ToDoTypes.Manual)) {
-      throw new Error('Invalid linkedUuid for type in Campaign.addTodoItem()');
+      throw new Error('Invalid linkedUuid for type in Campaign.addToDoItem()');
     }
 
-    const item: TodoItem = {
+    let entry;
+    if (type === ToDoTypes.Entry && linkedUuid) {
+      entry = await Entry.fromUuid(linkedUuid);
+    }
+
+    const item: ToDoItem = {
       uuid: foundry.utils.randomID(),
+      lastTouched: new Date(),
       linkedUuid: linkedUuid || null,
+      linkedText: entry ? entry.name : null,
       text: text || '',
       type: type || ToDoTypes.Manual,
     };
 
     this._todoItems.push(item);
     this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
-    
     await this.save();
+
+    return item;
   }
 
   /**
@@ -279,7 +287,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
    */
   async mergeToDoItem(type: ToDoTypes, text: string, linkedUuid?: string): Promise<void> {
     // Check if todo list is enabled
-    if (!ModuleSettings.get(SettingKey.enableTodoList)) 
+    if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return;
 
     // see if one exists for this linked uuid
@@ -287,20 +295,32 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     // make sure the type matches
     if (existingItem && existingItem.type !== type) {
-      throw new Error(`Todo item with linkedUuid ${linkedUuid} already exists with different type in Campaign.mergeToDoItem()`);
+      throw new Error(`ToDo item with linkedUuid ${linkedUuid} already exists with different type in Campaign.mergeToDoItem()`);
     }
 
     // otherwise, if we have one, add the text to the end of the current text
     if (!existingItem) {
-      await this.addNewTodoItem(type, text, linkedUuid);
+      await this.addNewToDoItem(type, text, linkedUuid);
     } else {
       existingItem.text += '; ' + text;
+      existingItem.lastTouched = new Date();
       this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
       await this.save();
     }
   }
 
-  async completeTodoItem(uuid: string): Promise<void> {
+  async updateToDoItem(uuid: string, newDescription: string): Promise<void> {
+    const item = this._todoItems.find(i => i.uuid === uuid);
+    if (!item)
+      return;
+
+    item.text = newDescription;
+    item.lastTouched = new Date();
+    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+    await this.save();
+  }
+
+  async completeToDoItem(uuid: string): Promise<void> {
     if (!this._todoItems) {
       this._todoItems = [];
     }

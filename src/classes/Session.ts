@@ -1,11 +1,11 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore, TodoItem } from '@/documents';
+import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
 import { Campaign, WBWorld } from '@/classes';
 import { localize } from '@/utils/game';
-import { TagInfo } from '@/types';
+import { TagInfo, } from '@/types';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Session {

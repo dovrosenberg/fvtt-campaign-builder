@@ -40,7 +40,6 @@ const sessionSchema = {
     new fields.ObjectField({ required: true, nullable: false, }), 
     { required: true, initial: [], }
   ),
-  todoItems: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as TodoItem[] }),
 };
 
 type SessionSchemaType = typeof sessionSchema;
@@ -69,7 +68,6 @@ export interface SessionDoc extends JournalEntryPage {
     monsters: SessionMonster[];
     vignettes: SessionVignette[];
     lore: SessionLore[];
-    todoItems: TodoItem[];
     img: string;
     tags: TagInfo[];
   };

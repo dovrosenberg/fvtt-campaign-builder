@@ -84,5 +84,3 @@ export type CampaignLoreDetails = SessionLoreDetails & {
   lockedToSessionId: string | null;  
   lockedToSessionName: string | null;  
 }
-
-export { TodoItem } from '@/documents/campaign';
