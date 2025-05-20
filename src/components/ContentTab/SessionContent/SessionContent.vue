@@ -34,7 +34,6 @@
         <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
         <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
-        <a class="item" data-tab="todo">{{ localize('labels.tabs.session.todo') }} ({{ uncompletedTodoCount }})</a>
       </nav>
       <div class="fcb-tab-body flexrow">
         <DescriptionTab
@@ -130,13 +129,13 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { nextTick, ref, watch, onMounted, computed } from 'vue';
+  import { nextTick, ref, watch, onMounted, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useCampaignStore, } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
-  import { SettingKey, ModuleSettings } from '@/settings';
+  import { SettingKey, } from '@/settings';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -177,7 +176,6 @@
   ////////////////////////////////
   // data
   const tabs = ref<foundry.applications.ux.Tabs>();
-  const tabs2 = ref<foundry.applications.ux.Tabs>();
   
   const name = ref<string>('');
   const sessionNumber = ref<string>('');

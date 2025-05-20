@@ -4,10 +4,11 @@ import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace,  } from '@/documents'
 import { RelatedItemDetails, ValidTopic, Topics, TagInfo } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
-import { Session, TopicFolder, WBWorld } from '@/classes';
+import { TopicFolder, WBWorld } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useCampaignStore, useMainStore } from '@/applications/stores';
+import { ToDoTypes } from '@/documents/campaign';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -348,17 +349,9 @@ export class Entry {
         await searchService.addOrUpdateIndex(this, world, true);
 
         // Update the todo list if in play mode
-        if (useMainStore().isInPlayMode && useCampaignStore().currentPlayedSession) {
-          const session = useCampaignStore().currentPlayedSession as Session;
-
-          session.addTodoItem({
-            uuid: this.uuid,
-            completed: false,
-            name: this.name, 
-            type: 'entry',
-          });
-        
-          await session.save();
+        const campaign = useCampaignStore().currentPlayedCampaign;
+        if (useMainStore().isInPlayMode && campaign) {
+          await campaign.mergeToDoItem(ToDoTypes.Entry, this.name, this.uuid);
         }
       }
     } catch (error) {

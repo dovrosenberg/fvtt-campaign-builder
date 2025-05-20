@@ -20,10 +20,10 @@ import {
   SessionMonsterDetails, 
   SessionVignetteDetails,
   SessionLoreDetails,
-  TodoItem,
 } from '@/types';
 
 import { Entry, Session } from '@/classes';
+import { ToDoTypes } from '@/documents/campaign';
 
 export enum SessionTableTypes {
   None,
@@ -158,15 +158,8 @@ export const useSessionStore = defineStore('session', () => {
 
     const entry = await Entry.fromUuid(uuid);
 
-    if (entry && delivered) {
-      currentSession.value.addTodoItem({
-        uuid: uuid,
-        completed: false,
-        name: entry.name, 
-        type: 'entry',
-      });
-    
-      await currentSession.value.save();
+    if (entry && delivered && currentSession.value.campaign) {
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Entry, entry.name, uuid);
     }
 
     await _refreshLocationRows();
@@ -245,15 +238,8 @@ export const useSessionStore = defineStore('session', () => {
 
     const entry = await Entry.fromUuid(uuid);
 
-    if (entry && delivered) {
-      currentSession.value.addTodoItem({
-        uuid: uuid,
-        completed: false,
-        name: entry.name, 
-        type: 'entry',
-      });
-    
-      await currentSession.value.save();
+    if (entry && delivered && currentSession.value.campaign) {
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Entry, entry.name, uuid);
     }
 
     await _refreshNPCRows();
@@ -334,15 +320,8 @@ export const useSessionStore = defineStore('session', () => {
 
     const vignette = currentSession.value.vignettes.find(v=> v.uuid===uuid);
 
-    if (vignette && delivered) {
-      currentSession.value.addTodoItem({
-        uuid: uuid,
-        completed: false,
-        name: vignette.description, 
-        type: 'vignette',
-      });
-    
-      await currentSession.value.save();
+    if (vignette && delivered && currentSession.value.campaign) {
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Vignette, vignette.description, uuid);
     }
     await _refreshVignetteRows();
   }
@@ -440,15 +419,8 @@ export const useSessionStore = defineStore('session', () => {
 
     const lore = currentSession.value.lore.find(l=> l.uuid===uuid);
 
-    if (lore && delivered) {
-      currentSession.value.addTodoItem({
-        uuid: uuid,
-        completed: false,
-        name: lore.description, 
-        type: 'lore',
-      });
-    
-      await currentSession.value.save();
+    if (lore && delivered && currentSession.value.campaign) {
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Lore, lore.description, uuid);
     }
 
     await _refreshLoreRows();
@@ -492,7 +464,7 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentLore)
       return;
 
-    const campaign = currentSession.value.parentCampaign;
+    const campaign = currentSession.value.campaign;
 
     if (!campaign) 
       return;
@@ -545,15 +517,8 @@ export const useSessionStore = defineStore('session', () => {
 
     const entry = await fromUuid<Item>(uuid);
 
-    if (entry && delivered) {
-      currentSession.value.addTodoItem({
-        uuid: uuid,
-        completed: false,
-        name: entry.name, 
-        type: 'item',
-      });
-    
-      await currentSession.value.save();
+    if (entry && delivered && currentSession.value.campaign) {
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Item, entry.name, uuid);
     }
 
     await _refreshItemRows();
@@ -632,15 +597,8 @@ export const useSessionStore = defineStore('session', () => {
 
     const entry = await fromUuid<Actor>(uuid);
 
-    if (entry && delivered) {
-      currentSession.value.addTodoItem({
-        uuid: uuid,
-        completed: false,
-        name: entry.name, 
-        type: 'monster',
-      });
-    
-      await currentSession.value.save();
+    if (entry && delivered && currentSession.value.campaign) {
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Monster, entry.name, uuid);
     }
 
     await _refreshMonsterRows();
@@ -672,10 +630,10 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   const getNextSession = async (): Promise<Session | null> => {
-    if (!currentSession.value || !currentSession.value.parentCampaign || currentSession.value.number===null)
+    if (!currentSession.value || !currentSession.value.campaign || currentSession.value.number===null)
       return null;
 
-    const campaign = currentSession.value.parentCampaign;
+    const campaign = currentSession.value.campaign;
     const nextSessionNumber = currentSession.value.number+1;
     const nextSession = campaign.filterSessions(s => s.number === nextSessionNumber);
 

@@ -1,11 +1,19 @@
 import { FlagSettings } from '@/settings';
 import { SessionLore, } from '@/documents/session';
 
+export enum ToDoTypes {
+  Manual = 'manual',
+  Entry = 'entry',
+  Lore = 'lore',
+  Vignette = 'vignette',
+  Monster = 'monster',
+  Item = 'item',
+}
 export interface TodoItem {
   uuid: string;  // uuid of the todo item
   linkedUuid: string | null;  // uuid of the linked entry, lore, etc.
   text: string;
-  type: 'manual' | 'entry' | 'lore' | 'vignette' | 'monster' | 'item';
+  type: ToDoTypes;
 }
 
 // campaigns are journal entries, not documents

@@ -157,28 +157,6 @@
             </span>
           </div>
         </template>
-        <!-- todo actions column format-->
-        <template
-          v-if="col.field==='todoActions'"
-          #body="{ data }"
-        >x
-          <div 
-            class="fcb-row-wrapper"
-          >
-            <a 
-              class="fcb-action-icon" 
-              :data-tooltip="props.toggleItemLabel"
-              @click.stop="emit('toggleItem', data.uuid)" 
-            >
-              <i 
-                :class="[
-                  'fas', 
-                  data.completed ? 'fa-check-square' : 'fa-square'
-                ]"
-              ></i>
-            </a>
-          </div>
-        </template>
         <template
           v-if="col.field==='drag'"
           #body="{ data }"
@@ -351,10 +329,6 @@
       type: String,
       required: true,
     },
-    toggleItemLabel: {
-      type: String,
-      required: true,
-    },
     showMoveToCampaign: {
       type: Boolean,
       default: false,
@@ -372,7 +346,6 @@
     (e: 'rowSelect', originalEvent: DataTableRowSelectEvent): void;
     (e: 'editItem', uuid: string): void;
     (e: 'deleteItem', uuid: string): void;
-    (e: 'toggleItem', uuid: string): void;
     (e: 'addItem'): void;
     (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
     (e: 'cellEditComplete', originalEvent: DataTableCellEditCompleteEvent): void;

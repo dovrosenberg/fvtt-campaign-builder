@@ -20,7 +20,7 @@
         <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.campaign.pcs') }}</a>
         <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
-        <a class="item" v-if="showToDoTab" data-tab="todo">{{ localize('labels.tabs.campaign.todo') }} ({{ currentCampaign?.todoItems.length || 0 }})</a>
+        <a class="item" v-if="showToDoTab" data-tab="todo">{{ localize('labels.tabs.campaign.toDo') }} ({{ currentCampaign?.todoItems.length || 0 }})</a>
       </nav>
       <div class="fcb-tab-body flexrow">
         <DescriptionTab 

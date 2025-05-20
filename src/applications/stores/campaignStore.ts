@@ -472,7 +472,8 @@ export const useCampaignStore = defineStore('campaign', () => {
     currentPlayedCampaign,
     currentPlayedSession,
     currentPlayedCampaignId,
-
+    todoRows,
+    
     addPC,
     deletePC,
     addLore,

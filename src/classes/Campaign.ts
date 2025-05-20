@@ -5,7 +5,7 @@ import { DocumentWithFlags, PC, Session, WBWorld } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';
-import { TodoItem } from '@/documents/campaign';
+import { TodoItem, ToDoTypes } from '@/documents/campaign';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign extends DocumentWithFlags<CampaignDoc> {
@@ -245,31 +245,59 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this.updateCumulative(CampaignFlagKey.todoItems, value);
   }
 
-  /**
-   * Adds a todo item to the campaign.  If there is already a todo for the same uuid, it only updates
-   * the completed status.
-   * 
-   * @param item - The todo item to add
-   */
-  async addTodoItem(item: TodoItem): Promise<void> {
-    // Check if todo list is enabled
-    if (!ModuleSettings.get(SettingKey.enableTodoList)) {
+  /** Creates a new todo item and adds to the campaign*/
+  async addNewTodoItem(type: ToDoTypes, text: string, linkedUuid?: string): Promise<void> {
+    if (!ModuleSettings.get(SettingKey.enableTodoList)) 
       return;
-    }
 
     if (!this._todoItems) {
       this._todoItems = [];
     }
 
-    // don't add multiple items with same uuid
-    const existingItem = this._todoItems.find(i => i.uuid === item.uuid);
-    if (existingItem) {
-      throw new Error(`Todo item with uuid ${item.uuid} already exists in Campaign.addTodoItem()`);
+    // manual entries don't have a linked uuid, but the others do
+    if ((!linkedUuid && type !== ToDoTypes.Manual) || (linkedUuid && type === ToDoTypes.Manual)) {
+      throw new Error('Invalid linkedUuid for type in Campaign.addTodoItem()');
     }
+
+    const item: TodoItem = {
+      uuid: foundry.utils.randomID(),
+      linkedUuid: linkedUuid || null,
+      text: text || '',
+      type: type || ToDoTypes.Manual,
+    };
 
     this._todoItems.push(item);
     this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+    
     await this.save();
+  }
+
+  /**
+   * Adds a todo item to the campaign. If there is already one with a matching linkeduuid, it adds the text
+   * to the end of the current text.  Otherwise, it creates a new one.
+   * 
+   */
+  async mergeToDoItem(type: ToDoTypes, text: string, linkedUuid?: string): Promise<void> {
+    // Check if todo list is enabled
+    if (!ModuleSettings.get(SettingKey.enableTodoList)) 
+      return;
+
+    // see if one exists for this linked uuid
+    const existingItem = this._todoItems.find(i => i.linkedUuid === linkedUuid);
+
+    // make sure the type matches
+    if (existingItem && existingItem.type !== type) {
+      throw new Error(`Todo item with linkedUuid ${linkedUuid} already exists with different type in Campaign.mergeToDoItem()`);
+    }
+
+    // otherwise, if we have one, add the text to the end of the current text
+    if (!existingItem) {
+      await this.addNewTodoItem(type, text, linkedUuid);
+    } else {
+      existingItem.text += '; ' + text;
+      this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+      await this.save();
+    }
   }
 
   async completeTodoItem(uuid: string): Promise<void> {

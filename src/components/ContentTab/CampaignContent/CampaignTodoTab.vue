@@ -1,10 +1,24 @@
 <template>
   <div class="tab-inner">
-    <SessionToDoTable
+    <BaseTable
+      ref="baseTableRef"
+      :show-add-button="true"
+      :show-filter="false"
+      :filter-fields="[]"
+      :add-button-label="'Put something here'"
+      :track-delivery="true"
+      :allow-drop-row="false"
       :rows="mappedTodoRows"
-      :columns="sessionStore.extraFields[SessionTableTypes.Todo]"
-      @toggle-item="onDeleteTodoItem"
-    />
+      :columns="columns"
+      :allow-edit="false"
+      :delete-item-label="localize('tooltips.deleteToDo')"
+      :show-move-to-campaign="false"
+      :draggable-rows="false"
+      @edit-item="(uuid) => {}"
+      @delete-item="onDeleteTodoItem"
+      @add-item="() => {}"
+    >
+    </BaseTable>
   </div>
 </template>
 
@@ -14,12 +28,14 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { SessionTableTypes, useMainStore, useCampaignStore, } from '@/applications/stores';
+  import { useMainStore, useCampaignStore, CampaignTableTypes, } from '@/applications/stores';
+  import { localize } from '@/utils/game';
 
   // library components
 
   // local components
-  import SessionToDoTable from '@/components/Tables/SessionToDoTable.vue';
+  import BaseTable from '@/components/BaseTable/BaseTable.vue';
+
   
   // store
   const mainStore = useMainStore();
@@ -29,9 +45,19 @@
 
   // computed
   const mappedTodoRows = computed(() => todoRows.value);
-  
-  // computed
 
+  const columns = computed((): any[] => {
+    // add actions    
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
+
+    const columns = [ actionColumn ] as any[];
+    for (const col of campaignStore.extraFields[CampaignTableTypes.Todo]) {
+      columns.push(col);
+    }
+
+    return columns;
+  });
+  
   // methods
   const onDeleteTodoItem = async (uuid: string) => {
     if (!currentCampaign.value) 
@@ -39,108 +65,6 @@
 
     await currentCampaign.value.completeTodoItem(uuid);
   };
-
-  // // Watch for new NPCs
-  // watch(() => relatedNPCRows.value, (newNPCs) => {
-  //   newNPCs.forEach(npc => {
-  //     if (!npc.delivered)
-  //       return;
-
-  //     if (!todoRows.value.some(item => item.uuid === npc.uuid)) {
-  //       todoRows.value.push({
-  //         uuid: npc.uuid,
-  //         name: npc.name,
-  //         type: 'entry',
-  //         completed: false
-  //       });
-  //     }
-  //   });
-  // });
-
-  // // Watch for new locations
-  // watch(() => relatedLocationRows.value, (newLocations) => {
-  //   newLocations.forEach(location => {
-  //     if (!location.delivered)
-  //       return;
-
-  //     if (!todoRows.value.some(item => item.uuid === location.uuid)) {
-  //       todoRows.value.push({
-  //         uuid: location.uuid,
-  //         name: location.name,
-  //         type: 'entry',
-  //         completed: false
-  //       });
-  //     }
-  //   });
-  // });
-
-  // // Watch for new lore
-  // watch(() => relatedLoreRows.value, (newLore) => {
-  //   newLore.forEach(lore => {
-  //     if (!lore.delivered)
-  //       return;
-
-  //     if (!todoRows.value.some(item => item.uuid === lore.uuid)) {
-  //       todoRows.value.push({
-  //         uuid: lore.uuid,
-  //         name: lore.description,
-  //         type: 'lore',
-  //         completed: false
-  //       });
-  //     }
-  //   });
-  // });
-
-  // // Watch for new vignettes
-  // watch(() => relatedVignetteRows.value, (newVignettes) => {
-  //   newVignettes.forEach(vignette => {
-  //     if (!vignette.delivered)
-  //       return;
-
-  //     if (!todoRows.value.some(item => item.uuid === vignette.uuid)) {
-  //       todoRows.value.push({
-  //         uuid: vignette.uuid,
-  //         name: vignette.description,
-  //         type: 'vignette',
-  //         completed: false
-  //       });
-  //     }
-  //   });
-  // });
-
-  // // Watch for new monsters
-  // watch(() => relatedMonsterRows.value, (newMonsters) => {
-  //   newMonsters.forEach(monster => {
-  //     if (!monster.delivered)
-  //       return;
-
-  //     if (!todoRows.value.some(item => item.uuid === monster.uuid)) {
-  //       todoRows.value.push({
-  //         uuid: monster.uuid,
-  //         name: monster.name,
-  //         type: 'monster',
-  //         completed: false
-  //       });
-  //     }
-  //   });
-  // });
-
-  // // Watch for new magic items
-  // watch(() => relatedItemRows.value, (newItems) => {
-  //   newItems.forEach(item => {
-  //     if (!item.delivered)
-  //       return;
-
-  //     if (!todoRows.value.some(todoItem => todoItem.uuid === item.uuid)) {
-  //       todoRows.value.push({
-  //         uuid: item.uuid,
-  //         name: item.name,
-  //         type: 'item',
-  //         completed: false
-  //       });
-  //     }
-  //   });
-  // });
 </script>
 
 <style lang="scss" scoped>
