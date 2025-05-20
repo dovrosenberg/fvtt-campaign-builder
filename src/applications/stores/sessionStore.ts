@@ -159,7 +159,7 @@ export const useSessionStore = defineStore('session', () => {
     const entry = await Entry.fromUuid(uuid);
 
     if (entry && delivered && currentSession.value.campaign) {
-      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Entry, entry.name, uuid);
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Entry, `${entry.name} delivered`, uuid);
     }
 
     await _refreshLocationRows();
@@ -239,7 +239,7 @@ export const useSessionStore = defineStore('session', () => {
     const entry = await Entry.fromUuid(uuid);
 
     if (entry && delivered && currentSession.value.campaign) {
-      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Entry, entry.name, uuid);
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Entry, `${entry.name} delivered`, uuid);
     }
 
     await _refreshNPCRows();
@@ -321,7 +321,7 @@ export const useSessionStore = defineStore('session', () => {
     const vignette = currentSession.value.vignettes.find(v=> v.uuid===uuid);
 
     if (vignette && delivered && currentSession.value.campaign) {
-      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Vignette, vignette.description, uuid);
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Vignette, `${vignette.description} delivered`, uuid);
     }
     await _refreshVignetteRows();
   }
@@ -420,7 +420,7 @@ export const useSessionStore = defineStore('session', () => {
     const lore = currentSession.value.lore.find(l=> l.uuid===uuid);
 
     if (lore && delivered && currentSession.value.campaign) {
-      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Lore, lore.description, uuid);
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Lore, `${lore.description} delivered`, uuid);
     }
 
     await _refreshLoreRows();
@@ -518,7 +518,7 @@ export const useSessionStore = defineStore('session', () => {
     const entry = await fromUuid<Item>(uuid);
 
     if (entry && delivered && currentSession.value.campaign) {
-      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Item, entry.name, uuid);
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Item, `${entry.name} delivered`, uuid);
     }
 
     await _refreshItemRows();
@@ -598,7 +598,7 @@ export const useSessionStore = defineStore('session', () => {
     const entry = await fromUuid<Actor>(uuid);
 
     if (entry && delivered && currentSession.value.campaign) {
-      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Monster, entry.name, uuid);
+      await currentSession.value.campaign.mergeToDoItem(ToDoTypes.Monster, `${entry.name} delivered`, uuid);
     }
 
     await _refreshMonsterRows();

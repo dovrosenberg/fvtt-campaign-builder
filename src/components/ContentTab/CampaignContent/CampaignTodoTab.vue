@@ -28,7 +28,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useCampaignStore, CampaignTableTypes, } from '@/applications/stores';
+  import { useCampaignStore, CampaignTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // library components
@@ -38,9 +38,7 @@
 
   
   // store
-  const mainStore = useMainStore();
   const campaignStore = useCampaignStore();
-  const { currentCampaign, } = storeToRefs(mainStore);
   const { todoRows, } = storeToRefs(campaignStore);
 
   // computed

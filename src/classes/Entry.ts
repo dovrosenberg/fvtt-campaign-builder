@@ -351,7 +351,7 @@ export class Entry {
         // Update the todo list if in play mode
         const campaign = useCampaignStore().currentPlayedCampaign;
         if (useMainStore().isInPlayMode && campaign) {
-          await campaign.mergeToDoItem(ToDoTypes.Entry, this.name, this.uuid);
+          await campaign.mergeToDoItem(ToDoTypes.Entry, `${this.name} edited`, this.uuid);
         }
       }
     } catch (error) {
