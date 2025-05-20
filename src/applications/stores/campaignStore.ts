@@ -29,7 +29,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   // used for tables
   const relatedPCRows = ref<PCDetails[]>([]);
   const relatedLoreRows = ref<CampaignLoreDetails[]>([]);
-  const todoRows = ref<ToDoItem[]>([]);
+  const toDoRows = ref<ToDoItem[]>([]);
 
   const extraFields = {
     [CampaignTableTypes.None]: [],
@@ -45,7 +45,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     ],
     [CampaignTableTypes.ToDo]: [
       { field: 'lastTouched', style: 'text-align: left', header: 'Last modified', sortable: true, },
-      { field: 'entry', style: 'text-align: left', header: 'Entry', sortable: true, onClick: onEntryClick },
+      { field: 'entry', style: 'text-align: left', header: 'Reference', sortable: true, onClick: onToDoClick },
       { field: 'text', style: 'text-align: left', header: 'To Do Item', sortable: true, editable: true },
     ],
   } as Record<CampaignTableTypes, FieldData>;
@@ -305,8 +305,17 @@ export const useCampaignStore = defineStore('campaign', () => {
   }
 
   // when we click on an entry in the todo list, open it
-  async function onEntryClick (event: MouseEvent, uuid: string) {
-    navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
+  async function onToDoClick (event: MouseEvent, uuid: string) {
+    const toDo = toDoRows.value.find(r=> r.uuid===uuid);
+
+    switch (toDo?.type) {
+      case ToDoTypes.Entry:
+        navigationStore.openEntry(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true });
+        break;
+      case ToDoTypes.Lore:
+        navigationStore.openLore(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true });
+        break;
+    }
   }
 
   const _getLastSession = async (): Promise<Session | null> => {
@@ -339,7 +348,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   const _refreshRows = async (): Promise<void> => {
     relatedPCRows.value = [];
     relatedLoreRows.value = [];
-    todoRows.value = [];
+    toDoRows.value = [];
 
     if (!currentCampaign.value)
       return;
@@ -421,7 +430,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!currentCampaign.value)
       return;
 
-    todoRows.value = Array.from(currentCampaign.value.todoItems);
+    toDoRows.value = Array.from(currentCampaign.value.todoItems);
   }
 
 
@@ -500,7 +509,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     currentPlayedCampaign,
     currentPlayedSession,
     currentPlayedCampaignId,
-    todoRows,
+    toDoRows,
     
     addPC,
     deletePC,

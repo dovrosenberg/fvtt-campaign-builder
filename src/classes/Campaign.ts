@@ -95,7 +95,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     return this.world;
   }
   
-  // get the highest numbered session
+  /**  get the highest numbered session (if in play mode, this will be the played one, too) */
   get currentSession (): Session | null {
     let maxNumber = 0;
     let doc: SessionDoc | null = null;
@@ -267,6 +267,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     const item: ToDoItem = {
       uuid: foundry.utils.randomID(),
       lastTouched: new Date(),
+      manuallyUpdated: false,
       linkedUuid: linkedUuid || null,
       linkedText: entry ? entry.name : null,
       text: text || '',
@@ -299,15 +300,23 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     }
 
     // otherwise, if we have one, add the text to the end of the current text
+    // if we don't have one, create a new one
     if (!existingItem) {
       await this.addNewToDoItem(type, text, linkedUuid);
-    } else {
-      existingItem.text += '; ' + text;
-      existingItem.lastTouched = new Date();
-      this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
-      await this.save();
-    }
-  }
+      return;
+    } else if (existingItem.manuallyUpdated) {
+        // if it's manually updated, we don't want to add to it but note the timestamp
+        existingItem.lastTouched = new Date();
+      } else {
+        // make sure the text isn't already in there
+        if (!existingItem.text.includes(text))
+          existingItem.text += '; ' + text;
+        existingItem.lastTouched = new Date();
+      }
+
+    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+    await this.save();
+}
 
   async updateToDoItem(uuid: string, newDescription: string): Promise<void> {
     const item = this._todoItems.find(i => i.uuid === uuid);
@@ -316,6 +325,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     item.text = newDescription;
     item.lastTouched = new Date();
+    item.manuallyUpdated = true;
     this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
     await this.save();
   }

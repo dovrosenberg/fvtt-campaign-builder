@@ -101,6 +101,7 @@ export enum ToDoTypes {
 export interface ToDoItem {
   uuid: string;  // uuid of the todo item
   lastTouched: Date;
+  manuallyUpdated: boolean;   // has the user edited the text yet
   linkedUuid: string | null;  // uuid of the linked entry, lore, etc.
   linkedText: string | null;  // text to display for linked items
   text: string;

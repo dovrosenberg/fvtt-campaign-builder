@@ -47,21 +47,42 @@ import { DataTableCellEditCompleteEvent } from 'primevue';
 
   // store
   const campaignStore = useCampaignStore();
-  const { todoRows, } = storeToRefs(campaignStore);
+  const { toDoRows, } = storeToRefs(campaignStore);
 
   // data
   const baseTableRef = ref<typeof BaseTable | null>(null);
   
   // computed
+  const mapToDoToName = (toDo: ToDoItem) => {
+    switch (toDo.type) {
+      case ToDoTypes.Manual:
+        return '';
+      case ToDoTypes.Entry:
+        return toDo.linkedText;
+      case ToDoTypes.Lore:
+        return 'Lore';
+      case ToDoTypes.Monster:
+        return 'Monster';
+      case ToDoTypes.Vignette:
+        return 'Vignette'; 
+      case ToDoTypes.Item:
+        return 'Item';
+      default:
+        return '';
+    }
+  }
   const mappedToDoRows = computed(() => (
-    todoRows.value.map((row) => ({
+    toDoRows.value.map((row) => ({
       ...row,
-      lastTouched: row.lastTouched ? row.lastTouched.toLocaleString(undefined, { 
-        day: 'numeric', 
-        month: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-      }).replace(/\s*([AP]M)/i, (_, p1) => p1.toLowerCase()) : '',  // replace AM/PM with am/pm
+      entry: mapToDoToName(row),
+      lastTouched: row.lastTouched ? 
+        new Date(row.lastTouched).toLocaleString(undefined, { 
+          day: 'numeric', 
+          month: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+        }).replace(/\s*([AP]M)/i, (_, p1) => p1.toLowerCase()) : // replace AM/PM with am/pm
+        '',  
     }))
   ));
 
