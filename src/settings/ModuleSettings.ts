@@ -27,6 +27,7 @@ export enum SettingKey {
   APIURL = 'APIURL',   // URL of backend
   APIToken = 'APIToken',
   defaultToLongDescriptions = 'defaultToLongDescriptions',
+  useGmailToDos = 'useGmailToDos', // whether to use Gmail for todos
 
   rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu
   autoRefreshRollTables = 'autoRefreshRollTables',  // should roll tables be automatically refreshed on load
@@ -55,6 +56,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.sessionTags ? TagList :
     K extends SettingKey.hideBackendWarning ? boolean :
     K extends SettingKey.enableToDoList ? boolean :
+    K extends SettingKey.useGmailToDos ? boolean :
     never;  
 
 export class ModuleSettings {
@@ -217,6 +219,11 @@ export class ModuleSettings {
       default: '',
       requiresReload: true,
       type: String,
+    },
+    {
+      settingID: SettingKey.useGmailToDos,
+      default: false,
+      type: Boolean,
     },
     {
       settingID: SettingKey.defaultToLongDescriptions,

@@ -40,6 +40,19 @@
         </p>
       </div>
 
+      <div class="form-group">
+        <label>{{ localize('applications.advancedSettings.labels.useGmailToDos') }}</label>
+        <div class="form-fields">
+          <Checkbox 
+              v-model="useGmailToDos" 
+              :binary="true"
+            />
+        </div>
+        <p class="hint">
+          {{ localize('applications.advancedSettings.labels.useGmailToDosHint') }}
+        </p>
+      </div>
+
       <footer class="form-footer" data-application-part="footer">
         <button 
           @click="onResetClick"
@@ -90,6 +103,7 @@
   const APIURL = ref<string>('');
   const APIToken = ref<string>('');
   const defaultToLongDescriptions = ref<boolean>(true);
+  const useGmailToDos = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
@@ -103,6 +117,7 @@
     await ModuleSettings.set(SettingKey.APIURL, APIURL.value);
     await ModuleSettings.set(SettingKey.APIToken, APIToken.value);
     await ModuleSettings.set(SettingKey.defaultToLongDescriptions, defaultToLongDescriptions.value);
+    await ModuleSettings.set(SettingKey.useGmailToDos, useGmailToDos.value);
 
     // reset the backend
     await Backend.configure();
@@ -115,6 +130,7 @@
     APIURL.value =  ModuleSettings.get(SettingKey.APIURL);
     APIToken.value = ModuleSettings.get(SettingKey.APIToken);
     defaultToLongDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
+    useGmailToDos.value = ModuleSettings.get(SettingKey.useGmailToDos);
   }
 
   ////////////////////////////////
@@ -127,6 +143,7 @@
     APIURL.value =  ModuleSettings.get(SettingKey.APIURL);
     APIToken.value = ModuleSettings.get(SettingKey.APIToken);
     defaultToLongDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
+    useGmailToDos.value = ModuleSettings.get(SettingKey.useGmailToDos);
   })
   
 
