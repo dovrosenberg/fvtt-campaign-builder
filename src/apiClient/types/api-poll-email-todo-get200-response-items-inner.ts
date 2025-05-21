@@ -17,20 +17,20 @@
 /**
  * 
  * @export
- * @interface ApiLocationGeneratePost200Response
+ * @interface ApiPollEmailTodoGet200ResponseItemsInner
  */
-export interface ApiLocationGeneratePost200Response {
+export interface ApiPollEmailTodoGet200ResponseItemsInner {
     /**
-     * The generated locations\'s name
+     * ISO timestamp of when the email was received
      * @type {string}
-     * @memberof ApiLocationGeneratePost200Response
+     * @memberof ApiPollEmailTodoGet200ResponseItemsInner
      */
-    'name': string;
+    'timestamp': string;
     /**
-     * A generated description of the location
+     * The content of the email
      * @type {string}
-     * @memberof ApiLocationGeneratePost200Response
+     * @memberof ApiPollEmailTodoGet200ResponseItemsInner
      */
-    'description': string;
+    'text': string;
 }
 

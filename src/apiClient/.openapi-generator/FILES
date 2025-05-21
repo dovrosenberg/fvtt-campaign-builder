@@ -23,5 +23,7 @@ types/api-name-towns-post-request.ts
 types/api-name-towns-post200-response.ts
 types/api-organization-generate-post-request.ts
 types/api-organization-generate-post200-response.ts
+types/api-poll-email-todo-get200-response-items-inner.ts
+types/api-poll-email-todo-get200-response.ts
 types/api-version-get200-response.ts
 types/index.ts

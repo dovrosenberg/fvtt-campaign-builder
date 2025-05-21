@@ -13,4 +13,6 @@ export * from './api-name-towns-post200-response';
 export * from './api-name-towns-post-request';
 export * from './api-organization-generate-post200-response';
 export * from './api-organization-generate-post-request';
+export * from './api-poll-email-todo-get200-response';
+export * from './api-poll-email-todo-get200-response-items-inner';
 export * from './api-version-get200-response';
