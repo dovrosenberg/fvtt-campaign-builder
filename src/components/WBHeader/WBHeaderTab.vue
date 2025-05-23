@@ -7,6 +7,7 @@
     @dragstart="onDragStart"
     @drop="onDrop"
     @dragover="onDragover"
+    @contextmenu="onTabContextMenu"
   >
     <div 
       v-if="tab.header.icon"
@@ -35,8 +36,10 @@
   import { useNavigationStore } from '@/applications/stores';
   import { WindowTab } from '@/classes';
   import { getValidatedData } from '@/utils/dragdrop';
+  import { localize } from '@/utils/game';
 
   // library components
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
 
@@ -80,6 +83,33 @@
     emit('closeTab', props.tab.id);
   };
 
+  const onTabContextMenu = (event: MouseEvent): void => {
+    //prevent the browser's default menu
+    event.preventDefault();
+    event.stopPropagation();
+
+    //show our menu
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: [
+        { 
+          icon: 'fa-times-circle',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.tabs.closeAll'), 
+          onClick: async () => {
+            // Close all tabs
+            const tabIds = tabs.value.map(t => t.id);
+            for (const tabId of tabIds) {
+              emit('closeTab', tabId);
+            }
+          }
+        },
+      ]
+    });
+  };
 
   ////////////////////////////////
   // event handlers

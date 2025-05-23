@@ -237,8 +237,11 @@
                 col.onClick ? 'clickable' : '',
               ]"
               @click.stop="col.onClick && col.onClick($event, data.uuid)"
-            >
-              {{ data[col.field] }}
+            >              
+              <span :style="col.onClick ? 'text-decoration: underline;' : ''">
+                {{ data[col.field] }}               
+              </span>
+              &nbsp; <!-- nbsp because otherwise the cell will have 0 width and the mouse events won't work; here so it doesn't get underlined -->
             </div>
           </div>
         </template>

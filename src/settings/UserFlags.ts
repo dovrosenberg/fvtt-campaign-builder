@@ -32,6 +32,7 @@ export abstract class UserFlags {
         null,
         null,
         t.id,
+        null,
         t.history,
         t.historyIdx
       )) as unknown as UserFlagType<T>;

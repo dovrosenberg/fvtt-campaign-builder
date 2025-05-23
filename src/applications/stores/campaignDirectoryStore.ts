@@ -161,6 +161,21 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     }
   };
 
+  const createCampaign = async (): Promise<Campaign | null> => {
+    let campaign: Campaign | null = null;
+
+    if (currentWorld.value) {
+      campaign = await Campaign.create(currentWorld.value as WBWorld);
+      await refreshCampaignDirectoryTree();
+    }
+
+    if (campaign) {
+      await navigationStore.openCampaign(campaign.uuid, {newTab: true});
+    }
+
+    return campaign;
+  };
+
   /**
    * Gets all campaigns in the current world
    * @returns Array of Campaign objects
@@ -217,6 +232,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     deleteCampaign,
     deleteSession,
     createSession,
+    createCampaign,
     getCampaigns,
   };
 });

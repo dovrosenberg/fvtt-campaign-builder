@@ -7,6 +7,8 @@
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
       "displaySessionNotes": "Display pop-up session notes",
       "displaySessionNotesHelp": "When enabled, a session notes window will automatically open when a play session starts",
+      "defaultAddToSession": "Default 'Add to current session'",
+      "defaultAddToSessionHelp": "When in play mode, should the checkbox when creating an entry default to on or off?",
       "sessionDisplayMode": "Session display format",
       "sessionDisplayModeHelp": "Choose how sessions are displayed in the campaign directory",
       "sessionDisplayModeOptions": {
@@ -36,7 +38,9 @@
       "speciesListLabel": "Species List",
       "speciesListHelp": "Define the species to make available.  These cross all worlds - file an issue if you have need more different lists per world.",
       "hideBackendWarning": "Hide missing backend warning?",
-      "hideBackendWarningHelp": "If you're not using the backend, this lets you turn off the notification that it's missing"
+      "hideBackendWarningHelp": "If you're not using the backend, this lets you turn off the notification that it's missing",
+      "enableToDoList": "Enable ToDo List",
+      "enableToDoListHelp": "If disabled, the todo list feature will be turned off."
     },
     "applications": {
       "sessionNotes": {
@@ -58,7 +62,15 @@
           "APIToken": "API Token",
           "APITokenHint": "Output from script to deploy the backend.",
           "defaultToLong": "Default to long descriptions",
-          "defaultToLongHint": "Controls the default setting for creating a long vs short description when doing AI generation."
+          "defaultToLongHint": "Controls the default setting for creating a long vs short description when doing AI generation.",
+          "useGmailToDos": "Use Gmail for To-Dos",
+          "useGmailToDosHint": "When enabled, to-do items will be created from the Gmail inbox",
+          "emailDefaultWorld": "Default World for email",
+          "emailDefaultWorldHint": "The world to use by default for email features (ex. emailing todo items)",
+          "emailDefaultCampaign": "Default Campaign for email",
+          "emailDefaultCampaignHint": "The campaign to use by default for email features (ex. emailing todo items)",
+          "selectWorld": "Select a world...",
+          "selectCampaign": "Select a campaign..."
         }
       },
       "rollTableSettings": {
@@ -108,9 +120,17 @@
       "addToWorld": "Add to world",
       "prep": "Prep",
       "play": "Play",
+      "homePage": {
+        "createWorld": "Create World",
+        "createCampaign": "Create Campaign",
+        "createCharacter": "Create Character",
+        "createLocation": "Create Location",
+        "createOrganization": "Create Organization"
+      },
       "fields": {
         "type": "Type",
         "parent": "Parent",
+        "campaign": "Campaign",
         "sessionNumber": "Number",
         "sessionDate": "Session Date",
         "playerName": "Player Name",
@@ -122,10 +142,12 @@
         "worldGenre": "Genre",
         "worldFeeling": "World Feeling",
         "campaignDescription": "Campaign description, notes, ideas, etc...",
+        "campaignHouseRules": "House rules",
         "briefDescription": "Brief description",
         "description": "Description",
         "longDescriptions": "Generate long descriptions",
-        "generateImage": "Generate Image"
+        "generateImage": "Generate Image",
+        "addToCurrentSession": "Add to current session"
       },
       "addTopic": {
         "character": "Add Character",
@@ -142,7 +164,8 @@
       "entry": {
         "topic": "TopicFolder",
         "type": "Type",
-        "relationships": "Relationships"
+        "relationships": "Relationships",
+        "sessions": "Sessions"
       },
       "session": {
         "session": "Session",
@@ -165,7 +188,12 @@
       },
       "campaign": {
         "addPC": "Add PC",
-        "addPCDrag": "(or drag/drop an actor)"
+        "addPCDrag": "(or drag/drop an actor)",
+        "description": "Description",
+        "pcs": "PCs",
+        "lore": "Lore",
+        "todo": "To Do",
+        "addToDo": "Create new 'To Do'"
       },
       "pc": {
         "linkToNewActor": "Link to new actor"
@@ -181,12 +209,14 @@
           "organizations": "Organizations",
           "organizationChildren": "Sub-organizations",
           "scenes": "Scenes",
-          "actors": "Actors"
+          "actors": "Actors",
+          "sessions": "Sessions"
         },
         "campaign": {
           "description": "Description",
           "pcs": "PCs",
-          "lore": "Lore"
+          "lore": "Lore",
+          "toDo": "To Do"
         },
         "session": {
           "notes": "Notes",
@@ -197,7 +227,8 @@
           "locations": "Locations",
           "npcs": "NPCs",
           "monsters": "Monsters",
-          "magic": "Magic Items"
+          "magic": "Magic Items",
+          "todo": "To Do"
         }
       },
       "noResults": "Nothing here",
@@ -235,7 +266,8 @@
       "backend": {
         "successfulConnection": "Successfully connected to Campaign Builder backend.",
         "failedConnection": "Failed to connect to backend - check your \"advanced\" settings to make sure they properly match the backend server you deployed.  You'll be unable to used advanced features in the meantime.",
-        "versionMismatch": "The version of your World & Campaign Builder backend ($1) doesn't match the version required by the module version you have installed ($2).  Please update one or the other (or both).  You'll be unable to use advanced features in the meantime."
+        "versionMismatch": "The version of your World & Campaign Builder backend ($1) doesn't match the version required by the module version you have installed ($2).  Please update one or the other (or both).  You'll be unable to use advanced features in the meantime.",
+        "emailSettingsNotSet": "You have enabled the email to-do list feature, but you haven't set a default world or campaign.  Please set these in the advanced settings."
       },
       "addedToSession": "added to session",
       "changesSaved": "changes saved"
@@ -276,9 +308,16 @@
       "createWorld": {
         "title": "Create World",
         "worldName": "World Name"
+      },
+      "addToDo": {
+        "title": "Add ToDo",
+        "text": "Enter todo text:"
       }
     },
     "contextMenus": {
+      "tabs": {
+        "closeAll": "Close All Tabs"
+      },
       "bookmarks": {
         "openNewTab": "Open in new Tab",
         "delete": "Delete bookmark"
@@ -342,6 +381,7 @@
       "deleteScene": "Delete scene",
       "deleteVignette": "Delete vignette",
       "deleteLore": "Delete lore",
+      "deleteToDo": "Complete to do item",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",

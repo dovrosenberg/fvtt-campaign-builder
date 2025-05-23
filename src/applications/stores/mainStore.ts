@@ -181,7 +181,8 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentSession.value = new Session(_currentSession.value.raw as SessionDoc);
+    const campaign = await _currentSession.value.loadCampaign();
+    _currentSession.value = new Session(_currentSession.value.raw as SessionDoc, campaign || undefined);
   };
 
   const refreshPC = async function (): Promise<void> {
@@ -224,6 +225,11 @@ export const useMainStore = defineStore('main', () => {
       return Topics.None;
 
     return currentEntry.value.topic || Topics.None;
+  });
+
+  const hasMultipleCampaigns = computed((): boolean => {
+    if (!currentWorld.value) return false;
+    return Object.values(currentWorld.value.campaignNames).length > 1;
   });
 
   // the currently selected tab for the content page
@@ -294,6 +300,7 @@ export const useMainStore = defineStore('main', () => {
     currentWorldCompendium,
     refreshCurrentEntry,
     isInPlayMode,
+    hasMultipleCampaigns,
 
     setNewWorld,
     setNewTab,

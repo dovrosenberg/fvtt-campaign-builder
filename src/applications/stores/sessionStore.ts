@@ -1,11 +1,11 @@
 // this store handles activities specific to campaigns 
 // 
 // library imports
-import { ref, watch } from 'vue';
+import { ref, watch, } from 'vue';
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
+import { useCampaignDirectoryStore, useCampaignStore, useMainStore, useNavigationStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game'; 
 import { htmlToPlainText } from '@/utils/misc';
@@ -20,6 +20,7 @@ import {
   SessionMonsterDetails, 
   SessionVignetteDetails,
   SessionLoreDetails,
+  ToDoTypes,
 } from '@/types';
 
 import { Entry, Session } from '@/classes';
@@ -87,7 +88,9 @@ export const useSessionStore = defineStore('session', () => {
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
+  const campaignStore = useCampaignStore();
   const { currentWorld, currentContentTab, currentSession, } = storeToRefs(mainStore);
+  const { currentPlayedSession } = storeToRefs(campaignStore);
 
   ///////////////////////////////
   // internal state
@@ -102,11 +105,23 @@ export const useSessionStore = defineStore('session', () => {
    * Adds a location to the session.
    * @param uuid the UUID of the location to add.
    */
-  const addLocation = async (uuid: string): Promise<void> => {
+  const addLocation = async (uuid: string, delivered: boolean = false): Promise<void> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.addLocation()');
 
-    await currentSession.value.addLocation(uuid);
+    await currentSession.value.addLocation(uuid, delivered);
+    await _refreshLocationRows();
+  }
+
+  /**
+   * Adds a location to the played session.
+   * @param uuid the UUID of the location to add.
+   */
+  const addLocationToPlayedSession = async (uuid: string, delivered: boolean = false): Promise<void> => {
+    if (!currentPlayedSession.value)
+      throw new Error('Invalid session in sessionStore.addLocationToPlayedSession()');
+
+    await currentPlayedSession.value.addLocation(uuid, delivered);
     await _refreshLocationRows();
   }
 
@@ -136,6 +151,17 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markLocationDelivered()');
 
     await currentSession.value.markLocationDelivered(uuid, delivered);
+
+    const entry = await Entry.fromUuid(uuid);
+
+    let campaign;
+    if (entry)
+      campaign = await currentSession.value.loadCampaign();
+
+    if (entry && delivered && campaign) {
+      await campaign.mergeToDoItem(ToDoTypes.Entry, `Delivered in session ${currentSession.value.number}`, uuid);
+    }
+
     await _refreshLocationRows();
   }
 
@@ -163,11 +189,23 @@ export const useSessionStore = defineStore('session', () => {
    * Adds a NPC to the session.
    * @param uuid the UUID of the character to add.
    */
-  const addNPC = async (uuid: string): Promise<void> => {
+  const addNPC = async (uuid: string, delivered: boolean = false): Promise<void> => {
     if (!currentSession.value)
       throw new Error('Invalid session in sessionStore.addNPC()');
 
-    await currentSession.value.addNPC(uuid);
+    await currentSession.value.addNPC(uuid, delivered);
+    await _refreshNPCRows();
+  }
+
+  /**
+   * Adds a NPC to the played session.
+   * @param uuid the UUID of the character to add.
+   */
+  const addNPCToPlayedSession = async (uuid: string, delivered: boolean = false): Promise<void> => {
+    if (!currentPlayedSession.value)
+      throw new Error('Invalid session in sessionStore.addNPCToPlayedSession()');
+
+    await currentPlayedSession.value.addNPC(uuid, delivered);
     await _refreshNPCRows();
   }
 
@@ -197,6 +235,17 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markNPCDelivered()');
 
     await currentSession.value.markNPCDelivered(uuid, delivered);
+
+    const entry = await Entry.fromUuid(uuid);
+
+    let campaign;
+    if (entry)
+      campaign = await currentSession.value.loadCampaign();
+
+    if (entry && delivered && campaign) {
+      await campaign.mergeToDoItem(ToDoTypes.Entry, `Delivered in session ${currentSession.value.number}`, uuid);
+    }
+
     await _refreshNPCRows();
   }
 
@@ -272,6 +321,16 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markVignetteDelivered()');
 
     await currentSession.value.markVignetteDelivered(uuid, delivered);
+
+    const vignette = currentSession.value.vignettes.find(v=> v.uuid===uuid);
+
+    let campaign;
+    if (vignette)
+      campaign = await currentSession.value.loadCampaign();
+
+    if (vignette && delivered && campaign) {
+      await campaign.mergeToDoItem(ToDoTypes.Vignette, `Delivered in session ${currentSession.value.number}`, uuid, currentSession.value.uuid);
+    }
     await _refreshVignetteRows();
   }
 
@@ -365,6 +424,17 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markLoreDelivered()');
 
     await currentSession.value.markLoreDelivered(uuid, delivered);
+
+    const lore = currentSession.value.lore.find(l=> l.uuid===uuid);
+
+    let campaign;
+    if (lore)
+      campaign = await currentSession.value.loadCampaign();
+
+    if (lore && delivered && campaign) {
+      await campaign.mergeToDoItem(ToDoTypes.Lore, `Delivered in session ${currentSession.value.number}`, uuid, currentSession.value.uuid);
+    }
+
     await _refreshLoreRows();
   }
 
@@ -406,7 +476,7 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentLore)
       return;
 
-    const campaign = currentSession.value.parentCampaign;
+    const campaign = await currentSession.value.loadCampaign();
 
     if (!campaign) 
       return;
@@ -456,6 +526,17 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markItemDelivered()');
 
     await currentSession.value.markItemDelivered(uuid, delivered);
+
+    const entry = await fromUuid<Item>(uuid);
+
+    let campaign;
+    if (entry)
+      campaign = await currentSession.value.loadCampaign();
+
+    if (entry && delivered && campaign) {
+      await campaign.mergeToDoItem(ToDoTypes.Item, `Delivered in session ${currentSession.value.number}`, uuid, currentSession.value.uuid);
+    }
+
     await _refreshItemRows();
   }
 
@@ -529,6 +610,17 @@ export const useSessionStore = defineStore('session', () => {
       throw new Error('Invalid session in sessionStore.markMonsterDelivered()');
 
     await currentSession.value.markMonsterDelivered(uuid, delivered);
+
+    const entry = await fromUuid<Actor>(uuid);
+
+    let campaign;
+    if (entry)
+      campaign = await currentSession.value.loadCampaign();
+
+    if (entry && delivered && campaign) {
+      await campaign.mergeToDoItem(ToDoTypes.Monster, `Delivered in session ${currentSession.value.number}`, uuid, currentSession.value.uuid);
+    }
+
     await _refreshMonsterRows();
   }
 
@@ -558,10 +650,13 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   const getNextSession = async (): Promise<Session | null> => {
-    if (!currentSession.value || !currentSession.value.parentCampaign || currentSession.value.number===null)
+    let campaign;
+    if (currentSession.value)
+      campaign = await currentSession.value.loadCampaign();
+
+    if (!currentSession.value || !campaign || currentSession.value.number===null)
       return null;
 
-    const campaign = currentSession.value.parentCampaign;
     const nextSessionNumber = currentSession.value.number+1;
     const nextSession = campaign.filterSessions(s => s.number === nextSessionNumber);
 
@@ -624,6 +719,17 @@ export const useSessionStore = defineStore('session', () => {
 
     if (parentId)
       navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true });
+  }
+
+  // when we click on a todo item that has a UUID, open it
+  async function onToDoClick (event: MouseEvent, uuid: string) {
+    // make sure it's an entry (vs. lore, etc)
+    const entry = await Entry.fromUuid(uuid);
+
+    if (!entry)
+      return;
+        
+    await navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
   }
 
   const _refreshRows = async () => {
@@ -799,6 +905,7 @@ export const useSessionStore = defineStore('session', () => {
     relatedLoreRows.value = retval;
   }
 
+
   ///////////////////////////////
   // watchers
   watch(()=> currentSession.value, async () => {
@@ -824,6 +931,7 @@ export const useSessionStore = defineStore('session', () => {
     extraFields,
     lastSavedNotes,
     addLocation,
+    addLocationToPlayedSession,
     deleteLocation,
     markLocationDelivered,
     moveLocationToNext,
@@ -832,6 +940,7 @@ export const useSessionStore = defineStore('session', () => {
     markItemDelivered,
     moveItemToNext,
     addNPC,
+    addNPCToPlayedSession,
     deleteNPC,
     markNPCDelivered,
     moveNPCToNext,

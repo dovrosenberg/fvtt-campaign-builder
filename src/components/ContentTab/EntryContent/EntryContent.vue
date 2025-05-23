@@ -66,6 +66,12 @@
         >
           {{ localize('labels.tabs.entry.scenes') }}
         </a>
+        <a 
+          class="item" 
+          data-tab="sessions"
+        >
+          {{ localize('labels.tabs.entry.sessions') }}
+        </a>
       </nav>
       <div class="fcb-tab-body flexrow">
         <DescriptionTab 
@@ -152,6 +158,9 @@
             />
           </div>
         </div>
+        <div class="tab flexcol" data-group="primary" data-tab="sessions">
+          <SessionsTab />
+        </div>
       </div>
     </div>
   </form>
@@ -187,6 +196,7 @@
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
+  import SessionsTab from '@/components/ContentTab/EntryContent/SessionsTab.vue';
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
@@ -207,7 +217,7 @@
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
   const campaignStore = useCampaignStore();
-  const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, isInPlayMode } = storeToRefs(mainStore);
+  const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, } = storeToRefs(mainStore);
   const { currentPlayedCampaign } = storeToRefs(campaignStore);
 
   ////////////////////////////////
@@ -435,7 +445,7 @@
 
     notifyInfo(`${currentEntry.value.name} ${localize('notifications.addedToSession')}`);
     updatePushButton();// # of available changed
-   }
+  };
 
   const onGenerateButtonClick = (event: MouseEvent): void => {
     // Prevent default behavior
@@ -549,8 +559,9 @@
   // watchers
   // in case the tab is changed externally
   watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
-    if (newTab!==oldTab)
-      tabs.value?.activate(newTab || 'description');    
+    if (newTab !== oldTab && tabs.value) {
+      tabs.value.activate(newTab || 'description');    
+    }
   });
 
   // see if we want to force a full refresh (ex. when parent changes externally)
@@ -564,10 +575,13 @@
   watch(currentEntry, async (): Promise<void> => {
     await refreshEntry();
 
-    if (!currentContentTab.value)
+    if (!currentContentTab.value) {
       currentContentTab.value = 'description';
+    }
 
-    tabs.value?.activate(currentContentTab.value); 
+    if (tabs.value) {
+      tabs.value.activate(currentContentTab.value); 
+    }
   });
 
   ////////////////////////////////

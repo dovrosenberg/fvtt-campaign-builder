@@ -3,10 +3,13 @@ import { Configuration, FCBApi } from '@/apiClient';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyGMError, notifyGMInfo, notifyGMWarn } from '@/utils/notifications';
 import { localize } from '@/utils/game';
+import { Campaign } from '@/classes';
+import { ToDoTypes } from '@/types';
+import { useMainStore } from '@/applications/stores';
 
 // this is the backend version that needs to be used with this version of the module
 // generally, we'll try to keep them more or less in sync, at least at the minor release level
-const REQUIRED_VERSION = '0.0.7';
+const REQUIRED_VERSION = '0.0.8';
 
 // handles connections to the backend
 export class Backend {
@@ -65,5 +68,35 @@ export class Backend {
     // made it here - good to go!
     notifyGMInfo(localize('notifications.backend.successfulConnection'));
     Backend.available = true;
+
+    // let's also poll for email since we just connected
+    await Backend.pollForEmail();
+  }
+
+  static async pollForEmail() {
+    if (!ModuleSettings.get(SettingKey.useGmailToDos)) 
+      return;
+
+    const campaign = await Campaign.fromUuid(ModuleSettings.get(SettingKey.emailDefaultCampaign));
+
+    if (!campaign) {
+      notifyGMError(localize('notifications.backend.emailSettingsNotSet'));
+      return;
+    }
+
+    const toDos = (await Backend.api.apiPollEmailTodoGet())?.data?.items;
+
+    if (toDos) {
+      for (const toDo of toDos) {
+        if (toDo) {
+          await campaign.addNewToDoItem(ToDoTypes.Manual, toDo.text, undefined, undefined, new Date(toDo.timestamp));
+        }
+      }
+
+      // if the campaign is showing, refresh
+      if (useMainStore().currentCampaign?.uuid === campaign.uuid) {
+        await useMainStore().refreshCampaign();
+      }
+    }
   }
 }

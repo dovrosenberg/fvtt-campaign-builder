@@ -11,6 +11,8 @@ export enum SettingKey {
   displaySessionNotes = 'displaySessionNotes',  // should the session notes window automatically open
   sessionDisplayMode = 'sessionDisplayMode',  // how to display sessions in the directory
   hideBackendWarning = 'hideBackendWarning', // don't show the warning about no backend
+  defaultAddToSession = 'defaultAddToSession', // default state of "Add to current session" checkbox
+  enableToDoList = 'enableToDoList', // whether the todo list feature is enabled
 
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
@@ -25,6 +27,9 @@ export enum SettingKey {
   APIURL = 'APIURL',   // URL of backend
   APIToken = 'APIToken',
   defaultToLongDescriptions = 'defaultToLongDescriptions',
+  useGmailToDos = 'useGmailToDos', // whether to use Gmail for todos
+  emailDefaultWorld = 'emailDefaultWorld', // default world for email features
+  emailDefaultCampaign = 'emailDefaultCampaign', // default campaign for email features
 
   rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu
   autoRefreshRollTables = 'autoRefreshRollTables',  // should roll tables be automatically refreshed on load
@@ -45,12 +50,17 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
     K extends SettingKey.defaultToLongDescriptions ? boolean :
+    K extends SettingKey.defaultAddToSession ? boolean :
     K extends SettingKey.rollTableSettingsMenu ? never :
     K extends SettingKey.autoRefreshRollTables ? boolean :
     K extends SettingKey.speciesList ? Species[] :
     K extends SettingKey.entryTags ? TagList :
     K extends SettingKey.sessionTags ? TagList :
     K extends SettingKey.hideBackendWarning ? boolean :
+    K extends SettingKey.enableToDoList ? boolean :
+    K extends SettingKey.useGmailToDos ? boolean :
+    K extends SettingKey.emailDefaultWorld ? string :
+    K extends SettingKey.emailDefaultCampaign ? string :
     never;  
 
 export class ModuleSettings {
@@ -142,6 +152,20 @@ export class ModuleSettings {
       type: Boolean,
     },
     {
+      settingID: SettingKey.defaultAddToSession,
+      name: 'settings.defaultAddToSession',
+      hint: 'settings.defaultAddToSessionHelp',
+      default: true,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.enableToDoList,
+      name: 'settings.enableToDoList',
+      hint: 'settings.enableToDoListHelp',
+      default: true,
+      type: Boolean,
+    },
+    {
       settingID: SettingKey.sessionDisplayMode,
       name: 'settings.sessionDisplayMode',
       hint: 'settings.sessionDisplayModeHelp',
@@ -198,6 +222,21 @@ export class ModuleSettings {
       settingID: SettingKey.APIToken,
       default: '',
       requiresReload: true,
+      type: String,
+    },
+    {
+      settingID: SettingKey.useGmailToDos,
+      default: false,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.emailDefaultWorld,
+      default: '',
+      type: String,
+    },
+    {
+      settingID: SettingKey.emailDefaultCampaign,
+      default: '',
       type: String,
     },
     {

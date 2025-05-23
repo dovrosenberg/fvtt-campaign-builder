@@ -132,10 +132,10 @@
   import { nextTick, ref, watch, onMounted, } from 'vue';
 
   // local imports
-  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useCampaignStore } from '@/applications/stores';
+  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useCampaignStore, } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
-  import { SettingKey } from '@/settings';
+  import { SettingKey, } from '@/settings';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -272,8 +272,12 @@
   ////////////////////////////////
   // watchers
   watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
-    if (newTab!==oldTab)
-      tabs.value?.activate(newTab || 'start');
+    if (!tabs.value)
+      return;
+
+    if (newTab!==oldTab) {
+      tabs.value.activate(newTab || 'start');
+    }
   });
 
   let dateDebounceTimer: NodeJS.Timeout | undefined = undefined;
@@ -317,7 +321,6 @@
   // lifecycle events
   onMounted(async () => {
     tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.fcb-tab-body', initial: 'description', /*callback: null*/ });
-
     // update the store when tab changes
     tabs.value.callback = () => {
       currentContentTab.value = tabs.value?.active || null;
@@ -334,5 +337,4 @@
 </script>
 
 <style lang="scss">
-
 </style>

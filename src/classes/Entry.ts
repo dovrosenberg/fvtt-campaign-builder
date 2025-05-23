@@ -1,12 +1,13 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace,  } from '@/documents';
-import { RelatedItemDetails, ValidTopic, Topics, TagInfo } from '@/types';
+import { RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, WBWorld } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
+import { useCampaignStore, useMainStore } from '@/applications/stores';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -341,14 +342,21 @@ export class Entry {
       this._cumulativeUpdate = {};
     });
 
-    // Update the search index
+    // Update the search index and todo list
     try {
       if (retval) {
         await searchService.addOrUpdateIndex(this, world, true);
+
+        // Update the todo list if in play mode
+        const campaign = useCampaignStore().currentPlayedCampaign;
+        if (useMainStore().isInPlayMode && campaign) {
+          await campaign.mergeToDoItem(ToDoTypes.Entry, `Edited during session ${campaign.currentSession?.number}`, this.uuid);
+        }
       }
     } catch (error) {
       console.error('Failed to update search index:', error);
     }
+
 
     return retval ? this : null;
   }

@@ -203,7 +203,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async (event: DragEvent) => {
+  const onDrop = async(event: DragEvent) => {
     event.preventDefault();
 
     // parse the data
@@ -217,18 +217,29 @@
     }
 
     const fullEntry = await Entry.fromUuid(data.childId);
+    if (!fullEntry) {
+      return;
+    }
 
-    // add the item to the relationship
-    // make the extra fields blank, if there are any
-    const extraFieldsToSend = extraFields[currentEntryTopic.value][props.topic].reduce((acc, field) => {
+    // Check if there are any extra fields required for this relationship
+    const requiredExtraFields = extraFields[currentEntryTopic.value][props.topic];
+    
+    if (!requiredExtraFields || requiredExtraFields.length === 0) {
+      // No extra fields needed, add relationship directly
+      await relationshipStore.addRelationship(fullEntry, {});
+      return;
+    }
+
+    // Has extra fields, show dialog to collect them
+    const extraFieldsToSend = requiredExtraFields.reduce((acc, field) => {
       acc[field.field] = '';
       return acc;
     }, {} as Record<string, string>);
 
     // open the dialog to complete
     editItem.value = {
-      itemId: fullEntry?.uuid || '',
-      itemName: fullEntry?.name || '',
+      itemId: fullEntry.uuid,
+      itemName: fullEntry.name,
       extraFields: extraFieldsToSend,
     };
     addDialogShow.value = true;

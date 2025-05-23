@@ -6,7 +6,6 @@ import { SessionLore } from '@/documents/session';
 import * as sinon from 'sinon';
 import { moduleId } from '@/settings';
 import { FCBDialog } from '@/dialogs';
-import { Session } from 'src/classes';
 
 export const registerCampaignTests = () => {
   quench.registerBatch(

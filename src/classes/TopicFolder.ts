@@ -97,15 +97,9 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   /**
    * An array of top-level nodes.
    */
-  public set topNodes(value: readonly string[]) {
+  public set topNodes(value: string[]) {
     this._topNodes = value.slice();   // we clone it so it can't be edited outside
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        topNodes: value,
-      }
-    };
+    this.updateCumulative(TopicFlagKey.topNodes, value);
   }
 
   /**
@@ -120,13 +114,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    */
   public set topic(value: ValidTopic) {
     this._topic = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        topic: value,
-      }
-    };
+    this.updateCumulative(TopicFlagKey.topic, value);
   }
 
   /**
@@ -141,13 +129,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    */
   public set types(value: string[]) {
     this._types = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        types: value,
-      }
-    };
+    this.updateCumulative(TopicFlagKey.types, value);
   }
   
   // get direct access to the document (ex. to hook to foundry's editor)

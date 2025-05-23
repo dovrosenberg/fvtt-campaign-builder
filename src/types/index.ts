@@ -89,3 +89,22 @@ export enum RelatedItemDialogModes {
   Edit = 'edit',
   Session = 'session' // for adding to sessions
 }
+
+export enum ToDoTypes {
+  Manual = 'manual',
+  Entry = 'entry',
+  Lore = 'lore',
+  Vignette = 'vignette',
+  Monster = 'monster',
+  Item = 'item',
+}
+export interface ToDoItem {
+  uuid: string;  // uuid of the todo item
+  lastTouched: Date;
+  manuallyUpdated: boolean;   // has the user edited the text yet
+  linkedUuid: string | null;  // uuid of the linked entry, lore, etc.
+  linkedText: string | null;  // text to display for linked items
+  sessionUuid: string | null; // uuid of the session if it's a session todo (lore, vignette, monster, item)
+  text: string;
+  type: ToDoTypes;
+}

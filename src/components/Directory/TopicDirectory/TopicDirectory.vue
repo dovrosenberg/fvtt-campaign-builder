@@ -99,7 +99,6 @@
 
   ////////////////////////////////
   // data
-  const generateTopic = ref<ValidTopic>(Topics.Character);
   
   ////////////////////////////////
   // computed data
@@ -204,7 +203,7 @@
    * @param worldId The UUID of the parent world
    * @param topicFolder The TopicFolder object representing the clicked topic
    */
-  const onTopicContextMenu = (event: MouseEvent, worldId: string, topicFolder: TopicFolder): void => {
+  const onTopicContextMenu = (event: MouseEvent, _worldId: string, topicFolder: TopicFolder): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();

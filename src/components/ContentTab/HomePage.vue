@@ -11,13 +11,47 @@
     <br>
     <br>
     <div style="flex:2;">
+      <div class="flexrow">
+        <div 
+          class="new-link"
+          @click="onCreateWorld"
+        >
+          <div><i class="fas fa-globe"></i></div>
+          {{ localize('labels.homePage.createWorld') }}
+        </div>
+        <div 
+          class="new-link"
+          @click="onCreateCampaign"
+        >
+          <div><i class="fas fa-book"></i></div>
+          {{ localize('labels.homePage.createCampaign') }}
+        </div>
+      </div>
+
       <div 
-        class="flexrow" 
+        class="flexrow"
         style="margin-bottom: 20px;"
       >
-        <div class="new-link">
-          <div><i class="fas fa-book-open"></i></div>
-          Create New Entry
+        <div 
+          class="new-link"
+          @click="onCreateCharacter"
+        >
+          <div><i :class="`fas ${getTopicIcon(Topics.Character)}`"></i></div>
+          {{ localize('labels.homePage.createCharacter') }}
+        </div>
+        <div 
+          class="new-link"
+          @click="onCreateLocation"
+        >
+          <div><i :class="`fas ${getTopicIcon(Topics.Location)}`"></i></div>
+          {{ localize('labels.homePage.createLocation') }}
+        </div>
+        <div 
+          class="new-link"
+          @click="onCreateOrganization"
+        >
+          <div><i :class="`fas ${getTopicIcon(Topics.Organization)}`"></i></div>
+          {{ localize('labels.homePage.createOrganization') }}
         </div>
       </div>
 
@@ -50,8 +84,9 @@
   // local imports
   import { localize } from '@/utils/game';
   import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
-  import { useMainStore, useNavigationStore } from '@/applications/stores';
-
+  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useTopicDirectoryStore } from '@/applications/stores';
+  import { FCBDialog } from '@/dialogs';
+  
   // library components
 
   // local components
@@ -59,6 +94,7 @@
 
   // types
   import { TabHeader, Topics, WindowTabType } from '@/types';
+
 
   ////////////////////////////////
   // props
@@ -70,6 +106,8 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
+  const topicDirectoryStore = useTopicDirectoryStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentWorld } = storeToRefs(mainStore);
   const { recent } = storeToRefs(navigationStore);
 
@@ -82,6 +120,41 @@
 
   ////////////////////////////////
   // methods
+  const onCreateWorld = async () => {
+    await topicDirectoryStore.createWorld();
+  };
+
+  const onCreateCampaign = async () => {
+    await campaignDirectoryStore.createCampaign();
+  };
+
+  const onCreateCharacter = async () => {
+    await onCreateEntry(Topics.Character);
+  };
+
+  const onCreateLocation = async () => {
+    await onCreateEntry(Topics.Location);
+  };
+
+  const onCreateOrganization = async () => {
+    await onCreateEntry(Topics.Organization);
+  };
+
+  const onCreateEntry = async (topic: Topics) => {
+    if (!currentWorld.value)
+      throw new Error('No current world in HomePage.onCreateEntry()');
+
+    const topicFolder = currentWorld.value.topicFolders[topic];
+
+    if (!topicFolder)
+      throw new Error('No topic folder in HomePage.onCreateEntry()');
+
+    const entry = await FCBDialog.createEntryDialog(topicFolder.topic, { } );
+
+    if (entry) {
+      await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+    }
+  }
 
   ////////////////////////////////
   // event handlers
@@ -158,21 +231,39 @@
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       
       .fcb-global-search {
         width: 100%;
+        max-width: 180px;
       }
+    }
+
+    .flexrow {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
     }
 
     .recent-link,
     .new-link {
       cursor: pointer;
-      padding: 4px;
+      padding: 12px 0;
+      max-width: 130px;
+
+      i {
+        font-size: 24px;
+        margin-bottom: 8px;
+      }
     }
 
     .recent-link:hover,
     .new-link:hover {
       color: var(--fcb-blank-link-hover);
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
     }
   }
 </style>

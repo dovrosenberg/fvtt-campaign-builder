@@ -9,7 +9,7 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/a
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { PCDetails, FieldData, CampaignLoreDetails} from '@/types';
+import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes} from '@/types';
 import { Campaign, PC, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { closeSessionNotes, openSessionNotes } from '@/applications/SessionNotes';
@@ -18,6 +18,7 @@ export enum CampaignTableTypes {
   None,
   PC,
   Lore,
+  ToDo,
 }
 
 // the store definition
@@ -28,6 +29,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   // used for tables
   const relatedPCRows = ref<PCDetails[]>([]);
   const relatedLoreRows = ref<CampaignLoreDetails[]>([]);
+  const toDoRows = ref<ToDoItem[]>([]);
 
   const extraFields = {
     [CampaignTableTypes.None]: [],
@@ -40,6 +42,11 @@ export const useCampaignStore = defineStore('campaign', () => {
       { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false, 
         onClick: onJournalClick
       },
+    ],
+    [CampaignTableTypes.ToDo]: [
+      { field: 'lastTouched', style: 'text-align: left', header: 'Last modified', sortable: true, },
+      { field: 'entry', style: 'text-align: left', header: 'Reference', sortable: true, onClick: onToDoClick },
+      { field: 'text', style: 'text-align: left', header: 'To Do Item', sortable: true, editable: true },
     ],
   } as Record<CampaignTableTypes, FieldData>;
 
@@ -188,7 +195,39 @@ export const useCampaignStore = defineStore('campaign', () => {
       await _refreshLoreRows();
     }
 
+  const addToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> => {
+    if (!currentCampaign.value)
+      return null;
+
+    const newItem = await currentCampaign.value.addNewToDoItem(type, text, linkedUuid, sessionUuid);
+    await _refreshToDoRows();
+    return newItem;
+  }
   
+  const mergeToDoItem = async (type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
+
+    await currentCampaign.value.mergeToDoItem(type, text, linkedUuid, sessionUuid);
+    await _refreshToDoRows();
+  }
+
+  const updateToDoItem = async (uuid: string, newDescription: string): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
+
+    await currentCampaign.value.updateToDoItem(uuid, newDescription);
+    await _refreshToDoRows();
+  }
+
+  const completeToDoItem = async (uuid: string): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
+
+    await currentCampaign.value.completeToDoItem(uuid);
+    await _refreshToDoRows();
+  }
+
   ///////////////////////////////
   // computed state
   const currentPlayedSession = computed((): Session | null => (currentPlayedCampaign?.value?.currentSession || null) as Session | null);
@@ -265,6 +304,45 @@ export const useCampaignStore = defineStore('campaign', () => {
     useNavigationStore().openSession(sessionId, { newTab: event.ctrlKey, activate: true });
   }
 
+  // when we click on an entry in the todo list, open it
+  async function onToDoClick (event: MouseEvent, uuid: string) {
+    const toDo = toDoRows.value.find(r=> r.uuid===uuid);
+
+    if (!toDo)
+      return;
+
+    // set the tab if needed
+    let tabId = null as string | null;
+    switch (toDo?.type) {
+      case ToDoTypes.Lore:
+        tabId = 'lore';
+        break;
+      case ToDoTypes.Vignette:
+        tabId = 'vignettes';
+        break;
+      case ToDoTypes.Monster:
+        tabId = 'monsters';
+        break;
+      case ToDoTypes.Item:
+        tabId = 'magic';
+        break;
+    }
+
+    switch (toDo?.type) {
+      case ToDoTypes.Entry:
+        // just open the entry
+        navigationStore.openEntry(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true });
+        break;
+      case ToDoTypes.Lore:
+      case ToDoTypes.Vignette:
+      case ToDoTypes.Monster:
+      case ToDoTypes.Item:
+        // open the session and set the right tab
+        navigationStore.openSession(toDo.sessionUuid, { newTab: event.ctrlKey, activate: true, contentTabId: tabId || undefined });
+        break;
+    }
+  }
+
   const _getLastSession = async (): Promise<Session | null> => {
     if (!currentCampaign.value)
       return null;
@@ -295,12 +373,14 @@ export const useCampaignStore = defineStore('campaign', () => {
   const _refreshRows = async (): Promise<void> => {
     relatedPCRows.value = [];
     relatedLoreRows.value = [];
+    toDoRows.value = [];
 
     if (!currentCampaign.value)
       return;
 
     await _refreshPCRows();
     await _refreshLoreRows();
+    await _refreshToDoRows();
   }
 
   const _refreshPCRows = async (): Promise<void> => {
@@ -369,6 +449,13 @@ export const useCampaignStore = defineStore('campaign', () => {
     }
 
     relatedLoreRows.value = retval;
+  }
+
+  const _refreshToDoRows = async () => {
+    if (!currentCampaign.value)
+      return;
+
+    toDoRows.value = Array.from(currentCampaign.value.todoItems);
   }
 
 
@@ -447,7 +534,8 @@ export const useCampaignStore = defineStore('campaign', () => {
     currentPlayedCampaign,
     currentPlayedSession,
     currentPlayedCampaignId,
-
+    toDoRows,
+    
     addPC,
     deletePC,
     addLore,
@@ -456,6 +544,10 @@ export const useCampaignStore = defineStore('campaign', () => {
     updateLoreJournalEntry,
     markLoreDelivered,
     moveLoreToLastSession,
+    addToDoItem,
+    mergeToDoItem,
+    completeToDoItem,
+    updateToDoItem
   };
 });
 

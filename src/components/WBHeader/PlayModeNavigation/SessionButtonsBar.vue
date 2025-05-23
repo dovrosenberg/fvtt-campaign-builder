@@ -35,6 +35,7 @@
 
   ////////////////////////////////
   // data
+  // note the ids need to match the tab ids in SessionContent.vue
   const sessionButtons = computed(() => [
     { id: 'notes', label: localize('labels.tabs.session.notes'), icon: 'fa-pen-to-square' },
     { id: 'start', label: localize('labels.tabs.session.start'), icon: 'fa-play' },
@@ -44,6 +45,7 @@
     { id: 'npcs', label: localize('labels.tabs.session.npcs'), icon: 'fa-user' },
     { id: 'monsters', label: localize('labels.tabs.session.monsters'), icon: 'fa-dragon' },
     { id: 'magic', label: 'Items', icon: 'fa-wand-sparkles' },
+    { id: 'todo', label: localize('labels.tabs.session.todo'), icon: 'fa-check-square' },
   ]);
 
   ////////////////////////////////

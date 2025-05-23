@@ -6,7 +6,7 @@ import { toRaw } from 'vue';
 
 // represents a PC - these are stored in flag inside campaigns so saving, etc. is handled by campaign
 export class PC {
-  public parentCampaign: Campaign | null;  // the campaign the session is in (if we don't setup up front, we can load it later)
+  public campaign: Campaign | null;  // the campaign the session is in (if we don't setup up front, we can load it later)
 
   private _pcDoc: PCDoc;
   private _actor: Actor | null;
@@ -15,7 +15,7 @@ export class PC {
   /**
    * 
    */
-  constructor(pcDoc: PCDoc, parentCampaign?: Campaign) {
+  constructor(pcDoc: PCDoc, campaign?: Campaign) {
     // make sure it's the right kind of document
     if (pcDoc.type !== DOCUMENT_TYPES.PC)
       throw new Error('Invalid document type in PC constructor');
@@ -23,7 +23,7 @@ export class PC {
     // clone it to avoid unexpected changes
     this._pcDoc = foundry.utils.deepClone(pcDoc);
     this._cumulativeUpdate = {};
-    this.parentCampaign = parentCampaign || null;
+    this.campaign = campaign || null;
   }
 
   static async fromUuid(pcId: string, options?: Record<string, any>): Promise<PC | null> {
@@ -45,18 +45,18 @@ export class PC {
    * @returns {Promise<Campaign>} A promise to the world associated with the campaign.
    */
   public async loadCampaign(): Promise<Campaign> {
-    if (this.parentCampaign)
-      return this.parentCampaign;
+    if (this.campaign)
+      return this.campaign;
 
     if (!this._pcDoc.parent)
       throw new Error('Invalid parent in PC.loadCampaign()');
 
-    this.parentCampaign = await Campaign.fromUuid(this._pcDoc.parent.uuid);
+    this.campaign = await Campaign.fromUuid(this._pcDoc.parent.uuid);
 
-    if (!this.parentCampaign)
+    if (!this.campaign)
       throw new Error('Invalid session in PC.loadCampaign()');
 
-    return this.parentCampaign;
+    return this.campaign;
   }
   
   /**
@@ -90,13 +90,13 @@ export class PC {
    * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
    */
   public async getWorld(): Promise<WBWorld> {
-    if (!this.parentCampaign)
-      this.parentCampaign = await this.loadCampaign();
+    if (!this.campaign)
+      this.campaign = await this.loadCampaign();
 
-    if (!this.parentCampaign)
+    if (!this.campaign)
       throw new Error('Invalid campaign in PC.getWorld()');
     
-    return this.parentCampaign.getWorld();
+    return this.campaign.getWorld();
   }
 
   

@@ -1,5 +1,4 @@
 import { TagInfo } from '@/types';
-import { extend } from 'jquery';
 
 export interface SessionRelatedItem {
   uuid: string;

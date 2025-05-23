@@ -1,10 +1,11 @@
 import { toRaw } from 'vue';
-import { moduleId, } from '@/settings'; 
+import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, } from '@/documents';
-import { DocumentWithFlags, PC, Session, WBWorld } from '@/classes';
+import { DocumentWithFlags, Entry, PC, Session, WBWorld } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';
+import { ToDoItem, ToDoTypes } from '@/types';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign extends DocumentWithFlags<CampaignDoc> {
@@ -18,8 +19,10 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
   // saved in flags
   private _description: string;
-  private _lore: SessionLore[];
+  private _houseRules: string;
+  private _lore: CampaignLore[];
   private _img: string;
+  private _todoItems: ToDoItem[];
 
   /**
    * 
@@ -32,9 +35,11 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this.world = world || null;
 
     this._description = this.getFlag(CampaignFlagKey.description) || '';
+    this._houseRules = this.getFlag(CampaignFlagKey.houseRules) || '';
     this._lore = this.getFlag(CampaignFlagKey.lore) || [];
     this._img = this.getFlag(CampaignFlagKey.img) || '';
     this._name = campaignDoc.name;
+    this._todoItems = this.getFlag(CampaignFlagKey.todoItems) || [];
   }
 
   override async _getWorld(): Promise<WBWorld> {
@@ -90,7 +95,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     return this.world;
   }
   
-  // get the highest numbered session
+  /**  get the highest numbered session (if in play mode, this will be the played one, too) */
   get currentSession (): Session | null {
     let maxNumber = 0;
     let doc: SessionDoc | null = null;
@@ -146,13 +151,16 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
   set description(value: string) {
     this._description = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        description: value,
-      }
-    };
+    this.updateCumulative(CampaignFlagKey.description, value);
+  }
+
+  public get houseRules(): string {
+    return this._houseRules;
+  }
+
+  public set houseRules(value: string) {
+    this._houseRules = value;
+    this.updateCumulative(CampaignFlagKey.houseRules, value);
   }
 
   public get img(): string {
@@ -161,13 +169,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
   public set img(value: string) {
     this._img = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        img: value,
-      }
-    };
+    this.updateCumulative(CampaignFlagKey.img, value);
   }
 
   public get lore(): SessionLore[] {
@@ -182,15 +184,11 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       description: description,
       delivered: false,
       journalEntryPageId: null,
+      lockedToSessionId: null,
+      lockedToSessionName: null,
     });
 
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        lore: this._lore,
-      }
-    };
+    this.updateCumulative(CampaignFlagKey.lore, this._lore);
 
     await this.save();
     return uuid;
@@ -203,14 +201,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       return;
 
     lore.description = description;
-
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        lore: this._lore,
-      }
-    };
+    this.updateCumulative(CampaignFlagKey.lore, this._lore);
 
     await this.save();
   }
@@ -223,29 +214,14 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     lore.journalEntryPageId = journalEntryPageId;
 
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        lore: this._lore,
-      }
-    };
-
+    this.updateCumulative(CampaignFlagKey.lore, this._lore);
     await this.save();
   }
-
 
   async deleteLore(uuid: string): Promise<void> {
     this._lore = this._lore.filter(l=> l.uuid!==uuid);
 
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        lore: this._lore,
-      }
-    };
-
+    this.updateCumulative(CampaignFlagKey.lore, this._lore);
     await this.save();
   }
 
@@ -256,14 +232,112 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     
     lore.delivered = delivered;
 
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      [`flags.${moduleId}`]: {
-        ...this._cumulativeUpdate[`flags.${moduleId}`],
-        lore: this._lore,
-      }
+    this.updateCumulative(CampaignFlagKey.lore, this._lore);
+    await this.save();
+  }
+
+  get todoItems(): readonly ToDoItem[] {
+    return this._todoItems;
+  }
+
+  set todoItems(value: ToDoItem[]) {
+    this._todoItems = value;
+    this.updateCumulative(CampaignFlagKey.todoItems, value);
+  }
+
+  /** Creates a new todo item and adds to the campaign*/
+  async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string, manualDate?: Date): Promise<ToDoItem | null> {
+    if (!ModuleSettings.get(SettingKey.enableToDoList)) 
+      return null;
+
+    if (!this._todoItems) {
+      this._todoItems = [];
+    }
+
+    // manual entries don't have a linked uuid, but the others do
+    if ((!linkedUuid && type !== ToDoTypes.Manual) || (linkedUuid && type === ToDoTypes.Manual)) {
+      throw new Error('Invalid linkedUuid for type in Campaign.addToDoItem()');
+    }
+
+    let entry;
+    if (type === ToDoTypes.Entry && linkedUuid) {
+      entry = await Entry.fromUuid(linkedUuid);
+    }
+
+    const item: ToDoItem = {
+      uuid: foundry.utils.randomID(),
+      lastTouched: manualDate || new Date(),
+      manuallyUpdated: false,
+      linkedUuid: linkedUuid || null,
+      sessionUuid: sessionUuid || null,
+      linkedText: entry ? entry.name : null,
+      text: text || '',
+      type: type || ToDoTypes.Manual,
     };
 
+    this._todoItems.push(item);
+    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+    await this.save();
+
+    return item;
+  }
+
+  /**
+   * Adds a todo item to the campaign. If there is already one with a matching linkeduuid, it adds the text
+   * to the end of the current text.  Otherwise, it creates a new one.
+   * 
+   */
+  async mergeToDoItem(type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<void> {
+    // Check if todo list is enabled
+    if (!ModuleSettings.get(SettingKey.enableToDoList)) 
+      return;
+
+    // see if one exists for this linked uuid
+    const existingItem = this._todoItems.find(i => i.linkedUuid === linkedUuid);
+
+    // make sure the type matches
+    if (existingItem && existingItem.type !== type) {
+      throw new Error(`ToDo item with linkedUuid ${linkedUuid} already exists with different type in Campaign.mergeToDoItem()`);
+    }
+
+    // otherwise, if we have one, add the text to the end of the current text
+    // if we don't have one, create a new one
+    if (!existingItem) {
+      await this.addNewToDoItem(type, text, linkedUuid, sessionUuid);
+      return;
+    } else if (existingItem.manuallyUpdated) {
+        // if it's manually updated, we don't want to add to it but note the timestamp
+        existingItem.lastTouched = new Date();
+      } else {
+        // make sure the text isn't already in there
+        if (!existingItem.text.includes(text))
+          existingItem.text += '; ' + text;
+        existingItem.lastTouched = new Date();
+      }
+
+    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+    await this.save();
+}
+
+  async updateToDoItem(uuid: string, newDescription: string): Promise<void> {
+    const item = this._todoItems.find(i => i.uuid === uuid);
+    if (!item)
+      return;
+
+    item.text = newDescription;
+    item.lastTouched = new Date();
+    item.manuallyUpdated = true;
+    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+    await this.save();
+  }
+
+  async completeToDoItem(uuid: string): Promise<void> {
+    if (!this._todoItems) {
+      this._todoItems = [];
+    }
+
+    this._todoItems = this._todoItems.filter(i => i.uuid !== uuid);
+    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
     await this.save();
   }
 
