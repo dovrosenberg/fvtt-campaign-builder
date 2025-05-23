@@ -366,7 +366,9 @@
         "species": "Wenn leer, wird eine zufällige Spezies aus Ihrer Welt für die AI-Generierung verwendet. Benutzerdefinierte Einträge werden an die AI übergeben, aber nicht zu Ihrer Artenliste hinzugefügt",
         "longDescriptions": "Detaillierte Beschreibung oder kurze Zusammenfassung generieren?",
         "generateImage": "Nach der Erstellung ein neues Bild im Hintergrund generieren"
-      }
+      },
+      "moveToCampaign": "In die Kampagne für spätere Verwendung verschieben",
+      "addToCampaign": "Zur Kampagne hinzufügen"
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert"
