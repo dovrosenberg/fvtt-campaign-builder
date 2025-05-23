@@ -26,10 +26,8 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const campaignStore = useCampaignStore();
-  const { rootFolder, currentWorld, currentEntry, refreshCurrentEntry, isInPlayMode, } = storeToRefs(mainStore); 
-  const { currentPlayedSession } = storeToRefs(campaignStore);
-
+  const { rootFolder, currentWorld, currentEntry, refreshCurrentEntry, } = storeToRefs(mainStore); 
+  
   ///////////////////////////////
   // internal state
 
