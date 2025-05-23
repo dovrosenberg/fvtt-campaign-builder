@@ -36,7 +36,11 @@
       "speciesListLabel": "Liste des Espèces",
       "speciesListHelp": "Définir les espèces à rendre disponibles. Celles-ci traversent tous les mondes - déposez un problème si vous avez besoin de listes différentes par monde.",
       "hideBackendWarning": "Masquer l'avertissement de backend manquant ?",
-      "hideBackendWarningHelp": "Si vous n'utilisez pas le backend, cela vous permet de désactiver la notification indiquant qu'il est manquant"
+      "hideBackendWarningHelp": "Si vous n'utilisez pas le backend, cela vous permet de désactiver la notification indiquant qu'il est manquant",
+      "defaultAddToSession": "Par défaut 'Ajouter à la session en cours'",
+      "defaultAddToSessionHelp": "En mode lecture, la case à cocher lors de la création d'une entrée doit-elle être activée ou désactivée par défaut ?",
+      "enableToDoList": "Activer la liste de tâches",
+      "enableToDoListHelp": "Si désactivé, la fonctionnalité de liste de tâches sera désactivée."
     },
     "applications": {
       "sessionNotes": {
@@ -58,7 +62,15 @@
           "APIToken": "Jeton API",
           "APITokenHint": "Sortie du script pour déployer le backend.",
           "defaultToLong": "Par défaut, utiliser des descriptions longues",
-          "defaultToLongHint": "Contrôle le paramètre par défaut pour créer une description longue ou courte lors de la génération par IA."
+          "defaultToLongHint": "Contrôle le paramètre par défaut pour créer une description longue ou courte lors de la génération par IA.",
+          "useGmailToDos": "Utiliser Gmail pour les tâches",
+          "useGmailToDosHint": "Lorsqu'elle est activée, les éléments à faire seront créés à partir de la boîte de réception Gmail",
+          "emailDefaultWorld": "Monde par défaut pour l'email",
+          "emailDefaultWorldHint": "Le monde à utiliser par défaut pour les fonctionnalités d'email (ex. envoyer des éléments à faire par email)",
+          "emailDefaultCampaign": "Campagne par défaut pour l'email",
+          "emailDefaultCampaignHint": "La campagne à utiliser par défaut pour les fonctionnalités d'email (ex. envoyer des éléments à faire par email)",
+          "selectWorld": "Sélectionnez un monde...",
+          "selectCampaign": "Sélectionnez une campagne..."
         }
       },
       "rollTableSettings": {
@@ -125,7 +137,10 @@
         "briefDescription": "Brève description",
         "longDescriptions": "Générer des descriptions longues",
         "generateImage": "Générer une image",
-        "description": "Description"
+        "description": "Description",
+        "campaign": "Campagne",
+        "campaignHouseRules": "Règles de maison",
+        "addToCurrentSession": "Ajouter à la session en cours"
       },
       "addTopic": {
         "character": "Ajouter un Personnage",
@@ -142,7 +157,8 @@
       "entry": {
         "topic": "DossierSujet",
         "type": "Type",
-        "relationships": "Relations"
+        "relationships": "Relations",
+        "sessions": "Sessions"
       },
       "session": {
         "session": "Session",
@@ -165,7 +181,12 @@
       },
       "campaign": {
         "addPC": "Ajouter un PJ",
-        "addPCDrag": "(ou glisser/déposer un acteur)"
+        "addPCDrag": "(ou glisser/déposer un acteur)",
+        "description": "Description",
+        "pcs": "PJ",
+        "lore": "Tradition",
+        "todo": "À faire",
+        "addToDo": "Créer un nouveau 'À faire'"
       },
       "pc": {
         "linkToNewActor": "Lier à un nouvel acteur"
@@ -187,7 +208,8 @@
         "campaign": {
           "description": "Description",
           "pcs": "PJs",
-          "lore": "Savoir"
+          "lore": "Savoir",
+          "toDo": "À faire"
         },
         "session": {
           "notes": "Notes",
@@ -198,11 +220,19 @@
           "locations": "Lieux",
           "npcs": "PNJs",
           "monsters": "Monstres",
-          "magic": "Objets Magiques"
+          "magic": "Objets Magiques",
+          "todo": "À faire"
         }
       },
       "noResults": "Rien ici",
-      "loading": "Chargement"
+      "loading": "Chargement",
+      "homePage": {
+        "createWorld": "Créer un monde",
+        "createCampaign": "Créer une campagne",
+        "createCharacter": "Créer un personnage",
+        "createLocation": "Créer un lieu",
+        "createOrganization": "Créer une organisation"
+      }
     },
     "placeholders": {
       "search": "Rechercher",
@@ -268,6 +298,10 @@
         "generatedDescription": "Description générée",
         "generatePrompt": "Appuyez sur générer pour obtenir des résultats",
         "generatePrompt2": "Sinon, \"Brève Description\" sera utilisée comme nouvelle description de l'entrée."
+      },
+      "addToDo": {
+        "title": "Ajouter une tâche",
+        "text": "Entrez le texte de la tâche :"
       }
     },
     "contextMenus": {
@@ -314,6 +348,9 @@
         "description": "Générer une description",
         "image": "Générer une image",
         "inProgress": "en cours"
+      },
+      "tabs": {
+        "closeAll": "Fermer tous les onglets"
       }
     },
     "tooltips": {
@@ -367,7 +404,8 @@
         "generateImage": "Générer une nouvelle image en arrière-plan après la création"
       },
       "moveToCampaign": "Déplacer vers la campagne pour une utilisation ultérieure",
-      "addToCampaign": "Ajouter à la campagne"
+      "addToCampaign": "Ajouter à la campagne",
+      "deleteToDo": "Compléter l'élément à faire"
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori"
@@ -376,7 +414,8 @@
       "backend": {
         "successfulConnection": "Connexion réussie au backend de Campaign Builder.",
         "failedConnection": "Échec de la connexion au backend - vérifiez vos paramètres \"avancés\" pour vous assurer qu'ils correspondent correctement au serveur backend que vous avez déployé. Vous ne pourrez pas utiliser les fonctionnalités avancées entre-temps.",
-        "versionMismatch": "La version de votre backend World & Campaign Builder ($1) ne correspond pas à la version requise par la version du module que vous avez installée ($2). Veuillez mettre à jour l'un ou l'autre (ou les deux). Vous ne pourrez pas utiliser les fonctionnalités avancées entre-temps."
+        "versionMismatch": "La version de votre backend World & Campaign Builder ($1) ne correspond pas à la version requise par la version du module que vous avez installée ($2). Veuillez mettre à jour l'un ou l'autre (ou les deux). Vous ne pourrez pas utiliser les fonctionnalités avancées entre-temps.",
+        "emailSettingsNotSet": "Vous avez activé la fonctionnalité de liste de tâches par email, mais vous n'avez pas défini de monde ou de campagne par défaut. Veuillez les définir dans les paramètres avancés."
       },
       "addedToSession": "ajouté à la session",
       "changesSaved": "modifications enregistrées"
