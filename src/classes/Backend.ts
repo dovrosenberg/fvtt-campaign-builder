@@ -6,7 +6,7 @@ import { localize } from '@/utils/game';
 
 // this is the backend version that needs to be used with this version of the module
 // generally, we'll try to keep them more or less in sync, at least at the minor release level
-const REQUIRED_VERSION = '0.0.7';
+const REQUIRED_VERSION = '0.0.8';
 
 // handles connections to the backend
 export class Backend {
@@ -65,5 +65,16 @@ export class Backend {
     // made it here - good to go!
     notifyGMInfo(localize('notifications.backend.successfulConnection'));
     Backend.available = true;
+
+    // let's also poll for email since we just connected
+    await Backend.pollForEmail();
+  }
+
+  static async pollForEmail() {
+    const email = await Backend.api.apiPollEmailTodoGet();
+
+    const items = email?.data?.items;
+    console.log(items);
+    debugger
   }
 }

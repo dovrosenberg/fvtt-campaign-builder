@@ -318,6 +318,9 @@
             "Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
           );
         }
+      } else {
+        // this is a convenient time to poll for email
+        await Backend.pollForEmail();
       }
 
       mainStore.refreshCurrentContent();

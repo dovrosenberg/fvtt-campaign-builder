@@ -96,6 +96,7 @@
           <label>{{ localize('labels.reset') }}</label>
         </button>
         <button 
+          :disabled="useGmailToDos && (!emailDefaultWorld || !emailDefaultCampaign)"
           @click="onSubmitClick"
         >
           <i class="fa-solid fa-save"></i>
@@ -109,19 +110,19 @@
 <script setup lang="ts">
   // library imports
   import { onMounted, ref, toRaw } from 'vue';
-  import { storeToRefs } from 'pinia';
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend, WBWorld } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
-  import { useMainStore } from '@/applications/stores';
+  import { getDefaultFolders } from '@/compendia';
 
   // library components
   import InputText from 'primevue/inputtext';
   import Checkbox from 'primevue/checkbox';
   import Select from 'primevue/select';
+
 
   // local components
 
@@ -135,9 +136,7 @@
 
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
-  const { rootFolder } = storeToRefs(mainStore);
-
+  
   ////////////////////////////////
   // data
   const APIURL = ref<string>('');
@@ -155,7 +154,11 @@
   ////////////////////////////////
   // methods
   const loadWorlds = async () => {
-    worldOptions.value =(toRaw(rootFolder.value) as Folder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name }));
+    const defaultFolders = await getDefaultFolders();
+    if (!defaultFolders || !defaultFolders.rootFolder)
+      worldOptions.value = [];
+    else 
+      worldOptions.value = (toRaw(defaultFolders.rootFolder) as Folder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name }));
   };
 
   const loadCampaigns = async (worldUuid: string) => {
