@@ -266,7 +266,8 @@
       "backend": {
         "successfulConnection": "Successfully connected to Campaign Builder backend.",
         "failedConnection": "Failed to connect to backend - check your \"advanced\" settings to make sure they properly match the backend server you deployed.  You'll be unable to used advanced features in the meantime.",
-        "versionMismatch": "The version of your World & Campaign Builder backend ($1) doesn't match the version required by the module version you have installed ($2).  Please update one or the other (or both).  You'll be unable to use advanced features in the meantime."
+        "versionMismatch": "The version of your World & Campaign Builder backend ($1) doesn't match the version required by the module version you have installed ($2).  Please update one or the other (or both).  You'll be unable to use advanced features in the meantime.",
+        "emailSettingsNotSet": "You have enabled the email to-do list feature, but you haven't set a default world or campaign.  Please set these in the advanced settings."
       },
       "addedToSession": "added to session",
       "changesSaved": "changes saved"

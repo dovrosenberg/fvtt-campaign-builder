@@ -246,7 +246,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   }
 
   /** Creates a new todo item and adds to the campaign*/
-  async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<ToDoItem | null> {
+  async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string, manualDate?: Date): Promise<ToDoItem | null> {
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return null;
 
@@ -266,7 +266,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     const item: ToDoItem = {
       uuid: foundry.utils.randomID(),
-      lastTouched: new Date(),
+      lastTouched: manualDate || new Date(),
       manuallyUpdated: false,
       linkedUuid: linkedUuid || null,
       sessionUuid: sessionUuid || null,
