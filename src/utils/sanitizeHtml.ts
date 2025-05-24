@@ -72,4 +72,3 @@ export const sanitizeHTML = (htmlString ) => {
     return '';
   });
 };
-

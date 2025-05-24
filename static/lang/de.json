@@ -36,7 +36,11 @@
       "speciesListLabel": "Artenliste",
       "speciesListHelp": "Definieren Sie die Arten, die verfügbar sein sollen. Diese gelten für alle Welten - melden Sie ein Problem, wenn Sie mehr verschiedene Listen pro Welt benötigen.",
       "hideBackendWarning": "Warnung über fehlendes Backend ausblenden?",
-      "hideBackendWarningHelp": "Wenn Sie das Backend nicht verwenden, können Sie die Benachrichtigung deaktivieren, dass es fehlt"
+      "hideBackendWarningHelp": "Wenn Sie das Backend nicht verwenden, können Sie die Benachrichtigung deaktivieren, dass es fehlt",
+      "defaultAddToSession": "Standardmäßig 'Zur aktuellen Sitzung hinzufügen'",
+      "defaultAddToSessionHelp": "Soll im Abspielmodus das Kontrollkästchen beim Erstellen eines Eintrags standardmäßig aktiviert oder deaktiviert sein?",
+      "enableToDoList": "ToDo-Liste aktivieren",
+      "enableToDoListHelp": "Wenn deaktiviert, wird die ToDo-Listen-Funktion ausgeschaltet."
     },
     "applications": {
       "sessionNotes": {
@@ -58,7 +62,15 @@
           "APIToken": "API-Token",
           "APITokenHint": "Ausgabe des Skripts zum Bereitstellen des Backends.",
           "defaultToLong": "Standardmäßig lange Beschreibungen verwenden",
-          "defaultToLongHint": "Steuert die Standardeinstellung für die Erstellung einer langen oder kurzen Beschreibung bei der KI-Generierung."
+          "defaultToLongHint": "Steuert die Standardeinstellung für die Erstellung einer langen oder kurzen Beschreibung bei der KI-Generierung.",
+          "useGmailToDos": "Gmail für Aufgaben verwenden",
+          "useGmailToDosHint": "Wenn aktiviert, werden Aufgaben aus dem Gmail-Posteingang erstellt",
+          "emailDefaultWorld": "Standardwelt für E-Mail",
+          "emailDefaultWorldHint": "Die Welt, die standardmäßig für E-Mail-Funktionen verwendet wird (z. B. Aufgaben per E-Mail senden)",
+          "emailDefaultCampaign": "Standardkampagne für E-Mail",
+          "emailDefaultCampaignHint": "Die Kampagne, die standardmäßig für E-Mail-Funktionen verwendet wird (z. B. Aufgaben per E-Mail senden)",
+          "selectWorld": "Wählen Sie eine Welt...",
+          "selectCampaign": "Wählen Sie eine Kampagne..."
         }
       },
       "rollTableSettings": {
@@ -125,7 +137,10 @@
         "briefDescription": "Kurze Beschreibung",
         "longDescriptions": "Lange Beschreibungen generieren",
         "generateImage": "Bild generieren",
-        "description": "Beschreibung"
+        "description": "Beschreibung",
+        "campaign": "Kampagne",
+        "campaignHouseRules": "Hausregeln",
+        "addToCurrentSession": "Zur aktuellen Sitzung hinzufügen"
       },
       "addTopic": {
         "character": "Charakter hinzufügen",
@@ -166,7 +181,12 @@
       },
       "campaign": {
         "addPC": "PC hinzufügen",
-        "addPCDrag": "(oder einen Schauspieler ziehen/ablegen)"
+        "addPCDrag": "(oder einen Schauspieler ziehen/ablegen)",
+        "description": "Beschreibung",
+        "pcs": "SCs",
+        "lore": "Überlieferung",
+        "todo": "Zu erledigen",
+        "addToDo": "Neues 'Zu erledigen' erstellen"
       },
       "pc": {
         "linkToNewActor": "Mit neuem Schauspieler verknüpfen"
@@ -188,7 +208,8 @@
         "campaign": {
           "description": "Beschreibung",
           "pcs": "PCs",
-          "lore": "Überlieferung"
+          "lore": "Überlieferung",
+          "toDo": "Zu erledigen"
         },
         "session": {
           "notes": "Notizen",
@@ -199,11 +220,19 @@
           "locations": "Orte",
           "npcs": "NPCs",
           "monsters": "Monster",
-          "magic": "Magische Gegenstände"
+          "magic": "Magische Gegenstände",
+          "todo": "Zu erledigen"
         }
       },
       "noResults": "Nichts hier",
-      "loading": "Laden"
+      "loading": "Laden",
+      "homePage": {
+        "createWorld": "Welt erstellen",
+        "createCampaign": "Kampagne erstellen",
+        "createCharacter": "Charakter erstellen",
+        "createLocation": "Ort erstellen",
+        "createOrganization": "Organisation erstellen"
+      }
     },
     "placeholders": {
       "search": "Suche",
@@ -269,6 +298,10 @@
         "generatedDescription": "Generierte Beschreibung",
         "generatePrompt": "Drücken Sie auf generieren, um Ergebnisse zu erhalten",
         "generatePrompt2": "Andernfalls wird \"Kurze Beschreibung\" als neue Eintragsbeschreibung verwendet."
+      },
+      "addToDo": {
+        "title": "Aufgabe hinzufügen",
+        "text": "Geben Sie den Aufgabentext ein:"
       }
     },
     "contextMenus": {
@@ -315,6 +348,9 @@
         "description": "Beschreibung generieren",
         "image": "Bild generieren",
         "inProgress": "in Bearbeitung"
+      },
+      "tabs": {
+        "closeAll": "Alle Tabs schließen"
       }
     },
     "tooltips": {
@@ -368,7 +404,8 @@
         "generateImage": "Nach der Erstellung ein neues Bild im Hintergrund generieren"
       },
       "moveToCampaign": "In die Kampagne für spätere Verwendung verschieben",
-      "addToCampaign": "Zur Kampagne hinzufügen"
+      "addToCampaign": "Zur Kampagne hinzufügen",
+      "deleteToDo": "Aufgabe abschließen"
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert"
@@ -377,7 +414,8 @@
       "backend": {
         "successfulConnection": "Erfolgreich mit dem Campaign Builder-Backend verbunden.",
         "failedConnection": "Verbindung zum Backend fehlgeschlagen - überprüfen Sie Ihre \"erweiterten\" Einstellungen, um sicherzustellen, dass sie korrekt mit dem bereitgestellten Backend-Server übereinstimmen. Sie können in der Zwischenzeit keine erweiterten Funktionen verwenden.",
-        "versionMismatch": "Die Version Ihres World & Campaign Builder-Backends ($1) stimmt nicht mit der von der installierten Modulversion benötigten Version ($2) überein. Bitte aktualisieren Sie eines von beiden (oder beide). Sie können in der Zwischenzeit keine erweiterten Funktionen verwenden."
+        "versionMismatch": "Die Version Ihres World & Campaign Builder-Backends ($1) stimmt nicht mit der von der installierten Modulversion benötigten Version ($2) überein. Bitte aktualisieren Sie eines von beiden (oder beide). Sie können in der Zwischenzeit keine erweiterten Funktionen verwenden.",
+        "emailSettingsNotSet": "Sie haben die E-Mail-Aufgabenlistenfunktion aktiviert, aber Sie haben keine Standardwelt oder Kampagne festgelegt. Bitte legen Sie diese in den erweiterten Einstellungen fest."
       },
       "addedToSession": "zur Sitzung hinzugefügt",
       "changesSaved": "Änderungen gespeichert"
