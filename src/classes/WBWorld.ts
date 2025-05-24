@@ -336,8 +336,8 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     const updateData = this._cumulativeUpdate;
     if (Object.keys(updateData).length !== 0) {
       // protect any complex flags
-      if (updateData[`flags.${moduleId}`])
-        updateData[`flags.${moduleId}`] = this.prepareFlagsForUpdate(updateData[`flags.${moduleId}`]);
+      if (updateData.flags[moduleId])
+        updateData.flags[moduleId] = this.prepareFlagsForUpdate(updateData.flags[moduleId]);
 
       const retval = await this._doc.update(updateData) || null;
       if (retval) {

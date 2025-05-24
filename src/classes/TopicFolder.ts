@@ -220,8 +220,8 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     await world.executeUnlocked(async () => {
       if (Object.keys(updateData).length !== 0) {
         // protect any complex flags
-        if (updateData[`flags.${moduleId}`])
-          updateData[`flags.${moduleId}`] = this.prepareFlagsForUpdate(updateData[`flags.${moduleId}`]);
+        if (updateData.flags[moduleId])
+          updateData.flags[moduleId] = this.prepareFlagsForUpdate(updateData.flags[moduleId]);
 
         const retval = await toRaw(this._doc).update(updateData) || null;
         if (retval) {
