@@ -72,7 +72,3 @@ export const sanitizeHTML = (htmlString ) => {
     return '';
   });
 };
-
-// Test case
-const testInput = '<p>ASDASD</p><p></p><p><a class="content-link fcb-content-link" draggable="true" data-link-type="1" data-link="" data-uuid="Compendium.world.zS2AygHmUfQTWDTh.JournalEntry.ZMRUsDMtZl7oYz45.JournalEntryPage.HuQHn0GJTwrOtEnM" data-id="HuQHn0GJTwrOtEnM" data-type="JournalEntryPage" data-pack="world.zS2AygHmUfQTWDTh" data-tooltip="Character"><i class="fas fa-user" inert=""></i>Gideon Brightblade</a></p>';
-console.log(sanitizeHTML(testInput));

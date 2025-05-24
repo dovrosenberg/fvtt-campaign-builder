@@ -57,7 +57,7 @@ type LinkData = {
   name: string;
   icon: string;
 }
-const brokenAnchor = (data: LinkData, name = 'Cross-world links are not supported'): HTMLAnchorElement => {
+const brokenAnchor = (data: LinkData, name = 'Cross-Setting links are not supported'): HTMLAnchorElement => {
   // this is a cross-world item; basically treat it like broken
   delete data.dataset.link;
   delete data.attrs.draggable;

@@ -12,18 +12,18 @@ By default, the sidebar is open whenever you open the Campaign Builder window.  
 
 ![Directory sidebar](assets/images/directory-sidebar.webp)
 
-## The world directory (aka the entry directory)
-The top half of the directory sidebar is the World directory.  Also known as the Entry directory, this is where you can find all of entries (Character, Locations, and Organizations) of your worlds.
+## The Setting directory (aka the entry directory)
+The top half of the directory sidebar is the Setting directory.  Also known as the Entry directory, this is where you can find all of entries (Character, Locations, and Organizations) of your worlds.
 
-Each world has a header, and you click the World name to make it the active world.  In the image above, *Mallindor* has been selected as the active World.  The active world is also shown in the the main window title bar.
+Each Setting has a header, and you click the Setting name to make it the active Setting.  In the image above, *Mallindor* has been selected as the active Setting.  The active Setting is also shown in the the main window title bar.
 
-By default, the World is organized by Topic.  Each Topic is a folder, clicking the folder will expand/collapse its contents.  Clicking an Entry will select it as the active Entry [TODO: link to Entry.md] in the main panel to the left.  The currently visible entry is bolded in the sidebar.  Within each Topic, the Entries are sorted alphabetically.
+By default, the Setting is organized by Topic.  Each Topic is a folder, clicking the folder will expand/collapse its contents.  Clicking an Entry will select it as the active Entry [TODO: link to Entry.md] in the main panel to the left.  The currently visible entry is bolded in the sidebar.  Within each Topic, the Entries are sorted alphabetically.
 
-You create new worlds by clicking the "New World" button at the top of the sidebar: 
+You create new worlds by clicking the "New Setting" button at the top of the sidebar: 
 
-![New world button](assets/images/new-world-button.webp)
+![New Setting button](assets/images/new-setting-button.webp)
 
-The button next to the "New World" button collapses the entire sidebar.
+The button next to the "New Setting" button collapses the entire sidebar.
 
 ### Hierarchies
 You can create Hierarchies within Locations and Organizations to represent how they are related.  For example, you might put the Entries for towns inside the region they are in.  Hierarchies can have as many levels as you want. In addition to making it faster to find related things, Hierarchies are used in Search [TODO: Link] and to improve AI generation [Advanced Feature].  You can see hierarchies illustrated in the sidebar above.
@@ -34,7 +34,7 @@ You can create and adjust Hierarchies in two ways:
 
 ### Context menus
 Right clicking on items in the Entry tree provides additional options depending on the item type:
-1. Worlds - Delete World, Create campaign
+1. Worlds - Delete Setting, Create campaign
 2. Topics - Create a new Entry in that Topic, Generate a new Entry [Advanced Feature]
 3. Entries - Delete Entry
 
@@ -50,12 +50,12 @@ Typing text in the "Filter" box at the top of the sidebar filters the Entry tree
 - Any ancestors of those Entries (to show where they are in the Hierarchy)
 
 ## The campaign directory
-The bottom half of the directory sidebar is the campaign directory.  This shows all of the campaigns for the currently active world.  If you want to see campaigns for a different world, you need to change the world first.
+The bottom half of the directory sidebar is the campaign directory.  This shows all of the campaigns for the currently active Setting.  If you want to see campaigns for a different Setting, you need to change the Setting first.
 
 [TODO: flesh this out]
 
 ### Context menus
 Right clicking on items in the Campaign tree provides additional options depending on the item type:
-1. World folder - Create campaign
+1. Setting folder - Create campaign
 2. Campaign - Create a session, Delete the Campaign
 3. Session - Delete Session
