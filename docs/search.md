@@ -15,10 +15,10 @@ This box searches all entries, looking across these fields:
 * Description
 * Topic
 * Type 
-* Species for characters 
+* Species for Characters 
 * Names and roles of relationships  [TODO: link to relationships]
 
-So, searching for "Sally sibling" would return an entry with a relationship of "sibling" to a character named Sally.  That result would be lower on the list, though, than Sally herself.
+So, searching for "Sally sibling" would return an entry with a relationship of "sibling" to a Character named Sally.  That result would be lower on the list, though, than Sally herself.
 
 The box also searches across campaigns - but in a subtlely different way.  It looks across:
 * Notes and the Session Start text

@@ -36,7 +36,7 @@
       "advancedHelp": "Configure advanced settings (including AI)",
       "speciesList": "Manage Species List",
       "speciesListLabel": "Species List",
-      "speciesListHelp": "Define the species to make available.  These cross all worlds - file an issue if you have need more different lists per world.",
+      "speciesListHelp": "Define the species to make available.  These cross all Settings - file an issue if you have need more different lists per Setting.",
       "hideBackendWarning": "Hide missing backend warning?",
       "hideBackendWarningHelp": "If you're not using the backend, this lets you turn off the notification that it's missing",
       "enableToDoList": "Enable ToDo List",
@@ -65,11 +65,11 @@
           "defaultToLongHint": "Controls the default setting for creating a long vs short description when doing AI generation.",
           "useGmailToDos": "Use Gmail for To-Dos",
           "useGmailToDosHint": "When enabled, to-do items will be created from the Gmail inbox",
-          "emailDefaultWorld": "Default World for email",
-          "emailDefaultWorldHint": "The world to use by default for email features (ex. emailing todo items)",
+          "emailDefaultWorld": "Default Setting for email",
+          "emailDefaultWorldHint": "The Setting to use by default for email features (ex. emailing todo items)",
           "emailDefaultCampaign": "Default Campaign for email",
           "emailDefaultCampaignHint": "The campaign to use by default for email features (ex. emailing todo items)",
-          "selectWorld": "Select a world...",
+          "selectWorld": "Select a setting...",
           "selectCampaign": "Select a campaign..."
         }
       },
@@ -117,11 +117,11 @@
       "use": "Use",
       "useOnce": "Use once",
       "tryAgain": "Try Again",
-      "addToWorld": "Add to world",
+      "addToWorld": "Add to Setting",
       "prep": "Prep",
       "play": "Play",
       "homePage": {
-        "createWorld": "Create World",
+        "createWorld": "Create Setting",
         "createCampaign": "Create Campaign",
         "createCharacter": "Create Character",
         "createLocation": "Create Location",
@@ -140,7 +140,7 @@
         "name": "Name",
         "species": "Species",
         "worldGenre": "Genre",
-        "worldFeeling": "World Feeling",
+        "worldFeeling": "Setting Feeling",
         "campaignDescription": "Campaign description, notes, ideas, etc...",
         "campaignHouseRules": "House rules",
         "briefDescription": "Brief description",
@@ -242,7 +242,7 @@
       "locationName": "Location Name",
       "organizationName": "Organization Name",
       "campaignName": "Campaign Name",
-      "worldName": "World Name",
+      "worldName": "Setting Name",
       "sessionName": "Session Name",
       "sessionDate": "Date",
       "sessionNumber": "Session Number",
@@ -267,7 +267,7 @@
         "successfulConnection": "Successfully connected to Campaign Builder backend.",
         "failedConnection": "Failed to connect to backend - check your \"advanced\" settings to make sure they properly match the backend server you deployed.  You'll be unable to used advanced features in the meantime.",
         "versionMismatch": "The version of your World & Campaign Builder backend ($1) doesn't match the version required by the module version you have installed ($2).  Please update one or the other (or both).  You'll be unable to use advanced features in the meantime.",
-        "emailSettingsNotSet": "You have enabled the email to-do list feature, but you haven't set a default world or campaign.  Please set these in the advanced settings."
+        "emailSettingsNotSet": "You have enabled the email to-do list feature, but you haven't set a default Setting or Campaign.  Please set these in the advanced settings."
       },
       "addedToSession": "added to session",
       "changesSaved": "changes saved"
@@ -306,8 +306,8 @@
         "sessionName": "Session Name"
       },
       "createWorld": {
-        "title": "Create World",
-        "worldName": "World Name"
+        "title": "Create Setting",
+        "worldName": "Setting Name"
       },
       "addToDo": {
         "title": "Add ToDo",
@@ -323,7 +323,7 @@
         "delete": "Delete bookmark"
       },
       "worldFolder": {
-        "delete": "Delete world",
+        "delete": "Delete Setting",
         "createCampaign": "Create campaign"
       },
       "campaignsHeader": {
@@ -365,7 +365,7 @@
     },
     "tooltips": {
       "mainButton": "Launch Campaign Builder",
-      "createWorld": "Create world",
+      "createWorld": "Create Setting",
       "expandDirectory": "Expand directory",
       "collapseDirectory": "Collapse directory",
       "collapseAllTopics": "Collapse all",
@@ -405,14 +405,14 @@
         "2": "Campaign",
         "3": "Session",
         "4": "PC",
-        "5": "World"
+        "5": "Setting"
       },
       "createEntry": {
         "name": "If left blank, a name will be generated automatically",
         "type": "If you create a new type, it will be added to the master list",
         "description": "Optional. Use to specify physical features or personality traits you want included",
         "parent": "May influence generated text in some cases",
-        "species": "If blank, a random species from your world will be used for AI generation. Custom entries will be passed to the AI but not added to your species list",
+        "species": "If blank, a random species from your Setting will be used for AI generation. Custom entries will be passed to the AI but not added to your species list",
         "longDescriptions": "Generate detailed description or a short summary?",
         "generateImage": "Generate a new image in the background after creating"
       }

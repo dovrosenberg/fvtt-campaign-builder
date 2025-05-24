@@ -17,10 +17,10 @@ This is where you configure your backend if you are using Advanced Features.
 - **Backend URL**: The url of the backend server (also provided by the backend deploy script)
 
 ### Species List
-This lets you manage the list of species in your worlds.  The default species are from the D&D 5E SRD.  This list is important if you want to track what species your characters are, but mostly it's to facilitate more accurate descriptions/images when doing AI generation.
+This lets you manage the list of species in your worlds.  The default species are from the D&D 5E SRD.  This list is important if you want to track what species your Characters are, but mostly it's to facilitate more accurate descriptions/images when doing AI generation.
 
 ### Roll Table Settings
 This relates to the roll tables used to rapidly generate NPC names, etc. during play.  They are currently only made for AI generation.
 - **Automatically refresh RollTables**: When clicked, the RollTables will replace any used options whenever you restart the module.  This essentially gives you an unlimited supply of unique results.
-- **Default types**: If you choose to turn a created name into a fully-fleshed out entry in your world, these are the types that will be put into the "Type" field by default.  Really just a way to speed up creation.
+- **Default types**: If you choose to turn a created name into a fully-fleshed out entry in your Session, these are the types that will be put into the "Type" field by default.  Really just a way to speed up creation.
 

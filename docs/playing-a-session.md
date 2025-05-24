@@ -18,8 +18,8 @@ During a session:
 ## Quick Access
 
 The module provides quick access to:
-- Foundry Scenes linked to your locations
-- Foundry Actors linked to your characters
+- Foundry Scenes linked to your Locations
+- Foundry Actors linked to your Characters
 - Foundry Items linked to your magic items
 
 Simply click the appropriate icon next to an element to access it. Context menus are also available for additional options.

@@ -1,6 +1,6 @@
 ---
 layout: default
-title: World
+title: Setting
 ---
-# World Window
+# Setting Window
 [TODO: show main content screen and explain parts, tabs, etc.]

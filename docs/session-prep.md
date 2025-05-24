@@ -4,11 +4,11 @@ title: Campaign Planning
 ---
 # Campaign Planning
 
-The Campaign Planning section helps you prepare for your sessions using the Lazy DM method. It provides tools for organizing the key elements of your upcoming session.  You can define multiple campaigns inside a single FCB world, which is useful if you use the same setting across multiple groups who play at different times.  
+The Campaign Planning section helps you prepare for your sessions using the Lazy DM method. It provides tools for organizing the key elements of your upcoming session.  You can define multiple campaigns inside a single Setting, which is useful if you use the same setting across multiple groups who play at different times.  
 
 ## Campaign Preparation
 To create a new campaign:
-1. Right click the name of the world in the campaign directory (the bottom part of the directory on the right side) and select "Create New Campaign"
+1. Right click the name of the Setting in the campaign directory (the bottom part of the directory on the right side) and select "Create New Campaign"
 2. Provide a name for the campaign
 
 ## PCs
@@ -24,7 +24,7 @@ To add a PC:
 ## Creating a campaign
 
 To create a new campaign:
-1. Right click on the world header in the campaign directory (bottom section of the directory and select "Create Campaign"
+1. Right click on the Session header in the campaign directory (bottom section of the directory and select "Create Campaign"
 2. Give the campaign a name
 
 In the settings menu, there is an option to display your sessions in the directory by name, number, or date.
@@ -83,22 +83,22 @@ Like vignettes, you can mark lore as "revealed" during or after the session.
 
 ### Campaign Locations
 
-This section allows you to prepare a list of locations from your world that might be relevant to the upcoming session.
+This section allows you to prepare a list of Locations from your Session that might be relevant to the upcoming session.
 
-To add a location:
+To add a Location:
 1. In your session, click the "Locations" tab
 2. Click "Add Location"
-3. Select a location from your world and add any session-specific notes
+3. Select a Location from your Setting and add any session-specific notes
 4. Click "Save"
 
 ### NPCs
 
-Similar to locations, this section allows you to prepare a list of NPCs from your world that might appear in the upcoming session.
+Similar to Locations, this section allows you to prepare a list of NPCs from your Setting that might appear in the upcoming session.
 
 To add an NPC:
 1. In your session, click the "NPCs" tab
 2. Click "Add NPC"
-3. Select a character from your world and add any session-specific notes
+3. Select a Character from your Setting and add any session-specific notes
 4. Click "Save"
 
 ### Monsters

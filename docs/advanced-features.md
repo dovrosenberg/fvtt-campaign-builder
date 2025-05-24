@@ -12,14 +12,14 @@ The module includes optional AI-powered features for generating descriptions and
 
 [TODO - link these to the relevant sections of the docs]
 With AI integration, you can:
-- Generate detailed descriptions for characters, locations, and organizations
+- Generate detailed descriptions for Characters, locations, and organizations
 - Create images based on your descriptions
 - Generate names for NPCs, towns, shops, and taverns -- infinitely renewed RollTables
 
 To use AI generation:
 1. Set up the backend server (see below)
 2. In the module settings, enter your API URL and token
-3. When creating or editing a world element, click the "Generate" button
+3. When creating or editing a Setting element, click the "Generate" button
 
 ## Backend Setup
 

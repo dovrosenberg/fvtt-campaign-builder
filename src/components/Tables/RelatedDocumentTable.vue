@@ -105,7 +105,7 @@
         uuid: item.uuid, 
         name: item.name, 
         packId: item.packId, 
-        location: item.packId ? `Compendium: ${item.packName}` : 'World',
+        location: item.packId ? `Compendium: ${item.packName}` : 'Setting',
       };
 
       // Add dragTooltip for actors
