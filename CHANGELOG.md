@@ -12,6 +12,7 @@
 - Reworked name generation; you can now select the "style" of names you want generated from the main Setting page
 - Added "to do" list - tracks things you deliver or edit during a play session so that you can quickly see afterward if any of them should be mentioned in the notes or fleshed out further
 - Added ability to manually create items on that to do list for the campaign, as well as the ability to setup a gmail account where you can email spontaneous ideas you have and they will be added to the to do list (requires backend)
+- Made roll tables world specific (to support the world-specific name styles) and increased size to 100 rows
 - Minor visual improvements
 - Various bug fixes
 

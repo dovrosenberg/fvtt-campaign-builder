@@ -5,7 +5,7 @@ import { nameStyles } from '@/utils/nameStyles';
 
 import { GeneratorType, WorldGeneratorConfig } from '@/types';
 import { WBWorld } from '@/classes';
-export const TABLE_SIZE = 15;  // number of items per table
+export const TABLE_SIZE = 100;  // number of items per table
 
 /**
  * Initialize the roll tables for a specific world
