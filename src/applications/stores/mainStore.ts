@@ -14,6 +14,8 @@ import { updateWorldRollTableNames } from '@/utils/nameGenerators';
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, PC, CollapsibleNode, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, WorldDoc } from '@/documents';
+import { getDefaultFolders } from '@/compendia';
+import { log } from '@/utils/log';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
@@ -225,7 +227,12 @@ export const useMainStore = defineStore('main', () => {
    */
   const getAllWorlds = async function (): Promise<WBWorld[]> {
     if (!rootFolder.value) {
-      return [];
+      const defaultFolders = await getDefaultFolders();
+      rootFolder.value = defaultFolders.rootFolder;
+      if (!rootFolder.value) {
+        log('No root folder in mainStore.getAllWorlds()');
+        return [];
+      }
     }
 
     const worlds: WBWorld[] = [];
