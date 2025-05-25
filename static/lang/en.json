@@ -125,6 +125,9 @@
       "addToWorld": "Add to Setting",
       "prep": "Prep",
       "play": "Play",
+      "ok": "OK",
+      "yes": "Yes",
+      "no": "No",
       "homePage": {
         "createWorld": "Create Setting",
         "createCampaign": "Create Campaign",
@@ -322,6 +325,36 @@
       "addToDo": {
         "title": "Add ToDo",
         "text": "Enter todo text:"
+      },
+      "relatedItems": {
+        "character": {
+          "title": "Add a character",
+          "editTitle": "Edit character",
+          "createButtonTitle": "Create character",
+          "buttonTitle": "Add relationship",
+          "editButtonTitle": "Save character"
+        },
+        "location": {
+          "title": "Add a location",
+          "editTitle": "Edit location",
+          "createButtonTitle": "Create location",
+          "buttonTitle": "Add relationship",
+          "editButtonTitle": "Save location"
+        },
+        "organization": {
+          "title": "Add an organization",
+          "editTitle": "Edit organization",
+          "createButtonTitle": "Create organization",
+          "buttonTitle": "Add relationship",
+          "editButtonTitle": "Save organization"
+        },
+        "addToSession": "Add to session"
+      },
+      "relatedDocuments": {
+        "selectActors": "Select Actors",
+        "selectItems": "Select Items",
+        "addActor": "Add Actor",
+        "addItem": "Add Item"
       }
     },
     "contextMenus": {

@@ -445,9 +445,9 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     await this.populateTopics();
     await this.loadCampaigns();
     
-    // Initialize roll tables for this world if they don't exist
+    // Initialize roll tables for this world if they don't exist - but don't wait for this
     if (!this._rollTableConfig) {
-      await initializeWorldRollTables(this);
+      void initializeWorldRollTables(this);  // this potentiallytakes a LONG time
     }
   }
 

@@ -48,6 +48,7 @@
   import { defineProps, computed, ref, PropType, watch, reactive } from 'vue'
 
   // local imports
+  import { localize } from '@/utils/game';
 
   // library components
 
@@ -78,7 +79,7 @@
     buttons: {
       type: Array as PropType<ButtonProp[]>,
       required: false,
-      default: [{ label: 'OK', close: true, default: true }],
+      default: [{ label: localize('labels.ok'), close: true, default: true }],
     },
   });
 

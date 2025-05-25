@@ -1,3 +1,5 @@
+import { localize } from '@/utils/game';
+
 // creates a simple input dialog with the given title
 // returns the entered value or null if canceled
 export async function inputDialog(title: string, prompt: string): Promise<string | null> {
@@ -11,11 +13,11 @@ export async function inputDialog(title: string, prompt: string): Promise<string
     content: inputContent,
     buttons: {
       ok: {
-        label: 'OK',
+        label: localize('labels.ok'),
         callback: (html: JQuery<HTMLElement>): void => { response = (html.find('#response')[0] as HTMLInputElement).value; },
       },
       cancel: {
-        label: 'Cancel',
+        label: localize('labels.cancel'),
         callback:  () => { response = null; }
       }
     },

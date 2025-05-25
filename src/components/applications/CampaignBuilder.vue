@@ -161,7 +161,7 @@
       const worldCompendium = currentWorld.value.compendium || null;
 
       if (!worldCompendium)
-        throw new Error(`Could not find compendium for world ${worldId} in CampaignBuilder.onMounted()`);
+        throw new Error(`Could not find compendium for world ${worldId} in CampaignBuilder.currentWorld watch`);
 
       const topicIds = currentWorld.value.topicIds;
       const campaignNames = currentWorld.value.campaignNames;
