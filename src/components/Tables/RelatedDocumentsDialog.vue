@@ -166,7 +166,7 @@
   ////////////////////////////////
   // watchers
   // when the dialog changes state, alert parent (so v-model works)
-  watch(() => show, async (newValue) => {
+  watch(() => show.value, async (newValue) => {
     emit('update:modelValue', newValue);
   });
 

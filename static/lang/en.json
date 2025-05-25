@@ -128,6 +128,16 @@
       "ok": "OK",
       "yes": "Yes",
       "no": "No",
+      "close": "Close",
+      "tableHeaders": {
+        "actions": "Actions",
+        "name": "Name",
+        "location": "Location"
+      },
+      "locations": {
+        "compendium": "Compendium",
+        "setting": "Setting"
+      },
       "homePage": {
         "createWorld": "Create Setting",
         "createCampaign": "Create Campaign",
@@ -327,6 +337,8 @@
         "text": "Enter todo text:"
       },
       "relatedItems": {
+        "additionalInformation": "Additional Information",
+        "allItemsConnected": "All possible related items are already connected.",
         "character": {
           "title": "Add a character",
           "editTitle": "Edit character",
@@ -355,6 +367,11 @@
         "selectItems": "Select Items",
         "addActor": "Add Actor",
         "addItem": "Add Item"
+      },
+      "contextMenus": {
+        "cannotActivateFromCompendium": "Cannot activate from compendium",
+        "cannotToggleNavigationFromCompendium": "Cannot toggle navigation from scene in a compendium",
+        "cannotToggleNavigationWhileActive": "Cannot toggle navigation while scene is active"
       }
     },
     "contextMenus": {

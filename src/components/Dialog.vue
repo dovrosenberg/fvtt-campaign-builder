@@ -16,7 +16,7 @@
         @click="() => { show = false; emit('cancel'); }"
       >
         <i class="fas fa-times"></i>
-        <span class="close-text">Close</span>
+        <span class="close-text">{{ localize('labels.close') }}</span>
       </a>
     </header>
     <section class="window-content">
@@ -79,7 +79,7 @@
     buttons: {
       type: Array as PropType<ButtonProp[]>,
       required: false,
-      default: [{ label: localize('labels.ok'), close: true, default: true }],
+      default: [{ label: 'OK', close: true, default: true }],
     },
   });
 

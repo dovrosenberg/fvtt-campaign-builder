@@ -17,7 +17,7 @@
             @selection-made="onSelectionMade"
           />
           <div class="extra-fields-container" v-if="extraFields.length > 0">
-            <h3 class="extra-fields-title">Additional Information</h3>
+            <h3 class="extra-fields-title">{{ localize('dialogs.relatedItems.additionalInformation') }}</h3>
             <div class="extra-fields-group">
               <div
                 v-for="field in extraFields"
@@ -41,7 +41,7 @@
         </div>
         <div v-else class="no-items-message">
           <i class="fas fa-info-circle"></i>
-          <span>All possible related items are already connected.</span>
+          <span>{{ localize('dialogs.relatedItems.allItemsConnected') }}</span>
         </div>
       </div>
     </Dialog>
@@ -73,6 +73,16 @@
     field: string;
     header: string;
     value: string;
+  };
+
+  type ButtonProp = {
+    label: string;
+    close?: boolean;
+    default?: boolean;
+    icon?: string;
+    disable?: boolean;
+    hidden?: boolean;
+    callback?: () => void;
   };
 
   ////////////////////////////////
