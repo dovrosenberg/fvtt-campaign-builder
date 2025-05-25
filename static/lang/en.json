@@ -112,6 +112,7 @@
       "saveChanges": "Save Changes",
       "reset": "Reset",
       "cancel": "Cancel",
+      "save": "Save",
       "generate": "Generate",
       "accept": "Accept",
       "use": "Use",
@@ -276,6 +277,11 @@
       "generateNameDialog": {
         "errorMessage": "There was an error:"
       },
+      "configureNames": {
+        "title": "Configure Name Styles",
+        "description": "Select the naming styles you'd like to use for AI-generated names in this setting. You can preview examples of each style below, based on this setting's genre and feeling.",
+        "errorMessage": "There was an error:"
+      },
       "generateOptions": {
         "title": "Select an Option"
       },
@@ -360,7 +366,8 @@
       "generate":  {
         "description": "Generate description",
         "image": "Generate image",
-        "inProgress": "in progress"
+        "inProgress": "in progress",
+        "configureNames": "Configure names"
       }
     },
     "tooltips": {
@@ -390,6 +397,7 @@
       "addToASession": "Add to a session",
       "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",
       "generateContent": "Generate content",
+      "worldGenerateContent": "Manage world generation settigs",
       "backendNotAvailable": "Backend not available",
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",
       "dragMonsterFromSession": "Drag to scene",

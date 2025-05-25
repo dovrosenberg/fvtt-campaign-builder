@@ -33,6 +33,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   private _genre: string;
   private _worldFeeling: string;
   private _img: string;
+  private _nameStyles: number[];
 
   /**
    * Note: you should always call validate() after creating a new WBWorld - this ensures the 
@@ -51,6 +52,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     this._genre = this.getFlag(WorldFlagKey.genre) || '';
     this._worldFeeling = this.getFlag(WorldFlagKey.worldFeeling) || '';
     this._img = this.getFlag(WorldFlagKey.img) || '';
+    this._nameStyles = this.getFlag(WorldFlagKey.nameStyles) || [0];
     this._name = this._doc.name;
     if (this._compendiumId) {
       const compendium = game.packs?.get(this._compendiumId);
@@ -252,6 +254,15 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   public set img(value: string) {
     this._img = value;
     this.updateCumulative(WorldFlagKey.img, value);
+  }
+  
+  public get nameStyles(): readonly number[] {
+    return this._nameStyles;
+  }
+
+  public set nameStyles(value: number[]) {
+    this._nameStyles = value;
+    this.updateCumulative(WorldFlagKey.nameStyles, value);
   }
   
 
