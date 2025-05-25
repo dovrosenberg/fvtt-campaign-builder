@@ -209,7 +209,7 @@
 
     if (isEitherAddMode.value) {
       buttons.push({
-        label: createButtonLabel,
+        label: createButtonLabel.value,
         default: false,
         close: true,
         callback: onCreateClick,
@@ -218,8 +218,8 @@
     }
 
     buttons.push({
-      label: actionButtonLabel,
-      disable: isEitherAddMode.value && !isAddFormValid,
+      label: actionButtonLabel.value,
+      disable: isEitherAddMode.value && !isAddFormValid.value,
       default: true,
       close: true,
       callback: onActionClick,

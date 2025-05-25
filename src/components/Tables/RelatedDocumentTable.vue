@@ -105,7 +105,7 @@
         uuid: item.uuid, 
         name: item.name, 
         packId: item.packId, 
-        location: item.packId ? `Compendium: ${item.packName}` : 'Setting',
+        location: item.packId ? `${localize('labels.locations.compendium')}: ${item.packName}` : localize('labels.locations.setting'),
       };
 
       // Add dragTooltip for actors
