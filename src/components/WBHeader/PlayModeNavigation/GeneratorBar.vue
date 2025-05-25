@@ -32,7 +32,7 @@
 
   // local imports
   import { useMainStore, useNavigationStore } from '@/applications/stores';
-  import { SettingKey, ModuleSettings } from '@/settings/ModuleSettings';
+  import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend } from '@/classes'
   import { FCBDialog } from '@/dialogs';
   
@@ -106,9 +106,11 @@
         return;
     }
 
-    const config = ModuleSettings.get(SettingKey.generatorConfig);
+    // Get default types from settings
+    const defaultTypes = ModuleSettings.get(SettingKey.generatorDefaultTypes);
+    
     initialName.value = value;
-    initialType.value = config?.defaultTypes[currentGeneratorType.value] || '';
+    initialType.value = defaultTypes[currentGeneratorType.value] || '';
     
     const entry = await FCBDialog.createEntryDialog(topic, { 
       name: initialName.value || '',

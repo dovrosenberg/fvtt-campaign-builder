@@ -152,6 +152,7 @@
         updateWindowTitle(newName || null);
         await topicDirectoryStore.refreshTopicDirectoryTree([currentWorld.value.uuid]);
         await navigationStore.propagateNameChange(currentWorld.value.uuid, newValue);
+        await mainStore.propagateWorldNameChange(currentWorld.value);
       }
     }, debounceTime);
   };

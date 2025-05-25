@@ -80,6 +80,10 @@
         "labels": {
           "refreshAll": "Refresh all tables",
           "refreshAllHelp": "Replace any used items with new ones"
+        },
+        "notifications": {
+          "refreshSuccess": "Roll tables refreshed successfully",
+          "refreshError": "Failed to refresh roll tables. Check console for details."
         }
       },
       "createEntry": {

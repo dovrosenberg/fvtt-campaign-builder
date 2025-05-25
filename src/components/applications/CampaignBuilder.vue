@@ -50,7 +50,6 @@
   import { SettingKey, ModuleSettings, } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { initializeRollTables } from '@/utils/nameGenerators';
   import { updateWindowTitle } from '@/utils/titleUpdater';
   import { theme } from '@/components/styles/primeVue';
 
@@ -306,9 +305,6 @@
 
       rootFolder.value = folders.rootFolder;
       mainStore.setNewWorld(folders.world.uuid);
-
-      // initialize roll tables
-      await initializeRollTables();
 
       // Check if backend is available and show warning if not
       if (!Backend.available) {

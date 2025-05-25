@@ -1,11 +1,12 @@
 import { moduleId, UserFlags, UserFlagKey, } from '@/settings'; 
 import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
-import { Hierarchy, Topics, ValidTopic } from '@/types';
+import { Hierarchy, Topics, ValidTopic, WorldGeneratorConfig } from '@/types';
 import { getRootFolder,  } from '@/compendia';
 import { FCBDialog } from '@/dialogs';
 import { DocumentWithFlags, Campaign, TopicFolder } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
+import { initializeWorldRollTables } from '@/utils/nameGenerators';
 
 type WBWorldCompendium = CompendiumCollection<CompendiumCollection.Metadata>;
 
@@ -34,6 +35,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   private _worldFeeling: string;
   private _img: string;
   private _nameStyles: number[];
+  private _rollTableConfig: WorldGeneratorConfig | null;
 
   /**
    * Note: you should always call validate() after creating a new WBWorld - this ensures the 
@@ -53,6 +55,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     this._worldFeeling = this.getFlag(WorldFlagKey.worldFeeling) || '';
     this._img = this.getFlag(WorldFlagKey.img) || '';
     this._nameStyles = this.getFlag(WorldFlagKey.nameStyles) || [0];
+    this._rollTableConfig = this.getFlag(WorldFlagKey.rollTableConfig);
     this._name = this._doc.name;
     if (this._compendiumId) {
       const compendium = game.packs?.get(this._compendiumId);
@@ -264,6 +267,15 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     this._nameStyles = value;
     this.updateCumulative(WorldFlagKey.nameStyles, value);
   }
+
+  public get rollTableConfig(): WorldGeneratorConfig | null {
+    return this._rollTableConfig;
+  }
+
+  public set rollTableConfig(value: WorldGeneratorConfig | null) {
+    this._rollTableConfig = value;
+    this.updateCumulative(WorldFlagKey.rollTableConfig, value);
+  }
   
 
   /**
@@ -432,6 +444,11 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     //    campaigns
     await this.populateTopics();
     await this.loadCampaigns();
+    
+    // Initialize roll tables for this world if they don't exist
+    if (!this._rollTableConfig) {
+      await initializeWorldRollTables(this);
+    }
   }
 
   private async populateTopics() {
