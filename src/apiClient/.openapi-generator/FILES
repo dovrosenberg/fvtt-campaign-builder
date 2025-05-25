@@ -15,6 +15,9 @@ types/api-location-generate-post-request.ts
 types/api-location-generate-post200-response.ts
 types/api-name-characters-post-request.ts
 types/api-name-characters-post200-response.ts
+types/api-name-preview-post-request.ts
+types/api-name-preview-post200-response-preview-inner.ts
+types/api-name-preview-post200-response.ts
 types/api-name-stores-post-request.ts
 types/api-name-stores-post200-response.ts
 types/api-name-taverns-post-request.ts

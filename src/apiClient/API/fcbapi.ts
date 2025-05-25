@@ -36,6 +36,10 @@ import type { ApiNameCharactersPost200Response } from '../types';
 // @ts-ignore
 import type { ApiNameCharactersPostRequest } from '../types';
 // @ts-ignore
+import type { ApiNamePreviewPost200Response } from '../types';
+// @ts-ignore
+import type { ApiNamePreviewPostRequest } from '../types';
+// @ts-ignore
 import type { ApiNameStoresPost200Response } from '../types';
 // @ts-ignore
 import type { ApiNameStoresPostRequest } from '../types';
@@ -250,6 +254,45 @@ export const FCBApiAxiosParamCreator = function (configuration?: Configuration) 
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(apiNameCharactersPostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Generate preview of names for different namestyles
+         * @param {ApiNamePreviewPostRequest} apiNamePreviewPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNamePreviewPost: async (apiNamePreviewPostRequest: ApiNamePreviewPostRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'apiNamePreviewPostRequest' is not null or undefined
+            assertParamExists('apiNamePreviewPost', 'apiNamePreviewPostRequest', apiNamePreviewPostRequest)
+            const localVarPath = `/api/name/preview`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(apiNamePreviewPostRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -588,6 +631,18 @@ export const FCBApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Generate preview of names for different namestyles
+         * @param {ApiNamePreviewPostRequest} apiNamePreviewPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiNamePreviewPost(apiNamePreviewPostRequest: ApiNamePreviewPostRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiNamePreviewPost200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiNamePreviewPost(apiNamePreviewPostRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FCBApi.apiNamePreviewPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Generate store names
          * @param {ApiNameStoresPostRequest} apiNameStoresPostRequest 
          * @param {*} [options] Override http request option.
@@ -725,6 +780,15 @@ export const FCBApiFactory = function (configuration?: Configuration, basePath?:
             return localVarFp.apiNameCharactersPost(apiNameCharactersPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * Generate preview of names for different namestyles
+         * @param {ApiNamePreviewPostRequest} apiNamePreviewPostRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNamePreviewPost(apiNamePreviewPostRequest: ApiNamePreviewPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiNamePreviewPost200Response> {
+            return localVarFp.apiNamePreviewPost(apiNamePreviewPostRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Generate store names
          * @param {ApiNameStoresPostRequest} apiNameStoresPostRequest 
          * @param {*} [options] Override http request option.
@@ -838,6 +902,15 @@ export interface FCBApiInterface {
      * @memberof FCBApiInterface
      */
     apiNameCharactersPost(apiNameCharactersPostRequest: ApiNameCharactersPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiNameCharactersPost200Response>;
+
+    /**
+     * Generate preview of names for different namestyles
+     * @param {ApiNamePreviewPostRequest} apiNamePreviewPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApiInterface
+     */
+    apiNamePreviewPost(apiNamePreviewPostRequest: ApiNamePreviewPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiNamePreviewPost200Response>;
 
     /**
      * Generate store names
@@ -962,6 +1035,17 @@ export class FCBApi extends BaseAPI implements FCBApiInterface {
      */
     public apiNameCharactersPost(apiNameCharactersPostRequest: ApiNameCharactersPostRequest, options?: RawAxiosRequestConfig) {
         return FCBApiFp(this.configuration).apiNameCharactersPost(apiNameCharactersPostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Generate preview of names for different namestyles
+     * @param {ApiNamePreviewPostRequest} apiNamePreviewPostRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApi
+     */
+    public apiNamePreviewPost(apiNamePreviewPostRequest: ApiNamePreviewPostRequest, options?: RawAxiosRequestConfig) {
+        return FCBApiFp(this.configuration).apiNamePreviewPost(apiNamePreviewPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
