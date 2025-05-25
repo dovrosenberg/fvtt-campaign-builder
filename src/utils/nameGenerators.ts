@@ -196,10 +196,6 @@ export const refreshWorldRollTable = async (rollTable: RollTable, world: WBWorld
     // get all the new results using world-specific settings
     const newResults = await generateWorldTableResults(type, neededItems, world);
 
-    if (newResults.length < neededItems) {
-      throw new Error(`Only ${newResults.length} results generated for ${type} table, but ${neededItems} were needed.`);
-    }
-
     // replace the drawn items first
     if (drawnResults.length > 0) {
       await rollTable.updateEmbeddedDocuments("TableResult", drawnResults.map((id: string, i: number) => ({
@@ -228,8 +224,9 @@ export const refreshWorldRollTable = async (rollTable: RollTable, world: WBWorld
 /**
  * Refresh all roll tables for a specific world
  * @param world The world whose roll tables should be refreshed
+ * @param empty Whether to empty the roll tables before refreshing them
  */
-export const refreshWorldRollTables = async(world: WBWorld) : Promise<void> => {
+export const refreshWorldRollTables = async(world: WBWorld, empty: boolean = false) : Promise<void> => {
   const config = world.rollTableConfig;
 
   if (!config) {
@@ -238,13 +235,18 @@ export const refreshWorldRollTables = async(world: WBWorld) : Promise<void> => {
 
   for (const key in config.rollTables) {
     const table = await fromUuid<RollTable>(config.rollTables[key]);
-    if (table)
+    if (table) {
+      if (empty && table.results.size > 0) {
+        await table.deleteEmbeddedDocuments("TableResult", table.results.map(r => r.id || ''));
+      }
+
       await refreshWorldRollTable(table, world);
+    }
   }
 }
 
 /**
- * Refresh all roll tables for all worlds
+ * Refresh all roll tables for all worlds - empties them and fills with new results
  */
 export const refreshAllWorldRollTables = async() : Promise<void> => {
   // Import the mainStore dynamically to avoid circular dependencies
@@ -257,7 +259,7 @@ export const refreshAllWorldRollTables = async() : Promise<void> => {
   // Refresh roll tables for each world
   for (const world of worlds) {
     try {
-      await refreshWorldRollTables(world);
+      await refreshWorldRollTables(world, true);
     } catch (error) {
       console.error(`Error refreshing roll tables for world ${world.name}:`, error);
     }

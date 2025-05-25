@@ -82,7 +82,7 @@ export const flagSettings = [
   },
   {
     flagId: WorldFlagKey.nameStyles,
-    default: [0] as number[],
+    default: [0, 1, 2, 3, 4] as number[],
   },
   {
     flagId: WorldFlagKey.rollTableConfig,
