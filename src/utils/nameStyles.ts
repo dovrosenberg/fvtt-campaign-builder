@@ -10,11 +10,11 @@ export const nameStyles: NameStyle[] = [
     displayName: "Classic"
   },
   {
-    prompt: "Inventive & Distinctive - Fresh and creative names that break conventional {genre} patterns while still fitting the setting. Mix unfamiliar syllables, rare linguistic roots, or hybrid structures. These names should feel unique and unexpected.",
+    prompt: "Inventive & Distinctive - Fresh and creative names that break conventional {genre} patterns while still fitting the setting. Mix unfamiliar syllables, rare linguistic roots, or hybrid structures. Most last names should NOT be composite words. These names should feel unique and unexpected.",
     displayName: "Distinctive"
   },
   {
-    prompt: "Modern or Familiar - Modern names that are familiar and easy to pronounce.",
+    prompt: "Modern or Familiar - Modern names that are familiar in real life and easy to pronounce.",
     displayName: "Familiar"
   },
   {
