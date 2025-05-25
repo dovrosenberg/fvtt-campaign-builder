@@ -5,9 +5,10 @@ import { defineStore, } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
 // local imports
-import { UserFlagKey, UserFlags, ModuleSettings, SettingKey } from '@/settings';
+import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, moduleId } from '@/settings';
 import { updateWindowTitle } from '@/utils/titleUpdater';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
+import { updateWorldRollTableNames } from '@/utils/nameGenerators';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
@@ -218,6 +219,49 @@ export const useMainStore = defineStore('main', () => {
     }
   }
 
+  /**
+   * Get all worlds from the root folder
+   * @returns Array of WBWorld instances
+   */
+  const getAllWorlds = async function (): Promise<WBWorld[]> {
+    if (!rootFolder.value) {
+      return [];
+    }
+
+    const worlds: WBWorld[] = [];
+    
+    for (const child of rootFolder.value.children) {
+      if (child.folder && child.folder.getFlag(moduleId, 'isWorld')) {
+        try {
+          const world = await WBWorld.fromUuid(child.folder.uuid);
+          if (world) {
+            worlds.push(world);
+          }
+        } catch (error) {
+          console.error(`Error loading world ${child.folder.name}:`, error);
+        }
+      }
+    }
+
+    return worlds;
+  }
+
+  /**
+   * Propagate world name changes to related entities (roll tables, etc.)
+   * This should be called after the world name has been changed and saved
+   * @param world The world whose name changed
+   */
+  const propagateWorldNameChange = async function (world: WBWorld): Promise<void> {
+    // Update roll table names if roll tables are configured
+    if (world.rollTableConfig) {
+      try {
+        await updateWorldRollTableNames(world);
+      } catch (error) {
+        console.error('Error updating roll table names:', error);
+      }
+    }
+  }
+
   ///////////////////////////////
   // computed state
   const currentEntryTopic = computed((): Topics => {
@@ -310,5 +354,7 @@ export const useMainStore = defineStore('main', () => {
     refreshPC,
     refreshWorld,
     refreshCurrentContent,
+    getAllWorlds,
+    propagateWorldNameChange,
   };
 });

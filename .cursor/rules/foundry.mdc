@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+The foundry V client source code is in ~/foundry13/resources/app if it is needed to understand anything

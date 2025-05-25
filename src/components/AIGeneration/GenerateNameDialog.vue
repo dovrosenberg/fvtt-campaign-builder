@@ -66,7 +66,7 @@
   
   // local imports
   import { localize } from '@/utils/game';
-  import { ModuleSettings, SettingKey } from '@/settings';
+  import { useMainStore } from '@/applications/stores';
   import { GeneratorType } from '@/types';
   
   // library components
@@ -139,9 +139,20 @@
     selectedOptionIndex.value = null;
     
     try {
-      // Get the generator config
-      const config = ModuleSettings.get(SettingKey.generatorConfig);
+      // Get the current world and its roll table config
+      const mainStore = useMainStore();
+      const currentWorld = mainStore.currentWorld;
+      
+      if (!currentWorld) {
+        throw new Error('No current world selected');
+      }
+      
+      const config = currentWorld.rollTableConfig;
       const tableUuid = config?.rollTables[props.generatorType];
+      
+      if (!tableUuid) {
+        throw new Error(`No roll table configured for ${props.generatorType} in current world`);
+      }
       
       // Load the roll table
       rollTable.value = await fromUuid<RollTable>(tableUuid);

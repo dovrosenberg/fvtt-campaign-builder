@@ -14,7 +14,15 @@
           }"
           @update:model-value="onNameUpdate"
         />
-      </header>
+        <button
+          class="fcb-generate-button"
+          @click="onGenerateButtonClick"
+          :disabled="generateDisabled"
+          :title="`${localize('tooltips.worldGenerateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"
+        >
+          <i class="fas fa-head-side-virus"></i>
+        </button>
+      </header>     
       <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
         <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
       </nav>
@@ -60,6 +68,11 @@
       </div>
     </div>
   </form>	 
+  <ConfigureNamesDialog
+    v-model="showConfigureNamesDialog"
+    :initial-selected-styles="currentWorld?.nameStyles || [0]"
+    @save="onNameStylesSave"
+  />
 </template>
 
 <script setup lang="ts">
@@ -73,15 +86,18 @@
   import { localize } from '@/utils/game';
   import { useMainStore, useNavigationStore, useTopicDirectoryStore } from '@/applications/stores';
   import { updateWindowTitle } from '@/utils/titleUpdater';
+  import { Backend } from '@/classes';
 
   // library components
   import InputText from 'primevue/inputtext';
   import Textarea from 'primevue/textarea';
+  import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
   import Editor from '@/components/Editor.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
+  import ConfigureNamesDialog from '@/components/AIGeneration/ConfigureNamesDialog.vue';
 
   // types
   import { WindowTabType, } from '@/types';
@@ -101,16 +117,17 @@
 
   ////////////////////////////////
   // data
-
   const tabs = ref<foundry.applications.ux.Tabs>();
   const name = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);
   const icon =  getTabTypeIcon(WindowTabType.Campaign);
+  const showConfigureNamesDialog = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
   const namePlaceholder = computed((): string => (localize('placeholders.worldName') || ''));
+  const generateDisabled = computed(() => !Backend.available);
   
   ////////////////////////////////
   // methods
@@ -135,6 +152,7 @@
         updateWindowTitle(newName || null);
         await topicDirectoryStore.refreshTopicDirectoryTree([currentWorld.value.uuid]);
         await navigationStore.propagateNameChange(currentWorld.value.uuid, newValue);
+        await mainStore.propagateWorldNameChange(currentWorld.value);
       }
     }, debounceTime);
   };
@@ -176,6 +194,39 @@
     }
   }
 
+  const onGenerateButtonClick = (event: MouseEvent): void => {
+    // Prevent default behavior
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Show context menu
+    const menuItems = [
+      {
+        icon: 'fa-cog',
+        iconFontClass: 'fas',
+        label: localize('contextMenus.generate.configureNames'),        
+        onClick: () => {
+          showConfigureNamesDialog.value = true;
+        }
+      },
+    ];
+
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items: menuItems,
+    });
+  };
+
+  const onNameStylesSave = async (selectedStyles: number[]) => {
+    if (currentWorld.value) {
+      currentWorld.value.nameStyles = selectedStyles;
+      await currentWorld.value.save();
+    }
+    showConfigureNamesDialog.value = false;
+  };
 
   ////////////////////////////////
   // watchers

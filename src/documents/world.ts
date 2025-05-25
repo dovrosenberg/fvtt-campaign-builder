@@ -1,4 +1,4 @@
-import { ValidTopic, Hierarchy, } from '@/types';
+import { ValidTopic, Hierarchy, WorldGeneratorConfig } from '@/types';
 import { FlagSettings } from '@/settings/DocumentFlags';
 
 // campaigns are journal entries, not documents
@@ -17,6 +17,8 @@ export enum WorldFlagKey {
   worldFeeling = 'worldFeeling',
   description = 'description',
   img = 'img',   // image path for the world
+  nameStyles = 'nameStyles',   // array of name styles to use for name generation
+  rollTableConfig = 'rollTableConfig',   // world-specific roll table configuration
 }
 
 export type WorldFlagType<K extends WorldFlagKey> =
@@ -30,6 +32,8 @@ export type WorldFlagType<K extends WorldFlagKey> =
   K extends WorldFlagKey.worldFeeling ? string :
   K extends WorldFlagKey.description ? string :
   K extends WorldFlagKey.img ? string :
+  K extends WorldFlagKey.nameStyles ? number[] :
+  K extends WorldFlagKey.rollTableConfig ? WorldGeneratorConfig | null :
   never;
 
 export const flagSettings = [
@@ -75,6 +79,14 @@ export const flagSettings = [
   {
     flagId: WorldFlagKey.img,
     default: '' as string,
+  },
+  {
+    flagId: WorldFlagKey.nameStyles,
+    default: [0] as number[],
+  },
+  {
+    flagId: WorldFlagKey.rollTableConfig,
+    default: null as WorldGeneratorConfig | null,
   },
 ] as FlagSettings<WorldFlagKey, {[K in WorldFlagKey]: WorldFlagType<K>}>[];
 

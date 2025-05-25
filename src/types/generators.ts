@@ -8,22 +8,18 @@ export enum GeneratorType {
   Tavern = 'tavern',
 }
 
+
 /**
- * Interface for a generator configuration
+ * Interface for a world-specific generator configuration
  */
-export interface GeneratorConfig {
+export interface WorldGeneratorConfig {
   /**
-   * The folder ID where roll tables are stored
+   * The folder ID where roll tables are stored for this world
    */
   folderId: string;
 
   /**
-   * Mapping of generator types to roll table IDs
+   * Mapping of generator types to roll table IDs for this world
    */
   rollTables: Record<GeneratorType, string>;  // maps generator type to uuid
-
-  /** 
-   * Default type to use for each thing that can be randomly generated
-   */
-  defaultTypes: Record<GeneratorType, string>;
 }

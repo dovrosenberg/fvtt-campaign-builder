@@ -17,32 +17,26 @@
 /**
  * 
  * @export
- * @interface ApiNameTownsPostRequest
+ * @interface ApiNamePreviewPostRequest
  */
-export interface ApiNameTownsPostRequest {
+export interface ApiNamePreviewPostRequest {
     /**
-     * Number of town names to generate
-     * @type {number}
-     * @memberof ApiNameTownsPostRequest
+     * List of name styles to preview
+     * @type {Array<string>}
+     * @memberof ApiNamePreviewPostRequest
      */
-    'count': number;
+    'nameStyles': Array<string>;
     /**
      * Genre of the setting (e.g., fantasy, sci-fi, western)
      * @type {string}
-     * @memberof ApiNameTownsPostRequest
+     * @memberof ApiNamePreviewPostRequest
      */
     'genre'?: string | null;
     /**
      * The feeling or atmosphere of the world (e.g., dark, whimsical, gritty)
      * @type {string}
-     * @memberof ApiNameTownsPostRequest
+     * @memberof ApiNamePreviewPostRequest
      */
     'worldFeeling'?: string | null;
-    /**
-     * The styles of names to use
-     * @type {Array<string>}
-     * @memberof ApiNameTownsPostRequest
-     */
-    'nameStyles': Array<string>;
 }
 

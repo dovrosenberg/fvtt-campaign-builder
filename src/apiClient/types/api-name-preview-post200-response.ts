@@ -15,19 +15,19 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ApiPollEmailTodoGet200ResponseItemsInner } from './api-poll-email-todo-get200-response-items-inner';
+import type { ApiNamePreviewPost200ResponsePreviewInner } from './api-name-preview-post200-response-preview-inner';
 
 /**
  * 
  * @export
- * @interface ApiPollEmailTodoGet200Response
+ * @interface ApiNamePreviewPost200Response
  */
-export interface ApiPollEmailTodoGet200Response {
+export interface ApiNamePreviewPost200Response {
     /**
-     * 
-     * @type {Array<ApiPollEmailTodoGet200ResponseItemsInner>}
-     * @memberof ApiPollEmailTodoGet200Response
+     * Array of objects containing sample names corresponding to passed name styles
+     * @type {Array<ApiNamePreviewPost200ResponsePreviewInner>}
+     * @memberof ApiNamePreviewPost200Response
      */
-    'items': Array<ApiPollEmailTodoGet200ResponseItemsInner>;
+    'preview': Array<ApiNamePreviewPost200ResponsePreviewInner>;
 }
 
