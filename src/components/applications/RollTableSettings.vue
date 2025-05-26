@@ -7,7 +7,6 @@
           <Checkbox
             v-model="autoRefresh"
             binary
-            unstyled
           />
         </div>
         <p class="hint">
