@@ -125,6 +125,7 @@
             <Editor
               :initial-content="currentEntry?.description || ''"
               :has-button="true"
+              :current-entity-uuid="currentEntry?.uuid"
               @editor-saved="onDescriptionEditorSaved"
             />
           </div>

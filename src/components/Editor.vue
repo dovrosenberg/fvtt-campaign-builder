@@ -53,6 +53,7 @@
   import { notifyInfo } from '@/utils/notifications';
   import { localize } from '@/utils/game';
   import { sanitizeHTML } from '@/utils/sanitizeHtml';
+  import { replaceEntityReferences } from '@/utils/entityLinking';
 
 
   // library components
@@ -107,6 +108,16 @@
       type: String,
       required: false,
       default: null,
+    },
+    currentEntityUuid: {
+      type: String,
+      required: false,
+      default: undefined,
+    },
+    enableEntityLinking: {
+      type: Boolean,
+      required: false,
+      default: true,
     },
   });
 
@@ -228,6 +239,18 @@
 
     // see if dirty
     const isDirty = (lastSavedContent.value !== ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content));
+
+    // Apply entity linking if enabled and content is dirty
+    if (isDirty && props.enableEntityLinking && currentWorld.value) {
+      try {
+        content = await replaceEntityReferences(content, currentWorld.value, {
+          currentEntityUuid: props.currentEntityUuid
+        });
+      } catch (error) {
+        console.error('Failed to apply entity linking:', error);
+        // Continue with original content if entity linking fails
+      }
+    }
 
     // For edit-only mode (like in SessionNotes), don't destroy the editor
     if (remove && !editOnlyMode.value) {
