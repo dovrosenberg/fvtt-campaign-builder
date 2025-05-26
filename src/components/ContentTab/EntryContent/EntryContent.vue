@@ -579,22 +579,18 @@
     }
   };
 
-  const onRelatedEntriesDialogUpdate = async (addedEntries: string[], removedEntries: string[]) => {
+  const onRelatedEntriesDialogUpdate = async (addedEntries: Entry[], removedEntries: Entry[]) => {
     if (!currentEntry.value) 
       return;
 
     // Handle added relationships
-    for (const uuid of addedEntries) {
-      const entry = await Entry.fromUuid(uuid);
-      if (entry)
-        await relationshipStore.addRelationship(entry, {});
+    for (const entry of addedEntries) {
+      await relationshipStore.addRelationship(entry, {});
     }
 
     // Handle removed relationships
-    for (const uuid of removedEntries) {
-      const entry = await Entry.fromUuid(uuid);
-      if (entry)
-        await relationshipStore.deleteRelationship(entry.topic, entry.uuid);
+    for (const entry of removedEntries) {
+      await relationshipStore.deleteRelationship(entry.topic, entry.uuid);
     }
   };
 

@@ -12,11 +12,12 @@
       </p>
 
       <!-- Added Items Section -->
-      <div v-if="addedItems.length > 0" class="section">
+      <div v-if="addedEntries.length > 0" class="section">
         <h3>{{ localize('dialogs.relatedEntriesManagement.addedItems') }}</h3>
         <DataTable
-          :value="addedItems"
+          :value="addedRows"
           v-model:selection="selectedAddedItems"
+          data-key="uuid" 
           @update:selection="selectedAddedItems = $event"
           selection-mode="multiple"
           :meta-key-selection="false"
@@ -34,16 +35,16 @@
           <Column field="name" :header="localize('labels.fields.name')" style="width: 30%"></Column>
           <Column field="topicName" :header="localize('labels.fields.topic')" style="width: 25%"></Column>
           <Column field="type" :header="localize('labels.fields.type')" style="width: 25%"></Column>
-          <Column field="currentTopic" :header="localize('dialogs.relatedEntriesManagement.currentTopic')" style="width: 20%"></Column>
         </DataTable>
       </div>
 
       <!-- Removed Items Section -->
-      <div v-if="removedItems.length > 0" class="section">
+      <div v-if="removedEntries.length > 0" class="section">
         <h3>{{ localize('dialogs.relatedEntriesManagement.removedItems') }}</h3>
         <DataTable
-          :value="removedItems"
+          :value="removedRows"
           v-model:selection="selectedRemovedItems"
+          data-key="uuid" 
           @update:selection="selectedRemovedItems = $event"
           selection-mode="multiple"
           :meta-key-selection="false"
@@ -61,7 +62,6 @@
           <Column field="name" :header="localize('labels.fields.name')" style="width: 30%"></Column>
           <Column field="topicName" :header="localize('labels.fields.topic')" style="width: 25%"></Column>
           <Column field="type" :header="localize('labels.fields.type')" style="width: 25%"></Column>
-          <Column field="currentTopic" :header="localize('dialogs.relatedEntriesManagement.currentTopic')" style="width: 20%"></Column>
         </DataTable>
       </div>
     </div>
@@ -71,12 +71,9 @@
 <script setup lang="ts">
   // library imports
   import { ref, computed, watch } from 'vue';
-  import { storeToRefs } from 'pinia';
 
   // local imports
   import { localize } from '@/utils/game';
-  import { useMainStore, } from '@/applications/stores';
-  import { searchService } from '@/utils/search';
   import { Entry } from '@/classes';
   import { Topics, ValidTopic } from '@/types';
 
@@ -94,8 +91,6 @@
     topic: ValidTopic;
     topicName: string;
     type: string;
-    currentTopic: string;
-    isInRelatedEntries: boolean;
   }
 
   ////////////////////////////////
@@ -119,23 +114,41 @@
   // emits
   const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
-    (e: 'update', addedItems: string[], removedItems: string[]): void;
+    (e: 'update', addedItems: Entry[], removedItems: Entry[]): void;
   }>();
 
   ////////////////////////////////
   // store
-  const mainStore = useMainStore();
-  const { currentEntry } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
-  const addedItems = ref<RelatedItemInfo[]>([]);
-  const removedItems = ref<RelatedItemInfo[]>([]);
-  const selectedAddedItems = ref<RelatedItemInfo[]>([]);
-  const selectedRemovedItems = ref<RelatedItemInfo[]>([]);
+  const addedEntries = ref<Entry[]>([]);
+  const removedEntries = ref<Entry[]>([]);
+  const selectedAddedItems = ref<{ uuid: string }[]>([]);
+  const selectedRemovedItems = ref<{ uuid: string }[]>([]);
 
   ////////////////////////////////
   // computed data
+  const addedRows = computed(() => {
+    return addedEntries.value.map(item => ({
+      uuid: item.uuid,
+      name: item.name,
+      topic: item.topic,
+      topicName: getTopicName(item.topic),
+      type: item.type,
+    }));
+  });
+
+  const removedRows = computed(() => {
+    return removedEntries.value.map(item => ({
+      uuid: item.uuid,
+      name: item.name,
+      topic: item.topic,
+      topicName: getTopicName(item.topic),
+      type: item.type,
+    }));
+  });
+
   const show = computed({
     get: () => props.modelValue,
     set: (value: boolean) => emit('update:modelValue', value),
@@ -161,59 +174,14 @@
     return Topics[topic] || 'Unknown';
   };
 
-  const getCurrentTopicName = (): string => {
-    if (!currentEntry.value) return 'Unknown';
-    return getTopicName(currentEntry.value.topic);
-  };
-
-  const isEntityInRelatedEntries = async (uuid: string, topic: ValidTopic): Promise<boolean> => {
-    if (!currentEntry.value) return false;
-    
-    const relationships = currentEntry.value.relationships;
-    if (!relationships || !relationships[topic]) return false;
-    
-    return uuid in relationships[topic];
-  };
-
-  const loadItemInfo = async (uuids: string[]): Promise<RelatedItemInfo[]> => {
-    const items: RelatedItemInfo[] = [];
-    
-    for (const uuid of uuids) {
-      try {
-        // Try to get entity info from search service first
-        const searchEntities = searchService.getAllEntities();
-        const searchEntity = searchEntities.find(e => e.uuid === uuid);
-        
-        if (searchEntity && searchEntity.isEntry) {
-          // It's an entry, get full details
-          const entry = await Entry.fromUuid(uuid);
-          if (entry) {
-            const isInRelated = await isEntityInRelatedEntries(uuid, entry.topic);
-            items.push({
-              uuid,
-              name: entry.name,
-              topic: entry.topic,
-              topicName: getTopicName(entry.topic),
-              type: entry.type || '',
-              currentTopic: getCurrentTopicName(),
-              isInRelatedEntries: isInRelated,
-            });
-          }
-        }
-        // Note: We're only handling entries for now as specified in the requirements
-        // Could extend to handle other entity types (campaigns, sessions, etc.) later
-      } catch (error) {
-        console.warn(`Failed to load entity info for UUID ${uuid}:`, error);
-      }
-    }
-    
-    return items;
-  };
-
   ////////////////////////////////
   // event handlers
   const onUpdate = async () => {
-    emit('update', selectedAddedItems.value.map(item => item.uuid), selectedRemovedItems.value.map(item => item.uuid));
+    emit(
+      'update', 
+      addedEntries.value.filter((e) => selectedAddedItems.value.find((info) => info.uuid===e.uuid)), 
+      removedEntries.value.filter((e) => selectedRemovedItems.value.find((info) => info.uuid===e.uuid))
+    );
     show.value = false;
   };
 
@@ -223,23 +191,33 @@
 
   ////////////////////////////////
   // watchers
-  watch([() => props.addedIds, () => props.removedIds], async () => {
+  watch(() => props.addedIds, async () => {
     if (props.modelValue) {
-      // Load item information for added and removed UUIDs
-      const [loadedAddedItems, loadedRemovedItems] = await Promise.all([
-        loadItemInfo(props.addedIds),
-        loadItemInfo(props.removedIds),
-      ]);
+      addedEntries.value = [];
 
-      // Filter added items to only include those not already in related items
-      addedItems.value = loadedAddedItems.filter(item => !item.isInRelatedEntries);
+      for (const uuid of props.addedIds) {
+        const entry = await Entry.fromUuid(uuid);
+        if (entry)
+          addedEntries.value.push(entry);
+      }
       
-      // Filter removed items to only include those currently in related items
-      removedItems.value = loadedRemovedItems.filter(item => item.isInRelatedEntries);
+      // Select all items by default
+      selectedAddedItems.value = props.addedIds.map(id => ({ uuid: id }));
+    }
+  }, { immediate: true });
+
+  watch(() => props.removedIds, async () => {
+    if (props.modelValue) {
+      removedEntries.value = [];
+      
+      for (const uuid of props.removedIds) {
+        const entry = await Entry.fromUuid(uuid);
+        if (entry)
+          removedEntries.value.push(entry);
+      }
 
       // Select all items by default
-      selectedAddedItems.value = [...addedItems.value];
-      selectedRemovedItems.value = [...removedItems.value];
+      selectedRemovedItems.value = props.removedIds.map(id => ({ uuid: id }));
     }
   }, { immediate: true });
 
