@@ -159,7 +159,7 @@ async function createWorldRollTable(type: GeneratorType, folderId: string, world
   const table = await RollTable.create({
     name: tableName,
     folder: folderId,
-    description: `${localize('applications.rollTableSettings.tableDescription')}-${world.name}-${world.name}`,
+    description: `${localize('applications.rollTableSettings.tableDescription')}-${world.name}-${type}`,
     formula: `1d${TABLE_SIZE}`,
     replacement: false, // Don't replace drawn results
     displayRoll: false, // Don't display the roll publicly

@@ -83,7 +83,7 @@
   ////////////////////////////////
   // computed data
   const documentTypeName = computed(() => {
-    return props.documentType === 'actor' ? localize('dialogs.relatedDocuments.selectActors') : localize('dialogs.relatedDocuments.selectItems');
+    return props.documentType === 'actor' ? localize('labels.tabs.entry.actors') : localize('labels.tabs.entry.items');
   });
 
   const dialogTitle = computed(() => {

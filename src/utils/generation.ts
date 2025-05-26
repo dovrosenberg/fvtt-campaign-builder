@@ -149,9 +149,11 @@ export const generateImage = async (currentWorld: WBWorld, entry: Entry): Promis
       // refresh the current content, just in case
       await useMainStore().refreshCurrentContent();
     } else {
-      throw new Error('Failed to generate image: No image path returned');
+      throw new Error('No image path returned');
     }
   } catch (error) {
-    throw new Error(`Failed to generate image: ${(error as Error).message}`);
+    const message = `Failed to generate image: ${(error as Error).message}.`;
+    ui.notifications?.error(message);
+    throw new Error(message);
   } 
 };
