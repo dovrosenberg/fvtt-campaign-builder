@@ -153,8 +153,12 @@ class SearchService {
         const relatedItems = relationships[topic];
         
         for (const relatedId in relatedItems) {
+          // when we remove them, we set it to null, so we need to check for that
           const related = relatedItems[relatedId];
-          
+
+          if (!related)
+            continue;
+
           let relationSnippet = `${related.name}|`;
 
           // Add any extra fields

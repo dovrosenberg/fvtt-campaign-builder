@@ -4,4 +4,5 @@ dist/
 coverage/
 .tscout/
 .npmrc
+.cursor
 tsconfig.tsbuildinfo

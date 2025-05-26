@@ -54,6 +54,7 @@
   import { localize } from '@/utils/game';
   import { sanitizeHTML } from '@/utils/sanitizeHtml';
   import { replaceEntityReferences } from '@/utils/entityLinking';
+  import { extractUUIDs, compareUUIDs, } from '@/utils/uuidExtraction';
 
 
   // library components
@@ -119,6 +120,11 @@
       required: false,
       default: true,
     },
+    enableRelatedEntriesTracking: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   });
 
   ////////////////////////////////
@@ -126,6 +132,7 @@
   const emit = defineEmits<{
     (e: 'editorSaved', content: string): void;
     (e: 'editorLoaded', content: string): void;  // to catch any initial transforms of the data 
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
   }>();
 
   ////////////////////////////////
@@ -141,6 +148,7 @@
   const buttonDisplay = ref<string>('');   // is button currently visible
   const editorVisible = ref<boolean>(true);
   const lastSavedContent = ref<string>('');   // the parsemirror serialized content last saved, to see if any changes were made
+  const initialUUIDs = ref<string[]>([]);     // UUIDs present when editor was first loaded
 
   const coreEditorRef = ref<HTMLDivElement>();
   const editorRef = ref<HTMLDivElement>();
@@ -252,10 +260,21 @@
       }
     }
 
+    // Check for UUID changes if related items tracking is enabled
+    if (isDirty && props.enableRelatedEntriesTracking) {
+      const currentUUIDs = extractUUIDs(content);
+      const { added, removed } = compareUUIDs(initialUUIDs.value, currentUUIDs);
+      
+      if (added.length > 0 || removed.length > 0) {
+        // Emit the UUID changes for the parent component to handle
+        emit('relatedEntriesChanged', added, removed);
+      }
+    }
+
     // For edit-only mode (like in SessionNotes), don't destroy the editor
     if (remove && !editOnlyMode.value) {
       // this also blows up the DOM... don't think we actually need it
-      toRaw(editor.value).destroy();  
+      toRaw(editor.value)?.destroy();  
       editor.value = null;
 
       buttonDisplay.value = '';   // brings the button back
@@ -271,6 +290,11 @@
     
     if (isDirty) {
       lastSavedContent.value = content;
+      
+      if (props.enableRelatedEntriesTracking) {
+        initialUUIDs.value = [];
+      }
+      
       emit('editorSaved', content);
     }
   };
@@ -390,6 +414,11 @@
       
     enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
 
+    // Initialize UUIDs for tracking if enabled
+    if (props.enableRelatedEntriesTracking) {
+      initialUUIDs.value = extractUUIDs(props.initialContent || '');
+    }
+
     // if edit-only and no editor exists yet, activate it
     if (editOnlyMode.value && !editor.value) {
       await activateEditor();
@@ -428,6 +457,11 @@
 
     // show the pretty text
     enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
+
+    // Initialize UUIDs for tracking if enabled
+    if (props.enableRelatedEntriesTracking) {
+      initialUUIDs.value = extractUUIDs(props.initialContent || '');
+    }
 
     if (!props.hasButton) {
       void activateEditor();

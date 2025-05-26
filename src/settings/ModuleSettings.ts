@@ -13,7 +13,8 @@ export enum SettingKey {
   hideBackendWarning = 'hideBackendWarning', // don't show the warning about no backend
   defaultAddToSession = 'defaultAddToSession', // default state of "Add to current session" checkbox
   enableToDoList = 'enableToDoList', // whether the todo list feature is enabled
-
+  autoRelationships = 'autoRelationships', // whether to automatically suggest relationship changes based on editor
+  
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
@@ -45,6 +46,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.rootFolderId ? string :
     K extends SettingKey.groupTreeByType ? boolean :
     K extends SettingKey.isInPlayMode ? boolean :
+    K extends SettingKey.autoRelationships ? boolean :
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
@@ -162,6 +164,13 @@ export class ModuleSettings {
       settingID: SettingKey.enableToDoList,
       name: 'settings.enableToDoList',
       hint: 'settings.enableToDoListHelp',
+      default: true,
+      type: Boolean,
+    },
+    {
+      settingID: SettingKey.autoRelationships,
+      name: 'settings.autoRelationships',
+      hint: 'settings.autoRelationshipsHelp',
       default: true,
       type: Boolean,
     },

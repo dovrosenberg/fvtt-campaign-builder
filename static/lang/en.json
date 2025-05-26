@@ -40,7 +40,9 @@
       "hideBackendWarning": "Hide missing backend warning?",
       "hideBackendWarningHelp": "If you're not using the backend, this lets you turn off the notification that it's missing",
       "enableToDoList": "Enable ToDo List",
-      "enableToDoListHelp": "If disabled, the todo list feature will be turned off."
+      "enableToDoListHelp": "If disabled, the todo list feature will be turned off.",
+      "autoRelationships": "Auto-suggest relationships",
+      "autoRelationshipsHelp": "If enabled, the editor will automatically suggest changes to relationships between entries based changes made to the description."
     },
     "applications": {
       "sessionNotes": {
@@ -129,6 +131,8 @@
       "yes": "Yes",
       "no": "No",
       "close": "Close",
+      "update": "Update",
+      "noToAll": "No to All",
       "tableHeaders": {
         "actions": "Actions",
         "name": "Name",
@@ -156,6 +160,7 @@
         "otherPlotPoints": "Other Plot Points",
         "desiredMagicItems": "Desired Magic Items",
         "name": "Name",
+        "topic": "Topic",
         "species": "Species",
         "worldGenre": "Genre",
         "worldFeeling": "Setting Feeling",
@@ -367,6 +372,12 @@
         "selectItems": "Select Items",
         "addActor": "Add Actor",
         "addItem": "Add Item"
+      },
+      "relatedEntriesManagement": {
+        "title": "Manage Related Entries",
+        "description": "The following changes to related Entries were detected:",
+        "addedItems": "Entries to Add to related lists",
+        "removedItems": "Entries to Remove from related lists"
       },
       "contextMenus": {
         "cannotActivateFromCompendium": "Cannot activate from compendium",
