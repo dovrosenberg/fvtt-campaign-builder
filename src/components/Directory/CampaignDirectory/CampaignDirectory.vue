@@ -124,7 +124,7 @@
   .fcb-directory-compendium {
     .fcb-entry-item, .fcb-type-item {
       position: relative;
-      padding-left: 1em;
+      padding-left: 0.5em;
       cursor: pointer;
     }
 
