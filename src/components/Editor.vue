@@ -2,35 +2,39 @@
   <div
     :id="editorId"
     ref="wrapperRef"
-    class="fcb-editor"
+    class="fcb-editor-wrapper"
     :style="wrapperStyle"
-    @drop="onDrop"
-    @dragover="onDragover"
+  >
+    <!-- activation button positioned outside the scrolling area -->
+    <a
+      v-if="props.hasButton && props.editable"
+      ref="buttonRef"
+      class="editor-edit"
+      :style="`display: ${ buttonDisplay }`"
+      @click="activateEditor"
     >
-    <!-- this reproduces the Vue editor() Handlebars helper -->
-    <!-- editorVisible used to reset the DOM by toggling-->
+      <i class="fa-solid fa-edit"></i>
+    </a>
     <div
-      v-if="editorVisible"
-      ref="editorRef"
-      :class="'editor ' + props.class"
-      :style="innerStyle"
+      class="fcb-editor"
+      @drop="onDrop"
+      @dragover="onDragover"
     >
-      <!-- activation button -->
-      <a
-        v-if="props.hasButton && props.editable"
-        ref="buttonRef"
-        class="editor-edit"
-        :style="`display: ${ buttonDisplay }`"
-        @click="activateEditor"
-      >
-        <i class="fa-solid fa-edit"></i>
-      </a>
+      <!-- this reproduces the Vue editor() Handlebars helper -->
+      <!-- editorVisible used to reset the DOM by toggling-->
       <div
-        ref="coreEditorRef"
-        class="editor-content"
-        v-bind="datasetProperties"
-        v-html="safeEnrichedContent"
+        v-if="editorVisible"
+        ref="editorRef"
+        :class="'editor ' + props.class"
+        :style="innerStyle"
       >
+        <div
+          ref="coreEditorRef"
+          class="editor-content"
+          v-bind="datasetProperties"
+          v-html="safeEnrichedContent"
+        >
+        </div>
       </div>
     </div>
   </div>
@@ -410,48 +414,73 @@
 </script>
 
 <style lang="scss">
-  .fcb-editor {
+  .fcb-editor-wrapper {
     height: 100%;
     display: flex;
     flex: 1;
-    border: 1px solid var(--fcb-button-border-color);
-    overflow-y: auto !important;
-    border-radius: 4px;
-    font-family: var(--font-body);
-    font-size: var(--font-size-14);
-    font-weight: normal;
-    padding: 0;
-    background: var(--fcb-dark-overlay);
-    color: var(--color-dark-2);
+    position: relative;
 
-    .theme-dark & {
-      background: var(--fcb-light-overlay);
-      color: var(--color-light-2);
+    .editor-edit {
+      position: absolute;
+      z-index: 1000;
+      right: 12px;
+      top: 3px;
+      color: coral;
+      font-family: var(--font-body);
+      font-size: var(--font-size-14);
+      font-weight: normal;
+
+      &:hover {
+        color: green;
+        background: orange;
+        box-shadow: 0 0 5px red;
+      }
     }
 
-    &:focus-within {
-      border: 2px solid var(--color-warm-2);
-    }
-
-    &:disabled {
-      color: var(--color-dark-4);
+    .fcb-editor {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex: 1;
+      border: 1px solid var(--fcb-button-border-color);
+      overflow-y: auto !important;
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: var(--font-size-14);
+      font-weight: normal;
+      padding: 0;
+      background: var(--fcb-dark-overlay);
+      color: var(--color-dark-2);
 
       .theme-dark & {
-         background: var(--color-light-4);
+        background: var(--fcb-light-overlay);
+        color: var(--color-light-2);
       }
-    }
 
-    .prosemirror {
-      width: 100%;
-      
-      .editor-menu {
-        padding: 4px 0 4px 8px;
+      &:focus-within {
+        border: 2px solid var(--color-warm-2);
       }
-      .editor-container {
-        margin: 0px;
 
-        .editor-content {
-          padding: 0 8px 0 3px;
+      &:disabled {
+        color: var(--color-dark-4);
+
+        .theme-dark & {
+           background: var(--color-light-4);
+        }
+      }
+
+      .prosemirror {
+        width: 100%;
+        
+        .editor-menu {
+          padding: 4px 0 4px 8px;
+        }
+        .editor-container {
+          margin: 0px;
+
+          .editor-content {
+            padding: 0 8px 0 3px;
+          }
         }
       }
     }
