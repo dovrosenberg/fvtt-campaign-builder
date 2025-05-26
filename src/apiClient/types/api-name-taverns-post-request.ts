@@ -43,6 +43,6 @@ export interface ApiNameTavernsPostRequest {
      * @type {Array<string>}
      * @memberof ApiNameTavernsPostRequest
      */
-    'nameStyles': Array<string>;
+    'nameStyles'?: Array<string>;
 }
 

@@ -43,6 +43,6 @@ export interface ApiNameCharactersPostRequest {
      * @type {Array<string>}
      * @memberof ApiNameCharactersPostRequest
      */
-    'nameStyles': Array<string>;
+    'nameStyles'?: Array<string>;
 }
 

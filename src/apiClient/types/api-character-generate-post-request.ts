@@ -73,6 +73,6 @@ export interface ApiCharacterGeneratePostRequest {
      * @type {Array<string>}
      * @memberof ApiCharacterGeneratePostRequest
      */
-    'nameStyles': Array<string>;
+    'nameStyles'?: Array<string>;
 }
 

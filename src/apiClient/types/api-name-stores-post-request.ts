@@ -49,6 +49,6 @@ export interface ApiNameStoresPostRequest {
      * @type {Array<string>}
      * @memberof ApiNameStoresPostRequest
      */
-    'nameStyles': Array<string>;
+    'nameStyles'?: Array<string>;
 }
 

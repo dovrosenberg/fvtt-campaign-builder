@@ -97,6 +97,6 @@ export interface ApiLocationGeneratePostRequest {
      * @type {Array<string>}
      * @memberof ApiLocationGeneratePostRequest
      */
-    'nameStyles': Array<string>;
+    'nameStyles'?: Array<string>;
 }
 

@@ -97,6 +97,6 @@ export interface ApiOrganizationGeneratePostRequest {
      * @type {Array<string>}
      * @memberof ApiOrganizationGeneratePostRequest
      */
-    'nameStyles': Array<string>;
+    'nameStyles'?: Array<string>;
 }
 

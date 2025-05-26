@@ -43,6 +43,6 @@ export interface ApiNameTownsPostRequest {
      * @type {Array<string>}
      * @memberof ApiNameTownsPostRequest
      */
-    'nameStyles': Array<string>;
+    'nameStyles'?: Array<string>;
 }
 
