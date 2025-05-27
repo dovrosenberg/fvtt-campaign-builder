@@ -34,7 +34,7 @@
       "advancedHelp": "Erweiterte Einstellungen konfigurieren (einschließlich KI)",
       "speciesList": "Artenliste verwalten",
       "speciesListLabel": "Artenliste",
-      "speciesListHelp": "Definieren Sie die Arten, die verfügbar sein sollen. Diese gelten für alle Welten - melden Sie ein Problem, wenn Sie mehr verschiedene Listen pro Welt benötigen.",
+      "speciesListHelp": "Definieren Sie die verfügbaren Arten. Diese gelten für alle Einstellungen - melden Sie ein Problem, wenn Sie mehr unterschiedliche Listen pro Einstellung benötigen.",
       "hideBackendWarning": "Warnung über fehlendes Backend ausblenden?",
       "hideBackendWarningHelp": "Wenn Sie das Backend nicht verwenden, können Sie die Benachrichtigung deaktivieren, dass es fehlt",
       "defaultAddToSession": "Standardmäßig 'Zur aktuellen Sitzung hinzufügen'",
@@ -65,11 +65,11 @@
           "defaultToLongHint": "Steuert die Standardeinstellung für die Erstellung einer langen oder kurzen Beschreibung bei der KI-Generierung.",
           "useGmailToDos": "Gmail für Aufgaben verwenden",
           "useGmailToDosHint": "Wenn aktiviert, werden Aufgaben aus dem Gmail-Posteingang erstellt",
-          "emailDefaultWorld": "Standardwelt für E-Mail",
-          "emailDefaultWorldHint": "Die Welt, die standardmäßig für E-Mail-Funktionen verwendet wird (z. B. Aufgaben per E-Mail senden)",
+          "emailDefaultWorld": "Standardeinstellung für E-Mail",
+          "emailDefaultWorldHint": "Die Einstellung, die standardmäßig für E-Mail-Funktionen verwendet wird (z.B. E-Mail von Aufgaben)",
           "emailDefaultCampaign": "Standardkampagne für E-Mail",
           "emailDefaultCampaignHint": "Die Kampagne, die standardmäßig für E-Mail-Funktionen verwendet wird (z. B. Aufgaben per E-Mail senden)",
-          "selectWorld": "Wählen Sie eine Welt...",
+          "selectWorld": "Wählen Sie eine Einstellung...",
           "selectCampaign": "Wählen Sie eine Kampagne..."
         }
       },
@@ -117,7 +117,7 @@
       "use": "Verwenden",
       "useOnce": "Einmal verwenden",
       "tryAgain": "Erneut versuchen",
-      "addToWorld": "Zur Welt hinzufügen",
+      "addToWorld": "Zur Einstellung hinzufügen",
       "prep": "Vorbereiten",
       "play": "Spielen",
       "fields": {
@@ -131,7 +131,7 @@
         "desiredMagicItems": "Gewünschte magische Gegenstände",
         "species": "Art",
         "worldGenre": "Genre",
-        "worldFeeling": "Weltgefühl",
+        "worldFeeling": "Gefühl der Einstellung",
         "campaignDescription": "Kampagnenbeschreibung, Notizen, Ideen, etc...",
         "name": "Name",
         "briefDescription": "Kurze Beschreibung",
@@ -227,7 +227,7 @@
       "noResults": "Nichts hier",
       "loading": "Laden",
       "homePage": {
-        "createWorld": "Welt erstellen",
+        "createWorld": "Einstellung erstellen",
         "createCampaign": "Kampagne erstellen",
         "createCharacter": "Charakter erstellen",
         "createLocation": "Ort erstellen",
@@ -242,7 +242,7 @@
       "locationName": "Ortsname",
       "organizationName": "Organisationsname",
       "campaignName": "Kampagnenname",
-      "worldName": "Weltname",
+      "worldName": "Name der Einstellung",
       "sessionName": "Sitzungsname",
       "sessionDate": "Datum",
       "sessionNumber": "Sitzungsnummer",
@@ -290,8 +290,8 @@
         "sessionName": "Sitzungsname"
       },
       "createWorld": {
-        "title": "Welt erstellen",
-        "worldName": "Weltname"
+        "title": "Einstellung erstellen",
+        "worldName": "Name der Einstellung"
       },
       "createEntry": {
         "generatedName": "Generierter Name",
@@ -310,7 +310,7 @@
         "delete": "Lesezeichen löschen"
       },
       "worldFolder": {
-        "delete": "Welt löschen",
+        "delete": "Einstellung löschen",
         "createCampaign": "Kampagne erstellen"
       },
       "campaignsHeader": {
@@ -355,7 +355,7 @@
     },
     "tooltips": {
       "mainButton": "Kampagnen-Builder starten",
-      "createWorld": "Welt erstellen",
+      "createWorld": "Einstellung erstellen",
       "expandDirectory": "Verzeichnis erweitern",
       "collapseDirectory": "Verzeichnis einklappen",
       "collapseAllTopics": "Alle einklappen",
@@ -389,7 +389,7 @@
         "2": "Kampagne",
         "3": "Sitzung",
         "4": "PC",
-        "5": "Welt"
+        "5": "Einstellung"
       },
       "dragActorFromEntry": "In Szene ziehen",
       "addToASession": "Zu einer Sitzung hinzufügen",
@@ -399,7 +399,7 @@
         "type": "Wenn Sie einen neuen Typ erstellen, wird er zur Hauptliste hinzugefügt",
         "description": "Optional. Verwenden Sie es, um physische Merkmale oder Persönlichkeitseigenschaften anzugeben, die Sie einbeziehen möchten",
         "parent": "Kann in einigen Fällen den generierten Text beeinflussen",
-        "species": "Wenn leer, wird eine zufällige Spezies aus Ihrer Welt für die AI-Generierung verwendet. Benutzerdefinierte Einträge werden an die AI übergeben, aber nicht zu Ihrer Artenliste hinzugefügt",
+        "species": "Wenn leer, wird eine zufällige Art aus Ihrer Einstellung für die KI-Generierung verwendet. Benutzerdefinierte Einträge werden an die KI übergeben, aber nicht zu Ihrer Artenliste hinzugefügt",
         "longDescriptions": "Detaillierte Beschreibung oder kurze Zusammenfassung generieren?",
         "generateImage": "Nach der Erstellung ein neues Bild im Hintergrund generieren"
       },
@@ -415,7 +415,7 @@
         "successfulConnection": "Erfolgreich mit dem Campaign Builder-Backend verbunden.",
         "failedConnection": "Verbindung zum Backend fehlgeschlagen - überprüfen Sie Ihre \"erweiterten\" Einstellungen, um sicherzustellen, dass sie korrekt mit dem bereitgestellten Backend-Server übereinstimmen. Sie können in der Zwischenzeit keine erweiterten Funktionen verwenden.",
         "versionMismatch": "Die Version Ihres World & Campaign Builder-Backends ($1) stimmt nicht mit der von der installierten Modulversion benötigten Version ($2) überein. Bitte aktualisieren Sie eines von beiden (oder beide). Sie können in der Zwischenzeit keine erweiterten Funktionen verwenden.",
-        "emailSettingsNotSet": "Sie haben die E-Mail-Aufgabenlistenfunktion aktiviert, aber Sie haben keine Standardwelt oder Kampagne festgelegt. Bitte legen Sie diese in den erweiterten Einstellungen fest."
+        "emailSettingsNotSet": "Sie haben die E-Mail-Aufgabenlistenfunktion aktiviert, aber Sie haben keine Standard-Einstellung oder Kampagne festgelegt. Bitte legen Sie diese in den erweiterten Einstellungen fest."
       },
       "addedToSession": "zur Sitzung hinzugefügt",
       "changesSaved": "Änderungen gespeichert"

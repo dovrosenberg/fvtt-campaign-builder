@@ -34,7 +34,7 @@
       "advancedHelp": "Configurer les paramètres avancés (y compris l'IA)",
       "speciesList": "Gérer la Liste des Espèces",
       "speciesListLabel": "Liste des Espèces",
-      "speciesListHelp": "Définir les espèces à rendre disponibles. Celles-ci traversent tous les mondes - déposez un problème si vous avez besoin de listes différentes par monde.",
+      "speciesListHelp": "Définissez les espèces à rendre disponibles. Cela concerne tous les Paramètres - signalez un problème si vous avez besoin de listes différentes par Paramètre.",
       "hideBackendWarning": "Masquer l'avertissement de backend manquant ?",
       "hideBackendWarningHelp": "Si vous n'utilisez pas le backend, cela vous permet de désactiver la notification indiquant qu'il est manquant",
       "defaultAddToSession": "Par défaut 'Ajouter à la session en cours'",
@@ -65,11 +65,11 @@
           "defaultToLongHint": "Contrôle le paramètre par défaut pour créer une description longue ou courte lors de la génération par IA.",
           "useGmailToDos": "Utiliser Gmail pour les tâches",
           "useGmailToDosHint": "Lorsqu'elle est activée, les éléments à faire seront créés à partir de la boîte de réception Gmail",
-          "emailDefaultWorld": "Monde par défaut pour l'email",
-          "emailDefaultWorldHint": "Le monde à utiliser par défaut pour les fonctionnalités d'email (ex. envoyer des éléments à faire par email)",
+          "emailDefaultWorld": "Paramètre par défaut pour l'email",
+          "emailDefaultWorldHint": "Le Paramètre à utiliser par défaut pour les fonctionnalités d'email (ex. envoi de tâches par email)",
           "emailDefaultCampaign": "Campagne par défaut pour l'email",
           "emailDefaultCampaignHint": "La campagne à utiliser par défaut pour les fonctionnalités d'email (ex. envoyer des éléments à faire par email)",
-          "selectWorld": "Sélectionnez un monde...",
+          "selectWorld": "Sélectionnez un paramètre...",
           "selectCampaign": "Sélectionnez une campagne..."
         }
       },
@@ -117,7 +117,7 @@
       "use": "Utiliser",
       "useOnce": "Utiliser une fois",
       "tryAgain": "Réessayer",
-      "addToWorld": "Ajouter au monde",
+      "addToWorld": "Ajouter au Paramètre",
       "prep": "Préparer",
       "play": "Jouer",
       "fields": {
@@ -131,7 +131,7 @@
         "desiredMagicItems": "Objets Magiques Désirés",
         "species": "Espèces",
         "worldGenre": "Genre",
-        "worldFeeling": "Ambiance du Monde",
+        "worldFeeling": "Sentiment du Paramètre",
         "campaignDescription": "Description de la campagne, notes, idées, etc...",
         "name": "Nom",
         "briefDescription": "Brève description",
@@ -227,7 +227,7 @@
       "noResults": "Rien ici",
       "loading": "Chargement",
       "homePage": {
-        "createWorld": "Créer un monde",
+        "createWorld": "Créer un Paramètre",
         "createCampaign": "Créer une campagne",
         "createCharacter": "Créer un personnage",
         "createLocation": "Créer un lieu",
@@ -242,7 +242,7 @@
       "locationName": "Nom du Lieu",
       "organizationName": "Nom de l'Organisation",
       "campaignName": "Nom de la Campagne",
-      "worldName": "Nom du Monde",
+      "worldName": "Nom du Paramètre",
       "sessionName": "Nom de la Session",
       "sessionDate": "Date",
       "sessionNumber": "Numéro de Session",
@@ -290,8 +290,8 @@
         "sessionName": "Nom de la Session"
       },
       "createWorld": {
-        "title": "Créer un Monde",
-        "worldName": "Nom du Monde"
+        "title": "Créer un Paramètre",
+        "worldName": "Nom du Paramètre"
       },
       "createEntry": {
         "generatedName": "Nom généré",
@@ -310,7 +310,7 @@
         "delete": "Supprimer le favori"
       },
       "worldFolder": {
-        "delete": "Supprimer le monde",
+        "delete": "Supprimer le Paramètre",
         "createCampaign": "Créer une campagne"
       },
       "campaignsHeader": {
@@ -355,7 +355,7 @@
     },
     "tooltips": {
       "mainButton": "Lancer le Créateur de Campagne",
-      "createWorld": "Créer un monde",
+      "createWorld": "Créer un Paramètre",
       "expandDirectory": "Développer le répertoire",
       "collapseDirectory": "Réduire le répertoire",
       "collapseAllTopics": "Réduire tout",
@@ -389,7 +389,7 @@
         "2": "Campagne",
         "3": "Session",
         "4": "PJ",
-        "5": "Monde"
+        "5": "Paramètre"
       },
       "dragActorFromEntry": "Glisser vers la scène",
       "addToASession": "Ajouter à une session",
@@ -399,7 +399,7 @@
         "type": "Si vous créez un nouveau type, il sera ajouté à la liste principale",
         "description": "Facultatif. Utilisez pour spécifier les caractéristiques physiques ou traits de personnalité que vous souhaitez inclure",
         "parent": "Peut influencer le texte généré dans certains cas",
-        "species": "Si vide, une espèce aléatoire de votre monde sera utilisée pour la génération AI. Les entrées personnalisées seront transmises à l'AI mais ne seront pas ajoutées à votre liste d'espèces",
+        "species": "Si vide, une espèce aléatoire de votre Paramètre sera utilisée pour la génération par IA. Les entrées personnalisées seront transmises à l'IA mais ne seront pas ajoutées à votre liste d'espèces",
         "longDescriptions": "Générer une description détaillée ou un court résumé ?",
         "generateImage": "Générer une nouvelle image en arrière-plan après la création"
       },
@@ -415,7 +415,7 @@
         "successfulConnection": "Connexion réussie au backend de Campaign Builder.",
         "failedConnection": "Échec de la connexion au backend - vérifiez vos paramètres \"avancés\" pour vous assurer qu'ils correspondent correctement au serveur backend que vous avez déployé. Vous ne pourrez pas utiliser les fonctionnalités avancées entre-temps.",
         "versionMismatch": "La version de votre backend World & Campaign Builder ($1) ne correspond pas à la version requise par la version du module que vous avez installée ($2). Veuillez mettre à jour l'un ou l'autre (ou les deux). Vous ne pourrez pas utiliser les fonctionnalités avancées entre-temps.",
-        "emailSettingsNotSet": "Vous avez activé la fonctionnalité de liste de tâches par email, mais vous n'avez pas défini de monde ou de campagne par défaut. Veuillez les définir dans les paramètres avancés."
+        "emailSettingsNotSet": "Vous avez activé la fonctionnalité de liste de tâches par email, mais vous n'avez pas défini de Paramètre ou de Campagne par défaut. Veuillez les définir dans les paramètres avancés."
       },
       "addedToSession": "ajouté à la session",
       "changesSaved": "modifications enregistrées"
