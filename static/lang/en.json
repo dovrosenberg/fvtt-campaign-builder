@@ -375,9 +375,8 @@
       },
       "relatedEntriesManagement": {
         "title": "Manage Related Entries",
-        "description": "The following changes to related Entries were detected:",
-        "addedItems": "Entries to Add to related lists",
-        "removedItems": "Entries to Remove from related lists"
+        "addedItems": "Add relationships to these?",
+        "removedItems": "Remove relationships from these?"
       },
       "contextMenus": {
         "cannotActivateFromCompendium": "Cannot activate from compendium",
