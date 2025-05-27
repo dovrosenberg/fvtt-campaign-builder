@@ -90,7 +90,7 @@
         </div>
 
         <h6>
-          {{ Backend.available ? localize('labels.fields.briefDescription') : localize('labels.fields.description') }}
+          {{ Backend.available ? localize('labels.fields.startingDescription') : localize('labels.fields.description') }}
           <i
             v-if="Backend.available" 
             class="fas fa-info-circle tooltip-icon" 
@@ -283,7 +283,7 @@
   // data
   const name = ref<string>(props.initialName);
   const type = ref<string>(props.initialType);
-  const briefDescription = ref<string>('');
+  const startingDescription = ref<string>('');
   const generatedName = ref<string>('');
   const generatedDescription = ref<string>('');
   const generateComplete = ref<boolean>(false);
@@ -377,7 +377,7 @@
           species: speciesName.value,
           speciesDescription: speciesDescription,
           name: name.value,
-          briefDescription: briefDescription.value,
+          briefDescription: startingDescription.value,
           createLongDescription: longDescriptions.value,
           nameStyles: selectedNameStyles.value,
         });
@@ -385,8 +385,10 @@
         generatedName.value = result.data.name;
         generatedDescription.value = result.data.description;
         
-        // also fill into the name block
-        name.value = result.data.name;
+        // only fill into the name block if user hasn't entered a name
+        if (!name.value || name.value.trim() === '') {
+          name.value = result.data.name;
+        }
 
         // apply the species here if needed - we don't do it above because it makes the species show up before the
         //    generation happens, which looks weird
@@ -426,7 +428,7 @@
           grandparentType: grandparent?.type || '',
           grandparentDescription: grandparent?.description || '',
           name: name.value,
-          briefDescription: briefDescription.value,
+          briefDescription: startingDescription.value,
           createLongDescription: longDescriptions.value,
           nameStyles: selectedNameStyles.value,
         };
@@ -440,8 +442,10 @@
         generatedName.value = result.data.name;
         generatedDescription.value = result.data.description;
 
-        // also fill into the name block
-        name.value = result.data.name;
+        // only fill into the name block if user hasn't entered a name
+        if (!name.value || name.value.trim() === '') {
+          name.value = result.data.name;
+        }
       } catch (error) {
         generateError.value = (error as Error).message;
         generateComplete.value = true;
@@ -473,7 +477,7 @@
       details = {
         name: generateComplete.value ? generatedName.value : name.value,
         type: type.value,
-        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
+        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : startingDescription.value,
         speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
         generateImage: generateImageAfterAccept.value
       }
@@ -482,7 +486,7 @@
         name: generateComplete.value ? generatedName.value : name.value,
         type: type.value,
         parentId: parentId.value,
-        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : briefDescription.value,
+        description: generateComplete.value ? generatedTextToHTML(generatedDescription.value) : startingDescription.value,
         generateImage: generateImageAfterAccept.value
       }
     }
@@ -544,7 +548,7 @@
     }
   });
   watch(() => props.initialDescription, (newValue) => {
-    briefDescription.value = htmlToPlainText(newValue);
+    startingDescription.value = htmlToPlainText(newValue);
   });
 
   ////////////////////////////////
@@ -572,7 +576,7 @@
     }
 
     longDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
-    briefDescription.value = htmlToPlainText(props.initialDescription);
+    startingDescription.value = htmlToPlainText(props.initialDescription);
     generateComplete.value = false;
     generateError.value = '';
     loading.value = false;

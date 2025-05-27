@@ -166,7 +166,7 @@
         "worldFeeling": "Setting Feeling",
         "campaignDescription": "Campaign description, notes, ideas, etc...",
         "campaignHouseRules": "House rules",
-        "briefDescription": "Brief description",
+        "startingDescription": "Starting description",
         "description": "Description",
         "longDescriptions": "Generate long descriptions",
         "generateImage": "Generate Image",
