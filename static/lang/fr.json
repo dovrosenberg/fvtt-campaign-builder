@@ -40,7 +40,9 @@
       "defaultAddToSession": "Par défaut 'Ajouter à la session en cours'",
       "defaultAddToSessionHelp": "En mode lecture, la case à cocher lors de la création d'une entrée doit-elle être activée ou désactivée par défaut ?",
       "enableToDoList": "Activer la liste de tâches",
-      "enableToDoListHelp": "Si désactivé, la fonctionnalité de liste de tâches sera désactivée."
+      "enableToDoListHelp": "Si désactivé, la fonctionnalité de liste de tâches sera désactivée.",
+      "autoRelationships": "Suggérer automatiquement des relations",
+      "autoRelationshipsHelp": "Si activé, l'éditeur suggérera automatiquement des modifications aux relations entre les entrées en fonction des changements apportés à la description."
     },
     "applications": {
       "sessionNotes": {
@@ -80,6 +82,10 @@
         "labels": {
           "refreshAll": "Rafraîchir toutes les tables",
           "refreshAllHelp": "Remplacer tous les éléments utilisés par de nouveaux"
+        },
+        "notifications": {
+          "refreshSuccess": "Tables de lancer rafraîchies avec succès",
+          "refreshError": "Échec du rafraîchissement des tables de lancer. Vérifiez la console pour plus de détails."
         }
       },
       "createEntry": {
@@ -140,7 +146,8 @@
         "description": "Description",
         "campaign": "Campagne",
         "campaignHouseRules": "Règles de maison",
-        "addToCurrentSession": "Ajouter à la session en cours"
+        "addToCurrentSession": "Ajouter à la session en cours",
+        "topic": "Sujet"
       },
       "addTopic": {
         "character": "Ajouter un Personnage",
@@ -232,6 +239,22 @@
         "createCharacter": "Créer un personnage",
         "createLocation": "Créer un lieu",
         "createOrganization": "Créer une organisation"
+      },
+      "save": "Enregistrer",
+      "ok": "OK",
+      "yes": "Oui",
+      "no": "Non",
+      "close": "Fermer",
+      "update": "Mettre à jour",
+      "noToAll": "Non à tout",
+      "tableHeaders": {
+        "actions": "Actions",
+        "name": "Nom",
+        "location": "Emplacement"
+      },
+      "locations": {
+        "compendium": "Compendium",
+        "setting": "Paramètre"
       }
     },
     "placeholders": {
@@ -302,6 +325,53 @@
       "addToDo": {
         "title": "Ajouter une tâche",
         "text": "Entrez le texte de la tâche :"
+      },
+      "configureNames": {
+        "title": "Configurer les styles de nom",
+        "description": "Sélectionnez les styles de nommage que vous souhaitez utiliser pour les noms générés par l'IA dans ce paramètre. Vous pouvez prévisualiser des exemples de chaque style ci-dessous, basés sur le genre et l'ambiance de ce paramètre.",
+        "errorMessage": "Il y a eu une erreur :"
+      },
+      "relatedItems": {
+        "additionalInformation": "Informations supplémentaires",
+        "allItemsConnected": "Tous les éléments possibles liés sont déjà connectés.",
+        "character": {
+          "title": "Ajouter un personnage",
+          "editTitle": "Modifier le personnage",
+          "createButtonTitle": "Créer un personnage",
+          "buttonTitle": "Ajouter une relation",
+          "editButtonTitle": "Enregistrer le personnage"
+        },
+        "location": {
+          "title": "Ajouter un emplacement",
+          "editTitle": "Modifier l'emplacement",
+          "createButtonTitle": "Créer un emplacement",
+          "buttonTitle": "Ajouter une relation",
+          "editButtonTitle": "Enregistrer l'emplacement"
+        },
+        "organization": {
+          "title": "Ajouter une organisation",
+          "editTitle": "Modifier l'organisation",
+          "createButtonTitle": "Créer une organisation",
+          "buttonTitle": "Ajouter une relation",
+          "editButtonTitle": "Enregistrer l'organisation"
+        },
+        "addToSession": "Ajouter à la session"
+      },
+      "relatedDocuments": {
+        "selectActors": "Sélectionner les acteurs",
+        "selectItems": "Sélectionner les éléments",
+        "addActor": "Ajouter un acteur",
+        "addItem": "Ajouter un élément"
+      },
+      "relatedEntriesManagement": {
+        "title": "Gérer les entrées liées",
+        "addedItems": "Ajouter des relations à ceux-ci ?",
+        "removedItems": "Supprimer les relations de ceux-ci ?"
+      },
+      "contextMenus": {
+        "cannotActivateFromCompendium": "Impossible d'activer depuis le compendium",
+        "cannotToggleNavigationFromCompendium": "Impossible de basculer la navigation depuis une scène dans un compendium",
+        "cannotToggleNavigationWhileActive": "Impossible de basculer la navigation pendant que la scène est active"
       }
     },
     "contextMenus": {
@@ -347,7 +417,8 @@
       "generate": {
         "description": "Générer une description",
         "image": "Générer une image",
-        "inProgress": "en cours"
+        "inProgress": "en cours",
+        "configureNames": "Configurer les noms"
       },
       "tabs": {
         "closeAll": "Fermer tous les onglets"
@@ -405,7 +476,8 @@
       },
       "moveToCampaign": "Déplacer vers la campagne pour une utilisation ultérieure",
       "addToCampaign": "Ajouter à la campagne",
-      "deleteToDo": "Compléter l'élément à faire"
+      "deleteToDo": "Compléter l'élément à faire",
+      "worldGenerateContent": "Gérer les paramètres de génération du monde"
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori"
