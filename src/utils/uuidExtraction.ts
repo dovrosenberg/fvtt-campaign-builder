@@ -53,7 +53,7 @@ export function compareUUIDs(originalUUIDs: string[], newUUIDs: string[]): {
 /** for a list of added and removed UUIDs, return a list of ones that are not/are already 
  *  in the current entry's related entries
  */
-export function getRelatedEntries(addedUUIDs: string[], removedUUIDs: string[], currentEntry: Entry): { added: string[], removed: string[]} {
+export async function getRelatedEntries(addedUUIDs: string[], removedUUIDs: string[], currentEntry: Entry): { added: string[], removed: string[]} {
   // collapse the topics to a single object keyed by UUID to make easier
   const relatedEntries = Object.values(currentEntry.relationships).reduce((acc, topic) => {
     Object.values(topic).forEach(details => {
@@ -62,7 +62,13 @@ export function getRelatedEntries(addedUUIDs: string[], removedUUIDs: string[], 
     return acc;
   }, {} as Record<string, RelatedItemDetails<any, any>>);
 
-  const added = addedUUIDs.filter(uuid => !relatedEntries[uuid]);
-  const removed = removedUUIDs.filter(uuid => relatedEntries[uuid]);
+  // also remove ourself (just in case) and our parent (because that seems like a common
+  // thing you'd type but not want to connect since you can see it right there anyway and
+  // it's indexed to search so there's no reason to connect to it)
+  const world = await currentEntry.getWorld();
+  const parentId = world.getEntryHierarchy(currentEntry.uuid)?.parentId || null;
+
+  const added = addedUUIDs.filter(uuid => !relatedEntries[uuid] && ![currentEntry.uuid, parentId].includes(uuid));
+  const removed = removedUUIDs.filter(uuid => relatedEntries[uuid] && ![currentEntry.uuid, parentId].includes(uuid));
   return { added, removed };
 }

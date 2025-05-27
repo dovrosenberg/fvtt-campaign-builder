@@ -569,7 +569,7 @@
     }
 
     // check against current relationships
-    const { added, removed } = getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
+    const { added, removed } = await getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
 
     // Store the pending changes and show dialog if there are any changes
     if (added.length > 0 || removed.length > 0) {
