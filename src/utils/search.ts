@@ -153,8 +153,12 @@ class SearchService {
         const relatedItems = relationships[topic];
         
         for (const relatedId in relatedItems) {
+          // when we remove them, we set it to null, so we need to check for that
           const related = relatedItems[relatedId];
-          
+
+          if (!related)
+            continue;
+
           let relationSnippet = `${related.name}|`;
 
           // Add any extra fields
@@ -315,6 +319,54 @@ class SearchService {
     // Remove from the index
     if (this.searchIndex.has(uuid))
       this.searchIndex.discard(uuid);
+  }
+
+  /**
+   * Gets all entities from the search index, excluding duplicates by name
+   * @returns Array of all searchable entities with unique names
+   */
+  public getAllEntities(): {name: string, uuid: string, isEntry: boolean}[] {
+    if (!this.initialized || !this.searchIndex) {
+      return [];
+    }
+
+    // Get all documents from the search index using MiniSearch wildcard
+    const MiniSearch = this.searchIndex.constructor as any;
+    const allDocuments = this.searchIndex.documentCount > 0 
+      ? this.searchIndex.search(MiniSearch.wildcard)
+      : [];
+
+    // Track names to detect duplicates
+    const nameCount = new Map<string, number>();
+    const entityMap = new Map<string, {name: string, uuid: string, isEntry: boolean}>();
+    
+    // First pass: count occurrences of each name
+    for (const doc of allDocuments) {
+      const count = nameCount.get(doc.name) || 0;
+      nameCount.set(doc.name, count + 1);
+    }
+    
+    // Second pass: only include entities with unique names
+    for (const doc of allDocuments) {
+      // Skip if there are multiple entities with the same name
+      if (nameCount.get(doc.name)! > 1) {
+        continue;
+      }
+      
+      const existing = entityMap.get(doc.name);
+      
+      // Add if not exists, or replace if current is an entry and existing is not
+      if (!existing || (doc.isEntry && !existing.isEntry)) {
+        entityMap.set(doc.name, {
+          uuid: doc.id,
+          name: doc.name,
+          isEntry: doc.isEntry,
+        });
+      }
+    }
+
+    // Convert Map values to array
+    return Array.from(entityMap.values());
   }
 }
 

@@ -2,35 +2,39 @@
   <div
     :id="editorId"
     ref="wrapperRef"
-    class="fcb-editor"
+    class="fcb-editor-wrapper"
     :style="wrapperStyle"
-    @drop="onDrop"
-    @dragover="onDragover"
+  >
+    <!-- activation button positioned outside the scrolling area -->
+    <a
+      v-if="props.hasButton && props.editable"
+      ref="buttonRef"
+      class="editor-edit"
+      :style="`display: ${ buttonDisplay }`"
+      @click="activateEditor"
     >
-    <!-- this reproduces the Vue editor() Handlebars helper -->
-    <!-- editorVisible used to reset the DOM by toggling-->
+      <i class="fa-solid fa-edit"></i>
+    </a>
     <div
-      v-if="editorVisible"
-      ref="editorRef"
-      :class="'editor ' + props.class"
-      :style="innerStyle"
+      class="fcb-editor"
+      @drop="onDrop"
+      @dragover="onDragover"
     >
-      <!-- activation button -->
-      <a
-        v-if="props.hasButton && props.editable"
-        ref="buttonRef"
-        class="editor-edit"
-        :style="`display: ${ buttonDisplay }`"
-        @click="activateEditor"
-      >
-        <i class="fa-solid fa-edit"></i>
-      </a>
+      <!-- this reproduces the Vue editor() Handlebars helper -->
+      <!-- editorVisible used to reset the DOM by toggling-->
       <div
-        ref="coreEditorRef"
-        class="editor-content"
-        v-bind="datasetProperties"
-        v-html="safeEnrichedContent"
+        v-if="editorVisible"
+        ref="editorRef"
+        :class="'editor ' + props.class"
+        :style="innerStyle"
       >
+        <div
+          ref="coreEditorRef"
+          class="editor-content"
+          v-bind="datasetProperties"
+          v-html="safeEnrichedContent"
+        >
+        </div>
       </div>
     </div>
   </div>
@@ -49,6 +53,8 @@
   import { notifyInfo } from '@/utils/notifications';
   import { localize } from '@/utils/game';
   import { sanitizeHTML } from '@/utils/sanitizeHtml';
+  import { replaceEntityReferences } from '@/utils/entityLinking';
+  import { extractUUIDs, compareUUIDs, } from '@/utils/uuidExtraction';
 
 
   // library components
@@ -104,6 +110,21 @@
       required: false,
       default: null,
     },
+    currentEntityUuid: {
+      type: String,
+      required: false,
+      default: undefined,
+    },
+    enableEntityLinking: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    enableRelatedEntriesTracking: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   });
 
   ////////////////////////////////
@@ -111,6 +132,7 @@
   const emit = defineEmits<{
     (e: 'editorSaved', content: string): void;
     (e: 'editorLoaded', content: string): void;  // to catch any initial transforms of the data 
+    (e: 'relatedEntriesChanged', addedUUIDs: string[], removedUUIDs: string[]): void;
   }>();
 
   ////////////////////////////////
@@ -126,6 +148,7 @@
   const buttonDisplay = ref<string>('');   // is button currently visible
   const editorVisible = ref<boolean>(true);
   const lastSavedContent = ref<string>('');   // the parsemirror serialized content last saved, to see if any changes were made
+  const initialUUIDs = ref<string[]>([]);     // UUIDs present when editor was first loaded
 
   const coreEditorRef = ref<HTMLDivElement>();
   const editorRef = ref<HTMLDivElement>();
@@ -225,10 +248,33 @@
     // see if dirty
     const isDirty = (lastSavedContent.value !== ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content));
 
+    // Apply entity linking if enabled and content is dirty
+    if (isDirty && props.enableEntityLinking && currentWorld.value) {
+      try {
+        content = await replaceEntityReferences(content, currentWorld.value, {
+          currentEntityUuid: props.currentEntityUuid
+        });
+      } catch (error) {
+        console.error('Failed to apply entity linking:', error);
+        // Continue with original content if entity linking fails
+      }
+    }
+
+    // Check for UUID changes if related items tracking is enabled
+    if (isDirty && props.enableRelatedEntriesTracking) {
+      const currentUUIDs = extractUUIDs(content);
+      const { added, removed } = compareUUIDs(initialUUIDs.value, currentUUIDs);
+      
+      if (added.length > 0 || removed.length > 0) {
+        // Emit the UUID changes for the parent component to handle
+        emit('relatedEntriesChanged', added, removed);
+      }
+    }
+
     // For edit-only mode (like in SessionNotes), don't destroy the editor
     if (remove && !editOnlyMode.value) {
       // this also blows up the DOM... don't think we actually need it
-      toRaw(editor.value).destroy();  
+      toRaw(editor.value)?.destroy();  
       editor.value = null;
 
       buttonDisplay.value = '';   // brings the button back
@@ -244,6 +290,11 @@
     
     if (isDirty) {
       lastSavedContent.value = content;
+      
+      if (props.enableRelatedEntriesTracking) {
+        initialUUIDs.value = [];
+      }
+      
       emit('editorSaved', content);
     }
   };
@@ -363,6 +414,11 @@
       
     enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
 
+    // Initialize UUIDs for tracking if enabled
+    if (props.enableRelatedEntriesTracking) {
+      initialUUIDs.value = extractUUIDs(props.initialContent || '');
+    }
+
     // if edit-only and no editor exists yet, activate it
     if (editOnlyMode.value && !editor.value) {
       await activateEditor();
@@ -402,6 +458,11 @@
     // show the pretty text
     enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
 
+    // Initialize UUIDs for tracking if enabled
+    if (props.enableRelatedEntriesTracking) {
+      initialUUIDs.value = extractUUIDs(props.initialContent || '');
+    }
+
     if (!props.hasButton) {
       void activateEditor();
     }
@@ -410,48 +471,73 @@
 </script>
 
 <style lang="scss">
-  .fcb-editor {
+  .fcb-editor-wrapper {
     height: 100%;
     display: flex;
     flex: 1;
-    border: 1px solid var(--fcb-button-border-color);
-    overflow-y: auto !important;
-    border-radius: 4px;
-    font-family: var(--font-body);
-    font-size: var(--font-size-14);
-    font-weight: normal;
-    padding: 0;
-    background: var(--fcb-dark-overlay);
-    color: var(--color-dark-2);
+    position: relative;
 
-    .theme-dark & {
-      background: var(--fcb-light-overlay);
-      color: var(--color-light-2);
+    .editor-edit {
+      position: absolute;
+      z-index: 1000;
+      right: 12px;
+      top: 3px;
+      color: coral;
+      font-family: var(--font-body);
+      font-size: var(--font-size-14);
+      font-weight: normal;
+
+      &:hover {
+        color: green;
+        background: orange;
+        box-shadow: 0 0 5px red;
+      }
     }
 
-    &:focus-within {
-      border: 2px solid var(--color-warm-2);
-    }
-
-    &:disabled {
-      color: var(--color-dark-4);
+    .fcb-editor {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex: 1;
+      border: 1px solid var(--fcb-button-border-color);
+      overflow-y: auto !important;
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: var(--font-size-14);
+      font-weight: normal;
+      padding: 0;
+      background: var(--fcb-dark-overlay);
+      color: var(--color-dark-2);
 
       .theme-dark & {
-         background: var(--color-light-4);
+        background: var(--fcb-light-overlay);
+        color: var(--color-light-2);
       }
-    }
 
-    .prosemirror {
-      width: 100%;
-      
-      .editor-menu {
-        padding: 4px 0 4px 8px;
+      &:focus-within {
+        border: 2px solid var(--color-warm-2);
       }
-      .editor-container {
-        margin: 0px;
 
-        .editor-content {
-          padding: 0 8px 0 3px;
+      &:disabled {
+        color: var(--color-dark-4);
+
+        .theme-dark & {
+           background: var(--color-light-4);
+        }
+      }
+
+      .prosemirror {
+        width: 100%;
+        
+        .editor-menu {
+          padding: 4px 0 4px 8px;
+        }
+        .editor-container {
+          margin: 0px;
+
+          .editor-content {
+            padding: 0 8px 0 3px;
+          }
         }
       }
     }

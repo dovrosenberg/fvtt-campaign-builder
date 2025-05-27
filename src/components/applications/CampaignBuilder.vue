@@ -50,7 +50,6 @@
   import { SettingKey, ModuleSettings, } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { initializeRollTables } from '@/utils/nameGenerators';
   import { updateWindowTitle } from '@/utils/titleUpdater';
   import { theme } from '@/components/styles/primeVue';
 
@@ -162,7 +161,7 @@
       const worldCompendium = currentWorld.value.compendium || null;
 
       if (!worldCompendium)
-        throw new Error(`Could not find compendium for world ${worldId} in CampaignBuilder.onMounted()`);
+        throw new Error(`Could not find compendium for world ${worldId} in CampaignBuilder.currentWorld watch`);
 
       const topicIds = currentWorld.value.topicIds;
       const campaignNames = currentWorld.value.campaignNames;
@@ -306,9 +305,6 @@
 
       rootFolder.value = folders.rootFolder;
       mainStore.setNewWorld(folders.world.uuid);
-
-      // initialize roll tables
-      await initializeRollTables();
 
       // Check if backend is available and show warning if not
       if (!Backend.available) {

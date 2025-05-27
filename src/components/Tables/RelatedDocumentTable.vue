@@ -105,7 +105,7 @@
         uuid: item.uuid, 
         name: item.name, 
         packId: item.packId, 
-        location: item.packId ? `Compendium: ${item.packName}` : 'Setting',
+        location: item.packId ? `${localize('labels.locations.compendium')}: ${item.packName}` : localize('labels.locations.setting'),
       };
 
       // Add dragTooltip for actors
@@ -122,9 +122,9 @@
 
   const columns = computed((): any[] => {
     // for now, just action and name
-    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
-    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick }; 
-    const locationColumn = { field: 'location', style: 'text-align: left', header: 'Location', sortable: true }; 
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: localize('labels.tableHeaders.actions') };
+    const nameColumn = { field: 'name', style: 'text-align: left', header: localize('labels.tableHeaders.name'), sortable: true, onClick: onNameClick }; 
+    const locationColumn = { field: 'location', style: 'text-align: left', header: localize('labels.tableHeaders.location'), sortable: true }; 
     
     // Add drag column for actors
     if (props.documentLinkType === DocumentLinkType.Actors) {
@@ -202,7 +202,7 @@
         { 
           icon: 'fa-bullseye', 
           iconFontClass: 'fas',
-          label: 'Cannot activate from compendium',
+          label: localize('dialogs.contextMenus.cannotActivateFromCompendium'),
           disabled: true,
           hidden: !data.packId,   // can't activate in compendium
         },
@@ -226,7 +226,7 @@
               throw new Error('Failed to load scene in RelatedDocumentTable.onRowContextMenu()');
             
             if (scene.active) {
-              alert('Cannot toggle navigation while scene is active');
+              alert(localize('dialogs.contextMenus.cannotToggleNavigationWhileActive'));
             } else {
               await scene?.update({navigation: !scene.navigation});
             }
@@ -235,7 +235,7 @@
         { 
           icon: 'fa-compass', 
           iconFontClass: 'fas',
-          label: 'Cannot toggle navigation from scene in a compendium', 
+          label: localize('dialogs.contextMenus.cannotToggleNavigationFromCompendium'), 
           disabled: true,
           hidden: !data.packId,   // can't nav in compendium
         },

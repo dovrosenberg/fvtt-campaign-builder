@@ -188,7 +188,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, onMounted, PropType, watch } from 'vue';
+  import { ref, onMounted, PropType, watch, computed } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -198,6 +198,7 @@
   import { Backend } from '@/classes';
   import { generatedTextToHTML, htmlToPlainText } from '@/utils/misc';
   import { hasHierarchy, } from '@/utils/hierarchy';
+  import { nameStyles } from '@/utils/nameStyles';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -263,7 +264,7 @@
       default: '',
     },
     callback: {
-      type: Function as PropType<(details: CharacterDetails | LocationDetails | OrganizationDetails | null) => void>,
+      type: Function as PropType<(details: CharacterDetails | LocationDetails | OrganizationDetails | null) => Promise<Entry | null>>,
       required: false,
     },
   });
@@ -305,6 +306,15 @@
 
   ////////////////////////////////
   // computed data
+  const selectedNameStyles = computed((): string[] => {
+    if (!currentWorld.value) return [];
+    
+    return currentWorld.value.nameStyles.map(index => {
+      const style = nameStyles[index];
+      if (!style) return '';
+      return style.prompt.replace('{genre}', currentWorld.value?.genre || '');
+    }).filter(style => style !== '');
+  });
 
   ////////////////////////////////
   // methods
@@ -369,6 +379,7 @@
           name: name.value,
           briefDescription: briefDescription.value,
           createLongDescription: longDescriptions.value,
+          nameStyles: selectedNameStyles.value,
         });
 
         generatedName.value = result.data.name;
@@ -417,6 +428,7 @@
           name: name.value,
           briefDescription: briefDescription.value,
           createLongDescription: longDescriptions.value,
+          nameStyles: selectedNameStyles.value,
         };
 
         let result: Awaited<ReturnType<typeof Backend.api.apiOrganizationGeneratePost | typeof Backend.api.apiLocationGeneratePost>>;

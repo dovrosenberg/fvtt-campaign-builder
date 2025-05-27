@@ -17,32 +17,26 @@
 /**
  * 
  * @export
- * @interface ApiNameCharactersPostRequest
+ * @interface ApiNamePreviewPostRequest
  */
-export interface ApiNameCharactersPostRequest {
+export interface ApiNamePreviewPostRequest {
     /**
-     * Number of character names to generate
-     * @type {number}
-     * @memberof ApiNameCharactersPostRequest
+     * List of name styles to preview
+     * @type {Array<string>}
+     * @memberof ApiNamePreviewPostRequest
      */
-    'count': number;
+    'nameStyles': Array<string>;
     /**
      * Genre of the setting (e.g., fantasy, sci-fi, western)
      * @type {string}
-     * @memberof ApiNameCharactersPostRequest
+     * @memberof ApiNamePreviewPostRequest
      */
     'genre'?: string | null;
     /**
      * The feeling or atmosphere of the world (e.g., dark, whimsical, gritty)
      * @type {string}
-     * @memberof ApiNameCharactersPostRequest
+     * @memberof ApiNamePreviewPostRequest
      */
     'worldFeeling'?: string | null;
-    /**
-     * The styles of names to use
-     * @type {Array<string>}
-     * @memberof ApiNameCharactersPostRequest
-     */
-    'nameStyles'?: Array<string>;
 }
 

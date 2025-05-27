@@ -16,7 +16,7 @@
         @click="() => { show = false; emit('cancel'); }"
       >
         <i class="fas fa-times"></i>
-        <span class="close-text">Close</span>
+        <span class="close-text">{{ localize('labels.close') }}</span>
       </a>
     </header>
     <section class="window-content">
@@ -48,6 +48,7 @@
   import { defineProps, computed, ref, PropType, watch, reactive } from 'vue'
 
   // local imports
+  import { localize } from '@/utils/game';
 
   // library components
 

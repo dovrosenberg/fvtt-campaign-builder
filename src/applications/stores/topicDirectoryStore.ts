@@ -341,7 +341,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return;
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete world?', 'Are you sure you want to delete this world?')))
+    if (!(await FCBDialog.confirmDialog('Delete setting?', 'Are you sure you want to delete this setting?')))
       return;
     
     await world.delete();

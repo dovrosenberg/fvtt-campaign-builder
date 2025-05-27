@@ -316,20 +316,6 @@
     }
       
 
-    // the button to open the editor
-    .editor-edit {
-      position: absolute;
-      z-index: 1;
-      right: 4px;
-      top: 3px;
-      color: coral;
-
-      &:hover {
-        color: green;
-        background: orange;
-        box-shadow: 0 0 5px red;
-      }
-    }
 
     .fcb-content-wrapper {
       height: 100%;

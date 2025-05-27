@@ -40,7 +40,9 @@
       "hideBackendWarning": "Hide missing backend warning?",
       "hideBackendWarningHelp": "If you're not using the backend, this lets you turn off the notification that it's missing",
       "enableToDoList": "Enable ToDo List",
-      "enableToDoListHelp": "If disabled, the todo list feature will be turned off."
+      "enableToDoListHelp": "If disabled, the todo list feature will be turned off.",
+      "autoRelationships": "Auto-suggest relationships",
+      "autoRelationshipsHelp": "If enabled, the editor will automatically suggest changes to relationships between entries based changes made to the description."
     },
     "applications": {
       "sessionNotes": {
@@ -80,6 +82,10 @@
         "labels": {
           "refreshAll": "Refresh all tables",
           "refreshAllHelp": "Replace any used items with new ones"
+        },
+        "notifications": {
+          "refreshSuccess": "Roll tables refreshed successfully",
+          "refreshError": "Failed to refresh roll tables. Check console for details."
         }
       },
       "createEntry": {
@@ -112,6 +118,7 @@
       "saveChanges": "Save Changes",
       "reset": "Reset",
       "cancel": "Cancel",
+      "save": "Save",
       "generate": "Generate",
       "accept": "Accept",
       "use": "Use",
@@ -120,6 +127,21 @@
       "addToWorld": "Add to Setting",
       "prep": "Prep",
       "play": "Play",
+      "ok": "OK",
+      "yes": "Yes",
+      "no": "No",
+      "close": "Close",
+      "update": "Update",
+      "noToAll": "No to All",
+      "tableHeaders": {
+        "actions": "Actions",
+        "name": "Name",
+        "location": "Location"
+      },
+      "locations": {
+        "compendium": "Compendium",
+        "setting": "Setting"
+      },
       "homePage": {
         "createWorld": "Create Setting",
         "createCampaign": "Create Campaign",
@@ -138,6 +160,7 @@
         "otherPlotPoints": "Other Plot Points",
         "desiredMagicItems": "Desired Magic Items",
         "name": "Name",
+        "topic": "Topic",
         "species": "Species",
         "worldGenre": "Genre",
         "worldFeeling": "Setting Feeling",
@@ -276,6 +299,11 @@
       "generateNameDialog": {
         "errorMessage": "There was an error:"
       },
+      "configureNames": {
+        "title": "Configure Name Styles",
+        "description": "Select the naming styles you'd like to use for AI-generated names in this setting. You can preview examples of each style below, based on this setting's genre and feeling.",
+        "errorMessage": "There was an error:"
+      },
       "generateOptions": {
         "title": "Select an Option"
       },
@@ -312,6 +340,48 @@
       "addToDo": {
         "title": "Add ToDo",
         "text": "Enter todo text:"
+      },
+      "relatedItems": {
+        "additionalInformation": "Additional Information",
+        "allItemsConnected": "All possible related items are already connected.",
+        "character": {
+          "title": "Add a character",
+          "editTitle": "Edit character",
+          "createButtonTitle": "Create character",
+          "buttonTitle": "Add relationship",
+          "editButtonTitle": "Save character"
+        },
+        "location": {
+          "title": "Add a location",
+          "editTitle": "Edit location",
+          "createButtonTitle": "Create location",
+          "buttonTitle": "Add relationship",
+          "editButtonTitle": "Save location"
+        },
+        "organization": {
+          "title": "Add an organization",
+          "editTitle": "Edit organization",
+          "createButtonTitle": "Create organization",
+          "buttonTitle": "Add relationship",
+          "editButtonTitle": "Save organization"
+        },
+        "addToSession": "Add to session"
+      },
+      "relatedDocuments": {
+        "selectActors": "Select Actors",
+        "selectItems": "Select Items",
+        "addActor": "Add Actor",
+        "addItem": "Add Item"
+      },
+      "relatedEntriesManagement": {
+        "title": "Manage Related Entries",
+        "addedItems": "Add relationships to these?",
+        "removedItems": "Remove relationships from these?"
+      },
+      "contextMenus": {
+        "cannotActivateFromCompendium": "Cannot activate from compendium",
+        "cannotToggleNavigationFromCompendium": "Cannot toggle navigation from scene in a compendium",
+        "cannotToggleNavigationWhileActive": "Cannot toggle navigation while scene is active"
       }
     },
     "contextMenus": {
@@ -360,7 +430,8 @@
       "generate":  {
         "description": "Generate description",
         "image": "Generate image",
-        "inProgress": "in progress"
+        "inProgress": "in progress",
+        "configureNames": "Configure names"
       }
     },
     "tooltips": {
@@ -390,6 +461,7 @@
       "addToASession": "Add to a session",
       "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",
       "generateContent": "Generate content",
+      "worldGenerateContent": "Manage world generation settigs",
       "backendNotAvailable": "Backend not available",
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",
       "dragMonsterFromSession": "Drag to scene",

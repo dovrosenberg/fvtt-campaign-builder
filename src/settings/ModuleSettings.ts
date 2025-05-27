@@ -3,7 +3,7 @@ import { moduleId } from './index';
 import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSettingsApplication';
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
-import { GeneratorConfig, SessionDisplayMode, Species, TagList } from '@/types';
+import { SessionDisplayMode, Species, TagList, GeneratorType } from '@/types';
 
 export enum SettingKey {
   // displayed in main settings window
@@ -13,12 +13,12 @@ export enum SettingKey {
   hideBackendWarning = 'hideBackendWarning', // don't show the warning about no backend
   defaultAddToSession = 'defaultAddToSession', // default state of "Add to current session" checkbox
   enableToDoList = 'enableToDoList', // whether the todo list feature is enabled
-
+  autoRelationships = 'autoRelationships', // whether to automatically suggest relationship changes based on editor
+  
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
   groupTreeByType = 'groupTreeByType',  // should the directory be grouped by type?
   isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
-  generatorConfig = 'generatorConfig',  // stores the configuration for Foundry RollTable generators
   entryTags = 'entryTags',
   sessionTags = 'sessionTags',
 
@@ -33,6 +33,7 @@ export enum SettingKey {
 
   rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu
   autoRefreshRollTables = 'autoRefreshRollTables',  // should roll tables be automatically refreshed on load
+  generatorDefaultTypes = 'generatorDefaultTypes',  // default types for generators when creating entries
 
   speciesListMenu = 'speciesListMenu',  // display the species list screen
   speciesList = 'speciesList',
@@ -45,7 +46,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.rootFolderId ? string :
     K extends SettingKey.groupTreeByType ? boolean :
     K extends SettingKey.isInPlayMode ? boolean :
-    K extends SettingKey.generatorConfig ? GeneratorConfig | null:
+    K extends SettingKey.autoRelationships ? boolean :
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
@@ -53,6 +54,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.defaultAddToSession ? boolean :
     K extends SettingKey.rollTableSettingsMenu ? never :
     K extends SettingKey.autoRefreshRollTables ? boolean :
+    K extends SettingKey.generatorDefaultTypes ? Record<GeneratorType, string> :
     K extends SettingKey.speciesList ? Species[] :
     K extends SettingKey.entryTags ? TagList :
     K extends SettingKey.sessionTags ? TagList :
@@ -166,6 +168,13 @@ export class ModuleSettings {
       type: Boolean,
     },
     {
+      settingID: SettingKey.autoRelationships,
+      name: 'settings.autoRelationships',
+      hint: 'settings.autoRelationshipsHelp',
+      default: true,
+      type: Boolean,
+    },
+    {
       settingID: SettingKey.sessionDisplayMode,
       name: 'settings.sessionDisplayMode',
       hint: 'settings.sessionDisplayModeHelp',
@@ -198,8 +207,13 @@ export class ModuleSettings {
       type: Array,
     },
     {
-      settingID: SettingKey.generatorConfig,
-      default: null,
+      settingID: SettingKey.generatorDefaultTypes,
+      default: {
+        [GeneratorType.NPC]: 'NPC',
+        [GeneratorType.Town]: 'Town',
+        [GeneratorType.Store]: 'Store',
+        [GeneratorType.Tavern]: 'Tavern',
+      },
       type: Object,
     },
     {

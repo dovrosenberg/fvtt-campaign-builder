@@ -125,7 +125,10 @@
             <Editor
               :initial-content="currentEntry?.description || ''"
               :has-button="true"
+              :current-entity-uuid="currentEntry?.uuid"
+              :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
               @editor-saved="onDescriptionEditorSaved"
+              @related-entries-changed="onRelatedEntriesChanged"
             />
           </div>
         </DescriptionTab>
@@ -163,6 +166,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Related Items Management Dialog -->
+    <RelatedEntriesManagementDialog
+      v-model="showRelatedEntriesDialog"
+      :added-ids="pendingAddedUUIDs"
+      :removed-ids="pendingRemovedUUIDs"
+      @update="onRelatedEntriesDialogUpdate"
+    />
   </form>
 </template>
 
@@ -178,7 +189,7 @@
   import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, useCampaignStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
-  import { SettingKey } from '@/settings';
+  import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyInfo } from '@/utils/notifications';  
 
   // library components
@@ -189,7 +200,8 @@
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import RelatedItemTable from '@/components/Tables/RelatedItemTable.vue';
   import RelatedDocumentTable from '@/components/Tables/RelatedDocumentTable.vue';
-  
+  import { updateEntryDialog } from '@/dialogs/createEntry';
+
   import Editor from '@/components/Editor.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
@@ -197,11 +209,12 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
   import SessionsTab from '@/components/ContentTab/EntryContent/SessionsTab.vue';
+  import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
+  import { getRelatedEntries } from '@/utils/uuidExtraction';
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
-  import { WBWorld, TopicFolder, Backend, } from '@/classes';
-  import { updateEntryDialog } from '@/dialogs/createEntry';
+  import { WBWorld, TopicFolder, Backend, Entry } from '@/classes';
 
 
   ////////////////////////////////
@@ -244,6 +257,9 @@
   const isGeneratingImage = reactive<Record<string, boolean>>({}); // Flag to track whether image generation is in progress - only one per id at a time
   const pushButtonTitle = ref<string>('');
   const pushButtonDisabled = ref<boolean>(false);
+  const showRelatedEntriesDialog = ref<boolean>(false);
+  const pendingAddedUUIDs = ref<string[]>([]);
+  const pendingRemovedUUIDs = ref<string[]>([]);
 
   ////////////////////////////////
   // computed data
@@ -545,6 +561,37 @@
 
     currentEntry.value.description = newContent;
     await currentEntry.value.save();
+  };
+
+  const onRelatedEntriesChanged = async (addedUUIDs: string[], removedUUIDs: string[]) => {
+    if (!currentEntry.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
+      return;
+    }
+
+    // check against current relationships
+    const { added, removed } = await getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
+
+    // Store the pending changes and show dialog if there are any changes
+    if (added.length > 0 || removed.length > 0) {
+      pendingAddedUUIDs.value = added;
+      pendingRemovedUUIDs.value = removed;
+      showRelatedEntriesDialog.value = true;
+    }
+  };
+
+  const onRelatedEntriesDialogUpdate = async (addedEntries: Entry[], removedEntries: Entry[]) => {
+    if (!currentEntry.value) 
+      return;
+
+    // Handle added relationships
+    for (const entry of addedEntries) {
+      await relationshipStore.addRelationship(entry, {});
+    }
+
+    // Handle removed relationships
+    for (const entry of removedEntries) {
+      await relationshipStore.deleteRelationship(entry.topic, entry.uuid);
+    }
   };
 
   const onSpeciesSelectionMade = async (species: {id: string; label: string}): Promise<void> => {

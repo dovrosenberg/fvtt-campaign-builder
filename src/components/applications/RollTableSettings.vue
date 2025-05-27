@@ -7,7 +7,6 @@
           <Checkbox
             v-model="autoRefresh"
             binary
-            unstyled
           />
         </div>
         <p class="hint">
@@ -66,13 +65,11 @@
       <footer class="form-footer" data-application-part="footer">
         <button
           @click="onRefreshTablesClick"
+          :disabled="isRefreshing"
         >
-          <i class="fas fa-sync"></i>
+          <i :class="isRefreshing ? 'fas fa-spinner fa-spin' : 'fas fa-sync'"></i>
           <label>{{ localize('applications.rollTableSettings.labels.refreshAll') }}</label>
         </button>
-        <!-- <p class="hint">
-          {{ localize('applications.rollTableSettings.labels.refreshAllHelp') }}
-        </p> -->
         <button 
           @click="onSubmitClick"
         >
@@ -90,7 +87,7 @@
 
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { refreshAllRollTables, } from '@/utils/nameGenerators';
+  import { refreshAllWorldRollTables } from '@/utils/nameGenerators';
   import { rollTableSettingsApp } from '@/applications/settings/RollTableSettingsApplication';
   import { localize } from '@/utils/game';
 
@@ -121,6 +118,7 @@
     [GeneratorType.Store]: '',
     [GeneratorType.Tavern]: '',
   });
+  const isRefreshing = ref<boolean>(false);
 
   ////////////////////////////////
   // computed data
@@ -134,31 +132,39 @@
     await ModuleSettings.set(SettingKey.autoRefreshRollTables, autoRefresh.value);
 
     // @ts-ignore - we know that we have a valid config to start with
-    await ModuleSettings.set(SettingKey.generatorConfig, {
-      ...ModuleSettings.get(SettingKey.generatorConfig),
-      defaultTypes: defaultTypes.value,
+    await ModuleSettings.set(SettingKey.generatorDefaultTypes, {
+      ...ModuleSettings.get(SettingKey.generatorDefaultTypes),
+      ...defaultTypes.value,
     });
     rollTableSettingsApp?.close();
   };
 
   const onRefreshTablesClick = async () => {
-    await refreshAllRollTables();
+    if (isRefreshing.value) return; // Prevent multiple clicks
+    
+    isRefreshing.value = true;
+    
+    try {
+      // Refresh world-specific tables for all worlds
+      await refreshAllWorldRollTables();
+      ui.notifications?.info(localize('applications.rollTableSettings.notifications.refreshSuccess'));
+    } catch (error) {
+      console.error('Error refreshing roll tables:', error);
+      ui.notifications?.error(localize('applications.rollTableSettings.notifications.refreshError'));
+    } finally {
+      isRefreshing.value = false;
+    }
   };
 
-    ////////////////////////////////
+  ////////////////////////////////
   // watchers
   
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    // make sure we have the config object
-    if (!ModuleSettings.get(SettingKey.generatorConfig)) {
-      throw new Error('No config set up in RollTableSettings.onMounted');
-    }
-
     // load the settings
     autoRefresh.value = ModuleSettings.get(SettingKey.autoRefreshRollTables);
-    defaultTypes.value = ModuleSettings.get(SettingKey.generatorConfig)?.defaultTypes || {
+    defaultTypes.value = ModuleSettings.get(SettingKey.generatorDefaultTypes) || {
       [GeneratorType.NPC]: '',
       [GeneratorType.Town]: '',
       [GeneratorType.Store]: '',

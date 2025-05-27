@@ -5,7 +5,7 @@
       :title="dialogTitle"
       :buttons="[
         {
-          label: 'Cancel',
+          label: localize('labels.cancel'),
           default: false,
           close: true,
           callback: () => { show=false;}
@@ -41,7 +41,7 @@
   import { ref, computed, PropType, watch, onMounted } from 'vue';
 
   // local imports
-  import { useSessionStore } from '@/applications/stores';
+  import { localize } from '@/utils/game';
 
   // local components
   import Dialog from '@/components/Dialog.vue';
@@ -73,7 +73,6 @@
 
   ////////////////////////////////
   // store
-  const sessionStore = useSessionStore();
 
   ////////////////////////////////
   // data
@@ -84,15 +83,15 @@
   ////////////////////////////////
   // computed data
   const documentTypeName = computed(() => {
-    return props.documentType === 'actor' ? 'Actors' : 'Items';
+    return props.documentType === 'actor' ? localize('labels.tabs.entry.actors') : localize('labels.tabs.entry.items');
   });
 
   const dialogTitle = computed(() => {
-    return `Add ${props.documentType === 'actor' ? 'Actor' : 'Item'}`;
+    return props.documentType === 'actor' ? localize('dialogs.relatedDocuments.addActor') : localize('dialogs.relatedDocuments.addItem');
   });
 
   const actionButtonLabel = computed(() => {
-    return `Add ${props.documentType === 'actor' ? 'Actor' : 'Item'}`;
+    return props.documentType === 'actor' ? localize('dialogs.relatedDocuments.addActor') : localize('dialogs.relatedDocuments.addItem');
   });
 
   const isAddFormValid = computed((): boolean => {
@@ -167,7 +166,7 @@
   ////////////////////////////////
   // watchers
   // when the dialog changes state, alert parent (so v-model works)
-  watch(() => show, async (newValue) => {
+  watch(() => show.value, async (newValue) => {
     emit('update:modelValue', newValue);
   });
 
