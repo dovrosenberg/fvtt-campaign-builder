@@ -84,12 +84,12 @@ export class Backend {
       return;
     }
 
-    const toDos = (await Backend.api.apiPollEmailTodoGet())?.data?.items;
+    const ideas = (await Backend.api.apiPollEmailTodoGet())?.data?.items;
 
-    if (toDos) {
-      for (const toDo of toDos) {
-        if (toDo) {
-          await campaign.addNewToDoItem(ToDoTypes.Manual, toDo.text, undefined, undefined, new Date(toDo.timestamp));
+    if (ideas) {
+      for (const idea of ideas) {
+        if (idea) {
+          await campaign.addNewIdeaItem(idea.text);
         }
       }
 

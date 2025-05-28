@@ -10,7 +10,8 @@
       :allow-drop-row="false"
       :rows="mappedToDoRows"
       :columns="columns"
-      :allow-edit="false"
+      :allow-edit="true"
+      :edit-item-label="localize('tooltips.editRow')"
       :delete-item-label="localize('tooltips.deleteToDo')"
       :show-move-to-campaign="false"
       :draggable-rows="false"
@@ -38,12 +39,7 @@
   
   // types
   import { ToDoItem, ToDoTypes } from '@/types';
-  import { Entry } from '@/classes';
-import { DataTableCellEditCompleteEvent } from 'primevue';
-
-  interface ToDoRow extends ToDoItem {
-    entry: string;
-  }
+  import { DataTableCellEditCompleteEvent } from 'primevue';
 
   // store
   const campaignStore = useCampaignStore();

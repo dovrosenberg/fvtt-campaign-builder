@@ -1,11 +1,11 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
-import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, } from '@/documents';
+import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, CampaignLore } from '@/documents';
 import { DocumentWithFlags, Entry, PC, Session, WBWorld } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';
-import { ToDoItem, ToDoTypes } from '@/types';
+import { ToDoItem, ToDoTypes, IdeaItem } from '@/types';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign extends DocumentWithFlags<CampaignDoc> {
@@ -23,6 +23,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   private _lore: CampaignLore[];
   private _img: string;
   private _todoItems: ToDoItem[];
+  private _ideaItems: IdeaItem[];
 
   /**
    * 
@@ -40,6 +41,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this._img = this.getFlag(CampaignFlagKey.img) || '';
     this._name = campaignDoc.name;
     this._todoItems = this.getFlag(CampaignFlagKey.todoItems) || [];
+    this._ideaItems = this.getFlag(CampaignFlagKey.ideaItems) || [];
   }
 
   override async _getWorld(): Promise<WBWorld> {
@@ -338,6 +340,53 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     this._todoItems = this._todoItems.filter(i => i.uuid !== uuid);
     this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+    await this.save();
+  }
+
+  get ideaItems(): readonly IdeaItem[] {
+    return this._ideaItems;
+  }
+
+  set ideaItems(value: IdeaItem[]) {
+    this._ideaItems = value;
+    this.updateCumulative(CampaignFlagKey.ideaItems, value);
+  }
+
+  /** Creates a new idea item and adds to the campaign*/
+  async addNewIdeaItem(text: string): Promise<IdeaItem | null> {
+    if (!this._ideaItems) {
+      this._ideaItems = [];
+    }
+
+    const item: IdeaItem = {
+      uuid: foundry.utils.randomID(),
+      text: text || '',
+    };
+
+    this._ideaItems.push(item);
+    this.updateCumulative(CampaignFlagKey.ideaItems, this._ideaItems);
+    await this.save();
+
+    return item;
+  }
+
+  async updateIdeaItem(uuid: string, newText: string): Promise<void> {
+    const item = this._ideaItems.find(i => i.uuid === uuid);
+    if (!item)
+      return;
+
+    item.text = newText;
+    this.updateCumulative(CampaignFlagKey.ideaItems, this._ideaItems);
+    await this.save();
+  }
+
+  async deleteIdeaItem(uuid: string): Promise<void> {
+    if (!this._ideaItems) {
+      this._ideaItems = [];
+    }
+
+    this._ideaItems = this._ideaItems.filter(i => i.uuid !== uuid);
+    this.updateCumulative(CampaignFlagKey.ideaItems, this._ideaItems);
     await this.save();
   }
 

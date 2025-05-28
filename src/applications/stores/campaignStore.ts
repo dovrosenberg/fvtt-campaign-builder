@@ -9,7 +9,7 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/a
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes} from '@/types';
+import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, IdeaItem} from '@/types';
 import { Campaign, PC, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { closeSessionNotes, openSessionNotes } from '@/applications/SessionNotes';
@@ -19,6 +19,7 @@ export enum CampaignTableTypes {
   PC,
   Lore,
   ToDo,
+  Idea,
 }
 
 // the store definition
@@ -30,6 +31,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   const relatedPCRows = ref<PCDetails[]>([]);
   const relatedLoreRows = ref<CampaignLoreDetails[]>([]);
   const toDoRows = ref<ToDoItem[]>([]);
+  const ideaRows = ref<IdeaItem[]>([]);
 
   const extraFields = {
     [CampaignTableTypes.None]: [],
@@ -47,6 +49,9 @@ export const useCampaignStore = defineStore('campaign', () => {
       { field: 'lastTouched', style: 'text-align: left', header: 'Last modified', sortable: true, },
       { field: 'entry', style: 'text-align: left', header: 'Reference', sortable: true, onClick: onToDoClick },
       { field: 'text', style: 'text-align: left', header: 'To Do Item', sortable: true, editable: true },
+    ],
+    [CampaignTableTypes.Idea]: [
+      { field: 'text', style: 'text-align: left', header: 'Idea', sortable: true, editable: true },
     ],
   } as Record<CampaignTableTypes, FieldData>;
 
@@ -228,6 +233,41 @@ export const useCampaignStore = defineStore('campaign', () => {
     await _refreshToDoRows();
   }
 
+  const addIdeaItem = async (text?: string): Promise<IdeaItem | null> => {
+    if (!currentCampaign.value)
+      return null;
+
+    if (!text) {
+      const inputText = await FCBDialog.inputDialog('Add Idea', 'Idea:');
+      if (!inputText) return null;
+      text = inputText;
+    }
+
+    const ideaItem = await currentCampaign.value.addNewIdeaItem(text);
+    await _refreshIdeaRows();
+    return ideaItem;
+  }
+
+  const updateIdeaItem = async (uuid: string, newText: string): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
+
+    await currentCampaign.value.updateIdeaItem(uuid, newText);
+    await _refreshIdeaRows();
+  }
+
+  const deleteIdeaItem = async (uuid: string): Promise<void> => {
+    if (!currentCampaign.value)
+      return;
+
+    // confirm
+    if (!(await FCBDialog.confirmDialog('Delete Idea?', 'Are you sure you want to delete this idea?')))
+      return;
+
+    await currentCampaign.value.deleteIdeaItem(uuid);
+    await _refreshIdeaRows();
+  }
+
   ///////////////////////////////
   // computed state
   const currentPlayedSession = computed((): Session | null => (currentPlayedCampaign?.value?.currentSession || null) as Session | null);
@@ -374,6 +414,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     relatedPCRows.value = [];
     relatedLoreRows.value = [];
     toDoRows.value = [];
+    ideaRows.value = [];
 
     if (!currentCampaign.value)
       return;
@@ -381,6 +422,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     await _refreshPCRows();
     await _refreshLoreRows();
     await _refreshToDoRows();
+    await _refreshIdeaRows();
   }
 
   const _refreshPCRows = async (): Promise<void> => {
@@ -458,6 +500,12 @@ export const useCampaignStore = defineStore('campaign', () => {
     toDoRows.value = Array.from(currentCampaign.value.todoItems);
   }
 
+  const _refreshIdeaRows = async () => {
+    if (!currentCampaign.value)
+      return;
+
+    ideaRows.value = Array.from(currentCampaign.value.ideaItems);
+  }
 
   ///////////////////////////////
   // watchers
@@ -535,6 +583,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     currentPlayedSession,
     currentPlayedCampaignId,
     toDoRows,
+    ideaRows,
     
     addPC,
     deletePC,
@@ -547,7 +596,10 @@ export const useCampaignStore = defineStore('campaign', () => {
     addToDoItem,
     mergeToDoItem,
     completeToDoItem,
-    updateToDoItem
+    updateToDoItem,
+    addIdeaItem,
+    updateIdeaItem,
+    deleteIdeaItem,
   };
 });
 

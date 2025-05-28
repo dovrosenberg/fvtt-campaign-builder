@@ -20,6 +20,7 @@
         <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
         <a class="item" data-tab="pcs">{{ localize('labels.tabs.campaign.pcs') }}</a>
         <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
+        <a class="item" data-tab="ideas">{{ localize('labels.tabs.campaign.ideas') }}</a>
         <a class="item" v-if="showToDoTab" data-tab="todo">{{ localize('labels.tabs.campaign.toDo') }} ({{ currentCampaign?.todoItems.length || 0 }})</a>
       </nav>
       <div class="fcb-tab-body flexrow">
@@ -68,6 +69,11 @@
             <CampaignLoreTab />
           </div>
         </div>
+        <div class="tab flexcol" data-group="primary" data-tab="ideas">
+          <div class="tab-inner">
+            <CampaignIdeasTab />
+          </div>
+        </div>
         <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="todo">
           <div class="tab-inner">
             <CampaignToDoTab />
@@ -98,6 +104,7 @@
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
   import CampaignToDoTab from '@/components/ContentTab/CampaignContent/CampaignToDoTab.vue';
+  import CampaignIdeasTab from '@/components/ContentTab/CampaignContent/CampaignIdeasTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
 

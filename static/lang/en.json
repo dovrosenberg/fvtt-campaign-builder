@@ -67,12 +67,12 @@
           "defaultToLongHint": "Controls the default setting for creating a long vs short description when doing AI generation.",
           "longDescriptionParagraphs": "Long description paragraphs",
           "longDescriptionParagraphsHint": "Number of paragraphs to generate for long descriptions (1-4).",
-          "useGmailToDos": "Use Gmail for To-Dos",
-          "useGmailToDosHint": "When enabled, to-do items will be created from the Gmail inbox",
+          "useGmailIdeas": "Use Gmail for Ideas",
+          "useGmailIdeasHint": "When enabled, idea items will be created from the Gmail inbox",
           "emailDefaultWorld": "Default Setting for email",
-          "emailDefaultWorldHint": "The Setting to use by default for email features (ex. emailing todo items)",
+          "emailDefaultWorldHint": "The Setting to use by default for email features (ex. emailing idea items)",
           "emailDefaultCampaign": "Default Campaign for email",
-          "emailDefaultCampaignHint": "The campaign to use by default for email features (ex. emailing todo items)",
+          "emailDefaultCampaignHint": "The campaign to use by default for email features (ex. emailing idea items)",
           "selectWorld": "Select a setting...",
           "selectCampaign": "Select a campaign..."
         }
@@ -218,7 +218,9 @@
         "pcs": "PCs",
         "lore": "Lore",
         "todo": "To Do",
-        "addToDo": "Create new 'To Do'"
+        "addToDo": "Create new 'To Do'",
+        "ideas": "Ideas",
+        "addIdea": "Create new 'Idea'"
       },
       "pc": {
         "linkToNewActor": "Link to new actor"
@@ -241,7 +243,8 @@
           "description": "Description",
           "pcs": "PCs",
           "lore": "Lore",
-          "toDo": "To Do"
+          "toDo": "To Do",
+          "ideas": "Ideas"
         },
         "session": {
           "notes": "Notes",
@@ -292,7 +295,7 @@
         "successfulConnection": "Successfully connected to Campaign Builder backend.",
         "failedConnection": "Failed to connect to backend - check your \"advanced\" settings to make sure they properly match the backend server you deployed.  You'll be unable to used advanced features in the meantime.",
         "versionMismatch": "The version of your World & Campaign Builder backend ($1) doesn't match the version required by the module version you have installed ($2).  Please update one or the other (or both).  You'll be unable to use advanced features in the meantime.",
-        "emailSettingsNotSet": "You have enabled the email to-do list feature, but you haven't set a default Setting or Campaign.  Please set these in the advanced settings."
+        "emailSettingsNotSet": "You have enabled the email idea list feature, but you haven't set a default Setting or Campaign.  Please set these in the advanced settings."
       },
       "addedToSession": "added to session",
       "changesSaved": "changes saved"
@@ -456,6 +459,7 @@
       "deleteVignette": "Delete vignette",
       "deleteLore": "Delete lore",
       "deleteToDo": "Complete to do item",
+      "deleteIdea": "Delete idea",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",

@@ -98,6 +98,7 @@ export enum ToDoTypes {
   Monster = 'monster',
   Item = 'item',
 }
+
 export interface ToDoItem {
   uuid: string;  // uuid of the todo item
   lastTouched: Date;
@@ -107,4 +108,9 @@ export interface ToDoItem {
   sessionUuid: string | null; // uuid of the session if it's a session todo (lore, vignette, monster, item)
   text: string;
   type: ToDoTypes;
+}
+
+export interface IdeaItem {
+  uuid: string;  // uuid of the idea item
+  text: string;
 }

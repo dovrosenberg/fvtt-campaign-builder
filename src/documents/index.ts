@@ -1,7 +1,7 @@
 export * from './entry';
 export * from './session';
 export * from './pc';
-export { CampaignDoc, CampaignFlagKey, CampaignFlagType, flagSettings as campaignFlagSettings } from './campaign';
+export { CampaignDoc, CampaignFlagKey, CampaignFlagType, CampaignLore, flagSettings as campaignFlagSettings } from './campaign';
 export { WorldDoc, WorldFlagKey, WorldFlagType, flagSettings as worldFlagSettings } from './world';
 export { TopicDoc, TopicFlagKey, TopicFlagType, flagSettings as topicFlagSettings } from './topic';
 
