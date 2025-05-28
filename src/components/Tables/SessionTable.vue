@@ -18,7 +18,7 @@
       :show-move-to-campaign="props.showMoveToCampaign"
       :draggable-rows="props.draggableRows"
       @row-select="(event) => emit('rowContextMenu', event)"
-      @edit-item="(uuid) => emit('editItem', uuid)"
+      @edit-item="(data) => emit('editItem', data)"
       @delete-item="(uuid) => emit('deleteItem', uuid)"
       @add-item="() => emit('addItem')"
       @row-contextmenu="(event) => emit('rowContextMenu', event)"
