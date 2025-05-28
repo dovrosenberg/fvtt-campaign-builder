@@ -102,7 +102,7 @@
    * @param i Index of the item
    * @returns Label string
    */
-  const getLabel = (i: number) => (objectMode.value ? (filteredItems.value[i] as ListItem).label : (filteredItems.value[i] as string));
+  const getLabel = (i: number) => (objectMode.value ? (filteredItems.value[i] as ListItem)?.label || '' : (filteredItems.value[i] as string));
 
   ////////////////////////////////
   // event handlers
@@ -222,12 +222,14 @@
             // there's no match but we're not allowed to add - reset back to the original
             // find the initial item
             if (objectMode.value) {
-              const initialItem = (props.initialList as { id: string; label: string}[]).find((item: ListItem)=>item.id===props.initialValue) as ListItem;
-              currentValue.value = initialItem.label;
+              const initialItem = (props.initialList as { id: string; label: string}[]).find((item: ListItem)=>item.id===props.initialValue);
+
+              // if it's not there (ex. it got deleted at some point) replace with nothing
+              currentValue.value = initialItem?.label || '';
 
               // set the selection to be the id of the current item (this assumes there is only 1 valid match)
               if (props.initialList.length > 0) {
-                selection = initialItem.id;
+                selection = initialItem?.id || '';
                 emit('selectionMade', selection, getLabel(0));
               }
             } else {
@@ -263,6 +265,15 @@
   // watchers
   watch(() => props.initialList, (newList: T[]) => {
     list.value = foundry.utils.deepClone(newList) || [];
+    
+    // Update the current display value if we're in object mode and have a current value
+    // This handles the case where the label of an existing item changes
+    if (objectMode.value && props.initialValue) {
+      const updatedItem = (newList as ListItem[]).find((item: ListItem) => item.id === props.initialValue);
+      if (updatedItem) {
+        currentValue.value = updatedItem.label;
+      }
+    }
   });
 
   watch(() => props.initialValue, (newValue: string) => {
@@ -274,7 +285,8 @@
   onMounted(() => {
     // watch for clicks anywhere outside the control
     document.addEventListener('click', async (event: MouseEvent) => {
-      if (hasFocus.value && event.target && (!event.target.closest || !(event.target as HTMLElement)?.closest('.fcb-typeahead'))) {
+      const target = event.target as HTMLElement;
+      if (hasFocus.value && target && (!target.closest || !target.closest('.fcb-typeahead'))) {
         // we were in it, but now we're not; treat as if we'd tabbed out
         await onKeyDown({key:'Tab'} as KeyboardEvent);
       }

@@ -69,11 +69,6 @@
   // Event handler for species list updates
   const handleSpeciesListUpdate = () => {
     refreshSpeciesList();
-
-    // if we changed the one we're on, need to update it
-    nextTick(() => {
-      currentSpeciesId.value = currentSpeciesId.value;
-    });
   };
 
   // Expose the refresh method so parent components can call it
