@@ -116,7 +116,7 @@
               v-if="props.allowEdit"
               class="fcb-action-icon" 
               :data-tooltip="props.editItemLabel"
-              @click.stop="emit('editItem', data)" 
+              @click.stop="onEditButtonClick(data)" 
             >
               <i class="fas fa-pen"></i>
             </a>
@@ -253,7 +253,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, PropType, } from 'vue';
+  import { ref, PropType, computed } from 'vue';
   import { FilterMatchMode } from '@primevue/core/api';
 
   // local imports
@@ -345,7 +345,7 @@
   // emits
   const emit = defineEmits<{
     (e: 'rowSelect', originalEvent: DataTableRowSelectEvent): void;
-    (e: 'editItem', uuid: string): void;
+    (e: 'editItem', data: BaseTableGridRow): void;
     (e: 'deleteItem', uuid: string): void;
     (e: 'addItem'): void;
     (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
@@ -393,6 +393,10 @@
 
   ////////////////////////////////
   // computed data
+  /** Check if any columns are editable */
+  const hasEditableColumns = computed(() => {
+    return props.columns.some(col => col.editable);
+  });
 
   ////////////////////////////////
   // methods
@@ -403,6 +407,26 @@
   const setEditingRow = (uuid: string) => {
     editingRow.value = uuid;
     emit('setEditingRow', uuid);
+  }
+
+  /**
+   * Saves the currently editing row by extracting values from input fields
+   * and emitting cellEditComplete events for each editable field
+   */
+  const saveCurrentlyEditingRow = () => {
+    if (editingRow.value) {
+      // loop over all the inputs
+      for (const col of props.columns) {
+        if (col.editable) {
+          const id = `${editingRow.value}-${col.field}`;
+          const input = document.getElementById(id) as HTMLInputElement;
+          if (input) {
+            // pull the value from the input and fire an event to save it
+            emit('cellEditComplete', { data: { uuid: editingRow.value }, newValue: input.value, field: col.field, originalEvent: null } as unknown as DataTableCellEditCompleteEvent );
+          }
+        }
+      }
+    }
   }
 
   // Expose the setEditingRow method to parent components
@@ -420,19 +444,8 @@
   }
 
   const onClickEditableCell = (uuid: string) => {
-    // if we were already editing a row, fire off a complete event
-    if (editingRow.value) {
-      // loop over all the inputs
-      for (const col of props.columns) {
-        const id = `${editingRow.value}-${col.field}`;
-        const input = document.getElementById(id) as HTMLInputElement;
-        if (input) {
-          // pull the value from the input and fire an event to save it
-          // TODO: change the event type because we're not firing a full event here
-          emit('cellEditComplete', { data: { uuid: editingRow.value }, newValue: input.value, field: col.field, originalEvent: null } as unknown as  DataTableCellEditCompleteEvent );
-        }
-      }
-    }
+    // if we were already editing a row, save it first
+    saveCurrentlyEditingRow();
 
     // set the new row
     editingRow.value = uuid;
@@ -499,6 +512,20 @@
     
       // Call the parent's drop handler
       emit('dropRow', event, uuid);
+    }
+  }
+
+  const onEditButtonClick = (data: BaseTableGridRow) => {
+    // Check if there are any editable columns
+    if (hasEditableColumns.value) {
+      // If we were already editing a row, save it first
+      saveCurrentlyEditingRow();
+      
+      // If there are editable columns, put the row in edit mode
+      setEditingRow(data.uuid);
+    } else {
+      // If no editable columns, emit the editItem event as before
+      emit('editItem', data);
     }
   }
 

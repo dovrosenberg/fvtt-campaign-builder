@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, nextTick } from 'vue';
+  import { ref, watch, } from 'vue';
 
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';

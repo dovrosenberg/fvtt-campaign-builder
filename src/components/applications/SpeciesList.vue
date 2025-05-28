@@ -6,6 +6,7 @@
         :columns="columns"
         :show-add-button="true"
         :show-filter="false"
+        :allow-edit="true"
         :add-button-label="localize('applications.speciesList.labels.add')"
         :delete-item-label="localize('applications.speciesList.labels.delete')"
         @delete-item="onDeleteItem"
