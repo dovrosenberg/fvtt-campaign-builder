@@ -13,6 +13,7 @@
 - Added "to do" list - tracks things you deliver or edit during a play session so that you can quickly see afterward if any of them should be mentioned in the notes or fleshed out further
 - Putting the name of an entry in the description of another will automatically convert it to a link.
 - When saving an entry description, it now suggests changes you might want to make to the related items (and will make them for you).
+- Added setting to customize the length of long descriptions (1-4 paragraphs)
 - Added ability to manually create items on that to do list for the campaign, as well as the ability to setup a gmail account where you can email spontaneous ideas you have and they will be added to the to do list (requires backend)
 - Made roll tables world specific (to support the world-specific name styles) and increased size to 100 rows
 - Minor visual improvements

@@ -43,13 +43,12 @@
       <div class="form-group">
         <label>{{ localize('applications.advancedSettings.labels.longDescriptionParagraphs') }}</label>
         <div class="form-fields">
-          <InputNumber
+          <RangePicker
             v-model="longDescriptionParagraphs"
+            name="longDescriptionParagraphs"
             :min="1"
             :max="4"
             :step="1"
-            showButtons
-            unstyled
           />
         </div>
         <p class="hint">
@@ -137,12 +136,11 @@
 
   // library components
   import InputText from 'primevue/inputtext';
-  import InputNumber from 'primevue/inputnumber';
   import Checkbox from 'primevue/checkbox';
   import Select from 'primevue/select';
 
-
   // local components
+  import RangePicker from '@/components/RangePicker.vue';
 
   // types
   

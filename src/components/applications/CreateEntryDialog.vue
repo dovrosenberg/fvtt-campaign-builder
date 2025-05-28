@@ -379,6 +379,7 @@
           name: name.value,
           briefDescription: startingDescription.value,
           createLongDescription: longDescriptions.value,
+          longDescriptionParagraphs: ModuleSettings.get(SettingKey.longDescriptionParagraphs),
           nameStyles: selectedNameStyles.value,
         });
 
@@ -430,6 +431,7 @@
           name: name.value,
           briefDescription: startingDescription.value,
           createLongDescription: longDescriptions.value,
+          longDescriptionParagraphs: ModuleSettings.get(SettingKey.longDescriptionParagraphs),
           nameStyles: selectedNameStyles.value,
         };
 

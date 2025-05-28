@@ -69,6 +69,12 @@ export interface ApiCharacterGeneratePostRequest {
      */
     'createLongDescription'?: boolean;
     /**
+     * The number of paragraphs to produce in the output when using a long description
+     * @type {number}
+     * @memberof ApiCharacterGeneratePostRequest
+     */
+    'longDescriptionParagraphs'?: number;
+    /**
      * The styles of names to use
      * @type {Array<string>}
      * @memberof ApiCharacterGeneratePostRequest

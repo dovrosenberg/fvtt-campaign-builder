@@ -75,6 +75,12 @@ export interface ApiOrganizationGeneratePostRequest {
      */
     'createLongDescription'?: boolean;
     /**
+     * The number of paragraphs to produce in the output when using a long description
+     * @type {number}
+     * @memberof ApiOrganizationGeneratePostRequest
+     */
+    'longDescriptionParagraphs'?: number;
+    /**
      * The type of the grandparent organization
      * @type {string}
      * @memberof ApiOrganizationGeneratePostRequest
