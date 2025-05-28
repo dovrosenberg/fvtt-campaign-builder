@@ -8,9 +8,9 @@
         :show-filter="false"
         :add-button-label="localize('applications.speciesList.labels.add')"
         :delete-item-label="localize('applications.speciesList.labels.delete')"
-        @edit-item="onEditItem"
         @delete-item="onDeleteItem"
         @add-item="onAddItem"
+        @cell-edit-complete="onCellEditComplete"
       />
 
       <footer class="form-footer" data-application-part="footer">
@@ -39,6 +39,7 @@
   import { ModuleSettings, SettingKey } from '@/settings';
   import { speciesListApp } from '@/applications/settings/SpeciesListApplication';
   import { localize } from '@/utils/game';
+  import { useMainStore } from '@/applications/stores';
 
   // library components
 
@@ -47,6 +48,7 @@
 
   // types
   import { Species } from '@/types';
+  import { DataTableCellEditCompleteEvent } from 'primevue';
   
   ////////////////////////////////
   // props
@@ -74,9 +76,9 @@
 
   const columns = computed((): any[] => {
     // for now, just action and name
-    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
-    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true }; 
-    const descriptionColumn = { field: 'description', style: 'text-align: left', header: 'Description', sortable: true }; 
+    const actionColumn = { field: 'actions', style: 'text-align: left; width: 75px;', header: 'Actions' };
+    const nameColumn = { field: 'name', style: 'text-align: left; width: 20%;', header: 'Name', sortable: true, editable: true, smallEditBox: true }; 
+    const descriptionColumn = { field: 'description', style: 'text-align: left', header: 'Description', sortable: true, editable: true }; 
 
     return [actionColumn, nameColumn, descriptionColumn];
   });
@@ -86,15 +88,54 @@
 
   ////////////////////////////////
   // event handlers
+  const onDeleteItem = async (uuid: string): Promise<void> => {
+    // Remove the species from our list
+    const speciesIndex = speciesList.value.findIndex(s => s.id === uuid);
+    if (speciesIndex !== -1) {
+      speciesList.value.splice(speciesIndex, 1);
+    }
+  };
+
+  const onAddItem = async (): Promise<void> => {
+    // Add a new empty species to our list
+    const newSpecies = {
+      id: foundry.utils.randomID(),
+      name: 'New Species',
+      description: 'Description for new species',
+    };
+    speciesList.value.push(newSpecies);
+  };
+
+  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent): Promise<void> => {
+    const { data, field, newValue } = event;
+    
+    // Find the species in our list and update the specific field
+    const speciesIndex = speciesList.value.findIndex(s => s.id === data.uuid);
+    if (speciesIndex !== -1) {
+      speciesList.value[speciesIndex] = {
+        ...speciesList.value[speciesIndex],
+        [field]: newValue,
+      };
+    }
+  };
+
   const onClickSubmit = async () => {
     await ModuleSettings.set(SettingKey.speciesList, speciesList.value);
+
+    // Emit a custom event to notify all SpeciesSelect components to refresh
+    document.dispatchEvent(new CustomEvent('fcb-species-list-updated'));
+
+    // refresh the content in case something with a species dropdown is open
+    if (useMainStore().currentEntry) {
+      await useMainStore().refreshEntry();
+    }
 
     // close
     speciesListApp?.close();
   }
 
   const onClickReset = async () => {
-    speciesList.value =  ModuleSettings.get(SettingKey.speciesList);
+    speciesList.value =  [...ModuleSettings.get(SettingKey.speciesList)];
   }
 
   ////////////////////////////////
@@ -104,7 +145,7 @@
   // lifecycle events
   onMounted(async () => {
     // load the settings
-    speciesList.value =  ModuleSettings.get(SettingKey.speciesList);
+    speciesList.value =  [...ModuleSettings.get(SettingKey.speciesList)];
   })
   
 

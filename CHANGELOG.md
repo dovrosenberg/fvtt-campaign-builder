@@ -15,6 +15,7 @@
 - When saving an entry description, it now suggests changes you might want to make to the related items (and will make them for you).
 - Added setting to customize the length of long descriptions (1-4 paragraphs)
 - Added ability to manually create items on that to do list for the campaign, as well as the ability to setup a gmail account where you can email spontaneous ideas you have and they will be added to the to do list (requires backend)
+- The species list dialog in the settings now works properly. 
 - Made roll tables world specific (to support the world-specific name styles) and increased size to 100 rows
 - Minor visual improvements
 - Various bug fixes

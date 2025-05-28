@@ -317,6 +317,7 @@
       type: Array as PropType<any[]>,
       required: true,
     },
+    /** show the edit action icon */
     allowEdit: {
       type: Boolean,
       default: false,
