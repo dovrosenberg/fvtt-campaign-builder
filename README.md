@@ -137,9 +137,10 @@ If you believe you found a bug or would like to post a feature request, head ove
 French and German currently supported.  Let me know if you want others.  PRs also welcome for either new languages or fixes to bad translations in the current ones.  
 
 ## Support
-
 I'm happy to do this for free, as I primarily work on things I like to use myself.  But if you'd like to [buy me a root beer](https://ko-fi.com/phloro), I love knowing that people are using my projects and like them enough to make the effort. It's really appreciated!  
 
+## Credits
+See [credits page](https://github.com/dovrosenberg/fvtt-campaign-builder/blob/dev/CREDITS.md) for all the details, but the main one is that I seriously doubt this would have been possible without the [FVTT-Types project](https://github.com/League-of-Foundry-Developers/foundry-vtt-types) from League of Foundry Developers.  Those folks have been working through a ton of typescript insanity so the rest of us don't have to.
 
 ## Copyright and usage
 THIS ENTIRE REPOSITORY IS COVERED BY THIS LICENSE AND COPYRIGHT NOTICE
