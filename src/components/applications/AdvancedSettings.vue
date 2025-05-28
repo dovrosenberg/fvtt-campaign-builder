@@ -41,6 +41,23 @@
       </div>
 
       <div class="form-group">
+        <label>{{ localize('applications.advancedSettings.labels.longDescriptionParagraphs') }}</label>
+        <div class="form-fields">
+          <InputNumber
+            v-model="longDescriptionParagraphs"
+            :min="1"
+            :max="4"
+            :step="1"
+            showButtons
+            unstyled
+          />
+        </div>
+        <p class="hint">
+          {{ localize('applications.advancedSettings.labels.longDescriptionParagraphsHint') }}
+        </p>
+      </div>
+
+      <div class="form-group">
         <label>{{ localize('applications.advancedSettings.labels.useGmailToDos') }}</label>
         <div class="form-fields">
           <Checkbox 
@@ -120,6 +137,7 @@
 
   // library components
   import InputText from 'primevue/inputtext';
+  import InputNumber from 'primevue/inputnumber';
   import Checkbox from 'primevue/checkbox';
   import Select from 'primevue/select';
 
@@ -142,6 +160,7 @@
   const APIURL = ref<string>('');
   const APIToken = ref<string>('');
   const defaultToLongDescriptions = ref<boolean>(true);
+  const longDescriptionParagraphs = ref<number>(1);
   const useGmailToDos = ref<boolean>(false);
   const emailDefaultWorld = ref<string>('');
   const emailDefaultCampaign = ref<string>('');
@@ -188,6 +207,7 @@
     await ModuleSettings.set(SettingKey.APIURL, APIURL.value);
     await ModuleSettings.set(SettingKey.APIToken, APIToken.value);
     await ModuleSettings.set(SettingKey.defaultToLongDescriptions, defaultToLongDescriptions.value);
+    await ModuleSettings.set(SettingKey.longDescriptionParagraphs, longDescriptionParagraphs.value);
     await ModuleSettings.set(SettingKey.useGmailToDos, useGmailToDos.value);
     await ModuleSettings.set(SettingKey.emailDefaultWorld, emailDefaultWorld.value);
     await ModuleSettings.set(SettingKey.emailDefaultCampaign, emailDefaultCampaign.value);
@@ -203,6 +223,7 @@
     APIURL.value = ModuleSettings.get(SettingKey.APIURL);
     APIToken.value = ModuleSettings.get(SettingKey.APIToken);
     defaultToLongDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
+    longDescriptionParagraphs.value = ModuleSettings.get(SettingKey.longDescriptionParagraphs);
     useGmailToDos.value = ModuleSettings.get(SettingKey.useGmailToDos);
     emailDefaultWorld.value = ModuleSettings.get(SettingKey.emailDefaultWorld);
     emailDefaultCampaign.value = ModuleSettings.get(SettingKey.emailDefaultCampaign);
@@ -219,6 +240,7 @@
     APIURL.value = ModuleSettings.get(SettingKey.APIURL);
     APIToken.value = ModuleSettings.get(SettingKey.APIToken);
     defaultToLongDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
+    longDescriptionParagraphs.value = ModuleSettings.get(SettingKey.longDescriptionParagraphs);
     useGmailToDos.value = ModuleSettings.get(SettingKey.useGmailToDos);
     emailDefaultWorld.value = ModuleSettings.get(SettingKey.emailDefaultWorld);
     emailDefaultCampaign.value = ModuleSettings.get(SettingKey.emailDefaultCampaign);
