@@ -74,7 +74,7 @@ export const useSessionStore = defineStore('session', () => {
     ],
     [SessionTableTypes.Lore]: [
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
-      { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false,
+      { field: 'journalEntryPageName', style: 'text-align: left; width: 35%;max-width: 35%', header: 'Journal Page', editable: false,
         onClick: onJournalClick
       },
     ],  

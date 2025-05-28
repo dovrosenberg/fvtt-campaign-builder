@@ -451,6 +451,7 @@
       "deleteNPC": "Delete NPC",
       "deleteItem": "Delete item",
       "deleteMonster": "Delete monster",
+      "editRow": "Edit this item. Press enter to save changes.",
       "deleteScene": "Delete scene",
       "deleteVignette": "Delete vignette",
       "deleteLore": "Delete lore",
