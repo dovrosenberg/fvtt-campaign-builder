@@ -167,19 +167,19 @@ async function scrollToEntryInNestedView(entryId: string): Promise<void> {
  * @returns A promise that resolves when the scroll operation is complete
  */
 async function scrollToCampaign(campaignId: string): Promise<void> {
-  const campaignDirectoryStore = useCampaignDirectoryStore();
+  // const campaignDirectoryStore = useCampaignDirectoryStore();
   
-  // Load the campaign
-  const campaign = await Campaign.fromUuid(campaignId);
-  if (!campaign) {
-    return;
-  }
+  // // Load the campaign
+  // const campaign = await Campaign.fromUuid(campaignId);
+  // if (!campaign) {
+  //   return;
+  // }
 
-  // Ensure the campaign tree is loaded
-  await campaignDirectoryStore.refreshCampaignDirectoryTree();
+  // // Ensure the campaign tree is loaded
+  // await campaignDirectoryStore.refreshCampaignDirectoryTree();
 
-  // Wait for the DOM to update
-  await nextTick();
+  // // Wait for the DOM to update
+  // await nextTick();
 
   // Find and scroll to the campaign element
   await scrollToElement(campaignId, '[data-campaign]');
