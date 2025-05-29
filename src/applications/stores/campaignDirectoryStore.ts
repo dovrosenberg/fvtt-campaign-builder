@@ -59,11 +59,12 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
     const expandedNodes = currentWorld.value.expandedIds || {};
 
+    currentCampaignTree.value = [];
+    
     // get all the campaigns - we could just use campaignNames but this will clean up any bad ones (i.e. got deleted incompletely)
     await currentWorld.value.loadCampaigns();
     const campaigns = currentWorld.value.campaigns;
 
-    const newNodes: DirectoryCampaignNode[] = [];
     for (const id in campaigns) {
       const campaign = await Campaign.fromUuid(id);
 
@@ -74,7 +75,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
       const children = campaign.sessions?.map(session => session.uuid) || [];
 
-      newNodes.push(new DirectoryCampaignNode(
+      currentCampaignTree.value.push(new DirectoryCampaignNode(
         id,
         campaigns[id].name,  // name
         children,
@@ -84,12 +85,11 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     }
     
     // Sort and add to reactive array
-    newNodes.sort((a: DirectoryCampaignNode, b: DirectoryCampaignNode) => a.name.localeCompare(b.name));
-    currentCampaignTree.value = newNodes;
+    (currentCampaignTree.value as DirectoryCampaignNode[]).sort((a: DirectoryCampaignNode, b: DirectoryCampaignNode) => a.name.localeCompare(b.name));
 
     // load any open campaigns
-    for (let i=0; i<newNodes.length; i++) {
-      const campaignNode = newNodes[i];
+    for (let i=0; i<currentCampaignTree.value.length; i++) {
+      const campaignNode = currentCampaignTree.value[i];
 
       if (!campaignNode.expanded)
         continue;
