@@ -10,7 +10,7 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
   protected static _currentWorld: WBWorld | null = null;
 
   /** maps uuid to the node for easy lookup **/
-  protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode>;   
+  protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode>;   
 
   public id: string;
   public parentId: string | null;

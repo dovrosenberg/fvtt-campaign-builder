@@ -43,7 +43,6 @@
   import DirectoryCampaignNodeComponent from './DirectoryCampaignNode.vue';
   
   // types
-  import { DirectoryCampaignNode, } from '@/classes';
   import { WindowTabType } from '@/types';
   
   ////////////////////////////////

@@ -72,7 +72,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
         continue;
       }
 
-      const children = campaign.sessions.map(session => session.uuid);
+      const children = campaign.sessions?.map(session => session.uuid) || [];
 
       newNodes.push(new DirectoryCampaignNode(
         id,

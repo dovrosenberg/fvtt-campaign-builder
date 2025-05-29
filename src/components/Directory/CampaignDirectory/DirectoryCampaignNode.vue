@@ -91,7 +91,7 @@
     return children.sort((a, b) => a.sessionNumber - b.sessionNumber);
   });
 
-  // Check if this campaign is the currently active one
+  // Check if this campaign is current showing in the content window
   const isActiveCampaign = computed((): boolean => {
     return currentCampaign.value?.uuid === props.campaignNode.id;
   });

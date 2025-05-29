@@ -461,7 +461,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     return (toRaw(this._doc).pages.contents as unknown as SessionDoc[])
       .filter((p) => p.type===DOCUMENT_TYPES.Session)
       .map((s: SessionDoc)=> new Session(s, this))
-      .filter((s: Session)=> filterFn(s));
+      .filter((s: Session)=> filterFn(s)) || [];
   }
 
   /**

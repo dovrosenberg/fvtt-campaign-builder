@@ -163,26 +163,10 @@ async function scrollToEntryInNestedView(entryId: string): Promise<void> {
 
 /**
  * Scrolls to a campaign in the campaign directory tree.
- * Loads the campaign and ensures the campaign tree is refreshed before scrolling.
  * 
- * @param campaignId - The UUID of the campaign to scroll to
  * @returns A promise that resolves when the scroll operation is complete
  */
-async function scrollToCampaign(campaignId: string): Promise<void> {
-  // const campaignDirectoryStore = useCampaignDirectoryStore();
-  
-  // // Load the campaign
-  // const campaign = await Campaign.fromUuid(campaignId);
-  // if (!campaign) {
-  //   return;
-  // }
-
-  // // Ensure the campaign tree is loaded
-  // await campaignDirectoryStore.refreshCampaignDirectoryTree();
-
-  // // Wait for the DOM to update
-  // await nextTick();
-
+async function scrollToCampaign(): Promise<void> {
   // Find and scroll to the campaign element using the active class
   await scrollToElement('.fcb-campaign-folder.active');
 }
@@ -193,8 +177,6 @@ async function scrollToCampaign(campaignId: string): Promise<void> {
  * @returns A promise that resolves when the scroll operation is complete
  */
 async function scrollToWorld(): Promise<void> {
-  const campaignDirectoryStore = useCampaignDirectoryStore();
-
   // Find and scroll to the campaign element using the active class
   await scrollToElement('.fcb-world-folder.folder:not(.collapsed)');
 }
