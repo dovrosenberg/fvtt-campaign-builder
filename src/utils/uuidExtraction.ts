@@ -4,6 +4,7 @@
 
 import { Entry } from '@/classes';
 import { RelatedItemDetails } from '@/types';
+import { getParentId } from './hierarchy';
 
 /**
  * Extracts all UUIDs from text content that match @UUID[...] patterns
@@ -66,7 +67,7 @@ export async function getRelatedEntries(addedUUIDs: string[], removedUUIDs: stri
   // thing you'd type but not want to connect since you can see it right there anyway and
   // it's indexed to search so there's no reason to connect to it)
   const world = await currentEntry.getWorld();
-  const parentId = world.getEntryHierarchy(currentEntry.uuid)?.parentId || null;
+  const parentId = getParentId(world, currentEntry) || null;
 
   const added = addedUUIDs.filter(uuid => !relatedEntries[uuid] && ![currentEntry.uuid, parentId].includes(uuid));
   const removed = removedUUIDs.filter(uuid => relatedEntries[uuid] && ![currentEntry.uuid, parentId].includes(uuid));
