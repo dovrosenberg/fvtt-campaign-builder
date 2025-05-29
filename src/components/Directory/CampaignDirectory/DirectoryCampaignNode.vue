@@ -181,7 +181,7 @@
           justify-content: flex-start;
 
           &.active {
-            background: #cfcdc2;
+            font-weight: bold;
           }
         }
 
