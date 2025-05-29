@@ -10,6 +10,7 @@ import { localize } from '@/utils/game';
 import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
 import { UserFlagKey, UserFlags } from '@/settings';
 import { useMainStore } from './mainStore';
+import { scrollToActiveEntry } from '@/utils/directoryScroll';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
@@ -255,7 +256,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     }
     
     if (options.activate)
-      await activateTab(tab.id);  
+      await activateTab(tab.id);
 
     // activating doesn't always save (ex. if we added a new entry to active tab)
     await _saveTabs();
@@ -265,6 +266,9 @@ export const useNavigationStore = defineStore('navigation', () => {
       await _updateRecent(headerData);
 
     await mainStore.setNewTab(tab);
+
+    // scroll to the entry
+    await scrollToActiveEntry();
 
     return tab;
   };
@@ -346,6 +350,9 @@ export const useNavigationStore = defineStore('navigation', () => {
       await _updateRecent(newTab.header);
 
     await mainStore.setNewTab(newTab);
+
+    // Scroll to and expand the active entry in the directory tree
+    await scrollToActiveEntry();
 
     return;
   };
@@ -460,8 +467,12 @@ export const useNavigationStore = defineStore('navigation', () => {
 
       // refresh the current tab just in case it was displaying the now-deleted item
       const activeTab = getActiveTab(false);
-      if (activeTab) 
+      if (activeTab) {
         await mainStore.setNewTab(activeTab);
+        
+        // Scroll to and expand the active entry in the directory tree
+        await scrollToActiveEntry();
+      }
     }
 
     // now remove from bookmarks
@@ -530,6 +541,8 @@ export const useNavigationStore = defineStore('navigation', () => {
     } else {
       // activate the active one
       await mainStore.setNewTab(getActiveTab(true) as WindowTab);
+      // Scroll to and expand the active entry in the directory tree
+      await scrollToActiveEntry();
     }
   };
  

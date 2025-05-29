@@ -11,6 +11,7 @@ import { useMainStore, useNavigationStore, useCampaignStore,} from '@/applicatio
 import { getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
+import { scrollToActiveEntry } from '@/utils/directoryScroll';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, TopicFolder, } from '@/classes';
@@ -602,6 +603,9 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
   watch(isGroupedByType, async (newSetting: boolean) => {
     isGroupedByType.value = newSetting;
     await ModuleSettings.set(SettingKey.groupTreeByType, isGroupedByType.value);
+    
+    // Scroll to the active entry since the tree structure has changed
+    await scrollToActiveEntry();
   });
 
   // update the filter when text changes
