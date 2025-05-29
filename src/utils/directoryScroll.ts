@@ -1,7 +1,7 @@
 import { nextTick } from 'vue';
 import { useTopicDirectoryStore, useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
 import { WindowTabType, } from '@/types';
-import { Entry, Campaign, Session, PC, DirectoryTopicNode, DirectoryCampaignNode } from '@/classes';
+import { Entry, Campaign, Session, DirectoryTopicNode, DirectoryCampaignNode } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 
 /**
@@ -39,7 +39,9 @@ export async function scrollToActiveEntry(): Promise<void> {
     case WindowTabType.PC:
       // don't have tree entries
       break;
-    // World tabs don't have entries in the directory tree
+    case WindowTabType.World:
+      await scrollToWorld(contentId);
+      break;
     default:
       return;
   }
@@ -101,7 +103,7 @@ async function scrollToEntry(entryId: string): Promise<void> {
   await nextTick();
 
   // Find and scroll to the entry element
-  await scrollToElement(entryId);
+  await scrollToElement('.fcb-current-directory-entry');
 }
 
 /**
@@ -181,8 +183,20 @@ async function scrollToCampaign(campaignId: string): Promise<void> {
   // // Wait for the DOM to update
   // await nextTick();
 
-  // Find and scroll to the campaign element
-  await scrollToElement(campaignId, '[data-campaign]');
+  // Find and scroll to the campaign element using the active class
+  await scrollToElement('.fcb-campaign-folder.active');
+}
+
+/**
+ * Scrolls to a world in the campaign directory tree.  Just scrolls to the open one.
+ * 
+ * @returns A promise that resolves when the scroll operation is complete
+ */
+async function scrollToWorld(): Promise<void> {
+  const campaignDirectoryStore = useCampaignDirectoryStore();
+
+  // Find and scroll to the campaign element using the active class
+  await scrollToElement('.fcb-world-folder.folder:not(.collapsed)');
 }
 
 /**
@@ -220,22 +234,14 @@ async function scrollToSession(sessionId: string): Promise<void> {
   await nextTick();
 
   // Find and scroll to the session element (sessions use the same highlighting class as entries)
-  await scrollToElement(sessionId);
+  await scrollToElement('.fcb-current-directory-entry');
 }
-
-
 
 /**
  * Scrolls to an element in the directory tree
  */
-async function scrollToElement(contentId: string, selector?: string): Promise<void> {
-  // Default selector looks for the highlighted entry class
-  const defaultSelector = `.fcb-current-directory-entry`;
-  
-  // If a specific selector is provided, use it with the content ID
-  const elementSelector = selector ? `${selector}="${contentId}"` : defaultSelector;
-  
-  const element = document.querySelector(elementSelector) as HTMLElement;
+async function scrollToElement(selector: string): Promise<void> {
+  const element = document.querySelector(selector) as HTMLElement;
   
   if (element) {
     // Find the scrollable container (the directory panel)

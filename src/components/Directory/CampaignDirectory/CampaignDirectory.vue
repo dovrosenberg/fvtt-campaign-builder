@@ -15,9 +15,10 @@
         </div>
       </header>
 
-      <ol v-if="campaignDirectoryStore.currentCampaignTree.value.length>0">
+      <!-- Note that we have to use value despite being in a template because it's reactive not ref -->
+      <ol v-if="currentCampaignTree.value.length > 0">
         <DirectoryCampaignNodeComponent 
-          v-for="campaign in campaignDirectoryStore.currentCampaignTree.value as DirectoryCampaignNode[]"
+          v-for="campaign in currentCampaignTree.value"
           :key="campaign.id"
           :campaign-node="campaign"
         />
@@ -56,6 +57,7 @@
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentWorld, isInPlayMode } = storeToRefs(mainStore);
+  const { currentCampaignTree } = campaignDirectoryStore;
   
   ////////////////////////////////
   // data
