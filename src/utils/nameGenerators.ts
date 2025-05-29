@@ -5,11 +5,20 @@ import { nameStyles } from '@/utils/nameStyles';
 
 import { GeneratorType, WorldGeneratorConfig } from '@/types';
 import { WBWorld } from '@/classes';
-export const TABLE_SIZE = 100;  // number of items per table
 
 /**
- * Initialize the roll tables for a specific world
- * @param world The world to initialize roll tables for
+ * The number of items to generate for each roll table.
+ * This constant defines the standard size for all generator roll tables.
+ */
+export const TABLE_SIZE = 100;
+
+/**
+ * Initializes roll tables for all generator types in a specific world.
+ * Creates the necessary folder structure and roll tables if they don't exist,
+ * and optionally refreshes the tables with new content based on settings.
+ * 
+ * @param world - The world to initialize roll tables for
+ * @returns A promise that resolves when initialization is complete
  */
 export async function initializeWorldRollTables(world: WBWorld): Promise<void> {
   // Get or create the folder for roll tables for this world
@@ -55,9 +64,11 @@ export async function initializeWorldRollTables(world: WBWorld): Promise<void> {
 }
 
 /**
- * Get or create the folder for campaign builder roll tables for a specific world
- * @param world The world to create the folder for
- * @returns The ID of the folder
+ * Gets or creates the folder for campaign builder roll tables for a specific world.
+ * Checks if an existing folder is still valid before creating a new one.
+ * 
+ * @param world - The world to create the folder for
+ * @returns A promise that resolves to the folder ID
  */
 const getOrCreateWorldRollTableFolder = async(world: WBWorld): Promise<string> => {
   // Check if we already have a folder ID stored
@@ -84,11 +95,14 @@ const getOrCreateWorldRollTableFolder = async(world: WBWorld): Promise<string> =
 }
 
 /**
- * Generate table results for a specific generator type using the backend API with world-specific name styles
- * @param type The generator type
- * @param count The number of results to generate
- * @param world The world to use for name styles and settings
- * @returns An array of table results
+ * Populates table results for a specific generator type using the backend API.
+ * Uses world-specific settings including genre, feeling, and name styles.
+ * 
+ * @param type - The generator type to generate results for
+ * @param count - The number of results to generate
+ * @param world - The world to use for settings and configuration
+ * @returns A promise that resolves to an array of generated names
+ * @throws {Error} If the backend is unavailable or generation fails
  */
 const generateWorldTableResults = async (type: GeneratorType, count: number, world: WBWorld): Promise<string[]> => {
   // If backend is not available, throw an error 
@@ -146,11 +160,13 @@ const generateWorldTableResults = async (type: GeneratorType, count: number, wor
 }
 
 /**
- * Create a Foundry RollTable for a generator type and populate it for a specific world
- * @param type The generator type
- * @param folderId The ID of the folder to create the table in
- * @param world The world this table belongs to
- * @returns The created RollTable
+ * Creates a Foundry RollTable for a specific generator type and populates it with generated content.
+ * Sets appropriate flags and metadata for the table and associates it with the world.
+ * 
+ * @param type - The generator type for this table
+ * @param folderId - The ID of the folder to create the table in
+ * @param world - The world this table belongs to
+ * @returns A promise that resolves to the created RollTable, or null if creation failed
  */
 async function createWorldRollTable(type: GeneratorType, folderId: string, world: WBWorld): Promise<RollTable | null> {
   const tableName = `${world.name} - ${type.charAt(0).toUpperCase() + type.slice(1)} Generator`;
@@ -177,7 +193,15 @@ async function createWorldRollTable(type: GeneratorType, folderId: string, world
   }
 }
 
-/** removes any "used" results and adds replacements for them; tops up to TABLE_SIZE for a world-specific table */
+/**
+ * Refreshes a single roll table by removing used results and adding new ones to maintain TABLE_SIZE.
+ * Uses world-specific settings to generate replacement content that matches the world's style.
+ * 
+ * @param rollTable - The roll table to refresh
+ * @param world - The world containing style and generation settings
+ * @returns A promise that resolves when the table is refreshed
+ * @throws {Error} If the table type is missing or generation fails
+ */
 export const refreshWorldRollTable = async (rollTable: RollTable, world: WBWorld) : Promise<void> => {
   // get the type
   const type = rollTable.getFlag(moduleId, 'type');
@@ -222,9 +246,12 @@ export const refreshWorldRollTable = async (rollTable: RollTable, world: WBWorld
 }
 
 /**
- * Refresh all roll tables for a specific world
- * @param world The world whose roll tables should be refreshed
- * @param empty Whether to empty the roll tables before refreshing them
+ * Refreshes all roll tables for a specific world, optionally clearing them first.
+ * Useful for updating all tables when world settings change or for maintenance.
+ * 
+ * @param world - The world whose tables should be refreshed
+ * @param empty - Whether to clear all existing results before refreshing (defaults to false)
+ * @returns A promise that resolves when all tables are refreshed
  */
 export const refreshWorldRollTables = async(world: WBWorld, empty: boolean = false) : Promise<void> => {
   const config = world.rollTableConfig;
@@ -246,7 +273,10 @@ export const refreshWorldRollTables = async(world: WBWorld, empty: boolean = fal
 }
 
 /**
- * Refresh all roll tables for all worlds - empties them and fills with new results
+ * Refreshes roll tables for all worlds in the current game.
+ * Iterates through all worlds and refreshes their respective roll tables.
+ * 
+ * @returns A promise that resolves when all world tables are refreshed
  */
 export const refreshAllWorldRollTables = async() : Promise<void> => {
   // Import the mainStore dynamically to avoid circular dependencies
@@ -267,8 +297,11 @@ export const refreshAllWorldRollTables = async() : Promise<void> => {
 }
 
 /**
- * Update roll table names when a world name changes
- * @param world The world whose name changed
+ * Updates the names of all roll tables for a world to match the current world name.
+ * Called when a world is renamed to keep table names synchronized.
+ * 
+ * @param world - The world whose table names should be updated
+ * @returns A promise that resolves when all table names are updated
  */
 export const updateWorldRollTableNames = async(world: WBWorld) : Promise<void> => {
   const config = world.rollTableConfig;

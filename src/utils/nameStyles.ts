@@ -1,9 +1,19 @@
+/**
+ * Represents a name generation style configuration with its associated prompt and display name.
+ * Used by the name generator system to apply different stylistic approaches to generated names.
+ */
 export interface NameStyle {
+  /** The prompt text sent to the AI generator, including {genre} placeholder for substitution */
   prompt: string;
+  /** The human-readable display name shown in the UI */
   displayName: string;
 }
 
-
+/**
+ * Collection of predefined name generation styles for use with the AI name generator.
+ * Each style provides a different approach to name generation, from traditional to experimental.
+ * The {genre} placeholder in prompts will be replaced with the world's genre setting.
+ */
 export const nameStyles: NameStyle[] = [
   {
     prompt: "Classic {genre} - Familiar and traditional names, often compound last names with heroic elements.",

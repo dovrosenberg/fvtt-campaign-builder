@@ -1,28 +1,47 @@
 // from https://github.com/ecosia/vue-safe-html
 
+/**
+ * List of HTML tags that are allowed to remain in sanitized content.
+ * These tags are considered safe for display and won't be stripped during sanitization.
+ */
 const allowedTags = [
   'a', 'b', 'br', 'strong', 'i', 'em', 'mark', 'small', 'del', 'ins', 'sub', 'sup',
   'ul', 'ol', 'li', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code', 'br',
 ];
 
+/**
+ * List of HTML attributes that are allowed to remain on sanitized tags.
+ * Includes standard attributes and Foundry VTT-specific data attributes for proper functionality.
+ */
 const allowedAttributes = [
   'title', 'class', 'style', 'href', 'draggable', 'inert',
   'data-link-type', 'data-link', 'data-uuid', 'data-id', 'data-type', 
   'data-pack', 'data-tooltip', 'data-tooltip-text'
 ];
 
-
-  // Strips all tags
+/**
+ * Regular expression for removing all HTML tags from content.
+ * Matches opening and closing tags including malformed ones.
+ */
 const removeAllTagsRegex = /<\/?[^>]+(>|$)/g;
-export const removeAllTags = (input) => (input.replace(removeAllTagsRegex, ''));
 
 /**
- * sanitizeHTML strips html tags in the given string
- * if allowedTags is empty, all tags are stripped
- * @param {*} htmlString  the HTML strings
- * @param {*} allowedTags array of tags that are not stripped
+ * Removes all HTML tags from the input string, leaving only text content.
+ * 
+ * @param input - The string to strip HTML tags from
+ * @returns The input string with all HTML tags removed
  */
-export const sanitizeHTML = (htmlString ) => {
+export const removeAllTags = (input: string): string => (input.replace(removeAllTagsRegex, ''));
+
+/**
+ * Sanitizes HTML content by removing disallowed tags and attributes while preserving safe content.
+ * If no tags are allowed, strips all HTML. Otherwise, filters tags and attributes against allow lists.
+ * Special handling for href attributes to ensure they start with "http" for security.
+ * 
+ * @param htmlString - The HTML string to sanitize
+ * @returns The sanitized HTML string with only allowed tags and attributes
+ */
+export const sanitizeHTML = (htmlString: string): string => {
   if (!htmlString) {
     return '';
   }

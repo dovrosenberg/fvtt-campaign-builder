@@ -16,7 +16,7 @@ import { Backend } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 
 /**
- * Type representing all possible generated content details
+ * Union type representing all possible generated content details.
  */
 export type GeneratedDetails = 
   CharacterDetails |
@@ -24,12 +24,13 @@ export type GeneratedDetails =
   LocationDetails;
 
 /**
- * Handles the creation and setup of a newly generated entry
+ * Handles the creation and setup of a newly generated entry.
+ * Creates the entry, sets its properties based on the generated details,
+ * and optionally triggers image generation.
  * 
- * @param details The details of the generated content
- * @param topicFolder The topic folder to create the entry in 
- * @param generateImage Whether to generate an image for the entry after creation
- * @returns The created entry or undefined if creation failed
+ * @param details - The generated content details containing name, description, type, and topic-specific data
+ * @param topicFolder - The topic folder to create the entry in
+ * @returns A promise that resolves to the created entry, or undefined if creation failed
  */
 export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolder: TopicFolder): Promise<Entry | undefined> => {
   const { name, description, type } = details;
@@ -70,6 +71,16 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
   return entry;
 };
 
+/**
+ * Generates an AI image for an entry based on its type, description, and world context.
+ * Handles different generation logic for characters, locations, and organizations.
+ * Shows user notifications during the generation process and updates the entry with the result.
+ * 
+ * @param currentWorld - The world containing the entry (used for genre and world feeling)
+ * @param entry - The entry to generate an image for
+ * @returns A promise that resolves when image generation is complete
+ * @throws {Error} If image generation fails or the entry type is not supported
+ */
 export const generateImage = async (currentWorld: WBWorld, entry: Entry): Promise<void> => {
   if (!entry || !currentWorld || ![Topics.Character, Topics.Location, Topics.Organization].includes(entry.topic)) {
     return;

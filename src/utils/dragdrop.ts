@@ -1,4 +1,12 @@
-/** Make sure the event has 'text/plain' data and return the data as a JSON object.  Note that this doesn't check the particular type of Entry/Document/Etc being dropped (or even if the data is valid other than it's text and valid JSON) */
+/**
+ * Validates that a drag event contains valid JSON data in the 'text/plain' format.
+ * Checks for proper data transfer format and attempts to parse the JSON content.
+ * Note: This doesn't validate the specific type of Entry/Document/etc being dropped,
+ * only that the data is text and valid JSON.
+ * 
+ * @param event - The drag event to validate
+ * @returns The parsed JSON data as an object, or undefined if validation fails
+ */
 export const getValidatedData = (event: DragEvent): Record<string, any> | undefined => {
   if (event.dataTransfer?.types[0]!=='text/plain') 
     return undefined;
@@ -14,6 +22,15 @@ export const getValidatedData = (event: DragEvent): Record<string, any> | undefi
   return data;
 };
 
+/**
+ * Handles the drag start event for actor documents.
+ * Sets up the drag data, creates an appropriate drag image based on the actor's token,
+ * and configures the drag operation for dropping actors onto the canvas.
+ * 
+ * @param event - The drag start event
+ * @param uuid - The UUID of the actor to drag
+ * @returns A promise that resolves when the drag setup is complete
+ */
 export const actorDragStart = async(event: DragEvent, uuid: string): Promise<void> => {
     // Remove these lines - they're preventing the drag from working
     // event.preventDefault();
@@ -62,7 +79,16 @@ export const actorDragStart = async(event: DragEvent, uuid: string): Promise<voi
     }
   }
   
-    export const itemDragStart = async(event: DragEvent, uuid: string): Promise<void> => {
+/**
+ * Handles the drag start event for item documents.
+ * Sets up the drag data, creates an appropriate drag image based on the item's icon,
+ * and configures the drag operation for dropping items onto the canvas or character sheets.
+ * 
+ * @param event - The drag start event
+ * @param uuid - The UUID of the item to drag
+ * @returns A promise that resolves when the drag setup is complete
+ */
+export const itemDragStart = async(event: DragEvent, uuid: string): Promise<void> => {
     // Remove these lines - they're preventing the drag from working
     // event.preventDefault();
     event.stopPropagation();

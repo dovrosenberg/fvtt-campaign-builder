@@ -5,8 +5,10 @@ import { Entry, Campaign, Session, PC, DirectoryTopicNode, DirectoryCampaignNode
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 
 /**
- * Scrolls to and expands the path for the currently active entry in the directory tree
- * Should be called whenever a tab is activated to ensure the item is visible
+ * Scrolls to and expands the path for the currently active entry in the directory tree.
+ * Should be called whenever a tab is activated to ensure the item is visible in the directory panel.
+ * 
+ * @returns A promise that resolves when the scroll operation is complete
  */
 export async function scrollToActiveEntry(): Promise<void> {
   const mainStore = useMainStore();
@@ -24,31 +26,31 @@ export async function scrollToActiveEntry(): Promise<void> {
     return; // New tab or no content
   }
 
-  try {
-    switch (currentTab.tabType) {
-      case WindowTabType.Entry:
-        await scrollToEntry(contentId);
-        break;
-      case WindowTabType.Campaign:
-        await scrollToCampaign(contentId);
-        break;
-      case WindowTabType.Session:
-        await scrollToSession(contentId);
-        break;
-      case WindowTabType.PC:
-        await scrollToPC(contentId);
-        break;
-      // World tabs don't have entries in the directory tree
-      default:
-        return;
-    }
-  } catch (error) {
-    console.warn('Failed to scroll to active entry in directory:', error);
+  switch (currentTab.tabType) {
+    case WindowTabType.Entry:
+      await scrollToEntry(contentId);
+      break;
+    case WindowTabType.Campaign:
+      await scrollToCampaign(contentId);
+      break;
+    case WindowTabType.Session:
+      await scrollToSession(contentId);
+      break;
+    case WindowTabType.PC:
+      // don't have tree entries
+      break;
+    // World tabs don't have entries in the directory tree
+    default:
+      return;
   }
 }
 
 /**
- * Scrolls to an entry in the topic directory tree
+ * Scrolls to a specific entry in the topic directory tree and expands all necessary parent nodes.
+ * Handles both grouped-by-type and nested hierarchy view modes.
+ * 
+ * @param entryId - The UUID of the entry to scroll to
+ * @returns A promise that resolves when the scroll operation is complete
  */
 async function scrollToEntry(entryId: string): Promise<void> {
   const mainStore = useMainStore();
@@ -103,7 +105,12 @@ async function scrollToEntry(entryId: string): Promise<void> {
 }
 
 /**
- * Scrolls to an entry in the grouped-by-type view
+ * Scrolls to an entry in the grouped-by-type directory view.
+ * Expands the type node containing the entry if it's not already expanded.
+ * 
+ * @param entry - The entry to scroll to
+ * @param topicNode - The topic node containing the entry
+ * @returns A promise that resolves when the scroll operation is complete
  */
 async function scrollToEntryInGroupedView(entry: Entry, topicNode: DirectoryTopicNode): Promise<void> {
   const topicDirectoryStore = useTopicDirectoryStore();
@@ -123,7 +130,11 @@ async function scrollToEntryInGroupedView(entry: Entry, topicNode: DirectoryTopi
 }
 
 /**
- * Scrolls to an entry in the nested hierarchy view
+ * Scrolls to an entry in the nested hierarchy directory view.
+ * Expands all ancestor nodes in the hierarchy to make the entry visible.
+ * 
+ * @param entryId - The UUID of the entry to scroll to
+ * @returns A promise that resolves when the scroll operation is complete
  */
 async function scrollToEntryInNestedView(entryId: string): Promise<void> {
   const mainStore = useMainStore();
@@ -149,7 +160,11 @@ async function scrollToEntryInNestedView(entryId: string): Promise<void> {
 }
 
 /**
- * Scrolls to a campaign in the campaign directory tree
+ * Scrolls to a campaign in the campaign directory tree.
+ * Loads the campaign and ensures the campaign tree is refreshed before scrolling.
+ * 
+ * @param campaignId - The UUID of the campaign to scroll to
+ * @returns A promise that resolves when the scroll operation is complete
  */
 async function scrollToCampaign(campaignId: string): Promise<void> {
   const campaignDirectoryStore = useCampaignDirectoryStore();
@@ -171,7 +186,11 @@ async function scrollToCampaign(campaignId: string): Promise<void> {
 }
 
 /**
- * Scrolls to a session in the campaign directory tree
+ * Scrolls to a session in the campaign directory tree.
+ * Expands the parent campaign node and scrolls to the session within it.
+ * 
+ * @param sessionId - The UUID of the session to scroll to
+ * @returns A promise that resolves when the scroll operation is complete
  */
 async function scrollToSession(sessionId: string): Promise<void> {
   const campaignDirectoryStore = useCampaignDirectoryStore();
@@ -204,25 +223,7 @@ async function scrollToSession(sessionId: string): Promise<void> {
   await scrollToElement(sessionId);
 }
 
-/**
- * Scrolls to a PC (currently PCs might not have direct representation in directory)
- */
-async function scrollToPC(pcId: string): Promise<void> {
-  // PCs are typically managed within campaigns
-  // This might need adjustment based on how PCs are displayed in the directory
-  const pc = await PC.fromUuid(pcId);
-  if (!pc) {
-    return;
-  }
 
-  const campaign = await pc.loadCampaign();
-  if (!campaign) {
-    return;
-  }
-
-  // For now, just scroll to the campaign
-  await scrollToCampaign(campaign.uuid);
-}
 
 /**
  * Scrolls to an element in the directory tree
