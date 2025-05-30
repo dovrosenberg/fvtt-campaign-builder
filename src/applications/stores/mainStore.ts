@@ -126,8 +126,6 @@ export const useMainStore = defineStore('main', () => {
           _currentSession.value = await Session.fromUuid(tab.header.uuid);
           if (!_currentSession.value)
             throw new Error('Invalid session uuid in mainStore.setNewTab()');
-
-          _currentCampaign.value = await _currentSession.value.loadCampaign();
         }
         break;
       case WindowTabType.PC:
@@ -135,8 +133,6 @@ export const useMainStore = defineStore('main', () => {
           _currentPC.value = await PC.fromUuid(tab.header.uuid);
           if (!_currentPC.value)
             throw new Error('Invalid PC uuid in mainStore.setNewTab()');
-
-          _currentCampaign.value = await _currentPC.value.loadCampaign();
         }
         break;
       default:  // make it a 'new entry' window

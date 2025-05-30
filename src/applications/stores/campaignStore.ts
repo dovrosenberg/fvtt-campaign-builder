@@ -13,6 +13,7 @@ import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, IdeaIte
 import { Campaign, PC, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { closeSessionNotes, openSessionNotes } from '@/applications/SessionNotes';
+import { localize } from '@/utils/game';
 
 export enum CampaignTableTypes {
   None,
@@ -60,7 +61,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentContentTab, currentWorld, isInPlayMode } = storeToRefs(mainStore);
+  const { currentCampaign, currentSession, currentContentTab, currentWorld, isInPlayMode } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -73,15 +74,17 @@ export const useCampaignStore = defineStore('campaign', () => {
   // actions
   /** add PC to current campaign */
   const addPC = async (): Promise<PC | null> => {
-    if (!currentCampaign.value)
+    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
+
+    if (!campaign)
       return null;
 
-    const pc = await PC.create(currentCampaign.value);
+    const pc = await PC.create(campaign);
 
     await _refreshPCRows();
 
     if (pc) {
-      await mainStore.refreshCampaign();
+      await mainStore.refreshCurrentContent();
       return pc;
     } else { 
       return null;
@@ -89,13 +92,18 @@ export const useCampaignStore = defineStore('campaign', () => {
   };
 
   const deletePC = async (pcId: string): Promise<void> => {
+    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
+    
+    if (!campaign)
+      return;
+
     const pc = await PC.fromUuid(pcId);
 
     if (!pc) 
       throw new Error('Bad session in campaignDirectoryStore.deletePC()');
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete PC?', 'Are you sure you want to delete this PC?')))
+    if (!(await FCBDialog.confirmDialog(localize('dialogs.confirmDeletePC.title'), localize('dialogs.confirmDeletePC.message'))))
       return;
 
     await pc.delete();
@@ -104,7 +112,8 @@ export const useCampaignStore = defineStore('campaign', () => {
     await navigationStore.cleanupDeletedEntry(pcId);
 
     await _refreshPCRows();
-    await mainStore.refreshCampaign();
+
+    await mainStore.refreshCurrentContent();
   };
   
     /**
@@ -411,14 +420,6 @@ export const useCampaignStore = defineStore('campaign', () => {
   }
 
   const _refreshRows = async (): Promise<void> => {
-    relatedPCRows.value = [];
-    relatedLoreRows.value = [];
-    toDoRows.value = [];
-    ideaRows.value = [];
-
-    if (!currentCampaign.value)
-      return;
-
     await _refreshPCRows();
     await _refreshLoreRows();
     await _refreshToDoRows();
@@ -427,22 +428,33 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   const _refreshPCRows = async (): Promise<void> => {
     relatedPCRows.value = [];
-    if (currentCampaign.value) {
-      const pcs = await currentCampaign.value.getPCs();
 
-      if (pcs) {
-        for (let i = 0; i < pcs.length; i++) {
-          relatedPCRows.value.push({ 
-            name: pcs[i].name,
-            playerName: pcs[i].playerName,
-            uuid: pcs[i].uuid,
-          });
-        }
+    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
+    
+    if (!campaign) 
+      return;
+    
+    const pcs = await campaign.getPCs();
+
+    // we can't just do it in place because of a race condition
+    const retval = [] as PCDetails[];
+
+    if (pcs) {
+      for (let i = 0; i < pcs.length; i++) {
+        retval.push({ 
+          name: pcs[i].name,
+          playerName: pcs[i].playerName,
+          uuid: pcs[i].uuid,
+        });
       }
     }
+
+    relatedPCRows.value = retval;
   };
 
   const _refreshLoreRows = async () => {
+    relatedLoreRows.value = [];
+    
     if (!currentCampaign.value)
       return;
 
@@ -494,16 +506,20 @@ export const useCampaignStore = defineStore('campaign', () => {
   }
 
   const _refreshToDoRows = async () => {
+    toDoRows.value = [];
+
     if (!currentCampaign.value)
       return;
-
+    
     toDoRows.value = Array.from(currentCampaign.value.todoItems);
   }
 
   const _refreshIdeaRows = async () => {
+    ideaRows.value = [];
+
     if (!currentCampaign.value)
       return;
-
+    
     ideaRows.value = Array.from(currentCampaign.value.ideaItems);
   }
 
@@ -511,6 +527,11 @@ export const useCampaignStore = defineStore('campaign', () => {
   // watchers
   watch(()=> currentCampaign.value, async () => {
     await _refreshRows();
+  });
+
+  // have to watch the session because they share PCs
+  watch(()=> currentSession.value, async () => {
+    await _refreshPCRows();
   });
 
   watch(()=> currentContentTab.value, async () => {

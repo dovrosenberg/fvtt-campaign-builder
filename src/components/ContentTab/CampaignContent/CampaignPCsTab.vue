@@ -53,17 +53,13 @@
   // computed data
   type CampaignPCsGridRow = { uuid: string; name: string, playerName: string };
 
-  const rows = computed((): CampaignPCsGridRow[] => 
-    relatedPCRows.value.map((pc: PCDetails) => {
-      const base = { 
-        uuid: pc.uuid, 
-        name: pc.name, 
-        playerName: pc.playerName,
-      };
-
-      return base;
-    })
-  );
+  const rows = computed((): CampaignPCsGridRow[] => (
+    relatedPCRows.value.map((pc: PCDetails) => ({
+      uuid: pc.uuid, 
+      name: pc.name, 
+      playerName: pc.playerName,
+    }))
+  ));
 
   const columns = computed((): any[] => {
     // for now, just action and name
@@ -91,15 +87,7 @@
 
   // call mutation to remove item from relationship
   const onDeleteItemClick = async function(_id: string) {
-    // show the confirmation dialog 
-    await Dialog.confirm({
-      title: localize('dialogs.confirmDeletePC.title'),
-      content: localize('dialogs.confirmDeletePC.message'),
-      yes: () => { 
-        void campaignStore.deletePC(_id); 
-      },
-      no: () => {},
-    });
+    void campaignStore.deletePC(_id); 
   };
 
   const onDragover = (event: DragEvent) => {
