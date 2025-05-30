@@ -5,7 +5,7 @@
     :rows="relatedLoreRows"
     :columns="campaignStore.extraFields[CampaignTableTypes.Lore]"
     :delete-item-label="localize('tooltips.deleteLore')"
-    :allow-edit="false"
+    :allow-edit="true"
     :show-add-button="true"
     :add-button-label="localize('labels.session.addLore')"
     :extra-add-text="localize('labels.session.addLoreDrag')"
