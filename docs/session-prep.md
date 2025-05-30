@@ -1,119 +1,145 @@
 ---
 layout: default
-title: Campaign Planning
+title: Session Preparation
 ---
-# Campaign Planning
+# Session Preparation
 
-The Campaign Planning section helps you prepare for your sessions using the Lazy DM method. It provides tools for organizing the key elements of your upcoming session.  You can define multiple campaigns inside a single Setting, which is useful if you use the same setting across multiple groups who play at different times.  
+The Campaign Builder helps you prepare for your sessions using the [Lazy DM method](https://slyflourish.com/the_lazy_dungeon_master_cc.html), a streamlined approach to session preparation that focuses on the essential elements needed to run an engaging game. This guide will walk you through preparing your sessions effectively.  If you prefer to use a different approach to your session prep, I suspect the same structure can be used.  File a feature request if you have ideas for something that's missing for your style.
 
-## Campaign Preparation
-To create a new campaign:
-1. Right click the name of the Setting in the campaign directory (the bottom part of the directory on the right side) and select "Create New Campaign"
-2. Provide a name for the campaign
-
-## PCs
-
-The PCs section allows you to track information about player characters.
-
-To add a PC:
-1. In your session, click the "PCs" tab
-2. Click "Add PC"
-3. Fill in the PC details and link to the appropriate Actor
-4. Click "Save"
-
-## Creating a campaign
-
-To create a new campaign:
-1. Right click on the Session header in the campaign directory (bottom section of the directory and select "Create Campaign"
-2. Give the campaign a name
-
-In the settings menu, there is an option to display your sessions in the directory by name, number, or date.
-
-## Session Preparation
+## Creating a New Session
 
 To create a new session:
-1. Right click on the campaign the session is part of in the campaign directory and select "Create a session"
-2. Give the session a name (it can be a placeholder if you like to name your sessions after they're done)
+1. Right-click on your campaign in the Campaign Directory (bottom section of the directory)
+2. Select "Create Session"
+3. Give your session a name and number
+4. You can also note the session's date
 
-Sessions are identified by number and by name, as well as with a date.  They are currently shown in the directory by number.
+Each session must have a unique number within a campaign. Sessions are sorted by number in the campaign directory, and the most recent session date determines the "current session" when in Play mode.  There is a setting [TODO: link to setting] that will instead sort it by date or name.
 
-Once you've created a session, you can add the various elements described below.
+The name is required, but it could be "Sesson 4" or something.  If you name your sessions after you're done, you can also just call the current one "TBD" until you give it a name.
 
-### Session description
+## The Lazy DM Method
 
-On this screen, you can change the session name, number, and date. **Each session must have a unique number within a campaign.**
+The Lazy DM method focuses on preparing these key elements for each session:
 
-Sessions are sorted in the campaign directory by number (even if you're displaying them by name or date), and the most recent
-session date is used to determing the "current session" when you're in Play mode.
-
-**Note:** Right-click a session or campaign in the campaign directory to delete it.
-
-### Strong Start
-
-The Strong Start is a compelling opening scene or situation that immediately draws players into the action.
+### 1. Strong Start
+A compelling opening scene that immediately draws players into the action. This could be:
+- An exciting combat encounter
+- A dramatic social situation
+- A mysterious discovery
+- A time-sensitive problem
 
 To add a Strong Start:
 1. In your session, click the "Strong Start" tab
 2. Enter your strong start description
 3. Click "Save"
 
-### Vignettes
-
-Vignettes are potential scenes that might occur during your session. They're called "vignettes" (vs "Scenes" in Lazy DM parlance) to avoid confusion with Foundry scenes.
+### 2. Vignettes (i.e. Scenes)
+Potential scenes that might occur during your session. Lazy DM calls them scenes, but we call them "vignettes" to avoid confusion with Foundry scenes.
 
 To add a vignette:
 1. In your session, click the "Vignettes" tab
 2. Click "Add Vignette"
-3. Fill in the vignette details
-4. Click "Save"
+3. Fill in the free-form description.  Hit enter to save.
 
-During or after the session, you can mark vignettes as "used" or move unused ones to the next session.
+You can edit vignettes by clicking the description or the edit button.
 
-### Lore
-
-The Lore section (what the Lazy DM calls "secrets and clues") allows you to prepare bits of information that players might discover during the session.
+### 3. Lore (i.e. Secrets and Clues)
+Information that players might discover during the session. This helps create a sense of discovery and progression.  Lazy DM calls these "secrets and clues" but we call them "Lore" because a) it's simpler, and b) we have a mechanism [TODO: link] to track Lore on the campaign - not just the session.  And that means you might want to keeps things there that aren't exactly secrets or clues.
 
 To add lore:
 1. In your session, click the "Lore" tab
 2. Click "Add Lore"
-3. Fill in the lore details
-4. Click "Save"
+3. Fill in the lore details and hit enter to save.
 
-Like vignettes, you can mark lore as "revealed" during or after the session.
+Alternately, you can start by dragging a journal entry page (not a full entry) on to the drop box on the lore tab.  This will create a new lore entry already linked to it.
 
-### Campaign Locations
+You can drag journal entry pages to existing rows to attach them.  You cannot currently remove a journal entry page from a lore entry.  Instead, just create a new one and then copy/paste the lore description.
 
-This section allows you to prepare a list of Locations from your Session that might be relevant to the upcoming session.
+### 4. Locations
+Key places that might be relevant to the upcoming session.  Locations are tied to Locations in your Setting.  [TODO: link to location page or something?]
 
 To add a Location:
 1. In your session, click the "Locations" tab
 2. Click "Add Location"
-3. Select a Location from your Setting and add any session-specific notes
-4. Click "Save"
+3. Select a Location from your Setting
 
-### NPCs
+Alternately, drag/drop a location from the topic directory [TODO: link] to the drop box to add it to the session.
 
-Similar to Locations, this section allows you to prepare a list of NPCs from your Setting that might appear in the upcoming session.
+You can click on the name or parent (if applicable) to open those locations in the tab.
+
+You can also create a new location right from the session screen by clicking "Create Location" in the add location box.
+
+[TODO: pic]
+
+### 5. NPCs
+Characters that might appear in the upcoming session.  NPCs are tied to Characters in your Setting.  [TODO: link to character page or something?]
 
 To add an NPC:
 1. In your session, click the "NPCs" tab
 2. Click "Add NPC"
-3. Select a Character from your Setting and add any session-specific notes
-4. Click "Save"
+3. Select a Character from your Setting
 
-### Monsters
+Alternately, drag/drop a character from the topic directory [TODO: link] to the drop box to add it to the session.
 
-The Monsters section allows you to prepare a list of monsters that players might encounter during the session.
+You can click on the name to open the character in the tab.
+
+You can also create a new NPC right from the session screen by clicking "Create Character" in the add character box.
+
+[TODO: pic]
+
+### 6. Monsters
+Creatures that players might encounter during the session.  Monsters are tied to Foundry actors.
 
 To add a monster:
 1. In your session, click the "Monsters" tab
-2. Drag an actor from somewhere else in Foundry onto the list.
-3. You can then click on the "number" to edit it.  Press enter while in the input box to save.
+2. Click "Add monster"
+3. Select an actor (this list currently only includes actors in the world - not in compendia)
 
-### Magic Items
+Alternately, drag/drop an actor from elsewhere in Foundry to the drop box to add it to the session.
 
-The Magic Items section allows you to prepare a list of magic items that might appear during the session.
+You can click on the number cell or the edit button to change the number of monsters you're thinking about using.  Press enter to save.
+
+You can use the drag grabber (TODO: pic) to drag the monster onto the current scene.  Simply click on it, then drag to where you want the token to go.  This works exactly like dragging an actor from the Foundry toolbar and makes it easy __________________
+
+### 7. Magic Items
+Treasures that might appear during the session.
 
 To add a magic item:
 1. In your session, click the "Magic Items" tab
-2. Drag an item from somewhere else in Foundry onto the list.
+2. Drag an item from somewhere else in Foundry onto the list
+
+## Delivering and moving items  [TODO: move this to the wrap up section?]  Then link to it above if needed
+Many of the items above have notations in their tables that they can be 'moved to the next session' or 'delivered', or in the case of lore 'moved to the campaign' (TODO: right?).  Here is what that means and why you might want to do it:
+
+- Move to next session: Remove this item from the current session and add it to the list on the next one.  Useful for easily carrying over 
+
+## Session Wrap-up
+
+After each session:
+1. Review the to-do list for anything that needs attention
+2. Look through all session tabs for unused elements:
+   - Delete elements that are no longer relevant
+   - Move elements to the next session if they might be useful
+   - For lore, you can move it back to the campaign lore list if you want to keep it for later
+
+## Tips for Effective Session Prep
+
+1. **Start with the Strong Start**: Begin your prep by crafting an engaging opening scene
+2. **Prepare 3-5 Vignettes**: This gives you enough material to work with while staying flexible
+3. **Create 5-7 Secrets/Clues**: This provides enough discovery opportunities without overwhelming prep
+4. **Keep NPCs and Locations Connected**: Link your NPCs to locations and other NPCs to create a living world
+5. **Prepare More Monsters Than You Need**: This gives you flexibility during the session
+6. **Use the To-Do List**: Track what needs attention between sessions
+7. **Review Previous Sessions**: Look at what worked and what didn't to improve future prep
+
+## Play Mode
+
+When you're ready to run the session:
+1. Switch to Play mode using the toggle in the Campaign Builder window
+2. A session notes popup will appear for taking notes during play
+3. Use the various tabs to access your prepared content
+4. Mark elements as "used" or "revealed" as you go
+5. Take notes in the session notes window
+
+Changes made during play are tracked in the to-do list, helping you follow up on important developments after the session.

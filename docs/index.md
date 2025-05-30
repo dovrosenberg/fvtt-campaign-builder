@@ -4,8 +4,6 @@ title: Foundry World & Campaign Builder
 ---
 # Foundry Campaign Builder (a world & campaign builder for Foundry VTT)
 
-*Note: The instructions are still a bit of a work in progress.  I think everything here is correct, but there are likely things missing and things may not be in the most obvious place.  Suggested edits or PRs for edits welcome.*
-
 ## Introduction
 The goal of this package is to facilitate creating, planning, and running campaigns in Foundry.  It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to use used with any style of prep).
 
