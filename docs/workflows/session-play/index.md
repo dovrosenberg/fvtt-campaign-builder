@@ -1,6 +1,6 @@
 ---
-layout: default
 title: Playing a Session
+TODO: true
 ---
 
 # Playing a Session

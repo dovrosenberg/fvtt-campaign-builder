@@ -1,8 +1,7 @@
 ---
-layout: default
 title: World Building Interface (Settings)
+TODO: true
 ---
-
 # World Building Interface (Settings)
 
 The Settings Directory is your primary workspace for creating and managing world building content. This section covers all aspects of the world building interface, from the directory structure to specific content types.

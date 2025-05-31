@@ -1,9 +1,9 @@
 ---
-layout: default
 title: Entry
+TODO: true
 ---
 # Entry Window
-![Entry Window](assets/images/entry-content.webp)
+![Entry Window](/assets/images/entry-content.webp)
 
 Regardless of Topic, each Entry has a similar layout in the main window.  At the bottom of this description, we'll outline the things that are different.
 
@@ -47,21 +47,21 @@ After the Description tab, every entry has four tabs that capture the relationsh
 Finally, after the Entry Relationship tabs, some topics have additional tabs that capture relationships between the Entry and Foundry Documents.  Specifically:
 
 ### Characters have an Actors tab
-![Scenes Tab](assets/images/scenes-tab.webp)
+![Scenes Tab](/assets/images/scenes-tab.webp)
 
 Here you can add an actor (or multiple Actors) from the Foundry world to represent this Character.  This allows you to quickly add the Character to the scene during play.  Since your key Characters will be tied to the current session,  you can access any of them with just a couple clicks.  Having multiple Actors allows you to save different states (for ex. for a werewolf Character), but typically you'll only need one.
 
 Click the Add Actor button to select an actor from the Foundry world.  You can also drag and drop an actor into the list, which allows you to add them from compendiums, as well.
 
-You can drag an actor's token to the scene by grabbing the ![Hamburger Icon](assets/images/hamburger.webp) icon on the row and dragging it to the scene.
+You can drag an actor's token to the scene by grabbing the ![Hamburger Icon](/assets/images/hamburger.webp) icon on the row and dragging it to the scene.
 
 Clicking the actor row will open its Foundry actor/character sheet.
 
 ### Locations have a Scenes tab
-![Scenes Tab](assets/images/scenes-tab.webp)
+![Scenes Tab](/assets/images/scenes-tab.webp)
 
 Here you can add a Scene (or multiple Scenes) from the Foundry world to represent this Location, allowing you to rapidly find the right Scene during play.  Multiple Scene allow you to have a day and night Scene for the Location easily accessible, for example.
 
 Click the Add Scene button to select a Scene from the Foundry world.  You can also drag and drop a Scene into the list, which allows you to add them from compendiums, as well.
 
-Clicking the Scene row will open its Foundry setting panel.  Right clicking the Scene will offer options to view, activate, configure, and toggle the navigation - just like right-clicking a Scene in the Foundry sidebar.
+Clicking the Scene row will open its Foundry settings panel.  Right clicking the Scene will offer options to view, activate, configure, and toggle the navigation - just like right-clicking a Scene in the Foundry sidebar.

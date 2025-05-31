@@ -1,6 +1,6 @@
 ---
-layout: default
 title: Establishing Organizations and Factions
+TODO: true
 ---
 
 # Establishing Organizations and Factions
@@ -575,5 +575,4 @@ With well-developed organizations:
 
 1. **[Connect to locations](locations.md)** where they operate
 2. **[Associate with characters](characters.md)** who are members or leaders
-3. **[Plan campaign arcs](../campaign-planning/arcs-storylines.md)** around organizational conflicts
-4. **[Prepare sessions](../session-prep/index.md)** featuring organizational elements 
+3. **[Prepare sessions](../session-prep/index.md)** featuring organizational elements 

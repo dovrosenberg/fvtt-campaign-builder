@@ -1,11 +1,11 @@
 ---
-layout: default
 title: Search
+TODO: true
 ---
 # Search
 The top right corner of the window's title bar has the search box.
 
-![search](assets//images/search.webp)
+![search](/assets/images/search.webp)
 
 Search terms are not case sensitive.  Clicking a search result opens it in a new tab.
 

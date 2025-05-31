@@ -1,12 +1,12 @@
 ---
-layout: default
 title: Campaign
+TODO: true
 ---
 # Campaign Window
 
 [TODO: screenshot of campaign window overview showing main interface]
 
-The Campaign window provides tools for organizing and managing your campaigns within a Setting. Campaigns allow you to group related sessions together, track player characters, maintain campaign-wide lore, capture ideas, and manage tasks. You can define multiple campaigns within a single Setting, which is useful if you use the same setting across multiple groups who play at different times.
+The Campaign window provides tools for organizing and managing your campaigns within a Setting. Campaigns allow you to group related sessions together, track player characters, maintain campaign-wide lore, capture ideas, and manage tasks. You can define multiple campaigns within a single Setting, which is useful if you use the same Setting across multiple groups who play at different times.
 
 ## Campaign Header
 

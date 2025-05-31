@@ -1,6 +1,6 @@
 ---
-layout: default
 title: Settings
+TODO: true
 ---
 # Settings
 

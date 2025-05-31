@@ -1,11 +1,11 @@
 ---
-layout: default
 title: World Building
+TODO: true
 ---
 
 # World Building
 
-World building is the foundation of your campaign. The Campaign Builder helps you create and organize your campaign world with interconnected locations, characters, and organizations that bring your setting to life.
+World building is the foundation of your campaign. The Campaign Builder helps you create and organize your campaign world with interconnected locations, characters, and organizations that bring your Setting to life.
 
 ## Overview
 
@@ -31,7 +31,7 @@ One of the key strengths of the Campaign Builder is how world content interconne
 ## World Building Workflows
 
 ### [Creating Your Campaign World](campaign-world.md)
-Start here to establish the foundational elements of your campaign setting.
+Start here to establish the foundational elements of your campaign Setting.
 
 ### [Building Locations and Settings](locations.md)
 Create the physical places where your adventures take place.

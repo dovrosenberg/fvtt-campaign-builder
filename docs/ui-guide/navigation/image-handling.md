@@ -1,6 +1,6 @@
 ---
-layout: default
 title: Image Handling
+TODO: true
 ---
 
 # Image Handling

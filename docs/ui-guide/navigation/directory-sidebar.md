@@ -1,6 +1,6 @@
 ---
-layout: default
 title: Directory Sidebar
+TODO: true
 ---
 # The Directory Sidebar
 
@@ -10,7 +10,7 @@ The sidebar can be dragged to make it wider or narrower.  You can also click the
 
 By default, the sidebar is open whenever you open the Campaign Builder window.  There is a module setting to change this behavior to instead start collapsed.
 
-![Directory sidebar](assets/images/directory-sidebar.webp)
+![Directory sidebar](/assets/images/directory-sidebar.webp)
 
 ## The Setting directory (aka the entry directory)
 The top half of the directory sidebar is the Setting directory.  Also known as the Entry directory, this is where you can find all of entries (Character, Locations, and Organizations) of your worlds.
@@ -21,7 +21,7 @@ By default, the Setting is organized by Topic.  Each Topic is a folder, clicking
 
 You create new worlds by clicking the "New Setting" button at the top of the sidebar: 
 
-![New Setting button](assets/images/new-setting-button.webp)
+![New Setting button](/assets/images/new-setting-button.webp)
 
 The button next to the "New Setting" button collapses the entire sidebar.
 
@@ -41,7 +41,7 @@ Right clicking on items in the Entry tree provides additional options depending 
 ### Group by type
 Using the "Group tree by type" checkbox at the top of the sidebar, you can choose to organize the entries by Type instead of Topic.  This will eliminate the Hierarchy representation and instead show all of the Entries grouped by their Types.  Entries without a Type will not be shown.
 
-![Group by type tree](assets/images/group-by-type.webp)
+![Group by type tree](/assets/images/group-by-type.webp)
 
 ### Filtering
 Typing text in the "Filter" box at the top of the sidebar filters the Entry tree to only show:

@@ -1,6 +1,6 @@
 ---
-layout: default
 title: Working with Tabs
+TODO: true
 ---
 
 # Working with Tabs

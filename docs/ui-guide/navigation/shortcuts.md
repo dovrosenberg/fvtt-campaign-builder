@@ -1,6 +1,6 @@
 ---
-layout: default
 title: Keyboard Shortcuts
+TODO: true
 ---
 
 # Keyboard Shortcuts

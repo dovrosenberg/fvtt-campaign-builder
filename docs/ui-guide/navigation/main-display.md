@@ -1,6 +1,6 @@
 ---
-layout: default
 title: Main Display
+TODO: true
 ---
 # Main Content Display
 

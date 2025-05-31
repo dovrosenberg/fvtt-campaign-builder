@@ -1,11 +1,11 @@
 ---
-layout: default
 title: Creating Your Campaign World
+TODO: true
 ---
 
 # Creating Your Campaign World
 
-Your campaign world is the stage where all your adventures take place. The Campaign Builder helps you establish the foundational elements that will define your setting and provide the backdrop for memorable stories.
+Your campaign world is the stage where all your adventures take place. The Campaign Builder helps you establish the foundational elements that will define your Setting and provide the backdrop for memorable stories.
 
 ## Starting Your World
 
@@ -228,4 +228,3 @@ Once you have your foundational world elements:
 1. **[Build detailed locations](locations.md)** for immediate use
 2. **[Develop key characters](characters.md)** with motivations and goals
 3. **[Establish organizations](organizations.md)** that create ongoing conflict
-4. **[Plan your first campaign arc](../campaign-planning/arcs-storylines.md)** using your world content 

@@ -1,11 +1,11 @@
 ---
-layout: default
 title: Organizing World Content
+TODO: true
 ---
 
 # Organizing World Content
 
-Effective organization of your world content is essential for creating a cohesive, accessible, and maintainable campaign setting. This guide covers best practices for structuring, linking, and managing your world building elements.
+Effective organization of your world content is essential for creating a cohesive, accessible, and maintainable campaign Setting. This guide covers best practices for structuring, linking, and managing your world building elements.
 
 ## Organization Principles
 
@@ -399,7 +399,6 @@ Keep systems manageable as content grows:
 
 With well-organized world content:
 
-1. **[Plan campaign arcs](../campaign-planning/arcs-storylines.md)** using your organized world elements
-2. **[Prepare sessions](../session-prep/index.md)** with easy access to relevant content
-3. **[Run sessions](../session-play/index.md)** with confidence in your organized material
-4. **Continue expanding** your world systematically as your campaign grows 
+1. **[Prepare sessions](../session-prep/index.md)** with easy access to relevant content
+2. **[Run sessions](../session-play/index.md)** with confidence in your organized material
+3. **Continue expanding** your world systematically as your campaign grows 
