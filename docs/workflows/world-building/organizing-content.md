@@ -399,7 +399,6 @@ Keep systems manageable as content grows:
 
 With well-organized world content:
 
-1. **[Plan campaign arcs](../campaign-planning/arcs-storylines.md)** using your organized world elements
-2. **[Prepare sessions](../session-prep/index.md)** with easy access to relevant content
-3. **[Run sessions](../session-play/index.md)** with confidence in your organized material
-4. **Continue expanding** your world systematically as your campaign grows 
+1. **[Prepare sessions](../session-prep/index.md)** with easy access to relevant content
+2. **[Run sessions](../session-play/index.md)** with confidence in your organized material
+3. **Continue expanding** your world systematically as your campaign grows 

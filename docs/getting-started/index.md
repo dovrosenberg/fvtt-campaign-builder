@@ -4,7 +4,7 @@ TODO: true
 # Getting Started
 
 After installation and activation, you'll find a new button with a globe icon to the left of your scene selection dropdown in the top left corner of your Foundry screen. Clicking this button opens the main interface.
-![Launch button](assets/images/launch-button.webp)
+![Launch button](/assets/images/launch-button.webp)
 
 
 ## Your first Setting

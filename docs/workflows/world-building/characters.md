@@ -474,5 +474,4 @@ With well-developed characters:
 
 1. **[Connect to locations](locations.md)** where they live and work
 2. **[Associate with organizations](organizations.md)** they belong to
-3. **[Plan campaign storylines](../campaign-planning/arcs-storylines.md)** featuring your characters
-4. **[Prepare sessions](../session-prep/index.md)** with character interactions 
+3. **[Prepare sessions](../session-prep/index.md)** with character interactions 

@@ -22,7 +22,6 @@ Build and organize your campaign setting with interconnected locations, characte
 Structure your campaign with arcs, storylines, and resource management.
 
 - [Structuring Your Campaign](campaign-planning/campaign-structure.md)
-- [Creating Campaign Arcs and Storylines](campaign-planning/arcs-storylines.md)
 - [Planning Individual Sessions](campaign-planning/session-planning.md)
 - [Managing Campaign Content and Resources](campaign-planning/content-management.md)
 

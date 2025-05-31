@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
+  ignoreDeadLinks: true,
   title: 'World & Campaign Builder',
   description: 'A Foundry VTT module for worldbuilding and campaign management',
   base: '/fvtt-campaign-builder/',

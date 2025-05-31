@@ -79,9 +79,6 @@ Campaign
 ### [Structuring Your Campaign](campaign-structure.md)
 Learn how to organize your campaign into manageable arcs and sessions.
 
-### [Creating Campaign Arcs and Storylines](arcs-storylines.md)
-Develop compelling multi-session storylines that drive your campaign forward.
-
 ### [Planning Individual Sessions](session-planning.md)
 Connect campaign arcs to specific session content and immediate player experiences.
 
@@ -290,6 +287,5 @@ Balance planning with improvisation:
 With your campaign planning foundation:
 
 1. **[Structure your campaign](campaign-structure.md)** into manageable components
-2. **[Create your first arc](arcs-storylines.md)** using your world content
-3. **[Plan individual sessions](session-planning.md)** that implement your arc
-4. **[Manage your content](content-management.md)** for sustainable campaign operations 
+2. **[Plan individual sessions](session-planning.md)** that implement your arc
+3. **[Manage your content](content-management.md)** for sustainable campaign operations 

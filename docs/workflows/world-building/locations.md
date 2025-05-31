@@ -330,5 +330,4 @@ With well-developed locations:
 
 1. **[Populate with characters](characters.md)** who live and work there
 2. **[Establish organizations](organizations.md)** that operate from these locations
-3. **[Plan campaign arcs](../campaign-planning/arcs-storylines.md)** that use your locations
-4. **[Prepare sessions](../session-prep/index.md)** featuring specific locations 
+3. **[Prepare sessions](../session-prep/index.md)** featuring specific locations 
