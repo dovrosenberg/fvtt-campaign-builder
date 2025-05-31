@@ -1,5 +1,4 @@
 ---
-layout: default
 title: Establishing Organizations and Factions
 ---
 

@@ -1,5 +1,4 @@
 ---
-layout: default
 title: Prep/Play Mode Toggle & Selector
 ---
 

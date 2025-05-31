@@ -1,5 +1,4 @@
 ---
-layout: default
 title: World Building Interface (Settings)
 ---
 

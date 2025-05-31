@@ -1,5 +1,4 @@
 ---
-layout: default
 title: Directory Sidebar
 ---
 # The Directory Sidebar

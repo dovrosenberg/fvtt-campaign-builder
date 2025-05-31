@@ -1,5 +1,4 @@
 ---
-layout: default
 title: Session Preparation
 ---
 # Session Preparation
@@ -64,7 +63,7 @@ To add a Location:
 2. Click "Add Location"
 3. Select a Location from your Setting
 
-Alternately, drag/drop a location from the topic directory [TODO: link] to the drop box to add it to the session.
+Alternately, drag/drop a location from the setting directory [TODO: link] to the drop box to add it to the session.
 
 You can click on the name or parent (if applicable) to open those locations in the tab.
 
@@ -80,7 +79,7 @@ To add an NPC:
 2. Click "Add NPC"
 3. Select a Character from your Setting
 
-Alternately, drag/drop a character from the topic directory [TODO: link] to the drop box to add it to the session.
+Alternately, drag/drop a character from the setting directory [TODO: link] to the drop box to add it to the session.
 
 You can click on the name to open the character in the tab.
 

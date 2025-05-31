@@ -1,5 +1,4 @@
 ---
-layout: default
 title: Advanced Features
 ---
 # Advanced Features (aka the Backend, aka the "AI Stuff")

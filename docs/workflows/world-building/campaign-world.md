@@ -1,11 +1,10 @@
 ---
-layout: default
 title: Creating Your Campaign World
 ---
 
 # Creating Your Campaign World
 
-Your campaign world is the stage where all your adventures take place. The Campaign Builder helps you establish the foundational elements that will define your setting and provide the backdrop for memorable stories.
+Your campaign world is the stage where all your adventures take place. The Campaign Builder helps you establish the foundational elements that will define your Setting and provide the backdrop for memorable stories.
 
 ## Starting Your World
 

@@ -1,5 +1,4 @@
 ---
-layout: default
 title: Entry
 ---
 # Entry Window
@@ -64,4 +63,4 @@ Here you can add a Scene (or multiple Scenes) from the Foundry world to represen
 
 Click the Add Scene button to select a Scene from the Foundry world.  You can also drag and drop a Scene into the list, which allows you to add them from compendiums, as well.
 
-Clicking the Scene row will open its Foundry setting panel.  Right clicking the Scene will offer options to view, activate, configure, and toggle the navigation - just like right-clicking a Scene in the Foundry sidebar.
+Clicking the Scene row will open its Foundry settings panel.  Right clicking the Scene will offer options to view, activate, configure, and toggle the navigation - just like right-clicking a Scene in the Foundry sidebar.
