@@ -1,43 +1,38 @@
-# Documentation Structure
+# Part 1: What You Can Do (Workflows & Tasks)
 
-## Part 1: What You Can Do (Workflows & Tasks)
-
-### World Building
+## World Building
 * Creating your campaign world
 * Building locations and settings
 * Developing characters and NPCs
 * Establishing organizations and factions
 * Organizing your world content
 
-### Campaign Planning  
+## Campaign Planning  
 * Structuring your campaign
 * Creating campaign arcs and storylines
 * Planning individual sessions
 * Managing campaign content and resources
 
-### Session Preparation
+## Session Preparation
 * Preparing for upcoming sessions
 * Setting up session content
 * Organizing materials and references
 * Pre-session checklist
 
-### Playing a Session
+## Playing a Session
 * Running your session
 * Managing content during gameplay
 * Tracking session progress
-* Real-time content delivery
-
-### Wrapping Up
+* Real-time content creation
 * Post-session activities
-* Marking content as delivered
-* Session notes and follow-up
-* Preparing for next session
+  * Session notes and todos
 
-## Part 2: How To Use Features (Detailed UI Instructions)
+# Part 2: How To Use Features (Detailed UI Instructions)
 
-### The backend
+## The backend
+* Overview
 
-### Navigation & Interface
+## Navigation & Interface
 * Overall window structure
 * Directory sidebar (drag, collapse, collapse setting)
   * Content filtering
@@ -48,7 +43,7 @@
 * Prep/play mode toggle & selector
 * Image handling 
 
-### World Building 
+## World Building 
 * Setting Directory (and context menus)
 * Overview  of entry content (incl relationships); reference images
 * Setting content; reference images
@@ -57,10 +52,10 @@
   * scene pushing
 * Organization content specifics
 
-### Campaign Management Features
+## Campaign Management Features
 * Campaign tree structure
 * Campaign content ; reference images
 * Session content; concept of "next session"; delivery marking; reference images
 
-### Settings & Configuration
+## Settings & Configuration
 * Walk through them all
