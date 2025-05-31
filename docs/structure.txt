@@ -35,48 +35,32 @@
 
 ## Part 2: How To Use Features (Detailed UI Instructions)
 
+### The backend
+
 ### Navigation & Interface
 * Overall window structure
-* Directory sidebar
+* Directory sidebar (drag, collapse, collapse setting)
+  * Content filtering
 * Working with tabs (include control click, forward-back, dragging around)
 * Bookmarks
 * Keyboard shortcuts
+* Global search functionality
+* Prep/play mode toggle & selector
+* Image handling 
 
-### World Building (MAYBE CALL IT THE SETTING directory INSTEAD OF TOPIC)
-* Directory management
-* Creating and editing locations
-* Character creation and management
-* Organization setup and editing
-* Setting content creation
-* Topic organization and linking
+### World Building 
+* Setting Directory (and context menus)
+* Overview  of entry content (incl relationships); reference images
+* Setting content; reference images
+* Character content specifics
+* Location content specifics
+  * scene pushing
+* Organization content specifics
 
 ### Campaign Management Features
 * Campaign tree structure
-* Campaign content creation
-* Session content management
-* Content organization and categorization
-
-### Session Tools
-* Prep/play mode toggle
-* Content delivery marking
-* Actor management and scene integration
-* Image handling and scene pushing
-* Content filtering and selection
-
-### Search & Discovery
-* Global search functionality
-* Content filtering
-* Quick navigation
-* Advanced search options
-
-### Import/Export & Integration
-* Foundry VTT integration
-* Content import/export
-* Data synchronization
-* Backup and restore
+* Campaign content ; reference images
+* Session content; concept of "next session"; delivery marking; reference images
 
 ### Settings & Configuration
-* Application preferences
-* UI customization
-* Performance settings
-* Integration setup 
+* Walk through them all

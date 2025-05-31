@@ -186,7 +186,7 @@
   // local imports
   import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, useCampaignStore, } from '@/applications/stores';
+  import { useSettingDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, useCampaignStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -226,7 +226,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
   const campaignStore = useCampaignStore();
@@ -350,7 +350,7 @@
         currentEntry.value.name = newValue;
         await currentEntry.value.save();
 
-        await topicDirectoryStore.refreshTopicDirectoryTree([currentEntry.value.uuid]);
+        await settingDirectoryStore.refreshSettingDirectoryTree([currentEntry.value.uuid]);
         await navigationStore.propagateNameChange(currentEntry.value.uuid, newValue);
         await relationshipStore.propagateFieldChange(currentEntry.value, 'name');
       }
@@ -538,7 +538,7 @@
       await currentEntry.value.save();
 
       // Update the type in the directory tree
-      await topicDirectoryStore.updateEntryType(currentEntry.value, oldType);
+      await settingDirectoryStore.updateEntryType(currentEntry.value, oldType);
 
       // Propagate the type change to all related entries
       await relationshipStore.propagateFieldChange(currentEntry.value, 'type');
@@ -552,7 +552,7 @@
     if (!currentEntry.value.topicFolder)
       throw new Error('Invalid topic in EntryContent.onParentSelectionMade()');
 
-    await topicDirectoryStore.setNodeParent(currentEntry.value.topicFolder, currentEntry.value.uuid, selection || null);
+    await settingDirectoryStore.setNodeParent(currentEntry.value.topicFolder, currentEntry.value.uuid, selection || null);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {

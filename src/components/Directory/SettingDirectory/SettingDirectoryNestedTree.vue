@@ -23,7 +23,7 @@
   // library components
 
   // local components
-  import NodeComponent from './TopicDirectoryNode.vue';
+  import NodeComponent from './SettingDirectoryNode.vue';
 
   // types
   import { DirectoryEntryNode, DirectoryTopicNode, } from '@/classes';

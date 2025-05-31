@@ -1,7 +1,7 @@
 <template>
   <!-- this is just a <ul> wrapper around the a type node in the type-grouped tree-->
   <ul class="fcb-directory-tree">
-    <TopicDirectoryGroupedType
+    <SettingDirectoryGroupedType
       v-for="type in sortedTypes"
       :key="type.id"
       :type="type"
@@ -20,7 +20,7 @@
   // library components
 
   // local components
-  import TopicDirectoryGroupedType from './TopicDirectoryGroupedType.vue';
+  import SettingDirectoryGroupedType from './SettingDirectoryGroupedType.vue';
 
   // types
   import { DirectoryTopicNode, DirectoryTypeNode, } from '@/classes';

@@ -19,7 +19,7 @@ import { DirectoryWorld, Hierarchy, Topics, ValidTopic, } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
 // the store definition
-export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
+export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   ///////////////////////////////
   // the state
 
@@ -57,7 +57,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (world) {
       await mainStore.setNewWorld(world.uuid);
 
-      await refreshTopicDirectoryTree();
+      await refreshSettingDirectoryTree();
 
       // create a new world tab as a starting point
       await navigationStore.openWorld(world.uuid, { newTab: true, activate: true });
@@ -72,7 +72,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
    */
   const toggleTopic = async(topicNode: DirectoryTopicNode) : Promise<void> => {
     await topicNode.toggleWithLoad(!topicNode.expanded);
-    await refreshTopicDirectoryTree();
+    await refreshSettingDirectoryTree();
   };
 
   // move the entry to a new type (doesn't update the entry itself)
@@ -88,7 +88,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     const topicNode = currentWorldNode?.topicNodes.find((p)=>p.topicFolder.topic===entry.topic) || null;
     const oldTypeNode = topicNode?.loadedTypes.find((t) => t.name===oldType);
     if (!currentWorldNode || !topicNode) 
-      throw new Error('Failed to load node in topicDirectoryStore.updateEntryType()');
+      throw new Error('Failed to load node in settingDirectoryStore.updateEntryType()');
 
     if (oldTypeNode) {
       oldTypeNode.loadedChildren = oldTypeNode.loadedChildren.filter((e)=>e.id !== entry.uuid);
@@ -114,7 +114,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     // update the hierarchy (even for entries without hierarchy, we still need it for filtering)
     const hierarchy = currentWorld.value.getEntryHierarchy(entry.uuid);
     if(!hierarchy)
-      throw new Error(`Could not find hierarchy for ${entry.uuid} in topicDirectoryStore.updateEntryType()`);
+      throw new Error(`Could not find hierarchy for ${entry.uuid} in settingDirectoryStore.updateEntryType()`);
 
     if (hierarchy.type !== newType) {
       hierarchy.type = newType;
@@ -122,7 +122,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       await currentWorld.value.save();
     }
 
-    await refreshTopicDirectoryTree([entry.uuid, newTypeNode.id]);
+    await refreshSettingDirectoryTree([entry.uuid, newTypeNode.id]);
   };
 
   // expand/contract  the given entry, loading the new item data
@@ -136,9 +136,9 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     if (!currentWorld.value)
       return;
 
-    await currentWorld.value.collapseTopicDirectory();
+    await currentWorld.value.collapseSettingDirectory();
 
-    await refreshTopicDirectoryTree();
+    await refreshSettingDirectoryTree();
   };
  
   // set the parent for a node, cleaning up all associated relationships/records
@@ -277,7 +277,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       await currentWorld.value.expandNode(parentId);
     }
 
-    await refreshTopicDirectoryTree([parentId, oldParentId, childId].filter((id)=>id!==null));
+    await refreshSettingDirectoryTree([parentId, oldParentId, childId].filter((id)=>id!==null));
 
     return true;
   };
@@ -318,9 +318,9 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       }
 
       if (options.parentId) {
-        await refreshTopicDirectoryTree([options.parentId, entry.uuid]);
+        await refreshSettingDirectoryTree([options.parentId, entry.uuid]);
       } else {
-        await refreshTopicDirectoryTree([entry.uuid]);
+        await refreshSettingDirectoryTree([entry.uuid]);
       }
     }
 
@@ -355,7 +355,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       await navigationStore.clearTabsAndBookmarks();
     }
 
-    await refreshTopicDirectoryTree();
+    await refreshSettingDirectoryTree();
   };
 
   // delete an entry from the world
@@ -377,14 +377,14 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     await navigationStore.cleanupDeletedEntry(entryId);
 
     // refresh and force its parent to update
-    await refreshTopicDirectoryTree(parentId ? [parentId] : []);
+    await refreshSettingDirectoryTree(parentId ? [parentId] : []);
   };
  
   // refreshes the directory tree 
   // we try to keep it fast by not reloading from disk nodes that we've already loaded before,
   //    but that means that when names change or children change, we're not refreshing them properly
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
-  const refreshTopicDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
+  const refreshSettingDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world and journals loaded
     if (!currentWorld.value)
       return;
@@ -398,7 +398,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     let currentWorldFound = false;
     tree = (toRaw(rootFolder.value) as Folder)?.children?.map((world: Folder): DirectoryWorld => {
       if (!world.folder)
-        throw new Error('World without folder in refreshTopicDirectoryTree()');
+        throw new Error('World without folder in refreshSettingDirectoryTree()');
 
       if (world.folder.uuid===currentWorld.value?.uuid) {
         currentWorldFound = true;
@@ -591,12 +591,12 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
       return;
     }
 
-    await refreshTopicDirectoryTree();
+    await refreshSettingDirectoryTree();
   });
   
   // when the current journal set is updated, refresh the tree
   // watch(currentTopicJournals, async (_newJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
-  //   await refreshTopicDirectoryTree();
+  //   await refreshSettingDirectoryTree();
   // });
   
   // save grouping to settings
@@ -632,7 +632,7 @@ export const useTopicDirectoryStore = defineStore('topicDirectory', () => {
     toggleWithLoad,
     collapseAll,
     setNodeParent,
-    refreshTopicDirectoryTree,
+    refreshSettingDirectoryTree,
     updateEntryType,
     updateFilterNodes,
     deleteWorld,

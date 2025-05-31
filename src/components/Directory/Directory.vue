@@ -59,7 +59,7 @@
           <ProgressSpinner v-if="isTopicTreeRefreshing" />
         </div>
         <div v-else class="fcb-directory-panel-wrapper">
-          <TopicDirectory />
+          <SettingDirectory />
         </div>
       </SplitterPanel>
       <SplitterPanel :size="40" class="fcb-directory-panel">
@@ -89,7 +89,7 @@
 
   // local imports
   import { localize } from '@/utils/game';
-  import { useTopicDirectoryStore } from '@/applications/stores';
+  import { useSettingDirectoryStore } from '@/applications/stores';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -98,7 +98,7 @@
 
   // local components
   import CampaignDirectory from './CampaignDirectory/CampaignDirectory.vue';
-  import TopicDirectory from './TopicDirectory/TopicDirectory.vue';
+  import SettingDirectory from './SettingDirectory/SettingDirectory.vue';
   
   // types
   
@@ -110,8 +110,8 @@
 
   ////////////////////////////////
   // store
-  const topicDirectoryStore = useTopicDirectoryStore();
-  const { filterText, isTopicTreeRefreshing, isGroupedByType } = storeToRefs(topicDirectoryStore);
+  const settingDirectoryStore = useSettingDirectoryStore();
+  const { filterText, isTopicTreeRefreshing, isGroupedByType } = storeToRefs(settingDirectoryStore);
 
   ////////////////////////////////
   // data
@@ -130,7 +130,7 @@
   const onCollapseAllClick = (event: MouseEvent) => {
     event.stopPropagation();
 
-    void topicDirectoryStore.collapseAll();
+    void settingDirectoryStore.collapseAll();
   };
 
   // create a world
@@ -141,11 +141,11 @@
     // const wf = game.folders?.find((f)=>f.id==='IAAEn25ebbVZXL9V');
     // if (wf) {
     //   for (let i=0; i<400; i++) {
-    //     await topicDirectoryStore.createEntry(Topics.Location, { name: foundry.utils.randomID() });
+    //     await settingDirectoryStore.createEntry(Topics.Location, { name: foundry.utils.randomID() });
     //   }
     // }
 
-    await topicDirectoryStore.createWorld();
+    await settingDirectoryStore.createWorld();
   };
 
   // save grouping to settings

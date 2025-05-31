@@ -44,12 +44,12 @@
             </div>
           </header>
 
-          <TopicDirectoryGroupedTree
+          <SettingDirectoryGroupedTree
             v-if="isGroupedByType" 
             :topic-node="topicNode as DirectoryTopicNode"
             :world-id="world.id"
           />
-          <TopicDirectoryNestedTree
+          <SettingDirectoryNestedTree
             v-else 
             :topic-node="topicNode as DirectoryTopicNode"
             :world-id="world.id"
@@ -68,14 +68,14 @@
   // local imports
   import { localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
+  import { useSettingDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import TopicDirectoryNestedTree from './TopicDirectoryNestedTree.vue';
-  import TopicDirectoryGroupedTree from './TopicDirectoryGroupedTree.vue';
+  import SettingDirectoryNestedTree from './SettingDirectoryNestedTree.vue';
+  import SettingDirectoryGroupedTree from './SettingDirectoryGroupedTree.vue';
 
 
   // types
@@ -92,10 +92,10 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentWorld } = storeToRefs(mainStore);
-  const { isGroupedByType, currentWorldTree } = storeToRefs(topicDirectoryStore);
+  const { isGroupedByType, currentWorldTree } = storeToRefs(settingDirectoryStore);
 
   ////////////////////////////////
   // data
@@ -173,7 +173,7 @@
           label: localize('contextMenus.worldFolder.delete'), 
           onClick: async () => {
             if (worldId) {
-              await topicDirectoryStore.deleteWorld(worldId);
+              await settingDirectoryStore.deleteWorld(worldId);
               await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
@@ -214,7 +214,7 @@
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: topicDirectoryStore.getTopicContextMenuItems(topicFolder)
+      items: settingDirectoryStore.getTopicContextMenuItems(topicFolder)
     });
   };
 
@@ -226,7 +226,7 @@
   const onTopicFolderClick = async (event: MouseEvent, directoryTopic: DirectoryTopicNode) => { 
     event.stopPropagation();
 
-    await topicDirectoryStore.toggleTopic(directoryTopic);
+    await settingDirectoryStore.toggleTopic(directoryTopic);
   };
 
   ////////////////////////////////

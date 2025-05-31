@@ -236,11 +236,11 @@
     if (import.meta.env.MODE === 'development') {
       // need to set _customProperties on all stores - use dynamic import to avoid the import in production
       const module = await import('@/applications/stores/index.ts');
-      const { useMainStore, useNavigationStore, useTopicDirectoryStore, useCampaignDirectoryStore, useRelationshipStore, useCampaignStore, useSessionStore } = module;
+      const { useMainStore, useNavigationStore, useSettingDirectoryStore, useCampaignDirectoryStore, useRelationshipStore, useCampaignStore, useSessionStore } = module;
 
       useNavigationStore()._customProperties = new Set();
       useMainStore()._customProperties = new Set();
-      useTopicDirectoryStore()._customProperties = new Set();
+      useSettingDirectoryStore()._customProperties = new Set();
       useCampaignDirectoryStore()._customProperties = new Set();
       useRelationshipStore()._customProperties = new Set();
       useCampaignStore()._customProperties = new Set();

@@ -84,7 +84,7 @@
   // local imports
   import { localize } from '@/utils/game';
   import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
-  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useTopicDirectoryStore } from '@/applications/stores';
+  import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useSettingDirectoryStore } from '@/applications/stores';
   import { FCBDialog } from '@/dialogs';
   
   // library components
@@ -106,7 +106,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentWorld } = storeToRefs(mainStore);
   const { recent } = storeToRefs(navigationStore);
@@ -121,7 +121,7 @@
   ////////////////////////////////
   // methods
   const onCreateWorld = async () => {
-    await topicDirectoryStore.createWorld();
+    await settingDirectoryStore.createWorld();
   };
 
   const onCreateCampaign = async () => {

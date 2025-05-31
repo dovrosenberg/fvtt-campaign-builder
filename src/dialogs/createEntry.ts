@@ -2,7 +2,7 @@ import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin';
 import PrimeVue from 'primevue/config';
 import App from '@/components/applications/CreateEntryDialog.vue';
 import { hasHierarchy, } from '@/utils/hierarchy';
-import { useMainStore, useTopicDirectoryStore, useRelationshipStore, useNavigationStore, useCampaignStore } from '@/applications/stores'; 
+import { useMainStore, useSettingDirectoryStore, useRelationshipStore, useNavigationStore, useCampaignStore } from '@/applications/stores'; 
 import { CharacterDetails, LocationDetails, OrganizationDetails, Topics, ValidTopic } from '@/types';
 import { Entry, Session, TopicFolder } from '@/classes';
 import { generateImage, handleGeneratedEntry } from '@/utils/generation';
@@ -179,7 +179,7 @@ const updatedCallback = async (entry: Entry, details: AnyDetails | null): Promis
 
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   const mainStore = useMainStore();
 
   // Update the entry with the generated content
@@ -192,14 +192,14 @@ const updatedCallback = async (entry: Entry, details: AnyDetails | null): Promis
   }
   
   if (hasHierarchy(entry.topic)) {
-    await topicDirectoryStore.setNodeParent(entry.topicFolder as TopicFolder, entry.uuid, (details as LocationDetails).parentId || null);
+    await settingDirectoryStore.setNodeParent(entry.topicFolder as TopicFolder, entry.uuid, (details as LocationDetails).parentId || null);
   }
 
   // Save the entry
   await entry.save();
 
   // Refresh the directory tree to show the updated name
-  await topicDirectoryStore.refreshTopicDirectoryTree([entry.uuid]);
+  await settingDirectoryStore.refreshSettingDirectoryTree([entry.uuid]);
   await navigationStore.propagateNameChange(entry.uuid, entry.name);
 
   // Propagate the name and type changes to all related entries
