@@ -1,9 +1,11 @@
-# Jekyll build files
+# VitePress build files
+.vitepress/dist/
+.vitepress/cache/
+
+# Legacy Jekyll files (keeping for reference during transition)
 _site/
 .sass-cache/
-.jekyll-cache/
-.jekyll-metadata
 
-# Bundler files
-.bundle/
-vendor/
+
+# Node.js dependencies (if any docs-specific packages are added)
+node_modules/

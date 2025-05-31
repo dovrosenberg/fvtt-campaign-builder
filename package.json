@@ -2,6 +2,7 @@
   "name": "fvtt-campaign-builder",
   "title": "World & Campaign Builder for Foundry",
   "version": "1.0.0",
+  "type": "module",
   "description": "Create regions, organizations, culture, and other elements of your world, right in Foundry.",
   "repository": {
     "type": "git",
@@ -19,15 +20,18 @@
     "unlinkdata": "unlink ~/foundry13data/Data/modules/campaign-builder",
     "buildcopy": "npm run build && npm run copy",
     "foundry": "node ~/foundry13/resources/app/main.js --dataPath=/home/dov/foundry13data",
-    "updateREST": "rm -rf src/apiClient && npx @openapitools/openapi-generator-cli generate -i http://localhost:8080/documentation/json -g typescript-axios -o src/apiClient --additional-properties=withSeparateModelsAndApi=true,disallowAdditionalPropertiesIfNotPresent=false,apiPackage=API,modelPackage=types,supportsES6=true,withInterfaces=true"
+    "updateREST": "rm -rf src/apiClient && npx @openapitools/openapi-generator-cli generate -i http://localhost:8080/documentation/json -g typescript-axios -o src/apiClient --additional-properties=withSeparateModelsAndApi=true,disallowAdditionalPropertiesIfNotPresent=false,apiPackage=API,modelPackage=types,supportsES6=true,withInterfaces=true",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "@ethaks/fvtt-quench": "^0.9.2",
     "@faker-js/faker": "^9.3.0",
-    "@types/fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "@openapitools/openapi-generator-cli": "^2.18.4",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
     "@primevue/auto-import-resolver": "^4.2.5",
+    "@types/fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "@types/jquery": "^3.5.32",
     "@types/yaireo__tagify": "^4.27.0",
     "@typescript-eslint/eslint-plugin": "^8.18.2",
@@ -58,6 +62,7 @@
     "vite": "^6.1.6",
     "vite-plugin-env-compatible": "^2.0.1",
     "vite-plugin-html": "3.2.2",
+    "vitepress": "^1.6.3",
     "vue-eslint-parser": "^9.4.3",
     "vue-tsc": "^2.1.10"
   },
