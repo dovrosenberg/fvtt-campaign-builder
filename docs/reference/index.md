@@ -127,9 +127,9 @@ Configure the module for your preferences:
 
 After reading the UI guide:
 
-1. **Try the workflows**: Apply what you've learned with the [workflow guides](../workflows/)
+1. **Try the workflows**: Apply what you've learned with the [workflow guides](../guide/)
 2. **Set up your campaign**: Use the getting started guides
 3. **Customize your setup**: Adjust settings for your preferences
 4. **Explore advanced features**: Discover powerful integration options
 
-This guide covers the "how" of using the Campaign Builder. For the "why" and "when" of campaign management, see our [workflow documentation](../workflows/). 
+This guide covers the "how" of using the Campaign Builder. For the "why" and "when" of campaign management, see our [workflow documentation](../guide/). 

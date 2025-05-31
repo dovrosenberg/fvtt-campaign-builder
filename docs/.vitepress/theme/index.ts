@@ -1,6 +1,5 @@
 import DefaultTheme from 'vitepress/theme'
 import CustomLayout from './CustomLayout.vue'
-import HomeNoNav from './HomeNoNav.vue'
 import './custom.css'
 
 export default {
@@ -12,7 +11,5 @@ export default {
     },
   },
   enhanceApp({ app }) {
-    // Register the HomeNoNav component as a custom layout
-    app.component('HomeNoNav', HomeNoNav)
   }
 } 

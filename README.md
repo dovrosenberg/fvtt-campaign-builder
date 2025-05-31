@@ -4,31 +4,25 @@
 
 World & Campaign Builder is designed to streamline every part of your TTRPG prep and gameplay—from deep worldbuilding to session planning and live play tracking. Whether you're building a sprawling lore-rich universe or following the Lazy DM approach to lightweight prep, this tool lets you create interconnected characters, locations, organizations, and events with ease, all inside Foundry. It’s fast enough to use in real time during a session, and flexible enough to evolve as your world grows. Optional AI-assisted content and image generation offer powerful creative boosts, but the module is fully usable without them. 
 
-## Important notes
+## A note on AI and "Advanced Features"
+You'll see lots of references to AI capabilities in the [documentation](https://https://dovrosenberg.github.io/fvtt-campaign-builder/) and feature lists.  There is no AI-generated content (or any other content) provided by the module (other than foreign language translations of UI elements). It merely has the capability to use AI to generate various things if you desire.  
 
-### This module is VERY early in development.
-It's really a beta.  That said, I'm actively working to improve it, and would LOVE if other people think such a thing would be useful to have you try it out and provide feedback on how to improve it - both functionality and usability.  To be clear, it's pretty stable.  You're highly unlikely to suffer data loss of the world data you put in.  You may end up in a state where we'll need to manually fix something to give you access to that data again.  I have only had one bug recently (last month or so of development) that caused the latter issue, and it's been fixed.  So, I don't say this to scare you, but if you want to use this for a live campaign:
-  1. Backup often
-  2. Just know what you're signing up for
-
- [Let me know](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose) if you have any trouble or suggestions/requests.
-  
-### A note on AI and "Advanced Features"
-You'll see lots of references to AI capabilities in the instructions and feature lists.  There is no AI-generated content (or any other content) provided by the module (other than foreign language translations of UI elements). It merely has the capability to use AI to generate various things if you desire.  
-
-The module is *fully functional and useful without any use of AI*, and by default there are no AI features/functions enabled.  You'll never know it's there.
+So if you're in the anti-AI crowd, know that the module is *fully functional and useful without any use of AI*, and by default there are no AI features/functions enabled.  You'll never know it's there.
 
 That said, here's the scoop on what you'll need to do if you do want to access the AI features:
 
-- The first advanced features require you to setup a backend server.  Which features fall in this category are noted below, but basically it comes down to the AI features.  This approach of using a backend has the advantages of:
+- The advanced features require you to setup a backend server.  Which features fall in this category are noted below and throughout the docs, but basically it comes down to the AI features.  This approach of using a backend has the advantages of:
+  - The backend is completely under your control - no one else has access to it or can use it.
   - You don't need to store sensitive credentials (i.e. OpenAI tokens) in Foundry (which would then be visible by whoever is hosting the session), and 
   - Activities that take some time (particularly image generation) can be done much more effectively
   - Future-proof for more complex features in the future
 - Setting up these features is not particularly complicated, but does require:
   - Some basic comfort with running command-line scripts
-  - Account creation (currently Google Cloud, OpenAPI, and Replicate.com).  The backend is designed to stay within the Google Cloud free tier (assuming you're not running anything else) and the OpenAPI/Replicate costs are minimal (ex. you can create ~5000 AI-generated character descriptions for $0.15 and image generation is about $0.01), but all 3 services will require you to provide a credit card.
+  - Account creation (currently Google Cloud, OpenAI, and Replicate.com).  
   - Full details on the setup are here: https://github.com/dovrosenberg/fvtt-fcb-backend
-
+- Costs
+  - The backend is designed to stay within the Google Cloud free tier (assuming you're not running anything else) and the OpenAI/Replicate costs are minimal (ex. you can create ~5000 AI-generated character descriptions for $0.15 and image generation is about $0.01), but all 3 services will require you to provide a credit card.  I've been running it for about 3 months while building/testing and I have spent a total of $0.71, 97% of which was images.
+  - That said, OpenAI has a minimum token buy of $5 and it expires after a year.  So in the current state, it essentially costs $5 per year plus $.01 per image.  After release 1.0 I will be looking at replacing OpenAI with something that allows more granular payment.
 
 ______
 

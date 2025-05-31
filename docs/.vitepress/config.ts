@@ -1,4 +1,10 @@
 import { defineConfig } from 'vitepress'
+import fs from 'fs'
+import path from 'path'
+
+// Read the common links file
+const commonLinksPath = path.join(__dirname, '../common-links.md')
+const commonLinks = fs.existsSync(commonLinksPath) ? fs.readFileSync(commonLinksPath, 'utf-8') : ''
 
 export default defineConfig({
   ignoreDeadLinks: true,
@@ -6,12 +12,25 @@ export default defineConfig({
   description: 'A Foundry VTT module for worldbuilding and campaign management',
   base: '/fvtt-campaign-builder/',
   
+  markdown: {
+    config: (md) => {
+      // Add a rule to append common links to every page
+      const originalRender = md.render;
+
+      md.render = function(src, env) {
+        // Append common links to the source before rendering
+        const modifiedSrc = src + '\n\n' + commonLinks;
+        return originalRender.call(this, modifiedSrc, env);
+      }
+    }
+  },
+  
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started/' },
-      { text: 'Workflows', link: '/workflows/' },
-      { text: 'UI Guide', link: '/ui-guide/' }
+      { text: 'Workflows', link: '/guide/' },
+      { text: 'Reference', link: '/reference/' }
     ],
 
     sidebar: [
@@ -25,19 +44,19 @@ export default defineConfig({
       {
         text: 'Workflows & Tasks',
         items: [
-          { text: 'World Building', link: '/workflows/world-building' },
-          { text: 'Campaign Planning', link: '/workflows/campaign-planning' },
-          { text: 'Session Preparation', link: '/workflows/session-preparation' },
-          { text: 'Playing a Session', link: '/workflows/playing-session' }
+          { text: 'World Building', link: '/guide/world-building' },
+          { text: 'Campaign Planning', link: '/guide/campaign-planning' },
+          { text: 'Session Preparation', link: '/guide/session-preparation' },
+          { text: 'Playing a Session', link: '/guide/playing-session' }
         ]
       },
       {
         text: 'UI Guide',
         items: [
-          { text: 'Navigation & Interface', link: '/ui-guide/navigation' },
-          { text: 'World Building Features', link: '/ui-guide/world-building' },
-          { text: 'Campaign Management', link: '/ui-guide/campaign-management' },
-          { text: 'Settings & Configuration', link: '/ui-guide/settings' }
+          { text: 'Navigation & Interface', link: '/reference/navigation' },
+          { text: 'World Building Features', link: '/reference/world-building' },
+          { text: 'Campaign Management', link: '/reference/campaign-management' },
+          { text: 'Settings & Configuration', link: '/reference/settings' }
         ]
       }
     ],

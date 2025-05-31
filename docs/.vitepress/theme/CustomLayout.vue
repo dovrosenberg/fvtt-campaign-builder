@@ -1,9 +1,5 @@
 <template>
-  <!-- If layout is HomeNoNav, render it without navigation -->
-  <HomeNoNav v-if="page.frontmatter?.layout === 'HomeNoNav'" />
-  
-  <!-- Otherwise, use the default layout with navigation -->
-  <Layout v-else>
+  <Layout>
     <template #doc-before>
       <div v-if="page.frontmatter?.TODO" class="todo-warning">
         <div class="todo-warning-content">
@@ -21,7 +17,6 @@
 <script setup>
 import { useData } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
-import HomeNoNav from './HomeNoNav.vue'
 
 const { Layout } = DefaultTheme
 
