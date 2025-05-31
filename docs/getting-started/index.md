@@ -1,5 +1,5 @@
 ---
-TODO: true
+title: Getting Started
 ---
 # Getting Started
 
@@ -8,53 +8,58 @@ After installation and activation, you'll find a new button with a globe icon to
 
 
 ## Your first Setting
-When you first open the module, you'll be prompted to create your first Setting. Almost everything that happens in Campaign Builder is inside of a Setting. These Settings are separate from your Foundry world. Yes, it's confusing.  You can have multiple Settings inside one Foundry world.  All your Characters, Locations, and Campaign information reside within a single Setting and can't cross over between them.  As you'll see later, you can have more than one Campaign in a given Setting, and they can share all of the same Characters, Locations, etc.
+When you first open the module, you'll be prompted to create your first Setting. Almost everything that happens in Campaign Builder is inside of a Setting. These Settings represent the world/universe that your campaigns happen in.  You can have multiple Settings in the module inside one Foundry world, but all your Characters, Locations, and Organizations reside within a single Setting and can't cross over or reference entries in a different Setting.  And you can have more than one Campaign in a given Setting, and they share all of the same Characters, Locations, etc. (but also cannot reference into a Setting other than the one they are in).
 
-Note that there's currently no way to move a Setting between Foundry worlds.  If you have a use case for that, let's talk.
+*Note that there's currently no way to move a Setting between Foundry worlds.  If you have a use case for that, let's talk.*
 
-## Where's all this stored?
-For the curious, each Setting has its own folder in your compendia (in a top-level folder called 'Campaign Builder').  Inside the Setting folder is a compendium for the Setting.  All of the module's data is stored in Journal Entries inside this compendium.  Don't mess with it if you want everything to keep working.
+## Choose your own adventure
+The quick-start guide is split into two parts, depending on what you want to focus on - world building or running a campaign.  These work best together, but you can use the module for either alone (more or less).  These guides are not intended to cover all the functionality available (or you wouldn't need the rest of this documentation).  Instead they cover just enough to get you started and far enough along that you can then explore on your own.
 
-## Quick-start guides
-The quick-start guide is split into two parts, depending on what you want to focus on - setting building, and running a campaign.  These guides are not intended to cover all the functionality available (or you wouldn't need the rest of this documentation).  Instead they cover just enough to get you started and far enough along that you can then explore on your own.
+### World Building
+World building primarily takes place in the [Setting Directory](/reference/navigation/directory-sidebar/#setting-directory), found in the upper part of the Directory Sidebar.  The key steps to get you started are:
 
-### Setting Building
-Setting building primarily takes place in the upper part of the [Directory Sidebar](directory-sidebar.html) - the Topic Directory (named this because it's typically grouped by topic).  The key steps to get you started are:
-
-1. Create a Setting (see above)
+1. Create a Setting (this will happen automatically when you first open the window)
 1. Right click on the topic folders ('Characters', 'Locations', 'Organizations') to create new entries and begin defining your Setting
 
 That's basically it - everything else is optional.  Some other things you'll likely want to do, though, include:
-* Provide the Setting details (this is particularly important if using Advanced Features)
+* Provide the Setting details (this is particularly important if using [Advanced Features])
   * Click the Setting name in the directory to get to the Setting details tab, where you can provide background on the Setting
-* Give entries more details
+* Give your Entries (Characters, etc.) more details
+  * Open an entry by clicking on it in the directory.  (Holding Control while clicking will open it in a new tab)
   * Give it a type - just enter your new type in the Type box
   * Click on the image box to assign an image
   * Add relationships to other entries on the other tabs 
 
+Check out the [World Building Guide](/guide/world-building) for more information.
+
 ### Running a Campaign
-Running a campaign primarily takes place in the lower part of the [Directory Sidebar](directory-sidebar.html) - the Campaign Directory.  Campaigns are comprised of multiple sessions.  A session is intended to represent a single game session - played in one stretch of time.  Sessions have numbers that determine their order in the campaign.  The session with the highest number is the "active" session, which is important for some features.
+Running a campaign primarily takes place in the lower part of the Directory Sidebar - the [Campaign Directory](/reference/navigation/directory-sidebar/#campaign-directory).  Campaigns are comprised of multiple sessions.  
+
+A session is intended to represent a single game session - played in one stretch of time.  Sessions have numbers that determine their order in the campaign.  The session with the highest number is the "active" session, which is important for some features.
 
 Get started:
 1. Pick the Setting the campaign is in from the Setting Directory
 1. Right click on the "[Setting name] Campaigns" header in the Campaign Directory to create a new campaign
 1. Right click on the Campaign name to create a new session
 
-For campaigns, there are two modes you need to know about.  "Prep" mode and "Play" mode.  You change between these modes with the toggle in the Campaign Builder window title bar.  If you have more than one campaign with at least one session, you'll see a drop-down where you can pick which campaign you are playing.  
+For campaigns, there are two modes you need to know about.  "Prep" mode and "Play" mode.  You change between these modes with the [toggle](/reference/navigation/prep-play) in the Campaign Builder window title bar.  If you have more than one campaign with at least one session, you'll see a drop-down where you can pick which campaign you are playing.  
 
-[TODO - image of toggle and campaign dropdown]
+![prep/play toggle and dropdown](/assets/images/prep-play-with-campaign.webp)
 
 #### Prep mode:
 In prep mode, you're wrapping up a session that just ended and/or setting up for the next one.  This is where you'll flesh out a session with settings, NPCs, etc.
 
-Prep mode is designed to follow the Lazy DM philosophy, so the main things you'll want to do are:
+Prep mode is designed to follow the Lazy DM philosophy, so the main things you'll want to do are (you do these all on the Session screen - click the session in the directory to open it):
 * Write your "strong start"
-* Define any lore that might come up
-* Describe possible scenes (called vignettes here to distinguish from Foundry scenes)
-* Connect any Locations from the Session - this then gives you quick access to associated Foundry scenes
-* Connect any Characters from the Session for your NPCs
-* Add any Foundry actors as monsters
+* Define any Lore that might come up
+* Describe possible scenes (called Vignettes in Campaign Builder to distinguish from Foundry scenes)
+* Connect any Locations from the Setting - this then gives you quick access to both your detailed Location info and the associated Foundry scenes
+* Connect any Characters from the Setting for your NPCs
+* Add any Foundry actors as monsters - this gives you easy access to their actor sheets and to drag them onto the scene
 * Add any Foundry items for magic items as that might come up
+
+> [!CAUTION]
+> TODO - pick up here
 
 Post-session, there are two key things to look at:
 * Review the to-do list for anything that needs attention

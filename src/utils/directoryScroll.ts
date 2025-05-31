@@ -48,7 +48,7 @@ export async function scrollToActiveEntry(): Promise<void> {
 }
 
 /**
- * Scrolls to a specific entry in the topic directory tree and expands all necessary parent nodes.
+ * Scrolls to a specific entry in the setting directory tree and expands all necessary parent nodes.
  * Handles both grouped-by-type and nested hierarchy view modes.
  * 
  * @param entryId - The UUID of the entry to scroll to

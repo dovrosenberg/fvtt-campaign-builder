@@ -23,6 +23,10 @@ features:
 
 # &nbsp;
 
+# Quick start
+
+Do you learn by doing?  Just checkout the [Getting Started](/getting-started) guide. 
+
 # Introduction
 
 The goal of this package is to facilitate creating, planning, and running campaigns in Foundry. It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to use used with any style of prep).

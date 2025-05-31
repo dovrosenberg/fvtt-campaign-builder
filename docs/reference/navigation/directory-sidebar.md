@@ -12,7 +12,7 @@ By default, the sidebar is open whenever you open the Campaign Builder window.  
 
 ![Directory sidebar](/assets/images/directory-sidebar.webp)
 
-## The Setting directory (aka the entry directory)
+## The Setting directory (aka the entry directory) {#setting-directory}
 The top half of the directory sidebar is the Setting directory.  Also known as the Entry directory, this is where you can find all of entries (Character, Locations, and Organizations) of your worlds.
 
 Each Setting has a header, and you click the Setting name to make it the active Setting.  In the image above, *Mallindor* has been selected as the active Setting.  The active Setting is also shown in the the main window title bar.
@@ -49,7 +49,7 @@ Typing text in the "Filter" box at the top of the sidebar filters the Entry tree
 - All types that contain the filter string (when in "Group tree by type" mode)
 - Any ancestors of those Entries (to show where they are in the Hierarchy)
 
-## The campaign directory
+## The Campaign directory {#campaign-directory}
 The bottom half of the directory sidebar is the campaign directory.  This shows all of the campaigns for the currently active Setting.  If you want to see campaigns for a different Setting, you need to change the Setting first.
 
 [TODO: flesh this out]

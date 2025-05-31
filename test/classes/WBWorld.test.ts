@@ -423,7 +423,7 @@ export const registerWBWorldTests = () => {
             expect(unsetFlag.calledWith(world.raw, WorldFlagKey.expandedIds)).to.equal(true);
           });
 
-          it('should collapse topic directory', async () => {
+          it('should collapse setting directory', async () => {
             await world.collapseSettingDirectory();
             expect(unsetFlag.calledWith(world.raw, WorldFlagKey.expandedIds)).to.equal(true);
           });
