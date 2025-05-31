@@ -18,7 +18,7 @@ export class KeyBindings {
         hint: 'fcb.keybindings.closeTabHelp',
         onDown: () => { 
           // only trap this when the window is open
-          if (wbApp && wbApp.rendered) {
+          if (wbApp?.rendered) {
             const store = useNavigationStore();
             const tab = store.getActiveTab();
             if (tab) {

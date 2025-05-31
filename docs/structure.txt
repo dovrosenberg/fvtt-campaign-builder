@@ -1,19 +1,82 @@
-Index 
-* World Building
-  * Directory
-  * Setting content
-  * Topics
-    * Location content
-    * Character content
-    * Organization content
-* Campaign Planning
-  * Campaign tree 
-  * Campaign content
-  * Session content
-* Playing a Session 
-  * Prep/play toggle
-  * Marking delivered
-  * Dragging actors to scene
-  * Pushing images; image to scene 
-* General stuff
-  * Search 
+# Documentation Structure
+
+## Part 1: What You Can Do (Workflows & Tasks)
+
+### World Building
+* Creating your campaign world
+* Building locations and settings
+* Developing characters and NPCs
+* Establishing organizations and factions
+* Organizing your world content
+
+### Campaign Planning  
+* Structuring your campaign
+* Creating campaign arcs and storylines
+* Planning individual sessions
+* Managing campaign content and resources
+
+### Session Preparation
+* Preparing for upcoming sessions
+* Setting up session content
+* Organizing materials and references
+* Pre-session checklist
+
+### Playing a Session
+* Running your session
+* Managing content during gameplay
+* Tracking session progress
+* Real-time content delivery
+
+### Wrapping Up
+* Post-session activities
+* Marking content as delivered
+* Session notes and follow-up
+* Preparing for next session
+
+## Part 2: How To Use Features (Detailed UI Instructions)
+
+### Navigation & Interface
+* Overall window structure
+* Directory sidebar
+* Working with tabs (include control click, forward-back, dragging around)
+* Bookmarks
+* Keyboard shortcuts
+
+### World Building (MAYBE CALL IT THE SETTING directory INSTEAD OF TOPIC)
+* Directory management
+* Creating and editing locations
+* Character creation and management
+* Organization setup and editing
+* Setting content creation
+* Topic organization and linking
+
+### Campaign Management Features
+* Campaign tree structure
+* Campaign content creation
+* Session content management
+* Content organization and categorization
+
+### Session Tools
+* Prep/play mode toggle
+* Content delivery marking
+* Actor management and scene integration
+* Image handling and scene pushing
+* Content filtering and selection
+
+### Search & Discovery
+* Global search functionality
+* Content filtering
+* Quick navigation
+* Advanced search options
+
+### Import/Export & Integration
+* Foundry VTT integration
+* Content import/export
+* Data synchronization
+* Backup and restore
+
+### Settings & Configuration
+* Application preferences
+* UI customization
+* Performance settings
+* Integration setup 
