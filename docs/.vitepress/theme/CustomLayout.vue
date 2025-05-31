@@ -1,12 +1,16 @@
 <template>
-  <Layout>
+  <!-- If layout is HomeNoNav, render it without navigation -->
+  <HomeNoNav v-if="page.frontmatter?.layout === 'HomeNoNav'" />
+  
+  <!-- Otherwise, use the default layout with navigation -->
+  <Layout v-else>
     <template #doc-before>
       <div v-if="page.frontmatter?.TODO" class="todo-warning">
         <div class="todo-warning-content">
           <span class="todo-warning-icon">⚠️</span>
           <div class="todo-warning-text">
             <strong>Work in Progress</strong>
-            <p>This page is still being developed and may contain incomplete or placeholder content.</p>
+            <p>This page is a placeholder - the information may be wrong, incomplete, or completely made up.</p>
           </div>
         </div>
       </div>
@@ -17,6 +21,7 @@
 <script setup>
 import { useData } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
+import HomeNoNav from './HomeNoNav.vue'
 
 const { Layout } = DefaultTheme
 
