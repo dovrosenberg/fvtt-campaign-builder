@@ -1,7 +1,7 @@
 // library imports
 
 // local imports
-import { useMainStore, useTopicDirectoryStore, } from '@/applications/stores';
+import { useMainStore, useSettingDirectoryStore, } from '@/applications/stores';
 
 // types
 import { 
@@ -34,13 +34,13 @@ export type GeneratedDetails =
  */
 export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolder: TopicFolder): Promise<Entry | undefined> => {
   const { name, description, type } = details;
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   
   if (!topicFolder)
     return undefined;
 
   // create the entry
-  const entry = await topicDirectoryStore.createEntry(topicFolder, { name: name, type: type });
+  const entry = await settingDirectoryStore.createEntry(topicFolder, { name: name, type: type });
 
   if (!entry)
     throw new Error('Failed to create entry in generation.handleGeneratedEntry()');
@@ -59,7 +59,7 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
       // @ts-ignore
       if (details.parentId)
         // @ts-ignore
-        await topicDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId);
+        await settingDirectoryStore.setNodeParent(topicFolder, entry.uuid, details.parentId);
       break;
   }
   

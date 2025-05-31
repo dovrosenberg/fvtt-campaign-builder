@@ -594,7 +594,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     await this.unsetFlag(WorldFlagKey.expandedIds);
   }
 
-  public async collapseTopicDirectory() {
+  public async collapseSettingDirectory() {
     // we just unset the entire expandedIds flag
     await this.unsetFlag(WorldFlagKey.expandedIds);
 

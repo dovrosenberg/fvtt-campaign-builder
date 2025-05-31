@@ -424,7 +424,7 @@ export const registerWBWorldTests = () => {
           });
 
           it('should collapse topic directory', async () => {
-            await world.collapseTopicDirectory();
+            await world.collapseSettingDirectory();
             expect(unsetFlag.calledWith(world.raw, WorldFlagKey.expandedIds)).to.equal(true);
           });
 

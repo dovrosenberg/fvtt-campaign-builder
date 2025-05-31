@@ -1,5 +1,5 @@
 <template>
-  <TopicDirectoryNodeWithChildren 
+  <SettingDirectoryNodeWithChildren 
     v-if="props.node.children.length && filterNodes[props.topic]?.includes(props.node.id)" 
     :node="props.node"
     :world-id="props.worldId"
@@ -28,7 +28,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
+  import { useSettingDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getValidatedData } from '@/utils/dragdrop';
   
@@ -36,7 +36,7 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import TopicDirectoryNodeWithChildren from './TopicDirectoryNodeWithChildren.vue';
+  import SettingDirectoryNodeWithChildren from './SettingDirectoryNodeWithChildren.vue';
   
   // types
   import { ValidTopic } from '@/types';
@@ -69,10 +69,10 @@
   ////////////////////////////////
   // store
   const navigationStore = useNavigationStore();
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   const mainStore = useMainStore();
   const { currentWorld, currentEntry, } = storeToRefs(mainStore);
-  const { filterNodes } = storeToRefs(topicDirectoryStore);
+  const { filterNodes } = storeToRefs(settingDirectoryStore);
   
   ////////////////////////////////
   // data
@@ -153,7 +153,7 @@
       return;
 
     // add the dropped item as a child on the other  (will also refresh the tree)
-    await topicDirectoryStore.setNodeParent(topicFolder as TopicFolder, data.childId, parentId);
+    await settingDirectoryStore.setNodeParent(topicFolder as TopicFolder, data.childId, parentId);
   };
 
   const onEntryContextMenu = (event: MouseEvent): void => {
@@ -167,7 +167,7 @@
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: topicDirectoryStore.getTopicNodeContextMenuItems(
+      items: settingDirectoryStore.getTopicNodeContextMenuItems(
         props.topic, 
         props.node.id
       )

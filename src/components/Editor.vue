@@ -333,7 +333,7 @@
 
     // Handle different data structures from various drag sources
     if (data.entryNode) {
-      // From TopicDirectoryNodeWithChildren or TopicDirectoryNode
+      // From SettingDirectoryNodeWithChildren or SettingDirectoryNode
       entryUuid = data.childId;
       entryName = data.name;
     } else if (data.campaignNode) {
@@ -341,7 +341,7 @@
       entryUuid = data.campaignId;
       entryName = data.name;
     } else if (data.worldNode) {
-      // From TopicDirectory world
+      // From SettingDirectory world
       entryUuid = data.worldId;
       entryName = data.name;
     } else if (data.sessionNode) {

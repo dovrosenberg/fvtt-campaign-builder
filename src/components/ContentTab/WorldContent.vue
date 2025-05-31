@@ -84,7 +84,7 @@
   // local imports
   import { getTabTypeIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useMainStore, useNavigationStore, useTopicDirectoryStore } from '@/applications/stores';
+  import { useMainStore, useNavigationStore, useSettingDirectoryStore } from '@/applications/stores';
   import { updateWindowTitle } from '@/utils/titleUpdater';
   import { Backend } from '@/classes';
 
@@ -112,7 +112,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   const { currentContentTab, currentWorld, currentTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
@@ -150,7 +150,7 @@
         await currentWorld.value.save();
 
         updateWindowTitle(newName || null);
-        await topicDirectoryStore.refreshTopicDirectoryTree([currentWorld.value.uuid]);
+        await settingDirectoryStore.refreshSettingDirectoryTree([currentWorld.value.uuid]);
         await navigationStore.propagateNameChange(currentWorld.value.uuid, newValue);
         await mainStore.propagateWorldNameChange(currentWorld.value);
       }

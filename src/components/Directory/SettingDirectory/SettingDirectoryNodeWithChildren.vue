@@ -26,7 +26,7 @@
       <ul>
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
         <div v-if="currentNode.expanded">
-          <TopicDirectoryNodeComponent 
+          <SettingDirectoryNodeComponent 
             v-for="child in sortedChildren"
             :key="child.id"
             :node="child"
@@ -46,7 +46,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useTopicDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
+  import { useSettingDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
   import { getValidatedData } from '@/utils/dragdrop';
   
@@ -54,7 +54,7 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import TopicDirectoryNodeComponent from './TopicDirectoryNode.vue';
+  import SettingDirectoryNodeComponent from './SettingDirectoryNode.vue';
   
   // types
   import { ValidTopic } from '@/types';
@@ -86,7 +86,7 @@
   
   ////////////////////////////////
   // store
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const { currentWorld, currentEntry, } = storeToRefs(mainStore);
@@ -111,8 +111,8 @@
   // event handlers
   const onEntryToggleClick = async (_event: MouseEvent) => {
     // it returns the same node, so vue doesn't necessarily realize it needs to rerender without a new copy
-    currentNode.value = await topicDirectoryStore.toggleWithLoad(currentNode.value as DirectoryEntryNode, !currentNode.value.expanded);
-    await topicDirectoryStore.refreshTopicDirectoryTree([currentNode.value.id]);
+    currentNode.value = await settingDirectoryStore.toggleWithLoad(currentNode.value as DirectoryEntryNode, !currentNode.value.expanded);
+    await settingDirectoryStore.refreshSettingDirectoryTree([currentNode.value.id]);
   };
 
   const onDirectoryItemClick = async (event: MouseEvent, node: DirectoryEntryNode) => {
@@ -181,7 +181,7 @@
       return;
 
     // add the dropped item as a child on the other (will also refresh the tree)
-    await topicDirectoryStore.setNodeParent(topicFolder as TopicFolder, data.childId, parentId);
+    await settingDirectoryStore.setNodeParent(topicFolder as TopicFolder, data.childId, parentId);
   };
 
 
@@ -196,7 +196,7 @@
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: topicDirectoryStore.getTopicNodeContextMenuItems(
+      items: settingDirectoryStore.getTopicNodeContextMenuItems(
         props.topic, 
         props.node.id
       )

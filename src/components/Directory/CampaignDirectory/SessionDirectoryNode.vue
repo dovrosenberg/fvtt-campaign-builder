@@ -53,7 +53,7 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const mainStore = useMainStore();
   const { currentSession, isInPlayMode, } = storeToRefs(mainStore);
-  // const { filterNodes } = storeToRefs(topicDirectoryStore);
+  // const { filterNodes } = storeToRefs(settingDirectoryStore);
   
   ////////////////////////////////
   // data

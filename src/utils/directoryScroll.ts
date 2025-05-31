@@ -1,5 +1,5 @@
 import { nextTick } from 'vue';
-import { useTopicDirectoryStore, useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
+import { useSettingDirectoryStore, useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
 import { WindowTabType, } from '@/types';
 import { Entry, Campaign, Session, DirectoryTopicNode, DirectoryCampaignNode } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
@@ -56,7 +56,7 @@ export async function scrollToActiveEntry(): Promise<void> {
  */
 async function scrollToEntry(entryId: string): Promise<void> {
   const mainStore = useMainStore();
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   
   const currentWorld = mainStore.currentWorld;
   
@@ -71,10 +71,10 @@ async function scrollToEntry(entryId: string): Promise<void> {
   }
 
   // Check if grouped by type
-  const isGroupedByType = topicDirectoryStore.isGroupedByType;
+  const isGroupedByType = settingDirectoryStore.isGroupedByType;
 
   // Find the topic node in the directory tree
-  const currentWorldTree = topicDirectoryStore.currentWorldTree.value;
+  const currentWorldTree = settingDirectoryStore.currentWorldTree.value;
   const worldNode = currentWorldTree.find(w => w.id === currentWorld.uuid);
   
   if (!worldNode) {
@@ -88,7 +88,7 @@ async function scrollToEntry(entryId: string): Promise<void> {
 
   // Expand the topic if it's not already expanded
   if (!topicNode.expanded) {
-    await topicDirectoryStore.toggleTopic(topicNode as DirectoryTopicNode);
+    await settingDirectoryStore.toggleTopic(topicNode as DirectoryTopicNode);
   }
 
   if (isGroupedByType) {
@@ -115,7 +115,7 @@ async function scrollToEntry(entryId: string): Promise<void> {
  * @returns A promise that resolves when the scroll operation is complete
  */
 async function scrollToEntryInGroupedView(entry: Entry, topicNode: DirectoryTopicNode): Promise<void> {
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   
   // Find the type node for this entry's type
   // Use NO_TYPE_STRING for entries without a type (empty string or null)
@@ -124,11 +124,11 @@ async function scrollToEntryInGroupedView(entry: Entry, topicNode: DirectoryTopi
   
   if (typeNode && !typeNode.expanded) {
     // Expand the type node
-    await topicDirectoryStore.toggleWithLoad(typeNode, true);
+    await settingDirectoryStore.toggleWithLoad(typeNode, true);
   }
 
   // Refresh the directory tree to ensure all expansions are reflected
-  await topicDirectoryStore.refreshTopicDirectoryTree();
+  await settingDirectoryStore.refreshSettingDirectoryTree();
 }
 
 /**
@@ -140,7 +140,7 @@ async function scrollToEntryInGroupedView(entry: Entry, topicNode: DirectoryTopi
  */
 async function scrollToEntryInNestedView(entryId: string): Promise<void> {
   const mainStore = useMainStore();
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   
   const currentWorld = mainStore.currentWorld;
   
@@ -158,7 +158,7 @@ async function scrollToEntryInNestedView(entryId: string): Promise<void> {
   }
 
   // Refresh the directory tree to ensure all expansions are reflected
-  await topicDirectoryStore.refreshTopicDirectoryTree();
+  await settingDirectoryStore.refreshSettingDirectoryTree();
 }
 
 /**

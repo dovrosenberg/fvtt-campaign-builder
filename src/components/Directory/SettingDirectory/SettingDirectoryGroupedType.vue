@@ -32,7 +32,7 @@
             v-for="node in sortedChildren"
             :key="node.id"
           >
-            <TopicDirectoryGroupedNode 
+            <SettingDirectoryGroupedNode 
               :node="node" 
               :topic="props.topic"
               :type-name="currentType.name"
@@ -50,7 +50,7 @@
   import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useNavigationStore, useTopicDirectoryStore, useMainStore, } from '@/applications/stores';
+  import { useNavigationStore, useSettingDirectoryStore, useMainStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { NO_TYPE_STRING } from '@/utils/hierarchy';
   import { toTopic } from '@/utils/misc';
@@ -60,7 +60,7 @@
   import ContextMenu from '@imengyu/vue3-context-menu';
 
   // local components
-  import TopicDirectoryGroupedNode from './TopicDirectoryGroupedNode.vue';
+  import SettingDirectoryGroupedNode from './SettingDirectoryGroupedNode.vue';
 
   // types
   import { ValidTopic, } from '@/types';
@@ -89,11 +89,11 @@
 
   ////////////////////////////////
   // store
-  const topicDirectoryStore = useTopicDirectoryStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const { currentWorld, currentEntry } = storeToRefs(mainStore);
-  const { filterNodes } = storeToRefs(topicDirectoryStore);
+  const { filterNodes } = storeToRefs(settingDirectoryStore);
   
   ////////////////////////////////
   // data
@@ -112,7 +112,7 @@
   ////////////////////////////////
   // event handlers
   const onTypeToggleClick = async () => {
-    currentType.value = await topicDirectoryStore.toggleWithLoad(currentType.value, !currentType.value.expanded);
+    currentType.value = await settingDirectoryStore.toggleWithLoad(currentType.value, !currentType.value.expanded);
   };
 
   // you can drop an item on a type and it should reassign the type
@@ -158,7 +158,7 @@
       entry.type = currentType.value.name;
       await entry.save();
 
-      await topicDirectoryStore.updateEntryType(entry, oldType);
+      await settingDirectoryStore.updateEntryType(entry, oldType);
 
       // if it's currently open, force screen refresh
       if (entry.uuid === currentEntry.value?.uuid) {
@@ -178,7 +178,7 @@
       x: event.x,
       y: event.y,
       zIndex: 300,
-      items: topicDirectoryStore.getGroupedTypeNodeContextMenuItems(props.topic, props.type.name)
+      items: settingDirectoryStore.getGroupedTypeNodeContextMenuItems(props.topic, props.type.name)
     });
   };
 
