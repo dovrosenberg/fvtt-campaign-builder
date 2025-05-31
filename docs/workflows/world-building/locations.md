@@ -1,5 +1,6 @@
 ---
 title: Building Locations and Settings
+TODO: true
 ---
 
 # Building Locations and Settings

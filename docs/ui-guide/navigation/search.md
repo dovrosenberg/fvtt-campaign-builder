@@ -1,5 +1,6 @@
 ---
 title: Search
+TODO: true
 ---
 # Search
 The top right corner of the window's title bar has the search box.

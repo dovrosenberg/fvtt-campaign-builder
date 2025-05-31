@@ -1,5 +1,6 @@
 ---
 title: Entry
+TODO: true
 ---
 # Entry Window
 ![Entry Window](assets/images/entry-content.webp)

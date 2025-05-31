@@ -1,8 +1,8 @@
 ---
 title: Character Content Interface
+TODO: true
 ---
-
-# Character Content Interface
+# Characters
 
 Characters bring your campaign world to life. The character content interface provides specialized tools for creating detailed NPCs, managing relationships, and integrating with Foundry VTT actors and tokens.
 
