@@ -29,7 +29,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started/' },
-      { text: 'Workflows', link: '/guide/' },
+      { text: 'User Guide', link: '/guide/' },
       { text: 'Reference', link: '/reference/' }
     ],
 
@@ -37,13 +37,14 @@ export default defineConfig({
       {
         text: 'Getting Started',
         items: [
-          { text: 'Introduction', link: '/' },
-          { text: 'Installation', link: '/getting-started/' }
+          { text: 'Overview', link: '/getting-started/' },
+          { text: 'World Building', link: '/getting-started/#world-building' },
+          { text: 'Running a Campaign', link: '/getting-started/#running-a-campaign' }
         ]
       },
       {
-        text: 'Workflows & Tasks',
-        items: [
+        text: 'User Guide',
+        items: [  
           { text: 'World Building', link: '/guide/world-building' },
           { text: 'Campaign Planning', link: '/guide/campaign-planning' },
           { text: 'Session Preparation', link: '/guide/session-preparation' },

@@ -6,19 +6,18 @@ title: Getting Started
 After installation and activation, you'll find a new button with a globe icon to the left of your scene selection dropdown in the top left corner of your Foundry screen. Clicking this button opens the main interface.
 ![Launch button](/assets/images/launch-button.webp)
 
+## Choose your own adventure
+The quick-start guide is split into two parts, depending on what you want to focus on - world building or running a campaign.  These work best together, but you can use the module for either alone (more or less).  These guides are not intended to cover all the functionality available (or you wouldn't need the rest of this documentation).  Instead they cover just enough to get you started and far enough along that you can then explore on your own.
 
 ## Your first Setting
 When you first open the module, you'll be prompted to create your first Setting. Almost everything that happens in Campaign Builder is inside of a Setting. These Settings represent the world/universe that your campaigns happen in.  You can have multiple Settings in the module inside one Foundry world, but all your Characters, Locations, and Organizations reside within a single Setting and can't cross over or reference entries in a different Setting.  And you can have more than one Campaign in a given Setting, and they share all of the same Characters, Locations, etc. (but also cannot reference into a Setting other than the one they are in).
 
 *Note that there's currently no way to move a Setting between Foundry worlds.  If you have a use case for that, let's talk.*
 
-## Choose your own adventure
-The quick-start guide is split into two parts, depending on what you want to focus on - world building or running a campaign.  These work best together, but you can use the module for either alone (more or less).  These guides are not intended to cover all the functionality available (or you wouldn't need the rest of this documentation).  Instead they cover just enough to get you started and far enough along that you can then explore on your own.
-
-### World Building
+## World Building
 World building primarily takes place in the [Setting Directory](/reference/navigation/directory-sidebar/#setting-directory), found in the upper part of the Directory Sidebar.  The key steps to get you started are:
 
-1. Create a Setting (this will happen automatically when you first open the window)
+1. Create a Setting (this will happen automatically when you first open the Campaign Builder window)
 1. Right click on the topic folders ('Characters', 'Locations', 'Organizations') to create new entries and begin defining your Setting
 
 That's basically it - everything else is optional.  Some other things you'll likely want to do, though, include:
@@ -32,7 +31,7 @@ That's basically it - everything else is optional.  Some other things you'll lik
 
 Check out the [World Building Guide](/guide/world-building) for more information.
 
-### Running a Campaign
+## Running a Campaign
 Running a campaign primarily takes place in the lower part of the Directory Sidebar - the [Campaign Directory](/reference/navigation/directory-sidebar/#campaign-directory).  Campaigns are comprised of multiple sessions.  
 
 A session is intended to represent a single game session - played in one stretch of time.  Sessions have numbers that determine their order in the campaign.  The session with the highest number is the "active" session, which is important for some features.
@@ -46,7 +45,7 @@ For campaigns, there are two modes you need to know about.  "Prep" mode and "Pla
 
 ![prep/play toggle and dropdown](/assets/images/prep-play-with-campaign.webp)
 
-#### Prep mode:
+### Prep mode:
 In prep mode, you're wrapping up a session that just ended and/or setting up for the next one.  This is where you'll flesh out a session with settings, NPCs, etc.
 
 Prep mode is designed to follow the Lazy DM philosophy.  Each tab on the Session screen (click the Session in the directory to open it) represents one of the steps:
@@ -65,7 +64,7 @@ Post-session, there are two key things to look at:
 * Look through all the tabs for the completed session at things that did not get used during the session. Typically, you'll either want to delete them or move them to the next session (by clicking the trash can or arrow on the left side of the table).
   * For lore, you can also move them back to the campaign lore list if you want to keep it but the next session isn't going to be the right time to use it.
 
-#### Play mode: {#campaign-play-mode}
+### Play mode: {#campaign-play-mode}
 In play mode, you're actively playing a session.  When you enter play mode, you'll get a session notes popup box where you can record notes as you go.  Every time you hit save, these notes get saved to the notes tabs on the active session, as well (and vice versa).  If you don't like the popup, just close it.
 
 When you enter play mode, you'll see a new toolbar at the top of the window
