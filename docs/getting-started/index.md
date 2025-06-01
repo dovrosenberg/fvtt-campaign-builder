@@ -7,7 +7,7 @@ After installation and activation, you'll find a new button with a globe icon to
 ![Launch button](/assets/images/launch-button.webp)
 
 ## Choose your own adventure
-The quick-start guide is split into two parts, depending on what you want to focus on - world building or running a campaign.  These work best together, but you can use the module for either alone (more or less).  These guides are not intended to cover all the functionality available (or you wouldn't need the rest of this documentation).  Instead they cover just enough to get you started and far enough along that you can then explore on your own.
+The quick-start guide is split into two parts, depending on what you want to focus on - world building or running a campaign.  These work best together, but you can use the module for either alone (more or less).  These guides are not intended to cover all the functionality available (or you would't need the rest of this documentation).  Instead they cover just enough to get you started and far enough along that you can then explore on your own.
 
 ## Your first Setting
 When you first open the module, you'll be prompted to create your first Setting. Almost everything that happens in Campaign Builder is inside of a Setting. These Settings represent the world/universe that your campaigns happen in.  You can have multiple Settings in the module inside one Foundry world, but all your Characters, Locations, and Organizations reside within a single Setting and can't cross over or reference entries in a different Setting.  And you can have more than one Campaign in a given Setting, and they share all of the same Characters, Locations, etc. (but also cannot reference into a Setting other than the one they are in).

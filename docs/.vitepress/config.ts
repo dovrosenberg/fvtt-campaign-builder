@@ -7,9 +7,9 @@ const commonLinksPath = path.join(__dirname, '../common-links.md')
 const commonLinks = fs.existsSync(commonLinksPath) ? fs.readFileSync(commonLinksPath, 'utf-8') : ''
 
 export default defineConfig({
-  ignoreDeadLinks: true,
+  // ignoreDeadLinks: true,
   title: 'World & Campaign Builder',
-  description: 'A Foundry VTT module for worldbuilding and campaign management',
+  description: 'A Foundry VTT module for world building and campaign management',
   base: '/fvtt-campaign-builder/',
   
   markdown: {
@@ -26,6 +26,10 @@ export default defineConfig({
   },
   
   themeConfig: {
+    search: {
+      provider: 'local'
+    },
+
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started/' },

@@ -5,11 +5,6 @@ import './custom.css'
 export default {
   extends: DefaultTheme,
   Layout: CustomLayout,
-  themeConfig: {
-    search: {
-      provider: 'local'
-    },
-  },
   enhanceApp({ app }) {
   }
 } 
