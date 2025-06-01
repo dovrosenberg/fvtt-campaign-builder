@@ -91,7 +91,7 @@ export const registerBackendTests = () => {
             getStub.withArgs(SettingKey.APIToken).returns('test-token');
             getStub.withArgs(SettingKey.APIURL).returns('http://test-url');
             apiVersionGetStub.resolves({
-              data: { version: '0.0.7' }
+              data: { version: '0.0.10' }
             });
 
             // Act
@@ -108,7 +108,7 @@ export const registerBackendTests = () => {
             getStub.withArgs(SettingKey.APIToken).returns('test-token');
             getStub.withArgs(SettingKey.APIURL).returns('http://test-url');
             apiVersionGetStub.resolves({
-              data: { version: '0.0.7' }
+              data: { version: '0.0.10' }
             });
 
             // Act

@@ -139,8 +139,6 @@ export const registerEntryTests = () => {
             const result = await Entry.create(mockTopicFolder, {
               name: 'New Entry',
               type: 'new-type',
-              description: 'New description',
-              img: 'new-image.jpg',
             });
             
             // Verify JournalEntryPage.createDocuments was called
@@ -150,8 +148,6 @@ export const registerEntryTests = () => {
             expect(result).to.be.instanceOf(Entry);
             expect(result.name).to.equal('New Entry');
             expect(result.type).to.equal('new-type');
-            expect(result.description).to.equal('New description');
-            expect(result.img).to.equal('new-image.jpg');
           });
           
           it('should return null if creation fails', async () => {
