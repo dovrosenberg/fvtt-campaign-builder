@@ -49,7 +49,7 @@ For campaigns, there are two modes you need to know about.  "Prep" mode and "Pla
 #### Prep mode:
 In prep mode, you're wrapping up a session that just ended and/or setting up for the next one.  This is where you'll flesh out a session with settings, NPCs, etc.
 
-Prep mode is designed to follow the Lazy DM philosophy, so the main things you'll want to do are (you do these all on the Session screen - click the session in the directory to open it):
+Prep mode is designed to follow the Lazy DM philosophy.  Each tab on the Session screen (click the Session in the directory to open it) represents one of the steps:
 * Write your "strong start"
 * Define any Lore that might come up
 * Describe possible scenes (called Vignettes in Campaign Builder to distinguish from Foundry scenes)
@@ -58,19 +58,27 @@ Prep mode is designed to follow the Lazy DM philosophy, so the main things you'l
 * Add any Foundry actors as monsters - this gives you easy access to their actor sheets and to drag them onto the scene
 * Add any Foundry items for magic items as that might come up
 
-> [!CAUTION]
-> TODO - pick up here
+Then - [switch to play mode and run your session](#campaign-play-mode) 
 
 Post-session, there are two key things to look at:
-* Review the to-do list for anything that needs attention
-* Look through all the session tabs at things that did not get used during the session. Typically, you'll either want to delete them or move them to the next session (by clicking the trash can or arrow on the left side of the table).
+* Review the to-do list on the Campaign for anything that needs attention - this automatically tracks things that happen during your session so you can be reminded and decide if you need to flesh out your notes or add to your Setting.
+* Look through all the tabs for the completed session at things that did not get used during the session. Typically, you'll either want to delete them or move them to the next session (by clicking the trash can or arrow on the left side of the table).
   * For lore, you can also move them back to the campaign lore list if you want to keep it but the next session isn't going to be the right time to use it.
 
-#### Play mode:
-In play mode, you're actively playing a session.  When you enter play mode, you'll get a session notes popup box where you can record notes as you go.  Every time you hit save, these notes get saved to the notes tabe on the active session, as well.
+#### Play mode: {#campaign-play-mode}
+In play mode, you're actively playing a session.  When you enter play mode, you'll get a session notes popup box where you can record notes as you go.  Every time you hit save, these notes get saved to the notes tabs on the active session, as well (and vice versa).  If you don't like the popup, just close it.
 
-In play mode, if using Advanced Features, you'll also see new toolbars for [TODO link to the navigation toolbar and generate toolbar].
+When you enter play mode, you'll see a new toolbar at the top of the window
+![session nav toolbar](/assets/images/session-nav-toolbar.webp)
 
-While in play mode, the things you change in both the current session and in the Setting get tracked in a to-do list, so that after the session you can easily see what came up that you might need to then note or flesh out further.
+This toolbar lets you immediately open the corresponding tab in the active session.  This makes it easy to get right back where you need to in your session notes after opening up a character or location to get some extra details.
 
-In play mode, you'll mostly be just playing your game.  Beyond the advanced toolbars, the primary other thing you'll want to do while playing is mark off on the active session any NPCs, lore, Locations, etc. that get used during the session.  You do this by clicking the checkmark on the left side of the table.
+If using [Advanced Features], you'll also see a second toolbar - the generation toolbar:
+
+![generate toolbar](/assets/images/generate-toolbar.webp)
+
+These buttons allow you to quickly get suggested names for NPCs, taverns, etc. on the fly and then, if desired, rapidly flesh out the background and add them to your Setting.  
+
+In play mode, you'll mostly be just playing your game.  Beyond the toolbars, the primary other thing you'll want to do while playing is mark off on the various Session tabs any NPCs, lore, Locations, etc. that get used during the session.  You do this by clicking the checkmark on the left side of the table to mark it as "delivered".
+
+Everything you deliver in the current session and anything you edit in the Setting while in play mode gets tracked in the to-do list, so that after the session you can easily see what came up that you might need to then note or flesh out further.
