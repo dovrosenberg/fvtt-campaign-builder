@@ -5,21 +5,35 @@ TODO: true
 
 # Organizing World Content
 
-Effective organization of your world content is essential for creating a cohesive, accessible, and maintainable campaign Setting. This guide covers best practices for structuring, linking, and managing your world building elements.
+Effective organization of your world content is essential for creating a cohesive, accessible, and maintainable campaign [^Setting]. This guide covers best practices for structuring, linking, and managing your world building elements.
 
 ## Options for organization
-There are ___ ways in which elements can be organized within your Setting:
-* Parent/child relationships
-* Types
-* Tags
-* Related entries
+There are four ways in which elements can be organized within your Setting:
+* [Parent/child relationships](#hierarchy)
+* [Types](#types)
+* [Tags](#tags)
+* [Related entries](#relationships)
 
 They are designed to be flexible, so understanding them all will let you decide how you want to approach it for your use.
 
-## Parent/child relationships
- Parent/child relationships are visualized in the Setting Directory and are used to organize content in logical hierarchies that reflect real-world relationships.  They apply to Locations and Organizations
+## Parent/child relationships {#hierarchy}
+Parent/child relationships are visualized in the [^Setting Directory] and are used to organize content in logical hierarchies that reflect real-world relationships.  They apply to Locations and Organizations.  
 
-**Geographic Hierarchy**
+![Sample location hierarchy](/assets/images/sample-location-hierarchy.webp)
+
+Arranging your hierarchy allows you to quickly find related entries.  If you keep open the Entry that your players are currently in during the session, you can instantly see in the tree, all the details about where it fits in the world (parents), as well as places they are likely to go next (siblings or children).
+
+See _______________ for how to setup your hierarchy
+----------------
+TODO: move this to right place
+You put [^Entries] in a hierarchy by either setting the Parent field on an Entry or dragging an Entry (the child) onto another one (the parent) in the Setting Directory tree.
+
+Also note there that there how hierarchy impacts search - or maybe in the search section and reference it from here and there
+------------------
+
+Some possible ways you might organize your Entries with parent/child relationships.
+
+**Geographic Hierarchy for Locations**
 ```
 World/Plane
 ├── Continent/Region
@@ -27,44 +41,31 @@ World/Plane
 │   │   ├── Province/State
 │   │   │   ├── City/Town
 │   │   │   │   ├── District/Quarter
-│   │   │   │   │   └── Building/Location
+│   │   │   │   │   └── Shop
+│   │   │   ├── Dungeon
+│   │   │   │   ├── Floor
+│   │   │   │   │   └── Room
 ```
 
-**Organizational Hierarchy**
+**Organizational Hierarchy for Organizations**
 ```
 Empire/Kingdom
 ├── Government Departments
 │   ├── Regional Administrations
 │   │   ├── Local Offices
-│   │   │   └── Individual Officials
+Religion
+├── Sect
+│   ├── Branch
 ```
 
-**Social Hierarchy**
+**Social Hierarchy for Organizations**
 ```
 Social Class/Caste
 ├── Family/House
 │   ├── Branch Families
-│   │   ├── Individual Members
-│   │   │   └── Personal Relationships
 ```
-
-### Interconnectedness
-Build webs of relationships between elements:
-
-- **Characters** live in **Locations** and belong to **Organizations**
-- **Organizations** operate from **Locations** and include **Characters**
-- **Locations** house **Organizations** and **Characters**
-- All elements can have custom relationships with each other
-
-### Accessibility
-Organize content for easy discovery and reference:
-
-- Use clear, descriptive names
-- Maintain consistent naming conventions
-- Create logical groupings and categories
-- Implement effective search and filter strategies
-
-## Content Categorization
+## Types
+TODO: DESCRIBE WHAT THEY ARE
 
 ### Location Categories
 
@@ -132,48 +133,29 @@ Organize content for easy discovery and reference:
 - National: Entire kingdoms or countries
 - International: Cross-border or planar organizations
 
-## Naming Conventions
+## Tags
 
-### Consistency Standards
-Develop and maintain consistent naming patterns:
+## Related Entries {#relationships}
+Any Entry can have a relationship with any other.  These can represent a wide variety of types of connectedness:
+* Connect two Characters who are related, or two who are enemies
+* Connect the Mayor (Character) to her city (Location)
+* List the Characters who sit on a guild's council (an Organization that might itself be the child of another Organization representing the overall guild)
+* Describe the Locations where a cult (Organization) is operating
 
-**Cultural Consistency**
-- Use appropriate linguistic patterns for each culture
-- Maintain consistent phonetic styles within regions
-- Apply consistent naming rules for similar elements
-- Consider historical evolution of names
+Some types of relationships (Character-Location and Character-Organization) also let you specify the "Role" that the character plays in the related Entry (ex. the "Mayor" of a city).
 
-**Descriptive Elements**
-- Include function or purpose in names where appropriate
-- Use evocative words that suggest atmosphere
-- Avoid generic or placeholder names
-- Make names memorable and distinctive
+See ________________ for how to create a relationship.
 
-**Avoid Conflicts**
-- Ensure unique names within appropriate scope
-- Check for similar-sounding names that could cause confusion
-- Consider how names will be abbreviated or nicknamed
-- Plan for variations and alternative names
 
-### Naming Examples
+-------------------------
+TODO: MOVE THIS TO THE RIGHT PLACE IN REFERENC
+You create these by going to the "Related Entry" tabs on any Entry and either clicking "Add Location" (or Organization/Character) or dragging the Entry to link from the tree into the dashed box.
 
-**Locations**
-- Descriptive: "The Whispering Woods", "Irongate Fortress"
-- Cultural: "Khaz Ankor" (Dwarvish), "Valinor" (Elvish)
-- Historical: "Blackwater's Rest", "The Emperor's Road"
-- Functional: "The Grand Bazaar", "Temple of the Dawn"
+Also note there that the role is searchable - or maybe in the search section and reference it from here and there
+----------------
 
-**Characters**
-- Full Names: "Sir Marcus Blackwater", "Thorin Ironforge"
-- Titles: "The Red Queen", "Shadowblade", "Old Tom"
-- Relationships: "Marcus the Merchant", "Sarah Ironforge's daughter"
-- Nicknames: "Blackwater", "The Queen", "Tom"
+![Related items tabs](/assets/images/related-items-tabs.webp)
 
-**Organizations**
-- Formal: "The Royal Guard", "The Merchant's Guild"
-- Informal: "The Blood Roses", "The Iron Circle"
-- Descriptive: "The Order of the Silver Hand"
-- Cultural: "The Khaz Guard", "Sons of the Eagle"
 
 ## Relationship Management
 
