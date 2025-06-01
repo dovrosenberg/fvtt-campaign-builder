@@ -56,12 +56,13 @@ export default defineConfig({
         ]
       },
       {
-        text: 'UI Guide',
+        text: 'Reference',
         items: [
+          { text: 'Advanced Features & Backend', link: '/reference/backend' },
           { text: 'Navigation & Interface', link: '/reference/navigation' },
-          { text: 'World Building Features', link: '/reference/world-building' },
-          { text: 'Campaign Management', link: '/reference/campaign-management' },
-          { text: 'Settings & Configuration', link: '/reference/settings' }
+          { text: 'Settings (World Building)', link: '/reference/settings' },
+          { text: 'Campaigns & Sessions', link: '/reference/campaigns-and-sessions' },
+          { text: 'Configuration', link: '/reference/configuration' }
         ]
       }
     ],
