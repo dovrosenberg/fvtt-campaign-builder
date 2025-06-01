@@ -26,6 +26,7 @@
 
   // types
   import { Topics, ValidTopic, WindowTabType } from '@/types';
+  import { MenuItem } from '@imengyu/vue3-context-menu';
 
   ////////////////////////////////
   // props
@@ -121,52 +122,64 @@
 
   // Handle right-click to show context menu with options
   const onContextMenu = (event: MouseEvent) => {
-    // Only show context menu if we have a non-default image
-    if (!isDefaultImage.value) {
-      event.preventDefault();
+    event.preventDefault();
 
-      // Show context menu using the Vue context menu component
-      ContextMenu.showContextMenu({
-        customClass: 'fcb',
-        x: event.x,
-        y: event.y,
-        zIndex: 300,
-        items: [
-          {
-            icon: 'fa-eye',
-            iconFontClass: 'fas',
-            label: localize('contextMenus.image.viewImage'),
-            onClick: () => showImagePopout()
-          },
-          {
-            icon: 'fa-edit',
-            iconFontClass: 'fas',
-            label: localize('contextMenus.image.changeImage'),
-            onClick: () => openFilePicker()
-          },
-          {
-            icon: 'fa-trash',
-            iconFontClass: 'fas',
-            label: localize('contextMenus.image.removeImage'),
-            onClick: () => removeImage()
-          },
-          {
-            icon: 'fa-comment',
-            iconFontClass: 'fas',
-            label: localize('contextMenus.image.postToChat'),
-            onClick: () => postToChat()
-          },
-        ].concat(props.topic === Topics.Location ?
-          [{
-            icon: 'fa-comment',
-            iconFontClass: 'fas',
-            label: localize('contextMenus.image.createScene'),
-            onClick: () => createScene()
-          }] :
-          []
-        ),
-      });
-    }
+    let items = [] as MenuItem[];
+
+    if (isDefaultImage.value) {
+      // if it's the default, all we do is add an image
+      items = [
+        {
+          icon: 'fa-edit',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.image.addImage'),
+          onClick: () => openFilePicker()
+        }];
+    } else {
+      items = [
+        {
+          icon: 'fa-eye',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.image.viewImage'),
+          onClick: () => showImagePopout()
+        },
+        {
+          icon: 'fa-edit',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.image.changeImage'),
+          onClick: () => openFilePicker()
+        },
+        {
+          icon: 'fa-trash',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.image.removeImage'),
+          onClick: () => removeImage()
+        },
+        {
+          icon: 'fa-comment',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.image.postToChat'),
+          onClick: () => postToChat()
+        },
+      ].concat(props.topic === Topics.Location ?
+        [{
+          icon: 'fa-comment',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.image.createScene'),
+          onClick: () => createScene()
+        }] :
+        []
+      );
+    } 
+
+    // Show context menu using the Vue context menu component
+    ContextMenu.showContextMenu({
+      customClass: 'fcb',
+      x: event.x,
+      y: event.y,
+      zIndex: 300,
+      items,
+    });
   };
 
   // Open the FilePicker to select a new image
@@ -220,7 +233,8 @@
   };
 
   const createScene = () => {
-    emit('create-scene', props.modelValue);
+    if (props.modelValue) 
+      emit('create-scene', props.modelValue);
   };
 
   ////////////////////////////////

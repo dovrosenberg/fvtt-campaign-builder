@@ -318,7 +318,11 @@
       },
       "confirmDeletePC": {
         "title": "Delete PC?",
-        "message": "Are you sure you want to delete this PC from the campaign?"
+        "message": "Are you sure you want to delete this PC from the campaign?  This will remove all details of the PC, including background, plot points, and any listed magic items."
+      },
+      "saveSessionNotes": {
+        "title": "Save changes?",
+        "message": "Do you want to save the current session notes before closing?"
       },
       "createEntry": {
         "generatedName": "Generated name",
@@ -414,6 +418,7 @@
       "image": {
         "viewImage": "View Image",
         "changeImage": "Change Image",
+        "addImage": "Add Image",
         "removeImage": "Remove Image",
         "postToChat": "Post To Chat",
         "createScene": "Create Scene"

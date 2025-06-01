@@ -23,7 +23,7 @@ Parent/child relationships are visualized in the [^Setting Directory] and are us
 
 Arranging your hierarchy allows you to quickly find related entries.  If you keep open the Entry that your players are currently in during the session, you can instantly see in the tree, all the details about where it fits in the world (parents), as well as places they are likely to go next (siblings or children).
 
-See _______________ for how to setup your hierarchy
+You can setup your hierarchy by [DRAG/DROP IN THE TREE](TODO) or [SETTING THE PARENT FIELD]
 ----------------
 TODO: move this to right place
 You put [^Entries] in a hierarchy by either setting the Parent field on an Entry or dragging an Entry (the child) onto another one (the parent) in the Setting Directory tree.

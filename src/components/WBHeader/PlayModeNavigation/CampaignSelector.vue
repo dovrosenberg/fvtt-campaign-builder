@@ -1,6 +1,6 @@
 <template>
   <div class="campaign-selector-container" v-if="showSelector">
-    <label for="campaign-selector">{{localize('fields.campaign')}}:</label>
+    <label for="campaign-selector">{{localize('labels.fields.campaign')}}:</label>
     <Select
       id="campaign-selector"
       v-model="currentPlayedCampaignId"

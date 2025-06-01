@@ -545,6 +545,10 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!oldSession)
       return;
 
+    // make the sure the id changed
+    if (oldSession.uuid === newSession?.uuid)
+      return;
+
     // if newSession is null we're closing, otherwise we're changing campaigns (because there's no way to change 
     //    the played session within a campaign while playing)
 
@@ -552,7 +556,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     const notesToSave = await closeSessionNotes();
 
     if (notesToSave != null && oldSession?.notes !== notesToSave) {
-      if (await FCBDialog.confirmDialog('Save changes?', 'Do you want to save the current session notes before closing?')) {
+      if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
         // save the session
         oldSession.notes = notesToSave;
         await oldSession?.save();    
