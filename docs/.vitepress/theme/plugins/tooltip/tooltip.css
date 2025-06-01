@@ -1,0 +1,145 @@
+/* Tooltip styles */
+.tooltip-container {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dotted var(--vp-c-text-1);
+  color: var(--vp-c-yellow-1);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.tooltip-container::before,
+.tooltip-container::after {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+  z-index: 1000;
+}
+
+/* Tooltip bubble */
+.tooltip-container::before {
+  content: attr(data-tooltip);
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  border-color: var(--vp-c-yellow-1);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--vp-c-text-1);
+  white-space: nowrap;
+  min-width: 250px;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  
+  /* Position above the element by default */
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  margin-bottom: 4px;
+}
+
+/* Tooltip arrow */
+.tooltip-container::after {
+  content: '';
+  border: 5px solid transparent;
+  border-top-color: var(--vp-c-bg-elv);
+  
+  /* Position below the bubble */
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: -1px;
+}
+
+/* Show tooltip on hover */
+.tooltip-container:hover::before,
+.tooltip-container:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.tooltip-container:hover::after {
+  transform: translateX(-50%);
+}
+
+/* Dark mode adjustments */
+.dark .tooltip-container::before {
+  background: var(--vp-c-bg-soft);
+  border-color: var(--vp-c-yellow-1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark .tooltip-container::after {
+  border-top-color: var(--vp-c-bg-elv);
+}
+
+/* Handle long tooltips */
+.tooltip-container[data-tooltip*=" "]::before {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tooltip-container::before {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    max-width: 250px;
+  }
+  
+  .tooltip-container::after {
+    border-width: 4px;
+    margin-bottom: 0px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .tooltip-container {
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+  }
+  
+  .tooltip-container::before {
+    border-width: 2px;
+    font-weight: 500;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .tooltip-container::before,
+  .tooltip-container::after {
+    transition: none;
+  }
+}
+
+/* Touch device adjustments */
+@media (hover: none) {
+  .tooltip-container {
+    cursor: default;
+  }
+  
+  /* For touch devices, show tooltip on focus */
+  .tooltip-container:focus::before,
+  .tooltip-container:focus::after,
+  .tooltip-container:active::before,
+  .tooltip-container:active::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  
+  .tooltip-container:focus::after,
+  .tooltip-container:active::after {
+    transform: translateX(-50%);
+  }
+  
+  /* Make tooltips focusable on touch devices */
+  .tooltip-container {
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+} 

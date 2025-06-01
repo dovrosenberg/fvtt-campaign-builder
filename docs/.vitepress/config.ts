@@ -1,9 +1,10 @@
 import { defineConfig } from 'vitepress'
 import fs from 'fs'
 import path from 'path'
+import tooltipPlugin from './theme/plugins/tooltip/tooltip-plugin'
 
 // Read the common links file
-const commonLinksPath = path.join(__dirname, '../common-links.md')
+const commonLinksPath = path.join(__dirname, '/theme/plugins/shortcuts/common-links.md')
 const commonLinks = fs.existsSync(commonLinksPath) ? fs.readFileSync(commonLinksPath, 'utf-8') : ''
 
 export default defineConfig({
@@ -14,6 +15,9 @@ export default defineConfig({
   
   markdown: {
     config: (md) => {
+      // Add tooltip plugin
+      md.use(tooltipPlugin)
+      
       // Add a rule to append common links to every page
       const originalRender = md.render;
 

@@ -7,10 +7,17 @@ TODO: true
 
 Effective organization of your world content is essential for creating a cohesive, accessible, and maintainable campaign Setting. This guide covers best practices for structuring, linking, and managing your world building elements.
 
-## Organization Principles
+## Options for organization
+There are ___ ways in which elements can be organized within your Setting:
+* Parent/child relationships
+* Types
+* Tags
+* Related entries
 
-### Hierarchy and Structure
-Organize content in logical hierarchies that reflect real-world relationships:
+They are designed to be flexible, so understanding them all will let you decide how you want to approach it for your use.
+
+## Parent/child relationships
+ Parent/child relationships are visualized in the Setting Directory and are used to organize content in logical hierarchies that reflect real-world relationships.  They apply to Locations and Organizations
 
 **Geographic Hierarchy**
 ```
