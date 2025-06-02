@@ -14,6 +14,7 @@
       :columns="columns"
       :allow-edit="props.allowEdit"
       :edit-item-label="props.editItemLabel"
+      :allow-delete="props.allowDelete"
       :delete-item-label="props.deleteItemLabel"
       :show-move-to-campaign="props.showMoveToCampaign"
       :draggable-rows="props.draggableRows"
@@ -86,9 +87,13 @@
       type: String,
       default: '',
     },
+    allowDelete: {
+      type: Boolean,
+      default: true,
+    },
     deleteItemLabel: {
       type: String,
-      required: true,
+      default: '',
     },
     showMoveToCampaign: {
       type: Boolean,

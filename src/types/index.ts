@@ -10,6 +10,7 @@ export type * from './tags.d.ts';
 
 // @ts-ignore - need to pull enum
 export * from './generators.ts';
+export type * from './generators.ts';
 
 // used to determine which component to display in the tab
 export enum WindowTabType  {

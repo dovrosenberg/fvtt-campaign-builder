@@ -11,6 +11,7 @@
       :editMode="props.columns.find(c=>c.editable) ? 'cell' : undefined"
       :sort-field="pagination.sortField"
       :sort-order="pagination.sortOrder"
+      :first="pagination.first"
       :default-sort-order="1"
       :total-records="rows.length"
       :global-filter-fields="props.filterFields"
@@ -106,6 +107,7 @@
             @drop="onDropRow($event, data.uuid)"
           >
             <a 
+              v-if="props.allowDelete"
               class="fcb-action-icon" 
               :data-tooltip="props.deleteItemLabel"
               @click.stop="emit('deleteItem', data.uuid)" 
@@ -121,15 +123,21 @@
               <i class="fas fa-pen"></i>
             </a>
             <span v-if="props.trackDelivery">
-              <!-- lockedToSessionId is a way to see if this is a seesion lore list or a campaign list for things that aren't delivered -->
+              <!-- we track delivery on campaign (delivered and not) and session lore lists -->
+              <!-- if it's delivered, lockedToSessionId is null but lockedToSession is 'Campaign' if we're looking at the campaign delivered table -->
+              <!-- if it's not delivered, lockedToSessionId is a session id where it sits or null for the campaign -->
+
+              <!--  this is a undelivered one - campaign or session, both can be delivered -->
               <a 
-                v-if="!data.delivered  && !data.lockedToSessionId"
+                v-if="!data.delivered"
                 class="fcb-action-icon" 
                 :data-tooltip="localize('tooltips.markAsDelivered')"
                 @click.stop="emit('markItemDelivered', data.uuid)" 
               >
                 <i class="fas fa-check"></i>
               </a>
+              <!-- this is a delivered campaign one on campaign table or session one on the 
+                   session table; can undeliver in either case -->
               <a 
                 v-if="data.delivered && !data.lockedToSessionId"
                 class="fcb-action-icon" 
@@ -138,16 +146,18 @@
               >
                 <i class="fas fa-circle-xmark"></i>
               </a>
+              <!-- this is a undelivered session one -->
               <a 
-                v-if="props.showMoveToCampaign && !data.delivered && !data.lockedToSessionId"
+                v-if="props.showMoveToCampaign && !data.delivered"
                 class="fcb-action-icon" 
                 :data-tooltip="localize('tooltips.moveToCampaign')"
                 @click.stop="emit('moveToCampaign', data.uuid)" 
               >
                 <i class="fas fa-reply"></i>
               </a>
+              <!-- this is a undelivered session or campaign one; can move either to next session -->
               <a 
-                v-if="!data.lockedToSessionId"
+                v-if="!data.delivered"
                 class="fcb-action-icon" 
                 :data-tooltip="localize('tooltips.moveToNextSession')"
                 @click.stop="emit('moveToNextSession', data.uuid)" 
@@ -253,7 +263,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, PropType, computed } from 'vue';
+  import { ref, PropType, computed, reactive } from 'vue';
   import { FilterMatchMode } from '@primevue/core/api';
 
   // local imports
@@ -326,9 +336,13 @@
       type: String,
       default: '',
     },
+    allowDelete: {
+      type: Boolean,
+      default: true,
+    },
     deleteItemLabel: {
       type: String,
-      required: true,
+      default: '',
     },
     showMoveToCampaign: {
       type: Boolean,
@@ -367,7 +381,7 @@
 
   ////////////////////////////////
   // data
-  const pagination = ref<TablePagination>({
+  const pagination = reactive<TablePagination>({
     sortField: 'name', 
     sortOrder: 1, 
     first: 0,
@@ -406,6 +420,19 @@
    */
   const setEditingRow = (uuid: string) => {
     editingRow.value = uuid;
+
+    // Find the index of the row
+    const rowIndex = props.rows.findIndex(row => row.uuid === uuid);
+
+    if (rowIndex !== -1) {
+      // Calculate the page number
+      const page = Math.floor((rowIndex+1) / pagination.rowsPerPage);
+
+      // Set the 'first' property for pagination to the first record
+      //    of the page containing the row we need
+      pagination.first = page * pagination.rowsPerPage;
+    }
+
     emit('setEditingRow', uuid);
   }
 

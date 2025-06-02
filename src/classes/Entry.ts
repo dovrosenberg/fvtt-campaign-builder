@@ -354,7 +354,7 @@ export class Entry {
         }
       }
     } catch (error) {
-      console.error('Failed to update search index:', error);
+      console.error('Failed to update todos or search index:', error);
     }
 
 

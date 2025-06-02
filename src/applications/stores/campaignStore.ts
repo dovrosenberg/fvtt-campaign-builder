@@ -19,6 +19,7 @@ export enum CampaignTableTypes {
   None,
   PC,
   Lore,
+  DeliveredLore,
   ToDo,
   Idea,
 }
@@ -30,7 +31,7 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   // used for tables
   const relatedPCRows = ref<PCDetails[]>([]);
-  const relatedLoreRows = ref<CampaignLoreDetails[]>([]);
+  const allRelatedLoreRows = ref<CampaignLoreDetails[]>([]);  // all the rows - for lookups
   const toDoRows = ref<ToDoItem[]>([]);
   const ideaRows = ref<IdeaItem[]>([]);
 
@@ -38,11 +39,17 @@ export const useCampaignStore = defineStore('campaign', () => {
     [CampaignTableTypes.None]: [],
     [CampaignTableTypes.PC]: [],
     [CampaignTableTypes.Lore]: [
-      { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
-      { field: 'lockedToSessionName', style: 'text-align: left', header: 'Delivered in', sortable: true, 
+      { field: 'description', style: 'text-align: left; width: 80%', header: 'Description', editable: true },
+      { field: 'journalEntryPageName', style: 'text-align: left; width: 20%', header: 'Journal', editable: false, 
+        onClick: onJournalClick
+      },
+    ],
+    [CampaignTableTypes.DeliveredLore]: [
+      { field: 'description', style: 'text-align: left; width: 50%', header: 'Description', editable: true },
+      { field: 'lockedToSessionName', style: 'text-align: left; width: 30%', header: 'Delivered in', sortable: true, 
         editable: false, onClick: onSessionClick
       },
-      { field: 'journalEntryPageName', style: 'text-align: left', header: 'Journal', editable: false, 
+      { field: 'journalEntryPageName', style: 'text-align: left; width: 20%', header: 'Journal', editable: false, 
         onClick: onJournalClick
       },
     ],
@@ -138,7 +145,23 @@ export const useCampaignStore = defineStore('campaign', () => {
       if (!currentCampaign.value)
         throw new Error('Invalid session in campaignStore.updateLoreDescription()');
   
-      await currentCampaign.value.updateLoreDescription(uuid, description);
+      // first look it up in the rows to see if it's campaign or session
+      const row = allRelatedLoreRows.value.find(r=> r.uuid===uuid);
+
+      if (!row)
+        throw new Error('Lore not found in campaignStore.updateLoreDescription()');
+
+      if (row.lockedToSessionId) {
+        // it's a session one, so we need to update it in the session
+        const session = await Session.fromUuid(row.lockedToSessionId);
+        if (!session)
+          throw new Error('Session not found in campaignStore.updateLoreDescription()');
+        
+        await session.updateLoreDescription(uuid, description);
+      } else {
+        await currentCampaign.value.updateLoreDescription(uuid, description);
+      }
+
       await _refreshLoreRows();
     }
     
@@ -163,11 +186,27 @@ export const useCampaignStore = defineStore('campaign', () => {
       if (!currentCampaign.value)
         throw new Error('Invalid session in campaignStore.deleteLore()');
   
+      // first look it up in the rows to see if it's campaign or session
+      const row = allRelatedLoreRows.value.find(r=> r.uuid===uuid);
+
+      if (!row)
+        throw new Error('Lore not found in campaignStore.deleteLore()');
+
       // confirm
       if (!(await FCBDialog.confirmDialog('Delete Lore?', 'Are you sure you want to delete this lore?')))
         return;
 
-      await currentCampaign.value.deleteLore(uuid);
+      if (row.lockedToSessionId) {
+        // it's a session one, so we need to delete it from the session
+        const session = await Session.fromUuid(row.lockedToSessionId);
+        if (!session)
+          throw new Error('Session not found in campaignStore.deleteLore()');
+        
+        await session.deleteLore(uuid);
+      } else { 
+        await currentCampaign.value.deleteLore(uuid);
+      }
+
       await _refreshLoreRows();
     }
   
@@ -279,6 +318,14 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   ///////////////////////////////
   // computed state
+  const deliveredLoreRows = computed((): CampaignLoreDetails[] => {
+    return allRelatedLoreRows.value.filter((r) => r.delivered);
+  });
+
+  const availableLoreRows = computed((): CampaignLoreDetails[] => {
+    return allRelatedLoreRows.value.filter((r) => !r.delivered);
+  });
+
   const currentPlayedSession = computed((): Session | null => (currentPlayedCampaign?.value?.currentSession || null) as Session | null);
   
   const availableCampaigns = computed((): Campaign[] => {
@@ -339,7 +386,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   // when we click on a session in the lore, open the session tab
   async function onJournalClick (_event: MouseEvent, uuid: string) {
     // get session Id
-    const journalEntryPageId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
+    const journalEntryPageId = allRelatedLoreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
     const journalEntryPage = await fromUuid<JournalEntryPage>(journalEntryPageId);
 
     if (journalEntryPage)
@@ -347,10 +394,17 @@ export const useCampaignStore = defineStore('campaign', () => {
   }
 
   // when we click on a journal in the lore, open it
-  function onSessionClick (event: MouseEvent, uuid: string) {
+  async function onSessionClick (event: MouseEvent, uuid: string) {
     // get session Id
-    const sessionId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.lockedToSessionId;
-    useNavigationStore().openSession(sessionId, { newTab: event.ctrlKey, activate: true });
+    const sessionId = allRelatedLoreRows.value.find(r=> r.uuid===uuid)?.lockedToSessionId;
+
+    if (!sessionId)
+      throw new Error('Session not found in campaignStore.onSessionClick()');
+
+    await useNavigationStore().openSession(sessionId, { newTab: event.ctrlKey, activate: true });
+
+    // set the tab to the lore
+    await useNavigationStore().updateContentTab('lore');
   }
 
   // when we click on an entry in the todo list, open it
@@ -453,14 +507,14 @@ export const useCampaignStore = defineStore('campaign', () => {
   };
 
   const _refreshLoreRows = async () => {
-    relatedLoreRows.value = [];
+    allRelatedLoreRows.value = [];
     
     if (!currentCampaign.value)
       return;
 
     const retval = [] as CampaignLoreDetails[];
 
-    // at the top of the list, put all the ones from the sessions... 
+    // go through everything in the sessions that was delivered
     for (const session of currentCampaign.value.sessions) {
       for (const lore of session.lore) {
         if (!lore.delivered)
@@ -484,6 +538,7 @@ export const useCampaignStore = defineStore('campaign', () => {
       }
     }
 
+    // now get the ones at the campaign level - delivered or not
     for (const lore of currentCampaign.value?.lore) {
       let entry: JournalEntryPage | null = null;
 
@@ -493,7 +548,7 @@ export const useCampaignStore = defineStore('campaign', () => {
       retval.push({
         uuid: lore.uuid,
         lockedToSessionId: null,
-        lockedToSessionName: null,
+        lockedToSessionName: 'Campaign',
         delivered: lore.delivered,
         description: lore.description,
         journalEntryPageId: lore.journalEntryPageId,
@@ -502,7 +557,7 @@ export const useCampaignStore = defineStore('campaign', () => {
       });
     }
 
-    relatedLoreRows.value = retval;
+    allRelatedLoreRows.value = retval;
   }
 
   const _refreshToDoRows = async () => {
@@ -600,7 +655,8 @@ export const useCampaignStore = defineStore('campaign', () => {
   // return the public interface
   return {
     relatedPCRows,
-    relatedLoreRows,
+    deliveredLoreRows,
+    availableLoreRows,
     extraFields,
     availableCampaigns,
     playableCampaigns,
