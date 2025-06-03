@@ -19,7 +19,7 @@ You can have more than one [^Campaign] in a given Setting, and they share all of
 
 
 ## World Building
-World building primarily takes place in the [Setting Directory](/reference/navigation/directory-sidebar/#setting-directory), found in the upper part of the Directory Sidebar.  The key steps to get you started are:
+World building primarily takes place in the [Setting Directory], found in the upper part of the Directory Sidebar.  The key steps to get you started are:
 
 1. Create a Setting (this will happen automatically when you first open the Campaign Builder window)
 1. Right click on the topic folders ('Characters', 'Locations', 'Organizations') to create new entries and begin defining your Setting
@@ -57,7 +57,7 @@ Prep mode is designed to follow the Lazy DM philosophy.  Each tab on the Session
 * Define any [^Lore] that might come up
 * Describe possible scenes (called [^Vignettes] in Campaign Builder to distinguish from Foundry scenes)
 * Connect any [^Fantastic Locations] from the Setting - this then gives you quick access to both your detailed Location info and the associated Foundry scenes
-* Connect any Characters from the Setting for your [^Important NPCs]
+* Connect any Characters from the Setting for your [^NPCs]
 * Add any Foundry actors as [^Relevant Monsters] - this gives you easy access to their actor sheets and to drag them onto the scene
 * Add any Foundry items for [^Magic items] as that might come up
 

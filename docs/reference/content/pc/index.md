@@ -1,6 +1,12 @@
 ---
 title: PC Details
 TODO: true
+prev: 
+  text: 'Campaigns'
+  link: '/reference/content/campaign'
+next: 
+  text: 'Sessions'
+  link: '/reference/content/session'
 ---
 # PC Details
 

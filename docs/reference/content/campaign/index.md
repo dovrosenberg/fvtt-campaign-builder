@@ -1,5 +1,11 @@
 ---
 title: Campaign Details
+prev: 
+  text: 'Organizations'
+  link: '/reference/content/organization'
+next: 
+  text: 'PCs'
+  link: '/reference/content/pc'
 ---
 # Campaign Details
 

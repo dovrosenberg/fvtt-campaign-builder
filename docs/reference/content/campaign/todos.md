@@ -22,7 +22,7 @@ The intent is to clean up the list after each session, before preparing for the 
 ## Source of To-Dos
 The system automatically creates to-do items from various sources:
 - **Entry** - Notes related to [^Entries] that were edited during a session while in [^Play mode]
-- **Session Items** - Notes related to [^Lore], [^Vignettes], [^Relevant Monsters], [^Important NPCs], or [^Magic items] that were marked as delivered during a session
+- **Session Items** - Notes related to [^Lore], [^Vignettes], [^Relevant Monsters], [^NPCs], or [^Magic items] that were marked as delivered during a session
 Lore that needs to be delivered
 
 Only one to-do will be created for any given source.  It updates the "last modified" date and the to-do text whenever another would have been created.  That way if you fall behind it doesn't get cluttered, but you can still see all the sessions you might want to check.

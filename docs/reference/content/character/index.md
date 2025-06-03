@@ -1,7 +1,14 @@
 ---
 title: Character Details
+prev: 
+  text: 'Entries'
+  link: '/reference/content/entry'
+next: 
+  text: 'Locations'
+  link: '/reference/content/location'
 ---
 # Character Details
+![Entry Window](/assets/images/character-content.webp)
 
 Characters bring your campaign world to life. The Character details  interface is where you craft your NPCs and manage the relationships between the Characters and the world.
 
@@ -16,10 +23,10 @@ Each Character can have an optional species.  This can be helpful to you to see 
 
 You can manage the list of species for your Settings in the [Module Settings](/reference/configuration#species)
 
-### Actors
+### Actors {#actors}
 ![Actors Tab](/assets/images/actors-tab.webp)
 
-On the Actors tab, you can associate your Character with one or more actors.  Having more than one may be helpful if you have different character sheets for this Character at different points in time, or perhaps a transformed/polymorphed version, etc.  This section also makes it easy to find the right character sheet or token mid-game.
+On the Actors tab, you can associate your Character with one or more actors from Foundry.  Having more than one may be helpful if you have different character sheets for this Character at different points in time, or perhaps a transformed/polymorphed version, etc.  Since your key Characters will be tied to the current [Session](/reference/content/session), you can access any of them with just a couple clicks.
 
 #### Adding actors
 - Click "Add actor" to select a Foundry actor and connect it to the Character.

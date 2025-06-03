@@ -14,7 +14,8 @@
 [^Lore]: Called "Secrets and Clues" by The Lazy DM, short bits of lore that you may give out to the players over the course of a session.
 [^Magic items]: Per The Lazy DM, special loot you may consider giving the players during the session. We connect them to Foundry Items to make it easy to drop onto the scene or character sheet.
 [^Relevant Monsters]: Per The Lazy DM, the enemies that the players may face in that session.  Separated from Vignettes because you aren't assuming ahead of time where they will come in. We connect them to Foundry actors to make easy to get relevant details and add to a scene.
-[^Important NPCs]: Per The Lazy DM,  the NPCs that the players may encounter in a session.  We connect them directly to Characters in the Setting.
+[^NPC]: Called "Important NPCs" by The Lazy DM, an NPC that the players may encounter in a session.  We connect them directly to Characters in the Setting.
+[^NPCs]: Called "Important NPCs" by The Lazy DM, the NPCs that the players may encounter in a session.  We connect them directly to Characters in the Setting.
 [^Organization]: An organization within the Setting.  Organizations represent a group of characters and can describe anything from a clan to a guild to a religion. They have a hierarchichal structure.
 [^Organizations]: An organization within the Setting.  Organizations represent a group of characters and can describe anything from a clan to a guild to a religion. They have a hierarchichal structure.
 [^Play mode]: Indicated by the Prep/Play toggle in the title bar, this is the mode where you're actively running a session with your players.  It enables a variety of special functionality.

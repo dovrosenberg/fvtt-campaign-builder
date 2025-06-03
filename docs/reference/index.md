@@ -16,7 +16,7 @@ Understand how the Campaign Builder works and integrates with Foundry VTT.
 Learn the basics of navigating the Campaign Builder interface.
 
 - [Overall Window Structure](navigation/main-display.md)
-- [Directory Sidebar](navigation/directory-sidebar.md)
+- [Directory Sidebar](navigation/sidebar)
 - [Working with Tabs](navigation/tabs.md)
 - [Bookmarks](navigation/bookmarks.md)
 - [Keyboard Shortcuts](navigation/shortcuts.md)
