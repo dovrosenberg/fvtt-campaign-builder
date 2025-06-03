@@ -37,6 +37,7 @@ A place where you can enter the main description of your campaign. This might in
 A separate field specifically for documenting any house rules or modifications you're using in this campaign. This keeps rule variations clearly separated from the main campaign description.  
 
 ### PCs Tab
+TODO: Need to update with new table structure
 
 ![PCs Tab](/assets/images/pcs-tab.webp)
 

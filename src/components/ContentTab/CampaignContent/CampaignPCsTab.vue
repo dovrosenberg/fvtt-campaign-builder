@@ -33,6 +33,7 @@
 
   // types
   import { PCDetails, } from '@/types';
+  import { PC } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -51,29 +52,37 @@
 
   ////////////////////////////////
   // computed data
-  type CampaignPCsGridRow = { uuid: string; name: string, playerName: string };
+  type CampaignPCsGridRow = { uuid: string; name: string, actor: string };
 
   const rows = computed((): CampaignPCsGridRow[] => (
     relatedPCRows.value.map((pc: PCDetails) => ({
       uuid: pc.uuid, 
-      name: pc.name, 
-      playerName: pc.playerName,
+      name: `${pc.name} (${pc.playerName})`, 
+      actor: pc.name,
     }))
   ));
 
-  const columns = computed((): any[] => {
-    // for now, just action and name
-    const actionColumn = { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' };
-    const nameColumn = { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick }; 
-    const playerNameColumn = { field: 'playerName', style: 'text-align: left', header: 'Player', sortable: true }; 
+  // TODO: why are these here instead of in the store like the others?
+  // these are here because they can be; this is cleaner than sticking it all in the store
+  // to move the others out, though, will require some refactoring because their onClick handlers need stuff in the store
 
-    return [actionColumn, nameColumn, playerNameColumn];
-  });
+  const columns = computed((): any[] => [
+    { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' },
+    { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
+    { field: 'actor', style: 'text-align: left', header: 'Actor', sortable: true, onClick: onActorClick },
+  ]);
 
   ////////////////////////////////
   // methods
   const onNameClick = async function (event: MouseEvent, uuid: string) { 
     await navigationStore.openPC(uuid, { newTab: event.ctrlKey });
+  };
+
+  const onActorClick = async function (_event: MouseEvent, uuid: string) { 
+    const pc = await PC.fromUuid(uuid);
+    const actor = await pc.getActor();
+    if (actor)
+      actor.sheet?.render(true);
   };
 
   ////////////////////////////////
