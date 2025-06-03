@@ -5,7 +5,7 @@ import { DocumentWithFlags, Entry, PC, Session, WBWorld } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';
-import { ToDoItem, ToDoTypes, IdeaItem } from '@/types';
+import { ToDoItem, ToDoTypes, Idea } from '@/types';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign extends DocumentWithFlags<CampaignDoc> {
@@ -23,7 +23,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   private _lore: CampaignLore[];
   private _img: string;
   private _todoItems: ToDoItem[];
-  private _ideaItems: IdeaItem[];
+  private _ideas: Idea[];
 
   /**
    * 
@@ -41,7 +41,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this._img = this.getFlag(CampaignFlagKey.img) || '';
     this._name = campaignDoc.name;
     this._todoItems = this.getFlag(CampaignFlagKey.todoItems) || [];
-    this._ideaItems = this.getFlag(CampaignFlagKey.ideaItems) || [];
+    this._ideas = this.getFlag(CampaignFlagKey.ideas) || [];
   }
 
   override async _getWorld(): Promise<WBWorld> {
@@ -178,6 +178,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     return this._lore;
   }
   
+  // returns the uuid
   async addLore(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 
@@ -343,50 +344,51 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     await this.save();
   }
 
-  get ideaItems(): readonly IdeaItem[] {
-    return this._ideaItems;
+  get ideas(): readonly Idea[] {
+    return this._ideas;
   }
 
-  set ideaItems(value: IdeaItem[]) {
-    this._ideaItems = value;
-    this.updateCumulative(CampaignFlagKey.ideaItems, value);
+  set ideas(value: Idea[]) {
+    this._ideas = value;
+    this.updateCumulative(CampaignFlagKey.ideas, value);
   }
 
   /** Creates a new idea item and adds to the campaign*/
-  async addNewIdeaItem(text: string): Promise<IdeaItem | null> {
-    if (!this._ideaItems) {
-      this._ideaItems = [];
+  /** returns the uuid */
+  async addIdea(text: string): Promise<string | null> {
+    if (!this._ideas) {
+      this._ideas = [];
     }
 
-    const item: IdeaItem = {
+    const item: Idea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
     };
 
-    this._ideaItems.push(item);
-    this.updateCumulative(CampaignFlagKey.ideaItems, this._ideaItems);
+    this._ideas.push(item);
+    this.updateCumulative(CampaignFlagKey.ideas, this._ideas);
     await this.save();
 
-    return item;
+    return item.uuid;
   }
 
-  async updateIdeaItem(uuid: string, newText: string): Promise<void> {
-    const item = this._ideaItems.find(i => i.uuid === uuid);
+  async updateIdea(uuid: string, newText: string): Promise<void> {
+    const item = this._ideas.find(i => i.uuid === uuid);
     if (!item)
       return;
 
     item.text = newText;
-    this.updateCumulative(CampaignFlagKey.ideaItems, this._ideaItems);
+    this.updateCumulative(CampaignFlagKey.ideas, this._ideas);
     await this.save();
   }
 
-  async deleteIdeaItem(uuid: string): Promise<void> {
-    if (!this._ideaItems) {
-      this._ideaItems = [];
+  async deleteIdea(uuid: string): Promise<void> {
+    if (!this._ideas) {
+      this._ideas = [];
     }
 
-    this._ideaItems = this._ideaItems.filter(i => i.uuid !== uuid);
-    this.updateCumulative(CampaignFlagKey.ideaItems, this._ideaItems);
+    this._ideas = this._ideas.filter(i => i.uuid !== uuid);
+    this.updateCumulative(CampaignFlagKey.ideas, this._ideas);
     await this.save();
   }
 

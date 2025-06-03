@@ -163,7 +163,7 @@
         },
       ].concat(props.topic === Topics.Location ?
         [{
-          icon: 'fa-comment',
+          icon: 'fa-image',
           iconFontClass: 'fas',
           label: localize('contextMenus.image.createScene'),
           onClick: () => createScene()

@@ -1,6 +1,6 @@
 import { FlagSettings } from '@/settings';
 import { SessionLore, } from '@/documents/session';
-import { ToDoItem, IdeaItem } from '@/types';
+import { ToDoItem, Idea } from '@/types';
 
 // campaigns are journal entries, not documents
 export interface CampaignDoc extends JournalEntry {
@@ -19,7 +19,7 @@ export enum CampaignFlagKey {
   lore = 'lore',
   img = 'img',   // image path for the campaign
   todoItems = 'todoItems',
-  ideaItems = 'ideaItems',
+  ideas = 'ideas',
 }
 
 export type CampaignFlagType<K extends CampaignFlagKey> =
@@ -29,7 +29,7 @@ export type CampaignFlagType<K extends CampaignFlagKey> =
   K extends CampaignFlagKey.lore ? CampaignLore[] :
   K extends CampaignFlagKey.img ? string :
   K extends CampaignFlagKey.todoItems ? ToDoItem[] :
-  K extends CampaignFlagKey.ideaItems ? IdeaItem[] :
+  K extends CampaignFlagKey.ideas ? Idea[] :
   never;  
 
 export const flagSettings = [
@@ -58,8 +58,8 @@ export const flagSettings = [
     default: [] as ToDoItem[],
   },
   {
-    flagId: CampaignFlagKey.ideaItems,
-    default: [] as IdeaItem[],
+    flagId: CampaignFlagKey.ideas,
+    default: [] as Idea[],
   },
 ] as FlagSettings<CampaignFlagKey, {[K in CampaignFlagKey]: CampaignFlagType<K>}>[];
 

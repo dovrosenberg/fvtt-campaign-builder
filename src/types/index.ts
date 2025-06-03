@@ -111,7 +111,7 @@ export interface ToDoItem {
   type: ToDoTypes;
 }
 
-export interface IdeaItem {
+export interface Idea {
   uuid: string;  // uuid of the idea item
   text: string;
 }

@@ -1,8 +1,8 @@
 ---
-title: Entry
+title: Entry Details
 TODO: true
 ---
-# Entry Window
+# Entry Details
 ![Entry Window](/assets/images/entry-content.webp)
 
 Regardless of Topic, each Entry has a similar layout in the main window.  At the bottom of this description, we'll outline the things that are different.

@@ -16,7 +16,7 @@ This is where you configure your backend if you are using Advanced Features.
 - **API Token**: The security token that the backend deploy script gives you
 - **Backend URL**: The url of the backend server (also provided by the backend deploy script)
 
-### Species List
+### Species List {#species}
 This lets you manage the list of species in your worlds.  The default species are from the D&D 5E SRD.  This list is important if you want to track what species your Characters are, but mostly it's to facilitate more accurate descriptions/images when doing AI generation.
 
 ### Roll Table Settings

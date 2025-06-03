@@ -52,7 +52,6 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const navigationStore = useNavigationStore();
   const { relatedNPCRows } = storeToRefs(sessionStore);
   
   ////////////////////////////////

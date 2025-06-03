@@ -89,7 +89,7 @@ export class Backend {
     if (ideas) {
       for (const idea of ideas) {
         if (idea) {
-          await campaign.addNewIdeaItem(idea.text);
+          await campaign.addIdea(idea.text);
         }
       }
 

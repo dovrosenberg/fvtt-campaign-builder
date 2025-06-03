@@ -69,7 +69,7 @@
   const columns = computed((): any[] => [
     { field: 'actions', style: 'text-align: left; width: 100px; max-width: 100px', header: 'Actions' },
     { field: 'name', style: 'text-align: left', header: 'Name', sortable: true, onClick: onNameClick },
-    { field: 'actor', style: 'text-align: left', header: 'Actor', sortable: true, onClick: onActorClick },
+    { field: 'actor', style: 'text-align: left', header: 'Character Sheet', sortable: true, onClick: onActorClick },
   ]);
 
   ////////////////////////////////

@@ -9,7 +9,7 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/a
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, IdeaItem} from '@/types';
+import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea} from '@/types';
 import { Campaign, PC, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { closeSessionNotes, openSessionNotes } from '@/applications/SessionNotes';
@@ -33,7 +33,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   const relatedPCRows = ref<PCDetails[]>([]);
   const allRelatedLoreRows = ref<CampaignLoreDetails[]>([]);  // all the rows - for lookups
   const toDoRows = ref<ToDoItem[]>([]);
-  const ideaRows = ref<IdeaItem[]>([]);
+  const ideaRows = ref<Idea[]>([]);
 
   const extraFields = {
     [CampaignTableTypes.None]: [],
@@ -277,30 +277,29 @@ export const useCampaignStore = defineStore('campaign', () => {
     await _refreshToDoRows();
   }
 
-  const addIdeaItem = async (text?: string): Promise<IdeaItem | null> => {
+   /**
+   * Adds a lore to the campaign.
+   * @param description The description for the idea
+   * @returns The UUID of the created idea
+   */
+  const addIdea = async (description = ''): Promise<string | null> => {
     if (!currentCampaign.value)
-      return null;
+      throw new Error('Invalid campaign in campaignStore.addIdea()');
 
-    if (!text) {
-      const inputText = await FCBDialog.inputDialog('Add Idea', 'Idea:');
-      if (!inputText) return null;
-      text = inputText;
-    }
-
-    const ideaItem = await currentCampaign.value.addNewIdeaItem(text);
+    const ideaUuid = await currentCampaign.value.addIdea(description);
     await _refreshIdeaRows();
-    return ideaItem;
+    return ideaUuid;
   }
 
-  const updateIdeaItem = async (uuid: string, newText: string): Promise<void> => {
+  const updateIdea = async (uuid: string, newText: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
 
-    await currentCampaign.value.updateIdeaItem(uuid, newText);
+    await currentCampaign.value.updateIdea(uuid, newText);
     await _refreshIdeaRows();
   }
 
-  const deleteIdeaItem = async (uuid: string): Promise<void> => {
+  const deleteIdea = async (uuid: string): Promise<void> => {
     if (!currentCampaign.value)
       return;
 
@@ -308,7 +307,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!(await FCBDialog.confirmDialog('Delete Idea?', 'Are you sure you want to delete this idea?')))
       return;
 
-    await currentCampaign.value.deleteIdeaItem(uuid);
+    await currentCampaign.value.deleteIdea(uuid);
     await _refreshIdeaRows();
   }
 
@@ -571,7 +570,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!currentCampaign.value)
       return;
     
-    ideaRows.value = Array.from(currentCampaign.value.ideaItems);
+    ideaRows.value = Array.from(currentCampaign.value.ideas);
   }
 
   ///////////////////////////////
@@ -674,9 +673,9 @@ export const useCampaignStore = defineStore('campaign', () => {
     mergeToDoItem,
     completeToDoItem,
     updateToDoItem,
-    addIdeaItem,
-    updateIdeaItem,
-    deleteIdeaItem,
+    addIdea,
+    updateIdea,
+    deleteIdea,
   };
 });
 

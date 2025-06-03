@@ -1,7 +1,7 @@
 <template>
   <div class="tab-inner">
     <BaseTable
-      ref="baseTableRef"
+      ref="availableIdeaRef"
       :show-add-button="true"
       :show-filter="false"
       :filter-fields="[]"
@@ -15,8 +15,8 @@
       :delete-item-label="localize('tooltips.deleteIdea')"
       :show-move-to-campaign="false"
       :draggable-rows="false"
-      @delete-item="onDeleteIdeaItem"
-      @add-item="onAddIdeaItem"
+      @delete-item="onDeleteIdea"
+      @add-item="onAddIdea"
       @cell-edit-complete="onCellEditComplete"
     >
     </BaseTable>
@@ -38,7 +38,7 @@
   import BaseTable from '@/components/BaseTable/BaseTable.vue';
   
   // types
-  import { IdeaItem } from '@/types';
+  import { Idea } from '@/types';
   import { DataTableCellEditCompleteEvent } from 'primevue';
 
   ////////////////////////////////
@@ -54,12 +54,12 @@
 
   ////////////////////////////////
   // data
-  const baseTableRef = ref<InstanceType<typeof BaseTable> | null>(null);
+  const availableIdeaRef = ref<InstanceType<typeof BaseTable> | null>(null);
 
   ////////////////////////////////
   // computed data
   const mappedIdeaRows = computed(() => {
-    return ideaRows.value.map((idea: IdeaItem) => ({
+    return ideaRows.value.map((idea: Idea) => ({
       uuid: idea.uuid,
       text: idea.text,
     }));
@@ -83,16 +83,22 @@
 
   ////////////////////////////////
   // event handlers
-  const onDeleteIdeaItem = async (uuid: string) => {
-    await campaignStore.deleteIdeaItem(uuid);
+  const onDeleteIdea = async (uuid: string) => {
+    await campaignStore.deleteIdea(uuid);
   };
 
-  const onAddIdeaItem = async () => {
-    const newRow = await campaignStore.addIdeaItem();
+  const onAddIdea = async () => {
+    // Add the idea and get the UUID of the newly added item
+    const ideaUuid = await campaignStore.addIdea();
 
-    // open for editing
-    if (baseTableRef.value && newRow) {
-      baseTableRef.value.setEditingRow(newRow.uuid);
+    // If we successfully added an idea, put its description column into edit mode
+    if (ideaUuid) {
+      // We need to wait for the DOM to update first
+      setTimeout(() => {
+        if (availableIdeaRef.value) {
+          availableIdeaRef.value.setEditingRow(ideaUuid);
+        }
+      }, 50); // Small delay to ensure the DOM has updated
     }
   };
 
@@ -100,7 +106,7 @@
     const { data, newValue, field } = event;
     
     if (field === 'text') {
-      await campaignStore.updateIdeaItem(data.uuid, newValue as string);
+      await campaignStore.updateIdea(data.uuid, newValue as string);
     }
   };
 

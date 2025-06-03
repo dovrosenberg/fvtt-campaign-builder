@@ -25,7 +25,12 @@ export async function inputDialog(title: string, prompt: string): Promise<string
   };
 
   // this uses the Foundry Dialog
-  await Dialog.wait(dialog);
+  try {
+    await Dialog.wait(dialog);
+  } catch (error) {
+    // it throws if you close the dialog
+    response = null;
+  }
 
   return response;
 }

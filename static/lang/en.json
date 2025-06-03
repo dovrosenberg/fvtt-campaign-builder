@@ -142,7 +142,7 @@
       },
       "locations": {
         "compendium": "Compendium",
-        "setting": "Setting"
+        "world": "World"
       },
       "homePage": {
         "createWorld": "Create Setting",
@@ -218,9 +218,9 @@
         "pcs": "PCs",
         "lore": "Lore",
         "todo": "To Do",
-        "addToDo": "Create new 'To Do'",
+        "addToDo": "Add To-do Item",
         "ideas": "Ideas",
-        "addIdea": "Create new 'Idea'"
+        "addIdea": "Add idea"
       },
       "pc": {
         "linkToNewActor": "Link to new actor"
