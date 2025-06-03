@@ -39,6 +39,10 @@ export const useCampaignStore = defineStore('campaign', () => {
     [CampaignTableTypes.None]: [],
     [CampaignTableTypes.PC]: [],
     [CampaignTableTypes.Lore]: [
+      { field: 'description', style: 'text-align: left; width: 80%', header: 'Description', editable: true },
+      { field: 'journalEntryPageName', style: 'text-align: left; width: 20%', header: 'Journal', editable: false, 
+        onClick: onJournalClick
+      },
     ],
     [CampaignTableTypes.DeliveredLore]: [
       { field: 'description', style: 'text-align: left; width: 50%', header: 'Description', editable: true },
