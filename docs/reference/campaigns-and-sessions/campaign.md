@@ -4,7 +4,7 @@ TODO: true
 ---
 # Campaign Window
 
-[TODO: screenshot of campaign window overview showing main interface]
+![Campaign content](/assets/images/campaign-content.webp)
 
 The Campaign window provides tools for organizing and managing your campaigns within a Setting. Campaigns allow you to group related sessions together, track player characters, maintain campaign-wide lore, capture ideas, and manage tasks. You can define multiple campaigns within a single Setting, which is useful if you use the same Setting across multiple groups who play at different times.
 
@@ -18,7 +18,7 @@ The Campaign window is organized into several tabs, each serving a specific purp
 
 ### Description Tab
 
-[TODO: screenshot of description tab]
+![Description tab](/assets/images/campaign-content.webp)
 
 The Description tab is the main overview area for your campaign and contains:
 
@@ -38,7 +38,7 @@ A separate field specifically for documenting any house rules or modifications y
 
 ### PCs Tab
 
-[TODO: screenshot of PCs tab]
+![PCs Tab](/assets/images/pcs-tab.webp)
 
 The PCs (Player Characters) tab allows you to track and manage information about the player characters in your campaign. This tab provides:
 
@@ -54,11 +54,15 @@ Each PC entry displays:
 
 #### PC Management
 - Click on a PC name to open their detailed information window  [See TODO for PC page]
-- Delete PCs using the action buttons when they're no longer part of the campaign **(Note: PCs do not exist outside of a campaign, so deleting from this list permenantly deletes all associated info)**
+- Delete PCs using the action buttons when they're no longer part of the campaign 
+
+> [!WARNING]
+> PCs do not exist outside of a campaign, so deleting from this list permenantly deletes all associated info (story hooks, desired magic items, etc.)
 
 ### Lore Tab
+TODO: NEED TO UPDATE THIS FOR HOW THE NEW WINDOW WORKS
 
-[TODO: screenshot of lore tab]
+![Lore Tab](/assets/images/lore-tab.webp)
 
 The Lore tab (equivalent to "secrets and clues" in the Lazy DM method) allows you to manage campaign-wide knowledge that players might discover. 
 
@@ -105,7 +109,7 @@ The Ideas tab provides a simple way to capture and organize ideas for your campa
 The To Do list is designed to be a temporary place to store notes of things that you want to better document in your world or campaign.
 
 The To Do tab can be used in two ways:
-- It is a place that tracks things that happened during your sessions as a reminder.  Any session item (lore, vignettes, NPCs, locations, etc.) that is delivered in a session is added to the to do list.  Additionally, any world entry (location, character, organization) that you edit while you are in Play Mode (TODO: link that) is added to the list.  The idea is that after each session, you can go through the list and each item will remind you of things that happened and you can decide if you need to: 
+- It is a place that tracks things that happened during your sessions as a reminder.  Any session item (lore, vignettes, NPCs, locations, etc.) that is delivered in a session is added to the to do list.  Additionally, any world entry (location, character, organization) that you edit while you are in Play Mode (TODO: link that - not tooltip) is added to the list.  The idea is that after each session, you can go through the list and each item will remind you of things that happened and you can decide if you need to: 
 
   - Add some description to the session notes ("oh right, they saw this cool thing... I forgot to note that")
   - Add a detail to an entry in the world ("oh right, they met this NPC, let me note that I gave her a Scottish accent and then add a new entry for her brother Max that I mentioned she had")
@@ -116,18 +120,18 @@ If an entry is edited during more than one session, you can see the most recent 
 
 The intent is to clean up the list after each session, before preparing for the next, but feel free to use it however you want.  The tab also notes in its header how many items are currently open on the list.
 
-#### Task Types
+#### Source of to-dos
 The system automatically creates to-do items from various sources:
-- **Manual** - Tasks you create directly
-- **Entry** - Tasks related to specific campaign entries
-- **Lore** - Lore that needs to be delivered
-- **Vignette** - Session vignettes to address
-- **Monster** - Monster encounters to run
-- **Item** - Magic items to introduce
+- **Entry** - Notes related to [^Entries] that were edited during a session while in [^Play mode]
+- **Session Items** - Notes related to [^Lore], [^Vignettes], [^Relevant Monsters], [^Important NPCs], or [^Magic items] that were marked as delivered during a session
+Lore that needs to be delivered
 
-#### Task Management
-- Click "Add To Do" to create manual tasks
-- The delete button on each row marks a to do as done (which removes it altogether)
-- The edit button opens the "to do item" for editing (or just click on the text); hit enter to save
-- Tasks show when they were last touched for easy prioritization
-- Click the "reference" to go to the item
+Only one to-do will be created for any given source.  It updates the "last modified" date and the to-do text whenever another would have been created.  That way if you fall behind it doesn't get cluttered, but you can still see all the sessions you might want to check.
+
+You can also manually create a to-do item by clicking the "Create new 'To do'" button on this tab.
+
+#### To-Do Management
+From the list of to-dos, you can:
+- Click the delete button on the row to delete them when they are complete (or you've decided there was nothing to be done).
+- Click the edit button (or click on the to-do text) on the row to edit the text. Hit enter to save.
+- Click the "Reference" to go to the source.  
