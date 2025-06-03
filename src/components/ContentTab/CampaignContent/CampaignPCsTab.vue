@@ -113,7 +113,8 @@
 
       if (newPC) {
         newPC.actorId = data.uuid;
-        await newPC?.getActor();
+        await newPC.save();
+        await newPC?.getActor();  // make sure it's loaded
         await navigationStore.openPC(newPC.uuid, { newTab: true });
       }
     }

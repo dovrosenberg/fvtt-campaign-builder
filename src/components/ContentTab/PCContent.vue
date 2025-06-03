@@ -109,6 +109,7 @@
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { WindowTabType } from '@/types';
   import { getTabTypeIcon, } from '@/utils/misc';
+  import { getValidatedData } from '@/utils/dragdrop';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -119,6 +120,7 @@
 
   // types
   import { PC } from '@/classes';
+
   
   ////////////////////////////////
   // props
@@ -161,16 +163,15 @@
     event.preventDefault();
     event.stopPropagation();
 
-    // validate the drop
-    if (!currentPC.value || event.dataTransfer?.types[0]!=='text/plain')
+    if (!currentPC.value)
       return;
-   
-    try {  // in case parse fails
-      let data = JSON.parse(event.dataTransfer?.getData('text/plain') || '');
 
-      if (data.type!=='Actor' || !data.uuid)
-        return;
+    // parse the data
+    let data = getValidatedData(event);
+    if (!data)
+      return;
 
+    if (data.type==='Actor' && data.uuid) {
       currentPC.value.actorId = data.uuid;
       await currentPC.value.save();
       await mainStore.refreshPC();
@@ -178,9 +179,6 @@
       // need to refreshPC first to ensure that the new actor gets loaded so we can call name
       await navigationStore.propagateNameChange(currentPC.value.uuid, currentPC.value.name);
     }
-    catch (err) {
-      return;
-    }      
   }
 
   const onImageContextMenu = (event: MouseEvent) => {

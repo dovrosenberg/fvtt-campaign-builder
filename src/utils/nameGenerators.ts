@@ -58,7 +58,7 @@ export async function initializeWorldRollTables(world: WBWorld): Promise<void> {
   
   // Check if we should auto-refresh
   const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
-  if (autoRefresh) {
+  if (autoRefresh && Backend.available && Backend.api) {
     await refreshWorldRollTables(world);
   }
 }
@@ -185,8 +185,11 @@ async function createWorldRollTable(type: GeneratorType, folderId: string, world
     await table.setFlag(moduleId, 'type', type);
     await table.setFlag(moduleId, 'worldId', world.uuid);
 
-    await refreshWorldRollTable(table, world);
-  
+    // requires backend
+    if (Backend.available && Backend.api) {
+      await refreshWorldRollTable(table, world);
+    }
+     
     return table;
   } else {
     return null;
@@ -203,6 +206,11 @@ async function createWorldRollTable(type: GeneratorType, folderId: string, world
  * @throws {Error} If the table type is missing or generation fails
  */
 export const refreshWorldRollTable = async (rollTable: RollTable, world: WBWorld) : Promise<void> => {
+  // requires backend
+  if (!Backend.available || !Backend.api) {
+    throw new Error('Backend is not available. Please check your backend settings.');
+  }
+
   // get the type
   const type = rollTable.getFlag(moduleId, 'type');
 
