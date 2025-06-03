@@ -19,7 +19,7 @@ You can have more than one [^Campaign] in a given Setting, and they share all of
 
 
 ## World Building
-World building primarily takes place in the [Setting Directory], found in the upper part of the Directory Sidebar.  The key steps to get you started are:
+World building primarily takes place in the [^Setting Directory], found in the upper part of the Directory Sidebar.  The key steps to get you started are:
 
 1. Create a Setting (this will happen automatically when you first open the Campaign Builder window)
 1. Right click on the topic folders ('Characters', 'Locations', 'Organizations') to create new entries and begin defining your Setting
@@ -41,8 +41,8 @@ Running a campaign primarily takes place in the lower part of the Directory Side
 A [^Session] is intended to represent a single game session - played in one stretch of time.  Sessions have numbers that determine their order in the campaign.  The session with the highest number is the "active" session, which is important for some features.
 
 Get started:
-1. Pick the Setting the campaign is in from the Setting Directory
-1. Right click on the "[Setting name] Campaigns" header in the Campaign Directory to create a new campaign
+1. Pick the Setting the campaign is in from the [^Setting Directory]
+1. Right click on the header in the Campaign Directory to create a new campaign (the one that reads "[Your setting name] Campaigns")
 1. Right click on the Campaign name to create a new session
 
 For campaigns, there are two modes you need to know about: [^Prep mode] and [^Play mode].  You change between these modes with the [toggle](/reference/navigation/prep-play) in the Campaign Builder window title bar.  If you have more than one campaign with at least one session, you'll see a drop-down where you can pick which campaign you are playing.  

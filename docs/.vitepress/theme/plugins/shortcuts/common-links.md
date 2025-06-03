@@ -11,3 +11,4 @@
 [Image]: /reference/navigation/images
 [Generate Window]: /reference/dialogs/generate
 [Tags]: /reference/navigation/tags
+[Module Settings]: /reference/configuration

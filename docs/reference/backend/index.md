@@ -33,3 +33,5 @@ The backend is designed to stay within the Google Cloud free tier, and OpenAI co
 ## A note on image generation
 
 In order to save costs, the backend uses Replicate.com for image generation, using a model that spins down between uses.  This means that the first time you generate an image in a given period, it may take significantly longer than subsequent runs because the model has to start.  After that, you'll see more rapid creation (still ~30 seconds) until the model times out again (~15 minutes of not being used).
+
+TODO: talk about autocomplete {#autocomplete}

@@ -26,7 +26,7 @@ Arranging your hierarchy allows you to quickly find related entries.  If you kee
 You can setup your hierarchy by [DRAG/DROP IN THE TREE](TODO) or [SETTING THE PARENT FIELD]
 ----------------
 TODO: move this to right place
-You put [^Entries] in a hierarchy by either setting the Parent field on an Entry or dragging an Entry (the child) onto another one (the parent) in the Setting Directory tree.
+You put [^Entries] in a hierarchy by either setting the Parent field on an Entry or dragging an Entry (the child) onto another one (the parent) in the [^Setting Directory] tree.
 
 Also note there that there how hierarchy impacts search - or maybe in the search section and reference it from here and there
 ------------------

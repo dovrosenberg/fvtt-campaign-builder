@@ -19,7 +19,7 @@ The overall structure of the Organization Details interface is the common [Entry
 Organizations just have one special detail.
 
 ### Parent
-Organizations are arranged in a hierarchical structure (that you can see in the [Setting Directory]).  You can change where an organization is in this hierarchy by:
+Organizations are arranged in a hierarchical structure (that you can see in the [^Setting Directory]).  You can change where an organization is in this hierarchy by:
 - Dragging an organization (child) in the Setting Directory and dropping it on another (parent).
 - Setting the parent field in the Description tab.  Just start typing and you'll get a filtered list of available organizations.  Delete the parent to make it a top-level organization.
 
