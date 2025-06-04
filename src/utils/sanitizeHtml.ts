@@ -1,5 +1,7 @@
 // from https://github.com/ecosia/vue-safe-html
 
+import { Entry } from '@/classes';
+
 /**
  * List of HTML tags that are allowed to remain in sanitized content.
  * These tags are considered safe for display and won't be stripped during sanitization.
@@ -91,3 +93,90 @@ export const sanitizeHTML = (htmlString: string): string => {
     return '';
   });
 };
+
+// does a sanitize but also swaps UUIDs for the entry name
+export const htmlToPlainTextReplaceUuid = async (htmlString: string): Promise<string> => {
+  // first do the basic clean
+  let retval = htmlToPlainText(htmlString);
+
+  // now search for any UUIDs and replace them with the entry name
+  const uuidRegex = /@UUID\[([^\]]+)\](\{([^\}]+)\})?/gi;
+  
+  // for each match:
+  //    if it has a (text) after it, use that text as the name
+  //    otherwise, look up the ID as an entry, and then as a document
+  for (const match of retval.matchAll(uuidRegex)) {
+    const uuid = match[1]; // The actual UUID string
+    const labelText = match[3];  // The label text (without braces), or undefined
+    const replacement = labelText ? labelText : await replaceUUID(uuid);
+    retval = retval.replace(match[0], replacement);
+  }
+
+  return retval;
+};
+
+const replaceUUID = async (uuid: string): Promise<string> => {
+  // check Entry first, because those seem more likely
+  const entry = await Entry.fromUuid(uuid);
+  if (entry) 
+    return entry.name || '';
+
+  // then check foundry docs
+  const doc = await fromUuid(uuid as any);
+  return doc?.name ?? '??';
+};
+
+/**
+ * Converts AI-generated plain text (which is formatted for safe display with whitespace-pre-wrap) 
+ * into proper HTML for editor storage.
+ * Takes string, splits it by newline characters, trims each line, filters out empty lines, and then wraps each line in a <p> tag.
+ * Escapes HTML special characters, processes markdown-style bold formatting.
+ * Results is a string of HTML <p> tags, each containing one line of text
+ * 
+ * @param text - The plain text to convert to HTML
+ * @returns HTML string with proper paragraph structure and basic formatting
+ */
+export function generatedTextToHTML(text: string) {
+  return text
+  // replace special characters
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#039;')
+
+  // mark bold (for short descriptions)
+  .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+
+  // change newlines to paragraphs
+  .split('\n')
+  .map(line => line.trim())
+  .filter(line => line.length > 0)
+  .map(line => `<p>${line}</p>`)
+  .join('');
+}
+
+/**
+ * Converts HTML text back to plain text with newlines preserved.
+ * Strips most HTML tags but converts <br> and <p> elements to newlines.
+ * This is the reverse operation of generatedTextToHTML, though not perfectly symmetric.  You should
+ * not expect that calling htmlToPlainText(generatedTextToHTML(text)) will return the original text.
+ * 
+ * @param html - The HTML string to convert to plain text
+ * @returns Plain text with newlines representing paragraph breaks
+ */
+export function htmlToPlainText(html: string): string {
+  if (!html) return '';
+
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+
+  // Convert <br> and <p> to newlines before stripping tags
+  tempDiv.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+  tempDiv.querySelectorAll('p').forEach(p => {
+    const newline = document.createTextNode('\n\n');
+    p.appendChild(newline);
+  });
+
+  return tempDiv.textContent?.trim() ?? '';
+}

@@ -8,7 +8,7 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { useCampaignDirectoryStore, useCampaignStore, useMainStore, useNavigationStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game'; 
-import { htmlToPlainText } from '@/utils/misc';
+import { htmlToPlainTextReplaceUuid } from '@/utils/sanitizeHtml';
 
 // types
 import { 
@@ -769,7 +769,7 @@ export const useSessionStore = defineStore('session', () => {
 
       const parentId = await entry.getParentId();
       const parent = parentId ? await Entry.fromUuid(parentId) : null;
-      const cleanDescription = htmlToPlainText(entry.description);
+      const cleanDescription = await htmlToPlainTextReplaceUuid(entry.description);
 
       if (entry) {
         retval.push({
@@ -802,7 +802,7 @@ export const useSessionStore = defineStore('session', () => {
       const entry = await topicFolder.findEntry(npc.uuid);
 
       if (entry) {
-        const cleanDescription = htmlToPlainText(entry.description);
+        const cleanDescription = await htmlToPlainTextReplaceUuid(entry.description);
 
         retval.push({
           uuid: npc.uuid,
@@ -905,15 +905,47 @@ export const useSessionStore = defineStore('session', () => {
     relatedLoreRows.value = retval;
   }
 
+  const _refreshRowsForTab = async () => {
+    switch (currentContentTab.value) {
+      case 'notes':
+        await _refreshLocationRows();
+        break;
+      case 'lore':
+        await _refreshLoreRows();
+        break;
+      case 'vignettes':
+        await _refreshVignetteRows();
+        break;
+      case 'locations':
+        await _refreshLocationRows();
+        break;
+      case 'npcs':
+        await _refreshNPCRows();
+        break;
+      case 'monsters':
+        await _refreshMonsterRows();
+        break;
+      case 'magic':
+        await _refreshItemRows();
+        break;
+      case 'pcs':
+        // handled by campaignStore
+        break;
+      default:
+        break;
+    }
+  }
+
 
   ///////////////////////////////
   // watchers
   watch(()=> currentSession.value, async () => {
-    await _refreshRows();
+    // just refresh the rows for the current contentTab
+    await _refreshRowsForTab();
   });
 
   watch(()=> currentContentTab.value, async () => {
-    await _refreshRows();
+    await _refreshRowsForTab();
   });
 
   ///////////////////////////////

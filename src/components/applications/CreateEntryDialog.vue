@@ -196,7 +196,7 @@
   import { localize } from '@/utils/game';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend } from '@/classes';
-  import { generatedTextToHTML, htmlToPlainText } from '@/utils/misc';
+  import { generatedTextToHTML, htmlToPlainText } from '@/utils/sanitizeHtml';
   import { hasHierarchy, } from '@/utils/hierarchy';
   import { nameStyles } from '@/utils/nameStyles';
   

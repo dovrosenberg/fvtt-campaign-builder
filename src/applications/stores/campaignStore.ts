@@ -477,6 +477,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     await _refreshLoreRows();
     await _refreshToDoRows();
     await _refreshIdeaRows();
+    await _refreshPCRows();
   }
 
   const _refreshPCRows = async (): Promise<void> => {
@@ -577,19 +578,41 @@ export const useCampaignStore = defineStore('campaign', () => {
     ideaRows.value = Array.from(currentCampaign.value.ideas);
   }
 
+  const _refreshRowsForTab = async () => {
+    switch (currentContentTab.value) {
+      case 'pcs':
+        await _refreshPCRows();
+        break;
+      case 'lore':
+        await _refreshLoreRows();
+        break;
+      case 'ideas':
+        await _refreshIdeaRows();
+        break;
+      case 'todo':
+        await _refreshToDoRows();
+        break;
+      case 'start':
+        break;
+      default:
+    }
+  }
+
+
   ///////////////////////////////
   // watchers
   watch(()=> currentCampaign.value, async () => {
-    await _refreshRows();
+    await _refreshRowsForTab();
   });
 
   // have to watch the session because they share PCs
   watch(()=> currentSession.value, async () => {
-    await _refreshPCRows();
+    if (currentContentTab.value === 'pcs')
+      await _refreshPCRows();
   });
 
   watch(()=> currentContentTab.value, async () => {
-    await _refreshRows();
+    await _refreshRowsForTab();
   });
 
   // we capture changes to both the played campaign and turning off isInPlayMode here (via campaign going to null)
