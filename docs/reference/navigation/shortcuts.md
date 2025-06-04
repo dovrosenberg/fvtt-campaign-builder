@@ -135,7 +135,7 @@ Some shortcuts can be customized in module settings:
 ### Workflow-Specific Shortcuts
 Consider setting up shortcuts for your specific workflow:
 
-**World Building Focus:**
+**World-Building Focus:**
 - Quick character creation
 - Location hierarchy navigation
 - Relationship editing shortcuts

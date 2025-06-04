@@ -26,7 +26,7 @@ Learn the basics of navigating the Campaign Builder interface.
 
 ## Core Features
 
-### World building (Settings)
+### World-building (Settings)
 Create and manage your campaign world content.
 
 - [Setting Tree Structure](content/settings)

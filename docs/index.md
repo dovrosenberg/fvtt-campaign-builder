@@ -14,7 +14,7 @@ hero:
 
 features:
   - title: World Building
-    details: Create and manage your setting's lore, characters, locations, and organizations
+    details: Create and manage your settings' lore, characters, locations, and organizations
   - title: Campaign Planning
     details: Plan and organize your next session using the Lazy DM method
   - title: Session Tools
@@ -34,7 +34,7 @@ The goal of this package is to facilitate creating, planning, and running campai
 It can be used within Foundry during your prep and mid-session (it has capabilities for both).  It could also be used to run a live TTRPG session as a DM tool, if you just wanted to run Foundry and pull it up on your laptop (for example).
 
 The module has three primary components:
-- [**World Building**](/guide/world-building): Create and manage your setting's lore, characters, locations, and more
+- [**World Building**](/guide/world-building): Create and manage your settings' lore, characters, locations, and more
 - [**Campaign/Session Planning**](/guide/session-prep): Plan and organize your next session using the Lazy DM method; wrap up the prior one.
 - [**Playing a Session**](/guide/session-play): Tools to run your game session more easily, while seamlessly collecting notes to be able to capture what happened and begin your prep for the next session
 

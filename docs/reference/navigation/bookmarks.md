@@ -107,7 +107,7 @@ The bookmark bar appears at the top of the Campaign Builder window:
 
 ### Workflow-Specific Bookmarking
 
-**World Building Phase**
+**World-Building Phase**
 - Template entries for copying
 - Recently created content
 - Content needing development

@@ -151,7 +151,7 @@ There are several ways to open content in tabs:
 ### Campaign Planning Workflow
 1. **Open campaign overview in main tab**
 2. **Open individual sessions in separate tabs**
-3. **Reference world building tabs as needed**
+3. **Reference world-building tabs as needed**
 4. **Plan connections and continuity across sessions**
 
 ## Tab Performance Tips

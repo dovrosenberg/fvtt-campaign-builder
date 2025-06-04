@@ -1,15 +1,15 @@
 ---
-title: World Building Interface (Settings)
+title: World-Building Interface (Settings)
 TODO: true
 ---
-# World Building Interface (Settings)
+# World-Building Interface (Settings)
 
-The Settings Directory is your primary workspace for creating and managing world building content. This section covers all aspects of the world building interface, from the directory structure to specific content types.
+The Settings Directory is your primary workspace for creating and managing world-building content. This section covers all aspects of the world-building interface, from the directory structure to specific content types.
 
 ## Settings Directory Overview
 
 ### What is the Settings Directory?
-The Settings Directory (also called the Entry Directory) is the top half of the directory sidebar that contains all your world building content:
+The Settings Directory (also called the Entry Directory) is the top half of the directory sidebar that contains all your world-building content:
 
 - **Characters**: NPCs and important figures
 - **Locations**: Places, buildings, and geographic features  
@@ -51,10 +51,10 @@ Setting Name
     └── Merchant's Guild
 ```
 
-## Core World Building Interface Elements
+## Core World-Building Interface Elements
 
 ### [Entry Content and Relationships](Entry.md)
-Understanding the common elements shared by all world building content types.
+Understanding the common elements shared by all world-building content types.
 
 - Content structure and fields
 - Relationship system
@@ -87,7 +87,7 @@ Organization and faction management interface elements.
 - Conflict and alliance tracking
 
 ### [Reference Images Management](images.md)
-How images work across all content types in the world building interface.
+How images work across all content types in the world-building interface.
 
 - Image upload and management
 - Display options and galleries
@@ -237,7 +237,7 @@ Right-clicking in the Settings Directory provides different options based on loc
 - **Image management** and optimization
 - **Export important content** for safekeeping
 
-The Settings Directory and world building interface provide powerful tools for creating rich, interconnected campaign worlds. Master these features to build compelling settings that enhance your storytelling and provide rich resources for campaign development. 
+The Settings Directory and world-building interface provide powerful tools for creating rich, interconnected campaign worlds. Master these features to build compelling settings that enhance your storytelling and provide rich resources for campaign development. 
 
 ## Where's all this stored?
 For the curious, each Setting has its own folder in your compendia (inside a top-level folder called 'Campaign Builder').  Inside the Setting folder is a compendium for the Setting.  All of the module's data is stored in Journal Entries inside this compendium.  *Don't mess with it if you want everything to keep working.*
