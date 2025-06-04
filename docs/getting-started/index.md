@@ -61,7 +61,7 @@ Prep mode is designed to follow the Lazy DM philosophy.  Each tab on the Session
 * Add any Foundry actors as [^Relevant Monsters] - this gives you easy access to their actor sheets and to drag them onto the scene
 * Add any Foundry items for [^Magic items] as that might come up
 
-Then - [switch to play mode and run your session](#campaign-play-mode) 
+Then [switch to play mode and run your session](#campaign-play-mode) 
 
 Post-session, there are two key things to look at:
 * Review the to-do list on the [^Campaign] for anything that needs attention - this automatically tracks things that happen during your session so you can be reminded and decide if you need to flesh out your notes or add to your Setting.

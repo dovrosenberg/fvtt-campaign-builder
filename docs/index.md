@@ -14,7 +14,7 @@ hero:
 
 features:
   - title: World Building
-    details: Create and manage your settings' lore, characters, locations, and organizations
+    details: Create and manage your setting's lore, characters, locations, and organizations
   - title: Campaign Planning
     details: Plan and organize your next session using the Lazy DM method
   - title: Session Tools
@@ -25,16 +25,16 @@ features:
 
 # Quick start
 
-Do you learn by doing?  Just checkout the [Getting Started](/getting-started) guide. 
+Do you learn by doing?  Just check out the [Getting Started](/getting-started) guide. 
 
 # Introduction
 
-The goal of this package is to facilitate creating, planning, and running campaigns in Foundry. It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to use used with any style of prep).
+The goal of this package is to facilitate creating, planning, and running campaigns in Foundry. It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to be used with any style of prep).
 
 It can be used within Foundry during your prep and mid-session (it has capabilities for both).  It could also be used to run a live TTRPG session as a DM tool, if you just wanted to run Foundry and pull it up on your laptop (for example).
 
 The module has three primary components:
-- [**World Building**](/guide/world-building): Create and manage your settings' lore, characters, locations, and more
+- [**World Building**](/guide/world-building): Create and manage your setting's lore, characters, locations, and more
 - [**Campaign/Session Planning**](/guide/session-prep): Plan and organize your next session using the Lazy DM method; wrap up the prior one.
 - [**Playing a Session**](/guide/session-play): Tools to run your game session more easily, while seamlessly collecting notes to be able to capture what happened and begin your prep for the next session
 
@@ -48,7 +48,7 @@ You'll see features throughout this documentation labeled "[Advanced Feature]". 
 
 The module currently only works for the GM. Players may see some settings available, but they won't do anything and there is no way to open the main window without having GM permission.
 
-I intend to change that at some point - in particular creating ways for everyone to contribute to the worldbuilding and for the GM to selectively share pieces of setting information/lore with players. But for now, GM only.
+I intend to change that at some point - in particular creating ways for everyone to contribute to the world-building and for the GM to selectively share pieces of setting information/lore with players. But for now, GM only.
 
 # Terminology
 

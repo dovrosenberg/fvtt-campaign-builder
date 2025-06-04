@@ -21,17 +21,17 @@ See [Image] documentation.
 
 ## Type
 Type is where you categorize the type of the Entry.  For example, a Character might be a King, a Blacksmith, a Paladin, or a Hero, Villain, NPC, etc.  A Location might be a City, Town, Dungeon, etc.  An Organization might be a Faction, Guild, Cult, etc.  It's completely up to you how to manage and organize your Entries within Types.  Type impacts these areas:
-- The Type field is searchable 
-- The [Setting Directory] can be set to group the tree by type - showing you all the entries of a certain type at once.
-- It influences AI-generated descriptions and images [Advanced Feature].  
+  - The Type field is searchable 
+  - The [Setting Directory] can be set to group the tree by type - showing you all the entries of a certain type at once.
+  - It influences AI-generated descriptions and images [Advanced Feature].  
 
 For more complex type management, you can use [Tags].
 
 ## Topic-Specific Fields
 Each Topic has one or more extra fields - see the topic-specific documentation for details:
-- [Characters]
-- [Locations]
-- [Organizations]
+  - [Characters]
+  - [Locations]
+  - [Organizations]
 
 ## Description Text Area
 This is where you enter the description of the Entry.  Click the orange pencil to start editing, and the save button (or Control-S) to save.

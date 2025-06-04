@@ -29,8 +29,9 @@ You can manage the list of species for your Settings in the [Module Settings](/r
 On the Actors tab, you can associate your Character with one or more actors from Foundry.  Having more than one may be helpful if you have different character sheets for this Character at different points in time, or perhaps a transformed/polymorphed version, etc.  Since your key Characters will be tied to the current [Session](/reference/content/session), you can access any of them with just a couple clicks.
 
 #### Adding actors
-- Click "Add actor" to select a Foundry actor and connect it to the Character.
-- You can also drag and drop Foundry actors from Foundry VTT onto the box at the top to make the connection.  
+Click "Add actor" to select a Foundry actor and connect it to the Character.
+
+You can also drag and drop Foundry actors from Foundry VTT onto the box at the top to make the connection.  
 
 #### The actor list
 For each actor, you can see it's name and whether it is in the current Foundry world or inside a compendium.  You can click the actor name to open its character sheet.  
