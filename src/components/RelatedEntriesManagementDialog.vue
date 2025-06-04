@@ -1,67 +1,69 @@
 <template>
-  <Dialog
-    v-model="show"
-    :title="localize('dialogs.relatedEntriesManagement.title')"
-    :buttons="buttons"
-  >
-    <div class="related-entries-management-content primevue-only">
-      <!-- Added Items Section -->
-      <div v-if="addedEntries.length > 0" class="section">
-        <h3>{{ localize('dialogs.relatedEntriesManagement.addedItems') }}</h3>
-        <DataTable
-          :value="addedRows"
-          v-model:selection="selectedAddedItems"
-          data-key="uuid" 
-          @update:selection="selectedAddedItems = $event"
-          selection-mode="multiple"
-          :meta-key-selection="false"
-          size="small"
-          class="related-items-table"
-          :pt="{
-            header: { style: 'border: none' },
-            table: { style: 'margin: 0px; table-layout: fixed;' },
-            thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
-            row: { 
-              style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
-            }
-          }"
-        >
-          <Column selection-mode="multiple" header-style="width: 3rem"></Column>
-          <Column field="name" :header="localize('labels.fields.name')" style="width: 30%"></Column>
-          <Column field="topicName" :header="localize('labels.fields.topic')" style="width: 25%"></Column>
-          <Column field="type" :header="localize('labels.fields.type')" style="width: 25%"></Column>
-        </DataTable>
-      </div>
+  <Teleport to="body">
+    <Dialog
+      v-model="show"
+      :title="localize('dialogs.relatedEntriesManagement.title')"
+      :buttons="buttons"
+    >
+      <div class="related-entries-management-content primevue-only">
+        <!-- Added Items Section -->
+        <div v-if="addedEntries.length > 0" class="section">
+          <h3>{{ localize('dialogs.relatedEntriesManagement.addedItems') }}</h3>
+          <DataTable
+            :value="addedRows"
+            v-model:selection="selectedAddedItems"
+            data-key="uuid" 
+            @update:selection="selectedAddedItems = $event"
+            selection-mode="multiple"
+            :meta-key-selection="false"
+            size="small"
+            class="related-items-table"
+            :pt="{
+              header: { style: 'border: none' },
+              table: { style: 'margin: 0px; table-layout: fixed;' },
+              thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
+              row: { 
+                style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
+              }
+            }"
+          >
+            <Column selection-mode="multiple" header-style="width: 3rem"></Column>
+            <Column field="name" :header="localize('labels.fields.name')" style="width: 30%"></Column>
+            <Column field="topicName" :header="localize('labels.fields.topic')" style="width: 25%"></Column>
+            <Column field="type" :header="localize('labels.fields.type')" style="width: 25%"></Column>
+          </DataTable>
+        </div>
 
-      <!-- Removed Items Section -->
-      <div v-if="removedEntries.length > 0" class="section">
-        <h3>{{ localize('dialogs.relatedEntriesManagement.removedItems') }}</h3>
-        <DataTable
-          :value="removedRows"
-          v-model:selection="selectedRemovedItems"
-          data-key="uuid" 
-          @update:selection="selectedRemovedItems = $event"
-          selection-mode="multiple"
-          :meta-key-selection="false"
-          size="small"
-          class="related-items-table"
-          :pt="{
-            header: { style: 'border: none' },
-            table: { style: 'margin: 0px; table-layout: fixed;' },
-            thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
-            row: { 
-              style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
-            }
-          }"
-        >
-          <Column selection-mode="multiple" header-style="width: 3rem"></Column>
-          <Column field="name" :header="localize('labels.fields.name')" style="width: 30%"></Column>
-          <Column field="topicName" :header="localize('labels.fields.topic')" style="width: 25%"></Column>
-          <Column field="type" :header="localize('labels.fields.type')" style="width: 25%"></Column>
-        </DataTable>
+        <!-- Removed Items Section -->
+        <div v-if="removedEntries.length > 0" class="section">
+          <h3>{{ localize('dialogs.relatedEntriesManagement.removedItems') }}</h3>
+          <DataTable
+            :value="removedRows"
+            v-model:selection="selectedRemovedItems"
+            data-key="uuid" 
+            @update:selection="selectedRemovedItems = $event"
+            selection-mode="multiple"
+            :meta-key-selection="false"
+            size="small"
+            class="related-items-table"
+            :pt="{
+              header: { style: 'border: none' },
+              table: { style: 'margin: 0px; table-layout: fixed;' },
+              thead: { style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;' },
+              row: { 
+                style: 'font-family: var(--font-primary); text-shadow: none; background: inherit;', 
+              }
+            }"
+          >
+            <Column selection-mode="multiple" header-style="width: 3rem"></Column>
+            <Column field="name" :header="localize('labels.fields.name')" style="width: 30%"></Column>
+            <Column field="topicName" :header="localize('labels.fields.topic')" style="width: 25%"></Column>
+            <Column field="type" :header="localize('labels.fields.type')" style="width: 25%"></Column>
+          </DataTable>
+        </div>
       </div>
-    </div>
-  </Dialog>
+    </Dialog>
+  </Teleport>
 </template>
 
 <script setup lang="ts">

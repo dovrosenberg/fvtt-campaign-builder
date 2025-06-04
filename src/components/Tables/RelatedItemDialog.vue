@@ -138,41 +138,41 @@
   const topicDetails = {
     [Topics.Character]: {
       title: localize('dialogs.relatedItems.character.title'),
-      editTitle: localize('dialogs.relatedItems.character.editTitle'),
+      // editTitle: localize('dialogs.relatedItems.character.editTitle'),
       createButtonTitle: localize('dialogs.relatedItems.character.createButtonTitle'),
       buttonTitle: localize('dialogs.relatedItems.character.buttonTitle'),
-      editButtonTitle: localize('dialogs.relatedItems.character.editButtonTitle'),
+      // editButtonTitle: localize('dialogs.relatedItems.character.editButtonTitle'),
     },
     [Topics.Location]: {
       title: localize('dialogs.relatedItems.location.title'),
-      editTitle: localize('dialogs.relatedItems.location.editTitle'),
+      // editTitle: localize('dialogs.relatedItems.location.editTitle'),
       createButtonTitle: localize('dialogs.relatedItems.location.createButtonTitle'),
       buttonTitle: localize('dialogs.relatedItems.location.buttonTitle'),
-      editButtonTitle: localize('dialogs.relatedItems.location.editButtonTitle'),
+      // editButtonTitle: localize('dialogs.relatedItems.location.editButtonTitle'),
     },
     [Topics.Organization]: {
       title: localize('dialogs.relatedItems.organization.title'),
-      editTitle: localize('dialogs.relatedItems.organization.editTitle'),
+      // editTitle: localize('dialogs.relatedItems.organization.editTitle'),
       createButtonTitle: localize('dialogs.relatedItems.organization.createButtonTitle'),
       buttonTitle: localize('dialogs.relatedItems.organization.buttonTitle'),
-      editButtonTitle: localize('dialogs.relatedItems.organization.editButtonTitle'),
+      // editButtonTitle: localize('dialogs.relatedItems.organization.editButtonTitle'),
     },
   } as Record<ValidTopic, { 
     title: string; 
-    editTitle: string; 
+    // editTitle: string; 
     buttonTitle: string; 
     createButtonTitle: string;
-    editButtonTitle: string 
+    // editButtonTitle: string 
   }>;
 
   ////////////////////////////////
   // computed data
   const dialogTitle = computed(() => {
-    if (props.mode === RelatedItemDialogModes.Edit) {
-      return `${topicDetails[props.topic].editTitle}: ${props.itemName}`;
-    } else {
+    // if (props.mode === RelatedItemDialogModes.Edit) {
+    //   return `${topicDetails[props.topic].editTitle}: ${props.itemName}`;
+    // } else {
       return topicDetails[props.topic].title;
-    }
+    // }
   });
 
   const actionButtonLabel = computed(() => {
@@ -181,13 +181,13 @@
         return topicDetails[props.topic].buttonTitle;
       case RelatedItemDialogModes.Session:
         return localize('dialogs.relatedItems.addToSession');
-      case RelatedItemDialogModes.Edit:
-        return topicDetails[props.topic].editButtonTitle;
+      // case RelatedItemDialogModes.Edit:
+      //   return topicDetails[props.topic].editButtonTitle;
     }
   });
 
   // add mode or session mode
-  const isEitherAddMode  = computed(()=> ([RelatedItemDialogModes.Session, RelatedItemDialogModes.Add].includes(props.mode))); 
+  const isEitherAddMode = ref<true>(true);  // computed(()=> ([RelatedItemDialogModes.Session, RelatedItemDialogModes.Add].includes(props.mode))); 
 
   const createButtonLabel = computed(() => {
     return topicDetails[props.topic].createButtonTitle;
@@ -285,9 +285,9 @@
           }
         };
         break;
-      case RelatedItemDialogModes.Edit:
-        await relationshipStore.editRelationship(props.itemId, extraFieldsToSend);
-        break;
+      // case RelatedItemDialogModes.Edit:
+      //   await relationshipStore.editRelationship(props.itemId, extraFieldsToSend);
+      //   break;
     }
 
     resetDialog();

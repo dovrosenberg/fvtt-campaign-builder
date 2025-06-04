@@ -1,20 +1,21 @@
 <template>
   <BaseTable
+    ref="baseTableRef"
     :rows="rows"
     :columns="columns"
     :showAddButton="true"
     :extra-add-text="newItemDragLabel"
     :addButtonLabel="newItemLabel"
     :filterFields="filterFields"
-    :allowEdit="true"
+    :allowEdit="extraColumns.length > 0"
     :edit-item-label="localize('tooltips.editRelationship')"
     :delete-item-label="localize('tooltips.deleteRelationship')"
 
     @add-item="onAddItemClick"
     @delete-item="onDeleteItemClick"
-    @edit-item="onEditItemClick"
     @drop="onDrop"
     @dragover="onDragover"
+    @cell-edit-complete="onCellEditComplete"
   />
 
   <RelatedItemDialog
@@ -38,7 +39,6 @@
 <script setup lang="ts">
   // library imports
   import { ref, computed, PropType } from 'vue';
-  import { clone } from 'lodash';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -56,6 +56,8 @@
   // types
   import { Topics, ValidTopic, RelatedItemDetails, RelatedItemDialogModes } from '@/types';
   
+  type RelatedItemGridRow = { uuid: string; name: string; type: string } & Record<string, any>;
+
   ////////////////////////////////
   // props
   const props = defineProps({
@@ -82,6 +84,7 @@
   // data
   const addDialogShow = ref(false);   // should we pop up the add dialog?
   const editDialogShow = ref(false);   // should we pop up the edit dialog?
+  const baseTableRef = ref<typeof BaseTable | null>(null);
 
   const editItem = ref({
     itemId: '',
@@ -116,8 +119,6 @@
       case Topics.Organization: return localize('labels.addTopicDrag.organization');
     }
   });
-
-  type RelatedItemGridRow = { uuid: string; name: string; type: string } & Record<string, any>;
 
   const rows = computed((): RelatedItemGridRow[] => 
     relatedItemRows.value.map((item: RelatedItemDetails<any, any>) => {
@@ -174,7 +175,9 @@
         field: field.field, 
         style: 'text-align:left',
         header: field.header, 
-        sortable: true, 
+        sortable: true,
+        editable: true, // Make extra field columns editable
+        smallEditBox: true, // Assuming extra fields are suitable for InputText
       })
       ));
     }
@@ -245,26 +248,6 @@
     addDialogShow.value = true;
   }
 
-  // show the edit dialog
-  const onEditItemClick = function(row: RelatedItemGridRow) {
-    // assemble the extra field data
-    const fieldsToAdd = extraColumns.value.reduce((result, col) => {
-      result.push({
-        field: col.field,
-        header:col.header,
-        value: row[col.field as keyof typeof row]
-      });
-      return result;
-    }, [] as {field: string; header: string; value: string}[]);
-
-    // set up the parameter and open the dialog
-    editItem.value = {
-      itemId: row.uuid,
-      itemName: row.name,
-      extraFields: clone(fieldsToAdd),
-    };
-    editDialogShow.value = true;
-  };
 
   // call mutation to remove item  from relationship
   const onDeleteItemClick = async function(_id: string) {
@@ -276,7 +259,36 @@
       no: () => {},
     });
   };
- 
+
+  const onCellEditComplete = async (event: { data: { uuid: string }; field: string; newValue: any; /* other PrimeVue event fields */ }) => {
+    const uuid = event.data.uuid;
+    const fieldChanged = event.field;
+    const newFieldValue = event.newValue;
+
+    const currentFullRow = relatedItemRows.value.find(r => r.uuid === uuid);
+    if (!currentFullRow) {
+      throw new Error('Cannot find row in RelatedItemTable.onCellEditComplete:', uuid);
+    }
+
+    const relevantExtraFieldDefs = extraFields[currentEntryTopic.value]?.[props.topic] || [];
+    if (!relevantExtraFieldDefs.length) {
+      throw new Error('Call to RelatedItemTable.onCellEditComplete without an extra field:', uuid);
+    }
+
+    const extraFieldsToSave: Record<string, string> = { ...currentFullRow.extraFields }; // Start with existing extra fields
+
+    // Update the changed field
+    extraFieldsToSave[fieldChanged] = newFieldValue;
+    
+    // Ensure all defined extra fields are present, defaulting to empty string if not set
+    relevantExtraFieldDefs.forEach(def => {
+      if (!(def.field in extraFieldsToSave)) {
+        extraFieldsToSave[def.field] = ''; 
+      }
+    });
+
+    await relationshipStore.editRelationship(uuid, extraFieldsToSave);
+  };
 
   ////////////////////////////////
   // watchers
