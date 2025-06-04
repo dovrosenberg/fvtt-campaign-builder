@@ -1,15 +1,15 @@
 import { useNavigationStore, useMainStore } from '@/applications/stores';
 
 export function registerForUpdateHooks() {
-  registerForUpdateActorHook();
-  registerForUpdateItemHook();
-  registerForUpdateSceneHook();
+  registerForActorHooks();
+  registerForItemHooks();
+  registerForSceneHooks();
 }
 
 /**
  * Register for the updateActor hook to catch when an actor's name changes and update any PCs that are linked to it
  */
-function registerForUpdateActorHook() {
+function registerForActorHooks() {
   Hooks.on('updateActor', async (actor, changes, _options, _userId) => {
     // Check if the name was changed
     if (changes.name) {
@@ -34,12 +34,26 @@ function registerForUpdateActorHook() {
       await mainStore.refreshCurrentContent();
     }
   });
+
+  Hooks.on('deleteActor', async (_actor, _options, _userId) => {
+    const mainStore = useMainStore();
+
+    // need to remove from any PCs that are linked to it
+    const worlds = await mainStore.getAllWorlds();
+    
+    for (let world of worlds) {
+      await world.deleteActorFromWorld(_actor.uuid);
+    }
+
+    // refresh the content window in case it's showing in a table
+    await mainStore.refreshCurrentContent();
+  });
 }
 
 /**
  * For items, just need to update the table if needed
  */
-function registerForUpdateItemHook() {
+function registerForItemHooks() {
   Hooks.on('updateItem', async (_item, changes, _options, _userId) => {
     // Check if the name was changed
     if (changes.name) {
@@ -49,12 +63,24 @@ function registerForUpdateItemHook() {
       await mainStore.refreshCurrentContent();
     }
   });
+
+  Hooks.on('deleteItem', async (_item, _options, _userId) => {
+    const mainStore = useMainStore();
+
+    const worlds = await mainStore.getAllWorlds();
+    for (let world of worlds) {
+      await world.deleteItemFromWorld(_item.uuid);
+    }
+
+    // refresh the content window in case it's showing in a table
+    await mainStore.refreshCurrentContent();
+  });
 }
 
 /**
  * For scenes, just need to update the table if needed
  */
-function registerForUpdateSceneHook() {
+function registerForSceneHooks() {
   Hooks.on('updateScene', async (_scene, changes, _options, _userId) => {
     // Check if the name was changed
     if (changes.name) {
@@ -63,5 +89,17 @@ function registerForUpdateSceneHook() {
       // refresh the content window in case it's showing in a table
       await mainStore.refreshCurrentContent();
     }
+  });
+
+  Hooks.on('deleteScene', async (_scene, _options, _userId) => {
+    const mainStore = useMainStore();
+
+    const worlds = await mainStore.getAllWorlds();
+    for (let world of worlds) {
+      await world.deleteSceneFromWorld(_scene.uuid);
+    }
+
+    // refresh the content window in case it's showing in a table
+    await mainStore.refreshCurrentContent();
   });
 }

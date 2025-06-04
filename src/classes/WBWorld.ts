@@ -691,4 +691,66 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     // delete the world folder
     await this._doc.delete();
   }
+
+  public async deleteActorFromWorld(actorId: string) {
+    // remove from any PCs that are linked to it
+    for (let campaign of Object.values(this.campaigns)) {
+      const pcs = (await campaign.filterPCs(pc => pc.actorId === actorId));
+      for (const pc of pcs) {
+        pc.actorId = '';
+        await pc.save();
+      }
+
+      // remove from any monsters that are linked to it
+      for (let session of campaign.sessions) {
+        const monsters = session.monsters.map(m=>m.uuid);
+        for (let i=0; i<monsters.length; i++) {
+          if (monsters[i] === actorId) {
+            await session.deleteMonster(monsters[i]);
+          }
+        }
+      }
+    }
+
+    // remove from any Characters that are linked to it
+    for (let character of this.topicFolders[Topics.Character].allEntries()) {
+      // check the related documents
+      for (let i=0; i<character.actors.length; i++) {
+        if (character.actors[i] === actorId) {
+          // not too worried about doing multiple saves because each actor should really only be in here once
+          character.actors = character.actors.filter(a => a !== actorId);
+          await character.save();
+        }
+      }
+    }
+  }
+
+  public async deleteSceneFromWorld(sceneId: string) {
+    // remove from any Locations that are linked to it
+    for (let locations of this.topicFolders[Topics.Location].allEntries()) {
+      // check the related documents
+      for (let i=0; i<locations.scenes.length; i++) {
+        if (locations.scenes[i] === sceneId) {
+          // not too worried about doing multiple saves because each scene should really only be in here once
+          locations.scenes = locations.scenes.filter(s => s !== sceneId);
+          await locations.save();
+        }
+      }
+    }
+  }
+
+  /** remove from any session item lists */
+  public async deleteItemFromWorld(itemId: string) {
+    // remove from any Magic Items that are linked to it
+    for (let campaign of Object.values(this.campaigns)) {
+      for (let session of campaign.sessions) {
+        const items = session.items.map(i=>i.uuid);
+        for (let i=0; i<items.length; i++) {
+          if (items[i] === itemId) {
+            await session.deleteItem(items[i]);
+          }
+        }
+      }
+    }
+  }
 }

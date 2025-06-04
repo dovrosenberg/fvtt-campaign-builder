@@ -79,6 +79,7 @@ export class PC {
     return this._actor;
   }
 
+  /** note: this should only be used if you know getActor() has already been called */
   public get actor(): Actor | null {
     return this._actor;
   }

@@ -833,6 +833,9 @@ export const useSessionStore = defineStore('session', () => {
           name: entry.name, 
           dragTooltip: localize('tooltips.dragItemFromSession'),
         });
+      } else {
+        // the item was deleted - remove it from our session
+        await currentSession.value.deleteItem(item.uuid);
       }
     }
 
@@ -856,6 +859,9 @@ export const useSessionStore = defineStore('session', () => {
           name: entry.name, 
           dragTooltip: localize('tooltips.dragMonsterFromSession'),
         });
+      } else {
+        // the actor was deleted - remove it from our session
+        await currentSession.value.deleteMonster(monster.uuid);
       }
     }
 

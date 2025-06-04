@@ -5,6 +5,8 @@ import { WorldDoc, WorldFlagKey } from '@/documents';
 import { Topics, } from '@/types';
 import * as sinon from 'sinon';
 import { moduleId } from '@/settings';
+import { Campaign } from '@/classes/Campaign';
+import { expect } from 'chai';
 
 export const registerWBWorldTests = () => {
   quench.registerBatch(
@@ -21,6 +23,9 @@ export const registerWBWorldTests = () => {
         let setFlag;
         let unsetFlag;
         let inputDialogStub;
+        let mockCampaign1: Campaign;
+        let mockCampaign2: Campaign;
+        let mockCharacterTopicFolder: TopicFolder;
 
         beforeEach(() => {
           // Stub fromUuid since we don't want to actually look up documents
@@ -100,6 +105,34 @@ export const registerWBWorldTests = () => {
 
           // Create a WBWorld instance
           world = new WBWorld(mockWorldDoc);
+          
+          // Mock internal properties set up during constructor or validate
+          world['_compendium'] = mockCompendium as any;
+          world['_compendiumId'] = 'test-compendium-id';
+          world['_topicIds'] = {
+            [Topics.Character]: 'character-topic-uuid',
+            [Topics.Location]: 'location-topic-uuid',
+            [Topics.Organization]: 'organization-topic-uuid'
+          } as any; // Cast because we only mock some
+          
+          mockCharacterTopicFolder = new TopicFolder(world, Topics.Character);
+          (mockCharacterTopicFolder.allEntries as jest.Mock).mockReturnValue([]); // Default empty
+
+          world.topicFolders = {
+            [Topics.Character]: mockCharacterTopicFolder,
+            [Topics.Location]: new TopicFolder(world, Topics.Location),
+            [Topics.Organization]: new TopicFolder(world, Topics.Organization),
+          } as Record<ValidTopic, TopicFolder>;
+
+          mockCampaign1 = new Campaign({ uuid: 'campaign1-uuid', name: 'Campaign 1' } as any);
+          mockCampaign2 = new Campaign({ uuid: 'campaign2-uuid', name: 'Campaign 2' } as any);
+          world.campaigns = {
+            [mockCampaign1.uuid]: mockCampaign1,
+            [mockCampaign2.uuid]: mockCampaign2,
+          };
+          // Ensure campaign world is set for tests
+          (mockCampaign1 as any).world = world;
+          (mockCampaign2 as any).world = world;
         });
 
         afterEach(() => {
@@ -519,7 +552,146 @@ export const registerWBWorldTests = () => {
             expect(mockCompendium.deleteCompendium.called).to.equal(true);
           });
         });
+
+        describe('deleteActorFromWorld', () => {
+          const actorIdToDelete = 'mock-actor-to-delete';
+          const otherActorId = 'mock-other-actor';
+
+          it('should remove actorId from linked PCs in campaigns', async () => {
+            const pc1 = createMockPC(actorIdToDelete);
+            const pc2 = createMockPC(otherActorId);
+            const pc3 = createMockPC(actorIdToDelete);
+
+            (mockCampaign1.filterPCs as jest.Mock).mockImplementation(async (filterFn) => 
+              [pc1, pc2].filter(pc => filterFn(pc))
+            );
+            (mockCampaign2.filterPCs as jest.Mock).mockImplementation(async (filterFn) =>
+              [pc3].filter(pc => filterFn(pc))
+            );
+            
+            await world.deleteActorFromWorld(actorIdToDelete);
+
+            expect(mockCampaign1.filterPCs).toHaveBeenCalled();
+            expect(mockCampaign2.filterPCs).toHaveBeenCalled();
+            expect(pc1.actorId).toBe('');
+            expect(pc1.save).toHaveBeenCalledTimes(1);
+            expect(pc2.actorId).toBe(otherActorId); // Should not change
+            expect(pc2.save).not.toHaveBeenCalled();
+            expect(pc3.actorId).toBe('');
+            expect(pc3.save).toHaveBeenCalledTimes(1);
+          });
+
+          it('should delete monsters from sessions if their actorId matches', async () => {
+            const monster1 = createMockMonster(actorIdToDelete);
+            const monster2 = createMockMonster(otherActorId);
+            const monster3 = createMockMonster(actorIdToDelete);
+
+            const session1 = createMockSession([monster1, monster2], []);
+            const session2 = createMockSession([monster3], []);
+            
+            (mockCampaign1 as any).sessions = [session1];
+            (mockCampaign2 as any).sessions = [session2];
+
+            await world.deleteActorFromWorld(actorIdToDelete);
+
+            expect(session1.deleteMonster).toHaveBeenCalledWith(actorIdToDelete);
+            expect(session1.deleteMonster).not.toHaveBeenCalledWith(otherActorId);
+            expect(session2.deleteMonster).toHaveBeenCalledWith(actorIdToDelete);
+            expect(mockSessionDeleteMonster).toHaveBeenCalledTimes(2); // Called for monster1 and monster3
+          });
+
+          it('should remove actorId from linked Character topic entries', async () => {
+            const charEntry1 = createMockCharacterEntry([actorIdToDelete, otherActorId]);
+            const charEntry2 = createMockCharacterEntry([otherActorId]);
+            const charEntry3 = createMockCharacterEntry([actorIdToDelete]);
+
+            (mockCharacterTopicFolder.allEntries as jest.Mock).mockReturnValue([charEntry1, charEntry2, charEntry3]);
+
+            await world.deleteActorFromWorld(actorIdToDelete);
+
+            expect(charEntry1.actors).toEqual([otherActorId]);
+            expect(charEntry1.save).toHaveBeenCalledTimes(1);
+            expect(charEntry2.actors).toEqual([otherActorId]);
+            expect(charEntry2.save).not.toHaveBeenCalled();
+            expect(charEntry3.actors).toEqual([]);
+            expect(charEntry3.save).toHaveBeenCalledTimes(1);
+          });
+
+          it('should handle cases where actorId is not found in any entity', async () => {
+            const nonExistentActorId = 'mock-non-existent-actor';
+            (mockCampaign1.filterPCs as jest.Mock).mockResolvedValue([]);
+            (mockCampaign2.filterPCs as jest.Mock).mockResolvedValue([]);
+            (mockCharacterTopicFolder.allEntries as jest.Mock).mockReturnValue([]);
+            (mockCampaign1 as any).sessions = [];
+            (mockCampaign2 as any).sessions = [];
+
+            await world.deleteActorFromWorld(nonExistentActorId);
+
+            expect(mockPCSave).not.toHaveBeenCalled();
+            expect(mockSessionDeleteMonster).not.toHaveBeenCalled();
+            expect(mockCharacterSave).not.toHaveBeenCalled();
+          });
+
+          it('should call save on multiple PCs if multiple are linked in the same campaign', async () => {
+            const pc1 = createMockPC(actorIdToDelete);
+            const pc2 = createMockPC(actorIdToDelete);
+            (mockCampaign1.filterPCs as jest.Mock).mockResolvedValue([pc1, pc2]);
+            (mockCampaign2.filterPCs as jest.Mock).mockResolvedValue([]);
+            (mockCharacterTopicFolder.allEntries as jest.Mock).mockReturnValue([]);
+
+            await world.deleteActorFromWorld(actorIdToDelete);
+            expect(pc1.save).toHaveBeenCalledTimes(1);
+            expect(pc2.save).toHaveBeenCalledTimes(1);
+            expect(mockPCSave).toHaveBeenCalledTimes(2);
+          });
+          
+          it('should call save on multiple character entries if multiple are linked', async () => {
+            const charEntry1 = createMockCharacterEntry([actorIdToDelete]);
+            const charEntry2 = createMockCharacterEntry([actorIdToDelete]);
+            (mockCampaign1.filterPCs as jest.Mock).mockResolvedValue([]);
+            (mockCampaign2.filterPCs as jest.Mock).mockResolvedValue([]);
+            (mockCharacterTopicFolder.allEntries as jest.Mock).mockReturnValue([charEntry1, charEntry2]);
+
+            await world.deleteActorFromWorld(actorIdToDelete);
+            expect(charEntry1.save).toHaveBeenCalledTimes(1);
+            expect(charEntry2.save).toHaveBeenCalledTimes(1);
+            expect(mockCharacterSave).toHaveBeenCalledTimes(2);
+          });
+        });
       });
     }
   );
 };
+
+// Helper to generate mock UUIDs consistently for tests
+let mockUuidCounter = 0;
+const generateMockUuid = (prefix = 'mock') => `${prefix}-uuid-${mockUuidCounter++}`;
+
+// Mock PC, Session, CharacterEntry (simplified for Sinon)
+const createMockPCSaveSpy = () => sinon.spy(async () => {});
+const createMockSessionDeleteMonsterSpy = () => sinon.spy(async () => {});
+const createMockCharacterSaveSpy = () => sinon.spy(async () => {});
+
+const createMockPC = (actorId: string | null, saveSpy: sinon.SinonSpy) => ({
+  uuid: generateMockUuid('pc'),
+  actorId: actorId,
+  save: saveSpy,
+});
+
+const createMockMonster = (actorId: string) => ({
+  uuid: actorId, // Monster UUID is the actorId for simplicity in test
+});
+
+const createMockSession = (monsters: { uuid: string }[], items: { uuid: string }[], deleteMonsterSpy: sinon.SinonSpy) => ({
+  uuid: generateMockUuid('session'),
+  monsters: [...monsters],
+  items: [...items],
+  deleteMonster: deleteMonsterSpy,
+  deleteItem: sinon.spy(async () => {}),
+});
+
+const createMockCharacterEntry = (actors: string[], saveSpy: sinon.SinonSpy) => ({
+  uuid: generateMockUuid('character'),
+  actors: [...actors],
+  save: saveSpy,
+});
