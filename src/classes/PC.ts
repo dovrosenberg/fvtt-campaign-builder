@@ -63,7 +63,9 @@ export class PC {
    * Gets the Actor associated with the PC. If the actor is already loaded, the promise resolves
    * to the existing actor; otherwise, it loads the actor and then resolves to it.
    * 
-   * @returns {Promise<Actor | null>} A promise to the world associated with the campaign.
+   * @note It's possible the actorId is populated but the actor has been deleted.  In this case, 
+   * will return null and also set the actorId to null.
+   * @returns {Promise<Actor | null>} A promise to the actor associated with the PC.
    */
   public async getActor(): Promise<Actor | null> {
     if (this._actor)
@@ -73,8 +75,10 @@ export class PC {
 
     this._actor = await fromUuid<Actor>(this._pcDoc.system.actorId);
 
-    if (!this._actor)
-      throw new Error('Invalid actor in PC.getActor()');
+    if (!this._actor) {
+      this.actorId = '';
+      await this.save();
+    }
 
     return this._actor;
   }
