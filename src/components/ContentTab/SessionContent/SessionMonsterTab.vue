@@ -10,7 +10,7 @@
     :extra-add-text="localize('labels.session.addMonsterDrag')"
     :draggable-rows="true"
     @add-item="showMonsterPicker=true"
-    @dropNew="onDropNew"
+    @drop-new="onDropNew"
     @dragoverNew="onDragoverNew"
     @delete-item="onDeleteMonster"
     @mark-item-delivered="onMarkMonsterDelivered"

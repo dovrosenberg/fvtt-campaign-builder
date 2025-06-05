@@ -14,7 +14,7 @@
 
     @delete-item="onDeleteItemClick"
     @row-context-menu="onRowContextMenu"
-    @drop="onDrop"
+    @drop-new="onDropNew"
     @dragover="onDragover"
     @dragstart="onDragStart"
     @add-item="onAddItem"
@@ -269,7 +269,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async(event: DragEvent) => {
+  const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data 

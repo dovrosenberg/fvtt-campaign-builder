@@ -13,7 +13,7 @@
 
     @add-item="onAddItemClick"
     @delete-item="onDeleteItemClick"
-    @drop="onDrop"
+    @drop-new="onDropNew"
     @dragover="onDragover"
     @cell-edit-complete="onCellEditComplete"
   />
@@ -206,7 +206,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async(event: DragEvent) => {
+  const onDropNew = async(event: DragEvent) => {
     event.preventDefault();
 
     // parse the data

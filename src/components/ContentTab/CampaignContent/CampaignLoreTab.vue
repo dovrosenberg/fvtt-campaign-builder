@@ -15,10 +15,10 @@
     @mark-item-delivered="onMarkLoreDelivered"
     @move-to-next-session="onMoveLoreToNext"
     @cell-edit-complete="onCellEditComplete"
-    @dragoverNew="onDragover"
-    @dragoverRow="onDragover"
-    @dropRow="onDropRow"
-    @dropNew="onDropNew"
+    @dragover-new="onDragover"
+    @dragover-row="onDragover"
+    @drop-row="onDropRow"
+    @drop-new="onDropNew"
   />
 
   <!-- For delivered lore -->

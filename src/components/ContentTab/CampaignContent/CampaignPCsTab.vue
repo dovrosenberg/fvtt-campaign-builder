@@ -7,11 +7,13 @@
     :extra-add-text="localize('labels.campaign.addPCDrag')"
     :showFilter="false"
     :allowEdit="false"
+    :allow-drop-row="true"
     :delete-item-label="localize('tooltips.deleteRelationship')"
     :add-button-label="localize('labels.campaign.addPC')"
     @add-item="onAddItemClick"
     @delete-item="onDeleteItemClick"
-    @drop="onDrop"
+    @drop-new="onDropNew"
+    @drop-row="onDropRow"
     @dragover="onDragover"
   />
 </template>
@@ -22,7 +24,7 @@
   import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useCampaignStore, useNavigationStore, } from '@/applications/stores';
+  import { useCampaignStore, useMainStore, useNavigationStore, } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { getValidatedData } from '@/utils/dragdrop';
 
@@ -45,6 +47,7 @@
   // store
   const campaignStore = useCampaignStore();
   const navigationStore = useNavigationStore();
+  const mainStore = useMainStore();
   const { relatedPCRows, } = storeToRefs(campaignStore);
 
   ////////////////////////////////
@@ -80,6 +83,10 @@
 
   const onActorClick = async function (_event: MouseEvent, uuid: string) { 
     const pc = await PC.fromUuid(uuid);
+
+    if (!pc)
+      return;
+
     const actor = await pc.getActor();
     if (actor)
       actor.sheet?.render(true);
@@ -107,7 +114,7 @@
       event.dataTransfer.dropEffect = 'none';
   }
 
-  const onDrop = async(event: DragEvent) => {
+  const onDropNew = async(event: DragEvent) => {
     event.preventDefault();  
 
     // parse the data 
@@ -128,6 +135,28 @@
     }
   };
   
+  // handle actor dropped on existing PC
+  const onDropRow = async(event: DragEvent, uuid: string) => {
+    event.preventDefault();  
+
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
+
+    // make sure it's the right format
+    // if it's an actor, connect to the PC
+    if (data.type==='Actor' && data.uuid) {
+      const pc = await PC.fromUuid(uuid);
+
+      if (pc) {
+        pc.actorId = data.uuid;
+        await pc.save();
+        await mainStore.refreshCampaign();
+      }
+    }
+  };
+
   ////////////////////////////////
   // watchers
   // reload when topic changes
