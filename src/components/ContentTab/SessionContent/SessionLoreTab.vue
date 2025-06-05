@@ -18,10 +18,10 @@
     @move-to-next-session="onMoveLoreToNext"
     @move-to-campaign="onMoveToCampaign"
     @cell-edit-complete="onCellEditComplete"
-    @dragoverNew="onDragover"
-    @dragoverRow="onDragover"
-    @dropRow="onDropRow"
-    @dropNew="onDropNew"
+    @dragover-new="onDragover"
+    @dragover-row="onDragover"
+    @drop-row="onDropRow"
+    @drop-new="onDropNew"
   />
 </template>
 

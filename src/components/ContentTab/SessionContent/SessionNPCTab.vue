@@ -13,7 +13,7 @@
     @unmark-item-delivered="onUnmarkNPCDelivered"
     @move-to-next-session="onMoveNPCToNext"        
     @dragoverNew="onDragoverNew"
-    @dropNew="onDropNew"
+    @drop-new="onDropNew"
   />
   <RelatedItemDialog
     v-model="showNPCPicker"
