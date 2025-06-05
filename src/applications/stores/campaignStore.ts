@@ -10,10 +10,11 @@ import { FCBDialog } from '@/dialogs';
 
 // types
 import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea} from '@/types';
-import { Campaign, PC, Session } from '@/classes';
+import { Campaign, Entry, PC, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { closeSessionNotes, openSessionNotes } from '@/applications/SessionNotes';
 import { localize } from '@/utils/game';
+import Document from 'node_modules/@types/fvtt-types/src/foundry/common/abstract/document.mjs';
 
 export enum CampaignTableTypes {
   None,
@@ -410,8 +411,21 @@ export const useCampaignStore = defineStore('campaign', () => {
   async function onToDoClick (event: MouseEvent, uuid: string) {
     const toDo = toDoRows.value.find(r=> r.uuid===uuid);
 
-    if (!toDo)
+    if (!toDo) 
       return;
+
+    // If there's a linked entity, check if it still exists
+    if (toDo.linkedUuid) {
+      const entry = await Entry.fromUuid(toDo.linkedUuid);
+      if (entry) 
+        return;
+
+      const document = await fromUuid<Document<any, any>>(toDo.linkedUuid);
+      if (!document) {
+        ui.notifications.warn(localize('notifications.todoReferenceNotFound'));
+        return;
+      }
+    }
 
     // set the tab if needed
     let tabId = null as string | null;
@@ -433,14 +447,18 @@ export const useCampaignStore = defineStore('campaign', () => {
     switch (toDo?.type) {
       case ToDoTypes.Entry:
         // just open the entry
-        navigationStore.openEntry(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true });
+        if (toDo.linkedUuid) { // Check if linkedUuid exists before trying to use it
+          navigationStore.openEntry(toDo.linkedUuid, { newTab: event.ctrlKey, activate: true });
+        }
         break;
       case ToDoTypes.Lore:
       case ToDoTypes.Vignette:
       case ToDoTypes.Monster:
       case ToDoTypes.Item:
         // open the session and set the right tab
-        navigationStore.openSession(toDo.sessionUuid, { newTab: event.ctrlKey, activate: true, contentTabId: tabId || undefined });
+        if (toDo.sessionUuid) { // Check if sessionUuid exists
+          navigationStore.openSession(toDo.sessionUuid, { newTab: event.ctrlKey, activate: true, contentTabId: tabId || undefined });
+        }
         break;
     }
   }

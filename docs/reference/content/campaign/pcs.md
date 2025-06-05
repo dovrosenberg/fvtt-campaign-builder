@@ -13,6 +13,9 @@ You can also drag and drop an Actor from Foundry VTT directly onto the PCs list 
 
 PC names are tied directly to the linked Actors and should be changed from the Actor side.
 
+> [!NOTE]
+> Deleting an actor in Foundry that is attached to PC will automatically and safely remove it from the PC without deleting the PC.  The PC will need to have a new actor attached to it.
+
 ## PC Information
 Each PC entry displays:
 - **Name** - The characters and player's names 

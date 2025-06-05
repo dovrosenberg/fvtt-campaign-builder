@@ -26,7 +26,10 @@ You can manage the list of species for your Settings in the [Module Settings](/r
 ### Actors {#actors}
 ![Actors Tab](/assets/images/actors-tab.webp)
 
-On the Actors tab, you can associate your Character with one or more actors from Foundry.  Having more than one may be helpful if you have different character sheets for this Character at different points in time, or perhaps a transformed/polymorphed version, etc.  Since your key Characters will be tied to the current [Session](/reference/content/session), you can access any of them with just a couple clicks.
+On the Actors tab, you can associate your Character with one or more actors from Foundry.  Having more than one may be helpful if you have different character sheets for this Character at different points in time, or perhaps a transformed/polymorphed version, etc. Since your key Characters will be tied to the current [Session](/reference/content/session), you can access any of them with just a couple clicks.
+
+> [!NOTE]
+> Deleting an actor in Foundry that is attached to a Character will automatically and safely remove it from the Character.
 
 #### Adding actors
 Click "Add actor" to select a Foundry actor and connect it to the Character.
