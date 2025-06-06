@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { Campaign } from '@/classes/Campaign';
-import { WBWorld } from '@/classes/WBWorld';
+import { Setting } from '@/classes/Setting';
 import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES } from '@/documents';
 import { SessionLore } from '@/documents/session';
 import * as sinon from 'sinon';
@@ -15,7 +15,7 @@ export const registerCampaignTests = () => {
 
       describe('Campaign', () => {
         let mockCampaignDoc: CampaignDoc;
-        let mockWorld: WBWorld;
+        let mockWorld: Setting;
         let campaign: Campaign;
         let fromUuidStub;
         let inputDialogStub;
@@ -85,7 +85,7 @@ export const registerCampaignTests = () => {
                 id: 'test-compendium'
               }
             }
-          } as unknown as WBWorld;
+          } as unknown as Setting;
 
           // Create a Campaign instance
           campaign = new Campaign(mockCampaignDoc, mockWorld);
@@ -148,8 +148,8 @@ export const registerCampaignTests = () => {
               uuid: 'world-uuid'
             });
             
-            // Stub WBWorld.fromUuid
-            sinon.stub(WBWorld, 'fromUuid').resolves(mockWorld);
+            // Stub Setting.fromUuid
+            sinon.stub(Setting, 'fromUuid').resolves(mockWorld);
             
             const result = await campaignWithoutWorld.getWorld();
             expect(result).to.equal(mockWorld);

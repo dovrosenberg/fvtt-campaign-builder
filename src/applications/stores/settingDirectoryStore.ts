@@ -14,7 +14,7 @@ import { FCBDialog } from '@/dialogs';
 import { scrollToActiveEntry } from '@/utils/directoryScroll';
 
 // types
-import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, WBWorld, TopicFolder, } from '@/classes';
+import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, Setting, TopicFolder, } from '@/classes';
 import { DirectoryWorld, Hierarchy, Topics, ValidTopic, } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
@@ -53,7 +53,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   ///////////////////////////////
   // actions
   const createWorld = async(): Promise<void> => {
-    const world = await WBWorld.create(true);
+    const world = await Setting.create(true);
     if (world) {
       await mainStore.setNewWorld(world.uuid);
 
@@ -336,7 +336,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
    * @returns A promise that resolves when the world and its compendia are deleted.
    */
   const deleteWorld = async (worldId: string): Promise<void> => {
-    const world = await WBWorld.fromUuid(worldId);
+    const world = await Setting.fromUuid(worldId);
 
     if (!world)
       return;
@@ -420,7 +420,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
       const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
-        const id = `${(currentWorld.value as WBWorld).uuid}.topic.${topic}`;
+        const id = `${(currentWorld.value as Setting).uuid}.topic.${topic}`;
         const topicObj = topicFolders[topic] as TopicFolder;
 
         return new DirectoryTopicNode(
@@ -586,7 +586,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // when the root folder changes, load the top level info (worlds and packs)
   // when the world changes, clean out the cache of loaded items
   //@ts-ignore - Vue can't handle reactive classes
-  watch(currentWorld, async (newWorld: WBWorld | null): Promise<void> => {
+  watch(currentWorld, async (newWorld: Setting | null): Promise<void> => {
     if (!newWorld) {
       return;
     }

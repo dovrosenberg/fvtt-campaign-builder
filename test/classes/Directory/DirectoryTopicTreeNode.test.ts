@@ -4,7 +4,7 @@ import { DirectoryEntryNode } from '@/classes/Directory/DirectoryEntryNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
 import { Entry } from '@/classes/Entry';
 import { TopicFolder } from '@/classes/TopicFolder';
-import { WBWorld } from '@/classes/WBWorld';
+import { Setting } from '@/classes/Setting';
 import { Topics } from '@/types';
 import * as sinon from 'sinon';
 
@@ -43,7 +43,7 @@ export const registerDirectoryTopicTreeNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('DirectoryTopicTreeNode', () => {
-        let mockWorld: WBWorld;
+        let mockWorld: Setting;
         let mockTopicFolder: TopicFolder;
         let topicTreeNode: TestTopicTreeNode;
 
@@ -63,7 +63,7 @@ export const registerDirectoryTopicTreeNodeTests = () => {
               ancestors: [],
               type: 'Character'
             })
-          } as unknown as WBWorld;
+          } as unknown as Setting;
 
           // Create a mock topic folder
           mockTopicFolder = {

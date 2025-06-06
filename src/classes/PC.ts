@@ -1,5 +1,5 @@
 import { DOCUMENT_TYPES, PCDoc } from '@/documents';
-import { Campaign, WBWorld } from '@/classes';
+import { Campaign, Setting } from '@/classes';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
 import { toRaw } from 'vue';
@@ -92,9 +92,9 @@ export class PC {
    * Gets the world associated with a PC, loading into the campaign 
    * if needed.
    * 
-   * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
+   * @returns {Promise<Setting>} A promise to the world associated with the campaign.
    */
-  public async getWorld(): Promise<WBWorld> {
+  public async getWorld(): Promise<Setting> {
     if (!this.campaign)
       this.campaign = await this.loadCampaign();
 
@@ -272,7 +272,7 @@ export class PC {
     if (!this._pcDoc)
       return;
 
-    const world = await this.getWorld() as WBWorld;
+    const world = await this.getWorld() as Setting;
 
     await world.executeUnlocked(async () => {
       await this._pcDoc.delete();

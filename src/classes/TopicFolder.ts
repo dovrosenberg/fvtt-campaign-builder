@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { moduleId, } from '@/settings'; 
 import { TopicDoc, WorldDoc, TopicFlagKey, topicFlagSettings, EntryDoc } from '@/documents';
-import { DocumentWithFlags, Entry, WBWorld } from '@/classes';
+import { DocumentWithFlags, Entry, Setting } from '@/classes';
 import { ValidTopic } from '@/types';
 import { getTopicTextPlural } from '@/compendia';
 
@@ -10,7 +10,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   static override _documentName = 'JournalEntry';
   static override _flagSettings = topicFlagSettings;
 
-  public world: WBWorld | null;  // the world the topic is in (if we don't setup up front, we can load it later)
+  public world: Setting | null;  // the world the topic is in (if we don't setup up front, we can load it later)
 
   // saved on JournalEntry
   // private _name: string;   // topic names are hardcoded
@@ -23,9 +23,9 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   /**
    * 
    * @param {TopicDoc} topicDoc - The topic Foundry document
-   * @param {WBWorld} world - The world the campaign is in
+   * @param {Setting} world - The world the campaign is in
    */
-  constructor(topicDoc: TopicDoc, world?: WBWorld) {
+  constructor(topicDoc: TopicDoc, world?: Setting) {
     super(topicDoc, TopicFlagKey.isTopic);
 
     this.world = world || null;
@@ -35,7 +35,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     this._topic = this.getFlag(TopicFlagKey.topic);
   }
 
-  override async _getWorld(): Promise<WBWorld> {
+  override async _getWorld(): Promise<Setting> {
     return await this.getWorld();
   };
   
@@ -57,21 +57,21 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    * Gets the world associated with a topic, loading into the campaign 
    * if needed.
    * 
-   * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
+   * @returns {Promise<Setting>} A promise to the world associated with the campaign.
    */
-  public async getWorld(): Promise<WBWorld> {
+  public async getWorld(): Promise<Setting> {
     if (!this.world)
       await this.loadWorld();
 
-    return (this.world as WBWorld);
+    return (this.world as Setting);
   }
   
   /**
-   * Gets the WBWorld associated with the topic. If the world is already loaded, the promise resolves
+   * Gets the Setting associated with the topic. If the world is already loaded, the promise resolves
    * to the existing world; otherwise, it loads the world and then resolves to it.
-   * @returns {Promise<WBWorld>} A promise to the world associated with the topic.
+   * @returns {Promise<Setting>} A promise to the world associated with the topic.
    */
-  public async loadWorld(): Promise<WBWorld> {
+  public async loadWorld(): Promise<Setting> {
     if (this.world)
       return this.world;
     
@@ -83,7 +83,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     if (!worldDoc)
       throw new Error('Invalid folder id in Topics.loadWorld()');
 
-    this.world = new WBWorld(worldDoc);
+    this.world = new Setting(worldDoc);
     return this.world;
   }
   
@@ -140,11 +140,11 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   /**
    * Creates a new topic.  Does not add to world.
    * 
-   * @param {WBWorld} world - The world to create the topic in. 
+   * @param {Setting} world - The world to create the topic in. 
    * @param {ValidTopic} topic - The topic for the TopicFolder
    * @returns A promise that resolves when the topic has been created, with either the resulting entry or null on error
    */
-  static async create(world: WBWorld, topic: ValidTopic): Promise<TopicFolder | null> {
+  static async create(world: Setting, topic: ValidTopic): Promise<TopicFolder | null> {
     let newTopicDoc: TopicDoc | null = null;
 
     await world.executeUnlocked(async () => {

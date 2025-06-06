@@ -129,7 +129,7 @@
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend, WBWorld } from '@/classes';
+  import { Backend, Setting } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
   import { getDefaultFolders } from '@/compendia';
@@ -184,7 +184,7 @@
       return;
     }
 
-    const world = await WBWorld.fromUuid(worldUuid);
+    const world = await Setting.fromUuid(worldUuid);
     if (!world) {
       campaignOptions.value = [];
       return;

@@ -1,5 +1,5 @@
 import { searchService, FCBSearchResult } from '@/utils/search';
-import { WBWorld } from '@/classes';
+import { Setting } from '@/classes';
 
 /**
  * Interface for entity reference replacement options
@@ -18,7 +18,7 @@ export interface EntityLinkingOptions {
  */
 export async function replaceEntityReferences(
   content: string, 
-  world: WBWorld, 
+  world: Setting, 
   options: EntityLinkingOptions = {}
 ): Promise<string> {
   const { currentEntityUuid } = options;

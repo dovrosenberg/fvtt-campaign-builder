@@ -4,7 +4,7 @@ import { Backend } from '@/classes';
 import { nameStyles } from '@/utils/nameStyles';
 
 import { GeneratorType, WorldGeneratorConfig } from '@/types';
-import { WBWorld } from '@/classes';
+import { Setting } from '@/classes';
 
 /**
  * The number of items to generate for each roll table.
@@ -20,7 +20,7 @@ export const TABLE_SIZE = 100;
  * @param world - The world to initialize roll tables for
  * @returns A promise that resolves when initialization is complete
  */
-export async function initializeWorldRollTables(world: WBWorld): Promise<void> {
+export async function initializeWorldRollTables(world: Setting): Promise<void> {
   // Get or create the folder for roll tables for this world
   const folderId = await getOrCreateWorldRollTableFolder(world);
   
@@ -70,7 +70,7 @@ export async function initializeWorldRollTables(world: WBWorld): Promise<void> {
  * @param world - The world to create the folder for
  * @returns A promise that resolves to the folder ID
  */
-const getOrCreateWorldRollTableFolder = async(world: WBWorld): Promise<string> => {
+const getOrCreateWorldRollTableFolder = async(world: Setting): Promise<string> => {
   // Check if we already have a folder ID stored
   const config = world.rollTableConfig;
   if (config?.folderId) {
@@ -104,7 +104,7 @@ const getOrCreateWorldRollTableFolder = async(world: WBWorld): Promise<string> =
  * @returns A promise that resolves to an array of generated names
  * @throws {Error} If the backend is unavailable or generation fails
  */
-const generateWorldTableResults = async (type: GeneratorType, count: number, world: WBWorld): Promise<string[]> => {
+const generateWorldTableResults = async (type: GeneratorType, count: number, world: Setting): Promise<string[]> => {
   // If backend is not available, throw an error 
   if (!Backend.available || !Backend.api) {
     throw new Error('Backend is not available. Please check your backend settings.');
@@ -168,7 +168,7 @@ const generateWorldTableResults = async (type: GeneratorType, count: number, wor
  * @param world - The world this table belongs to
  * @returns A promise that resolves to the created RollTable, or null if creation failed
  */
-async function createWorldRollTable(type: GeneratorType, folderId: string, world: WBWorld): Promise<RollTable | null> {
+async function createWorldRollTable(type: GeneratorType, folderId: string, world: Setting): Promise<RollTable | null> {
   const tableName = `${world.name} - ${type.charAt(0).toUpperCase() + type.slice(1)} Generator`;
   
   // Create the table
@@ -205,7 +205,7 @@ async function createWorldRollTable(type: GeneratorType, folderId: string, world
  * @returns A promise that resolves when the table is refreshed
  * @throws {Error} If the table type is missing or generation fails
  */
-export const refreshWorldRollTable = async (rollTable: RollTable, world: WBWorld) : Promise<void> => {
+export const refreshWorldRollTable = async (rollTable: RollTable, world: Setting) : Promise<void> => {
   // requires backend
   if (!Backend.available || !Backend.api) {
     throw new Error('Backend is not available. Please check your backend settings.');
@@ -261,7 +261,7 @@ export const refreshWorldRollTable = async (rollTable: RollTable, world: WBWorld
  * @param empty - Whether to clear all existing results before refreshing (defaults to false)
  * @returns A promise that resolves when all tables are refreshed
  */
-export const refreshWorldRollTables = async(world: WBWorld, empty: boolean = false) : Promise<void> => {
+export const refreshWorldRollTables = async(world: Setting, empty: boolean = false) : Promise<void> => {
   const config = world.rollTableConfig;
 
   if (!config) {
@@ -311,7 +311,7 @@ export const refreshAllWorldRollTables = async() : Promise<void> => {
  * @param world - The world whose table names should be updated
  * @returns A promise that resolves when all table names are updated
  */
-export const updateWorldRollTableNames = async(world: WBWorld) : Promise<void> => {
+export const updateWorldRollTableNames = async(world: Setting) : Promise<void> => {
   const config = world.rollTableConfig;
 
   if (!config) {

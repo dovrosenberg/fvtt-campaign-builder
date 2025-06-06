@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
-import { WBWorld } from '@/classes/WBWorld';
+import { Setting } from '@/classes/Setting';
 import * as sinon from 'sinon';
 
 // Create a concrete implementation of CollapsibleNode for testing
@@ -31,7 +31,7 @@ export const registerCollapsibleNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('CollapsibleNode', () => {
-        let mockWorld: WBWorld;
+        let mockWorld: Setting;
         let node: TestNode;
 
         beforeEach(() => {
@@ -44,7 +44,7 @@ export const registerCollapsibleNodeTests = () => {
               'node1': true,
               'node2': true
             }
-          } as unknown as WBWorld;
+          } as unknown as Setting;
 
           // Set the current world
           CollapsibleNode.currentWorld = mockWorld;
@@ -83,7 +83,7 @@ export const registerCollapsibleNodeTests = () => {
             CollapsibleNode._loadedNodes = { 'test-node': node as any };
             
             // Set a new world
-            const newWorld = { uuid: 'new-world-uuid' } as WBWorld;
+            const newWorld = { uuid: 'new-world-uuid' } as Setting;
             CollapsibleNode.currentWorld = newWorld;
             
             // Check that the world was set and loaded nodes were cleared

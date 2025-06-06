@@ -1,5 +1,5 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
-import { WBWorld } from '@/classes/WBWorld';
+import { Setting } from '@/classes/Setting';
 import { TopicFolder } from '@/classes/TopicFolder';
 import { WorldDoc, WorldFlagKey } from '@/documents';
 import { Topics, } from '@/types';
@@ -8,16 +8,16 @@ import { moduleId } from '@/settings';
 import { Campaign } from '@/classes/Campaign';
 import { expect } from 'chai';
 
-export const registerWBWorldTests = () => {
+export const registerSettingTests = () => {
   quench.registerBatch(
-    'campaign-builder.classes.WBWorld',
+    'campaign-builder.classes.Setting',
     (context: QuenchBatchContext) => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
-      describe('WBWorld', () => {
+      describe('Setting', () => {
         let mockWorldDoc: WorldDoc;
         let mockCompendium: any;
-        let world: WBWorld;
+        let world: Setting;
         let fromUuidStub;
         let getFlag;
         let setFlag;
@@ -103,8 +103,8 @@ export const registerWBWorldTests = () => {
             delete: sinon.stub().resolves(undefined),
           } as unknown as WorldDoc;
 
-          // Create a WBWorld instance
-          world = new WBWorld(mockWorldDoc);
+          // Create a Setting instance
+          world = new Setting(mockWorldDoc);
           
           // Mock internal properties set up during constructor or validate
           world['_compendium'] = mockCompendium as any;
@@ -144,7 +144,7 @@ export const registerWBWorldTests = () => {
             // Create an invalid document
             const invalidDoc = { ...mockWorldDoc, documentName: 'Actor' };
             
-            expect(() => new WBWorld(invalidDoc as any)).to.throw('Invalid document type in WBWorld constructor');
+            expect(() => new Setting(invalidDoc as any)).to.throw('Invalid document type in Setting constructor');
           });
 
           it('should initialize with the provided document', () => {
@@ -158,18 +158,18 @@ export const registerWBWorldTests = () => {
         describe('fromUuid', () => {
           it('should return null if document is not found', async () => {
             fromUuidStub.resolves(null);
-            const result = await WBWorld.fromUuid('test-uuid');
+            const result = await Setting.fromUuid('test-uuid');
             expect(result).to.be.null;
           });
 
-          it('should return a new WBWorld instance if document is valid', async () => {
+          it('should return a new Setting instance if document is valid', async () => {
             fromUuidStub.resolves(mockWorldDoc);
             
             // Stub validate method
-            sinon.stub(WBWorld.prototype, 'validate').resolves();
+            sinon.stub(Setting.prototype, 'validate').resolves();
             
-            const result = await WBWorld.fromUuid('test-uuid');
-            expect(result).to.be.instanceOf(WBWorld);
+            const result = await Setting.fromUuid('test-uuid');
+            expect(result).to.be.instanceOf(Setting);
             expect(result?.uuid).to.equal('test-world-uuid');
           });
         });
@@ -178,13 +178,13 @@ export const registerWBWorldTests = () => {
           it('should throw an error if topicIds is not loaded', async () => {
             // Create a world with no topicIds
             getFlag.withArgs(sinon.match.any, WorldFlagKey.topicIds).returns(null);
-            const worldWithoutTopicIds = new WBWorld(mockWorldDoc);
+            const worldWithoutTopicIds = new Setting(mockWorldDoc);
             
             try {
               await worldWithoutTopicIds.loadTopics();
               expect.fail('Should have thrown an error');
             } catch (error) {
-              expect(error.message).to.equal('Invalid WBWorld.loadTopics() called before IDs loaded');
+              expect(error.message).to.equal('Invalid Setting.loadTopics() called before IDs loaded');
             }
           });
 
@@ -214,7 +214,7 @@ export const registerWBWorldTests = () => {
               await world.loadTopics();
               expect.fail('Should have thrown an error');
             } catch (error) {
-              expect(error.message).to.equal('Invalid topic uuid in WBWorld.loadTopics()');
+              expect(error.message).to.equal('Invalid topic uuid in Setting.loadTopics()');
             }
           });
         });
@@ -223,13 +223,13 @@ export const registerWBWorldTests = () => {
           it('should throw an error if campaignNames is not loaded', async () => {
             // Create a world with no campaignNames
             getFlag.withArgs(sinon.match.any, WorldFlagKey.campaignNames).returns(null);
-            const worldWithoutCampaignNames = new WBWorld(mockWorldDoc);
+            const worldWithoutCampaignNames = new Setting(mockWorldDoc);
             
             try {
               await worldWithoutCampaignNames.loadCampaigns();
               expect.fail('Should have thrown an error');
             } catch (error) {
-              expect(error.message).to.equal('Invalid WBWorld.loadCampaigns() called before IDs loaded');
+              expect(error.message).to.equal('Invalid Setting.loadCampaigns() called before IDs loaded');
             }
           });
 
@@ -263,7 +263,7 @@ export const registerWBWorldTests = () => {
               await world.loadCampaigns();
               expect.fail('Should have thrown an error');
             } catch (error) {
-              expect(error.message).to.equal('Invalid campaign uuid in WBWorld.loadCampaigns()');
+              expect(error.message).to.equal('Invalid campaign uuid in Setting.loadCampaigns()');
             }
           });
         });
@@ -394,16 +394,16 @@ export const registerWBWorldTests = () => {
             sinon.stub(globalThis, 'getRootFolder').resolves({ id: 'root-folder-id' });
             
             // Stub validate
-            sinon.stub(WBWorld.prototype, 'validate').resolves();
+            sinon.stub(Setting.prototype, 'validate').resolves();
             
             // Call create
-            const result = await WBWorld.create();
+            const result = await Setting.create();
             
             // Verify Folder.createDocuments was called
             expect(Folder.createDocuments.called).to.equal(true);
             
             // Verify result
-            expect(result).to.be.instanceOf(WBWorld);
+            expect(result).to.be.instanceOf(Setting);
           });
 
           it('should return null if name input is cancelled', async () => {
@@ -411,7 +411,7 @@ export const registerWBWorldTests = () => {
             inputDialogStub.resolves(null);
             
             // Call create
-            const result = await WBWorld.create();
+            const result = await Setting.create();
             
             // Verify result
             expect(result).to.be.null;
@@ -427,7 +427,7 @@ export const registerWBWorldTests = () => {
               await world.validate();
               expect.fail('Should have thrown an error');
             } catch (error) {
-              expect(error.message).to.equal('Invalid compendiumId in WBWorld.validate()');
+              expect(error.message).to.equal('Invalid compendiumId in Setting.validate()');
             }
           });
 

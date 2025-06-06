@@ -1,5 +1,5 @@
 import MiniSearch from 'minisearch';
-import { Entry, Session, WBWorld } from '@/classes';
+import { Entry, Session, Setting } from '@/classes';
 import { Topics, ValidTopic, } from '@/types';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
@@ -119,7 +119,7 @@ class SearchService {
    * @returns A promise that resolves when the index is built
    * @throws {Error} If the search index cannot be created
    */
-  public async buildIndex(world: WBWorld): Promise<void> {
+  public async buildIndex(world: Setting): Promise<void> {
     // always reinitialize because otherwise we'll be adding duplicates
     await this.initIndex();
 
@@ -170,9 +170,9 @@ class SearchService {
    * @param isEntry - Whether the item is an entry or session
    * @returns A promise that resolves to the searchable item
    */
-  private async createSearchableItem(item: Entry, world: WBWorld, isEntry: true): Promise<SearchableItem>;
-  private async createSearchableItem(item: Session, world: WBWorld, isEntry: false): Promise<SearchableItem>;
-  private async createSearchableItem(item: Entry | Session, world: WBWorld, isEntry: boolean): Promise<SearchableItem> {
+  private async createSearchableItem(item: Entry, world: Setting, isEntry: true): Promise<SearchableItem>;
+  private async createSearchableItem(item: Session, world: Setting, isEntry: false): Promise<SearchableItem>;
+  private async createSearchableItem(item: Entry | Session, world: Setting, isEntry: boolean): Promise<SearchableItem> {
     const snippets: string[] = [];
     let description = '';
     let species = '';
@@ -335,9 +335,9 @@ class SearchService {
    * @param isEntry - Whether the item is an entry or session
    * @returns A promise that resolves when the operation is complete
    */
-  public async addOrUpdateIndex(entry: Entry, world: WBWorld, isEntry: true): Promise<void>; 
-  public async addOrUpdateIndex(entry: Session, world: WBWorld, isEntry: false): Promise<void>;
-  public async addOrUpdateIndex(item: Entry | Session, world: WBWorld, isEntry: boolean): Promise<void> {
+  public async addOrUpdateIndex(entry: Entry, world: Setting, isEntry: true): Promise<void>; 
+  public async addOrUpdateIndex(entry: Session, world: Setting, isEntry: false): Promise<void>;
+  public async addOrUpdateIndex(item: Entry | Session, world: Setting, isEntry: boolean): Promise<void> {
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
     }

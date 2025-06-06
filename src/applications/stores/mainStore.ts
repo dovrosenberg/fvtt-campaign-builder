@@ -12,7 +12,7 @@ import { updateWorldRollTableNames } from '@/utils/nameGenerators';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { TopicFolder, WBWorld, WindowTab, Entry, Campaign, Session, PC, CollapsibleNode, } from '@/classes';
+import { TopicFolder, Setting, WindowTab, Entry, Campaign, Session, PC, CollapsibleNode, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, WorldDoc } from '@/documents';
 import { getDefaultFolders } from '@/compendia';
 
@@ -29,7 +29,7 @@ export const useMainStore = defineStore('main', () => {
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
-  const _currentWorld = ref<WBWorld | null>(null);  // the current world folder
+  const _currentWorld = ref<Setting | null>(null);  // the current world folder
 
   ///////////////////////////////
   // external state
@@ -60,7 +60,7 @@ export const useMainStore = defineStore('main', () => {
   const currentPC = computed((): PC | null => (_currentPC?.value || null) as PC | null);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
   const currentTab = computed((): WindowTab | null => _currentTab?.value);  
-  const currentWorld = computed((): WBWorld | null => (_currentWorld?.value || null) as WBWorld | null);
+  const currentWorld = computed((): Setting | null => (_currentWorld?.value || null) as Setting | null);
 
   ///////////////////////////////
   // actions
@@ -70,7 +70,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // load the world
-    const world = await WBWorld.fromUuid(worldId);
+    const world = await Setting.fromUuid(worldId);
     
     if (!world)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');
@@ -108,7 +108,7 @@ export const useMainStore = defineStore('main', () => {
         // we can only set tabs within a world, so we don't actually need to do anything here
         // if (tab.header.uuid) {
         //   _currentEntry.value = null;
-        //   _currentWorld.value = await WBWorld.fromUuid(tab.header.uuid);
+        //   _currentWorld.value = await Setting.fromUuid(tab.header.uuid);
         //   if (!_currentWorld.value)
         //     throw new Error('Invalid entry uuid in mainStore.setNewTab()');
         // }
@@ -160,7 +160,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentWorld.value as WBWorld);
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentWorld.value as Setting);
   };
 
   const refreshWorld = async function (): Promise<void> {
@@ -168,7 +168,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentWorld.value = new WBWorld(_currentWorld.value.raw as WorldDoc);
+    _currentWorld.value = new Setting(_currentWorld.value.raw as WorldDoc);
 
     // have to load the topic folders
     await _currentWorld.value?.loadTopics();
@@ -218,9 +218,9 @@ export const useMainStore = defineStore('main', () => {
 
   /**
    * Get all worlds from the root folder
-   * @returns Array of WBWorld instances
+   * @returns Array of Setting instances
    */
-  const getAllWorlds = async function (): Promise<WBWorld[]> {
+  const getAllWorlds = async function (): Promise<Setting[]> {
     if (!rootFolder.value) {
       const defaultFolders = await getDefaultFolders();
       rootFolder.value = defaultFolders.rootFolder;
@@ -229,12 +229,12 @@ export const useMainStore = defineStore('main', () => {
       }
     }
 
-    const worlds: WBWorld[] = [];
+    const worlds: Setting[] = [];
     
     for (const child of rootFolder.value.children) {
       if (child.folder && child.folder.getFlag(moduleId, 'isWorld')) {
         try {
-          const world = await WBWorld.fromUuid(child.folder.uuid);
+          const world = await Setting.fromUuid(child.folder.uuid);
           if (world) {
             worlds.push(world);
           }
@@ -252,7 +252,7 @@ export const useMainStore = defineStore('main', () => {
    * This should be called after the world name has been changed and saved
    * @param world The world whose name changed
    */
-  const propagateWorldNameChange = async function (world: WBWorld): Promise<void> {
+  const propagateWorldNameChange = async function (world: Setting): Promise<void> {
     // Update roll table names if roll tables are configured
     if (world.rollTableConfig) {
       try {

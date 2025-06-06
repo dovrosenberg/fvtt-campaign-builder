@@ -6,7 +6,7 @@ import { reactive, ref, watch, } from 'vue';
 
 // local imports
 import { useMainStore, useNavigationStore } from '@/applications/stores';
-import { DirectoryCampaignNode, Campaign, Session, WBWorld, } from '@/classes';
+import { DirectoryCampaignNode, Campaign, Session, Setting, } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 
 // types
@@ -68,7 +68,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     for (const id in campaigns) {
       const campaign = await Campaign.fromUuid(id);
 
-      // shouldn't happen but maybe something didn't get cleaned up; we'll clean it up in WBWorld.loadCampaigns() at some point
+      // shouldn't happen but maybe something didn't get cleaned up; we'll clean it up in Setting.loadCampaigns() at some point
       if (!campaign) {
         continue;
       }
@@ -167,7 +167,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     let campaign: Campaign | null = null;
 
     if (currentWorld.value) {
-      campaign = await Campaign.create(currentWorld.value as WBWorld);
+      campaign = await Campaign.create(currentWorld.value as Setting);
       await refreshCampaignDirectoryTree();
     }
 
@@ -210,7 +210,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // watchers
 
   // when the world changes, clean out the cache of loaded items
-  watch(currentWorld, async (newWorld: WBWorld | null): Promise<void> => {
+  watch(currentWorld, async (newWorld: Setting | null): Promise<void> => {
     if (!newWorld) {
       currentCampaignTree.value = [];
       return;

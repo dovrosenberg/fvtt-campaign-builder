@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { TopicFolder } from '@/classes/TopicFolder';
-import { WBWorld } from '@/classes/WBWorld';
+import { Setting } from '@/classes/Setting';
 import { Entry } from '@/classes/Entry';
 import { TopicDoc, TopicFlagKey, EntryDoc, DOCUMENT_TYPES } from '@/documents';
 import { Topics } from '@/types';
@@ -15,7 +15,7 @@ export const registerTopicFolderTests = () => {
 
       describe('TopicFolder', () => {
         let mockTopicDoc: TopicDoc;
-        let mockWorld: WBWorld;
+        let mockWorld: Setting;
         let topicFolder: TopicFolder;
         let fromUuidStub;
         let getFlag;
@@ -96,7 +96,7 @@ export const registerTopicFolderTests = () => {
             hierarchies: {},
             expandedIds: {},
             updateTopicId: sinon.stub().resolves(undefined)
-          } as unknown as WBWorld;
+          } as unknown as Setting;
 
           // Create a TopicFolder instance
           topicFolder = new TopicFolder(mockTopicDoc, mockWorld);
@@ -178,7 +178,7 @@ export const registerTopicFolderTests = () => {
             const result = await topicFolderWithoutWorld.loadWorld();
             
             // Assert
-            expect(result).to.be.instanceOf(WBWorld);
+            expect(result).to.be.instanceOf(Setting);
             expect(result.uuid).to.equal('world-uuid');
           });
 

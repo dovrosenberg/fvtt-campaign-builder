@@ -4,7 +4,7 @@ import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace,  } from '@/documents'
 import { RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
-import { TopicFolder, WBWorld } from '@/classes';
+import { TopicFolder, Setting } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useCampaignStore, useMainStore } from '@/applications/stores';
@@ -282,9 +282,9 @@ export class Entry {
     * Gets the world associated with a entry, loading into the topic
     * if needed.
     * 
-    * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
+    * @returns {Promise<Setting>} A promise to the world associated with the campaign.
     */
-  public async getWorld(): Promise<WBWorld> {
+  public async getWorld(): Promise<Setting> {
     if (!this.topicFolder)
       await this.loadTopic();
   

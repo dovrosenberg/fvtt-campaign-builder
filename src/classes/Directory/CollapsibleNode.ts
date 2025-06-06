@@ -2,12 +2,12 @@
  * A class representing a node (which might have children) in the topic or campaign tree structures
  */
 
-import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, WBWorld } from '@/classes';
+import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, Setting } from '@/classes';
 
 type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode;
 
 export abstract class CollapsibleNode<ChildType extends NodeType | never> {
-  protected static _currentWorld: WBWorld | null = null;
+  protected static _currentWorld: Setting | null = null;
 
   /** maps uuid to the node for easy lookup **/
   protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode>;   
@@ -30,7 +30,7 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
     this.ancestors = ancestors;
   }
 
-  public static set currentWorld(world: WBWorld | null) {
+  public static set currentWorld(world: Setting | null) {
     CollapsibleNode._currentWorld = world;
     CollapsibleNode._loadedNodes = {};
   }
