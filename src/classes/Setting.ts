@@ -11,7 +11,7 @@ import { initializeWorldRollTables } from '@/utils/nameGenerators';
 type WBWorldCompendium = CompendiumCollection<CompendiumCollection.Metadata>;
 
 // represents a campaign setting
-export class WBWorld extends DocumentWithFlags<WorldDoc>{
+export class Setting extends DocumentWithFlags<WorldDoc>{
   static override _documentName = 'Folder';
   static override _flagSettings = worldFlagSettings;
 
@@ -38,9 +38,9 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   private _rollTableConfig: WorldGeneratorConfig | null;
 
   /**
-   * Note: you should always call validate() after creating a new WBWorld - this ensures the 
+   * Note: you should always call validate() after creating a new Setting - this ensures the 
    * compendium exists and is properly used
-   * @param {WorldDoc} worldDoc - The WBWorld Foundry document
+   * @param {WorldDoc} worldDoc - The Setting Foundry document
    */
   constructor(worldDoc: WorldDoc) {
     super(worldDoc, WorldFlagKey.isWorld);
@@ -72,22 +72,22 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     this.topicFolders = {} as Record<ValidTopic, TopicFolder>;
   }
 
-  override async _getWorld(): Promise<WBWorld> {
+  override async _getWorld(): Promise<Setting> {
     return this;
   };
 
-  // WBWorld is a Folder so it's outside the compendium
+  // Setting is a Folder so it's outside the compendium
   override get requiresUnlock(): boolean {
     return false;
   };
 
-  static async fromUuid(worldId: string, options?: Record<string, any>): Promise<WBWorld | null> {
+  static async fromUuid(worldId: string, options?: Record<string, any>): Promise<Setting | null> {
     const worldDoc = await fromUuid<WorldDoc>(worldId, options);
 
     if (!worldDoc)
       return null;
     else {
-      const newWorld = new WBWorld(worldDoc);
+      const newWorld = new Setting(worldDoc);
       await newWorld.validate();  // will also load topic folders
       return newWorld;
     }
@@ -105,14 +105,14 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   */
   public async loadTopics(): Promise<Record<ValidTopic, TopicFolder>> {
     if (!this._topicIds)
-      throw new Error('Invalid WBWorld.loadTopics() called before IDs loaded');
+      throw new Error('Invalid Setting.loadTopics() called before IDs loaded');
 
     // loop over just the numeric values
     for (const topic of Object.values(Topics).filter(t=>typeof t === 'number')) {
       if (topic !== Topics.None && !this.topicFolders[topic]) {
         const topicObj = await TopicFolder.fromUuid(this._topicIds[topic]);
         if (!topicObj)
-          throw new Error('Invalid topic uuid in WBWorld.loadTopics()');
+          throw new Error('Invalid topic uuid in Setting.loadTopics()');
 
         topicObj.world = this;
         this.topicFolders[topic] = topicObj;
@@ -130,7 +130,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   */
   public async loadCampaigns(): Promise<Record<string, Campaign>> {
     if (!this._campaignNames)
-      throw new Error('Invalid WBWorld.loadCampaigns() called before IDs loaded');
+      throw new Error('Invalid Setting.loadCampaigns() called before IDs loaded');
 
     if (!this.campaigns)
       this.campaigns = {};
@@ -263,9 +263,9 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     return this._nameStyles;
   }
 
-  public set nameStyles(value: number[]) {
-    this._nameStyles = value;
-    this.updateCumulative(WorldFlagKey.nameStyles, value);
+  public set nameStyles(value: number[] | readonly number[] ) {
+    this._nameStyles = value.slice();     // we clone it so it can't be edited outside
+    this.updateCumulative(WorldFlagKey.nameStyles, this._nameStyles);
   }
 
   public get rollTableConfig(): WorldGeneratorConfig | null {
@@ -348,9 +348,9 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
   /**
    * Updates a world in the database.  Handles locking.
    * 
-   * @returns {Promise<WBWorld | null>} The updated WBWorld, or null if the update failed.
+   * @returns {Promise<Setting | null>} The updated Setting, or null if the update failed.
    */
-  public async save(): Promise<WBWorld | null> {
+  public async save(): Promise<Setting | null> {
     let success = false;
 
     // note: no unlock needed for changes to the world because it's not in
@@ -379,7 +379,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
    * @param {boolean} [makeCurrent=false] If true, sets the new world as the current world.
    * @returns The new world, or null if the user cancelled the dialog.
    */
-  public static async create(makeCurrent = false): Promise<WBWorld | null> {
+  public static async create(makeCurrent = false): Promise<Setting | null> {
     const rootFolder = await getRootFolder(); // will create if needed
 
     // get the name
@@ -402,7 +402,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
 
         const worldDoc = worldDocs[0];
 
-        const newWorld = new WBWorld(worldDoc);
+        const newWorld = new Setting(worldDoc);
         await newWorld.setup();
 
         // set as the current world
@@ -426,7 +426,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     if (this._compendiumId) {
       const compendium = game.packs?.get(this._compendiumId);
       if (!compendium) 
-        throw new Error('Invalid compendiumId in WBWorld.validate()');
+        throw new Error('Invalid compendiumId in Setting.validate()');
       
       this._compendium = compendium;
     }
@@ -438,7 +438,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     }
 
     if (!this._compendium)
-      throw new Error('Failed to create compendium in WBWorld.validate()');
+      throw new Error('Failed to create compendium in Setting.validate()');
 
     // load the journal entries... we populate any missing topics, but can't reconstruct
     //    campaigns
@@ -479,7 +479,7 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
         topicFolder = await TopicFolder.create(this, t);
 
         if (!topicFolder)
-          throw new Error('Couldn\'t create topicFolder in WBWorld.validate()');
+          throw new Error('Couldn\'t create topicFolder in Setting.validate()');
 
         topicFolder.world = this;
         topicIds[t] = topicFolder.uuid;
@@ -554,9 +554,9 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
     // Create a new operation that will wait for any existing operation to complete
     const operation = (async () => {
       // Wait for any previous operation on this compendium to complete
-      if (WBWorld._unlockOperations[compendiumId]) {
+      if (Setting._unlockOperations[compendiumId]) {
         try {
-          await WBWorld._unlockOperations[compendiumId];
+          await Setting._unlockOperations[compendiumId];
         } catch (error) {
           // If previous operation failed, we still want to continue with our operation
           console.error("Previous unlock operation failed:", error);
@@ -578,12 +578,12 @@ export class WBWorld extends DocumentWithFlags<WorldDoc>{
         }
         
         // Remove our operation from the map once it's done
-        delete WBWorld._unlockOperations[compendiumId];
+        delete Setting._unlockOperations[compendiumId];
       }
     })();
 
     // Store the promise so other operations can wait for it
-    WBWorld._unlockOperations[compendiumId] = operation;
+    Setting._unlockOperations[compendiumId] = operation;
 
     // Wait for our operation to complete
     return operation;

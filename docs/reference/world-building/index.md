@@ -24,6 +24,8 @@ An overview of the Setting.  Includes general description, as well as some field
 - Setting type
 - Setting tags
 
+NAME TYPES
+
 ### [Entry Content and Relationships](./content/entry)
 Understanding the common elements shared by all world-building content types.
 

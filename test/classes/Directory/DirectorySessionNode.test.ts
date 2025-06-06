@@ -2,7 +2,7 @@ import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { DirectorySessionNode } from '@/classes/Directory/DirectorySessionNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
 import { Session } from '@/classes/Session';
-import { WBWorld } from '@/classes/WBWorld';
+import { Setting } from '@/classes/Setting';
 import * as sinon from 'sinon';
 
 export const registerDirectorySessionNodeTests = () => {
@@ -12,7 +12,7 @@ export const registerDirectorySessionNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('DirectorySessionNode', () => {
-        let mockWorld: WBWorld;
+        let mockWorld: Setting;
         let mockSession: Session;
         let sessionNode: DirectorySessionNode;
 
@@ -25,7 +25,7 @@ export const registerDirectorySessionNodeTests = () => {
             expandedIds: {
               'session-uuid': true
             }
-          } as unknown as WBWorld;
+          } as unknown as Setting;
 
           // Create a mock session
           mockSession = {

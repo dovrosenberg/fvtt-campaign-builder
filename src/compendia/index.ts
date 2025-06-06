@@ -3,7 +3,7 @@ import { localize } from '@/utils/game';
 import { Topics, } from '@/types';
 import { SettingKey, ModuleSettings, UserFlagKey, UserFlags,} from '@/settings';
 import { toTopic } from '@/utils/misc';
-import { WBWorld } from '@/classes';
+import { Setting } from '@/classes';
 
 /**
  * Gets the root folder.
@@ -65,23 +65,23 @@ export async function createRootFolder(name?: string): Promise<Folder> {
  * Will create new folders if missing.
  * @returns The root and world folders.
  */
-export async function getDefaultFolders(): Promise<{ rootFolder: Folder; world: WBWorld}> {
+export async function getDefaultFolders(): Promise<{ rootFolder: Folder; world: Setting}> {
   const rootFolder = await getRootFolder(); // will create if needed
   const worldId = UserFlags.get(UserFlagKey.currentWorld);  // this isn't world-specific (obviously)
 
   // make sure we have a default and it exists
-  let world = null as WBWorld | null;
+  let world = null as Setting | null;
   if (worldId) {
-    world = await WBWorld.fromUuid(worldId);
+    world = await Setting.fromUuid(worldId);
   }   
 
   if (!world) {
     // couldn't find it, default to top if one exists
     if (rootFolder.children.length>0 && rootFolder.children[0]?.folder?.uuid) {
-      world = await WBWorld.fromUuid(rootFolder.children[0].folder.uuid);
+      world = await Setting.fromUuid(rootFolder.children[0].folder.uuid);
     } else {
       // no world folder, so create one
-      world = await WBWorld.create(true);
+      world = await Setting.create(true);
     }
   }
 

@@ -3,7 +3,7 @@ import { DirectoryEntryNode } from '@/classes/Directory/DirectoryEntryNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
 import { Entry } from '@/classes/Entry';
 import { TopicFolder } from '@/classes/TopicFolder';
-import { WBWorld } from '@/classes/WBWorld';
+import { Setting } from '@/classes/Setting';
 import { Hierarchy } from '@/types';
 import { NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 import * as sinon from 'sinon';
@@ -15,7 +15,7 @@ export const registerDirectoryEntryNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('DirectoryEntryNode', () => {
-        let mockWorld: WBWorld;
+        let mockWorld: Setting;
         let mockTopicFolder: TopicFolder;
         let mockEntry: Entry;
         let entryNode: DirectoryEntryNode;
@@ -39,7 +39,7 @@ export const registerDirectoryEntryNodeTests = () => {
               'entry-uuid': true
             },
             getEntryHierarchy: sinon.stub().returns(mockHierarchy)
-          } as unknown as WBWorld;
+          } as unknown as Setting;
 
           // Create a mock topic folder
           mockTopicFolder = {

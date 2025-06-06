@@ -3,7 +3,7 @@ import { registerCampaignTests } from "./Campaign.test";
 import { registerDirectoryTests } from "./Directory";
 import { registerEntryTests } from "./Entry.test";
 import { registerTopicFolderTests } from "./TopicFolder.test";
-import { registerWBWorldTests } from "./WBWorld.test";
+import { registerWBWorldTests } from "./Setting.test";
 
 export const registerClassesTests = () => {
   registerBackendTests();

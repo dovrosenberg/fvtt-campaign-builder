@@ -11,7 +11,7 @@ import {
   Species, 
   Topics, 
 } from '@/types';
-import { Entry, TopicFolder, WBWorld, } from '@/classes';
+import { Entry, TopicFolder, Setting, } from '@/classes';
 import { Backend } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 
@@ -81,7 +81,7 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
  * @returns A promise that resolves when image generation is complete
  * @throws {Error} If image generation fails or the entry type is not supported
  */
-export const generateImage = async (currentWorld: WBWorld, entry: Entry): Promise<void> => {
+export const generateImage = async (currentWorld: Setting, entry: Entry): Promise<void> => {
   if (!entry || !currentWorld || ![Topics.Character, Topics.Location, Topics.Organization].includes(entry.topic)) {
     return;
   }

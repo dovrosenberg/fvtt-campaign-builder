@@ -65,7 +65,7 @@
 
   // types
   import { WindowTabType, Topics, ValidTopic } from '@/types';
-  import { Backend, WBWorld, } from '@/classes';
+  import { Backend, Setting, } from '@/classes';
   import { CampaignDoc } from '@/documents';
 
   
@@ -150,7 +150,7 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentWorld, async (newWorld: WBWorld | null, oldWorld: WBWorld | null) => {
+  watch(currentWorld, async (newWorld: Setting | null, oldWorld: Setting | null) => {
     // Update the window title when the world changes
     updateWindowTitle(newWorld?.name || null);
     

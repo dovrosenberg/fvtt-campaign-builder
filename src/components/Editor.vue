@@ -48,7 +48,7 @@
   // local imports
   import { enrichFwbHTML } from './Editor/helpers';
   import { useMainStore } from '@/applications/stores';
-  import { Campaign, Entry, Session, WBWorld } from '@/classes';
+  import { Campaign, Entry, Session, Setting } from '@/classes';
   import { getValidatedData } from '@/utils/dragdrop';
   import { notifyInfo } from '@/utils/notifications';
   import { localize } from '@/utils/game';
@@ -372,7 +372,7 @@
             }
           } else if (data.worldNode) {
             // It's a world
-            const world = await WBWorld.fromUuid(entryUuid);
+            const world = await Setting.fromUuid(entryUuid);
             if (world) {
               entryName = world.name;
             }

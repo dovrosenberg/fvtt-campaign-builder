@@ -490,13 +490,13 @@ export const useCampaignStore = defineStore('campaign', () => {
     return newSession;
   }
 
-  const _refreshRows = async (): Promise<void> => {
-    await _refreshPCRows();
-    await _refreshLoreRows();
-    await _refreshToDoRows();
-    await _refreshIdeaRows();
-    await _refreshPCRows();
-  }
+  // const _refreshRows = async (): Promise<void> => {
+  //   await _refreshPCRows();
+  //   await _refreshLoreRows();
+  //   await _refreshToDoRows();
+  //   await _refreshIdeaRows();
+  //   await _refreshPCRows();
+  // }
 
   const _refreshPCRows = async (): Promise<void> => {
     relatedPCRows.value = [];

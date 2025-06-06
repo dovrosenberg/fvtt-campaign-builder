@@ -80,7 +80,7 @@
 
   // types
   import { Topics, ValidTopic, WindowTabType, DirectoryWorld } from '@/types';
-  import { DirectoryTopicNode, Campaign, WBWorld, TopicFolder, } from '@/classes';
+  import { DirectoryTopicNode, Campaign, Setting, TopicFolder, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -184,7 +184,7 @@
           label: localize('contextMenus.worldFolder.createCampaign'), 
           onClick: async () => {
             if (worldId) {
-              const world = await WBWorld.fromUuid(worldId);
+              const world = await Setting.fromUuid(worldId);
 
               if (world) {
                 await Campaign.create(world);

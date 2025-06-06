@@ -4,7 +4,7 @@ export * from './Entry';
 export * from './DocumentWithFlags';
 export * from './Campaign';
 export * from './TopicFolder';
-export * from './WBWorld';
+export * from './Setting';
 export * from './Session';
 export * from './PC';
 export * from './Backend';

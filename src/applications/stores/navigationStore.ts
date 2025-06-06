@@ -14,7 +14,7 @@ import { scrollToActiveEntry } from '@/utils/directoryScroll';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, PC, WBWorld } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, PC, Setting } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -170,7 +170,7 @@ export const useNavigationStore = defineStore('navigation', () => {
         }
       } break;
       case WindowTabType.World: {
-        const world = contentId ? await WBWorld.fromUuid(contentId) : null;
+        const world = contentId ? await Setting.fromUuid(contentId) : null;
         if (!world) {
           badId = true;
         } else {

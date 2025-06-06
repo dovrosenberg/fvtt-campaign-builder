@@ -214,7 +214,7 @@
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
-  import { WBWorld, TopicFolder, Backend, Entry } from '@/classes';
+  import { Setting, TopicFolder, Backend, Entry } from '@/classes';
 
 
   ////////////////////////////////
@@ -295,7 +295,7 @@
       if (currentWorld.value) {    
         parentId.value = await currentEntry.value.getParentId();
 
-        validParents.value = validParentItems(currentWorld.value as WBWorld, currentEntry.value).map((e)=> ({
+        validParents.value = validParentItems(currentWorld.value as Setting, currentEntry.value).map((e)=> ({
           id: e.id,
           label: e.name || '',
         }));

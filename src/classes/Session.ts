@@ -3,7 +3,7 @@ import { toRaw } from 'vue';
 import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
-import { Campaign, WBWorld } from '@/classes';
+import { Campaign, Setting } from '@/classes';
 import { localize } from '@/utils/game';
 import { TagInfo, } from '@/types';
 
@@ -65,9 +65,9 @@ export class Session {
    * Gets the world associated with a session, loading into the campaign 
    * if needed.
    * 
-   * @returns {Promise<WBWorld>} A promise to the world associated with the campaign.
+   * @returns {Promise<Setting>} A promise to the world associated with the campaign.
    */
-  public async getWorld(): Promise<WBWorld> {
+  public async getWorld(): Promise<Setting> {
     if (!this.campaign)
       this.campaign = await this.loadCampaign();
 
@@ -676,7 +676,7 @@ export class Session {
       return;
 
     const id = this._sessionDoc.uuid;
-    const world = await this.getWorld() as WBWorld;
+    const world = await this.getWorld() as Setting;
 
     await world.executeUnlocked(async () => {
       await this._sessionDoc.delete();

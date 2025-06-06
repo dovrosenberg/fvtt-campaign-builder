@@ -1,5 +1,5 @@
 import { TabSummary,  Hierarchy, Topics, } from '@/types';
-import { TopicFolder, Entry, WBWorld, } from '@/classes';
+import { TopicFolder, Entry, Setting, } from '@/classes';
 
 /**
  * Display string used for entries that have no type assigned.
@@ -32,7 +32,7 @@ export const hasHierarchy = (topic: Topics): boolean => [Topics.Organization, To
  * @param entry - The entry to find valid children for
  * @returns Array of entry summaries that can be set as children of the given entry
  */
-export function validChildItems(world: WBWorld, entry: Entry): TabSummary[] {
+export function validChildItems(world: Setting, entry: Entry): TabSummary[] {
   if (!entry.uuid)
     return [];
 
@@ -55,7 +55,7 @@ export function validChildItems(world: WBWorld, entry: Entry): TabSummary[] {
  * @param entry - The entry to find valid parents for
  * @returns Array of objects with name and id properties representing valid parent entries
  */
-export function validParentItems(world: WBWorld, entry: Entry): {name: string; id: string}[] {
+export function validParentItems(world: Setting, entry: Entry): {name: string; id: string}[] {
   if (!entry.uuid)
     return [];
 
@@ -79,7 +79,7 @@ export function validParentItems(world: WBWorld, entry: Entry): {name: string; i
  * @param entry - The entry to get the parent ID for
  * @returns The UUID of the parent entry, or null if no parent exists
  */
-export function getParentId(world: WBWorld, entry: Entry): string | null {
+export function getParentId(world: Setting, entry: Entry): string | null {
   if (!hasHierarchy(entry.topic))
     return null;
 
@@ -114,7 +114,7 @@ const mapEntryToSummary = (entry: Entry): TabSummary => ({
  * @param deletedHierarchy - The hierarchy data of the deleted item before deletion
  * @returns A promise that resolves when cleanup is complete
  */
-export const cleanTrees = async function(world: WBWorld, topicFolder: TopicFolder, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
+export const cleanTrees = async function(world: Setting, topicFolder: TopicFolder, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
   const hierarchies = world.hierarchies;
 
   // Get the grandparent ID (if any)

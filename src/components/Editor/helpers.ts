@@ -22,7 +22,7 @@ import { localize } from '@/utils/game';
 
 // types
 import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES, EntryDoc, PCDoc, SessionDoc, WorldDoc, WorldFlagKey } from '@/documents';
-import { WBWorld, Entry, Campaign, Session, PC } from '@/classes';
+import { Setting, Entry, Campaign, Session, PC } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 import { WindowTabType } from '@/types';
 import { InternalClientDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs';
@@ -297,7 +297,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
 
     // now handle the folder types
     if (unknownItem?.getFlag(moduleId, WorldFlagKey.isWorld)) {
-      const world = new WBWorld(unknownItem as unknown as WorldDoc);
+      const world = new Setting(unknownItem as unknown as WorldDoc);
 
       // handle the ones we don't care about
       if (world.uuid !== worldId) {

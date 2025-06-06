@@ -721,35 +721,25 @@ export const useSessionStore = defineStore('session', () => {
       navigationStore.openEntry(parentId, { newTab: event.ctrlKey, activate: true });
   }
 
-  // when we click on a todo item that has a UUID, open it
-  async function onToDoClick (event: MouseEvent, uuid: string) {
-    // make sure it's an entry (vs. lore, etc)
-    const entry = await Entry.fromUuid(uuid);
 
-    if (!entry)
-      return;
-        
-    await navigationStore.openEntry(uuid, { newTab: event.ctrlKey, activate: true });
-  }
+  // const _refreshRows = async () => {
+  //   relatedLocationRows.value = [];
+  //   relatedItemRows.value = [];
+  //   relatedNPCRows.value = [];
+  //   relatedMonsterRows.value = [];
+  //   relatedVignetteRows.value = [];
+  //   relatedLoreRows.value = [];
 
-  const _refreshRows = async () => {
-    relatedLocationRows.value = [];
-    relatedItemRows.value = [];
-    relatedNPCRows.value = [];
-    relatedMonsterRows.value = [];
-    relatedVignetteRows.value = [];
-    relatedLoreRows.value = [];
+  //   if (!currentSession.value)
+  //     return;
 
-    if (!currentSession.value)
-      return;
-
-    await _refreshLocationRows();
-    await _refreshItemRows();
-    await _refreshNPCRows();
-    await _refreshMonsterRows();
-    await _refreshVignetteRows();
-    await _refreshLoreRows();
-  };
+  //   await _refreshLocationRows();
+  //   await _refreshItemRows();
+  //   await _refreshNPCRows();
+  //   await _refreshMonsterRows();
+  //   await _refreshVignetteRows();
+  //   await _refreshLoreRows();
+  // };
 
   const _refreshLocationRows = async () => {
     if (!currentSession.value)
