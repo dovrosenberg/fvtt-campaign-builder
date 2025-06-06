@@ -53,3 +53,6 @@ Details are [here](module-settings).
 
 ## Approach to managing a campaign
 This guide covers the "how" of using the Campaign Builder. For the "why" and "when" of campaign management, see our [workflow documentation](../guide/). 
+
+## Where's all this stored?
+For the curious, each Setting has its own folder in your compendia (inside a top-level folder called 'Campaign Builder').  Inside the Setting folder is a compendium for the Setting.  All of the module's data is stored in Journal Entries inside this compendium.  *Don't mess with it if you want everything to keep working.*

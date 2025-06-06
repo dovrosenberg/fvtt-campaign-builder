@@ -2,10 +2,10 @@
 title: Entry Description Tab
 prev: 
   text: 'Entry overview'
-  link: '/reference/content/entry'
+  link: '/reference/world-building/content/entry'
 next: 
   text: 'Entry relationship tabs'
-  link: '/reference/content/entry/relationships'
+  link: '/reference/world-building/content/entry/relationships'
 ---
 # Entry description tab
 ![Entry Window](/assets/images/entry-content.webp)

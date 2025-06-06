@@ -2,10 +2,10 @@
 title: Location Details
 prev: 
   text: 'Characters'
-  link: '/reference/content/character'
+  link: '/reference/world-building/content/character'
 next: 
   text: 'Organizations'
-  link: '/reference/content/organization'
+  link: '/reference/world-building/content/organization'
 ---
 # Location Details
 ![Entry Window](/assets/images/location-content.webp)
@@ -29,7 +29,7 @@ If you have selected an image for the location, you can right click on it and in
 ### Scenes {#scenes}
 ![Scenes Tab](/assets/images/scenes-tab.webp)
 
-On the Scene tab, you can associate your location with one or more Foundry scenes, allowing you to rapidly find the right scene during play.  Multiple scene connectoins allows you to, for example, have a day and night version of a map for a particular location easily accessible.  Since your key Locations  will be tied to the current [Session](/reference/content/session), you can access any of them with just a couple clicks mid-game.
+On the Scene tab, you can associate your location with one or more Foundry scenes, allowing you to rapidly find the right scene during play.  Multiple scene connectoins allows you to, for example, have a day and night version of a map for a particular location easily accessible.  Since your key Locations  will be tied to the current [Session](/reference/world-building/content/session), you can access any of them with just a couple clicks mid-game.
 
 > [!NOTE]
 > Deleting a scene in Foundry that is attached to a Location will automatically and safely remove it from the Location.

@@ -62,11 +62,11 @@ export default defineConfig({
       {
         text: 'Reference',
         items: [
-          { text: 'Advanced Features & Backend', link: '/reference/backend' },
-          { text: 'Navigation & Interface', link: '/reference/navigation' },
-          { text: 'Settings (World Building)', link: '/reference/settings' },
-          { text: 'Campaigns & Sessions', link: '/reference/campaigns-and-sessions' },
-          { text: 'Configuration', link: '/reference/configuration' }
+          { text: 'xNavigation & Interface', link: '/reference/navigation' },
+          { text: 'Settings (World Building)', link: '/reference/world-building' },
+          { text: 'xCampaigns (Playing)', link: '/reference/playing' },
+          { text: 'xAdvanced Features & Backend', link: '/reference/backend' },
+          { text: 'xConfiguration', link: '/reference/configuration' }
         ]
       }
     ],

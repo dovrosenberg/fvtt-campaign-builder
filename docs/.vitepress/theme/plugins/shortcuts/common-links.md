@@ -1,11 +1,11 @@
 [Advanced Features]: /reference/backend
 [Advanced Feature]: /reference/backend
-[Location]: /reference/content/location
-[Locations]: /reference/content/location
-[Organization]: /reference/content/organization
-[Organizations]: /reference/content/organization
-[Character]: /reference/content/character
-[Characters]: /reference/content/character
+[Location]: /reference/world-building/content/location
+[Locations]: /reference/world-building/content/location
+[Organization]: /reference/world-building/content/organization
+[Organizations]: /reference/world-building/content/organization
+[Character]: /reference/world-building/content/character
+[Characters]: /reference/world-building/content/character
 [Setting Directory]: /reference/navigation/sidebar/#setting-directory
 [Campaign Directory]: /reference/navigation/sidebar/#campaign-directory
 [Image]: /reference/navigation/images

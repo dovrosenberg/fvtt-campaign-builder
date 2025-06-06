@@ -1,13 +1,14 @@
 ---
-title: Campaign Details
+title: PC Details
+TODO: true
 prev: 
-  text: 'Organizations'
-  link: '/reference/content/organization'
+  text: 'Campaigns'
+  link: '/reference/world-building/content/campaign'
 next: 
-  text: 'PCs'
-  link: '/reference/content/pc'
+  text: 'Sessions'
+  link: '/reference/world-building/content/session'
 ---
-# Campaign Details
+# PC Details
 
 ![Campaign content](/assets/images/campaign-content.webp)
 
@@ -19,8 +20,8 @@ You can click the campaign's name to edit it.
 
 ## Tabs
 Campaigns have the following tabs where you can manage their details:
-* [Description](./description)
-* [PCs](./pcs)
-* [Lore](./lore)
-* [Ideas](./ideas)
-* [To-Dos](./todos)
+* [Description](description)
+* [PCs](pcs)
+* [Lore](lore)
+* [Ideas](ideas)
+* [To-Dos](todos)

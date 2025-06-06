@@ -5,7 +5,7 @@ prev:
   link: '/reference'
 next: 
   text: 'Entry description tab'
-  link: '/reference/content/entry/description'
+  link: '/reference/world-building/content/entry/description'
 ---
 # Entry Details
 ![Entry Window](/assets/images/entry-content.webp)
@@ -22,5 +22,5 @@ The Entry header has three main components:
 There are several tabs on the Entry details screen:
   - [Description tab](./description) - overview information about the Entry
   - [Relationship tabs](./relationships)
-  - Foundry document tabs: After the Entry relationship tabs, you'll find an [Actors tab](/reference/content/character#actors) when looking at a Character and a [Scenes tab](/reference/content/location#scenes) when looking at a Location.  
+  - Foundry document tabs: After the Entry relationship tabs, you'll find an [Actors tab](/reference/world-building/content/character#actors) when looking at a Character and a [Scenes tab](/reference/world-building/content/location#scenes) when looking at a Location.  
   - [Sessions tab](./sessions)
