@@ -72,7 +72,7 @@ export const registerDirectoryTopicTreeNodeTests = () => {
           } as unknown as TopicFolder;
 
           // Set the current world
-          CollapsibleNode.currentWorld = mockWorld;
+          CollapsibleNode.currentSetting = mockWorld;
 
           // Create a topic tree node
           topicTreeNode = new TestTopicTreeNode(
@@ -89,7 +89,7 @@ export const registerDirectoryTopicTreeNodeTests = () => {
 
         afterEach(() => {
           sinon.restore();
-          CollapsibleNode.currentWorld = null;
+          CollapsibleNode.currentSetting = null;
         });
 
         describe('constructor', () => {

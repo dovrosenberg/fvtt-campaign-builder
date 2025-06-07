@@ -84,7 +84,13 @@ export class Backend {
       return;
     }
 
-    const ideas = (await Backend.api.apiPollEmailTodoGet())?.data?.items;
+    let ideas: Awaited<ReturnType<typeof Backend.api.apiPollEmailTodoGet>>['data']['items'] | null = null;
+    try {
+      ideas = (await Backend.api.apiPollEmailTodoGet())?.data?.items || null;
+    } catch (error) {
+      ui.notifications?.error("Backend threw an error when polling for mail.");
+      return;
+    }
 
     if (ideas) {
       for (const idea of ideas) {

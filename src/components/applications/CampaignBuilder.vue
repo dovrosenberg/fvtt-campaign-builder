@@ -79,7 +79,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, rootFolder, } = storeToRefs(mainStore);
+  const { currentSetting, rootFolder, } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -150,21 +150,21 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentWorld, async (newWorld: Setting | null, oldWorld: Setting | null) => {
+  watch(currentSetting, async (newWorld: Setting | null, oldWorld: Setting | null) => {
     // Update the window title when the world changes
     updateWindowTitle(newWorld?.name || null);
     
-    if (currentWorld.value && currentWorld.value.topicIds && newWorld?.uuid!==oldWorld?.uuid) {
+    if (currentSetting.value && currentSetting.value.topicIds && newWorld?.uuid!==oldWorld?.uuid) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const worldId = currentWorld.value.uuid;
+      const worldId = currentSetting.value.uuid;
 
-      const worldCompendium = currentWorld.value.compendium || null;
+      const worldCompendium = currentSetting.value.compendium || null;
 
       if (!worldCompendium)
-        throw new Error(`Could not find compendium for world ${worldId} in CampaignBuilder.currentWorld watch`);
+        throw new Error(`Could not find compendium for world ${worldId} in CampaignBuilder.currentSetting watch`);
 
-      const topicIds = currentWorld.value.topicIds;
-      const campaignNames = currentWorld.value.campaignNames;
+      const topicIds = currentSetting.value.topicIds;
+      const campaignNames = currentSetting.value.campaignNames;
       const topics = [ Topics.Character, Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
@@ -326,7 +326,7 @@
       setTimeout(() => {
         createTitleBarComponents();
         // Initialize the window title with the current world name
-        updateWindowTitle(currentWorld.value?.name || null);
+        updateWindowTitle(currentSetting.value?.name || null);
       }, 100);
     } else {
       throw new Error('Failed to load or create folder structure');

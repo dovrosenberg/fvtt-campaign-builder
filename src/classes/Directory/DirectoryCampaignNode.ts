@@ -25,7 +25,7 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
    */
   override async _loadNodeList(ids: string[], updateIds: string[] ): Promise<void> {
     // make sure we've loaded what we need
-    if (!CollapsibleNode._currentWorld) {
+    if (!CollapsibleNode._currentSetting) {
       CollapsibleNode._loadedNodes = {};
       return;
     }

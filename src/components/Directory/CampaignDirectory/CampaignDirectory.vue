@@ -2,7 +2,7 @@
   <!-- these are the campaigns -->
   <ol class="fcb-campaign-list">
     <li 
-      v-if="currentWorld" 
+      v-if="currentSetting" 
       class="fcb-world-folder folder flexcol" 
     >
       <header 
@@ -11,7 +11,7 @@
       >
         <div class="noborder">
           <i class="fas fa-folder-open fa-fw"></i>
-          {{ currentWorld.name }} Campaigns
+          {{ currentSetting.name }} Campaigns
         </div>
       </header>
 
@@ -55,7 +55,7 @@
   // store
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentWorld, isInPlayMode } = storeToRefs(mainStore);
+  const { currentSetting, isInPlayMode } = storeToRefs(mainStore);
   const { currentCampaignTree } = campaignDirectoryStore;
   
   ////////////////////////////////

@@ -39,7 +39,6 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentCampaign?.description || ''"
-              :has-button="true"
               :style="{ 'height': '240px', 'margin-bottom': '6px'}"
               @editor-saved="onDescriptionEditorSaved"
             />
@@ -53,7 +52,6 @@
           <div class="flexrow form-group">
             <Editor 
               :initial-content="currentCampaign?.houseRules || ''"
-              :has-button="true"
               :style="{ 'height': '240px', 'margin-bottom': '6px'}"
               @editor-saved="onHouseRulesEditorSaved"
             />
@@ -122,7 +120,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentContentTab, currentWorld } = storeToRefs(mainStore);
+  const { currentCampaign, currentContentTab, currentSetting } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -162,8 +160,8 @@
         await currentCampaign.value.save();
 
         // need to make sure the mapping is right, because that's where refreshCampaignDirectoryTree pulls from
-        if (currentWorld.value)
-          currentWorld.value.updateCampaignName(currentCampaign.value.uuid, newValue);
+        if (currentSetting.value)
+          currentSetting.value.updateCampaignName(currentCampaign.value.uuid, newValue);
 
         await campaignDirectoryStore.refreshCampaignDirectoryTree([currentCampaign.value.uuid]);
         await navigationStore.propagateNameChange(currentCampaign.value.uuid, newValue);

@@ -6,14 +6,14 @@ export enum UserFlagKey {
   tabs = 'tabs',  // the open tabs
   bookmarks = 'bookmarks',  // stored bookmarks
   recentlyViewed = 'recentlyViewed',    // recent list
-  currentWorld = 'currentWorld',   // the currently open world
+  currentSetting = 'currentSetting',   // the currently open world
 }
 
 type UserFlagType<K extends UserFlagKey> =
     K extends UserFlagKey.tabs ? WindowTab[] :
     K extends UserFlagKey.bookmarks ? Bookmark[] :
     K extends UserFlagKey.recentlyViewed ? TabHeader[] :
-    K extends UserFlagKey.currentWorld ? string :
+    K extends UserFlagKey.currentSetting ? string :
     never;  
 
 export abstract class UserFlags {
@@ -36,7 +36,7 @@ export abstract class UserFlags {
         t.history,
         t.historyIdx
       )) as unknown as UserFlagType<T>;
-    } else if (flag === UserFlagKey.currentWorld) {
+    } else if (flag === UserFlagKey.currentSetting) {
       return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) ||  '') as UserFlagType<T>;
     } else {
       return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) ||  []) as UserFlagType<T>;

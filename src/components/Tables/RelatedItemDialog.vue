@@ -124,7 +124,7 @@
   const relationshipStore = useRelationshipStore();
   const mainStore = useMainStore();
   const sessionStore = useSessionStore();
-  const { currentEntry, currentWorld, currentEntryTopic, currentSession } = storeToRefs(mainStore);
+  const { currentEntry, currentSetting, currentEntryTopic, currentSession } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -321,13 +321,13 @@
     show.value = newValue; 
 
     if (newValue) {
-      if (!currentWorld.value)
+      if (!currentSetting.value)
         return;
 
       if (!currentSession.value && !(currentEntry.value && currentEntryTopic.value))
         throw new Error('Trying to show RelatedItemDialog without a current entry/session');
       
-        selectItems.value = (await Entry.getEntriesForTopic(currentWorld.value.topicFolders[props.topic] as TopicFolder, currentEntry.value || undefined)).map(mapEntryToOption);
+        selectItems.value = (await Entry.getEntriesForTopic(currentSetting.value.topicFolders[props.topic] as TopicFolder, currentEntry.value || undefined)).map(mapEntryToOption);
       
       if (isEitherAddMode.value) {
 

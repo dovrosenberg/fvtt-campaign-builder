@@ -46,7 +46,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld } = storeToRefs(mainStore);
+  const { currentSetting } = storeToRefs(mainStore);
 
 
   ////////////////////////////////
@@ -83,7 +83,7 @@
   };
 
   const onOptionAddToWorld = async (value: string) => {
-    if (!currentWorld.value) {
+    if (!currentSetting.value) {
       return;
     }
 

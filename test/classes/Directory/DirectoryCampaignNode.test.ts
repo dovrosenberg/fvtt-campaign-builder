@@ -53,7 +53,7 @@ export const registerDirectoryCampaignNodeTests = () => {
           } as unknown as DirectorySessionNode);
 
           // Set the current world
-          CollapsibleNode.currentWorld = mockWorld;
+          CollapsibleNode.currentSetting = mockWorld;
 
           // Create a campaign node
           campaignNode = new DirectoryCampaignNode(
@@ -67,7 +67,7 @@ export const registerDirectoryCampaignNodeTests = () => {
 
         afterEach(() => {
           sinon.restore();
-          CollapsibleNode.currentWorld = null;
+          CollapsibleNode.currentSetting = null;
         });
 
         describe('constructor', () => {
@@ -85,7 +85,7 @@ export const registerDirectoryCampaignNodeTests = () => {
         describe('_loadNodeList', () => {
           it('should do nothing if no current world', async () => {
             // Set current world to null
-            CollapsibleNode.currentWorld = null;
+            CollapsibleNode.currentSetting = null;
             
             // Call _loadNodeList
             await campaignNode._loadNodeList(['session-uuid'], []);

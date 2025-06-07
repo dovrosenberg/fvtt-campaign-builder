@@ -285,7 +285,7 @@ class SearchService {
       uuid: item.uuid,
       name: item.name,
       isEntry: isEntry,
-      tags: item.tags.map(t=>t.value).join(', '),
+      tags: !item.tags ? '' : item.tags.map(t=>t.value).join(', '),
       description: description,
       topic: topic,
       species: species,

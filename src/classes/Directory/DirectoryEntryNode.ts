@@ -21,11 +21,11 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
 
   // converts the entry to a DirectoryEntryNode for cleaner interface
   static fromEntry = (entry: Entry): DirectoryEntryNode => {
-    if (!CollapsibleNode._currentWorld)
-      throw new Error('No currentWorld in DirectoryEntryNode.fromEntry()');
+    if (!CollapsibleNode._currentSetting)
+      throw new Error('No currentSetting in DirectoryEntryNode.fromEntry()');
 
-    const hierarchy = CollapsibleNode._currentWorld.getEntryHierarchy(entry.uuid);
-    const expandedIds = CollapsibleNode._currentWorld.expandedIds;
+    const hierarchy = CollapsibleNode._currentSetting.getEntryHierarchy(entry.uuid);
+    const expandedIds = CollapsibleNode._currentSetting.expandedIds;
     const expanded = (expandedIds && expandedIds[entry.uuid]) || false;
 
     if (!entry.topicFolder)

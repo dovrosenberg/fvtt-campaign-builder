@@ -24,7 +24,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentWorld, } = storeToRefs(mainStore);
+  const { currentSetting, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -528,12 +528,12 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
 
   const loadTabs = async function () {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
-    tabs.value = UserFlags.get(UserFlagKey.tabs, currentWorld.value.uuid) || [];
-    bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, currentWorld.value.uuid) || [];
-    recent.value = UserFlags.get(UserFlagKey.recentlyViewed, currentWorld.value.uuid) || [];
+    tabs.value = UserFlags.get(UserFlagKey.tabs, currentSetting.value.uuid) || [];
+    bookmarks.value = UserFlags.get(UserFlagKey.bookmarks, currentSetting.value.uuid) || [];
+    recent.value = UserFlags.get(UserFlagKey.recentlyViewed, currentSetting.value.uuid) || [];
 
     if (!tabs.value.length) {
       // if there are no tabs, add one
@@ -577,24 +577,24 @@ export const useNavigationStore = defineStore('navigation', () => {
   // internal functions
   // save tabs to database
   const _saveTabs = async function () {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
-    await UserFlags.set(UserFlagKey.tabs, tabs.value, currentWorld.value.uuid);
+    await UserFlags.set(UserFlagKey.tabs, tabs.value, currentSetting.value.uuid);
   };
 
   const _saveBookmarks = async function () {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
-    await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentWorld.value.uuid);
+    await UserFlags.set(UserFlagKey.bookmarks, bookmarks.value, currentSetting.value.uuid);
   };
 
   const _saveRecent = async function () {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
-    await UserFlags.set(UserFlagKey.recentlyViewed, recent.value, currentWorld.value.uuid);
+    await UserFlags.set(UserFlagKey.recentlyViewed, recent.value, currentSetting.value.uuid);
   };
 
   // add a new entity to the recent list

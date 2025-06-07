@@ -27,7 +27,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { rootFolder, currentWorld, currentEntry, refreshCurrentEntry, } = storeToRefs(mainStore); 
+  const { rootFolder, currentSetting, currentEntry, refreshCurrentEntry, } = storeToRefs(mainStore); 
   
   ///////////////////////////////
   // internal state
@@ -80,11 +80,11 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   const updateEntryType = async (entry: Entry, oldType: string): Promise<void> => {
     const newType = entry.type;
 
-    if (oldType===newType || !currentWorld.value)
+    if (oldType===newType || !currentSetting.value)
       return;
 
     // remove from the old one
-    const currentWorldNode = currentWorldTree.value.find((w)=>w.id===currentWorld.value?.uuid) || null;
+    const currentWorldNode = currentWorldTree.value.find((w)=>w.id===currentSetting.value?.uuid) || null;
     const topicNode = currentWorldNode?.topicNodes.find((p)=>p.topicFolder.topic===entry.topic) || null;
     const oldTypeNode = topicNode?.loadedTypes.find((t) => t.name===oldType);
     if (!currentWorldNode || !topicNode) 
@@ -112,14 +112,14 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     newTypeNode.children.push(entry.uuid);
 
     // update the hierarchy (even for entries without hierarchy, we still need it for filtering)
-    const hierarchy = currentWorld.value.getEntryHierarchy(entry.uuid);
+    const hierarchy = currentSetting.value.getEntryHierarchy(entry.uuid);
     if(!hierarchy)
       throw new Error(`Could not find hierarchy for ${entry.uuid} in settingDirectoryStore.updateEntryType()`);
 
     if (hierarchy.type !== newType) {
       hierarchy.type = newType;
-      currentWorld.value.setEntryHierarchy(entry.uuid, hierarchy);
-      await currentWorld.value.save();
+      currentSetting.value.setEntryHierarchy(entry.uuid, hierarchy);
+      await currentSetting.value.save();
     }
 
     await refreshSettingDirectoryTree([entry.uuid, newTypeNode.id]);
@@ -133,10 +133,10 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
 
   const collapseAll = async(): Promise<void> => {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
-    await currentWorld.value.collapseSettingDirectory();
+    await currentSetting.value.collapseSettingDirectory();
 
     await refreshSettingDirectoryTree();
   };
@@ -145,16 +145,16 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // pass a null parent to make it a top node
   // returns whether it was successful
   const setNodeParent = async function(topicFolder: TopicFolder, childId: string, parentId: string | null): Promise<boolean> {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return false;
 
     // we're going to use this to simplify syntax below
     const saveHierarchyToEntryFromNode = async (entry: Entry, node: DirectoryEntryNode) : Promise<void> => {
-      if (!currentWorld.value)
+      if (!currentSetting.value)
         return;
 
-      currentWorld.value.setEntryHierarchy(entry.uuid, node.convertToHierarchy());
-      await currentWorld.value.save();
+      currentSetting.value.setEntryHierarchy(entry.uuid, node.convertToHierarchy());
+      await currentSetting.value.save();
     };
 
     // topic has to have hierarchy
@@ -225,7 +225,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     // then, update all of the child's descendants ancestor fields with that set of changes
     if (ancestorsToAdd || ancestorsToRemove) {
-      const hierarchies = currentWorld.value.hierarchies;
+      const hierarchies = currentSetting.value.hierarchies;
 
       // we switch to entries because of all the data retrieval
       const doUpdateOnDescendants = async (entry: Entry): Promise<void> => {
@@ -273,8 +273,8 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     }
 
     // if we have a valid parent - make sure it's expanded
-    if (parentId && currentWorld.value) {
-      await currentWorld.value.expandNode(parentId);
+    if (parentId && currentSetting.value) {
+      await currentSetting.value.expandNode(parentId);
     }
 
     await refreshSettingDirectoryTree([parentId, oldParentId, childId].filter((id)=>id!==null));
@@ -284,7 +284,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
 
   const createEntry = async (topicFolder: TopicFolder, options: CreateEntryOptions): Promise<Entry | null> => {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return null;
 
     const entry = await Entry.create(topicFolder, options);
@@ -293,7 +293,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       const uuid = entry.uuid;
 
       // we always add a hierarchy, because we use it for filtering
-      currentWorld.value.setEntryHierarchy(uuid, 
+      currentSetting.value.setEntryHierarchy(uuid, 
         {
           parentId: '',
           ancestors: [],
@@ -301,7 +301,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
           type: '',
         } as Hierarchy
       );
-      await currentWorld.value.save();
+      await currentSetting.value.save();
 
       // set parent if specified
       if (options.parentId==undefined) {
@@ -363,7 +363,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
   // delete an entry from the world
   const deleteEntry = async (topic: ValidTopic, entryId: string) => {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
     // confirm
@@ -371,9 +371,9 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       return;
 
     // save the parent
-    const parentId = currentWorld.value.getEntryHierarchy(entryId)?.parentId || null;
+    const parentId = currentSetting.value.getEntryHierarchy(entryId)?.parentId || null;
 
-    const entry = currentWorld.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId)[0];
+    const entry = currentSetting.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId)[0];
     await entry.delete();
 
     // update tabs/bookmarks
@@ -389,7 +389,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshSettingDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current world and journals loaded
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
     isTopicTreeRefreshing.value = true;
@@ -403,7 +403,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       if (!world.folder)
         throw new Error('World without folder in refreshSettingDirectoryTree()');
 
-      if (world.folder.uuid===currentWorld.value?.uuid) {
+      if (world.folder.uuid===currentSetting.value?.uuid) {
         currentWorldFound = true;
       }
 
@@ -415,15 +415,15 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     }) || [];
 
     // find the record for the current world and set the entries for each topic
-    const currentWorldBlock = tree.find((w)=>w.id===currentWorld.value?.uuid);
-    if (currentWorldBlock && currentWorldFound && currentWorld.value) {
+    const currentWorldBlock = tree.find((w)=>w.id===currentSetting.value?.uuid);
+    if (currentWorldBlock && currentWorldFound && currentSetting.value) {
       // make sure the folders have been loaded
-      const topicFolders = await currentWorld.value.loadTopics();
-      const expandedNodes = currentWorld.value.expandedIds;
+      const topicFolders = await currentSetting.value.loadTopics();
+      const expandedNodes = currentSetting.value.expandedIds;
 
       const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
       currentWorldBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
-        const id = `${(currentWorld.value as Setting).uuid}.topic.${topic}`;
+        const id = `${(currentSetting.value as Setting).uuid}.topic.${topic}`;
         const topicObj = topicFolders[topic] as TopicFolder;
 
         return new DirectoryTopicNode(
@@ -461,7 +461,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   };
 
   const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string): MenuItem[] => {
-    if (!topic || !currentWorld.value)
+    if (!topic || !currentSetting.value)
       throw new Error('Invalid topic in getTopicNodeContextMenuItems()');
 
     return [{ 
@@ -490,7 +490,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   }
 
   const getGroupedTypeNodeContextMenuItems = (topic: ValidTopic, type: string): MenuItem[] => {
-    if (!topic || !type ||!currentWorld.value)
+    if (!topic || !type ||!currentSetting.value)
       throw new Error('Invalid topic in getGroupedTypeNodeContextMenuItems()');
 
     return [{ 
@@ -499,7 +499,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       label: `${localize('contextMenus.typeFolder.create')} ${type}`, 
       onClick: async () => {
         // get the right topic
-        if (!currentWorld.value)
+        if (!currentSetting.value)
         return;
 
         const entry = await FCBDialog.createEntryDialog(topic, { type: type } );
@@ -518,7 +518,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
       onClick: async () => {
         // get the right folder
-        const worldFolder = game.folders?.find((f)=>f.uuid===currentWorld.value?.uuid) as Folder;
+        const worldFolder = game.folders?.find((f)=>f.uuid===currentSetting.value?.uuid) as Folder;
 
         if (!worldFolder || !topicFolder)
           throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
@@ -543,7 +543,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   //    all of their types (we also ways leave the packs)
   // it's an object keyed by topic with a list of all the ids to include
   const updateFilterNodes = (): void => {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
     const retval: Record<ValidTopic, string[]> = {
@@ -552,13 +552,13 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       [Topics.Organization]: [],
     };
 
-    const hierarchies = currentWorld.value.hierarchies;
+    const hierarchies = currentSetting.value.hierarchies;
 
     const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
     const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
-      const topicObj = currentWorld.value.topicFolders[topics[i]];
+      const topicObj = currentSetting.value.topicFolders[topics[i]];
 
       // filter on name and type
       let matchedEntries = topicObj.filterEntries((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )))
@@ -589,7 +589,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // when the root folder changes, load the top level info (worlds and packs)
   // when the world changes, clean out the cache of loaded items
   //@ts-ignore - Vue can't handle reactive classes
-  watch(currentWorld, async (newWorld: Setting | null): Promise<void> => {
+  watch(currentSetting, async (newWorld: Setting | null): Promise<void> => {
     if (!newWorld) {
       return;
     }

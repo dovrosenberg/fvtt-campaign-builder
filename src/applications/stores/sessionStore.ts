@@ -89,7 +89,7 @@ export const useSessionStore = defineStore('session', () => {
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const campaignStore = useCampaignStore();
-  const { currentWorld, currentContentTab, currentSession, } = storeToRefs(mainStore);
+  const { currentSetting, currentContentTab, currentSession, } = storeToRefs(mainStore);
   const { currentPlayedSession } = storeToRefs(campaignStore);
 
   ///////////////////////////////
@@ -746,7 +746,7 @@ export const useSessionStore = defineStore('session', () => {
       return;
 
     const retval = [] as SessionLocationDetails[];
-    const topicFolder = currentWorld.value?.topicFolders[Topics.Location];
+    const topicFolder = currentSetting.value?.topicFolders[Topics.Location];
 
     if (!topicFolder)
       throw new Error('Invalid topic folder in sessionStore._refreshRows()');
@@ -783,7 +783,7 @@ export const useSessionStore = defineStore('session', () => {
       return;
 
     const retval = [] as SessionNPCDetails[];
-    const topicFolder = currentWorld.value?.topicFolders[Topics.Character];
+    const topicFolder = currentSetting.value?.topicFolders[Topics.Character];
 
     if (!topicFolder)
       throw new Error('Invalid topic folder in sessionStore._refreshRows()');

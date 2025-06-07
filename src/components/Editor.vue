@@ -7,7 +7,7 @@
   >
     <!-- activation button positioned outside the scrolling area -->
     <a
-      v-if="props.hasButton && props.editable"
+      v-if="!props.editOnlyMode && props.editable"
       ref="buttonRef"
       class="editor-edit"
       :style="`display: ${ buttonDisplay }`"
@@ -46,7 +46,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { enrichFwbHTML } from './Editor/helpers';
+  import { enrichFcbHTML } from './Editor/helpers';
   import { useMainStore } from '@/applications/stores';
   import { Campaign, Entry, Session, Setting } from '@/classes';
   import { getValidatedData } from '@/utils/dragdrop';
@@ -62,6 +62,7 @@
   // local components
 
   // types
+  const TextEditor = foundry.applications.ux.TextEditor;
 
   // type EditorOptions = {
   //   document: Document<any>,
@@ -75,6 +76,11 @@
   ////////////////////////////////
   // props
   const props = defineProps({
+    editOnlyMode: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     initialContent: {
       type: String,
       required: false,
@@ -84,11 +90,6 @@
       type: String,
       required: false,
       default: '',
-    },
-    hasButton: {
-      type: Boolean,
-      required: false,
-      default: false,
     },
     editable: {
       type: Boolean,
@@ -138,7 +139,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentWorld } = storeToRefs(mainStore);
+  const { currentSetting } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -171,10 +172,6 @@
 
   const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight + 'px'}` : ''));
   const innerStyle = computed((): string => (props.height ? `height: ${props.height + 'px'}` : ''));
-
-  const editOnlyMode = computed((): boolean => {
-    return props.editable && !props.hasButton
-  });
 
   ////////////////////////////////
   // methods
@@ -227,11 +224,11 @@
     return {
       menu: ProseMirror.ProseMirrorMenu.build(ProseMirror.defaultSchema, {
         // In edit-only mode, we want to keep the editor open after saving
-        destroyOnSave: !editOnlyMode.value,  // Controls whether the save button or save & close button is shown
-        onSave: () => saveEditor({ remove: !editOnlyMode.value })
+        destroyOnSave: !props.editOnlyMode,  // Controls whether the save button or save & close button is shown
+        onSave: () => saveEditor({ remove: !props.editOnlyMode })
       }),
       keyMaps: ProseMirror.ProseMirrorKeyMaps.build(ProseMirror.defaultSchema, {
-        onSave: () => saveEditor({ remove: !editOnlyMode.value })
+        onSave: () => saveEditor({ remove: !props.editOnlyMode })
       })
     };
   };
@@ -249,9 +246,9 @@
     const isDirty = (lastSavedContent.value !== ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content));
 
     // Apply entity linking if enabled and content is dirty
-    if (isDirty && props.enableEntityLinking && currentWorld.value) {
+    if (isDirty && props.enableEntityLinking && currentSetting.value) {
       try {
-        content = await replaceEntityReferences(content, currentWorld.value, {
+        content = await replaceEntityReferences(content, currentSetting.value, {
           currentEntityUuid: props.currentEntityUuid
         });
       } catch (error) {
@@ -272,7 +269,7 @@
     }
 
     // For edit-only mode (like in SessionNotes), don't destroy the editor
-    if (remove && !editOnlyMode.value) {
+    if (remove && !props.editOnlyMode) {
       // this also blows up the DOM... don't think we actually need it
       toRaw(editor.value)?.destroy();  
       editor.value = null;
@@ -409,10 +406,10 @@
   ////////////////////////////////
   // watchers
   watch(() => props.initialContent, async () =>{
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
       
-    enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
+    enrichedInitialContent.value = !props.editOnlyMode ? await enrichFcbHTML(currentSetting.value.uuid, props.initialContent || '') : props.initialContent || '';
 
     // Initialize UUIDs for tracking if enabled
     if (props.enableRelatedEntriesTracking) {
@@ -420,7 +417,8 @@
     }
 
     // if edit-only and no editor exists yet, activate it
-    if (editOnlyMode.value && !editor.value) {
+    if (props.editOnlyMode && !editor.value) {
+      await nextTick();
       await activateEditor();
     }
     // If editor is already active, update its content
@@ -443,7 +441,7 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
     // we create a random ID so we can use multiple instances
@@ -455,16 +453,17 @@
 
     editor.value = null;
 
-    // show the pretty text
-    enrichedInitialContent.value = await enrichFwbHTML(currentWorld.value.uuid, props.initialContent || '');
+    // show the pretty text - but only if we have a button... otherwise we're in permananent edit mode and shouldn't be enriching the text
+    enrichedInitialContent.value = !props.editOnlyMode ? await enrichFcbHTML(currentSetting.value.uuid, props.initialContent || '') : props.initialContent || '';
 
     // Initialize UUIDs for tracking if enabled
     if (props.enableRelatedEntriesTracking) {
       initialUUIDs.value = extractUUIDs(props.initialContent || '');
     }
 
-    if (!props.hasButton) {
-      void activateEditor();
+    if (props.editOnlyMode) {
+      await nextTick();
+      await activateEditor();
     }
   });
 
@@ -509,6 +508,21 @@
       background: var(--fcb-dark-overlay);
       color: var(--color-dark-2);
 
+      .editor {
+        overflow: visible;
+        height: 100%;
+        width: 100%;
+        min-height: 100%;
+        position: relative;
+
+        .editor-content {
+          overflow-y: visible;
+          height: unset;
+          min-height: calc(100% - 8px);
+          padding: 2px;
+        }
+      }
+
       .theme-dark & {
         background: var(--fcb-light-overlay);
         color: var(--color-light-2);
@@ -537,6 +551,10 @@
 
           .editor-content {
             padding: 0 8px 0 3px;
+
+            &:focus-visible {
+              outline: none;  // override the default focus outline
+            }
           }
         }
       }

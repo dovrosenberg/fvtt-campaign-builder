@@ -54,7 +54,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
-  const { currentEntry, currentContentTab, currentDocumentType, currentWorld, } = storeToRefs(mainStore);
+  const { currentEntry, currentContentTab, currentDocumentType, currentSetting, } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
@@ -440,13 +440,13 @@ export const useRelationshipStore = defineStore('relationship', () => {
   // world - and refresh it whenever a link is added/removed on the session side.  But for now, this 
   // seems to be fine.
   const _refreshSessionReferences = async () => {
-    if (!currentEntry.value || !currentWorld.value) {
+    if (!currentEntry.value || !currentSetting.value) {
       sessionReferences.value = [];
       return;
     }
 
     const references: SessionReference[] = [];
-    const campaigns = Object.values(currentWorld.value.campaigns);
+    const campaigns = Object.values(currentSetting.value.campaigns);
 
     // Go through all campaigns in the world
     for (const campaign of campaigns) {

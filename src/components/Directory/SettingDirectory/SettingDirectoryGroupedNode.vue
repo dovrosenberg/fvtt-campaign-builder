@@ -58,7 +58,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const settingDirectoryStore = useSettingDirectoryStore();
-  const { currentEntry, currentWorld } = storeToRefs(mainStore);
+  const { currentEntry, currentSetting } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(settingDirectoryStore);
 
   ////////////////////////////////
@@ -82,7 +82,7 @@
   const onDragStart = (event: DragEvent): void => {
     event.stopPropagation();
     
-    if (!currentWorld.value) { 
+    if (!currentSetting.value) { 
       event.preventDefault();
       return;
     }

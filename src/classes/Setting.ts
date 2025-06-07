@@ -407,7 +407,7 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
 
         // set as the current world
         if (makeCurrent) {
-          await UserFlags.set(UserFlagKey.currentWorld, newWorld.uuid);
+          await UserFlags.set(UserFlagKey.currentSetting, newWorld.uuid);
         }
 
         await newWorld.validate();

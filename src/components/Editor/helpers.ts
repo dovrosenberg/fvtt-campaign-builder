@@ -24,9 +24,11 @@ import { localize } from '@/utils/game';
 import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES, EntryDoc, PCDoc, SessionDoc, WorldDoc, WorldFlagKey } from '@/documents';
 import { Setting, Entry, Campaign, Session, PC } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
-import { WindowTabType } from '@/types';
+import { ValidTopic, WindowTabType } from '@/types';
 import { InternalClientDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs';
 import { moduleId } from '@/settings';
+
+const TextEditor = foundry.applications.ux.TextEditor;
 
 /**
  * Configuration object for the custom enricher that gets registered with Foundry's TextEditor system.
@@ -83,16 +85,16 @@ export const setupEnricher = (): void => {
  * @returns Promise resolving to enriched HTML with clickable content links
  * 
  * @example
- * const enriched = await enrichFwbHTML(world.uuid, "See @UUID[Entry.abc123]{this character}");
+ * const enriched = await enrichFcbHTML(setting.uuid, "See @UUID[Entry.abc123]{this character}");
  * // Returns HTML with a clickable link that opens in the campaign builder
  * 
  * @example
- * const enriched = await enrichFwbHTML(null, "Some text");
+ * const enriched = await enrichFcbHTML(null, "Some text");
  * // Returns original text unchanged when no worldId provided
  */
-export const enrichFwbHTML = async(worldId: string | null, text: string): Promise<string> => {
+export const enrichFcbHTML = async(settingId: string | null, text: string): Promise<string> => {
   // have to have a worldId
-  if (!worldId)
+  if (!settingId)
     return text;
 
   CONFIG.TextEditor.enrichers.push(enricherConfig);
@@ -101,7 +103,7 @@ export const enrichFwbHTML = async(worldId: string | null, text: string): Promis
     secrets: true,    //this.document.isOwner,
     documents: false,
     // async: true,
-    worldId: worldId,
+    settingId: settingId,
   });    
 
   CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.filter((f): boolean => (f!=enricherConfig && f!==undefined));
@@ -142,7 +144,7 @@ const brokenAnchor = (data: LinkData, name = 'Cross-Setting links are not suppor
   data.name = name;
   data.classes.push('broken');
 
-  return TextEditor.createAnchor(data);
+  return  TextEditor.createAnchor(data);
 }
 
 /**
@@ -220,9 +222,9 @@ const goodAnchor = <T extends InternalClientDocument>(doc: T, linkType: WindowTa
  * 
  * @see https://foundryvtt.com/api/v11/classes/client.TextEditor.html#_createContentLink
  */
-const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worldId?: string}): Promise<HTMLElement | null> => {
+const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {settingId?: string}): Promise<HTMLElement | null> => {
   const [type, target, hash, name] = match.slice(1, 5);
-    const { worldId } = options || { worldId: undefined };
+  const { settingId } = options || { settingId: undefined };
 
   // Prepare replacement data
   const data = {
@@ -247,7 +249,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
   //    I don't think you should be referencing across worlds (and we don't make that easy to do, in any case))
   if (unknownItem && !broken) {
     // if we're not in a world builder app, just do the default
-    if (!worldId)
+    if (!settingId)
       return unknownItem.toAnchor({ name: data.name, dataset: { hash } });
 
     switch (unknownItem.type) {
@@ -258,7 +260,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
           const world = await entry.getWorld();
 
           // handle the ones we don't care about
-          if (world.uuid !== worldId) {
+          if (world.uuid !== settingId) {
             // we're in the wrong world
             return brokenAnchor(data);
           } else {  // this is an fcb item for this world
@@ -274,7 +276,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
         const world = await pc.getWorld();
   
         // handle the ones we don't care about
-        if (world.uuid !== worldId) {
+        if (world.uuid !== settingId) {
           return brokenAnchor(data);
         } else {  // this is an fcb item for this world
           return goodAnchor(unknownItem, WindowTabType.PC, hash, data.name || pc.name, `fas ${getTabTypeIcon(WindowTabType.PC)}`); 
@@ -287,7 +289,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
         const world = await session.getWorld();
   
         // handle the ones we don't care about
-        if (world.uuid !== worldId) {
+        if (world.uuid !== settingId) {
           return brokenAnchor(data);
         } else {  // this is an fcb item for this world
           return goodAnchor(unknownItem, WindowTabType.Session, hash, data.name || session.name, `fas ${getTabTypeIcon(WindowTabType.Session)}`); 
@@ -300,7 +302,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
       const world = new Setting(unknownItem as unknown as WorldDoc);
 
       // handle the ones we don't care about
-      if (world.uuid !== worldId) {
+      if (world.uuid !== settingId) {
         return brokenAnchor(data);
       } else {  // this is an fcb item for this world
         return goodAnchor(unknownItem, WindowTabType.World, hash, data.name || world.name, `fas ${getTabTypeIcon(WindowTabType.World)}`); 
@@ -310,7 +312,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {worl
       const world = await campaign.getWorld();
 
       // handle the ones we don't care about
-      if (world.uuid !== worldId) {
+      if (world.uuid !== settingId) {
         return brokenAnchor(data);
       } else {  // this is an fcb item for this world
         return goodAnchor(unknownItem, WindowTabType.Campaign, hash, data.name || campaign.name, `fas ${getTabTypeIcon(WindowTabType.Campaign)}`); 

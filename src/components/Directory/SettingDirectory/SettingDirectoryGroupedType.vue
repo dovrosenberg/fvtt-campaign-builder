@@ -92,7 +92,7 @@
   const settingDirectoryStore = useSettingDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, currentEntry } = storeToRefs(mainStore);
+  const { currentSetting, currentEntry } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(settingDirectoryStore);
   
   ////////////////////////////////
@@ -127,7 +127,7 @@
   const onDrop = async (event: DragEvent) => {
     event.preventDefault();  
 
-    if (!currentWorld.value)
+    if (!currentSetting.value)
         return;
 
     // parse the data 
@@ -152,7 +152,7 @@
       return;
 
     // set the new type
-    const entry = await Entry.fromUuid(data.id, currentWorld.value.topicFolders[topic]);
+    const entry = await Entry.fromUuid(data.id, currentSetting.value.topicFolders[topic]);
     if (entry) {
       const oldType = entry.type;
       entry.type = currentType.value.name;

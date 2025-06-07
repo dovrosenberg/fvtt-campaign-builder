@@ -59,7 +59,6 @@
                 <div class="flexrow form-group">
                   <Editor 
                     :initial-content="currentPC?.background || ''"
-                    :has-button="true"
                     :style="{ 'height': '240px', 'margin-bottom': '6px'}"
                     @editor-saved="onBackgroundSaved"
                   />
@@ -72,7 +71,6 @@
                 <div class="flexrow form-group">
                   <Editor 
                     :initial-content="currentPC?.plotPoints || ''"
-                    :has-button="true"
                     :style="{ 'height': '240px', 'margin-bottom': '6px'}"
                     @editor-saved="onPlotPointsSaved"
                   />
@@ -85,7 +83,6 @@
                 <div class="flexrow form-group">
                   <Editor 
                     :initial-content="currentPC?.magicItems || ''"
-                    :has-button="true"
                     :style="{ 'height': '240px', 'margin-bottom': '6px'}"
                     @editor-saved="onMagicItemsSaved"
                   />

@@ -20,7 +20,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, currentEntry} = storeToRefs(mainStore); 
+  const { currentSetting, currentEntry} = storeToRefs(mainStore); 
 
   ///////////////////////////////
   // internal state
@@ -41,10 +41,10 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   };
 
   const collapseAll = async(): Promise<void> => {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
-    await currentWorld.value.collapseCampaignDirectory();
+    await currentSetting.value.collapseCampaignDirectory();
 
     await refreshCampaignDirectoryTree();
   };
@@ -52,18 +52,18 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // refreshes the campaign tree 
   const refreshCampaignDirectoryTree = async (updateIds: string[] = []): Promise<void> => {
     // need to have a current world and journals loaded
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
     isCampaignTreeLoading.value = true;
 
-    const expandedNodes = currentWorld.value.expandedIds || {};
+    const expandedNodes = currentSetting.value.expandedIds || {};
 
     currentCampaignTree.value = [];
     
     // get all the campaigns - we could just use campaignNames but this will clean up any bad ones (i.e. got deleted incompletely)
-    await currentWorld.value.loadCampaigns();
-    const campaigns = currentWorld.value.campaigns;
+    await currentSetting.value.loadCampaigns();
+    const campaigns = currentSetting.value.campaigns;
 
     for (const id in campaigns) {
       const campaign = await Campaign.fromUuid(id);
@@ -166,8 +166,8 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   const createCampaign = async (): Promise<Campaign | null> => {
     let campaign: Campaign | null = null;
 
-    if (currentWorld.value) {
-      campaign = await Campaign.create(currentWorld.value as Setting);
+    if (currentSetting.value) {
+      campaign = await Campaign.create(currentSetting.value as Setting);
       await refreshCampaignDirectoryTree();
     }
 
@@ -183,14 +183,14 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
    * @returns Array of Campaign objects
    */
   const getCampaigns = async (): Promise<Campaign[]> => {
-    if (!currentWorld.value) {
+    if (!currentSetting.value) {
       return [];
     }
 
-    await currentWorld.value.loadCampaigns();
+    await currentSetting.value.loadCampaigns();
     let campaignList = [] as Campaign[];
-    for (const campaignId in currentWorld.value.campaigns) {
-      campaignList.push(currentWorld.value.campaigns[campaignId]);
+    for (const campaignId in currentSetting.value.campaigns) {
+      campaignList.push(currentSetting.value.campaigns[campaignId]);
     }
 
     // Sort alphabetically by name
@@ -210,7 +210,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // watchers
 
   // when the world changes, clean out the cache of loaded items
-  watch(currentWorld, async (newWorld: Setting | null): Promise<void> => {
+  watch(currentSetting, async (newWorld: Setting | null): Promise<void> => {
     if (!newWorld) {
       currentCampaignTree.value = [];
       return;

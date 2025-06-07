@@ -7,7 +7,7 @@ import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, Setti
 type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode;
 
 export abstract class CollapsibleNode<ChildType extends NodeType | never> {
-  protected static _currentWorld: Setting | null = null;
+  protected static _currentSetting: Setting | null = null;
 
   /** maps uuid to the node for easy lookup **/
   protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode>;   
@@ -30,8 +30,8 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
     this.ancestors = ancestors;
   }
 
-  public static set currentWorld(world: Setting | null) {
-    CollapsibleNode._currentWorld = world;
+  public static set currentSetting(world: Setting | null) {
+    CollapsibleNode._currentSetting = world;
     CollapsibleNode._loadedNodes = {};
   }
 
@@ -51,23 +51,23 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
 
   // used to toggle entries and compendia (not worlds)
   public async collapse(): Promise<void> {
-    if (!CollapsibleNode._currentWorld)
+    if (!CollapsibleNode._currentSetting)
       return;
 
-    await CollapsibleNode._currentWorld.collapseNode(this.id);
+    await CollapsibleNode._currentSetting.collapseNode(this.id);
   }
 
   public async expand(): Promise<void> {
-    if (!CollapsibleNode._currentWorld)
+    if (!CollapsibleNode._currentSetting)
       return;
 
-    await CollapsibleNode._currentWorld.expandNode(this.id);
+    await CollapsibleNode._currentSetting.expandNode(this.id);
   } 
  
   // expand/contract  the given entry, loading the new item data
   // return the new node
   public async toggleWithLoad(expanded: boolean) : Promise<typeof this> {
-    if (this.expanded===expanded || !CollapsibleNode._currentWorld)
+    if (this.expanded===expanded || !CollapsibleNode._currentSetting)
       return this;
     
     await this.toggle();
@@ -78,7 +78,7 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
 
     // make sure all children are properly loaded (if it's being opened)
     if (expanded) {
-      const expandedIds = CollapsibleNode._currentWorld.expandedIds || {};
+      const expandedIds = CollapsibleNode._currentSetting.expandedIds || {};
 
       await updatedNode.recursivelyLoadNode(expandedIds);
     }

@@ -47,7 +47,7 @@ export const registerCollapsibleNodeTests = () => {
           } as unknown as Setting;
 
           // Set the current world
-          CollapsibleNode.currentWorld = mockWorld;
+          CollapsibleNode.currentSetting = mockWorld;
 
           // Create a test node
           node = new TestNode(
@@ -63,7 +63,7 @@ export const registerCollapsibleNodeTests = () => {
 
         afterEach(() => {
           sinon.restore();
-          CollapsibleNode.currentWorld = null;
+          CollapsibleNode.currentSetting = null;
         });
 
         describe('constructor', () => {
@@ -77,17 +77,17 @@ export const registerCollapsibleNodeTests = () => {
           });
         });
 
-        describe('currentWorld', () => {
+        describe('currentSetting', () => {
           it('should set the current world and clear loaded nodes', () => {
             // Add a node to the loaded nodes
             CollapsibleNode._loadedNodes = { 'test-node': node as any };
             
             // Set a new world
             const newWorld = { uuid: 'new-world-uuid' } as Setting;
-            CollapsibleNode.currentWorld = newWorld;
+            CollapsibleNode.currentSetting = newWorld;
             
             // Check that the world was set and loaded nodes were cleared
-            expect(CollapsibleNode._currentWorld).to.equal(newWorld);
+            expect(CollapsibleNode._currentSetting).to.equal(newWorld);
             expect(CollapsibleNode._loadedNodes).to.deep.equal({});
           });
         });
@@ -125,7 +125,7 @@ export const registerCollapsibleNodeTests = () => {
         describe('collapse', () => {
           it('should do nothing if no current world', async () => {
             // Set current world to null
-            CollapsibleNode.currentWorld = null;
+            CollapsibleNode.currentSetting = null;
             
             // Call collapse
             await node.collapse();
@@ -146,7 +146,7 @@ export const registerCollapsibleNodeTests = () => {
         describe('expand', () => {
           it('should do nothing if no current world', async () => {
             // Set current world to null
-            CollapsibleNode.currentWorld = null;
+            CollapsibleNode.currentSetting = null;
             
             // Call expand
             await node.expand();
@@ -178,7 +178,7 @@ export const registerCollapsibleNodeTests = () => {
 
           it('should return the node if no current world', async () => {
             // Set current world to null
-            CollapsibleNode.currentWorld = null;
+            CollapsibleNode.currentSetting = null;
             
             // Call toggleWithLoad
             const result = await node.toggleWithLoad(true);

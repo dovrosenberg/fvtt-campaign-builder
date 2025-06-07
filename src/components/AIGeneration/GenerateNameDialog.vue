@@ -141,13 +141,13 @@
     try {
       // Get the current world and its roll table config
       const mainStore = useMainStore();
-      const currentWorld = mainStore.currentWorld;
+      const currentSetting = mainStore.currentSetting;
       
-      if (!currentWorld) {
+      if (!currentSetting) {
         throw new Error('No current world selected');
       }
       
-      const config = currentWorld.rollTableConfig;
+      const config = currentSetting.rollTableConfig;
       const tableUuid = config?.rollTables[props.generatorType];
       
       if (!tableUuid) {

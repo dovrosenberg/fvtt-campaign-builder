@@ -1,10 +1,12 @@
 <template>
   <div class="fcb-session-notes-container">
+    <!-- enabledEntityLinking is false because when we save we don't want to convert ids into html tags -->
     <Editor 
       ref="editorRef"
       :initial-content="sessionNotes"
-      :has-button="false"
+      :edit-only-mode="true"
       :editable="true"
+      :enable-entity-linking="false"
       @editor-saved="onNotesEditorSaved"
       @editor-loaded="(notes) => { lastSavedNotes = notes; }"
     />

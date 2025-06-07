@@ -67,7 +67,7 @@ export async function createRootFolder(name?: string): Promise<Folder> {
  */
 export async function getDefaultFolders(): Promise<{ rootFolder: Folder; world: Setting}> {
   const rootFolder = await getRootFolder(); // will create if needed
-  const worldId = UserFlags.get(UserFlagKey.currentWorld);  // this isn't world-specific (obviously)
+  const worldId = UserFlags.get(UserFlagKey.currentSetting);  // this isn't world-specific (obviously)
 
   // make sure we have a default and it exists
   let world = null as Setting | null;

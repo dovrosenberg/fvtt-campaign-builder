@@ -18,8 +18,8 @@ function registerForActorHooks() {
 
       // find all the PCs that need to be updated
       let pcsToUpdate = new Set<string>();
-      for (let campaignId in mainStore.currentWorld?.campaigns) {
-        const pcs = (await mainStore.currentWorld.campaigns[campaignId].filterPCs(pc => pc.actorId === actor.uuid))
+      for (let campaignId in mainStore.currentSetting?.campaigns) {
+        const pcs = (await mainStore.currentSetting.campaigns[campaignId].filterPCs(pc => pc.actorId === actor.uuid))
           .map(pc => pc.uuid);
 
         pcsToUpdate = new Set([...pcsToUpdate, ...pcs]);

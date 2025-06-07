@@ -71,7 +71,7 @@
   const navigationStore = useNavigationStore();
   const settingDirectoryStore = useSettingDirectoryStore();
   const mainStore = useMainStore();
-  const { currentWorld, currentEntry, } = storeToRefs(mainStore);
+  const { currentSetting, currentEntry, } = storeToRefs(mainStore);
   const { filterNodes } = storeToRefs(settingDirectoryStore);
   
   ////////////////////////////////
@@ -98,7 +98,7 @@
   const onDragStart = (event: DragEvent, id: string, name: string): void => {
     event.stopPropagation();
     
-    if (!currentWorld.value) { 
+    if (!currentSetting.value) { 
       event.preventDefault();
       return;
     }
@@ -124,7 +124,7 @@
   const onDrop = async (event: DragEvent) => {
     event.preventDefault();  
 
-    if (!currentWorld.value)
+    if (!currentSetting.value)
         return;
 
     // parse the data 
@@ -132,7 +132,7 @@
     if (!data)
       return;
 
-    const topicFolder = currentWorld.value?.topicFolders[props.topic];
+    const topicFolder = currentSetting.value?.topicFolders[props.topic];
 
     // make sure it's not the same item
     const parentId = props.node.id;
@@ -149,7 +149,7 @@
     if (!childEntry)
       return;
 
-    if (!(validParentItems(currentWorld.value as Setting, childEntry)).find(e=>e.id===parentId))
+    if (!(validParentItems(currentSetting.value as Setting, childEntry)).find(e=>e.id===parentId))
       return;
 
     // add the dropped item as a child on the other  (will also refresh the tree)

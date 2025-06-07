@@ -67,7 +67,7 @@
   // Store references
   const mainStore = useMainStore();
   const campaignStore = useCampaignStore();
-  const { isInPlayMode, currentWorld } = storeToRefs(mainStore);
+  const { isInPlayMode, currentSetting } = storeToRefs(mainStore);
   const { playableCampaigns } = storeToRefs(campaignStore);
 
   // Data
@@ -95,7 +95,7 @@
     toggleValue.value = newValue && playableCampaignExists.value;
   });
 
-  watch(() => currentWorld.value, async (newWorld) => {
+  watch(() => currentSetting.value, async (newWorld) => {
     if (newWorld) {
       //  make sure the world campaign list is up to date
       await newWorld.loadCampaigns();

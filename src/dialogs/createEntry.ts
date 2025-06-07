@@ -70,16 +70,16 @@ class CreateEntryApplication extends VueApplicationMixin(ApplicationV2) {
 
 async function createEntryDialog(topic: ValidTopic, 
   options?: { name?: string; type?: string; parentId?: string }): Promise<Entry | null> {
-  const currentWorld = useMainStore().currentWorld;
+  const currentSetting = useMainStore().currentSetting;
 
-  if (!currentWorld) 
+  if (!currentSetting) 
     return null;
 
   const { name, type, parentId } = options ?? {};
 
   // get the valid parents
   let validParents = [] as { id: string; label: string }[];
-  const topicFolder = currentWorld.topicFolders[topic];
+  const topicFolder = currentSetting.topicFolders[topic];
 
   if (topicFolder && hasHierarchy(topic)) {
     validParents = topicFolder
@@ -111,9 +111,9 @@ async function createEntryDialog(topic: ValidTopic,
 }
 
 const createdCallback = async (topicFolder: TopicFolder, details: AnyDetails | null): Promise<Entry | null> => {
-  const currentWorld = useMainStore().currentWorld;
+  const currentSetting = useMainStore().currentSetting;
 
-  if (!currentWorld || !details) 
+  if (!currentSetting || !details) 
     return null;
 
   const entry = await handleGeneratedEntry(details, topicFolder);
@@ -123,9 +123,9 @@ const createdCallback = async (topicFolder: TopicFolder, details: AnyDetails | n
 
 // used for updating an existing entry
 async function updateEntryDialog(entry: Entry): Promise<Entry | null> {
-  const currentWorld = useMainStore().currentWorld;
+  const currentSetting = useMainStore().currentSetting;
 
-  if (!currentWorld) 
+  if (!currentSetting) 
     return null;
 
   const topic = entry.topic;
@@ -137,7 +137,7 @@ async function updateEntryDialog(entry: Entry): Promise<Entry | null> {
  
   // get the valid parents
   let validParents = [] as { id: string; label: string }[];
-  const topicFolder = currentWorld.topicFolders[topic];
+  const topicFolder = currentSetting.topicFolders[topic];
 
   if (topicFolder && hasHierarchy(topic)) {
     validParents = topicFolder
@@ -172,9 +172,9 @@ async function updateEntryDialog(entry: Entry): Promise<Entry | null> {
 }
 
 const updatedCallback = async (entry: Entry, details: AnyDetails | null): Promise<Entry | null> => {
-  const currentWorld = useMainStore().currentWorld;
+  const currentSetting = useMainStore().currentSetting;
   
-  if (!currentWorld || !details || !entry) 
+  if (!currentSetting || !details || !entry) 
     return null;
 
   const navigationStore = useNavigationStore();
@@ -210,7 +210,7 @@ const updatedCallback = async (entry: Entry, details: AnyDetails | null): Promis
     await mainStore.refreshCurrentContent();
 
   if (details.generateImage)
-    void generateImage(await currentWorld, entry);  
+    void generateImage(await currentSetting, entry);  
 
   return entry || null;
 }

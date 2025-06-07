@@ -14,9 +14,9 @@ export async function scrollToActiveEntry(): Promise<void> {
   const mainStore = useMainStore();
   
   const currentTab = mainStore.currentTab;
-  const currentWorld = mainStore.currentWorld;
+  const currentSetting = mainStore.currentSetting;
   
-  if (!currentTab || !currentWorld) {
+  if (!currentTab || !currentSetting) {
     return;
   }
 
@@ -58,9 +58,9 @@ async function scrollToEntry(entryId: string): Promise<void> {
   const mainStore = useMainStore();
   const settingDirectoryStore = useSettingDirectoryStore();
   
-  const currentWorld = mainStore.currentWorld;
+  const currentSetting = mainStore.currentSetting;
   
-  if (!currentWorld) {
+  if (!currentSetting) {
     return;
   }
 
@@ -75,7 +75,7 @@ async function scrollToEntry(entryId: string): Promise<void> {
 
   // Find the topic node in the directory tree
   const currentWorldTree = settingDirectoryStore.currentWorldTree.value;
-  const worldNode = currentWorldTree.find(w => w.id === currentWorld.uuid);
+  const worldNode = currentWorldTree.find(w => w.id === currentSetting.uuid);
   
   if (!worldNode) {
     return;
@@ -142,19 +142,19 @@ async function scrollToEntryInNestedView(entryId: string): Promise<void> {
   const mainStore = useMainStore();
   const settingDirectoryStore = useSettingDirectoryStore();
   
-  const currentWorld = mainStore.currentWorld;
+  const currentSetting = mainStore.currentSetting;
   
-  if (!currentWorld) {
+  if (!currentSetting) {
     return;
   }
 
   // Get the entry hierarchy to find all ancestors that need to be expanded
-  const hierarchy = currentWorld.getEntryHierarchy(entryId);
+  const hierarchy = currentSetting.getEntryHierarchy(entryId);
   const ancestorIds = hierarchy?.ancestors || [];
 
   // Expand all ancestor nodes
   for (const ancestorId of ancestorIds) {
-    await currentWorld.expandNode(ancestorId);
+    await currentSetting.expandNode(ancestorId);
   }
 
   // Refresh the directory tree to ensure all expansions are reflected

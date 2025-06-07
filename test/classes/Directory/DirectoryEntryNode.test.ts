@@ -56,7 +56,7 @@ export const registerDirectoryEntryNodeTests = () => {
           } as unknown as Entry;
 
           // Set the current world
-          CollapsibleNode.currentWorld = mockWorld;
+          CollapsibleNode.currentSetting = mockWorld;
 
           // Create an entry node
           entryNode = new DirectoryEntryNode(
@@ -74,7 +74,7 @@ export const registerDirectoryEntryNodeTests = () => {
 
         afterEach(() => {
           sinon.restore();
-          CollapsibleNode.currentWorld = null;
+          CollapsibleNode.currentSetting = null;
         });
 
         describe('constructor', () => {
@@ -94,10 +94,10 @@ export const registerDirectoryEntryNodeTests = () => {
         describe('fromEntry', () => {
           it('should throw an error if no current world', () => {
             // Set current world to null
-            CollapsibleNode.currentWorld = null;
+            CollapsibleNode.currentSetting = null;
             
             // Call fromEntry and expect an error
-            expect(() => DirectoryEntryNode.fromEntry(mockEntry)).to.throw('No currentWorld');
+            expect(() => DirectoryEntryNode.fromEntry(mockEntry)).to.throw('No currentSetting');
           });
 
           it('should throw an error if entry has no topic folder', () => {

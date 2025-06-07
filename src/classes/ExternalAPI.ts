@@ -24,7 +24,7 @@ export class ExternalAPI {
   }
 
   public getEntries(topic: ValidTopic): GetListReturnValue[] {
-    const world = useMainStore().currentWorld;
+    const world = useMainStore().currentSetting;
 
     if (!world)
       return [];
@@ -56,7 +56,7 @@ export class ExternalAPI {
   }
 
   getCampaigns(): GetListReturnValue[] {
-    const world = useMainStore().currentWorld;
+    const world = useMainStore().currentSetting;
 
     if (!world)
       return [];
@@ -70,7 +70,7 @@ export class ExternalAPI {
   }
 
   async createCampaign(): Promise<{uuid: string; name: string}| null> {
-    const world = useMainStore().currentWorld;
+    const world = useMainStore().currentSetting;
 
     let campaign: Campaign | null = null;
     if (world) {
@@ -87,7 +87,7 @@ export class ExternalAPI {
 
   // leaving async for now for backwards compatibility, even though not actually needed any more
   async getSessions(): Promise<GetListReturnValue[]> {
-    const world = useMainStore().currentWorld;
+    const world = useMainStore().currentSetting;
 
     if (!world)
       return [];
@@ -108,7 +108,7 @@ export class ExternalAPI {
   // for now, no create session because it requires a campaign be specified
 
   getWorld(): GetListReturnValue[] {
-    const world = useMainStore().currentWorld;
+    const world = useMainStore().currentSetting;
 
     return world ? [{ uuid: world.uuid, name: world.name }] : [];
   }  

@@ -55,7 +55,7 @@ export const registerDirectoryTypeEntryNodeTests = () => {
           } as unknown as DirectoryTypeNode;
 
           // Set the current world
-          CollapsibleNode.currentWorld = mockWorld;
+          CollapsibleNode.currentSetting = mockWorld;
 
           // Create a type entry node
           typeEntryNode = new DirectoryTypeEntryNode(
@@ -67,7 +67,7 @@ export const registerDirectoryTypeEntryNodeTests = () => {
 
         afterEach(() => {
           sinon.restore();
-          CollapsibleNode.currentWorld = null;
+          CollapsibleNode.currentSetting = null;
         });
 
         describe('constructor', () => {

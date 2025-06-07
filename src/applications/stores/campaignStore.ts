@@ -12,7 +12,7 @@ import { FCBDialog } from '@/dialogs';
 import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea} from '@/types';
 import { Campaign, Entry, PC, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { closeSessionNotes, openSessionNotes } from '@/applications/SessionNotes';
+import { openSessionNotes } from '@/applications/SessionNotes';
 import { localize } from '@/utils/game';
 import Document from 'node_modules/@types/fvtt-types/src/foundry/common/abstract/document.mjs';
 
@@ -69,11 +69,12 @@ export const useCampaignStore = defineStore('campaign', () => {
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentSession, currentContentTab, currentWorld, isInPlayMode } = storeToRefs(mainStore);
+  const { currentCampaign, currentSession, currentContentTab, currentSetting, isInPlayMode } = storeToRefs(mainStore);
 
   ///////////////////////////////
   // internal state
   const currentPlayedCampaignId = ref<string | null>(null);
+  const initialSessionNotes  = ref<string | null>(null);  // the notes went we entered play mode so we can look for new uuids
   
   ///////////////////////////////
   // external state
@@ -329,13 +330,13 @@ export const useCampaignStore = defineStore('campaign', () => {
   const currentPlayedSession = computed((): Session | null => (currentPlayedCampaign?.value?.currentSession || null) as Session | null);
   
   const availableCampaigns = computed((): Campaign[] => {
-    if (!currentWorld.value) {
+    if (!currentSetting.value) {
       return [];
     }
 
     let campaigns = [] as Campaign[];
-    for (const campaignId in currentWorld.value.campaigns) {
-      campaigns.push(currentWorld.value.campaigns[campaignId]);
+    for (const campaignId in currentSetting.value.campaigns) {
+      campaigns.push(currentSetting.value.campaigns[campaignId]);
     }
 
     return campaigns;
@@ -348,7 +349,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   // The currently played campaign object (update it by updating currentPlayedCampaignId)
   const currentPlayedCampaign = computed((): Campaign | null => {
     // If we're not in play mode or don't have a world, return null
-    if (!isInPlayMode.value || !currentWorld.value) {
+    if (!isInPlayMode.value || !currentSetting.value) {
       return null;
     }
 
@@ -636,9 +637,15 @@ export const useCampaignStore = defineStore('campaign', () => {
   // we capture changes to both the played campaign and turning off isInPlayMode here (via campaign going to null)
   // need to do that here vs isInPlayMode watcher because we need the old campaign value to save the session notes
   watch(() => currentPlayedSession.value, async (newSession: Session | null, oldSession: Session | null) => {
-    // if oldSession is null, we're turning on play mode, so no issue
-    if (!oldSession)
+    // if newSession exists, capture the starting notes
+    if (newSession) {
+      initialSessionNotes.value = newSession?.notes ?? '';
+    }
+
+    // if oldSession is null, we're turning on play mode, so nothing else to do
+    if (!oldSession) {
       return;
+    }
 
     // make the sure the id changed
     if (oldSession.uuid === newSession?.uuid)
@@ -647,23 +654,38 @@ export const useCampaignStore = defineStore('campaign', () => {
     // if newSession is null we're closing, otherwise we're changing campaigns (because there's no way to change 
     //    the played session within a campaign while playing)
 
-    // close the notes
-    const notesToSave = await closeSessionNotes();
+     // check for new uuids that should become to do items
+    const oldUuids = !initialSessionNotes.value ? [] : [...initialSessionNotes.value.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
+    const newUuids = !oldSession.notes ? [] : [...oldSession.notes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
 
-    if (notesToSave != null && oldSession?.notes !== notesToSave) {
-      if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
-        // save the session
-        oldSession.notes = notesToSave;
-        await oldSession?.save();    
+    const addedUuids = newUuids.filter(u => !oldUuids.includes(u));
 
-        // refresh the content in case we're looking at the notes page for that session
-        await mainStore.refreshCurrentContent();
-      }
-    }      
+    for (const uuid of addedUuids) {
+      const entry = await Entry.fromUuid(uuid);
+
+      // might be a document instead of an entry
+      if (!entry) 
+        // just skip it
+        continue;
+
+      await mergeToDoItem(ToDoTypes.Entry, `Added to notes in Session ${oldSession.number}`, uuid, oldSession.uuid);
+    }
+
+    // if (oldSession.notes != null && oldSession?.notes !== oldSession.notes) {
+    //   if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
+    //     // save the session
+    //     oldSession.notes = notesToSave;
+    //     await oldSession?.save();    
+
+    //     // refresh the content in case we're looking at the notes page for that session
+    //     await mainStore.refreshCurrentContent();
+    //   }
+    // }      
 
     // if switching campaigns, open new notes
     if (ModuleSettings.get(SettingKey.displaySessionNotes) && newSession) {
       await openSessionNotes(newSession);
+      initialSessionNotes.value = newSession.notes;
     }
   });
 
@@ -684,7 +706,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   });
 
   // When the world changes, reset the current played campaign
-  watch(()=> currentWorld.value, () => {
+  watch(()=> currentSetting.value, () => {
     currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
   });
 

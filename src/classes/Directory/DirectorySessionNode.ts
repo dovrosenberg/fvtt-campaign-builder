@@ -70,8 +70,8 @@ export class DirectorySessionNode extends CollapsibleNode<never> {
 
   // converts the entry to a DirectoryEntryNode for cleaner interface
   static fromSession = (session: Session, campaignId: string): DirectorySessionNode => {
-    if (!CollapsibleNode._currentWorld)
-      throw new Error('No currentWorld in DirectorySessionNode.fromEntry()');
+    if (!CollapsibleNode._currentSetting)
+      throw new Error('No currentSetting in DirectorySessionNode.fromEntry()');
 
     return new DirectorySessionNode(
       session.uuid,

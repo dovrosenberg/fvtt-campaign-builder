@@ -297,25 +297,7 @@
           flex:1;
         }
       }
-
-      /* Editor */
-      .editor {
-        overflow: visible;
-        height: 100%;
-        width: 100%;
-        min-height: 100%;
-        position: relative;
-
-        .editor-content {
-          overflow-y: visible;
-          height: unset;
-          min-height: calc(100% - 8px);
-          padding: 2px;
-        }
-      }
     }
-      
-
 
     .fcb-content-wrapper {
       height: 100%;

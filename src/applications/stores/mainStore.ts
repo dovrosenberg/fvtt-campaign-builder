@@ -29,7 +29,7 @@ export const useMainStore = defineStore('main', () => {
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
-  const _currentWorld = ref<Setting | null>(null);  // the current world folder
+  const _currentSetting = ref<Setting | null>(null);  // the current world folder
 
   ///////////////////////////////
   // external state
@@ -42,10 +42,10 @@ export const useMainStore = defineStore('main', () => {
   const isInPlayMode = ref<boolean>(ModuleSettings.get(SettingKey.isInPlayMode));
 
   const currentWorldCompendium = computed((): CompendiumCollection<any> => {
-    if (!currentWorld.value)
-      throw new Error('No currentWorld in mainStore.currentWorldCompendium()');
+    if (!currentSetting.value)
+      throw new Error('No currentSetting in mainStore.currentWorldCompendium()');
 
-    const pack = currentWorld.value?.compendium || null;
+    const pack = currentSetting.value?.compendium || null;
     if (!pack)
       throw new Error('Bad compendia in mainStore.currentWorldCompendium()');
 
@@ -60,7 +60,7 @@ export const useMainStore = defineStore('main', () => {
   const currentPC = computed((): PC | null => (_currentPC?.value || null) as PC | null);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
   const currentTab = computed((): WindowTab | null => _currentTab?.value);  
-  const currentWorld = computed((): Setting | null => (_currentWorld?.value || null) as Setting | null);
+  const currentSetting = computed((): Setting | null => (_currentSetting?.value || null) as Setting | null);
 
   ///////////////////////////////
   // actions
@@ -75,15 +75,15 @@ export const useMainStore = defineStore('main', () => {
     if (!world)
       throw new Error('Invalid folder id in mainStore.setNewWorld()');
 
-    _currentWorld.value = world;
+    _currentSetting.value = world;
 
-    CollapsibleNode.currentWorld = world;
+    CollapsibleNode.currentSetting = world;
 
-    await UserFlags.set(UserFlagKey.currentWorld, worldId);
+    await UserFlags.set(UserFlagKey.currentSetting, worldId);
   };
 
   const setNewTab = async function (tab: WindowTab): Promise<void> {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
     _currentTab.value = tab;
@@ -101,15 +101,15 @@ export const useMainStore = defineStore('main', () => {
           if (!_currentEntry.value)
             throw new Error('Invalid entry uuid in mainStore.setNewTab()');
 
-          _currentEntry.value.topicFolder = currentWorld.value.topicFolders[_currentEntry.value.topic];
+          _currentEntry.value.topicFolder = currentSetting.value.topicFolders[_currentEntry.value.topic];
         }
         break;
       case WindowTabType.World:
         // we can only set tabs within a world, so we don't actually need to do anything here
         // if (tab.header.uuid) {
         //   _currentEntry.value = null;
-        //   _currentWorld.value = await Setting.fromUuid(tab.header.uuid);
-        //   if (!_currentWorld.value)
+        //   _currentSetting.value = await Setting.fromUuid(tab.header.uuid);
+        //   if (!_currentSetting.value)
         //     throw new Error('Invalid entry uuid in mainStore.setNewTab()');
         // }
         break;
@@ -156,22 +156,22 @@ export const useMainStore = defineStore('main', () => {
   };
 
   const refreshCampaign = async function (): Promise<void> {
-    if (!_currentCampaign.value || !currentWorld.value)
+    if (!_currentCampaign.value || !currentSetting.value)
       return;
 
     // just force all reactivity to update
-    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentWorld.value as Setting);
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentSetting.value as Setting);
   };
 
   const refreshWorld = async function (): Promise<void> {
-    if (!_currentWorld.value)
+    if (!_currentSetting.value)
       return;
 
     // just force all reactivity to update
-    _currentWorld.value = new Setting(_currentWorld.value.raw as WorldDoc);
+    _currentSetting.value = new Setting(_currentSetting.value.raw as WorldDoc);
 
     // have to load the topic folders
-    await _currentWorld.value?.loadTopics();
+    await _currentSetting.value?.loadTopics();
   };
 
   const refreshSession = async function (): Promise<void> {
@@ -273,8 +273,8 @@ export const useMainStore = defineStore('main', () => {
   });
 
   const hasMultipleCampaigns = computed((): boolean => {
-    if (!currentWorld.value) return false;
-    return Object.values(currentWorld.value.campaignNames).length > 1;
+    if (!currentSetting.value) return false;
+    return Object.values(currentSetting.value.campaignNames).length > 1;
   });
 
   // the currently selected tab for the content page
@@ -318,7 +318,7 @@ export const useMainStore = defineStore('main', () => {
   /**
   * Updates the main window title to include the current world name
   */
-  watch(currentWorld, (newWorld) => {
+  watch(currentSetting, (newWorld) => {
     updateWindowTitle(newWorld?.name ?? null);
 
     // when changing world, turn off play mode
@@ -333,7 +333,7 @@ export const useMainStore = defineStore('main', () => {
   return {
     currentContentTab,
     currentDocumentType,
-    currentWorld,
+    currentSetting,
     currentEntryTopic,
     currentEntry,
     currentCampaign,

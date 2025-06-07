@@ -277,7 +277,7 @@
   // store
   const mainStore = useMainStore();
   const sessionStore = useSessionStore();
-  const { currentWorld, isInPlayMode } = storeToRefs(mainStore);
+  const { currentSetting, isInPlayMode } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -307,12 +307,12 @@
   ////////////////////////////////
   // computed data
   const selectedNameStyles = computed((): string[] => {
-    if (!currentWorld.value) return [];
+    if (!currentSetting.value) return [];
     
-    return currentWorld.value.nameStyles.map(index => {
+    return currentSetting.value.nameStyles.map(index => {
       const style = nameStyles[index];
       if (!style) return '';
-      return style.prompt.replace('{genre}', currentWorld.value?.genre || '');
+      return style.prompt.replace('{genre}', currentSetting.value?.genre || '');
     }).filter(style => style !== '');
   });
 
@@ -341,7 +341,7 @@
   };
 
   const onGenerateClick = async function() {
-    if (!currentWorld.value) 
+    if (!currentSetting.value) 
       return;
 
     loading.value = true;
@@ -371,8 +371,8 @@
         let result: Awaited<ReturnType<typeof Backend.api.apiCharacterGeneratePost>>;
 
         result = await Backend.api.apiCharacterGeneratePost({
-          genre: currentWorld.value.genre,
-          worldFeeling: currentWorld.value.worldFeeling,
+          genre: currentSetting.value.genre,
+          worldFeeling: currentSetting.value.worldFeeling,
           type: type.value,
           species: speciesName.value,
           speciesDescription: speciesDescription,
@@ -419,8 +419,8 @@
       // pull the other things we need  
       try {
         const options = {
-          genre: currentWorld.value.genre,
-          worldFeeling: currentWorld.value.worldFeeling,
+          genre: currentSetting.value.genre,
+          worldFeeling: currentSetting.value.worldFeeling,
           type: type.value,
           parentName: parent?.name || '',
           parentType: parent?.type || '',
@@ -465,7 +465,7 @@
   }
 
   const onUseClick = async function() {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
     // create the entry and kick off image generation if needed

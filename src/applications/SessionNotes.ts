@@ -68,17 +68,3 @@ export async function openSessionNotes(session: Session): Promise<void> {
   
   await sessionNotesApp.render(true);
 }
-
-// returns the current session notes to be saved or null if no changes were made
-export async function closeSessionNotes(): Promise<string | null> {
-  if (!sessionNotesApp) 
-    return null;
-
-  const text = document.querySelector('#app-fcb-session-notes .editor.prosemirror .editor-content')?.innerHTML || '';
-
-  const isDirty = useSessionStore().lastSavedNotes !== text;
-
-  sessionNotesApp.close();
-
-  return isDirty ? text : null;
-}

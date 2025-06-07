@@ -54,7 +54,7 @@ export const registerDirectoryTypeNodeTests = () => {
           } as unknown as Entry;
 
           // Set the current world
-          CollapsibleNode.currentWorld = mockWorld;
+          CollapsibleNode.currentSetting = mockWorld;
 
           // Create a type node
           typeNode = new DirectoryTypeNode(
@@ -68,7 +68,7 @@ export const registerDirectoryTypeNodeTests = () => {
 
         afterEach(() => {
           sinon.restore();
-          CollapsibleNode.currentWorld = null;
+          CollapsibleNode.currentSetting = null;
         });
 
         describe('constructor', () => {
@@ -85,7 +85,7 @@ export const registerDirectoryTypeNodeTests = () => {
         describe('_loadNodeList', () => {
           it('should do nothing if no current world', async () => {
             // Set current world to null
-            CollapsibleNode.currentWorld = null;
+            CollapsibleNode.currentSetting = null;
             
             // Call _loadNodeList
             await typeNode._loadNodeList(['entry-uuid'], []);

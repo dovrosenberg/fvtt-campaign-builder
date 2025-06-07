@@ -36,7 +36,7 @@ export const registerDirectorySessionNodeTests = () => {
           } as unknown as Session;
 
           // Set the current world
-          CollapsibleNode.currentWorld = mockWorld;
+          CollapsibleNode.currentSetting = mockWorld;
 
           // Create a session node
           sessionNode = new DirectorySessionNode(
@@ -50,7 +50,7 @@ export const registerDirectorySessionNodeTests = () => {
 
         afterEach(() => {
           sinon.restore();
-          CollapsibleNode.currentWorld = null;
+          CollapsibleNode.currentSetting = null;
         });
 
         describe('constructor', () => {

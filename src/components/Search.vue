@@ -77,7 +77,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld } = storeToRefs(mainStore);
+  const { currentSetting } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -196,9 +196,9 @@
    * Initializes the search index when the component is mounted
    */
   const initializeSearch = async () => {
-    if (currentWorld.value) {
+    if (currentSetting.value) {
       isSearching.value = true;
-      await searchService.buildIndex(currentWorld.value);
+      await searchService.buildIndex(currentSetting.value);
       isSearching.value = false;
     }
   };
@@ -219,7 +219,7 @@
   // watchers
   
   // Rebuild the search index when the current world changes
-  watch(() => currentWorld.value, async (newWorld) => {
+  watch(() => currentSetting.value, async (newWorld) => {
     if (newWorld) {
       await initializeSearch();
     }

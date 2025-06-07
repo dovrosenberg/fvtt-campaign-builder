@@ -96,7 +96,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentWorld } = storeToRefs(mainStore);
+  const { currentSetting } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -111,7 +111,7 @@
   // computed
   // Define the name styles (computed to react to world changes)
   const nameStylePrompts = computed(() => 
-    nameStyles.map(style => style.prompt.replace('{genre}', currentWorld.value?.genre || 'Fantasy'))
+    nameStyles.map(style => style.prompt.replace('{genre}', currentSetting.value?.genre || 'Fantasy'))
   );
 
   // Define display names (shorter versions for UI)
@@ -152,7 +152,7 @@
   };
 
   const loadPreviewData = async () => {
-    if (!currentWorld.value) return;
+    if (!currentSetting.value) return;
     
     loading.value = true;
     error.value = '';
@@ -160,8 +160,8 @@
     try {
       const response = await Backend.api.apiNamePreviewPost({
         nameStyles: nameStylePrompts.value,
-        genre: currentWorld.value.genre,
-        worldFeeling: currentWorld.value.worldFeeling
+        genre: currentSetting.value.genre,
+        worldFeeling: currentSetting.value.worldFeeling
       });
       
       previewData.value = response.data.preview;

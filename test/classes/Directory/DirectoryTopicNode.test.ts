@@ -55,7 +55,7 @@ export const registerDirectoryTopicNodeTests = () => {
           } as unknown as TopicFolder;
 
           // Set the current world
-          CollapsibleNode.currentWorld = mockWorld;
+          CollapsibleNode.currentSetting = mockWorld;
 
           // Create a topic node
           topicNode = new DirectoryTopicNode(
@@ -67,7 +67,7 @@ export const registerDirectoryTopicNodeTests = () => {
 
         afterEach(() => {
           sinon.restore();
-          CollapsibleNode.currentWorld = null;
+          CollapsibleNode.currentSetting = null;
         });
 
         describe('constructor', () => {
@@ -87,7 +87,7 @@ export const registerDirectoryTopicNodeTests = () => {
         describe('_loadNodeList', () => {
           it('should do nothing if no current world', async () => {
             // Set current world to null
-            CollapsibleNode.currentWorld = null;
+            CollapsibleNode.currentSetting = null;
             
             // Call _loadNodeList
             await topicNode._loadNodeList(['entry-uuid'], []);

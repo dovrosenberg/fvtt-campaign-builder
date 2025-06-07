@@ -4,7 +4,7 @@
     <li
       v-for="world in currentWorldTree.value"
       :key="world.id"
-      :class="'fcb-world-folder folder flexcol ' + (currentWorld?.uuid===world.id ? '' : 'collapsed')"
+      :class="'fcb-world-folder folder flexcol ' + (currentSetting?.uuid===world.id ? '' : 'collapsed')"
       draggable="true"
       @dragstart="onWorldDragStart($event, world)"
     >
@@ -14,14 +14,14 @@
         @click="onWorldFolderClick($event, world.id)"
       >
         <div class="noborder">
-          <i :class="`fas ${currentWorld?.uuid===world.id ? 'fa-folder-open' : 'fa-folder'} fa-fw`"></i>
+          <i :class="`fas ${currentSetting?.uuid===world.id ? 'fa-folder-open' : 'fa-folder'} fa-fw`"></i>
           {{ world.name }}
         </div>
       </header>
 
       <!-- These are the topic compendia -->
       <ol 
-        v-if="currentWorld?.uuid===world.id"
+        v-if="currentSetting?.uuid===world.id"
         class="fcb-world-contents"
       >
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
@@ -94,7 +94,7 @@
   const navigationStore = useNavigationStore();
   const settingDirectoryStore = useSettingDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentWorld } = storeToRefs(mainStore);
+  const { currentSetting } = storeToRefs(mainStore);
   const { isGroupedByType, currentWorldTree } = storeToRefs(settingDirectoryStore);
 
   ////////////////////////////////

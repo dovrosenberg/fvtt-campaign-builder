@@ -6,7 +6,7 @@
       </div>
     </div>
     <h3>
-      {{ currentWorld?.name }}
+      {{ currentSetting?.name }}
     </h3>
     <br>
     <br>
@@ -108,7 +108,7 @@
   const navigationStore = useNavigationStore();
   const settingDirectoryStore = useSettingDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentWorld } = storeToRefs(mainStore);
+  const { currentSetting } = storeToRefs(mainStore);
   const { recent } = storeToRefs(navigationStore);
 
   ////////////////////////////////
@@ -141,10 +141,10 @@
   };
 
   const onCreateEntry = async (topic: Topics) => {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       throw new Error('No current world in HomePage.onCreateEntry()');
 
-    const topicFolder = currentWorld.value.topicFolders[topic];
+    const topicFolder = currentSetting.value.topicFolders[topic];
 
     if (!topicFolder)
       throw new Error('No topic folder in HomePage.onCreateEntry()');

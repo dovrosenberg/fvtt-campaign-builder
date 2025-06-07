@@ -71,7 +71,6 @@
           <div class="flexrow form-group description">
             <Editor 
               :initial-content="sessionNotesContent"
-              :has-button="true"
               @editor-saved="onNotesEditorSaved"
             />
           </div>
@@ -95,7 +94,6 @@
           <div class="tab-inner">
             <Editor 
               :initial-content="currentSession?.startingAction || ''"
-              :has-button="true"
               @editor-saved="onStartEditorSaved"
             />
           </div>  

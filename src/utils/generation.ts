@@ -76,13 +76,13 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
  * Handles different generation logic for characters, locations, and organizations.
  * Shows user notifications during the generation process and updates the entry with the result.
  * 
- * @param currentWorld - The world containing the entry (used for genre and world feeling)
+ * @param forSetting - The setting containing the entry (used for genre and world feeling)
  * @param entry - The entry to generate an image for
  * @returns A promise that resolves when image generation is complete
  * @throws {Error} If image generation fails or the entry type is not supported
  */
-export const generateImage = async (currentWorld: Setting, entry: Entry): Promise<void> => {
-  if (!entry || !currentWorld || ![Topics.Character, Topics.Location, Topics.Organization].includes(entry.topic)) {
+export const generateImage = async (forSetting: Setting, entry: Entry): Promise<void> => {
+  if (!entry || !forSetting || ![Topics.Character, Topics.Location, Topics.Organization].includes(entry.topic)) {
     return;
   }
 
@@ -102,8 +102,8 @@ export const generateImage = async (currentWorld: Setting, entry: Entry): Promis
       case Topics.Character:
         // Call the API to generate an image
          result = await Backend.api.apiCharacterGenerateImagePost({
-          genre: currentWorld.genre,
-          worldFeeling: currentWorld.worldFeeling,
+          genre: forSetting.genre,
+          worldFeeling: forSetting.worldFeeling,
           type: entry.type,
           species: species?.name || '',
           speciesDescription: species?.description || '',
@@ -130,8 +130,8 @@ export const generateImage = async (currentWorld: Setting, entry: Entry): Promis
 
         // Call the API to generate an image
         const options = {
-          genre: currentWorld.genre,
-          worldFeeling: currentWorld.worldFeeling,
+          genre: forSetting.genre,
+          worldFeeling: forSetting.worldFeeling,
           type: entry.type,
           name: entry.name,
           parentName: parent?.name,

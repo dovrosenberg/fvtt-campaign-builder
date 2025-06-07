@@ -46,7 +46,7 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const { currentWorld, } = storeToRefs(mainStore);
+  const { currentSetting, } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -54,7 +54,7 @@
 
   ////////////////////////////////
   // computed data
-  const typeList = computed((): string[] => (props.topic===null || !currentWorld.value ? [] : currentWorld.value.topicFolders[props.topic].types));
+  const typeList = computed((): string[] => (props.topic===null || !currentSetting.value ? [] : currentSetting.value.topicFolders[props.topic].types));
 
   ////////////////////////////////
   // methods

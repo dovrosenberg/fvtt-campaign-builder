@@ -89,7 +89,7 @@
   const settingDirectoryStore = useSettingDirectoryStore();
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, currentEntry, } = storeToRefs(mainStore);
+  const { currentSetting, currentEntry, } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -127,7 +127,7 @@
   const onDragStart = (event: DragEvent, id: string, name: string): void => {
     event.stopPropagation();
     
-    if (!currentWorld.value) { 
+    if (!currentSetting.value) { 
       event.preventDefault();
       return;
     }
@@ -153,7 +153,7 @@
   const onDrop = async (event: DragEvent) => {
     event.preventDefault();  
 
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return false;
 
     // parse the data 
@@ -171,13 +171,13 @@
       return;
 
     // is this a legal parent?
-    const topicFolder = currentWorld.value.topicFolders[props.topic];
+    const topicFolder = currentSetting.value.topicFolders[props.topic];
     const childEntry = await Entry.fromUuid(data.childId, topicFolder as TopicFolder); 
     
     if (!childEntry)
       return;
 
-    if (!(validParentItems(currentWorld.value as Setting, childEntry)).find(e=>e.id===parentId))
+    if (!(validParentItems(currentSetting.value as Setting, childEntry)).find(e=>e.id===parentId))
       return;
 
     // add the dropped item as a child on the other (will also refresh the tree)

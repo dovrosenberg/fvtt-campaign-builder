@@ -95,7 +95,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentWorld, } = storeToRefs(mainStore);
+  const { currentSetting, } = storeToRefs(mainStore);
   const { tabs, bookmarks } = storeToRefs(navigationStore);
 
   ////////////////////////////////
@@ -187,7 +187,7 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentWorld, async (newValue, oldValue): Promise<void> => {
+  watch(currentSetting, async (newValue, oldValue): Promise<void> => {
     if (!newValue || newValue.uuid === oldValue?.uuid)
       return;
 

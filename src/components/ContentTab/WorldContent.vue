@@ -1,5 +1,7 @@
 <template>
-  <form>
+  <form
+    v-if="currentSetting"
+  >
     <div ref="contentRef" class="fcb-sheet-container flexcol">
       <header class="fcb-name-header flexrow">
         <i :class="`fas ${icon} sheet-icon`"></i>
@@ -28,8 +30,8 @@
       </nav>
       <div class="fcb-tab-body flexrow">
         <DescriptionTab 
-          :name="currentWorld?.name || 'World'"
-          :image-url="currentWorld?.img"
+          :name="currentSetting.name || 'World'"
+          :image-url="currentSetting.img"
           :window-type="WindowTabType.World"
           @image-change="onImageChange"
         >
@@ -39,7 +41,7 @@
               help-text="help.worldGenre" 
             />
             <InputText
-              v-model="currentWorld.genre"
+              v-model="currentSetting.genre"
               type="text"
               style="width: 250px"
               @update:model-value="onGenreSaved"
@@ -51,7 +53,7 @@
               help-text="help.worldFeeling" 
             />
             <Textarea
-              v-model="currentWorld.worldFeeling"
+              v-model="currentSetting.worldFeeling"
               rows="3"
               style="width: calc(100% - 2px)"
               @update:model-value="onWorldFeelingSaved"
@@ -59,8 +61,7 @@
           </div>
           <div class="flexrow form-group description">
             <Editor
-                :initial-content="currentWorld.description || ''"
-                :has-button="true"
+                :initial-content="currentSetting.description || ''"
                 @editor-saved="onDescriptionEditorSaved"
               />
           </div>
@@ -69,8 +70,9 @@
     </div>
   </form>	 
   <ConfigureNamesDialog
+    v-if="currentSetting"
     v-model="showConfigureNamesDialog"
-    :initial-selected-styles="currentWorld?.nameStyles || [0]"
+    :initial-selected-styles="currentSetting.nameStyles ? [...currentSetting.nameStyles] : [0]"
     @save="onNameStylesSave"
   />
 </template>
@@ -113,7 +115,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const settingDirectoryStore = useSettingDirectoryStore();
-  const { currentContentTab, currentWorld, currentTab } = storeToRefs(mainStore);
+  const { currentContentTab, currentSetting, currentTab } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -145,24 +147,24 @@
     
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
-      if (currentWorld.value && currentWorld.value.name!==newValue) {
-        currentWorld.value.name = newValue;
-        await currentWorld.value.save();
+      if (currentSetting.value && currentSetting.value.name!==newValue) {
+        currentSetting.value.name = newValue;
+        await currentSetting.value.save();
 
         updateWindowTitle(newName || null);
-        await settingDirectoryStore.refreshSettingDirectoryTree([currentWorld.value.uuid]);
-        await navigationStore.propagateNameChange(currentWorld.value.uuid, newValue);
-        await mainStore.propagateWorldNameChange(currentWorld.value);
+        await settingDirectoryStore.refreshSettingDirectoryTree([currentSetting.value.uuid]);
+        await navigationStore.propagateNameChange(currentSetting.value.uuid, newValue);
+        await mainStore.propagateWorldNameChange(currentSetting.value);
       }
     }, debounceTime);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
-    currentWorld.value.description = newContent;
-    await currentWorld.value.save();
+    currentSetting.value.description = newContent;
+    await currentSetting.value.save();
   };
 
   const onGenreSaved = async () => {
@@ -171,8 +173,8 @@
     clearTimeout(debounceTimer);
     
     debounceTimer = setTimeout(async () => {
-      if (currentWorld.value)
-        await currentWorld.value.save();
+      if (currentSetting.value)
+        await currentSetting.value.save();
     }, debounceTime);
   }
 
@@ -182,15 +184,15 @@
     clearTimeout(debounceTimer);
     
     debounceTimer = setTimeout(async () => {
-      if (currentWorld.value)
-        await currentWorld.value.save();
+      if (currentSetting.value)
+        await currentSetting.value.save();
     }, debounceTime);
   }
 
   const onImageChange = async (imageUrl: string) => {
-    if (currentWorld.value) {
-      currentWorld.value.img = imageUrl;
-      await currentWorld.value.save();
+    if (currentSetting.value) {
+      currentSetting.value.img = imageUrl;
+      await currentSetting.value.save();
     }
   }
 
@@ -221,9 +223,9 @@
   };
 
   const onNameStylesSave = async (selectedStyles: number[]) => {
-    if (currentWorld.value) {
-      currentWorld.value.nameStyles = selectedStyles;
-      await currentWorld.value.save();
+    if (currentSetting.value) {
+      currentSetting.value.nameStyles = selectedStyles;
+      await currentSetting.value.save();
     }
     showConfigureNamesDialog.value = false;
   };
@@ -258,7 +260,7 @@
       tabs.value.bind(contentRef.value);
 
     // load starting data values
-    name.value = currentWorld.value?.name || '';
+    name.value = currentSetting.value?.name || '';
   });
 
 

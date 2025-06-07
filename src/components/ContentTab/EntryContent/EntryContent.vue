@@ -124,7 +124,6 @@
           <div class="flexrow form-group description">
             <Editor
               :initial-content="currentEntry?.description || ''"
-              :has-button="true"
               :current-entity-uuid="currentEntry?.uuid"
               :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
               @editor-saved="onDescriptionEditorSaved"
@@ -230,7 +229,7 @@
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
   const campaignStore = useCampaignStore();
-  const { currentEntry, currentWorld, currentContentTab, refreshCurrentEntry, } = storeToRefs(mainStore);
+  const { currentEntry, currentSetting, currentContentTab, refreshCurrentEntry, } = storeToRefs(mainStore);
   const { currentPlayedCampaign } = storeToRefs(campaignStore);
 
   ////////////////////////////////
@@ -292,10 +291,10 @@
       name.value = currentEntry.value.name || '';
 
       // set the parent and valid parents
-      if (currentWorld.value) {    
+      if (currentSetting.value) {    
         parentId.value = await currentEntry.value.getParentId();
 
-        validParents.value = validParentItems(currentWorld.value as Setting, currentEntry.value).map((e)=> ({
+        validParents.value = validParentItems(currentSetting.value as Setting, currentEntry.value).map((e)=> ({
           id: e.id,
           label: e.name || '',
         }));
@@ -305,13 +304,13 @@
 
     /** how many campaigns have available sessions */
     const numAvailableSessions = (): number => {
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return 0;
 
     let num = 0;
     // otherwise check all campaigns until we find one with sessions that don't have it
-    for (const campaignId of Object.keys(currentWorld.value?.campaigns || {})) {
-      if (currentWorld.value?.campaigns[campaignId].currentSession && !currentWorld.value.campaigns[campaignId].currentSession.npcs.find((npc) => npc.uuid===currentEntry.value?.uuid)) {
+    for (const campaignId of Object.keys(currentSetting.value?.campaigns || {})) {
+      if (currentSetting.value?.campaigns[campaignId].currentSession && !currentSetting.value.campaigns[campaignId].currentSession.npcs.find((npc) => npc.uuid===currentEntry.value?.uuid)) {
         num++;
       }
     }
@@ -362,15 +361,15 @@
     event.preventDefault();
     event.stopPropagation();
 
-    if (!currentWorld.value)
+    if (!currentSetting.value)
       return;
 
     // find all the campaigns with an active session
     let campaignsWithSessions = [] as { uuid: string; name: string}[];
 
-    for (const campaignId of Object.keys(currentWorld.value.campaigns)) {
-      if (currentWorld.value?.campaigns[campaignId].currentSession && !currentWorld.value.campaigns[campaignId].currentSession.npcs.find((npc) => npc.uuid===currentEntry.value?.uuid)) {
-        campaignsWithSessions.push({ uuid: campaignId, name: currentWorld.value.campaigns[campaignId].name });
+    for (const campaignId of Object.keys(currentSetting.value.campaigns)) {
+      if (currentSetting.value?.campaigns[campaignId].currentSession && !currentSetting.value.campaigns[campaignId].currentSession.npcs.find((npc) => npc.uuid===currentEntry.value?.uuid)) {
+        campaignsWithSessions.push({ uuid: campaignId, name: currentSetting.value.campaigns[campaignId].name });
       }
     }
 
@@ -380,7 +379,7 @@
     }
 
     // if there's more than one, we need the menu
-    const campaigns = currentWorld.value.campaigns;
+    const campaigns = currentSetting.value.campaigns;
 
     type MenuItem = {
       label: string;
@@ -438,7 +437,7 @@
 
   const selectCampaignForPush = async (campaignUuid: string): Promise<void> => {
     // get the campaign
-    const campaign = await currentWorld.value?.campaigns[campaignUuid];
+    const campaign = await currentSetting.value?.campaigns[campaignUuid];
     if (!campaign)
       return;
 
@@ -489,13 +488,13 @@
         label: `${localize('contextMenus.generate.image')} ${isGeneratingImage[currentEntry.value?.uuid as string] ? ` - ${localize('contextMenus.generate.inProgress')}` : ''}`,
         disabled: isGeneratingImage[currentEntry.value?.uuid as string],
         onClick: async () => {
-          if (!isGeneratingImage[currentEntry.value?.uuid as string] && currentWorld.value && currentEntry.value) {
+          if (!isGeneratingImage[currentEntry.value?.uuid as string] && currentSetting.value && currentEntry.value) {
             // save entry because it could change before generation is done
             const entryGenerated = currentEntry.value.uuid;
 
             isGeneratingImage[entryGenerated] = true;
 
-            await generateImage(currentWorld.value, currentEntry.value);
+            await generateImage(currentSetting.value, currentEntry.value);
 
             if (entryGenerated===currentEntry.value.uuid)
               mainStore.refreshEntry();
