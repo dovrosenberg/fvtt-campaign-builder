@@ -34,10 +34,8 @@ export const usePlayingStore = defineStore('playing', () => {
 
   /** the notes from when we entered play mode so we can look for new uuids and check for need to save */
   const initialSessionNotes  = ref<string | null>(null);  
-  
-  // the currently open session notes window
-  const openSessionNotesWindow = ref<typeof SessionNotes | null>(null);
 
+  
   ///////////////////////////////
   // external state
 
@@ -106,63 +104,53 @@ export const usePlayingStore = defineStore('playing', () => {
     if (oldSession?.uuid === newSession?.uuid)
       return;
 
-    // if oldSession is null, we're turning on play mode, so nothing else to do besides settup up the notes window
-    if (!oldSession) {
-      if (openSessionNotesWindow.value) {
-        openSessionNotesWindow.value.setSession(newSession);
+    // if we have an old session, we will need to check for to dos
+    if (oldSession) {
+      const oldSessionStartingNotes = initialSessionNotes.value;
+      
+      // check for new uuids that should become to do items
+      const oldUuids = !oldSessionStartingNotes ? [] : [...oldSessionStartingNotes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
+      const newUuids = !oldSession.notes ? [] : [...oldSession.notes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
+  
+      const addedUuids = newUuids.filter(u => !oldUuids.includes(u));
+  
+      for (const uuid of addedUuids) {
+        const entry = await Entry.fromUuid(uuid);
+  
+        // might be a document instead of an entry
+        if (!entry) 
+          // just skip it
+          continue;
+  
+        await campaignStore.mergeToDoItem(ToDoTypes.Entry, `Added to notes in Session ${oldSession.number}`, uuid, oldSession.uuid);
       }
-      return;
     }
 
     // from here, we have an old session, so we need to see about saving it
-    const oldSessionStartingNotes = oldSession?.notes ?? '';
+    // const oldSessionStartingNotes = oldSession?.notes ?? '';
 
     // if newSession is null we're closing, otherwise we're changing campaigns (because there's no way to change 
     //    the played session within a campaign while playing)
     // either way, we need to check if the session notes window is dirty and save if needed
-    if (openSessionNotesWindow && openSessionNotesWindow.value.getNotes() !== initialSessionNotes.value) {
-      if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
-        ui.notifications.warn('saving not done yet');.
-        // oldSession.notes = openSessionNotesWindow.value.getNotes();
-        // await oldSession.save();
+    // if (SessionNotesApplication.component && openSessionNotesWindow.value.getNotes() !== initialSessionNotes.value) {
+    //   if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
+        ui.notifications.warn('saving not done yet');
+    //     // oldSession.notes = openSessionNotesWindow.value.getNotes();
+    //     // await oldSession.save();
 
-        // refresh the content in case we're looking at the notes page for that session
-        await mainStore.refreshCurrentContent();
-      }
-    }
+    //     // refresh the content in case we're looking at the notes page for that session
+    //     await mainStore.refreshCurrentContent();
+    //   }
+    // }
 
-    // if newSession exists, capture the starting notes
+    // if newSession exists, capture the starting notes and open window if needed
     if (newSession) {
-      // now that we've saved (or not), we can update the notes window with the new session
-      if (openSessionNotesWindow.value) {
-        openSessionNotesWindow.value.setSession(newSession);
-      }
-      
       initialSessionNotes.value = newSession?.notes ?? '';
-    }
 
-     // check for new uuids that should become to do items
-    const oldUuids = !oldSessionStartingNotes ? [] : [...oldSessionStartingNotes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
-    const newUuids = !oldSession.notes ? [] : [...oldSession.notes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
-
-    const addedUuids = newUuids.filter(u => !oldUuids.includes(u));
-
-    for (const uuid of addedUuids) {
-      const entry = await Entry.fromUuid(uuid);
-
-      // might be a document instead of an entry
-      if (!entry) 
-        // just skip it
-        continue;
-
-      await campaignStore.mergeToDoItem(ToDoTypes.Entry, `Added to notes in Session ${oldSession.number}`, uuid, oldSession.uuid);
-    }
-
-
-    // if switching campaigns, open new notes
-    if (ModuleSettings.get(SettingKey.displaySessionNotes) && newSession) {
-      await openSessionNotes(newSession);
-      initialSessionNotes.value = newSession.notes;
+      // close and reopen window to get the title right
+      if (ModuleSettings.get(SettingKey.displaySessionNotes)) {
+        await openSessionNotes(newSession);
+      }
     }
   });
 
@@ -203,7 +191,6 @@ export const usePlayingStore = defineStore('playing', () => {
     currentPlayedSession,
     currentPlayedCampaignId,    
     playableCampaigns,
-    openSessionNotesWindow
   };
 });
 

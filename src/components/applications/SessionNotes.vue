@@ -3,6 +3,7 @@
     <!-- enabledEntityLinking is false because when we save we don't want to convert ids into html tags -->
     <Editor 
       ref="editorRef"
+      :initial-content="sessionNotes"
       :edit-only-mode="true"
       :editable="true"
       :enable-entity-linking="false"
@@ -13,13 +14,12 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, onMounted, } from 'vue';
+  import { ref, watch, onMounted, computed, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { useMainStore, usePlayingStore } from '@/applications/stores';
   import Editor from '@/components/Editor.vue';
-  import { Session } from '@/classes';
 
   // stores
   const mainStore = useMainStore();
@@ -29,9 +29,15 @@
 
   // data
   const editorRef = ref<typeof Editor | null>(null);
-  const displayedSessionUuid = ref<string | null>(null);
-  
+  const sessionNotes = ref<string>('');
+
   // computed
+  const isDirty = computed(() => {
+    return editorRef.value?.isDirty();
+  });
+
+  // expose methods
+  defineExpose({ isDirty });
 
   // methods
   const onNotesEditorSaved = async (newContent: string) => {
@@ -46,41 +52,23 @@
     }
   };
 
-  /** returns the current (unsaved) content of the editor */
-  const getNotes = (): string => {
-    return editorRef.value?.currentContent() || '';
-  }
-
-  /** saves the current (unsaved) content of the editor */
-  const saveNotes = async () => {
-    await onNotesEditorSaved(editorRef.value?.currentContent() || ''); 
-  }
-
-  /** changes the session; we do this menually to avoid a race condition with the playingStore watcher on session change */
-  const setSession = (session: Session | null) => {
-    editorRef.value?.setContent(session?.notes || '');
-    displayedSessionUuid.value = session?.uuid || null;
-  };
-
   ////////////////////////////////
   // exposed functions
-  /** get the current (unsaved) content of the editor */
-  defineExpose({ saveNotes, setSession, getNotes });
 
   ////////////////////////////////
   // watchers
+  // changes to the played session 
+  watch(() => currentPlayedSession.value, async () => {
+    sessionNotes.value = currentPlayedSession.value?.notes || '';
+  }, { immediate: true });
 
-  watch(() => currentPlayedSession.value?.notes, (newNotes) => {
-    // only update if the session is the same; this prevents the race condition with playingStore watcher on session change
-    // and allows external changes (like saves from the main session tab) to be reflected
-    if (currentPlayedSession.value?.uuid === displayedSessionUuid.value) {
-      editorRef.value?.setContent(newNotes || '');
-    }
+  watch(() => currentPlayedSession.value?.notes, async () => {
+    sessionNotes.value = currentPlayedSession.value?.notes || '';
   }, { immediate: true });
 
   // lifecycle
   onMounted(() => {
-    setSession(currentPlayedSession.value);
+    sessionNotes.value = currentPlayedSession.value?.notes || '';
   })
 </script>
 

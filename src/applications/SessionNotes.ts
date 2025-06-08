@@ -5,21 +5,25 @@ import App from '@/components/applications/SessionNotes.vue';
 import { localize } from '@/utils/game';
 import { Session } from '@/classes';
 import { theme } from '@/components/styles/primeVue';
-import { usePlayingStore } from '@/applications/stores';
+import { useMainStore } from '@/applications/stores';
+import { FCBDialog } from '@/dialogs';
+import SessionNotes from '@/components/applications/SessionNotes.vue';
 
 const { ApplicationV2 } = foundry.applications.api;
 
-// the most recent one; we track this so it can close itself
-export let sessionNotesApp: SessionNotesApplication | null = null;
-
 export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) {
   public static title: string;
+  public static app: SessionNotesApplication | null = null;
 
   constructor() { 
     super(); 
-    sessionNotesApp = this; 
+    SessionNotesApplication.app = this; 
   }
-  
+
+  public static get component(): typeof SessionNotes {
+    return SessionNotesApplication.app?.parts.app;
+  }
+
   static get DEFAULT_OPTIONS() {
     return {
       id: `app-fcb-session-notes`,
@@ -37,6 +41,7 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
     }
   };
 
+
   /**
    * Closes the application and unmounts all instances.
    * 
@@ -44,12 +49,20 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
    * @returns {Promise<BaseApplication>} - A Promise which resolves to the rendered Application instance.
    */
     async close(options = {}) {
-      // clear the variable
-      sessionNotesApp = null;
+      // see if the editor is dirty
+      if (SessionNotesApplication.component?.isDirty) {
+        if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
+          ui.notifications.warn('saving not done yet');
+          // oldSession.notes = openSessionNotesWindow.value.getNotes();
+          // await oldSession.save();
+  
+          // refresh the content in case we're looking at the notes page for that session
+          await useMainStore().refreshCurrentContent();
+        }
+      }
 
-      // get store and set window to null
-      const playingStore = usePlayingStore();
-      playingStore.openSessionNotesWindow = null;
+      // clear the variable
+      SessionNotesApplication.app = null;
 
       // Call the close method of the base application
       return await super.close(options);
@@ -79,14 +92,13 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
 // Function to open the session notes window
 export async function openSessionNotes(session: Session): Promise<void> {
   // Create and render the application
-  if (!sessionNotesApp) {
-    SessionNotesApplication.title = `Session ${session.number}`;
-    sessionNotesApp = new SessionNotesApplication();
+  if (SessionNotesApplication.app) {
+    // close the old one
+    await SessionNotesApplication.app.close();
   }
-  
-  await sessionNotesApp.render(true);
 
-  // get store and set window to the component instance
-  const playingStore = usePlayingStore();
-  playingStore.openSessionNotesWindow = sessionNotesApp.parts.app ?? null;
+  SessionNotesApplication.title = `Session ${session.number}`;
+  SessionNotesApplication.app = new SessionNotesApplication();
+
+  await SessionNotesApplication.app.render(true);
 }

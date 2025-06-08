@@ -243,10 +243,10 @@
     content = ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
 
     // see if dirty
-    const isDirty = (lastSavedContent.value !== ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content));
+    const dirty = isDirty();
 
     // Apply entity linking if enabled and content is dirty
-    if (isDirty && props.enableEntityLinking && currentSetting.value) {
+    if (dirty && props.enableEntityLinking && currentSetting.value) {
       try {
         content = await replaceEntityReferences(content, currentSetting.value, {
           currentEntityUuid: props.currentEntityUuid
@@ -258,7 +258,7 @@
     }
 
     // Check for UUID changes if related items tracking is enabled
-    if (isDirty && props.enableRelatedEntriesTracking) {
+    if (dirty && props.enableRelatedEntriesTracking) {
       const currentUUIDs = extractUUIDs(content);
       const { added, removed } = compareUUIDs(initialUUIDs.value, currentUUIDs);
       
@@ -280,12 +280,12 @@
       editorVisible.value = false;
       await nextTick();
       editorVisible.value = true;
-    } else if (isDirty) {
+    } else if (dirty) {
       // if we're not removing it, then do a ui confirmation
       notifyInfo(localize('notifications.changesSaved'));
     }
     
-    if (isDirty) {
+    if (dirty) {
       lastSavedContent.value = content;
       
       if (props.enableRelatedEntriesTracking) {
@@ -296,6 +296,15 @@
     }
   };
 
+  const isDirty = (): boolean => {
+    if (!editor.value)
+      return false;
+    
+    return lastSavedContent.value !== ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
+  }
+
+  // expose methods
+  defineExpose({ isDirty });
 
   ////////////////////////////////
   // event handlers
