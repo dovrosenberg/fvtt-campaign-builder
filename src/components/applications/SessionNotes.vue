@@ -60,19 +60,19 @@
   watch(() => currentPlayedSession.value, async (newSession: Session | null, oldSession: Session | null) => {
     sessionNotes.value = newSession?.notes || '';
 
-    if (!oldSession) 
-      return;
+    // if (!oldSession) 
+    //   return;
 
-    // check if the session notes window is dirty and save if needed
-    if (editorRef.value && isDirty()) {
-      if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
-        oldSession.notes = editorRef.value.getContent();
-        await oldSession.save();
+    // // check if the session notes window is dirty and save if needed
+    // if (editorRef.value && isDirty()) {
+    //   if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
+    //     oldSession.notes = editorRef.value.getContent();
+    //     await oldSession.save();
 
-        // refresh the content in case we're looking at the notes page for that session
-        await mainStore.refreshCurrentContent();
-      }
-    }
+    //     // refresh the content in case we're looking at the notes page for that session
+    //     await mainStore.refreshCurrentContent();
+    //   }
+    // }
   }, { immediate: true });
 
   /** Handle when the notes are saved by the main session screen */

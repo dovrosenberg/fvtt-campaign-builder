@@ -5,15 +5,12 @@ import { defineStore, storeToRefs } from 'pinia';
 import { watch, ref, computed, } from 'vue';
 
 // local imports
-import { FCBDialog } from '@/dialogs';
 import { useMainStore, useCampaignStore } from '@/applications/stores';
-import SessionNotes from '@/components/applications/SessionNotes.vue';
 
 // types
 import { Campaign, Entry, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { openSessionNotes, } from '@/applications/SessionNotes';
-import { localize } from '@/utils/game';
+import { openSessionNotes, SessionNotesApplication, } from '@/applications/SessionNotes';
 import { ToDoTypes } from '@/types';
 
 // the store definition
@@ -48,9 +45,10 @@ export const usePlayingStore = defineStore('playing', () => {
   
 
   // The currently played campaign object (update it by updating currentPlayedCampaignId)
+  // note if we're just leaving isInPlayMode, this will still be the old campaign until everything resolves
   const currentPlayedCampaign = computed((): Campaign | null => {
-    // If we're not in play mode or don't have a world, return null
-    if (!isInPlayMode.value || !currentSetting.value) {
+    // If we don't have a setting, can't have a campaign
+    if (!currentSetting.value) {
       return null;
     }
 
@@ -154,7 +152,12 @@ export const usePlayingStore = defineStore('playing', () => {
         await openSessionNotes(session);
       }
     } else {
-      // When exiting play mode, clear the current played campaign
+      // When exiting play mode, first close the session notes window (which will save if needed)
+      // have to do this first because once the current session changes, reactivity will lose any unsaved edits
+      await SessionNotesApplication.close();
+
+      
+      // clear the current played campaign
       currentPlayedCampaignId.value = null;
     }
   });

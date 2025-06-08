@@ -24,6 +24,10 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
     return SessionNotesApplication.app?.parts.app;
   }
 
+  public static async close(): Promise<void> {
+    await SessionNotesApplication.app?.close();
+  }
+
   static get DEFAULT_OPTIONS() {
     return {
       id: `app-fcb-session-notes`,
