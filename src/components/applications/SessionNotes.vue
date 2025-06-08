@@ -3,48 +3,41 @@
     <!-- enabledEntityLinking is false because when we save we don't want to convert ids into html tags -->
     <Editor 
       ref="editorRef"
-      :initial-content="sessionNotes"
       :edit-only-mode="true"
       :editable="true"
       :enable-entity-linking="false"
       @editor-saved="onNotesEditorSaved"
-      @editor-loaded="(notes) => { lastSavedNotes = notes; }"
     />
   </div>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, onMounted, computed } from 'vue';
+  import { ref, watch, onMounted, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useCampaignStore, useMainStore, useSessionStore } from '@/applications/stores';
+  import { useMainStore, usePlayingStore } from '@/applications/stores';
   import Editor from '@/components/Editor.vue';
+  import { Session } from '@/classes';
 
   // stores
   const mainStore = useMainStore();
-  const campaignStore = useCampaignStore();
-  const sessionStore = useSessionStore();
-  const { currentPlayedSession } = storeToRefs(campaignStore);
+  const playingStore = usePlayingStore();
+  const { currentPlayedSession } = storeToRefs(playingStore);
   const { currentSession } = storeToRefs(mainStore);
-  const { lastSavedNotes } = storeToRefs(sessionStore);
 
   // data
-  const sessionNotes = ref<string>('');
   const editorRef = ref<typeof Editor | null>(null);
-
+  const displayedSessionUuid = ref<string | null>(null);
+  
   // computed
-  const dirty = computed((): boolean => (editorRef?.value?.dirty || false));
-
-  defineExpose({ dirty });
 
   // methods
   const onNotesEditorSaved = async (newContent: string) => {
     if (!currentPlayedSession.value) return;
 
     currentPlayedSession.value.notes = newContent;
-    lastSavedNotes.value = newContent;
     await currentPlayedSession.value.save();
 
     // if we're showing the session, refresh it
@@ -53,19 +46,41 @@
     }
   };
 
-  // watchers
-  // changes to the played session 
-  watch(() => currentPlayedSession.value, async () => {
-    sessionNotes.value = currentPlayedSession.value?.notes || '';
-  }, { immediate: true });
+  /** returns the current (unsaved) content of the editor */
+  const getNotes = (): string => {
+    return editorRef.value?.currentContent() || '';
+  }
 
-  watch(() => currentPlayedSession.value?.notes, async () => {
-    sessionNotes.value = currentPlayedSession.value?.notes || '';
+  /** saves the current (unsaved) content of the editor */
+  const saveNotes = async () => {
+    await onNotesEditorSaved(editorRef.value?.currentContent() || ''); 
+  }
+
+  /** changes the session; we do this menually to avoid a race condition with the playingStore watcher on session change */
+  const setSession = (session: Session | null) => {
+    editorRef.value?.setContent(session?.notes || '');
+    displayedSessionUuid.value = session?.uuid || null;
+  };
+
+  ////////////////////////////////
+  // exposed functions
+  /** get the current (unsaved) content of the editor */
+  defineExpose({ saveNotes, setSession, getNotes });
+
+  ////////////////////////////////
+  // watchers
+
+  watch(() => currentPlayedSession.value?.notes, (newNotes) => {
+    // only update if the session is the same; this prevents the race condition with playingStore watcher on session change
+    // and allows external changes (like saves from the main session tab) to be reflected
+    if (currentPlayedSession.value?.uuid === displayedSessionUuid.value) {
+      editorRef.value?.setContent(newNotes || '');
+    }
   }, { immediate: true });
 
   // lifecycle
   onMounted(() => {
-    sessionNotes.value = currentPlayedSession.value?.notes || '';
+    setSession(currentPlayedSession.value);
   })
 </script>
 

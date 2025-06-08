@@ -5,7 +5,7 @@ import { ref, watch, } from 'vue';
 import { defineStore, storeToRefs, } from 'pinia';
 
 // local imports
-import { useCampaignDirectoryStore, useCampaignStore, useMainStore, useNavigationStore, } from '@/applications/stores';
+import { useCampaignDirectoryStore, useMainStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game'; 
 import { htmlToPlainTextReplaceUuid } from '@/utils/sanitizeHtml';
@@ -80,17 +80,15 @@ export const useSessionStore = defineStore('session', () => {
     ],  
   } as Record<SessionTableTypes, FieldData>;
 
-  // track the last value of notes we saved - have to do this 
-  const lastSavedNotes = ref<string>();
   
   ///////////////////////////////
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const campaignStore = useCampaignStore();
+  const playingStore = usePlayingStore();
   const { currentSetting, currentContentTab, currentSession, } = storeToRefs(mainStore);
-  const { currentPlayedSession } = storeToRefs(campaignStore);
+  const { currentPlayedSession } = storeToRefs(playingStore);
 
   ///////////////////////////////
   // internal state
@@ -957,7 +955,6 @@ export const useSessionStore = defineStore('session', () => {
     relatedVignetteRows,
     relatedLoreRows,
     extraFields,
-    lastSavedNotes,
     addLocation,
     addLocationToPlayedSession,
     deleteLocation,

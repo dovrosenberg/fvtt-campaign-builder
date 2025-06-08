@@ -7,7 +7,7 @@ import { getTopicText } from '@/compendia';
 import { TopicFolder, Setting } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
-import { useCampaignStore, useMainStore } from '@/applications/stores';
+import { useMainStore, usePlayingStore } from '@/applications/stores';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -348,7 +348,7 @@ export class Entry {
         await searchService.addOrUpdateIndex(this, world, true);
 
         // Update the todo list if in play mode
-        const campaign = useCampaignStore().currentPlayedCampaign;
+        const campaign = usePlayingStore().currentPlayedCampaign;
         if (useMainStore().isInPlayMode && campaign) {
           await campaign.mergeToDoItem(ToDoTypes.Entry, `Edited during session ${campaign.currentSession?.number}`, this.uuid);
         }

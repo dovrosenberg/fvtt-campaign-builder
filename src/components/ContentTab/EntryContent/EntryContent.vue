@@ -185,7 +185,7 @@
   // local imports
   import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
-  import { useSettingDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, useCampaignStore, } from '@/applications/stores';
+  import { useSettingDirectoryStore, useMainStore, useNavigationStore, useRelationshipStore, usePlayingStore, } from '@/applications/stores';
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
   import { ModuleSettings, SettingKey } from '@/settings';
@@ -228,9 +228,9 @@
   const settingDirectoryStore = useSettingDirectoryStore();
   const navigationStore = useNavigationStore();
   const relationshipStore = useRelationshipStore();
-  const campaignStore = useCampaignStore();
+  const playingStore = usePlayingStore();
   const { currentEntry, currentSetting, currentContentTab, refreshCurrentEntry, } = storeToRefs(mainStore);
-  const { currentPlayedCampaign } = storeToRefs(campaignStore);
+  const { currentPlayedCampaign } = storeToRefs(playingStore);
 
   ////////////////////////////////
   // data

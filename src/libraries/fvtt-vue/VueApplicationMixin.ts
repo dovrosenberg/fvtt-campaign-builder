@@ -42,18 +42,10 @@ export function VueApplicationMixin<TBase extends new (...args: any[]) => foundr
     static PARTS = {};
 
     /**
-     * Get the parts of the Vue application.
-     * @returns {Object<string, *>} - The parts of the Vue application.
-     */
-    get parts() {
-      return this.#parts;
-    }
-
-    /**
-     * The private parts of the Vue application.
+     * The public container for component instances.
      * @type {Object<string, *>}
      */
-    #parts = {};
+    parts: Record<string, any> = {};
 
     /**
      * The private containers for Vue instances.
@@ -141,7 +133,10 @@ export function VueApplicationMixin<TBase extends new (...args: any[]) => foundr
               'data-application-part': key,
             }, [
               // Insert the component inside this div along with the props for that component
-              h(value, { ...this.#props[key] })
+              h(value, {
+                ...this.#props[key],
+                ref: (componentInstance) => { if (componentInstance) Instance.parts[key] = componentInstance; }
+              })
             ])
           )
         }).mixin({

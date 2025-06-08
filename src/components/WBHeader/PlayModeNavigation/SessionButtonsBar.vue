@@ -19,7 +19,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useCampaignStore, useNavigationStore } from '@/applications/stores';
+  import { useMainStore, usePlayingStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // types
@@ -27,10 +27,10 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const campaignStore = useCampaignStore();
+  const playingStore = usePlayingStore();
   const navigationStore = useNavigationStore();
   const { currentContentTab } = storeToRefs(mainStore);
-  const { currentPlayedCampaign } = storeToRefs(campaignStore);
+  const { currentPlayedCampaign } = storeToRefs(playingStore);
   const { tabs } = storeToRefs(navigationStore);
 
   ////////////////////////////////

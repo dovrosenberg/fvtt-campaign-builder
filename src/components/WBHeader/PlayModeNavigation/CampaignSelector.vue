@@ -24,7 +24,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useCampaignStore, useMainStore } from '@/applications/stores';
+  import { useMainStore, usePlayingStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // library components
@@ -36,9 +36,10 @@
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
-  const campaignStore = useCampaignStore();
+  const playingStore = usePlayingStore();
   const { isInPlayMode } = storeToRefs(mainStore);
-  const { currentPlayedCampaignId, playableCampaigns } = storeToRefs(campaignStore);
+  const { playableCampaigns } = storeToRefs(playingStore);
+  const { currentPlayedCampaignId } = storeToRefs(playingStore);
 
   ////////////////////////////////
   // data

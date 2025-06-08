@@ -5,7 +5,7 @@ import App from '@/components/applications/SessionNotes.vue';
 import { localize } from '@/utils/game';
 import { Session } from '@/classes';
 import { theme } from '@/components/styles/primeVue';
-import { useSessionStore } from '@/applications/stores';
+import { usePlayingStore } from '@/applications/stores';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -37,6 +37,24 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
     }
   };
 
+  /**
+   * Closes the application and unmounts all instances.
+   * 
+   * @param {ApplicationClosingOptions} [options] - Optional parameters for closing the application.
+   * @returns {Promise<BaseApplication>} - A Promise which resolves to the rendered Application instance.
+   */
+    async close(options = {}) {
+      // clear the variable
+      sessionNotesApp = null;
+
+      // get store and set window to null
+      const playingStore = usePlayingStore();
+      playingStore.openSessionNotesWindow = null;
+
+      // Call the close method of the base application
+      return await super.close(options);
+    }
+
   static DEBUG = false;
 
   static SHADOWROOT = false;
@@ -67,4 +85,8 @@ export async function openSessionNotes(session: Session): Promise<void> {
   }
   
   await sessionNotesApp.render(true);
+
+  // get store and set window to the component instance
+  const playingStore = usePlayingStore();
+  playingStore.openSessionNotesWindow = sessionNotesApp.parts.app ?? null;
 }

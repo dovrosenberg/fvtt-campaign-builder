@@ -54,7 +54,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useCampaignStore } from '@/applications/stores';
+  import { useMainStore, usePlayingStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
 
   // library components
@@ -66,9 +66,9 @@
   
   // Store references
   const mainStore = useMainStore();
-  const campaignStore = useCampaignStore();
+  const playingStore = usePlayingStore();
   const { isInPlayMode, currentSetting } = storeToRefs(mainStore);
-  const { playableCampaigns } = storeToRefs(campaignStore);
+  const { playableCampaigns } = storeToRefs(playingStore);
 
   // Data
   const toggleValue = ref<boolean>(isInPlayMode.value);

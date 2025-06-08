@@ -130,7 +130,7 @@
   import { nextTick, ref, watch, onMounted, } from 'vue';
 
   // local imports
-  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, useCampaignStore, } from '@/applications/stores';
+  import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { SettingKey, } from '@/settings';
@@ -167,9 +167,9 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const campaignStore = useCampaignStore();
+  const playingStore = usePlayingStore();
   const { currentSession, currentContentTab, isInPlayMode } = storeToRefs(mainStore);
-  const { currentPlayedSession } = storeToRefs(campaignStore);
+  const { currentPlayedSession } = storeToRefs(playingStore);
   
   ////////////////////////////////
   // data

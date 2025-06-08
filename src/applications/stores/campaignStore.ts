@@ -5,14 +5,13 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { watch, ref, computed } from 'vue';
 
 // local imports
-import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
+import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useSessionStore } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 
 // types
 import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea} from '@/types';
 import { Campaign, Entry, PC, Session } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { openSessionNotes } from '@/applications/SessionNotes';
 import { localize } from '@/utils/game';
 import Document from 'node_modules/@types/fvtt-types/src/foundry/common/abstract/document.mjs';
 
@@ -69,13 +68,11 @@ export const useCampaignStore = defineStore('campaign', () => {
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentCampaign, currentSession, currentContentTab, currentSetting, isInPlayMode } = storeToRefs(mainStore);
-
+  const { currentCampaign, currentSession, currentContentTab, currentSetting, } = storeToRefs(mainStore);
+  
   ///////////////////////////////
   // internal state
-  const currentPlayedCampaignId = ref<string | null>(null);
-  const initialSessionNotes  = ref<string | null>(null);  // the notes went we entered play mode so we can look for new uuids
-  
+
   ///////////////////////////////
   // external state
 
@@ -327,9 +324,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     return allRelatedLoreRows.value.filter((r) => !r.delivered);
   });
 
-  const currentPlayedSession = computed((): Session | null => (currentPlayedCampaign?.value?.currentSession || null) as Session | null);
-  
-  const availableCampaigns = computed((): Campaign[] => {
+    const availableCampaigns = computed((): Campaign[] => {
     if (!currentSetting.value) {
       return [];
     }
@@ -340,45 +335,6 @@ export const useCampaignStore = defineStore('campaign', () => {
     }
 
     return campaigns;
-  });
-
-  const playableCampaigns = computed((): Campaign[] => {
-    return availableCampaigns.value.filter((c) => c.sessions.length !== 0);
-  });
-
-  // The currently played campaign object (update it by updating currentPlayedCampaignId)
-  const currentPlayedCampaign = computed((): Campaign | null => {
-    // If we're not in play mode or don't have a world, return null
-    if (!isInPlayMode.value || !currentSetting.value) {
-      return null;
-    }
-
-    // Get all playable campaigns in the current world
-    const campaigns = playableCampaigns.value;
-
-    // If there are no campaigns, return null
-    if (!campaigns || campaigns.length === 0) {
-      return null;
-    }
-
-    // If there's only one campaign, use that
-    if (campaigns.length === 1) {
-      return campaigns[0];
-    }
-
-    // If we have a specific campaign ID selected, use that
-    if (currentPlayedCampaignId.value) {
-      const campaign = campaigns.find((c) => c.uuid===currentPlayedCampaignId.value) || null;
-
-      // it's possible that it's no longer playable, so let's check
-      if (campaign) {
-        return campaign
-      }
-    } 
-
-    // got here, so more than one and we don't have a valid one picked already, so select the first one
-    currentPlayedCampaignId.value = campaigns[0].uuid;
-    return campaigns[0];
   });
 
 
@@ -490,14 +446,6 @@ export const useCampaignStore = defineStore('campaign', () => {
 
     return newSession;
   }
-
-  // const _refreshRows = async (): Promise<void> => {
-  //   await _refreshPCRows();
-  //   await _refreshLoreRows();
-  //   await _refreshToDoRows();
-  //   await _refreshIdeaRows();
-  //   await _refreshPCRows();
-  // }
 
   const _refreshPCRows = async (): Promise<void> => {
     relatedPCRows.value = [];
@@ -634,82 +582,6 @@ export const useCampaignStore = defineStore('campaign', () => {
     await _refreshRowsForTab();
   });
 
-  // we capture changes to both the played campaign and turning off isInPlayMode here (via campaign going to null)
-  // need to do that here vs isInPlayMode watcher because we need the old campaign value to save the session notes
-  watch(() => currentPlayedSession.value, async (newSession: Session | null, oldSession: Session | null) => {
-    // if newSession exists, capture the starting notes
-    if (newSession) {
-      initialSessionNotes.value = newSession?.notes ?? '';
-    }
-
-    // if oldSession is null, we're turning on play mode, so nothing else to do
-    if (!oldSession) {
-      return;
-    }
-
-    // make the sure the id changed
-    if (oldSession.uuid === newSession?.uuid)
-      return;
-
-    // if newSession is null we're closing, otherwise we're changing campaigns (because there's no way to change 
-    //    the played session within a campaign while playing)
-
-     // check for new uuids that should become to do items
-    const oldUuids = !initialSessionNotes.value ? [] : [...initialSessionNotes.value.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
-    const newUuids = !oldSession.notes ? [] : [...oldSession.notes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
-
-    const addedUuids = newUuids.filter(u => !oldUuids.includes(u));
-
-    for (const uuid of addedUuids) {
-      const entry = await Entry.fromUuid(uuid);
-
-      // might be a document instead of an entry
-      if (!entry) 
-        // just skip it
-        continue;
-
-      await mergeToDoItem(ToDoTypes.Entry, `Added to notes in Session ${oldSession.number}`, uuid, oldSession.uuid);
-    }
-
-    // if (oldSession.notes != null && oldSession?.notes !== oldSession.notes) {
-    //   if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
-    //     // save the session
-    //     oldSession.notes = notesToSave;
-    //     await oldSession?.save();    
-
-    //     // refresh the content in case we're looking at the notes page for that session
-    //     await mainStore.refreshCurrentContent();
-    //   }
-    // }      
-
-    // if switching campaigns, open new notes
-    if (ModuleSettings.get(SettingKey.displaySessionNotes) && newSession) {
-      await openSessionNotes(newSession);
-      initialSessionNotes.value = newSession.notes;
-    }
-  });
-
-  // When play mode changes, update the current played campaign
-  watch(()=> isInPlayMode.value, async (newValue) => {
-    if (newValue) {
-      // When entering play mode, initialize the current played campaign
-      currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
-
-      // If entering play mode, open the session notes window
-      if (ModuleSettings.get(SettingKey.displaySessionNotes) && currentPlayedCampaign.value?.currentSession) {
-        await openSessionNotes(currentPlayedCampaign.value.currentSession);
-      }
-    } else {
-      // When exiting play mode, clear the current played campaign
-      currentPlayedCampaignId.value = null;
-    }
-  });
-
-  // When the world changes, reset the current played campaign
-  watch(()=> currentSetting.value, () => {
-    currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
-  });
-
   ///////////////////////////////
   // lifecycle events 
 
@@ -721,10 +593,6 @@ export const useCampaignStore = defineStore('campaign', () => {
     availableLoreRows,
     extraFields,
     availableCampaigns,
-    playableCampaigns,
-    currentPlayedCampaign,
-    currentPlayedSession,
-    currentPlayedCampaignId,
     toDoRows,
     ideaRows,
     
