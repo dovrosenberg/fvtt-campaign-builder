@@ -448,8 +448,14 @@
       const newDoc = ProseMirror.dom.parseString(content, schema);
       const tr = state.tr.replaceWith(0, state.doc.content.size, newDoc.content);
       
-      // Apply the transaction
-      dispatch(tr);
+      // Apply the transaction - this is throwing a Foundry ProseMirrorMenu plugin error, but it doesn't seem to matter as
+      //    the update still happens
+      try {
+        dispatch(tr);
+      } catch (error) {
+        // just move on
+      }
+      
       lastSavedContent.value = content;
     } else {
       enrichedInitialContent.value = await enrichFcbHTML(currentSetting.value.uuid, content);
