@@ -5,7 +5,7 @@ import App from '@/components/applications/SessionNotes.vue';
 import { localize } from '@/utils/game';
 import { Session } from '@/classes';
 import { theme } from '@/components/styles/primeVue';
-import { useMainStore } from '@/applications/stores';
+import { useMainStore, usePlayingStore } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import SessionNotes from '@/components/applications/SessionNotes.vue';
 
@@ -49,15 +49,21 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
    * @returns {Promise<BaseApplication>} - A Promise which resolves to the rendered Application instance.
    */
     async close(options = {}) {
-      // see if the editor is dirty
-      if (SessionNotesApplication.component?.isDirty) {
-        if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
-          ui.notifications.warn('saving not done yet');
-          // oldSession.notes = openSessionNotesWindow.value.getNotes();
-          // await oldSession.save();
-  
-          // refresh the content in case we're looking at the notes page for that session
-          await useMainStore().refreshCurrentContent();
+      const component = SessionNotesApplication.component;
+      const session = usePlayingStore().currentPlayedSession;
+      
+      if (component && session) {
+        // check if the session notes window is dirty and save if needed
+        if (component.isDirty()) {
+          if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
+
+            session.notes = component.getNotes();
+            if (session.notes != null)
+              await session.save();
+
+            // refresh the content in case we're looking at the notes page for that session
+            await useMainStore().refreshCurrentContent();
+          }
         }
       }
 

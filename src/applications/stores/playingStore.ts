@@ -126,23 +126,6 @@ export const usePlayingStore = defineStore('playing', () => {
       }
     }
 
-    // from here, we have an old session, so we need to see about saving it
-    // const oldSessionStartingNotes = oldSession?.notes ?? '';
-
-    // if newSession is null we're closing, otherwise we're changing campaigns (because there's no way to change 
-    //    the played session within a campaign while playing)
-    // either way, we need to check if the session notes window is dirty and save if needed
-    // if (SessionNotesApplication.component && openSessionNotesWindow.value.getNotes() !== initialSessionNotes.value) {
-    //   if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
-        ui.notifications.warn('saving not done yet');
-    //     // oldSession.notes = openSessionNotesWindow.value.getNotes();
-    //     // await oldSession.save();
-
-    //     // refresh the content in case we're looking at the notes page for that session
-    //     await mainStore.refreshCurrentContent();
-    //   }
-    // }
-
     // if newSession exists, capture the starting notes and open window if needed
     if (newSession) {
       initialSessionNotes.value = newSession?.notes ?? '';

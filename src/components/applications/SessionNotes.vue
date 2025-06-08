@@ -20,6 +20,9 @@
   // local imports
   import { useMainStore, usePlayingStore } from '@/applications/stores';
   import Editor from '@/components/Editor.vue';
+  import { FCBDialog } from '@/dialogs';
+  import { localize } from '@/utils/game';
+  import { Session } from '@/classes';
 
   // stores
   const mainStore = useMainStore();
@@ -32,12 +35,7 @@
   const sessionNotes = ref<string>('');
 
   // computed
-  const isDirty = computed(() => {
-    return editorRef.value?.isDirty();
-  });
-
-  // expose methods
-  defineExpose({ isDirty });
+  const isDirty = (): boolean => editorRef.value?.isDirty();
 
   // methods
   const onNotesEditorSaved = async (newContent: string) => {
@@ -54,14 +52,30 @@
 
   ////////////////////////////////
   // exposed functions
+  defineExpose({ getNotes: () => editorRef.value?.getContent() ?? null, isDirty });
 
   ////////////////////////////////
   // watchers
   // changes to the played session 
-  watch(() => currentPlayedSession.value, async () => {
-    sessionNotes.value = currentPlayedSession.value?.notes || '';
+  watch(() => currentPlayedSession.value, async (newSession: Session | null, oldSession: Session | null) => {
+    sessionNotes.value = newSession?.notes || '';
+
+    if (!oldSession) 
+      return;
+
+    // check if the session notes window is dirty and save if needed
+    if (editorRef.value && isDirty()) {
+      if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
+        oldSession.notes = editorRef.value.getContent();
+        await oldSession.save();
+
+        // refresh the content in case we're looking at the notes page for that session
+        await mainStore.refreshCurrentContent();
+      }
+    }
   }, { immediate: true });
 
+  /** Handle when the notes are saved by the main session screen */
   watch(() => currentPlayedSession.value?.notes, async () => {
     sessionNotes.value = currentPlayedSession.value?.notes || '';
   }, { immediate: true });

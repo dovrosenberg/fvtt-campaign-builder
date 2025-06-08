@@ -300,11 +300,18 @@
     if (!editor.value)
       return false;
     
-    return lastSavedContent.value !== ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
+    return lastSavedContent.value !== getContent();
+  }
+
+  const getContent = (): string => {
+    if (!editor.value)
+      return '';
+    
+    return ProseMirror.dom.serializeString(toRaw(editor.value).view.state.doc.content);
   }
 
   // expose methods
-  defineExpose({ isDirty });
+  defineExpose({ isDirty, getContent });
 
   ////////////////////////////////
   // event handlers
