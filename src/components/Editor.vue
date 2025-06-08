@@ -414,15 +414,15 @@
 
   ////////////////////////////////
   // watchers
-  watch(() => props.initialContent, async () =>{
+  watch(() => props.initialContent, async (newContent) =>{
     if (!currentSetting.value)
       return;
-      
-    enrichedInitialContent.value = !props.editOnlyMode ? await enrichFcbHTML(currentSetting.value.uuid, props.initialContent || '') : props.initialContent || '';
 
+    const content = newContent || '';
+      
     // Initialize UUIDs for tracking if enabled
     if (props.enableRelatedEntriesTracking) {
-      initialUUIDs.value = extractUUIDs(props.initialContent || '');
+      initialUUIDs.value = extractUUIDs(content);
     }
 
     // if edit-only and no editor exists yet, activate it
@@ -432,17 +432,27 @@
     }
     // If editor is already active, update its content
     else if (editor.value) {
+      await nextTick();
+
       // Update the editor content
       const view = toRaw(editor.value).view;
       const { state, dispatch } = view;
       
+      // Do nothing if the content is already what we want it to be
+      const currentContent = ProseMirror.dom.serializeString(state.doc.content);
+      if (currentContent === content) 
+        return;
+      
       // Create a transaction that replaces the entire document content
       const schema = state.schema;
-      const newDoc = ProseMirror.dom.parseString(enrichedInitialContent.value || '', schema);
+      const newDoc = ProseMirror.dom.parseString(content, schema);
       const tr = state.tr.replaceWith(0, state.doc.content.size, newDoc.content);
       
       // Apply the transaction
       dispatch(tr);
+      lastSavedContent.value = content;
+    } else {
+      enrichedInitialContent.value = await enrichFcbHTML(currentSetting.value.uuid, content);
     }
   });
 
