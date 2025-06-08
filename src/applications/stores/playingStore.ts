@@ -47,6 +47,11 @@ export const usePlayingStore = defineStore('playing', () => {
   // The currently played campaign object (update it by updating currentPlayedCampaignId)
   // note if we're just leaving isInPlayMode, this will still be the old campaign until everything resolves
   const currentPlayedCampaign = computed((): Campaign | null => {
+    // if we're not in play mode and the campaign ID is null don't reset it again
+    if (!isInPlayMode.value && !currentPlayedCampaignId.value) {
+      return null;
+    }
+
     // If we don't have a setting, can't have a campaign
     if (!currentSetting.value) {
       return null;
@@ -103,15 +108,16 @@ export const usePlayingStore = defineStore('playing', () => {
       return;
 
     // if we have an old session, we will need to check for to dos
-    if (oldSession) {
+    // campaign might be closed, so pull from the session
+    if (oldSession && oldSession.campaign) {
       const oldSessionStartingNotes = initialSessionNotes.value;
-      
+
       // check for new uuids that should become to do items
       const oldUuids = !oldSessionStartingNotes ? [] : [...oldSessionStartingNotes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
       const newUuids = !oldSession.notes ? [] : [...oldSession.notes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
   
-      const addedUuids = newUuids.filter(u => !oldUuids.includes(u));
-  
+      const addedUuids = newUuids.filter(u => !oldUuids.includes(u)); 
+      
       for (const uuid of addedUuids) {
         const entry = await Entry.fromUuid(uuid);
   
@@ -120,8 +126,11 @@ export const usePlayingStore = defineStore('playing', () => {
           // just skip it
           continue;
   
-        await campaignStore.mergeToDoItem(ToDoTypes.Entry, `Added to notes in Session ${oldSession.number}`, uuid, oldSession.uuid);
+        await oldSession.campaign.mergeToDoItem(ToDoTypes.Entry, `Added to notes in Session ${oldSession.number}`, uuid, oldSession.uuid);
       }
+
+      // we might happen to be looking at campaign todos, so refresh
+      await mainStore.refreshCurrentContent();
     }
 
     // if newSession exists, capture the starting notes and open window if needed
@@ -156,7 +165,6 @@ export const usePlayingStore = defineStore('playing', () => {
       // have to do this first because once the current session changes, reactivity will lose any unsaved edits
       await SessionNotesApplication.close();
 
-      
       // clear the current played campaign
       currentPlayedCampaignId.value = null;
     }
