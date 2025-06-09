@@ -232,7 +232,7 @@ export const useMainStore = defineStore('main', () => {
     const worlds: Setting[] = [];
     
     for (const child of rootFolder.value.children) {
-      if (child.folder && child.folder.getFlag(moduleId, 'isWorld')) {
+      if (child.folder && child.folder.getFlag(moduleId, WorldFlagKey.isWorld)) {
         try {
           const world = await Setting.fromUuid(child.folder.uuid);
           if (world) {

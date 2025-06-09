@@ -158,9 +158,9 @@
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = currentSetting.value.uuid;
 
-      const worldCompendium = currentSetting.value.compendium || null;
+      const settingCompendium = currentSetting.value.compendium || null;
 
-      if (!worldCompendium)
+      if (!settingCompendium)
         throw new Error(`Could not find compendium for world ${worldId} in CampaignBuilder.currentSetting watch`);
 
       const topicIds = currentSetting.value.topicIds;
@@ -268,14 +268,14 @@
     if (!folders || !folders.rootFolder)
         throw new Error(`Couldn't get folders in CampaignBuilder.onMounted()`);
 
-    const world = folders.world;
-    const worldId = folders.world?.uuid;
-    const worldCompendium = folders.world?.compendium || null;
+    const setting = folders.setting;
+    const settingId = folders.setting?.uuid;
+    const settingCompendium = folders.setting?.compendium || null;
 
-    if (!world || !worldId || !worldCompendium)
-        throw new Error(`Could not find world/compendium for world ${worldId} in CampaignBuilder.onMounted()`);
+    if (!setting || !settingId || !settingCompendium)
+        throw new Error(`Could not find world/compendium for world ${settingId} in CampaignBuilder.onMounted()`);
 
-    if (world.topicIds) {
+    if (setting.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const topics = [ Topics.Character, Topics.Location, Topics.Organization ] as ValidTopic[];
       const topicJournals = {
@@ -289,13 +289,13 @@
         const t = topics[i];
 
         // we need to load the actual entries - not just the index headers
-        topicJournals[t] = await fromUuid<JournalEntry>(world.topicIds[t]);
+        topicJournals[t] = await fromUuid<JournalEntry>(setting.topicIds[t]);
 
         if (!topicJournals[t])
-          throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
+          throw new Error(`Could not find journal for topic ${t} in world ${settingId}`);
       }
 
-      for (const campaignId in world.campaignNames) {
+      for (const campaignId in setting.campaignNames) {
         // we need to load the actual entries - not just the index headers
         const j = await fromUuid<CampaignDoc>(campaignId);
         if (j) {
@@ -304,7 +304,7 @@
       }
 
       rootFolder.value = folders.rootFolder;
-      mainStore.setNewSetting(folders.world.uuid);
+      mainStore.setNewSetting(folders.setting.uuid);
 
       // Check if backend is available and show warning if not
       if (!Backend.available) {

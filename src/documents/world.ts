@@ -7,7 +7,7 @@ export interface WorldDoc extends Folder {
 }
 
 export enum WorldFlagKey {
-  isWorld = 'isWorld',    // used to mark the folder as a world
+  isWorld = 'isWorld',    // used to mark the folder as a world; didn't replace as setting for compatibility
   compendiumId = 'compendiumId',   // the uuid for the world compendium
   topicIds = 'topicIds',   // the uuid for each topic
   campaignNames = 'campaignNames',   // name of each campaign; keyed by journal entry uuid
