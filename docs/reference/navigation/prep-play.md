@@ -5,8 +5,8 @@ prev:
   text: 'Search'
   link: './search'
 next: 
-  text: 'Keyboard Shortcuts'
-  link: './shortcuts'
+  text: 'Keybindings'
+  link: './keybindings'
 ---
 
 # Prep/Play Mode Toggle & Selector

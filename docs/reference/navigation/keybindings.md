@@ -1,6 +1,5 @@
 ---
-title: Keyboard Shortcuts
-TODO: true
+title: Key Bindings
 prev: 
   text: 'Prep/Play Toggle'
   link: './prep-play'
@@ -11,20 +10,17 @@ next:
 
 # Keyboard Shortcuts
 
-Keyboard shortcuts dramatically improve your efficiency when using the Campaign Builder. This guide covers all available shortcuts and provides tips for incorporating them into your workflow.
+There is currently only one customizable keybinding available.  The specific keybinding can be changed in Foundry's "Configure Controls".
 
-## Essential Shortcuts
+Other typical Foundry keybindings exist - primarily in the editors (ex. Ctrl-Z to undo, Ctrl-S to save, etc.)
 
-### Navigation
-| Shortcut | Action | Description |
+## General interface 
+
+| Key | Action | Description |
 |----------|--------|-------------|
-| **Ctrl+Tab** | Next Tab | Switch to the next tab |
-| **Ctrl+Shift+Tab** | Previous Tab | Switch to the previous tab |
-| **Ctrl+T** | New Tab | Create a new blank tab |
-| **Ctrl+W** | Close Tab | Close the current active tab |
-| **Ctrl+Shift+W** | Close All Tabs | Close all open tabs |
+| **Alt+W** | Close Tab | Close the current active tab |
 
-### Content Management
+<!-- ### Content Management
 | Shortcut | Action | Description |
 |----------|--------|-------------|
 | **Ctrl+S** | Save | Save current content |
@@ -261,4 +257,4 @@ When running in browser context:
 - **Practice common sequences** until they become automatic
 - **Document personal shortcuts** for complex workflows
 
-Mastering keyboard shortcuts is one of the most effective ways to improve your productivity with the Campaign Builder. Start with the essential shortcuts and gradually build your proficiency to become a power user. 
+Mastering keyboard shortcuts is one of the most effective ways to improve your productivity with the Campaign Builder. Start with the essential shortcuts and gradually build your proficiency to become a power user.  -->

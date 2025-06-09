@@ -1,5 +1,5 @@
 ---
-title: Working with Tabs
+title: Tabs
 TODO: true
 prev: 
   text: 'Directory Sidebar'
@@ -9,7 +9,7 @@ next:
   link: './bookmarks'
 ---
 
-# Working with Tabs
+# Tabs
 
 The Campaign Builder uses a tabbed interface to help you work with multiple pieces of content simultaneously. Understanding how to effectively use tabs will significantly improve your workflow and productivity.
 
@@ -77,7 +77,7 @@ There are several ways to open content in tabs:
 ### Closing Tabs
 **Close Individual Tabs**
 - Click the "×" button on each tab
-- Or use Ctrl+W keyboard shortcut
+- Or use Alt+W keyboard shortcut
 
 **Close All Tabs**
 - Right-click on any tab

@@ -5,8 +5,8 @@ prev:
   text: 'Tabs'
   link: './tabs'
 next: 
-  text: 'Keyboard shortcuts'
-  link: './shortcuts'
+  text: 'Keybindings'
+  link: './keybindings'
 ---
 
 # Bookmarks

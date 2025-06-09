@@ -12,14 +12,15 @@ This guide provides detailed instructions for using all features of the Campaign
 ## [Navigation & Interface](navigation)
 Learn the basics of navigating the Campaign Builder interface.
 
-- [Overall Window Structure](navigation/main-display)
+- [Main Content Display](navigation/main-display)
+  - [Images](navigation/images)
 - [Directory Sidebar](navigation/sidebar)
-- [Working with Tabs](navigation/tabs)
+- [Tabs](navigation/tabs)
 - [Bookmarks](navigation/bookmarks)
-- [Keyboard Shortcuts](navigation/shortcuts)
 - [Search](navigation/search)
 - [Prep/Play Toggle](navigation/prep-play)
-- [Images](navigation/images)
+- [Keybindings](navigation/keybindings)
+
 
 ## World-building (Settings)
 Create and manage your campaign world content.

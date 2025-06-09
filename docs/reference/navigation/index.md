@@ -19,4 +19,4 @@ Click the links below to learn more about each element of the UI:
 - [Bookmarks](bookmarks)
 - [Search](search)
 - [Prep/Play Toggle](prep-play)
-- [Keyboard Shortcuts](shortcuts)
+- [Keybindings](keyindings)
