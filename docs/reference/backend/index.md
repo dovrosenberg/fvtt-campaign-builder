@@ -16,22 +16,27 @@ You'll see features throughout this documentation labeled "Advanced Feature".  T
 ## Features {#features}
 ### AI Integration
 
-The module includes optional AI-powered features for generating descriptions and images. These features require setting up a backend server, which is much easier than it sounds (see below).
+The module includes optional AI-powered features for generating descriptions and images. These features require [setting up](#setup) a backend server, which is much easier than it sounds.
 
-[TODO - link these to the relevant sections of the docs and flesh them out more]
 With AI integration, you can:
-- Generate detailed descriptions for Characters, locations, and organizations
-- Create images based on your descriptions
-- Generate names for NPCs, towns, shops, and taverns -- infinitely renewed RollTables
 
-To use AI generation:
-1. Set up the backend server (see below)
-2. In the module settings, enter your API URL and token
-3. When creating or editing a Setting element, click the "Generate" button
+- Generate detailed descriptions for Characters, Locations, and organizations
+  - From [within an Entry](/reference/world-building/content/entry/generate#description)
+  - When [creating a new Entry](/reference/misc/create)
+- [Create images](/reference/world-building/content/entry/generate#image) based on your descriptions
+- [Generate names](/reference/playing/rolltables) for NPCs, towns, shops, and taverns 
 
-### A note on image generation
+
+TODO: where do we explain name styles?  I think the setting content page is just linking to here
+
+
+
+### Image generation time
+
+TODO: figure out if we should explain this on the create/generate pages with the checkbox or on the entry or somewhere else
 
 In order to save costs, the backend uses Replicate.com for image generation, using a model that spins down between uses.  This means that the first time you generate an image in a given period, it may take significantly longer than subsequent runs because the model has to start.  After that, you'll see more rapid creation (still ~30 seconds) until the model times out again (~15 minutes of not being used).
+
 
 ## Costs {#costs}
 The backend runs in the cloud.  In all cases, it uses accounts that you setup and control and you do not need to share your passwords/tokens with anyone, or even put them in Foundry.  The various accounts were selected with the goal of being as low cost as possible:

@@ -1,6 +1,5 @@
 ---
 title: Entry Details
-TODO: true
 prev: 
   text: 'Reference overview'
   link: '/reference'
