@@ -10,5 +10,5 @@
 [Campaign Directory]: /reference/navigation/sidebar/#campaign-directory
 [Image]: /reference/navigation/images
 [Generate Window]: /reference/dialogs/generate
-[Tags]: /reference/navigation/tags
+[Tags]: /reference/world-building/content/entry/tags
 [Module Settings]: /reference/configuration

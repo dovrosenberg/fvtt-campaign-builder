@@ -1,6 +1,5 @@
 ---
 title: Tabs
-TODO: true
 prev: 
   text: 'Directory Sidebar'
   link: './sidebar'
@@ -13,11 +12,9 @@ next:
 
 The Campaign Builder uses a tabbed interface to help you work with multiple pieces of content simultaneously. 
 
-TODO: pic
+![Tab strip](/assets/images/tab-strip.webp)
 
-## Tab Basics
-
-### Opening Tabs
+## Opening Tabs
 There are several ways to open content in tabs:
 
 **Single Click** (Default behavior)
@@ -42,24 +39,6 @@ There are several ways to open content in tabs:
    * **Close Other Tabs**: Right click on any tab and choose "Close Other Tabs" to close all tabs except the selected one 
 
 ## Tab Navigation
-TODO: pic
+![Forward-Back nav](/assets/images/forward-back.webp)
 
 The forward and back buttons on the left side of the [Bookmarks](./bookmarks) can be used to cycle through the history of content displayed in the current tab, just like a browser's forward/back buttons.
-
-
-## Drag and Drop
-
-
-[TODO: note ability to drag to reorder and also drag into campaign tables... put that in campaign section]
-
-
-## Advanced Tab Features
-
-### Drag and Drop 
-TODO: Check this
-
-**Dragging Tabs to Tables**
-- Drag content tabs onto campaign session tables
-- Automatically adds the content to the session
-- Works for NPCs, Locations, Monsters, etc.
-

@@ -5,8 +5,8 @@ prev:
   text: 'Main Content Display'
   link: '/reference/main-display'
 next: 
-  text: 'Images'
-  link: './images'
+  text: 'Directory Sidebar'
+  link: './sidebar'
 ---
 
 # Image s

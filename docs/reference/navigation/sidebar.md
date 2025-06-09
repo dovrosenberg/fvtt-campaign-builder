@@ -31,7 +31,7 @@ You create new worlds by clicking the "New Setting" button at the top of the sid
 
 The button next to the "New Setting" button collapses the entire sidebar.
 
-### Hierarchies
+### Hierarchies {#hierarchies}
 You can create Hierarchies within Locations and Organizations to represent how they are related.  For example, you might put the Entries for towns inside the region they are in.  Hierarchies can have as many levels as you want. In addition to making it faster to find related things, Hierarchies are used in Search [TODO: Link] and to improve AI generation [Advanced Feature].  You can see hierarchies illustrated in the sidebar above.
 
 You can create and adjust Hierarchies in two ways: 
