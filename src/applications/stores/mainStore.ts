@@ -13,7 +13,7 @@ import { updateWorldRollTableNames } from '@/utils/nameGenerators';
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { TopicFolder, Setting, WindowTab, Entry, Campaign, Session, PC, CollapsibleNode, } from '@/classes';
-import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, WorldDoc } from '@/documents';
+import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, WorldDoc, WorldFlagKey } from '@/documents';
 import { getDefaultFolders } from '@/compendia';
 
 // the store definition
