@@ -1,11 +1,11 @@
 ---
 title: Entry relationship tabs
 prev: 
-  text: 'Entry description tab'
-  link: '/reference/world-building/content/entry/description'
+  text: 'Generate Button'
+  link: './generate'
 next: 
   text: 'Entry sessions tab'
-  link: '/reference/world-building/content/entry/sessions'
+  link: './sessions'
 ---
 # Entry relationship tabs
 ![Relationship tab](/assets/images/relationship-tab.webp)

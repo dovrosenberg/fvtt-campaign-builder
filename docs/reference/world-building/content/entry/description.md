@@ -4,8 +4,8 @@ prev:
   text: 'Entry overview'
   link: '/reference/world-building/content/entry'
 next: 
-  text: 'Entry relationship tabs'
-  link: '/reference/world-building/content/entry/relationships'
+  text: 'Generate Button'
+  link: '/reference/world-building/content/entry/generate'
 ---
 # Entry description tab
 ![Entry Window](/assets/images/entry-content.webp)

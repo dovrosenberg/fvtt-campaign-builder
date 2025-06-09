@@ -1,7 +1,7 @@
 ---
 title: The Backend and Advanced Features
 TODO: true
-TODOWHAT: talk about autocomplete -- or maybe move that to nvaigation/UI and flesh out the features section more
+TODOWHAT: flesh out the features section more
 prev: 
   text: 'Campaigns (Playing)'
   link: '/reference/playing'
@@ -10,8 +10,6 @@ next:
   link: '/reference/configuration'
 ---
 # Advanced Features
-
-TODO: talk about autocomplete {#autocomplete}
 
 You'll see features throughout this documentation labeled "Advanced Feature".  These features require the setup and configuration described here to make them available.
 
