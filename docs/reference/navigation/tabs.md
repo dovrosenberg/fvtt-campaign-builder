@@ -7,6 +7,12 @@ TODO: true
 
 The Campaign Builder uses a tabbed interface to help you work with multiple pieces of content simultaneously. Understanding how to effectively use tabs will significantly improve your workflow and productivity.
 
+## Put somewhere - Forward/Back buttons
+[note holding control here]
+
+[ note ability to drag to reorder and also drag into campaign tables... put that in campaign section]
+[TODO: flesh out... tabs, bookmarks, forward/back, dragging, etc.; maybe the "new tab"]
+
 ## Tab Basics
 
 ### Opening Tabs

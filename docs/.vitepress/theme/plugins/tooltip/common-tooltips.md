@@ -3,6 +3,8 @@
 <!-- Define your terms and definitions here using the format: -->
 <!-- [^term]: definition text -->
 
+[^Advanced Feature]: Features (including AI generation, email handling) that require the installation of the Foundry Campaign Builder backend.
+[^Advanced Features]: Features (including AI generation, email handling) that require the installation of the Foundry Campaign Builder backend.
 [^Campaign]: A collection of Sessions played by the same (or generally the same) group of players.
 [^Character]: A character within the Setting (generally an NPC).  Characters can represent anything from a minor enemy to a shopkeeper to a god.  They belong to a Species.
 [^Characters]: A character within the Setting (generally an NPC).  Characters can represent anything from a minor enemy to a shopkeeper to a god.  They belong to a Species.

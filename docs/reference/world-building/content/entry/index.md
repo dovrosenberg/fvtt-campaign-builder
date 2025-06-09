@@ -7,7 +7,7 @@ next:
   text: 'Entry description tab'
   link: '/reference/world-building/content/entry/description'
 ---
-# Entry Details
+# Basic structure of Characters, Locations, and Organizations
 ![Entry Window](/assets/images/entry-content.webp)
 
 Regardless of Topic, each Entry has a similar layout in the main window.  At the bottom of this description, we'll outline the things that are different.

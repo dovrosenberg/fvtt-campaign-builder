@@ -62,6 +62,7 @@ export default defineConfig({
       {
         text: 'Reference',
         items: [
+          { text: 'Overview', link: '/reference' },
           { text: 'xNavigation & Interface', link: '/reference/navigation' },
           { text: 'Settings (World Building)', link: '/reference/world-building' },
           { text: 'xCampaigns (Playing)', link: '/reference/playing' },
