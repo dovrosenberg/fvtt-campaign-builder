@@ -1,6 +1,12 @@
 ---
 title: Main Display
 TODO: true
+prev: 
+  text: 'Navigation Overview'
+  link: '/reference/navigation'
+next: 
+  text: 'Images'
+  link: './images'
 ---
 # Main Content Display
 

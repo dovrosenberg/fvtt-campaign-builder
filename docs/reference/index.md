@@ -17,9 +17,9 @@ Learn the basics of navigating the Campaign Builder interface.
 - [Working with Tabs](navigation/tabs)
 - [Bookmarks](navigation/bookmarks)
 - [Keyboard Shortcuts](navigation/shortcuts)
-- [Global Search Functionality](navigation/search)
-- [Prep/Play Mode Toggle & Selector](navigation/prep-play)
-- [Image Handling](navigation/image-handling)
+- [Search](navigation/search)
+- [Prep/Play Toggle](navigation/prep-play)
+- [Images](navigation/images)
 
 ## World-building (Settings)
 Create and manage your campaign world content.

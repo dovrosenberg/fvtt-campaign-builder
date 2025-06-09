@@ -16,6 +16,10 @@
         "date": "Session Date",
         "name": "Session Name"
       },
+      "Keybindings": {
+        "closeTab": "Close tab",
+        "closeTabHelp": "Close the current tab"
+      },
       "autoRefreshRollTables": "Automatically refresh RollTables",
       "autoRefreshRollTablesHelp": "When enabled, generator roll tables will be automatically refreshed with new values when the module loads",
       "rollTableSettings": "Roll Table Settings",

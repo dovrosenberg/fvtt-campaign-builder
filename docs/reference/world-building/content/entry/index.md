@@ -1,5 +1,7 @@
 ---
 title: Entry Details
+TODO: true
+WHATTODOD: Tags section
 prev: 
   text: 'Reference overview'
   link: '/reference'

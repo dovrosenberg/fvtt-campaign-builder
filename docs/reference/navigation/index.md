@@ -1,19 +1,22 @@
 ---
-title: Navigation
-TODO: true
+title: Navigation & Interface
+prev: 
+  text: 'Reference Overview'
+  link: '/reference'
+next: 
+  text: 'Main Display'
+  link: './main-display'
 ---
 # Navigation
 
-This section describes the functionality of the navigation bar at the top of the main window:
+[TODO: pic - whole window]
 
-[TODO: pic]
-
-## Tabs 
-
-## Bookmarks
-
-## Forward/Back buttons
-[note holding control here]
-
-[ note ability to drag to reorder and also drag into campaign tables... put that in campaign section]
-[TODO: flesh out... tabs, bookmarks, forward/back, dragging, etc.; maybe the "new tab"]
+Click the links below to learn more about each element of the UI:
+- [Main Content Display](main-display)
+  - [Images](images)
+- [Directory Sidebar](sidebar)
+- [Tabs](tabs)
+- [Bookmarks](bookmarks)
+- [Search](search)
+- [Prep/Play Toggle](prep-play)
+- [Keyboard Shortcuts](shortcuts)

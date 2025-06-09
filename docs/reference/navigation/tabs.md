@@ -1,6 +1,12 @@
 ---
 title: Working with Tabs
 TODO: true
+prev: 
+  text: 'Directory Sidebar'
+  link: './sidebar'
+next: 
+  text: 'Bookmarks'
+  link: './bookmarks'
 ---
 
 # Working with Tabs

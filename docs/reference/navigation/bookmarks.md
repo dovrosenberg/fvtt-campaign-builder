@@ -1,6 +1,12 @@
 ---
 title: Bookmarks
 TODO: true
+prev: 
+  text: 'Tabs'
+  link: './tabs'
+next: 
+  text: 'Keyboard shortcuts'
+  link: './shortcuts'
 ---
 
 # Bookmarks

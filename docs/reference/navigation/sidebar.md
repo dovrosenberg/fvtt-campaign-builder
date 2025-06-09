@@ -1,6 +1,12 @@
 ---
 title: Directory Sidebar
 TODO: true
+prev: 
+  text: 'Images'
+  link: './images'
+next: 
+  text: 'Tabs'
+  link: './tabs'
 ---
 # The Directory Sidebar
 

@@ -1,6 +1,12 @@
 ---
 title: Search
 TODO: true
+prev: 
+  text: 'Bookmarks'
+  link: './bookmarks'
+next: 
+  text: 'Prep/Play Toggle'
+  link: './prep-play'
 ---
 # Search
 The top right corner of the window's title bar has the search box.

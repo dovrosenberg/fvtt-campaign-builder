@@ -1,6 +1,12 @@
 ---
 title: Keyboard Shortcuts
 TODO: true
+prev: 
+  text: 'Prep/Play Toggle'
+  link: './prep-play'
+next: 
+  text: 'Settings (World-Building)'
+  link: 'reference/world-building'
 ---
 
 # Keyboard Shortcuts

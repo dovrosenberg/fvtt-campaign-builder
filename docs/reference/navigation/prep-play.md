@@ -1,6 +1,12 @@
 ---
 title: Prep/Play Mode Toggle & Selector
 TODO: true
+prev: 
+  text: 'Search'
+  link: './search'
+next: 
+  text: 'Keyboard Shortcuts'
+  link: './shortcuts'
 ---
 
 # Prep/Play Mode Toggle & Selector
