@@ -3,7 +3,7 @@
   <ol class="fcb-campaign-list">
     <li 
       v-if="currentSetting" 
-      class="fcb-world-folder folder flexcol" 
+      class="fcb-setting-folder folder flexcol" 
     >
       <header 
         class="folder-header flexrow"

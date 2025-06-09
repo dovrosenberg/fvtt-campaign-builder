@@ -29,7 +29,7 @@ export const useMainStore = defineStore('main', () => {
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
-  const _currentSetting = ref<Setting | null>(null);  // the current world folder
+  const _currentSetting = ref<Setting | null>(null);  // the current setting folder
 
   ///////////////////////////////
   // external state
@@ -64,22 +64,22 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // actions
-  // set a new world from a uuid
-  const setNewWorld = async function (worldId: string | null): Promise<void> {
-    if (!worldId)
+  // set a new setting from a uuid
+  const setNewSetting = async function (settingId: string | null): Promise<void> {
+    if (!settingId)
       return;
 
-    // load the world
-    const world = await Setting.fromUuid(worldId);
+    // load the setting
+    const setting = await Setting.fromUuid(settingId);
     
-    if (!world)
-      throw new Error('Invalid folder id in mainStore.setNewWorld()');
+    if (!setting)
+      throw new Error('Invalid folder id in mainStore.setNewSetting()');
 
-    _currentSetting.value = world;
+    _currentSetting.value = setting;
 
-    CollapsibleNode.currentSetting = world;
+    CollapsibleNode.currentSetting = setting;
 
-    await UserFlags.set(UserFlagKey.currentSetting, worldId);
+    await UserFlags.set(UserFlagKey.currentSetting, settingId);
   };
 
   const setNewTab = async function (tab: WindowTab): Promise<void> {
@@ -347,7 +347,7 @@ export const useMainStore = defineStore('main', () => {
     isInPlayMode,
     hasMultipleCampaigns,
 
-    setNewWorld,
+    setNewSetting,
     setNewTab,
     refreshEntry,
     refreshCampaign,

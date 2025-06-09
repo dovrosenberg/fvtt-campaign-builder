@@ -402,7 +402,7 @@
         "openNewTab": "Open in new Tab",
         "delete": "Delete bookmark"
       },
-      "worldFolder": {
+      "settingFolder": {
         "delete": "Delete Setting",
         "createCampaign": "Create campaign"
       },

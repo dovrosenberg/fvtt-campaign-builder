@@ -22,7 +22,7 @@ export class SpeciesListApplication extends VueApplicationMixin(ApplicationV2) {
       // popOut: true,
       // editable: true,
       // //viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
-      // scrollY: ['ol.fcb-world-list']
+      // scrollY: ['ol.fcb-setting-list']
     },
     position: {
       width: 800,

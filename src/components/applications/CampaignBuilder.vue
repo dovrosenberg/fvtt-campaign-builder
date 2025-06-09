@@ -96,7 +96,7 @@
   ////////////////////////////////
   // event handlers
   const onDirectoryWorldSelected = async (worldId: string) => {
-    await mainStore.setNewWorld(worldId);
+    await mainStore.setNewSetting(worldId);
   };
 
   const onSidebarToggleClick = async () => { 
@@ -304,7 +304,7 @@
       }
 
       rootFolder.value = folders.rootFolder;
-      mainStore.setNewWorld(folders.world.uuid);
+      mainStore.setNewSetting(folders.world.uuid);
 
       // Check if backend is available and show warning if not
       if (!Backend.available) {

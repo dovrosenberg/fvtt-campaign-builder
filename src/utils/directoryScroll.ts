@@ -178,7 +178,7 @@ async function scrollToCampaign(): Promise<void> {
  */
 async function scrollToWorld(): Promise<void> {
   // Find and scroll to the campaign element using the active class
-  await scrollToElement('.fcb-world-folder.folder:not(.collapsed)');
+  await scrollToElement('.fcb-setting-folder.folder:not(.collapsed)');
 }
 
 /**

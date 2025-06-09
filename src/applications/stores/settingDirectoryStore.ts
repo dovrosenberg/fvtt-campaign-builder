@@ -55,7 +55,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   const createWorld = async(): Promise<void> => {
     const world = await Setting.create(true);
     if (world) {
-      await mainStore.setNewWorld(world.uuid);
+      await mainStore.setNewSetting(world.uuid);
 
       await refreshSettingDirectoryTree();
 
@@ -350,7 +350,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     // pick another world
     if (rootFolder.value?.children && rootFolder.value.children.length > 0) { 
       if (rootFolder.value.children[0]?.folder)
-        await mainStore.setNewWorld(rootFolder.value.children[0].folder.uuid as string);
+        await mainStore.setNewSetting(rootFolder.value.children[0].folder.uuid as string);
       else
         throw new Error('No world found in deleteWorld()');
     } else {
@@ -518,9 +518,9 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
       onClick: async () => {
         // get the right folder
-        const worldFolder = game.folders?.find((f)=>f.uuid===currentSetting.value?.uuid) as Folder;
+        const settingFolder = game.folders?.find((f)=>f.uuid===currentSetting.value?.uuid) as Folder;
 
-        if (!worldFolder || !topicFolder)
+        if (!settingFolder || !topicFolder)
           throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
         const entry = await FCBDialog.createEntryDialog(topicFolder.topic, { } );

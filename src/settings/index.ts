@@ -17,7 +17,7 @@ export const moduleId: ModuleId = id as ModuleId;
 
 // flesh out the flag types 
 
-type WorldFolderFlags = {
+type SettingFolderFlags = {
   [M in ModuleId]: {
     [K in WorldFlagKey]: WorldFlagType<K>; 
   };
@@ -29,7 +29,7 @@ type CampaignFlags = {
   };
 }
 
-type FolderFlags = WorldFolderFlags;
+type FolderFlags = SettingFolderFlags;
 type JournalEntryFlags = CampaignFlags;
 
 // settings

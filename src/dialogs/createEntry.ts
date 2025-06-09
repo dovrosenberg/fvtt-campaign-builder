@@ -2,9 +2,9 @@ import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin';
 import PrimeVue from 'primevue/config';
 import App from '@/components/applications/CreateEntryDialog.vue';
 import { hasHierarchy, } from '@/utils/hierarchy';
-import { useMainStore, useSettingDirectoryStore, useRelationshipStore, useNavigationStore, useCampaignStore } from '@/applications/stores'; 
+import { useMainStore, useSettingDirectoryStore, useRelationshipStore, useNavigationStore, } from '@/applications/stores'; 
 import { CharacterDetails, LocationDetails, OrganizationDetails, Topics, ValidTopic } from '@/types';
-import { Entry, Session, TopicFolder } from '@/classes';
+import { Entry, TopicFolder } from '@/classes';
 import { generateImage, handleGeneratedEntry } from '@/utils/generation';
 import { localize } from '@/utils/game';
 import { theme } from '@/components/styles/primeVue';
@@ -38,7 +38,7 @@ class CreateEntryApplication extends VueApplicationMixin(ApplicationV2) {
       // popOut: true,
       // editable: true,
       // //viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
-      // scrollY: ['ol.fcb-world-list']
+      // scrollY: ['ol.fcb-setting-list']
     },
     position: {
       // width: 600,

@@ -22,7 +22,7 @@ export class AdvancedSettingsApplication extends VueApplicationMixin(Application
       // popOut: true,
       // editable: true,
       // //viewPermission: CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE,
-      // scrollY: ['ol.fcb-world-list']
+      // scrollY: ['ol.fcb-setting-list']
     },
     position: {
       width: 600,

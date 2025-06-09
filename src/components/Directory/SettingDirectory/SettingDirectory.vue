@@ -1,32 +1,32 @@
 <template>
-  <!-- these are the worlds -->
-  <ol class="fcb-world-list">
+  <!-- these are the settings -->
+  <ol class="fcb-setting-list">
     <li
-      v-for="world in currentWorldTree.value"
-      :key="world.id"
-      :class="'fcb-world-folder folder flexcol ' + (currentSetting?.uuid===world.id ? '' : 'collapsed')"
+      v-for="setting in currentWorldTree.value"
+      :key="setting.id"
+      :class="'fcb-setting-folder folder flexcol ' + (currentSetting?.uuid===setting.id ? '' : 'collapsed')"
       draggable="true"
-      @dragstart="onWorldDragStart($event, world)"
+      @dragstart="onWorldDragStart($event, setting)"
     >
       <header
         class="folder-header flexrow"
-        @contextmenu="onWorldContextMenu($event, world.id)"
-        @click="onWorldFolderClick($event, world.id)"
+        @contextmenu="onSettingContextMenu($event, setting.id)"
+        @click="onSettingFolderClick($event, setting.id)"
       >
         <div class="noborder">
-          <i :class="`fas ${currentSetting?.uuid===world.id ? 'fa-folder-open' : 'fa-folder'} fa-fw`"></i>
-          {{ world.name }}
+          <i :class="`fas ${currentSetting?.uuid===setting.id ? 'fa-folder-open' : 'fa-folder'} fa-fw`"></i>
+          {{ setting.name }}
         </div>
       </header>
 
       <!-- These are the topic compendia -->
       <ol 
-        v-if="currentSetting?.uuid===world.id"
-        class="fcb-world-contents"
+        v-if="currentSetting?.uuid===setting.id"
+        class="fcb-setting-contents"
       >
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
         <li 
-          v-for="topicNode in world.topicNodes.sort((a, b) => (a.topicFolder.topic < b.topicFolder.topic ? -1 : 1))"
+          v-for="topicNode in setting.topicNodes.sort((a, b) => (a.topicFolder.topic < b.topicFolder.topic ? -1 : 1))"
           :key="topicNode.topicFolder.topic"
           :class="'fcb-topic-folder folder entry flexcol fcb-directory-compendium ' + (topicNode.expanded ? '' : 'collapsed')"
           :data-topic="topicNode.topicFolder.topic" 
@@ -36,7 +36,7 @@
               class="fcb-compendium-label noborder" 
               style="margin-bottom:0px"
               @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
-              @contextmenu="onTopicContextMenu($event, world.id, topicNode.topicFolder as TopicFolder)"
+              @contextmenu="onTopicContextMenu($event, setting.id, topicNode.topicFolder as TopicFolder)"
             >
               <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
               <i :class="'icon fas ' + getTopicIcon(topicNode.topicFolder.topic)" style="margin-right: 4px;"></i>
@@ -47,12 +47,12 @@
           <SettingDirectoryGroupedTree
             v-if="isGroupedByType" 
             :topic-node="topicNode as DirectoryTopicNode"
-            :world-id="world.id"
+            :world-id="setting.id"
           />
           <SettingDirectoryNestedTree
             v-else 
             :topic-node="topicNode as DirectoryTopicNode"
-            :world-id="world.id"
+            :world-id="setting.id"
           />
         </li>
       </ol>
@@ -63,7 +63,6 @@
 <script setup lang="ts">
   // library imports
   import { storeToRefs } from 'pinia';
-  import { ref } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
@@ -79,7 +78,7 @@
 
 
   // types
-  import { Topics, ValidTopic, WindowTabType, DirectoryWorld } from '@/types';
+  import { WindowTabType, DirectoryWorld } from '@/types';
   import { DirectoryTopicNode, Campaign, Setting, TopicFolder, } from '@/classes';
   
   ////////////////////////////////
@@ -112,15 +111,15 @@
   /**
    * Handles dragging a world folder.
    * @param event The drag event
-   * @param world The world object being dragged
+   * @param setting The setting object being dragged
    */
-  const onWorldDragStart = (event: DragEvent, world: DirectoryWorld): void => {
+  const onWorldDragStart = (event: DragEvent, setting: DirectoryWorld): void => {
     event.stopPropagation();
 
     const dragData = {
       worldNode: true,
-      worldId: world.id,
-      name: world.name
+      worldId: setting.id,
+      name: setting.name
     };
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
@@ -129,33 +128,33 @@
   /**
    * Handles clicking on a world folder to activate it and navigate to it.
    * @param event The click event
-   * @param worldId The UUID of the selected world
+   * @param settingId The UUID of the selected setting
    */
-  const onWorldFolderClick = async (event: MouseEvent, worldId: string) => {
+  const onSettingFolderClick = async (event: MouseEvent, settingId: string) => {
     event.preventDefault();
     event.stopPropagation();
 
-    if (worldId) {
-      await mainStore.setNewWorld(worldId);
+    if (settingId) {
+      await mainStore.setNewSetting(settingId);
 
-      // see if there's already a world tab open - if so, switch
-      const existingTab = navigationStore.tabs.find(t => t.contentId === worldId);
+      // see if there's already a setting tab open - if so, switch
+      const existingTab = navigationStore.tabs.find(t => t.contentId === settingId);
       if (existingTab) {
         await navigationStore.activateTab(existingTab.id);
         return;
       } else {
         // if not - open one
-        await navigationStore.openWorld(worldId, {newTab: true});
+        await navigationStore.openWorld(settingId, {newTab: true});
       }
     }
   };
 
   /**
-   * Handles right-click context menu on a world folder, offering actions like delete or create campaign.
+   * Handles right-click context menu on a setting folder, offering actions like delete or create campaign.
    * @param event The contextmenu event
-   * @param worldId The UUID of the world
+   * @param settingId The UUID of the setting
    */
-  const onWorldContextMenu = (event: MouseEvent, worldId: string | null): void => {
+  const onSettingContextMenu = (event: MouseEvent, settingId: string | null): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();
@@ -170,10 +169,10 @@
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',
-          label: localize('contextMenus.worldFolder.delete'), 
+          label: localize('contextMenus.settingFolder.delete'), 
           onClick: async () => {
-            if (worldId) {
-              await settingDirectoryStore.deleteWorld(worldId);
+            if (settingId) {
+              await settingDirectoryStore.deleteWorld(settingId);
               await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
@@ -181,10 +180,10 @@
         { 
           icon: getTabTypeIcon(WindowTabType.Campaign),
           iconFontClass: 'fas',
-          label: localize('contextMenus.worldFolder.createCampaign'), 
+          label: localize('contextMenus.settingFolder.createCampaign'), 
           onClick: async () => {
-            if (worldId) {
-              const world = await Setting.fromUuid(worldId);
+            if (settingId) {
+              const world = await Setting.fromUuid(settingId);
 
               if (world) {
                 await Campaign.create(world);
@@ -200,10 +199,10 @@
   /**
    * Handles right-click context menu on a topic folder, offering actions like creating an entry or generating a character.
    * @param event The contextmenu event
-   * @param worldId The UUID of the parent world
+   * @param settingId The UUID of the parent setting
    * @param topicFolder The TopicFolder object representing the clicked topic
    */
-  const onTopicContextMenu = (event: MouseEvent, _worldId: string, topicFolder: TopicFolder): void => {
+  const onTopicContextMenu = (event: MouseEvent, _settingId: string, topicFolder: TopicFolder): void => {
     //prevent the browser's default menu
     event.preventDefault();
     event.stopPropagation();
@@ -244,15 +243,15 @@
     }
   }
 
-  // the world list section
+  // the setting list section
   .fcb-directory-panel-wrapper {
-    .fcb-world-list {
+    .fcb-setting-list {
       padding: 0;
       flex-grow: 1;
       overflow: auto;
       margin-top: 3px;
 
-      .fcb-world-folder {
+      .fcb-setting-folder {
         align-items: flex-start;
         justify-content: flex-start;
 
@@ -262,30 +261,30 @@
       }
     }
 
-    .fcb-world-folder > .folder-header {
+    .fcb-setting-folder > .folder-header {
       border-bottom: none;
       width: 100%;
       flex: 1;
       cursor: pointer;
     }
 
-    // world folder styling
-    .fcb-world-folder:not(.collapsed) > .folder-header {
-      border-top: 1px solid var(--fcb-sidebar-world-border);
-      background: var(--fcb-sidebar-world-background);
-      color: var(--fcb-sidebar-world-color);
+    // setting folder styling
+    .fcb-setting-folder:not(.collapsed) > .folder-header {
+      border-top: 1px solid var(--fcb-sidebar-setting-border);
+      background: var(--fcb-sidebar-setting-background);
+      color: var(--fcb-sidebar-setting-color);
       text-shadow: none;
     }
 
-    .fcb-world-folder.collapsed > .folder-header {
+    .fcb-setting-folder.collapsed > .folder-header {
       cursor: pointer;
-      border-top: 1px solid var(--fcb-sidebar-world-border-collapsed);
-      background: var(--fcb-sidebar-world-background-collapsed);
-      color: var(--fcb-sidebar-world-color-collapsed);
+      border-top: 1px solid var(--fcb-sidebar-setting-border-collapsed);
+      background: var(--fcb-sidebar-setting-background-collapsed);
+      color: var(--fcb-sidebar-setting-color-collapsed);
       text-shadow: none;
     }
 
-    .fcb-world-folder .folder-header.context {
+    .fcb-setting-folder .folder-header.context {
       border-top: 1px solid var(--mej-active-color);
       border-bottom: 1px solid var(--mej-active-color);
     }
@@ -294,7 +293,7 @@
     .fcb-topic-folder.collapsed > .folder-header, .fcb-topic-folder:not(.collapsed) > .folder-header {
       background: inherit;  // override foundry default
       border: 0px;
-      color: var(--fcb-sidebar-world-color);
+      color: var(--fcb-sidebar-setting-color);
       text-shadow: none;   // override foundry default
       cursor: pointer;
 
@@ -308,7 +307,7 @@
       content: "\f07b";
     }
 
-    .fcb-world-contents {
+    .fcb-setting-contents {
       margin: 0px;
       width: 100%;
       padding-left: 10px;
