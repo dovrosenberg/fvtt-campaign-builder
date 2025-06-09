@@ -78,7 +78,7 @@
 
 
   // types
-  import { WindowTabType, DirectoryWorld } from '@/types';
+  import { WindowTabType, DirectorySetting } from '@/types';
   import { DirectoryTopicNode, Campaign, Setting, TopicFolder, } from '@/classes';
   
   ////////////////////////////////
@@ -109,11 +109,11 @@
   // event handlers
 
   /**
-   * Handles dragging a world folder.
+   * Handles dragging a setting folder.
    * @param event The drag event
    * @param setting The setting object being dragged
    */
-  const onWorldDragStart = (event: DragEvent, setting: DirectoryWorld): void => {
+  const onWorldDragStart = (event: DragEvent, setting: DirectorySetting): void => {
     event.stopPropagation();
 
     const dragData = {

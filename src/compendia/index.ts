@@ -80,7 +80,7 @@ export async function getDefaultFolders(): Promise<{ rootFolder: Folder; setting
     if (rootFolder.children.length>0 && rootFolder.children[0]?.folder?.uuid) {
       setting = await Setting.fromUuid(rootFolder.children[0].folder.uuid);
     } else {
-      // no world folder, so create one
+      // no setting folder, so create one
       setting = await Setting.create(true);
     }
   }

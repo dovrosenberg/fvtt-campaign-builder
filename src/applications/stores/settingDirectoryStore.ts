@@ -7,7 +7,7 @@ import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 // local imports
 import { ModuleSettings, SettingKey, } from '@/settings';
 import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
-import { useMainStore, useNavigationStore, useCampaignStore,} from '@/applications/stores';
+import { useMainStore, useNavigationStore,} from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
@@ -15,7 +15,7 @@ import { scrollToActiveEntry } from '@/utils/directoryScroll';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, Setting, TopicFolder, } from '@/classes';
-import { DirectoryWorld, Hierarchy, Topics, ValidTopic, } from '@/types';
+import { DirectorySetting, Hierarchy, Topics, ValidTopic, } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
 // the store definition
@@ -36,7 +36,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // external state
 
   // the top-level folder structure
-  const currentWorldTree = reactive<{value: DirectoryWorld[]}>({value:[]});
+  const currentWorldTree = reactive<{value: DirectorySetting[]}>({value:[]});
 
   // topic tree currently refreshing
   const isTopicTreeRefreshing = ref<boolean>(false);
@@ -395,11 +395,11 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     isTopicTreeRefreshing.value = true;
 
     // we put in the topics only for the current world
-    let tree = [] as DirectoryWorld[];
+    let tree = [] as DirectorySetting[];
 
     // populate the world names, and find the current one
     let currentWorldFound = false;
-    tree = (toRaw(rootFolder.value) as Folder)?.children?.map((world: Folder): DirectoryWorld => {
+    tree = (toRaw(rootFolder.value) as Folder)?.children?.map((world: Folder): DirectorySetting => {
       if (!world.folder)
         throw new Error('World without folder in refreshSettingDirectoryTree()');
 
