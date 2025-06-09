@@ -389,7 +389,7 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
       name = await FCBDialog.inputDialog(localize('dialogs.createWorld.title'), `${localize('dialogs.createWorld.worldName')}:`); 
       
       if (name) {
-        // create the world folder
+        // create the setting folder
         const worldDocs = await Folder.createDocuments([{
           name,
           type: 'Compendium',
@@ -688,7 +688,7 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
     if (this._compendium) {
       await this._compendium.deleteCompendium();
     }
-    // delete the world folder
+    // delete the setting folder
     await this._doc.delete();
   }
 

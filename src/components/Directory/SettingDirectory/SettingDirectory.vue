@@ -126,7 +126,7 @@
   };
 
   /**
-   * Handles clicking on a world folder to activate it and navigate to it.
+   * Handles clicking on a setting folder to activate it and navigate to it.
    * @param event The click event
    * @param settingId The UUID of the selected setting
    */

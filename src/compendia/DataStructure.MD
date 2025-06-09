@@ -9,7 +9,7 @@
 
 # Data stored on the world root folder (flags)
 
-We store a bunch of indexing data in flags the world folder to make it faster to look things up.  We store it here so that it gets deleted when the world gets deleted.
+We store a bunch of indexing data in flags the setting folder to make it faster to look things up.  We store it here so that it gets deleted when the world gets deleted.
 
 * `worldCompendium: string` - the uuid for the world compendium 
 * `campaignNames: Record<string, string>` - the name of each campaign, keyed by the JournalEntry uuid for the campaign

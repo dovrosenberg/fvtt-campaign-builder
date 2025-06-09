@@ -329,30 +329,30 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
   /**
    * Deletes a world identified by the given worldId.
-   * This includes deleting all associated compendia and the world folder itself.
+   * This includes deleting all associated compendia and the setting folder itself.
    * After deletion, the directory tree is refreshed.
    * 
-   * @param worldId - The UUID of the world to be deleted.
+   * @param settingId - The UUID of the world to be deleted.
    * @returns A promise that resolves when the world and its compendia are deleted.
    */
-  const deleteWorld = async (worldId: string): Promise<void> => {
-    const world = await Setting.fromUuid(worldId);
+  const deleteWorld = async (settingId: string): Promise<void> => {
+    const setting = await Setting.fromUuid(settingId);
 
-    if (!world)
+    if (!setting)
       return;
 
     // confirm
     if (!(await FCBDialog.confirmDialog('Delete setting?', 'Are you sure you want to delete this setting?')))
       return;
     
-    await world.delete();
+    await setting.delete();
 
     // pick another world
     if (rootFolder.value?.children && rootFolder.value.children.length > 0) { 
       if (rootFolder.value.children[0]?.folder)
         await mainStore.setNewSetting(rootFolder.value.children[0].folder.uuid as string);
       else
-        throw new Error('No world found in deleteWorld()');
+        throw new Error('No setting found in deleteWorld()');
     } else {
       // close all tabs and bookmarks (if we're changing worlds they'll reset automatically)
       await navigationStore.clearTabsAndBookmarks();
