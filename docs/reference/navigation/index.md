@@ -9,8 +9,6 @@ next:
 ---
 # Navigation
 
-[TODO: pic - whole window]
-
 Click the links below to learn more about each element of the UI:
 - [Main Content Display](main-display)
   - [Images](images)
