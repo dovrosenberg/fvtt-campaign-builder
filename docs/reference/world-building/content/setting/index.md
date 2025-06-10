@@ -1,22 +1,21 @@
 ---
-title: Setting
-TODO: true
+title: Setting Details
 prev: 
-  text: 'Reference overview'
-  link: '/reference'
+  text: 'World-building overview'
+  link: '/reference/world-building'
 next: 
-  text: 'Entry description tab'
-  link: './description'
+  text: 'Name styles'
+  link: './namestyles'
 ---
-# Setting Window
-[TODO: pic]
+# Setting Details
+![Setting content](/assets/images/setting-content.webp)
 
 The Setting window has just a few key components.
 
 ## Setting header
 The Setting header has just two parts:
   1. Name - This is where you edit the Setting's name.
-  2. Generate Button - This gives access to Setting-specific configuration, specifically [Name Styles](./namestyles)
+  2. Generate Button - This gives access to Setting-specific configuration, specifically [Name Styles](./namestyles).
 
 ## Setting description tab
 The description tab has four components:
@@ -25,16 +24,16 @@ The description tab has four components:
 3. Setting Feeling
 4. Description text area
 
-## Image
+### Image
 See [Image] documentation.
 
-## Genre
+### Genre
 The Genre is where you capture the high-level type of your Setting.  Typical examples would be "Fantasy" or "Sci-Fi".  These are used for [Advanced Features] to ensure generated content fits your theme.
 
-## Setting Feeling
+### Setting Feeling
 Similar to Genre, this field allows you to give a more detailed description.  For example, "A dark and rugged world where only the strong survive" or "A light, playful world with humor around every corner". This description is used for [Advanced Features] to further refine generated content.
 
-## Description text area
+### Description text area
 This is where you can provide a detailed description of the Setting and high-level lore.  What's the history? What does the pantheon look like? How many explored planetary systems are there? 
 
-In the future, this description may be made available to players as starting background, but for now it's just for your use.
+In the future, this description may be made available to players as starting background, but for now it's just for GM use (along with everything else in the module, just to be clear).

@@ -1,7 +1,7 @@
 ---
-title: World-Building Interface (Settings)
+title: World-Building (Settings) Overview
 ---
-# World-Building Interface (Settings)
+# World-Building (Settings)Overview
 
 The [Setting Directory] is your primary workspace for creating and managing world-building content. All of the [^Entries] in your [^Settings] are here, making for easy visualization and navigation.
 
