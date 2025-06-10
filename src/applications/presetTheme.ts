@@ -77,6 +77,7 @@ export default definePreset(Aura, {
       },
  
       borderRadius: '4px',
+      fontSize: '16px',
       padding: {
         x: '3px',
         y: '1px',

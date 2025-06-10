@@ -133,7 +133,7 @@
         margin: 4px 8px 0px 0px;
       
         label {
-          font-size: var(--font-size-20);
+          font-size: var(--font-size-16);
           font-weight: 700;
           font-family: var(--fcb-font-family);
           color: var(--fcb-sheet-header-label-color);
@@ -149,14 +149,14 @@
 
         // this is for ones 
         input {
-          font-size: var(--font-size-20);
+          font-size: var(--font-size-16);
         }
 
         select {
           border: var(--fcb-sheet-header-input-border);
           font-size: inherit;
           font-family: inherit;
-          height: calc(var(--font-size-20) + 6);
+          height: calc(var(--font-size-16) + 6);
           margin: 0px;
           background: var(--fcb-sheet-header-input-background);
 

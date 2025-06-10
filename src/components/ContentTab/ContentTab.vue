@@ -131,6 +131,7 @@
         
         .fcb-input-name {
           background: none;
+          font-family: var(--fcb-name-font-family);
           color: var(--color-text-primary);
           margin-left: 3px;
           margin-right: 8px;
@@ -201,7 +202,7 @@
         padding: 0px 4px 5px 4px;
         border-bottom: 2px groove var(--fcb-sheet-tab-bottom-border);
         font-family: var(--fcb-font-family);
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 700;
 
         &.tabs {

@@ -71,6 +71,7 @@
             </InputIcon>
             <InputText 
               v-model="pagination.filters.global.value"  
+              style="font-size: var(--font-size-14);"
               :placeholder="localize('placeholders.search')"
             />
           </IconField>

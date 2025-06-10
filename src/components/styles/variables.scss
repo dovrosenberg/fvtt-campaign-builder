@@ -1,5 +1,6 @@
 body {
-  --fcb-font-family: 'Modesto Condensed', 'Palatino Linotype', serif;
+  --fcb-name-font-family: 'Modesto Condensed', 'Palatino Linotype', serif;
+  --fcb-font-family: (var--font-body);
 
   --fcb-dark-overlay: rgba(0, 0, 0, 0.05);
   --fcb-light-overlay: rgba(255, 255, 255, 0.10);
