@@ -172,6 +172,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      background: rgba(255, 255, 255, 0.5);
 
       .fcb-directory-panel-wrapper {
         flex: 1;

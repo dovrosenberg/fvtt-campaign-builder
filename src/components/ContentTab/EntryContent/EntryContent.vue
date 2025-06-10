@@ -42,126 +42,130 @@
           @tag-removed="onTagChange"
         />
       </div>
-      <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
-        <a 
-          v-for="relationship in relationships"
-          :key="relationship.label"
-          class="item" 
-          :data-tab="relationship.tab"
-        >
-          {{ localize(relationship.label) }}
-        </a>
-        <a 
-          v-if="topic===Topics.Character"
-          class="item" 
-          data-tab="actors"
-        >
-          {{ localize('labels.tabs.entry.actors') }}
-        </a>
-        <a 
-          v-if="topic===Topics.Location"
-          class="item" 
-          data-tab="scenes"
-        >
-          {{ localize('labels.tabs.entry.scenes') }}
-        </a>
-        <a 
-          class="item" 
-          data-tab="sessions"
-        >
-          {{ localize('labels.tabs.entry.sessions') }}
-        </a>
-      </nav>
-      <div class="fcb-tab-body flexrow">
-        <DescriptionTab 
-          :name="currentEntry?.name || 'Entry'"
-          :image-url="currentEntry?.img"
-          :window-type="WindowTabType.Entry"
-          :topic="topic as ValidTopic"
-          @image-change="onImageChange"
-        >
-          <div class="flexrow form-group">
-            <LabelWithHelp
-              label-text="labels.fields.type"
-            />
-            <TypeSelect
-              :initial-value="currentEntry?.type || ''"
+      <div class="fcb-sheet-subtab-container flexrow">
+        <div>
+          <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
+            <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
+            <a 
+              v-for="relationship in relationships"
+              :key="relationship.label"
+              class="item" 
+              :data-tab="relationship.tab"
+            >
+              {{ localize(relationship.label) }}
+            </a>
+            <a 
+              v-if="topic===Topics.Character"
+              class="item" 
+              data-tab="actors"
+            >
+              {{ localize('labels.tabs.entry.actors') }}
+            </a>
+            <a 
+              v-if="topic===Topics.Location"
+              class="item" 
+              data-tab="scenes"
+            >
+              {{ localize('labels.tabs.entry.scenes') }}
+            </a>
+            <a 
+              class="item" 
+              data-tab="sessions"
+            >
+              {{ localize('labels.tabs.entry.sessions') }}
+            </a>
+          </nav>
+          <div class="fcb-tab-body flexrow">
+            <DescriptionTab 
+              :name="currentEntry?.name || 'Entry'"
+              :image-url="currentEntry?.img"
+              :window-type="WindowTabType.Entry"
               :topic="topic as ValidTopic"
-              @type-selection-made="onTypeSelectionMade"
-            />
-          </div>
+              @image-change="onImageChange"
+            >
+              <div class="flexrow form-group">
+                <LabelWithHelp
+                  label-text="labels.fields.type"
+                />
+                <TypeSelect
+                  :initial-value="currentEntry?.type || ''"
+                  :topic="topic as ValidTopic"
+                  @type-selection-made="onTypeSelectionMade"
+                />
+              </div>
 
-          <!-- show the species for characters -->
-          <div 
-            v-if="topic===Topics.Character"
-            class="flexrow form-group"
-          >
-            <LabelWithHelp
-              label-text="labels.fields.species"
-            />
-            <SpeciesSelect
-              :initial-value="currentEntry?.speciesId || ''"
-              :allow-new-items="false"
-              @species-selection-made="onSpeciesSelectionMade"
-            />
-          </div>
+              <!-- show the species for characters -->
+              <div 
+                v-if="topic===Topics.Character"
+                class="flexrow form-group"
+              >
+                <LabelWithHelp
+                  label-text="labels.fields.species"
+                />
+                <SpeciesSelect
+                  :initial-value="currentEntry?.speciesId || ''"
+                  :allow-new-items="false"
+                  @species-selection-made="onSpeciesSelectionMade"
+                />
+              </div>
 
-          <div 
-            v-if="showHierarchy"
-            class="flexrow form-group"
-          >
-            <LabelWithHelp
-              label-text="labels.fields.parent"
-            />
-            <TypeAhead 
-              :initial-list="validParents"
-              :initial-value="parentId || ''"
-              @selection-made="onParentSelectionMade"
-            />
-          </div>
+              <div 
+                v-if="showHierarchy"
+                class="flexrow form-group"
+              >
+                <LabelWithHelp
+                  label-text="labels.fields.parent"
+                />
+                <TypeAhead 
+                  :initial-list="validParents"
+                  :initial-value="parentId || ''"
+                  @selection-made="onParentSelectionMade"
+                />
+              </div>
 
-          <div class="flexrow form-group description">
-            <Editor
-              :initial-content="currentEntry?.description || ''"
-              :current-entity-uuid="currentEntry?.uuid"
-              :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
-              @editor-saved="onDescriptionEditorSaved"
-              @related-entries-changed="onRelatedEntriesChanged"
-            />
+              <div class="flexrow form-group description">
+                <Editor
+                  :initial-content="currentEntry?.description || ''"
+                  :current-entity-uuid="currentEntry?.uuid"
+                  :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+                  @editor-saved="onDescriptionEditorSaved"
+                  @related-entries-changed="onRelatedEntriesChanged"
+                />
+              </div>
+            </DescriptionTab>
+            <div class="tab flexcol" data-group="primary" data-tab="characters">
+              <div class="tab-inner">
+                <RelatedItemTable :topic="Topics.Character" />
+              </div>
+            </div> 
+            <div class="tab flexcol" data-group="primary" data-tab="locations">
+              <div class="tab-inner">
+                <RelatedItemTable :topic="Topics.Location" />
+              </div>
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="organizations">
+              <div class="tab-inner">
+                <RelatedItemTable :topic="Topics.Organization" />
+              </div>
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="scenes">
+              <div class="tab-inner">
+                <RelatedDocumentTable 
+                  :document-link-type="DocumentLinkType.Scenes"
+                />
+              </div>
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="actors">
+              <div class="tab-inner">
+                <RelatedDocumentTable 
+                  :document-link-type="DocumentLinkType.Actors"
+                />
+              </div>
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="sessions">
+              <SessionsTab />
+            </div>
           </div>
-        </DescriptionTab>
-        <div class="tab flexcol" data-group="primary" data-tab="characters">
-          <div class="tab-inner">
-            <RelatedItemTable :topic="Topics.Character" />
-          </div>
-        </div> 
-        <div class="tab flexcol" data-group="primary" data-tab="locations">
-          <div class="tab-inner">
-            <RelatedItemTable :topic="Topics.Location" />
-          </div>
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="organizations">
-          <div class="tab-inner">
-            <RelatedItemTable :topic="Topics.Organization" />
-          </div>
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="scenes">
-          <div class="tab-inner">
-            <RelatedDocumentTable 
-              :document-link-type="DocumentLinkType.Scenes"
-            />
-          </div>
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="actors">
-          <div class="tab-inner">
-            <RelatedDocumentTable 
-              :document-link-type="DocumentLinkType.Actors"
-            />
-          </div>
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="sessions">
-          <SessionsTab />
         </div>
       </div>
     </div>

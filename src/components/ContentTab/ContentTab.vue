@@ -1,7 +1,7 @@
 <template>
   <div 
     ref="contentRef"
-    class="sheet fcb-journal-sheet"
+    class="sheet"
   >      
     <div 
       v-if="currentContentType===WindowTabType.Entry"
@@ -91,17 +91,15 @@
 </script>
 
 <style lang="scss">
-  .fcb-journal-sheet {
-    &.sheet {
-      height: 100%;
-    }
-    
+  .fcb-content {
     & > form {
       padding: 0px;
       overflow: hidden;
     }
     
-    &.sheet {
+    .sheet {
+      height: 100%;
+
       form {
         height: 100%;
       }
@@ -195,39 +193,57 @@
         }
       }
 
-      // Nav
-      .fcb-sheet-navigation {
-        flex-grow: 0;
-        flex: 0 0 30px !important;
-        padding: 0px 4px 5px 4px;
-        border-bottom: 2px groove var(--fcb-sheet-tab-bottom-border);
-        font-family: var(--fcb-font-family);
-        font-size: 16px;
-        font-weight: 700;
+      // Subtabs
+      .fcb-sheet-subtab-container {
+          flex: 1;
+          align-content: start;
+          background: var(--fcb-tab-body-background);
+          box-shadow: 0px -2px 4px rgba(0, 0, 0, 0.3);
 
-        &.tabs {
-          flex-wrap: wrap;
-          justify-content: flex-start;
-          
-          .item {
-            flex: 0 0 auto;
-            height: 30px !important;
-            line-height: 32px;
-            margin: 0 12px;
-            border-bottom: var(--fcb-sheet-tab-border);
-            max-width: 150px;
+        .fcb-sheet-navigation {
+          flex-grow: 0;
+          flex: 0 0 30px !important;
+          padding: 0px 4px 5px 4px;
+          border-bottom: 2px groove var(--fcb-sheet-tab-bottom-border);
+          font-family: var(--fcb-font-family);
+          font-size: 15px;
+          font-weight: 700;
 
-            &.first-child {
-              margin-left: 0;
+
+          &.tabs {
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            
+            .item {
+              flex: 0 0 auto;
+              height: 30px !important;
+              line-height: 32px;
+              margin: 0 12px;
+              border-bottom: var(--fcb-sheet-tab-border);
+              max-width: 150px;
+
+              &.first-child {
+                margin-left: 0;
+              }
+            }
+
+            .item.active {
+              border-bottom-color: var(--fcb-sheet-tab-border-active);
+            }
+
+            .tab {
+              flex: 1;
             }
           }
+        }
 
-          .item.active {
-            border-bottom-color: var(--fcb-sheet-tab-border-active);
-          }
+        // the tab content
+      .fcb-tab-body {
+          flex: 1;
+          padding: 4px;
 
-          .tab {
-            flex: 1;
+          h6 {
+            margin-top: 1rem;
           }
         }
       }
@@ -235,16 +251,6 @@
       /* Dialog */
       .dialog-content {
         margin-bottom: 8px;
-      }
-
-      // the tab content
-      .fcb-tab-body {
-        flex: 1;
-        padding: 4px;
-
-        h6 {
-          margin-top: 1rem;
-        }
       }
 
       .fcb-sheet-container a[disabled] {

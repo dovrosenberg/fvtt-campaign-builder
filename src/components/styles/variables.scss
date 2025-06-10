@@ -28,6 +28,7 @@ body {
   --fcb-header-nav-btn-background-hover: var(--fcb-header-nav-btn-background);
   --fcb-header-nav-btn-color-hover: var(--fcb-header-nav-btn-color);
   --fcb-header-nav-vertical-line:  rgb(238, 237, 224);
+  --fcb-tab-body-background: rgba(238, 237, 224, 0.3);
   --fcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);
   --fcb-sheet-header-input-background: var(--fcb-dark-overlay);
   --fcb-sheet-header-label-color: rgb(75, 74, 68);
@@ -36,7 +37,7 @@ body {
   --fcb-sheet-header-button-background: var(--button-background-color);
   --fcb-sheet-header-detail-input-color: var(--color-text-primary);
   --fcb-sheet-header-icon-color: #777;
-  --fcb-sheet-tab-bottom-border: rgb(238, 237, 224);
+  --fcb-sheet-tab-bottom-border: rgb(250, 250, 230);
   --fcb-sheet-tab-border: 3px solid rgb(181, 179, 164);
   --fcb-sheet-tab-border-active: rgb(68, 25, 26);
   --fcb-sheet-page-control-color: var(--color-text-dark-primary);
@@ -54,10 +55,10 @@ body {
   --fcb-blank-color: rgba(0, 0, 0, 0.5);
   --fcb-blank-link-hover: rgba(0, 0, 0, 0.8);
   
-  --fcb-sidebar-background: url(../../../ui/parchment.jpg) repeat;
+  --fcb-sidebar-background: rgba( 255, 255, 255, 0.3); 
   --fcb-sidebar-label-color: var(--color-text-dark-primary);
   --fcb-sidebar-setting-color: var(--color-text-light-highlight);
-  --fcb-sidebar-setting-background: rgb(201, 201, 182);
+  --fcb-sidebar-setting-background: rgb(215, 215, 202);
   --fcb-sidebar-setting-border: rgb(219, 219, 219);
   --fcb-sidebar-setting-color-collapsed: rgb(130, 130, 130);
   --fcb-sidebar-setting-background-collapsed: rgb(219, 219, 219);
