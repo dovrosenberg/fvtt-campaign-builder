@@ -2,7 +2,7 @@
   <!-- For some reason, submitting this form (and only this form, not of the other content forms) by hitting enter in the name input crashes the browser -->
   <form @submit.prevent="">
     <div ref="contentRef" class="fcb-sheet-container flexcol">
-      <header class="fcb-name-header flexrow">
+      <header class="fcb-name-header flexrow" style="margin-bottom: 10px;">
         <i :class="`fas ${icon} sheet-icon`"></i>
         <InputText
           v-model="name"
@@ -16,65 +16,69 @@
           @update:model-value="onNameUpdate"
         />
       </header>
-      <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
-        <a class="item" data-tab="pcs">{{ localize('labels.tabs.campaign.pcs') }}</a>
-        <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
-        <a class="item" data-tab="ideas">{{ localize('labels.tabs.campaign.ideas') }}</a>
-        <a class="item" v-if="showToDoTab" data-tab="todo">{{ localize('labels.tabs.campaign.toDo') }} ({{ currentCampaign?.todoItems.length || 0 }})</a>
-      </nav>
-      <div class="fcb-tab-body flexrow">
-        <DescriptionTab 
-          :name="currentCampaign?.name || 'Campaign'"
-          :image-url="currentCampaign?.img"
-          :window-type="WindowTabType.Campaign"
-          @image-change="onImageChange"
-        >
-          <div class="flexrow form-group">
-            <LabelWithHelp
-              label-text="labels.fields.campaignDescription"
-              top-label
-            />
-          </div>
-          <div class="flexrow form-group">
-            <Editor 
-              :initial-content="currentCampaign?.description || ''"
-              :style="{ 'height': '240px', 'margin-bottom': '6px'}"
-              @editor-saved="onDescriptionEditorSaved"
-            />
-          </div>
-          <div class="flexrow form-group">
-            <LabelWithHelp
-              label-text="labels.fields.campaignHouseRules"
-              top-label
-            />
-          </div>
-          <div class="flexrow form-group">
-            <Editor 
-              :initial-content="currentCampaign?.houseRules || ''"
-              :style="{ 'height': '240px', 'margin-bottom': '6px'}"
-              @editor-saved="onHouseRulesEditorSaved"
-            />
-        </div>
-        </DescriptionTab>
-        <div class="tab flexcol" data-group="primary" data-tab="pcs">
-          <div class="tab-inner">
-            <CampaignPCsTab />
-          </div>
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="lore">
-          <div class="tab-inner">
-            <CampaignLoreTab />
-          </div>
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="ideas">
-          <div class="tab-inner">
-            <CampaignIdeasTab />
-          </div>
-        </div>
-        <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="todo">
-          <div class="tab-inner">
-            <CampaignToDoTab />
+      <div class="fcb-sheet-subtab-container flexrow">
+        <div class="fcb-subtab-wrapper">
+          <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
+            <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
+            <a class="item" data-tab="pcs">{{ localize('labels.tabs.campaign.pcs') }}</a>
+            <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
+            <a class="item" data-tab="ideas">{{ localize('labels.tabs.campaign.ideas') }}</a>
+            <a class="item" v-if="showToDoTab" data-tab="todo">{{ localize('labels.tabs.campaign.toDo') }} ({{ currentCampaign?.todoItems.length || 0 }})</a>
+          </nav>
+          <div class="fcb-tab-body flexrow">
+            <DescriptionTab 
+              :name="currentCampaign?.name || 'Campaign'"
+              :image-url="currentCampaign?.img"
+              :window-type="WindowTabType.Campaign"
+              @image-change="onImageChange"
+            >
+              <div class="flexrow form-group">
+                <LabelWithHelp
+                  label-text="labels.fields.campaignDescription"
+                  top-label
+                />
+              </div>
+              <div class="flexrow form-group">
+                <Editor 
+                  :initial-content="currentCampaign?.description || ''"
+                  :style="{ 'height': '240px', 'margin-bottom': '6px'}"
+                  @editor-saved="onDescriptionEditorSaved"
+                />
+              </div>
+              <div class="flexrow form-group">
+                <LabelWithHelp
+                  label-text="labels.fields.campaignHouseRules"
+                  top-label
+                />
+              </div>
+              <div class="flexrow form-group">
+                <Editor 
+                  :initial-content="currentCampaign?.houseRules || ''"
+                  :style="{ 'height': '240px', 'margin-bottom': '6px'}"
+                  @editor-saved="onHouseRulesEditorSaved"
+                />
+            </div>
+            </DescriptionTab>
+            <div class="tab flexcol" data-group="primary" data-tab="pcs">
+              <div class="tab-inner">
+                <CampaignPCsTab />
+              </div>
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="lore">
+              <div class="tab-inner">
+                <CampaignLoreTab />
+              </div>
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="ideas">
+              <div class="tab-inner">
+                <CampaignIdeasTab />
+              </div>
+            </div>
+            <div v-if="showToDoTab" class="tab flexcol" data-group="primary" data-tab="todo">
+              <div class="tab-inner">
+                <CampaignToDoTab />
+              </div>
+            </div>
           </div>
         </div>
       </div> 
@@ -232,5 +236,21 @@
 </script>
 
 <style lang="scss">
+  .fcb-sheet-subtab-container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    padding-bottom: 10px;
+  }
 
+  .fcb-subtab-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .fcb-tab-body {
+    flex: 1;
+    min-height: 0;
+  }
 </style>

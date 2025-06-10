@@ -24,48 +24,52 @@
         >
           <i class="fas fa-head-side-virus"></i>
         </button>
-      </header>     
-      <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
-      </nav>
-      <div class="fcb-tab-body flexrow">
-        <DescriptionTab 
-          :name="currentSetting.name || 'World'"
-          :image-url="currentSetting.img"
-          :window-type="WindowTabType.World"
-          @image-change="onImageChange"
-        >
-          <div class="flexrow form-group">
-            <LabelWithHelp
-              label-text="labels.fields.worldGenre"
-              help-text="help.worldGenre" 
-            />
-            <InputText
-              v-model="currentSetting.genre"
-              type="text"
-              style="width: 250px; font-family: var(--font-body)"
-              @update:model-value="onGenreSaved"
-            />
+      </header>    
+      <div class="fcb-sheet-subtab-container flexrow">
+        <div class="fcb-subtab-wrapper">
+          <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
+            <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
+          </nav>
+          <div class="fcb-tab-body flexrow">
+            <DescriptionTab 
+              :name="currentSetting.name || 'Setting'"
+              :image-url="currentSetting.img"
+              :window-type="WindowTabType.World"
+              @image-change="onImageChange"
+            >
+              <div class="flexrow form-group">
+                <LabelWithHelp
+                  label-text="labels.fields.worldGenre"
+                  help-text="help.worldGenre" 
+                />
+                <InputText
+                  v-model="currentSetting.genre"
+                  type="text"
+                  style="width: 250px; font-family: var(--font-body)"
+                  @update:model-value="onGenreSaved"
+                />
+              </div>
+              <div class="flexrow form-group">
+                <LabelWithHelp
+                  label-text="labels.fields.worldFeeling"
+                  help-text="help.worldFeeling" 
+                />
+                <Textarea
+                  v-model="currentSetting.worldFeeling"
+                  rows="3"
+                  style="width: calc(100% - 2px); font-family: var(--font-body)"
+                  @update:model-value="onWorldFeelingSaved"
+                />
+              </div>
+              <div class="flexrow form-group description">
+                <Editor
+                    :initial-content="currentSetting.description || ''"
+                    @editor-saved="onDescriptionEditorSaved"
+                  />
+              </div>
+            </DescriptionTab>
           </div>
-          <div class="flexrow form-group">
-            <LabelWithHelp
-              label-text="labels.fields.worldFeeling"
-              help-text="help.worldFeeling" 
-            />
-            <Textarea
-              v-model="currentSetting.worldFeeling"
-              rows="3"
-              style="width: calc(100% - 2px); font-family: var(--font-body)"
-              @update:model-value="onWorldFeelingSaved"
-            />
-          </div>
-          <div class="flexrow form-group description">
-            <Editor
-                :initial-content="currentSetting.description || ''"
-                @editor-saved="onDescriptionEditorSaved"
-              />
-          </div>
-        </DescriptionTab>
+        </div>
       </div>
     </div>
   </form>	 

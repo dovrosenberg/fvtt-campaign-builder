@@ -24,99 +24,103 @@
           @tag-removed="onTagChange"
         />
       </div>
-      <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
-        <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
-        <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
-        <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
-        <a class="item" data-tab="vignettes">{{ localize('labels.tabs.session.vignettes') }}</a>
-        <a class="item" data-tab="locations">{{ localize('labels.tabs.session.locations') }}</a>
-        <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
-        <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
-        <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
-        <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
-      </nav>
-      <div class="fcb-tab-body flexrow">
-        <DescriptionTab
-          :name="currentSession?.name || 'Session'"
-          :image-url="currentSession?.img"
-          :window-type="WindowTabType.Session"
-          alt-tab-id="notes"
-          @image-change="onImageChange"
-        >
-          <div class="flexrow form-group">
-            <LabelWithHelp
-              label-text="labels.fields.sessionNumber"
-            />
-            <InputText
-              v-model="sessionNumber"
-              for="fcb-input-number" 
-              unstyled
-              :placeholder="localize('placeholders.sessionNumber')"
-              :disabled=isInPlayMode
-              :pt="{
-                root: { class: 'full-height' } 
-              }" 
-              @update:model-value="onNumberUpdate"
-            />
+      <div class="fcb-sheet-subtab-container flexrow">
+        <div class="fcb-subtab-wrapper">
+          <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
+            <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
+            <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
+            <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
+            <a class="item" data-tab="vignettes">{{ localize('labels.tabs.session.vignettes') }}</a>
+            <a class="item" data-tab="locations">{{ localize('labels.tabs.session.locations') }}</a>
+            <a class="item" data-tab="npcs">{{ localize('labels.tabs.session.npcs') }}</a>
+            <a class="item" data-tab="monsters">{{ localize('labels.tabs.session.monsters') }}</a>
+            <a class="item" data-tab="magic">{{ localize('labels.tabs.session.magic') }}</a>
+            <a class="item" data-tab="pcs">{{ localize('labels.tabs.session.pcs') }}</a>
+          </nav>
+          <div class="fcb-tab-body flexrow">
+            <DescriptionTab
+              :name="currentSession?.name || 'Session'"
+              :image-url="currentSession?.img"
+              :window-type="WindowTabType.Session"
+              alt-tab-id="notes"
+              @image-change="onImageChange"
+            >
+              <div class="flexrow form-group">
+                <LabelWithHelp
+                  label-text="labels.fields.sessionNumber"
+                />
+                <InputText
+                  v-model="sessionNumber"
+                  for="fcb-input-number" 
+                  unstyled
+                  :placeholder="localize('placeholders.sessionNumber')"
+                  :disabled=isInPlayMode
+                  :pt="{
+                    root: { class: 'full-height' } 
+                  }" 
+                  @update:model-value="onNumberUpdate"
+                />
+              </div>
+              <div class="flexrow form-group">
+                <LabelWithHelp
+                  label-text="labels.fields.sessionDate"
+                />
+                <DatePicker 
+                  v-model="sessionDate"
+                  :show-button-bar="true"
+                />   
+              </div>
+              <div class="flexrow form-group description">
+                <Editor 
+                  :initial-content="sessionNotesContent"
+                  @editor-saved="onNotesEditorSaved"
+                />
+              </div>
+            </DescriptionTab>
+            <div class="tab flexcol" data-group="primary" data-tab="pcs">
+              <div class="tab-inner">
+                <CampaignPCsTab />
+              </div>
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="npcs">
+              <div class="tab-inner">
+                <SessionNPCTab />
+              </div>  
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="vignettes">
+              <div class="tab-inner">
+                <SessionVignetteTab />
+              </div>  
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="start">
+              <div class="tab-inner">
+                <Editor 
+                  :initial-content="currentSession?.startingAction || ''"
+                  @editor-saved="onStartEditorSaved"
+                />
+              </div>  
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="lore">
+              <div class="tab-inner">
+                <SessionLoreTab />
+              </div>  
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="locations">
+              <div class="tab-inner">
+                <SessionLocationTab />
+              </div>  
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="monsters">
+              <div class="tab-inner">
+                <SessionMonsterTab />
+              </div>  
+            </div>
+            <div class="tab flexcol" data-group="primary" data-tab="magic">
+              <div class="tab-inner">
+                <SessionItemTab />
+              </div>  
+            </div>
           </div>
-          <div class="flexrow form-group">
-            <LabelWithHelp
-              label-text="labels.fields.sessionDate"
-            />
-            <DatePicker 
-              v-model="sessionDate"
-              :show-button-bar="true"
-            />   
-          </div>
-          <div class="flexrow form-group description">
-            <Editor 
-              :initial-content="sessionNotesContent"
-              @editor-saved="onNotesEditorSaved"
-            />
-          </div>
-        </DescriptionTab>
-        <div class="tab flexcol" data-group="primary" data-tab="pcs">
-          <div class="tab-inner">
-            <CampaignPCsTab />
-          </div>
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="npcs">
-          <div class="tab-inner">
-            <SessionNPCTab />
-          </div>  
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="vignettes">
-          <div class="tab-inner">
-            <SessionVignetteTab />
-          </div>  
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="start">
-          <div class="tab-inner">
-            <Editor 
-              :initial-content="currentSession?.startingAction || ''"
-              @editor-saved="onStartEditorSaved"
-            />
-          </div>  
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="lore">
-          <div class="tab-inner">
-            <SessionLoreTab />
-          </div>  
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="locations">
-          <div class="tab-inner">
-            <SessionLocationTab />
-          </div>  
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="monsters">
-          <div class="tab-inner">
-            <SessionMonsterTab />
-          </div>  
-        </div>
-        <div class="tab flexcol" data-group="primary" data-tab="magic">
-          <div class="tab-inner">
-            <SessionItemTab />
-          </div>  
         </div>
       </div>
     </div>

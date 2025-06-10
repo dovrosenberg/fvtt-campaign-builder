@@ -43,7 +43,7 @@
         />
       </div>
       <div class="fcb-sheet-subtab-container flexrow">
-        <div>
+        <div class="fcb-subtab-wrapper">
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
             <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
             <a 

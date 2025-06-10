@@ -1,7 +1,7 @@
 <template>
   <div 
     ref="contentRef"
-    class="sheet"
+    class="fcb-journal-sheet sheet"
   >      
     <div 
       v-if="currentContentType===WindowTabType.Entry"
@@ -91,13 +91,17 @@
 </script>
 
 <style lang="scss">
-  .fcb-content {
+  .fcb-journal-sheet {
+    &.sheet {
+      height: 100%;
+    }
+  
     & > form {
       padding: 0px;
       overflow: hidden;
     }
     
-    .sheet {
+    &.sheet {
       height: 100%;
 
       form {
@@ -135,6 +139,9 @@
           margin-right: 8px;
           font-size: 32px;
           height: 36px;
+
+          // the box shadow when we're not focused makes the box look like the wrong background color
+          box-shadow: none;
 
           &:not(:focus){
             border-bottom: 1px solid #777;
@@ -199,6 +206,13 @@
           align-content: start;
           background: var(--fcb-tab-body-background);
           box-shadow: 0px -2px 4px rgba(0, 0, 0, 0.3);
+
+        .fcb-subtab-wrapper {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+          height: 100%;
+        }
 
         .fcb-sheet-navigation {
           flex-grow: 0;

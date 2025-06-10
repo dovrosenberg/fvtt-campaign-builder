@@ -1,5 +1,5 @@
 <template>
-  <div class="tab flexcol" data-group="primary" :data-tab="props.altTabId">
+  <div class="tab flexcol" data-group="primary" :data-tab="props.altTabId" style="height: 100%;">
     <div class="tab-inner">
       <div class="fcb-description-wrapper flexrow">
         <ImagePicker
@@ -120,21 +120,23 @@
 <style lang="scss">
   .fcb-description-wrapper {
     font-family: var(--font-body);
-    align-items: flex-start;
+    align-items: stretch;
     align-self: flex-start;
     overflow-y: visible;
     width: 100%;
     height: 100%;
       
     .fcb-description-content {
-      height: 100%;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
 
       .form-group {
         margin: 4px 8px 0px 0px;
       
         label {
           font-size: var(--font-size-16);
-          font-weight: 700;
+          font-weight: 600;
           font-family: var(--fcb-font-family);
           color: var(--fcb-sheet-header-label-color);
           text-align: left;
