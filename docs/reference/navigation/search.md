@@ -12,9 +12,13 @@ The top right corner of the window's title bar has the search box.
 
 ![search](/assets/images/search.webp)
 
-Search terms are not case sensitive.  Clicking a search result opens it in a new tab.
+Clicking a search result opens it in a new tab.
 
-This box searches all entries, looking across these fields:
+> [!NOTE]
+> Search terms are not case sensitive.  
+
+### Searching Entries
+This box searches all [^Entries], looking across these fields:
 * Name
 * [Tags](/reference/world-building/content/entry/tags)
 * Description
@@ -26,9 +30,10 @@ This box searches all entries, looking across these fields:
 
 So, searching for "Sally sibling" would return an entry with a relationship of "sibling" to a Character named Sally.  That result would be lower on the list, though, than Sally herself.
 
-The search box also searches across campaigns - but in a subtlely different way.  It looks across:
-* Notes and the Session Start text
-* Related items - **BUT ONLY IF THEY'RE MARKED AS DELIVERED**
+### Searching Sessions
+The search box also searches across Sessions - but in a subtlely different way.  It looks across:
+* Session Notes and the Session Start text
+* Session items - **BUT ONLY IF THEY'RE MARKED AS [DELIVERED](TODO: link)**
   * Lore, Vignettes (text of the lore/Vignette)
   * Locations, NPCs, Items, Monsters (the name of the entity)
 
