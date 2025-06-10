@@ -119,9 +119,7 @@
 
 <style lang="scss">
   .fcb-description-wrapper {
-    font-size: var(--font-size-20);
-    font-weight: 700;
-    font-family: var(--fcb-font-family);
+    font-family: var(--font-body);
     align-items: flex-start;
     align-self: flex-start;
     overflow-y: visible;
@@ -135,6 +133,9 @@
         margin: 4px 8px 0px 0px;
       
         label {
+          font-size: var(--font-size-20);
+          font-weight: 700;
+          font-family: var(--fcb-font-family);
           color: var(--fcb-sheet-header-label-color);
           text-align: left;
           background: none;

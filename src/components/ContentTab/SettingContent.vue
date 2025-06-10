@@ -43,7 +43,7 @@
             <InputText
               v-model="currentSetting.genre"
               type="text"
-              style="width: 250px"
+              style="width: 250px; font-family: var(--font-body)"
               @update:model-value="onGenreSaved"
             />
           </div>
@@ -55,7 +55,7 @@
             <Textarea
               v-model="currentSetting.worldFeeling"
               rows="3"
-              style="width: calc(100% - 2px)"
+              style="width: calc(100% - 2px); font-family: var(--font-body)"
               @update:model-value="onWorldFeelingSaved"
             />
           </div>

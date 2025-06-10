@@ -13,7 +13,7 @@
       v-else-if="currentContentType===WindowTabType.World"
       class="fcb-content-wrapper"
     >
-      <WorldContent />
+      <SettingContent />
     </div>
     <div 
       v-else-if="currentContentType===WindowTabType.Session"
@@ -60,7 +60,7 @@
   import PCContent from '@/components/ContentTab/PCContent.vue';
   import CampaignContent from '@/components/ContentTab/CampaignContent/CampaignContent.vue';
   import HomePage from '@/components/ContentTab/HomePage.vue';
-  import WorldContent from '@/components/ContentTab/WorldContent.vue';
+  import SettingContent from '@/components/ContentTab/SettingContent.vue';
   
   // types
   import { WindowTabType } from '@/types';
