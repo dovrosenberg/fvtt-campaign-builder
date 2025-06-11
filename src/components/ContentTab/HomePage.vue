@@ -176,7 +176,7 @@
           break;
 
         case getTabTypeIcon(WindowTabType.World):
-          await navigationStore.openWorld(item.uuid, { newTab: false });
+          await navigationStore.openSetting(item.uuid, { newTab: false });
           break;
 
         case getTabTypeIcon(WindowTabType.Campaign):

@@ -60,7 +60,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       await refreshSettingDirectoryTree();
 
       // create a new world tab as a starting point
-      await navigationStore.openWorld(world.uuid, { newTab: true, activate: true });
+      await navigationStore.openSetting(world.uuid, { newTab: true, activate: true });
     }
   };
 

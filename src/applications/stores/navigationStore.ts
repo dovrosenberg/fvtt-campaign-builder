@@ -71,7 +71,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
    * @returns The newly opened tab.
    */
-  const openWorld = async function(worldId = null as string | null, options?: OpenContentOptions) {
+  const openSetting = async function(worldId = null as string | null, options?: OpenContentOptions) {
     await openContent(worldId, WindowTabType.World, options );
   };
 
@@ -632,7 +632,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     openEntry,
     openSession,
     openCampaign,
-    openWorld,
+    openSetting,
     openPC,
     openContent,
     updateContentTab,

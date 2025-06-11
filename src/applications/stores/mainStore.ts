@@ -163,7 +163,7 @@ export const useMainStore = defineStore('main', () => {
     _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentSetting.value as Setting);
   };
 
-  const refreshWorld = async function (): Promise<void> {
+  const refreshSetting = async function (): Promise<void> {
     if (!_currentSetting.value)
       return;
 
@@ -210,7 +210,7 @@ export const useMainStore = defineStore('main', () => {
         await refreshPC();
         break;
       case WindowTabType.World:
-        await refreshWorld();
+        await refreshSetting();
         break;
       default:
     }
@@ -353,7 +353,7 @@ export const useMainStore = defineStore('main', () => {
     refreshCampaign,
     refreshSession,
     refreshPC,
-    refreshWorld,
+    refreshSetting,
     refreshCurrentContent,
     getAllWorlds,
     propagateWorldNameChange,

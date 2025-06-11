@@ -143,7 +143,7 @@
         void navigationStore.openPC(target.dataset.uuid, { newTab: event.ctrlKey});
         break;
       case WindowTabType.World:
-        void navigationStore.openWorld(target.dataset.uuid, { newTab: event.ctrlKey});
+        void navigationStore.openSetting(target.dataset.uuid, { newTab: event.ctrlKey});
         break;
     }  
   };

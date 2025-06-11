@@ -74,16 +74,16 @@
       y: event.y,
       zIndex: 300,
       items: [
-        { 
-          icon: 'fa-file-export',
-          iconFontClass: 'fas',
-          label: localize('contextMenus.bookmarks.openNewTab'), 
-          onClick: async () => {
-            if (props.bookmark.header.uuid) {
-              await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: true });
-            }
-          }
-        },
+        // { 
+        //   icon: 'fa-file-export',
+        //   iconFontClass: 'fas',
+        //   label: localize('contextMenus.bookmarks.openNewTab'), 
+        //   onClick: async () => {
+        //     if (props.bookmark.header.uuid) {
+        //       await navigationStore.openContent(props.bookmark.header.uuid, props.bookmark.tabInfo.tabType, { newTab: true });
+        //     }
+        //   }
+        // },
         { 
           icon: 'fa-trash',
           iconFontClass: 'fas',

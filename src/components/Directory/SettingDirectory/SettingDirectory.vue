@@ -135,16 +135,12 @@
     event.stopPropagation();
 
     if (settingId) {
-      await mainStore.setNewSetting(settingId);
-
-      // see if there's already a setting tab open - if so, switch
-      const existingTab = navigationStore.tabs.find(t => t.contentId === settingId);
-      if (existingTab) {
-        await navigationStore.activateTab(existingTab.id);
-        return;
+      if (settingId === currentSetting.value?.uuid) {
+        // if we're in the same setting, we just open a tab like we normally would
+        await navigationStore.openSetting(settingId, {newTab: event.ctrlKey});
       } else {
-        // if not - open one
-        await navigationStore.openWorld(settingId, {newTab: true});
+        // we're changing settings, so we don't want to open a new tab -- just switch
+        await mainStore.setNewSetting(settingId);
       }
     }
   };
