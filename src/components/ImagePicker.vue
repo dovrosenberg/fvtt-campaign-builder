@@ -27,6 +27,7 @@
   // types
   import { Topics, ValidTopic, WindowTabType } from '@/types';
   import { MenuItem } from '@imengyu/vue3-context-menu';
+  import { Backend } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -58,6 +59,7 @@
   const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
     (e: 'create-scene', value: string): void; 
+    (e: 'generate-image'): void; 
   }>();
 
   ////////////////////////////////
@@ -134,7 +136,17 @@
           iconFontClass: 'fas',
           label: localize('contextMenus.image.addImage'),
           onClick: () => openFilePicker()
-        }];
+        },
+      ];
+
+      if (Backend.available && [Topics.Character, Topics.Location, Topics.Organization].includes(props.topic)) {
+        items.push({
+          icon: 'fa-head-side-virus',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.image.generateImage'),
+          onClick: () => generateImage()
+        });
+      }
     } else {
       items = [
         {
@@ -161,15 +173,26 @@
           label: localize('contextMenus.image.postToChat'),
           onClick: () => postToChat()
         },
-      ].concat(props.topic === Topics.Location ?
-        [{
+      ];
+      
+      if (props.topic === Topics.Location) {
+        items.push({
           icon: 'fa-image',
           iconFontClass: 'fas',
           label: localize('contextMenus.image.createScene'),
           onClick: () => createScene()
-        }] :
-        []
-      );
+        });
+      }
+
+      if (Backend.available && [Topics.Character, Topics.Location, Topics.Organization].includes(props.topic)) {
+        // insert it after change image
+        items.splice(items.findIndex((i)=> i.icon === 'fa-edit'), 0, {
+          icon: 'fa-head-side-virus',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.image.generateImage'),
+          onClick: () => generateImage()
+        });
+      }
     } 
 
     // Show context menu using the Vue context menu component
@@ -222,6 +245,10 @@
       target.dataset.errorHandled = 'true';
       target.src = getDefaultImage.value;
     }
+  };
+
+  const generateImage = () => {
+    emit('generate-image');
   };
 
   const removeImage = () => {

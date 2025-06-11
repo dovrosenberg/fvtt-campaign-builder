@@ -25,7 +25,7 @@ export class CampaignBuilderApplication extends VueApplicationMixin(ApplicationV
   static DEFAULT_OPTIONS = {
     id: `app-fcb-CampaignBuilder`,
     classes: ['fcb-main-window'], 
-    window: {
+    window: {  // this is type ApplicationWindowConfiguration
       title: 'fcb.title',
       icon: 'fa-solid fa-globe',
       resizable: true,

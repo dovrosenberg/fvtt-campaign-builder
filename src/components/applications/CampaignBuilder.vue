@@ -337,117 +337,122 @@
 </script>
 
 <style lang="scss">
-@import "@/components/styles/styles.scss";
+  @import "@/components/styles/styles.scss";
 
-// this is from the Vue handler, but we need it to be a flexbox so the overall app window controls the size the rest
-//    of the way down
-div[data-application-part="app"]:has(> div.fcb) {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-// the launch button in the top right corner
-#fcb-launch {
-  background-color: rgba(0,0,0,.5);
-  color: var(--color-text-light-highlight);
-}
-
-.fcb-main-window {  
-  min-width: 640px;
-
-  .window-header {
-    // we need it to be higher than the content so search results can cover
-    z-index: 2;
-
-    overflow: visible;  // for the search drop down
+  // this is from the Vue handler, but we need it to be a flexbox so the overall app window controls the size the rest
+  //    of the way down
+  div[data-application-part="app"]:has(> div.fcb) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
   }
 
-  .window-content {
-    padding: 0;
-    z-index: 1;
+  // the launch button in the top right corner
+  #fcb-launch {
+    background-color: rgba(0,0,0,.5);
+    color: var(--color-text-light-highlight);
   }
 
-  .window-content > div {
-    overflow: hidden;
-  }
+  .fcb-main-window {  
+    min-width: 640px;
 
-  .fcb {
-    height: 100%;
-    width: 100%;
-    margin-top: 0px;
-    flex-wrap: nowrap;
-    padding: 0.1rem;
+    .window-header {
+      // we need it to be higher than the content so search results can cover
+      z-index: 2;
 
-    // Sidebar 
-    #fcb-directory-sidebar {
-      display: flex;
-      flex: 0 0 250px;
-      height: 100%;
+      overflow: visible;  // for the search drop down
+    }
+
+    .window-content {
+      padding: 0;
+      z-index: 1;
+    }
+
+    .window-content > div {
       overflow: hidden;
-      background: var(--fcb-sidebar-background);
-      border-left: 1px solid var(--fcb-header-border-color);
-      transition: width 0.5s, flex 0.5s;
+    }
 
-      & > div {
-        display: flex !important;
+    .fcb {
+      height: 100%;
+      width: 100%;
+      margin-top: 0px;
+      flex-wrap: nowrap;
+      padding: 0.1rem;
+
+      // Sidebar 
+      #fcb-directory-sidebar {
+        display: flex;
+        flex: 0 0 250px;
+        height: 100%;
+        overflow: hidden;
+        background: var(--fcb-sidebar-background);
+        border-left: 1px solid var(--fcb-header-border-color);
+        transition: width 0.5s, flex 0.5s;
+
+        & > div {
+          display: flex !important;
+          height: 100%;
+        }
+      }
+
+      #fcb-directory .entry-name > i {
+        margin-right: 8px;
+        margin-left: 4px;
+        flex: 0 0 15px;
+      }
+
+      .fcb-body {
         height: 100%;
       }
     }
 
-    #fcb-directory .entry-name > i {
-      margin-right: 8px;
-      margin-left: 4px;
-      flex: 0 0 15px;
-    }
-
-    .fcb-body {
+    .fcb-content {
+      flex: 1;
       height: 100%;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+    }
+    
+  }
+
+  .fcb-splitter {
+    height: 100%;
+  }
+
+  .fcb-left-panel {
+    position: relative;
+    overflow: visible !important;  // make sure the tab shows
+  }
+
+  .fcb-sidebar-toggle-tab {
+    position: absolute;
+    top: 50%; // Center vertically in the gutter
+    transform: translateY(-50%); // Adjust for perfect vertical centering
+    left: calc(100% - 12px); // Position on the edge of the left panel
+    z-index: 100;
+    width: 12px;
+    height: 40px;
+    background-color: var(--color-light-5) !important;
+    color: white;
+    border-color: var(--button-hover-border-color);
+    border: 1px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+
+    &:hover {
+      background-color: #fda948;
+      border-color: var(--color-warm-3);
     }
   }
 
-  .fcb-content {
-    flex: 1;
-    height: 100%;
-    overflow: hidden;
-    position: relative;
-    width: 100%;
+  // we need the resize handle to be visible
+  #app-fcb-CampaignBuilder .window-resize-handle {
+    z-index:99;
   }
-  
-}
-
-.fcb-splitter {
-  height: 100%;
-}
-
-.fcb-left-panel {
-  position: relative;
-  overflow: visible !important;  // make sure the tab shows
-}
-
-.fcb-sidebar-toggle-tab {
-  position: absolute;
-  top: 50%; // Center vertically in the gutter
-  transform: translateY(-50%); // Adjust for perfect vertical centering
-  left: calc(100% - 12px); // Position on the edge of the left panel
-  z-index: 100;
-  width: 12px;
-  height: 40px;
-  background-color: var(--color-light-5) !important;
-  color: white;
-  border-color: var(--button-hover-border-color);
-  border: 1px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-
-  &:hover {
-    background-color: #fda948;
-    border-color: var(--color-warm-3);
-  }
-}
 </style>
 

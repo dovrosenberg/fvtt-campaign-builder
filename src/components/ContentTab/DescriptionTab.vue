@@ -3,12 +3,14 @@
     <div class="tab-inner">
       <div class="fcb-description-wrapper flexrow">
         <ImagePicker
+          class="fcb-description-image"
           v-model="currentImageURL"
           :title="props.name"
           :topic="props.topic"
           :window-type="props.windowType"
           @update:modelValue="emit('imageChange', $event)"
           @create-scene="onCreateScene"
+          @generate-image="onGenerateImage"
         />        
         <div class="fcb-description-content flexcol">
           <slot></slot>
@@ -21,9 +23,10 @@
 <script setup lang="ts">
   // library imports
   import { ref, watch, } from 'vue';
+  import { storeToRefs } from 'pinia';
   
   // local imports
-  import { useRelationshipStore } from '@/applications/stores';
+  import { useRelationshipStore, useMainStore } from '@/applications/stores';
   
   // library components
 
@@ -31,7 +34,8 @@
   import ImagePicker from '@/components/ImagePicker.vue'; 
 
   // types
-  import { ValidTopic, WindowTabType } from '@/types';
+  import { Topics, ValidTopic, WindowTabType } from '@/types';
+  import { generateImage } from '@/utils/generation';
   
   ////////////////////////////////
   // props
@@ -72,6 +76,8 @@
   ////////////////////////////////
   // store
   const relationshipStore = useRelationshipStore();
+  const mainStore = useMainStore();
+  const { currentSetting, currentEntry } = storeToRefs(mainStore);
 
   ////////////////////////////////
   // data
@@ -105,6 +111,17 @@
     }
   };
 
+  const onGenerateImage = () => {
+    // confirm it's a legit topic
+    if (!currentSetting.value || !currentEntry.value || ![Topics.Character, Topics.Location, Topics.Organization].includes(props.topic)) {
+      return;
+    }
+
+    generateImage(currentSetting.value, currentEntry.value);
+
+    
+  };
+
   ////////////////////////////////
   // watchers
   watch(() => props.imageUrl, (newImageUrl) => {
@@ -118,16 +135,24 @@
 </script>
 
 <style lang="scss">
+  .tab-inner {
+    height: 100%;
+    overflow-y: auto;
+  }
+
   .fcb-description-wrapper {
     font-family: var(--font-body);
-    align-items: stretch;
+    align-items: flex-start;
     align-self: flex-start;
     overflow-y: visible;
     width: 100%;
-    height: 100%;
       
+    .fcb-description-image {
+      position: sticky;
+      top: 0;
+    }
+
     .fcb-description-content {
-      overflow-y: auto;
       flex: 1;
       min-height: 0;
 

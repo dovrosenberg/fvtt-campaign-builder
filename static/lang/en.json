@@ -426,7 +426,8 @@
         "addImage": "Add Image",
         "removeImage": "Remove Image",
         "postToChat": "Post To Chat",
-        "createScene": "Create Scene"
+        "createScene": "Create Scene",
+        "generateImage": "Generate image"
       },
       "topicFolder": {
         "create": {

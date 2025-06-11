@@ -4,7 +4,6 @@ import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyGMError, notifyGMInfo, notifyGMWarn } from '@/utils/notifications';
 import { localize } from '@/utils/game';
 import { Campaign } from '@/classes';
-import { ToDoTypes } from '@/types';
 import { useMainStore } from '@/applications/stores';
 
 // this is the backend version that needs to be used with this version of the module
