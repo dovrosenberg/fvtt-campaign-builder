@@ -8,7 +8,7 @@ next:
   link: './sessions'
 ---
 # Entry relationship tabs
-![Relationship tab](/assets/images/relationship-tab.webp)
+![Relationship tab](/assets/images/related-items-tabs.webp)
 
 After the Description tab, every Entry has three "relationship" tabs that are used to show the relationships between them.  For example, two characters might be siblings or an organization might be based in a particular location.
 
