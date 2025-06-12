@@ -38,7 +38,7 @@
         <div class="fcb-search-result-header">
           <!-- If there's a type use that, otherwise, use the topic -->
           <span class="fcb-search-result-name">
-            {{ result.name }} ({{ result.isEntry ? (result.type ? result.type : result.topic) : 'Session' }})
+            {{ result.name }} ({{ result.isEntry ? (result.type ? result.type : result.topic) : localize('labels.session') }})
           </span>
         </div>
       </div>
@@ -180,7 +180,7 @@
    */
   const selectResult = (_event: MouseEvent | null,result: FCBSearchResult) => {
     // Close the results panel
-    showResults.value = false;
+    manuallyHiddenResults.value = true;
     
     // Clear the search input
     searchQuery.value = '';
@@ -211,7 +211,7 @@
     const searchContainer = document.querySelector('.fcb-search-container');
     
     if (searchContainer && !searchContainer.contains(target)) {
-      showResults.value = false;
+      manuallyHiddenResults.value = true;
     }
   };
   
