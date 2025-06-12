@@ -38,7 +38,7 @@
         <div class="fcb-search-result-header">
           <!-- If there's a type use that, otherwise, use the topic -->
           <span class="fcb-search-result-name">
-            {{ result.name }} ({{ result.isEntry ? (result.type ? result.type : result.topic) : localize('labels.session') }})
+            {{ result.name }} ({{ result.isEntry ? (result.type ? result.type : result.topic) : localize('labels.fields.session.session') }})
           </span>
         </div>
       </div>
