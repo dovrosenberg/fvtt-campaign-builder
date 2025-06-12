@@ -41,6 +41,7 @@ export const usePlayingStore = defineStore('playing', () => {
 
   ///////////////////////////////
   // computed state
+  /** if we're in play mode, the current session; otherwise null */
   const currentPlayedSession = computed((): Session | null => (currentPlayedCampaign?.value?.currentSession || null) as Session | null);
   
 
@@ -57,7 +58,7 @@ export const usePlayingStore = defineStore('playing', () => {
       return null;
     }
 
-    // Get all playable campaigns in the current world
+    // Get all playable campaigns in the current setting
     const campaigns = playableCampaigns.value;
 
     // If there are no campaigns, return null
@@ -74,7 +75,7 @@ export const usePlayingStore = defineStore('playing', () => {
     if (currentPlayedCampaignId.value) {
       const campaign = campaigns.find((c) => c.uuid===currentPlayedCampaignId.value) || null;
 
-      // it's possible that it's no longer playable, so let's check
+      // it's possible the specified ones is no longer playable, so let's check
       if (campaign) {
         return campaign
       }

@@ -57,7 +57,7 @@
       </div>
 
       <div class="form-group">
-        <label>{{ localize('applications.advancedSettings.labels.useGmailToDos') }}</label>
+        <label>{{ localize('applications.advancedSettings.labels.useGmailIdeas') }}</label>
         <div class="form-fields">
           <Checkbox 
               v-model="useGmailToDos" 
@@ -65,7 +65,7 @@
             />
         </div>
         <p class="hint">
-          {{ localize('applications.advancedSettings.labels.useGmailToDosHint') }}
+          {{ localize('applications.advancedSettings.labels.useGmailIdeasHint') }}
         </p>
       </div>
 

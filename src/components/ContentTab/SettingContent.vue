@@ -20,7 +20,7 @@
           class="fcb-generate-button"
           @click="onGenerateButtonClick"
           :disabled="generateDisabled"
-          :title="`${localize('tooltips.worldGenerateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"
+          :title="`${localize('tooltips.settingGenerateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"
         >
           <i class="fas fa-head-side-virus"></i>
         </button>

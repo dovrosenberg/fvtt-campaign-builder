@@ -58,6 +58,44 @@
           "add": "Add species",
           "edit": "Edit species",
           "delete": "Delete species"
+        },
+        "defaultSpecies": {
+          "dwarf": {
+            "name": "Dwarf",
+            "description": "Stout and resilient, dwarves are known for their craftsmanship, endurance, and strong connection to mountains and stonework. They are typically short and stocky, with thick beards and sturdy builds that emphasize their toughness."
+          },
+          "elf": {
+            "name": "Elf",
+            "description": "Graceful and long-lived, elves possess keen senses, a natural affinity for magic, and an enduring connection to nature. They are tall and slender, with pointed ears, angular features, and an otherworldly beauty."
+          },
+          "halfling": {
+            "name": "Halfling",
+            "description": "Small and nimble, halflings are cheerful and resourceful, known for their luck and ability to avoid danger. They are short, standing around three feet tall, with round faces, curly hair, and a friendly demeanor."
+          },
+          "human": {
+            "name": "Human",
+            "description": "Versatile and ambitious, humans adapt to any environment, excelling in a wide range of skills and professions. They vary widely in height, build, skin tone, and facial features, reflecting the diversity of their cultures."
+          },
+          "dragonborn": {
+            "name": "Dragonborn",
+            "description": "Proud and powerful, dragonborn are humanoid dragons with a strong sense of honor and an innate breath weapon. They are tall and muscular, covered in colorful scales, with reptilian heads, clawed hands, and tails."
+          },
+          "gnome": {
+            "name": "Gnome",
+            "description": "Curious and inventive, gnomes are small and agile, known for their sharp minds and love of tinkering. They are short, with pointed ears, a mischievous demeanor, and a knack for finding hidden treasures."
+          },
+          "half-elf": {
+            "name": "Half-Elf",
+            "description": "Blending human versatility with elven grace, half-elves are charismatic and adaptable, fitting into both worlds yet fully belonging to neither. They have slightly pointed ears, angular facial features, and a mix of human and elven traits that vary by ancestry."
+          },
+          "half-orc": {
+            "name": "Half-Orc",
+            "description": "Strong and tenacious, half-orcs inherit the endurance and fighting spirit of their orcish ancestry while often striving to prove themselves beyond it. They are tall and powerfully built, with green or gray skin, prominent lower tusks, and thick brows."
+          },
+          "tiefling": {
+            "name": "Tiefling",
+            "description": "Marked by infernal heritage, tieflings possess fiendish traits, an innate resilience to fire, and a talent for magic. They have horns, tails, and unusual eye and skin colors, ranging from deep reds to purples and blues."
+          }
         }
       },
       "advancedSettings": {
@@ -352,6 +390,10 @@
         "title": "Create Setting",
         "worldName": "Setting Name"
       },
+      "deleteEntry": {
+        "title": "Delete entry?",
+        "message": "Are you sure you want to delete this entry?  It will be removed from all relationships and sessions.  Any references to it in editors will become broken."
+      },
       "addToDo": {
         "title": "Add ToDo",
         "text": "Enter todo text:"
@@ -481,7 +523,7 @@
       "addToASession": "Add to a session",
       "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",
       "generateContent": "Generate content",
-      "worldGenerateContent": "Manage world generation settigs",
+      "settingGenerateContent": "Manage setting generation configuration",
       "backendNotAvailable": "Backend not available",
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",
       "dragMonsterFromSession": "Drag to scene",

@@ -39,13 +39,15 @@
 
   // methods
   const onNotesEditorSaved = async (newContent: string) => {
-    if (!currentPlayedSession.value) return;
+    const session = currentPlayedSession.value;
 
-    currentPlayedSession.value.notes = newContent;
-    await currentPlayedSession.value.save();
+    if (!session) return;
+
+    session.notes = newContent;
+    await session.save();
 
     // if we're showing the session, refresh it
-    if (currentSession.value && currentSession.value.uuid===currentPlayedSession.value.uuid) {
+    if (currentSession.value && currentSession.value.uuid===session.uuid) {
       await mainStore.refreshSession();
     }
   };

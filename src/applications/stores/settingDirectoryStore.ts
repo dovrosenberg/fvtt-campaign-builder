@@ -367,7 +367,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       return;
 
     // confirm
-    if (!(await FCBDialog.confirmDialog('Delete entry?', 'Are you sure you want to delete this entry?')))
+    if (!(await FCBDialog.confirmDialog(localize('dialogs.deleteEntry.title'), localize('dialogs.deleteEntry.message'))))
       return;
 
     // save the parent
