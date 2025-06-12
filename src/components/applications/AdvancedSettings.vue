@@ -211,7 +211,7 @@
     await ModuleSettings.set(SettingKey.emailDefaultCampaign, emailDefaultCampaign.value);
 
     // reset the backend
-    await Backend.configure();
+    await Backend.configure(true);
 
     // close
     advancedSettingsApp?.close();

@@ -306,13 +306,16 @@
       rootFolder.value = folders.rootFolder;
       mainStore.setNewSetting(folders.setting.uuid);
 
+      // Wait up to 5 seconds for the backend to finish configuring
+      for (let i = 0; i < 50; i++) {
+        if (!Backend.inProgress) break;
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
       // Check if backend is available and show warning if not
       if (!Backend.available) {
         if (!ModuleSettings.get(SettingKey.hideBackendWarning)) {
-          ui.notifications?.warn(
-            "Backend is not available. Automatic RollTables  will not be refreshed. " +
-            "Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
-          );
+          ui.notifications?.warn(localize('notifications.backend.rollTablesNotAvailable'));
         }
       } else {
         // this is a convenient time to poll for email

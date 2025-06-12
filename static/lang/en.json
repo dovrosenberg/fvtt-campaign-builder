@@ -299,7 +299,8 @@
         "successfulConnection": "Successfully connected to Campaign Builder backend.",
         "failedConnection": "Failed to connect to backend - check your \"advanced\" settings to make sure they properly match the backend server you deployed.  You'll be unable to used advanced features in the meantime.",
         "versionMismatch": "The version of your World & Campaign Builder backend ($1) doesn't match the version required by the module version you have installed ($2).  Please update one or the other (or both).  You'll be unable to use advanced features in the meantime.",
-        "emailSettingsNotSet": "You have enabled the email idea list feature, but you haven't set a default Setting or Campaign.  Please set these in the advanced settings."
+        "emailSettingsNotSet": "You have enabled the email idea list feature, but you haven't set a default Setting or Campaign.  Please set these in the advanced settings.",
+        "rollTablesNotAvailable": "Backend is not available. Automatic RollTables will not be refreshed. Configure the backend in Advanced Settings to enable AI-generated names that match your world's theme."
       },
       "todoReferenceNotFound": "The linked reference for this to-do item no longer exists.",
       "addedToSession": "added to session",
@@ -400,7 +401,8 @@
     },
     "contextMenus": {
       "tabs": {
-        "closeAll": "Close All Tabs"
+        "closeAll": "Close All Tabs",
+        "closeOther": "Close Other Tabs"
       },
       "bookmarks": {
         "openNewTab": "Open in new Tab",

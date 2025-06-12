@@ -13,63 +13,77 @@ const REQUIRED_VERSION = '0.0.10';
 // handles connections to the backend
 export class Backend {
   static config: Configuration;
-  static available: boolean;
+  static available: boolean = false;
+  static inProgress: boolean = false;  // this is used to prevent multiple calls to the backend; if false we're in the process of checking if backend is available
   
   static api: FCBApi;
 
-  static async configure() {
-    Backend.available = false;
-
-    Backend.config = new Configuration();
-    Backend.config.accessToken = ModuleSettings.get(SettingKey.APIToken);
-    Backend.config.basePath = ModuleSettings.get(SettingKey.APIURL);    
-
-    // if both settings are blank, no need to do anything
-    if (!Backend.config.accessToken && !Backend.config.basePath) {
+  /** force will reconnect even if already connected (ex. when changing credentials) */
+  static async configure(force: boolean = false) {
+    if (Backend.inProgress || (Backend.available && !force)) {
       return;
     }
 
-    // make sure credentials are valid by checking the version
-    Backend.api = new FCBApi(Backend.config);
-
-    let versionResult: Awaited<ReturnType<FCBApi['apiVersionGet']>>;
+    Backend.available = false;
+    Backend.inProgress = true;
 
     try {
-      versionResult = await Backend.api.apiVersionGet();
-    } catch (e) {
-      if (!ModuleSettings.get(SettingKey.hideBackendWarning)) 
-        notifyGMError(localize('notifications.backend.failedConnection'));
+      Backend.config = new Configuration();
+      Backend.config.accessToken = ModuleSettings.get(SettingKey.APIToken);
+      Backend.config.basePath = ModuleSettings.get(SettingKey.APIURL);    
 
-      return;
-    }
-
-    // see if the backend version matches the front-end and throw an error if it doesn't
-
-    // if the module version is dev - then just deal with it... maybe put up a warning
-    switch (versionResult.data.version) {
-      case (REQUIRED_VERSION):
-        break;
-      default:
-        if (version === '#{VERSION}#') {
-          // development version of front-end... do nothing (can't deploy through store with this version so it can only be a special case)
-          notifyGMWarn(`Development module detected.  Connected to backend version ${versionResult.data.version} at ${Backend.config.basePath}`);
-        } else {
-          // anything else means the version is wrong
-          // output a foundry error message
-          notifyGMError(localize('notifications.backend.versionMismatch')
-            .replace('$1', `${versionResult.data.version}`)
-            .replace('$2', `${REQUIRED_VERSION}`));
-
-          return;
-        }; break;
+      // if both settings are blank, no need to do anything
+      if (!Backend.config.accessToken && !Backend.config.basePath) {
+        Backend.inProgress = false;
+        return;
       }
-    
-    // made it here - good to go!
-    notifyGMInfo(localize('notifications.backend.successfulConnection'));
-    Backend.available = true;
 
-    // let's also poll for email since we just connected
-    await Backend.pollForEmail();
+      // make sure credentials are valid by checking the version
+      Backend.api = new FCBApi(Backend.config);
+
+      let versionResult: Awaited<ReturnType<FCBApi['apiVersionGet']>>;
+
+      try {
+        versionResult = await Backend.api.apiVersionGet();
+      } catch (e) {
+        if (!ModuleSettings.get(SettingKey.hideBackendWarning)) 
+          notifyGMError(localize('notifications.backend.failedConnection'));
+
+        Backend.inProgress = false;
+        return;
+      }
+
+      // see if the backend version matches the front-end and throw an error if it doesn't
+
+      // if the module version is dev - then just deal with it... maybe put up a warning
+      switch (versionResult.data.version) {
+        case (REQUIRED_VERSION):
+          break;
+        default:
+          if (version === '#{VERSION}#') {
+            // development version of front-end... do nothing (can't deploy through store with this version so it can only be a special case)
+            notifyGMWarn(`Development module detected.  Connected to backend version ${versionResult.data.version} at ${Backend.config.basePath}`);
+          } else {
+            // anything else means the version is wrong
+            // output a foundry error message
+            notifyGMError(localize('notifications.backend.versionMismatch')
+              .replace('$1', `${versionResult.data.version}`)
+              .replace('$2', `${REQUIRED_VERSION}`));
+
+            Backend.inProgress = false;
+            return;
+          }; break;
+        }
+      
+      // made it here - good to go!
+      notifyGMInfo(localize('notifications.backend.successfulConnection'));
+      Backend.available = true;
+
+      // let's also poll for email since we just connected
+      await Backend.pollForEmail();
+    } finally {
+      Backend.inProgress = false;
+    }
   }
 
   static async pollForEmail() {

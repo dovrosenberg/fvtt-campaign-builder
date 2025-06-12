@@ -107,6 +107,20 @@
             }
           }
         },
+        { 
+          icon: 'fa-times-circle',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.tabs.closeOther'), 
+          onClick: async () => {
+            // Close all tabs except the current one
+            const tabIds = tabs.value.map(t => t.id);
+            for (const tabId of tabIds) {
+              if (tabId !== props.tab.id) {
+                emit('closeTab', tabId);
+              }
+            }
+          }
+        },
       ]
     });
   };
