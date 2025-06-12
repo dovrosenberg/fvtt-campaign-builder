@@ -1,5 +1,5 @@
 <template>
-  <!-- For some reason, submitting this form (and only this form, not of the other content forms) by hitting enter in the name input crashes the browser -->
+  <!-- For some reason, submitting this form (and only this form, not any of the other content forms) by hitting enter in the name input crashes the browser -->
   <form @submit.prevent="">
     <div ref="contentRef" class="fcb-sheet-container flexcol">
       <header class="fcb-name-header flexrow" style="margin-bottom: 10px;">
@@ -57,7 +57,7 @@
                   :style="{ 'height': '240px', 'margin-bottom': '6px'}"
                   @editor-saved="onHouseRulesEditorSaved"
                 />
-            </div>
+              </div>
             </DescriptionTab>
             <div class="tab flexcol" data-group="primary" data-tab="pcs">
               <div class="tab-inner">
