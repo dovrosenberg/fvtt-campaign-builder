@@ -1,5 +1,5 @@
 import MiniSearch from 'minisearch';
-import { Entry, Session, Setting } from '@/classes';
+import { Entry, PC, Session, Setting } from '@/classes';
 import { Topics, ValidTopic, } from '@/types';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
@@ -11,8 +11,8 @@ import { SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
 export interface SearchableItem {
   /** Unique identifier for the item */
   uuid: string;
-  /** Whether this item is an entry (true) or a session (false) */
-  isEntry: boolean;
+  /** Type of result: entry, session, or PC */
+  resultType: 'entry' | 'session' | 'pc';
   /** Display name of the item */
   name: string;
   /** Comma-separated list of tags associated with the item */
@@ -39,8 +39,8 @@ export interface FCBSearchResult {
   uuid: string;
   /** Display name of the result */
   name: string;
-  /** Whether this result is an entry (true) or a session (false) */
-  isEntry: boolean;
+  /** Type of result: entry, session, or PC */
+  resultType: 'entry' | 'session' | 'pc';
   /** Topic/category the result belongs to */
   topic: string;
 
@@ -83,7 +83,7 @@ class SearchService {
       fields: ['name', 'tags', 'description', 'relationships', 'topic', 'type', 'species'],
 
       // Fields to include in search results
-      storeFields: ['name', 'topic', 'type', 'description', 'isEntry'],
+      storeFields: ['name', 'topic', 'type', 'description', 'resultType'],
 
       searchOptions: {
         boost: { 
@@ -112,14 +112,14 @@ class SearchService {
   }
 
   /**
-   * Builds the complete search index for all entries and sessions in the specified world.
+   * Builds the complete search index for all entries and sessions in the specified setting.
    * This is a full rebuild that replaces any existing index data.
    * 
-   * @param world - The world containing entries and sessions to index
+   * @param setting - The setting containing entries and sessions to index
    * @returns A promise that resolves when the index is built
    * @throws {Error} If the search index cannot be created
    */
-  public async buildIndex(world: Setting): Promise<void> {
+  public async buildIndex(setting: Setting): Promise<void> {
     // always reinitialize because otherwise we'll be adding duplicates
     await this.initIndex();
 
@@ -134,7 +134,7 @@ class SearchService {
 
     // add all the entries, by topic
     for (const topic of topics) {
-      const topicFolder = world.topicFolders[topic];
+      const topicFolder = setting.topicFolders[topic];
       if (!topicFolder) continue;
       
       // Get all entries for this topic
@@ -142,150 +142,112 @@ class SearchService {
       
       for (const entry of entries) {
         // Create a searchable item for each entry
-        const item = await this.createSearchableItem(entry, world, true);
+        const item = await this.createSearchableItemFromEntry(entry, setting);
         items.push(item);
       }
     }
 
-    // add all the sessions, by campaign
-    for (const campaignId in world.campaigns) {
-      const campaign = world.campaigns[campaignId];
+    // add all the sessions & PCs, by campaign
+    for (const campaignId in setting.campaigns) {
+      const campaign = setting.campaigns[campaignId];
       for (const session of campaign.sessions) { 
         // Create a searchable item for each session
-        const item = await this.createSearchableItem(session, world, false);
+        const item = await this.createSearchableItemFromSession(session);
+        items.push(item);
+      }
+
+      for (const pc of (await campaign.getPCs())) {
+        const item = await this.createSearchableItemFromPC(pc);
         items.push(item);
       }
     }
+
     
     // Add all items to the index at once for better performance
     this._searchIndex.addAll(items);
   }
 
   /**
-   * Creates a searchable item from an entry or session with all relevant search fields populated.
+   * Creates a searchable item from an entry with all relevant search fields populated.
    * Extracts relationships, hierarchy information, and other metadata for indexing.
    * 
-   * @param item - The entry/session to convert
-   * @param world - The world containing the item
-   * @param isEntry - Whether the item is an entry or session
+   * @param entry - The entry to convert
+   * @param setting - The setting containing the item
    * @returns A promise that resolves to the searchable item
    */
-  private async createSearchableItem(item: Entry, world: Setting, isEntry: true): Promise<SearchableItem>;
-  private async createSearchableItem(item: Session, world: Setting, isEntry: false): Promise<SearchableItem>;
-  private async createSearchableItem(item: Entry | Session, world: Setting, isEntry: boolean): Promise<SearchableItem> {
+  private async createSearchableItemFromEntry(entry: Entry, setting: Setting): Promise<SearchableItem> {
     const snippets: string[] = [];
     let description = '';
     let species = '';
     let type = '';
     let topic = '';
 
-    if (isEntry) {
-      const entry = item as Entry;
-      description = entry.description;
-      species = entry.topic===Topics.Character && entry.speciesId ? ModuleSettings.get(SettingKey.speciesList)[entry.speciesId] : '';
-      type = entry.type;
-      topic = Topics[entry.topic];
+    description = entry.description;
+    species = entry.topic===Topics.Character && entry.speciesId ? ModuleSettings.get(SettingKey.speciesList)[entry.speciesId] : '';
+    type = entry.type;
+    topic = Topics[entry.topic];
 
 
-      // Add relationship snippets
-      const relationships = entry.relationships;
-      for (const topicKey in relationships) {
-        const topic = parseInt(topicKey) as ValidTopic;
-        const relatedItems = relationships[topic];
-        
-        for (const relatedId in relatedItems) {
-          // when we remove them, we set it to null, so we need to check for that
-          const related = relatedItems[relatedId];
+    // Add relationship snippets
+    const relationships = entry.relationships;
+    for (const topicKey in relationships) {
+      const topic = parseInt(topicKey) as ValidTopic;
+      const relatedItems = relationships[topic];
+      
+      for (const relatedId in relatedItems) {
+        // when we remove them, we set it to null, so we need to check for that
+        const related = relatedItems[relatedId];
 
-          if (!related)
-            continue;
+        if (!related)
+          continue;
 
-          let relationSnippet = `${related.name}|`;
+        let relationSnippet = `${related.name}|`;
 
-          // Add any extra fields
-          if (related.extraFields) {
-            for (const fieldKey in related.extraFields) {
-              const fieldValue = related.extraFields[fieldKey];
-              if (typeof fieldValue === 'string') {
-                relationSnippet += `${fieldKey}: ${fieldValue}|`
-              }
+        // Add any extra fields
+        if (related.extraFields) {
+          for (const fieldKey in related.extraFields) {
+            const fieldValue = related.extraFields[fieldKey];
+            if (typeof fieldValue === 'string') {
+              relationSnippet += `${fieldKey}: ${fieldValue}|`
             }
           }
-          snippets.push(relationSnippet);
         }
+        snippets.push(relationSnippet);
       }
-      
-      // Add hierarchy snippets
-      // Build the full path from the top of the tree - we don't actually care about the order so we can just 
-      //   do all the ancestors; this will prevent us matching "child" when searching for "parent" but that's 
-      //   probably OK?  Let's try it for a while before changing
-      // TODO: note this ^^^
-      
-      const hierarchy = world.hierarchies[entry.uuid];
-      if (hierarchy) {
-        const names = [] as string[];
+    }
+    
+    // Add hierarchy snippets
+    // Build the full path from the top of the tree - we don't actually care about the order so we can just 
+    //   do all the ancestors; this will prevent us matching "child" when searching for "parent" but that's 
+    //   probably OK?  Let's try it for a while before changing
+    // TODO: note this ^^^
+    
+    const hierarchy = setting.hierarchies[entry.uuid];
+    if (hierarchy) {
+      const names = [] as string[];
 
-        for (let i=0; i<hierarchy.ancestors.length; i++) {
-          const entry = await Entry.fromUuid(hierarchy.ancestors[i]);
-          if (entry)
-            names.push(entry.name);
-        }
-
-        // do one layer of children as part of our experimenting
-        // if we do this, I think we want to do it separately and weight it less than the other way
-        // for (let i=0; i<hierarchy.children.length; i++) {
-        //   const entry = await Entry.fromUuid(hierarchy.children[i]);
-        //   if (entry)
-        //     names.push(entry.name);
-        // }
-
-        snippets.push(names.join('|'));
+      for (let i=0; i<hierarchy.ancestors.length; i++) {
+        const entry = await Entry.fromUuid(hierarchy.ancestors[i]);
+        if (entry)
+          names.push(entry.name);
       }
-    } else {
-      const session = item as Session;
-      description = session.notes + '|' + session.startingAction;
-      topic = 'session';
 
-      // Add relationship snippets
-      // locations, npcs - entries
-      // items, monsters - documents
-      // vignettes, lore - documents
-      const addEntrySnippet = async <T extends SessionRelatedItem>(relatedEntries: Readonly<T[]>, fromUuidCallback: (string)=>Promise<{name?:string | undefined} | null>) => {
-        for (const relatedItem of relatedEntries) {
-          // only index delivered ones
-          if (!relatedItem.delivered) 
-            continue;
+      // do one layer of children as part of our experimenting
+      // if we do this, I think we want to do it separately and weight it less than the other way
+      // for (let i=0; i<hierarchy.children.length; i++) {
+      //   const entry = await Entry.fromUuid(hierarchy.children[i]);
+      //   if (entry)
+      //     names.push(entry.name);
+      // }
 
-          const fullRelatedItem = await fromUuidCallback(relatedItem.uuid);
-          
-          if (fullRelatedItem?.name)
-            snippets.push(`${fullRelatedItem?.name}`);
-        }
-      };
-      await addEntrySnippet(session.locations, Entry.fromUuid);
-      await addEntrySnippet(session.npcs, Entry.fromUuid);
-      await addEntrySnippet(session.items, fromUuid);
-      await addEntrySnippet(session.monsters, fromUuid);
-
-      // vignettes, lore
-      const addShortSnippet = async (relatedEntries: readonly SessionLore[] | readonly SessionVignette[]) => {
-        for (const relatedItem of relatedEntries) {
-          // only index delivered ones
-          if (!relatedItem.delivered) 
-            continue;
-
-          snippets.push(`${relatedItem?.description}`);
-        }
-      };
-      await addShortSnippet(session.lore);
-      await addShortSnippet(session.vignettes);
+      snippets.push(names.join('|'));
     }
 
     return {
-      uuid: item.uuid,
-      name: item.name,
-      isEntry: isEntry,
-      tags: !item.tags ? '' : item.tags.map(t=>t.value).join(', '),
+      uuid: entry.uuid,
+      name: entry.name,
+      resultType: 'entry',
+      tags: !entry.tags ? '' : entry.tags.map(t=>t.value).join(', '),
       description: description,
       topic: topic,
       species: species,
@@ -294,6 +256,81 @@ class SearchService {
     };
   }
 
+  /**
+   * Creates a searchable item from a session with all relevant search fields populated.
+   * Extracts relationships, hierarchy information, and other metadata for indexing.
+   * 
+   * @param session - The session to convert
+   * @param setting - The setting containing the item
+   * @returns A promise that resolves to the searchable item
+   */
+  private async createSearchableItemFromSession(session: Session): Promise<SearchableItem> {
+    const snippets: string[] = [];
+    let description = '';
+
+    description = session.notes + '|' + session.startingAction;
+
+    // Add relationship snippets
+    // locations, npcs - entries
+    // items, monsters - documents
+    // vignettes, lore - documents
+    const addEntrySnippet = async <T extends SessionRelatedItem>(relatedEntries: Readonly<T[]>, fromUuidCallback: (string)=>Promise<{name?:string | undefined} | null>) => {
+      for (const relatedItem of relatedEntries) {
+        // only index delivered ones
+        if (!relatedItem.delivered) 
+          continue;
+
+        const fullRelatedItem = await fromUuidCallback(relatedItem.uuid);
+        
+        if (fullRelatedItem?.name)
+          snippets.push(`${fullRelatedItem?.name}`);
+      }
+    };
+    await addEntrySnippet(session.locations, Entry.fromUuid);
+    await addEntrySnippet(session.npcs, Entry.fromUuid);
+    await addEntrySnippet(session.items, fromUuid);
+    await addEntrySnippet(session.monsters, fromUuid);
+
+    // vignettes, lore
+    const addShortSnippet = async (relatedEntries: readonly SessionLore[] | readonly SessionVignette[]) => {
+      for (const relatedItem of relatedEntries) {
+        // only index delivered ones
+        if (!relatedItem.delivered) 
+          continue;
+
+        snippets.push(`${relatedItem?.description}`);
+      }
+    };
+    await addShortSnippet(session.lore);
+    await addShortSnippet(session.vignettes);
+
+    return {
+      uuid: session.uuid,
+      name: session.name,
+      resultType: 'session',
+      tags: '',
+      description: description,
+      topic: 'session',
+      species: '',
+      type: '',
+      relationships: snippets.join(' '),
+    };
+  }
+
+  private async createSearchableItemFromPC(pc: PC): Promise<SearchableItem> {
+    // pcs don't have any relationships, so we just put in the basic info
+    return {
+      uuid: pc.uuid,
+      name: pc.name,
+      resultType: 'pc',
+      tags: '',
+      description: pc.background,
+      topic: 'PC',
+      species: '',
+      type: '',
+      relationships: pc.plotPoints,  // to weight like relationships
+    };
+  }
   /**
    * Searches the index for items matching the specified query string.
    * Uses fuzzy matching and field weighting to return the most relevant results.
@@ -320,7 +357,7 @@ class SearchService {
     return results.slice(0, numResults).map(sr => ({
       uuid: sr.id,
       name: sr.name,
-      isEntry: sr.isEntry,
+      resultType: sr.resultType,
       topic: sr.topic,
       type: sr.type,
     }));
@@ -330,24 +367,70 @@ class SearchService {
    * Adds or updates an entry in the search index.
    * If the item already exists, it will be replaced with the updated version.
    * 
-   * @param item - The entry or session to add or update
-   * @param world - The world containing the entry
-   * @param isEntry - Whether the item is an entry or session
+   * @param entry - The entry to add or update
+   * @param setting - The setting containing the entry
    * @returns A promise that resolves when the operation is complete
    */
-  public async addOrUpdateIndex(entry: Entry, world: Setting, isEntry: true): Promise<void>; 
-  public async addOrUpdateIndex(entry: Session, world: Setting, isEntry: false): Promise<void>;
-  public async addOrUpdateIndex(item: Entry | Session, world: Setting, isEntry: boolean): Promise<void> {
+  public async addOrUpdateEntryIndex(entry: Entry, setting: Setting): Promise<void> {
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
     }
     
     if (!this._searchIndex)
-      throw new Error('Couldn\'t create search index in search.addOrUpdateIndex()');
+      throw new Error('Couldn\'t create search index in search.addOrUpdateEntryIndex()');
 
     // Create and add the new searchable item
     // @ts-ignore - can't get item to type right, but this should always work
-    const searchableItem = await this.createSearchableItem(item, world, isEntry);
+    const searchableItem = await this.createSearchableItemFromEntry(entry, setting);
+    if (this._searchIndex.has(searchableItem.uuid))
+      this._searchIndex.replace(searchableItem);
+    else
+      this._searchIndex.add(searchableItem);
+  }
+
+  /**
+   * Adds or updates an entry in the search index.
+   * If the item already exists, it will be replaced with the updated version.
+   * 
+   * @param entry - The entry to add or update
+   * @param setting - The setting containing the entry
+   * @returns A promise that resolves when the operation is complete
+   */
+  public async addOrUpdateSessionIndex(session: Session, setting: Setting): Promise<void> {
+    if (!this._initialized || !this._searchIndex) {
+      await this.initIndex();
+    }
+    
+    if (!this._searchIndex)
+      throw new Error('Couldn\'t create search index in search.addOrUpdateSessionIndex()');
+
+    // Create and add the new searchable item
+    // @ts-ignore - can't get item to type right, but this should always work
+    const searchableItem = await this.createSearchableItemFromSession(session, setting);
+    if (this._searchIndex.has(searchableItem.uuid))
+      this._searchIndex.replace(searchableItem);
+    else
+      this._searchIndex.add(searchableItem);
+  }
+
+  /**
+   * Adds or updates an entry in the search index.
+   * If the item already exists, it will be replaced with the updated version.
+   * 
+   * @param pc - The PC to add or update
+   * @returns A promise that resolves when the operation is complete
+   */
+  public async addOrUpdatePCIndex(pc: PC): Promise<void> {
+    if (!this._initialized || !this._searchIndex) {
+      await this.initIndex();
+    }
+    
+    if (!this._searchIndex)
+      throw new Error('Couldn\'t create search index in search.addOrUpdatePCIndex()');
+
+    // Create and add the new searchable item
+    // @ts-ignore - can't get item to type right, but this should always work
+    const searchableItem = await this.createSearchableItemFromPC(pc);
     if (this._searchIndex.has(searchableItem.uuid))
       this._searchIndex.replace(searchableItem);
     else
@@ -377,7 +460,7 @@ class SearchService {
    * 
    * @returns Array of unique entities with their basic information
    */
-  public getAllEntities(): {name: string, uuid: string, isEntry: boolean}[] {
+  public getAllEntities(): {name: string, uuid: string, resultType: 'entry' | 'session' | 'pc'}[] {
     if (!this._initialized || !this._searchIndex) {
       return [];
     }
@@ -390,7 +473,7 @@ class SearchService {
 
     // Track names to detect duplicates
     const nameCount = new Map<string, number>();
-    const entityMap = new Map<string, {name: string, uuid: string, isEntry: boolean}>();
+    const entityMap = new Map<string, {name: string, uuid: string, resultType: 'entry' | 'session' | 'pc'}>();
     
     // First pass: count occurrences of each name
     for (const doc of allDocuments) {
@@ -408,11 +491,11 @@ class SearchService {
       const existing = entityMap.get(doc.name);
       
       // Add if not exists, or replace if current is an entry and existing is not
-      if (!existing || (doc.isEntry && !existing.isEntry)) {
+      if (!existing || (doc.resultType === 'entry' && existing.resultType !== 'entry')) {
         entityMap.set(doc.name, {
           uuid: doc.id,
           name: doc.name,
-          isEntry: doc.isEntry,
+          resultType: doc.resultType,
         });
       }
     }

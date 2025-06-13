@@ -18,7 +18,7 @@ export interface EntityLinkingOptions {
  */
 export async function replaceEntityReferences(
   content: string, 
-  world: Setting, 
+  _setting: Setting, 
   options: EntityLinkingOptions = {}
 ): Promise<string> {
   const { currentEntityUuid } = options;

@@ -265,7 +265,8 @@
         "addIdea": "Add idea"
       },
       "pc": {
-        "linkToNewActor": "Link to new actor"
+        "linkToNewActor": "Link to new actor",
+        "pc": "PC"
       },
       "groupTree": "Group tree by type",
       "tabs": {

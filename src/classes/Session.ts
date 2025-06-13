@@ -112,7 +112,7 @@ export class Session {
 
       // Add to search index
       try {
-        await searchService.addOrUpdateIndex(session, world, false);
+        await searchService.addOrUpdateSessionIndex(session);
       } catch (error) {
         console.error('Failed to add session to search index:', error);
       }
@@ -662,7 +662,7 @@ export class Session {
      // Update the search index
      try {
       if (retval) {
-        await searchService.addOrUpdateIndex(this, world, false);
+        await searchService.addOrUpdateSessionIndex(this);
       }
     } catch (error) {
       console.error('Failed to update search index:', error);

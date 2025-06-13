@@ -30,8 +30,14 @@ This box searches all [^Entries], looking across these fields:
 
 So, searching for "Sally sibling" would return an entry with a relationship of "sibling" to a Character named Sally.  That result would be lower on the list, though, than Sally herself.
 
+### Searching PCs
+The search box also searches across [^PCs].  It looks across:
+* Name
+* Background
+* Plot Points
+
 ### Searching Sessions
-The search box also searches across Sessions - but in a subtlely different way.  It looks across:
+Finally, the search box also searches across Sessions - but in a subtlely different way.  It looks across:
 * Session Notes and the Session Start text
 * Session items - **BUT ONLY IF THEY'RE MARKED AS [DELIVERED](TODO: link)**
   * Lore, Vignettes (text of the lore/Vignette)

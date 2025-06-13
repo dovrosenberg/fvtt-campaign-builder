@@ -113,7 +113,7 @@ export class Entry {
       
       // Add to search index
       try {
-        await searchService.addOrUpdateIndex(entry, world, true);
+        await searchService.addOrUpdateEntryIndex(entry, world);
       } catch (error) {
         console.error('Failed to add entry to search index:', error);
       }
@@ -345,7 +345,7 @@ export class Entry {
     // Update the search index and todo list
     try {
       if (retval) {
-        await searchService.addOrUpdateIndex(this, world, true);
+        await searchService.addOrUpdateEntryIndex(this, world);
 
         // Update the todo list if in play mode
         const campaign = usePlayingStore().currentPlayedCampaign;
@@ -356,7 +356,6 @@ export class Entry {
     } catch (error) {
       console.error('Failed to update todos or search index:', error);
     }
-
 
     return retval ? this : null;
   }

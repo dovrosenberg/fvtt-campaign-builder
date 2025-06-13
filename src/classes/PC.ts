@@ -3,6 +3,7 @@ import { Campaign, Setting } from '@/classes';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
 import { toRaw } from 'vue';
+import { searchService } from '@/utils/search';
 
 // represents a PC - these are stored in flag inside campaigns so saving, etc. is handled by campaign
 export class PC {
@@ -138,6 +139,14 @@ export class PC {
 
     if (pcDoc && pcDoc.length > 0) {
       const pc = new PC(pcDoc[0], campaign);
+
+      // Add to search index
+      try {
+        await searchService.addOrUpdatePCIndex(pc);
+      } catch (error) {
+        console.error('Failed to add PC to search index:', error);
+      }
+      
       return pc;
     } else {
       return null;
@@ -264,6 +273,15 @@ export class PC {
 
       this._cumulativeUpdate = {};
     });
+
+    // Update the search index and todo list
+    try {
+      if (retval) {
+        await searchService.addOrUpdatePCIndex(this);
+      }
+    } catch (error) {
+      console.error('Failed to update search index:', error);
+    }
 
     return retval ? this : null;
   }
