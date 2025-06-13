@@ -19,5 +19,5 @@ Click on any idea text (or the edit button) to edit it inline; hit enter to save
 
 Delete ideas when they're no longer relevant or have been used
 
-## Email to the list ([Advanced Feature])
+## Email to the list ([[Advanced Feature]])
 In addition to working on the list here, with the use of the backend, you can [setup an email box](/reference//backend) that you can send emails to and have them show up in the ideas list.  A great way for capturing ideas you have at work, while driving (pull over before sending email or use a hands-free assistant), or in the shower (unplug your phone before using in the shower).

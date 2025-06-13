@@ -1,6 +1,5 @@
 ---
 title: Directory Sidebar
-TODO: true
 prev: 
   text: 'Images'
   link: './images'
@@ -12,18 +11,20 @@ next:
 
 The directory sidebar is a panel on the right side of the Campaign Builder window that displays tree views of all your worlds, campaigns, and everything in them.
 
-The sidebar can be dragged to make it wider or narrower.  You can also click the tab to make it close/open completely.
+The sidebar can be dragged using the tab on the splitter bar to make it wider or narrower.  You can also click the tab to make it close/open completely.  And you can drag the horizontal splitter bar to provide more room for the [Setting Directory] or [Campaign Directory].
 
-By default, the sidebar is open whenever you open the Campaign Builder window.  There is a module setting to change this behavior to instead start collapsed.
+By default, the sidebar is open whenever you open the Campaign Builder window.  There is a [Module Setting] to change this behavior to instead start collapsed.
+
+Anything represented as a folder can be opened/closed by clicking the folder icon.  This is true for the Setting and Campaign directories.
 
 ![Directory sidebar](/assets/images/directory-sidebar.webp)
 
-## The Setting directory (aka the Entry Directory) {#setting-directory}
+## The Setting Directory {#setting-directory}
 The top half of the directory sidebar is the Setting directory.  Also known as the Entry directory, this is where you can find all of entries (Character, Locations, and Organizations) of your worlds.
 
-Each Setting has a header, and you click the Setting name to make it the active Setting.  In the image above, *Mallindor* has been selected as the active Setting.  The active Setting is also shown in the the main window title bar.
+Each Setting has a header, and you click the Setting name to make it the active Setting.  In the image above, *Mallindor* has been selected as the active Setting.  Clicking the header while it's already open will open a [Setting Details tab](/reference/world-building/content/setting) tab.  The active Setting is also shown in the the main window title bar.
 
-By default, the Setting is organized by Topic.  Each Topic is a folder, clicking the folder will expand/collapse its contents.  Clicking an Entry will select it as the active Entry [TODO: link to Entry.md] in the main panel to the left.  The currently visible entry is bolded in the sidebar.  Within each Topic, the Entries are sorted alphabetically.
+By default, the Setting is organized by Topic.  Each Topic is a folder, clicking the folder will expand/collapse its contents.  Clicking an [^Entry] will select it as the active [Entry](/reference/world-building/content/entry) in the main panel to the left.  The currently visible entry is bolded in the sidebar.  Within each Topic, the Entries are sorted alphabetically.
 
 You create new worlds by clicking the "New Setting" button at the top of the sidebar: 
 
@@ -31,8 +32,10 @@ You create new worlds by clicking the "New Setting" button at the top of the sid
 
 The button next to the "New Setting" button collapses the entire sidebar.
 
+![Collapse Sidebar button](/assets/images/collapse-sidebar-button.webp)
+
 ### Hierarchies {#hierarchies}
-You can create Hierarchies within Locations and Organizations to represent how they are related.  For example, you might put the Entries for towns inside the region they are in.  Hierarchies can have as many levels as you want. In addition to making it faster to find related things, Hierarchies are used in Search [TODO: Link] and to improve AI generation [Advanced Feature].  You can see hierarchies illustrated in the sidebar above.
+You can create Hierarchies within Locations and Organizations to represent how they are related.  For example, you might put the Entries for towns inside the region they are in.  Hierarchies can have as many levels as you want. In addition to making it faster to find related things, Hierarchies are used in [Search] and to improve AI generation [[Advanced Feature]].  You can see hierarchies illustrated in the sidebar above.
 
 You can create and adjust Hierarchies in two ways: 
 1. Dragging entries within the sidebar.  By dragging an Entry onto another, the dragged Entry will become a child of the target.
@@ -40,9 +43,9 @@ You can create and adjust Hierarchies in two ways:
 
 ### Context menus
 Right clicking on items in the Entry tree provides additional options depending on the item type:
-1. Worlds - Delete Setting, Create campaign
-2. Topics - Create a new Entry in that Topic, Generate a new Entry [Advanced Feature]
-3. Entries - Delete Entry
+1. Settings - Delete the [^Setting], Create a new [^Campaign]
+2. Topics - [Create a new Entry](/reference/world-building/create-entry) in that Topic
+3. Entries - Delete the Entry
 
 ### Group by type
 Using the "Group tree by type" checkbox at the top of the sidebar, you can choose to organize the entries by Type instead of Topic.  This will eliminate the Hierarchy representation and instead show all of the Entries grouped by their Types.  Entries without a Type will not be shown.
@@ -55,59 +58,17 @@ Typing text in the "Filter" box at the top of the sidebar filters the Entry tree
 - All types that contain the filter string (when in "Group tree by type" mode)
 - Any ancestors of those Entries (to show where they are in the Hierarchy)
 
-## The Campaign directory {#campaign-directory}
-The bottom half of the directory sidebar is the campaign directory.  This shows all of the campaigns for the currently active Setting.  If you want to see campaigns for a different Setting, you need to change the Setting first.
+## The Campaign Directory {#campaign-directory}
+The bottom half of the Directory Sidebar is the Campaign Directory.  This shows all the Campaigns for the currently active Setting.  If you want to see Campaigns for a different Setting, you need to change the Setting first.
 
-[TODO: flesh this out]
+Each Campaign is shown as a folder.  Click the Campaign name to open a [Campaign Details tab](/reference/playing/content/campaign).
+
+Within each Campaign, you'll find all of its [^Sessions].  You can click on a Session to open a [Session Details tab](/reference/playing/content/session).  
+
+### Session sorting
+By default, the Sessions are sorted by session number.  You can rearrange the Sessions (i.e. change their numbers) by editing the number [TODO: link to info on editing number] in Session Details.
 
 ### Context menus
 Right clicking on items in the Campaign tree provides additional options depending on the item type:
-1. Setting folder - Create campaign
-2. Campaign - Create a session, Delete the Campaign
-3. Session - Delete Session
-
-
-## Settings Directory Overview
-
-### What is the Settings Directory?
-The Settings Directory (also called the Entry Directory) is the top half of the directory sidebar that contains all your world-building content:
-
-- **Characters**: NPCs and important figures
-- **Locations**: Places, buildings, and geographic features  
-- **Organizations**: Factions, guilds, governments, and groups
-- **Hierarchical organization** with parent-child relationships
-- **Topic-based organization** for logical grouping
-- **Context menus** for creation and management
-
-### Directory Structure
-Content in the Settings Directory is organized in several ways:
-
-**By Topic** (Default view):
-```
-Setting Name
-├── Topic: Government
-│   ├── King Aldric
-│   └── Royal Council
-├── Topic: Locations
-│   ├── Capital City
-│   │   ├── Royal Palace
-│   │   └── Market District
-│   └── Frontier Towns
-└── Topic: Organizations
-    ├── Royal Guard
-    └── Merchant's Guild
-```
-
-**By Type** (Alternative view):
-```
-Setting Name
-├── Characters
-│   ├── King Aldric
-│   └── Council Members
-├── Locations
-│   ├── Capital City
-│   └── Frontier Towns
-└── Organizations
-    ├── Royal Guard
-    └── Merchant's Guild
-```
+1. Campaign - Create a session, Delete the Campaign
+2. Session - Delete the Session

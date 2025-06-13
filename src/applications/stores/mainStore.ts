@@ -319,10 +319,15 @@ export const useMainStore = defineStore('main', () => {
   * Updates the main window title to include the current world name
   */
   watch(currentSetting, (newWorld, oldWorld) => {
+    // make sure we're actually changing
+    if (newWorld?.uuid === oldWorld?.uuid) {
+      return;
+    }
+
     updateWindowTitle(newWorld?.name ?? null);
 
-    // Only turn off play mode if we're actually changing worlds, not just reloading
-    if (oldWorld && newWorld && oldWorld.uuid !== newWorld.uuid) {
+    // if we're really changing worlds, turn play mode off
+    if (oldWorld) {
       isInPlayMode.value = false;
     }
   });

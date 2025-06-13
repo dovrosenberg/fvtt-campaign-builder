@@ -13,7 +13,7 @@ next:
 At the end of the list, you'll find the Sessions tab.  This is where you can quickly find everywhere this Entry was referenced during your campaign.  You can see a list of each session where either:
 * An [^NPC] associated with a Character was marked as delivered
 * A [^Location] was marked as delivered
-* Any Entry was referenced in the [description](/reference/world-building/content/session#description) of the Session.
+* Any Entry was referenced in the [notes](/reference/world-building/content/session#notes) of the Session.
 
 This makes it extremely easy to see if you've ever mentioned an Entry during your game, and if so, in what context.  The session notes may offer even further detail, depending on your notetaking style.
 

@@ -11,5 +11,7 @@
 [Image]: /reference/navigation/images
 [Generate Window]: /reference/dialogs/generate
 [Tags]: /reference/world-building/content/entry/tags
+[Module Setting]: /reference/configuration
 [Module Settings]: /reference/configuration
 [Current Session]: /reference/navigation/prep-play#current-session
+[Search]: /reference/navigation/search

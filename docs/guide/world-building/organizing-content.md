@@ -391,3 +391,48 @@ With well-organized world content:
 1. **[Prepare sessions](../session-prep/index.md)** with easy access to relevant content
 2. **[Run sessions](../session-play/index.md)** with confidence in your organized material
 3. **Continue expanding** your world systematically as your campaign grows 
+
+## Settings Directory Overview
+
+### What is the Settings Directory?
+The Settings Directory (also called the Entry Directory) is the top half of the directory sidebar that contains all your world-building content:
+
+- **Characters**: NPCs and important figures
+- **Locations**: Places, buildings, and geographic features  
+- **Organizations**: Factions, guilds, governments, and groups
+- **Hierarchical organization** with parent-child relationships
+- **Topic-based organization** for logical grouping
+- **Context menus** for creation and management
+
+### Directory Structure
+Content in the Settings Directory is organized in several ways:
+
+**By Topic** (Default view):
+```
+Setting Name
+├── Topic: Government
+│   ├── King Aldric
+│   └── Royal Council
+├── Topic: Locations
+│   ├── Capital City
+│   │   ├── Royal Palace
+│   │   └── Market District
+│   └── Frontier Towns
+└── Topic: Organizations
+    ├── Royal Guard
+    └── Merchant's Guild
+```
+
+**By Type** (Alternative view):
+```
+Setting Name
+├── Characters
+│   ├── King Aldric
+│   └── Council Members
+├── Locations
+│   ├── Capital City
+│   └── Frontier Towns
+└── Organizations
+    ├── Royal Guard
+    └── Merchant's Guild
+```
