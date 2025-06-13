@@ -22,23 +22,25 @@ Learn the basics of navigating the Campaign Builder interface.
 - [Keybindings](navigation/keybindings)
 
 
-## World-building (Settings)
+## World-building ([^Settings])
 Create and manage your campaign world content.
 
+- [Overview](world-building)
 - [Settings Directory](navigation/sidebar#setting-directory)
-- [Settings Overview](world-building/content/settings)
+- [Setting Details](world-building/content/setting)
 - [Basic structure of Characters, Locations, and Organizations](world-building/content/entry)
 - [Character Specifics](world-building/content/character)
 - [Location Specifics](world-building/content/location)
 - [Organization Specifics](world-building/content/organization)
 
-## Campaign management
+## Playing (Campaign management)
 Structure and organize your campaigns and sessions.
 
-- [Campaign Tree Structure](navigation/sidebar#campaign-directory)
-- [Campaign Content](world-building/content/campaign)
-- [Session Content](world-building/content/session)
-- [Next Session Concept](world-building/misc/next-session.md)
+- [Overview](playing)
+- [Campaign Directory](navigation/sidebar#campaign-directory)
+- [Campaigns](playing/content/campaign)
+- [Sessions](playing/content/session)
+- [The "Next Session"](playing/next-session.md)
 
 ## Configuration
 

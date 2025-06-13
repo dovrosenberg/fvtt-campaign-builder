@@ -1,11 +1,11 @@
 ---
 title: PC Details
 prev: 
-  text: 'Campaigns'
-  link: '/reference/world-building/content/campaign'
+  text: 'Session Details'
+  link: '/reference/playing/content/session'
 next: 
-  text: 'Sessions'
-  link: '/reference/world-building/content/session'
+  text: 'Advanced Features & Backend'
+  link: '/reference/backend'
 ---
 # PC Details
 

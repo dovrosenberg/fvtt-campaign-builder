@@ -24,6 +24,7 @@
 [^Prep mode]: Indicated by the Prep/Play toggle in the title bar, this is the default mode where you're typically building out your Setting and preparing for the next Session.
 [^Session]: A single play session. When running in "Play Mode", the most recent Session is enabled with additional functionality that you can use during your play session.
 [^Setting]: The fictional setting where your Campaigns take place (i.e. the equivalent of The Forgotten Realms, Eberron, etc.).
+[^Settings]: The fictional settings where your Campaigns take place (i.e. the equivalent of The Forgotten Realms, Eberron, etc.).
 [^Setting Directory]: The top section of the Directory Sidebar, where you can see all of the Entries in each Setting.
 [^Species]: The species or race of a Character.  They are defined in the module's settings and are used to facilitate search and AI character description/image creation.
 [^Strong start]: Per The Lazy DM, a situation that immediately immerses players in the action and world of the game, pulling them out of their real-world distractions.

@@ -1,7 +1,13 @@
 ---
 title: World-Building (Settings) Overview
+prev: 
+  text: 'Reference Overview'
+  link: '/reference'
+next: 
+  text: 'Setting Details'
+  link: '/reference/world-building/content/setting'
 ---
-# World-Building (Settings)Overview
+# World-Building (Settings) Overview
 
 The [Setting Directory] is your primary workspace for creating and managing world-building content. All of the [^Entries] in your [^Settings] are here, making for easy visualization and navigation.
 

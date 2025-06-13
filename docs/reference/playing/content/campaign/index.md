@@ -1,11 +1,11 @@
 ---
 title: Campaign Details
 prev: 
-  text: 'Organizations'
-  link: '/reference/world-building/content/organization'
+  text: 'Campaign Overview'
+  link: '/reference/playing'
 next: 
-  text: 'PCs'
-  link: '/reference/world-building/content/pc'
+  text: 'Campaign Description Tab'
+  link: '/reference/playing/content/campaign/description'
 ---
 # Campaign Details
 

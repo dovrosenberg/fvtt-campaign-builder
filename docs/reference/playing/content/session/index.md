@@ -1,8 +1,8 @@
 ---
-title: Session
+title: Session Details
 TODO: true
 ---
-# Session Window
+# Session Details
 [TODO: show main content screen and explain parts, tabs, etc.]
 
 Also note how delivering an npc/location or referencing any entry in description added to the sessions tab

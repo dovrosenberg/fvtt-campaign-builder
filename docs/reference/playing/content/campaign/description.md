@@ -1,6 +1,12 @@
 ---
 title: Campaign Description Tab
 TODO: true
+prev: 
+  text: 'Campaign Details'
+  link: '/reference/playing/content/campaign'
+next: 
+  text: 'Campaign PC Tab'
+  link: '/reference/playing/content/campaign/pcs'
 ---
 # Campaign Description Tab
 ![Description tab](/assets/images/campaign-content.webp)

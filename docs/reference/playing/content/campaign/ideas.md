@@ -1,5 +1,11 @@
 ---
 title: Campaign Ideas Tab
+prev: 
+  text: 'Campaign Lore Tab'
+  link: '/reference/playing/content/campaign/lore'
+next: 
+  text: 'Campaign To-Do Tab'
+  link: '/reference/playing/content/campaign/todos'
 ---
 # Campaign Ideas Tab
 [Campaign Idea tab](/assets/images/idea-tab.webp)

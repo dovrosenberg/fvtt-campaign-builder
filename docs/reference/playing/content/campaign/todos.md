@@ -1,6 +1,12 @@
 ---
 title: Campaign To-Do Tab
 TODO: true
+prev: 
+  text: 'Campaign Ideas Tab'
+  link: '/reference/playing/content/campaign/ideas'
+next: 
+  text: 'Session Details'
+  link: '/reference/playing/content/session'
 ---
 # Campaign To-Do Tab
 
