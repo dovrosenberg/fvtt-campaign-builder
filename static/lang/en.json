@@ -139,10 +139,10 @@
             "location": "Create Location",
             "organization": "Create Organization"
           },
-          "generate": {
-            "character": "Generate Character",
-            "location": "Generate Location",
-            "organization": "Generate Organization"
+          "update": {
+            "character": "Update Character",
+            "location": "Update Location",
+            "organization": "Update Organization"
           }
         },
         "labels": {

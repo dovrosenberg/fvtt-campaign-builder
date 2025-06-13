@@ -39,4 +39,4 @@ The search box also searches across Sessions - but in a subtlely different way. 
 
 Only delivered items are searched because this provides a really easy way to answer things like "what session was that when we fought the Goblin King?"  If you had attached the Goblin King to multiple sessions, but he ended up not appearing in all of them, this will find where he actually appeared.
 
-*Note: a side-effect of this is that things in the current session won't be found (since they aren't delivered yet).  But you should have a pretty good idea of what's in the current session, and you can easily pull it up in any case.*
+*Note: a side effect of this is that things in the [Current Session] won't be found (since they aren't delivered yet).  But you should have a pretty good idea of what's in the current session, and you can easily pull it up in any case.*

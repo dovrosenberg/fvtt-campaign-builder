@@ -11,8 +11,11 @@ The module provides several features to help you run your game smoothly.
 
 During a session:
 1. Open the Campaign Planning tab
+
 2. Select the current session
+
 3. Use the various tabs to access your prepared content
+
 4. Mark elements as "used" or "revealed" as appropriate
 
 ## Quick Access
@@ -28,7 +31,9 @@ Simply click the appropriate icon next to an element to access it. Context menus
 
 You can take notes during the session:
 1. In your session, click the "Notes" tab
+
 2. Enter your notes
+
 3. Click "Save"
 
 Entering play mode will (assuming you have the setting turned on in Module Settings) automatically open a separate window

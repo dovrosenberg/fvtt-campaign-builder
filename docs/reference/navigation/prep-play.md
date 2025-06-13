@@ -12,7 +12,7 @@ next:
 
 The Campaign Builder offers two distinct interface modes optimized for different phases of campaign management: Prep mode for content creation and session preparation, and Play mode for streamlined session management during gameplay.
 
-## The Current Session
+## The Current Session {#current-session}
 [TODO: figure out how it works with multiple campaigns]
 Throughout the Campaign Builder interface, there are features that act on the "Current Session".  This is the session in the ___ campaign with the highest number.  
 

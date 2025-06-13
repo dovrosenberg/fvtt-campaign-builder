@@ -19,10 +19,10 @@ const createTitles = {
   [Topics.Location]: 'applications.createEntry.titles.create.location',
   [Topics.Organization]: 'applications.createEntry.titles.create.organization',
 }
-const generateTitles = {
-  [Topics.Character]: 'applications.createEntry.titles.create.character',
-  [Topics.Location]: 'applications.createEntry.titles.create.location',
-  [Topics.Organization]: 'applications.createEntry.titles.create.organization',
+const updateTitles = {
+  [Topics.Character]: 'applications.createEntry.titles.update.character',
+  [Topics.Location]: 'applications.createEntry.titles.update.location',
+  [Topics.Organization]: 'applications.createEntry.titles.update.organization',
 }
 
 class CreateEntryApplication extends VueApplicationMixin(ApplicationV2) {
@@ -151,7 +151,7 @@ async function updateEntryDialog(entry: Entry): Promise<Entry | null> {
     const props = { 
       generateMode: true,
       topic: topic, 
-      title: localize(generateTitles[topic]),
+      title: localize(updateTitles[topic]),
       validParents: validParents,
       initialName: name || '',
       initialDescription: description || '',

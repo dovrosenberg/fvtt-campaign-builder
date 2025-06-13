@@ -65,6 +65,7 @@ This documentation uses several specific terms related to the World & Campaign B
 
 If you encounter issues or have feature requests:
 1. Visit the [GitHub repository](https://github.com/dovrosenberg/fvtt-campaign-builder/issues)
+
 2. [Open a new issue](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new/choose)
 
 If you'd like to support the developer, you can [buy me a root beer](https://ko-fi.com/phloro).

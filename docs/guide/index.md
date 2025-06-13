@@ -47,8 +47,11 @@ Tools and techniques for running engaging sessions and managing content during g
 These workflows are designed to work together seamlessly:
 
 1. **World Building** provides the foundation of locations, characters, and organizations
+
 2. **Campaign Planning** structures how these elements work together in your story
+
 3. **Session Preparation** helps you prepare specific content for each session
+
 4. **Playing a Session** gives you tools to run the session and capture what happens
 
 Each workflow can be used independently, but they're most powerful when used together as part of your overall campaign management process.
@@ -58,8 +61,11 @@ Each workflow can be used independently, but they're most powerful when used tog
 If you're new to the Campaign Builder, we recommend starting with:
 
 1. [World Building](world-building/) - Create your basic setting and key NPCs
+
 2. [Campaign Planning](campaign-planning/) - Structure your first few sessions
+
 3. [Session Preparation](session-prep/) - Prepare for your first session
+
 4. [Playing a Session](session-play/) - Run your session with the tools provided
 
 ## Quick Reference

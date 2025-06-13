@@ -12,3 +12,4 @@
 [Generate Window]: /reference/dialogs/generate
 [Tags]: /reference/world-building/content/entry/tags
 [Module Settings]: /reference/configuration
+[Current Session]: /reference/navigation/prep-play#current-session

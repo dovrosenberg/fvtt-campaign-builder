@@ -31,13 +31,6 @@ TODO: where do we explain name styles?  I think the setting content page is just
 
 
 
-### Image generation time
-
-TODO: figure out if we should explain this on the create/generate pages with the checkbox or on the entry or somewhere else
-
-In order to save costs, the backend uses Replicate.com for image generation, using a model that spins down between uses.  This means that the first time you generate an image in a given period, it may take significantly longer than subsequent runs because the model has to start.  After that, you'll see more rapid creation (still ~30 seconds) until the model times out again (~15 minutes of not being used).
-
-
 ## Costs {#costs}
 The backend runs in the cloud.  In all cases, it uses accounts that you setup and control and you do not need to share your passwords/tokens with anyone, or even put them in Foundry.  The various accounts were selected with the goal of being as low cost as possible:
 

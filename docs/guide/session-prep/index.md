@@ -31,7 +31,9 @@ A compelling opening scene that immediately draws players into the action. This 
 
 To add a Strong Start:
 1. In your session, click the "Strong Start" tab
+
 2. Enter your strong start description
+
 3. Click "Save"
 
 ### 2. Vignettes (i.e. Scenes)
@@ -39,7 +41,9 @@ Potential scenes that might occur during your session. Lazy DM calls them scenes
 
 To add a vignette:
 1. In your session, click the "Vignettes" tab
+
 2. Click "Add Vignette"
+
 3. Fill in the free-form description.  Hit enter to save.
 
 You can edit vignettes by clicking the description or the edit button.
@@ -49,7 +53,9 @@ Information that players might discover during the session. This helps create a 
 
 To add lore:
 1. In your session, click the "Lore" tab
+
 2. Click "Add Lore"
+
 3. Fill in the lore details and hit enter to save.
 
 Alternately, you can start by dragging a journal entry page (not a full entry) on to the drop box on the lore tab.  This will create a new lore entry already linked to it.
@@ -61,7 +67,9 @@ Key places that might be relevant to the upcoming session.  Locations are tied t
 
 To add a Location:
 1. In your session, click the "Locations" tab
+
 2. Click "Add Location"
+
 3. Select a Location from your Setting
 
 Alternately, drag/drop a location from the [^Setting Directory] to the drop box to add it to the session.
@@ -77,7 +85,9 @@ Characters that might appear in the upcoming session.  NPCs are tied to Characte
 
 To add an NPC:
 1. In your session, click the "NPCs" tab
+
 2. Click "Add NPC"
+
 3. Select a Character from your Setting
 
 Alternately, drag/drop a character from the [^Setting Directory] to the drop box to add it to the session.
@@ -93,7 +103,9 @@ Creatures that players might encounter during the session.  Monsters are tied to
 
 To add a monster:
 1. In your session, click the "Monsters" tab
+
 2. Click "Add monster"
+
 3. Select an actor (this list currently only includes actors in the world - not in compendia)
 
 Alternately, drag/drop an actor from elsewhere in Foundry to the drop box to add it to the session.
@@ -107,6 +119,7 @@ Treasures that might appear during the session.
 
 To add a magic item:
 1. In your session, click the "Magic Items" tab
+
 2. Drag an item from somewhere else in Foundry onto the list
 
 ## Delivering and moving items  [TODO: move this to the wrap up section?]  Then link to it above if needed
@@ -118,6 +131,7 @@ Many of the items above have notations in their tables that they can be 'moved t
 
 After each session:
 1. Review the to-do list for anything that needs attention
+
 2. Look through all session tabs for unused elements:
    - Delete elements that are no longer relevant
    - Move elements to the next session if they might be useful
@@ -126,20 +140,30 @@ After each session:
 ## Tips for Effective Session Prep
 
 1. **Start with the Strong Start**: Begin your prep by crafting an engaging opening scene
+
 2. **Prepare 3-5 Vignettes**: This gives you enough material to work with while staying flexible
+
 3. **Create 5-7 Secrets/Clues**: This provides enough discovery opportunities without overwhelming prep
+
 4. **Keep NPCs and Locations Connected**: Link your NPCs to locations and other NPCs to create a living world
+
 5. **Prepare More Monsters Than You Need**: This gives you flexibility during the session
+
 6. **Use the To-Do List**: Track what needs attention between sessions
+
 7. **Review Previous Sessions**: Look at what worked and what didn't to improve future prep
 
 ## Play Mode
 
 When you're ready to run the session:
 1. Switch to Play mode using the toggle in the Campaign Builder window
+
 2. A session notes popup will appear for taking notes during play
+
 3. Use the various tabs to access your prepared content
+
 4. Mark elements as "used" or "revealed" as you go
+
 5. Take notes in the session notes window
 
 Changes made during play are tracked in the to-do list, helping you follow up on important developments after the session.
