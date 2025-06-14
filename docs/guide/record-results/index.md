@@ -1,12 +1,36 @@
 ---
-title: Record Play Results
+title: Recording Play Results
 TODO: true
 ---
+
+# Recording Play Results
+
+this is when you go through what happened, merge new information into your world, and prepare for the next session.
+
+
+
+
+
 
 ## Record the results {#record-results}
 * Go through vignettes, lore and see which were used; delete or move unused ones to the next session with a click
 * Add any new locations, NPCs, etc. to the world - you can do this while playing but it may be easier to just take quick notes and do it afterwards 
 * Add anything that's top of mind to the next session to get started for next time
+
+
+---
+title: Post-Session
+HIDE: true
+---
+# Post-Session
+
+[TODO]
+After a session, you can:
+1. Review which Vignettes and lore were used
+2. Move unused elements to the next session with a click
+3. Add any new Locations, NPCs, etc. to your Setting
+4. Create a new session for next time and add any initial thoughts
+
 
 
 # Record Play Results
