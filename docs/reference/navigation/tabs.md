@@ -1,14 +1,14 @@
 ---
-title: Tabs
+title: Main Tabs
 prev: 
-  text: 'Directory Sidebar'
-  link: './sidebar'
+  text: 'Main Display'
+  link: './main-display'
 next: 
   text: 'Bookmarks'
   link: './bookmarks'
 ---
 
-# Tabs
+# Main Tabs
 
 The Campaign Builder uses a tabbed interface to help you work with multiple pieces of content simultaneously. 
 

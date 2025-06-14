@@ -1,11 +1,11 @@
 ---
 title: Directory Sidebar
 prev: 
-  text: 'Images'
-  link: './images'
+  text: 'Reference Overview'
+  link: './reference'
 next: 
-  text: 'Tabs'
-  link: './tabs'
+  text: 'Main Content Display'
+  link: './main-display'
 ---
 # The Directory Sidebar
 

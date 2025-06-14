@@ -32,7 +32,7 @@ This is where you enter the Session notes. Click the orange pencil to start edit
 
 You can drag any Entry from the [Setting Directory] into the notes editor and it will insert a UUID indicator that when you save will be displayed as a clickable link that will open that Entry (hold 'Control' while clicking to open it in a new tab).
 
-It is highly suggested that you check out the "Autocomplete Mentions" module, which allows you to rapidly reference Foundry documents and Campaign Builder Entries/Sessions/etc. while typing in the editor.  
+It is highly suggested that you check out the [Autocomplete Mentions](/reference/navigation/main-display#autocomplete-mentions) module, which allows you to rapidly reference Foundry documents and Campaign Builder Entries/Sessions/etc. while typing in the editor.  
 
 When you save the notes while in [^Play Mode], it will check to see if you've added any references to Entries.  If you have, those Entries will automatically be added to the [To-do list](/reference/playing/content/campaign/todos) for the Campaign.  
 

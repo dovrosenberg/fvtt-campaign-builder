@@ -18,7 +18,6 @@ This guide covers the "how" of using the Campaign Builder. For the "why" and "wh
 Learn the basics of navigating the Campaign Builder interface.
 
 - [Main Content Display](navigation/main-display)
-  - [Images](navigation/images)
 - [Directory Sidebar](navigation/sidebar)
 - [Tabs](navigation/tabs)
 - [Bookmarks](navigation/bookmarks)
