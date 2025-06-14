@@ -146,6 +146,7 @@
     align-self: flex-start;
     overflow-y: visible;
     width: 100%;
+    height: 100%;
       
     .fcb-description-image {
       position: sticky;
@@ -154,7 +155,7 @@
 
     .fcb-description-content {
       flex: 1;
-      min-height: 0;
+      height: 100%;
 
       .form-group {
         margin: 4px 8px 0px 0px;
