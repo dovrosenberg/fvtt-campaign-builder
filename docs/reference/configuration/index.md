@@ -15,7 +15,7 @@ next:
 - **Sidebar starts collapsed**: If set, the directory sidebar will be collapsed when you open the main window.  
 - **Display pop-up session notes**: If set, when you enter "Play Mode", a separate session notes window will automatically popup to make it easier to take notes mid-session.
 - **Default 'Add to current session'**: When you're in [^Play Mode] and are creating an [^Entry], there is a checkbox to automatically add it to the current [^Session] (vs. just adding to the [^Setting]).  This checkbox determines whether that checkbox defaults to on or off.
-- **Enable To Do List**: If disabled, the To Do List won't automatically be populated based on activities during Play Mode.
+- **Enable To-do List**: If disabled, the To-do List won't automatically be populated based on activities during Play Mode.
 - **Auto-suggest relationships**: If set, whenever you edit the description for an Entry, Campaign Builder will scan it for references to other Entries and recommend changes to the [relationships](/reference/world-building/content/entry/relationships).
 - **Session display format**: By default, the list of [^Sessions] in the [Campaign Directory] shows just the number of the session.  This setting lets you display either the session date or the session name instead.
 

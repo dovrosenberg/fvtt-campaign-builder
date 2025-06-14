@@ -1,25 +1,25 @@
 ---
 title: Session Details
-TODO: true
+prev: 
+  text: 'Campaign To-Do Tab'
+  link: '/reference/playing/content/campaign/todos'
+next: 
+  text: 'Session Notes Tab'
+  link: '/reference/playing/content/session/notes'
 ---
 # Session Details
-![Session Details](/assets/images/session-content.webp)
 
-[TODO: show main content screen and explain parts, tabs, etc.]
+![Session content](/assets/images/session-content.webp)
 
-Also note how delivering an npc/location or referencing any entry in description added to the sessions tab
+[TODO: Also note how delivering an npc/location or referencing any entry in description added to the todo tab]
 
+The Session window provides tools for preparing for and running your sessions, and a record of what happened during play.  This includes all of the steps of the [Lazy DM] approach, as well as notes for tracking the action.
 
-![Campaign content](/assets/images/session-content.webp)
+## Session Header
 
-The Campaign window provides tools for organizing and managing your campaigns within a Setting. Campaigns allow you to group related sessions together, track player characters, maintain campaign-wide lore, capture ideas, and manage tasks. You can define multiple campaigns within a single Setting, which is useful if you use the same Setting across multiple groups who play at different times.
+  1. Name - You can click the Session's name to edit it.
 
-> [!WARNING] [TODO: copy this to the tabs]
-> Deleting from Foundry an item that is associated with a Session as a [^Magic Item] or an actor that is associated with a Session as a [^Monster] will completely remove the Magic Item or Monster from the session, even if it had previously been marked as delivered.
-
-## Campaign Header
-
-You can click the campaign's name to edit it.
+  2. Tags - An easy way to categorize Sessions. Particularly helpful for [searching](/reference/navigation/search). See [Tags](/reference/world-building/content/entry/tags) details on the Entry documentation for more details.
 
 ## Tabs
 Session have the following tabs where you can manage their details:
@@ -27,7 +27,7 @@ Session have the following tabs where you can manage their details:
 * [Start](./start) - your idea for a strong start to the session
 * [Lore](./lore) - the secrets and clues available to disburse during the session
 * [Vignettes](./vignettes) - the potential scenes that might come up
-* [Locations](./locations) - the fantasic locations where the scenes might happen
+* [Locations](./locations) - the fantastic locations where the scenes might happen
 * [NPCs](./npcs) - the important non-player characters likely to join the story
 * [Monsters](./monsters) - relevant monsters players are likely to encounter
 * [Magic Items](./magic-items) - the magic items you're ready to hand out for victory

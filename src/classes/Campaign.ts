@@ -248,7 +248,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
   }
 
-  /** Creates a new todo item and adds to the campaign*/
+  /** Creates a new to-do item and adds to the campaign*/
   async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string, manualDate?: Date): Promise<ToDoItem | null> {
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return null;
@@ -286,12 +286,12 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   }
 
   /**
-   * Adds a todo item to the campaign. If there is already one with a matching linkeduuid, it adds the text
+   * Adds a to-do item to the campaign. If there is already one with a matching linkeduuid, it adds the text
    * to the end of the current text.  Otherwise, it creates a new one.
    * 
    */
   async mergeToDoItem(type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<void> {
-    // Check if todo list is enabled
+    // Check if to-do list is enabled
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return;
 
@@ -300,7 +300,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     // make sure the type matches
     if (existingItem && existingItem.type !== type) {
-      throw new Error(`ToDo item with linkedUuid ${linkedUuid} already exists with different type in Campaign.mergeToDoItem()`);
+      throw new Error(`To-do item with linkedUuid ${linkedUuid} already exists with different type in Campaign.mergeToDoItem()`);
     }
 
     // otherwise, if we have one, add the text to the end of the current text

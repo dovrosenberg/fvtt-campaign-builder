@@ -31,7 +31,7 @@ Time for the fun!  Campaign Builder has a variety of tools and techniques to run
 * [Session Notes](/reference/playing/content/session/notes)
 * [Name-Generation Buttons](/reference/navigation/name-generation)
 * [Session Links](/reference/navigation/session-links)
-* [Campaign To Do List](/reference/playing/content/campaign/todos)
+* [Campaign To-do List](/reference/playing/content/campaign/todos)
 
 
 <!-- # Playing a Session

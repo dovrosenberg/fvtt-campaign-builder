@@ -1,6 +1,5 @@
 ---
 title: Session Notes Tab
-TODO: true
 prev: 
   text: 'Campaign PC Tab'
   link: '/reference/playing/content/campaign/pcs'
@@ -9,37 +8,32 @@ next:
   link: '/reference/playing/content/campaign/ideas'
 ---
 # Session Notes Tab
-![Session Notes Tab](/assets/images/session-notes-tab.webp)
+![Session Notes Tab](/assets/images/session-content.webp)
 
-TODO: from here...
+The notes tab has four main components:
+1. Image
+2. Session number
+3. Session date
+4. Session notes area
 
-The Lore tab (equivalent to "secrets and clues" in the [Lazy DM] method) allows you to manage campaign-wide knowledge that players might discover. 
+## Image
+See [Image] documentation.
 
-The typical flow for lore is to create ideas at either the session level (when preparing for the next session and creating secrets and clues) or to create them at the campaign level (things that are important but aren't necessarily right for the current session).  In the latter case, you can easily move them to the current session when preparing vs. having to retype them (see below).
+## Session number
+The session number is the number of the Session.  It is only used for your reference and for displaying in the [Campaign Directory] (depending on your setting for "Session display format" in the [Configuration](/reference/configuration)). 
 
-This tab provides:
+Only one session can have any given number. If you change the number to one that already exists, it will be inserted there and the others will be renumbered.
 
-## Adding Lore
-Click "Add Lore" to create a new lore entry.
+## Session date
+The session date is the date of the session.  It is only used for your reference and for displaying in the [Campaign Directory] (depending on your setting for "Session display format" in the [Configuration](/reference/configuration)).
 
-You can drag and drop Journal Entry Pages (not whole journals) from Foundry VTT onto the box at the top to create a linked lore item or onto an existing lore item to link it to the journal entry page.  
-  
-You cannot currently remove a linked entry - I recommend just creating a new lore item and copy/paste the text before removing the old one.
+## Session notes area
+This is where you enter the Session notes. Click the orange pencil to start editing, and the save button (or Control-S) to save.
 
-## The lore list
-This list contains "Campaign level" lore.  These are items you've fleshed out but aren't yet ready to share with the players.  They are also items that perhaps you added to a session but then didn't share with the players and so you want to move them back to a holding place.
+You can drag any Entry from the [Setting Directory] into the notes editor and it will insert a UUID indicator that when you save will be displayed as a clickable link that will open that Entry (hold 'Control' while clicking to open it in a new tab).
 
-For each lore item, you can see the text of it and the linked entry.  Click the linked entry to open the journal entry page.
+It is highly suggested that you check out the "Autocomplete Mentions" module, which allows you to rapidly reference Foundry documents and Campaign Builder Entries/Sessions/etc. while typing in the editor.  
 
-### Lore Actions
-The actions column lets you take several actions with the lore entries:
-  - **Delete** - Delete the lore
-  - **Edit** - Opens the lore description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save.
-  - **Mark as delivered** - Marks the lore as having been delivered to the players.  This isn't recommended generally from the campaign tab, because it allows for better tracking if you move it to the session and deliver it there, but sometimes it happens.  This will move the entry to the "Delivered Lore" list below.
-  - **Move to next session** - This moves the lore to the next session.  This is typically what you'd do in preparation for the session in which you think it might come up.
+When you save the notes while in [^Play Mode], it will check to see if you've added any references to Entries.  If you have, those Entries will automatically be added to the [To-do list](/reference/playing/content/campaign/todos) for the Campaign.  
 
-
-## The delivered lore list
-This list contains all the lore that has already been delivered to the players.  It combines items delivered from the list above with items delivered from the [Session](/reference/campaigns-and-sessions/session) lore table. Over time it is much likely going to be a large list, which is why it's separated from 
-
-For each lore item, you can see the text, which session it was delivered in (if any), and the linked entry.  Click the session name to open the session details or the linked entry to open the journal entry page.
+See also the [Session Notes Popup](TODO: link) for more info on adding notes while in [^Play Mode].

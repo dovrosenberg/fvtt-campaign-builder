@@ -1,20 +1,22 @@
 ---
 title: Campaign Description Tab
-TODO: true
 prev: 
   text: 'Campaign Details'
   link: '/reference/playing/content/campaign'
 next: 
-  text: 'Campaign PC Tab'
+  text: 'Campaign PCs Tab'
   link: '/reference/playing/content/campaign/pcs'
 ---
 # Campaign Description Tab
 ![Description tab](/assets/images/campaign-content.webp)
 
-The Description tab is the main overview area for your campaign and contains:
+The description tab has is the main overview area for your campaign and contains:
+1. Image
+2. Campaign description
+3. House rules
 
-## Campaign Image
-[TODO: description of how to set/change campaign image]
+## Image
+See [Image] documentation.
 
 ## Campaign Description
 A place where you can enter the main description of your campaign. This might include:
@@ -25,3 +27,5 @@ A place where you can enter the main description of your campaign. This might in
 
 ## House Rules
 A separate field specifically for documenting any house rules or modifications you're using in this campaign. This keeps rule variations clearly separated from the main campaign description.  
+
+You may also choose to just put a link to a Foundry journal entry if you want something players can access.

@@ -10,7 +10,7 @@
 - Added tab to all entries to quickly find every session in which they were referenced 
 - Added house rules section to campaign
 - Reworked name generation; you can now select the "style" of names you want generated from the main Setting page 
-- Added "to do" list - tracks things you deliver or edit during a play session so that you can quickly see afterward if any of them should be mentioned in the notes or fleshed out further; can also add to it manually.
+- Added "to-do" list - tracks things you deliver or edit during a play session so that you can quickly see afterward if any of them should be mentioned in the notes or fleshed out further; can also add to it manually.
 - Added campaign "ideas" list to track things you might want to use at some point in the future like quests or locations that you don't want to add to the world yet.  
 - Added ability ability to setup a gmail account where you can email spontaneous ideas you have and they will be added to the ideas list (requires backend)
 - Putting the name of an entry in the description of another will automatically convert it to a link.

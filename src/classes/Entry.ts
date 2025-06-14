@@ -342,12 +342,12 @@ export class Entry {
       this._cumulativeUpdate = {};
     });
 
-    // Update the search index and todo list
+    // Update the search index and to-do list
     try {
       if (retval) {
         await searchService.addOrUpdateEntryIndex(this, world);
 
-        // Update the todo list if in play mode
+        // Update the to-do list if in play mode
         const campaign = usePlayingStore().currentPlayedCampaign;
         if (useMainStore().isInPlayMode && campaign) {
           await campaign.mergeToDoItem(ToDoTypes.Entry, `Edited during session ${campaign.currentSession?.number}`, this.uuid);

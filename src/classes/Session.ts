@@ -90,10 +90,10 @@ export class Session {
     if (!nameToUse)
       return null;
 
-    const world = await campaign.getWorld();
+    const setting = await campaign.getWorld();
 
     let sessionDoc: SessionDoc[] = [];
-    await world.executeUnlocked(async () => {
+    await setting.executeUnlocked(async () => {
       sessionDoc = await JournalEntryPage.createDocuments([{
         type: DOCUMENT_TYPES.Session,
         name: nameToUse,
@@ -112,7 +112,7 @@ export class Session {
 
       // Add to search index
       try {
-        await searchService.addOrUpdateSessionIndex(session);
+        await searchService.addOrUpdateSessionIndex(session, setting);
       } catch (error) {
         console.error('Failed to add session to search index:', error);
       }
@@ -645,12 +645,30 @@ export class Session {
    * @returns {Promise<Session | null>} The updated session, or null if the update failed.
    */
   public async save(): Promise<Session | null> {
-    const world = await this.getWorld();
+    const setting = await this.getWorld();
 
     const updateData = this._cumulativeUpdate;
 
+    // see if the number is taken, if so, everything after it needs to be renumbered
+    const campaign = await this.loadCampaign();
+    const sessions = (await campaign.sessions).sort((a, b) => a.number - b.number);
+
+    // find the index of the session with the same number 
+    const currentNumberedSession = sessions.findIndex(s=> s.number===this.number && s.uuid!==this.uuid);
+
+    if (currentNumberedSession!==-1) {
+      // need to re-number everything after this one
+      // go backward because otherwise these saves will kickoff a cascade of changes
+      for (let i = sessions.length-1; i>= currentNumberedSession; i--) {
+        if (sessions[i].uuid!==this.uuid) {
+          sessions[i].number++;
+          await sessions[i].save();
+        }
+      }
+    }
+
     let retval: SessionDoc | null = null;
-    await world.executeUnlocked(async () => {
+    await setting.executeUnlocked(async () => {
       retval = await toRaw(this._sessionDoc).update(updateData) || null;
       if (retval) {
         this._sessionDoc = retval;
@@ -662,7 +680,7 @@ export class Session {
      // Update the search index
      try {
       if (retval) {
-        await searchService.addOrUpdateSessionIndex(this);
+        await searchService.addOrUpdateSessionIndex(this, setting);
       }
     } catch (error) {
       console.error('Failed to update search index:', error);

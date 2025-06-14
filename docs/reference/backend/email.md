@@ -13,7 +13,7 @@ The backend has the capability to manage a (free) gmail account that you can the
 # Prerequisites
 1. Before doing this, make sure you've already completed the basic [installation](./setup)
 
-2. Create a free gmail account that you will send "to do" emails to (https://accounts.google.com/signup).  Make the password secure.  Do not set up 2FA.  Log into that account
+2. Create a free gmail account that you will send "Idea" emails to (https://accounts.google.com/signup).  Make the password secure.  Do not set up 2FA.  Log into that account
 
 3. Enable the gmail api - https://console.cloud.google.com/apis/api/gmail.googleapis.com/overview, make sure the right project is showing, then click "Enable".
 

@@ -274,7 +274,7 @@ export class PC {
       this._cumulativeUpdate = {};
     });
 
-    // Update the search index and todo list
+    // Update the search index and to-do list
     try {
       if (retval) {
         await searchService.addOrUpdatePCIndex(this);

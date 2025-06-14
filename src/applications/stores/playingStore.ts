@@ -113,7 +113,7 @@ export const usePlayingStore = defineStore('playing', () => {
     if (oldSession && oldSession.campaign) {
       const oldSessionStartingNotes = initialSessionNotes.value;
 
-      // check for new uuids that should become to do items
+      // check for new uuids that should become to-do items
       const oldUuids = !oldSessionStartingNotes ? [] : [...oldSessionStartingNotes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
       const newUuids = !oldSession.notes ? [] : [...oldSession.notes.matchAll(/@UUID\[([^\]]+)\]/g)].map(m => m[1]);
   

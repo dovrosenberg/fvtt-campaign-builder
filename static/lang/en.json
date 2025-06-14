@@ -43,7 +43,7 @@
       "speciesListHelp": "Define the species to make available.  These cross all Settings - file an issue if you have need more different lists per Setting.",
       "hideBackendWarning": "Hide missing backend warning?",
       "hideBackendWarningHelp": "If you're not using the backend, this lets you turn off the notification that it's missing",
-      "enableToDoList": "Enable ToDo List",
+      "enableToDoList": "Enable To-do List",
       "enableToDoListHelp": "If disabled, the todo list feature will be turned off.",
       "autoRelationships": "Auto-suggest relationships",
       "autoRelationshipsHelp": "If enabled, the editor will automatically suggest changes to relationships between entries based changes made to the description."
@@ -208,7 +208,7 @@
         "species": "Species",
         "worldGenre": "Genre",
         "worldFeeling": "Setting Feeling",
-        "campaignDescription": "Campaign description, notes, ideas, etc...",
+        "campaignDescription": "Campaign description",
         "campaignHouseRules": "House rules",
         "startingDescription": "Starting description",
         "description": "Description",
@@ -259,7 +259,7 @@
         "description": "Description",
         "pcs": "PCs",
         "lore": "Lore",
-        "todo": "To Do",
+        "todo": "To-Do",
         "addToDo": "Add To-do Item",
         "ideas": "Ideas",
         "addIdea": "Add idea"
@@ -286,7 +286,7 @@
           "description": "Description",
           "pcs": "PCs",
           "lore": "Lore",
-          "toDo": "To Do",
+          "toDo": "To-Do",
           "ideas": "Ideas"
         },
         "session": {
@@ -299,7 +299,7 @@
           "npcs": "NPCs",
           "monsters": "Monsters",
           "magic": "Magic Items",
-          "todo": "To Do"
+          "todo": "To-Do"
         }
       },
       "noResults": "Nothing here",
@@ -396,8 +396,8 @@
         "message": "Are you sure you want to delete this entry?  It will be removed from all relationships and sessions.  Any references to it in editors will become broken."
       },
       "addToDo": {
-        "title": "Add ToDo",
-        "text": "Enter todo text:"
+        "title": "Add To-do",
+        "text": "Enter to-do text:"
       },
       "relatedItems": {
         "additionalInformation": "Additional Information",
@@ -514,7 +514,7 @@
       "deleteScene": "Delete scene",
       "deleteVignette": "Delete vignette",
       "deleteLore": "Delete lore",
-      "deleteToDo": "Complete to do item",
+      "deleteToDo": "Complete to-do item",
       "deleteIdea": "Delete idea",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",

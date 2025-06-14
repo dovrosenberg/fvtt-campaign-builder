@@ -1,7 +1,7 @@
 ---
 title: Campaign Lore Tab
 prev: 
-  text: 'Campaign PC Tab'
+  text: 'Campaign PCs Tab'
   link: '/reference/playing/content/campaign/pcs'
 next: 
   text: 'Campaign Ideas Tab'
