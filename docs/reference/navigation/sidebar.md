@@ -66,7 +66,7 @@ Each Campaign is shown as a folder.  Click the Campaign name to open a [Campaign
 Within each Campaign, you'll find all of its [^Sessions].  You can click on a Session to open a [Session Details tab](/reference/playing/content/session).  
 
 ### Session sorting
-By default, the Sessions are sorted by session number.  You can rearrange the Sessions (i.e. change their numbers) by editing the number [TODO: link to info on editing number] in Session Details.
+By default, the Sessions are sorted by session number.  You can rearrange the Sessions (i.e. change their numbers) by editing the number in [Session Details](/reference/playing/content/session).
 
 ### Context menus
 Right clicking on items in the Campaign tree provides additional options depending on the item type:

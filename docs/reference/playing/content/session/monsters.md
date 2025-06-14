@@ -1,6 +1,5 @@
 ---
-title: Session Magic Items Tab
-TODO: true
+title: Session Monsters Tab
 prev: 
   text: 'Session NPCs Tab'
   link: '/reference/playing/content/session/npcs'
@@ -8,41 +7,32 @@ next:
   text: 'Session Magic Items Tab'
   link: '/reference/playing/content/session/magic-items'
 ---
-# Session Magic Items Tab
-![Session Magic Items Tab](/assets/images/magic-item-tab.webp)
+# Session Monsters Tab
+![Session Monsters Tab](/assets/images/monster-tab.webp)
 
-TODO: from here...
-
-> [!WARNING] [TODO: copy this to the tabs]
-> Deleting from Foundry an item that is associated with a Session as a [^Magic Item] or an actor that is associated with a Session as a [^Monster] will completely remove the Magic Item or Monster from the session, even if it had previously been marked as delivered.
-
-The Lore tab (equivalent to "secrets and clues" in the [Lazy DM] method) allows you to manage campaign-wide knowledge that players might discover. 
-
-The typical flow for lore is to create ideas at either the session level (when preparing for the next session and creating secrets and clues) or to create them at the campaign level (things that are important but aren't necessarily right for the current session).  In the latter case, you can easily move them to the current session when preparing vs. having to retype them (see below).
+The Monsters tab allows you to list the Monsters that characters are likely to encounter during the Session.  A Monster is just a reference to an actor in Foundry.
 
 This tab provides:
 
-## Adding Lore
-Click "Add Lore" to create a new lore entry.
+## Adding Monsters
+Click "Add Monster" to create a new Monster entry.  You will be prompted to search for an existing Actor.  
 
-You can drag and drop Journal Entry Pages (not whole journals) from Foundry VTT onto the box at the top to create a linked lore item or onto an existing lore item to link it to the journal entry page.  
-  
-You cannot currently remove a linked entry - I recommend just creating a new lore item and copy/paste the text before removing the old one.
+> [!Note]
+> When searching for an actor, it currently only looks in the Foundry world - not in compendiums.  
 
-## The lore list
-This list contains "Campaign level" lore.  These are items you've fleshed out but aren't yet ready to share with the players.  They are also items that perhaps you added to a session but then didn't share with the players and so you want to move them back to a holding place.
+> [!WARNING]
+> Deleting from Foundry an actor that is associated with a Session as a Monster will completely remove the Monster from the Session, even if it had previously been marked as delivered.
 
-For each lore item, you can see the text of it and the linked entry.  Click the linked entry to open the journal entry page.
+## The Monster list
+This list contains the individual Monsters.  For each Monster, you can see its name, and can specify a number of this monster type that you're planning to use for encounters.
 
-### Lore Actions
-The actions column lets you take several actions with the lore entries:
-  - **Delete** - Delete the lore
-  - **Edit** - Opens the lore description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save.
-  - **Mark as delivered** - Marks the lore as having been delivered to the players.  This isn't recommended generally from the campaign tab, because it allows for better tracking if you move it to the session and deliver it there, but sometimes it happens.  This will move the entry to the "Delivered Lore" list below.
-  - **Move to next session** - This moves the lore to the next session.  This is typically what you'd do in preparation for the session in which you think it might come up.
+Click the name of the Monster to open the (system-dependent) stat/character sheet for the actor.
 
+Click on a value in the number column to edit it.  Press Enter to save.
 
-## The delivered lore list
-This list contains all the lore that has already been delivered to the players.  It combines items delivered from the list above with items delivered from the [Session](/reference/campaigns-and-sessions/session) lore table. Over time it is much likely going to be a large list, which is why it's separated from 
-
-For each lore item, you can see the text, which session it was delivered in (if any), and the linked entry.  Click the session name to open the session details or the linked entry to open the journal entry page.
+### Monster Actions
+The actions column lets you take several actions with the Monster entries:
+  - **Delete** - Delete the Monster.  This removes it from the Session list, but DOES NOT delete the Actor from Foundry.
+  - **Edit** - Opens the number field for editing.  Press Enter to save.
+  - **Mark as delivered** - Marks the Monster as having been delivered to the players. If you mark Monster as delivered while in [^Play Mode], this will add the Monster to the Campaign [To-Do List]. 
+  - **Move to next session** - This moves the Monster to the next Session.  You would typically do this after a Session for Monsters that you didn't deliver but think will likely come up next time.  If a next Session doesn't exist, it will create one.

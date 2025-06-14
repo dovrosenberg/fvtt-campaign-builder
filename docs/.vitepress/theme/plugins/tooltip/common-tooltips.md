@@ -9,6 +9,8 @@
 [^Campaigns]: Collections of Sessions played by the same (or generally the same) group of players.
 [^Character]: A character within the Setting (generally an NPC).  Characters can represent anything from a minor enemy to a shopkeeper to a god.  They belong to a Species.
 [^Characters]: A character within the Setting (generally an NPC).  Characters can represent anything from a minor enemy to a shopkeeper to a god.  They belong to a Species.
+[^Current session]: In Play Mode, the Session being actively played; in Prep Mode, the next Session being prepped for.  In both cases, it is determined by the Session in the Campaign with the highest number.  See the Prep-Play Toggle under Navigation for more details.
+[^Delivered]: Session items (Lore, Vignettes, NPCs, Locations, etc.) can be marked as "delivered" on the respective tabsto indicate that they were used during that Session.  
 [^Entry]: A Character, Location, or Organization in your Setting.
 [^Entries]: Characters, Locations, and Organizations in your Setting.
 [^Fantastic Locations]: Per the Lazy DM, these are the backdrops to the Vignettes.  We connect them directly to Locations from Session for easy resuse and connection to Foundry scenes.

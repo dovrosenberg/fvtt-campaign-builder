@@ -1,6 +1,5 @@
 ---
 title: Session NPCs Tab
-TODO: true
 prev: 
   text: 'Session Locations Tab'
   link: '/reference/playing/content/session/locations'
@@ -11,35 +10,25 @@ next:
 # Session NPCs Tab
 ![Session NPCs Tab](/assets/images/npc-tab.webp)
 
-TODO: from here...
-
-The Lore tab (equivalent to "secrets and clues" in the [Lazy DM] method) allows you to manage campaign-wide knowledge that players might discover. 
-
-The typical flow for lore is to create ideas at either the session level (when preparing for the next session and creating secrets and clues) or to create them at the campaign level (things that are important but aren't necessarily right for the current session).  In the latter case, you can easily move them to the current session when preparing vs. having to retype them (see below).
+The NPCs tab allows you to list the NPCs that characters are likely to encounter during the Session.  These [^Characters] must be created in the [^Setting], as the list is simply a link to existing Characters.
 
 This tab provides:
 
-## Adding Lore
-Click "Add Lore" to create a new lore entry.
+## Adding NPCs
+Click "Add NPC" to create a new NPC entry.  You will be prompted to search for an existing Character.  Alternately, you can hit "Create Create" to [create](/reference/world-building/create-entry) a new Character from the dialog.
 
-You can drag and drop Journal Entry Pages (not whole journals) from Foundry VTT onto the box at the top to create a linked lore item or onto an existing lore item to link it to the journal entry page.  
-  
-You cannot currently remove a linked entry - I recommend just creating a new lore item and copy/paste the text before removing the old one.
+## The NPC list
+This list contains the individual NPCs.  For each NPC, you can see its name, [^Type], and a brief selection from its description.
 
-## The lore list
-This list contains "Campaign level" lore.  These are items you've fleshed out but aren't yet ready to share with the players.  They are also items that perhaps you added to a session but then didn't share with the players and so you want to move them back to a holding place.
+Click the name of the NPC to open the [Character details](/reference/world-building/content/character) page.  Hold control to open in a new tab.
 
-For each lore item, you can see the text of it and the linked entry.  Click the linked entry to open the journal entry page.
+> [!TIP]
+> When your players encounter an NPC, click on it to open up the details page, where you can get information for describing it.  From there, you can then use the [Actors tab](/reference/world-building/content/character#actors) to immediately find an associated actors and open their character sheets or drag them right onto the scene in Foundry.
+>
+> You can also right click on the Characters's image to push it to chat for the players.
 
-### Lore Actions
-The actions column lets you take several actions with the lore entries:
-  - **Delete** - Delete the lore
-  - **Edit** - Opens the lore description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save.
-  - **Mark as delivered** - Marks the lore as having been delivered to the players.  This isn't recommended generally from the campaign tab, because it allows for better tracking if you move it to the session and deliver it there, but sometimes it happens.  This will move the entry to the "Delivered Lore" list below.
-  - **Move to next session** - This moves the lore to the next session.  This is typically what you'd do in preparation for the session in which you think it might come up.
-
-
-## The delivered lore list
-This list contains all the lore that has already been delivered to the players.  It combines items delivered from the list above with items delivered from the [Session](/reference/campaigns-and-sessions/session) lore table. Over time it is much likely going to be a large list, which is why it's separated from 
-
-For each lore item, you can see the text, which session it was delivered in (if any), and the linked entry.  Click the session name to open the session details or the linked entry to open the journal entry page.
+### Character Actions
+The actions column lets you take several actions with the Character entries:
+  - **Delete** - Delete the NPC.  This removes it from the Session list, but DOES NOT delete the Character from the [^Setting].
+  - **Mark as delivered** - Marks the NPC as having been delivered to the players. If you mark NPC as delivered while in [^Play Mode], this will add the NPC to the Campaign [To-Do List]. 
+  - **Move to next session** - This moves the NPC to the next Session.  You would typically do this after a Session for NPCs that you didn't deliver but think will likely come up next time.  If a next Session doesn't exist, it will create one.

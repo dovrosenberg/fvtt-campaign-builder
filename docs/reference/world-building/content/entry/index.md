@@ -16,7 +16,7 @@ Regardless of Topic, each Entry has a similar layout in the main window.  At the
 The Entry header has these main components:
   1. Name - This is where you edit the Entry's name.
   
-  2. Push to Session Button (for Characters and Locations) [[Advanced Feature]] - This allows you to add the Character or Location to the [Current Session] (as an NPC or Location, respectively). If you have more than one campaign with valid sessions, you'll be prompted to select the campaign to push to.
+  2. Push to Session Button (for Characters and Locations) [[Advanced Feature]] - This allows you to add the Character or Location to the [^Current Session] (as an NPC or Location, respectively). If you have more than one campaign with valid sessions, you'll be prompted to select the campaign to push to.
   
   ![Push to session button](/assets/images/push-to-session.webp)
   

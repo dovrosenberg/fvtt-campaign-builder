@@ -46,8 +46,8 @@ When off, it will simply create a quick description useful for roleplaying the c
 
 The default value for this checkbox can be managed in the [Module Settings].
 
-### Add to current session
-This checkbox will only show if you are in [^Play Mode] and only for Characters or Locations.  Selecting it will add the Character/Location as an NPC/Location in the current session when you finalize and hit "Use".
+### Add to Current Session
+This checkbox will only show if you are in [^Play Mode] and only for Characters or Locations.  Selecting it will add the Character/Location as an NPC/Location in the [^Current Session] when you finalize and hit "Use".
 
 ### Generate image
 When checked, after you finalize and hit "Use", the AI will generate an image for the entry - just as if you'd picked to [generate an image](#image) from the Generate Button.

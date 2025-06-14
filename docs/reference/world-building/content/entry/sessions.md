@@ -18,5 +18,3 @@ At the end of the list, you'll find the Sessions tab.  This is where you can qui
 This makes it extremely easy to see if you've ever mentioned an Entry during your game, and if so, in what context.  The session notes may offer even further detail, depending on your notetaking style.
 
 Click the Session name to open it.
-
-TODO: note that changing the session number will reorder the list, reference the setting for that, mention reordering in the tree, maybe mention here how the "current session" works?
