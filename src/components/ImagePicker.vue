@@ -64,6 +64,7 @@
 
   ////////////////////////////////
   // data
+  // these don't match the TabTypeIcons or TopicIcons because they need to be files, not icons
   const WINDOW_TYPE_IMAGES = {
     [WindowTabType.World]: 'icons/svg/castle.svg',
     [WindowTabType.Campaign]: 'icons/svg/ruins.svg',

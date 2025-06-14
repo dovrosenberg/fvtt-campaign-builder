@@ -308,7 +308,7 @@ class SearchService {
       uuid: session.uuid,
       name: session.name,
       resultType: 'session',
-      tags: '',
+      tags: !session.tags ? '' : session.tags.map(t=>t.value).join(', '),
       description: description,
       topic: 'session',
       species: '',
