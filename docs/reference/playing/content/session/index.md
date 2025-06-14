@@ -3,6 +3,8 @@ title: Session Details
 TODO: true
 ---
 # Session Details
+![Session Details](/assets/images/session-content.webp)
+
 [TODO: show main content screen and explain parts, tabs, etc.]
 
 Also note how delivering an npc/location or referencing any entry in description added to the sessions tab
@@ -21,15 +23,16 @@ You can click the campaign's name to edit it.
 
 ## Tabs
 Campaigns have the following tabs where you can manage their details:
-* [Notes](#notes)
-* [Start](./pcs)
+* [Notes](./notes)
+* [Start](./start)
 * [Lore](./lore)
-* [Vignettes](./ideas)
-* [Locations](./ideas)
-* [NPCs](./todos)
-* [Monsters](./todos)
-* [Magic Items](./todos)
-* [PCs](./todos)
+* [Vignettes](./vignettes)
+* [Locations](./locations)
+* [NPCs](./npcs)
+* [Monsters](./monsters)
+* [Magic Items](./magic-items)
+* [PCs](./pcs)
 
 
+TODO: move the link to go to the tab doc
 Notes Tab{#notes}
