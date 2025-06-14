@@ -53,10 +53,11 @@ export default defineConfig({
       {
         text: 'User Guide',
         items: [  
+          { text: 'Overview', link: '/guide/' },
           { text: 'World Building', link: '/guide/world-building' },
-          { text: 'Campaign Planning', link: '/guide/campaign-planning' },
-          { text: 'Session Preparation', link: '/guide/session-preparation' },
-          { text: 'Playing a Session', link: '/guide/playing-session' }
+          { text: 'Session Prep', link: '/guide/session-prep' },
+          { text: 'Playing a Session', link: '/guide/session-play' },
+          { text: 'Recording Play Results', link: '/guide/record-results' }
         ]
       },
       {
