@@ -68,7 +68,7 @@ export default defineConfig({
           { text: 'Settings (World Building)', link: '/reference/world-building' },
           { text: 'Campaigns (Playing)', link: '/reference/playing' },
           { text: 'Advanced Features & Backend', link: '/reference/backend' },
-          { text: 'xConfiguration', link: '/reference/configuration' }
+          { text: 'Configuration', link: '/reference/configuration' }
         ]
       }
     ],

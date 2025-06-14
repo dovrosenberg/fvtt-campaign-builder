@@ -24,6 +24,8 @@ Time for the fun!  Campaign Builder has a variety of tools and techniques to run
 * Instantly [generate](/reference/navigation/name-generation) names for NPCs, towns, shops, and taverns [[Advanced Feature]]. With another click, add them to your world for future reference.
 * Quickly [navigate](/reference/navigation/session-links) back to any Session prep tab with a single click from any other place in the UI
 
+[TODO: session notes popup]
+
 ## Core Session Play Components
 * [Prep/Play Toggle](/reference/navigation/prep-play)
 * [Session Notes](/reference/playing/content/session/notes)
