@@ -2,11 +2,11 @@
 title: Session Magic Items Tab
 TODO: true
 prev: 
-  text: 'Campaign PC Tab'
-  link: '/reference/playing/content/campaign/pcs'
+  text: 'Session NPCs Tab'
+  link: '/reference/playing/content/session/npcs'
 next: 
-  text: 'Campaign Ideas Tab'
-  link: '/reference/playing/content/campaign/ideas'
+  text: 'Session Magic Items Tab'
+  link: '/reference/playing/content/session/magic-items'
 ---
 # Session Magic Items Tab
 ![Session Magic Items Tab](/assets/images/magic-item-tab.webp)

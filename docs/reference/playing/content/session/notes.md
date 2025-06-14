@@ -1,11 +1,11 @@
 ---
 title: Session Notes Tab
 prev: 
-  text: 'Campaign PC Tab'
-  link: '/reference/playing/content/campaign/pcs'
+  text: 'Session Details'
+  link: '/reference/playing/content/session'
 next: 
-  text: 'Campaign Ideas Tab'
-  link: '/reference/playing/content/campaign/ideas'
+  text: 'Session Start Tab'
+  link: '/reference/playing/content/session/start'
 ---
 # Session Notes Tab
 ![Session Notes Tab](/assets/images/session-content.webp)

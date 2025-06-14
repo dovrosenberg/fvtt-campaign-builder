@@ -2,11 +2,11 @@
 title: Session NPCs Tab
 TODO: true
 prev: 
-  text: 'Campaign PC Tab'
-  link: '/reference/playing/content/campaign/pcs'
+  text: 'Session Locations Tab'
+  link: '/reference/playing/content/session/locations'
 next: 
-  text: 'Campaign Ideas Tab'
-  link: '/reference/playing/content/campaign/ideas'
+  text: 'Session Monsters Tab'
+  link: '/reference/playing/content/session/monsters'
 ---
 # Session NPCs Tab
 ![Session NPCs Tab](/assets/images/npc-tab.webp)

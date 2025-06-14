@@ -1,21 +1,17 @@
 ---
-title: Session Magic Items Tab
+title: Session PCs Tab
 TODO: true
 prev: 
-  text: 'Session Monsters Tab'
-  link: '/reference/playing/content/session/monsters'
+  text: 'Session Magic Items Tab'
+  link: '/reference/playing/content/session/magic-items'
 next: 
-  text: 'Session PCs Tab'
-  link: '/reference/playing/content/session/pcs'
+  text: 'PC Details'
+  link: '/reference/playing/content/pc'
 ---
-# Session Magic Items Tab
-![Session Magic Items Tab](/assets/images/magic-item-tab.webp)
+# Session PCs Tab
+![Session NPCs Tab](/assets/images/npc-tab.webp)
 
 TODO: from here...
-
-
-> [!WARNING] [TODO: copy this to the tabs]
-> Deleting from Foundry an item that is associated with a Session as a [^Magic Item] or an actor that is associated with a Session as a [^Monster] will completely remove the Magic Item or Monster from the session, even if it had previously been marked as delivered.
 
 The Lore tab (equivalent to "secrets and clues" in the [Lazy DM] method) allows you to manage campaign-wide knowledge that players might discover. 
 
