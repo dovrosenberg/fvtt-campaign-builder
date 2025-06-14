@@ -3,6 +3,26 @@ title: Playing a Session
 TODO: true
 ---
 
+### [Playing a Session](session-play/)
+Tools and techniques for running engaging sessions and managing content during gameplay.
+
+- [Running Your Session](session-play/index.md)
+- [Managing Content During Gameplay](session-play/gameplay-management.md)
+- [Tracking Session Progress](session-play/progress-tracking.md)
+- [Real-Time Content Creation](session-play/realtime-content.md)
+- [Post-Session Activities](session-play/post-session.md)
+
+
+## Play the game {#session-play}
+* Keep notes of what's happening while bringing in the elements you've defined
+* Scenes, lore, locations, etc. - with a single click you can mark off that they came up in the session for easy reference later
+* Locations and NPCs
+  - Quickly bring up the full world-building details of your fantastic locations - use the hierarchy (quick - what's the name of that store they came to in this town last time?) and related items (what was the Mayor's sister's name?) to have easy access to the mostly likely topics to come up in that location
+  - 1-click access to activate relevant Foundry Scenes and Actors to drag in
+* Monsters - drag into the scene from your pre-assembled list
+* Magic items - open them, grant players, access, etc.from your pre-assembled list
+* [Advanced] Instantly generate names for NPCs, towns, shops, and taverns.  This uses RollTables that are populated by AI in the background. With another click you can add them to your world for future reference (or AI generate a full description for them before adding).
+
 # Playing a Session
 
 The module provides several features to help you run your game smoothly.

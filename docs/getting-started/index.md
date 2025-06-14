@@ -52,7 +52,7 @@ For campaigns, there are two modes you need to know about: [^Prep mode] and [^Pl
 ### Prep mode:
 In prep mode, you're wrapping up a session that just ended and/or setting up for the next one.  This is where you'll flesh out a session with settings, NPCs, etc.
 
-Prep mode is designed to follow the Lazy DM philosophy.  Each tab on the Session screen (click the Session in the directory to open it) represents one of the steps:
+Prep mode is designed to follow the [Lazy DM] philosophy.  Each tab on the Session screen (click the Session in the directory to open it) represents one of the steps:
 * Write your [^Strong start]
 * Define any [^Lore] that might come up
 * Describe possible scenes (called [^Vignettes] in Campaign Builder to distinguish from Foundry scenes)

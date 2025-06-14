@@ -10,9 +10,9 @@ next:
 # Navigation
 
 Click the links below to learn more about each element of the UI:
+- [Directory Sidebar](sidebar)
 - [Main Content Display](main-display)
   - [Images](images)
-- [Directory Sidebar](sidebar)
 - [Tabs](tabs)
 - [Bookmarks](bookmarks)
 - [Search](search)

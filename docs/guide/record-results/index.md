@@ -1,49 +1,15 @@
 ---
-title: Session Prep
-prev: 
-  text: 'World Building'
-  link: '/guide/world-building'
-next: 
-  text: 'Playing a Session'
-  link: '/guide/session-play'
+title: Record Play Results
+TODO: true
 ---
-# Session Prep
-Session prep is when you get ready for your next game session by pulling together your ideas for what happens next with the elements from your [^Setting] so that you'll be ready for whatever comes up.
 
-Campaign Builder is designed after the [Lazy DM] method, though it should be adaptable to whatever your style.
-
-## Campaigns
-Before prepping for a session, you first have to create the overall [^Campaign] it fits into.  You can outline a description and house rules, and connect the PCs (see below).
-
-## Core concepts
-### Campaigns
-* [Create](/reference/playing/content/campaign) your Campaign
-* Attach the [PCs](/reference/playing/content/campaign/pcs) to the campaign
-* Start to capture your [Ideas](/reference/playing/content/campaign/ideas)
-
-### Sessions
-* Review [PCs](/reference/playing/content/session/pcs) - think through plot points to bring in to the next game
-* Outline your [Strong Start](/reference/playing/content/session/start)
-* Flesh out the [Vignettes](/reference/playing/content/session/vignettes) ("scenes" in [Lazy DM] parlance) so you're ready to keep things moving
-* Define [Lore](/reference/playing/content/campaign/lore) (what Lazy DM calls "secrets and clues") - flesh out headlines and link to journal entries for more detail/images/handouts
-* Connect to the [Amazing Locations](/reference/playing/content/session/locations) in your Setting, giving you one-click access to the description, image, association to other Entries, along with links to Foundry Actors and Scenes.  
-* Prepare the [Important NPCs](/reference/playing/content/session/npcs) the players may encounter to have easy access to descriptions, pictures, backstories, and Foundry character sheets/tokens
-* Sketch out the [Monsters](/reference/playing/content/session/monsters), so you have tokens and stat sheets at your fingertips
-* Prepare a list of [Magic Items](/reference/playing/content/session/magic-items) you might hand out to players for victory
+## Record the results {#record-results}
+* Go through vignettes, lore and see which were used; delete or move unused ones to the next session with a click
+* Add any new locations, NPCs, etc. to the world - you can do this while playing but it may be easier to just take quick notes and do it afterwards 
+* Add anything that's top of mind to the next session to get started for next time
 
 
-## Note on Locations, Vignettes and Scenes
-- [^Locations] are places (in [^Settings]) that represent a country, a city, a building (or a room in building), etc. They can be tied to Foundry scenes - and more than one, in case you want to use them for different parts of the location or different times (pre/post a fire, for ex. or night vs day).
-  - Locations can be added to Sessions and then with a click you can get the lore you've built in the world around that location, as well as 1-click access to activate any of the related Foundry scenes.
-- [^Vignettes] are what the Lazy DM calls "scenes".  The are short descriptions of a scene that could happen during a session. I renamed them to Vignettes to avoid confusion with Foundry scenes.
-
-## Core Session Prep Components
-* [Campaign Directory](/reference/navigation/sidebar#campaign-directory)
-* [Campaign Details](/reference/playing/content/campaign)
-* [Session Details](/reference/playing/content/session)
-
-<!-- 
-# Session Preparation
+# Record Play Results
 
 The Campaign Builder helps you prepare for your sessions using the [Lazy DM method](https://slyflourish.com/the_lazy_dungeon_master_cc.html), a streamlined approach to session preparation that focuses on the essential elements needed to run an engaging game. This guide will walk you through preparing your sessions effectively.  If you prefer to use a different approach to your session prep, I suspect the same structure can be used.  File a feature request if you have ideas for something that's missing for your style.
 
@@ -207,4 +173,4 @@ When you're ready to run the session:
 
 5. Take notes in the session notes window
 
-Changes made during play are tracked in the to-do list, helping you follow up on important developments after the session. -->
+Changes made during play are tracked in the to-do list, helping you follow up on important developments after the session.

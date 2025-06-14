@@ -1,6 +1,6 @@
 ---
 title: Developing Characters and NPCs
-TODO: true
+HIDE: true
 ---
 
 # Developing Characters and NPCs

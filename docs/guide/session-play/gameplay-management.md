@@ -1,6 +1,6 @@
 ---
 title: Managing Content During Gameplay
-TODO: true
+HIDE: true
 ---
 
 # Managing Content During Gameplay

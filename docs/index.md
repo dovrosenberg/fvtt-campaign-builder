@@ -29,13 +29,23 @@ Do you learn by doing?  Just check out the [Getting Started](/getting-started) g
 
 # Introduction
 
-The goal of this package is to facilitate creating, planning, and running campaigns in Foundry. It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the Lazy DM approach, but able to be used with any style of prep).
+The goal of this package is to facilitate creating, planning, and running campaigns in Foundry. It combines the world-building and lore creation of tools like WorldAnvil, Kanka, Fantasia Archive, LegendKeeper, etc. with a framework for organizing your campaigns and sessions (built off of the [Lazy DM] approach, but able to be used with any style of prep).
+
+You may find this better than the commercial world builders for a few reasons, even though many of those platforms have integration solutions with Foundry: 
+- It's free (without ads)
+- It supports low-cost AI generation of descriptions and images (that works surprisingly well)
+- It may be easier than managing the integration
+- Most importantly, you can **continue to build out lore as you play**.  
+
+You can use the module just to plan/run sessions or just to do world building.  But it will be most useful when used for both in combination, because it's designed to be easy to pull defined elements from the world into your planning, as well as to easily add to the world during and after sessions.
+
+While I'm seeking to make this module strong enough that it's a reasonable substitute for the primary commercial solutions, it will likely always be missing features that those provide.  Instead, the advantage of FVTT Campaign Builder is that it is easy/fast enough to use that you can refer to it in real-time while running an adventure, while also quickly adding notes to supplement your world encyclopedia later.  
 
 It can be used within Foundry during your prep and mid-session (it has capabilities for both).  It could also be used to run a live TTRPG session as a DM tool, if you just wanted to run Foundry and pull it up on your laptop (for example).
 
 The module has three primary components:
 - [**World Building**](/guide/world-building): Create and manage your settings' lore, characters, locations, and more
-- [**Campaign/Session Planning**](/guide/session-prep): Plan and organize your next session using the Lazy DM method; wrap up the prior one.
+- [**Campaign/Session Planning**](/guide/session-prep): Plan and organize your next session using the [Lazy DM] method; wrap up the prior one.
 - [**Playing a Session**](/guide/session-play): Tools to run your game session more easily, while seamlessly collecting notes to be able to capture what happened and begin your prep for the next session
 
 See the [official description](https://github.com/dovrosenberg/fvtt-campaign-builder) for a longer summary of features and functionality.

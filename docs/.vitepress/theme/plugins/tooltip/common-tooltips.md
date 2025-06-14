@@ -6,6 +6,7 @@
 [^Advanced Feature]: Features (including AI generation, email handling) that require the installation of the Foundry Campaign Builder backend.
 [^Advanced Features]: Features (including AI generation, email handling) that require the installation of the Foundry Campaign Builder backend.
 [^Campaign]: A collection of Sessions played by the same (or generally the same) group of players.
+[^Campaigns]: Collections of Sessions played by the same (or generally the same) group of players.
 [^Character]: A character within the Setting (generally an NPC).  Characters can represent anything from a minor enemy to a shopkeeper to a god.  They belong to a Species.
 [^Characters]: A character within the Setting (generally an NPC).  Characters can represent anything from a minor enemy to a shopkeeper to a god.  They belong to a Species.
 [^Entry]: A Character, Location, or Organization in your Setting.
@@ -21,8 +22,11 @@
 [^Organization]: An organization within the Setting.  Organizations represent a group of characters and can describe anything from a clan to a guild to a religion. They have a hierarchichal structure.
 [^Organizations]: An organization within the Setting.  Organizations represent a group of characters and can describe anything from a clan to a guild to a religion. They have a hierarchichal structure.
 [^Play mode]: Indicated by the Prep/Play toggle in the title bar, this is the mode where you're actively running a session with your players.  It enables a variety of special functionality.
+[^PC]: A player character - linked to Campaigns/Sessions. Generally NOT tied to Setting Characters.
+[^PCs]: Player characters - linked to Campaigns/Sessions. Generally NOT tied to Setting Characters.
 [^Prep mode]: Indicated by the Prep/Play toggle in the title bar, this is the default mode where you're typically building out your Setting and preparing for the next Session.
 [^Session]: A single play session. When running in "Play Mode", the most recent Session is enabled with additional functionality that you can use during your play session.
+[^Sessions]: Single play sessions. When running in "Play Mode", the most recent Session is enabled with additional functionality that you can use during your play session.
 [^Setting]: The fictional setting where your Campaigns take place (i.e. the equivalent of The Forgotten Realms, Eberron, etc.).
 [^Settings]: The fictional settings where your Campaigns take place (i.e. the equivalent of The Forgotten Realms, Eberron, etc.).
 [^Setting Directory]: The top section of the Directory Sidebar, where you can see all of the Entries in each Setting.

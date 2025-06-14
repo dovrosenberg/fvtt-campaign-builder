@@ -1,19 +1,30 @@
 ---
 title: World Building
-TODO: true
+prev: 
+  text: 'User Guide'
+  link: '/guide'
+next: 
+  text: 'Session Prep'
+  link: '/guide/session-prep'
 ---
 
 # World Building
 
-World building is the foundation of your campaign. The Campaign Builder helps you create and organize your campaign world with interconnected locations, characters, and organizations that bring your Setting to life.
+World building is the foundation of your campaign. The Campaign Builder helps you create and organize your campaign world with interconnected [^Locations], [^Characters], and [^Organizations] that bring your [^Settings] to life.
 
-## Overview
+World building in the Campaign Builder focuses on creating reusable content that forms the backbone of your campaign. Unlike [^Session]-specific preparation, world building content is designed to be referenced and expanded throughout your entire campaign.
 
-World building in the Campaign Builder focuses on creating reusable content that forms the backbone of your campaign. Unlike session-specific preparation, world building content is designed to be referenced and expanded throughout your entire campaign.
+## Core concepts
+* [Create](/reference/world-building/) Characters, Locations, and Organizations
+* Easily see (and click through) the [relationships](/reference/world-building/content/entry/relationships) between them
+* Locations and Organizations exist in [hierarchies](/reference/navigation/sidebar/#hierarchies)
+* Use AI to [generate](/reference/world-building/content/entry/generate) detailed descriptions and images [[Advanced Feature]]
 
 ## Core World Building Components
+* [Setting Directory](/reference/navigation/sidebar#setting-directory)
+* [Entry Display](/reference/world-building/content/entry)
 
-### Settings Directory
+<!-- ### Settings Directory
 The Settings Directory is your central hub for all world content. It organizes your world into several key categories:
 
 - **Locations**: Physical places in your world
@@ -100,4 +111,13 @@ World building content seamlessly integrates with other Campaign Builder workflo
 - **Session Preparation**: Reference world content when preparing for specific sessions
 - **Playing Sessions**: Quick access to world content during gameplay
 
-Your world building efforts create a living foundation that supports all other aspects of your campaign management. 
+Your world building efforts create a living foundation that supports all other aspects of your campaign management.  -->
+
+<!-- ### [World Building](world-building/)
+Build and organize your campaign setting with interconnected locations, characters, and organizations.
+
+- [Creating Your Campaign World](world-building/campaign-world.md)
+- [Building Locations and Settings](world-building/locations.md)
+- [Developing Characters and NPCs](world-building/characters.md)
+- [Establishing Organizations and Factions](world-building/organizations.md)
+- [Organizing World Content](world-building/organizing-content.md) -->

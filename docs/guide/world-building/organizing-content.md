@@ -1,6 +1,6 @@
 ---
 title: Organizing World Content
-TODO: true
+HIDE: true
 ---
 
 # Organizing World Content

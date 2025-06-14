@@ -53,9 +53,13 @@ This checkbox will only show if you are in [^Play Mode] and only for Characters 
 When checked, after you finalize and hit "Use", the AI will generate an image for the entry - just as if you'd picked to [generate an image](#image) from the Generate Button.
 
 ## Generate Image {#image}
+[TODO: put this in a common place because it needs to be referenced here and from the image picker info]
 Selecting to generate an image will start image generation in the background.  When image generation is complete, you'll get a notification and the image will automatically be attached to the entry.
 
 You don't need to stay on the entry (or even keep the tab open) while you're waiting - it will all happen in the background.
+
+> [!INFO]
+> Image generation works best with detailed descriptions of the Entry you're trying to create an image for.  The AI will also take into account the Setting [genre and world feeling](/reference/world-building/content/setting), the hierarchy (i.e. it understands if a city falls inside the broader context of a country it knows about), and your definitions of your species (for characters).  The more details it has, the better it works.
 
 ### Image generation time {#image-time}
 

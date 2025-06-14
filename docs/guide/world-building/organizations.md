@@ -1,6 +1,6 @@
 ---
 title: Establishing Organizations and Factions
-TODO: true
+HIDE: true
 ---
 
 # Establishing Organizations and Factions

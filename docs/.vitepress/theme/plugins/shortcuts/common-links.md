@@ -15,3 +15,4 @@
 [Module Settings]: /reference/configuration
 [Current Session]: /reference/navigation/prep-play#current-session
 [Search]: /reference/navigation/search
+[Lazy DM]: https://slyflourish.com/eight_steps_2023.html

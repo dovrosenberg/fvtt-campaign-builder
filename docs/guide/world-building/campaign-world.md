@@ -1,6 +1,6 @@
 ---
 title: Creating Your Campaign World
-TODO: true
+HIDE: true
 ---
 
 # Creating Your Campaign World

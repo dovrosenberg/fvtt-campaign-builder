@@ -22,17 +22,13 @@ The Campaign window provides tools for organizing and managing your campaigns wi
 You can click the campaign's name to edit it.
 
 ## Tabs
-Campaigns have the following tabs where you can manage their details:
-* [Notes](./notes)
-* [Start](./start)
-* [Lore](./lore)
-* [Vignettes](./vignettes)
-* [Locations](./locations)
-* [NPCs](./npcs)
-* [Monsters](./monsters)
-* [Magic Items](./magic-items)
-* [PCs](./pcs)
-
-
-TODO: move the link to go to the tab doc
-Notes Tab{#notes}
+Session have the following tabs where you can manage their details:
+* [Notes](./notes) - what happened during the session
+* [Start](./start) - your idea for a strong start to the session
+* [Lore](./lore) - the secrets and clues available to disburse during the session
+* [Vignettes](./vignettes) - the potential scenes that might come up
+* [Locations](./locations) - the fantasic locations where the scenes might happen
+* [NPCs](./npcs) - the important non-player characters likely to join the story
+* [Monsters](./monsters) - relevant monsters players are likely to encounter
+* [Magic Items](./magic-items) - the magic items you're ready to hand out for victory
+* [PCs](./pcs) - the PCs you're playing

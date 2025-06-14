@@ -1,6 +1,6 @@
 ---
 title: Building Locations and Settings
-TODO: true
+HIDE: true
 ---
 
 # Building Locations and Settings
