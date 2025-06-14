@@ -1,5 +1,6 @@
 ---
-title: Campaign Lore Tab
+title: Session Location Tab
+TODO: true
 prev: 
   text: 'Campaign PC Tab'
   link: '/reference/playing/content/campaign/pcs'
@@ -7,9 +8,11 @@ next:
   text: 'Campaign Ideas Tab'
   link: '/reference/playing/content/campaign/ideas'
 ---
-# Campaign Lore Tab
-![Campaign Lore Tab](/assets/images/lore-tab.webp)
+# Session Location Tab
+![Session Location Tab](/assets/images/session-location-tab.webp)
 
+
+TODO: from here...
 The Lore tab (equivalent to "secrets and clues" in the Lazy DM method) allows you to manage campaign-wide knowledge that players might discover. 
 
 The typical flow for lore is to create ideas at either the session level (when preparing for the next session and creating secrets and clues) or to create them at the campaign level (things that are important but aren't necessarily right for the current session).  In the latter case, you can easily move them to the current session when preparing vs. having to retype them (see below).

@@ -1,5 +1,6 @@
 ---
-title: Campaign Lore Tab
+title: Session Lore Tab
+TODO: true
 prev: 
   text: 'Campaign PC Tab'
   link: '/reference/playing/content/campaign/pcs'
@@ -7,8 +8,10 @@ next:
   text: 'Campaign Ideas Tab'
   link: '/reference/playing/content/campaign/ideas'
 ---
-# Campaign Lore Tab
-![Campaign Lore Tab](/assets/images/lore-tab.webp)
+# Session Lore Tab
+![Session Lore Tab](/assets/images/session-lore-tab.webp)
+
+TODO: from here...
 
 The Lore tab (equivalent to "secrets and clues" in the Lazy DM method) allows you to manage campaign-wide knowledge that players might discover. 
 
