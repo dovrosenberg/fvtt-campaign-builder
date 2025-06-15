@@ -26,6 +26,15 @@ The Entry header has these main components:
 
   4. [Tags] - An easy way to categorize entries. Particularly helpful for [searching](/reference/navigation/search). 
 
+## Type
+Among other fields, every Entry has a [^Type], which is used to categorize it. 
+
+The Type is used in [search] results, and it can be used to group Entries in the [Setting Directory](/reference/navigation/sidebar#group-by-type).  
+
+The Type field is an autocomplete, and as you start typing it will prompt you with matching Types (specific to the category of Entry you are working with - i.e. Locations have different Types than Characters, etc.).  To add a new Type to the list, just type it in the box and hit Enter (or leave the box).
+
+You cannot currently delete Types.
+
 ## Tabs
 There are several tabs on the Entry details screen:
   - [Description tab](./description) - overview information about the Entry

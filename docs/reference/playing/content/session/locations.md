@@ -25,7 +25,7 @@ Click the name of the Location or parent to open the [Location details](/referen
 > [!TIP]
 > When your players come to a Location, click on it to open up the details page, where you can get information for describing it.  From there, you can then use the [Scenes tab](/reference/world-building/content/location#scenes) to immediately open a related scene in Foundry.
 >
-> You can also right click on the Location's image to push it to chat for the players or to immediately create and use a new Foundry scene from the image (useful for Theater of the Mind scenes).
+> You can also right-click on the Location's image to push it to chat for the players or to immediately create and use a new Foundry scene from the image (useful for Theater of the Mind scenes).
 
 ### Location Actions
 The actions column lets you take several actions with the Location entries:

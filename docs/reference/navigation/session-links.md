@@ -22,7 +22,7 @@ There are several ways to open content in tabs:
 - Click any entry in the directory sidebar, links within editors, or links in tables 
 - Opens content in the current active tab
 - Replaces whatever was previously displayed
-- You can use the forward/back buttons (see below) to navigate within the tab histoy 
+- You can use the forward/back buttons (see below) to navigate within the tab history 
 
 **Ctrl+Click** (New tab)
 - Holding control while clicking any of the items above opens the content in a new tab
@@ -36,8 +36,8 @@ There are several ways to open content in tabs:
 
    * **Reordering Tabs**: Drag and drop any tab to reorder the tabs
    * **Closing Tabs**: Click the "X" or use the Alt-W (by default) [keybinding](./keybindings)
-   * **Close All Tabs**: Right click on any tab and choose "Close All Tabs" from the context menu
-   * **Close Other Tabs**: Right click on any tab and choose "Close Other Tabs" to close all tabs except the selected one 
+   * **Close All Tabs**: Right-click on any tab and choose "Close All Tabs" from the context menu
+   * **Close Other Tabs**: Right-click on any tab and choose "Close Other Tabs" to close all tabs except the selected one 
 
 ## Tab Navigation
 ![Forward-Back nav](/assets/images/forward-back.webp)

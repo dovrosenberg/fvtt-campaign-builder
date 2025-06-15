@@ -36,16 +36,15 @@ Each Topic has one or more extra fields - see the topic-specific documentation f
 ## Description Text Area
 This is where you enter the description of the Entry.  Click the orange pencil to start editing, and the save button (or Control-S) to save.
 
-You can drag any Entry from the [Setting Directory] into the description editor and it will insert a UUID indicator that when you save will be displayed as a clickable link that will open that Entry (hold 'Control' while clicking to open it in a new tab).
+You can drag any Entry from the [Setting Directory] into the description editor, and it will insert a UUID indicator that when you save will be displayed as a clickable link that will open that Entry (hold 'Control' while clicking to open it in a new tab).
 
 It is highly suggested that you check out the [Autocomplete Mentions](/reference/navigation/main-display#autocomplete-mentions) module, which allows you to rapidly reference Foundry documents and Campaign Builder Entries/Sessions/etc. while typing in the editor.  
 
-When you save the description, it will check to see if you've added or removed any references to other Entries.  If you have, you will be prompted with the "Manage Related Entries" dialog:
+## Managing Relationships {#managing-relationships}
+Assuming you have the "Auto-suggest relationships" [Module Setting] turned on, whenever you save the description, it will check to see if you've added or removed any references to other [^Entries].  If you have, you will be prompted with the "Manage Related Entries" dialog:
 
 ![Manage related entries](/assets/images/manage-related-entries.webp)
 
 This allows you to rapidly create and remove relationships without having to manually do each one in the [Relationship tabs](./relationships).  Simply turn off the checkboxes for the relationships you don't want to change and hit "Update".  You can hit "No to all" if you don't want to change anything.
 
 Any extra relationship fields (ex. "Role" when connecting a character with a location) will not be populated - you'll need to move the specific tab to update those.
-
-You can disable this functionality by turning off the "Auto-suggest relationships" option in the [Module Settings].

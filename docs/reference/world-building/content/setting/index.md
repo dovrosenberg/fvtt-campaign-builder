@@ -36,4 +36,10 @@ Similar to Genre, this field allows you to give a more detailed description.  Fo
 ### Description text area
 This is where you can provide a detailed description of the Setting and high-level lore.  What's the history? What does the pantheon look like? How many explored planetary systems are there? 
 
+Click the orange pencil to start editing, and the save button (or Control-S) to save.
+
+You can drag any Entry from the [Setting Directory] into the description editor, and it will insert a UUID indicator that when you save will be displayed as a clickable link that will open that Entry (hold 'Control' while clicking to open it in a new tab).
+
+It is highly suggested that you check out the [Autocomplete Mentions](/reference/navigation/main-display#autocomplete-mentions) module, which allows you to rapidly reference Foundry documents and Campaign Builder Entries/Sessions/etc. while typing in the editor.  
+
 In the future, this description may be made available to players as starting background, but for now it's just for GM use (along with everything else in the module, just to be clear).

@@ -8,7 +8,7 @@
 [Characters]: /reference/world-building/content/character
 [Setting Directory]: /reference/navigation/sidebar/#setting-directory
 [Campaign Directory]: /reference/navigation/sidebar/#campaign-directory
-[Image]: /reference/navigation/images
+[Image]: /reference/navigation/main-display#images
 [Generate Window]: /reference/dialogs/generate
 [Tags]: /reference/world-building/content/entry/tags
 [Module Setting]: /reference/configuration
