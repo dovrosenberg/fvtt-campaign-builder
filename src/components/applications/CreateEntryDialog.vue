@@ -650,6 +650,10 @@
         }
       }
 
+      .generated-content {
+        white-space: pre-wrap;
+      }
+
       .prompt-message {
         text-align: center;
         color: var(--fcb-color-text-generate-message);
