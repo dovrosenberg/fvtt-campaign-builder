@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 import fs from 'fs'
 import path from 'path'
 import tooltipPlugin from './theme/plugins/tooltip/tooltip-plugin'
+import { VERSION } from './theme/utils/version'
 
 // Read the common links file
 const commonLinksPath = path.join(__dirname, '/theme/plugins/shortcuts/common-links.md')
@@ -89,7 +90,7 @@ export default defineConfig({
     ],
 
     footer: {
-      message: 'Licensed under the Apache License, Version 2.0.',
+      message: `Foundry Campaign Builder v${VERSION} - Licensed under the Apache License, Version 2.0.`,
       copyright: 'Copyright © 2025 Dov Rosenberg'
     }
   }

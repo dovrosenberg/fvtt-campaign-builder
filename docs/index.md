@@ -21,7 +21,29 @@ features:
     details: Tools to run your game session while seamlessly collecting notes
 ---
 
+<script setup>
+import { inject } from 'vue'
+const version = inject('version')
+</script>
+
+<style>
+.hero .name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hero .version {
+  font-size: 1.2rem;
+  color: var(--vp-c-text-2);
+}
+</style>
+
 # &nbsp;
+
+# Documents for Foundry Campaign Builder v{{version}} 
+&nbsp;
 
 # Quick start
 
