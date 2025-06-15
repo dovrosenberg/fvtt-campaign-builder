@@ -1,6 +1,5 @@
 <template>
   <div 
-    v-if="Backend.available"
     class="fcb-play-generators flexrow"
   >
     <div class="fcb-generate-label">Generate</div>
@@ -33,7 +32,6 @@
   // local imports
   import { useMainStore, useNavigationStore, usePlayingStore } from '@/applications/stores';
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend } from '@/classes'
   import { FCBDialog } from '@/dialogs';
   
   // local components
@@ -47,7 +45,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const playingStore = usePlayingStore();
-  const { currentSetting } = storeToRefs(mainStore);
+  const { currentSetting, currentCampaign } = storeToRefs(mainStore);
 
 
   ////////////////////////////////
@@ -85,7 +83,12 @@
     // add to the to-do list
     const campaign = playingStore.currentPlayedCampaign;
     if (campaign) {
-      await campaign.mergeToDoItem(ToDoTypes.GeneratedName, `Name ${value} Generated during session ${campaign.currentSession?.number}`, value);
+      await campaign.mergeToDoItem(ToDoTypes.GeneratedName, `Name ${value} Generated during session ${campaign.currentSession?.number}`);
+
+      // if the campaign is showing, refresh it
+      if (currentCampaign.value) {
+        await mainStore.refreshCurrentContent();
+      }
     }
 
   };

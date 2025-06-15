@@ -34,6 +34,7 @@ Automatic adding to the to-do list requires:
 While in Play Mode, the following actions will trigger a new to-do item:
 * Marking any session item (Lore, Vignettes, NPCs, Locations, etc.) as  [^delivered] in a session
 * Creating or editing any [^Entry]
+* Generating a name using the [generation toolbar](/reference/play-mode/name-generation)
 
 ## Merging of items
 Only one to-do will be created for any given source.  It updates the "last modified" date and the to-do text whenever another would have been created.  That way if you fall behind it doesn't get cluttered, but you can still see all the sessions you might want to check.

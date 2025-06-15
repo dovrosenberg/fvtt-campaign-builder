@@ -71,16 +71,9 @@ Post-session, there are two key things to look at:
 ### Play mode: {#campaign-play-mode}
 In play mode, you're actively playing a session.  When you enter play mode, you'll get a session notes popup box where you can record notes as you go.  Every time you hit save, these notes get saved to the notes tabs on the active session, as well (and vice versa).  If you don't like the popup, just close it.
 
-When you enter play mode, you'll see a new toolbar at the top of the window
-![session nav toolbar](/assets/images/session-nav-toolbar.webp)
-
-This toolbar lets you immediately open the corresponding tab in the active session.  This makes it easy to get right back where you need to in your session notes after opening up a character or location to get some extra details.
-
-If using [Advanced Features], you'll also see a second toolbar - the generation toolbar:
-
-![generate toolbar](/assets/images/generate-toolbar.webp)
-
-These buttons allow you to quickly get suggested names for NPCs, taverns, etc. on the fly and then, if desired, rapidly flesh out the background and add them to your Setting.  
+When you enter play mode, you'll see two new toolbars at the top of the window:
+* The [session navigation toolbar](/reference/play-mode/session-links) - for quickly opening the corresponding tab in the active session
+* The [generation toolbar](/reference/play-mode/name-generation) - for rapidly getting suggested names for NPCs, taverns, etc. on the fly and then, if desired, rapidly flesh out the background and add them to your Setting.  
 
 In play mode, you'll mostly be just playing your game.  Beyond the toolbars, the primary other thing you'll want to do while playing is mark off on the various Session tabs any NPCs, lore, Locations, etc. that get used during the session.  You do this by clicking the checkmark on the left side of the table to mark it as "delivered".
 
