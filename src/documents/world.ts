@@ -1,5 +1,6 @@
 import { ValidTopic, Hierarchy, WorldGeneratorConfig } from '@/types';
 import { FlagSettings } from '@/settings/DocumentFlags';
+import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 
 // campaigns are journal entries, not documents
 export interface WorldDoc extends Folder {
@@ -19,6 +20,7 @@ export enum WorldFlagKey {
   img = 'img',   // image path for the world
   nameStyles = 'nameStyles',   // array of name styles to use for name generation
   rollTableConfig = 'rollTableConfig',   // world-specific roll table configuration
+  nameStyleExamples = 'nameStyleExamples',   // stored example names for each style with their genre and world feeling
 }
 
 export type WorldFlagType<K extends WorldFlagKey> =
@@ -34,6 +36,7 @@ export type WorldFlagType<K extends WorldFlagKey> =
   K extends WorldFlagKey.img ? string :
   K extends WorldFlagKey.nameStyles ? number[] :
   K extends WorldFlagKey.rollTableConfig ? WorldGeneratorConfig | null :
+  K extends WorldFlagKey.nameStyleExamples ? { genre: string; worldFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null :
   never;
 
 export const flagSettings = [
@@ -87,6 +90,10 @@ export const flagSettings = [
   {
     flagId: WorldFlagKey.rollTableConfig,
     default: null as WorldGeneratorConfig | null,
+  },
+  {
+    flagId: WorldFlagKey.nameStyleExamples,
+    default: null as { genre: string; worldFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null,
   },
 ] as FlagSettings<WorldFlagKey, {[K in WorldFlagKey]: WorldFlagType<K>}>[];
 

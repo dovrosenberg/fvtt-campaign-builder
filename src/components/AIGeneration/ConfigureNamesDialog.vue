@@ -158,13 +158,30 @@
     error.value = '';
     
     try {
-      const response = await Backend.api.apiNamePreviewPost({
-        nameStyles: nameStylePrompts.value,
-        genre: currentSetting.value.genre,
-        worldFeeling: currentSetting.value.worldFeeling
-      });
-      
-      previewData.value = response.data.preview;
+      // Check if we have stored examples with matching genre and world feeling
+      const storedExamples = currentSetting.value.nameStyleExamples;
+      if (storedExamples && 
+          storedExamples.genre === currentSetting.value.genre && 
+          storedExamples.worldFeeling === currentSetting.value.worldFeeling) {
+        previewData.value = storedExamples.examples;
+      } else {
+        // If no stored examples or they don't match, generate new ones
+        const response = await Backend.api.apiNamePreviewPost({
+          nameStyles: nameStylePrompts.value,
+          genre: currentSetting.value.genre,
+          worldFeeling: currentSetting.value.worldFeeling
+        });
+        
+        previewData.value = response.data.preview;
+
+        // Store the new examples
+        currentSetting.value.nameStyleExamples = {
+          genre: currentSetting.value.genre,
+          worldFeeling: currentSetting.value.worldFeeling,
+          examples: response.data.preview
+        };
+        await currentSetting.value.save();
+      }
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);
     } finally {

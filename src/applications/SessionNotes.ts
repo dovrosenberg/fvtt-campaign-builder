@@ -58,6 +58,8 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
       
       if (component && session) {
         // check if the session notes window is dirty and save if needed
+        // also - there's a bug where changing setting when in play mode will result in the new setting being loaded before
+        //    we get here, so the notes on the session 
         if (component.isDirty()) {
           if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
 

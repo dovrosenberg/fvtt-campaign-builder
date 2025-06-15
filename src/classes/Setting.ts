@@ -8,6 +8,7 @@ import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 import { initializeWorldRollTables, refreshWorldRollTables } from '@/utils/nameGenerators';
 import { Backend } from '@/classes';
+import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 
 type WBWorldCompendium = CompendiumCollection<CompendiumCollection.Metadata>;
 
@@ -37,6 +38,7 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
   private _img: string;
   private _nameStyles: number[];
   private _rollTableConfig: WorldGeneratorConfig | null;
+  private _nameStyleExamples: { genre: string; worldFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null;
 
   /**
    * Note: you should always call validate() after creating a new Setting - this ensures the 
@@ -57,6 +59,7 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
     this._img = this.getFlag(WorldFlagKey.img) || '';
     this._nameStyles = this.getFlag(WorldFlagKey.nameStyles) || [0];
     this._rollTableConfig = this.getFlag(WorldFlagKey.rollTableConfig);
+    this._nameStyleExamples = this.getFlag(WorldFlagKey.nameStyleExamples);
     this._name = this._doc.name;
     if (this._compendiumId) {
       const compendium = game.packs?.get(this._compendiumId);
@@ -757,5 +760,14 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
         }
       }
     }
+  }
+
+  public get nameStyleExamples(): { genre: string; worldFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null {
+    return this._nameStyleExamples;
+  }
+
+  public set nameStyleExamples(value: { genre: string; worldFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null) {
+    this._nameStyleExamples = value;
+    this.updateCumulative(WorldFlagKey.nameStyleExamples, value);
   }
 }
