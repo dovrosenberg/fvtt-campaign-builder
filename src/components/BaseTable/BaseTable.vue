@@ -426,12 +426,13 @@
     const rowIndex = props.rows.findIndex(row => row.uuid === uuid);
 
     if (rowIndex !== -1) {
-      // Calculate the page number
-      const page = Math.floor((rowIndex+1) / pagination.rowsPerPage);
+      // Calculate the page number (0-based)
+      const page = Math.floor(rowIndex / pagination.rowsPerPage);
 
       // Set the 'first' property for pagination to the first record
       //    of the page containing the row we need
       pagination.first = page * pagination.rowsPerPage;
+      pagination.page = page + 1; // Update the page number too
     }
 
     emit('setEditingRow', uuid);
