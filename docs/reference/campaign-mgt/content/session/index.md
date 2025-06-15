@@ -17,7 +17,7 @@ The Session window provides tools for preparing for and running your sessions, a
 
   1. Name - You can click the Session's name to edit it.
 
-  2. Tags - An easy way to categorize Sessions. Particularly helpful for [searching](/reference/navigation/search). See [Tags](/reference/world-building/content/entry/tags) details on the Entry documentation for more details.
+  2. [Tags](/reference/campaign-mgt/content/session/tags) - An easy way to categorize Sessions. Particularly helpful for [searching](/reference/navigation/search). 
 
 ## Tabs
 Session have the following tabs where you can manage their details:

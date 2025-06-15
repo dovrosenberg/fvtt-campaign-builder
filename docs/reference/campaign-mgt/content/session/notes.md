@@ -36,4 +36,4 @@ It is highly suggested that you check out the [Autocomplete Mentions](/reference
 
 When you save the notes while in [^Play Mode], it will check to see if you've added any references to Entries.  If you have, those Entries will automatically be added to the [To-do list](/reference/campaign-mgt/content/campaign/todos) for the Campaign.  
 
-See also the [Session Notes Popup](/reference/campaign-mgt/session-note-popup) for more info on adding notes while in [^Play Mode].
+See also the [Session Notes Popup](/reference/play-mode/session-notes-popup) for more info on adding notes while in [^Play Mode].

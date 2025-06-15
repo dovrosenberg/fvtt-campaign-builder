@@ -1,45 +1,20 @@
 ---
 title: Session Links
-TODO: true
 prev: 
-  text: 'Directory Sidebar'
-  link: './sidebar'
+  text: 'Session Notes Popup'
+  link: './session-notes-popup'
 next: 
-  text: 'Bookmarks'
-  link: './bookmarks'
+  text: 'Name Generators'
+  link: './name-generation'
 ---
 
-# Tabs
+# Session Links
+When in play mode, an extra row of buttons appears at the top of the Campaign Builder.  These buttons are used to navigate to various parts of the Current Session.
 
-The Campaign Builder uses a tabbed interface to help you work with multiple pieces of content simultaneously. 
+![Session links](/assets/images/session-buttons.webp)
 
-![Tab strip](/assets/images/tab-strip.webp)
+Clicking the "To-Do" button will open the [To-do list](/reference/campaign-mgt/content/campaign/todos) for the Current Session's campaign.
 
-## Opening Tabs
-There are several ways to open content in tabs:
+Clicking any other button will switch to the corresponding tab in the Current Session, regardless of what you have open in the Campaign Builder.  
 
-**Single Click** (Default behavior)
-- Click any entry in the directory sidebar, links within editors, or links in tables 
-- Opens content in the current active tab
-- Replaces whatever was previously displayed
-- You can use the forward/back buttons (see below) to navigate within the tab history 
-
-**Ctrl+Click** (New tab)
-- Holding control while clicking any of the items above opens the content in a new tab
-
-**New Tab Button**
-- Click the "+" button on the right side of the tab bar
-- Creates a blank new tab, with quick links to create new items, search, or access a recent item
-
-
-## Tab Management
-
-   * **Reordering Tabs**: Drag and drop any tab to reorder the tabs
-   * **Closing Tabs**: Click the "X" or use the Alt-W (by default) [keybinding](./keybindings)
-   * **Close All Tabs**: Right-click on any tab and choose "Close All Tabs" from the context menu
-   * **Close Other Tabs**: Right-click on any tab and choose "Close Other Tabs" to close all tabs except the selected one 
-
-## Tab Navigation
-![Forward-Back nav](/assets/images/forward-back.webp)
-
-The forward and back buttons on the left side of the [Bookmarks](./bookmarks) can be used to cycle through the history of content displayed in the current tab, just like a browser's forward/back buttons.
+In both cases, hold 'Control' while clicking to open it in a new tab.

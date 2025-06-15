@@ -46,7 +46,7 @@ Structure and organize your campaigns and sessions.
 - [Session Details](playing/content/session)
 - [To-do List](playing/content/campaign/todos)
 - [Play Mode Navigation](playing/navigation/session-links)
-- [Session Notes Popup](playing/session-note-popup)
+- [Session Notes Popup](playing/session-notes-popup)
 
 ## Configuration
 
