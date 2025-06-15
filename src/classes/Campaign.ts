@@ -257,8 +257,8 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       this._todoItems = [];
     }
 
-    // manual entries don't have a linked uuid, but the others do
-    if ((!linkedUuid && type !== ToDoTypes.Manual) || (linkedUuid && type === ToDoTypes.Manual)) {
+    // manual entries/generated names don't have a linked uuid, but the others do
+    if ((!linkedUuid && ![ToDoTypes.Manual, ToDoTypes.GeneratedName].includes(type)) || (linkedUuid && [ToDoTypes.Manual, ToDoTypes.GeneratedName].includes(type))) {
       throw new Error('Invalid linkedUuid for type in Campaign.addToDoItem()');
     }
 

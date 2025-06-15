@@ -417,6 +417,9 @@ export const useCampaignStore = defineStore('campaign', () => {
           navigationStore.openSession(toDo.sessionUuid, { newTab: event.ctrlKey, activate: true, contentTabId: tabId || undefined });
         }
         break;
+      case ToDoTypes.GeneratedName:
+        // do nothing
+        break;
     }
   }
 

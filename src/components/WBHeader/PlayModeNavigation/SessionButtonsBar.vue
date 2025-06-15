@@ -4,7 +4,7 @@
       v-for="tab in sessionButtons"
       :key="tab.id"
       class="fcb-play-tab-button"
-      @click="onTabClick(tab.id)"
+      @click="onTabClick($event, tab.id)"
       :title="tab.label"
     >
       <i v-if="tab.icon" :class="`fas ${tab.icon}`"></i>
@@ -54,22 +54,43 @@
    * Handles the click on a session tab button
    * @param tabId The ID of the tab that was clicked
    */
-  const onTabClick = async (tabId: string) => {
+  const onTabClick = async (event: MouseEvent, tabId: string) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     // First, find the most recent session 
     const currentSession = currentPlayedCampaign.value?.currentSession;
 
     if (!currentSession) 
       return;
 
-    // Check if we already have a tab open to that session
-    const sessionTab = tabs.value.find((t) => t.header?.uuid === currentSession.uuid);
+    // special case - it's on the campaign
+    if (tabId === 'todo') {
+      if (!currentSession.campaign)
+        return;
+
+      // Check if we already have a tab open to that campaign
+      const campaignId = currentSession.campaign.uuid;
+      const campaignTab = tabs.value.find((t) => t.header?.uuid === campaignId);
 
       // If there isn't a tab open to the most recent session, open one
-    if (!sessionTab) {
-      await navigationStore.openSession(currentSession.uuid, { newTab: true });
+      if (!campaignTab) {
+        await navigationStore.openCampaign(campaignId, { newTab: true });
+      } else {
+        // it exists- so switch to it
+        await navigationStore.activateTab(campaignTab.id);
+      }
     } else {
-      // it exists- so switch to it
-      await navigationStore.activateTab(sessionTab.id);
+      // Check if we already have a tab open to that session
+      const sessionTab = tabs.value.find((t) => t.header?.uuid === currentSession.uuid);
+
+      // If there isn't a tab open to the most recent session, open one
+      if (!sessionTab) {
+        await navigationStore.openSession(currentSession.uuid, { newTab: true });
+      } else {
+        // it exists- so switch to it
+        await navigationStore.activateTab(sessionTab.id);
+      }
     }
 
     // Set the current content tab to the selected tab based on the button

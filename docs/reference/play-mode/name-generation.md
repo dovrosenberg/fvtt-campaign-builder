@@ -38,4 +38,5 @@ If you are using [[Advanced Features]] then every time you open Campaign Builder
 > [!INFO]
 > When you first create a new Setting, it will populate the RollTables (if you have automatic generation enabled).  Because you haven't yet configured the name styles, though, the names will be a mix of every style.  If you want to refresh them to only contain the styles you want, you do this in the "Roll Table" dialog in [Module Settings] by clicking the "Refresh all tables" button.
 
-
+> [!INFO]
+> The names you don't pick are put back into the RollTable as unused, so you don't have to fill their spots.  If you hit "Try Again", however, all of the names are left marked as used so that they are never presented again.  That way you don't end up with a RollTable filled with a bunch of names you don't like.

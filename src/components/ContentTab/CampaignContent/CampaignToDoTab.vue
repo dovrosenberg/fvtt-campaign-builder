@@ -63,6 +63,8 @@
         return 'Vignette'; 
       case ToDoTypes.Item:
         return 'Item';
+      case ToDoTypes.GeneratedName:
+        return 'Generated Name';
       default:
         return '';
     }

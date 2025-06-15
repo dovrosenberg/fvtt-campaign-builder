@@ -98,6 +98,7 @@ export enum ToDoTypes {
   Vignette = 'vignette',
   Monster = 'monster',
   Item = 'item',
+  GeneratedName = 'generatedName'  // generated name
 }
 
 export interface ToDoItem {

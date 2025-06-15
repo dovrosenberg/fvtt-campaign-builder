@@ -31,7 +31,7 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useMainStore, useNavigationStore, usePlayingStore } from '@/applications/stores';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { Backend } from '@/classes'
   import { FCBDialog } from '@/dialogs';
@@ -40,12 +40,13 @@
   import GenerateNameDialog from '@/components/AIGeneration/GenerateNameDialog.vue';
   
   // types
-  import { GeneratorType, Topics, ValidTopic} from '@/types';
+  import { GeneratorType, ToDoTypes, Topics, ValidTopic} from '@/types';
 
   ////////////////////////////////
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
+  const playingStore = usePlayingStore();
   const { currentSetting } = storeToRefs(mainStore);
 
 
@@ -72,7 +73,7 @@
     showGenerateNameDialog.value = true;
   };
 
-  const onOptionUse = (value: string) => {
+  const onOptionUse = async (value: string) => {
     // Display the result
     ui?.notifications?.info(`Name: ${value}`);
 
@@ -80,6 +81,13 @@
     navigator.clipboard.writeText(value).then(() => {
       ui?.notifications?.info('Copied to clipboard!');
     });
+
+    // add to the to-do list
+    const campaign = playingStore.currentPlayedCampaign;
+    if (campaign) {
+      await campaign.mergeToDoItem(ToDoTypes.GeneratedName, `Name ${value} Generated during session ${campaign.currentSession?.number}`, value);
+    }
+
   };
 
   const onOptionAddToWorld = async (value: string) => {
