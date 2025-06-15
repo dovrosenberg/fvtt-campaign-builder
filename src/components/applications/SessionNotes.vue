@@ -20,8 +20,6 @@
   // local imports
   import { useMainStore, usePlayingStore } from '@/applications/stores';
   import Editor from '@/components/Editor.vue';
-  import { FCBDialog } from '@/dialogs';
-  import { localize } from '@/utils/game';
   import { Session } from '@/classes';
 
   // stores

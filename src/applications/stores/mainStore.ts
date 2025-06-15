@@ -15,6 +15,7 @@ import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { TopicFolder, Setting, WindowTab, Entry, Campaign, Session, PC, CollapsibleNode, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, WorldDoc, WorldFlagKey } from '@/documents';
 import { getDefaultFolders } from '@/compendia';
+import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
@@ -74,6 +75,11 @@ export const useMainStore = defineStore('main', () => {
     
     if (!setting)
       throw new Error('Invalid folder id in mainStore.setNewSetting()');
+
+    // changing settings is problematic if we have unsaved changes in the popup because it clears the content before we can get it -- so check that
+    if (SessionNotesApplication.app) {
+      await SessionNotesApplication.app.close();
+    }
 
     _currentSetting.value = setting;
 
