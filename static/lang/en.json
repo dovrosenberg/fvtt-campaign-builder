@@ -128,6 +128,7 @@
           "refreshAllHelp": "Replace any used items with new ones"
         },
         "notifications": {
+          "refreshStarted": "Generating new names for roll tables in the background",
           "refreshSuccess": "Roll tables refreshed successfully",
           "refreshError": "Failed to refresh roll tables. Check console for details."
         }

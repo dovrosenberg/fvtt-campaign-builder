@@ -1,6 +1,5 @@
 import { setupEnricher } from '@/components/Editor/helpers';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { Species } from '@/types';
 import { getCampaignBuilderApp } from '@/applications/CampaignBuilder';
 import { localize } from '@/utils/game';
 

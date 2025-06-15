@@ -14,23 +14,40 @@ export const TABLE_SIZE = 100;
 
 /**
  * Initializes roll tables for all generator types in a specific world.
- * Creates the necessary folder structure and roll tables if they don't exist,
- * and optionally refreshes the tables with new content based on settings.
+ * Creates the necessary folder structure and roll tables if they don't exist.
  * 
  * @param world - The world to initialize roll tables for
  * @returns A promise that resolves when initialization is complete
  */
+let initializationInProgress = false;
 export async function initializeWorldRollTables(world: Setting): Promise<void> {
+  // Prevent multiple concurrent initializations - don't need to queue because they all do the same things
+  if (initializationInProgress) {
+    return;
+  }
+
+  initializationInProgress = true;
+
   // Get or create the folder for roll tables for this world
   const folderId = await getOrCreateWorldRollTableFolder(world);
   
   // Get existing world generator config or create a new one
-  const existingConfig = world.rollTableConfig;
-  const worldGeneratorConfig: WorldGeneratorConfig = {
-    folderId: folderId,
-    rollTables: {} as Record<GeneratorType, string>,
-    ...existingConfig
-  };
+  let worldGeneratorConfig: WorldGeneratorConfig | null = world.rollTableConfig;
+
+  // if we have a config, make sure the folderId still existed
+  if (worldGeneratorConfig) {
+    // the folderId would change if the folder got deleted and recreated
+    if (worldGeneratorConfig.folderId !== folderId) {
+      worldGeneratorConfig.folderId = folderId;
+      worldGeneratorConfig.rollTables = {} as Record<GeneratorType, string>;
+    }
+  } else {
+    // create a new config
+    worldGeneratorConfig = {
+      rollTables: {} as Record<GeneratorType, string>,
+      folderId: folderId,
+    };
+  }
   
   // Ensure all generator types have a roll table
   for (const type of Object.values(GeneratorType)) {
@@ -38,9 +55,8 @@ export async function initializeWorldRollTables(world: Setting): Promise<void> {
     if (worldGeneratorConfig.rollTables[type]) {
       // Verify the table still exists and is the right type
       const table = await fromUuid<RollTable>(worldGeneratorConfig.rollTables[type]);
-      if (table) {
-        if (table.getFlag(moduleId, 'type')===type)
-          continue; // Table exists, skip to next type
+      if (table && table.getFlag(moduleId, 'type') === type) {
+        continue; // Table exists and is valid, skip to next type
       }
     }
     
@@ -55,12 +71,8 @@ export async function initializeWorldRollTables(world: Setting): Promise<void> {
   // Save the world generator config
   world.rollTableConfig = worldGeneratorConfig;
   await world.save();
-  
-  // Check if we should auto-refresh
-  const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
-  if (autoRefresh && Backend.available && Backend.api) {
-    await refreshWorldRollTables(world);
-  }
+
+  initializationInProgress = false;
 }
 
 /**
@@ -105,9 +117,9 @@ const getOrCreateWorldRollTableFolder = async(world: Setting): Promise<string> =
  * @throws {Error} If the backend is unavailable or generation fails
  */
 const generateWorldTableResults = async (type: GeneratorType, count: number, world: Setting): Promise<string[]> => {
-  // If backend is not available, throw an error 
+  // If backend is not available, just return
   if (!Backend.available || !Backend.api) {
-    throw new Error('Backend is not available. Please check your backend settings.');
+    return;
   }
 
   try {
@@ -160,7 +172,7 @@ const generateWorldTableResults = async (type: GeneratorType, count: number, wor
 }
 
 /**
- * Creates a Foundry RollTable for a specific generator type and populates it with generated content.
+ * Creates a Foundry RollTable for a specific generator type.
  * Sets appropriate flags and metadata for the table and associates it with the world.
  * 
  * @param type - The generator type for this table
@@ -184,12 +196,6 @@ async function createWorldRollTable(type: GeneratorType, folderId: string, world
   if (table) {
     await table.setFlag(moduleId, 'type', type);
     await table.setFlag(moduleId, 'worldId', world.uuid);
-
-    // requires backend
-    if (Backend.available && Backend.api) {
-      await refreshWorldRollTable(table, world);
-    }
-     
     return table;
   } else {
     return null;
@@ -261,7 +267,16 @@ export const refreshWorldRollTable = async (rollTable: RollTable, world: Setting
  * @param empty - Whether to clear all existing results before refreshing (defaults to false)
  * @returns A promise that resolves when all tables are refreshed
  */
+let refreshInProgress = false;
 export const refreshWorldRollTables = async(world: Setting, empty: boolean = false) : Promise<void> => {
+  // Prevent multiple concurrent refreshes - don't need to queue because they all do the same things
+  if (refreshInProgress) {
+    return;
+  }
+
+  refreshInProgress = true;
+  ui.notifications?.info(localize('applications.rollTableSettings.notifications.refreshStarted'));
+
   const config = world.rollTableConfig;
 
   if (!config) {
@@ -278,6 +293,8 @@ export const refreshWorldRollTables = async(world: Setting, empty: boolean = fal
       await refreshWorldRollTable(table, world);
     }
   }
+
+  refreshInProgress = false;
 }
 
 /**

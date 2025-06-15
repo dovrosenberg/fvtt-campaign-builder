@@ -1,4 +1,4 @@
-import { moduleId, UserFlags, UserFlagKey, } from '@/settings'; 
+import { moduleId, UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
 import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic, WorldGeneratorConfig } from '@/types';
 import { getRootFolder,  } from '@/compendia';
@@ -6,7 +6,8 @@ import { FCBDialog } from '@/dialogs';
 import { DocumentWithFlags, Campaign, TopicFolder } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
-import { initializeWorldRollTables } from '@/utils/nameGenerators';
+import { initializeWorldRollTables, refreshWorldRollTables } from '@/utils/nameGenerators';
+import { Backend } from '@/classes';
 
 type WBWorldCompendium = CompendiumCollection<CompendiumCollection.Metadata>;
 
@@ -445,9 +446,13 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
     await this.populateTopics();
     await this.loadCampaigns();
     
-    // Initialize roll tables for this world if they don't exist - but don't wait for this
-    if (!this._rollTableConfig) {
-      void initializeWorldRollTables(this);  // this potentiallytakes a LONG time
+    // Initialize roll tables for this world if they don't exist - but don't wait for the generation
+    await initializeWorldRollTables(this);
+      
+    // If auto-refresh is enabled, populate tables in background
+    const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
+    if (autoRefresh && Backend.available && Backend.api) {
+      void refreshWorldRollTables(this);
     }
   }
 
