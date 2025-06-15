@@ -13,9 +13,9 @@ next:
 The Campaign Builder offers two distinct interface modes optimized for different phases of campaign management: Prep mode for content creation and session preparation, and Play mode for streamlined session management during gameplay.
 
 ## The Current Session {#current-session}
-Throughout the Campaign Builder interface, there are features that act on the "[^Current Session]".  If you have more than one Campaign with a current Session, features that use this will prompt you to select which campaign you want to use. 
+Throughout the Campaign Builder interface, there are features that act on the "[^Current Session]".  When in Play Mode, this is the Session being actively played. In Prep Mode, it is the next Session being prepped for.  In both cases, it is determined by the Session in the Campaign with the highest number. If you have more than one Campaign with a current Session, features that use this will prompt you to select which campaign you want to use. 
 
-In Prep mode there are a number of features that will add things to the current session and in Play mode, the current session determines what changes are tracked and which notes window pops up.  [TODO: link for the notes window and confirm it actually impacts changes]
+In Prep mode some features (ex. the "Add to a Session button" on [^Entries]) will add things to the Current Session. In Play mode, the Current Session mostly determines what the [Session link buttons]() do. In Play Mode, it determines which [notes window](/reference/campaign-mgt/session-note-popup) pops up.  
 
 ## Understanding the Two Modes
 When you first open Campaign Builder, you will be in Prep Mode.  Thereafter, you will open Campaign Builder in the mode you were in the last time you closed it.
@@ -35,13 +35,11 @@ To change between modes, you can click the Prep/Play toggle in the top navigatio
 > If you have more than one campaign with a valid session, when you enter Prep Mode, you will get a dropdown list to select which campaign you want to work on.  It is important to change campaigns before taking any actions in the one you don't want to use because anything you do will be considered as part of the session in whichever campaign it started in (which may then do things like add to the To-do list).  
 
 ## Play Mode Extra Features
-[TODO: flesh these out and link to pages under playing]
-- Session Notes window
-- Tracking Entry edits
-- Tracking delivered items
-- Session buttons
-- Name generators
-- Checkbox in create dialog to add to current session
+- [Session Notes window](/reference/campaign-mgt/session-note-popup)
+- [Tracking Entry edits and delivered items](/reference/campaign-mgt/content/campaign/todos)
+- [Session buttons](/reference/play-mode/session-links)
+- [Name generators](/reference/play-mode/name-generation)
+- [Checkbox in create dialog to add to current session](/reference/world-building/create-entry#options)
 
 There are a couple things you can't do in Play Mode (specifically because it could alter the current session mid-play):
 * Create/delete campaigns or sessions

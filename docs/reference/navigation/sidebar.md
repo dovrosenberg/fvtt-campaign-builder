@@ -61,12 +61,12 @@ Typing text in the "Filter" box at the top of the sidebar filters the Entry tree
 ## The Campaign Directory {#campaign-directory}
 The bottom half of the Directory Sidebar is the Campaign Directory.  This shows all the Campaigns for the currently active Setting.  If you want to see Campaigns for a different Setting, you need to change the Setting first.
 
-Each Campaign is shown as a folder.  Click the Campaign name to open a [Campaign Details tab](/reference/playing/content/campaign).
+Each Campaign is shown as a folder.  Click the Campaign name to open a [Campaign Details tab](/reference/campaign-mgt/content/campaign).
 
-Within each Campaign, you'll find all of its [^Sessions].  You can click on a Session to open a [Session Details tab](/reference/playing/content/session).  
+Within each Campaign, you'll find all of its [^Sessions].  You can click on a Session to open a [Session Details tab](/reference/campaign-mgt/content/session).  
 
 ### Session sorting
-By default, the Sessions are sorted by session number.  You can rearrange the Sessions (i.e. change their numbers) by editing the number in [Session Details](/reference/playing/content/session).
+By default, the Sessions are sorted by session number.  You can rearrange the Sessions (i.e. change their numbers) by editing the number in [Session Details](/reference/campaign-mgt/content/session).
 
 ### Context menus
 Right-clicking on items in the Campaign tree provides additional options depending on the item type:

@@ -2,10 +2,10 @@
 title: Session Notes Tab
 prev: 
   text: 'Session Details'
-  link: '/reference/playing/content/session'
+  link: '/reference/campaign-mgt/content/session'
 next: 
   text: 'Session Start Tab'
-  link: '/reference/playing/content/session/start'
+  link: '/reference/campaign-mgt/content/session/start'
 ---
 # Session Notes Tab
 ![Session Notes Tab](/assets/images/session-content.webp)
@@ -34,6 +34,6 @@ You can drag any Entry from the [Setting Directory] into the notes editor and it
 
 It is highly suggested that you check out the [Autocomplete Mentions](/reference/navigation/main-display#autocomplete-mentions) module, which allows you to rapidly reference Foundry documents and Campaign Builder Entries/Sessions/etc. while typing in the editor.  
 
-When you save the notes while in [^Play Mode], it will check to see if you've added any references to Entries.  If you have, those Entries will automatically be added to the [To-do list](/reference/playing/content/campaign/todos) for the Campaign.  
+When you save the notes while in [^Play Mode], it will check to see if you've added any references to Entries.  If you have, those Entries will automatically be added to the [To-do list](/reference/campaign-mgt/content/campaign/todos) for the Campaign.  
 
-See also the [Session Notes Popup](TODO: link) for more info on adding notes while in [^Play Mode].
+See also the [Session Notes Popup](/reference/campaign-mgt/session-note-popup) for more info on adding notes while in [^Play Mode].

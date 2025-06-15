@@ -2,10 +2,10 @@
 title: Campaign Description Tab
 prev: 
   text: 'Campaign Details'
-  link: '/reference/playing/content/campaign'
+  link: '/reference/campaign-mgt/content/campaign'
 next: 
   text: 'Campaign PCs Tab'
-  link: '/reference/playing/content/campaign/pcs'
+  link: '/reference/campaign-mgt/content/campaign/pcs'
 ---
 # Campaign Description Tab
 ![Description tab](/assets/images/campaign-content.webp)

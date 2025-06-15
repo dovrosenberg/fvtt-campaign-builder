@@ -42,9 +42,11 @@ Structure and organize your campaigns and sessions.
 
 - [Overview](playing)
 - [Campaign Directory](navigation/sidebar#campaign-directory)
-- [Campaigns](playing/content/campaign)
-- [Sessions](playing/content/session)
-- [The "Next Session"](playing/next-session.md)
+- [Campaign Details](playing/content/campaign)
+- [Session Details](playing/content/session)
+- [To-do List](playing/content/campaign/todos)
+- [Play Mode Navigation](playing/navigation/session-links)
+- [Session Notes Popup](playing/session-note-popup)
 
 ## Configuration
 

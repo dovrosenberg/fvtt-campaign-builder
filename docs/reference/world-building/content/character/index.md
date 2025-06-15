@@ -19,7 +19,9 @@ The overall structure of the Character Details interface is the common [Entry in
 There are a few Character-specific details.
 
 ### Species
-Each Character can have an optional species.  This can be helpful to you to see at a glance.  It's also used by the [TODO insert link to description generator] to influence the generated text - particularly in cases where you provide little detail.
+Each Character can have an optional species.  This can be helpful for you to see at a glance.  It is also used by:
+* [Search] (ex. "elf mayor of Illseek")
+* Generating Character descriptions in the [Create](/reference/world-building/create-entry) or [Update](/reference/world-building/update-entry) dialogs, particularly in cases where you provide little detail.
 
 You can manage the list of species for your Settings in the [Module Settings](/reference/configuration#species)
 

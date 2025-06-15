@@ -2,10 +2,10 @@
 title: Campaign Lore Tab
 prev: 
   text: 'Campaign PCs Tab'
-  link: '/reference/playing/content/campaign/pcs'
+  link: '/reference/campaign-mgt/content/campaign/pcs'
 next: 
   text: 'Campaign Ideas Tab'
-  link: '/reference/playing/content/campaign/ideas'
+  link: '/reference/campaign-mgt/content/campaign/ideas'
 ---
 # Campaign Lore Tab
 ![Campaign Lore Tab](/assets/images/lore-tab.webp)

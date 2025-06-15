@@ -17,19 +17,19 @@ Before prepping for a session, you first have to create the overall [^Campaign] 
 
 ## Core concepts
 ### Campaigns
-* [Create](/reference/playing/content/campaign) your Campaign
-* Attach the [PCs](/reference/playing/content/campaign/pcs) to the campaign
-* Start to capture your [Ideas](/reference/playing/content/campaign/ideas)
+* [Create](/reference/campaign-mgt/content/campaign) your Campaign
+* Attach the [PCs](/reference/campaign-mgt/content/campaign/pcs) to the campaign
+* Start to capture your [Ideas](/reference/campaign-mgt/content/campaign/ideas)
 
 ### Sessions
-* Review [PCs](/reference/playing/content/session/pcs) - think through plot points to bring in to the next game
-* Outline your [Strong Start](/reference/playing/content/session/start)
-* Flesh out the [Vignettes](/reference/playing/content/session/vignettes) ("scenes" in [Lazy DM] parlance) so you're ready to keep things moving
-* Define [Lore](/reference/playing/content/campaign/lore) (what Lazy DM calls "secrets and clues") - flesh out headlines and link to journal entries for more detail/images/handouts
-* Connect to the [Amazing Locations](/reference/playing/content/session/locations) in your Setting, giving you one-click access to the description, image, association to other Entries, along with links to Foundry Actors and Scenes.  
-* Prepare the [Important NPCs](/reference/playing/content/session/npcs) the players may encounter to have easy access to descriptions, pictures, backstories, and Foundry character sheets/tokens
-* Sketch out the [Monsters](/reference/playing/content/session/monsters), so you have tokens and stat sheets at your fingertips
-* Prepare a list of [Magic Items](/reference/playing/content/session/magic-items) you might hand out to players for victory
+* Review [PCs](/reference/campaign-mgt/content/session/pcs) - think through plot points to bring in to the next game
+* Outline your [Strong Start](/reference/campaign-mgt/content/session/start)
+* Flesh out the [Vignettes](/reference/campaign-mgt/content/session/vignettes) ("scenes" in [Lazy DM] parlance) so you're ready to keep things moving
+* Define [Lore](/reference/campaign-mgt/content/campaign/lore) (what Lazy DM calls "secrets and clues") - flesh out headlines and link to journal entries for more detail/images/handouts
+* Connect to the [Amazing Locations](/reference/campaign-mgt/content/session/locations) in your Setting, giving you one-click access to the description, image, association to other Entries, along with links to Foundry Actors and Scenes.  
+* Prepare the [Important NPCs](/reference/campaign-mgt/content/session/npcs) the players may encounter to have easy access to descriptions, pictures, backstories, and Foundry character sheets/tokens
+* Sketch out the [Monsters](/reference/campaign-mgt/content/session/monsters), so you have tokens and stat sheets at your fingertips
+* Prepare a list of [Magic Items](/reference/campaign-mgt/content/session/magic-items) you might hand out to players for victory
 
 
 ## Note on Locations, Vignettes and Scenes
@@ -39,8 +39,8 @@ Before prepping for a session, you first have to create the overall [^Campaign] 
 
 ## Core Session Prep Components
 * [Campaign Directory](/reference/navigation/sidebar#campaign-directory)
-* [Campaign Details](/reference/playing/content/campaign)
-* [Session Details](/reference/playing/content/session)
+* [Campaign Details](/reference/campaign-mgt/content/campaign)
+* [Session Details](/reference/campaign-mgt/content/session)
 
 <!-- 
 # Session Preparation

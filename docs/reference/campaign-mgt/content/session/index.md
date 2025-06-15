@@ -2,16 +2,14 @@
 title: Session Details
 prev: 
   text: 'Campaign To-Do Tab'
-  link: '/reference/playing/content/campaign/todos'
+  link: '/reference/campaign-mgt/content/campaign/todos'
 next: 
   text: 'Session Notes Tab'
-  link: '/reference/playing/content/session/notes'
+  link: '/reference/campaign-mgt/content/session/notes'
 ---
 # Session Details
 
 ![Session content](/assets/images/session-content.webp)
-
-[TODO: Also note how delivering an npc/location or referencing any entry in description added to the todo tab]
 
 The Session window provides tools for preparing for and running your sessions, and a record of what happened during play.  This includes all of the steps of the [Lazy DM] approach, as well as notes for tracking the action.
 

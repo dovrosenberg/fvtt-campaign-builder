@@ -2,10 +2,10 @@
 title: Strong Start Tab
 prev: 
   text: 'Session Notes Tab'
-  link: '/reference/playing/content/session/notes'
+  link: '/reference/campaign-mgt/content/session/notes'
 next: 
   text: 'Session Lore Tab'
-  link: '/reference/playing/content/session/lore'
+  link: '/reference/campaign-mgt/content/session/lore'
 ---
 # Strong Start Tab
 ![Session Start Tab](/assets/images/session-start-tab.webp)

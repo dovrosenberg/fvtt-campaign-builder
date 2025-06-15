@@ -8,7 +8,7 @@ next:
   link: '/reference/configuration'
 ---
 # Email Functionality Setup
-The backend has the capability to manage a (free) gmail account that you can then email with ideas and have those ideas automatically pulled into your campaign [ideas list](/reference/playing/content/campaign/ideas).
+The backend has the capability to manage a (free) gmail account that you can then email with ideas and have those ideas automatically pulled into your campaign [ideas list](/reference/campaign-mgt/content/campaign/ideas).
 
 # Prerequisites
 1. Before doing this, make sure you've already completed the basic [installation](./setup)

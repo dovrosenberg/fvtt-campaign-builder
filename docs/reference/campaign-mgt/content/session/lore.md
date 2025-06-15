@@ -2,10 +2,10 @@
 title: Session Lore Tab
 prev: 
   text: 'Session Start Tab'
-  link: '/reference/playing/content/session/start'
+  link: '/reference/campaign-mgt/content/session/start'
 next: 
   text: 'Session Vignettes Tab'
-  link: '/reference/playing/content/session/vignettes'
+  link: '/reference/campaign-mgt/content/session/vignettes'
 ---
 # Session Lore Tab
 ![Session Lore Tab](/assets/images/session-lore-tab.webp)
@@ -28,6 +28,6 @@ This list contains the individual pieces of Lore.  For each Lore item, you can s
 The actions column lets you take several actions with the Lore entries:
   - **Delete** - Delete the Lore
   - **Edit** - Opens the Lore description text box for inline editing. You can also click on the description text to do the same.  Press Enter to save.
-  - **Mark as delivered** - Marks the Lore as having been delivered to the players. This will make it show in the "Delivered Lore" list on the [Campaign Lore Tab](/reference/playing/content/campaign/Lore).  If you mark Lore as delivered while in [^Play Mode], this will add the Lore item to the Campaign [To-Do List]. 
-  - **Move to campaign** - This moves the Lore back to the [Campaign Lore](/reference/playing/content/campaign/lore) list.  You would typically do this after a Session for Lore that you want to keep but don't think the next Session will be appropriate.
+  - **Mark as delivered** - Marks the Lore as having been delivered to the players. This will make it show in the "Delivered Lore" list on the [Campaign Lore Tab](/reference/campaign-mgt/content/campaign/Lore).  If you mark Lore as delivered while in [^Play Mode], this will add the Lore item to the Campaign [To-Do List]. 
+  - **Move to campaign** - This moves the Lore back to the [Campaign Lore](/reference/campaign-mgt/content/campaign/lore) list.  You would typically do this after a Session for Lore that you want to keep but don't think the next Session will be appropriate.
   - **Move to next session** - This moves the Lore to the next Session.  You would typically do this after a Session for Lore that you didn't deliver but still want to.  If a next Session doesn't exist, it will create one.

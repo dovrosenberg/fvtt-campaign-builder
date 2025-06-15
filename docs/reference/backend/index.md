@@ -2,7 +2,7 @@
 title: The Backend and Advanced Features
 prev: 
   text: 'Campaigns (Playing)'
-  link: '/reference/playing'
+  link: '/reference/campaign-mgt'
 next: 
   text: 'Backend Installation and Setup'
   link: '/reference/backend/setup'
@@ -28,8 +28,8 @@ With AI integration, you can:
 - Generate detailed descriptions for Characters, Locations, and organizations
   - From [within an Entry](/reference/world-building/content/entry/generate#description)
   - When [creating a new Entry](/reference/misc/create)
-- [Create images](/reference/world-building/content/entry/generate#image) based on your descriptions
-- [Generate names](/reference/playing/rolltables) for NPCs, towns, shops, and taverns 
+- [Create images](/reference/world-building/image-generation) based on your descriptions
+- [Generate names](/reference/play-mode/name-generation) for NPCs, towns, shops, and taverns 
 
 ### Email Ideas to Campaigns
 Additionally, the backend allows you to create a [email account](./email) that can be used to receive emails with campaign ideas and have them automatically brought into your campaign.  It's perfect for when that inspiration hits you and you can't access Foundry.

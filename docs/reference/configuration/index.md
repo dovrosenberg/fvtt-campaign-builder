@@ -34,7 +34,7 @@ This is where you configure your backend if you are using Advanced Features.
 This lets you manage the list of species in your worlds.  The default species are from the D&D 5E SRD.  This list is important if you want to track what species your Characters are, but mostly it's to facilitate more accurate descriptions/images when doing AI generation [[Advanced Feature]].
 
 ### Roll Table Settings [[Advanced Feature]]
-This relates to the [RollTables](/reference/playing/rolltables) used to rapidly generate NPC names, etc. during play.  They are currently only made for AI generation.
+This relates to the [RollTables](/reference/play-mode/name-generation#rolltables) used to rapidly generate NPC names, etc. during play.  They are currently only made for AI generation.
 - **Automatically refresh RollTables**: When clicked, the RollTables will replace any used options whenever you restart the module.  This essentially gives you an unlimited supply of unique results and ensures you already have full tables every time you play.
 - **Default types**: When you choose to turn a created name into a fully-fleshed out Entry in your Session, these options determine the [^Types] that will be put into the "Type" field by default.  Really just a way to speed up creation.
 

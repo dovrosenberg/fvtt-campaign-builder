@@ -2,10 +2,10 @@
 title: Session Monsters Tab
 prev: 
   text: 'Session NPCs Tab'
-  link: '/reference/playing/content/session/npcs'
+  link: '/reference/campaign-mgt/content/session/npcs'
 next: 
   text: 'Session Magic Items Tab'
-  link: '/reference/playing/content/session/magic-items'
+  link: '/reference/campaign-mgt/content/session/magic-items'
 ---
 # Session Monsters Tab
 ![Session Monsters Tab](/assets/images/monster-tab.webp)

@@ -2,7 +2,7 @@
 title: PC Details
 prev: 
   text: 'Session Details'
-  link: '/reference/playing/content/session'
+  link: '/reference/campaign-mgt/content/session'
 next: 
   text: 'Advanced Features & Backend'
   link: '/reference/backend'

@@ -2,10 +2,10 @@
 title: Campaign Details
 prev: 
   text: 'Campaign Overview'
-  link: '/reference/playing'
+  link: '/reference/campaign-mgt'
 next: 
   text: 'Campaign Description Tab'
-  link: '/reference/playing/content/campaign/description'
+  link: '/reference/campaign-mgt/content/campaign/description'
 ---
 # Campaign Details
 

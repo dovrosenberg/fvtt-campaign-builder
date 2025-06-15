@@ -10,7 +10,7 @@ next:
 # Name Styles [[Advanced Feature]]
 ![Name Styles](/assets/images/namestyles.webp)
 
-The Name Styles dialog allows you to determine the type of names that will be generated for characters and locations.  This applies to both generation when creating/updating [^Entries] as well as the names in the automatic [RollTables](/reference/playing/rolltables).
+The Name Styles dialog allows you to determine the type of names that will be generated for characters and locations.  This applies to both generation when creating/updating [^Entries] as well as the names in the automatic [RollTables](/reference/play-mode/name-generation#rolltables).
 
 There are two sections to the dialog:
 

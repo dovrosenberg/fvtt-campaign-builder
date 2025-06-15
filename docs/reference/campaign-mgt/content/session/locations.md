@@ -2,10 +2,10 @@
 title: Session Location Tab
 prev: 
   text: 'Session Vignettes Tab'
-  link: '/reference/playing/content/session/vignettes'
+  link: '/reference/campaign-mgt/content/session/vignettes'
 next: 
   text: 'Session NPCs Tab'
-  link: '/reference/playing/content/session/npcs'
+  link: '/reference/campaign-mgt/content/session/npcs'
 ---
 # Session Location Tab
 ![Session Location Tab](/assets/images/session-location-tab.webp)

@@ -2,10 +2,10 @@
 title: Session NPCs Tab
 prev: 
   text: 'Session Locations Tab'
-  link: '/reference/playing/content/session/locations'
+  link: '/reference/campaign-mgt/content/session/locations'
 next: 
   text: 'Session Monsters Tab'
-  link: '/reference/playing/content/session/monsters'
+  link: '/reference/campaign-mgt/content/session/monsters'
 ---
 # Session NPCs Tab
 ![Session NPCs Tab](/assets/images/npc-tab.webp)

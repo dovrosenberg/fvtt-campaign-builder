@@ -65,8 +65,19 @@ export default defineConfig({
         items: [
           { text: 'Overview', link: '/reference' },
           { text: 'Navigation & Interface', link: '/reference/navigation' },
-          { text: 'Settings (World Building)', link: '/reference/world-building' },
-          { text: 'Campaigns (Playing)', link: '/reference/playing' },
+          { text: 'World Building', link: '/reference/world-building', items: [
+            { text: 'Settings', link: '/reference/world-building/content/setting' },
+            { text: 'Entry Overview', link: '/reference/world-building/content/entry', },
+            { text: 'Characters', link: '/reference/world-building/content/character' },
+            { text: 'Locations', link: '/reference/world-building/content/location' },
+            { text: 'Organizations', link: '/reference/world-building/content/organization' },
+          ]},
+          { text: 'Campaign Management', link: '/reference/campaign-mgt', items: [
+            { text: 'Campaigns', link: '/reference/campaign-mgt/content/campaign' },
+            { text: 'Sessions', link: '/reference/campaign-mgt/content/session' },
+            { text: 'To-do List', link: '/reference/campaign-mgt/content/campaign/todos' },
+          ] },
+          { text: 'Play Mode', link: '/reference/play-mode' },
           { text: 'Advanced Features & Backend', link: '/reference/backend' },
           { text: 'Configuration', link: '/reference/configuration' }
         ]
