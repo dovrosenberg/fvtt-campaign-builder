@@ -11,11 +11,11 @@ export function registerForUpdateHooks() {
  */
 function registerForActorHooks() {
   Hooks.on('updateActor', async (actor, changes, _options, _userId) => {
+    const mainStore = useMainStore();
+    const navigationStore = useNavigationStore();
+
     // Check if the name was changed
     if (changes.name) {
-      const mainStore = useMainStore();
-      const navigationStore = useNavigationStore();
-
       // find all the PCs that need to be updated
       let pcsToUpdate = new Set<string>();
       for (let campaignId in mainStore.currentSetting?.campaigns) {
@@ -31,6 +31,9 @@ function registerForActorHooks() {
       });      
 
       // refresh the content window in case it's showing in a table
+      await mainStore.refreshCurrentContent();
+    } else if (changes.img) {
+      // just refresh in case the PC is showing
       await mainStore.refreshCurrentContent();
     }
   });
