@@ -268,7 +268,7 @@ class SearchService {
     const snippets: string[] = [];
     let description = '';
 
-    description = session.notes + '|' + session.startingAction;
+    description = session.notes + '|' + session.strongStart;
 
     // Add relationship snippets
     // locations, npcs - entries

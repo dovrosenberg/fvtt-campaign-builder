@@ -202,16 +202,16 @@ export class Session {
     };
   }
 
-  get startingAction(): string {
-    return this._sessionDoc.system.startingAction;
+  get strongStart(): string {
+    return this._sessionDoc.system.strongStart;
   }
 
-  set startingAction(value: string) {
-    this._sessionDoc.system.startingAction = value;
+  set strongStart(value: string) {
+    this._sessionDoc.system.strongStart = value;
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
-        startingAction: value,
+        strongStart: value,
       }
     };
   }

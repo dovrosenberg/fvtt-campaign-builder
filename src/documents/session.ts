@@ -28,7 +28,7 @@ const fields = foundry.data.fields;
 const sessionSchema = {
   number: new fields.NumberField({ required: true, nullable: false }),
   date: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: false, }),
-  startingAction: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
+  strongStart: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
   locations: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionLocation[] }),  
   npcs: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionNPC[] }),  
   items: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionItem[] }),  
@@ -61,7 +61,7 @@ export interface SessionDoc extends JournalEntryPage {
   system: {
     number: number;
     date: string | null;
-    startingAction: string;
+    strongStart: string;
     locations: SessionLocation[];
     items: SessionItem[];
     npcs: SessionNPC[];

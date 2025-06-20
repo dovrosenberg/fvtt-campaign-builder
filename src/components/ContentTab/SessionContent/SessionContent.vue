@@ -28,7 +28,6 @@
         <div class="fcb-subtab-wrapper">
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
             <a class="item" data-tab="notes">{{ localize('labels.tabs.session.notes') }}</a>
-            <a class="item" data-tab="start">{{ localize('labels.tabs.session.start') }}</a>
             <a class="item" data-tab="lore">{{ localize('labels.tabs.session.lore') }}</a>
             <a class="item" data-tab="vignettes">{{ localize('labels.tabs.session.vignettes') }}</a>
             <a class="item" data-tab="locations">{{ localize('labels.tabs.session.locations') }}</a>
@@ -70,11 +69,29 @@
                   :show-button-bar="true"
                 />   
               </div>
-              <div class="flexrow form-group description">
-                <Editor 
-                  :initial-content="sessionNotesContent"
-                  @editor-saved="onNotesEditorSaved"
+              <div class="flexrow form-group">
+                <LabelWithHelp
+                  label-text="labels.session.strongStart"
+                  help-text="labels.session.strongStartHelpText"
+                  @click="onStartHelpClick"
                 />
+                <Textarea
+                  v-model="strongStart"
+                  :auto-resize="true"
+                  rows="3"
+                  @update:model-value="onStartEditorSaved"
+                />
+              </div>
+              <div class="flexrow form-group description">
+                <div class="flexcol" style="height: 100%">
+                  <div class="fcb-strong-start-header">
+                    {{ localize('labels.tabs.session.notes') }}
+                  </div>
+                  <Editor 
+                    :initial-content="sessionNotesContent"
+                    @editor-saved="onNotesEditorSaved"
+                  />
+                </div>
               </div>
             </DescriptionTab>
             <div class="tab flexcol" data-group="primary" data-tab="pcs">
@@ -92,24 +109,7 @@
                 <SessionVignetteTab />
               </div>  
             </div>
-            <div class="tab flexcol" data-group="primary" data-tab="start">
-              <div class="tab-inner">
-                <div class="fcb-strong-start-header">
-                  {{ localize('labels.session.strongStart') }}
-                  <span 
-                    class="fcb-table-help-icon" 
-                    :data-tooltip="localize('labels.session.startHelpText')"
-                    @click="onStartHelpClick"
-                  >
-                    <i class="fas fa-info-circle"></i>
-                  </span>
-                </div>
-                <Editor 
-                  :initial-content="currentSession?.startingAction || ''"
-                  @editor-saved="onStartEditorSaved"
-                />
-              </div>  
-            </div>
+
             <div class="tab flexcol" data-group="primary" data-tab="lore">
               <div class="tab-inner">
                 <SessionLoreTab />
@@ -141,7 +141,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { nextTick, ref, watch, onMounted, } from 'vue';
+  import { nextTick, ref, watch, onMounted, onBeforeUnmount, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
@@ -152,6 +152,7 @@
   // library components
   import InputText from 'primevue/inputtext';
   import DatePicker from 'primevue/datepicker';
+  import Textarea from 'primevue/textarea';
 	
   // local components
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
@@ -193,6 +194,7 @@
   const sessionNumber = ref<string>('');
   const sessionDate = ref<Date | undefined>(undefined);
   const sessionNotesContent = ref<string>('');
+  const strongStart = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);
 
@@ -204,9 +206,10 @@
 
   ////////////////////////////////
   // event handlers
-  // debounce changes to name/number
+  // debounce changes to name/number/strong start
   let nameDebounceTimer: NodeJS.Timeout | undefined = undefined;
   let numberDebounceTimer: NodeJS.Timeout | undefined = undefined;
+  let strongStartDebounceTimer: NodeJS.Timeout | undefined = undefined;
 
   const onNameUpdate = (newName: string | undefined) => {
     const debounceTime = 500;
@@ -266,12 +269,17 @@
     }
   };
 
-  const onStartEditorSaved = async (newContent: string) => {
-    if (!currentSession.value)
-      return;
+  const onStartEditorSaved = () => {
+    const debounceTime = 500;
 
-    currentSession.value.startingAction = newContent;
-    await currentSession.value.save();
+    clearTimeout(strongStartDebounceTimer);
+    
+    strongStartDebounceTimer = setTimeout(async () => {
+      if (currentSession.value) {
+        currentSession.value.strongStart = strongStart.value;
+        await currentSession.value.save();
+      }
+    }, debounceTime);
   };
 
   const onImageChange = async (imageUrl: string) => {
@@ -326,6 +334,7 @@
       sessionNumber.value = newSession.number?.toString() || '';
       sessionDate.value = newSession.date || undefined;
       sessionNotesContent.value = newSession.notes || '';
+      strongStart.value = newSession.strongStart || '';
     }
   });
   
@@ -338,6 +347,14 @@
 
 
   ////////////////////////////////
+  // cleanup timers on unmount
+  onBeforeUnmount(() => {
+    clearTimeout(nameDebounceTimer);
+    clearTimeout(numberDebounceTimer);
+    clearTimeout(strongStartDebounceTimer);
+    clearTimeout(dateDebounceTimer);
+  });
+
   // lifecycle events
   onMounted(async () => {
     tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.fcb-tab-body', initial: 'description', /*callback: null*/ });
