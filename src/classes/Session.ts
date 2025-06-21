@@ -420,6 +420,7 @@ export class Session {
       uuid: uuid,
       description: description,
       delivered: false,
+      significant: false,
       journalEntryPageId: null,
     });
 
@@ -473,6 +474,23 @@ export class Session {
 
   async deleteLore(uuid: string): Promise<void> {
     this._sessionDoc.system.lore = this._sessionDoc.system.lore.filter(l=> l.uuid!==uuid);
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        lore: this._sessionDoc.system.lore
+      }
+    };
+
+    await this.save();
+  }
+
+  async markLoreSignificant(uuid: string, significant: boolean): Promise<void> {
+    const lore = this._sessionDoc.system.lore.find((l) => l.uuid===uuid);
+    if (!lore)
+      return;
+    
+    lore.significant = significant;
 
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,

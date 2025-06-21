@@ -20,6 +20,7 @@ export interface SessionVignette extends SessionRelatedItem {
 }
 
 export interface SessionLore extends SessionRelatedItem {
+  significant: boolean;
   description: string;
   journalEntryPageId: string | null;
 }

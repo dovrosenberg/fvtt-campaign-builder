@@ -73,6 +73,7 @@ export const useSessionStore = defineStore('session', () => {
       { field: 'description', style: 'text-align: left', header: 'Vignette', editable: true },
     ],
     [SessionTableTypes.Lore]: [
+      { field: 'significant', header: 'Sig.', editable: true, type: 'boolean', tooltip: 'Mark as Significant/Insignificant', style: 'text-align: center; width: 40px; max-width: 40px' },
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
       { field: 'journalEntryPageName', style: 'text-align: left; width: 35%;max-width: 35%', header: 'Journal Page', editable: false,
         onClick: onJournalClick
@@ -425,16 +426,30 @@ export const useSessionStore = defineStore('session', () => {
 
     const lore = currentSession.value.lore.find(l=> l.uuid===uuid);
 
-    let campaign;
-    if (lore)
-      campaign = await currentSession.value.loadCampaign();
+    // add to do do list if needed
+    if (lore && delivered) {
+      let campaign = await currentSession.value.loadCampaign();
 
-    if (lore && delivered && campaign) {
-      await campaign.mergeToDoItem(ToDoTypes.Lore, `Delivered in session ${currentSession.value.number}`, uuid, currentSession.value.uuid);
+      if (campaign) {
+        await campaign.mergeToDoItem(ToDoTypes.Lore, `Delivered in session ${currentSession.value.number}`, uuid, currentSession.value.uuid);
+      }
     }
 
     await _refreshLoreRows();
-  }
+  };
+
+  /**
+   * Set the significant status for a given lore.
+   * @param uuid the UUID of the lore
+   * @param significant the new significant status
+   */
+  const markLoreSignificant = async (uuid: string, significant: boolean): Promise<void> => {
+    if (!currentSession.value)
+      throw new Error('Invalid session in sessionStore.markLoreSignificant()');
+
+    await currentSession.value.markLoreSignificant(uuid, significant);
+    await _refreshLoreRows();
+  };
 
   /**
    * Move a lore to the next session in the campaign, creating it if needed.
@@ -889,6 +904,7 @@ export const useSessionStore = defineStore('session', () => {
       retval.push({
         uuid: lore.uuid,
         delivered: lore.delivered,
+        significant: lore.significant,
         description: lore.description,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
@@ -984,6 +1000,7 @@ export const useSessionStore = defineStore('session', () => {
     updateLoreDescription,
     updateLoreJournalEntry,
     markLoreDelivered,
+    markLoreSignificant,
     moveLoreToNext,
     moveLoreToCampaign,
   };

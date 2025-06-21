@@ -5,13 +5,12 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { watch, ref, computed } from 'vue';
 
 // local imports
-import { useCampaignDirectoryStore, useMainStore, useNavigationStore, useSessionStore } from '@/applications/stores';
+import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 
 // types
 import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea} from '@/types';
 import { Campaign, Entry, PC, Session } from '@/classes';
-import { ModuleSettings, SettingKey } from '@/settings';
 import { localize } from '@/utils/game';
 import Document from 'node_modules/@types/fvtt-types/src/foundry/common/abstract/document.mjs';
 
@@ -316,8 +315,9 @@ export const useCampaignStore = defineStore('campaign', () => {
 
   ///////////////////////////////
   // computed state
+  /** only significant rows from sessions are returned */
   const deliveredLoreRows = computed((): CampaignLoreDetails[] => {
-    return allRelatedLoreRows.value.filter((r) => r.delivered);
+    return allRelatedLoreRows.value.filter((r) => r.delivered && (r.lockedToSessionId === null || r.significant));
   });
 
   const availableLoreRows = computed((): CampaignLoreDetails[] => {
@@ -500,6 +500,7 @@ export const useCampaignStore = defineStore('campaign', () => {
           lockedToSessionId: session.uuid,
           lockedToSessionName: `${session.number}- ${session.name}`,
           delivered: lore.delivered,
+          significant: lore.significant || false,
           description: lore.description,
           journalEntryPageId: lore.journalEntryPageId,
           journalEntryPageName: entry?.name || null,
@@ -520,6 +521,7 @@ export const useCampaignStore = defineStore('campaign', () => {
         lockedToSessionId: null,
         lockedToSessionName: 'Campaign',
         delivered: lore.delivered,
+        significant: lore.significant || false,
         description: lore.description,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,

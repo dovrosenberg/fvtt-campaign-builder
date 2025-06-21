@@ -93,6 +93,10 @@
         await sessionStore.updateLoreDescription(data.uuid, newValue);
         break;
 
+      case 'significant':
+        await sessionStore.markLoreSignificant(data.uuid, newValue);
+        break;
+
       default:
         originalEvent?.preventDefault();
         break;

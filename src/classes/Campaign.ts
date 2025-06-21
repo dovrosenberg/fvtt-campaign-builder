@@ -186,6 +186,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       uuid: uuid,
       description: description,
       delivered: false,
+      significant: true,
       journalEntryPageId: null,
       lockedToSessionId: null,
       lockedToSessionName: null,

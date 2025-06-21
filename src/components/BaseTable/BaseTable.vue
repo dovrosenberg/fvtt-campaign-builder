@@ -199,7 +199,7 @@
           </div>
         </template>
         <template
-          v-if="col.editable"
+          v-if="col.editable && col.type !== 'boolean'"
           #body="{ data }"
         >
           <div 
@@ -236,6 +236,14 @@
               <!-- we're not editing this row, but need to put a click event on columns that are editable -->
               {{ data[col.field] }} &nbsp;
             </div>
+          </div>
+        </template>
+        <template
+          v-if="col.editable && col.type === 'boolean'"
+          #body="{ data, field }"
+        >
+          <div class="fcb-row-wrapper" style="text-align: center;">
+            <Checkbox :model-value="data[field]" :binary="true" @update:modelValue="onCheckboxChange(data, field, $event)" />
           </div>
         </template>
         <!-- Standard column format -->
@@ -287,6 +295,7 @@
   import IconField from 'primevue/iconfield';
   import InputIcon from 'primevue/inputicon';
   import Textarea from 'primevue/textarea';
+  import Checkbox from 'primevue/checkbox';
 
   // local components
 
@@ -495,7 +504,17 @@
 
   ////////////////////////////////
   // event handlers
-  const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
+  const onCheckboxChange = (rowData: any, field: string, newValue: boolean) => {
+    const event = {
+      data: rowData,
+      field: field,
+      newValue: newValue,
+      originalEvent: new Event('change'),
+    };
+    onCellEditComplete(event as any);
+  }
+
+  const onCellEditComplete = (event: DataTableCellEditCompleteEvent) => {
     // turn off editing mode
     editingRow.value = null;
 
