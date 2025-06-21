@@ -8,7 +8,7 @@ next:
   link: '/reference/campaign-mgt/content/campaign/ideas'
 ---
 # Campaign Lore Tab
-![Campaign Lore Tab](/assets/images/lore-tab.webp)
+![Campaign Lore Tab](/assets/images/campaign-lore-tab.webp)
 
 The Lore tab (equivalent to "secrets and clues" in the [Lazy DM] method) allows you to manage campaign-wide knowledge that players might discover. 
 
@@ -37,6 +37,6 @@ The actions column lets you take several actions with the lore entries:
 
 
 ## The delivered lore list
-This list contains all the lore that has already been delivered to the players.  It combines items delivered from the list above with items delivered from the [Session](/reference/campaigns-and-sessions/session) lore table. Over time it is much likely going to be a large list, which is why it's separated from 
+This list contains all the lore that has already been delivered to the players.  It combines items delivered from the list above with items delivered from the [Session](/reference/campaigns-and-sessions/session) lore table.  Session lore items are only included if they are marked as [Significant](/reference/campaign-mgt/content/session/lore#significant) on the Session.
 
 For each lore item, you can see the text, which session it was delivered in (if any), and the linked entry.  Click the session name to open the session details or the linked entry to open the journal entry page.

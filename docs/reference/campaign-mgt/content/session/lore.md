@@ -24,6 +24,9 @@ You cannot currently remove a linked entry (i.e. remove the link to the journal 
 ## The Lore list
 This list contains the individual pieces of Lore.  For each Lore item, you can see its text and the linked entry.  Click the linked entry (if any) to open the journal entry page.
 
+## "Significant" lore {#significant}
+The "Sig." (Significant) column indicates whether this lore should be treated as significant to the overall Campaign or only relevant to this Session.  This determines whether it will show up on the Campaign delivered lore list or not.
+
 ### Lore Actions
 The actions column lets you take several actions with the Lore entries:
   - **Delete** - Delete the Lore

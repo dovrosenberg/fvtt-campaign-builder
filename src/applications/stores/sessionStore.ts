@@ -75,7 +75,7 @@ export const useSessionStore = defineStore('session', () => {
     [SessionTableTypes.Lore]: [
       { field: 'significant', header: 'Sig.', editable: true, type: 'boolean', tooltip: 'Mark as Significant/Insignificant', style: 'text-align: center; width: 40px; max-width: 40px' },
       { field: 'description', style: 'text-align: left', header: 'Description', editable: true },
-      { field: 'journalEntryPageName', style: 'text-align: left; width: 35%;max-width: 35%', header: 'Journal Page', editable: false,
+      { field: 'journalEntryPageName', style: 'text-align: left; width: 25%;max-width: 25%', header: 'Journal Page', editable: false,
         onClick: onJournalClick
       },
     ],  

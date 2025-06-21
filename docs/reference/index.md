@@ -40,13 +40,13 @@ Create and manage your campaign world content.
 ## Playing (Campaign management)
 Structure and organize your campaigns and sessions.
 
-- [Overview](playing)
+- [Overview](campaign-mgt)
 - [Campaign Directory](navigation/sidebar#campaign-directory)
-- [Campaign Details](playing/content/campaign)
-- [Session Details](playing/content/session)
-- [To-do List](playing/content/campaign/todos)
-- [Play Mode Navigation](playing/navigation/session-links)
-- [Session Notes Popup](playing/session-notes-popup)
+- [Campaign Details](campaign-mgt/content/campaign)
+- [Session Details](campaign-mgt/content/session)
+- [To-do List](campaign-mgt/content/campaign/todos)
+- [Play Mode Navigation](campaign-mgt/navigation/session-links)
+- [Session Notes Popup](campaign-mgt/session-notes-popup)
 
 ## Configuration
 
