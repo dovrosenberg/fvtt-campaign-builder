@@ -2,7 +2,7 @@
 
 ## v1.0.0 - Coming out of beta!
 
-![](https://img.shields.io/badge/release%20date-June%20__%2C%202025-blue)
+![](https://img.shields.io/badge/release%20date-June%2023%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.0.0/module.zip)
 
 - Renamed "worlds" to "settings" to eliminate confusion with Foundry worlds 
