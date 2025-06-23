@@ -17,7 +17,7 @@ Before prepping for a session, you first have to create the overall [^Campaign] 
 
 ## Core concepts
 ### Campaigns
-* [Create](/reference/campaign-mgt/content/campaign) your Campaign
+* [Create](/reference/campaign-mgt/content/campaign/) your Campaign
 * Attach the [PCs](/reference/campaign-mgt/content/campaign/pcs) to the campaign
 * Start to capture your [Ideas](/reference/campaign-mgt/content/campaign/ideas)
 
@@ -39,8 +39,8 @@ Before prepping for a session, you first have to create the overall [^Campaign] 
 
 ## Core Session Prep Components
 * [Campaign Directory](/reference/navigation/sidebar#campaign-directory)
-* [Campaign Details](/reference/campaign-mgt/content/campaign)
-* [Session Details](/reference/campaign-mgt/content/session)
+* [Campaign Details](/reference/campaign-mgt/content/campaign/)
+* [Session Details](/reference/campaign-mgt/content/session/)
 
 <!-- 
 # Session Preparation

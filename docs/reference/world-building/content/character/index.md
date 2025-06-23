@@ -13,7 +13,7 @@ next:
 Characters bring your campaign world to life. The Character details  interface is where you craft your NPCs and manage the relationships between the Characters and the world.
 
 ## Overall structure
-The overall structure of the Character Details interface is the common [Entry interface](../entry).
+The overall structure of the Character Details interface is the common [Entry interface](../entry/).
 
 ## Character-specific differences
 There are a few Character-specific details.
@@ -23,12 +23,12 @@ Each Character can have an optional species.  This can be helpful for you to see
 * [Search] (ex. "elf mayor of Illseek")
 * Generating Character descriptions in the [Create](/reference/world-building/create-entry) or [Update](/reference/world-building/update-entry) dialogs, particularly in cases where you provide little detail.
 
-You can manage the list of species for your Settings in the [Module Settings](/reference/configuration#species)
+You can manage the list of species for your Settings in the [Module Settings](/reference/configuration/#species)
 
 ### Actors {#actors}
 ![Actors Tab](/assets/images/actors-tab.webp)
 
-On the Actors tab, you can associate your Character with one or more actors from Foundry.  Having more than one may be helpful if you have different character sheets for this Character at different points in time, or perhaps a transformed/polymorphed version, etc. Since your key Characters will be tied to the current [Session](/reference/world-building/content/session), you can access any of them with just a couple clicks.
+On the Actors tab, you can associate your Character with one or more actors from Foundry.  Having more than one may be helpful if you have different character sheets for this Character at different points in time, or perhaps a transformed/polymorphed version, etc. Since your key Characters will be tied to the [^Current Session], you can access any of them with just a couple clicks.
 
 > [!NOTE]
 > Deleting an actor in Foundry that is attached to a Character will automatically and safely remove it from the Character.

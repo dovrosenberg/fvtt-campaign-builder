@@ -13,10 +13,10 @@ The bulk of the main window is the content display.  This is where you can see w
 
 ## Types of content
 There are 4 types of content you can see, and each has its own set of functionality:
-- [Settings](/reference/world-building/content/setting)
-- [Entries](/reference/world-building/content/entry)
-- [Campaigns](/reference/campaign-mgt/content/campaign)
-- [Sessions](/reference/campaign-mgt/content/session)
+- [Settings](/reference/world-building/content/setting/)
+- [Entries](/reference/world-building/content/entry/)
+- [Campaigns](/reference/campaign-mgt/content/campaign/)
+- [Sessions](/reference/campaign-mgt/content/session/)
 
 
 ## Autocomplete Mentions {#autocomplete-mentions}

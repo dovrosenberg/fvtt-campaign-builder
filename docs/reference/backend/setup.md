@@ -86,7 +86,7 @@ There are lot of steps here, but if you follow the directions below, it should b
 
 2. Edit the newly created .env file (in your favorite editor) to put in the needed settings (explained in detail in the comments in the .env file).
       
-## Deploy the backend
+## Deploy the backend {#deploy}
 > [!INFO]
 > You'll do this step the first time and then whenever you want to upgrade to a new release of this backend
 

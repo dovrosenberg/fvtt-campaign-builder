@@ -22,7 +22,7 @@ next:
 ## Sub-Menus
 ### Advanced Settings {#advanced-settings}
 This is where you configure your backend if you are using Advanced Features.
-- **Backend URL**: The URL of the backend server from the [deploy script](/reference/backend/deploy)
+- **Backend URL**: The URL of the backend server from the [deploy script](/reference/backend/setup#deploy)
 - **API Token**: The security token that the backend deploy script gives you (also from the deploy script)
 - **Default to long descriptions**: If checked, when AI descriptions are generated they will be long paragraphs (number determined by setting below).  If unchecked, they will instead be very brief bullet points more useful for quick roleplaying reference.
 - **Long description paragraphs**: When using long descriptions (see above), this setting determines the number of paragraphs to generate.

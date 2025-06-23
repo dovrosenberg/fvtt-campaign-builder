@@ -1,9 +1,9 @@
----
+<!-- ---
 title: Organizing World Content
 HIDE: true
 ---
 
-<!-- # Organizing World Content
+# Organizing World Content
 
 Effective organization of your world content is essential for creating a cohesive, accessible, and maintainable campaign [^Setting]. This guide covers best practices for structuring, linking, and managing your world building elements.
 

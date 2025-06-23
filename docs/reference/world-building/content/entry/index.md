@@ -42,5 +42,5 @@ You cannot currently delete Types.
 There are several tabs on the Entry details screen:
   - [Description tab](./description) - overview information about the Entry
   - [Relationship tabs](./relationships) - show the connections between this entry and others
-  - Foundry document tabs: After the Entry relationship tabs, you'll find an [Actors tab](/reference/world-building/content/character#actors) when looking at a Character and a [Scenes tab](/reference/world-building/content/location#scenes) when looking at a Location.  
+  - Foundry document tabs: After the Entry relationship tabs, you'll find an [Actors tab](/reference/world-building/content/character/#actors) when looking at a Character and a [Scenes tab](/reference/world-building/content/location/#scenes) when looking at a Location.  
   - [Sessions tab](./sessions) - a quick way to find game session notes that mention this entry

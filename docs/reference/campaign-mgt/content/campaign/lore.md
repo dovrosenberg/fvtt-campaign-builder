@@ -12,7 +12,7 @@ next:
 
 The Lore tab (equivalent to "secrets and clues" in the [Lazy DM] method) allows you to manage campaign-wide knowledge that players might discover. 
 
-The typical flow for lore is to create ideas at either the session level (when preparing for the next session and creating secrets and clues) or to create them at the campaign level (things that are important but aren't necessarily right for the current session).  In the latter case, you can easily move them to the [^current session] when preparing vs. having to retype them (see below).
+The typical flow for lore is to create ideas at either the session level (when preparing for the next session and creating secrets and clues) or to create them at the campaign level (things that are important but aren't necessarily right for the current session).  In the latter case, you can easily move them to the [^Current Session] when preparing vs. having to retype them (see below).
 
 This tab provides:
 
@@ -37,6 +37,6 @@ The actions column lets you take several actions with the lore entries:
 
 
 ## The delivered lore list
-This list contains all the lore that has already been delivered to the players.  It combines items delivered from the list above with items delivered from the [Session](/reference/campaigns-and-sessions/session) lore table.  Session lore items are only included if they are marked as [Significant](/reference/campaign-mgt/content/session/lore#significant) on the Session.
+This list contains all the lore that has already been delivered to the players.  It combines items delivered from the list above with items delivered from the [Session](/reference/campaign-mgt/content/session/) lore table.  Session lore items are only included if they are marked as [Significant](/reference/campaign-mgt/content/session/lore#significant) on the Session.
 
 For each lore item, you can see the text, which session it was delivered in (if any), and the linked entry.  Click the session name to open the session details or the linked entry to open the journal entry page.

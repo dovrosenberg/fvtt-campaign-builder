@@ -27,7 +27,7 @@ The backend has the capability to manage a (free) gmail account that you can the
 
 5. Add "test" user - go to https://console.cloud.google.com/auth/audience and under "Test users" hit add users and enter the gmail address you created to receive emails way back in step a.  We use "test" users because this is an external app that we won't ever publish.
 
-6. Add OAuth Client - go to https://console.cloud.google.com/auth/clients, hit "Create Client" and pick "Web Application" as the type.  Give it a name - again something lik fcb-backend is fine.  Under "Authorized redirect URIs, add a URI and enter http://localhost:3000/oauth2callback.  Hit create.
+6. Add OAuth Client - go to https://console.cloud.google.com/auth/clients, hit "Create Client" and pick "Web Application" as the type.  Give it a name - again something lik fcb-backend is fine.  Under "Authorized redirect URIs, add a URI and enter `http://localhost:3000/oauth2callback`.  Hit create.
 
 7. **VERY IMPORTANT!!!** Copy the Client ID and Client secret into your .env file.  If you can't do that right now, copy them somewhere else safe in the meantime -- you won't be able to get the secret again later.  Then hit OK
 

@@ -47,7 +47,7 @@ const version = inject('version')
 
 # Quick start
 
-Do you learn by doing?  Just check out the [Getting Started](/getting-started) guide. 
+Do you learn by doing?  Just check out the [Getting Started](/getting-started/) guide. 
 
 # Introduction
 
@@ -65,16 +65,17 @@ While I'm seeking to make this module strong enough that it's a reasonable subst
 
 It can be used within Foundry during your prep and mid-session (it has capabilities for both).  It could also be used to run a live TTRPG session as a DM tool, if you just wanted to run Foundry and pull it up on your laptop (for example).
 
-The module has three primary components:
-- [**World Building**](/guide/world-building): Create and manage your settings' lore, characters, locations, and more
-- [**Campaign/Session Planning**](/guide/session-prep): Plan and organize your next session using the [Lazy DM] method; wrap up the prior one.
-- [**Playing a Session**](/guide/session-play): Tools to run your game session more easily, while seamlessly collecting notes to be able to capture what happened and begin your prep for the next session
+The module has four primary components:
+- [**World Building**](/guide/world-building/): Create and manage your settings' lore, characters, locations, and more
+- [**Campaign/Session Planning**](/guide/session-prep/): Plan and organize your next session using the [Lazy DM] method; wrap up the prior one.
+- [**Playing a Session**](/guide/session-play/): Tools to run your game session more easily, while seamlessly collecting notes to be able to capture what happened and begin your prep for the next session
+- [**Recording Play Results**](/guide/record-results/): This blends with preparing for next session, but there are tools to record what happened in your session and use it to update your world and prepare for the next session
 
 See the [official description](https://github.com/dovrosenberg/fvtt-campaign-builder) for a longer summary of features and functionality.
 
 # Advanced features
 
-You'll see features throughout this documentation labeled "[Advanced Feature]". These features require the setup and configuration described under [Backend and Advanced Features](/reference/backend) to make them available.
+You'll see features throughout this documentation labeled "[Advanced Feature]". These features require the setup and configuration described under [Backend and Advanced Features](/reference/backend/) to make them available.
 
 # GM-only, for now
 

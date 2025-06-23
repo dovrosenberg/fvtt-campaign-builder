@@ -17,12 +17,12 @@ World building in the Campaign Builder focuses on creating reusable content that
 ## Core concepts
 * [Create](/reference/world-building/) Characters, Locations, and Organizations
 * Easily see (and click through) the [relationships](/reference/world-building/content/entry/relationships) between them
-* Locations and Organizations exist in [hierarchies](/reference/navigation/sidebar/#hierarchies)
+* Locations and Organizations exist in [hierarchies](/reference/navigation/sidebar#hierarchies)
 * Use AI to [generate](/reference/world-building/content/entry/generate) detailed descriptions and images [[Advanced Feature]]
 
 ## Core World Building Components
 * [Setting Directory](/reference/navigation/sidebar#setting-directory)
-* [Entry Display](/reference/world-building/content/entry)
+* [Entry Display](/reference/world-building/content/entry/)
 
 <!-- ### Settings Directory
 The Settings Directory is your central hub for all world content. It organizes your world into several key categories:

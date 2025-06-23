@@ -23,7 +23,7 @@ It can even be fun to clean up your notes after a session!  This is when you go 
 ## Core Recording Results Components
 * [Prep/Play Toggle](/reference/navigation/prep-play)
 * [Session Notes](/reference/campaign-mgt/content/session/notes)
-* [Name-Generation Buttons](/reference/navigation/campaign-mgt/name-generation)
-* [Session Links](/reference/navigation/campaign-mgt/session-links)
+* [Name-Generation Buttons](/reference/play-mode/name-generation)
+* [Session Links](/reference/play-mode/session-links)
 * [Campaign To-do List](/reference/campaign-mgt/content/campaign/todos)
 

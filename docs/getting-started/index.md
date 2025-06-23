@@ -33,10 +33,10 @@ That's basically it - everything else is optional.  Some other things you'll lik
   * Click on the image box to assign an image
   * Add relationships to other entries on the other tabs 
 
-Check out the [World Building Guide](/guide/world-building) for more information.
+Check out the [World Building Guide](/guide/world-building/) for more information.
 
 ## Running a Campaign
-Running a campaign primarily takes place in the lower part of the Directory Sidebar - the [Campaign Directory](/reference/navigation/directory-sidebar/#campaign-directory).  Campaigns are comprised of multiple sessions.  
+Running a campaign primarily takes place in the lower part of the Directory Sidebar - the [Campaign Directory](/reference/navigation/sidebar#campaign-directory).  Campaigns are comprised of multiple sessions.  
 
 A [^Session] is intended to represent a single game session - played in one stretch of time.  Sessions have numbers that determine their order in the campaign.  The session with the highest number is the "active" session, which is important for some features.
 

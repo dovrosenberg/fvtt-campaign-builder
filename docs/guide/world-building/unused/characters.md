@@ -1,4 +1,4 @@
----
+<!-- ---
 title: Developing Characters and NPCs
 HIDE: true
 ---
@@ -474,4 +474,4 @@ With well-developed characters:
 
 1. **[Connect to locations](locations.md)** where they live and work
 2. **[Associate with organizations](organizations.md)** they belong to
-3. **[Prepare sessions](../session-prep/index.md)** with character interactions 
+3. **[Prepare sessions](../session-prep/index.md)** with character interactions  -->

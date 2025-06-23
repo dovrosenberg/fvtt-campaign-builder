@@ -26,7 +26,7 @@ This box searches all [^Entries], looking across these fields:
 * Type 
 * Species for Characters 
 * [Parents](/reference/navigation/sidebar#hierarchies) (and grandparents) and children for Locations/Organizations
-* Names and roles of [relationships](/reference/content/entry/relationships)
+* Names and roles of [relationships](/reference/world-building/content/entry/relationships)
 
 So, searching for "Sally sibling" would return an entry with a relationship of "sibling" to a Character named Sally.  That result would be lower on the list, though, than Sally herself.
 

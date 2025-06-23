@@ -20,10 +20,10 @@ Click "Add NPC" to create a new NPC entry.  You will be prompted to search for a
 ## The NPC list
 This list contains the individual NPCs.  For each NPC, you can see its name, [^Type], and a brief selection from its description.
 
-Click the name of the NPC to open the [Character details](/reference/world-building/content/character) page.  Hold control to open in a new tab.
+Click the name of the NPC to open the [Character details](/reference/world-building/content/character/) page.  Hold control to open in a new tab.
 
 > [!TIP]
-> When your players encounter an NPC, click on it to open up the details page, where you can get information for describing it.  From there, you can then use the [Actors tab](/reference/world-building/content/character#actors) to immediately find an associated actors and open their character sheets or drag them right onto the scene in Foundry.
+> When your players encounter an NPC, click on it to open up the details page, where you can get information for describing it.  From there, you can then use the [Actors tab](/reference/world-building/content/character/#actors) to immediately find an associated actors and open their character sheets or drag them right onto the scene in Foundry.
 >
 > You can also right-click on the Characters's image to push it to chat for the players.
 

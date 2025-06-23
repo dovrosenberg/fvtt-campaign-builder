@@ -20,12 +20,12 @@ The notes tab has four main components:
 See [Image] documentation.
 
 ## Session number
-The session number is the number of the Session.  It is only used for your reference and for displaying in the [Campaign Directory] (depending on your setting for "Session display format" in the [Configuration](/reference/configuration)). 
+The session number is the number of the Session.  It is only used for your reference and for displaying in the [Campaign Directory] (depending on your setting for "Session display format" in the [Configuration](/reference/configuration/)). 
 
 Only one session can have any given number. If you change the number to one that already exists, it will be inserted there and the others will be renumbered.
 
 ## Session date
-The session date is the date of the session.  It is only used for your reference and for displaying in the [Campaign Directory] (depending on your setting for "Session display format" in the [Configuration](/reference/configuration)).
+The session date is the date of the session.  It is only used for your reference and for displaying in the [Campaign Directory] (depending on your setting for "Session display format" in the [Configuration](/reference/configuration/)).
 
 ## Session notes area
 This is where you enter the Session notes. Click the orange pencil to start editing, and the save button (or Control-S) to save.

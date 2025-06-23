@@ -1,4 +1,4 @@
----
+<!-- ---
 title: Creating Your Campaign World
 HIDE: true
 ---
@@ -227,4 +227,4 @@ Once you have your foundational world elements:
 
 1. **[Build detailed locations](locations.md)** for immediate use
 2. **[Develop key characters](characters.md)** with motivations and goals
-3. **[Establish organizations](organizations.md)** that create ongoing conflict
+3. **[Establish organizations](organizations.md)** that create ongoing conflict -->

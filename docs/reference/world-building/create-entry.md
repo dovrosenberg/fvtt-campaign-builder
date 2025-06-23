@@ -15,7 +15,7 @@ The Create Entry dialog is where you can create a new [^Entry].
 ## Fields
 There are several fields you can (optionally) fill in:
 - **Name** - The name of the Entry.  This is required to complete the Entry, but if you are using 'Generate' [[Advanced Feature]], you can leave it blank, and it will be generated for you along with the description.
-- **Type** - The [^Type] of Entry. This text box works the same as the Type field on [Entries](/reference/world-building/content/entry) with respect to autocomplete and adding new Types.
+- **Type** - The [^Type] of Entry. This text box works the same as the Type field on [Entries](/reference/world-building/content/entry/) with respect to autocomplete and adding new Types.
 - **Parent** ([^Location], [^Organization] only) - The parent of the Entry.  This is optional.  Typing in the box will search for matching Locations/Organizations.
 - **Description** - The description of the Entry.  This is optional, but highly recommended if you plan to generate an image or description ([Advanced Feature]).  The description can be a very brief description or just a list of characteristics.  Any information contained in the description will be included in the generated version (if it fits). 
 

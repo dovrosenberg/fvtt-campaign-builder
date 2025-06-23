@@ -27,7 +27,7 @@ With AI integration, you can:
 
 - Generate detailed descriptions for Characters, Locations, and organizations
   - From [within an Entry](/reference/world-building/content/entry/generate#description)
-  - When [creating a new Entry](/reference/misc/create)
+  - When [creating a new Entry](/reference/world-building/create-entry)
 - [Create images](/reference/world-building/image-generation) based on your descriptions
 - [Generate names](/reference/play-mode/name-generation) for NPCs, towns, shops, and taverns 
 
