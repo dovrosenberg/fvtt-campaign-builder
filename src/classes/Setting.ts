@@ -547,7 +547,7 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
   }
   
   /** 
-   * Execute a function after unlocking (if needed), then relock when done.
+   * Execute a function after unlocking (if needed), then re-lock when done.
    * Uses a queue system to prevent race conditions between multiple calls.
    * Handles nested calls by checking the actual lock state of the compendium.
    */
@@ -580,7 +580,7 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
       try {
         await executeFunction();
       } finally {
-        // Always relock, but only if we were the ones who unlocked it
+        // Always re-lock, but only if we were the ones who unlocked it
         if (needsUnlock) {
           await this.lock();
         }

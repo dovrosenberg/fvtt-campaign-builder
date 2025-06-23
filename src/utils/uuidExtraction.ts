@@ -54,7 +54,7 @@ export function compareUUIDs(originalUUIDs: string[], newUUIDs: string[]): {
 /** for a list of added and removed UUIDs, return a list of ones that are not/are already 
  *  in the current entry's related entries
  */
-export async function getRelatedEntries(addedUUIDs: string[], removedUUIDs: string[], currentEntry: Entry): { added: string[], removed: string[]} {
+export async function getRelatedEntries(addedUUIDs: string[], removedUUIDs: string[], currentEntry: Entry): Promise<{ added: string[], removed: string[]}> {
   // collapse the topics to a single object keyed by UUID to make easier
   const relatedEntries = Object.values(currentEntry.relationships).reduce((acc, topic) => {
     Object.values(topic).forEach(details => {

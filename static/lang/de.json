@@ -40,7 +40,9 @@
       "defaultAddToSession": "Standardmäßig 'Zur aktuellen Sitzung hinzufügen'",
       "defaultAddToSessionHelp": "Soll im Abspielmodus das Kontrollkästchen beim Erstellen eines Eintrags standardmäßig aktiviert oder deaktiviert sein?",
       "enableToDoList": "ToDo-Liste aktivieren",
-      "enableToDoListHelp": "Wenn deaktiviert, wird die ToDo-Listen-Funktion ausgeschaltet."
+      "enableToDoListHelp": "Wenn deaktiviert, wird die ToDo-Listen-Funktion ausgeschaltet.",
+      "autoRelationships": "Beziehungen automatisch vorschlagen",
+      "autoRelationshipsHelp": "Wenn aktiviert, schlägt der Editor automatisch Änderungen an den Beziehungen zwischen Einträgen basierend auf Änderungen in der Beschreibung vor."
     },
     "applications": {
       "sessionNotes": {
@@ -80,6 +82,10 @@
         "labels": {
           "refreshAll": "Alle Tabellen aktualisieren",
           "refreshAllHelp": "Ersetze alle verwendeten Elemente durch neue"
+        },
+        "notifications": {
+          "refreshSuccess": "Wurftabellen erfolgreich aktualisiert",
+          "refreshError": "Aktualisierung der Wurftabellen fehlgeschlagen. Details in der Konsole prüfen."
         }
       },
       "createEntry": {
@@ -140,7 +146,8 @@
         "description": "Beschreibung",
         "campaign": "Kampagne",
         "campaignHouseRules": "Hausregeln",
-        "addToCurrentSession": "Zur aktuellen Sitzung hinzufügen"
+        "addToCurrentSession": "Zur aktuellen Sitzung hinzufügen",
+        "topic": "Thema"
       },
       "addTopic": {
         "character": "Charakter hinzufügen",
@@ -232,6 +239,22 @@
         "createCharacter": "Charakter erstellen",
         "createLocation": "Ort erstellen",
         "createOrganization": "Organisation erstellen"
+      },
+      "save": "Speichern",
+      "ok": "OK",
+      "yes": "Ja",
+      "no": "Nein",
+      "close": "Schließen",
+      "update": "Aktualisieren",
+      "noToAll": "Nein zu allem",
+      "tableHeaders": {
+        "actions": "Aktionen",
+        "name": "Name",
+        "location": "Ort"
+      },
+      "locations": {
+        "compendium": "Kompendium",
+        "setting": "Einstellung"
       }
     },
     "placeholders": {
@@ -302,6 +325,53 @@
       "addToDo": {
         "title": "Aufgabe hinzufügen",
         "text": "Geben Sie den Aufgabentext ein:"
+      },
+      "configureNames": {
+        "title": "Namensstile konfigurieren",
+        "description": "Wählen Sie die Namensstile aus, die Sie für von KI generierte Namen in dieser Einstellung verwenden möchten. Sie können unten Beispiele für jeden Stil basierend auf Genre und Stimmung dieser Einstellung anzeigen.",
+        "errorMessage": "Es gab einen Fehler:"
+      },
+      "relatedItems": {
+        "additionalInformation": "Zusätzliche Informationen",
+        "allItemsConnected": "Alle möglichen verwandten Elemente sind bereits verbunden.",
+        "character": {
+          "title": "Einen Charakter hinzufügen",
+          "editTitle": "Charakter bearbeiten",
+          "createButtonTitle": "Charakter erstellen",
+          "buttonTitle": "Beziehung hinzufügen",
+          "editButtonTitle": "Charakter speichern"
+        },
+        "location": {
+          "title": "Einen Ort hinzufügen",
+          "editTitle": "Ort bearbeiten",
+          "createButtonTitle": "Ort erstellen",
+          "buttonTitle": "Beziehung hinzufügen",
+          "editButtonTitle": "Ort speichern"
+        },
+        "organization": {
+          "title": "Eine Organisation hinzufügen",
+          "editTitle": "Organisation bearbeiten",
+          "createButtonTitle": "Organisation erstellen",
+          "buttonTitle": "Beziehung hinzufügen",
+          "editButtonTitle": "Organisation speichern"
+        },
+        "addToSession": "Zur Sitzung hinzufügen"
+      },
+      "relatedDocuments": {
+        "selectActors": "Akteure auswählen",
+        "selectItems": "Elemente auswählen",
+        "addActor": "Akteur hinzufügen",
+        "addItem": "Element hinzufügen"
+      },
+      "relatedEntriesManagement": {
+        "title": "Verwandte Einträge verwalten",
+        "addedItems": "Beziehungen zu diesen hinzufügen?",
+        "removedItems": "Beziehungen von diesen entfernen?"
+      },
+      "contextMenus": {
+        "cannotActivateFromCompendium": "Kann nicht aus dem Kompendium aktiviert werden",
+        "cannotToggleNavigationFromCompendium": "Navigation kann nicht aus einer Szene im Kompendium umgeschaltet werden",
+        "cannotToggleNavigationWhileActive": "Navigation kann nicht umgeschaltet werden, während die Szene aktiv ist"
       }
     },
     "contextMenus": {
@@ -347,7 +417,8 @@
       "generate": {
         "description": "Beschreibung generieren",
         "image": "Bild generieren",
-        "inProgress": "in Bearbeitung"
+        "inProgress": "in Bearbeitung",
+        "configureNames": "Namen konfigurieren"
       },
       "tabs": {
         "closeAll": "Alle Tabs schließen"
@@ -405,7 +476,8 @@
       },
       "moveToCampaign": "In die Kampagne für spätere Verwendung verschieben",
       "addToCampaign": "Zur Kampagne hinzufügen",
-      "deleteToDo": "Aufgabe abschließen"
+      "deleteToDo": "Aufgabe abschließen",
+      "worldGenerateContent": "Verwalten der Weltgenerierungseinstellungen"
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert"

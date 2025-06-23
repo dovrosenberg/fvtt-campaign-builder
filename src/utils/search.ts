@@ -97,7 +97,7 @@ class SearchService {
           // we make this high because if we match on the related record and the role, for ex.
           //    then the relationship should score higher than just a match on name (that way
           //    "mayor of Smallville" will match on the person that's the mayor higher than the
-          //     town itself - but less than a match for 'mayor of smallville' in a description)
+          //     town itself - but less than a match for 'mayor of Smallville' in a description)
           relationships: 3   
         }, 
         fuzzy: 0.2, // Enable fuzzy matching (20% of term length)
