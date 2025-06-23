@@ -11,7 +11,7 @@ You'll see lots of references to AI capabilities in the [documentation](https://
 
 So if you're in the anti-AI crowd, know that the module is *fully functional and useful without any use of AI*, and all of the AI features/functions are disabled by default.  
 
-That said, full details on features, costs, and setup are in the [documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/backend).  Any description of AI features in the documentation is clearly denoted as an "Advanced Feature".
+That said, full details on features, costs, and setup are in the [documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/reference/backend).  Any description of AI features in the documentation is clearly denoted as an "Advanced Feature".
 
 
 ## Play style notes
