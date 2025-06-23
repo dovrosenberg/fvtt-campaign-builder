@@ -25,7 +25,7 @@ You cannot currently remove a linked entry - I recommend just creating a new lor
 
 ## The lore list
 This list contains "Campaign level" lore.  These are items you've fleshed out but aren't yet ready to share with the players.  They are also items that perhaps you added to a session but then didn't share with the players and so you want to move them back to a holding place.
-
+ 
 For each lore item, you can see the text of it and the linked entry.  Click the linked entry to open the journal entry page.
 
 ### Lore Actions
