@@ -565,6 +565,5 @@
     "errors": {
       "duplicateBookmark": "Already stored as a bookmark"
     }
-  },
-  "temp": "temp"
+  }
 }
