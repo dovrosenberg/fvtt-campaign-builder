@@ -17,73 +17,73 @@
 /**
  * 
  * @export
- * @interface ApiCharacterGeneratePostRequest
+ * @interface ApiCharacterGenerateImagePostRequest
  */
-export interface ApiCharacterGeneratePostRequest {
+export interface ApiCharacterGenerateImagePostRequest {
     /**
      * Genre of the world (ex. \"fantasy\" or \"science fiction\")
      * @type {string}
-     * @memberof ApiCharacterGeneratePostRequest
+     * @memberof ApiCharacterGenerateImagePostRequest
      */
     'genre': string;
     /**
      * The feeling of the setting (ex. \"humorous\" or \"apocalyptic\")
      * @type {string}
-     * @memberof ApiCharacterGeneratePostRequest
+     * @memberof ApiCharacterGenerateImagePostRequest
      */
     'settingFeeling'?: string;
     /**
      * The type of character (ex. a trade or a title)
      * @type {string}
-     * @memberof ApiCharacterGeneratePostRequest
+     * @memberof ApiCharacterGenerateImagePostRequest
      */
     'type'?: string;
     /**
      * The species of the character
      * @type {string}
-     * @memberof ApiCharacterGeneratePostRequest
+     * @memberof ApiCharacterGenerateImagePostRequest
      */
     'species'?: string;
     /**
      * A brief description of the species
      * @type {string}
-     * @memberof ApiCharacterGeneratePostRequest
+     * @memberof ApiCharacterGenerateImagePostRequest
      */
     'speciesDescription'?: string;
     /**
      * The generated character\'s name.  If blank, one will be generated (text gen only)
      * @type {string}
-     * @memberof ApiCharacterGeneratePostRequest
+     * @memberof ApiCharacterGenerateImagePostRequest
      */
     'name'?: string;
     /**
      * A brief description of the character to factor into the produced text
      * @type {string}
-     * @memberof ApiCharacterGeneratePostRequest
+     * @memberof ApiCharacterGenerateImagePostRequest
      */
     'briefDescription'?: string;
     /**
      * Create a detailed description or a digestible summary
      * @type {boolean}
-     * @memberof ApiCharacterGeneratePostRequest
+     * @memberof ApiCharacterGenerateImagePostRequest
      */
     'createLongDescription'?: boolean;
     /**
      * The number of paragraphs to produce in the output when using a long description
      * @type {number}
-     * @memberof ApiCharacterGeneratePostRequest
+     * @memberof ApiCharacterGenerateImagePostRequest
      */
     'longDescriptionParagraphs'?: number;
     /**
      * The styles of names to use
      * @type {Array<string>}
-     * @memberof ApiCharacterGeneratePostRequest
+     * @memberof ApiCharacterGenerateImagePostRequest
      */
     'nameStyles'?: Array<string>;
     /**
-     * The text generation model to use
+     * The image generation model to use
      * @type {number}
-     * @memberof ApiCharacterGeneratePostRequest
+     * @memberof ApiCharacterGenerateImagePostRequest
      */
     'model'?: number;
 }
