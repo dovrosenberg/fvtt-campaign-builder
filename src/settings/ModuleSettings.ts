@@ -4,6 +4,7 @@ import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSet
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { SessionDisplayMode, Species, TagList, GeneratorType } from '@/types';
+import { TextModel, ImageModel } from '@/types/api';
 
 export enum SettingKey {
   // displayed in main settings window
@@ -26,6 +27,8 @@ export enum SettingKey {
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
   APIURL = 'APIURL',   // URL of backend
   APIToken = 'APIToken',
+  textModel = 'textModel', // model to use for text generation
+  imageModel = 'imageModel', // model to use for image generation,
   defaultToLongDescriptions = 'defaultToLongDescriptions',
   longDescriptionParagraphs = 'longDescriptionParagraphs', // number of paragraphs for long descriptions (1-4)
   useGmailToDos = 'useGmailToDos', // whether to use Gmail for todos
@@ -65,6 +68,8 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.useGmailToDos ? boolean :
     K extends SettingKey.emailDefaultWorld ? string :
     K extends SettingKey.emailDefaultCampaign ? string :
+    K extends SettingKey.textModel ? TextModel | undefined :
+    K extends SettingKey.imageModel ? ImageModel | undefined :
     never;  
 
 export class ModuleSettings {
@@ -264,6 +269,16 @@ export class ModuleSettings {
       settingID: SettingKey.longDescriptionParagraphs,
       default: 1,
       type: Number,
+    },
+    {
+      settingID: SettingKey.textModel,
+      default: undefined,
+      type: String,
+    },
+    {
+      settingID: SettingKey.imageModel,
+      default: undefined,
+      type: String,
     },
   ];
   

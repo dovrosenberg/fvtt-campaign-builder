@@ -28,6 +28,40 @@
       </div>
 
       <div class="form-group">
+        <label>{{ localize('applications.advancedSettings.labels.textModel') }}</label>
+        <div class="form-fields">
+          <Select
+            v-model="textModel"
+            :options="textModelOptions"
+            optionLabel="name"
+            optionValue="id"
+            :placeholder="localize('applications.advancedSettings.labels.selectTextModel')"
+            :disabled="!backendAvailable"
+          />
+        </div>
+        <p class="hint">
+          {{ localize('applications.advancedSettings.labels.textModelHint') }}
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label>{{ localize('applications.advancedSettings.labels.imageModel') }}</label>
+        <div class="form-fields">
+          <Select
+            v-model="imageModel"
+            :options="imageModelOptions"
+            optionLabel="name"
+            optionValue="id"
+            :placeholder="localize('applications.advancedSettings.labels.selectImageModel')"
+            :disabled="!backendAvailable"
+          />
+        </div>
+        <p class="hint">
+          {{ localize('applications.advancedSettings.labels.imageModelHint') }}
+        </p>
+      </div>
+
+      <div class="form-group">
         <label>{{ localize('applications.advancedSettings.labels.defaultToLong') }}</label>
         <div class="form-fields">
           <Checkbox 
@@ -125,10 +159,11 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, ref, toRaw } from 'vue';
+  import { onMounted, ref, toRaw, computed } from 'vue';
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
+  import { TextModel, ImageModel } from '@/types/api';
   import { Backend, Setting } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
@@ -157,6 +192,8 @@
   // data
   const APIURL = ref<string>('');
   const APIToken = ref<string>('');
+  const textModel = ref<TextModel | undefined>(undefined);
+  const imageModel = ref<ImageModel | undefined>(undefined);
   const defaultToLongDescriptions = ref<boolean>(true);
   const longDescriptionParagraphs = ref<number>(1);
   const useGmailToDos = ref<boolean>(false);
@@ -164,6 +201,9 @@
   const emailDefaultCampaign = ref<string>('');
   const worldOptions = ref<{uuid: string, name: string}[]>([]);
   const campaignOptions = ref<{uuid: string, name: string}[]>([]);
+  const backendAvailable = computed(() => Backend.available);
+  const textModelOptions = computed(() => Backend.textModels);
+  const imageModelOptions = computed(() => Backend.imageModels);
 
   ////////////////////////////////
   // computed data
@@ -175,7 +215,7 @@
     if (!defaultFolders || !defaultFolders.rootFolder)
       worldOptions.value = [];
     else 
-      worldOptions.value = (toRaw(defaultFolders.rootFolder) as Folder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name }));
+      worldOptions.value = (toRaw(defaultFolders.rootFolder) as Folder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name })) || [];
   };
 
   const loadCampaigns = async (worldUuid: string) => {
@@ -204,6 +244,8 @@
   const onSubmitClick = async () => {
     await ModuleSettings.set(SettingKey.APIURL, APIURL.value);
     await ModuleSettings.set(SettingKey.APIToken, APIToken.value);
+    await ModuleSettings.set(SettingKey.textModel, textModel.value);
+    await ModuleSettings.set(SettingKey.imageModel, imageModel.value);
     await ModuleSettings.set(SettingKey.defaultToLongDescriptions, defaultToLongDescriptions.value);
     await ModuleSettings.set(SettingKey.longDescriptionParagraphs, longDescriptionParagraphs.value);
     await ModuleSettings.set(SettingKey.useGmailToDos, useGmailToDos.value);
@@ -220,6 +262,13 @@
   const onResetClick = async () => {
     APIURL.value = ModuleSettings.get(SettingKey.APIURL);
     APIToken.value = ModuleSettings.get(SettingKey.APIToken);
+    if (!Backend.available) {
+      textModel.value = undefined;
+      imageModel.value = undefined;
+    } else {
+      textModel.value = ModuleSettings.get(SettingKey.textModel);
+      imageModel.value = ModuleSettings.get(SettingKey.imageModel);
+    }
     defaultToLongDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
     longDescriptionParagraphs.value = ModuleSettings.get(SettingKey.longDescriptionParagraphs);
     useGmailToDos.value = ModuleSettings.get(SettingKey.useGmailToDos);
@@ -237,6 +286,13 @@
     // load the settings
     APIURL.value = ModuleSettings.get(SettingKey.APIURL);
     APIToken.value = ModuleSettings.get(SettingKey.APIToken);
+    if (!Backend.available) {
+      textModel.value = undefined;
+      imageModel.value = undefined;
+    } else {
+      textModel.value = ModuleSettings.get(SettingKey.textModel);
+      imageModel.value = ModuleSettings.get(SettingKey.imageModel);
+    }
     defaultToLongDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
     longDescriptionParagraphs.value = ModuleSettings.get(SettingKey.longDescriptionParagraphs);
     useGmailToDos.value = ModuleSettings.get(SettingKey.useGmailToDos);

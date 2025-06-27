@@ -36,6 +36,10 @@ import type { ApiLocationGeneratePost200Response } from '../types';
 // @ts-ignore
 import type { ApiLocationGeneratePostRequest } from '../types';
 // @ts-ignore
+import type { ApiModelsImageGet200Response } from '../types';
+// @ts-ignore
+import type { ApiModelsTextGet200Response } from '../types';
+// @ts-ignore
 import type { ApiNameCharactersPost200Response } from '../types';
 // @ts-ignore
 import type { ApiNameCharactersPostRequest } from '../types';
@@ -221,6 +225,72 @@ export const FCBApiAxiosParamCreator = function (configuration?: Configuration) 
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(apiLocationGeneratePostRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get the list of available image models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiModelsImageGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/models/image`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get the list of available text models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiModelsTextGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/models/text`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -625,6 +695,28 @@ export const FCBApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Get the list of available image models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiModelsImageGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiModelsImageGet200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiModelsImageGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FCBApi.apiModelsImageGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Get the list of available text models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiModelsTextGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiModelsTextGet200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiModelsTextGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FCBApi.apiModelsTextGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Generate character names
          * @param {ApiNameCharactersPostRequest} apiNameCharactersPostRequest 
          * @param {*} [options] Override http request option.
@@ -777,6 +869,22 @@ export const FCBApiFactory = function (configuration?: Configuration, basePath?:
             return localVarFp.apiLocationGeneratePost(apiLocationGeneratePostRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * Get the list of available image models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiModelsImageGet(options?: RawAxiosRequestConfig): AxiosPromise<ApiModelsImageGet200Response> {
+            return localVarFp.apiModelsImageGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get the list of available text models
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiModelsTextGet(options?: RawAxiosRequestConfig): AxiosPromise<ApiModelsTextGet200Response> {
+            return localVarFp.apiModelsTextGet(options).then((request) => request(axios, basePath));
+        },
+        /**
          * Generate character names
          * @param {ApiNameCharactersPostRequest} apiNameCharactersPostRequest 
          * @param {*} [options] Override http request option.
@@ -899,6 +1007,22 @@ export interface FCBApiInterface {
      * @memberof FCBApiInterface
      */
     apiLocationGeneratePost(apiLocationGeneratePostRequest: ApiLocationGeneratePostRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiLocationGeneratePost200Response>;
+
+    /**
+     * Get the list of available image models
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApiInterface
+     */
+    apiModelsImageGet(options?: RawAxiosRequestConfig): AxiosPromise<ApiModelsImageGet200Response>;
+
+    /**
+     * Get the list of available text models
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApiInterface
+     */
+    apiModelsTextGet(options?: RawAxiosRequestConfig): AxiosPromise<ApiModelsTextGet200Response>;
 
     /**
      * Generate character names
@@ -1030,6 +1154,26 @@ export class FCBApi extends BaseAPI implements FCBApiInterface {
      */
     public apiLocationGeneratePost(apiLocationGeneratePostRequest: ApiLocationGeneratePostRequest, options?: RawAxiosRequestConfig) {
         return FCBApiFp(this.configuration).apiLocationGeneratePost(apiLocationGeneratePostRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get the list of available image models
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApi
+     */
+    public apiModelsImageGet(options?: RawAxiosRequestConfig) {
+        return FCBApiFp(this.configuration).apiModelsImageGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get the list of available text models
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FCBApi
+     */
+    public apiModelsTextGet(options?: RawAxiosRequestConfig) {
+        return FCBApiFp(this.configuration).apiModelsTextGet(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -1,7 +1,6 @@
 .gitignore
 .npmignore
 .openapi-generator-ignore
-API/default-api.ts
 API/fcbapi.ts
 api.ts
 base.ts
@@ -16,6 +15,10 @@ types/api-character-generate-post200-response.ts
 types/api-location-generate-image-post-request.ts
 types/api-location-generate-post-request.ts
 types/api-location-generate-post200-response.ts
+types/api-models-image-get200-response-models-inner.ts
+types/api-models-image-get200-response.ts
+types/api-models-text-get200-response-models-inner.ts
+types/api-models-text-get200-response.ts
 types/api-name-characters-post-request.ts
 types/api-name-characters-post200-response.ts
 types/api-name-preview-post-request.ts

@@ -14,6 +14,5 @@
 
 
 
-export * from './API/default-api';
 export * from './API/fcbapi';
 
