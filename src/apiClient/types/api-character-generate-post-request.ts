@@ -82,9 +82,17 @@ export interface ApiCharacterGeneratePostRequest {
     'nameStyles'?: Array<string>;
     /**
      * The text generation model to use
-     * @type {number}
+     * @type {string}
      * @memberof ApiCharacterGeneratePostRequest
      */
-    'model'?: number;
+    'textModel'?: ApiCharacterGeneratePostRequestTextModelEnum;
 }
+
+export const ApiCharacterGeneratePostRequestTextModelEnum = {
+    Gpt4oMini: 'GPT_4o_mini',
+    Claude3Haiku: 'Claude_3_haiku'
+} as const;
+
+export type ApiCharacterGeneratePostRequestTextModelEnum = typeof ApiCharacterGeneratePostRequestTextModelEnum[keyof typeof ApiCharacterGeneratePostRequestTextModelEnum];
+
 

@@ -46,9 +46,17 @@ export interface ApiNameTavernsPostRequest {
     'nameStyles'?: Array<string>;
     /**
      * The text generation model to use
-     * @type {number}
+     * @type {string}
      * @memberof ApiNameTavernsPostRequest
      */
-    'model'?: number;
+    'textModel'?: ApiNameTavernsPostRequestTextModelEnum;
 }
+
+export const ApiNameTavernsPostRequestTextModelEnum = {
+    Gpt4oMini: 'GPT_4o_mini',
+    Claude3Haiku: 'Claude_3_haiku'
+} as const;
+
+export type ApiNameTavernsPostRequestTextModelEnum = typeof ApiNameTavernsPostRequestTextModelEnum[keyof typeof ApiNameTavernsPostRequestTextModelEnum];
+
 

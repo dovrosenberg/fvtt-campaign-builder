@@ -17,106 +17,120 @@
 /**
  * 
  * @export
- * @interface ApiLocationGeneratePostRequest
+ * @interface ApiLocationGenerateImagePostRequest
  */
-export interface ApiLocationGeneratePostRequest {
+export interface ApiLocationGenerateImagePostRequest {
     /**
      * Genre of the world (ex. \"fantasy\" or \"science fiction\")
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'genre': string;
     /**
      * The feeling of the setting (ex. \"humorous\" or \"apocalyptic\")
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'settingFeeling'?: string;
     /**
      * The type of location (ex. \"town\" or \"kingdom\" or \"swamp\")
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'type'?: string;
     /**
      * The generated location\'s name.  If blank, one will be generated (text gen only)
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'name'?: string;
     /**
      * A brief description of the location to factor into the produced text
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'briefDescription'?: string;
     /**
      * The type of the parent location
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'parentName'?: string;
     /**
      * The type of parent location
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'parentType'?: string;
     /**
      * The current description of the location\'s parent
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'parentDescription'?: string;
     /**
      * The type of the grandparent location
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'grandparentName'?: string;
     /**
      * The type of grandparent location
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'grandparentType'?: string;
     /**
      * The current description of the location\'s grandparent
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'grandparentDescription'?: string;
     /**
      * Create a detailed description or a digestible summary
      * @type {boolean}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'createLongDescription'?: boolean;
     /**
      * The number of paragraphs to produce in the output when using a long description
      * @type {number}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'longDescriptionParagraphs'?: number;
     /**
      * The styles of names to use
      * @type {Array<string>}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
     'nameStyles'?: Array<string>;
     /**
      * The text generation model to use
      * @type {string}
-     * @memberof ApiLocationGeneratePostRequest
+     * @memberof ApiLocationGenerateImagePostRequest
      */
-    'textModel'?: ApiLocationGeneratePostRequestTextModelEnum;
+    'textModel'?: ApiLocationGenerateImagePostRequestTextModelEnum;
+    /**
+     * The image generation model to use
+     * @type {string}
+     * @memberof ApiLocationGenerateImagePostRequest
+     */
+    'imageModel'?: ApiLocationGenerateImagePostRequestImageModelEnum;
 }
 
-export const ApiLocationGeneratePostRequestTextModelEnum = {
+export const ApiLocationGenerateImagePostRequestTextModelEnum = {
     Gpt4oMini: 'GPT_4o_mini',
     Claude3Haiku: 'Claude_3_haiku'
 } as const;
 
-export type ApiLocationGeneratePostRequestTextModelEnum = typeof ApiLocationGeneratePostRequestTextModelEnum[keyof typeof ApiLocationGeneratePostRequestTextModelEnum];
+export type ApiLocationGenerateImagePostRequestTextModelEnum = typeof ApiLocationGenerateImagePostRequestTextModelEnum[keyof typeof ApiLocationGenerateImagePostRequestTextModelEnum];
+export const ApiLocationGenerateImagePostRequestImageModelEnum = {
+    MinimaxImage: 'Minimax_Image',
+    Flux11Pro: 'Flux_1_1_Pro',
+    FluxPro: 'Flux_Pro',
+    FluxSchnellLora: 'Flux_Schnell_Lora'
+} as const;
+
+export type ApiLocationGenerateImagePostRequestImageModelEnum = typeof ApiLocationGenerateImagePostRequestImageModelEnum[keyof typeof ApiLocationGenerateImagePostRequestImageModelEnum];
 
 

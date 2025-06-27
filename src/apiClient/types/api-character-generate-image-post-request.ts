@@ -81,10 +81,32 @@ export interface ApiCharacterGenerateImagePostRequest {
      */
     'nameStyles'?: Array<string>;
     /**
-     * The image generation model to use
-     * @type {number}
+     * The text generation model to use
+     * @type {string}
      * @memberof ApiCharacterGenerateImagePostRequest
      */
-    'model'?: number;
+    'textModel'?: ApiCharacterGenerateImagePostRequestTextModelEnum;
+    /**
+     * The image generation model to use
+     * @type {string}
+     * @memberof ApiCharacterGenerateImagePostRequest
+     */
+    'imageModel'?: ApiCharacterGenerateImagePostRequestImageModelEnum;
 }
+
+export const ApiCharacterGenerateImagePostRequestTextModelEnum = {
+    Gpt4oMini: 'GPT_4o_mini',
+    Claude3Haiku: 'Claude_3_haiku'
+} as const;
+
+export type ApiCharacterGenerateImagePostRequestTextModelEnum = typeof ApiCharacterGenerateImagePostRequestTextModelEnum[keyof typeof ApiCharacterGenerateImagePostRequestTextModelEnum];
+export const ApiCharacterGenerateImagePostRequestImageModelEnum = {
+    MinimaxImage: 'Minimax_Image',
+    Flux11Pro: 'Flux_1_1_Pro',
+    FluxPro: 'Flux_Pro',
+    FluxSchnellLora: 'Flux_Schnell_Lora'
+} as const;
+
+export type ApiCharacterGenerateImagePostRequestImageModelEnum = typeof ApiCharacterGenerateImagePostRequestImageModelEnum[keyof typeof ApiCharacterGenerateImagePostRequestImageModelEnum];
+
 

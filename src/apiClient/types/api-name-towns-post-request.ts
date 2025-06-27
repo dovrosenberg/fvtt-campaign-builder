@@ -46,9 +46,17 @@ export interface ApiNameTownsPostRequest {
     'nameStyles'?: Array<string>;
     /**
      * The text generation model to use
-     * @type {number}
+     * @type {string}
      * @memberof ApiNameTownsPostRequest
      */
-    'model'?: number;
+    'textModel'?: ApiNameTownsPostRequestTextModelEnum;
 }
+
+export const ApiNameTownsPostRequestTextModelEnum = {
+    Gpt4oMini: 'GPT_4o_mini',
+    Claude3Haiku: 'Claude_3_haiku'
+} as const;
+
+export type ApiNameTownsPostRequestTextModelEnum = typeof ApiNameTownsPostRequestTextModelEnum[keyof typeof ApiNameTownsPostRequestTextModelEnum];
+
 

@@ -1,6 +1,7 @@
 .gitignore
 .npmignore
 .openapi-generator-ignore
+API/default-api.ts
 API/fcbapi.ts
 api.ts
 base.ts
@@ -12,6 +13,7 @@ types/api-character-generate-image-post-request.ts
 types/api-character-generate-image-post200-response.ts
 types/api-character-generate-post-request.ts
 types/api-character-generate-post200-response.ts
+types/api-location-generate-image-post-request.ts
 types/api-location-generate-post-request.ts
 types/api-location-generate-post200-response.ts
 types/api-name-characters-post-request.ts
@@ -25,6 +27,7 @@ types/api-name-taverns-post-request.ts
 types/api-name-taverns-post200-response.ts
 types/api-name-towns-post-request.ts
 types/api-name-towns-post200-response.ts
+types/api-organization-generate-image-post-request.ts
 types/api-organization-generate-post-request.ts
 types/api-organization-generate-post200-response.ts
 types/api-poll-email-todo-get200-response-items-inner.ts

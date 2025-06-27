@@ -17,106 +17,120 @@
 /**
  * 
  * @export
- * @interface ApiOrganizationGeneratePostRequest
+ * @interface ApiOrganizationGenerateImagePostRequest
  */
-export interface ApiOrganizationGeneratePostRequest {
+export interface ApiOrganizationGenerateImagePostRequest {
     /**
      * Genre of the world (ex. \"fantasy\" or \"science fiction\")
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'genre': string;
     /**
      * The feeling of the setting (ex. \"humorous\" or \"apocalyptic\")
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'settingFeeling'?: string;
     /**
      * The type of organization (ex. \"family\" or \"cult\")
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'type'?: string;
     /**
      * The generated organization\'s name.  If blank, one will be generated (text gen only)
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'name'?: string;
     /**
      * A brief description of the organization to factor into the produced text
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'briefDescription'?: string;
     /**
      * The type of the parent organization
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'parentName'?: string;
     /**
      * The type of parent organization
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'parentType'?: string;
     /**
      * The current description of the organization\'s parent
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'parentDescription'?: string;
     /**
      * Create a detailed description or a digestible summary
      * @type {boolean}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'createLongDescription'?: boolean;
     /**
      * The number of paragraphs to produce in the output when using a long description
      * @type {number}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'longDescriptionParagraphs'?: number;
     /**
      * The type of the grandparent organization
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'grandparentName'?: string;
     /**
      * The type of grandparent organization
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'grandparentType'?: string;
     /**
      * The current description of the organization\'s grandparent
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'grandparentDescription'?: string;
     /**
      * The styles of names to use
      * @type {Array<string>}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
     'nameStyles'?: Array<string>;
     /**
      * The text generation model to use
      * @type {string}
-     * @memberof ApiOrganizationGeneratePostRequest
+     * @memberof ApiOrganizationGenerateImagePostRequest
      */
-    'textModel'?: ApiOrganizationGeneratePostRequestTextModelEnum;
+    'textModel'?: ApiOrganizationGenerateImagePostRequestTextModelEnum;
+    /**
+     * The image generation model to use
+     * @type {string}
+     * @memberof ApiOrganizationGenerateImagePostRequest
+     */
+    'imageModel'?: ApiOrganizationGenerateImagePostRequestImageModelEnum;
 }
 
-export const ApiOrganizationGeneratePostRequestTextModelEnum = {
+export const ApiOrganizationGenerateImagePostRequestTextModelEnum = {
     Gpt4oMini: 'GPT_4o_mini',
     Claude3Haiku: 'Claude_3_haiku'
 } as const;
 
-export type ApiOrganizationGeneratePostRequestTextModelEnum = typeof ApiOrganizationGeneratePostRequestTextModelEnum[keyof typeof ApiOrganizationGeneratePostRequestTextModelEnum];
+export type ApiOrganizationGenerateImagePostRequestTextModelEnum = typeof ApiOrganizationGenerateImagePostRequestTextModelEnum[keyof typeof ApiOrganizationGenerateImagePostRequestTextModelEnum];
+export const ApiOrganizationGenerateImagePostRequestImageModelEnum = {
+    MinimaxImage: 'Minimax_Image',
+    Flux11Pro: 'Flux_1_1_Pro',
+    FluxPro: 'Flux_Pro',
+    FluxSchnellLora: 'Flux_Schnell_Lora'
+} as const;
+
+export type ApiOrganizationGenerateImagePostRequestImageModelEnum = typeof ApiOrganizationGenerateImagePostRequestImageModelEnum[keyof typeof ApiOrganizationGenerateImagePostRequestImageModelEnum];
 
 
