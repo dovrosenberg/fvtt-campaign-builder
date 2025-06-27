@@ -14,7 +14,7 @@ import type {
 } from '@/apiClient/types';
 
 // Other imports
-import type { RawAxiosRequestConfig, AxiosPromise, } from 'axios';
+import type { RawAxiosRequestConfig } from 'axios';
 import { FCBApi } from '@/apiClient';
 import { Backend } from './Backend';
 import { InjectedRequest } from '@/types/api';
