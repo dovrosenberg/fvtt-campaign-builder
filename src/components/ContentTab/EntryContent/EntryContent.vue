@@ -201,8 +201,8 @@
 
   // local components
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
-  import RelatedItemTable from '@/components/Tables/RelatedItemTable.vue';
-  import RelatedDocumentTable from '@/components/Tables/RelatedDocumentTable.vue';
+  import RelatedItemTable from '@/components/tables/RelatedItemTable.vue';
+  import RelatedDocumentTable from '@/components/tables/RelatedDocumentTable.vue';
   import { updateEntryDialog } from '@/dialogs/createEntry';
 
   import Editor from '@/components/Editor.vue';

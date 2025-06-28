@@ -42,8 +42,8 @@
   import { DataTableRowContextMenuEvent } from 'primevue/datatable';
 
   // local components
-  import BaseTable from '@/components/BaseTable/BaseTable.vue';
-  import RelatedDocumentsDialog from '@/components/Tables/RelatedDocumentsDialog.vue';
+  import BaseTable from '@/components/tables/BaseTable.vue';
+  import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
 
   // types
   import { RelatedDocumentDetails, DocumentLinkType } from '@/types';

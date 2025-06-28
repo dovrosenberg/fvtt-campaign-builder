@@ -29,7 +29,7 @@ import { useNavigationStore, useRelationshipStore, useMainStore } from '@/applic
 import { localize } from '@/utils/game';
 
 // library components
-import BaseTable from '@/components/BaseTable/BaseTable.vue';
+import BaseTable from '@/components/tables/BaseTable.vue';
 
 // store
 const navigationStore = useNavigationStore();

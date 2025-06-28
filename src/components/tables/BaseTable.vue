@@ -4,7 +4,6 @@
       data-key="uuid"
       :value="rows"
       size="small"
-      paginator
       paginator-position="bottom"
       paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
       current-page-report-template="{first} to {last} of {totalRecords}"
@@ -15,7 +14,6 @@
       :default-sort-order="1"
       :total-records="rows.length"
       :global-filter-fields="props.filterFields"
-      :rows="pagination.rowsPerPage"
       :filters="pagination.filters"
       :pt="{
         header: { style: 'border: none' },

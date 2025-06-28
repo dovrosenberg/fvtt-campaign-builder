@@ -48,6 +48,9 @@ Click the reference name to open the [Entry details](/reference/world-building/c
 
 Click on the to-do text to edit it.  Press Enter to save.  You can edit to-do items even if they were automatically created.
 
+### Sorting To-Dos
+To-Dos retain their order.  You can use the tab on the left of each row to reorder them as you desire.
+
 ### To-Do Actions
 The actions column lets you take several actions with the to-do items:
   - **Delete** - Delete the to-do item.

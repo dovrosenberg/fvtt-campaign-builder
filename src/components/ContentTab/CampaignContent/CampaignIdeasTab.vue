@@ -37,7 +37,7 @@
   // library components
 
   // local components
-  import BaseTable from '@/components/BaseTable/BaseTable.vue';
+  import BaseTable from '@/components/tables/BaseTable.vue';
   
   // types
   import { Idea, BaseTableGridRow } from '@/types';

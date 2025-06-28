@@ -51,7 +51,7 @@
 
   // local components
   import RelatedItemDialog from './RelatedItemDialog.vue';
-  import BaseTable from '@/components/BaseTable/BaseTable.vue';
+  import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
   import { Topics, ValidTopic, RelatedItemDetails, RelatedItemDialogModes } from '@/types';
