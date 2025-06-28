@@ -31,7 +31,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { ref, } from 'vue';
+  import { defineAsyncComponent, ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -43,7 +43,7 @@
 	
   // local components
   import SessionTable from '@/components/Tables/SessionTable.vue';
-  import RelatedDocumentsDialog from '@/components/Tables/RelatedDocumentsDialog.vue';
+  const RelatedDocumentsDialog = defineAsyncComponent(() => import('@/components/Tables/RelatedDocumentsDialog.vue'));
   import { DataTableCellEditCompleteEvent } from 'primevue';
 
   // types

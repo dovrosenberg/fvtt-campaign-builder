@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, PropType, ref } from 'vue';
+  import { computed, PropType, ref, defineAsyncComponent } from 'vue';
   import { storeToRefs } from 'pinia';
   import ContextMenu from '@imengyu/vue3-context-menu';
 
@@ -43,7 +43,7 @@
 
   // local components
   import BaseTable from '@/components/BaseTable/BaseTable.vue';
-  import RelatedDocumentsDialog from '@/components/Tables/RelatedDocumentsDialog.vue';
+  const RelatedDocumentsDialog = defineAsyncComponent(() => import('@/components/Tables/RelatedDocumentsDialog.vue'));
 
   // types
   import { RelatedDocumentDetails, DocumentLinkType } from '@/types';

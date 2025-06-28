@@ -89,7 +89,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, watch, defineAsyncComponent } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -105,10 +105,10 @@
   import Editor from '@/components/Editor.vue';
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
-  import CampaignToDoTab from '@/components/ContentTab/CampaignContent/CampaignToDoTab.vue';
   import CampaignIdeasTab from '@/components/ContentTab/CampaignContent/CampaignIdeasTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
+  const CampaignToDoTab = defineAsyncComponent(() => import('@/components/ContentTab/CampaignContent/CampaignToDoTab.vue'));
 
   // types
   import { WindowTabType, } from '@/types';

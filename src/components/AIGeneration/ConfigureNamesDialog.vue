@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch } from 'vue';
+  import { ref, computed, PropType, watch, defineAsyncComponent } from 'vue';
   import { storeToRefs } from 'pinia';
   
   // local imports
@@ -70,7 +70,7 @@
   import Checkbox from 'primevue/checkbox';
   
   // local components
-  import Dialog from '@/components/Dialog.vue';
+  const Dialog = defineAsyncComponent(() => import('@/components/Dialog.vue'));
 
   // types
   import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient/types';

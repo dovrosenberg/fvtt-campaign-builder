@@ -183,7 +183,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, watch, reactive } from 'vue';
+  import { computed, nextTick, onMounted, ref, watch, reactive, defineAsyncComponent } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -212,7 +212,7 @@
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import Tags from '@/components/Tags.vue';
   import SessionsTab from '@/components/ContentTab/EntryContent/SessionsTab.vue';
-  import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
+  const RelatedEntriesManagementDialog = defineAsyncComponent(() => import('@/components/RelatedEntriesManagementDialog.vue'));
   import { getRelatedEntries } from '@/utils/uuidExtraction';
 
   // types
@@ -368,7 +368,18 @@
     if (!currentSetting.value)
       return;
 
-    // find all the campaigns with an active session
+    // if there are no campaigns, exit
+    const numCampaigns = Object.keys(currentSetting.value.campaigns).length;
+    if (numCampaigns===0)
+      return;
+
+    // if there's only one campaign, we can just push it
+    if (numCampaigns===1) {
+      await selectCampaignForPush(Object.keys(currentSetting.value.campaigns)[0]);
+      return;
+    }
+
+    // e have more than one; now find all the campaigns with an active session
     let campaignsWithSessions = [] as { uuid: string; name: string}[];
 
     for (const campaignId of Object.keys(currentSetting.value.campaigns)) {

@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, watch } from 'vue';
+  import { ref, computed, watch, defineAsyncComponent } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
@@ -80,16 +80,9 @@
   import Column from 'primevue/column';
 
   // local components
-  import Dialog from '@/components/Dialog.vue';
+  const Dialog = defineAsyncComponent(() => import('@/components/Dialog.vue'));
 
   // types
-  interface RelatedItemInfo {
-    uuid: string;
-    name: string;
-    topic: ValidTopic;
-    topicName: string;
-    type: string;
-  }
 
   ////////////////////////////////
   // props

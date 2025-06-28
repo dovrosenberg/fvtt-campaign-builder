@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch, nextTick } from 'vue';
+  import { ref, computed, PropType, watch, nextTick, defineAsyncComponent } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -63,7 +63,7 @@
   import TypeAhead from '@/components/TypeAhead.vue';
   
   // local components
-  import Dialog from '@/components/Dialog.vue';
+  const Dialog = defineAsyncComponent(() => import('@/components/Dialog.vue'));
 
   // types
   import { Topics, ValidTopic, RelatedItemDialogModes } from '@/types';

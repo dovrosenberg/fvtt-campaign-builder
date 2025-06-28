@@ -26,21 +26,20 @@
 <script setup lang="ts">
 
   // library imports
-  import { ref, } from 'vue';
+  import { defineAsyncComponent, ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, useNavigationStore, SessionTableTypes} from '@/applications/stores';
+  import { useSessionStore, SessionTableTypes} from '@/applications/stores';
   import { Topics, RelatedItemDialogModes,} from '@/types';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
-	import { DataTableRowSelectEvent } from 'primevue/datatable';
 
   // local components
   import SessionTable from '@/components/Tables/SessionTable.vue';
-  import RelatedItemDialog from '@/components/Tables/RelatedItemDialog.vue';
+  const RelatedItemDialog = defineAsyncComponent(() => import('@/components/Tables/RelatedItemDialog.vue'));
 
   // types
   
