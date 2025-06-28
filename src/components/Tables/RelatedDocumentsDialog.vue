@@ -38,13 +38,13 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch, onMounted, defineAsyncComponent } from 'vue';
+  import { ref, computed, PropType, watch, onMounted, } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
 
   // local components
-  const Dialog = defineAsyncComponent(() => import('@/components/Dialog.vue'));
+  import Dialog from '@/components/Dialog.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
 
   // types

@@ -47,7 +47,6 @@
 
 <script setup lang="ts">
   // library imports
-  import { defineAsyncComponent } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -55,13 +54,13 @@
 
   // library components
 
-  // local components
-  const EntryContent = defineAsyncComponent(() => import('@/components/ContentTab/EntryContent/EntryContent.vue'));
-  const SessionContent = defineAsyncComponent(() => import('@/components/ContentTab/SessionContent/SessionContent.vue'));
-  const PCContent = defineAsyncComponent(() => import('@/components/ContentTab/PCContent.vue'));
-  const CampaignContent = defineAsyncComponent(() => import('@/components/ContentTab/CampaignContent/CampaignContent.vue'));
-  const HomePage = defineAsyncComponent(() => import('@/components/ContentTab/HomePage.vue'));
-  const SettingContent = defineAsyncComponent(() => import('@/components/ContentTab/SettingContent.vue'));
+  // local components 
+  import EntryContent from '@/components/ContentTab/EntryContent/EntryContent.vue';
+  import SessionContent from '@/components/ContentTab/SessionContent/SessionContent.vue';
+  import PCContent from '@/components/ContentTab/PCContent.vue';
+  import CampaignContent from '@/components/ContentTab/CampaignContent/CampaignContent.vue';
+  import HomePage from '@/components/ContentTab/HomePage.vue';
+  import SettingContent from '@/components/ContentTab/SettingContent.vue';
   
   // types
   import { WindowTabType } from '@/types';

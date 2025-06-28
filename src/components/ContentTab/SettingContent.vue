@@ -84,7 +84,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { defineAsyncComponent, computed, nextTick, onMounted, ref, watch } from 'vue';
+  import { computed, nextTick, onMounted, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -103,7 +103,7 @@
   import Editor from '@/components/Editor.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
-  const ConfigureNamesDialog = defineAsyncComponent(() => import('@/components/AIGeneration/ConfigureNamesDialog.vue'));
+  import ConfigureNamesDialog from '@/components/AIGeneration/ConfigureNamesDialog.vue';
 
   // types
   import { WindowTabType, } from '@/types';

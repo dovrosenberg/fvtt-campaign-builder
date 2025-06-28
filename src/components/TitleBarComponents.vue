@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 // library imports
-  import { computed, onMounted, watch, ref, defineAsyncComponent } from 'vue';
+  import { computed, onMounted, watch, ref, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -61,7 +61,7 @@
   import ToggleSwitch from 'primevue/toggleswitch';
 
   // local components
-  const CampaignSelector = defineAsyncComponent(() => import('@/components/WBHeader/PlayModeNavigation/CampaignSelector.vue'));
+  import CampaignSelector from '@/components/WBHeader/PlayModeNavigation/CampaignSelector.vue';
   import Search from '@/components/Search.vue';
   
   // Store references

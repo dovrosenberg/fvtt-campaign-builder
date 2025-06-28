@@ -9,8 +9,8 @@
       paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
       current-page-report-template="{first} to {last} of {totalRecords}"
       :editMode="props.columns.find(c=>c.editable) ? 'cell' : undefined"
-      :sort-field="pagination.sortField"
-      :sort-order="pagination.sortOrder"
+      :sort-field="props.canReorder ? 'sortOrder' : pagination.sortField"
+      :sort-order="props.canReorder ? 1 : pagination.sortOrder"
       :first="pagination.first"
       :default-sort-order="1"
       :total-records="rows.length"
@@ -36,6 +36,7 @@
       @row-contextmenu="emit('rowContextMenu', $event)"
       @cell-edit-complete="onCellEditComplete"
       @cell-edit-cancel="editingRow = null"
+      @row-reorder="onRowReorder"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between;">
@@ -93,6 +94,8 @@
         {{ localize('labels.loading') }}...
       </template>
 
+      <Column v-if="props.canReorder" :rowReorder="true" headerStyle="width: 3rem" :reorderableColumn="false" />
+
       <Column 
         v-for="col of props.columns" 
         :key="col.field" 
@@ -100,7 +103,7 @@
         :header="col.header" 
         :header-style="col.style"
         :body-style="col.style"
-        :sortable="col.sortable"
+        :sortable="props.canReorder ? false : col.sortable"
       >
         <!-- actions column format-->
         <template
@@ -300,8 +303,7 @@
   // local components
 
   // types
-  import { TablePagination,  } from '@/types';
-  type BaseTableGridRow = { uuid: string; } & Record<string, any>;
+  import { TablePagination, BaseTableGridRow } from '@/types';
 
   ////////////////////////////////
   // props
@@ -330,6 +332,10 @@
     },
     /** allow dropping on a row (i.e. as an edit action) */
     allowDropRow: {   
+      type: Boolean,
+      default: false,
+    },
+    canReorder: {
       type: Boolean,
       default: false,
     },
@@ -401,6 +407,7 @@
     (e: 'dropRow', event: DragEvent, uuid: string): void;
     (e: 'dropNew', event: DragEvent): void;
     (e: 'setEditingRow', uuid: string): void;
+    (e: 'reorder', reorderedRows: BaseTableGridRow[]): void;
   }>();
 
   ////////////////////////////////
@@ -591,6 +598,22 @@
       // Call the parent's drop handler
       emit('dropRow', event, uuid);
     }
+  }
+
+  const onRowReorder = (event: any) => {
+    if (!props.canReorder) return;
+
+    const { dragIndex, dropIndex } = event;
+    const reorderedRows = [...props.rows];
+    const movedItem = reorderedRows.splice(dragIndex, 1)[0];
+    reorderedRows.splice(dropIndex, 0, movedItem);
+
+    // Update sortOrder for all rows
+    reorderedRows.forEach((row, index) => {
+      row.sortOrder = index;
+    });
+
+    emit('reorder', reorderedRows);
   }
 
   const onEditButtonClick = (data: BaseTableGridRow) => {

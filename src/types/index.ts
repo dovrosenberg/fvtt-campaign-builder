@@ -110,9 +110,14 @@ export interface ToDoItem {
   sessionUuid: string | null; // uuid of the session if it's a session to-do (lore, vignette, monster, item)
   text: string;
   type: ToDoTypes;
+  sortOrder: number;
 }
 
 export interface Idea {
   uuid: string;  // uuid of the idea item
   text: string;
+  sortOrder: number;
 }
+
+export type BaseTableGridRow = { uuid: string; sortOrder?: number } & Record<string, any>;
+

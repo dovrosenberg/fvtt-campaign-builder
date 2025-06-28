@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch, toRaw, defineAsyncComponent } from 'vue';
+  import { ref, computed, PropType, watch, toRaw, } from 'vue';
   
   // local imports
   import { localize } from '@/utils/game';
@@ -73,7 +73,7 @@
   import ProgressSpinner from 'primevue/progressspinner';
   
   // local components
-  const Dialog = defineAsyncComponent(() => import('@/components/Dialog.vue'));
+  import Dialog from '@/components/Dialog.vue';
 
   ////////////////////////////////
   // props

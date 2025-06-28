@@ -188,7 +188,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, onMounted, PropType, watch, computed, defineAsyncComponent } from 'vue';
+  import { ref, onMounted, PropType, watch, computed, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -207,10 +207,10 @@
   import Checkbox from 'primevue/checkbox';
   
   // local components
-  const TypeSelect = defineAsyncComponent(() => import('@/components/ContentTab/EntryContent/TypeSelect.vue'));
-  const SpeciesSelect = defineAsyncComponent(() => import('@/components/ContentTab/EntryContent/SpeciesSelect.vue'));
-  const TypeAhead = defineAsyncComponent(() => import('@/components/TypeAhead.vue'));
-  const Dialog = defineAsyncComponent(() => import('@/components/Dialog.vue'));
+  import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
+  import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
+  import TypeAhead from '@/components/TypeAhead.vue';
+  import Dialog from '@/components/Dialog.vue';
 
   // types
   import { Topics, ValidTopic, Species, CharacterDetails, LocationDetails, OrganizationDetails } from '@/types';

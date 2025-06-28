@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, watch, defineAsyncComponent } from 'vue';
+  import { ref, computed, watch } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
@@ -80,7 +80,7 @@
   import Column from 'primevue/column';
 
   // local components
-  const Dialog = defineAsyncComponent(() => import('@/components/Dialog.vue'));
+  import Dialog from '@/components/Dialog.vue';
 
   // types
 
