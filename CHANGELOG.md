@@ -2,6 +2,7 @@
 
 ## v1.1.0 - 
 
+- Added ability to link Entries, Settings, and Campaigns to Journal Entries - great for attaching maps, multiple iamges of the same thing, and various other info you want to store and/or share with your players
 - Minor UI cleanup 
 
 ## v1.0.0 - Coming out of beta!
