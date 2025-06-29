@@ -16,7 +16,7 @@
         @cell-click="onCellClick"
         @drop-new="onDropNew"
         @dragover="onDragover"
-        @add-item="onAddItem"
+        @add-item="showPicker = true"
       />
       <RelatedDocumentsDialog
         v-model="showPicker"
@@ -95,10 +95,46 @@
     }));
   }
 
+  /** adds a journal or page (determined by uuid) to the array and emits the change*/
+  const addJournal = async (documentUuid: string) => {
+    const doc = await fromUuid<JournalEntry | JournalEntryPage>(documentUuid);
+    if (!doc) return;
+    
+    if (!['JournalEntry', 'JournalEntryPage'].includes(doc.documentName)) {
+      return;
+    }
+    
+    let journal: JournalEntry;
+    let page: JournalEntryPage | null = null;
+
+    if (doc.documentName === 'JournalEntry') {
+      journal = doc as JournalEntry;
+    } else if (doc.documentName === 'JournalEntryPage') {
+      page = doc as JournalEntryPage;
+      journal = doc.parent as JournalEntry;
+    } else {
+      throw new Error('Invalid document type in JournalTab.onDropNew');
+    }
+
+    const compositeUuid = `${journal!.uuid}|${page?.uuid || ''}`;
+
+    // prevent duplicates
+    if (props.initialJournals.some(j => j.uuid === compositeUuid)) return;
+
+    const newJournalLink: RelatedJournal = {
+      uuid: compositeUuid,
+      journalUuid: journal!.uuid,
+      pageUuid: page?.uuid || null,
+      packId: journal.pack,
+      packName: journal.pack ? game.packs?.get(journal.pack)?.title ?? null : null,
+    };
+
+    emit('journals-updated', [...props.initialJournals, newJournalLink]);
+  };
   ////////////////////////////////
   // event handlers
   const onDocumentAddedClick = async (documentUuid: string) => {
-    // await relationshipStore.addJournal(documentUuid);
+    await addJournal(documentUuid);
   };
 
   const onJournalClick = async (_event: MouseEvent, uuid: string) => {
@@ -139,36 +175,7 @@
       return;
     }
     
-    // TODO: this stuff needs to go into relationshipstore
-    const doc = await fromUuid<JournalEntry | JournalEntryPage>(data.uuid);
-    if (!doc) return;
-
-    let journal: JournalEntry;
-    let page: JournalEntryPage | null = null;
-
-    if (doc.documentName === 'JournalEntry') {
-      journal = doc as JournalEntry;
-    } else if (doc.documentName === 'JournalEntryPage') {
-      page = doc as JournalEntryPage;
-      journal = doc.parent as JournalEntry;
-    } else {
-      throw new Error('Invalid document type in JournalTab.onDropNew');
-    }
-
-    const compositeUuid = `${journal!.uuid}|${page?.uuid || ''}`;
-
-    // prevent duplicates
-    if (props.initialJournals.some(j => j.uuid === compositeUuid)) return;
-
-    const newJournalLink: RelatedJournal = {
-      uuid: compositeUuid,
-      journalUuid: journal!.uuid,
-      pageUuid: page?.uuid || null,
-      packId: journal.pack,
-      packName: journal.pack ? game.packs?.get(journal.pack)?.title ?? null : null,
-    };
-
-    emit('journals-updated', [...props.initialJournals, newJournalLink]);
+    await addJournal(data.uuid);
   }
 
   const onDeleteItemClick = async (id: string) => {

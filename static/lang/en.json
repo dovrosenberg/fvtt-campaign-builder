@@ -451,7 +451,8 @@
         "selectActors": "Select Actors",
         "selectItems": "Select Items",
         "addActor": "Add Actor",
-        "addItem": "Add Item"
+        "addItem": "Add Item",
+        "addJournal": "Add Journal/Page"        
       },
       "relatedEntriesManagement": {
         "title": "Manage Related Entries",
