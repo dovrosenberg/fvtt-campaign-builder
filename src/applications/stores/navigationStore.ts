@@ -476,7 +476,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     }
 
     // now remove from bookmarks
-    bookmarks.value = bookmarks.value.filter(b => b.id !== contentId);
+    bookmarks.value = bookmarks.value.filter(b => b.header.uuid !== contentId);
     await _saveBookmarks();
 
     // remove from recent items list
