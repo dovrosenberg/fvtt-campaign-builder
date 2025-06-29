@@ -9,6 +9,7 @@
 - Removed pagination from all tables; it took up extra room and was a nuisance
 - Fixed bug where bookmarks weren't deleted when the underlying content was
 - Added keybindings for moving forward/back across the tab bar; changed default for closing the tab
+- Added module setting to show the type of each node in the Setting tree in hierarchy mode.
 - Minor UI cleanup 
 
 ## v1.0.0 - Coming out of beta!
