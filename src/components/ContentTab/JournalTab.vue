@@ -184,12 +184,10 @@
       title: localize('dialogs.confirmDeleteRelationship.title'),
       content: localize('dialogs.confirmDeleteRelationship.message'),
       yes: () => { 
-        alert('TODO: delete journal')
-        // void relationshipStore.deleteJournal(id); 
+        emit('journals-updated', props.initialJournals.filter(j => j.uuid !== id));
       },
       no: () => {},
     });
-    emit('journals-updated', props.initialJournals.filter(j => j.uuid !== id));
   }
 
   async function onCellClick({ data, field }: { data: any, field: string }) {

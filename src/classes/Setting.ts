@@ -764,6 +764,60 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
     }
   }
 
+  /** remove from the journals tabs -- don't worry about lore for now */
+  public async deleteJournalEntryFromWorld(journalId: string) {
+    // remove from the setting
+    if (this.journals.find(j => j.journalUuid === journalId)) {
+      this.journals = this.journals.filter(j => j.journalUuid !== journalId);
+      await this.save();
+    }
+
+    // remove from any Campaigns that are linked to it
+    for (let campaign of Object.values(this.campaigns)) {
+      if (campaign.journals.find(j => j.journalUuid === journalId)) {  
+        campaign.journals = campaign.journals.filter(j => j.journalUuid !== journalId);
+        await campaign.save();
+      }
+    }
+
+    // remove from any Entries that are linked to it
+    for (let topic of Object.values(this.topicFolders)) {
+      for (let entry of topic.allEntries()) {
+        if (entry.journals.find(j => j.journalUuid === journalId)) {
+          entry.journals = entry.journals.filter(j => j.journalUuid !== journalId);
+          await entry.save();
+        }
+      }
+    }
+  }
+
+  /** remove from the journals tabs -- don't worry about lore for now */
+  public async deleteJournalEntryPageFromWorld(journalId: string) {
+    // remove from the setting
+    if (this.journals.find(j => j.pageUuid === journalId)) {
+      this.journals = this.journals.filter(j => j.pageUuid !== journalId);
+      await this.save();
+    }
+
+    // remove from any Campaigns that are linked to it
+    for (let campaign of Object.values(this.campaigns)) {
+      if (campaign.journals.find(j => j.pageUuid === journalId)) {  
+        campaign.journals = campaign.journals.filter(j => j.pageUuid !== journalId);
+        await campaign.save();
+      }
+    }
+
+    // remove from any Entries that are linked to it
+    for (let topic of Object.values(this.topicFolders)) {
+      for (let entry of topic.allEntries()) {
+        if (entry.journals.find(j => j.pageUuid === journalId)) {
+          entry.journals = entry.journals.filter(j => j.pageUuid !== journalId);
+          await entry.save();
+        }
+      }
+    }
+  }
+
   public get nameStyleExamples(): { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null {
     return this._nameStyleExamples;
   }
