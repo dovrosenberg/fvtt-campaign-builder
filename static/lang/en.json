@@ -50,7 +50,9 @@
       "enableToDoList": "Enable To-do List",
       "enableToDoListHelp": "If disabled, the todo list feature will be turned off.",
       "autoRelationships": "Auto-suggest relationships",
-      "autoRelationshipsHelp": "If enabled, the editor will automatically suggest changes to relationships between entries based changes made to the description."
+      "autoRelationshipsHelp": "If enabled, the editor will automatically suggest changes to relationships between entries based changes made to the description.",
+      "showTypesInTree": "Show types in Setting tree",
+      "showTypesInTreeHelp": "When true, if the Setting directory is not grouped by type, it will show the type of each Entry in the tree." 
     },
     "applications": {
       "sessionNotes": {

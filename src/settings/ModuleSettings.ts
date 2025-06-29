@@ -14,6 +14,7 @@ export enum SettingKey {
   defaultAddToSession = 'defaultAddToSession', // default state of "Add to current session" checkbox
   enableToDoList = 'enableToDoList', // whether the to-do list feature is enabled
   autoRelationships = 'autoRelationships', // whether to automatically suggest relationship changes based on editor
+  showTypesInTree = 'showTypesInTree', // show the type of the entry in the hierarchy tree
   
   // internal only
   rootFolderId = 'rootFolderId',  // uuid of the root folder
@@ -48,6 +49,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.groupTreeByType ? boolean :
     K extends SettingKey.isInPlayMode ? boolean :
     K extends SettingKey.autoRelationships ? boolean :
+    K extends SettingKey.showTypesInTree ? boolean :
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
@@ -141,6 +143,13 @@ export class ModuleSettings {
 
   // these are client-specific and displayed in settings
   private static localDisplayParams: (Partial<ClientSettings.SettingConfig> & { settingID: SettingKey })[] = [
+    {
+      settingID: SettingKey.showTypesInTree,
+      name: 'settings.showTypesInTree',
+      hint: 'settings.showTypesInTreeHelp',
+      default: false,
+      type: Boolean,
+    },
     {
       settingID: SettingKey.startCollapsed,
       name: 'settings.startCollapsed',
