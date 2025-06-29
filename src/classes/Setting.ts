@@ -1,6 +1,6 @@
 import { moduleId, UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
 import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
-import { Hierarchy, Topics, ValidTopic, WorldGeneratorConfig } from '@/types';
+import { Hierarchy, Topics, ValidTopic, WorldGeneratorConfig, RelatedJournal } from '@/types';
 import { getRootFolder,  } from '@/compendia';
 import { FCBDialog } from '@/dialogs';
 import { DocumentWithFlags, Campaign, TopicFolder } from '@/classes';
@@ -39,6 +39,7 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
   private _nameStyles: number[];
   private _rollTableConfig: WorldGeneratorConfig | null;
   private _nameStyleExamples: { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null;
+  private _journals: RelatedJournal[];
 
   /**
    * Note: you should always call validate() after creating a new Setting - this ensures the 
@@ -60,6 +61,7 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
     this._nameStyles = this.getFlag(WorldFlagKey.nameStyles) || [0];
     this._rollTableConfig = this.getFlag(WorldFlagKey.rollTableConfig);
     this._nameStyleExamples = this.getFlag(WorldFlagKey.nameStyleExamples);
+    this._journals = this.getFlag(WorldFlagKey.journals) || [];
     this._name = this._doc.name;
     if (this._compendiumId) {
       const compendium = game.packs?.get(this._compendiumId);
@@ -764,6 +766,15 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
 
   public get nameStyleExamples(): { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null {
     return this._nameStyleExamples;
+  }
+
+  public get journals(): readonly RelatedJournal[] {
+    return this._journals;
+  }
+
+  public set journals(value: RelatedJournal[] | readonly RelatedJournal[]) {
+    this._journals = [...value];
+    this.updateCumulative(WorldFlagKey.journals, this._journals);
   }
 
   public set nameStyleExamples(value: { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null) {

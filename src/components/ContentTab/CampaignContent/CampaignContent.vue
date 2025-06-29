@@ -20,6 +20,7 @@
         <div class="fcb-subtab-wrapper">
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
             <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
+            <a class="item" data-tab="journals">{{ localize('labels.tabs.campaign.journals') }}</a>
             <a class="item" data-tab="pcs">{{ localize('labels.tabs.campaign.pcs') }}</a>
             <a class="item" data-tab="lore">{{ localize('labels.tabs.campaign.lore') }}</a>
             <a class="item" data-tab="ideas">{{ localize('labels.tabs.campaign.ideas') }}</a>
@@ -59,6 +60,11 @@
                 />
               </div>
             </DescriptionTab>
+            <JournalTab
+              v-if="currentCampaign"
+              :initial-journals="currentCampaign.journals"
+              @journals-updated="onJournalsUpdate"
+            />
             <div class="tab flexcol" data-group="primary" data-tab="pcs">
               <div class="tab-inner">
                 <CampaignPCsTab />
@@ -107,11 +113,12 @@
   import CampaignLoreTab from '@/components/ContentTab/CampaignContent/CampaignLoreTab.vue';
   import CampaignIdeasTab from '@/components/ContentTab/CampaignContent/CampaignIdeasTab.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
+  import JournalTab from '@/components/ContentTab/JournalTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import CampaignToDoTab from '@/components/ContentTab/CampaignContent/CampaignToDoTab.vue';
 
   // types
-  import { WindowTabType, } from '@/types';
+  import { RelatedJournal, WindowTabType, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -195,6 +202,13 @@
       await currentCampaign.value.save();
     }
   }
+
+  const onJournalsUpdate = async (newJournals: RelatedJournal[]) => {
+    if (currentCampaign.value) {
+      currentCampaign.value.journals = newJournals;
+      await currentCampaign.value.save();
+    }
+  };
 
   ////////////////////////////////
   // watchers

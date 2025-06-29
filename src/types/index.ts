@@ -68,6 +68,7 @@ export enum DocumentLinkType {
   Scenes,
   Actors,
   Items,
+  Journals,
 }
 
 // relationships

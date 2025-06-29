@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace,  } from '@/documents';
+import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace, RelatedJournal } from '@/documents';
 import { RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
@@ -30,7 +30,7 @@ export class Entry {
     // clone it to avoid unexpected changes
     this._entryDoc = foundry.utils.deepClone(entryDoc);
     this._cumulativeUpdate = {};
-    this.topicFolder = topicFolder || null;
+        this.topicFolder = topicFolder || null;
   }
 
   // does not set the parent topic
@@ -257,6 +257,7 @@ export class Entry {
     return this._entryDoc.system.scenes;
   }  
 
+  // we don't track cumulative update - save just always saves the arrays
   set scenes(value: string[]) {
     this._entryDoc.system.scenes = value;
   }
@@ -269,8 +270,22 @@ export class Entry {
     return this._entryDoc.system.actors;
   }  
 
+  // we don't track cumulative update - save just always saves the arrays
   set actors(value: string[]) {
     this._entryDoc.system.actors = value;
+  }
+
+  public get journals(): RelatedJournal[] {
+    // create the array if it doesn't exist
+    if (!this._entryDoc.system.journals)
+      this._entryDoc.system.journals = [];
+
+    return this._entryDoc.system.journals;
+  }
+
+  // we don't track cumulative update - save just always saves the arrays
+  public set journals(value: RelatedJournal[]) {
+    this._entryDoc.system.journals = value;
   }
 
   public async getParentId(): Promise<string | null> {
@@ -307,6 +322,7 @@ export class Entry {
         ...this._cumulativeUpdate.system,
         scenes: this.scenes,
         actors: this.actors,
+        journals: this.journals,
       }
     };
 

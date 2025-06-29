@@ -1,4 +1,4 @@
-import { RelatedItemDetails, TagInfo, Topics, ValidTopic } from '@/types';
+import { RelatedItemDetails, TagInfo, Topics, ValidTopic, RelatedJournal } from '@/types';
 
 const fields = foundry.data.fields;
 const entrySchema = {
@@ -19,6 +19,13 @@ const entrySchema = {
   // we store these separately, for simplicity... for now, they're only used by one topic each
   scenes: new fields.ArrayField(new fields.DocumentUUIDField({blank: false, type: 'Scene'}), { required: true, initial: [] }),
   actors: new fields.ArrayField(new fields.DocumentUUIDField({blank: false, type: 'Actor'}), { required: true, initial: [] }),
+  journals: new fields.ArrayField(new fields.SchemaField({
+    uuid: new fields.StringField({ required: true, blank: false }),
+    journalUuid: new fields.DocumentUUIDField({ required: true, type: 'JournalEntry' }),
+    pageUuid: new fields.DocumentUUIDField({ required: false, type: 'JournalEntryPage', nullable: true, initial: null }),
+    packId: new fields.StringField({ required: false, nullable: true, initial: null }),
+    packName: new fields.StringField({ required: false, nullable: true, initial: null }),
+  }), { required: true, initial: [] }),
 
   // used only for characters
   speciesId: new fields.StringField({ required: false, nullable: false, textSearch: false, }),
@@ -89,5 +96,6 @@ export interface EntryDoc extends JournalEntryPage {
 
     scenes: string[];
     actors: string[];
+    journals: RelatedJournal[];
   };
 }

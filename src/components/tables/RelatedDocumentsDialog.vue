@@ -48,7 +48,7 @@
   import TypeAhead from '@/components/TypeAhead.vue';
 
   // types
-  type DocumentType = 'actor' | 'item' | 'scene';
+  type DocumentType = 'actor' | 'item' | 'scene' | 'journal';
   type DocumentOption = {
     id: string;  // uuid
     label: string; // name with type
@@ -83,15 +83,42 @@
   ////////////////////////////////
   // computed data
   const documentTypeName = computed(() => {
-    return props.documentType === 'actor' ? localize('labels.tabs.entry.actors') : localize('labels.tabs.entry.items');
+    switch (props.documentType) {
+      case 'actor':
+        return localize('labels.tabs.entry.actors');
+      case 'item':
+        return localize('labels.tabs.entry.items');
+      case 'scene':
+        return localize('labels.tabs.entry.scenes');
+      case 'journal':
+        return localize('labels.tabs.entry.journals');
+    }
   });
 
   const dialogTitle = computed(() => {
-    return props.documentType === 'actor' ? localize('dialogs.relatedDocuments.addActor') : localize('dialogs.relatedDocuments.addItem');
+    switch (props.documentType) {
+      case 'actor':
+        return localize('dialogs.relatedDocuments.addActor');
+      case 'item':
+        return localize('dialogs.relatedDocuments.addItem');
+      case 'scene':
+        return localize('dialogs.relatedDocuments.addScene');
+      case 'journal':
+        return localize('dialogs.relatedDocuments.addJournal');
+    }
   });
 
   const actionButtonLabel = computed(() => {
-    return props.documentType === 'actor' ? localize('dialogs.relatedDocuments.addActor') : localize('dialogs.relatedDocuments.addItem');
+    switch (props.documentType) {
+      case 'actor':
+        return localize('dialogs.relatedDocuments.addActor');
+      case 'item':
+        return localize('dialogs.relatedDocuments.addItem');
+      case 'scene':
+        return localize('dialogs.relatedDocuments.addScene');
+      case 'journal':
+        return localize('dialogs.relatedDocuments.addJournal');
+    }
   });
 
   const isAddFormValid = computed((): boolean => {
@@ -123,6 +150,25 @@
         case 'scene':
           collection = game.scenes;
           break;
+        case 'journal':
+          let docOptions = [] as { id: string; label: string }[];
+          // we need to do journals and pages
+          game.journal.forEach((doc: JournalEntry) => {
+            docOptions.push({
+              id: doc.uuid,
+              label: `${doc.name} (journal)`
+            });
+
+            doc.pages.forEach((page: JournalEntryPage) => {
+              docOptions.push({
+                id: page.uuid,
+                label: page.type ? `${page.name} (${page.type})` : `${page.name} (page)`
+              });
+            });
+          });
+          documentOptions.value = docOptions;
+          return;
+
         default:
           throw new Error(`Invalid document type: ${props.documentType}`);
       }
@@ -189,23 +235,23 @@
 </script>
 
 <style lang="scss" scoped>
-.related-documents-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
-  padding: 0.5rem 0;
-
-  h6 {
-    margin-bottom: 8px;
-    margin-top: 8px;
+  .related-documents-content {
     display: flex;
-    align-items: center;
-  }
-
-  .search-container {
-    position: relative;
+    flex-direction: column;
+    gap: 1.5rem;
     width: 100%;
+    padding: 0.5rem 0;
+
+    h6 {
+      margin-bottom: 8px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-container {
+      position: relative;
+      width: 100%;
+    }
   }
-}
 </style>

@@ -29,6 +29,7 @@
         <div class="fcb-subtab-wrapper">
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
             <a class="item" data-tab="description">{{ localize('labels.tabs.campaign.description') }}</a>
+            <a class="item" data-tab="journals">{{ localize('labels.tabs.campaign.journals') }}</a>
           </nav>
           <div class="fcb-tab-body flexrow">
             <DescriptionTab 
@@ -68,6 +69,10 @@
                   />
               </div>
             </DescriptionTab>
+            <JournalTab
+              :initial-journals="currentSetting.journals"
+              @journals-updated="onJournalsUpdate"
+            />
           </div>
         </div>
       </div>
@@ -102,11 +107,12 @@
   // local components
   import Editor from '@/components/Editor.vue';
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
+  import JournalTab from '@/components/ContentTab/JournalTab.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import ConfigureNamesDialog from '@/components/AIGeneration/ConfigureNamesDialog.vue';
 
   // types
-  import { WindowTabType, } from '@/types';
+  import { RelatedJournal, WindowTabType, } from '@/types';
   
   ////////////////////////////////
   // props
@@ -224,6 +230,13 @@
       zIndex: 300,
       items: menuItems,
     });
+  };
+
+  const onJournalsUpdate = async (newJournals: RelatedJournal[]) => {
+    if (currentSetting.value) {
+      currentSetting.value.journals = newJournals;
+      await currentSetting.value.save();
+    }
   };
 
   const onNameStylesSave = async (selectedStyles: number[]) => {

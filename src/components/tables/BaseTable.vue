@@ -103,174 +103,170 @@
         :body-style="col.style"
         :sortable="props.canReorder ? false : col.sortable"
       >
-        <!-- actions column format-->
-        <template
-          v-if="col.field==='actions'"
-          #body="{ data }"
-        >
-          <div 
-            :class="[
-              'fcb-row-wrapper', 
-              isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
-            ]"
-            @dragover="onDragoverRow($event, data.uuid)"
-            @dragleave="onDragLeaveRow(data.uuid)"
-            @drop="onDropRow($event, data.uuid)"
-          >
-            <a 
-              v-if="props.allowDelete"
-              class="fcb-action-icon" 
-              :data-tooltip="props.deleteItemLabel"
-              @click.stop="emit('deleteItem', data.uuid)" 
-            >
-              <i class="fas fa-trash"></i>
-            </a>
-            <a 
-              v-if="props.allowEdit"
-              class="fcb-action-icon" 
-              :data-tooltip="props.editItemLabel"
-              @click.stop="onEditButtonClick(data)" 
-            >
-              <i class="fas fa-pen"></i>
-            </a>
-            <span v-if="props.trackDelivery">
-              <!-- we track delivery on campaign (delivered and not) and session lore lists -->
-              <!-- if it's delivered, lockedToSessionId is null but lockedToSession is 'Campaign' if we're looking at the campaign delivered table -->
-              <!-- if it's not delivered, lockedToSessionId is a session id where it sits or null for the campaign -->
-
-              <!--  this is a undelivered one - campaign or session, both can be delivered -->
-              <a 
-                v-if="!data.delivered"
-                class="fcb-action-icon" 
-                :data-tooltip="localize('tooltips.markAsDelivered')"
-                @click.stop="emit('markItemDelivered', data.uuid)" 
-              >
-                <i class="fas fa-check"></i>
-              </a>
-              <!-- this is a delivered campaign one on campaign table or session one on the 
-                   session table; can undeliver in either case -->
-              <a 
-                v-if="data.delivered && !data.lockedToSessionId"
-                class="fcb-action-icon" 
-                :data-tooltip="localize('tooltips.unmarkAsDelivered')"
-                @click.stop="emit('unmarkItemDelivered', data.uuid)" 
-              >
-                <i class="fas fa-circle-xmark"></i>
-              </a>
-              <!-- this is a undelivered session one -->
-              <a 
-                v-if="props.showMoveToCampaign && !data.delivered"
-                class="fcb-action-icon" 
-                :data-tooltip="localize('tooltips.moveToCampaign')"
-                @click.stop="emit('moveToCampaign', data.uuid)" 
-              >
-                <i class="fas fa-reply"></i>
-              </a>
-              <!-- this is a undelivered session or campaign one; can move either to next session -->
-              <a 
-                v-if="!data.delivered"
-                class="fcb-action-icon" 
-                :data-tooltip="localize('tooltips.moveToNextSession')"
-                @click.stop="emit('moveToNextSession', data.uuid)" 
-              >
-                <i class="fas fa-share"></i>
-              </a>
-            </span>
-          </div>
-        </template>
-        <template
-          v-if="col.field==='drag'"
-          #body="{ data }"
-        >
-          <div 
-            :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
-            ]"
-            @dragover="onDragoverRow($event, data.uuid)"
-            @dragleave="onDragLeaveRow(data.uuid)"
-            @drop="onDropRow($event, data.uuid)"
-          >
-            <div 
-              class="fcb-drag-handle"
-              @dragstart="onRowDragStart($event, data.uuid)"
-              :draggable="props.draggableRows"
-              :data-tooltip="data.dragTooltip || 'Drag'"
-            >
-              <i class="fas fa-bars"></i>
-            </div>
-          </div>
-        </template>
-        <template
-          v-if="col.editable && col.type !== 'boolean'"
-          #body="{ data }"
-        >
-          <div 
-            :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
-            ]"
-            @dragover="onDragoverRow($event, data.uuid)"
-            @dragleave="onDragLeaveRow(data.uuid)"
-            @drop="onDropRow($event, data.uuid)"
-          >
-            <div  
-              v-if="data.uuid===editingRow"
-              @click.stop=""
-            >
-              <!-- we set the id so that we can pull the value when we change row -->
-              <!-- TODO: do a debounce update on edit rather than waiting for the complete action -->
-              <Textarea 
-                v-if="!col.smallEditBox"
-                v-model="data[col.field]"
-                style="width: 100%; font-size: inherit;"
-                :id="`${data.uuid}-${col.field}`" 
-                rows="2"
-              />
-              <InputText 
-                v-if="col.smallEditBox"
-                v-model="data[col.field]"
-                style="width: 100%; font-size: inherit;"
-                :id="`${data.uuid}-${col.field}`" 
-              />
-            </div>
-            <div 
-              v-if="data.uuid!==editingRow"
-              @click.stop="onClickEditableCell(data.uuid)"
-            >
-              <!-- we're not editing this row, but need to put a click event on columns that are editable -->
-              {{ data[col.field] }} &nbsp;
-            </div>
-          </div>
-        </template>
-        <template
-          v-if="col.editable && col.type === 'boolean'"
-          #body="{ data, field }"
-        >
-          <div class="fcb-row-wrapper" style="text-align: center;">
-            <Checkbox :model-value="data[field]" :binary="true" @update:modelValue="onCheckboxChange(data, field, $event)" />
-          </div>
-        </template>
-        <!-- Standard column format -->
-        <template
-          v-if="!col.editable && col.field!=='actions' && col.field!=='drag'"
-          #body="{ data }"
-        >
-          <div 
-            :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
-            ]"
-
-            @dragover="onDragoverRow($event, data.uuid)"
-            @dragleave="onDragLeaveRow(data.uuid)"
-            @drop="onDropRow($event, data.uuid)"
-          >
+        <template #body="{ data, field }">
+          <!-- ACTIONS -->
+          <div v-if="field === 'actions'">
             <div 
               :class="[
-                'fcb-table-body-text', 
-                col.onClick ? 'clickable' : '',
+                'fcb-row-wrapper', 
+                isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
               ]"
-              @click.stop="col.onClick && col.onClick($event, data.uuid)"
-            >              
-              <span :style="col.onClick ? 'text-decoration: underline;' : ''">
-                {{ data[col.field] }}               
+              @dragover="onDragoverRow($event, data.uuid)"
+              @dragleave="onDragLeaveRow(data.uuid)"
+              @drop="onDropRow($event, data.uuid)"
+            >
+              <a 
+                v-if="props.allowDelete"
+                class="fcb-action-icon" 
+                :data-tooltip="props.deleteItemLabel"
+                @click.stop="emit('deleteItem', data.uuid)" 
+              >
+                <i class="fas fa-trash"></i>
+              </a>
+              <a 
+                v-if="props.allowEdit"
+                class="fcb-action-icon" 
+                :data-tooltip="props.editItemLabel"
+                @click.stop="onEditButtonClick(data)" 
+              >
+                <i class="fas fa-pen"></i>
+              </a>
+              <span v-if="props.trackDelivery">
+                <!-- we track delivery on campaign (delivered and not) and session lore lists -->
+                <!-- this is a delivered one -->
+                <a 
+                  v-if="data.delivered"
+                  class="fcb-action-icon" 
+                  :data-tooltip="localize('tooltips.unmarkDelivered')"
+                  @click.stop="emit('unmarkItemDelivered', data.uuid)" 
+                >
+                  <i class="fas fa-circle-xmark"></i>
+                </a>
+                <!-- this is a undelivered session one -->
+                <a 
+                  v-if="props.showMoveToCampaign && !data.delivered"
+                  class="fcb-action-icon" 
+                  :data-tooltip="localize('tooltips.moveToCampaign')"
+                  @click.stop="emit('moveToCampaign', data.uuid)" 
+                >
+                  <i class="fas fa-arrow-up"></i>
+                </a>
+                <!-- this is a undelivered campaign one -->
+                <a 
+                  v-if="!props.showMoveToCampaign && !data.delivered"
+                  class="fcb-action-icon" 
+                  :data-tooltip="localize('tooltips.moveToNextSession')"
+                  @click.stop="emit('moveToNextSession', data.uuid)" 
+                >
+                  <i class="fas fa-share"></i>
+                </a>
               </span>
-              &nbsp; <!-- nbsp because otherwise the cell will have 0 width and the mouse events won't work; here so it doesn't get underlined -->
+            </div>
+          </div>
+
+          <!-- DRAG HANDLE -->
+          <div v-else-if="field === 'drag'">
+            <div 
+              :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
+              ]"
+              @dragover="onDragoverRow($event, data.uuid)"
+              @dragleave="onDragLeaveRow(data.uuid)"
+              @drop="onDropRow($event, data.uuid)"
+            >
+              <div 
+                class="fcb-drag-handle" 
+                draggable="true"
+                @dragstart="onDragstart($event, data.uuid)"
+              >
+                <i class="fas fa-bars"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- EDITABLE TEXT -->
+          <div v-else-if="col.editable && col.type !== 'boolean'">
+            <div 
+              :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
+              ]"
+              @dragover="onDragoverRow($event, data.uuid)"
+              @dragleave="onDragLeaveRow(data.uuid)"
+              @drop="onDropRow($event, data.uuid)"
+            >
+              <!-- we're editing this row -->
+              <div 
+                v-if="editingRow === data.uuid" 
+                class="fcb-table-body-text"
+              >
+                <InputText 
+                  v-model="editingRowData[field]" 
+                  @keydown.enter="saveCurrentlyEditingRow" 
+                  @keydown.esc="cancelEdit"
+                />
+              </div>
+              <!-- not editing this row -->
+              <div 
+                v-else
+                class="fcb-table-body-text"
+                @click="setEditingRow(data)"
+              >
+                <!-- we're not editing this row, but need to put a click event on columns that are editable -->
+                {{ data[field] }} &nbsp;
+              </div>
+            </div>
+          </div>
+
+          <!-- EDITABLE BOOLEAN -->
+          <div v-else-if="col.editable && col.type === 'boolean'">
+            <div 
+              :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
+              ]"
+              @dragover="onDragoverRow($event, data.uuid)"
+              @dragleave="onDragLeaveRow(data.uuid)"
+              @drop="onDropRow($event, data.uuid)"
+            >
+              <Checkbox 
+                :model-value="data[field]" 
+                :binary="true" 
+                @update:model-value="onCheckboxChange(data, field, $event)"
+              />
+            </div>
+          </div>
+
+          <!-- CLICKABLE -->
+          <div v-else-if="col.clickable">
+            <div 
+              :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '']"
+              @dragover="onDragoverRow($event, data.uuid)"
+              @dragleave="onDragLeaveRow(data.uuid)"
+              @drop="onDropRow($event, data.uuid)"
+            >
+              <div
+                :class="['fcb-table-body-text', 'clickable']"
+                @click.stop="emit('cellClick', { data: data, field: field })"
+              >
+                {{ data[field] }}
+              </div>
+            </div>
+          </div>
+
+          <!-- STANDARD -->
+          <div v-else>
+            <div 
+              :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
+                      col.onClick ? 'clickable' : '']"
+              @dragover="onDragoverRow($event, data.uuid)"
+              @dragleave="onDragLeaveRow(data.uuid)"
+              @drop="onDropRow($event, data.uuid)"
+            >
+              <div
+                :class="['fcb-table-body-text']"
+                @click.stop="col.onClick && col.onClick($event, data.uuid)"
+              >
+                <span :style="col.onClick ? 'text-decoration: underline;' : ''">
+                  {{ data[field] }}               
+                </span>
+                &nbsp; <!-- nbsp because otherwise the cell will have 0 width and the mouse events won't work; here so it doesn't get underlined -->
+              </div>
             </div>
           </div>
         </template>
@@ -290,15 +286,15 @@
 
   // library components
   import Button from 'primevue/button';
-  import DataTable, { DataTableCellEditCompleteEvent, DataTableRowContextMenuEvent, DataTableRowSelectEvent, DataTableFilterMetaData } from 'primevue/datatable';
+  import DataTable, {
+    type DataTableCellEditCompleteEvent,
+    type DataTableFilterMetaData,
+  } from 'primevue/datatable';
   import Column from 'primevue/column';
   import InputText from 'primevue/inputtext';
   import IconField from 'primevue/iconfield';
   import InputIcon from 'primevue/inputicon';
-  import Textarea from 'primevue/textarea';
   import Checkbox from 'primevue/checkbox';
-
-  // local components
 
   // types
   import { TablePagination, BaseTableGridRow } from '@/types';
@@ -306,16 +302,16 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    showAddButton: { 
-      type: Boolean, 
+    showAddButton: {
+      type: Boolean,
       default: false,
     },
-    showFilter: { 
-      type: Boolean, 
+    showFilter: {
+      type: Boolean,
       default: true,
     },
-    addButtonLabel: { 
-      type: String, 
+    addButtonLabel: {
+      type: String,
       default: '',
     },
     /** used for campaign/session tracking */
@@ -324,12 +320,12 @@
       default: false,
     },
     /** displays as text next to the add button (even if no button) */
-    extraAddText: {   
-      type: String, 
+    extraAddText: {
+      type: String,
       default: '',
     },
     /** allow dropping on a row (i.e. as an edit action) */
-    allowDropRow: {   
+    allowDropRow: {
       type: Boolean,
       default: false,
     },
@@ -339,7 +335,7 @@
     },
     /** list of column names you can filter on */
     filterFields: {
-      type: Array as PropType<string[]>,   
+      type: Array as PropType<string[]>,
       default: [],
     },
     rows: {
@@ -376,11 +372,13 @@
       required: false,
       default: false,
     },
-    helpText: {   // displays an info icon with this tooltip
+    helpText: {
+      // displays an info icon with this tooltip
       type: String,
       default: '',
     },
-    helpLink: {   // clicking the icon opens this link
+    helpLink: {
+      // clicking the icon opens this link
       type: String,
       default: '',
     },
@@ -388,25 +386,26 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits<{
-    (e: 'rowSelect', originalEvent: DataTableRowSelectEvent): void;
-    (e: 'editItem', data: BaseTableGridRow): void;
-    (e: 'deleteItem', uuid: string): void;
-    (e: 'addItem'): void;
-    (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
-    (e: 'cellEditComplete', originalEvent: DataTableCellEditCompleteEvent): void;
-    (e: 'markItemDelivered', uuid: string): void;
-    (e: 'unmarkItemDelivered', uuid: string): void;
-    (e: 'moveToNextSession', uuid: string): void;
-    (e: 'moveToCampaign', uuid: string): void;
-    (e: 'dragstart', event: DragEvent, uuid: string): void;
-    (e: 'dragoverNew', event: DragEvent): void;
-    (e: 'dragoverRow', event: DragEvent, uuid: string): void;
-    (e: 'dropRow', event: DragEvent, uuid: string): void;
-    (e: 'dropNew', event: DragEvent): void;
-    (e: 'setEditingRow', uuid: string): void;
-    (e: 'reorder', reorderedRows: BaseTableGridRow[]): void;
-  }>();
+  const emit = defineEmits([
+    'rowSelect',
+    'editItem',
+    'deleteItem',
+    'addItem',
+    'rowContextMenu',
+    'cellEditComplete',
+    'markItemDelivered',
+    'unmarkItemDelivered',
+    'moveToNextSession',
+    'moveToCampaign',
+    'dragstart',
+    'dragoverNew',
+    'dragoverRow',
+    'dropRow',
+    'dropNew',
+    'setEditingRow',
+    'reorder',
+    'cellClick',
+  ]);
 
   ////////////////////////////////
   // store
@@ -414,23 +413,24 @@
   ////////////////////////////////
   // data
   const pagination = reactive<TablePagination>({
-    sortField: 'name', 
-    sortOrder: 1, 
+    sortField: 'name',
+    sortOrder: 1,
     first: 0,
     page: 1,
-    rowsPerPage: 5, 
+    rowsPerPage: 10,
     filters: {
       global: { value: null, matchMode: FilterMatchMode.CONTAINS },
       ...props.filterFields.reduce((acc, field): Record<string, DataTableFilterMetaData> => {
         acc[field] = { value: null, matchMode: FilterMatchMode.CONTAINS };
         return acc;
-      }, {} as Record<string, DataTableFilterMetaData>)
-    }
+      }, {} as Record<string, DataTableFilterMetaData>),
+    },
   });
 
   /** are we editing and row, and which one (uuid) */
   const editingRow = ref<string | null>(null);
-  
+  const editingRowData = ref<any>({});
+
   /** track if a valid drag is currently over the drop zone */
   const isDragHover = ref<boolean>(false);
 
@@ -441,34 +441,36 @@
   // computed data
   /** Check if any columns are editable */
   const hasEditableColumns = computed(() => {
-    return props.columns.some(col => col.editable);
+    return props.columns.some((col) => col.editable);
   });
 
   ////////////////////////////////
   // methods
   /**
    * Sets a specific row to edit mode
-   * @param uuid The UUID of the row to edit
+   * @param uuid The row uuid to edit
    */
   const setEditingRow = (uuid: string) => {
+    const data = props.rows.find((row) => row.uuid === uuid);
+    if (!data) return;
+
+    editingRowData.value = { ...data };
     editingRow.value = uuid;
 
     // Find the index of the row
-    const rowIndex = props.rows.findIndex(row => row.uuid === uuid);
+    const rowIndex = props.rows.findIndex((row) => row.uuid === uuid);
 
     if (rowIndex !== -1) {
       // Calculate the page number (0-based)
-      const page = Math.floor(rowIndex / pagination.rowsPerPage);
+      const page = Math.floor(rowIndex / 10);
 
-      // Set the 'first' property for pagination to the first record
-      //    of the page containing the row we need
-      pagination.first = page * pagination.rowsPerPage;
-      pagination.page = page + 1; // Update the page number too
+      // Set the paginator's 'first' property
+      pagination.first = page * 10;
 
-      // wait for the next tick to ensure the table has updated
+      // wait for the next tick to ensure the input is rendered
       nextTick(() => {
         // find the first editable column and set the focus on it
-        const firstEditableColumn = props.columns.find(col => col.editable);
+        const firstEditableColumn = props.columns.find((col) => col.editable);
         if (firstEditableColumn) {
           const id = `${uuid}-${firstEditableColumn.field}`;
           const input = document.getElementById(id) as HTMLInputElement;
@@ -480,72 +482,78 @@
     }
 
     emit('setEditingRow', uuid);
-  }
+  };
+
+  const cancelEdit = () => {
+    editingRow.value = null;
+    editingRowData.value = {};
+  };
 
   /**
    * Saves the currently editing row by extracting values from input fields
    * and emitting cellEditComplete events for each editable field
    */
   const saveCurrentlyEditingRow = () => {
-    if (editingRow.value) {
-      // loop over all the inputs
-      for (const col of props.columns) {
-        if (col.editable) {
-          const id = `${editingRow.value}-${col.field}`;
-          const input = document.getElementById(id) as HTMLInputElement;
-          if (input) {
-            // pull the value from the input and fire an event to save it
-            emit('cellEditComplete', { data: { uuid: editingRow.value }, newValue: input.value, field: col.field, originalEvent: null } as unknown as DataTableCellEditCompleteEvent );
-          }
+    // If we're not editing a row, do nothing
+    if (!editingRow.value) return;
+
+    // Find the row data
+    const originalRowData = props.rows.find((row) => row.uuid === editingRow.value);
+    if (originalRowData) {
+      // Emit the cellEditComplete event for each changed field
+      for (const field in editingRowData.value) {
+        if (originalRowData[field] !== editingRowData.value[field]) {
+          onCellEditComplete({
+            data: editingRowData.value,
+            field: field,
+            newValue: editingRowData.value[field],
+            originalEvent: new Event('change'),
+            value: originalRowData[field],
+            index: props.rows.findIndex((r) => r.uuid === editingRow.value),
+            type: 'edit',
+          });
         }
       }
     }
-  }
 
-  // Expose the setEditingRow method to parent components
-  defineExpose({
-    setEditingRow
-  });
+    // Turn off editing mode
+    cancelEdit();
+  };
 
-  ////////////////////////////////
-  // event handlers
   const onCheckboxChange = (rowData: any, field: string, newValue: boolean) => {
     const event = {
       data: rowData,
       field: field,
       newValue: newValue,
       originalEvent: new Event('change'),
+      value: rowData[field],
+      index: props.rows.findIndex((r) => r.uuid === rowData.uuid),
+      type: 'edit',
     };
-    onCellEditComplete(event as any);
-  }
+    onCellEditComplete(event as DataTableCellEditCompleteEvent);
+  };
 
-  const onCellEditComplete = (event: DataTableCellEditCompleteEvent) => {
-    // turn off editing mode
-    editingRow.value = null;
-
-    emit('cellEditComplete', event);
-  }
-
-  const onClickEditableCell = (uuid: string) => {
-    // if we were already editing a row, save it first
-    saveCurrentlyEditingRow();
-
-    // set the new row
-    editingRow.value = uuid;
-  }
-
-  const onRowDragStart = (event: DragEvent, uuid: string) => {
+  const onDragstart = (event: DragEvent, uuid: string) => {
     if (!event.target || !uuid) return;
 
     // Emit the dragstart event with the uuid
     // This lets the parent component handle the drag data
     emit('dragstart', event, uuid);
-  }
+  };
+
+  const onCellEditComplete = (event: DataTableCellEditCompleteEvent) => {
+    const { data, field, newValue } = event;
+    // if the value hasn't changed, do nothing
+    if (data[field] === newValue) return;
+
+    emit('cellEditComplete', event);
+    editingRow.value = null;
+  };
 
   const onDragoverNew = (event: DragEvent) => {
     // First, call the parent's dragover handler
     emit('dragoverNew', event);
-    
+
     // Check if this is a valid drag (has text/plain data)
     if (event.dataTransfer && event.dataTransfer.types.includes('text/plain')) {
       isDragHover.value = true;

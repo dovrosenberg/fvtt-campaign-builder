@@ -1,5 +1,9 @@
 # Change Log
 
+## v1.1.0 - 
+
+- Minor UI cleanup 
+
 ## v1.0.0 - Coming out of beta!
 
 ![](https://img.shields.io/badge/release%20date-June%2023%2C%202025-blue)

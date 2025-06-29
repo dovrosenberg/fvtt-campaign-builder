@@ -46,6 +46,7 @@
         <div class="fcb-subtab-wrapper">
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
             <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
+            <a class="item" data-tab="journals">{{ localize('labels.tabs.entry.journals') }}</a>
             <a 
               v-for="relationship in relationships"
               :key="relationship.label"
@@ -133,6 +134,11 @@
                 />
               </div>
             </DescriptionTab>
+            <JournalTab
+              v-if="currentEntry"
+              :initial-journals="currentEntry.journals"
+              @journals-updated="onJournalsUpdate"
+            />
             <div class="tab flexcol" data-group="primary" data-tab="characters">
               <div class="tab-inner">
                 <RelatedItemTable :topic="Topics.Character" />
@@ -201,6 +207,7 @@
 
   // local components
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
+  import JournalTab from '@/components/ContentTab/JournalTab.vue';
   import RelatedItemTable from '@/components/tables/RelatedItemTable.vue';
   import RelatedDocumentTable from '@/components/tables/RelatedDocumentTable.vue';
   import { updateEntryDialog } from '@/dialogs/createEntry';
@@ -216,7 +223,7 @@
   import { getRelatedEntries } from '@/utils/uuidExtraction';
 
   // types
-  import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
+  import { DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal } from '@/types';
   import { Setting, TopicFolder, Backend, Entry } from '@/classes';
 
 
@@ -614,6 +621,13 @@
 
     currentEntry.value.speciesId = species.id;
     await currentEntry.value.save();
+  };
+
+  const onJournalsUpdate = async (newJournals: RelatedJournal[]) => {
+    if (currentEntry.value) {
+      currentEntry.value.journals = newJournals;
+      await currentEntry.value.save();
+    }
   };
 
   ////////////////////////////////

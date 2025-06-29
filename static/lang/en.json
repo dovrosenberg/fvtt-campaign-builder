@@ -181,7 +181,9 @@
       "tableHeaders": {
         "actions": "Actions",
         "name": "Name",
-        "location": "Location"
+        "location": "Location",
+        "journalName": "Journal",
+        "pageName": "Journal Page"
       },
       "locations": {
         "compendium": "Compendium",
@@ -262,6 +264,10 @@
         "strongStart": "Strong Start",
         "strongStartHelpText": "A strong start is a short, impactful event that sets the tone for the session. Click to read more from Lazy DM."
       },
+      "journals": {
+        "addJournal": "Add Journal",
+        "dropToAdd": "(or drag/drop a journal or journal page)" 
+      },
       "campaign": {
         "addPC": "Add PC",
         "addPCDrag": "(or drag/drop an actor)",
@@ -282,6 +288,7 @@
       "tabs": {
         "entry": {
           "description": "Description",
+          "journals": "Journals",
           "characters": "Characters",
           "events": "Events",
           "locations": "Locations",
@@ -294,10 +301,15 @@
         },
         "campaign": {
           "description": "Description",
+          "journals": "Journals",
           "pcs": "PCs",
           "lore": "Lore",
           "toDo": "To-Do",
           "ideas": "Ideas"
+        },
+        "setting": {
+          "description": "Description",
+          "journals": "Journals"
         },
         "session": {
           "notes": "Notes",

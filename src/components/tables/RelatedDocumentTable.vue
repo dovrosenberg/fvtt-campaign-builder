@@ -7,8 +7,7 @@
     :addButtonLabel="addButtonLabel"
     :extraAddText="extraAddText"
     :filterFields="filterFields"
-    :allowEdit="true"
-    :edit-item-label="localize('tooltips.editRelationship')"
+    :allowEdit="false"
     :delete-item-label="localize('tooltips.deleteRelationship')"
     :draggable-rows="[DocumentLinkType.Actors, DocumentLinkType.Items].includes(props.documentLinkType)"
 
@@ -72,11 +71,7 @@
     
   ////////////////////////////////
   // computed data
-  const filterFields = computed(() => {
-    let base = ['name'];
-
-    return base;
-  });
+  const filterFields = computed(() => ['name']);
 
   const addButtonLabel = computed((): string => {
     if (props.documentLinkType === DocumentLinkType.Actors) {
@@ -246,16 +241,16 @@
   };
 
   // call mutation to remove item  from relationship
-  const onDeleteItemClick = async (_id: string) => {
+  const onDeleteItemClick = async (id: string) => {
     // show the confirmation dialog 
     await Dialog.confirm({
       title: localize('dialogs.confirmDeleteRelationship.title'),
       content: localize('dialogs.confirmDeleteRelationship.message'),
       yes: () => { 
         if (props.documentLinkType===DocumentLinkType.Scenes)
-          void relationshipStore.deleteScene(_id); 
+          void relationshipStore.deleteScene(id); 
         else if (props.documentLinkType===DocumentLinkType.Actors)
-          void relationshipStore.deleteActor(_id); 
+          void relationshipStore.deleteActor(id); 
       },
       no: () => {},
     });
