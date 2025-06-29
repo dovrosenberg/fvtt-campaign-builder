@@ -48,7 +48,7 @@ Right-clicking on items in the Entry tree provides additional options depending 
 3. Entries - Delete the Entry
 
 ### Group by type {#group-by-type}
-Using the "Group tree by type" checkbox at the top of the sidebar, you can choose to organize the entries by Type instead of Topic.  This will eliminate the Hierarchy representation and instead show all the Entries grouped by their Types.  Entries without a Type will not be shown.
+Using the "Group tree by type" checkbox at the top of the sidebar, you can choose to organize the entries by [^Type] instead of Topic.  This will eliminate the Hierarchy representation and instead show all the Entries grouped by their Types.  Entries without a Type will not be shown.
 
 ![Group by type tree](/assets/images/group-by-type.webp)
 
