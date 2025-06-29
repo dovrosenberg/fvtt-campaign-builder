@@ -267,14 +267,16 @@
           "organizationChildren": "Unterorganisationen",
           "scenes": "Szenen",
           "actors": "Schauspieler",
-          "sessions": "Sitzungen"
+          "sessions": "Sitzungen",
+          "journals": "Journale"
         },
         "campaign": {
           "description": "Beschreibung",
           "pcs": "PCs",
           "lore": "Überlieferung",
           "toDo": "Zu erledigen",
-          "ideas": "Ideen"
+          "ideas": "Ideen",
+          "journals": "Journale"
         },
         "session": {
           "notes": "Notizen",
@@ -287,6 +289,10 @@
           "monsters": "Monster",
           "magic": "Magische Gegenstände",
           "todo": "Zu erledigen"
+        },
+        "setting": {
+          "description": "Beschreibung",
+          "journals": "Journale"
         }
       },
       "noResults": "Nichts hier",
@@ -308,11 +314,17 @@
       "tableHeaders": {
         "actions": "Aktionen",
         "name": "Name",
-        "location": "Ort"
+        "location": "Ort",
+        "journalName": "Journal",
+        "pageName": "Journalseite"
       },
       "locations": {
         "compendium": "Kompendium",
         "world": "Welt"
+      },
+      "journals": {
+        "addJournal": "Journal hinzufügen",
+        "dropToAdd": "(oder ein Journal oder eine Journalseite ziehen/ablegen)"
       }
     },
     "placeholders": {
@@ -419,7 +431,8 @@
         "selectActors": "Akteure auswählen",
         "selectItems": "Elemente auswählen",
         "addActor": "Akteur hinzufügen",
-        "addItem": "Element hinzufügen"
+        "addItem": "Element hinzufügen",
+        "addJournal": "Journal/Seite hinzufügen"
       },
       "relatedEntriesManagement": {
         "title": "Verwandte Einträge verwalten",
@@ -565,6 +578,5 @@
       "changesSaved": "Änderungen gespeichert",
       "todoReferenceNotFound": "Die verknüpfte Referenz für dieses To-Do-Element existiert nicht mehr."
     }
-  },
-  "temp": "temp"
+  }
 }

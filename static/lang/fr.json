@@ -267,14 +267,16 @@
           "organizationChildren": "Sous-organisations",
           "scenes": "Scènes",
           "actors": "Acteurs",
-          "sessions": "Sessions"
+          "sessions": "Sessions",
+          "journals": "Journaux"
         },
         "campaign": {
           "description": "Description",
           "pcs": "PJs",
           "lore": "Savoir",
           "toDo": "À faire",
-          "ideas": "Idées"
+          "ideas": "Idées",
+          "journals": "Journaux"
         },
         "session": {
           "notes": "Notes",
@@ -287,6 +289,10 @@
           "monsters": "Monstres",
           "magic": "Objets Magiques",
           "todo": "À faire"
+        },
+        "setting": {
+          "description": "Description",
+          "journals": "Journaux"
         }
       },
       "noResults": "Rien ici",
@@ -308,11 +314,17 @@
       "tableHeaders": {
         "actions": "Actions",
         "name": "Nom",
-        "location": "Emplacement"
+        "location": "Emplacement",
+        "journalName": "Journal",
+        "pageName": "Page du journal"
       },
       "locations": {
         "compendium": "Compendium",
         "world": "Monde"
+      },
+      "journals": {
+        "addJournal": "Ajouter un journal",
+        "dropToAdd": "(ou glisser/déposer un journal ou une page de journal)"
       }
     },
     "placeholders": {
@@ -419,7 +431,8 @@
         "selectActors": "Sélectionner les acteurs",
         "selectItems": "Sélectionner les éléments",
         "addActor": "Ajouter un acteur",
-        "addItem": "Ajouter un élément"
+        "addItem": "Ajouter un élément",
+        "addJournal": "Ajouter un journal/page"
       },
       "relatedEntriesManagement": {
         "title": "Gérer les entrées liées",
@@ -565,6 +578,5 @@
       "changesSaved": "modifications enregistrées",
       "todoReferenceNotFound": "La référence liée pour cet élément à faire n'existe plus."
     }
-  },
-  "temp": "temp"
+  }
 }
