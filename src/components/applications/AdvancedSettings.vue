@@ -37,7 +37,14 @@
             optionValue="id"
             :placeholder="localize('applications.advancedSettings.labels.selectTextModel')"
             :disabled="!backendAvailable"
-          />
+            >
+            <template #option="slotProps">
+              <div class="model-option">
+                <div>{{ slotProps.option.name }}</div>
+                <small class="description">{{ slotProps.option.description }}</small>
+              </div>
+            </template>
+          </Select>
         </div>
         <p class="hint">
           {{ localize('applications.advancedSettings.labels.textModelHint') }}
@@ -54,7 +61,14 @@
             optionValue="id"
             :placeholder="localize('applications.advancedSettings.labels.selectImageModel')"
             :disabled="!backendAvailable"
-          />
+            >
+            <template #option="slotProps">
+              <div class="model-option">
+                <div>{{ slotProps.option.name }}</div>
+                <small class="description">{{ slotProps.option.description }}</small>
+              </div>
+            </template>
+          </Select>
         </div>
         <p class="hint">
           {{ localize('applications.advancedSettings.labels.imageModelHint') }}
@@ -308,5 +322,16 @@
 </script>
 
 <style lang="scss">
+  .model-option {
+    display: flex;
+    flex-direction: column;
+
+    .description {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      max-width: 500px;
+      text-wrap: auto;
+    }
+  }
 </style>
 
