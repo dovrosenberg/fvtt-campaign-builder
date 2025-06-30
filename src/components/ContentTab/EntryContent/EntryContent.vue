@@ -46,6 +46,7 @@
         <div class="fcb-subtab-wrapper">
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
             <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
+            <a class="item" data-tab="journals">{{ localize('labels.tabs.entry.journals') }}</a>
             <a 
               v-for="relationship in relationships"
               :key="relationship.label"
@@ -133,6 +134,11 @@
                 />
               </div>
             </DescriptionTab>
+            <JournalTab
+              v-if="currentEntry"
+              :initial-journals="currentEntry.journals"
+              @journals-updated="onJournalsUpdate"
+            />
             <div class="tab flexcol" data-group="primary" data-tab="characters">
               <div class="tab-inner">
                 <RelatedItemTable :topic="Topics.Character" />
@@ -183,7 +189,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, watch, reactive } from 'vue';
+  import { computed, nextTick, onMounted, ref, watch, reactive, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -201,8 +207,9 @@
 
   // local components
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
-  import RelatedItemTable from '@/components/Tables/RelatedItemTable.vue';
-  import RelatedDocumentTable from '@/components/Tables/RelatedDocumentTable.vue';
+  import JournalTab from '@/components/ContentTab/JournalTab.vue';
+  import RelatedItemTable from '@/components/tables/RelatedItemTable.vue';
+  import RelatedDocumentTable from '@/components/tables/RelatedDocumentTable.vue';
   import { updateEntryDialog } from '@/dialogs/createEntry';
 
   import Editor from '@/components/Editor.vue';
@@ -216,7 +223,7 @@
   import { getRelatedEntries } from '@/utils/uuidExtraction';
 
   // types
-  import { DocumentLinkType, Topics, ValidTopic, WindowTabType } from '@/types';
+  import { DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal } from '@/types';
   import { Setting, TopicFolder, Backend, Entry } from '@/classes';
 
 
@@ -368,7 +375,18 @@
     if (!currentSetting.value)
       return;
 
-    // find all the campaigns with an active session
+    // if there are no campaigns, exit
+    const numCampaigns = Object.keys(currentSetting.value.campaigns).length;
+    if (numCampaigns===0)
+      return;
+
+    // if there's only one campaign, we can just push it
+    if (numCampaigns===1) {
+      await selectCampaignForPush(Object.keys(currentSetting.value.campaigns)[0]);
+      return;
+    }
+
+    // e have more than one; now find all the campaigns with an active session
     let campaignsWithSessions = [] as { uuid: string; name: string}[];
 
     for (const campaignId of Object.keys(currentSetting.value.campaigns)) {
@@ -603,6 +621,13 @@
 
     currentEntry.value.speciesId = species.id;
     await currentEntry.value.save();
+  };
+
+  const onJournalsUpdate = async (newJournals: RelatedJournal[]) => {
+    if (currentEntry.value) {
+      currentEntry.value.journals = newJournals;
+      await currentEntry.value.save();
+    }
   };
 
   ////////////////////////////////

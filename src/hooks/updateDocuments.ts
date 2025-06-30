@@ -4,6 +4,7 @@ export function registerForUpdateHooks() {
   registerForActorHooks();
   registerForItemHooks();
   registerForSceneHooks();
+  registerForJournalHooks();
 }
 
 /**
@@ -100,6 +101,35 @@ function registerForSceneHooks() {
     const worlds = await mainStore.getAllWorlds();
     for (let world of worlds) {
       await world.deleteSceneFromWorld(_scene.uuid);
+    }
+
+    // refresh the content window in case it's showing in a table
+    await mainStore.refreshCurrentContent();
+  });
+}
+
+/**
+ * For journals and pages, just need to delete from any lists they are in
+ */
+function registerForJournalHooks() {
+  Hooks.on('deleteJournalEntry', async (_journal, _options, _userId) => {
+    const mainStore = useMainStore();
+
+    const worlds = await mainStore.getAllWorlds();
+    for (let world of worlds) {
+      await world.deleteJournalEntryFromWorld(_journal.uuid);
+    }
+
+    // refresh the content window in case it's showing in a table
+    await mainStore.refreshCurrentContent();
+  });
+
+  Hooks.on('deleteJournalEntryPage', async (_journal, _options, _userId) => {
+    const mainStore = useMainStore();
+
+    const worlds = await mainStore.getAllWorlds();
+    for (let world of worlds) {
+      await world.deleteJournalEntryPageFromWorld(_journal.uuid);
     }
 
     // refresh the content window in case it's showing in a table

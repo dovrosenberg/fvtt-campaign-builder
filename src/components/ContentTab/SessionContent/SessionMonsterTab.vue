@@ -42,8 +42,8 @@
   // library components
 	
   // local components
-  import SessionTable from '@/components/Tables/SessionTable.vue';
-  import RelatedDocumentsDialog from '@/components/Tables/RelatedDocumentsDialog.vue';
+  import SessionTable from '@/components/tables/SessionTable.vue';
+  import RelatedDocumentsDialog from '@/components/tables/RelatedDocumentsDialog.vue';
   import { DataTableCellEditCompleteEvent } from 'primevue';
 
   // types

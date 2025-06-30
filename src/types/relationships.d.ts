@@ -1,3 +1,4 @@
+import { DocumentUUID } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/utils/module.mjs';
 import { ValidTopic, FieldData } from '@/types';
 
 // lay out the extra fields for each combination of topics
@@ -18,6 +19,16 @@ export type RelatedItemDetails<PrimaryTopic extends ValidTopic, RelatedTopic ext
 export type RelatedDocumentDetails = {
   uuid: string;   // the other item
   name: string;
+  packId: string | null;   // uuid of the parent compendium (null if it's a world compendium)
+  packName: string | null;
+};
+
+// ideally we'd use a getter to create the uuid, but these get serialized and it would
+//    be a pain to try to add the function back
+export type RelatedJournal = {
+  uuid: string;  // composite key journalUuid|pageUuid
+  journalUuid: DocumentUUID;
+  pageUuid: DocumentUUID | null;
   packId: string | null;   // uuid of the parent compendium (null if it's a world compendium)
   packName: string | null;
 };

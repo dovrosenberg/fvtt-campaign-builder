@@ -49,7 +49,7 @@
   import  { DataTableCellEditCompleteEvent, DataTableRowContextMenuEvent, DataTableRowSelectEvent } from 'primevue/datatable';
   
   // local components
-  import BaseTable from '@/components/BaseTable/BaseTable.vue';
+  import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
   type SessionTableGridRow = { uuid: string; delivered: boolean } & Record<string, any>;

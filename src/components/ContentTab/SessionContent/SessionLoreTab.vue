@@ -42,7 +42,7 @@
   // library components
 	
   // local components
-  import SessionTable from '@/components/Tables/SessionTable.vue';
+  import SessionTable from '@/components/tables/SessionTable.vue';
 
   // types
   import { DataTableCellEditCompleteEvent } from 'primevue';

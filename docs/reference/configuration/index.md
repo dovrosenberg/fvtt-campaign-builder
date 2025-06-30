@@ -12,6 +12,7 @@ next:
 ## Basic settings
 
 - **Hide missing backend warning**: If you're planning not to use the [Advanced Features], turn this on to avoid being warned about it every time to open the main window.  
+- **Show types in Setting tree**: If set, when the Setting directory isn't grouped by type, it will instead show the type of each Entry in the tree.
 - **Sidebar starts collapsed**: If set, the directory sidebar will be collapsed when you open the main window.  
 - **Display pop-up session notes**: If set, when you enter "Play Mode", a separate session notes window will automatically popup to make it easier to take notes mid-session.
 - **Default 'Add to current session'**: When you're in [^Play Mode] and are creating an [^Entry], there is a checkbox to automatically add it to the current [^Session] (vs. just adding to the [^Setting]).  This checkbox determines whether that checkbox defaults to on or off.

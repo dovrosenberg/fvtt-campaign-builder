@@ -16,9 +16,11 @@ Other typical Foundry keybindings exist - primarily in the editors (ex. Ctrl-Z t
 
 ## General interface 
 
-| Key | Action | Description |
-|----------|--------|-------------|
-| **Alt+W** | Close Tab | Close the current active tab |
+| Key           | Action      | Description |
+|---------------|-------------|-------------|
+| **Alt+W**     | Close Tab   | Close the current active tab |
+| **Alt+Left**  | Move Left   | Move one tab to the left |
+| **Alt+Right** | Move Right  | Move one tab to the right |
 
 <!-- ### Content Management
 | Shortcut | Action | Description |

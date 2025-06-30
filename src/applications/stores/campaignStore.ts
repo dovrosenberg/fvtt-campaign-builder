@@ -313,6 +313,22 @@ export const useCampaignStore = defineStore('campaign', () => {
     await _refreshIdeaRows();
   }
 
+  const reorderIdeas = async (reorderedIdeas: Idea[]) => {
+    if (!currentCampaign.value) return;
+
+    currentCampaign.value.ideas = reorderedIdeas;
+    await currentCampaign.value.save();
+    await _refreshIdeaRows();
+  };
+
+  const reorderToDos = async (reorderedToDos: ToDoItem[]) => {
+    if (!currentCampaign.value) return;
+
+    currentCampaign.value.todoItems = reorderedToDos;
+    await currentCampaign.value.save();
+    await _refreshToDoRows();
+  };
+
   ///////////////////////////////
   // computed state
   /** only significant rows from sessions are returned */
@@ -616,6 +632,8 @@ export const useCampaignStore = defineStore('campaign', () => {
     addIdea,
     updateIdea,
     deleteIdea,
+    reorderIdeas,
+    reorderToDos,
   };
 });
 

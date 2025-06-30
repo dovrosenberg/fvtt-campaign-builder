@@ -372,6 +372,22 @@ export const useNavigationStore = defineStore('navigation', () => {
     await _saveTabs();
   }
 
+  /** Move forward/back across tab bar 
+   * @param numberOfTabs The number of tabs to move forward/back
+   */
+  const traverseTabs = async function (numberOfTabs: number): Promise<void> {
+    const currentTab = getActiveTab(false);
+    
+    if (!currentTab) 
+      return;
+
+    const newIdx = tabs.value.findIndex((t)=>(t.id===currentTab.id)) + numberOfTabs;
+    if (newIdx < 0 || newIdx >= tabs.value.length) 
+      return;
+
+    await activateTab(tabs.value[newIdx].id);
+};
+
   /**
    * Used after deleting an entry/campaign/session to make sure that no current tab or tab history includes 
    * the deleted item.
@@ -476,7 +492,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     }
 
     // now remove from bookmarks
-    bookmarks.value = bookmarks.value.filter(b => b.id !== contentId);
+    bookmarks.value = bookmarks.value.filter(b => b.header.uuid !== contentId);
     await _saveBookmarks();
 
     // remove from recent items list
@@ -646,5 +662,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     propagateNameChange,
     cleanupDeletedEntry,
     clearTabsAndBookmarks,
+    traverseTabs,
   };
 });

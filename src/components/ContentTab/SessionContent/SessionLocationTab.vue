@@ -40,8 +40,8 @@
   // library components
 
   // local components
-  import SessionTable from '@/components/Tables/SessionTable.vue';
-  import RelatedItemDialog from '@/components/Tables/RelatedItemDialog.vue';
+  import SessionTable from '@/components/tables/SessionTable.vue';
+  import RelatedItemDialog from '@/components/tables/RelatedItemDialog.vue';
 
   // types
   

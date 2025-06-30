@@ -43,10 +43,16 @@
       "enableToDoListHelp": "Wenn deaktiviert, wird die ToDo-Listen-Funktion ausgeschaltet.",
       "autoRelationships": "Beziehungen automatisch vorschlagen",
       "autoRelationshipsHelp": "Wenn aktiviert, schlägt der Editor automatisch Änderungen an den Beziehungen zwischen Einträgen basierend auf Änderungen in der Beschreibung vor.",
-      "Keybindings": {
+      "keybindings": {
         "closeTab": "Tab schließen",
-        "closeTabHelp": "Den aktuellen Tab schließen"
-      }
+        "closeTabHelp": "Den aktuellen Tab schließen",
+        "moveLeft": "Nach links bewegen",
+        "moveLeftHelp": "Zum vorherigen Tab wechseln",
+        "moveRight": "Nach rechts bewegen",
+        "moveRightHelp": "Zum nächsten Tab wechseln"
+      },
+      "showTypesInTree": "Typen im Einstellungsbaum anzeigen",
+      "showTypesInTreeHelp": "Wenn wahr, zeigt es den Typ jedes Eintrags im Baum an, wenn das Einstellungsverzeichnis nicht nach Typ gruppiert ist."
     },
     "applications": {
       "sessionNotes": {
@@ -267,14 +273,16 @@
           "organizationChildren": "Unterorganisationen",
           "scenes": "Szenen",
           "actors": "Schauspieler",
-          "sessions": "Sitzungen"
+          "sessions": "Sitzungen",
+          "journals": "Journale"
         },
         "campaign": {
           "description": "Beschreibung",
           "pcs": "PCs",
           "lore": "Überlieferung",
           "toDo": "Zu erledigen",
-          "ideas": "Ideen"
+          "ideas": "Ideen",
+          "journals": "Journale"
         },
         "session": {
           "notes": "Notizen",
@@ -287,6 +295,10 @@
           "monsters": "Monster",
           "magic": "Magische Gegenstände",
           "todo": "Zu erledigen"
+        },
+        "setting": {
+          "description": "Beschreibung",
+          "journals": "Journale"
         }
       },
       "noResults": "Nichts hier",
@@ -308,11 +320,17 @@
       "tableHeaders": {
         "actions": "Aktionen",
         "name": "Name",
-        "location": "Ort"
+        "location": "Ort",
+        "journalName": "Journal",
+        "pageName": "Journalseite"
       },
       "locations": {
         "compendium": "Kompendium",
         "world": "Welt"
+      },
+      "journals": {
+        "addJournal": "Journal hinzufügen",
+        "dropToAdd": "(oder ein Journal oder eine Journalseite ziehen/ablegen)"
       }
     },
     "placeholders": {
@@ -419,7 +437,8 @@
         "selectActors": "Akteure auswählen",
         "selectItems": "Elemente auswählen",
         "addActor": "Akteur hinzufügen",
-        "addItem": "Element hinzufügen"
+        "addItem": "Element hinzufügen",
+        "addJournal": "Journal/Seite hinzufügen"
       },
       "relatedEntriesManagement": {
         "title": "Verwandte Einträge verwalten",
@@ -565,6 +584,5 @@
       "changesSaved": "Änderungen gespeichert",
       "todoReferenceNotFound": "Die verknüpfte Referenz für dieses To-Do-Element existiert nicht mehr."
     }
-  },
-  "temp": "temp"
+  }
 }

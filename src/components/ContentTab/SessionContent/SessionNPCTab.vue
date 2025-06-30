@@ -30,17 +30,16 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useSessionStore, useNavigationStore, SessionTableTypes} from '@/applications/stores';
+  import { useSessionStore, SessionTableTypes} from '@/applications/stores';
   import { Topics, RelatedItemDialogModes,} from '@/types';
   import { localize } from '@/utils/game'
   import { getValidatedData } from '@/utils/dragdrop';
 
   // library components
-	import { DataTableRowSelectEvent } from 'primevue/datatable';
 
   // local components
-  import SessionTable from '@/components/Tables/SessionTable.vue';
-  import RelatedItemDialog from '@/components/Tables/RelatedItemDialog.vue';
+  import SessionTable from '@/components/tables/SessionTable.vue';
+  import RelatedItemDialog from '@/components/tables/RelatedItemDialog.vue';
 
   // types
   

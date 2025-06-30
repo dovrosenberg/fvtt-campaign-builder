@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch } from 'vue';
+  import { ref, computed, PropType, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
   
   // local imports

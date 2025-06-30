@@ -1,6 +1,6 @@
 import { moduleId, UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
 import { WorldDoc, WorldFlagKey, worldFlagSettings } from '@/documents';
-import { Hierarchy, Topics, ValidTopic, WorldGeneratorConfig } from '@/types';
+import { Hierarchy, Topics, ValidTopic, WorldGeneratorConfig, RelatedJournal } from '@/types';
 import { getRootFolder,  } from '@/compendia';
 import { FCBDialog } from '@/dialogs';
 import { DocumentWithFlags, Campaign, TopicFolder } from '@/classes';
@@ -39,6 +39,7 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
   private _nameStyles: number[];
   private _rollTableConfig: WorldGeneratorConfig | null;
   private _nameStyleExamples: { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null;
+  private _journals: RelatedJournal[];
 
   /**
    * Note: you should always call validate() after creating a new Setting - this ensures the 
@@ -60,6 +61,7 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
     this._nameStyles = this.getFlag(WorldFlagKey.nameStyles) || [0];
     this._rollTableConfig = this.getFlag(WorldFlagKey.rollTableConfig);
     this._nameStyleExamples = this.getFlag(WorldFlagKey.nameStyleExamples);
+    this._journals = this.getFlag(WorldFlagKey.journals) || [];
     this._name = this._doc.name;
     if (this._compendiumId) {
       const compendium = game.packs?.get(this._compendiumId);
@@ -762,8 +764,71 @@ export class Setting extends DocumentWithFlags<WorldDoc>{
     }
   }
 
+  /** remove from the journals tabs -- don't worry about lore for now */
+  public async deleteJournalEntryFromWorld(journalId: string) {
+    // remove from the setting
+    if (this.journals.find(j => j.journalUuid === journalId)) {
+      this.journals = this.journals.filter(j => j.journalUuid !== journalId);
+      await this.save();
+    }
+
+    // remove from any Campaigns that are linked to it
+    for (let campaign of Object.values(this.campaigns)) {
+      if (campaign.journals.find(j => j.journalUuid === journalId)) {  
+        campaign.journals = campaign.journals.filter(j => j.journalUuid !== journalId);
+        await campaign.save();
+      }
+    }
+
+    // remove from any Entries that are linked to it
+    for (let topic of Object.values(this.topicFolders)) {
+      for (let entry of topic.allEntries()) {
+        if (entry.journals.find(j => j.journalUuid === journalId)) {
+          entry.journals = entry.journals.filter(j => j.journalUuid !== journalId);
+          await entry.save();
+        }
+      }
+    }
+  }
+
+  /** remove from the journals tabs -- don't worry about lore for now */
+  public async deleteJournalEntryPageFromWorld(journalId: string) {
+    // remove from the setting
+    if (this.journals.find(j => j.pageUuid === journalId)) {
+      this.journals = this.journals.filter(j => j.pageUuid !== journalId);
+      await this.save();
+    }
+
+    // remove from any Campaigns that are linked to it
+    for (let campaign of Object.values(this.campaigns)) {
+      if (campaign.journals.find(j => j.pageUuid === journalId)) {  
+        campaign.journals = campaign.journals.filter(j => j.pageUuid !== journalId);
+        await campaign.save();
+      }
+    }
+
+    // remove from any Entries that are linked to it
+    for (let topic of Object.values(this.topicFolders)) {
+      for (let entry of topic.allEntries()) {
+        if (entry.journals.find(j => j.pageUuid === journalId)) {
+          entry.journals = entry.journals.filter(j => j.pageUuid !== journalId);
+          await entry.save();
+        }
+      }
+    }
+  }
+
   public get nameStyleExamples(): { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null {
     return this._nameStyleExamples;
+  }
+
+  public get journals(): readonly RelatedJournal[] {
+    return this._journals;
+  }
+
+  public set journals(value: RelatedJournal[] | readonly RelatedJournal[]) {
+    this._journals = [...value];
+    this.updateCumulative(WorldFlagKey.journals, this._journals);
   }
 
   public set nameStyleExamples(value: { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null) {

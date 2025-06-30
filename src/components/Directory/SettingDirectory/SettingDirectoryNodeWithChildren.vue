@@ -20,7 +20,7 @@
           @dragover="onDragover"
           @contextmenu="onEntryContextMenu"
         >
-          {{ currentNode.name }}
+          {{ displayName }}
         </div>
       </div>
       <ul>
@@ -47,9 +47,10 @@
 
   // local imports
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
-  import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
+  import { hasHierarchy, NO_TYPE_STRING, validParentItems } from '@/utils/hierarchy';
   import { getValidatedData } from '@/utils/dragdrop';
-  
+  import { ModuleSettings, SettingKey } from '@/settings';
+
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
 
@@ -90,7 +91,7 @@
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
   const { currentSetting, currentEntry, } = storeToRefs(mainStore);
-
+  
   ////////////////////////////////
   // data
   // we don't just use props node because in toggleWithLoad we want to swap it out without rebuilding
@@ -102,6 +103,16 @@
   const sortedChildren = computed((): DirectoryEntryNode[] => {
     const children = (currentNode.value).loadedChildren;
     return children.sort((a, b) => a.name.localeCompare(b.name)) as DirectoryEntryNode[];
+  });
+
+  const showTypesInTree = computed(() => ModuleSettings.get(SettingKey.showTypesInTree));
+  
+  const displayName = computed(() => {
+    if (showTypesInTree.value && currentNode.value.type && currentNode.value.type!==NO_TYPE_STRING) {
+      return `${currentNode.value.name} (${currentNode.value.type})`;
+    } else {
+      return currentNode.value.name;
+    }
   });
 
   ////////////////////////////////

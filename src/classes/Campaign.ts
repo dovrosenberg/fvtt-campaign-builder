@@ -1,6 +1,7 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, CampaignLore } from '@/documents';
+import { RelatedJournal } from '@/types';
 import { DocumentWithFlags, Entry, PC, Session, Setting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
@@ -24,6 +25,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   private _img: string;
   private _todoItems: ToDoItem[];
   private _ideas: Idea[];
+  private _journals: RelatedJournal[];
 
   /**
    * 
@@ -42,6 +44,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this._name = campaignDoc.name;
     this._todoItems = this.getFlag(CampaignFlagKey.todoItems) || [];
     this._ideas = this.getFlag(CampaignFlagKey.ideas) || [];
+    this._journals = this.getFlag(CampaignFlagKey.journals) || [];
   }
 
   override async _getWorld(): Promise<Setting> {
@@ -276,6 +279,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       sessionUuid: sessionUuid || null,
       linkedText: entry ? entry.name : null,
       text: text || '',
+      sortOrder: this._todoItems.length,
       type: type || ToDoTypes.Manual,
     };
 
@@ -345,6 +349,15 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     await this.save();
   }
 
+  get journals(): readonly RelatedJournal[] {
+    return this._journals;
+  }
+
+  set journals(value: RelatedJournal[] | readonly RelatedJournal[]) {
+    this._journals = [...value];
+    this.updateCumulative(CampaignFlagKey.journals, this._journals);
+  }
+
   get ideas(): readonly Idea[] {
     return this._ideas;
   }
@@ -364,6 +377,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     const item: Idea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
+      sortOrder: this._ideas.length,
     };
 
     this._ideas.push(item);

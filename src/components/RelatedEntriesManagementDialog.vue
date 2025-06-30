@@ -83,13 +83,6 @@
   import Dialog from '@/components/Dialog.vue';
 
   // types
-  interface RelatedItemInfo {
-    uuid: string;
-    name: string;
-    topic: ValidTopic;
-    topicName: string;
-    type: string;
-  }
 
   ////////////////////////////////
   // props

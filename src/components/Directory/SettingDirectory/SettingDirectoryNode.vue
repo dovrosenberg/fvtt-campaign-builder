@@ -17,19 +17,20 @@
       @dragover="onDragover"
       @contextmenu="onEntryContextMenu"
     >
-      {{ props.node.name }}
+      {{ displayName }}
     </div>
   </li>
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { PropType, } from 'vue';
+  import { PropType, computed } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, } from '@/applications/stores';
-  import { hasHierarchy, validParentItems } from '@/utils/hierarchy';
+  import { ModuleSettings, SettingKey } from '@/settings/ModuleSettings';
+  import { hasHierarchy, NO_TYPE_STRING, validParentItems } from '@/utils/hierarchy';
   import { getValidatedData } from '@/utils/dragdrop';
   
   // library components
@@ -79,7 +80,16 @@
 
   ////////////////////////////////
   // computed data
-
+  const showTypesInTree = computed(() => ModuleSettings.get(SettingKey.showTypesInTree));
+  
+  const displayName = computed(() => {
+    if (showTypesInTree.value && props.node.type && props.node.type!==NO_TYPE_STRING) {
+      return `${props.node.name} (${props.node.type})`;
+    } else {
+      return props.node.name;
+    }
+  });
+  
   ////////////////////////////////
   // methods
 

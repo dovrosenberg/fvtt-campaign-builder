@@ -188,7 +188,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, onMounted, PropType, watch, computed } from 'vue';
+  import { ref, onMounted, PropType, watch, computed, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -209,7 +209,7 @@
   // local components
   import TypeSelect from '@/components/ContentTab/EntryContent/TypeSelect.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
-  import TypeAhead from '@/components/TypeAhead.vue'; 
+  import TypeAhead from '@/components/TypeAhead.vue';
   import Dialog from '@/components/Dialog.vue';
 
   // types

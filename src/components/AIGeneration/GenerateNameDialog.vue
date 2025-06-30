@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, PropType, watch, toRaw } from 'vue';
+  import { ref, computed, PropType, watch, toRaw, } from 'vue';
   
   // local imports
   import { localize } from '@/utils/game';

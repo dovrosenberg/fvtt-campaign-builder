@@ -4,6 +4,8 @@ import { useNavigationStore } from '@/applications/stores/navigationStore';
 
 export enum KeyBindingKeys {
   closeTab = 'closeTab',   // close the current tab
+  moveLeft = 'moveLeft',   // move left one tab
+  moveRight = 'moveRight',   // move right one tab
 }
 
 export class KeyBindings {
@@ -14,8 +16,8 @@ export class KeyBindings {
     const keybindings = [
       {
         bindingId: KeyBindingKeys.closeTab,
-        name: 'fcb.keybindings.closeTab',
-        hint: 'fcb.keybindings.closeTabHelp',
+        name: 'fcb.settings.keybindings.closeTab',
+        hint: 'fcb.settings.keybindings.closeTabHelp',
         onDown: () => { 
           // only trap this when the window is open
           if (wbApp?.rendered) {
@@ -29,7 +31,52 @@ export class KeyBindings {
         editable: [
           {
             key: 'KeyW',
-            modifiers: [ foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.ALT ]
+            modifiers: [ 
+              foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.ALT,
+              foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.CONTROL
+            ]
+          }
+        ],
+      },
+      {
+        bindingId: KeyBindingKeys.moveLeft,
+        name: 'fcb.settings.keybindings.moveLeft',  
+        hint: 'fcb.settings.keybindings.moveLeftHelp',
+        onDown: async () => { 
+          // only trap this when the window is open
+          if (wbApp?.rendered) {
+            const store = useNavigationStore();
+            await store.traverseTabs(-1);
+          }
+        },
+        editable: [
+          {
+            key: 'ArrowLeft',
+            modifiers: [ 
+              foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.ALT,
+              foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.CONTROL
+            ]
+          }
+        ],
+      },
+      {
+        bindingId: KeyBindingKeys.moveRight,
+        name: 'fcb.settings.keybindings.moveRight',
+        hint: 'fcb.settings.keybindings.moveRightHelp',
+        onDown: async () => { 
+          // only trap this when the window is open
+          if (wbApp?.rendered) {
+            const store = useNavigationStore();
+            await store.traverseTabs(1);
+          }
+        },
+        editable: [
+          {
+            key: 'ArrowRight',
+            modifiers: [ 
+              foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.ALT,
+              foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.CONTROL
+            ]
           }
         ],
       },
