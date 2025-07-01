@@ -83,11 +83,11 @@ export const registerCollapsibleNodeTests = () => {
             CollapsibleNode._loadedNodes = { 'test-node': node as any };
             
             // Set a new setting
-            const newWorld = { uuid: 'new-setting-uuid' } as Setting;
-            CollapsibleNode.currentSetting = newWorld;
+            const newSetting = { uuid: 'new-setting-uuid' } as Setting;
+            CollapsibleNode.currentSetting = newSetting;
             
             // Check that the setting was set and loaded nodes were cleared
-            expect(CollapsibleNode._currentSetting).to.equal(newWorld);
+            expect(CollapsibleNode._currentSetting).to.equal(newSetting);
             expect(CollapsibleNode._loadedNodes).to.deep.equal({});
           });
         });

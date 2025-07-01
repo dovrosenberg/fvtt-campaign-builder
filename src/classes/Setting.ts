@@ -93,9 +93,9 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     if (!worldDoc)
       return null;
     else {
-      const newWorld = new Setting(worldDoc);
-      await newWorld.validate();  // will also load topic folders
-      return newWorld;
+      const newSetting = new Setting(worldDoc);
+      await newSetting.validate();  // will also load topic folders
+      return newSetting;
     }
   }
 
@@ -408,17 +408,17 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
 
         const worldDoc = worldDocs[0];
 
-        const newWorld = new Setting(worldDoc);
-        await newWorld.setup();
+        const newSetting = new Setting(worldDoc);
+        await newSetting.setup();
 
         // set as the current setting
         if (makeCurrent) {
-          await UserFlags.set(UserFlagKey.currentSetting, newWorld.uuid);
+          await UserFlags.set(UserFlagKey.currentSetting, newSetting.uuid);
         }
 
-        await newWorld.validate();
+        await newSetting.validate();
 
-        return newWorld;
+        return newSetting;
       }
     } while (name==='');  // if hit ok, must have a value
 

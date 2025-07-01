@@ -210,8 +210,8 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // watchers
 
   // when the setting changes, clean out the cache of loaded items
-  watch(currentSetting, async (newWorld: Setting | null): Promise<void> => {
-    if (!newWorld) {
+  watch(currentSetting, async (newSetting: Setting | null): Promise<void> => {
+    if (!newSetting) {
       currentCampaignTree.value = [];
       return;
     }
