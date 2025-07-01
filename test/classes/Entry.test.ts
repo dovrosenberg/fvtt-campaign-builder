@@ -75,7 +75,7 @@ export const registerEntryTests = () => {
             topic: Topics.Character,
             raw: { id: 'folder-id' },
             getWorld: sinon.stub().resolves({
-              uuid: 'world-uuid',
+              uuid: 'setting-uuid',
               unlock: sinon.stub().resolves(undefined),
               lock: sinon.stub().resolves(undefined),
               deleteEntryFromWorld: sinon.stub().resolves(undefined),
@@ -132,7 +132,7 @@ export const registerEntryTests = () => {
 
         describe('create', () => {
           it('should create a new entry with the provided data', async () => {
-            // Setup mock world
+            // Setup mock setting
             const mockWorld = await mockTopicFolder.getWorld();
             
             // Call create
@@ -261,11 +261,11 @@ export const registerEntryTests = () => {
             // Call save
             const result = await entry.save();
 
-            // Verify world was unlocked and locked
+            // Verify setting was unlocked and locked
             expect(mockTopicFolder.getWorld.called).to.equal(true);
-            const world = await mockTopicFolder.getWorld();
-            expect(world.unlock.called).to.equal(true);
-            expect(world.lock.called).to.equal(true);
+            const setting = await mockTopicFolder.getWorld();
+            expect(setting.unlock.called).to.equal(true);
+            expect(setting.lock.called).to.equal(true);
 
             // Verify update was called with correct data
             expect((entry.raw.update as sinon.SinonStub).calledWith(sinon.match({
@@ -321,21 +321,21 @@ export const registerEntryTests = () => {
         });
 
         describe('delete', () => {
-          it('should delete the entry and update the world', async () => {
+          it('should delete the entry and update the setting', async () => {
             // Call delete
             await entry.delete();
 
-            // Verify world was unlocked and locked
+            // Verify setting was unlocked and locked
             expect(mockTopicFolder.getWorld.called).to.equal(true);
-            const world = await mockTopicFolder.getWorld();
-            expect(world.unlock.called).to.equal(true);
-            expect(world.lock.called).to.equal(true);
+            const setting = await mockTopicFolder.getWorld();
+            expect(setting.unlock.called).to.equal(true);
+            expect(setting.lock.called).to.equal(true);
 
             // Verify delete was called
             expect((entry.raw.delete as sinon.SinonStub).called).to.equal(true);
 
-            // Verify world was updated
-            expect(world.deleteEntryFromWorld.calledWith(mockTopicFolder, 'test-uuid')).to.equal(true);
+            // Verify setting was updated
+            expect(setting.deleteEntryFromWorld.calledWith(mockTopicFolder, 'test-uuid')).to.equal(true);
           });
 
           it('should throw an error if topicFolder is null', async () => {

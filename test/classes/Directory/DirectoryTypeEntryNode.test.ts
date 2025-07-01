@@ -23,9 +23,9 @@ export const registerDirectoryTypeEntryNodeTests = () => {
         let typeEntryNode: DirectoryTypeEntryNode;
 
         beforeEach(() => {
-          // Create a mock world
+          // Create a mock setting
           mockWorld = {
-            uuid: 'world-uuid',
+            uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
             expandedIds: {
@@ -54,7 +54,7 @@ export const registerDirectoryTypeEntryNodeTests = () => {
             topicId: 'topic-folder-uuid'
           } as unknown as DirectoryTypeNode;
 
-          // Set the current world
+          // Set the current setting
           CollapsibleNode.currentSetting = mockWorld;
 
           // Create a type entry node
@@ -106,7 +106,7 @@ export const registerDirectoryTypeEntryNodeTests = () => {
             expect(result.name).to.equal(NO_NAME_STRING);
           });
 
-          it('should set expanded state based on world expandedIds', () => {
+          it('should set expanded state based on setting expandedIds', () => {
             // Call fromEntry
             const result = DirectoryTypeEntryNode.fromEntry(mockEntry, mockTypeNode);
             

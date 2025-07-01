@@ -354,7 +354,7 @@
       entryUuid = data.campaignId;
       entryName = data.name;
     } else if (data.worldNode) {
-      // From SettingDirectory world
+      // From SettingDirectory setting
       entryUuid = data.worldId;
       entryName = data.name;
     } else if (data.sessionNode) {
@@ -384,10 +384,10 @@
               entryName = session.name;
             }
           } else if (data.worldNode) {
-            // It's a world
-            const world = await Setting.fromUuid(entryUuid);
-            if (world) {
-              entryName = world.name;
+            // It's a setting
+            const setting = await Setting.fromUuid(entryUuid);
+            if (setting) {
+              entryName = setting.name;
             }
           } else {
             // Try as a regular entry

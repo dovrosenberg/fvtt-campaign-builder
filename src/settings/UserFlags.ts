@@ -6,7 +6,7 @@ export enum UserFlagKey {
   tabs = 'tabs',  // the open tabs
   bookmarks = 'bookmarks',  // stored bookmarks
   recentlyViewed = 'recentlyViewed',    // recent list
-  currentSetting = 'currentSetting',   // the currently open world
+  currentSetting = 'currentSetting',   // the currently open setting
 }
 
 type UserFlagType<K extends UserFlagKey> =
@@ -17,7 +17,7 @@ type UserFlagType<K extends UserFlagKey> =
     never;  
 
 export abstract class UserFlags {
-  // for world-specific settings, we concatenate the flag and worldId... why? worldId has dots in it, which cannot be used in a key because they
+  // for setting-specific settings, we concatenate the flag and worldId... why? worldId has dots in it, which cannot be used in a key because they
   //    are dereferenced by foundry when saving to the database, making it hard to get back in proper format
   // we could just concatenate in the calling code, but then it would be much harder to type check
   public static get<T extends UserFlagKey>(flag: T, worldId = ''): UserFlagType<T> | null {
@@ -48,7 +48,7 @@ export abstract class UserFlags {
     if (!game.user)
       return;
 
-    // @ts-ignore - We don't want to setup the configuration with all the possible world/flag combos
+    // @ts-ignore - We don't want to setup the configuration with all the possible setting/flag combos
     await game.user?.setFlag(moduleId, `${flag}.${worldId}`, value);
   }
 }

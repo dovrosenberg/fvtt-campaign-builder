@@ -13,7 +13,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   static override _documentName = 'JournalEntry';
   static override _flagSettings = campaignFlagSettings;
 
-  public world: Setting | null;  // the world the campaign is in (if we don't setup up front, we can load it later)
+  public world: Setting | null;  // the setting the campaign is in (if we don't setup up front, we can load it later)
 
   // saved on JournalEntry
   private _name: string;
@@ -30,12 +30,12 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   /**
    * 
    * @param {CampaignDoc} campaignDoc - The campaign Foundry document
-   * @param {Setting} world - The world the campaign is in
+   * @param {Setting} setting - setting the campaign is in
    */
-  constructor(campaignDoc: CampaignDoc, world?: Setting) {
+  constructor(campaignDoc: CampaignDoc, setting?: Setting) {
     super(campaignDoc, CampaignFlagKey.isCampaign);
 
-    this.world = world || null;
+    this.world = setting || null;
 
     this._description = this.getFlag(CampaignFlagKey.description) || '';
     this._houseRules = this.getFlag(CampaignFlagKey.houseRules) || '';
@@ -51,7 +51,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     return await this.getWorld();
   };
 
-  /** note: DOES NOT attach the world */
+  /** note: DOES NOT attach the setting */
   static async fromUuid(campaignId: string, options?: Record<string, any>): Promise<Campaign | null> {
     const campaignDoc = await fromUuid<CampaignDoc>(campaignId, options);
 
@@ -68,10 +68,10 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   }
 
   /**
-   * Gets the world associated with a campaign 
+   * Gets the setting associated with a campaign 
    * if needed.
    * 
-   * @returns {Promise<Setting>} A promise to the world associated with the campaign.
+   * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
   public async getWorld(): Promise<Setting> {
     if (!this.world)
@@ -81,9 +81,9 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   }
   
   /**
-   * Gets the Setting associated with the campaign. If the world is already loaded, the promise resolves
-   * to the existing world; otherwise, it loads the world and then resolves to it.
-   * @returns {Promise<Setting>} A promise to the world associated with the campaign.
+   * Gets the Setting associated with the campaign. If the setting is already loaded, the promise resolves
+   * to the existing setting; otherwise, it loads the setting and then resolves to it.
+   * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
   public async loadWorld(): Promise<Setting> {
     if (this.world)
@@ -95,7 +95,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this.world = await Setting.fromUuid(this._doc.collection.folder.uuid);
 
     if (!this.world)
-      throw new Error('Error loading world in Campaign.loadWorld()');
+      throw new Error('Error loading setting in Campaign.loadWorld()');
 
     return this.world;
   }
@@ -410,10 +410,10 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   /**
    * Creates a new campaign.  Prompts for a name.
    * 
-   * @param {Setting} world - The world to create the campaign in. 
+   * @param {Setting} setting - The setting to create the campaign in. 
    * @returns A promise that resolves when the campaign has been created, with either the resulting entry or null on error
    */
-  static async create(world: Setting): Promise<Campaign | null> {
+  static async create(setting: Setting): Promise<Campaign | null> {
     // get the name
     let name;
 
@@ -423,13 +423,13 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       if (name) {
         let newCampaignDoc: CampaignDoc;
 
-        await world.executeUnlocked(async () => {
+        await setting.executeUnlocked(async () => {
           // create a journal entry for the campaign
           newCampaignDoc = await JournalEntry.create({
             name: name,
-            folder: foundry.utils.parseUuid(world.uuid).id,
+            folder: foundry.utils.parseUuid(setting.uuid).id,
           },{
-            pack: world.compendium.metadata.id,
+            pack: setting.compendium.metadata.id,
           }) as unknown as CampaignDoc;  
 
           if (!newCampaignDoc)
@@ -437,14 +437,14 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
         });
 
         // @ts-ignore - assigned in executeUnlocked
-        const newCampaign = new Campaign(newCampaignDoc, world);
+        const newCampaign = new Campaign(newCampaignDoc, setting);
         await newCampaign.setup();
 
-        world.campaignNames = {
-          ...world.campaignNames,
+        setting.campaignNames = {
+          ...setting.campaignNames,
           [newCampaign.uuid]: name,
         };
-        await world.save();
+        await setting.save();
         
         return newCampaign;
       }
@@ -510,9 +510,9 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     // unlock compendium to make the change
     let success = false;
-    let world = await this.getWorld();
+    let setting = await this.getWorld();
 
-    await world.executeUnlocked(async () => {
+    await setting.executeUnlocked(async () => {
       if (Object.keys(updateData).length !== 0) {
         // protect any complex flags
         if (updateData.flags && updateData.flags[moduleId])
@@ -528,7 +528,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
         // update the name
         if (updateData.name !== undefined) {
-          await world.updateCampaignName(this.uuid, updateData.name);
+          await setting.updateCampaignName(this.uuid, updateData.name);
         }
       }
     });
@@ -547,12 +547,12 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     const id = this._doc.uuid;
 
-    let world = await this.getWorld();
+    let setting = await this.getWorld();
 
-    await world.executeUnlocked(async () => {
+    await setting.executeUnlocked(async () => {
       await this._doc.delete();
 
-      await world.deleteCampaignFromWorld(id);
+      await setting.deleteCampaignFromWorld(id);
     });
   }
 }

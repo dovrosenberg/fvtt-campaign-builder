@@ -97,7 +97,7 @@
 
   watch(() => currentSetting.value, async (newWorld) => {
     if (newWorld) {
-      //  make sure the world campaign list is up to date
+      //  make sure the setting campaign list is up to date
       await newWorld.loadCampaigns();
 
       toggleValue.value = isInPlayMode.value && playableCampaignExists.value;

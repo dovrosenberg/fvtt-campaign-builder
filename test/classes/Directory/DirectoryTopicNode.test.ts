@@ -21,9 +21,9 @@ export const registerDirectoryTopicNodeTests = () => {
         let topicNode: DirectoryTopicNode;
 
         beforeEach(() => {
-          // Create a mock world
+          // Create a mock setting
           mockWorld = {
-            uuid: 'world-uuid',
+            uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
             expandedIds: {
@@ -54,7 +54,7 @@ export const registerDirectoryTopicNodeTests = () => {
             filterEntries: sinon.stub().returns([mockEntry])
           } as unknown as TopicFolder;
 
-          // Set the current world
+          // Set the current setting
           CollapsibleNode.currentSetting = mockWorld;
 
           // Create a topic node
@@ -85,8 +85,8 @@ export const registerDirectoryTopicNodeTests = () => {
         });
 
         describe('_loadNodeList', () => {
-          it('should do nothing if no current world', async () => {
-            // Set current world to null
+          it('should do nothing if no current setting', async () => {
+            // Set current setting to null
             CollapsibleNode.currentSetting = null;
             
             // Call _loadNodeList

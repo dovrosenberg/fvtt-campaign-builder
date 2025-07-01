@@ -107,7 +107,7 @@
   };
 
   // whenever we click on a link inside the application that is a link to a document (these are inserted by TextEditor.enrichHTML)
-  //    if it's a document in world builder, open in here instead of the default functionality
+  //    if it's a document in setting builder, open in here instead of the default functionality
   const onClickApplication = (event: MouseEvent) => {
     const target = event.target as HTMLElement;
 
@@ -128,7 +128,7 @@
     // cancel any other actions
     event.stopPropagation();
     
-    // the only things tagged fcb-content-link are ones for the world we're looking at, so just need to open it
+    // the only things tagged fcb-content-link are ones for the setting we're looking at, so just need to open it
     switch (parseInt(target.dataset.linkType ?? '-1')) {
       case WindowTabType.Entry:
         void navigationStore.openEntry(target.dataset.uuid, { newTab: event.ctrlKey});
@@ -150,18 +150,18 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentSetting, async (newWorld: Setting | null, oldWorld: Setting | null) => {
-    // Update the window title when the world changes
-    updateWindowTitle(newWorld?.name || null);
+  watch(currentSetting, async (newSetting: Setting | null, oldSetting: Setting | null) => {
+    // Update the window title when the setting changes
+    updateWindowTitle(newSetting?.name || null);
     
-    if (currentSetting.value && currentSetting.value.topicIds && newWorld?.uuid!==oldWorld?.uuid) {
+    if (currentSetting.value && currentSetting.value.topicIds && newSetting?.uuid!==oldSetting?.uuid) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
       const worldId = currentSetting.value.uuid;
 
       const settingCompendium = currentSetting.value.compendium || null;
 
       if (!settingCompendium)
-        throw new Error(`Could not find compendium for world ${worldId} in CampaignBuilder.currentSetting watch`);
+        throw new Error(`Could not find compendium for setting ${worldId} in CampaignBuilder.currentSetting watch`);
 
       const topicIds = currentSetting.value.topicIds;
       const campaignNames = currentSetting.value.campaignNames;
@@ -180,7 +180,7 @@
         topicJournals[t] = await fromUuid<JournalEntry>(topicIds[t]);
 
         if (!topicJournals[t])
-          throw new Error(`Could not find journal for topic ${t} in world ${worldId}`);
+          throw new Error(`Could not find journal for topic ${t} in setting ${worldId}`);
       }
 
       for (const campaignId in campaignNames) {
@@ -273,7 +273,7 @@
     const settingCompendium = folders.setting?.compendium || null;
 
     if (!setting || !settingId || !settingCompendium)
-        throw new Error(`Could not find world/compendium for world ${settingId} in CampaignBuilder.onMounted()`);
+        throw new Error(`Could not find setting/compendium for setting ${settingId} in CampaignBuilder.onMounted()`);
 
     if (setting.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
@@ -292,7 +292,7 @@
         topicJournals[t] = await fromUuid<JournalEntry>(setting.topicIds[t]);
 
         if (!topicJournals[t])
-          throw new Error(`Could not find journal for topic ${t} in world ${settingId}`);
+          throw new Error(`Could not find journal for topic ${t} in setting ${settingId}`);
       }
 
       for (const campaignId in setting.campaignNames) {
@@ -328,7 +328,7 @@
       // Use setTimeout to ensure the DOM is fully rendered
       setTimeout(() => {
         createTitleBarComponents();
-        // Initialize the window title with the current world name
+        // Initialize the window title with the current setting name
         updateWindowTitle(currentSetting.value?.name || null);
       }, 100);
     } else {

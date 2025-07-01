@@ -17,9 +17,9 @@ export const registerDirectorySessionNodeTests = () => {
         let sessionNode: DirectorySessionNode;
 
         beforeEach(() => {
-          // Create a mock world
+          // Create a mock setting
           mockWorld = {
-            uuid: 'world-uuid',
+            uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
             expandedIds: {
@@ -35,7 +35,7 @@ export const registerDirectorySessionNodeTests = () => {
             date: new Date('2023-01-01')
           } as unknown as Session;
 
-          // Set the current world
+          // Set the current setting
           CollapsibleNode.currentSetting = mockWorld;
 
           // Create a session node

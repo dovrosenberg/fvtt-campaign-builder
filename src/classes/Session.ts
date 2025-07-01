@@ -44,7 +44,7 @@ export class Session {
    * Gets the Campaign associated with the session. If the campaign is already loaded, the promise resolves
    * to the existing campaign; otherwise, it loads the campaign and then resolves to it.
    * 
-   * @returns {Promise<Campaign>} A promise to the world associated with the campaign.
+   * @returns {Promise<Campaign>} A promise to the setting associated with the campaign.
    */
   public async loadCampaign(): Promise<Campaign> {
     if (this.campaign)
@@ -62,10 +62,10 @@ export class Session {
   }
   
   /**
-   * Gets the world associated with a session, loading into the campaign 
+   * Gets the setting associated with a session, loading into the campaign 
    * if needed.
    * 
-   * @returns {Promise<Setting>} A promise to the world associated with the campaign.
+   * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
   public async getWorld(): Promise<Setting> {
     if (!this.campaign)
@@ -78,7 +78,7 @@ export class Session {
   }
   
 
-  // creates a new session in the proper campaign journal in the given world
+  // creates a new session in the proper campaign journal in the given setting
   static async create(campaign: Campaign): Promise<Session | null> 
   {
     let nameToUse = '' as string | null;
@@ -712,13 +712,13 @@ export class Session {
       return;
 
     const id = this._sessionDoc.uuid;
-    const world = await this.getWorld() as Setting;
+    const setting = await this.getWorld() as Setting;
 
-    await world.executeUnlocked(async () => {
+    await setting.executeUnlocked(async () => {
       await this._sessionDoc.delete();
 
       // remove from the expanded list
-      await world.deleteSessionFromWorld(id);
+      await setting.deleteSessionFromWorld(id);
     });
   }
   

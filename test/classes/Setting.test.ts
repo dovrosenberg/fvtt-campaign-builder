@@ -1,7 +1,7 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { Setting } from '@/classes/Setting';
 import { TopicFolder } from '@/classes/TopicFolder';
-import { WorldDoc, WorldFlagKey } from '@/documents';
+import { SettingDoc, SettingFlagKey } from '@/documents';
 import { Topics, } from '@/types';
 import * as sinon from 'sinon';
 import { moduleId } from '@/settings';
@@ -15,9 +15,9 @@ export const registerWBWorldTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('Setting', () => {
-        let mockWorldDoc: WorldDoc;
+        let mockWorldDoc: SettingDoc;
         let mockCompendium: any;
-        let world: Setting;
+        let setting: Setting;
         let fromUuidStub;
         let getFlag;
         let setFlag;
@@ -34,36 +34,36 @@ export const registerWBWorldTests = () => {
           // Stub Folder.createDocuments to avoid creating actual documents
           sinon.stub(Folder, 'createDocuments').resolves([{
             name: 'Test World',
-            uuid: 'test-world-uuid',
+            uuid: 'test-setting-uuid',
             update: sinon.stub().resolves({}),
             delete: sinon.stub().resolves(undefined),
           }]);
           
           // Stub getFlag, setFlag, and unsetFlag
           getFlag = sinon.stub(Folder.prototype, 'getFlag');
-          getFlag.withArgs(sinon.match.any, WorldFlagKey.isWorld).returns(true);
-          getFlag.withArgs(sinon.match.any, WorldFlagKey.campaignNames).returns({
+          getFlag.withArgs(sinon.match.any, SettingFlagKey.isWorld).returns(true);
+          getFlag.withArgs(sinon.match.any, SettingFlagKey.campaignNames).returns({
             'campaign1-uuid': 'Campaign 1',
             'campaign2-uuid': 'Campaign 2'
           });
-          getFlag.withArgs(sinon.match.any, WorldFlagKey.expandedIds).returns({
+          getFlag.withArgs(sinon.match.any, SettingFlagKey.expandedIds).returns({
             'campaign1-uuid': true,
             'entry1-uuid': true
           });
-          getFlag.withArgs(sinon.match.any, WorldFlagKey.hierarchies).returns({
+          getFlag.withArgs(sinon.match.any, SettingFlagKey.hierarchies).returns({
             'entry1-uuid': { parentId: null, children: ['entry2-uuid'], ancestors: [] },
             'entry2-uuid': { parentId: 'entry1-uuid', children: [], ancestors: ['entry1-uuid'] }
           });
-          getFlag.withArgs(sinon.match.any, WorldFlagKey.topicIds).returns({
+          getFlag.withArgs(sinon.match.any, SettingFlagKey.topicIds).returns({
             [Topics.Character]: 'character-topic-uuid',
             [Topics.Location]: 'location-topic-uuid',
             [Topics.Organization]: 'organization-topic-uuid'
           });
-          getFlag.withArgs(sinon.match.any, WorldFlagKey.compendiumId).returns('test-compendium-id');
-          getFlag.withArgs(sinon.match.any, WorldFlagKey.description).returns('Test description');
-          getFlag.withArgs(sinon.match.any, WorldFlagKey.genre).returns('Fantasy');
-          getFlag.withArgs(sinon.match.any, WorldFlagKey.settingFeeling).returns('Epic');
-          getFlag.withArgs(sinon.match.any, WorldFlagKey.img).returns('test-image.jpg');
+          getFlag.withArgs(sinon.match.any, SettingFlagKey.compendiumId).returns('test-compendium-id');
+          getFlag.withArgs(sinon.match.any, SettingFlagKey.description).returns('Test description');
+          getFlag.withArgs(sinon.match.any, SettingFlagKey.genre).returns('Fantasy');
+          getFlag.withArgs(sinon.match.any, SettingFlagKey.settingFeeling).returns('Epic');
+          getFlag.withArgs(sinon.match.any, SettingFlagKey.img).returns('test-image.jpg');
           
           setFlag = sinon.stub(Folder.prototype, 'setFlag');
           unsetFlag = sinon.stub(Folder.prototype, 'unsetFlag');
@@ -90,49 +90,49 @@ export const registerWBWorldTests = () => {
           }
           sinon.stub(game.packs, 'get').returns(mockCompendium);
 
-          // Create a mock WorldDoc
+          // Create a mock SettingDoc
           mockWorldDoc = {
             documentName: 'Folder',
-            uuid: 'test-world-uuid',
+            uuid: 'test-setting-uuid',
             name: 'Test World',
             getFlag: function(moduleId, key) {
-              if (key === WorldFlagKey.isWorld) return true;
+              if (key === SettingFlagKey.isWorld) return true;
               return null;
             },
             update: sinon.stub().resolves({}),
             delete: sinon.stub().resolves(undefined),
-          } as unknown as WorldDoc;
+          } as unknown as SettingDoc;
 
           // Create a Setting instance
-          world = new Setting(mockWorldDoc);
+          setting = new Setting(mockWorldDoc);
           
           // Mock internal properties set up during constructor or validate
-          world['_compendium'] = mockCompendium as any;
-          world['_compendiumId'] = 'test-compendium-id';
-          world['_topicIds'] = {
+          setting['_compendium'] = mockCompendium as any;
+          setting['_compendiumId'] = 'test-compendium-id';
+          setting['_topicIds'] = {
             [Topics.Character]: 'character-topic-uuid',
             [Topics.Location]: 'location-topic-uuid',
             [Topics.Organization]: 'organization-topic-uuid'
           } as any; // Cast because we only mock some
           
-          mockCharacterTopicFolder = new TopicFolder(world, Topics.Character);
+          mockCharacterTopicFolder = new TopicFolder(setting, Topics.Character);
           (mockCharacterTopicFolder.allEntries as jest.Mock).mockReturnValue([]); // Default empty
 
-          world.topicFolders = {
+          setting.topicFolders = {
             [Topics.Character]: mockCharacterTopicFolder,
-            [Topics.Location]: new TopicFolder(world, Topics.Location),
-            [Topics.Organization]: new TopicFolder(world, Topics.Organization),
+            [Topics.Location]: new TopicFolder(setting, Topics.Location),
+            [Topics.Organization]: new TopicFolder(setting, Topics.Organization),
           } as Record<ValidTopic, TopicFolder>;
 
           mockCampaign1 = new Campaign({ uuid: 'campaign1-uuid', name: 'Campaign 1' } as any);
           mockCampaign2 = new Campaign({ uuid: 'campaign2-uuid', name: 'Campaign 2' } as any);
-          world.campaigns = {
+          setting.campaigns = {
             [mockCampaign1.uuid]: mockCampaign1,
             [mockCampaign2.uuid]: mockCampaign2,
           };
-          // Ensure campaign world is set for tests
-          (mockCampaign1 as any).world = world;
-          (mockCampaign2 as any).world = world;
+          // Ensure campaign setting is set for tests
+          (mockCampaign1 as any).setting = setting;
+          (mockCampaign2 as any).setting = setting;
         });
 
         afterEach(() => {
@@ -148,10 +148,10 @@ export const registerWBWorldTests = () => {
           });
 
           it('should initialize with the provided document', () => {
-            expect(world.raw).not.to.equal(mockWorldDoc); // Should be a clone
-            expect(world.uuid).to.equal('test-world-uuid');
-            expect(world.name).to.equal('Test World');
-            expect(world.compendiumId).to.equal('test-compendium-id');
+            expect(setting.raw).not.to.equal(mockWorldDoc); // Should be a clone
+            expect(setting.uuid).to.equal('test-setting-uuid');
+            expect(setting.name).to.equal('Test World');
+            expect(setting.compendiumId).to.equal('test-compendium-id');
           });
         });
 
@@ -170,14 +170,14 @@ export const registerWBWorldTests = () => {
             
             const result = await Setting.fromUuid('test-uuid');
             expect(result).to.be.instanceOf(Setting);
-            expect(result?.uuid).to.equal('test-world-uuid');
+            expect(result?.uuid).to.equal('test-setting-uuid');
           });
         });
 
         describe('loadTopics', () => {
           it('should throw an error if topicIds is not loaded', async () => {
-            // Create a world with no topicIds
-            getFlag.withArgs(sinon.match.any, WorldFlagKey.topicIds).returns(null);
+            // Create a setting with no topicIds
+            getFlag.withArgs(sinon.match.any, SettingFlagKey.topicIds).returns(null);
             const worldWithoutTopicIds = new Setting(mockWorldDoc);
             
             try {
@@ -198,12 +198,12 @@ export const registerWBWorldTests = () => {
             sinon.stub(TopicFolder, 'fromUuid').resolves(mockTopicFolder as any);
             
             // Call loadTopics
-            const result = await world.loadTopics();
+            const result = await setting.loadTopics();
             
             // Verify all topics were loaded
             expect(Object.keys(result).length).to.equal(4);
             expect(result[Topics.Character]).to.equal(mockTopicFolder);
-            expect(result[Topics.Character].world).to.equal(world);
+            expect(result[Topics.Character].setting).to.equal(setting);
           });
 
           it('should throw an error if a topic folder cannot be loaded', async () => {
@@ -211,7 +211,7 @@ export const registerWBWorldTests = () => {
             sinon.stub(TopicFolder, 'fromUuid').resolves(null);
             
             try {
-              await world.loadTopics();
+              await setting.loadTopics();
               expect.fail('Should have thrown an error');
             } catch (error) {
               expect(error.message).to.equal('Invalid topic uuid in Setting.loadTopics()');
@@ -221,8 +221,8 @@ export const registerWBWorldTests = () => {
 
         describe('loadCampaigns', () => {
           it('should throw an error if campaignNames is not loaded', async () => {
-            // Create a world with no campaignNames
-            getFlag.withArgs(sinon.match.any, WorldFlagKey.campaignNames).returns(null);
+            // Create a setting with no campaignNames
+            getFlag.withArgs(sinon.match.any, SettingFlagKey.campaignNames).returns(null);
             const worldWithoutCampaignNames = new Setting(mockWorldDoc);
             
             try {
@@ -245,12 +245,12 @@ export const registerWBWorldTests = () => {
             globalThis.Campaign = Campaign;
             
             // Call loadCampaigns
-            const result = await world.loadCampaigns();
+            const result = await setting.loadCampaigns();
             
             // Verify all campaigns were loaded
             expect(Object.keys(result).length).to.equal(2);
             expect(result['campaign1-uuid']).to.equal(mockCampaign);
-            expect(result['campaign1-uuid'].world).to.equal(world);
+            expect(result['campaign1-uuid'].setting).to.equal(setting);
           });
 
           it('should throw an error if a campaign cannot be loaded', async () => {
@@ -260,7 +260,7 @@ export const registerWBWorldTests = () => {
             globalThis.Campaign = Campaign;
             
             try {
-              await world.loadCampaigns();
+              await setting.loadCampaigns();
               expect.fail('Should have thrown an error');
             } catch (error) {
               expect(error.message).to.equal('Invalid campaign uuid in Setting.loadCampaigns()');
@@ -270,118 +270,118 @@ export const registerWBWorldTests = () => {
 
         describe('getters and setters', () => {
           it('should get and set name correctly', () => {
-            expect(world.name).to.equal('Test World');
-            world.name = 'New World Name';
-            expect(world.name).to.equal('New World Name');
+            expect(setting.name).to.equal('Test World');
+            setting.name = 'New World Name';
+            expect(setting.name).to.equal('New World Name');
           });
 
           it('should get and set description correctly', () => {
-            expect(world.description).to.equal('Test description');
-            world.description = 'New description';
-            expect(world.description).to.equal('New description');
+            expect(setting.description).to.equal('Test description');
+            setting.description = 'New description';
+            expect(setting.description).to.equal('New description');
           });
 
           it('should get and set genre correctly', () => {
-            expect(world.genre).to.equal('Fantasy');
-            world.genre = 'Sci-Fi';
-            expect(world.genre).to.equal('Sci-Fi');
+            expect(setting.genre).to.equal('Fantasy');
+            setting.genre = 'Sci-Fi';
+            expect(setting.genre).to.equal('Sci-Fi');
           });
 
           it('should get and set settingFeeling correctly', () => {
-            expect(world.settingFeeling).to.equal('Epic');
-            world.settingFeeling = 'Gritty';
-            expect(world.settingFeeling).to.equal('Gritty');
+            expect(setting.settingFeeling).to.equal('Epic');
+            setting.settingFeeling = 'Gritty';
+            expect(setting.settingFeeling).to.equal('Gritty');
           });
 
           it('should get and set img correctly', () => {
-            expect(world.img).to.equal('test-image.jpg');
-            world.img = 'new-image.jpg';
-            expect(world.img).to.equal('new-image.jpg');
+            expect(setting.img).to.equal('test-image.jpg');
+            setting.img = 'new-image.jpg';
+            expect(setting.img).to.equal('new-image.jpg');
           });
 
           it('should get and set campaignNames correctly', () => {
-            const campaignNames = world.campaignNames;
+            const campaignNames = setting.campaignNames;
             expect(campaignNames['campaign1-uuid']).to.equal('Campaign 1');
             
-            world.campaignNames = {
+            setting.campaignNames = {
               'campaign1-uuid': 'Updated Campaign 1',
               'campaign3-uuid': 'Campaign 3'
             };
             
-            expect(world.campaignNames['campaign1-uuid']).to.equal('Updated Campaign 1');
-            expect(world.campaignNames['campaign3-uuid']).to.equal('Campaign 3');
+            expect(setting.campaignNames['campaign1-uuid']).to.equal('Updated Campaign 1');
+            expect(setting.campaignNames['campaign3-uuid']).to.equal('Campaign 3');
           });
 
           it('should get and set expandedIds correctly', () => {
-            const expandedIds = world.expandedIds;
+            const expandedIds = setting.expandedIds;
             expect(expandedIds['campaign1-uuid']).to.equal(true);
             
-            world.expandedIds = {
+            setting.expandedIds = {
               'campaign2-uuid': true,
               'entry3-uuid': true
             };
             
-            expect(world.expandedIds['campaign2-uuid']).to.equal(true);
-            expect(world.expandedIds['entry3-uuid']).to.equal(true);
+            expect(setting.expandedIds['campaign2-uuid']).to.equal(true);
+            expect(setting.expandedIds['entry3-uuid']).to.equal(true);
           });
 
           it('should get and set hierarchies correctly', () => {
-            const hierarchies = world.hierarchies;
+            const hierarchies = setting.hierarchies;
             expect(hierarchies['entry1-uuid'].children).to.deep.equal(['entry2-uuid']);
             
-            world.hierarchies = {
+            setting.hierarchies = {
               'entry3-uuid': { parentId: null, children: [], ancestors: [] }
             };
             
-            expect(world.hierarchies['entry3-uuid']).to.deep.equal({ parentId: null, children: [], ancestors: [] });
+            expect(setting.hierarchies['entry3-uuid']).to.deep.equal({ parentId: null, children: [], ancestors: [] });
           });
 
           it('should get and set topicIds correctly', () => {
-            const topicIds = world.topicIds;
+            const topicIds = setting.topicIds;
             expect(topicIds?.[Topics.Character]).to.equal('character-topic-uuid');
             
-            world.topicIds = {
+            setting.topicIds = {
               [Topics.Character]: 'new-character-topic-uuid',
               [Topics.Location]: 'new-location-topic-uuid',
               [Topics.Organization]: 'new-organization-topic-uuid'
             };
             
-            expect(world.topicIds?.[Topics.Character]).to.equal('new-character-topic-uuid');
+            expect(setting.topicIds?.[Topics.Character]).to.equal('new-character-topic-uuid');
           });
         });
 
         describe('save', () => {
-          it('should update the world document with accumulated changes', async () => {
+          it('should update the setting document with accumulated changes', async () => {
             // Make some changes
-            world.name = 'New World Name';
-            world.description = 'New description';
+            setting.name = 'New World Name';
+            setting.description = 'New description';
             
             // Call save
-            const result = await world.save();
+            const result = await setting.save();
             
             // Verify compendium was unlocked and locked
             expect(mockCompendium.configure.calledWith({ locked: false })).to.equal(true);
             expect(mockCompendium.configure.calledWith({ locked: true })).to.equal(true);
             
             // Verify update was called with correct data
-            expect((world.raw.update as sinon.SinonStub).calledWith(sinon.match({
+            expect((setting.raw.update as sinon.SinonStub).calledWith(sinon.match({
               name: 'New World Name',
               [`flags.${moduleId}`]: sinon.match.object
             }))).to.equal(true);
             
             // Verify result
-            expect(result).to.equal(world);
+            expect(result).to.equal(setting);
           });
 
           it('should return null if update fails', async () => {
             // Make a change
-            world.name = 'New World Name';
+            setting.name = 'New World Name';
             
             // Mock failed update
-            (world.raw.update as sinon.SinonStub).resolves(null);
+            (setting.raw.update as sinon.SinonStub).resolves(null);
             
             // Call save
-            const result = await world.save();
+            const result = await setting.save();
             
             // Verify result
             expect(result).to.be.null;
@@ -389,7 +389,7 @@ export const registerWBWorldTests = () => {
         });
 
         describe('create', () => {
-          it('should create a new world with the provided name', async () => {
+          it('should create a new setting with the provided name', async () => {
             // Stub getRootFolder
             sinon.stub(globalThis, 'getRootFolder').resolves({ id: 'root-folder-id' });
             
@@ -424,7 +424,7 @@ export const registerWBWorldTests = () => {
             (game.packs.get as sinon.SinonStub).returns(null);
             
             try {
-              await world.validate();
+              await setting.validate();
               expect.fail('Should have thrown an error');
             } catch (error) {
               expect(error.message).to.equal('Invalid compendiumId in Setting.validate()');
@@ -432,18 +432,18 @@ export const registerWBWorldTests = () => {
           });
 
           it('should create a new compendium if none exists', async () => {
-            // Setup world with no compendium
-            world._compendium = undefined as any;
+            // Setup setting with no compendium
+            setting._compendium = undefined as any;
             
             // Stub createCompendium
-            const createCompendiumStub = sinon.stub(world, 'createCompendium').resolves();
+            const createCompendiumStub = sinon.stub(setting, 'createCompendium').resolves();
             
             // Stub populateTopics and loadCampaigns
-            sinon.stub(world, 'populateTopics').resolves();
-            sinon.stub(world, 'loadCampaigns').resolves();
+            sinon.stub(setting, 'populateTopics').resolves();
+            sinon.stub(setting, 'loadCampaigns').resolves();
             
             // Call validate
-            await world.validate();
+            await setting.validate();
             
             // Verify createCompendium was called
             expect(createCompendiumStub.called).to.equal(true);
@@ -452,53 +452,53 @@ export const registerWBWorldTests = () => {
 
         describe('node management', () => {
           it('should collapse campaign directory', async () => {
-            await world.collapseCampaignDirectory();
-            expect(unsetFlag.calledWith(world.raw, WorldFlagKey.expandedIds)).to.equal(true);
+            await setting.collapseCampaignDirectory();
+            expect(unsetFlag.calledWith(setting.raw, SettingFlagKey.expandedIds)).to.equal(true);
           });
 
           it('should collapse setting directory', async () => {
-            await world.collapseSettingDirectory();
-            expect(unsetFlag.calledWith(world.raw, WorldFlagKey.expandedIds)).to.equal(true);
+            await setting.collapseSettingDirectory();
+            expect(unsetFlag.calledWith(setting.raw, SettingFlagKey.expandedIds)).to.equal(true);
           });
 
           it('should expand a node', async () => {
             // Stub save
-            sinon.stub(world, 'save').resolves(world);
+            sinon.stub(setting, 'save').resolves(setting);
             
-            await world.expandNode('test-node');
+            await setting.expandNode('test-node');
             
-            expect(world.expandedIds['test-node']).to.equal(true);
+            expect(setting.expandedIds['test-node']).to.equal(true);
           });
 
           it('should collapse a node', async () => {
-            await world.collapseNode('campaign1-uuid');
+            await setting.collapseNode('campaign1-uuid');
             
-            expect(unsetFlag.calledWith(world.raw, WorldFlagKey.expandedIds, 'campaign1-uuid')).to.equal(true);
+            expect(unsetFlag.calledWith(setting.raw, SettingFlagKey.expandedIds, 'campaign1-uuid')).to.equal(true);
           });
         });
 
         describe('campaign management', () => {
           it('should update campaign name', async () => {
-            await world.updateCampaignName('campaign1-uuid', 'Updated Campaign 1');
+            await setting.updateCampaignName('campaign1-uuid', 'Updated Campaign 1');
             
-            expect(world._campaignNames['campaign1-uuid']).to.equal('Updated Campaign 1');
+            expect(setting._campaignNames['campaign1-uuid']).to.equal('Updated Campaign 1');
             expect(setFlag.calledWith(
-              world.raw, 
-              WorldFlagKey.campaignNames, 
+              setting.raw, 
+              SettingFlagKey.campaignNames, 
               sinon.match.object
             )).to.equal(true);
           });
 
-          it('should delete campaign from world', async () => {
-            await world.deleteCampaignFromWorld('campaign1-uuid');
+          it('should delete campaign from setting', async () => {
+            await setting.deleteCampaignFromWorld('campaign1-uuid');
             
-            expect(unsetFlag.calledWith(world.raw, WorldFlagKey.campaignNames, 'campaign1-uuid')).to.equal(true);
-            expect(unsetFlag.calledWith(world.raw, WorldFlagKey.expandedIds, 'campaign1-uuid')).to.equal(true);
+            expect(unsetFlag.calledWith(setting.raw, SettingFlagKey.campaignNames, 'campaign1-uuid')).to.equal(true);
+            expect(unsetFlag.calledWith(setting.raw, SettingFlagKey.expandedIds, 'campaign1-uuid')).to.equal(true);
           });
         });
 
         describe('entry management', () => {
-          it('should delete entry from world with hierarchy', async () => {
+          it('should delete entry from setting with hierarchy', async () => {
             // Create mock topic folder
             const mockTopicFolder = {
               topic: Topics.Character,
@@ -509,13 +509,13 @@ export const registerWBWorldTests = () => {
             // Stub cleanTrees
             const cleanTreesStub = sinon.stub(globalThis, 'cleanTrees').resolves();
             
-            await world.deleteEntryFromWorld(mockTopicFolder as any, 'entry1-uuid');
+            await setting.deleteEntryFromWorld(mockTopicFolder as any, 'entry1-uuid');
             
             expect(cleanTreesStub.called).to.equal(true);
-            expect(unsetFlag.calledWith(world.raw, WorldFlagKey.expandedIds, 'entry1-uuid')).to.equal(true);
+            expect(unsetFlag.calledWith(setting.raw, SettingFlagKey.expandedIds, 'entry1-uuid')).to.equal(true);
           });
 
-          it('should delete entry from world without hierarchy but in top nodes', async () => {
+          it('should delete entry from setting without hierarchy but in top nodes', async () => {
             // Create mock topic folder
             const mockTopicFolder = {
               topic: Topics.Character,
@@ -523,30 +523,30 @@ export const registerWBWorldTests = () => {
               save: sinon.stub().resolves()
             };
             
-            // Setup world with no hierarchy for this entry
-            world._hierarchies = {};
+            // Setup setting with no hierarchy for this entry
+            setting._hierarchies = {};
             
             // Setup topicFolders
-            world.topicFolders = {
+            setting.topicFolders = {
               [Topics.Character]: mockTopicFolder
             } as any;
             
-            await world.deleteEntryFromWorld(mockTopicFolder as any, 'entry3-uuid');
+            await setting.deleteEntryFromWorld(mockTopicFolder as any, 'entry3-uuid');
             
             expect(mockTopicFolder.save.called).to.equal(true);
-            expect(unsetFlag.calledWith(world.raw, WorldFlagKey.expandedIds, 'entry3-uuid')).to.equal(true);
+            expect(unsetFlag.calledWith(setting.raw, SettingFlagKey.expandedIds, 'entry3-uuid')).to.equal(true);
           });
 
-          it('should delete session from world', async () => {
-            await world.deleteSessionFromWorld('session1-uuid');
+          it('should delete session from setting', async () => {
+            await setting.deleteSessionFromWorld('session1-uuid');
             
-            expect(unsetFlag.calledWith(world.raw, WorldFlagKey.expandedIds, 'session1-uuid')).to.equal(true);
+            expect(unsetFlag.calledWith(setting.raw, SettingFlagKey.expandedIds, 'session1-uuid')).to.equal(true);
           });
         });
 
         describe('delete', () => {
-          it('should delete the world and its compendium', async () => {
-            await world.delete();
+          it('should delete the setting and its compendium', async () => {
+            await setting.delete();
             
             expect(mockCompendium.configure.calledWith({ locked: false })).to.equal(true);
             expect(mockCompendium.deleteCompendium.called).to.equal(true);
@@ -569,7 +569,7 @@ export const registerWBWorldTests = () => {
               [pc3].filter(pc => filterFn(pc))
             );
             
-            await world.deleteActorFromWorld(actorIdToDelete);
+            await setting.deleteActorFromWorld(actorIdToDelete);
 
             expect(mockCampaign1.filterPCs).toHaveBeenCalled();
             expect(mockCampaign2.filterPCs).toHaveBeenCalled();
@@ -592,7 +592,7 @@ export const registerWBWorldTests = () => {
             (mockCampaign1 as any).sessions = [session1];
             (mockCampaign2 as any).sessions = [session2];
 
-            await world.deleteActorFromWorld(actorIdToDelete);
+            await setting.deleteActorFromWorld(actorIdToDelete);
 
             expect(session1.deleteMonster).toHaveBeenCalledWith(actorIdToDelete);
             expect(session1.deleteMonster).not.toHaveBeenCalledWith(otherActorId);
@@ -607,7 +607,7 @@ export const registerWBWorldTests = () => {
 
             (mockCharacterTopicFolder.allEntries as jest.Mock).mockReturnValue([charEntry1, charEntry2, charEntry3]);
 
-            await world.deleteActorFromWorld(actorIdToDelete);
+            await setting.deleteActorFromWorld(actorIdToDelete);
 
             expect(charEntry1.actors).toEqual([otherActorId]);
             expect(charEntry1.save).toHaveBeenCalledTimes(1);
@@ -625,7 +625,7 @@ export const registerWBWorldTests = () => {
             (mockCampaign1 as any).sessions = [];
             (mockCampaign2 as any).sessions = [];
 
-            await world.deleteActorFromWorld(nonExistentActorId);
+            await setting.deleteActorFromWorld(nonExistentActorId);
 
             expect(mockPCSave).not.toHaveBeenCalled();
             expect(mockSessionDeleteMonster).not.toHaveBeenCalled();
@@ -639,7 +639,7 @@ export const registerWBWorldTests = () => {
             (mockCampaign2.filterPCs as jest.Mock).mockResolvedValue([]);
             (mockCharacterTopicFolder.allEntries as jest.Mock).mockReturnValue([]);
 
-            await world.deleteActorFromWorld(actorIdToDelete);
+            await setting.deleteActorFromWorld(actorIdToDelete);
             expect(pc1.save).toHaveBeenCalledTimes(1);
             expect(pc2.save).toHaveBeenCalledTimes(1);
             expect(mockPCSave).toHaveBeenCalledTimes(2);
@@ -652,7 +652,7 @@ export const registerWBWorldTests = () => {
             (mockCampaign2.filterPCs as jest.Mock).mockResolvedValue([]);
             (mockCharacterTopicFolder.allEntries as jest.Mock).mockReturnValue([charEntry1, charEntry2]);
 
-            await world.deleteActorFromWorld(actorIdToDelete);
+            await setting.deleteActorFromWorld(actorIdToDelete);
             expect(charEntry1.save).toHaveBeenCalledTimes(1);
             expect(charEntry2.save).toHaveBeenCalledTimes(1);
             expect(mockCharacterSave).toHaveBeenCalledTimes(2);

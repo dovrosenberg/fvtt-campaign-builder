@@ -21,9 +21,9 @@ export const registerDirectoryTypeNodeTests = () => {
         let typeNode: DirectoryTypeNode;
 
         beforeEach(() => {
-          // Create a mock world
+          // Create a mock setting
           mockWorld = {
-            uuid: 'world-uuid',
+            uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
             expandedIds: {
@@ -53,7 +53,7 @@ export const registerDirectoryTypeNodeTests = () => {
             topicFolder: mockTopicFolder
           } as unknown as Entry;
 
-          // Set the current world
+          // Set the current setting
           CollapsibleNode.currentSetting = mockWorld;
 
           // Create a type node
@@ -83,8 +83,8 @@ export const registerDirectoryTypeNodeTests = () => {
         });
 
         describe('_loadNodeList', () => {
-          it('should do nothing if no current world', async () => {
-            // Set current world to null
+          it('should do nothing if no current setting', async () => {
+            // Set current setting to null
             CollapsibleNode.currentSetting = null;
             
             // Call _loadNodeList

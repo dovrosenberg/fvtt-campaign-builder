@@ -30,7 +30,7 @@ export enum SettingKey {
   defaultToLongDescriptions = 'defaultToLongDescriptions',
   longDescriptionParagraphs = 'longDescriptionParagraphs', // number of paragraphs for long descriptions (1-4)
   useGmailToDos = 'useGmailToDos', // whether to use Gmail for todos
-  emailDefaultWorld = 'emailDefaultWorld', // default world for email features
+  emailDefaultWorld = 'emailDefaultWorld', // default setting for email features
   emailDefaultCampaign = 'emailDefaultCampaign', // default campaign for email features
 
   rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu

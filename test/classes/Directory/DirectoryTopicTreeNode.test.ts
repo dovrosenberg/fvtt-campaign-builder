@@ -48,9 +48,9 @@ export const registerDirectoryTopicTreeNodeTests = () => {
         let topicTreeNode: TestTopicTreeNode;
 
         beforeEach(() => {
-          // Create a mock world
+          // Create a mock setting
           mockWorld = {
-            uuid: 'world-uuid',
+            uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
             expandedIds: {
@@ -71,7 +71,7 @@ export const registerDirectoryTopicTreeNodeTests = () => {
             topic: Topics.Character
           } as unknown as TopicFolder;
 
-          // Set the current world
+          // Set the current setting
           CollapsibleNode.currentSetting = mockWorld;
 
           // Create a topic tree node

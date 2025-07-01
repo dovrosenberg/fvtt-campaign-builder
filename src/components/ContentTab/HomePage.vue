@@ -142,7 +142,7 @@
 
   const onCreateEntry = async (topic: Topics) => {
     if (!currentSetting.value)
-      throw new Error('No current world in HomePage.onCreateEntry()');
+      throw new Error('No current setting in HomePage.onCreateEntry()');
 
     const topicFolder = currentSetting.value.topicFolders[topic];
 

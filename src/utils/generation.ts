@@ -72,11 +72,11 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
 };
 
 /**
- * Generates an AI image for an entry based on its type, description, and world context.
+ * Generates an AI image for an entry based on its type, description, and setting context.
  * Handles different generation logic for characters, locations, and organizations.
  * Shows user notifications during the generation process and updates the entry with the result.
  * 
- * @param forSetting - The setting containing the entry (used for genre and world feeling)
+ * @param forSetting - The setting containing the entry (used for genre and setting feeling)
  * @param entry - The entry to generate an image for
  * @returns A promise that resolves when image generation is complete
  * @throws {Error} If image generation fails or the entry type is not supported

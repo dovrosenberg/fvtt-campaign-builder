@@ -561,23 +561,23 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       const topicObj = currentSetting.value.topicFolders[topics[i]];
 
       // filter on name and type
-      let matchedEntries = topicObj.filterEntries((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )))
-        .map((e: Entry): string=>e.uuid) as string[];
+      const matchedEntryObjects = topicObj.filterEntries((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )));
+    
+      let allItemsToShow: string[] = [];
 
-  
-      // add the ancestors and types; iterate backwards so that we can push on the end and not recheck the ones we're adding
-      for (let j=matchedEntries.length-1; j>=0; j--) {
-        if (hierarchies[matchedEntries[j]] && hierarchies[matchedEntries[j]].ancestors) {
-          matchedEntries = matchedEntries.concat(hierarchies[matchedEntries[j]].ancestors);
+      // add the ancestors and types;
+      for (const entry of matchedEntryObjects) {
+        allItemsToShow.push(entry.uuid);
+        allItemsToShow.push(entry.type || NO_TYPE_STRING);
+
+        const hierarchy = hierarchies[entry.uuid];
+        if (hierarchy && hierarchy.ancestors) {
+          allItemsToShow = allItemsToShow.concat(hierarchy.ancestors);
         }
-  
-        // add the type
-        // note: we add the blank type, even though we don't currently show them in the grouped tree
-        matchedEntries.push(hierarchies[matchedEntries[j]]?.type || NO_TYPE_STRING);
       }
   
       // eliminate duplicates
-      retval[topics[i]] = [...new Set(matchedEntries)] as string[];
+      retval[topics[i]] = [...new Set(allItemsToShow)];
     }
 
     filterNodes.value = retval;

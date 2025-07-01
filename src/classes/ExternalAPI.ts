@@ -24,13 +24,13 @@ export class ExternalAPI {
   }
 
   public getEntries(topic: ValidTopic): GetListReturnValue[] {
-    const world = useMainStore().currentSetting;
+    const setting = useMainStore().currentSetting;
 
-    if (!world)
+    if (!setting)
       return [];
 
     try {
-      const topicFolder = world.topicFolders[topic];
+      const topicFolder = setting.topicFolders[topic];
 
       const results = [] as GetListReturnValue[];
 
@@ -44,7 +44,7 @@ export class ExternalAPI {
     }
   } 
 
-  // creates an entry in the current world
+  // creates an entry in the current setting
   async createEntry(topic: ValidTopic): Promise<{uuid: string; name: string}| null> {
     const entry = await FCBDialog.createEntryDialog(topic, { } );
 
@@ -56,25 +56,25 @@ export class ExternalAPI {
   }
 
   getCampaigns(): GetListReturnValue[] {
-    const world = useMainStore().currentSetting;
+    const setting = useMainStore().currentSetting;
 
-    if (!world)
+    if (!setting)
       return [];
 
     const retval = [] as GetListReturnValue[];
-    for (const campaignId in world.campaignNames) {
-      retval.push({ uuid: campaignId, name: world.campaignNames[campaignId]})
+    for (const campaignId in setting.campaignNames) {
+      retval.push({ uuid: campaignId, name: setting.campaignNames[campaignId]})
     }
 
     return retval;
   }
 
   async createCampaign(): Promise<{uuid: string; name: string}| null> {
-    const world = useMainStore().currentSetting;
+    const setting = useMainStore().currentSetting;
 
     let campaign: Campaign | null = null;
-    if (world) {
-      campaign = await Campaign.create(world);
+    if (setting) {
+      campaign = await Campaign.create(setting);
     }
 
     if (campaign) {
@@ -87,14 +87,14 @@ export class ExternalAPI {
 
   // leaving async for now for backwards compatibility, even though not actually needed any more
   async getSessions(): Promise<GetListReturnValue[]> {
-    const world = useMainStore().currentSetting;
+    const setting = useMainStore().currentSetting;
 
-    if (!world)
+    if (!setting)
       return [];
 
     const retval = [] as GetListReturnValue[];
-    for (const campaignId in world.campaigns) {
-      const campaign = world.campaigns[campaignId];
+    for (const campaignId in setting.campaigns) {
+      const campaign = setting.campaigns[campaignId];
       const sessions = campaign.sessions;
 
       for (let i=0; i<sessions.length; i++) {
@@ -108,8 +108,8 @@ export class ExternalAPI {
   // for now, no create session because it requires a campaign be specified
 
   getWorld(): GetListReturnValue[] {
-    const world = useMainStore().currentSetting;
+    const setting = useMainStore().currentSetting;
 
-    return world ? [{ uuid: world.uuid, name: world.name }] : [];
+    return setting ? [{ uuid: setting.uuid, name: setting.name }] : [];
   }  
 }

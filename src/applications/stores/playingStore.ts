@@ -145,7 +145,7 @@ export const usePlayingStore = defineStore('playing', () => {
     }
   });
 
-  // When the world changes, reset the current played campaign
+  // When the setting changes, reset the current played campaign
   watch(()=> currentSetting.value, () => {
     currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
   });
@@ -171,7 +171,7 @@ export const usePlayingStore = defineStore('playing', () => {
     }
   });
 
-  // When the world changes, reset the current played campaign
+  // When the setting changes, reset the current played campaign
   watch(()=> currentSetting.value, () => {
     currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
   });

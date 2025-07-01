@@ -1,6 +1,6 @@
-// handles flags set on the world root folder
+// handles flags set on the setting root folder
 // we store all the compendia status info here in the hopes that it's stored on the server, though that's unclear to me
-// also, when the world is deleted, they'll all get cleaned up
+// also, when the setting is deleted, they'll all get cleaned up
 
 /** 
  * The subset of FK (which should be an enum of keys) that are Record<string, any> 

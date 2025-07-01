@@ -139,19 +139,19 @@
     selectedOptionIndex.value = null;
     
     try {
-      // Get the current world and its roll table config
+      // Get the current setting and its roll table config
       const mainStore = useMainStore();
       const currentSetting = mainStore.currentSetting;
       
       if (!currentSetting) {
-        throw new Error('No current world selected');
+        throw new Error('No current setting selected');
       }
       
       const config = currentSetting.rollTableConfig;
       const tableUuid = config?.rollTables[props.generatorType];
       
       if (!tableUuid) {
-        throw new Error(`No roll table configured for ${props.generatorType} in current world`);
+        throw new Error(`No roll table configured for ${props.generatorType} in current setting`);
       }
       
       // Load the roll table

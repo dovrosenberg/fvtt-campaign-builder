@@ -184,14 +184,14 @@
       return;
     }
 
-    const world = await Setting.fromUuid(worldUuid);
-    if (!world) {
+    const setting = await Setting.fromUuid(worldUuid);
+    if (!setting) {
       campaignOptions.value = [];
       return;
     }
 
-    await world.loadCampaigns();
-    campaignOptions.value = Object.entries(world.campaignNames).map(([uuid, name]) => ({ uuid, name: name as string }));
+    await setting.loadCampaigns();
+    campaignOptions.value = Object.entries(setting.campaignNames).map(([uuid, name]) => ({ uuid, name: name as string }));
   };
 
   ////////////////////////////////

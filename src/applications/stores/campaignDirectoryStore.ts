@@ -51,7 +51,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
  
   // refreshes the campaign tree 
   const refreshCampaignDirectoryTree = async (updateIds: string[] = []): Promise<void> => {
-    // need to have a current world and journals loaded
+    // need to have a current setting and journals loaded
     if (!currentSetting.value)
       return;
 
@@ -179,7 +179,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   };
 
   /**
-   * Gets all campaigns in the current world
+   * Gets all campaigns in the current setting
    * @returns Array of Campaign objects
    */
   const getCampaigns = async (): Promise<Campaign[]> => {
@@ -209,7 +209,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   ///////////////////////////////
   // watchers
 
-  // when the world changes, clean out the cache of loaded items
+  // when the setting changes, clean out the cache of loaded items
   watch(currentSetting, async (newWorld: Setting | null): Promise<void> => {
     if (!newWorld) {
       currentCampaignTree.value = [];

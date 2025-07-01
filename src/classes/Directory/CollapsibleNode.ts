@@ -30,8 +30,8 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
     this.ancestors = ancestors;
   }
 
-  public static set currentSetting(world: Setting | null) {
-    CollapsibleNode._currentSetting = world;
+  public static set currentSetting(setting: Setting | null) {
+    CollapsibleNode._currentSetting = setting;
     CollapsibleNode._loadedNodes = {};
   }
 

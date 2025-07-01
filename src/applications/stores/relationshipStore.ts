@@ -437,7 +437,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
   };
 
   // if this ever becomes too slow, we could store a lookup table on each entry - or a global one on the 
-  // world - and refresh it whenever a link is added/removed on the session side.  But for now, this 
+  // setting - and refresh it whenever a link is added/removed on the session side.  But for now, this 
   // seems to be fine.
   const _refreshSessionReferences = async () => {
     if (!currentEntry.value || !currentSetting.value) {
@@ -448,7 +448,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     const references: SessionReference[] = [];
     const campaigns = Object.values(currentSetting.value.campaigns);
 
-    // Go through all campaigns in the world
+    // Go through all campaigns in the setting
     for (const campaign of campaigns) {
       // Get all sessions in the campaign
       const sessions = campaign.filterSessions(() => true);

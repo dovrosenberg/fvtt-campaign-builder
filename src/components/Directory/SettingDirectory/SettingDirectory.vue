@@ -179,10 +179,10 @@
           label: localize('contextMenus.settingFolder.createCampaign'), 
           onClick: async () => {
             if (settingId) {
-              const world = await Setting.fromUuid(settingId);
+              const setting = await Setting.fromUuid(settingId);
 
-              if (world) {
-                await Campaign.create(world);
+              if (setting) {
+                await Campaign.create(setting);
                 await campaignDirectoryStore.refreshCampaignDirectoryTree();
               }
             }

@@ -53,7 +53,7 @@ export const registerCampaignTests = () => {
             name: 'Test Campaign',
             collection: {
               folder: {
-                uuid: 'world-uuid'
+                uuid: 'setting-uuid'
               }
             },
             pages: {
@@ -74,7 +74,7 @@ export const registerCampaignTests = () => {
 
           // Create a mock World
           mockWorld = {
-            uuid: 'world-uuid',
+            uuid: 'setting-uuid',
             unlock: sinon.stub().resolves(undefined),
             lock: sinon.stub().resolves(undefined),
             save: sinon.stub().resolves({}),
@@ -110,11 +110,11 @@ export const registerCampaignTests = () => {
             expect(() => new Campaign(invalidDoc as any)).to.throw;
           });
 
-          it('should initialize with the provided document and world', () => {
+          it('should initialize with the provided document and setting', () => {
             expect(campaign.raw).not.to.equal(mockCampaignDoc); // Should be a clone
             expect(campaign.uuid).to.equal('test-campaign-uuid');
             expect(campaign.name).to.equal('Test Campaign');
-            expect(campaign.world).to.equal(mockWorld);
+            expect(campaign.setting).to.equal(mockWorld);
           });
         });
 
@@ -134,18 +134,18 @@ export const registerCampaignTests = () => {
         });
 
         describe('getWorld and loadWorld', () => {
-          it('should return the existing world if already set', async () => {
+          it('should return the existing setting if already set', async () => {
             const result = await campaign.getWorld();
             expect(result).to.equal(mockWorld);
           });
 
-          it('should load the world if not already set', async () => {
-            // Create a campaign without a world
+          it('should load the setting if not already set', async () => {
+            // Create a campaign without a setting
             const campaignWithoutWorld = new Campaign(mockCampaignDoc);
             
-            // Setup the fromUuid stub to return a world doc
+            // Setup the fromUuid stub to return a setting doc
             fromUuidStub.resolves({
-              uuid: 'world-uuid'
+              uuid: 'setting-uuid'
             });
             
             // Stub Setting.fromUuid
@@ -156,7 +156,7 @@ export const registerCampaignTests = () => {
           });
 
           it('should throw an error if folder is missing', async () => {
-            // Create a campaign without a world and with invalid folder
+            // Create a campaign without a setting and with invalid folder
             const invalidDoc = { ...mockCampaignDoc, collection: { folder: null } };
             const campaignWithInvalidFolder = new Campaign(invalidDoc as any);
             
@@ -368,7 +368,7 @@ export const registerCampaignTests = () => {
             // Call save
             const result = await campaign.save();
             
-            // Verify world was unlocked and locked
+            // Verify setting was unlocked and locked
             expect(mockWorld.unlock.called).to.equal(true);
             expect(mockWorld.lock.called).to.equal(true);
             
@@ -378,7 +378,7 @@ export const registerCampaignTests = () => {
               [`flags.${moduleId}`]: sinon.match.object
             }))).to.equal(true);
             
-            // Verify campaign name was updated in world
+            // Verify campaign name was updated in setting
             expect(mockWorld.updateCampaignName.calledWith('test-campaign-uuid', 'New Campaign Name')).to.equal(true);
             
             // Verify result
@@ -401,18 +401,18 @@ export const registerCampaignTests = () => {
         });
 
         describe('delete', () => {
-          it('should delete the campaign and update the world', async () => {
+          it('should delete the campaign and update the setting', async () => {
             // Call delete
             await campaign.delete();
             
-            // Verify world was unlocked and locked
+            // Verify setting was unlocked and locked
             expect(mockWorld.unlock.called).to.equal(true);
             expect(mockWorld.lock.called).to.equal(true);
             
             // Verify delete was called
             expect((campaign.raw.delete as sinon.SinonStub).called).to.equal(true);
             
-            // Verify world was updated
+            // Verify setting was updated
             expect(mockWorld.deleteCampaignFromWorld.calledWith('test-campaign-uuid')).to.equal(true);
           });
         });
@@ -422,7 +422,7 @@ export const registerCampaignTests = () => {
             // Call create
             const result = await Campaign.create(mockWorld);
             
-            // Verify world was unlocked and locked
+            // Verify setting was unlocked and locked
             expect(mockWorld.unlock.called).to.equal(true);
             expect(mockWorld.lock.called).to.equal(true);
             

@@ -61,13 +61,13 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
 
   /**
-   * Open a new tab to the given world. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
+   * Open a new tab to the given setting. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
-   * @param contentId The uuid of the world to open in the tab. If null, a blank tab is opened.
+   * @param contentId The uuid of the setting to open in the tab. If null, a blank tab is opened.
    * @param options Options for the tab.
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
-   * @param options.updateHistory Should the world be added to the history of the tab? Defaults to true.
+   * @param options.updateHistory Should the setting be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
    * @returns The newly opened tab.
    */
@@ -170,11 +170,11 @@ export const useNavigationStore = defineStore('navigation', () => {
         }
       } break;
       case WindowTabType.World: {
-        const world = contentId ? await Setting.fromUuid(contentId) : null;
-        if (!world) {
+        const setting = contentId ? await Setting.fromUuid(contentId) : null;
+        if (!setting) {
           badId = true;
         } else {
-          name = world.name;
+          name = setting.name;
           icon = getTabTypeIcon(WindowTabType.World);
         }
       } break;
@@ -318,7 +318,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
 /**
  * Closes all open tabs and removes all bookmarks. Should be used only when there is no
- * world available.
+ * setting available.
  */
   const clearTabsAndBookmarks = async function () {
     tabs.value = [];

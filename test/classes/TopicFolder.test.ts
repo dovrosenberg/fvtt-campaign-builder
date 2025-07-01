@@ -60,7 +60,7 @@ export const registerTopicFolderTests = () => {
             name: 'Characters',
             collection: {
               folder: {
-                uuid: 'world-uuid'
+                uuid: 'setting-uuid'
               }
             },
             pages: {
@@ -84,7 +84,7 @@ export const registerTopicFolderTests = () => {
 
           // Create a mock World
           mockWorld = {
-            uuid: 'world-uuid',
+            uuid: 'setting-uuid',
             unlock: sinon.stub().resolves(undefined),
             lock: sinon.stub().resolves(undefined),
             save: sinon.stub().resolves({}),
@@ -115,11 +115,11 @@ export const registerTopicFolderTests = () => {
             expect(() => new TopicFolder(invalidDoc as any)).to.throw('Invalid document type in Campaign constructor');
           });
 
-          it('should initialize with the provided document and world', () => {
+          it('should initialize with the provided document and setting', () => {
             expect(topicFolder.raw).not.to.equal(mockTopicDoc); // Should be a clone
             expect(topicFolder.uuid).to.equal('test-topic-uuid');
             expect(topicFolder.topic).to.equal(Topics.Character);
-            expect(topicFolder.world).to.equal(mockWorld);
+            expect(topicFolder.setting).to.equal(mockWorld);
           });
           
           it('should initialize with default values if flags are not set', () => {
@@ -160,18 +160,18 @@ export const registerTopicFolderTests = () => {
         });
 
         describe('getWorld and loadWorld', () => {
-          it('should return the existing world if already set', async () => {
+          it('should return the existing setting if already set', async () => {
             const result = await topicFolder.getWorld();
             expect(result).to.equal(mockWorld);
           });
 
-          it('should load the world if not already set', async () => {
-            // Create a topic folder without a world
+          it('should load the setting if not already set', async () => {
+            // Create a topic folder without a setting
             const topicFolderWithoutWorld = new TopicFolder(mockTopicDoc);
             
-            // Setup the fromUuid stub to return a world doc
-            fromUuidStub.withArgs('world-uuid').resolves({
-              uuid: 'world-uuid'
+            // Setup the fromUuid stub to return a setting doc
+            fromUuidStub.withArgs('setting-uuid').resolves({
+              uuid: 'setting-uuid'
             });
             
             // Act
@@ -179,11 +179,11 @@ export const registerTopicFolderTests = () => {
             
             // Assert
             expect(result).to.be.instanceOf(Setting);
-            expect(result.uuid).to.equal('world-uuid');
+            expect(result.uuid).to.equal('setting-uuid');
           });
 
           it('should throw an error if folder is missing', async () => {
-            // Create a topic folder without a world and with invalid folder
+            // Create a topic folder without a setting and with invalid folder
             const invalidDoc = { ...mockTopicDoc, collection: { folder: null } };
             const topicFolderWithInvalidFolder = new TopicFolder(invalidDoc as any);
             
@@ -195,12 +195,12 @@ export const registerTopicFolderTests = () => {
             }
           });
 
-          it('should throw an error if world document is not found', async () => {
-            // Create a topic folder without a world
+          it('should throw an error if setting document is not found', async () => {
+            // Create a topic folder without a setting
             const topicFolderWithoutWorld = new TopicFolder(mockTopicDoc);
             
             // Setup the fromUuid stub to return null
-            fromUuidStub.withArgs('world-uuid').resolves(null);
+            fromUuidStub.withArgs('setting-uuid').resolves(null);
             
             try {
               await topicFolderWithoutWorld.loadWorld();
@@ -244,7 +244,7 @@ export const registerTopicFolderTests = () => {
             // Call save
             const result = await topicFolder.save();
             
-            // Verify world was unlocked and locked
+            // Verify setting was unlocked and locked
             expect(mockWorld.unlock.called).to.equal(true);
             expect(mockWorld.lock.called).to.equal(true);
             
@@ -271,13 +271,13 @@ export const registerTopicFolderTests = () => {
             expect(result).to.be.null;
           });
 
-          it('should load world if not already set', async () => {
-            // Create a topic folder without a world
+          it('should load setting if not already set', async () => {
+            // Create a topic folder without a setting
             const topicFolderWithoutWorld = new TopicFolder(mockTopicDoc);
             
-            // Setup the fromUuid stub to return a world doc
-            fromUuidStub.withArgs('world-uuid').resolves({
-              uuid: 'world-uuid',
+            // Setup the fromUuid stub to return a setting doc
+            fromUuidStub.withArgs('setting-uuid').resolves({
+              uuid: 'setting-uuid',
               unlock: sinon.stub().resolves(undefined),
               lock: sinon.stub().resolves(undefined)
             });
@@ -291,8 +291,8 @@ export const registerTopicFolderTests = () => {
             // Call save
             await topicFolderWithoutWorld.save();
             
-            // Verify world was loaded, unlocked and locked
-            expect(fromUuidStub.calledWith('world-uuid')).to.equal(true);
+            // Verify setting was loaded, unlocked and locked
+            expect(fromUuidStub.calledWith('setting-uuid')).to.equal(true);
           });
         });
 
@@ -301,7 +301,7 @@ export const registerTopicFolderTests = () => {
             // Call delete
             await topicFolder.delete();
             
-            // Verify world was unlocked and locked
+            // Verify setting was unlocked and locked
             expect(mockWorld.unlock.called).to.equal(true);
             expect(mockWorld.lock.called).to.equal(true);
             
@@ -309,13 +309,13 @@ export const registerTopicFolderTests = () => {
             expect((topicFolder.raw.delete as sinon.SinonStub).called).to.equal(true);
           });
 
-          it('should load world if not already set', async () => {
-            // Create a topic folder without a world
+          it('should load setting if not already set', async () => {
+            // Create a topic folder without a setting
             const topicFolderWithoutWorld = new TopicFolder(mockTopicDoc);
             
-            // Setup the fromUuid stub to return a world doc
-            fromUuidStub.withArgs('world-uuid').resolves({
-              uuid: 'world-uuid',
+            // Setup the fromUuid stub to return a setting doc
+            fromUuidStub.withArgs('setting-uuid').resolves({
+              uuid: 'setting-uuid',
               unlock: sinon.stub().resolves(undefined),
               lock: sinon.stub().resolves(undefined)
             });
@@ -323,8 +323,8 @@ export const registerTopicFolderTests = () => {
             // Call delete
             await topicFolderWithoutWorld.delete();
             
-            // Verify world was loaded, unlocked and locked
-            expect(fromUuidStub.calledWith('world-uuid')).to.equal(true);
+            // Verify setting was loaded, unlocked and locked
+            expect(fromUuidStub.calledWith('setting-uuid')).to.equal(true);
           });
         });
 
@@ -333,7 +333,7 @@ export const registerTopicFolderTests = () => {
             // Call create
             const result = await TopicFolder.create(mockWorld, Topics.Character);
             
-            // Verify world was unlocked and locked
+            // Verify setting was unlocked and locked
             expect(mockWorld.unlock.called).to.equal(true);
             expect(mockWorld.lock.called).to.equal(true);
             
@@ -359,7 +359,7 @@ export const registerTopicFolderTests = () => {
             }
           });
           
-          it('should update the world with the new topic ID', async () => {
+          it('should update the setting with the new topic ID', async () => {
             // Call create
             await TopicFolder.create(mockWorld, Topics.Character);
             

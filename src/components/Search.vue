@@ -218,9 +218,9 @@
   ////////////////////////////////
   // watchers
   
-  // Rebuild the search index when the current world changes
-  watch(() => currentSetting.value, async (newWorld) => {
-    if (newWorld) {
+  // Rebuild the search index when the current setting changes
+  watch(() => currentSetting.value, async (newSetting) => {
+    if (newSetting) {
       await initializeSearch();
     }
   });

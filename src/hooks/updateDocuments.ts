@@ -45,8 +45,8 @@ function registerForActorHooks() {
     // need to remove from any PCs that are linked to it
     const worlds = await mainStore.getAllWorlds();
     
-    for (let world of worlds) {
-      await world.deleteActorFromWorld(_actor.uuid);
+    for (let setting of worlds) {
+      await setting.deleteActorFromWorld(_actor.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -72,8 +72,8 @@ function registerForItemHooks() {
     const mainStore = useMainStore();
 
     const worlds = await mainStore.getAllWorlds();
-    for (let world of worlds) {
-      await world.deleteItemFromWorld(_item.uuid);
+    for (let setting of worlds) {
+      await setting.deleteItemFromWorld(_item.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -99,8 +99,8 @@ function registerForSceneHooks() {
     const mainStore = useMainStore();
 
     const worlds = await mainStore.getAllWorlds();
-    for (let world of worlds) {
-      await world.deleteSceneFromWorld(_scene.uuid);
+    for (let setting of worlds) {
+      await setting.deleteSceneFromWorld(_scene.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -116,8 +116,8 @@ function registerForJournalHooks() {
     const mainStore = useMainStore();
 
     const worlds = await mainStore.getAllWorlds();
-    for (let world of worlds) {
-      await world.deleteJournalEntryFromWorld(_journal.uuid);
+    for (let setting of worlds) {
+      await setting.deleteJournalEntryFromWorld(_journal.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -128,8 +128,8 @@ function registerForJournalHooks() {
     const mainStore = useMainStore();
 
     const worlds = await mainStore.getAllWorlds();
-    for (let world of worlds) {
-      await world.deleteJournalEntryPageFromWorld(_journal.uuid);
+    for (let setting of worlds) {
+      await setting.deleteJournalEntryPageFromWorld(_journal.uuid);
     }
 
     // refresh the content window in case it's showing in a table

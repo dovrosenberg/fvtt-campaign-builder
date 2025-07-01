@@ -28,17 +28,17 @@ export const hasHierarchy = (topic: Topics): boolean => [Topics.Organization, To
  * A valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself.
  * Only works for topics that have hierarchy support.
  * 
- * @param world - The world containing the hierarchy data
+ * @param setting - The setting containing the hierarchy data
  * @param entry - The entry to find valid children for
  * @returns Array of entry summaries that can be set as children of the given entry
  */
-export function validChildItems(world: Setting, entry: Entry): TabSummary[] {
+export function validChildItems(setting: Setting, entry: Entry): TabSummary[] {
   if (!entry.uuid)
     return [];
 
-  const topicFolder = world.topicFolders[entry.topic];
+  const topicFolder = setting.topicFolders[entry.topic];
 
-  const ancestors = world.getEntryHierarchy(entry.uuid)?.ancestors || [];
+  const ancestors = setting.getEntryHierarchy(entry.uuid)?.ancestors || [];
 
   // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
   return topicFolder.filterEntries((e: Entry)=>(e.uuid !== entry.uuid && !ancestors.includes(entry.uuid)))
@@ -51,16 +51,16 @@ export function validChildItems(world: Setting, entry: Entry): TabSummary[] {
  * A valid parent is anything that does not have this object as an ancestor (to avoid creating loops).
  * Only works for topics that have hierarchy support.
  * 
- * @param world - The world containing the hierarchy data
+ * @param setting - The setting containing the hierarchy data
  * @param entry - The entry to find valid parents for
  * @returns Array of objects with name and id properties representing valid parent entries
  */
-export function validParentItems(world: Setting, entry: Entry): {name: string; id: string}[] {
+export function validParentItems(setting: Setting, entry: Entry): {name: string; id: string}[] {
   if (!entry.uuid)
     return [];
 
-  const hierarchies = world.hierarchies;
-  const topicFolder = world.topicFolders[entry.topic];
+  const hierarchies = setting.hierarchies;
+  const topicFolder = setting.topicFolders[entry.topic];
 
   if (!topicFolder || !hasHierarchy(entry.topic))
     return [];
@@ -75,15 +75,15 @@ export function validParentItems(world: Setting, entry: Entry): {name: string; i
  * Gets the parent ID for a hierarchical entry.
  * Returns null for topics that don't support hierarchy or entries without parents.
  * 
- * @param world - The world containing the hierarchy data
+ * @param setting - The setting containing the hierarchy data
  * @param entry - The entry to get the parent ID for
  * @returns The UUID of the parent entry, or null if no parent exists
  */
-export function getParentId(world: Setting, entry: Entry): string | null {
+export function getParentId(setting: Setting, entry: Entry): string | null {
   if (!hasHierarchy(entry.topic))
     return null;
 
-  const hierarchies = world.hierarchies;
+  const hierarchies = setting.hierarchies;
   const hierarchy = hierarchies[entry.uuid];
   return hierarchy?.parentId ?? null;
 }
@@ -108,14 +108,14 @@ const mapEntryToSummary = (entry: Entry): TabSummary => ({
  * @private We need to remove it from any trees where it is a child or ancestor, and from the ancestor
  * list of all the items that will now be orphaned below it
  * 
- * @param world - The world containing the hierarchy data
+ * @param setting - The setting containing the hierarchy data
  * @param topicFolder - The topic folder containing the deleted item
  * @param deletedItemId - The UUID of the item that was deleted
  * @param deletedHierarchy - The hierarchy data of the deleted item before deletion
  * @returns A promise that resolves when cleanup is complete
  */
-export const cleanTrees = async function(world: Setting, topicFolder: TopicFolder, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
-  const hierarchies = world.hierarchies;
+export const cleanTrees = async function(setting: Setting, topicFolder: TopicFolder, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
+  const hierarchies = setting.hierarchies;
 
   // Get the grandparent ID (if any)
   const grandparentId = deletedHierarchy.parentId || null;
@@ -168,8 +168,8 @@ export const cleanTrees = async function(world: Setting, topicFolder: TopicFolde
   delete hierarchies[deletedItemId];
 
   // store updated hierarchy
-  world.hierarchies = hierarchies;
-  await world.save();
+  setting.hierarchies = hierarchies;
+  await setting.save();
 
   // update topNodes
   const topNodes = topicFolder.topNodes;

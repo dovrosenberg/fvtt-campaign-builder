@@ -1,11 +1,11 @@
 import { 
   CampaignDoc, 
-  WorldDoc, 
+  SettingDoc, 
   TopicDoc,
-  WorldFlagKey,
+  SettingFlagKey,
   CampaignFlagKey,
   TopicFlagKey,
-  WorldFlagType,
+  SettingFlagType,
   CampaignFlagType,
   TopicFlagType, 
 } from '@/documents';
@@ -32,20 +32,20 @@ type FlagsObject<
 /** 
  * The allowed types to use flags (our types)
  */
-type ValidDocTypes = WorldDoc | CampaignDoc | TopicDoc;
+type ValidDocTypes = SettingDoc | CampaignDoc | TopicDoc;
 
 
 /**
  * Map each ValidDocType to its configuration
  */
 type FlagKey<T extends ValidDocTypes> = 
-  T extends WorldDoc ? WorldFlagKey :
+  T extends SettingDoc ? SettingFlagKey :
   T extends CampaignDoc ? CampaignFlagKey :
   T extends TopicDoc ? TopicFlagKey :
   never;
 
 type FlagType<T extends ValidDocTypes, K extends FlagKey<T>=FlagKey<T>> = 
-  T extends WorldDoc ? (K extends WorldFlagKey ? WorldFlagType<K> : never) :
+  T extends SettingDoc ? (K extends SettingFlagKey ? SettingFlagType<K> : never) :
   T extends CampaignDoc ? (K extends CampaignFlagKey ? CampaignFlagType<K> : never) :
   T extends TopicDoc ? (K extends TopicFlagKey ? TopicFlagType<K> : never) :
   never;
@@ -140,8 +140,8 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
     };
 
     if (this.requiresUnlock) {
-      const world = await this._getWorld();
-      await world.executeUnlocked(setFunction);
+      const setting = await this._getWorld();
+      await setting.executeUnlocked(setFunction);
     } else {
       await setFunction();
     }
@@ -168,8 +168,8 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
     }
 
     if (this.requiresUnlock) {
-      const world = await this._getWorld();
-      await world.executeUnlocked(unsetFunction);
+      const setting = await this._getWorld();
+      await setting.executeUnlocked(unsetFunction);
     } else {
       await unsetFunction();
     }
@@ -243,8 +243,8 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
     }
     
     if (this.requiresUnlock) {
-      const world = await this._getWorld();
-      await world.executeUnlocked(setFunction);
+      const setting = await this._getWorld();
+      await setting.executeUnlocked(setFunction);
     } else {
       await setFunction();
     }

@@ -20,9 +20,9 @@ export const registerDirectoryCampaignNodeTests = () => {
         let campaignNode: DirectoryCampaignNode;
 
         beforeEach(() => {
-          // Create a mock world
+          // Create a mock setting
           mockWorld = {
-            uuid: 'world-uuid',
+            uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
             expandedIds: {
@@ -52,7 +52,7 @@ export const registerDirectoryCampaignNodeTests = () => {
             name: 'Test Session'
           } as unknown as DirectorySessionNode);
 
-          // Set the current world
+          // Set the current setting
           CollapsibleNode.currentSetting = mockWorld;
 
           // Create a campaign node
@@ -83,8 +83,8 @@ export const registerDirectoryCampaignNodeTests = () => {
         });
 
         describe('_loadNodeList', () => {
-          it('should do nothing if no current world', async () => {
-            // Set current world to null
+          it('should do nothing if no current setting', async () => {
+            // Set current setting to null
             CollapsibleNode.currentSetting = null;
             
             // Call _loadNodeList

@@ -12,7 +12,7 @@ export interface NameStyle {
 /**
  * Collection of predefined name generation styles for use with the AI name generator.
  * Each style provides a different approach to name generation, from traditional to experimental.
- * The {genre} placeholder in prompts will be replaced with the world's genre setting.
+ * The {genre} placeholder in prompts will be replaced with the setting's genre setting.
  */
 export const nameStyles: NameStyle[] = [
   {

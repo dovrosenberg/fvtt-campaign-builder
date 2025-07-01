@@ -109,7 +109,7 @@
 
   ////////////////////////////////
   // computed
-  // Define the name styles (computed to react to world changes)
+  // Define the name styles (computed to react to setting changes)
   const nameStylePrompts = computed(() => 
     nameStyles.map(style => style.prompt.replace('{genre}', currentSetting.value?.genre || 'Fantasy'))
   );
@@ -158,7 +158,7 @@
     error.value = '';
     
     try {
-      // Check if we have stored examples with matching genre and world feeling
+      // Check if we have stored examples with matching genre and setting feeling
       const storedExamples = currentSetting.value.nameStyleExamples;
       if (storedExamples && 
           storedExamples.genre === currentSetting.value.genre && 

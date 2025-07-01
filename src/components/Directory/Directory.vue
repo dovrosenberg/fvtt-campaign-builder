@@ -133,7 +133,7 @@
     void settingDirectoryStore.collapseAll();
   };
 
-  // create a world
+  // create a setting
   const onCreateWorldClick = async (event: MouseEvent) => {
     event.stopPropagation();
 

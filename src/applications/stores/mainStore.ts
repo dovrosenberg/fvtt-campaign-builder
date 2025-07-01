@@ -1,4 +1,4 @@
-// this store handles the main state (current world, entry, etc.)
+// this store handles the main state (current setting, entry, etc.)
 
 // library imports
 import { defineStore, } from 'pinia';
@@ -13,7 +13,7 @@ import { updateWorldRollTableNames } from '@/utils/nameGenerators';
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { TopicFolder, Setting, WindowTab, Entry, Campaign, Session, PC, CollapsibleNode, } from '@/classes';
-import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, WorldDoc, WorldFlagKey } from '@/documents';
+import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, SettingDoc, SettingFlagKey } from '@/documents';
 import { getDefaultFolders } from '@/compendia';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
@@ -111,7 +111,7 @@ export const useMainStore = defineStore('main', () => {
         }
         break;
       case WindowTabType.World:
-        // we can only set tabs within a world, so we don't actually need to do anything here
+        // we can only set tabs within a setting, so we don't actually need to do anything here
         // if (tab.header.uuid) {
         //   _currentEntry.value = null;
         //   _currentSetting.value = await Setting.fromUuid(tab.header.uuid);
@@ -174,7 +174,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentSetting.value = new Setting(_currentSetting.value.raw as WorldDoc);
+    _currentSetting.value = new Setting(_currentSetting.value.raw as SettingDoc);
 
     // have to load the topic folders
     await _currentSetting.value?.loadTopics();
@@ -235,34 +235,34 @@ export const useMainStore = defineStore('main', () => {
       }
     }
 
-    const worlds: Setting[] = [];
+    const settings: Setting[] = [];
     
     for (const child of rootFolder.value.children) {
-      if (child.folder && child.folder.getFlag(moduleId, WorldFlagKey.isWorld)) {
+      if (child.folder && child.folder.getFlag(moduleId, SettingFlagKey.isWorld)) {
         try {
-          const world = await Setting.fromUuid(child.folder.uuid);
-          if (world) {
-            worlds.push(world);
+          const setting = await Setting.fromUuid(child.folder.uuid);
+          if (setting) {
+            settings.push(setting);
           }
         } catch (error) {
-          console.error(`Error loading world ${child.folder.name}:`, error);
+          console.error(`Error loading setting ${child.folder.name}:`, error);
         }
       }
     }
 
-    return worlds;
+    return settings;
   }
 
   /**
-   * Propagate world name changes to related entities (roll tables, etc.)
-   * This should be called after the world name has been changed and saved
-   * @param world The world whose name changed
+   * Propagate setting name changes to related entities (roll tables, etc.)
+   * This should be called after the setting name has been changed and saved
+   * @param setting The setting whose name changed
    */
-  const propagateWorldNameChange = async function (world: Setting): Promise<void> {
+  const propagateWorldNameChange = async function (setting: Setting): Promise<void> {
     // Update roll table names if roll tables are configured
-    if (world.rollTableConfig) {
+    if (setting.rollTableConfig) {
       try {
-        await updateWorldRollTableNames(world);
+        await updateWorldRollTableNames(setting);
       } catch (error) {
         console.error('Error updating roll table names:', error);
       }
@@ -322,7 +322,7 @@ export const useMainStore = defineStore('main', () => {
   });
 
   /**
-  * Updates the main window title to include the current world name
+  * Updates the main window title to include the current setting name
   */
   watch(currentSetting, (newWorld, oldWorld) => {
     // make sure we're actually changing

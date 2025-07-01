@@ -29,7 +29,7 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
    */
   public async loadTypeEntries (types: string [], expandedIds: Record<string, boolean | null>): Promise<void> {
     // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
-    //    type on the journalentry, or pack or world, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
+    //    type on the journalentry, or pack or setting, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
     //    that is also in the index)
 
     // create the loadedType nodes then populate their children

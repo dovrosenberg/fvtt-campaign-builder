@@ -145,7 +145,7 @@
     isRefreshing.value = true;
     
     try {
-      // Refresh world-specific tables for all worlds
+      // Refresh setting-specific tables for all worlds
       await refreshAllWorldRollTables();
       ui.notifications?.info(localize('applications.rollTableSettings.notifications.refreshSuccess'));
     } catch (error) {

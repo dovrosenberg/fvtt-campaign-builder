@@ -35,9 +35,9 @@ export const registerCollapsibleNodeTests = () => {
         let node: TestNode;
 
         beforeEach(() => {
-          // Create a mock world
+          // Create a mock setting
           mockWorld = {
-            uuid: 'world-uuid',
+            uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
             expandedIds: {
@@ -46,7 +46,7 @@ export const registerCollapsibleNodeTests = () => {
             }
           } as unknown as Setting;
 
-          // Set the current world
+          // Set the current setting
           CollapsibleNode.currentSetting = mockWorld;
 
           // Create a test node
@@ -78,15 +78,15 @@ export const registerCollapsibleNodeTests = () => {
         });
 
         describe('currentSetting', () => {
-          it('should set the current world and clear loaded nodes', () => {
+          it('should set the current setting and clear loaded nodes', () => {
             // Add a node to the loaded nodes
             CollapsibleNode._loadedNodes = { 'test-node': node as any };
             
-            // Set a new world
-            const newWorld = { uuid: 'new-world-uuid' } as Setting;
+            // Set a new setting
+            const newWorld = { uuid: 'new-setting-uuid' } as Setting;
             CollapsibleNode.currentSetting = newWorld;
             
-            // Check that the world was set and loaded nodes were cleared
+            // Check that the setting was set and loaded nodes were cleared
             expect(CollapsibleNode._currentSetting).to.equal(newWorld);
             expect(CollapsibleNode._loadedNodes).to.deep.equal({});
           });
@@ -123,8 +123,8 @@ export const registerCollapsibleNodeTests = () => {
         });
 
         describe('collapse', () => {
-          it('should do nothing if no current world', async () => {
-            // Set current world to null
+          it('should do nothing if no current setting', async () => {
+            // Set current setting to null
             CollapsibleNode.currentSetting = null;
             
             // Call collapse
@@ -134,7 +134,7 @@ export const registerCollapsibleNodeTests = () => {
             expect((mockWorld.collapseNode as sinon.SinonStub).called).to.be.false;
           });
 
-          it('should call collapseNode on the current world', async () => {
+          it('should call collapseNode on the current setting', async () => {
             // Call collapse
             await node.collapse();
             
@@ -144,8 +144,8 @@ export const registerCollapsibleNodeTests = () => {
         });
 
         describe('expand', () => {
-          it('should do nothing if no current world', async () => {
-            // Set current world to null
+          it('should do nothing if no current setting', async () => {
+            // Set current setting to null
             CollapsibleNode.currentSetting = null;
             
             // Call expand
@@ -155,7 +155,7 @@ export const registerCollapsibleNodeTests = () => {
             expect((mockWorld.expandNode as sinon.SinonStub).called).to.be.false;
           });
 
-          it('should call expandNode on the current world', async () => {
+          it('should call expandNode on the current setting', async () => {
             // Call expand
             await node.expand();
             
@@ -176,8 +176,8 @@ export const registerCollapsibleNodeTests = () => {
             expect(result).to.equal(node);
           });
 
-          it('should return the node if no current world', async () => {
-            // Set current world to null
+          it('should return the node if no current setting', async () => {
+            // Set current setting to null
             CollapsibleNode.currentSetting = null;
             
             // Call toggleWithLoad

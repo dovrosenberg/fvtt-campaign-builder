@@ -66,8 +66,8 @@ export async function getRelatedEntries(addedUUIDs: string[], removedUUIDs: stri
   // also remove ourself (just in case) and our parent (because that seems like a common
   // thing you'd type but not want to connect since you can see it right there anyway and
   // it's indexed to search so there's no reason to connect to it)
-  const world = await currentEntry.getWorld();
-  const parentId = getParentId(world, currentEntry) || null;
+  const setting = await currentEntry.getWorld();
+  const parentId = getParentId(setting, currentEntry) || null;
 
   const added = addedUUIDs.filter(uuid => !relatedEntries[uuid] && ![currentEntry.uuid, parentId].includes(uuid));
   const removed = removedUUIDs.filter(uuid => relatedEntries[uuid] && ![currentEntry.uuid, parentId].includes(uuid));

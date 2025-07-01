@@ -10,16 +10,16 @@ export enum GeneratorType {
 
 
 /**
- * Interface for a world-specific generator configuration
+ * Interface for a setting-specific generator configuration
  */
 export interface WorldGeneratorConfig {
   /**
-   * The folder ID where roll tables are stored for this world
+   * The folder ID where roll tables are stored for this setting
    */
   folderId: string;
 
   /**
-   * Mapping of generator types to roll table IDs for this world
+   * Mapping of generator types to roll table IDs for this setting
    */
   rollTables: Record<GeneratorType, string>;  // maps generator type to uuid
 }

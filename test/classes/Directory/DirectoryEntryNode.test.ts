@@ -30,9 +30,9 @@ export const registerDirectoryEntryNodeTests = () => {
             type: 'Character'
           };
 
-          // Create a mock world
+          // Create a mock setting
           mockWorld = {
-            uuid: 'world-uuid',
+            uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
             expandedIds: {
@@ -55,7 +55,7 @@ export const registerDirectoryEntryNodeTests = () => {
             topicFolder: mockTopicFolder
           } as unknown as Entry;
 
-          // Set the current world
+          // Set the current setting
           CollapsibleNode.currentSetting = mockWorld;
 
           // Create an entry node
@@ -92,8 +92,8 @@ export const registerDirectoryEntryNodeTests = () => {
         });
 
         describe('fromEntry', () => {
-          it('should throw an error if no current world', () => {
-            // Set current world to null
+          it('should throw an error if no current setting', () => {
+            // Set current setting to null
             CollapsibleNode.currentSetting = null;
             
             // Call fromEntry and expect an error

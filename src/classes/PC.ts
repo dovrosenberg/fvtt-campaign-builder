@@ -43,7 +43,7 @@ export class PC {
    * Gets the Campaign associated with the PC. If the campaign is already loaded, the promise resolves
    * to the existing campaign; otherwise, it loads the campaign and then resolves to it.
    * 
-   * @returns {Promise<Campaign>} A promise to the world associated with the campaign.
+   * @returns {Promise<Campaign>} A promise to the setting associated with the campaign.
    */
   public async loadCampaign(): Promise<Campaign> {
     if (this.campaign)
@@ -90,10 +90,10 @@ export class PC {
   }
 
   /**
-   * Gets the world associated with a PC, loading into the campaign 
+   * Gets the setting associated with a PC, loading into the campaign 
    * if needed.
    * 
-   * @returns {Promise<Setting>} A promise to the world associated with the campaign.
+   * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
   public async getWorld(): Promise<Setting> {
     if (!this.campaign)
@@ -106,7 +106,7 @@ export class PC {
   }
 
   
-  // creates a new PC in the proper campaign journal in the given world
+  // creates a new PC in the proper campaign journal in the given setting
   static async create(campaign: Campaign): Promise<PC | null> 
   {
     let nameToUse = '' as string | null;
@@ -118,10 +118,10 @@ export class PC {
     if (!nameToUse)
       return null;
 
-    const world = await campaign.getWorld();
+    const setting = await campaign.getWorld();
 
     let pcDoc: PCDoc[] = [];
-    await world.executeUnlocked(async () => {
+    await setting.executeUnlocked(async () => {
       pcDoc = await JournalEntryPage.createDocuments([{
         type: DOCUMENT_TYPES.PC,
         name: `<${localize('placeholders.linkToActor')}>`,
@@ -260,12 +260,12 @@ export class PC {
    * @returns {Promise<PC | null>} The updated PC, or null if the update failed.
    */
   public async save(): Promise<PC | null> {
-    const world = await this.getWorld();
+    const setting = await this.getWorld();
 
     const updateData = this._cumulativeUpdate;
 
     let retval: PCDoc | null = null;
-    await world.executeUnlocked(async () => {
+    await setting.executeUnlocked(async () => {
       retval = await toRaw(this._pcDoc).update(updateData) || null;
       if (retval) {
         this._pcDoc = retval;
@@ -290,9 +290,9 @@ export class PC {
     if (!this._pcDoc)
       return;
 
-    const world = await this.getWorld() as Setting;
+    const setting = await this.getWorld() as Setting;
 
-    await world.executeUnlocked(async () => {
+    await setting.executeUnlocked(async () => {
       await this._pcDoc.delete();
     });
   }

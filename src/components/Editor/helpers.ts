@@ -21,7 +21,7 @@ import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
 import { localize } from '@/utils/game';
 
 // types
-import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES, EntryDoc, PCDoc, SessionDoc, WorldDoc, WorldFlagKey } from '@/documents';
+import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES, EntryDoc, PCDoc, SessionDoc, SettingDoc, SettingFlagKey } from '@/documents';
 import { Setting, Entry, Campaign, Session, PC } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 import { ValidTopic, WindowTabType } from '@/types';
@@ -79,7 +79,7 @@ export const setupEnricher = (): void => {
  * 3. Regular Foundry documents still get processed normally by other enrichers
  * 4. The custom enricher is safely removed after processing
  * 
- * @param worldId - UUID of the current world/setting being viewed. Required to determine
+ * @param worldId - UUID of the current setting being viewed. Required to determine
  *                  if links should be handled by the campaign builder or fall back to default behavior.
  * @param text - Raw HTML/text content that may contain @UUID[...] or @Type[...] links
  * @returns Promise resolving to enriched HTML with clickable content links
@@ -123,11 +123,11 @@ type LinkData = {
 }
 
 /**
- * Creates a "broken" anchor element for links that cannot be resolved or are cross-world references.
+ * Creates a "broken" anchor element for links that cannot be resolved or are cross-setting references.
  * 
  * This function is used when a content link references a document that:
  * - Doesn't exist
- * - Is from a different world/setting than the current one
+ * - Is from a different setting than the current one
  * - Has invalid data
  * 
  * The resulting anchor appears broken (with unlink icon) and is not clickable.
@@ -137,7 +137,7 @@ type LinkData = {
  * @returns HTMLAnchorElement configured as a broken/disabled link
  */
 const brokenAnchor = (data: LinkData, name = 'Cross-Setting links are not supported'): HTMLAnchorElement => {
-  // this is a cross-world item; basically treat it like broken
+  // this is a cross-setting item; basically treat it like broken
   delete data.dataset.link;
   delete data.attrs.draggable;
   data.icon = 'fas fa-unlink';
@@ -200,13 +200,13 @@ const goodAnchor = <T extends InternalClientDocument>(doc: T, linkType: WindowTa
  * The function handles:
  * 1. UUID links (@UUID[...]) - Modern Foundry format
  * 2. Legacy links (@Actor[...], @Scene[...], etc.) - Older Foundry format
- * 3. Campaign builder documents (Entry, PC, Session, Campaign, World)
- * 4. Cross-world references (marked as broken)
+ * 3. Campaign builder documents (Entry, PC, Session, Campaign, Setting)
+ * 4. Cross-setting references (marked as broken)
  * 5. Regular Foundry documents (passed through to default handling)
  * 
  * Processing logic:
  * - If no worldId provided, use default Foundry behavior
- * - If document is from different world, create broken link
+ * - If document is from different setting, create broken link
  * - If document is campaign builder type, create custom navigation link
  * - Otherwise, use default Foundry document link
  * 
@@ -245,7 +245,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
     broken = createLegacyContentLink(type as WORLD_DOCUMENT_TYPES, target, name, data);
   }
 
-  // for now, we only care about the ones in the current world (for performance purposes and because
+  // for now, we only care about the ones in the current setting (for performance purposes and because
   //    I don't think you should be referencing across worlds (and we don't make that easy to do, in any case))
   if (unknownItem && !broken) {
     // if we're not in a world builder app, just do the default
@@ -257,13 +257,13 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
         const entry = new Entry(unknownItem as unknown as EntryDoc);
 
         if (entry.topic) {
-          const world = await entry.getWorld();
+          const setting = await entry.getWorld();
 
           // handle the ones we don't care about
-          if (world.uuid !== settingId) {
-            // we're in the wrong world
+          if (setting.uuid !== settingId) {
+            // we're in the wrong setting
             return brokenAnchor(data);
-          } else {  // this is an fcb item for this world
+          } else {  // this is an fcb item for this setting
             return goodAnchor(unknownItem, WindowTabType.Entry, hash, data.name || entry.name, `fas ${getTopicIcon(entry.topic)}`, entry.topic); 
           }
         } else 
@@ -272,49 +272,49 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
       case DOCUMENT_TYPES.PC: {
         const pc = new PC(unknownItem as unknown as PCDoc);
 
-        // check if it's the right world
-        const world = await pc.getWorld();
+        // check if it's the right setting
+        const setting = await pc.getWorld();
   
         // handle the ones we don't care about
-        if (world.uuid !== settingId) {
+        if (setting.uuid !== settingId) {
           return brokenAnchor(data);
-        } else {  // this is an fcb item for this world
+        } else {  // this is an fcb item for this setting
           return goodAnchor(unknownItem, WindowTabType.PC, hash, data.name || pc.name, `fas ${getTabTypeIcon(WindowTabType.PC)}`); 
         }
       }; break;
       case DOCUMENT_TYPES.Session: {
         const session = new Session(unknownItem as unknown as SessionDoc);
 
-        // check if it's the right world
-        const world = await session.getWorld();
+        // check if it's the right setting
+        const setting = await session.getWorld();
   
         // handle the ones we don't care about
-        if (world.uuid !== settingId) {
+        if (setting.uuid !== settingId) {
           return brokenAnchor(data);
-        } else {  // this is an fcb item for this world
+        } else {  // this is an fcb item for this setting
           return goodAnchor(unknownItem, WindowTabType.Session, hash, data.name || session.name, `fas ${getTabTypeIcon(WindowTabType.Session)}`); 
         }
       }; break;
     }
 
     // now handle the folder types
-    if (unknownItem?.getFlag(moduleId, WorldFlagKey.isWorld)) {
-      const world = new Setting(unknownItem as unknown as WorldDoc);
+    if (unknownItem?.getFlag(moduleId, SettingFlagKey.isWorld)) {
+      const setting = new Setting(unknownItem as unknown as SettingDoc);
 
       // handle the ones we don't care about
-      if (world.uuid !== settingId) {
+      if (setting.uuid !== settingId) {
         return brokenAnchor(data);
-      } else {  // this is an fcb item for this world
-        return goodAnchor(unknownItem, WindowTabType.World, hash, data.name || world.name, `fas ${getTabTypeIcon(WindowTabType.World)}`); 
+      } else {  // this is an fcb item for this setting
+        return goodAnchor(unknownItem, WindowTabType.World, hash, data.name || setting.name, `fas ${getTabTypeIcon(WindowTabType.World)}`); 
       }
     } else if (unknownItem?.getFlag(moduleId, CampaignFlagKey.isCampaign)) {
       const campaign = new Campaign(unknownItem as unknown as CampaignDoc); 
-      const world = await campaign.getWorld();
+      const setting = await campaign.getWorld();
 
       // handle the ones we don't care about
-      if (world.uuid !== settingId) {
+      if (setting.uuid !== settingId) {
         return brokenAnchor(data);
-      } else {  // this is an fcb item for this world
+      } else {  // this is an fcb item for this setting
         return goodAnchor(unknownItem, WindowTabType.Campaign, hash, data.name || campaign.name, `fas ${getTabTypeIcon(WindowTabType.Campaign)}`); 
       }      
     } else if (type==='UUID' && unknownItem) {
