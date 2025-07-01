@@ -30,7 +30,7 @@ export enum SettingKey {
   defaultToLongDescriptions = 'defaultToLongDescriptions',
   longDescriptionParagraphs = 'longDescriptionParagraphs', // number of paragraphs for long descriptions (1-4)
   useGmailToDos = 'useGmailToDos', // whether to use Gmail for todos
-  emailDefaultWorld = 'emailDefaultWorld', // default setting for email features
+  emailDefaultSetting = 'emailDefaultWorld', // default setting for email features
   emailDefaultCampaign = 'emailDefaultCampaign', // default campaign for email features
 
   rollTableSettingsMenu = 'rollTableSettingsMenu',  // display the roll table settings menu
@@ -65,7 +65,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.hideBackendWarning ? boolean :
     K extends SettingKey.enableToDoList ? boolean :
     K extends SettingKey.useGmailToDos ? boolean :
-    K extends SettingKey.emailDefaultWorld ? string :
+    K extends SettingKey.emailDefaultSetting ? string :
     K extends SettingKey.emailDefaultCampaign ? string :
     never;  
 
@@ -255,7 +255,7 @@ export class ModuleSettings {
       type: Boolean,
     },
     {
-      settingID: SettingKey.emailDefaultWorld,
+      settingID: SettingKey.emailDefaultSetting,
       default: '',
       type: String,
     },

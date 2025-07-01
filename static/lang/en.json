@@ -117,11 +117,11 @@
           "longDescriptionParagraphsHint": "Number of paragraphs to generate for long descriptions (1-4).",
           "useGmailIdeas": "Use Gmail for Ideas",
           "useGmailIdeasHint": "When enabled, idea items will be created from the Gmail inbox",
-          "emailDefaultWorld": "Default Setting for email",
-          "emailDefaultWorldHint": "The Setting to use by default for email features (ex. emailing idea items)",
+          "emailDefaultSetting": "Default Setting for email",
+          "emailDefaultSettingHint": "The Setting to use by default for email features (ex. emailing idea items)",
           "emailDefaultCampaign": "Default Campaign for email",
           "emailDefaultCampaignHint": "The campaign to use by default for email features (ex. emailing idea items)",
-          "selectWorld": "Select a setting...",
+          "selectSetting": "Select a setting...",
           "selectCampaign": "Select a campaign..."
         }
       },
@@ -161,7 +161,7 @@
       }
     },
     "help": {
-      "worldGenre": "ex. \"Fantasy\" - Needed for AI generation",
+      "settingGenre": "ex. \"Fantasy\" - Needed for AI generation",
       "settingFeeling": "ex. \"Rugged and dangerous with low level of magic\" - Improves AI generation"
     },
     "labels": {
@@ -175,7 +175,7 @@
       "use": "Use",
       "useOnce": "Use once",
       "tryAgain": "Try Again",
-      "addToWorld": "Add to Setting",
+      "addToSetting": "Add to Setting",
       "prep": "Prep",
       "play": "Play",
       "ok": "OK",
@@ -196,7 +196,7 @@
         "world": "World"
       },
       "homePage": {
-        "createWorld": "Create Setting",
+        "createSetting": "Create Setting",
         "createCampaign": "Create Campaign",
         "createCharacter": "Create Character",
         "createLocation": "Create Location",
@@ -215,7 +215,7 @@
         "name": "Name",
         "topic": "Topic",
         "species": "Species",
-        "worldGenre": "Genre",
+        "settingGenre": "Genre",
         "settingFeeling": "Setting Feeling",
         "campaignDescription": "Campaign description",
         "campaignHouseRules": "House rules",
@@ -341,7 +341,7 @@
       "locationName": "Location Name",
       "organizationName": "Organization Name",
       "campaignName": "Campaign Name",
-      "worldName": "Setting Name",
+      "settingName": "Setting Name",
       "sessionName": "Session Name",
       "sessionDate": "Date",
       "sessionNumber": "Session Number",
@@ -415,9 +415,9 @@
         "title": "Create Session",
         "sessionName": "Session Name"
       },
-      "createWorld": {
+      "createSetting": {
         "title": "Create Setting",
-        "worldName": "Setting Name"
+        "settingName": "Setting Name"
       },
       "deleteEntry": {
         "title": "Delete entry?",
@@ -526,7 +526,7 @@
     },
     "tooltips": {
       "mainButton": "Launch Campaign Builder",
-      "createWorld": "Create Setting",
+      "createSetting": "Create Setting",
       "expandDirectory": "Expand directory",
       "collapseDirectory": "Collapse directory",
       "collapseAllTopics": "Collapse all",

@@ -388,7 +388,7 @@ export class Entry {
     await setting.executeUnlocked(async () => {
       await this._entryDoc.delete();
 
-      await setting.deleteEntryFromWorld(topicFolder, id);
+      await setting.deleteEntryFromSetting(topicFolder, id);
     });
 
     // Remove from search index

@@ -2,7 +2,7 @@
   <SettingDirectoryNodeWithChildren 
     v-if="props.node.children.length && filterNodes[props.topic]?.includes(props.node.id)" 
     :node="props.node"
-    :world-id="props.worldId"
+    :setting-id="props.settingId"
     :topic="props.topic"
     :top="props.top"
   />
@@ -46,7 +46,7 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    worldId: {
+    settingId: {
       type: String,
       required: true
     },

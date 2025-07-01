@@ -3,7 +3,7 @@ import { localize } from '@/utils/game';
 import { Backend } from '@/classes';
 import { nameStyles } from '@/utils/nameStyles';
 
-import { GeneratorType, WorldGeneratorConfig } from '@/types';
+import { GeneratorType, SettingGeneratorConfig } from '@/types';
 import { Setting } from '@/classes';
 
 /**
@@ -20,7 +20,7 @@ export const TABLE_SIZE = 100;
  * @returns A promise that resolves when initialization is complete
  */
 let initializationInProgress = false;
-export async function initializeWorldRollTables(setting: Setting): Promise<void> {
+export async function initializeSettingRollTables(setting: Setting): Promise<void> {
   // Prevent multiple concurrent initializations - don't need to queue because they all do the same things
   if (initializationInProgress) {
     return;
@@ -29,21 +29,21 @@ export async function initializeWorldRollTables(setting: Setting): Promise<void>
   initializationInProgress = true;
 
   // Get or create the folder for roll tables for this setting
-  const folderId = await getOrCreateWorldRollTableFolder(setting);
+  const folderId = await getOrCreateSettingRollTableFolder(setting);
   
   // Get existing setting generator config or create a new one
-  let worldGeneratorConfig: WorldGeneratorConfig | null = setting.rollTableConfig;
+  let settingGeneratorConfig: SettingGeneratorConfig | null = setting.rollTableConfig;
 
   // if we have a config, make sure the folderId still existed
-  if (worldGeneratorConfig) {
+  if (settingGeneratorConfig) {
     // the folderId would change if the folder got deleted and recreated
-    if (worldGeneratorConfig.folderId !== folderId) {
-      worldGeneratorConfig.folderId = folderId;
-      worldGeneratorConfig.rollTables = {} as Record<GeneratorType, string>;
+    if (settingGeneratorConfig.folderId !== folderId) {
+      settingGeneratorConfig.folderId = folderId;
+      settingGeneratorConfig.rollTables = {} as Record<GeneratorType, string>;
     }
   } else {
     // create a new config
-    worldGeneratorConfig = {
+    settingGeneratorConfig = {
       rollTables: {} as Record<GeneratorType, string>,
       folderId: folderId,
     };
@@ -52,24 +52,24 @@ export async function initializeWorldRollTables(setting: Setting): Promise<void>
   // Ensure all generator types have a roll table
   for (const type of Object.values(GeneratorType)) {
     // Check if we already have a table for this type
-    if (worldGeneratorConfig.rollTables[type]) {
+    if (settingGeneratorConfig.rollTables[type]) {
       // Verify the table still exists and is the right type
-      const table = await fromUuid<RollTable>(worldGeneratorConfig.rollTables[type]);
+      const table = await fromUuid<RollTable>(settingGeneratorConfig.rollTables[type]);
       if (table && table.getFlag(moduleId, 'type') === type) {
         continue; // Table exists and is valid, skip to next type
       }
     }
     
     // Create a new table
-    const table = await createWorldRollTable(type, folderId, setting);
+    const table = await createSettingRollTable(type, folderId, setting);
     
     // Store the table ID in the mapping
     if (table)
-      worldGeneratorConfig.rollTables[type] = table.uuid;
+      settingGeneratorConfig.rollTables[type] = table.uuid;
   }
   
   // Save the setting generator config
-  setting.rollTableConfig = worldGeneratorConfig;
+  setting.rollTableConfig = settingGeneratorConfig;
   await setting.save();
 
   initializationInProgress = false;
@@ -82,7 +82,7 @@ export async function initializeWorldRollTables(setting: Setting): Promise<void>
  * @param setting - The setting to create the folder for
  * @returns A promise that resolves to the folder ID
  */
-const getOrCreateWorldRollTableFolder = async(setting: Setting): Promise<string> => {
+const getOrCreateSettingRollTableFolder = async(setting: Setting): Promise<string> => {
   // Check if we already have a folder ID stored
   const config = setting.rollTableConfig;
   if (config?.folderId) {
@@ -116,7 +116,7 @@ const getOrCreateWorldRollTableFolder = async(setting: Setting): Promise<string>
  * @returns A promise that resolves to an array of generated names
  * @throws {Error} If the backend is unavailable or generation fails
  */
-const generateWorldTableResults = async (type: GeneratorType, count: number, setting: Setting): Promise<string[]> => {
+const generateSettingTableResults = async (type: GeneratorType, count: number, setting: Setting): Promise<string[]> => {
   // If backend is not available, just return
   if (!Backend.available || !Backend.api) {
     return;
@@ -162,12 +162,12 @@ const generateWorldTableResults = async (type: GeneratorType, count: number, set
         break;
 
       default:
-        throw new Error(`Unknown generator type: ${type} in generators.generateWorldTableResults()`);
+        throw new Error(`Unknown generator type: ${type} in generators.generateSettingTableResults()`);
     }
 
     return response.data.names;
   } catch (error) {
-    throw new Error(`Error in generators.generateWorldTableResults() generating names for ${type}: ${error}`);
+    throw new Error(`Error in generators.generateSettingTableResults() generating names for ${type}: ${error}`);
   }
 }
 
@@ -180,7 +180,7 @@ const generateWorldTableResults = async (type: GeneratorType, count: number, set
  * @param setting - The setting this table belongs to
  * @returns A promise that resolves to the created RollTable, or null if creation failed
  */
-async function createWorldRollTable(type: GeneratorType, folderId: string, setting: Setting): Promise<RollTable | null> {
+async function createSettingRollTable(type: GeneratorType, folderId: string, setting: Setting): Promise<RollTable | null> {
   const tableName = `${setting.name} - ${type.charAt(0).toUpperCase() + type.slice(1)} Generator`;
   
   // Create the table
@@ -195,7 +195,7 @@ async function createWorldRollTable(type: GeneratorType, folderId: string, setti
   
   if (table) {
     await table.setFlag(moduleId, 'type', type);
-    await table.setFlag(moduleId, 'worldId', setting.uuid);
+    await table.setFlag(moduleId, 'settingId', setting.uuid);
     return table;
   } else {
     return null;
@@ -211,7 +211,7 @@ async function createWorldRollTable(type: GeneratorType, folderId: string, setti
  * @returns A promise that resolves when the table is refreshed
  * @throws {Error} If the table type is missing or generation fails
  */
-export const refreshWorldRollTable = async (rollTable: RollTable, setting: Setting) : Promise<void> => {
+export const refreshSettingRollTable = async (rollTable: RollTable, setting: Setting) : Promise<void> => {
   // requires backend
   if (!Backend.available || !Backend.api) {
     throw new Error('Backend is not available. Please check your backend settings.');
@@ -232,7 +232,7 @@ export const refreshWorldRollTable = async (rollTable: RollTable, setting: Setti
 
   if (neededItems > 0) {
     // get all the new results using setting-specific settings
-    const newResults = await generateWorldTableResults(type, neededItems, setting);
+    const newResults = await generateSettingTableResults(type, neededItems, setting);
 
     // replace the drawn items first
     if (drawnResults.length > 0) {
@@ -268,7 +268,7 @@ export const refreshWorldRollTable = async (rollTable: RollTable, setting: Setti
  * @returns A promise that resolves when all tables are refreshed
  */
 let refreshInProgress = false;
-export const refreshWorldRollTables = async(setting: Setting, empty: boolean = false) : Promise<void> => {
+export const refreshSettingRollTables = async(setting: Setting, empty: boolean = false) : Promise<void> => {
   // Prevent multiple concurrent refreshes - don't need to queue because they all do the same things
   if (refreshInProgress) {
     return;
@@ -290,7 +290,7 @@ export const refreshWorldRollTables = async(setting: Setting, empty: boolean = f
         await table.deleteEmbeddedDocuments("TableResult", table.results.map(r => r.id || ''));
       }
 
-      await refreshWorldRollTable(table, setting);
+      await refreshSettingRollTable(table, setting);
     }
   }
 
@@ -298,23 +298,23 @@ export const refreshWorldRollTables = async(setting: Setting, empty: boolean = f
 }
 
 /**
- * Refreshes roll tables for all worlds in the current game.
- * Iterates through all worlds and refreshes their respective roll tables.
+ * Refreshes roll tables for all settings in the current game.
+ * Iterates through all settings and refreshes their respective roll tables.
  * 
  * @returns A promise that resolves when all setting tables are refreshed
  */
-export const refreshAllWorldRollTables = async() : Promise<void> => {
+export const refreshAllSettingRollTables = async() : Promise<void> => {
   // Import the mainStore dynamically to avoid circular dependencies
   const { useMainStore } = await import('@/applications/stores');
   const mainStore = useMainStore();
   
-  // Get all worlds using the mainStore function
-  const worlds = await mainStore.getAllSettings();
+  // Get all settings using the mainStore function
+  const settings = await mainStore.getAllSettings();
   
   // Refresh roll tables for each setting
-  for (const setting of worlds) {
+  for (const setting of settings) {
     try {
-      await refreshWorldRollTables(setting, true);
+      await refreshSettingRollTables(setting, true);
     } catch (error) {
       console.error(`Error refreshing roll tables for setting ${setting.name}:`, error);
     }
@@ -328,7 +328,7 @@ export const refreshAllWorldRollTables = async() : Promise<void> => {
  * @param setting - The setting whose table names should be updated
  * @returns A promise that resolves when all table names are updated
  */
-export const updateWorldRollTableNames = async(setting: Setting) : Promise<void> => {
+export const updateSettingRollTableNames = async(setting: Setting) : Promise<void> => {
   const config = setting.rollTableConfig;
 
   if (!config) {

@@ -23,11 +23,11 @@
           callback: onUseClick
         },
         {
-          label: localize('labels.addToWorld'),
+          label: localize('labels.addToSetting'),
           default: false,
           close: true,
           disable: !selectedOption,
-          callback: onAddToWorldClick
+          callback: onAddToSettingClick
         },
       ]"
       @cancel="onCancel"
@@ -90,7 +90,7 @@
   const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
     (e: 'use', value: string): void;
-    (e: 'addToWorld', value: string): void;
+    (e: 'addToSetting', value: string): void;
     (e: 'generate', value: string): void;
   }>();
 
@@ -209,10 +209,10 @@
     resetDialog();
   };
 
-  const onAddToWorldClick = async () => {
+  const onAddToSettingClick = async () => {
     if (selectedOption.value) {
       await markUnusedOptionsAsUndrawn();
-      emit('addToWorld', selectedOption.value);
+      emit('addToSetting', selectedOption.value);
     }
     resetDialog();
   };

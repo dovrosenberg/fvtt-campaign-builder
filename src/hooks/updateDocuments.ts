@@ -43,10 +43,10 @@ function registerForActorHooks() {
     const mainStore = useMainStore();
 
     // need to remove from any PCs that are linked to it
-    const worlds = await mainStore.getAllSettings();
+    const settings = await mainStore.getAllSettings();
     
-    for (let setting of worlds) {
-      await setting.deleteActorFromWorld(_actor.uuid);
+    for (let setting of settings) {
+      await setting.deleteActorFromSetting(_actor.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -71,9 +71,9 @@ function registerForItemHooks() {
   Hooks.on('deleteItem', async (_item, _options, _userId) => {
     const mainStore = useMainStore();
 
-    const worlds = await mainStore.getAllSettings();
-    for (let setting of worlds) {
-      await setting.deleteItemFromWorld(_item.uuid);
+    const settings = await mainStore.getAllSettings();
+    for (let setting of settings) {
+      await setting.deleteItemFromSetting(_item.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -98,9 +98,9 @@ function registerForSceneHooks() {
   Hooks.on('deleteScene', async (_scene, _options, _userId) => {
     const mainStore = useMainStore();
 
-    const worlds = await mainStore.getAllSettings();
-    for (let setting of worlds) {
-      await setting.deleteSceneFromWorld(_scene.uuid);
+    const settings = await mainStore.getAllSettings();
+    for (let setting of settings) {
+      await setting.deleteSceneFromSetting(_scene.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -115,9 +115,9 @@ function registerForJournalHooks() {
   Hooks.on('deleteJournalEntry', async (_journal, _options, _userId) => {
     const mainStore = useMainStore();
 
-    const worlds = await mainStore.getAllSettings();
-    for (let setting of worlds) {
-      await setting.deleteJournalEntryFromWorld(_journal.uuid);
+    const settings = await mainStore.getAllSettings();
+    for (let setting of settings) {
+      await setting.deleteJournalEntryFromSetting(_journal.uuid);
     }
 
     // refresh the content window in case it's showing in a table
@@ -127,9 +127,9 @@ function registerForJournalHooks() {
   Hooks.on('deleteJournalEntryPage', async (_journal, _options, _userId) => {
     const mainStore = useMainStore();
 
-    const worlds = await mainStore.getAllSettings();
-    for (let setting of worlds) {
-      await setting.deleteJournalEntryPageFromWorld(_journal.uuid);
+    const settings = await mainStore.getAllSettings();
+    for (let setting of settings) {
+      await setting.deleteJournalEntryPageFromSetting(_journal.uuid);
     }
 
     // refresh the content window in case it's showing in a table

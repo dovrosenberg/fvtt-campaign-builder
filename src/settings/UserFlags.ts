@@ -17,16 +17,16 @@ type UserFlagType<K extends UserFlagKey> =
     never;  
 
 export abstract class UserFlags {
-  // for setting-specific settings, we concatenate the flag and worldId... why? worldId has dots in it, which cannot be used in a key because they
+  // for setting-specific settings, we concatenate the flag and settingId... why? settingId has dots in it, which cannot be used in a key because they
   //    are dereferenced by foundry when saving to the database, making it hard to get back in proper format
   // we could just concatenate in the calling code, but then it would be much harder to type check
-  public static get<T extends UserFlagKey>(flag: T, worldId = ''): UserFlagType<T> | null {
+  public static get<T extends UserFlagKey>(flag: T, settingId = ''): UserFlagType<T> | null {
     if (!game.user)
       return null;
 
     if (flag === UserFlagKey.tabs) {
       // We need to create the class instances
-      return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) || []).map((t: any) => new WindowTab(
+      return (game.user?.getFlag(moduleId, `${flag}.${settingId}`) || []).map((t: any) => new WindowTab(
         t.active, 
         t.header,
         null,
@@ -37,18 +37,18 @@ export abstract class UserFlags {
         t.historyIdx
       )) as unknown as UserFlagType<T>;
     } else if (flag === UserFlagKey.currentSetting) {
-      return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) ||  '') as UserFlagType<T>;
+      return (game.user?.getFlag(moduleId, `${flag}.${settingId}`) ||  '') as UserFlagType<T>;
     } else {
-      return (game.user?.getFlag(moduleId, `${flag}.${worldId}`) ||  []) as UserFlagType<T>;
+      return (game.user?.getFlag(moduleId, `${flag}.${settingId}`) ||  []) as UserFlagType<T>;
     }
   }
 
   // note - setting a flag to null will delete it
-  public static async set<T extends UserFlagKey>(flag: T, value: UserFlagType<T> | null, worldId = ''): Promise<void> {
+  public static async set<T extends UserFlagKey>(flag: T, value: UserFlagType<T> | null, settingId = ''): Promise<void> {
     if (!game.user)
       return;
 
     // @ts-ignore - We don't want to setup the configuration with all the possible setting/flag combos
-    await game.user?.setFlag(moduleId, `${flag}.${worldId}`, value);
+    await game.user?.setFlag(moduleId, `${flag}.${settingId}`, value);
   }
 }

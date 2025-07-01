@@ -70,20 +70,20 @@
       </div>
 
       <div class="form-group">
-        <label>{{ localize('applications.advancedSettings.labels.emailDefaultWorld') }}</label>
+        <label>{{ localize('applications.advancedSettings.labels.emailDefaultSetting') }}</label>
         <div class="form-fields">
           <Select
-            v-model="emailDefaultWorld"
-            :options="worldOptions"
+            v-model="emailDefaultSetting"
+            :options="settingOptions"
             optionLabel="name"
             optionValue="uuid"
-            :placeholder="localize('applications.advancedSettings.labels.selectWorld')"
+            :placeholder="localize('applications.advancedSettings.labels.selectSetting')"
             :disabled="!useGmailToDos"
-            @change="onWorldChange"
+            @change="onSettingChange"
           />
         </div>
         <p class="hint">
-          {{ localize('applications.advancedSettings.labels.emailDefaultWorldHint') }}
+          {{ localize('applications.advancedSettings.labels.emailDefaultSettingHint') }}
         </p>
       </div>
 
@@ -96,7 +96,7 @@
             optionLabel="name"
             optionValue="uuid"
             :placeholder="localize('applications.advancedSettings.labels.selectCampaign')"
-            :disabled="!emailDefaultWorld"
+            :disabled="!emailDefaultSetting"
           />
         </div>
         <p class="hint">
@@ -112,7 +112,7 @@
           <label>{{ localize('labels.reset') }}</label>
         </button>
         <button 
-          :disabled="useGmailToDos && (!emailDefaultWorld || !emailDefaultCampaign)"
+          :disabled="useGmailToDos && (!emailDefaultSetting || !emailDefaultCampaign)"
           @click="onSubmitClick"
         >
           <i class="fa-solid fa-save"></i>
@@ -160,9 +160,9 @@
   const defaultToLongDescriptions = ref<boolean>(true);
   const longDescriptionParagraphs = ref<number>(1);
   const useGmailToDos = ref<boolean>(false);
-  const emailDefaultWorld = ref<string>('');
+  const emailDefaultSetting = ref<string>('');
   const emailDefaultCampaign = ref<string>('');
-  const worldOptions = ref<{uuid: string, name: string}[]>([]);
+  const settingOptions = ref<{uuid: string, name: string}[]>([]);
   const campaignOptions = ref<{uuid: string, name: string}[]>([]);
 
   ////////////////////////////////
@@ -170,21 +170,21 @@
 
   ////////////////////////////////
   // methods
-  const loadWorlds = async () => {
+  const loadSettings = async () => {
     const defaultFolders = await getDefaultFolders();
     if (!defaultFolders || !defaultFolders.rootFolder)
-      worldOptions.value = [];
+      settingOptions.value = [];
     else 
-      worldOptions.value = (toRaw(defaultFolders.rootFolder) as Folder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name }));
+      settingOptions.value = (toRaw(defaultFolders.rootFolder) as Folder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name }));
   };
 
-  const loadCampaigns = async (worldUuid: string) => {
-    if (!worldUuid) {
+  const loadCampaigns = async (settingUuid: string) => {
+    if (!settingUuid) {
       campaignOptions.value = [];
       return;
     }
 
-    const setting = await Setting.fromUuid(worldUuid);
+    const setting = await Setting.fromUuid(settingUuid);
     if (!setting) {
       campaignOptions.value = [];
       return;
@@ -196,9 +196,9 @@
 
   ////////////////////////////////
   // event handlers
-  const onWorldChange = async () => {
+  const onSettingChange = async () => {
     emailDefaultCampaign.value = '';
-    await loadCampaigns(emailDefaultWorld.value);
+    await loadCampaigns(emailDefaultSetting.value);
   };
 
   const onSubmitClick = async () => {
@@ -207,7 +207,7 @@
     await ModuleSettings.set(SettingKey.defaultToLongDescriptions, defaultToLongDescriptions.value);
     await ModuleSettings.set(SettingKey.longDescriptionParagraphs, longDescriptionParagraphs.value);
     await ModuleSettings.set(SettingKey.useGmailToDos, useGmailToDos.value);
-    await ModuleSettings.set(SettingKey.emailDefaultWorld, emailDefaultWorld.value);
+    await ModuleSettings.set(SettingKey.emailDefaultSetting, emailDefaultSetting.value);
     await ModuleSettings.set(SettingKey.emailDefaultCampaign, emailDefaultCampaign.value);
 
     // reset the backend
@@ -223,9 +223,9 @@
     defaultToLongDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
     longDescriptionParagraphs.value = ModuleSettings.get(SettingKey.longDescriptionParagraphs);
     useGmailToDos.value = ModuleSettings.get(SettingKey.useGmailToDos);
-    emailDefaultWorld.value = ModuleSettings.get(SettingKey.emailDefaultWorld);
+    emailDefaultSetting.value = ModuleSettings.get(SettingKey.emailDefaultSetting);
     emailDefaultCampaign.value = ModuleSettings.get(SettingKey.emailDefaultCampaign);
-    await loadCampaigns(emailDefaultWorld.value);
+    await loadCampaigns(emailDefaultSetting.value);
   }
 
   ////////////////////////////////
@@ -240,12 +240,12 @@
     defaultToLongDescriptions.value = ModuleSettings.get(SettingKey.defaultToLongDescriptions);
     longDescriptionParagraphs.value = ModuleSettings.get(SettingKey.longDescriptionParagraphs);
     useGmailToDos.value = ModuleSettings.get(SettingKey.useGmailToDos);
-    emailDefaultWorld.value = ModuleSettings.get(SettingKey.emailDefaultWorld);
+    emailDefaultSetting.value = ModuleSettings.get(SettingKey.emailDefaultSetting);
     emailDefaultCampaign.value = ModuleSettings.get(SettingKey.emailDefaultCampaign);
 
-    // load the worlds and campaigns
-    await loadWorlds();
-    await loadCampaigns(emailDefaultWorld.value);
+    // load the settings and campaigns
+    await loadSettings();
+    await loadCampaigns(emailDefaultSetting.value);
   })
   
 

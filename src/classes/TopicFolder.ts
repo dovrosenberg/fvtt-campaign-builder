@@ -35,7 +35,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     this._topic = this.getFlag(TopicFlagKey.topic);
   }
 
-  override async _getWorld(): Promise<Setting> {
+  override async _getSetting(): Promise<Setting> {
     return await this.getSetting();
   };
   
@@ -78,12 +78,12 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     if (!this._doc.collection?.folder)
       throw new Error('Invalid folder id in Topics.loadSetting()');
 
-    const worldDoc = await fromUuid<SettingDoc>(this._doc.collection.folder.uuid);
+    const settingDoc = await fromUuid<SettingDoc>(this._doc.collection.folder.uuid);
 
-    if (!worldDoc)
+    if (!settingDoc)
       throw new Error('Invalid folder id in Topics.loadSetting()');
 
-    this.setting = new Setting(worldDoc);
+    this.setting = new Setting(settingDoc);
     return this.setting;
   }
   

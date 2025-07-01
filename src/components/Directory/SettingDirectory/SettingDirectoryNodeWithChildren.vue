@@ -30,7 +30,7 @@
             v-for="child in sortedChildren"
             :key="child.id"
             :node="child"
-            :world-id="props.worldId"
+            :setting-id="props.settingId"
             :topic="props.topic"
             :top="false"
           />
@@ -68,7 +68,7 @@
       type: Object as PropType<DirectoryEntryNode>,
       required: true,
     },
-    worldId: {
+    settingId: {
       type: String,
       required: true
     },

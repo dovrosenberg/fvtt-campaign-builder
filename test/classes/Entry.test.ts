@@ -78,7 +78,7 @@ export const registerEntryTests = () => {
               uuid: 'setting-uuid',
               unlock: sinon.stub().resolves(undefined),
               lock: sinon.stub().resolves(undefined),
-              deleteEntryFromWorld: sinon.stub().resolves(undefined),
+              deleteEntryFromSetting: sinon.stub().resolves(undefined),
               hierarchies: {
                 'test-uuid': { parentId: null, children: [], ancestors: [] }
               },
@@ -335,7 +335,7 @@ export const registerEntryTests = () => {
             expect((entry.raw.delete as sinon.SinonStub).called).to.equal(true);
 
             // Verify setting was updated
-            expect(setting.deleteEntryFromWorld.calledWith(mockTopicFolder, 'test-uuid')).to.equal(true);
+            expect(setting.deleteEntryFromSetting.calledWith(mockTopicFolder, 'test-uuid')).to.equal(true);
           });
 
           it('should throw an error if topicFolder is null', async () => {

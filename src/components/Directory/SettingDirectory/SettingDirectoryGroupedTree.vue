@@ -5,7 +5,7 @@
       v-for="type in sortedTypes"
       :key="type.id"
       :type="type"
-      :world-id="props.worldId"
+      :setting-id="props.settingId"
       :topic="props.topicNode.topicFolder.topic"
     />
   </ul>
@@ -32,7 +32,7 @@
       type: Object as PropType<DirectoryTopicNode>,
       required: true,
     }, 
-    worldId: {
+    settingId: {
       type: String,
       required: true,
     },

@@ -19,7 +19,7 @@
     v-model="showGenerateNameDialog"
     :generator-type="currentGeneratorType"
     @use="onOptionUse"
-    @add-to-world="onOptionAddToWorld"
+    @add-to-setting="onOptionAddToSetting"
   />
 
 </template>
@@ -93,7 +93,7 @@
 
   };
 
-  const onOptionAddToWorld = async (value: string) => {
+  const onOptionAddToSetting = async (value: string) => {
     if (!currentSetting.value) {
       return;
     }

@@ -63,7 +63,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   /**
    * Open a new tab to the given setting. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
-   * @param contentId The uuid of the setting to open in the tab. If null, a blank tab is opened.
+   * @param settingId The uuid of the setting to open in the tab. If null, a blank tab is opened.
    * @param options Options for the tab.
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
@@ -71,8 +71,8 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
    * @returns The newly opened tab.
    */
-  const openSetting = async function(worldId = null as string | null, options?: OpenContentOptions) {
-    await openContent(worldId, WindowTabType.Setting, options );
+  const openSetting = async function(settingId = null as string | null, options?: OpenContentOptions) {
+    await openContent(settingId, WindowTabType.Setting, options );
   };
 
   /**

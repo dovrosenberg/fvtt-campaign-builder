@@ -4,7 +4,7 @@
       v-for="node in sortedChildren"
       :key="node.id"
       :node="node" 
-      :world-id="props.worldId"
+      :setting-id="props.settingId"
       :topic="props.topicNode.topicFolder.topic"
       :pack-id="props.topicNode.topicFolder.uuid"
       :top="true"
@@ -35,7 +35,7 @@
       type: Object as PropType<DirectoryTopicNode>,
       required: true,
     }, 
-    worldId: {
+    settingId: {
       type: String,
       required: true
     },

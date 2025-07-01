@@ -718,7 +718,7 @@ export class Session {
       await this._sessionDoc.delete();
 
       // remove from the expanded list
-      await setting.deleteSessionFromWorld(id);
+      await setting.deleteSessionFromSetting(id);
     });
   }
   

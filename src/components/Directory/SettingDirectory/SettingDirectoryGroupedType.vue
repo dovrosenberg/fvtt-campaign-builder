@@ -74,7 +74,7 @@
       type: Object as PropType<DirectoryTypeNode>,
       required: true,
     },
-    worldId: {
+    settingId: {
       type: String,
       required: true,
     },

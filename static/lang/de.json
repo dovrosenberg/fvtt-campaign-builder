@@ -113,11 +113,11 @@
           "APITokenHint": "Ausgabe des Skripts zum Bereitstellen des Backends.",
           "defaultToLong": "Standardmäßig lange Beschreibungen verwenden",
           "defaultToLongHint": "Steuert die Standardeinstellung für die Erstellung einer langen oder kurzen Beschreibung bei der KI-Generierung.",
-          "emailDefaultWorld": "Standardeinstellung für E-Mail",
-          "emailDefaultWorldHint": "Die Einstellung, die standardmäßig für E-Mail-Funktionen verwendet wird (z.B. E-Mail von Aufgaben)",
+          "emailDefaultSetting": "Standardeinstellung für E-Mail",
+          "emailDefaultSettingHint": "Die Einstellung, die standardmäßig für E-Mail-Funktionen verwendet wird (z.B. E-Mail von Aufgaben)",
           "emailDefaultCampaign": "Standardkampagne für E-Mail",
           "emailDefaultCampaignHint": "Die Kampagne, die standardmäßig für E-Mail-Funktionen verwendet wird (z. B. Aufgaben per E-Mail senden)",
-          "selectWorld": "Wählen Sie eine Einstellung...",
+          "selectSetting": "Wählen Sie eine Einstellung...",
           "selectCampaign": "Wählen Sie eine Kampagne...",
           "longDescriptionParagraphs": "Lange Beschreibungsabsätze",
           "longDescriptionParagraphsHint": "Anzahl der Absätze, die für lange Beschreibungen generiert werden sollen (1-4).",
@@ -161,7 +161,7 @@
       }
     },
     "help": {
-      "worldGenre": "z.B. \"Fantasy\" - Erforderlich für KI-Generierung",
+      "settingGenre": "z.B. \"Fantasy\" - Erforderlich für KI-Generierung",
       "settingFeeling": "z.B. \"Rau und gefährlich mit niedrigem Magieniveau\" - Verbessert die KI-Generierung"
     },
     "labels": {
@@ -174,7 +174,7 @@
       "use": "Verwenden",
       "useOnce": "Einmal verwenden",
       "tryAgain": "Erneut versuchen",
-      "addToWorld": "Zur Einstellung hinzufügen",
+      "addToSetting": "Zur Einstellung hinzufügen",
       "prep": "Vorbereiten",
       "play": "Spielen",
       "fields": {
@@ -187,7 +187,7 @@
         "otherPlotPoints": "Andere Handlungspunkte",
         "desiredMagicItems": "Gewünschte magische Gegenstände",
         "species": "Art",
-        "worldGenre": "Genre",
+        "settingGenre": "Genre",
         "campaignDescription": "Kampagnenbeschreibung, Notizen, Ideen, etc...",
         "name": "Name",
         "longDescriptions": "Lange Beschreibungen generieren",
@@ -304,7 +304,7 @@
       "noResults": "Nichts hier",
       "loading": "Laden",
       "homePage": {
-        "createWorld": "Einstellung erstellen",
+        "createSetting": "Einstellung erstellen",
         "createCampaign": "Kampagne erstellen",
         "createCharacter": "Charakter erstellen",
         "createLocation": "Ort erstellen",
@@ -341,7 +341,7 @@
       "locationName": "Ortsname",
       "organizationName": "Organisationsname",
       "campaignName": "Kampagnenname",
-      "worldName": "Name der Einstellung",
+      "settingName": "Name der Einstellung",
       "sessionName": "Sitzungsname",
       "sessionDate": "Datum",
       "sessionNumber": "Sitzungsnummer",
@@ -388,9 +388,9 @@
         "title": "Sitzung erstellen",
         "sessionName": "Sitzungsname"
       },
-      "createWorld": {
+      "createSetting": {
         "title": "Einstellung erstellen",
-        "worldName": "Name der Einstellung"
+        "settingName": "Name der Einstellung"
       },
       "createEntry": {
         "generatedName": "Generierter Name",
@@ -514,7 +514,7 @@
     },
     "tooltips": {
       "mainButton": "Kampagnen-Builder starten",
-      "createWorld": "Einstellung erstellen",
+      "createSetting": "Einstellung erstellen",
       "expandDirectory": "Verzeichnis erweitern",
       "collapseDirectory": "Verzeichnis einklappen",
       "collapseAllTopics": "Alle einklappen",

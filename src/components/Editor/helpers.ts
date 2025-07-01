@@ -3,7 +3,7 @@
  * 
  * This module provides custom text enrichment functionality for Foundry VTT's TextEditor system.
  * It implements a custom enricher that handles content links in the read-only version of the editor
- * for campaign builder documents (Entries, PCs, Sessions, Campaigns, Worlds) and ensures they open
+ * for campaign builder documents (Entries, PCs, Sessions, Campaigns, Settings) and ensures they open
  * within the campaign builder application rather than using Foundry's default document handling.
  * 
  * The enrichment system works by:
@@ -79,7 +79,7 @@ export const setupEnricher = (): void => {
  * 3. Regular Foundry documents still get processed normally by other enrichers
  * 4. The custom enricher is safely removed after processing
  * 
- * @param worldId - UUID of the current setting being viewed. Required to determine
+ * @param settingId - UUID of the current setting being viewed. Required to determine
  *                  if links should be handled by the campaign builder or fall back to default behavior.
  * @param text - Raw HTML/text content that may contain @UUID[...] or @Type[...] links
  * @returns Promise resolving to enriched HTML with clickable content links
@@ -90,10 +90,10 @@ export const setupEnricher = (): void => {
  * 
  * @example
  * const enriched = await enrichFcbHTML(null, "Some text");
- * // Returns original text unchanged when no worldId provided
+ * // Returns original text unchanged when no settingId provided
  */
 export const enrichFcbHTML = async(settingId: string | null, text: string): Promise<string> => {
-  // have to have a worldId
+  // have to have a settingId
   if (!settingId)
     return text;
 
@@ -205,14 +205,14 @@ const goodAnchor = <T extends InternalClientDocument>(doc: T, linkType: WindowTa
  * 5. Regular Foundry documents (passed through to default handling)
  * 
  * Processing logic:
- * - If no worldId provided, use default Foundry behavior
+ * - If no settingId provided, use default Foundry behavior
  * - If document is from different setting, create broken link
  * - If document is campaign builder type, create custom navigation link
  * - Otherwise, use default Foundry document link
  * 
  * @param match - RegExp match array from the enricher pattern:
  *                [0] = full match, [1] = type, [2] = target, [3] = hash, [4] = name
- * @param options - Enrichment options including worldId for context
+ * @param options - Enrichment options including settingId for context
  * @returns Promise resolving to HTMLElement for the content link, or null if no match
  * 
  * @example
@@ -246,7 +246,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
   }
 
   // for now, we only care about the ones in the current setting (for performance purposes and because
-  //    I don't think you should be referencing across worlds (and we don't make that easy to do, in any case))
+  //    I don't think you should be referencing across settings (and we don't make that easy to do, in any case))
   if (unknownItem && !broken) {
     // if we're not in a world builder app, just do the default
     if (!settingId)
@@ -298,7 +298,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
     }
 
     // now handle the folder types
-    if (unknownItem?.getFlag(moduleId, SettingFlagKey.isWorld)) {
+    if (unknownItem?.getFlag(moduleId, SettingFlagKey.isSetting)) {
       const setting = new Setting(unknownItem as unknown as SettingDoc);
 
       // handle the ones we don't care about

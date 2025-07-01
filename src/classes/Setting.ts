@@ -1,12 +1,12 @@
 import { moduleId, UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
 import { SettingDoc, SettingFlagKey, settingFlagSettings } from '@/documents';
-import { Hierarchy, Topics, ValidTopic, WorldGeneratorConfig, RelatedJournal } from '@/types';
+import { Hierarchy, Topics, ValidTopic, SettingGeneratorConfig, RelatedJournal } from '@/types';
 import { getRootFolder,  } from '@/compendia';
 import { FCBDialog } from '@/dialogs';
 import { DocumentWithFlags, Campaign, TopicFolder } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
-import { initializeWorldRollTables, refreshWorldRollTables } from '@/utils/nameGenerators';
+import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
 import { Backend } from '@/classes';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 
@@ -37,17 +37,17 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   private _settingFeeling: string;
   private _img: string;
   private _nameStyles: number[];
-  private _rollTableConfig: WorldGeneratorConfig | null;
+  private _rollTableConfig: SettingGeneratorConfig | null;
   private _nameStyleExamples: { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null;
   private _journals: RelatedJournal[];
 
   /**
    * Note: you should always call validate() after creating a new Setting - this ensures the 
    * compendium exists and is properly used
-   * @param {SettingDoc} worldDoc - The Setting Foundry document
+   * @param {SettingDoc} settingDoc - The Setting Foundry document
    */
-  constructor(worldDoc: SettingDoc) {
-    super(worldDoc, SettingFlagKey.isWorld);
+  constructor(settingDoc: SettingDoc) {
+    super(settingDoc, SettingFlagKey.isSetting);
 
     this._campaignNames = this.getFlag(SettingFlagKey.campaignNames);
     this._expandedIds = this.getFlag(SettingFlagKey.expandedIds);
@@ -78,7 +78,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     this.topicFolders = {} as Record<ValidTopic, TopicFolder>;
   }
 
-  override async _getWorld(): Promise<Setting> {
+  override async _getSetting(): Promise<Setting> {
     return this;
   };
 
@@ -87,13 +87,13 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     return false;
   };
 
-  static async fromUuid(worldId: string, options?: Record<string, any>): Promise<Setting | null> {
-    const worldDoc = await fromUuid<SettingDoc>(worldId, options);
+  static async fromUuid(settingId: string, options?: Record<string, any>): Promise<Setting | null> {
+    const settingDoc = await fromUuid<SettingDoc>(settingId, options);
 
-    if (!worldDoc)
+    if (!settingDoc)
       return null;
     else {
-      const newSetting = new Setting(worldDoc);
+      const newSetting = new Setting(settingDoc);
       await newSetting.validate();  // will also load topic folders
       return newSetting;
     }
@@ -194,7 +194,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   }
 
   /** 
-   * The actual compendium (used to be called worldCompendium)
+   * The actual compendium 
    */
   public get compendium(): SettingCompendium {
     return this._compendium;
@@ -274,11 +274,11 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     this.updateCumulative(SettingFlagKey.nameStyles, this._nameStyles);
   }
 
-  public get rollTableConfig(): WorldGeneratorConfig | null {
+  public get rollTableConfig(): SettingGeneratorConfig | null {
     return this._rollTableConfig;
   }
 
-  public set rollTableConfig(value: WorldGeneratorConfig | null) {
+  public set rollTableConfig(value: SettingGeneratorConfig | null) {
     this._rollTableConfig = value;
     this.updateCumulative(SettingFlagKey.rollTableConfig, value);
   }
@@ -392,23 +392,23 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     let name;
 
     do {
-      name = await FCBDialog.inputDialog(localize('dialogs.createWorld.title'), `${localize('dialogs.createWorld.worldName')}:`); 
+      name = await FCBDialog.inputDialog(localize('dialogs.createSetting.title'), `${localize('dialogs.createSetting.settingName')}:`); 
       
       if (name) {
         // create the setting folder
-        const worldDocs = await Folder.createDocuments([{
+        const settingDocs = await Folder.createDocuments([{
           name,
           type: 'Compendium',
           folder: rootFolder.id,
           sorting: 'a',
         }]) as unknown as SettingDoc[];
     
-        if (!worldDocs)
+        if (!settingDocs)
           throw new Error('Couldn\'t create new folder for Setting');
 
-        const worldDoc = worldDocs[0];
+        const settingDoc = settingDocs[0];
 
-        const newSetting = new Setting(worldDoc);
+        const newSetting = new Setting(settingDoc);
         await newSetting.setup();
 
         // set as the current setting
@@ -452,12 +452,12 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     await this.loadCampaigns();
     
     // Initialize roll tables for this setting if they don't exist - but don't wait for the generation
-    await initializeWorldRollTables(this);
+    await initializeSettingRollTables(this);
       
     // If auto-refresh is enabled, populate tables in background
     const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
     if (autoRefresh && Backend.available && Backend.api) {
-      void refreshWorldRollTables(this);
+      void refreshSettingRollTables(this);
     }
   }
 
@@ -618,7 +618,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
    * @param {string} campaignId - the uuid of the campaign to remove
    */
   // TODO: should delete all the sessions from expanded entries, too
-  public async deleteCampaignFromWorld(campaignId: string) {
+  public async deleteCampaignFromSetting(campaignId: string) {
     const campaigns = this.campaigns;
     if (campaigns[campaignId]) {
       delete campaigns[campaignId];
@@ -642,7 +642,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
 
   // remove an entry from the setting metadata
   // note: SETTING MUST BE UNLOCKED FIRST
-  public async deleteEntryFromWorld(topicFolder: TopicFolder, entryId: string) {
+  public async deleteEntryFromSetting(topicFolder: TopicFolder, entryId: string) {
     const hierarchy = this._hierarchies[entryId];
 
     let topNodesCleaned = false;
@@ -675,7 +675,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
 
   // remove a session from the setting metadata
   // note: SETTING MUST BE UNLOCKED FIRST
-  public async deleteSessionFromWorld(sessionId: string) {
+  public async deleteSessionFromSetting(sessionId: string) {
     await this.unsetFlag(SettingFlagKey.expandedIds, sessionId);
   }  
 
@@ -702,7 +702,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     await this._doc.delete();
   }
 
-  public async deleteActorFromWorld(actorId: string) {
+  public async deleteActorFromSetting(actorId: string) {
     // remove from any PCs that are linked to it
     for (let campaign of Object.values(this.campaigns)) {
       const pcs = (await campaign.filterPCs(pc => pc.actorId === actorId));
@@ -735,7 +735,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     }
   }
 
-  public async deleteSceneFromWorld(sceneId: string) {
+  public async deleteSceneFromSetting(sceneId: string) {
     // remove from any Locations that are linked to it
     for (let locations of this.topicFolders[Topics.Location].allEntries()) {
       // check the related documents
@@ -750,7 +750,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   }
 
   /** remove from any session item lists */
-  public async deleteItemFromWorld(itemId: string) {
+  public async deleteItemFromSetting(itemId: string) {
     // remove from any Magic Items that are linked to it
     for (let campaign of Object.values(this.campaigns)) {
       for (let session of campaign.sessions) {
@@ -765,7 +765,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   }
 
   /** remove from the journals tabs -- don't worry about lore for now */
-  public async deleteJournalEntryFromWorld(journalId: string) {
+  public async deleteJournalEntryFromSetting(journalId: string) {
     // remove from the setting
     if (this.journals.find(j => j.journalUuid === journalId)) {
       this.journals = this.journals.filter(j => j.journalUuid !== journalId);
@@ -792,7 +792,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   }
 
   /** remove from the journals tabs -- don't worry about lore for now */
-  public async deleteJournalEntryPageFromWorld(journalId: string) {
+  public async deleteJournalEntryPageFromSetting(journalId: string) {
     // remove from the setting
     if (this.journals.find(j => j.pageUuid === journalId)) {
       this.journals = this.journals.filter(j => j.pageUuid !== journalId);

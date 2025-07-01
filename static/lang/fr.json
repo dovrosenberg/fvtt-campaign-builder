@@ -113,11 +113,11 @@
           "APITokenHint": "Sortie du script pour déployer le backend.",
           "defaultToLong": "Par défaut, utiliser des descriptions longues",
           "defaultToLongHint": "Contrôle le paramètre par défaut pour créer une description longue ou courte lors de la génération par IA.",
-          "emailDefaultWorld": "Paramètre par défaut pour l'email",
-          "emailDefaultWorldHint": "Le Paramètre à utiliser par défaut pour les fonctionnalités d'email (ex. envoi de tâches par email)",
+          "emailDefaultSetting": "Paramètre par défaut pour l'email",
+          "emailDefaultSettingHint": "Le Paramètre à utiliser par défaut pour les fonctionnalités d'email (ex. envoi de tâches par email)",
           "emailDefaultCampaign": "Campagne par défaut pour l'email",
           "emailDefaultCampaignHint": "La campagne à utiliser par défaut pour les fonctionnalités d'email (ex. envoyer des éléments à faire par email)",
-          "selectWorld": "Sélectionnez un paramètre...",
+          "selectSetting": "Sélectionnez un paramètre...",
           "selectCampaign": "Sélectionnez une campagne...",
           "longDescriptionParagraphs": "Paragraphes de longue description",
           "longDescriptionParagraphsHint": "Nombre de paragraphes à générer pour les longues descriptions (1-4).",
@@ -161,7 +161,7 @@
       }
     },
     "help": {
-      "worldGenre": "ex. \"Fantasy\" - Nécessaire pour la génération AI",
+      "settingGenre": "ex. \"Fantasy\" - Nécessaire pour la génération AI",
       "settingFeeling": "ex. \"Rugueux et dangereux avec un faible niveau de magie\" - Améliore la génération IA"
     },
     "labels": {
@@ -174,7 +174,7 @@
       "use": "Utiliser",
       "useOnce": "Utiliser une fois",
       "tryAgain": "Réessayer",
-      "addToWorld": "Ajouter au Paramètre",
+      "addToSetting": "Ajouter au Paramètre",
       "prep": "Préparer",
       "play": "Jouer",
       "fields": {
@@ -187,7 +187,7 @@
         "otherPlotPoints": "Autres Points de Scénario",
         "desiredMagicItems": "Objets Magiques Désirés",
         "species": "Espèces",
-        "worldGenre": "Genre",
+        "settingGenre": "Genre",
         "campaignDescription": "Description de la campagne, notes, idées, etc...",
         "name": "Nom",
         "longDescriptions": "Générer des descriptions longues",
@@ -304,7 +304,7 @@
       "noResults": "Rien ici",
       "loading": "Chargement",
       "homePage": {
-        "createWorld": "Créer un Paramètre",
+        "createSetting": "Créer un Paramètre",
         "createCampaign": "Créer une campagne",
         "createCharacter": "Créer un personnage",
         "createLocation": "Créer un lieu",
@@ -341,7 +341,7 @@
       "locationName": "Nom du Lieu",
       "organizationName": "Nom de l'Organisation",
       "campaignName": "Nom de la Campagne",
-      "worldName": "Nom du Paramètre",
+      "settingName": "Nom du Paramètre",
       "sessionName": "Nom de la Session",
       "sessionDate": "Date",
       "sessionNumber": "Numéro de Session",
@@ -388,9 +388,9 @@
         "title": "Créer une Session",
         "sessionName": "Nom de la Session"
       },
-      "createWorld": {
+      "createSetting": {
         "title": "Créer un Paramètre",
-        "worldName": "Nom du Paramètre"
+        "settingName": "Nom du Paramètre"
       },
       "createEntry": {
         "generatedName": "Nom généré",
@@ -514,7 +514,7 @@
     },
     "tooltips": {
       "mainButton": "Lancer le Créateur de Campagne",
-      "createWorld": "Créer un Paramètre",
+      "createSetting": "Créer un Paramètre",
       "expandDirectory": "Développer le répertoire",
       "collapseDirectory": "Réduire le répertoire",
       "collapseAllTopics": "Réduire tout",

@@ -12,7 +12,7 @@ export enum GeneratorType {
 /**
  * Interface for a setting-specific generator configuration
  */
-export interface WorldGeneratorConfig {
+export interface SettingGeneratorConfig {
   /**
    * The folder ID where roll tables are stored for this setting
    */

@@ -47,7 +47,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this._journals = this.getFlag(CampaignFlagKey.journals) || [];
   }
 
-  override async _getWorld(): Promise<Setting> {
+  override async _getSetting(): Promise<Setting> {
     return await this.getSetting();
   };
 
@@ -552,7 +552,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     await setting.executeUnlocked(async () => {
       await this._doc.delete();
 
-      await setting.deleteCampaignFromWorld(id);
+      await setting.deleteCampaignFromSetting(id);
     });
   }
 }

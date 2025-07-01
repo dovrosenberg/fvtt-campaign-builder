@@ -87,7 +87,7 @@
 
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { refreshAllWorldRollTables } from '@/utils/nameGenerators';
+  import { refreshAllSettingRollTables } from '@/utils/nameGenerators';
   import { rollTableSettingsApp } from '@/applications/settings/RollTableSettingsApplication';
   import { localize } from '@/utils/game';
 
@@ -145,8 +145,8 @@
     isRefreshing.value = true;
     
     try {
-      // Refresh setting-specific tables for all worlds
-      await refreshAllWorldRollTables();
+      // Refresh setting-specific tables for all settings
+      await refreshAllSettingRollTables();
       ui.notifications?.info(localize('applications.rollTableSettings.notifications.refreshSuccess'));
     } catch (error) {
       console.error('Error refreshing roll tables:', error);

@@ -81,8 +81,8 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
   }
   
   /** needed so we can unlock it if needed */
-  protected async _getWorld(): Promise<Setting> {
-    throw new Error('Failed to implement DocumentWithFlags._getWorld');
+  protected async _getSetting(): Promise<Setting> {
+    throw new Error('Failed to implement DocumentWithFlags._getSetting');
   }
 
   /** some classes - specifically Setting - don't need to be unlocked to modify flags */
@@ -140,7 +140,7 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
     };
 
     if (this.requiresUnlock) {
-      const setting = await this._getWorld();
+      const setting = await this._getSetting();
       await setting.executeUnlocked(setFunction);
     } else {
       await setFunction();
@@ -168,7 +168,7 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
     }
 
     if (this.requiresUnlock) {
-      const setting = await this._getWorld();
+      const setting = await this._getSetting();
       await setting.executeUnlocked(unsetFunction);
     } else {
       await unsetFunction();
@@ -243,7 +243,7 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
     }
     
     if (this.requiresUnlock) {
-      const setting = await this._getWorld();
+      const setting = await this._getSetting();
       await setting.executeUnlocked(setFunction);
     } else {
       await setFunction();

@@ -49,7 +49,7 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
     }
   }
 
-  // used to toggle entries and compendia (not worlds)
+  // used to toggle entries and compendia (not settings)
   public async collapse(): Promise<void> {
     if (!CollapsibleNode._currentSetting)
       return;

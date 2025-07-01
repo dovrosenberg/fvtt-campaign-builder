@@ -79,7 +79,7 @@ export const registerCampaignTests = () => {
             lock: sinon.stub().resolves(undefined),
             save: sinon.stub().resolves({}),
             updateCampaignName: sinon.stub().resolves(undefined),
-            deleteCampaignFromWorld: sinon.stub().resolves(undefined),
+            deleteCampaignFromSetting: sinon.stub().resolves(undefined),
             compendium: {
               metadata: {
                 id: 'test-compendium'
@@ -141,7 +141,7 @@ export const registerCampaignTests = () => {
 
           it('should load the setting if not already set', async () => {
             // Create a campaign without a setting
-            const campaignWithoutWorld = new Campaign(mockCampaignDoc);
+            const campaignWithoutSetting = new Campaign(mockCampaignDoc);
             
             // Setup the fromUuid stub to return a setting doc
             fromUuidStub.resolves({
@@ -151,7 +151,7 @@ export const registerCampaignTests = () => {
             // Stub Setting.fromUuid
             sinon.stub(Setting, 'fromUuid').resolves(mockSetting);
             
-            const result = await campaignWithoutWorld.getSetting();
+            const result = await campaignWithoutSetting.getSetting();
             expect(result).to.equal(mockSetting);
           });
 
@@ -413,7 +413,7 @@ export const registerCampaignTests = () => {
             expect((campaign.raw.delete as sinon.SinonStub).called).to.equal(true);
             
             // Verify setting was updated
-            expect(mockSetting.deleteCampaignFromWorld.calledWith('test-campaign-uuid')).to.equal(true);
+            expect(mockSetting.deleteCampaignFromSetting.calledWith('test-campaign-uuid')).to.equal(true);
           });
         });
 

@@ -40,8 +40,8 @@
             >
               <div class="flexrow form-group">
                 <LabelWithHelp
-                  label-text="labels.fields.worldGenre"
-                  help-text="help.worldGenre" 
+                  label-text="labels.fields.settingGenre"
+                  help-text="help.settingGenre" 
                 />
                 <InputText
                   v-model="currentSetting.genre"
@@ -59,7 +59,7 @@
                   v-model="currentSetting.settingFeeling"
                   rows="3"
                   style="width: calc(100% - 2px); font-family: var(--font-body)"
-                  @update:model-value="onWorldFeelingSaved"
+                  @update:model-value="onSettingFeelingSaved"
                 />
               </div>
               <div class="flexrow form-group description">
@@ -138,7 +138,7 @@
 
   ////////////////////////////////
   // computed data
-  const namePlaceholder = computed((): string => (localize('placeholders.worldName') || ''));
+  const namePlaceholder = computed((): string => (localize('placeholders.settingName') || ''));
   const generateDisabled = computed(() => !Backend.available);
   
   ////////////////////////////////
@@ -164,7 +164,7 @@
         updateWindowTitle(newName || null);
         await settingDirectoryStore.refreshSettingDirectoryTree([currentSetting.value.uuid]);
         await navigationStore.propagateNameChange(currentSetting.value.uuid, newValue);
-        await mainStore.propagateWorldNameChange(currentSetting.value);
+        await mainStore.propagateSettingNameChange(currentSetting.value);
       }
     }, debounceTime);
   };
@@ -188,7 +188,7 @@
     }, debounceTime);
   }
 
-  const onWorldFeelingSaved = async () => {
+  const onSettingFeelingSaved = async () => {
     const debounceTime = 500;
   
     clearTimeout(debounceTimer);

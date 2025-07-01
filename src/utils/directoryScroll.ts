@@ -40,7 +40,7 @@ export async function scrollToActiveEntry(): Promise<void> {
       // don't have tree entries
       break;
     case WindowTabType.Setting:
-      await scrollToWorld(contentId);
+      await scrollToSetting(contentId);
       break;
     default:
       return;
@@ -74,14 +74,14 @@ async function scrollToEntry(entryId: string): Promise<void> {
   const isGroupedByType = settingDirectoryStore.isGroupedByType;
 
   // Find the topic node in the directory tree
-  const currentWorldTree = settingDirectoryStore.currentWorldTree.value;
-  const worldNode = currentWorldTree.find(w => w.id === currentSetting.uuid);
+  const currentSettingTree = settingDirectoryStore.currentSettingTree.value;
+  const settingNode = currentSettingTree.find(w => w.id === currentSetting.uuid);
   
-  if (!worldNode) {
+  if (!settingNode) {
     return;
   }
 
-  const topicNode = worldNode.topicNodes.find(t => t.topicFolder.topic === entry.topic);
+  const topicNode = settingNode.topicNodes.find(t => t.topicFolder.topic === entry.topic);
   if (!topicNode) {
     return;
   }
@@ -176,7 +176,7 @@ async function scrollToCampaign(): Promise<void> {
  * 
  * @returns A promise that resolves when the scroll operation is complete
  */
-async function scrollToWorld(): Promise<void> {
+async function scrollToSetting(): Promise<void> {
   // Find and scroll to the campaign element using the active class
   await scrollToElement('.fcb-setting-folder.folder:not(.collapsed)');
 }

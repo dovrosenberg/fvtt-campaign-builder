@@ -353,9 +353,9 @@
       // From DirectoryCampaignNode
       entryUuid = data.campaignId;
       entryName = data.name;
-    } else if (data.worldNode) {
+    } else if (data.settingNode) {
       // From SettingDirectory setting
-      entryUuid = data.worldId;
+      entryUuid = data.settingId;
       entryName = data.name;
     } else if (data.sessionNode) {
       // From SessionDirectoryNode
@@ -383,7 +383,7 @@
             if (session) {
               entryName = session.name;
             }
-          } else if (data.worldNode) {
+          } else if (data.settingNode) {
             // It's a setting
             const setting = await Setting.fromUuid(entryUuid);
             if (setting) {

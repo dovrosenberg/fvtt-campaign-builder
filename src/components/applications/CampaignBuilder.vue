@@ -31,7 +31,7 @@
       </SplitterPanel>
       <SplitterPanel :size="directoryCollapsed ? 1 :24" :min-size="directoryCollapsed ? 1 : 18" class=""> 
         <div id="fcb-directory-sidebar" class="flexcol" :style="{display: directoryCollapsed ? 'none' : ''}">
-          <Directory @world-selected="onDirectoryWorldSelected" />
+          <Directory  />
         </div> 
       </SplitterPanel>
     </Splitter>
@@ -95,9 +95,9 @@
 
   ////////////////////////////////
   // event handlers
-  const onDirectoryWorldSelected = async (worldId: string) => {
-    await mainStore.setNewSetting(worldId);
-  };
+  // const onDirectorySettingSelected = async (settingId: string) => {
+  //   await mainStore.setNewSetting(settingId);
+  // };
 
   const onSidebarToggleClick = async () => { 
     directoryCollapsed.value = !directoryCollapsed.value;
@@ -156,12 +156,12 @@
     
     if (currentSetting.value && currentSetting.value.topicIds && newSetting?.uuid!==oldSetting?.uuid) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const worldId = currentSetting.value.uuid;
+      const settingId = currentSetting.value.uuid;
 
       const settingCompendium = currentSetting.value.compendium || null;
 
       if (!settingCompendium)
-        throw new Error(`Could not find compendium for setting ${worldId} in CampaignBuilder.currentSetting watch`);
+        throw new Error(`Could not find compendium for setting ${settingId} in CampaignBuilder.currentSetting watch`);
 
       const topicIds = currentSetting.value.topicIds;
       const campaignNames = currentSetting.value.campaignNames;
@@ -180,7 +180,7 @@
         topicJournals[t] = await fromUuid<JournalEntry>(topicIds[t]);
 
         if (!topicJournals[t])
-          throw new Error(`Could not find journal for topic ${t} in setting ${worldId}`);
+          throw new Error(`Could not find journal for topic ${t} in setting ${settingId}`);
       }
 
       for (const campaignId in campaignNames) {

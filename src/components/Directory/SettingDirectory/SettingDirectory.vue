@@ -2,11 +2,11 @@
   <!-- these are the settings -->
   <ol class="fcb-setting-list">
     <li
-      v-for="setting in currentWorldTree.value"
+      v-for="setting in currentSettingTree.value"
       :key="setting.id"
       :class="'fcb-setting-folder folder flexcol ' + (currentSetting?.uuid===setting.id ? '' : 'collapsed')"
       draggable="true"
-      @dragstart="onWorldDragStart($event, setting)"
+      @dragstart="onSettingDragStart($event, setting)"
     >
       <header
         class="folder-header flexrow"
@@ -47,12 +47,12 @@
           <SettingDirectoryGroupedTree
             v-if="isGroupedByType" 
             :topic-node="topicNode as DirectoryTopicNode"
-            :world-id="setting.id"
+            :setting-id="setting.id"
           />
           <SettingDirectoryNestedTree
             v-else 
             :topic-node="topicNode as DirectoryTopicNode"
-            :world-id="setting.id"
+            :setting-id="setting.id"
           />
         </li>
       </ol>
@@ -94,7 +94,7 @@
   const settingDirectoryStore = useSettingDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const { currentSetting } = storeToRefs(mainStore);
-  const { isGroupedByType, currentWorldTree } = storeToRefs(settingDirectoryStore);
+  const { isGroupedByType, currentSettingTree } = storeToRefs(settingDirectoryStore);
 
   ////////////////////////////////
   // data
@@ -113,12 +113,12 @@
    * @param event The drag event
    * @param setting The setting object being dragged
    */
-  const onWorldDragStart = (event: DragEvent, setting: DirectorySetting): void => {
+  const onSettingDragStart = (event: DragEvent, setting: DirectorySetting): void => {
     event.stopPropagation();
 
     const dragData = {
-      worldNode: true,
-      worldId: setting.id,
+      settingNode: true,
+      settingId: setting.id,
       name: setting.name
     };
 
@@ -168,7 +168,7 @@
           label: localize('contextMenus.settingFolder.delete'), 
           onClick: async () => {
             if (settingId) {
-              await settingDirectoryStore.deleteWorld(settingId);
+              await settingDirectoryStore.deleteSetting(settingId);
               await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }

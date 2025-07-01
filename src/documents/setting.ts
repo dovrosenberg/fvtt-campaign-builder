@@ -1,4 +1,4 @@
-import { ValidTopic, Hierarchy, WorldGeneratorConfig, RelatedJournal } from '@/types';
+import { ValidTopic, Hierarchy, SettingGeneratorConfig, RelatedJournal } from '@/types';
 import { FlagSettings } from '@/settings/DocumentFlags';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 
@@ -8,7 +8,7 @@ export interface SettingDoc extends Folder {
 }
 
 export enum SettingFlagKey {
-  isWorld = 'isWorld',    // used to mark the folder as a setting; didn't replace as setting for compatibility
+  isSetting = 'isWorld',    // used to mark the folder as a setting; didn't replace as setting for compatibility
   compendiumId = 'compendiumId',   // the uuid for the setting compendium
   topicIds = 'topicIds',   // the uuid for each topic
   campaignNames = 'campaignNames',   // name of each campaign; keyed by journal entry uuid
@@ -25,7 +25,7 @@ export enum SettingFlagKey {
 }
 
 export type SettingFlagType<K extends SettingFlagKey> =
-  K extends SettingFlagKey.isWorld ? true :
+  K extends SettingFlagKey.isSetting ? true :
   K extends SettingFlagKey.compendiumId ? string :
   K extends SettingFlagKey.topicIds ? Record<ValidTopic, string> | null: // keyed by topic
   K extends SettingFlagKey.campaignNames ? Record<string, string> : // name; keyed by journal entry uuid
@@ -36,14 +36,14 @@ export type SettingFlagType<K extends SettingFlagKey> =
   K extends SettingFlagKey.description ? string :
   K extends SettingFlagKey.img ? string :
   K extends SettingFlagKey.nameStyles ? number[] :
-  K extends SettingFlagKey.rollTableConfig ? WorldGeneratorConfig | null :
+  K extends SettingFlagKey.rollTableConfig ? SettingGeneratorConfig | null :
   K extends SettingFlagKey.nameStyleExamples ? { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null :
   K extends SettingFlagKey.journals ? RelatedJournal[] :
   never;
 
 export const flagSettings = [
   {
-    flagId: SettingFlagKey.isWorld,
+    flagId: SettingFlagKey.isSetting,
     default: true,
   },
   {
@@ -91,7 +91,7 @@ export const flagSettings = [
   },
   {
     flagId: SettingFlagKey.rollTableConfig,
-    default: null as WorldGeneratorConfig | null,
+    default: null as SettingGeneratorConfig | null,
   },
   {
     flagId: SettingFlagKey.nameStyleExamples,

@@ -8,7 +8,7 @@ import { computed, ref, watch } from 'vue';
 import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, moduleId } from '@/settings';
 import { updateWindowTitle } from '@/utils/titleUpdater';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
-import { updateWorldRollTableNames } from '@/utils/nameGenerators';
+import { updateSettingRollTableNames } from '@/utils/nameGenerators';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
@@ -42,13 +42,13 @@ export const useMainStore = defineStore('main', () => {
   /** prep/play mode toggle - true for play mode, false for prep mode */
   const isInPlayMode = ref<boolean>(ModuleSettings.get(SettingKey.isInPlayMode));
 
-  const currentWorldCompendium = computed((): CompendiumCollection<any> => {
+  const currentSettingCompendium = computed((): CompendiumCollection<any> => {
     if (!currentSetting.value)
-      throw new Error('No currentSetting in mainStore.currentWorldCompendium()');
+      throw new Error('No currentSetting in mainStore.currentSettingCompendium()');
 
     const pack = currentSetting.value?.compendium || null;
     if (!pack)
-      throw new Error('Bad compendia in mainStore.currentWorldCompendium()');
+      throw new Error('Bad compendia in mainStore.currentSettingCompendium()');
 
     return pack as CompendiumCollection<any>;
   });
@@ -223,7 +223,7 @@ export const useMainStore = defineStore('main', () => {
   }
 
   /**
-   * Get all worlds from the root folder
+   * Get all settings from the root folder
    * @returns Array of Setting instances
    */
   const getAllSettings = async function (): Promise<Setting[]> {
@@ -238,7 +238,7 @@ export const useMainStore = defineStore('main', () => {
     const settings: Setting[] = [];
     
     for (const child of rootFolder.value.children) {
-      if (child.folder && child.folder.getFlag(moduleId, SettingFlagKey.isWorld)) {
+      if (child.folder && child.folder.getFlag(moduleId, SettingFlagKey.isSetting)) {
         try {
           const setting = await Setting.fromUuid(child.folder.uuid);
           if (setting) {
@@ -258,11 +258,11 @@ export const useMainStore = defineStore('main', () => {
    * This should be called after the setting name has been changed and saved
    * @param setting The setting whose name changed
    */
-  const propagateWorldNameChange = async function (setting: Setting): Promise<void> {
+  const propagateSettingNameChange = async function (setting: Setting): Promise<void> {
     // Update roll table names if roll tables are configured
     if (setting.rollTableConfig) {
       try {
-        await updateWorldRollTableNames(setting);
+        await updateSettingRollTableNames(setting);
       } catch (error) {
         console.error('Error updating roll table names:', error);
       }
@@ -332,7 +332,7 @@ export const useMainStore = defineStore('main', () => {
 
     updateWindowTitle(newSetting?.name ?? null);
 
-    // if we're really changing worlds, turn play mode off
+    // if we're really changing settings, turn play mode off
     if (oldSetting) {
       isInPlayMode.value = false;
     }
@@ -355,7 +355,7 @@ export const useMainStore = defineStore('main', () => {
     currentTab,
     currentContentType,
     rootFolder,
-    currentWorldCompendium,
+    currentSettingCompendium,
     refreshCurrentEntry,
     isInPlayMode,
     hasMultipleCampaigns,
@@ -369,6 +369,6 @@ export const useMainStore = defineStore('main', () => {
     refreshSetting,
     refreshCurrentContent,
     getAllSettings,
-    propagateWorldNameChange,
+    propagateSettingNameChange,
   };
 });

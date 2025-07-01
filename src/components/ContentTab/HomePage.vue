@@ -14,10 +14,10 @@
       <div class="flexrow">
         <div 
           class="new-link"
-          @click="onCreateWorld"
+          @click="onCreateSetting"
         >
           <div><i class="fas fa-globe"></i></div>
-          {{ localize('labels.homePage.createWorld') }}
+          {{ localize('labels.homePage.createSetting') }}
         </div>
         <div 
           class="new-link"
@@ -120,8 +120,8 @@
 
   ////////////////////////////////
   // methods
-  const onCreateWorld = async () => {
-    await settingDirectoryStore.createWorld();
+  const onCreateSetting = async () => {
+    await settingDirectoryStore.createSetting();
   };
 
   const onCreateCampaign = async () => {
