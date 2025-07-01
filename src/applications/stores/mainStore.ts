@@ -226,12 +226,12 @@ export const useMainStore = defineStore('main', () => {
    * Get all worlds from the root folder
    * @returns Array of Setting instances
    */
-  const getAllWorlds = async function (): Promise<Setting[]> {
+  const getAllSettings = async function (): Promise<Setting[]> {
     if (!rootFolder.value) {
       const defaultFolders = await getDefaultFolders();
       rootFolder.value = defaultFolders.rootFolder;
       if (!rootFolder.value) {
-        throw new Error('Couldn\'t get root folder in mainStore.getAllWorlds()');
+        throw new Error('Couldn\'t get root folder in mainStore.getAllSettings()');
       }
     }
 
@@ -368,7 +368,7 @@ export const useMainStore = defineStore('main', () => {
     refreshPC,
     refreshSetting,
     refreshCurrentContent,
-    getAllWorlds,
+    getAllSettings,
     propagateWorldNameChange,
   };
 });

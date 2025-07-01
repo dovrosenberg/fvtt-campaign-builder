@@ -14,14 +14,14 @@ export const registerDirectoryCampaignNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('DirectoryCampaignNode', () => {
-        let mockWorld: Setting;
+        let mockSetting: Setting;
         let mockCampaign: Campaign;
         let mockSession: Session;
         let campaignNode: DirectoryCampaignNode;
 
         beforeEach(() => {
           // Create a mock setting
-          mockWorld = {
+          mockSetting = {
             uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
@@ -53,7 +53,7 @@ export const registerDirectoryCampaignNodeTests = () => {
           } as unknown as DirectorySessionNode);
 
           // Set the current setting
-          CollapsibleNode.currentSetting = mockWorld;
+          CollapsibleNode.currentSetting = mockSetting;
 
           // Create a campaign node
           campaignNode = new DirectoryCampaignNode(

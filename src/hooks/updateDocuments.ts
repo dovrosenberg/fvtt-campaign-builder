@@ -43,7 +43,7 @@ function registerForActorHooks() {
     const mainStore = useMainStore();
 
     // need to remove from any PCs that are linked to it
-    const worlds = await mainStore.getAllWorlds();
+    const worlds = await mainStore.getAllSettings();
     
     for (let setting of worlds) {
       await setting.deleteActorFromWorld(_actor.uuid);
@@ -71,7 +71,7 @@ function registerForItemHooks() {
   Hooks.on('deleteItem', async (_item, _options, _userId) => {
     const mainStore = useMainStore();
 
-    const worlds = await mainStore.getAllWorlds();
+    const worlds = await mainStore.getAllSettings();
     for (let setting of worlds) {
       await setting.deleteItemFromWorld(_item.uuid);
     }
@@ -98,7 +98,7 @@ function registerForSceneHooks() {
   Hooks.on('deleteScene', async (_scene, _options, _userId) => {
     const mainStore = useMainStore();
 
-    const worlds = await mainStore.getAllWorlds();
+    const worlds = await mainStore.getAllSettings();
     for (let setting of worlds) {
       await setting.deleteSceneFromWorld(_scene.uuid);
     }
@@ -115,7 +115,7 @@ function registerForJournalHooks() {
   Hooks.on('deleteJournalEntry', async (_journal, _options, _userId) => {
     const mainStore = useMainStore();
 
-    const worlds = await mainStore.getAllWorlds();
+    const worlds = await mainStore.getAllSettings();
     for (let setting of worlds) {
       await setting.deleteJournalEntryFromWorld(_journal.uuid);
     }
@@ -127,7 +127,7 @@ function registerForJournalHooks() {
   Hooks.on('deleteJournalEntryPage', async (_journal, _options, _userId) => {
     const mainStore = useMainStore();
 
-    const worlds = await mainStore.getAllWorlds();
+    const worlds = await mainStore.getAllSettings();
     for (let setting of worlds) {
       await setting.deleteJournalEntryPageFromWorld(_journal.uuid);
     }

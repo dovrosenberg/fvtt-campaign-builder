@@ -16,7 +16,7 @@ export const registerDirectoryTypeEntryNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('DirectoryTypeEntryNode', () => {
-        let mockWorld: Setting;
+        let mockSetting: Setting;
         let mockTopicFolder: TopicFolder;
         let mockEntry: Entry;
         let mockTypeNode: DirectoryTypeNode;
@@ -24,7 +24,7 @@ export const registerDirectoryTypeEntryNodeTests = () => {
 
         beforeEach(() => {
           // Create a mock setting
-          mockWorld = {
+          mockSetting = {
             uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
@@ -55,7 +55,7 @@ export const registerDirectoryTypeEntryNodeTests = () => {
           } as unknown as DirectoryTypeNode;
 
           // Set the current setting
-          CollapsibleNode.currentSetting = mockWorld;
+          CollapsibleNode.currentSetting = mockSetting;
 
           // Create a type entry node
           typeEntryNode = new DirectoryTypeEntryNode(
@@ -114,7 +114,7 @@ export const registerDirectoryTypeEntryNodeTests = () => {
             expect(result.expanded).to.be.true;
             
             // Change expandedIds
-            mockWorld.expandedIds = {};
+            mockSetting.expandedIds = {};
             
             // Call fromEntry again
             const result2 = DirectoryTypeEntryNode.fromEntry(mockEntry, mockTypeNode);

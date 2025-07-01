@@ -309,7 +309,7 @@ export const refreshAllWorldRollTables = async() : Promise<void> => {
   const mainStore = useMainStore();
   
   // Get all worlds using the mainStore function
-  const worlds = await mainStore.getAllWorlds();
+  const worlds = await mainStore.getAllSettings();
   
   // Refresh roll tables for each setting
   for (const setting of worlds) {

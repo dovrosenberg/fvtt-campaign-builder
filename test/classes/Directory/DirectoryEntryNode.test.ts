@@ -15,7 +15,7 @@ export const registerDirectoryEntryNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('DirectoryEntryNode', () => {
-        let mockWorld: Setting;
+        let mockSetting: Setting;
         let mockTopicFolder: TopicFolder;
         let mockEntry: Entry;
         let entryNode: DirectoryEntryNode;
@@ -31,7 +31,7 @@ export const registerDirectoryEntryNodeTests = () => {
           };
 
           // Create a mock setting
-          mockWorld = {
+          mockSetting = {
             uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
@@ -56,7 +56,7 @@ export const registerDirectoryEntryNodeTests = () => {
           } as unknown as Entry;
 
           // Set the current setting
-          CollapsibleNode.currentSetting = mockWorld;
+          CollapsibleNode.currentSetting = mockSetting;
 
           // Create an entry node
           entryNode = new DirectoryEntryNode(
@@ -133,7 +133,7 @@ export const registerDirectoryEntryNodeTests = () => {
             } as unknown as Entry;
             
             // Mock getEntryHierarchy to return null
-            (mockWorld.getEntryHierarchy as sinon.SinonStub).returns(null);
+            (mockSetting.getEntryHierarchy as sinon.SinonStub).returns(null);
             
             // Call fromEntry
             const result = DirectoryEntryNode.fromEntry(entryWithMissing);

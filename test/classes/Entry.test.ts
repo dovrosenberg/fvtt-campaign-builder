@@ -133,7 +133,7 @@ export const registerEntryTests = () => {
         describe('create', () => {
           it('should create a new entry with the provided data', async () => {
             // Setup mock setting
-            const mockWorld = await mockTopicFolder.getSetting();
+            const mockSetting = await mockTopicFolder.getSetting();
             
             // Call create
             const result = await Entry.create(mockTopicFolder, {

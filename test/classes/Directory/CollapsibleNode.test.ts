@@ -31,12 +31,12 @@ export const registerCollapsibleNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('CollapsibleNode', () => {
-        let mockWorld: Setting;
+        let mockSetting: Setting;
         let node: TestNode;
 
         beforeEach(() => {
           // Create a mock setting
-          mockWorld = {
+          mockSetting = {
             uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
@@ -47,7 +47,7 @@ export const registerCollapsibleNodeTests = () => {
           } as unknown as Setting;
 
           // Set the current setting
-          CollapsibleNode.currentSetting = mockWorld;
+          CollapsibleNode.currentSetting = mockSetting;
 
           // Create a test node
           node = new TestNode(
@@ -131,7 +131,7 @@ export const registerCollapsibleNodeTests = () => {
             await node.collapse();
             
             // Verify collapseNode was not called
-            expect((mockWorld.collapseNode as sinon.SinonStub).called).to.be.false;
+            expect((mockSetting.collapseNode as sinon.SinonStub).called).to.be.false;
           });
 
           it('should call collapseNode on the current setting', async () => {
@@ -139,7 +139,7 @@ export const registerCollapsibleNodeTests = () => {
             await node.collapse();
             
             // Verify collapseNode was called with the node id
-            expect((mockWorld.collapseNode as sinon.SinonStub).calledWith('test-node')).to.be.true;
+            expect((mockSetting.collapseNode as sinon.SinonStub).calledWith('test-node')).to.be.true;
           });
         });
 
@@ -152,7 +152,7 @@ export const registerCollapsibleNodeTests = () => {
             await node.expand();
             
             // Verify expandNode was not called
-            expect((mockWorld.expandNode as sinon.SinonStub).called).to.be.false;
+            expect((mockSetting.expandNode as sinon.SinonStub).called).to.be.false;
           });
 
           it('should call expandNode on the current setting', async () => {
@@ -160,7 +160,7 @@ export const registerCollapsibleNodeTests = () => {
             await node.expand();
             
             // Verify expandNode was called with the node id
-            expect((mockWorld.expandNode as sinon.SinonStub).calledWith('test-node')).to.be.true;
+            expect((mockSetting.expandNode as sinon.SinonStub).calledWith('test-node')).to.be.true;
           });
         });
 
@@ -208,7 +208,7 @@ export const registerCollapsibleNodeTests = () => {
             
             // Verify recursivelyLoadNode was called
             expect(loadSpy.calledOnce).to.be.true;
-            expect(loadSpy.calledWith(mockWorld.expandedIds)).to.be.true;
+            expect(loadSpy.calledWith(mockSetting.expandedIds)).to.be.true;
           });
         });
 

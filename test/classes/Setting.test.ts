@@ -8,14 +8,14 @@ import { moduleId } from '@/settings';
 import { Campaign } from '@/classes/Campaign';
 import { expect } from 'chai';
 
-export const registerWBWorldTests = () => {
+export const registerSettingTests = () => {
   quench.registerBatch(
     'campaign-builder.classes.Setting',
     (context: QuenchBatchContext) => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('Setting', () => {
-        let mockWorldDoc: SettingDoc;
+        let mockSettingDoc: SettingDoc;
         let mockCompendium: any;
         let setting: Setting;
         let fromUuidStub;
@@ -91,7 +91,7 @@ export const registerWBWorldTests = () => {
           sinon.stub(game.packs, 'get').returns(mockCompendium);
 
           // Create a mock SettingDoc
-          mockWorldDoc = {
+          mockSettingDoc = {
             documentName: 'Folder',
             uuid: 'test-setting-uuid',
             name: 'Test Setting',
@@ -104,7 +104,7 @@ export const registerWBWorldTests = () => {
           } as unknown as SettingDoc;
 
           // Create a Setting instance
-          setting = new Setting(mockWorldDoc);
+          setting = new Setting(mockSettingDoc);
           
           // Mock internal properties set up during constructor or validate
           setting['_compendium'] = mockCompendium as any;
@@ -142,13 +142,13 @@ export const registerWBWorldTests = () => {
         describe('constructor', () => {
           it('should throw an error if document type is invalid', () => {
             // Create an invalid document
-            const invalidDoc = { ...mockWorldDoc, documentName: 'Actor' };
+            const invalidDoc = { ...mockSettingDoc, documentName: 'Actor' };
             
             expect(() => new Setting(invalidDoc as any)).to.throw('Invalid document type in Setting constructor');
           });
 
           it('should initialize with the provided document', () => {
-            expect(setting.raw).not.to.equal(mockWorldDoc); // Should be a clone
+            expect(setting.raw).not.to.equal(mockSettingDoc); // Should be a clone
             expect(setting.uuid).to.equal('test-setting-uuid');
             expect(setting.name).to.equal('Test Setting');
             expect(setting.compendiumId).to.equal('test-compendium-id');
@@ -163,7 +163,7 @@ export const registerWBWorldTests = () => {
           });
 
           it('should return a new Setting instance if document is valid', async () => {
-            fromUuidStub.resolves(mockWorldDoc);
+            fromUuidStub.resolves(mockSettingDoc);
             
             // Stub validate method
             sinon.stub(Setting.prototype, 'validate').resolves();
@@ -178,7 +178,7 @@ export const registerWBWorldTests = () => {
           it('should throw an error if topicIds is not loaded', async () => {
             // Create a setting with no topicIds
             getFlag.withArgs(sinon.match.any, SettingFlagKey.topicIds).returns(null);
-            const worldWithoutTopicIds = new Setting(mockWorldDoc);
+            const worldWithoutTopicIds = new Setting(mockSettingDoc);
             
             try {
               await worldWithoutTopicIds.loadTopics();
@@ -223,7 +223,7 @@ export const registerWBWorldTests = () => {
           it('should throw an error if campaignNames is not loaded', async () => {
             // Create a setting with no campaignNames
             getFlag.withArgs(sinon.match.any, SettingFlagKey.campaignNames).returns(null);
-            const worldWithoutCampaignNames = new Setting(mockWorldDoc);
+            const worldWithoutCampaignNames = new Setting(mockSettingDoc);
             
             try {
               await worldWithoutCampaignNames.loadCampaigns();

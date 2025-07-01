@@ -48,14 +48,14 @@ export const registerHierarchyTests = () => {
 
         describe('getParentId', () => {
           it('should return null for topics without hierarchy', () => {
-            const mockWorld = {} as any;
+            const mockSetting = {} as any;
             const mockEntry = { topic: Topics.Character } as any;
 
-            expect(getParentId(mockWorld, mockEntry)).to.be.null;
+            expect(getParentId(mockSetting, mockEntry)).to.be.null;
           });
 
           it('should return parentId from hierarchy if available', () => {
-            const mockWorld = {
+            const mockSetting = {
               hierarchies: {
                 'entry-uuid': {
                   parentId: 'parent-uuid',
@@ -70,11 +70,11 @@ export const registerHierarchyTests = () => {
               uuid: 'entry-uuid'
             } as any;
 
-            expect(getParentId(mockWorld, mockEntry)).to.equal('parent-uuid');
+            expect(getParentId(mockSetting, mockEntry)).to.equal('parent-uuid');
           });
 
           it('should return null if hierarchy exists but no parentId', () => {
-            const mockWorld = {
+            const mockSetting = {
               hierarchies: {
                 'entry-uuid': {
                   children: [],
@@ -88,11 +88,11 @@ export const registerHierarchyTests = () => {
               uuid: 'entry-uuid'
             } as any;
 
-            expect(getParentId(mockWorld, mockEntry)).to.be.null;
+            expect(getParentId(mockSetting, mockEntry)).to.be.null;
           });
 
           it('should return null if hierarchy does not exist for entry', () => {
-            const mockWorld = {
+            const mockSetting = {
               hierarchies: {}
             } as any;
 
@@ -101,27 +101,27 @@ export const registerHierarchyTests = () => {
               uuid: 'entry-uuid'
             } as any;
 
-            expect(getParentId(mockWorld, mockEntry)).to.be.null;
+            expect(getParentId(mockSetting, mockEntry)).to.be.null;
           });
         });
 
         describe('validParentItems', () => {
           it('should return empty array for topics without hierarchy', () => {
-            const mockWorld = {} as any;
+            const mockSetting = {} as any;
             const mockEntry = { topic: Topics.Character } as any;
 
-            expect(validParentItems(mockWorld, mockEntry)).to.deep.equal([]);
+            expect(validParentItems(mockSetting, mockEntry)).to.deep.equal([]);
           });
 
           it('should return empty array if entry has no uuid', () => {
-            const mockWorld = {} as any;
+            const mockSetting = {} as any;
             const mockEntry = { topic: Topics.Organization, uuid: '' } as any;
 
-            expect(validParentItems(mockWorld, mockEntry)).to.deep.equal([]);
+            expect(validParentItems(mockSetting, mockEntry)).to.deep.equal([]);
           });
 
           it('should return empty array if topicFolder is not found', () => {
-            const mockWorld = {
+            const mockSetting = {
               topicFolders: {}
             } as any;
 
@@ -130,7 +130,7 @@ export const registerHierarchyTests = () => {
               uuid: 'entry-uuid'
             } as any;
 
-            expect(validParentItems(mockWorld, mockEntry)).to.deep.equal([]);
+            expect(validParentItems(mockSetting, mockEntry)).to.deep.equal([]);
           });
 
           it('should filter out the entry itself and entries that have it as an ancestor', () => {
@@ -146,7 +146,7 @@ export const registerHierarchyTests = () => {
               ])
             };
 
-            const mockWorld = {
+            const mockSetting = {
               topicFolders: {
                 [Topics.Organization]: mockTopicFolder
               },
@@ -164,7 +164,7 @@ export const registerHierarchyTests = () => {
               uuid: 'entry-uuid'
             } as any;
 
-            const result = validParentItems(mockWorld, mockEntry);
+            const result = validParentItems(mockSetting, mockEntry);
 
             expect(mockTopicFolder.filterEntries.called).to.equal(true);
             expect(result).to.deep.equal([
@@ -175,10 +175,10 @@ export const registerHierarchyTests = () => {
 
         describe('validChildItems', () => {
           it('should return empty array if entry has no uuid', () => {
-            const mockWorld = {} as any;
+            const mockSetting = {} as any;
             const mockEntry = { uuid: '' } as any;
 
-            expect(validChildItems(mockWorld, mockEntry)).to.deep.equal([]);
+            expect(validChildItems(mockSetting, mockEntry)).to.deep.equal([]);
           });
 
           it('should filter out the entry itself and its ancestors', () => {
@@ -192,7 +192,7 @@ export const registerHierarchyTests = () => {
               ])
             };
 
-            const mockWorld = {
+            const mockSetting = {
               topicFolders: {
                 [Topics.Organization]: mockTopicFolder
               },
@@ -204,9 +204,9 @@ export const registerHierarchyTests = () => {
               uuid: 'entry-uuid'
             } as any;
 
-            const result = validChildItems(mockWorld, mockEntry);
+            const result = validChildItems(mockSetting, mockEntry);
 
-            expect(mockWorld.getEntryHierarchy.calledWith('entry-uuid')).to.equal(true);
+            expect(mockSetting.getEntryHierarchy.calledWith('entry-uuid')).to.equal(true);
             expect(mockTopicFolder.filterEntries.called).to.equal(true);
             expect(result.length).to.equal(1);
             expect(result[0].uuid).to.equal('other-entry');
@@ -243,7 +243,7 @@ export const registerHierarchyTests = () => {
               }
             };
 
-            const mockWorld = {
+            const mockSetting = {
               hierarchies: mockHierarchies,
               save: sinon.stub().resolves(undefined)
             } as any;
@@ -255,31 +255,31 @@ export const registerHierarchyTests = () => {
 
             // Call the function
             await cleanTrees(
-              mockWorld,
+              mockSetting,
               mockTopicFolder,
               'deleted-id',
               mockHierarchies['deleted-id']
             );
 
             // Verify hierarchies were updated correctly
-            expect('deleted-id' in mockWorld.hierarchies).to.equal(false);
+            expect('deleted-id' in mockSetting.hierarchies).to.equal(false);
 
             // Children should now point to grandparent
-            expect(mockWorld.hierarchies['child1-id'].parentId).to.equal('grandparent-id');
-            expect(mockWorld.hierarchies['child2-id'].parentId).to.equal('grandparent-id');
+            expect(mockSetting.hierarchies['child1-id'].parentId).to.equal('grandparent-id');
+            expect(mockSetting.hierarchies['child2-id'].parentId).to.equal('grandparent-id');
 
             // Grandparent should have children directly
-            expect(mockWorld.hierarchies['grandparent-id'].children.includes('child1-id')).to.equal(true);
-            expect(mockWorld.hierarchies['grandparent-id'].children.includes('child2-id')).to.equal(true);
-            expect(mockWorld.hierarchies['grandparent-id'].children.includes('deleted-id')).to.equal(false);
+            expect(mockSetting.hierarchies['grandparent-id'].children.includes('child1-id')).to.equal(true);
+            expect(mockSetting.hierarchies['grandparent-id'].children.includes('child2-id')).to.equal(true);
+            expect(mockSetting.hierarchies['grandparent-id'].children.includes('deleted-id')).to.equal(false);
 
             // Ancestors should be updated
-            expect(mockWorld.hierarchies['child1-id'].ancestors.includes('deleted-id')).to.equal(false);
-            expect(mockWorld.hierarchies['child2-id'].ancestors.includes('deleted-id')).to.equal(false);
-            expect(mockWorld.hierarchies['descendant-id'].ancestors.includes('deleted-id')).to.equal(false);
+            expect(mockSetting.hierarchies['child1-id'].ancestors.includes('deleted-id')).to.equal(false);
+            expect(mockSetting.hierarchies['child2-id'].ancestors.includes('deleted-id')).to.equal(false);
+            expect(mockSetting.hierarchies['descendant-id'].ancestors.includes('deleted-id')).to.equal(false);
 
             // Setting and topic folder should be saved
-            expect(mockWorld.save.called).to.equal(true);
+            expect(mockSetting.save.called).to.equal(true);
             expect(mockTopicFolder.save.called).to.equal(true);
 
             // TopNodes should be updated
@@ -301,7 +301,7 @@ export const registerHierarchyTests = () => {
               }
             };
 
-            const mockWorld = {
+            const mockSetting = {
               hierarchies: mockHierarchies,
               save: sinon.stub().resolves(undefined)
             } as any;
@@ -313,15 +313,15 @@ export const registerHierarchyTests = () => {
 
             // Call the function
             await cleanTrees(
-              mockWorld,
+              mockSetting,
               mockTopicFolder,
               'deleted-id',
               mockHierarchies['deleted-id']
             );
 
             // Child should become a top node with no parent
-            expect(mockWorld.hierarchies['child1-id'].parentId).to.be.null;
-            expect(mockWorld.hierarchies['child1-id'].ancestors.length).to.equal(0);
+            expect(mockSetting.hierarchies['child1-id'].parentId).to.be.null;
+            expect(mockSetting.hierarchies['child1-id'].ancestors.length).to.equal(0);
 
             // TopNodes should include the child now
             expect(mockTopicFolder.topNodes.includes('child1-id')).to.equal(true);

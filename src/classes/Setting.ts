@@ -10,14 +10,14 @@ import { initializeWorldRollTables, refreshWorldRollTables } from '@/utils/nameG
 import { Backend } from '@/classes';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 
-type WBWorldCompendium = CompendiumCollection<CompendiumCollection.Metadata>;
+type SettingCompendium = CompendiumCollection<CompendiumCollection.Metadata>;
 
 // represents a campaign setting
 export class Setting extends DocumentWithFlags<SettingDoc>{
   static override _documentName = 'Folder';
   static override _flagSettings = settingFlagSettings;
 
-  private _compendium: WBWorldCompendium;   // this is the main compendium
+  private _compendium: SettingCompendium;   // this is the main compendium
 
   // JournalEntries
   public campaigns: Record<string, Campaign>;   // Campaigns keyed by uuid 
@@ -196,7 +196,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   /** 
    * The actual compendium (used to be called worldCompendium)
    */
-  public get compendium(): WBWorldCompendium {
+  public get compendium(): SettingCompendium {
     return this._compendium;
   }
 
@@ -518,7 +518,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
       type: 'JournalEntry' as const, 
     };
 
-    const pack = await CompendiumCollection.createCompendium(metadata) as WBWorldCompendium;
+    const pack = await CompendiumCollection.createCompendium(metadata) as SettingCompendium;
     await pack.setFolder(this._doc as Folder);
     await pack.configure({ locked:true });
 

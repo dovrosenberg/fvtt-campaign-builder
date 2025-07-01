@@ -15,14 +15,14 @@ export const registerDirectoryTypeNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('DirectoryTypeNode', () => {
-        let mockWorld: Setting;
+        let mockSetting: Setting;
         let mockTopicFolder: TopicFolder;
         let mockEntry: Entry;
         let typeNode: DirectoryTypeNode;
 
         beforeEach(() => {
           // Create a mock setting
-          mockWorld = {
+          mockSetting = {
             uuid: 'setting-uuid',
             expandNode: sinon.stub().resolves(),
             collapseNode: sinon.stub().resolves(),
@@ -54,7 +54,7 @@ export const registerDirectoryTypeNodeTests = () => {
           } as unknown as Entry;
 
           // Set the current setting
-          CollapsibleNode.currentSetting = mockWorld;
+          CollapsibleNode.currentSetting = mockSetting;
 
           // Create a type node
           typeNode = new DirectoryTypeNode(
