@@ -120,7 +120,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
         if (!topicObj)
           throw new Error('Invalid topic uuid in Setting.loadTopics()');
 
-        topicObj.world = this;
+        topicObj.setting = this;
         this.topicFolders[topic] = topicObj;
       }
     }
@@ -155,7 +155,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
 
         await this.save();
       } else {
-        campaignObj.world = this;
+        campaignObj.setting = this;
         this.campaigns[id] = campaignObj;
       }
     }
@@ -481,7 +481,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
         topicFolder = await TopicFolder.fromUuid(topicIds[t]);
 
         if (topicFolder)
-          topicFolder.world = this;
+          topicFolder.setting = this;
       }
 
       if (!topicFolder) {
@@ -491,7 +491,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
         if (!topicFolder)
           throw new Error('Couldn\'t create topicFolder in Setting.validate()');
 
-        topicFolder.world = this;
+        topicFolder.setting = this;
         topicIds[t] = topicFolder.uuid;
         topicObjects[t] = topicFolder;
 

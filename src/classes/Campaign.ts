@@ -13,7 +13,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   static override _documentName = 'JournalEntry';
   static override _flagSettings = campaignFlagSettings;
 
-  public world: Setting | null;  // the setting the campaign is in (if we don't setup up front, we can load it later)
+  public setting: Setting | null;  // the setting the campaign is in (if we don't setup up front, we can load it later)
 
   // saved on JournalEntry
   private _name: string;
@@ -35,7 +35,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   constructor(campaignDoc: CampaignDoc, setting?: Setting) {
     super(campaignDoc, CampaignFlagKey.isCampaign);
 
-    this.world = setting || null;
+    this.setting = setting || null;
 
     this._description = this.getFlag(CampaignFlagKey.description) || '';
     this._houseRules = this.getFlag(CampaignFlagKey.houseRules) || '';
@@ -74,10 +74,10 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
    * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
   public async getWorld(): Promise<Setting> {
-    if (!this.world)
-      this.world = await this.loadWorld();
+    if (!this.setting)
+      this.setting = await this.loadWorld();
 
-    return this.world;
+    return this.setting;
   }
   
   /**
@@ -86,18 +86,18 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
    * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
   public async loadWorld(): Promise<Setting> {
-    if (this.world)
-      return this.world;
+    if (this.setting)
+      return this.setting;
 
     if (!this._doc.collection?.folder)
       throw new Error('Invalid folder id in Campaign.loadWorld()');
     
-    this.world = await Setting.fromUuid(this._doc.collection.folder.uuid);
+    this.setting = await Setting.fromUuid(this._doc.collection.folder.uuid);
 
-    if (!this.world)
+    if (!this.setting)
       throw new Error('Error loading setting in Campaign.loadWorld()');
 
-    return this.world;
+    return this.setting;
   }
   
   /**  get the highest numbered session (if in play mode, this will be the played one, too) */

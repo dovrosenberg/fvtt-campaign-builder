@@ -10,7 +10,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   static override _documentName = 'JournalEntry';
   static override _flagSettings = topicFlagSettings;
 
-  public world: Setting | null;  // the setting the topic is in (if we don't setup up front, we can load it later)
+  public setting: Setting | null;  // the setting the topic is in (if we don't setup up front, we can load it later)
 
   // saved on JournalEntry
   // private _name: string;   // topic names are hardcoded
@@ -28,7 +28,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   constructor(topicDoc: TopicDoc, setting?: Setting) {
     super(topicDoc, TopicFlagKey.isTopic);
 
-    this.world = setting || null;
+    this.setting = setting || null;
 
     this._topNodes = this.getFlag(TopicFlagKey.topNodes);
     this._types = this.getFlag(TopicFlagKey.types);
@@ -60,10 +60,10 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
   public async getWorld(): Promise<Setting> {
-    if (!this.world)
+    if (!this.setting)
       await this.loadWorld();
 
-    return (this.world as Setting);
+    return (this.setting as Setting);
   }
   
   /**
@@ -72,8 +72,8 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    * @returns {Promise<Setting>} A promise to the setting associated with the topic.
    */
   public async loadWorld(): Promise<Setting> {
-    if (this.world)
-      return this.world;
+    if (this.setting)
+      return this.setting;
     
     if (!this._doc.collection?.folder)
       throw new Error('Invalid folder id in Topics.loadWorld()');
@@ -83,8 +83,8 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     if (!worldDoc)
       throw new Error('Invalid folder id in Topics.loadWorld()');
 
-    this.world = new Setting(worldDoc);
-    return this.world;
+    this.setting = new Setting(worldDoc);
+    return this.setting;
   }
   
   /**
@@ -211,7 +211,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   public async save(): Promise<TopicFolder | null> {
     const updateData = this._cumulativeUpdate;
 
-    let setting = this.world;
+    let setting = this.setting;
 
     if (!setting)
       setting = await this.loadWorld();
@@ -245,7 +245,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     if (!this._doc)
       return;
 
-    let setting = this.world;
+    let setting = this.setting;
     if (!setting)
       setting = await this.loadWorld();
 
