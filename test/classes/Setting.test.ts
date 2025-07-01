@@ -33,7 +33,7 @@ export const registerWBWorldTests = () => {
           
           // Stub Folder.createDocuments to avoid creating actual documents
           sinon.stub(Folder, 'createDocuments').resolves([{
-            name: 'Test World',
+            name: 'Test Setting',
             uuid: 'test-setting-uuid',
             update: sinon.stub().resolves({}),
             delete: sinon.stub().resolves(undefined),
@@ -69,13 +69,13 @@ export const registerWBWorldTests = () => {
           unsetFlag = sinon.stub(Folder.prototype, 'unsetFlag');
           
           // Stub inputDialog
-          inputDialogStub = sinon.stub(globalThis, 'inputDialog').resolves('New World');
+          inputDialogStub = sinon.stub(globalThis, 'inputDialog').resolves('New Setting');
           
           // Stub CompendiumCollection
           mockCompendium = {
             metadata: {
               id: 'test-compendium-id',
-              label: 'Test World'
+              label: 'Test Setting'
             },
             configure: sinon.stub().resolves(undefined),
             setFolder: sinon.stub().resolves(undefined),
@@ -94,7 +94,7 @@ export const registerWBWorldTests = () => {
           mockWorldDoc = {
             documentName: 'Folder',
             uuid: 'test-setting-uuid',
-            name: 'Test World',
+            name: 'Test Setting',
             getFlag: function(moduleId, key) {
               if (key === SettingFlagKey.isWorld) return true;
               return null;
@@ -150,7 +150,7 @@ export const registerWBWorldTests = () => {
           it('should initialize with the provided document', () => {
             expect(setting.raw).not.to.equal(mockWorldDoc); // Should be a clone
             expect(setting.uuid).to.equal('test-setting-uuid');
-            expect(setting.name).to.equal('Test World');
+            expect(setting.name).to.equal('Test Setting');
             expect(setting.compendiumId).to.equal('test-compendium-id');
           });
         });
@@ -270,9 +270,9 @@ export const registerWBWorldTests = () => {
 
         describe('getters and setters', () => {
           it('should get and set name correctly', () => {
-            expect(setting.name).to.equal('Test World');
-            setting.name = 'New World Name';
-            expect(setting.name).to.equal('New World Name');
+            expect(setting.name).to.equal('Test Setting');
+            setting.name = 'New Setting Name';
+            expect(setting.name).to.equal('New Setting Name');
           });
 
           it('should get and set description correctly', () => {
@@ -353,7 +353,7 @@ export const registerWBWorldTests = () => {
         describe('save', () => {
           it('should update the setting document with accumulated changes', async () => {
             // Make some changes
-            setting.name = 'New World Name';
+            setting.name = 'New Setting Name';
             setting.description = 'New description';
             
             // Call save
@@ -365,7 +365,7 @@ export const registerWBWorldTests = () => {
             
             // Verify update was called with correct data
             expect((setting.raw.update as sinon.SinonStub).calledWith(sinon.match({
-              name: 'New World Name',
+              name: 'New Setting Name',
               [`flags.${moduleId}`]: sinon.match.object
             }))).to.equal(true);
             
@@ -375,7 +375,7 @@ export const registerWBWorldTests = () => {
 
           it('should return null if update fails', async () => {
             // Make a change
-            setting.name = 'New World Name';
+            setting.name = 'New Setting Name';
             
             // Mock failed update
             (setting.raw.update as sinon.SinonStub).resolves(null);

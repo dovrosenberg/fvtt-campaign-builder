@@ -82,7 +82,7 @@ export const registerTopicFolderTests = () => {
             },
           } as unknown as TopicDoc;
 
-          // Create a mock World
+          // Create a mock Setting
           mockWorld = {
             uuid: 'setting-uuid',
             unlock: sinon.stub().resolves(undefined),

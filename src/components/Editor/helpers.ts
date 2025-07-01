@@ -162,7 +162,7 @@ const brokenAnchor = (data: LinkData, name = 'Cross-Setting links are not suppor
  * - Tooltip text for user guidance
  * 
  * @param doc - The Foundry document being linked to
- * @param linkType - Type of window/tab to open (Entry, PC, Session, Campaign, World)
+ * @param linkType - Type of window/tab to open (Entry, PC, Session, Campaign, Setting)
  * @param hash - Optional hash fragment for linking to specific sections
  * @param name - Display name for the link
  * @param icon - CSS icon class to display
@@ -363,7 +363,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
 function createLegacyContentLink (type: WORLD_DOCUMENT_TYPES | EMBEDDED_DOCUMENT_TYPES | 'Compendium', target: string, _name: string, data: any): boolean {
   let broken = false;
 
-  // Get a matched World document
+  // Get a matched Setting document
   if ( CONST.WORLD_DOCUMENT_TYPES.includes(type as unknown as WORLD_DOCUMENT_TYPES) ) {
     // Get the linked Document
     const config = CONFIG[type];

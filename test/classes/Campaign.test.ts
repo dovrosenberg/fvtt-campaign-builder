@@ -72,7 +72,7 @@ export const registerCampaignTests = () => {
             unsetFlag: sinon.stub().resolves(undefined)
           } as unknown as CampaignDoc;
 
-          // Create a mock World
+          // Create a mock Setting
           mockWorld = {
             uuid: 'setting-uuid',
             unlock: sinon.stub().resolves(undefined),

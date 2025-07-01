@@ -278,7 +278,7 @@ export const registerHierarchyTests = () => {
             expect(mockWorld.hierarchies['child2-id'].ancestors.includes('deleted-id')).to.equal(false);
             expect(mockWorld.hierarchies['descendant-id'].ancestors.includes('deleted-id')).to.equal(false);
 
-            // World and topic folder should be saved
+            // Setting and topic folder should be saved
             expect(mockWorld.save.called).to.equal(true);
             expect(mockTopicFolder.save.called).to.equal(true);
 
