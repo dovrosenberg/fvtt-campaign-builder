@@ -257,7 +257,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
         const entry = new Entry(unknownItem as unknown as EntryDoc);
 
         if (entry.topic) {
-          const setting = await entry.getWorld();
+          const setting = await entry.getSetting();
 
           // handle the ones we don't care about
           if (setting.uuid !== settingId) {
@@ -273,7 +273,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
         const pc = new PC(unknownItem as unknown as PCDoc);
 
         // check if it's the right setting
-        const setting = await pc.getWorld();
+        const setting = await pc.getSetting();
   
         // handle the ones we don't care about
         if (setting.uuid !== settingId) {
@@ -286,7 +286,7 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
         const session = new Session(unknownItem as unknown as SessionDoc);
 
         // check if it's the right setting
-        const setting = await session.getWorld();
+        const setting = await session.getSetting();
   
         // handle the ones we don't care about
         if (setting.uuid !== settingId) {
@@ -305,11 +305,11 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
       if (setting.uuid !== settingId) {
         return brokenAnchor(data);
       } else {  // this is an fcb item for this setting
-        return goodAnchor(unknownItem, WindowTabType.World, hash, data.name || setting.name, `fas ${getTabTypeIcon(WindowTabType.World)}`); 
+        return goodAnchor(unknownItem, WindowTabType.Setting, hash, data.name || setting.name, `fas ${getTabTypeIcon(WindowTabType.Setting)}`); 
       }
     } else if (unknownItem?.getFlag(moduleId, CampaignFlagKey.isCampaign)) {
       const campaign = new Campaign(unknownItem as unknown as CampaignDoc); 
-      const setting = await campaign.getWorld();
+      const setting = await campaign.getSetting();
 
       // handle the ones we don't care about
       if (setting.uuid !== settingId) {

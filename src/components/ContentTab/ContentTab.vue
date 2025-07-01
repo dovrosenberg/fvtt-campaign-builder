@@ -10,7 +10,7 @@
       <EntryContent />
     </div>
     <div 
-      v-else-if="currentContentType===WindowTabType.World"
+      v-else-if="currentContentType===WindowTabType.Setting"
       class="fcb-content-wrapper"
     >
       <SettingContent />

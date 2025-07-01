@@ -36,7 +36,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   }
 
   override async _getWorld(): Promise<Setting> {
-    return await this.getWorld();
+    return await this.getSetting();
   };
   
   static async fromUuid(topicId: string, options?: Record<string, any>): Promise<TopicFolder | null> {
@@ -59,9 +59,9 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    * 
    * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
-  public async getWorld(): Promise<Setting> {
+  public async getSetting(): Promise<Setting> {
     if (!this.setting)
-      await this.loadWorld();
+      await this.loadSetting();
 
     return (this.setting as Setting);
   }
@@ -71,17 +71,17 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    * to the existing setting; otherwise, it loads the setting and then resolves to it.
    * @returns {Promise<Setting>} A promise to the setting associated with the topic.
    */
-  public async loadWorld(): Promise<Setting> {
+  public async loadSetting(): Promise<Setting> {
     if (this.setting)
       return this.setting;
     
     if (!this._doc.collection?.folder)
-      throw new Error('Invalid folder id in Topics.loadWorld()');
+      throw new Error('Invalid folder id in Topics.loadSetting()');
 
     const worldDoc = await fromUuid<SettingDoc>(this._doc.collection.folder.uuid);
 
     if (!worldDoc)
-      throw new Error('Invalid folder id in Topics.loadWorld()');
+      throw new Error('Invalid folder id in Topics.loadSetting()');
 
     this.setting = new Setting(worldDoc);
     return this.setting;
@@ -214,7 +214,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     let setting = this.setting;
 
     if (!setting)
-      setting = await this.loadWorld();
+      setting = await this.loadSetting();
 
     let success = false;
     await setting.executeUnlocked(async () => {
@@ -247,7 +247,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
 
     let setting = this.setting;
     if (!setting)
-      setting = await this.loadWorld();
+      setting = await this.loadSetting();
 
     await setting.executeUnlocked(async () => {
       await this._doc.delete();

@@ -48,7 +48,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   }
 
   override async _getWorld(): Promise<Setting> {
-    return await this.getWorld();
+    return await this.getSetting();
   };
 
   /** note: DOES NOT attach the setting */
@@ -73,9 +73,9 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
    * 
    * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
-  public async getWorld(): Promise<Setting> {
+  public async getSetting(): Promise<Setting> {
     if (!this.setting)
-      this.setting = await this.loadWorld();
+      this.setting = await this.loadSetting();
 
     return this.setting;
   }
@@ -85,17 +85,17 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
    * to the existing setting; otherwise, it loads the setting and then resolves to it.
    * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
-  public async loadWorld(): Promise<Setting> {
+  public async loadSetting(): Promise<Setting> {
     if (this.setting)
       return this.setting;
 
     if (!this._doc.collection?.folder)
-      throw new Error('Invalid folder id in Campaign.loadWorld()');
+      throw new Error('Invalid folder id in Campaign.loadSetting()');
     
     this.setting = await Setting.fromUuid(this._doc.collection.folder.uuid);
 
     if (!this.setting)
-      throw new Error('Error loading setting in Campaign.loadWorld()');
+      throw new Error('Error loading setting in Campaign.loadSetting()');
 
     return this.setting;
   }
@@ -510,7 +510,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     // unlock compendium to make the change
     let success = false;
-    let setting = await this.getWorld();
+    let setting = await this.getSetting();
 
     await setting.executeUnlocked(async () => {
       if (Object.keys(updateData).length !== 0) {
@@ -547,7 +547,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     const id = this._doc.uuid;
 
-    let setting = await this.getWorld();
+    let setting = await this.getSetting();
 
     await setting.executeUnlocked(async () => {
       await this._doc.delete();

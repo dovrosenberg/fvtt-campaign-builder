@@ -95,14 +95,14 @@ export class PC {
    * 
    * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
-  public async getWorld(): Promise<Setting> {
+  public async getSetting(): Promise<Setting> {
     if (!this.campaign)
       this.campaign = await this.loadCampaign();
 
     if (!this.campaign)
-      throw new Error('Invalid campaign in PC.getWorld()');
+      throw new Error('Invalid campaign in PC.getSetting()');
     
-    return this.campaign.getWorld();
+    return this.campaign.getSetting();
   }
 
   
@@ -118,7 +118,7 @@ export class PC {
     if (!nameToUse)
       return null;
 
-    const setting = await campaign.getWorld();
+    const setting = await campaign.getSetting();
 
     let pcDoc: PCDoc[] = [];
     await setting.executeUnlocked(async () => {
@@ -260,7 +260,7 @@ export class PC {
    * @returns {Promise<PC | null>} The updated PC, or null if the update failed.
    */
   public async save(): Promise<PC | null> {
-    const setting = await this.getWorld();
+    const setting = await this.getSetting();
 
     const updateData = this._cumulativeUpdate;
 
@@ -290,7 +290,7 @@ export class PC {
     if (!this._pcDoc)
       return;
 
-    const setting = await this.getWorld() as Setting;
+    const setting = await this.getSetting() as Setting;
 
     await setting.executeUnlocked(async () => {
       await this._pcDoc.delete();

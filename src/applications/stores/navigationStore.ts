@@ -72,7 +72,7 @@ export const useNavigationStore = defineStore('navigation', () => {
    * @returns The newly opened tab.
    */
   const openSetting = async function(worldId = null as string | null, options?: OpenContentOptions) {
-    await openContent(worldId, WindowTabType.World, options );
+    await openContent(worldId, WindowTabType.Setting, options );
   };
 
   /**
@@ -149,7 +149,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     // these are the default content tabs to open to
     const defaultContentTab = {
       [WindowTabType.Entry]: 'description',
-      [WindowTabType.World]: 'description',
+      [WindowTabType.Setting]: 'description',
       [WindowTabType.Campaign]: 'description',
       [WindowTabType.Session]: 'notes',
       [WindowTabType.PC]: '',  // no tabs
@@ -169,13 +169,13 @@ export const useNavigationStore = defineStore('navigation', () => {
           icon = getTopicIcon(entry.topic);
         }
       } break;
-      case WindowTabType.World: {
+      case WindowTabType.Setting: {
         const setting = contentId ? await Setting.fromUuid(contentId) : null;
         if (!setting) {
           badId = true;
         } else {
           name = setting.name;
-          icon = getTabTypeIcon(WindowTabType.World);
+          icon = getTabTypeIcon(WindowTabType.Setting);
         }
       } break;
       case WindowTabType.Campaign: {

@@ -35,7 +35,7 @@
             <DescriptionTab 
               :name="currentSetting.name || 'Setting'"
               :image-url="currentSetting.img"
-              :window-type="WindowTabType.World"
+              :window-type="WindowTabType.Setting"
               @image-change="onImageChange"
             >
               <div class="flexrow form-group">

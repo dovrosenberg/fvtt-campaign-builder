@@ -69,7 +69,7 @@ export class Entry {
   static async create(topicFolder: TopicFolder, options: CreateEntryOptions): Promise<Entry | null> 
   {
     const topicText = getTopicText(topicFolder.topic);
-    const setting = await topicFolder.getWorld();
+    const setting = await topicFolder.getSetting();
 
     let nameToUse = options.name || '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
@@ -289,7 +289,7 @@ export class Entry {
   }
 
   public async getParentId(): Promise<string | null> {
-    const setting = await this.getWorld();
+    const setting = await this.getSetting();
     return getParentId(setting, this);
   }
 
@@ -299,11 +299,11 @@ export class Entry {
     * 
     * @returns {Promise<Setting>} A promise to the setting associated with the entry.
     */
-  public async getWorld(): Promise<Setting> {
+  public async getSetting(): Promise<Setting> {
     if (!this.topicFolder)
       await this.loadTopic();
   
-    return await (this.topicFolder as TopicFolder).getWorld();
+    return await (this.topicFolder as TopicFolder).getSetting();
   }
   
   // used to set arbitrary properties on the entryDoc
@@ -313,7 +313,7 @@ export class Entry {
    * @returns {Promise<Entry | null>} The updated entry, or null if the update failed.
    */
   public async save(): Promise<Entry | null> {
-    const setting = await this.getWorld();
+    const setting = await this.getSetting();
 
     // rather than try to monitor all changes to the arrays (which would require saving the originals or a proxy), we just always save them
     const updateData = {
@@ -377,7 +377,7 @@ export class Entry {
   }
 
   public async delete() {
-    const setting = await this.getWorld();
+    const setting = await this.getSetting();
 
     const id = this.uuid;
     const topicFolder = this.topicFolder;

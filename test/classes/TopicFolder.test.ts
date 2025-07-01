@@ -159,9 +159,9 @@ export const registerTopicFolderTests = () => {
           });
         });
 
-        describe('getWorld and loadWorld', () => {
+        describe('getSetting and loadSetting', () => {
           it('should return the existing setting if already set', async () => {
-            const result = await topicFolder.getWorld();
+            const result = await topicFolder.getSetting();
             expect(result).to.equal(mockWorld);
           });
 
@@ -175,7 +175,7 @@ export const registerTopicFolderTests = () => {
             });
             
             // Act
-            const result = await topicFolderWithoutWorld.loadWorld();
+            const result = await topicFolderWithoutWorld.loadSetting();
             
             // Assert
             expect(result).to.be.instanceOf(Setting);
@@ -188,10 +188,10 @@ export const registerTopicFolderTests = () => {
             const topicFolderWithInvalidFolder = new TopicFolder(invalidDoc as any);
             
             try {
-              await topicFolderWithInvalidFolder.loadWorld();
+              await topicFolderWithInvalidFolder.loadSetting();
               expect.fail('Should have thrown an error');
             } catch (error) {
-              expect(error.message).to.equal('Invalid folder id in Topics.loadWorld()');
+              expect(error.message).to.equal('Invalid folder id in Topics.loadSetting()');
             }
           });
 
@@ -203,10 +203,10 @@ export const registerTopicFolderTests = () => {
             fromUuidStub.withArgs('setting-uuid').resolves(null);
             
             try {
-              await topicFolderWithoutWorld.loadWorld();
+              await topicFolderWithoutWorld.loadSetting();
               expect.fail('Should have thrown an error');
             } catch (error) {
-              expect(error.message).to.equal('Invalid folder id in Topics.loadWorld()');
+              expect(error.message).to.equal('Invalid folder id in Topics.loadSetting()');
             }
           });
         });

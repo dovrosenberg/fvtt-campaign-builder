@@ -66,7 +66,7 @@
   // data
   // these don't match the TabTypeIcons or TopicIcons because they need to be files, not icons
   const WINDOW_TYPE_IMAGES = {
-    [WindowTabType.World]: 'icons/svg/castle.svg',
+    [WindowTabType.Setting]: 'icons/svg/castle.svg',
     [WindowTabType.Campaign]: 'icons/svg/ruins.svg',
     [WindowTabType.Session]: 'icons/svg/combat.svg',
     [WindowTabType.PC]: 'icons/svg/mystery-man.svg',
@@ -90,8 +90,8 @@
       case WindowTabType.Entry:
         return TOPIC_IMAGES[props.topic];
 
-      case WindowTabType.World:
-        return WINDOW_TYPE_IMAGES[WindowTabType.World];
+      case WindowTabType.Setting:
+        return WINDOW_TYPE_IMAGES[WindowTabType.Setting];
 
       case WindowTabType.Campaign:
         return WINDOW_TYPE_IMAGES[WindowTabType.Campaign];

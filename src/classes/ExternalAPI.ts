@@ -107,7 +107,7 @@ export class ExternalAPI {
 
   // for now, no create session because it requires a campaign be specified
 
-  getWorld(): GetListReturnValue[] {
+  getSetting(): GetListReturnValue[] {
     const setting = useMainStore().currentSetting;
 
     return setting ? [{ uuid: setting.uuid, name: setting.name }] : [];

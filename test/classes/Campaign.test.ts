@@ -133,9 +133,9 @@ export const registerCampaignTests = () => {
           });
         });
 
-        describe('getWorld and loadWorld', () => {
+        describe('getSetting and loadSetting', () => {
           it('should return the existing setting if already set', async () => {
-            const result = await campaign.getWorld();
+            const result = await campaign.getSetting();
             expect(result).to.equal(mockWorld);
           });
 
@@ -151,7 +151,7 @@ export const registerCampaignTests = () => {
             // Stub Setting.fromUuid
             sinon.stub(Setting, 'fromUuid').resolves(mockWorld);
             
-            const result = await campaignWithoutWorld.getWorld();
+            const result = await campaignWithoutWorld.getSetting();
             expect(result).to.equal(mockWorld);
           });
 
@@ -161,10 +161,10 @@ export const registerCampaignTests = () => {
             const campaignWithInvalidFolder = new Campaign(invalidDoc as any);
             
             try {
-              await campaignWithInvalidFolder.loadWorld();
+              await campaignWithInvalidFolder.loadSetting();
               expect.fail('Should have thrown an error');
             } catch (error) {
-              expect(error.message).to.equal('Invalid folder id in Campaign.loadWorld()');
+              expect(error.message).to.equal('Invalid folder id in Campaign.loadSetting()');
             }
           });
         });

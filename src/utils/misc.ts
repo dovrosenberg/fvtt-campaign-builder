@@ -59,7 +59,7 @@ export function getTopicIcon(topic: string | number | Topics | null | undefined)
  */
 export function getTabTypeIcon(type: string | number | WindowTabType | null | undefined) {
   switch (toWindowTabType(type)) {
-    case WindowTabType.World: 
+    case WindowTabType.Setting: 
       return 'fa-globe';
     case WindowTabType.Campaign: 
       return 'fa-signs-post';

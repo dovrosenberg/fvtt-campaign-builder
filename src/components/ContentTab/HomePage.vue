@@ -175,7 +175,7 @@
           await navigationStore.openEntry(item.uuid, { newTab: false });
           break;
 
-        case getTabTypeIcon(WindowTabType.World):
+        case getTabTypeIcon(WindowTabType.Setting):
           await navigationStore.openSetting(item.uuid, { newTab: false });
           break;
 

@@ -67,14 +67,14 @@ export class Session {
    * 
    * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
    */
-  public async getWorld(): Promise<Setting> {
+  public async getSetting(): Promise<Setting> {
     if (!this.campaign)
       this.campaign = await this.loadCampaign();
 
     if (!this.campaign)
-      throw new Error('Invalid campaign in Session.getWorld()');
+      throw new Error('Invalid campaign in Session.getSetting()');
     
-    return this.campaign.getWorld();
+    return this.campaign.getSetting();
   }
   
 
@@ -90,7 +90,7 @@ export class Session {
     if (!nameToUse)
       return null;
 
-    const setting = await campaign.getWorld();
+    const setting = await campaign.getSetting();
 
     let sessionDoc: SessionDoc[] = [];
     await setting.executeUnlocked(async () => {
@@ -663,7 +663,7 @@ export class Session {
    * @returns {Promise<Session | null>} The updated session, or null if the update failed.
    */
   public async save(): Promise<Session | null> {
-    const setting = await this.getWorld();
+    const setting = await this.getSetting();
 
     const updateData = this._cumulativeUpdate;
 
@@ -712,7 +712,7 @@ export class Session {
       return;
 
     const id = this._sessionDoc.uuid;
-    const setting = await this.getWorld() as Setting;
+    const setting = await this.getSetting() as Setting;
 
     await setting.executeUnlocked(async () => {
       await this._sessionDoc.delete();

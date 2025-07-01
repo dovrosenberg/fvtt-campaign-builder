@@ -39,7 +39,7 @@ export async function scrollToActiveEntry(): Promise<void> {
     case WindowTabType.PC:
       // don't have tree entries
       break;
-    case WindowTabType.World:
+    case WindowTabType.Setting:
       await scrollToWorld(contentId);
       break;
     default:

@@ -110,7 +110,7 @@ export const useMainStore = defineStore('main', () => {
           _currentEntry.value.topicFolder = currentSetting.value.topicFolders[_currentEntry.value.topic];
         }
         break;
-      case WindowTabType.World:
+      case WindowTabType.Setting:
         // we can only set tabs within a setting, so we don't actually need to do anything here
         // if (tab.header.uuid) {
         //   _currentEntry.value = null;
@@ -215,7 +215,7 @@ export const useMainStore = defineStore('main', () => {
       case WindowTabType.PC:
         await refreshPC();
         break;
-      case WindowTabType.World:
+      case WindowTabType.Setting:
         await refreshSetting();
         break;
       default:

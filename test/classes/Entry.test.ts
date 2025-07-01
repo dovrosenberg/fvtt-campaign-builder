@@ -74,7 +74,7 @@ export const registerEntryTests = () => {
           mockTopicFolder = {
             topic: Topics.Character,
             raw: { id: 'folder-id' },
-            getWorld: sinon.stub().resolves({
+            getSetting: sinon.stub().resolves({
               uuid: 'setting-uuid',
               unlock: sinon.stub().resolves(undefined),
               lock: sinon.stub().resolves(undefined),
@@ -133,7 +133,7 @@ export const registerEntryTests = () => {
         describe('create', () => {
           it('should create a new entry with the provided data', async () => {
             // Setup mock setting
-            const mockWorld = await mockTopicFolder.getWorld();
+            const mockWorld = await mockTopicFolder.getSetting();
             
             // Call create
             const result = await Entry.create(mockTopicFolder, {
@@ -262,8 +262,8 @@ export const registerEntryTests = () => {
             const result = await entry.save();
 
             // Verify setting was unlocked and locked
-            expect(mockTopicFolder.getWorld.called).to.equal(true);
-            const setting = await mockTopicFolder.getWorld();
+            expect(mockTopicFolder.getSetting.called).to.equal(true);
+            const setting = await mockTopicFolder.getSetting();
             expect(setting.unlock.called).to.equal(true);
             expect(setting.lock.called).to.equal(true);
 
@@ -303,7 +303,7 @@ export const registerEntryTests = () => {
             // Setup fromUuid to return a topic folder
             fromUuidStub.withArgs('parent-uuid').resolves({
               uuid: 'parent-uuid',
-              getWorld: sinon.stub().resolves({
+              getSetting: sinon.stub().resolves({
                 unlock: sinon.stub().resolves(undefined),
                 lock: sinon.stub().resolves(undefined)
               })
@@ -326,8 +326,8 @@ export const registerEntryTests = () => {
             await entry.delete();
 
             // Verify setting was unlocked and locked
-            expect(mockTopicFolder.getWorld.called).to.equal(true);
-            const setting = await mockTopicFolder.getWorld();
+            expect(mockTopicFolder.getSetting.called).to.equal(true);
+            const setting = await mockTopicFolder.getSetting();
             expect(setting.unlock.called).to.equal(true);
             expect(setting.lock.called).to.equal(true);
 
