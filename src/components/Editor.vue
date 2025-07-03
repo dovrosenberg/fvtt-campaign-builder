@@ -170,8 +170,8 @@
 
   const safeEnrichedContent = computed((): string => (sanitizeHTML(enrichedInitialContent.value)));
 
-  const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight + 'px'}` : ''));
-  const innerStyle = computed((): string => (props.height ? `height: ${props.height + 'px'}` : ''));
+  const wrapperStyle = computed((): string => (props.fixedHeight ? `height: ${props.fixedHeight}; margin-bottom: 6px` : ''));
+  const innerStyle = computed((): string => (props.height ? `height: ${props.height}` : ''));
 
   ////////////////////////////////
   // methods

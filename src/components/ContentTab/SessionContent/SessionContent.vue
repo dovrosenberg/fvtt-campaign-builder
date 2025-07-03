@@ -75,23 +75,25 @@
                   help-text="labels.session.strongStartHelpText"
                   @click="onStartHelpClick"
                 />
-                <Textarea
-                  v-model="strongStart"
-                  :auto-resize="true"
-                  rows="3"
-                  @update:model-value="onStartEditorSaved"
+              </div>
+              <div class="flexrow form-group">
+                <Editor 
+                  :initial-content="strongStartContent"
+                  fixed-height="180px"
+                  @editor-saved="onStartEditorSaved"
                 />
               </div>
-              <div class="flexrow form-group description">
-                <div class="flexcol" style="height: 100%">
-                  <div class="fcb-strong-start-header">
-                    {{ localize('labels.tabs.session.notes') }}
-                  </div>
-                  <Editor 
-                    :initial-content="sessionNotesContent"
-                    @editor-saved="onNotesEditorSaved"
-                  />
-                </div>
+              <div class="flexrow form-group">
+                <LabelWithHelp
+                  label-text="labels.tabs.session.notes"
+                />
+              </div>
+              <div class="flexrow form-group">
+                <Editor 
+                  :initial-content="sessionNotesContent"
+                  fixed-height="400px"
+                  @editor-saved="onNotesEditorSaved"
+                />
               </div>
             </DescriptionTab>
             <div class="tab flexcol" data-group="primary" data-tab="pcs">
@@ -194,7 +196,7 @@
   const sessionNumber = ref<string>('');
   const sessionDate = ref<Date | undefined>(undefined);
   const sessionNotesContent = ref<string>('');
-  const strongStart = ref<string>('');
+  const strongStartContent = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);
 
@@ -209,7 +211,6 @@
   // debounce changes to name/number/strong start
   let nameDebounceTimer: NodeJS.Timeout | undefined = undefined;
   let numberDebounceTimer: NodeJS.Timeout | undefined = undefined;
-  let strongStartDebounceTimer: NodeJS.Timeout | undefined = undefined;
 
   const onNameUpdate = (newName: string | undefined) => {
     const debounceTime = 500;
@@ -263,23 +264,20 @@
 
     mainStore.refreshSession();
 
+    // trigger reactivity on the session notes window if needed
     if (currentPlayedSession.value?.uuid===currentSession.value.uuid) {
-      // trigger reactivity on the session notes window
       currentPlayedSession.value.notes = newContent;
     }
   };
 
-  const onStartEditorSaved = () => {
-    const debounceTime = 500;
+  const onStartEditorSaved = async (newContent: string) => {
+    if (!currentSession.value)
+      return;
 
-    clearTimeout(strongStartDebounceTimer);
-    
-    strongStartDebounceTimer = setTimeout(async () => {
-      if (currentSession.value) {
-        currentSession.value.strongStart = strongStart.value;
-        await currentSession.value.save();
-      }
-    }, debounceTime);
+    currentSession.value.strongStart = newContent;
+    await currentSession.value.save();
+
+    mainStore.refreshSession();
   };
 
   const onImageChange = async (imageUrl: string) => {
@@ -334,13 +332,14 @@
       sessionNumber.value = newSession.number?.toString() || '';
       sessionDate.value = newSession.date || undefined;
       sessionNotesContent.value = newSession.notes || '';
-      strongStart.value = newSession.strongStart || '';
+      strongStartContent.value = newSession.strongStart || '';
     }
   });
   
-  // Watch for changes to the played session (which might include a refresh that changes the notes)
+  // Watch for changes to the played session (which might include a refresh  
+  // so we need to update the standalone notes window)
   watch(() => currentPlayedSession.value, async () => {
-    if (currentPlayedSession.value?.uuid === currentSession.value?.uuid)
+    if (currentPlayedSession.value?.uuid === currentSession.value?.uuid) 
       sessionNotesContent.value = currentPlayedSession.value?.notes || '';
   }, { immediate: true });
 
@@ -351,7 +350,6 @@
   onBeforeUnmount(() => {
     clearTimeout(nameDebounceTimer);
     clearTimeout(numberDebounceTimer);
-    clearTimeout(strongStartDebounceTimer);
     clearTimeout(dateDebounceTimer);
   });
 

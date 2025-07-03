@@ -65,7 +65,7 @@
                     <div class="flexrow form-group">
                       <Editor 
                         :initial-content="currentPC?.background || ''"
-                        :style="{ 'height': '240px', 'margin-bottom': '6px'}"
+                        fixed-height="240px"
                         @editor-saved="onBackgroundSaved"
                       />
                     </div>
@@ -77,7 +77,7 @@
                     <div class="flexrow form-group">
                       <Editor 
                         :initial-content="currentPC?.plotPoints || ''"
-                        :style="{ 'height': '240px', 'margin-bottom': '6px'}"
+                        fixed-height="240px"
                         @editor-saved="onPlotPointsSaved"
                       />
                     </div>
@@ -89,7 +89,7 @@
                     <div class="flexrow form-group">
                       <Editor 
                         :initial-content="currentPC?.magicItems || ''"
-                        :style="{ 'height': '240px', 'margin-bottom': '6px'}"
+                        fixed-height="240px"
                         @editor-saved="onMagicItemsSaved"
                       />
                     </div>

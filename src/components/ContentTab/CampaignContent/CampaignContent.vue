@@ -42,7 +42,7 @@
               <div class="flexrow form-group">
                 <Editor 
                   :initial-content="currentCampaign?.description || ''"
-                  :style="{ 'height': '240px', 'margin-bottom': '6px'}"
+                  fixed-height="240px"
                   @editor-saved="onDescriptionEditorSaved"
                 />
               </div>
@@ -55,7 +55,7 @@
               <div class="flexrow form-group">
                 <Editor 
                   :initial-content="currentCampaign?.houseRules || ''"
-                  :style="{ 'height': '240px', 'margin-bottom': '6px'}"
+                  fixed-height="240px"
                   @editor-saved="onHouseRulesEditorSaved"
                 />
               </div>
