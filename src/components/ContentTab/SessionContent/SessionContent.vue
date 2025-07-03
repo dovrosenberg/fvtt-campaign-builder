@@ -69,6 +69,8 @@
                   :show-button-bar="true"
                 />   
               </div>
+              <!-- spacer -->
+              <div style="height: 1rem"></div>
               <div class="flexrow form-group">
                 <LabelWithHelp
                   label-text="labels.session.strongStart"
@@ -154,8 +156,7 @@
   // library components
   import InputText from 'primevue/inputtext';
   import DatePicker from 'primevue/datepicker';
-  import Textarea from 'primevue/textarea';
-	
+  
   // local components
   import CampaignPCsTab from '@/components/ContentTab/CampaignContent/CampaignPCsTab.vue';
   import Editor from '@/components/Editor.vue';

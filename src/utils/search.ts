@@ -453,17 +453,23 @@ class SearchService {
       this._searchIndex.discard(uuid);
   }
 
-  /**
-   * Retrieves all entities from the search index, filtering out duplicates by name.
-   * When multiple entities have the same name, entries are preferred over sessions.
+/**
+   * Retrieves all entities from the search index, filtering out duplicates by name if unique is true.
+   * 
    * Used for entity linking and autocomplete functionality.
    * 
+   * @param unique - If true, only "unique" entities are returned. That is names that are unique across all 
+   * entries, pcs, sessions.  Why is it like this?  This is intended to be used for automatically 
+   * linking entities in editors. If we can't distinguish which one it is, we don't want to assume - instead the 
+   * user should insert the link manually.
    * @returns Array of unique entities with their basic information
    */
-  public getAllEntities(): {name: string, uuid: string, resultType: 'entry' | 'session' | 'pc'}[] {
+  public getAllEntities(unique = false): {name: string, uuid: string, resultType: 'entry' | 'session' | 'pc'}[] {
     if (!this._initialized || !this._searchIndex) {
       return [];
     }
+
+    const retval: {name: string, uuid: string, resultType: 'entry' | 'session' | 'pc'}[] = [];
 
     // Get all documents from the search index using MiniSearch wildcard
     const MiniSearch = this._searchIndex.constructor as any;
@@ -473,7 +479,6 @@ class SearchService {
 
     // Track names to detect duplicates
     const nameCount = new Map<string, number>();
-    const entityMap = new Map<string, {name: string, uuid: string, resultType: 'entry' | 'session' | 'pc'}>();
     
     // First pass: count occurrences of each name
     for (const doc of allDocuments) {
@@ -481,27 +486,22 @@ class SearchService {
       nameCount.set(doc.name, count + 1);
     }
     
-    // Second pass: only include entities with unique names
+    // Second pass: only include entities with unique names if unique is true
     for (const doc of allDocuments) {
       // Skip if there are multiple entities with the same name
-      if (nameCount.get(doc.name)! > 1) {
+      if (unique && nameCount.get(doc.name)! > 1) {
         continue;
       }
       
-      const existing = entityMap.get(doc.name);
-      
-      // Add if not exists, or replace if current is an entry and existing is not
-      if (!existing || (doc.resultType === 'entry' && existing.resultType !== 'entry')) {
-        entityMap.set(doc.name, {
-          uuid: doc.id,
-          name: doc.name,
-          resultType: doc.resultType,
-        });
-      }
+      // Otherwise, add it
+      retval.push({
+        uuid: doc.id,
+        name: doc.name,
+        resultType: doc.resultType,
+      });
     }
 
-    // Convert Map values to array
-    return Array.from(entityMap.values());
+    return retval;
   }
 }
 

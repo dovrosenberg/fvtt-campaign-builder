@@ -24,7 +24,7 @@ export async function replaceEntityReferences(
   const { currentEntityUuid } = options;
 
   // Get all entities from the search index
-  const allEntities = searchService.getAllEntities();
+  const allEntities = searchService.getAllEntities(true);
   
   if (allEntities.length === 0) {
     return content;
