@@ -41,6 +41,7 @@ You cannot currently delete Types.
 ## Tabs
 There are several tabs on the Entry details screen:
   - [Description tab](./description) - overview information about the Entry
+  - [Journals tab](./journals) - a place to track Foundry journal entries that relate to the Entry.  Good for tracking extra images or any other content that you want to keep track of and/or share with the player(s)
   - [Relationship tabs](./relationships) - show the connections between this entry and others
   - Foundry document tabs: After the Entry relationship tabs, you'll find an [Actors tab](/reference/world-building/content/character/#actors) when looking at a Character and a [Scenes tab](/reference/world-building/content/location/#scenes) when looking at a Location.  
   - [Sessions tab](./sessions) - a quick way to find game session notes that mention this entry

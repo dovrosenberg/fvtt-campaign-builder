@@ -14,7 +14,8 @@ The notes tab has four main components:
 1. Image
 2. Session number
 3. Session date
-4. Session notes area
+4. Strong start
+5. Session notes area
 
 ## Image
 See [Image] documentation.
@@ -30,12 +31,12 @@ The session date is the date of the session.  It is only used for your reference
 ## Strong start { #start }
 This is where you enter your "Strong Start", fleshing out how you intend to begin the session.  This text is only used for your reference.
 
+See [Editors] for more info on capabilities of Editor boxes.
+
 ## Session notes area
-This is where you enter the Session notes. Click the orange pencil to start editing, and the save button (or Control-S) to save.
+This is where you enter the Session notes. 
 
-You can drag any Entry from the [Setting Directory] into the notes editor and it will insert a UUID indicator that when you save will be displayed as a clickable link that will open that Entry (hold 'Control' while clicking to open it in a new tab).
-
-It is highly suggested that you check out the [Autocomplete Mentions](/reference/navigation/main-display#autocomplete-mentions) module, which allows you to rapidly reference Foundry documents and Campaign Builder Entries/Sessions/etc. while typing in the editor.  
+See [Editors] for more info on capabilities of Editor boxes.
 
 When you save the notes while in [^Play Mode], it will check to see if you've added any references to Entries.  If you have, those Entries will automatically be added to the [To-do list](/reference/campaign-mgt/content/campaign/todos) for the Campaign.  
 

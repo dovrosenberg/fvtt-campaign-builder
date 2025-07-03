@@ -1,29 +1,28 @@
 ---
 title: PC Details
 prev: 
-  text: 'Session Details'
-  link: '/reference/campaign-mgt/content/session'
+  text: 
+  link: 
 next: 
-  text: 'Advanced Features & Backend'
-  link: '/reference/backend'
+  text: 'PC Description Tab'
+  link: '/reference/campaign-mgt/content/pc/description'
 ---
-# PC Details
+# PC Details 
 
 ![PC content](/assets/images/pc-content.webp)
 
 The PC window lets you manage a player character.
 
-## PC Actors
+## PC Actor
 
 To be useful, a PC needs to be associated with an actor.  You do this by dragging a Foundry actor (ex. from the sidebar) and dropping it on the image area.
 
 You can change the actor by dragging a new one onto the image area.
 
-The name and image of the PC are determined from the actor and updates to those should show on the PC.
+> [!Note]
+> The name and image of the PC are determined from the actor and updates to those should show on the PC.  You cannot independently change the name/image of the PC.
 
-## Description
-The description section has the following fields:
-* Name
-* Background Points - good for keeping track of key background on the character you want to review before each session (as opposed to more detailed bios that may exist on the character sheet)
-* Other Plot Points - this is where you can track background items that will make for good plot hooks (ex. an enemy)
-* Desired Magic Items - keep a list of ideas for future magic items you might want to give the character
+## Tabs
+PCs have the following tabs where you can manage their details:
+* [Description](./description) - the key info about the PC
+* [Journals](/journals) - a place to track Foundry journal entries that relate to the PC.  Good for tracking extra images or any other content that you want to keep track of and/or share with the player(s)

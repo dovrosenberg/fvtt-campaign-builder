@@ -133,7 +133,7 @@
   const name = ref<string>('');
 
   const contentRef = ref<HTMLElement | null>(null);
-  const icon =  getTabTypeIcon(WindowTabType.Campaign);
+  const icon =  getTabTypeIcon(WindowTabType.Setting);
   const showConfigureNamesDialog = ref<boolean>(false);
 
   ////////////////////////////////

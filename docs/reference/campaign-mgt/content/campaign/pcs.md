@@ -1,8 +1,8 @@
 ---
 title: Campaign PC Tab
 prev: 
-  text: 'Campaign Description Tab'
-  link: '/reference/campaign-mgt/content/campaign/description'
+  text: 'Campaign Journals Tab'
+  link: '/reference/campaign-mgt/content/campaign/journals'
 next: 
   text: 'Campaign Lore Tab'
   link: '/reference/campaign-mgt/content/campaign/lore'
@@ -28,7 +28,7 @@ Each PC entry displays:
 - **Character Sheet** - A link to open the character sheet
 
 ## PC Management
-Click on the PC/player name to open the [PC information window](/reference/campaign-mgt/content/pc/) with plot hooks, etc.
+Click on the PC/player name to open the [PC details window](/reference/campaign-mgt/content/pc/) with plot hooks, etc.
 
 Delete PCs using the action buttons when they're no longer part of the campaign 
 

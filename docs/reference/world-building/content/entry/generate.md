@@ -4,8 +4,8 @@ prev:
   text: 'Entry description tab'
   link: './description'
 next: 
-  text: 'Entry relationship tabs'
-  link: './relationships'
+  text: 'Entry journals tab'
+  link: './journals'
 ---
 # Generate Button [[Advanced Feature]]
 

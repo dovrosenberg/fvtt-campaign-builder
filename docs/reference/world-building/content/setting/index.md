@@ -17,29 +17,7 @@ The Setting header has just two parts:
   1. Name - This is where you edit the Setting's name.
   2. Generate Button - This gives access to Setting-specific configuration, specifically [Name Styles](./namestyles).
 
-## Setting description tab
-The description tab has four components:
-1. Image
-2. Genre
-3. Setting Feeling
-4. Description text area
-
-### Image
-See [Image] documentation.
-
-### Genre
-The Genre is where you capture the high-level type of your Setting.  Typical examples would be "Fantasy" or "Sci-Fi".  These are used for [Advanced Features] to ensure generated content fits your theme.
-
-### Setting Feeling
-Similar to Genre, this field allows you to give a more detailed description.  For example, "A dark and rugged world where only the strong survive" or "A light, playful world with humor around every corner". This description is used for [Advanced Features] to further refine generated content.
-
-### Description text area
-This is where you can provide a detailed description of the Setting and high-level lore.  What's the history? What does the pantheon look like? How many explored planetary systems are there? 
-
-Click the orange pencil to start editing, and the save button (or Control-S) to save.
-
-You can drag any Entry from the [Setting Directory] into the description editor, and it will insert a UUID indicator that when you save will be displayed as a clickable link that will open that Entry (hold 'Control' while clicking to open it in a new tab).
-
-It is highly suggested that you check out the [Autocomplete Mentions](/reference/navigation/main-display#autocomplete-mentions) module, which allows you to rapidly reference Foundry documents and Campaign Builder Entries/Sessions/etc. while typing in the editor.  
-
-In the future, this description may be made available to players as starting background, but for now it's just for GM use (along with everything else in the module, just to be clear).
+## Tabs
+There are two tabs on the Setting details screen:
+  1. [Description tab](./description) - overview information about the Setting
+  2. [Journals tab](./journals) - a place to track Foundry journal entries that relate to the Setting.  Good for tracking extra images or any other content that you want to keep track of and/or share with the player(s)

@@ -4,8 +4,8 @@ prev:
   text: 'Reference Overview'
   link: './reference'
 next: 
-  text: 'Main Content Display'
-  link: './main-display'
+  text: 'Editors'
+  link: './editors'
 ---
 # The Directory Sidebar
 

@@ -17,3 +17,4 @@
 [Search]: /reference/navigation/search
 [Lazy DM]: https://slyflourish.com/eight_steps_2023.html
 [To-Do List]: /reference/campaign-mgt/content/campaign/todos
+[Editors]: /reference/navigation/editors

@@ -1,8 +1,8 @@
 ---
 title: Session Details
 prev: 
-  text: 'Campaign To-Do Tab'
-  link: '/reference/campaign-mgt/content/campaign/todos'
+  text: 'PC journals tab'
+  link: '/reference/campaign-mgt/content/pc/journals'
 next: 
   text: 'Session Notes Tab'
   link: '/reference/campaign-mgt/content/session/notes'

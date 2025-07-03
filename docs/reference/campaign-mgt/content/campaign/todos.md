@@ -4,8 +4,8 @@ prev:
   text: 'Campaign Ideas Tab'
   link: '/reference/campaign-mgt/content/campaign/ideas'
 next: 
-  text: 'Session Details'
-  link: '/reference/campaign-mgt/content/session'
+  text: 'PCs'
+  link: '/reference/campaign-mgt/content/pc'
 ---
 # Campaign To-Do Tab
 

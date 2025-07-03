@@ -19,6 +19,7 @@ You can click the campaign's name to edit it.
 ## Tabs
 Campaigns have the following tabs where you can manage their details:
 * [Description](./description) - overview information about the Campaign
+* [Journals](./journals) - a place to track Foundry journal entries that relate to the Campaign.  Good for tracking extra images or any other content that you want to keep track of and/or share with the player(s)
 * [PCs](./pcs) - manage the player characters in the campaign
 * [Lore](./lore) - campaign-wide lore
 * [Ideas](./ideas) - list of ideas you may want to use in the future
