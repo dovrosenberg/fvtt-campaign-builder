@@ -16,7 +16,7 @@
       </header>
 
       <!-- Note that we have to use value despite being in a template because it's reactive not ref -->
-      <ol v-if="currentCampaignTree.value.length > 0">
+      <ol v-if="currentCampaignTree.value.length > 0" class="fcb-campaign-contents">
         <DirectoryCampaignNodeComponent 
           v-for="campaign in currentCampaignTree.value"
           :key="campaign.id"
@@ -114,8 +114,18 @@
       .fcb-campaign-list {
         padding: 0;
         flex-grow: 1;
-        overflow: hidden;
+        /* overflow: hidden; */
         margin-top: 3px;
+      }
+
+      .fcb-setting-folder {
+        min-width: 100%;
+        width: max-content;
+      }
+
+      .fcb-campaign-contents {
+        // make sure it goes behind the header
+        z-index: 1;
       }
   }
 
