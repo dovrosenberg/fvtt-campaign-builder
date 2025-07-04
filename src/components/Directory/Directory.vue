@@ -175,17 +175,17 @@
       background: rgba(255, 255, 255, 0.5);
 
       .fcb-directory-panel-wrapper {
-        flex: 1;
+        /* This inner container handles vertical scrolling, which allows position:sticky to work correctly. */
         overflow-y: auto;
         height: 100%;
-      } 
+      }
 
       .fcb-directory-panel {
+        /* This outer container (the SplitterPanel) handles horizontal scrolling. */
+        overflow-x: auto;
+        height: 100%;
         display: flex;
         flex-direction: column;
-        overflow: hidden; 
-        height: 100%; 
-        padding-bottom: 10px;
       }
     }
 

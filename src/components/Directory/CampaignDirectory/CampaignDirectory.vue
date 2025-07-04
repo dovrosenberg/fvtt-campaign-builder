@@ -114,7 +114,7 @@
       .fcb-campaign-list {
         padding: 0;
         flex-grow: 1;
-        overflow: auto;
+        overflow: hidden;
         margin-top: 3px;
       }
   }

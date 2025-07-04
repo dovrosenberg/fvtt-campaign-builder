@@ -243,12 +243,13 @@
     .fcb-setting-list {
       padding: 0;
       flex-grow: 1;
-      overflow: auto;
       margin-top: 3px;
 
       .fcb-setting-folder {
         align-items: flex-start;
         justify-content: flex-start;
+        min-width: 100%;
+        width: max-content;
 
         &.active {
           background: #cfcdc2;
@@ -269,6 +270,9 @@
       background: var(--fcb-sidebar-setting-background);
       color: var(--fcb-sidebar-setting-color);
       text-shadow: none;
+      position: sticky;
+      top: 0;
+      z-index: 2;
     }
 
     .fcb-setting-folder.collapsed > .folder-header {
@@ -304,8 +308,9 @@
 
     .fcb-setting-contents {
       margin: 0px;
-      width: 100%;
+      /* width: 100%; */
       padding-left: 10px;
+      z-index: 1;  // make sure it stays behind the setting header
     }    
   }
 
