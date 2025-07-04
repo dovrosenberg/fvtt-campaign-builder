@@ -339,7 +339,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     const setting = await Setting.fromUuid(settingId);
 
     if (!setting)
-      return;
+    return;
 
     // confirm
     if (!(await FCBDialog.confirmDialog('Delete setting?', 'Are you sure you want to delete this setting?')))

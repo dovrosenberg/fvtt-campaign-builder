@@ -1,4 +1,4 @@
-import { moduleId, ModuleSettings, SettingKey } from '@/settings';
+import { moduleId } from '@/settings';
 import { localize } from '@/utils/game';
 import { Backend } from '@/classes';
 import { nameStyles } from '@/utils/nameStyles';

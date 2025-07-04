@@ -699,7 +699,35 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     }
     // delete the setting folder
     await this._doc.delete();
+
+    // Delete all associated roll tables.
+    await this.deleteRollTables();
   }
+
+/**
+ * Deletes all roll tables and the containing folder for the setting
+ */
+private async deleteRollTables() : Promise<void> {
+  const config = this.rollTableConfig;
+
+  if (!config) {
+    return; // No roll tables configured for this setting
+  }
+
+  // first delete all the rollTables
+  for (const tableUuid of Object.values(config.rollTables)) {
+    const table = await fromUuid<RollTable>(tableUuid);
+    if (table) {
+      await table.delete();
+    }
+  }
+
+  // now remove the folder
+  const folder = game.folders?.get(config.folderId);   
+  if (folder) {
+    await folder.delete();
+  }
+}
 
   public async deleteActorFromSetting(actorId: string) {
     // remove from any PCs that are linked to it
