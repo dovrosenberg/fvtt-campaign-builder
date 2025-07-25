@@ -239,7 +239,7 @@
     numberDebounceTimer = setTimeout(async () => {
       const newValue = isNaN(parseInt(newNumber || '')) ? null : parseInt(newNumber as string);
 
-      if (newValue && currentSession.value && currentSession.value.number!==newValue) {
+      if (newValue != null && currentSession.value && currentSession.value.number!==newValue) {
         currentSession.value.number = newValue;
         await currentSession.value.save();
 
