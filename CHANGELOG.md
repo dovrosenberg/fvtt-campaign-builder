@@ -15,6 +15,7 @@
 - Fixed bug where campaigns created by right-clicking in the Setting directory didn't immediately show up in the Campaign directory
 - Fixed bug where search index wasn't being populated if you closed and reopened the main window
 - Eliminated inaccurate notifications about rolltables being repopulated
+- Allowed for numbering a session 0
 
 ## v1.0.0 - Coming out of beta!
 
