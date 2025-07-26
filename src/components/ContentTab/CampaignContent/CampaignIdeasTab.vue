@@ -114,11 +114,11 @@
   };
 
   const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
-    // we need to use the sortOrder and uuid to reorder the idea items (because the grid rows are not idea items)
-    const reorderedIdeas = [] as Idea[];
-    for (const row of reorderedRows) {
-      reorderedIdeas.push(ideaRows.value.find(idea => idea.uuid === row.uuid) as Idea);
-    }
+    // Create properly ordered ideas with updated sortOrder values
+    const reorderedIdeas = reorderedRows.map((row, index) => {
+      const idea = ideaRows.value.find(idea => idea.uuid === row.uuid) as Idea;
+      return { ...idea, sortOrder: index };
+    });
     await campaignStore.reorderIdeas(reorderedIdeas);
   };
 
