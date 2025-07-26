@@ -27,6 +27,51 @@
         </p>
       </div>
 
+
+      <div class="form-group">
+        <label>{{ localize('applications.advancedSettings.labels.textModel') }}</label>
+        <div class="form-fields">
+          <Select
+            v-model="selectedTextModel"
+            :options="textModelOptions"
+            optionLabel="name"
+            optionValue="id"
+          >
+            <template #option="slotProps">
+              <div style="max-width: 300px">
+                <div>{{ slotProps.option.name }}</div>
+                <div style="font-size: 0.8rem; text-wrap: auto;" class="text-gray-600">{{ slotProps.option.description }}</div>
+              </div>
+            </template>
+          </Select>
+        </div>
+        <p class="hint">
+          {{ localize('applications.advancedSettings.labels.textModelHint') }}
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label>{{ localize('applications.advancedSettings.labels.imageModel') }}</label>
+        <div class="form-fields">
+          <Select
+            v-model="selectedImageModel"
+            :options="imageModelOptions"
+            optionLabel="name"
+            optionValue="id"
+          >
+            <template #option="slotProps">
+              <div style="max-width: 300px">
+                <div>{{ slotProps.option.name }}</div>
+                <div style="font-size: 0.8rem; text-wrap: auto;" class="text-gray-600">{{ slotProps.option.description }}</div>
+              </div>
+            </template>
+          </Select>
+        </div>
+        <p class="hint">
+          {{ localize('applications.advancedSettings.labels.imageModelHint') }}
+        </p>
+      </div>
+
       <div class="form-group">
         <label>{{ localize('applications.advancedSettings.labels.defaultToLong') }}</label>
         <div class="form-fields">
@@ -164,6 +209,10 @@
   const emailDefaultCampaign = ref<string>('');
   const settingOptions = ref<{uuid: string, name: string}[]>([]);
   const campaignOptions = ref<{uuid: string, name: string}[]>([]);
+  const selectedTextModel = ref<string>('');
+  const selectedImageModel = ref<string>('');
+  const textModelOptions = ref<{id: string, name: string, description: string}[]>([]);
+  const imageModelOptions = ref<{id: string, name: string, description: string}[]>([]);
 
   ////////////////////////////////
   // computed data
@@ -176,6 +225,26 @@
       settingOptions.value = [];
     else 
       settingOptions.value = (toRaw(defaultFolders.rootFolder) as Folder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name }));
+  };
+
+  const loadTextModels = async () => {
+    try {
+      const response = await Backend.api.apiModelsTextGet();
+      textModelOptions.value = response.data.models || [];
+    } catch (error) {
+      console.error('Failed to load text models:', error);
+      textModelOptions.value = [];
+    }
+  };
+
+  const loadImageModels = async () => {
+    try {
+      const response = await Backend.api.apiModelsImageGet();
+      imageModelOptions.value = response.data.models || [];
+    } catch (error) {
+      console.error('Failed to load image models:', error);
+      imageModelOptions.value = [];
+    }
   };
 
   const loadCampaigns = async (settingUuid: string) => {
@@ -209,6 +278,8 @@
     await ModuleSettings.set(SettingKey.useGmailToDos, useGmailToDos.value);
     await ModuleSettings.set(SettingKey.emailDefaultSetting, emailDefaultSetting.value);
     await ModuleSettings.set(SettingKey.emailDefaultCampaign, emailDefaultCampaign.value);
+    await ModuleSettings.set(SettingKey.selectedTextModel, selectedTextModel.value);
+    await ModuleSettings.set(SettingKey.selectedImageModel, selectedImageModel.value);
 
     // reset the backend
     await Backend.configure(true);
@@ -225,6 +296,8 @@
     useGmailToDos.value = ModuleSettings.get(SettingKey.useGmailToDos);
     emailDefaultSetting.value = ModuleSettings.get(SettingKey.emailDefaultSetting);
     emailDefaultCampaign.value = ModuleSettings.get(SettingKey.emailDefaultCampaign);
+    selectedTextModel.value = ModuleSettings.get(SettingKey.selectedTextModel);
+    selectedImageModel.value = ModuleSettings.get(SettingKey.selectedImageModel);
     await loadCampaigns(emailDefaultSetting.value);
   }
 
@@ -246,6 +319,8 @@
     // load the settings and campaigns
     await loadSettings();
     await loadCampaigns(emailDefaultSetting.value);
+    await loadTextModels();
+    await loadImageModels();
   })
   
 

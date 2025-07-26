@@ -435,6 +435,7 @@
           briefDescription: startingDescription.value,
           longDescriptionParagraphs: ModuleSettings.get(SettingKey.longDescriptionParagraphs),
           nameStyles: selectedNameStyles.value,
+          textModel: ModuleSettings.get(SettingKey.selectedTextModel),
         });
       } else if (props.topic === Topics.Location || props.topic === Topics.Organization) {
         let parent: Entry | null = null;
@@ -466,9 +467,14 @@
           briefDescription: startingDescription.value,
           longDescriptionParagraphs: ModuleSettings.get(SettingKey.longDescriptionParagraphs),
           nameStyles: selectedNameStyles.value,
+          textModel: ModuleSettings.get(SettingKey.selectedTextModel) as any,
         };
 
-        result = await Backend.api.apiLocationGeneratePost(options);
+        if (props.topic === Topics.Location) {
+          result = await Backend.api.apiLocationGeneratePost(options);
+        } else if (props.topic === Topics.Organization) {
+          result = await Backend.api.apiOrganizationGeneratePost(options);
+        } 
       } else {
         throw new Error('Invalid topic in createEntryDialog.onGenerateClick():' + props.topic);
       }
