@@ -127,12 +127,11 @@
   }
 
   const onReorder = (reorderedRows: BaseTableGridRow[]) => {
-    // we need to use the sortOrder and uuid to reorder the todo items (because the grid rows are not todo items)
-    const reorderedToDos = [] as ToDoItem[];
-    for (const row of reorderedRows) {
-      reorderedToDos.push(toDoRows.value.find(toDo => toDo.uuid === row.uuid) as ToDoItem);
-    }
-
+    // Create properly ordered todos with updated sortOrder values
+    const reorderedToDos = reorderedRows.map((row, index) => {
+      const toDo = toDoRows.value.find(toDo => toDo.uuid === row.uuid) as ToDoItem;
+      return { ...toDo, sortOrder: index };
+    });
     campaignStore.reorderToDos(reorderedToDos);
   };
 </script>
