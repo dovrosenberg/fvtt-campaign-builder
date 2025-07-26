@@ -129,6 +129,12 @@
           "textModelHint": "Select the AI model to use for text generation",
           "imageModel": "Image Generation Model",
           "imageModelHint": "Select the AI model to use for image generation"
+        },
+        "tabs":{
+          "backend": "Backend",
+          "models": "AI Models",
+          "content": "AI Content",
+          "email": "Email"
         }
       },
       "rollTableSettings": {
