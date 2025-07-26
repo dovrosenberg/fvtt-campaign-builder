@@ -112,6 +112,8 @@ export const generateImage = async (forSetting: Setting, entry: Entry): Promise<
           species: species?.name || '',
           speciesDescription: species?.description || '',
           briefDescription: entry.description,
+          textModel: ModuleSettings.get(SettingKey.selectedTextModel),
+          imageModel: ModuleSettings.get(SettingKey.selectedImageModel),
         });
         break;
       case Topics.Location:
@@ -145,6 +147,8 @@ export const generateImage = async (forSetting: Setting, entry: Entry): Promise<
           grandparentType: grandparent?.type,
           grandparentDescription: grandparent?.description,
           briefDescription: entry.description,
+          textModel: ModuleSettings.get(SettingKey.selectedTextModel),
+          imageModel: ModuleSettings.get(SettingKey.selectedImageModel),
         };
 
         if (entry.topic === Topics.Location)  {

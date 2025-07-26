@@ -4,6 +4,7 @@ import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSet
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { SessionDisplayMode, Species, TagList, GeneratorType } from '@/types';
+import type { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from 'src/apiClient';
 
 export enum SettingKey {
   // displayed in main settings window
@@ -28,6 +29,8 @@ export enum SettingKey {
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
   APIURL = 'APIURL',   // URL of backend
   APIToken = 'APIToken',
+  selectedTextModel = 'selectedTextModel', // selected text generation model
+  selectedImageModel = 'selectedImageModel', // selected image generation model
   defaultToLongDescriptions = 'defaultToLongDescriptions',
   longDescriptionParagraphs = 'longDescriptionParagraphs', // number of paragraphs for long descriptions (1-4)
   useGmailToDos = 'useGmailToDos', // whether to use Gmail for todos
@@ -55,6 +58,8 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.advancedSettingsMenu ? never :
     K extends SettingKey.APIURL ? string :
     K extends SettingKey.APIToken ? string :
+    K extends SettingKey.selectedTextModel ? ApiLocationGenerateImagePostRequestTextModelEnum :
+    K extends SettingKey.selectedImageModel ? ApiLocationGenerateImagePostRequestImageModelEnum :
     K extends SettingKey.defaultToLongDescriptions ? boolean :
     K extends SettingKey.longDescriptionParagraphs ? number :
     K extends SettingKey.defaultAddToSession ? boolean :
@@ -256,6 +261,16 @@ export class ModuleSettings {
       settingID: SettingKey.APIToken,
       default: '',
       requiresReload: true,
+      type: String,
+    },
+    {
+      settingID: SettingKey.selectedTextModel,
+      default: '',
+      type: String,
+    },
+    {
+      settingID: SettingKey.selectedImageModel,
+      default: '',
       type: String,
     },
     {

@@ -124,7 +124,11 @@
           "emailDefaultCampaign": "Default Campaign for email",
           "emailDefaultCampaignHint": "The campaign to use by default for email features (ex. emailing idea items)",
           "selectSetting": "Select a setting...",
-          "selectCampaign": "Select a campaign..."
+          "selectCampaign": "Select a campaign...",
+          "textModel": "Text Generation Model",
+          "textModelHint": "Select the AI model to use for text generation",
+          "imageModel": "Image Generation Model",
+          "imageModelHint": "Select the AI model to use for image generation"
         }
       },
       "rollTableSettings": {
