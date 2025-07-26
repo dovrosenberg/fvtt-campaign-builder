@@ -52,7 +52,9 @@
         "historyForwardHelp": "In der Historie des aktuellen Tabs \"vorwärts\" gehen"
       },
       "showTypesInTree": "Typen im Einstellungsbaum anzeigen",
-      "showTypesInTreeHelp": "Wenn wahr, zeigt es den Typ jedes Eintrags im Baum an, wenn das Einstellungsverzeichnis nicht nach Typ gruppiert ist."
+      "showTypesInTreeHelp": "Wenn wahr, zeigt es den Typ jedes Eintrags im Baum an, wenn das Einstellungsverzeichnis nicht nach Typ gruppiert ist.",
+      "showRolePlayingNotes": "Rollenspielnotizen bei Einträgen anzeigen",
+      "showRolePlayingNotesHelp": "Wenn wahr, wird ein separates Feld für Rollenspielnotizen getrennt von der Eintragsbeschreibung angezeigt."
     },
     "applications": {
       "sessionNotes": {
@@ -112,7 +114,7 @@
           "APIToken": "API-Token",
           "APITokenHint": "Ausgabe des Skripts zum Bereitstellen des Backends.",
           "defaultToLong": "Standardmäßig lange Beschreibungen verwenden",
-          "defaultToLongHint": "Steuert die Standardeinstellung für die Erstellung einer langen oder kurzen Beschreibung bei der KI-Generierung.",
+          "defaultToLongHint": "Steuert die Standardeinstellung für die Erstellung einer langen oder kurzen Beschreibung bei der KI-Generierung. Es gilt nicht bei der Verwendung von Rollenspielnotizen.",
           "emailDefaultSetting": "Standardeinstellung für E-Mail",
           "emailDefaultSettingHint": "Die Einstellung, die standardmäßig für E-Mail-Funktionen verwendet wird (z.B. E-Mail von Aufgaben)",
           "emailDefaultCampaign": "Standardkampagne für E-Mail",
@@ -122,7 +124,17 @@
           "longDescriptionParagraphs": "Lange Beschreibungsabsätze",
           "longDescriptionParagraphsHint": "Anzahl der Absätze, die für lange Beschreibungen generiert werden sollen (1-4).",
           "useGmailIdeas": "Gmail für Ideen verwenden",
-          "useGmailIdeasHint": "Wenn aktiviert, werden Ideenelemente aus dem Gmail-Posteingang erstellt"
+          "useGmailIdeasHint": "Wenn aktiviert, werden Ideenelemente aus dem Gmail-Posteingang erstellt",
+          "textModel": "Textgenerierungsmodell",
+          "textModelHint": "Wählen Sie das KI-Modell zur Textgenerierung aus",
+          "imageModel": "Bildgenerierungsmodell",
+          "imageModelHint": "Wählen Sie das KI-Modell zur Bildgenerierung aus"
+        },
+        "tabs": {
+          "backend": "Backend",
+          "models": "KI-Modelle",
+          "content": "KI-Inhalt",
+          "email": "E-Mail"
         }
       },
       "rollTableSettings": {
@@ -198,7 +210,16 @@
         "addToCurrentSession": "Zur aktuellen Sitzung hinzufügen",
         "topic": "Thema",
         "settingFeeling": "Einstellung Gefühl",
-        "startingDescription": "Anfangsbeschreibung"
+        "startingDescription": "Anfangsbeschreibung",
+        "entryDescription": "Beschreibung",
+        "entryRolePlayingNotes": "Rollenspielnotizen",
+        "settingDescription": "Einstellung Beschreibung",
+        "generateText": "Was generieren",
+        "generateChoice": {
+          "description": "Beschreibung",
+          "roleplay": "Rollenspielnotizen",
+          "both": "Beides"
+        }
       },
       "addTopic": {
         "character": "Charakter hinzufügen",
@@ -396,7 +417,8 @@
         "generatedName": "Generierter Name",
         "generatedDescription": "Generierte Beschreibung",
         "generatePrompt": "Drücken Sie auf generieren, um Ergebnisse zu erhalten",
-        "generatePrompt2": "Andernfalls wird \"Kurze Beschreibung\" als neue Eintragsbeschreibung verwendet."
+        "generatePrompt2": "Andernfalls wird \"Kurze Beschreibung\" als neue Eintragsbeschreibung verwendet.",
+        "generatedRoleplayNotes": "Generierte Rollenspielnotizen"
       },
       "addToDo": {
         "title": "Aufgabe hinzufügen",
