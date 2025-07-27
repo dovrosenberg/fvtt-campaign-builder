@@ -7,9 +7,9 @@
       paginator-position="bottom"
       paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
       current-page-report-template="{first} to {last} of {totalRecords}"
-      :editMode="props.columns.find(c=>c.editable) ? 'cell' : undefined"
-      :sort-field="props.canReorder ? 'sortOrder' : pagination.sortField"
-      :sort-order="props.canReorder ? 1 : pagination.sortOrder"
+      :editMode="undefined"
+      :sort-field="sortField"
+      :sort-order="sortOrder"
       :first="pagination.first"
       :default-sort-order="1"
       :total-records="rows.length"
@@ -32,8 +32,6 @@
       }"
 
       @row-contextmenu="emit('rowContextMenu', $event)"
-      @cell-edit-complete="onCellEditComplete"
-      @cell-edit-cancel="editingRow = null"
       @row-reorder="onRowReorder"
     >
       <template #header>
@@ -196,18 +194,30 @@
               <div 
                 v-if="editingRow === data.uuid" 
                 class="fcb-table-body-text"
-              >
-                <InputText 
-                  v-model="editingRowData[field]" 
+              >                
+                <Textarea 
+                  v-if="!col.smallEditBox"
+                  v-model="editingRowData[field]"
+                  style="width: 100%; font-size: inherit;"
+                  :id="`${data.uuid}-${field}`" 
+                  rows="2"
                   @keydown.enter="saveCurrentlyEditingRow" 
-                  @keydown.esc="cancelEdit"
+                  @keydown.esc.stop="cancelEdit"
+                />
+                <InputText 
+                  v-if="col.smallEditBox"
+                  v-model="editingRowData[field]"
+                  style="width: 100%; font-size: inherit;"
+                  :id="`${data.uuid}-${field}`" 
+                  @keydown.enter.stop="saveCurrentlyEditingRow" 
+                  @keydown.esc.stop="cancelEdit"
                 />
               </div>
-              <!-- not editing this row -->
+              <!-- not editing this row but need to put a click event on it -->
               <div 
                 v-else
                 class="fcb-table-body-text"
-                @click="setEditingRow(data)"
+                @click.stop="onClickEditableCell(data.uuid)"
               >
                 <!-- we're not editing this row, but need to put a click event on columns that are editable -->
                 {{ data[field] }} &nbsp;
@@ -242,7 +252,7 @@
             >
               <div
                 :class="['fcb-table-body-text', 'clickable']"
-                @click.stop="emit('cellClick', { data: data, field: field })"
+                @click.stop="emit('cellClick', data, field)"
               >
                 {{ data[field] }}
               </div>
@@ -287,11 +297,14 @@
   // library components
   import Button from 'primevue/button';
   import DataTable, {
+    DataTableRowContextMenuEvent,
+    DataTableRowSelectEvent,
     type DataTableCellEditCompleteEvent,
     type DataTableFilterMetaData,
   } from 'primevue/datatable';
   import Column from 'primevue/column';
   import InputText from 'primevue/inputtext';
+  import Textarea from 'primevue/textarea';
   import IconField from 'primevue/iconfield';
   import InputIcon from 'primevue/inputicon';
   import Checkbox from 'primevue/checkbox';
@@ -302,16 +315,16 @@
   ////////////////////////////////
   // props
   const props = defineProps({
-    showAddButton: {
-      type: Boolean,
+    showAddButton: { 
+      type: Boolean, 
       default: false,
     },
-    showFilter: {
-      type: Boolean,
+    showFilter: { 
+      type: Boolean, 
       default: true,
     },
-    addButtonLabel: {
-      type: String,
+    addButtonLabel: { 
+      type: String, 
       default: '',
     },
     /** used for campaign/session tracking */
@@ -320,12 +333,12 @@
       default: false,
     },
     /** displays as text next to the add button (even if no button) */
-    extraAddText: {
-      type: String,
+    extraAddText: {   
+      type: String, 
       default: '',
     },
     /** allow dropping on a row (i.e. as an edit action) */
-    allowDropRow: {
+    allowDropRow: {   
       type: Boolean,
       default: false,
     },
@@ -335,7 +348,7 @@
     },
     /** list of column names you can filter on */
     filterFields: {
-      type: Array as PropType<string[]>,
+      type: Array as PropType<string[]>,   
       default: [],
     },
     rows: {
@@ -372,13 +385,13 @@
       required: false,
       default: false,
     },
-    helpText: {
-      // displays an info icon with this tooltip
+    // displays an info icon with this tooltip
+    helpText: {   
       type: String,
       default: '',
     },
-    helpLink: {
-      // clicking the icon opens this link
+    // clicking the icon opens this link
+    helpLink: {   
       type: String,
       default: '',
     },
@@ -386,26 +399,26 @@
 
   ////////////////////////////////
   // emits
-  const emit = defineEmits([
-    'rowSelect',
-    'editItem',
-    'deleteItem',
-    'addItem',
-    'rowContextMenu',
-    'cellEditComplete',
-    'markItemDelivered',
-    'unmarkItemDelivered',
-    'moveToNextSession',
-    'moveToCampaign',
-    'dragstart',
-    'dragoverNew',
-    'dragoverRow',
-    'dropRow',
-    'dropNew',
-    'setEditingRow',
-    'reorder',
-    'cellClick',
-  ]);
+  const emit = defineEmits<{
+    (e: 'rowSelect', originalEvent: DataTableRowSelectEvent): void;
+    (e: 'editItem', data: BaseTableGridRow): void;
+    (e: 'deleteItem', uuid: string): void;
+    (e: 'addItem'): void;
+    (e: 'rowContextMenu', originalEvent: DataTableRowContextMenuEvent): void;
+    (e: 'cellEditComplete', originalEvent: DataTableCellEditCompleteEvent): void;
+    (e: 'markItemDelivered', uuid: string): void;
+    (e: 'unmarkItemDelivered', uuid: string): void;
+    (e: 'moveToNextSession', uuid: string): void;
+    (e: 'moveToCampaign', uuid: string): void;
+    (e: 'dragstart', event: DragEvent, uuid: string): void;
+    (e: 'dragoverNew', event: DragEvent): void;
+    (e: 'dragoverRow', event: DragEvent, uuid: string): void;
+    (e: 'dropRow', event: DragEvent, uuid: string): void;
+    (e: 'dropNew', event: DragEvent): void;
+    (e: 'setEditingRow', uuid: string): void;
+    (e: 'reorder', reorderedRows: BaseTableGridRow[]): void;
+    (e: 'cellClick', data: any, field: string): void;
+  }>();
 
   ////////////////////////////////
   // store
@@ -444,11 +457,14 @@
     return props.columns.some((col) => col.editable);
   });
 
+  const sortOrder = computed(() => props.canReorder ? 1 : pagination.sortOrder);
+  const sortField = computed(() => props.canReorder ? 'sortOrder' : pagination.sortField);
+
   ////////////////////////////////
   // methods
   /**
    * Sets a specific row to edit mode
-   * @param uuid The row uuid to edit
+   * @param uuid The UUID of the row to edit
    */
   const setEditingRow = (uuid: string) => {
     const data = props.rows.find((row) => row.uuid === uuid);
@@ -491,7 +507,7 @@
 
   /**
    * Saves the currently editing row by extracting values from input fields
-   * and emitting cellEditComplete events for each editable field
+   * and emitting cellEditComplete events for each changed field
    */
   const saveCurrentlyEditingRow = () => {
     // If we're not editing a row, do nothing
@@ -501,17 +517,24 @@
     const originalRowData = props.rows.find((row) => row.uuid === editingRow.value);
     if (originalRowData) {
       // Emit the cellEditComplete event for each changed field
-      for (const field in editingRowData.value) {
-        if (originalRowData[field] !== editingRowData.value[field]) {
-          onCellEditComplete({
-            data: editingRowData.value,
-            field: field,
-            newValue: editingRowData.value[field],
-            originalEvent: new Event('change'),
-            value: originalRowData[field],
-            index: props.rows.findIndex((r) => r.uuid === editingRow.value),
-            type: 'edit',
-          });
+      for (const col of props.columns) {
+        if (col.editable) {
+          const id = `${editingRow.value}-${col.field}`;
+          const input = document.getElementById(id) as HTMLInputElement;          
+          if (input && originalRowData[col.field] !== input.value) {
+            // pull the value from the input and fire an event to save it
+            emit('cellEditComplete', {
+              originalEvent: new Event('change'),
+              data: originalRowData,
+              newData: {...editingRowData.value, [col.field]: input.value},
+              value: originalRowData[col.field],
+              newValue: input.value,
+              // newValue: editingRowData.value[col.field],
+              field: col.field,
+              index: props.rows.findIndex((r) => r.uuid === editingRow.value),
+              type: 'enter',
+            });
+          }
         }
       }
     }
@@ -520,6 +543,13 @@
     cancelEdit();
   };
 
+  // Expose the setEditingRow method to parent components
+  defineExpose({
+    setEditingRow
+  });
+
+  ////////////////////////////////
+  // event handlers
   const onCheckboxChange = (rowData: any, field: string, newValue: boolean) => {
     const event = {
       data: rowData,
@@ -530,24 +560,23 @@
       index: props.rows.findIndex((r) => r.uuid === rowData.uuid),
       type: 'edit',
     };
-    onCellEditComplete(event as DataTableCellEditCompleteEvent);
+    emit('cellEditComplete', event);
   };
 
+  const onClickEditableCell = (uuid: string) => {
+    // if we were already editing a row, save it first
+    saveCurrentlyEditingRow();
+
+    // set the new row
+    setEditingRow(uuid);
+  };
+  
   const onDragstart = (event: DragEvent, uuid: string) => {
     if (!event.target || !uuid) return;
 
     // Emit the dragstart event with the uuid
     // This lets the parent component handle the drag data
     emit('dragstart', event, uuid);
-  };
-
-  const onCellEditComplete = (event: DataTableCellEditCompleteEvent) => {
-    const { data, field, newValue } = event;
-    // if the value hasn't changed, do nothing
-    if (data[field] === newValue) return;
-
-    emit('cellEditComplete', event);
-    editingRow.value = null;
   };
 
   const onDragoverNew = (event: DragEvent) => {
@@ -648,11 +677,6 @@
 
   ////////////////////////////////
   // lifecycle events
-
-  // Expose the setEditingRow method to parent components
-  defineExpose({
-    setEditingRow
-  });
 
 </script>
 

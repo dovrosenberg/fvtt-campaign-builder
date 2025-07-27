@@ -190,7 +190,7 @@
     });
   }
 
-  async function onCellClick({ data, field }: { data: any, field: string }) {
+  async function onCellClick(data: any, field: string) {
     if (field === 'journalName' && data.journalUuid) {
       const doc = await foundry.utils.fromUuid(data.journalUuid) as JournalEntry;
       doc?.sheet?.render(true);
