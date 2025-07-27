@@ -16,6 +16,7 @@
 - Fixed bug where search index wasn't being populated if you closed and reopened the main window
 - Eliminated inaccurate notifications about rolltables being repopulated
 - Allowed for numbering a session 0
+- Made it possible to highlight text throughout the Campaign Builder window (ex. so you can copy and paste text from an editor that's not currently open)
 
 ## v1.0.0 - Coming out of beta!
 

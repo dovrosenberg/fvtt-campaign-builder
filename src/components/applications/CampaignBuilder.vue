@@ -381,6 +381,7 @@
       margin-top: 0px;
       flex-wrap: nowrap;
       padding: 0.1rem;
+      user-select: text;  // enable most text to be able to be highlighted for copy/paste - critical for things like editors that aren't open
 
       // Sidebar 
       #fcb-directory-sidebar {
