@@ -265,7 +265,9 @@
       if (!currentContentTab.value)
         currentContentTab.value = 'description';
 
-      tabs.value?.activate(currentContentTab.value); 
+      if (tabs.value) {
+        tabs.value.activate(currentContentTab.value); 
+      }
 
       // load starting data values
       playerName.value = newPC.playerName || '';

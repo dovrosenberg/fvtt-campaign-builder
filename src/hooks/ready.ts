@@ -1,7 +1,7 @@
 import { setupEnricher } from '@/components/Editor/helpers';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { getCampaignBuilderApp } from '@/applications/CampaignBuilder';
-import { localize } from '@/utils/game';
+import { isClientGM, localize } from '@/utils/game';
 import { refreshAllSettingRollTables } from '@/utils/nameGenerators';
 import { Backend } from '@/classes';
 
@@ -10,6 +10,9 @@ export function registerForReadyHook() {
 }
 
 async function ready(): Promise<void> {
+  if (!isClientGM())
+    return;
+  
   // register handlebars helpers
   await foundry.applications.handlebars.loadTemplates([]);
 

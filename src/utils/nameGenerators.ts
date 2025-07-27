@@ -1,5 +1,5 @@
 import { moduleId } from '@/settings';
-import { localize } from '@/utils/game';
+import { isClientGM, localize } from '@/utils/game';
 import { Backend } from '@/classes';
 import { nameStyles } from '@/utils/nameStyles';
 
@@ -332,7 +332,7 @@ export const refreshAllSettingRollTables = async() : Promise<void> => {
 export const updateSettingRollTableNames = async(setting: Setting) : Promise<void> => {
   const config = setting.rollTableConfig;
 
-  if (!config) {
+  if (!config || !isClientGM()) {
     return; // No roll tables configured for this setting
   }
 

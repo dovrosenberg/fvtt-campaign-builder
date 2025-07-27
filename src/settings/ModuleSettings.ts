@@ -4,7 +4,7 @@ import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSet
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { SessionDisplayMode, Species, TagList, GeneratorType } from '@/types';
-import type { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from 'src/apiClient';
+import type { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from '@/apiClient';
 
 export enum SettingKey {
   // displayed in main settings window

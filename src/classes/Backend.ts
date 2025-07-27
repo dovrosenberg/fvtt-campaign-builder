@@ -2,7 +2,7 @@ import { version } from '@module'
 import { Configuration, FCBApi } from '@/apiClient';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyGMError, notifyGMInfo, notifyGMWarn } from '@/utils/notifications';
-import { localize } from '@/utils/game';
+import { isClientGM, localize } from '@/utils/game';
 import { Campaign } from '@/classes';
 import { useMainStore } from '@/applications/stores';
 
@@ -20,7 +20,7 @@ export class Backend {
 
   /** force will reconnect even if already connected (ex. when changing credentials) */
   static async configure(force: boolean = false) {
-    if (Backend.inProgress || (Backend.available && !force)) {
+    if (!isClientGM() || (Backend.inProgress || (Backend.available && !force))) {
       return;
     }
 
@@ -87,7 +87,7 @@ export class Backend {
   }
 
   static async pollForEmail() {
-    if (!ModuleSettings.get(SettingKey.useGmailToDos)) 
+    if (!isClientGM() || !ModuleSettings.get(SettingKey.useGmailToDos)) 
       return;
 
     const campaign = await Campaign.fromUuid(ModuleSettings.get(SettingKey.emailDefaultCampaign));

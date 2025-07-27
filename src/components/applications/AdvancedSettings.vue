@@ -216,7 +216,7 @@
   import RangePicker from '@/components/RangePicker.vue';
 
   // types
-  import { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from 'src/apiClient';
+  import { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from '@/apiClient';
   
   ////////////////////////////////
   // props
@@ -254,7 +254,7 @@
     if (!defaultFolders || !defaultFolders.rootFolder)
       settingOptions.value = [];
     else 
-      settingOptions.value = (toRaw(defaultFolders.rootFolder) as Folder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name }));
+      settingOptions.value = (toRaw(defaultFolders.rootFolder) as Folder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name })) || [];
   };
 
   const loadTextModels = async () => {
