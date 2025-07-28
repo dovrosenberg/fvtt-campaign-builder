@@ -299,7 +299,7 @@
       },
       "campaign": {
         "addPC": "Add PC",
-        "addPCDrag": "(or drag/drop an actor)",
+        "addPCDrag": "(or drag/drop a PC)",
         "description": "Description",
         "pcs": "PCs",
         "lore": "Lore",

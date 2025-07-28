@@ -43,6 +43,7 @@
   
   // types
   import { RelatedPCDetails, RelatedItemDialogModes, Topics } from '@/types';
+  import { Entry } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -126,32 +127,30 @@
   }
 
   const onDropNew = async(event: DragEvent) => {
-    // TODO-PC - we should drop PCs here not actors
     event.preventDefault();  
 
-    // // parse the data 
-    // let data = getValidatedData(event);
-    // if (!data)
-    //   return;
+    // parse the data 
+    let data = getValidatedData(event);
+    if (!data)
+      return;
 
-    // // make sure it's the right format
-    // // if it's an actor, create a new PC and link it
-    // if (data.type==='Actor' && data.uuid) {
-    //   const newPC = await campaignStore.addPC({ });
+    // make sure it's the right format
+    if (data.topic !== Topics.PC || !data.childId) {
+      return;
+    }
 
-    //   if (newPC) {
-    //     newPC.actorId = data.uuid;
-    //     await newPC.save();
-    //     await navigationStore.openEntry(newPC.uuid, { newTab: true });
-    //   }
-    // }
+    const entry = await Entry.fromUuid(data.childId);
+    if (!entry)
+      return;
 
-    // // open the dialog to complete
-    // editItem.value = {
-    //   itemId: newPC.uuid,
-    //   itemName: newPC.name,
-    //   extraFields: [],
-    // };
+    const details: RelatedPCDetails = {
+      uuid: data.childId,
+      name: entry.name,
+      type: 'PC',
+      playerName: entry.playerName,
+      actorId: entry.actorId,
+    };
+    await campaignStore.addPC(details);      
   };
   
 
