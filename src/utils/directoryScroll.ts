@@ -1,7 +1,7 @@
 import { nextTick } from 'vue';
 import { useSettingDirectoryStore, useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
 import { WindowTabType, } from '@/types';
-import { Entry, Campaign, Session, DirectoryTopicNode, DirectoryCampaignNode } from '@/classes';
+import { Entry, Session, DirectoryTopicNode, DirectoryCampaignNode } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 
 /**
@@ -31,13 +31,13 @@ export async function scrollToActiveEntry(): Promise<void> {
       await scrollToEntry(contentId);
       break;
     case WindowTabType.Campaign:
-      await scrollToCampaign(contentId);
+      await scrollToCampaign();
       break;
     case WindowTabType.Session:
       await scrollToSession(contentId);
       break;
     case WindowTabType.Setting:
-      await scrollToSetting(contentId);
+      await scrollToSetting();
       break;
     default:
       return;

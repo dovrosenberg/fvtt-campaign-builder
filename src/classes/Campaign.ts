@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, SessionDoc, CampaignLore } from '@/documents';
-import { PCDetails, RelatedJournal } from '@/types';
+import { RelatedPCDetails, RelatedJournal } from '@/types';
 import { DocumentWithFlags, Entry, Session, Setting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
@@ -25,7 +25,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   private _img: string;
   private _todoItems: ToDoItem[];
   private _ideas: Idea[];
-  private _pcs: PCDetails[];
+  private _pcs: RelatedPCDetails[];
   private _journals: RelatedJournal[];
 
   /**
@@ -369,11 +369,11 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this.updateCumulative(CampaignFlagKey.ideas, this._ideas);
   }
 
-  get pcs(): readonly PCDetails[] {
+  get pcs(): readonly RelatedPCDetails[] {
     return this._pcs;
   }
 
-  set pcs(value: PCDetails[] | readonly PCDetails[]) {
+  set pcs(value: RelatedPCDetails[] | readonly RelatedPCDetails[]) {
     this._pcs = value.slice();     // we clone it so it can't be edited outside
     this.updateCumulative(CampaignFlagKey.pcs, this._pcs);
   }
@@ -481,10 +481,10 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
    * Given a filter function, returns all the matching Sessions
    * inside this campaign
    * 
-   * @param {(e: PCDetails) => boolean} filterFn - The filter function
+   * @param {(e: RelatedPCDetails) => boolean} filterFn - The filter function
    * @returns {Entry[]} The entries that pass the filter
    */
-    public async filterPCs(filterFn: (e: PCDetails) => boolean): Promise<Entry[]> { 
+    public async filterPCs(filterFn: (e: RelatedPCDetails) => boolean): Promise<Entry[]> { 
       let retval = [] as Entry[];
       for (let i=0; i<this._pcs.length; i++) {
         if (filterFn(this._pcs[i])) {

@@ -9,7 +9,7 @@ import { useCampaignDirectoryStore, useMainStore, useNavigationStore, } from '@/
 import { FCBDialog } from '@/dialogs';
 
 // types
-import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea} from '@/types';
+import { RelatedPCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea} from '@/types';
 import { Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import Document from 'node_modules/@types/fvtt-types/src/foundry/common/abstract/document.mjs';
@@ -29,7 +29,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   // the state
 
   // used for tables
-  const relatedPCRows = ref<PCDetails[]>([]);
+  const relatedPCRows = ref<RelatedPCDetails[]>([]);
   const allRelatedLoreRows = ref<CampaignLoreDetails[]>([]);  // all the rows - for lookups
   const toDoRows = ref<ToDoItem[]>([]);
   const ideaRows = ref<Idea[]>([]);
@@ -78,7 +78,7 @@ export const useCampaignStore = defineStore('campaign', () => {
   ///////////////////////////////
   // actions
   /** add PC to current campaign */
-  const addPC = async (pc: PCDetails): Promise<void> => {
+  const addPC = async (pc: RelatedPCDetails): Promise<void> => {
     const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
 
     if (!campaign)
@@ -462,14 +462,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!campaign) 
       return;
     
-    const pcs = (await campaign.getPCs()) || [];
-
-    relatedPCRows.value = pcs
-      .map((pc: PCDetails) => ({ 
-        name: pc.name,
-        playerName: pc.playerName,
-        uuid: pc.uuid,
-      }));
+    relatedPCRows.value = (await campaign.getPCs()) || [];
   };
 
   const _refreshLoreRows = async () => {

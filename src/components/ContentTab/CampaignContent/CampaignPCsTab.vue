@@ -42,7 +42,7 @@
   import RelatedItemDialog from '@/components/tables/RelatedItemDialog.vue';
   
   // types
-  import { PCDetails, RelatedItemDialogModes, Topics } from '@/types';
+  import { RelatedPCDetails, RelatedItemDialogModes, Topics } from '@/types';
   
   ////////////////////////////////
   // props
@@ -71,8 +71,9 @@
   type CampaignPCsGridRow = { uuid: string; name: string, actor: string };
 
   const rows = computed((): CampaignPCsGridRow[] => (
-    relatedPCRows.value.map((pc: PCDetails) => ({
+    relatedPCRows.value.map((pc: RelatedPCDetails) => ({
       uuid: pc.uuid, 
+      type: 'PC',
       name: `${pc.name} (${pc.playerName})`, 
       actor: pc.name,
     }))

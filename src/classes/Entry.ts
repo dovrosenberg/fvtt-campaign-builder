@@ -134,7 +134,7 @@ export class Entry {
           plotPoints: '',
           background: '',
           magicItems: '',
-          type: options.type || '',
+          type: topicFolder.topic === Topics.PC ? 'PC' : options.type || '',
           topic: topicFolder.topic,
           relationships: {
             [Topics.Character]: {},
@@ -177,12 +177,10 @@ export class Entry {
 
   /** note that you need to load the actor before calling this */
   get name(): string {
-    if (this.topic !== Topics.PC)
+    if (this.topic !== Topics.PC || this._entryDoc.name)
       return this._entryDoc.name;
-    else if (!this.actorId || !this.actor?.name)
+    else 
       return `<${localize('placeholders.linkToActor')}>`;
-    else
-      return this.actor.name;
   }
 
   set name(value: string) {
@@ -278,7 +276,7 @@ export class Entry {
   }
 
   set speciesId(value: string | undefined) {
-    if (![Topics.Character, Topics.PC].includes(this.topic))
+    if (this.topic !== Topics.Character)
       throw new Error('Attempt to set species on non-character');
 
     this._entryDoc.system.speciesId = value;
@@ -292,19 +290,21 @@ export class Entry {
   }
 
   get actorId(): string {
-    if (this.topicFolder?.topic !== Topics.PC)
+    if (this.topic !== Topics.PC)
       throw new Error('Attempt to get actorId on non-PC entry');
     
     return this._entryDoc.system.actorId || '';
   }
 
   set actorId(value: string) {
-    if (this.topicFolder?.topic !== Topics.PC)
+    if (this.topic !== Topics.PC)
       throw new Error('Attempt to set actorId on non-PC entry');
     
     this._entryDoc.system.actorId = value;
+    this.name = value ? this.name : '';
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
+      name: this.name,
       system: {
         ...this._cumulativeUpdate.system,
         actorId: value,
@@ -318,7 +318,10 @@ export class Entry {
   }
 
   get type(): string {
-    return this._entryDoc.system.type || '';
+    if (this.topic===Topics.PC)
+      return 'PC';
+    else
+      return this._entryDoc.system.type || '';
   }
 
   set type(value: string) {

@@ -49,9 +49,10 @@
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
             <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
             <a class="item" data-tab="journals">{{ localize('labels.tabs.entry.journals') }}</a>
+            <!-- TODO-PC - only show the PC tab if there's already a connection... rare that we'd need to add from here -->
             <a 
               v-for="relationship in relationships"
-              :key="relationship.label"
+              :key="relationship.tab"
               class="item" 
               :data-tab="relationship.tab"
             >
@@ -77,13 +78,6 @@
               data-tab="sessions"
             >
               {{ localize('labels.tabs.entry.sessions') }}
-            </a>
-            <a 
-            v-if="topic!==Topics.PC"
-            class="item" 
-              data-tab="pcs"
-            >
-              {{ localize('labels.tabs.entry.pcs') }}
             </a>
           </nav>
           <div class="fcb-tab-body flexrow">
@@ -201,13 +195,15 @@
             />
             <div 
               v-for="relationship in relationships"
-              :key="relationship.label"
-              class="tab flexcol" data-group="primary" data-tab="characters"
+              :key="relationship.tab"
+              class="tab flexcol" 
+              data-group="primary" 
+              :data-tab="relationship.tab"
             >
               <div class="tab-inner">
-                <RelatedItemTable :topic="relationships.topic" />
+                <RelatedItemTable :topic="relationship.topic" />
               </div>
-            </div> 
+            </div>
             <div 
               v-if="topic===Topics.Location"
               class="tab flexcol" 
@@ -742,19 +738,23 @@
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.fcb-tab-body', initial: 'description', /*callback: null*/ });
+    // Ensure DOM is fully ready before initializing tabs
+    await nextTick();
+    
+    tabs.value = new foundry.applications.ux.Tabs({ 
+      navSelector: '.tabs', 
+      contentSelector: '.fcb-tab-body', 
+      initial: 'description'
+    });
 
     // update the store when tab changes
     tabs.value.callback = () => {
       currentContentTab.value = tabs.value?.active || null;
     };
 
-    // have to wait until they render
-    await nextTick();
     if (contentRef.value) 
       tabs.value.bind(contentRef.value);
   });
-
 
 </script>
 

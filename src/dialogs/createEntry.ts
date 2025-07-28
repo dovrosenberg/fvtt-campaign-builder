@@ -195,7 +195,7 @@ const updatedCallback = async (entry: Entry, details: AnyDetails | null): Promis
   if (rolePlayingNotes)
     entry.rolePlayingNotes = rolePlayingNotes;
 
-  if ([Topics.Character, Topics.PC].includes(entry.topic)) {
+  if (entry.topic===Topics.Character) {
     entry.speciesId = (details as CharacterDetails).speciesId;
   }
   

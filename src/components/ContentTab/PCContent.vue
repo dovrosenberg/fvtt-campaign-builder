@@ -21,7 +21,7 @@
             <a class="item" data-tab="journals">{{ localize('labels.tabs.entry.journals') }}</a>
             <a 
               v-for="relationship in relationships"
-              :key="relationship.label"
+              :key="relationship.tab"
               class="item" 
               :data-tab="relationship.tab"
             >
@@ -63,16 +63,6 @@
                         :pt="{
                           root: { class: 'full-height' } 
                         }" 
-                      />
-                    </div>
-                    <div class="flexrow form-group">
-                      <LabelWithHelp
-                        label-text="labels.fields.species"
-                      />
-                      <SpeciesSelect
-                        :initial-value="currentEntry?.speciesId || ''"
-                        :allow-new-items="false"
-                        @species-selection-made="onSpeciesSelectionMade"
                       />
                     </div>
                     <div class="flexrow form-group">
@@ -122,11 +112,13 @@
             />
             <div 
               v-for="relationship in relationships"
-              :key="relationship.label"
-              class="tab flexcol" data-group="primary" data-tab="characters"
+              :key="relationship.tab"
+              class="tab flexcol" 
+              data-group="primary" 
+              :data-tab="relationship.tab"
             >
               <div class="tab-inner">
-                <RelatedItemTable :topic="relationships.topic" />
+                <RelatedItemTable :topic="relationship.topic" />
               </div>
             </div> 
           </div>
@@ -151,7 +143,7 @@
   import { ref, watch, onMounted, computed, toRaw, nextTick } from 'vue';
 
   // local imports
-  import { useMainStore, useNavigationStore } from '@/applications/stores';
+  import { useMainStore, useNavigationStore, useSettingDirectoryStore, useRelationshipStore } from '@/applications/stores';
   import { WindowTabType } from '@/types';
   import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
@@ -166,8 +158,7 @@
   import JournalTab from '@/components/ContentTab/JournalTab.vue';
   import RelatedItemTable from '@/components/tables/RelatedItemTable.vue';
   import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
-  import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
-
+  
   // types
   import { Topics } from '@/types';
 
@@ -181,6 +172,8 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
+  const settingDirectoryStore = useSettingDirectoryStore();
+  const relationshipStore = useRelationshipStore();
   const { currentEntry, currentContentTab } = storeToRefs(mainStore);
   
   ////////////////////////////////
@@ -238,14 +231,19 @@
       return;
 
     if (data.type==='Actor' && data.uuid) {
+      const actor = await fromUuid<Actor>(data.uuid);
+      if (!actor)
+        return;
+      
       currentEntry.value.actorId = data.uuid;
+      currentEntry.value.name = actor.name;
       await currentEntry.value.save();
       await mainStore.refreshEntry();
 
-      await currentEntry.value.getActor();
-
       // need to refreshEntry first to ensure that the new actor gets loaded so we can call name
       await navigationStore.propagateNameChange(currentEntry.value.uuid, currentEntry.value.name);
+      await settingDirectoryStore.refreshSettingDirectoryTree([currentEntry.value.uuid]);
+      await relationshipStore.propagateFieldChange(currentEntry.value, 'name');
     }
   }
 
@@ -332,14 +330,6 @@
     }
   };
 
-  const onSpeciesSelectionMade = async (species: {id: string; label: string}): Promise<void> => {
-    if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
-      return;
-
-    currentEntry.value.speciesId = species.id;
-    await currentEntry.value.save();
-  };
-
   const onJournalsUpdate = async (newJournals: RelatedJournal[]) => {
     if (currentEntry.value) {
       currentEntry.value.journals = newJournals;
@@ -350,13 +340,15 @@
   ////////////////////////////////
   // watchers
   watch(currentContentTab, async (newTab: string | null, oldTab: string | null): Promise<void> => {
-    if (newTab!==oldTab)
+    if (newTab!==oldTab) {
       tabs.value?.activate(newTab || 'description');    
+    }
   });
 
   watch(currentEntry, async (newEntry: Entry | null): Promise<void> => {
-    if (!newEntry)
+    if (!newEntry) {
       return;
+    }
     
     await refreshEntry();
 
@@ -369,20 +361,24 @@
     }
   });
 
-
   ////////////////////////////////
   // lifecycle events
   onMounted(async () => {
-    tabs.value = new foundry.applications.ux.Tabs({ navSelector: '.tabs', contentSelector: '.fcb-tab-body', initial: 'description', /*callback: null*/ });
+    // Ensure DOM is fully ready before initializing tabs
+    await nextTick();
+    
+    tabs.value = new foundry.applications.ux.Tabs({ 
+      navSelector: '.tabs', 
+      contentSelector: '.fcb-tab-body', 
+      initial: 'description'
+    });
 
     // update the store when tab changes
     tabs.value.callback = () => {
       currentContentTab.value = tabs.value?.active || null;
     };
 
-    // have to wait until they render
-    await nextTick();
-    if (contentRef.value)
+    if (contentRef.value) 
       tabs.value.bind(contentRef.value);
 
     if (currentEntry.value) {

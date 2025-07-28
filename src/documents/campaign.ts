@@ -1,6 +1,6 @@
 import { FlagSettings } from '@/settings';
 import { SessionLore, } from '@/documents/session';
-import { ToDoItem, Idea, RelatedJournal, PCDetails } from '@/types';
+import { ToDoItem, Idea, RelatedJournal, RelatedPCDetails } from '@/types';
 
 // campaigns are journal entries, not documents
 export interface CampaignDoc extends JournalEntry {
@@ -33,7 +33,7 @@ export type CampaignFlagType<K extends CampaignFlagKey> =
   K extends CampaignFlagKey.todoItems ? ToDoItem[] :
   K extends CampaignFlagKey.ideas ? Idea[] :
   K extends CampaignFlagKey.journals ? RelatedJournal[] :
-  K extends CampaignFlagKey.pcs ? PCDetails[] :
+  K extends CampaignFlagKey.pcs ? RelatedPCDetails[] :
   never;  
 
 export const flagSettings = [
@@ -71,7 +71,7 @@ export const flagSettings = [
   },
   {
     flagId: CampaignFlagKey.pcs,
-    default: [] as PCDetails[],
+    default: [] as RelatedPCDetails[],
   },
 ] as FlagSettings<CampaignFlagKey, {[K in CampaignFlagKey]: CampaignFlagType<K>}>[];
 

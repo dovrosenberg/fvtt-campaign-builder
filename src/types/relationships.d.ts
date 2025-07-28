@@ -23,9 +23,11 @@ export type RelatedDocumentDetails = {
   packName: string | null;
 };
 
-export type PCDetails = {
+/** used for rows in the various tables */
+export type RelatedPCDetails = {
   uuid: string;
   name: string;
+  type: string;
   actorId: string | null;
 }
 

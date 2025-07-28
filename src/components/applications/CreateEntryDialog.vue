@@ -57,7 +57,7 @@
           @type-selection-made="onTypeSelectionMade"
         />
 
-        <div v-if="[Topics.Character, Topics.PC].includes(props.topic)">
+        <div v-if="props.topic===Topics.Character">
           <h6>
             {{ localize('labels.fields.species')}}
             <i 
@@ -406,7 +406,7 @@
 
       let result: Awaited<ReturnType<typeof Backend.api.apiOrganizationGeneratePost | typeof Backend.api.apiLocationGeneratePost | typeof Backend.api.apiCharacterGeneratePost>>;
 
-      if ([Topics.Character, Topics.PC].includes(props.topic)) {
+      if (props.topic===Topics.Character) {
         let speciesDescription = '';
         const speciesList = ModuleSettings.get(SettingKey.speciesList);
 

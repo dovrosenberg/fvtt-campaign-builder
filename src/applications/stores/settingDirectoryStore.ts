@@ -7,7 +7,7 @@ import { reactive, onMounted, ref, toRaw, watch, } from 'vue';
 // local imports
 import { ModuleSettings, SettingKey, } from '@/settings';
 import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
-import { useMainStore, useNavigationStore,} from '@/applications/stores';
+import { useMainStore, useNavigationStore } from '@/applications/stores';
 import { getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
@@ -526,7 +526,8 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
         if (topicFolder.topic===Topics.PC) {
           // TODO-PC - just get the player name and create
 
-          const entry = await Entry.create(currentSetting.value?.topicFolders[Topics.PC], {});
+          const entry = await createEntry(topicFolder, {});
+            
           if (entry) {
             await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
           }

@@ -178,7 +178,7 @@ class SearchService {
     let topic = '';
 
     description = entry.description;
-    species = [Topics.Character, Topics.PC].includes(entry.topic) && entry.speciesId ? ModuleSettings.get(SettingKey.speciesList)[entry.speciesId] : '';
+    species = entry.topic===Topics.Character && entry.speciesId ? ModuleSettings.get(SettingKey.speciesList)[entry.speciesId] : '';
     type = entry.type;
     topic = Topics[entry.topic];
 
