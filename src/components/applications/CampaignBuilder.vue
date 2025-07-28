@@ -139,9 +139,6 @@
       case WindowTabType.Session:
         void navigationStore.openSession(target.dataset.uuid, { newTab: event.ctrlKey});
         break;
-      case WindowTabType.PC:
-        void navigationStore.openPC(target.dataset.uuid, { newTab: event.ctrlKey});
-        break;
       case WindowTabType.Setting:
         void navigationStore.openSetting(target.dataset.uuid, { newTab: event.ctrlKey});
         break;
@@ -165,11 +162,12 @@
 
       const topicIds = currentSetting.value.topicIds;
       const campaignNames = currentSetting.value.campaignNames;
-      const topics = [ Topics.Character, Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, Topics.Location, Topics.Organization, Topics.PC ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
         [Topics.Location]: null,
         [Topics.Organization]: null,
+        [Topics.PC]: null,
       } as Record<ValidTopic, JournalEntry | null>;
       const campaignJournals = {} as Record<string, CampaignDoc>;
 
@@ -277,11 +275,12 @@
 
     if (setting.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const topics = [ Topics.Character, Topics.Location, Topics.Organization ] as ValidTopic[];
+      const topics = [ Topics.Character, Topics.Location, Topics.Organization, Topics.PC ] as ValidTopic[];
       const topicJournals = {
         [Topics.Character]: null,
         [Topics.Location]: null,
         [Topics.Organization]: null,
+        [Topics.PC]: null,
       } as Record<ValidTopic, JournalEntry | null>;
       const campaignJournals = {} as Record<string, CampaignDoc>;
 

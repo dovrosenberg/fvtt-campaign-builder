@@ -12,8 +12,8 @@ import { updateSettingRollTableNames } from '@/utils/nameGenerators';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { TopicFolder, Setting, WindowTab, Entry, Campaign, Session, PC, CollapsibleNode, } from '@/classes';
-import { EntryDoc, SessionDoc, CampaignDoc, PCDoc, SettingDoc, SettingFlagKey } from '@/documents';
+import { TopicFolder, Setting, WindowTab, Entry, Campaign, Session, CollapsibleNode, } from '@/classes';
+import { EntryDoc, SessionDoc, CampaignDoc, SettingDoc, SettingFlagKey } from '@/documents';
 import { getDefaultFolders } from '@/compendia';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
@@ -26,7 +26,6 @@ export const useMainStore = defineStore('main', () => {
   ///////////////////////////////
   // internal state
   const _currentEntry = ref<Entry | null>(null);  // current entry (when showing an entry tab)
-  const _currentPC = ref<PC | null>(null);  // current PC (when showing a PC tab)
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
@@ -58,7 +57,6 @@ export const useMainStore = defineStore('main', () => {
   const currentEntry = computed((): Entry | null => (_currentEntry?.value || null) as Entry | null);
   const currentCampaign = computed((): Campaign | null => (_currentCampaign?.value || null) as Campaign | null);
   const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
-  const currentPC = computed((): PC | null => (_currentPC?.value || null) as PC | null);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
   const currentTab = computed((): WindowTab | null => _currentTab?.value);  
   const currentSetting = computed((): Setting | null => (_currentSetting?.value || null) as Setting | null);
@@ -98,7 +96,6 @@ export const useMainStore = defineStore('main', () => {
     _currentEntry.value = null;
     _currentCampaign.value = null;
     _currentSession.value = null;
-    _currentPC.value = null;
 
     switch (tab.tabType) {
       case WindowTabType.Entry:
@@ -132,13 +129,6 @@ export const useMainStore = defineStore('main', () => {
           _currentSession.value = await Session.fromUuid(tab.header.uuid);
           if (!_currentSession.value)
             throw new Error('Invalid session uuid in mainStore.setNewTab()');
-        }
-        break;
-      case WindowTabType.PC:
-        if (tab.header.uuid) {
-          _currentPC.value = await PC.fromUuid(tab.header.uuid);
-          if (!_currentPC.value)
-            throw new Error('Invalid PC uuid in mainStore.setNewTab()');
         }
         break;
       default:  // make it a 'new entry' window
@@ -189,17 +179,6 @@ export const useMainStore = defineStore('main', () => {
     _currentSession.value = new Session(_currentSession.value.raw as SessionDoc, campaign || undefined);
   };
 
-  const refreshPC = async function (): Promise<void> {
-    if (!_currentPC.value)
-      return;
-
-    // just force all reactivity to update
-    _currentPC.value = new PC(_currentPC.value.raw as PCDoc);
-
-    if (_currentPC.value)
-      await _currentPC.value.getActor();
-  };
-
   /** Refresh whatever content is currently showing */
   const refreshCurrentContent = async function (): Promise<void> {
     switch (currentContentType.value) {
@@ -211,9 +190,6 @@ export const useMainStore = defineStore('main', () => {
         break;
       case WindowTabType.Session:
         await refreshSession();
-        break;
-      case WindowTabType.PC:
-        await refreshPC();
         break;
       case WindowTabType.Setting:
         await refreshSetting();
@@ -351,7 +327,6 @@ export const useMainStore = defineStore('main', () => {
     currentEntry,
     currentCampaign,
     currentSession,
-    currentPC,
     currentTab,
     currentContentType,
     rootFolder,
@@ -365,7 +340,6 @@ export const useMainStore = defineStore('main', () => {
     refreshEntry,
     refreshCampaign,
     refreshSession,
-    refreshPC,
     refreshSetting,
     refreshCurrentContent,
     getAllSettings,

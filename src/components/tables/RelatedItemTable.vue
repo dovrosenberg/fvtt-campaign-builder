@@ -109,6 +109,7 @@
       case Topics.Character: return localize('labels.addTopic.character'); 
       case Topics.Location: return localize('labels.addTopic.location');
       case Topics.Organization: return localize('labels.addTopic.organization');
+      case Topics.PC: return localize('labels.addTopic.pc');
     }
   });
 
@@ -117,6 +118,7 @@
       case Topics.Character: return localize('labels.addTopicDrag.character'); 
       case Topics.Location: return localize('labels.addTopicDrag.location');
       case Topics.Organization: return localize('labels.addTopicDrag.organization');
+      case Topics.PC: return localize('labels.addTopicDrag.pc');
     }
   });
 
@@ -163,6 +165,11 @@
         typeColumn,
       ],
       [Topics.Organization]: [
+        actionColumn,
+        nameColumn,
+        typeColumn,
+      ],
+      [Topics.PC]: [
         actionColumn,
         nameColumn,
         typeColumn,

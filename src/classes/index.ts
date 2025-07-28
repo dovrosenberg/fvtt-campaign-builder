@@ -6,6 +6,5 @@ export * from './Campaign';
 export * from './TopicFolder';
 export * from './Setting';
 export * from './Session';
-export * from './PC';
 export * from './Backend';
 export * from './ExternalAPI';

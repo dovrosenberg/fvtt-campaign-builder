@@ -1,5 +1,5 @@
 import MiniSearch from 'minisearch';
-import { Entry, PC, Session, Setting } from '@/classes';
+import { Entry, Session, Setting } from '@/classes';
 import { Topics, ValidTopic, } from '@/types';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
@@ -11,8 +11,8 @@ import { SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
 export interface SearchableItem {
   /** Unique identifier for the item */
   uuid: string;
-  /** Type of result: entry, session, or PC */
-  resultType: 'entry' | 'session' | 'pc';
+  /** Type of result: entry, session */
+  resultType: 'entry' | 'session';
   /** Display name of the item */
   name: string;
   /** Comma-separated list of tags associated with the item */
@@ -39,8 +39,8 @@ export interface FCBSearchResult {
   uuid: string;
   /** Display name of the result */
   name: string;
-  /** Type of result: entry, session, or PC */
-  resultType: 'entry' | 'session' | 'pc';
+  /** Type of result: entry, session */
+  resultType: 'entry' | 'session';
   /** Topic/category the result belongs to */
   topic: string;
 
@@ -126,8 +126,8 @@ class SearchService {
     if (!this._searchIndex)
       throw new Error('Unable to create _searchIndex in SearchService.buildIndex()');
 
-    // Process each topic
-    const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
+    // Process each topic 
+    const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
     
     // Collect all items first
     const items = [] as SearchableItem[];
@@ -142,22 +142,16 @@ class SearchService {
       
       for (const entry of entries) {
         // Create a searchable item for each entry
-        const item = await this.createSearchableItemFromEntry(entry, setting);
-        items.push(item);
+        items.push(await this.createSearchableItemFromEntry(entry, setting));
       }
     }
 
-    // add all the sessions & PCs, by campaign
+    // add all the sessions, by campaign
     for (const campaignId in setting.campaigns) {
       const campaign = setting.campaigns[campaignId];
       for (const session of campaign.sessions) { 
         // Create a searchable item for each session
         const item = await this.createSearchableItemFromSession(session);
-        items.push(item);
-      }
-
-      for (const pc of (await campaign.getPCs())) {
-        const item = await this.createSearchableItemFromPC(pc);
         items.push(item);
       }
     }
@@ -184,10 +178,17 @@ class SearchService {
     let topic = '';
 
     description = entry.description;
-    species = entry.topic===Topics.Character && entry.speciesId ? ModuleSettings.get(SettingKey.speciesList)[entry.speciesId] : '';
+    species = [Topics.Character, Topics.PC].includes(entry.topic) && entry.speciesId ? ModuleSettings.get(SettingKey.speciesList)[entry.speciesId] : '';
     type = entry.type;
     topic = Topics[entry.topic];
 
+    // pcs have some extra fields - we put them in snippets
+    if (entry.topic===Topics.PC) {
+      snippets.push(entry.playerName ?? '');
+      snippets.push(entry.background ?? '');
+      snippets.push(entry.plotPoints ?? '');
+      snippets.push(entry.magicItems ?? '');
+    }
 
     // Add relationship snippets
     const relationships = entry.relationships;
@@ -408,30 +409,6 @@ class SearchService {
     // Create and add the new searchable item
     // @ts-ignore - can't get item to type right, but this should always work
     const searchableItem = await this.createSearchableItemFromSession(session, setting);
-    if (this._searchIndex.has(searchableItem.uuid))
-      this._searchIndex.replace(searchableItem);
-    else
-      this._searchIndex.add(searchableItem);
-  }
-
-  /**
-   * Adds or updates an entry in the search index.
-   * If the item already exists, it will be replaced with the updated version.
-   * 
-   * @param pc - The PC to add or update
-   * @returns A promise that resolves when the operation is complete
-   */
-  public async addOrUpdatePCIndex(pc: PC): Promise<void> {
-    if (!this._initialized || !this._searchIndex) {
-      await this.initIndex();
-    }
-    
-    if (!this._searchIndex)
-      throw new Error('Couldn\'t create search index in search.addOrUpdatePCIndex()');
-
-    // Create and add the new searchable item
-    // @ts-ignore - can't get item to type right, but this should always work
-    const searchableItem = await this.createSearchableItemFromPC(pc);
     if (this._searchIndex.has(searchableItem.uuid))
       this._searchIndex.replace(searchableItem);
     else

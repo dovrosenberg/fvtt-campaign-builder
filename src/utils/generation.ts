@@ -54,6 +54,7 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
   // add the other things based on topic
   switch (topicFolder.topic) {
     case Topics.Character:
+    case Topics.PC:
       // For character entries
       // @ts-ignore
       entry.speciesId = details.speciesId || undefined;

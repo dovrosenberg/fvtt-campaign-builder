@@ -44,6 +44,8 @@ export function getTopicIcon(topic: string | number | Topics | null | undefined)
       return 'fa-location-dot';   //'fa-place-of-worship';
     case Topics.Organization: 
       return 'fa-flag';
+    case Topics.PC:
+      return 'fa-user-ninja';
     default: 
       return '';
   }
@@ -65,8 +67,6 @@ export function getTabTypeIcon(type: string | number | WindowTabType | null | un
       return 'fa-signs-post';
     case WindowTabType.Session: 
       return 'fa-tent';
-    case WindowTabType.PC: 
-      return 'fa-user-ninja';
     case WindowTabType.Entry:
       throw new Error('Tried to use getTabTypeIcon() for Entry');
     default: 

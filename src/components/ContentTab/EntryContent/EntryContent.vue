@@ -70,10 +70,18 @@
               {{ localize('labels.tabs.entry.scenes') }}
             </a>
             <a 
-              class="item" 
+            v-if="topic!==Topics.PC"
+            class="item" 
               data-tab="sessions"
             >
               {{ localize('labels.tabs.entry.sessions') }}
+            </a>
+            <a 
+            v-if="topic!==Topics.PC"
+            class="item" 
+              data-tab="pcs"
+            >
+              {{ localize('labels.tabs.entry.pcs') }}
             </a>
           </nav>
           <div class="fcb-tab-body flexrow">
@@ -84,7 +92,10 @@
               :topic="topic as ValidTopic"
               @image-change="onImageChange"
             >
-              <div class="flexrow form-group">
+              <div 
+                v-if="topic!==Topics.PC"
+                class="flexrow form-group"
+              >
                 <LabelWithHelp
                   label-text="labels.fields.type"
                 />
@@ -95,9 +106,9 @@
                 />
               </div>
 
-              <!-- show the species for characters -->
+              <!-- show the species for characters and PCs -->
               <div 
-                v-if="topic===Topics.Character"
+                v-if="[Topics.Character, Topics.PC].includes(topic)"
                 class="flexrow form-group"
               >
                 <LabelWithHelp
@@ -204,6 +215,11 @@
                 <RelatedItemTable :topic="Topics.Organization" />
               </div>
             </div>
+            <div class="tab flexcol" data-group="primary" data-tab="pcs">
+              <div class="tab-inner">
+                <RelatedItemTable :topic="Topics.PC" />
+              </div>
+            </div>
             <div class="tab flexcol" data-group="primary" data-tab="scenes">
               <div class="tab-inner">
                 <RelatedDocumentTable 
@@ -298,14 +314,16 @@
   // data
   const topicData = {
     [Topics.Character]: { namePlaceholder: 'placeholders.characterName', },
-    [Topics.Location]: { namePlaceholder: 'placeholders.characterName', },
-    [Topics.Organization]: { namePlaceholder: 'placeholders.characterName', },
+    [Topics.Location]: { namePlaceholder: 'placeholders.locationName', },
+    [Topics.Organization]: { namePlaceholder: 'placeholders.organizationName', },
+    [Topics.PC]: { namePlaceholder: 'placeholders.pcName', },
   };
 
   const relationships = [
     { tab: 'characters', label: 'labels.tabs.entry.characters', },
     { tab: 'locations', label: 'labels.tabs.entry.locations',},
     { tab: 'organizations', label: 'labels.tabs.entry.organizations', },
+    { tab: 'pcs', label: 'labels.tabs.entry.pcs', },
   ] as { tab: string; label: string }[];
 
   const tabs = ref<foundry.applications.ux.Tabs>();
@@ -327,7 +345,7 @@
     
   const icon = computed((): string => (!topic.value ? '' : getTopicIcon(topic.value)));
   const namePlaceholder = computed((): string => (topic.value===null ? '' : (localize(topicData[topic.value]?.namePlaceholder || '') || '')));
-  const canGenerate = computed(() => topic.value && [Topics.Character, Topics.Location, Topics.Organization].includes(topic.value));
+  const canGenerate = computed(() => topic.value && [Topics.Character, Topics.Location, Topics.Organization, Topics.PC].includes(topic.value));
   const generateDisabled = computed(() => !Backend.available);
   const showHierarchy = computed((): boolean => (topic.value===null ? false : hasHierarchy(topic.value)));
   const roleplayAboveDescription = computed(() => ModuleSettings.get(SettingKey.showRolePlayingNotes) && isInPlayMode.value);
@@ -541,7 +559,7 @@
     event.preventDefault();
     event.stopPropagation();
 
-    if (topic.value != null && ![Topics.Character, Topics.Location, Topics.Organization].includes(topic.value)) {
+    if (topic.value != null && ![Topics.Character, Topics.Location, Topics.Organization, Topics.PC].includes(topic.value)) {
       return;
     }
 
@@ -556,7 +574,11 @@
             await updateEntryDialog(currentEntry.value);
         }
       },
-      {
+    ];
+
+    // PC images always tie to actor
+    if (topic.value!==Topics.PC) {
+      menuItems.push({
         icon: 'fa-image',
         iconFontClass: 'fas',
         label: `${localize('contextMenus.generate.image')} ${isGeneratingImage[currentEntry.value?.uuid as string] ? ` - ${localize('contextMenus.generate.inProgress')}` : ''}`,
@@ -576,8 +598,8 @@
             isGeneratingImage[entryGenerated] = false;
           }
         }
-      },
-    ];
+      });
+    }
 
     ContextMenu.showContextMenu({
       customClass: 'fcb',

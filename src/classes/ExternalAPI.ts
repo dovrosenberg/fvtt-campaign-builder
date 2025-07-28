@@ -14,6 +14,7 @@ export class ExternalAPI {
     Character: Topics.Character,
     Location: Topics.Location,
     Organization: Topics.Organization,
+    PC: Topics.PC,
   };
 
   /**

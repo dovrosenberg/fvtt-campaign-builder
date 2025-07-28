@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, PCDoc, SessionDoc, CampaignLore } from '@/documents';
 import { RelatedJournal } from '@/types';
-import { DocumentWithFlags, Entry, PC, Session, Setting } from '@/classes';
+import { DocumentWithFlags, Entry, Session, Setting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { SessionLore } from '@/documents/session';
@@ -463,6 +463,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
    * @returns a list of Entries
    */
   public async getPCs(): Promise<PC[]> {
+    // TODO-PC
     // we find all journal entries with this topic
     return await this.filterPCs(()=>true);
   }
@@ -481,24 +482,6 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       .filter((s: Session)=> filterFn(s)) || [];
   }
 
-  /**
-   * Given a filter function, returns all the matching Sessions
-   * inside this campaign
-   * 
-   * @param {(e: PC) => boolean} filterFn - The filter function
-   * @returns {PC[]} The entries that pass the filter
-   */
-  public async filterPCs(filterFn: (e: PC) => boolean): Promise<PC[]> { 
-    const retval = (toRaw(this._doc).pages.contents as unknown as PCDoc[])
-      .filter((p) => p.type===DOCUMENT_TYPES.PC)
-      .map((s: PCDoc)=> new PC(s, this))
-      .filter((s: PC)=> filterFn(s));
-
-    // load all the actors
-    await Promise.all(retval.map((pc) => pc.getActor()));
-
-    return retval;
-  }
   
   /**
    * Updates a campaign in the database 

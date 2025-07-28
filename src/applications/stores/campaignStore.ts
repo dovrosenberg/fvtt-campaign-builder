@@ -10,7 +10,7 @@ import { FCBDialog } from '@/dialogs';
 
 // types
 import { PCDetails, FieldData, CampaignLoreDetails, ToDoItem, ToDoTypes, Idea} from '@/types';
-import { Campaign, Entry, PC, Session } from '@/classes';
+import { Campaign, Entry, Session } from '@/classes';
 import { localize } from '@/utils/game';
 import Document from 'node_modules/@types/fvtt-types/src/foundry/common/abstract/document.mjs';
 
@@ -78,47 +78,51 @@ export const useCampaignStore = defineStore('campaign', () => {
   ///////////////////////////////
   // actions
   /** add PC to current campaign */
-  const addPC = async (): Promise<PC | null> => {
-    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
+  const addPC = async (): Promise<Entry | null> => {
+    // TODO
+    throw new Error('Adding PC to campaign Not implemented');
+    // const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
 
-    if (!campaign)
-      return null;
+    // if (!campaign)
+    //   return null;
 
-    const pc = await PC.create(campaign);
+    // const pc = await Entry.create(currentSetting.value?.topicFolders[Topics.PC], {});
 
-    await _refreshPCRows();
+    // await _refreshPCRows();
 
-    if (pc) {
-      await mainStore.refreshCurrentContent();
-      return pc;
-    } else { 
-      return null;
-    }
+    // if (pc) {
+    //   await mainStore.refreshCurrentContent();
+    //   return pc;
+    // } else { 
+    //   return null;
+    // }
   };
 
   const deletePC = async (pcId: string): Promise<void> => {
-    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
+    // TODO
+    throw new Error('Deleting PC from campaign Not implemented');
+    // const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
     
-    if (!campaign)
-      return;
+    // if (!campaign)
+    //   return;
 
-    const pc = await PC.fromUuid(pcId);
+    // const pc = await PC.fromUuid(pcId);
 
-    if (!pc) 
-      throw new Error('Bad session in campaignDirectoryStore.deletePC()');
+    // if (!pc) 
+    //   throw new Error('Bad session in campaignDirectoryStore.deletePC()');
 
-    // confirm
-    if (!(await FCBDialog.confirmDialog(localize('dialogs.confirmDeletePC.title'), localize('dialogs.confirmDeletePC.message'))))
-      return;
+    // // confirm
+    // if (!(await FCBDialog.confirmDialog(localize('dialogs.confirmDeletePC.title'), localize('dialogs.confirmDeletePC.message'))))
+    //   return;
 
-    await pc.delete();
+    // await pc.delete();
 
-    // update tabs/bookmarks
-    await navigationStore.cleanupDeletedEntry(pcId);
+    // // update tabs/bookmarks
+    // await navigationStore.cleanupDeletedEntry(pcId);
 
-    await _refreshPCRows();
+    // await _refreshPCRows();
 
-    await mainStore.refreshCurrentContent();
+    // await mainStore.refreshCurrentContent();
   };
   
   /**
@@ -467,29 +471,31 @@ export const useCampaignStore = defineStore('campaign', () => {
   }
 
   const _refreshPCRows = async (): Promise<void> => {
-    relatedPCRows.value = [];
+    // TODO
+    throw new Error('Refreshing PC rows Not implemented');
+    // relatedPCRows.value = [];
 
-    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
+    // const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
     
-    if (!campaign) 
-      return;
+    // if (!campaign) 
+    //   return;
     
-    const pcs = await campaign.getPCs();
+    // const pcs = await campaign.getPCs();
 
-    // we can't just do it in place because of a race condition
-    const retval = [] as PCDetails[];
+    // // we can't just do it in place because of a race condition
+    // const retval = [] as PCDetails[];
 
-    if (pcs) {
-      for (let i = 0; i < pcs.length; i++) {
-        retval.push({ 
-          name: pcs[i].name,
-          playerName: pcs[i].playerName,
-          uuid: pcs[i].uuid,
-        });
-      }
-    }
+    // if (pcs) {
+    //   for (let i = 0; i < pcs.length; i++) {
+    //     retval.push({ 
+    //       name: pcs[i].name,
+    //       playerName: pcs[i].playerName,
+    //       uuid: pcs[i].uuid,
+    //     });
+    //   }
+    // }
 
-    relatedPCRows.value = retval;
+    // relatedPCRows.value = retval;
   };
 
   const _refreshLoreRows = async () => {

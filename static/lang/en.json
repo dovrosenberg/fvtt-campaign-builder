@@ -156,12 +156,14 @@
           "create": {
             "character": "Create Character",
             "location": "Create Location",
-            "organization": "Create Organization"
+            "organization": "Create Organization",
+            "pc": "Create PC"
           },
           "update": {
             "character": "Update Character",
             "location": "Update Location",
-            "organization": "Update Organization"
+            "organization": "Update Organization",
+            "pc": "Update PC"
           }
         },
         "labels": {
@@ -250,13 +252,15 @@
         "character": "Add Character",
         "event": "Add Event",
         "location": "Add Location",
-        "organization": "Add Organization"
+        "organization": "Add Organization",
+        "pc": "Add PC"
       },
       "addTopicDrag": {
         "character": "(or drag/drop a character)",
         "event": "(or drag/drop an event)",
         "location": "(or drag/drop a location)",
-        "organization": "(or drag/drop an organization)"
+        "organization": "(or drag/drop an organization)",
+        "pc": "(or drag/drop a PC)"
       },
       "entry": {
         "topic": "TopicFolder",
@@ -317,8 +321,8 @@
           "description": "Description",
           "journals": "Journals",
           "characters": "Characters",
-          "events": "Events",
           "locations": "Locations",
+          "pcs": "PCs",
           "locationChildren": "Child locations",
           "organizations": "Organizations",
           "organizationChildren": "Sub-organizations",
@@ -358,9 +362,9 @@
       "search": "Search",
       "filter": "Filter",
       "characterName": "Character Name",
-      "eventName": "Event Name",
       "locationName": "Location Name",
       "organizationName": "Organization Name",
+      "pcName": "PC Name",
       "campaignName": "Campaign Name",
       "settingName": "Setting Name",
       "sessionName": "Session Name",
@@ -377,10 +381,12 @@
       "event": "Event",
       "location": "Location",
       "organization": "Organization",
+      "pc": "PC",
       "characters": "Characters",
       "events": "Events",
       "locations": "Locations",
-      "organizations": "Organizations"
+      "organizations": "Organizations",
+      "pcs": "PCs"
     },
     "notifications": {
       "backend": {
@@ -472,6 +478,13 @@
           "createButtonTitle": "Create organization",
           "buttonTitle": "Add relationship",
           "editButtonTitle": "Save organization"
+        },
+        "pc": {
+          "title": "Add a PC",
+          "editTitle": "Edit PC",
+          "createButtonTitle": "Create PC",
+          "buttonTitle": "Add relationship",
+          "editButtonTitle": "Save PC"
         },
         "addToSession": "Add to session"
       },

@@ -421,7 +421,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       const topicFolders = await currentSetting.value.loadTopics();
       const expandedNodes = currentSetting.value.expandedIds;
 
-      const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
+      const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
       currentSettingBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
         const id = `${(currentSetting.value as Setting).uuid}.topic.${topic}`;
         const topicObj = topicFolders[topic] as TopicFolder;
@@ -550,12 +550,13 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       [Topics.Character]: [],
       [Topics.Location]: [],
       [Topics.Organization]: [],
+      [Topics.PC]: [],
     };
 
     const hierarchies = currentSetting.value.hierarchies;
 
     const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
-    const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
+    const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
       const topicObj = currentSetting.value.topicFolders[topics[i]];

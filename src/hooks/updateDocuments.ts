@@ -16,6 +16,7 @@ function registerForActorHooks() {
     const navigationStore = useNavigationStore();
 
     // Check if the name was changed
+    // TODO-PC
     if (changes.name) {
       // find all the PCs that need to be updated
       let pcsToUpdate = new Set<string>();

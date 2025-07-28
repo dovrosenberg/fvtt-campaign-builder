@@ -466,7 +466,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   private async populateTopics() {
     let updated = false;
 
-    const topics = [Topics.Character, Topics.Location, Topics.Organization] as ValidTopic[];
+    const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
     let topicIds = this._topicIds;
     const topicObjects = {} as Record<ValidTopic, TopicFolder>;
 
@@ -732,7 +732,10 @@ private async deleteRollTables() : Promise<void> {
   }
 }
 
-  public async deleteActorFromSetting(actorId: string) {
+  public async deleteActorFromSetting(actorId: string)
+   {
+    // TODO-PC
+
     // remove from any PCs that are linked to it
     for (let campaign of Object.values(this.campaigns)) {
       const pcs = (await campaign.filterPCs(pc => pc.actorId === actorId));
@@ -752,7 +755,7 @@ private async deleteRollTables() : Promise<void> {
       }
     }
 
-    // remove from any Characters that are linked to it
+    // remove from any Characters or PCs that are linked to it
     for (let character of this.topicFolders[Topics.Character].allEntries()) {
       // check the related documents
       for (let i=0; i<character.actors.length; i++) {
@@ -760,6 +763,17 @@ private async deleteRollTables() : Promise<void> {
           // not too worried about doing multiple saves because each actor should really only be in here once
           character.actors = character.actors.filter(a => a !== actorId);
           await character.save();
+        }
+      }
+    }
+
+    for (let pc of this.topicFolders[Topics.PC].allEntries()) {
+      // check the related documents
+      for (let i=0; i<pc.actors.length; i++) {
+        if (pc.actors[i] === actorId) {
+          // not too worried about doing multiple saves because each actor should really only be in here once
+          pc.actors = pc.actors.filter(a => a !== actorId);
+          await pc.save();
         }
       }
     }

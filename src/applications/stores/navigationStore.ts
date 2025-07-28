@@ -14,7 +14,7 @@ import { scrollToActiveEntry } from '@/utils/directoryScroll';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, PC, Setting } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, Setting } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -91,21 +91,6 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
 
   /**
-   * Open a new tab to the given PC. If no PC is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
-   * 
-   * @param pcId The uuid of the PC to open in the tab. If null, a blank tab is opened.
-   * @param options Options for the tab.
-   * @param options.activate Should we switch to the tab after creating? Defaults to true.
-   * @param options.newTab Should the PC open in a new tab? Defaults to true.
-   * @param options.updateHistory Should the PC be added to the history of the tab? Defaults to true.
-   * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
-   * @returns The newly opened tab.
-   */
-  const openPC = async function(pcId = null as string | null, options?: OpenContentOptions) {
-    await openContent(pcId, WindowTabType.PC, options);
-  };
-
-  /**
    * Open a new tab to the given session. If no session is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
    * @param sessionId The uuid of the session to open in the tab. If null, a blank tab is opened.
@@ -152,7 +137,6 @@ export const useNavigationStore = defineStore('navigation', () => {
       [WindowTabType.Setting]: 'description',
       [WindowTabType.Campaign]: 'description',
       [WindowTabType.Session]: 'notes',
-      [WindowTabType.PC]: '',  // no tabs
       [WindowTabType.NewTab]: '',  // no tabs
     } as Record<WindowTabType, string>;
 
@@ -195,15 +179,6 @@ export const useNavigationStore = defineStore('navigation', () => {
         } else {
           name = `${localize('labels.session.session')} ${session.number}`;
           icon = getTabTypeIcon(WindowTabType.Session);
-        }
-      } break;
-      case WindowTabType.PC: {
-        const pc = contentId ? await PC.fromUuid(contentId) : null;
-        if (!pc) {
-          badId = true;
-        } else {
-          name = pc.name;
-          icon = getTabTypeIcon(WindowTabType.PC);
         }
       } break;
       case WindowTabType.NewTab: 
@@ -670,7 +645,6 @@ export const useNavigationStore = defineStore('navigation', () => {
     openSession,
     openCampaign,
     openSetting,
-    openPC,
     openContent,
     updateContentTab,
     getActiveTab,

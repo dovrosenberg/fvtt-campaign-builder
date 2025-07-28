@@ -1,13 +1,14 @@
 import { toRaw } from 'vue';
 
-import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace, RelatedJournal } from '@/documents';
-import { RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes } from '@/types';
+import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace } from '@/documents';
+import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, Setting } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
+import { localize } from '@/utils/game';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -16,6 +17,8 @@ export class Entry {
   public topicFolder: TopicFolder | null;
 
   private _entryDoc: EntryDoc;
+  private _actor: Actor | null;  // for pcs
+  
   private _cumulativeUpdate: Record<string, any>;   // tracks the update object based on changes made
 
   /**
@@ -40,10 +43,44 @@ export class Entry {
     if (!entryDoc || entryDoc.type !== DOCUMENT_TYPES.Entry)
       return null;
     else {
-      return new Entry(entryDoc, topicFolder);
+      const entry = new Entry(entryDoc, topicFolder);
+      await entry.getActor();
+      return entry;
     }
   }
 
+    /**
+     * Gets the Actor associated with the PC. If the actor is already loaded, the promise resolves
+     * to the existing actor; otherwise, it loads the actor and then resolves to it.
+     * 
+     * @note It's possible the actorId is populated but the actor has been deleted.  In this case, 
+     * will return null and also set the actorId to null.
+     * @returns {Promise<Actor | null>} A promise to the actor associated with the PC.
+     */
+    public async getActor(): Promise<Actor | null> {
+      if (this.topicFolder?.topic !== Topics.PC)
+        throw new Error('Attempt to getActor on non-PC entry');
+
+      if (this._actor)
+        return this._actor;
+      else if (!this._entryDoc.system.actorId)
+        return null;
+  
+      this._actor = await fromUuid<Actor>(this._entryDoc.system.actorId);
+  
+      if (!this._actor) {
+        this.actorId = '';
+        await this.save();
+      }
+  
+      return this._actor;
+    }
+  
+    /** note: this should only be used if you know getActor() has already been called */
+    public get actor(): Actor | null {
+      return this._actor;
+    }
+  
   /**
    * Gets the TopicFolder associated with the entry. If the topic  is already loaded, the promise resolves
    * to the existing TopicFolder; otherwise, it loads the TopicFolder and then resolves to it.
@@ -69,11 +106,13 @@ export class Entry {
   static async create(topicFolder: TopicFolder, options: CreateEntryOptions): Promise<Entry | null> 
   {
     const topicText = getTopicText(topicFolder.topic);
+    const promptText = topicFolder.topic === Topics.PC ? localize('dialogs.createPC.playerName') : `${topicText} Name:`;
+
     const setting = await topicFolder.getSetting();
 
     let nameToUse = options.name || '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await FCBDialog.inputDialog(`Create ${topicText}`, `${topicText} Name:`);
+      nameToUse = await FCBDialog.inputDialog(`Create ${topicText}`, promptText);
     }  
     
     // if name is null, then we cancelled the dialog
@@ -86,14 +125,20 @@ export class Entry {
       entryDoc = await JournalEntryPage.createDocuments([{
         // @ts-ignore- we know this type is valid
         type: DOCUMENT_TYPES.Entry,
-        name: nameToUse,
+        name: topicFolder.topic === Topics.PC ? `<${localize('placeholders.linkToActor')}>` : nameToUse,
         system: {
+          playerName: topicFolder.topic === Topics.PC ? nameToUse : '',
+          actorId: null,
+          plotPoints: '',
+          background: '',
+          magicItems: '',
           type: options.type || '',
           topic: topicFolder.topic,
           relationships: {
             [Topics.Character]: {},
             [Topics.Location]: {},
             [Topics.Organization]: {},
+            [Topics.PC]: {},
           },
           actors: [],
           scenes: [],
@@ -155,6 +200,68 @@ export class Entry {
     };
   }
 
+  get playerName(): string {
+    return this._entryDoc.system.playerName || '';
+  }
+
+  set playerName(value: string) {
+    this._entryDoc.system.playerName = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        playerName: value,
+      }
+    };
+  }
+
+    get plotPoints(): string {
+      return this._entryDoc.system.plotPoints || '';
+    }
+  
+    set plotPoints(value: string) {
+      this._entryDoc.system.plotPoints = value;
+      this._cumulativeUpdate = {
+        ...this._cumulativeUpdate,
+        system: {
+          ...this._cumulativeUpdate.system,
+          plotPoints: value,
+        }
+      };
+    }
+  
+    get background(): string {
+      return this._entryDoc.system.background || '';
+    }
+  
+    set background(value: string) {
+      this._entryDoc.system.background = value;
+      this._cumulativeUpdate = {
+        ...this._cumulativeUpdate,
+        system: {
+          ...this._cumulativeUpdate.system,
+          background: value,
+        }
+      };
+    }
+  
+    get magicItems(): string {
+      return this._entryDoc.system.magicItems || '';
+    }
+  
+    set magicItems(value: string) {
+      this._entryDoc.system.magicItems = value;
+      this._cumulativeUpdate = {
+        ...this._cumulativeUpdate,
+        system: {
+          ...this._cumulativeUpdate.system,
+          magicItems: value,
+        }
+      };
+    }
+  
+  
+
   get speciesId(): string | undefined {
     if (!this._entryDoc.system.speciesId)
       return undefined;
@@ -163,7 +270,7 @@ export class Entry {
   }
 
   set speciesId(value: string | undefined) {
-    if (this.topic !== Topics.Character)
+    if (![Topics.Character, Topics.PC].includes(this.topic))
       throw new Error('Attempt to set species on non-character');
 
     this._entryDoc.system.speciesId = value;
@@ -172,6 +279,27 @@ export class Entry {
       system: {
         ...this._cumulativeUpdate.system,
         speciesId: value,
+      }
+    };
+  }
+
+  get actorId(): string {
+    if (this.topicFolder?.topic !== Topics.PC)
+      throw new Error('Attempt to get actorId on non-PC entry');
+    
+    return this._entryDoc.system.actorId || '';
+  }
+
+  set actorId(value: string) {
+    if (this.topicFolder?.topic !== Topics.PC)
+      throw new Error('Attempt to set actorId on non-PC entry');
+    
+    this._entryDoc.system.actorId = value;
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        actorId: value,
       }
     };
   }

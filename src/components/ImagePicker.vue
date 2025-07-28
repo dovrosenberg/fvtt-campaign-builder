@@ -69,13 +69,13 @@
     [WindowTabType.Setting]: 'icons/svg/castle.svg',
     [WindowTabType.Campaign]: 'icons/svg/ruins.svg',
     [WindowTabType.Session]: 'icons/svg/combat.svg',
-    [WindowTabType.PC]: 'icons/svg/mystery-man.svg',
   };
 
   const TOPIC_IMAGES = {
     [Topics.Character]: 'icons/svg/mystery-man.svg',
     [Topics.Location]: 'icons/svg/oak.svg',
     [Topics.Organization]: 'icons/svg/temple.svg',
+    [Topics.PC]: 'icons/svg/mystery-man.svg',
   };
   
   ////////////////////////////////
@@ -140,7 +140,7 @@
         },
       ];
 
-      if (Backend.available && [Topics.Character, Topics.Location, Topics.Organization].includes(props.topic)) {
+      if (Backend.available && [Topics.Character, Topics.Location, Topics.Organization, Topics.PC].includes(props.topic)) {
         items.push({
           icon: 'fa-head-side-virus',
           iconFontClass: 'fas',

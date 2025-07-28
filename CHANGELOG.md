@@ -2,6 +2,8 @@
 
 ## v1.1.0 - AI options, quality of life improvements
 
+**Note!** You may need to close all your currently open tabs and reopen to avoid issues after upgrading to this version.
+
 - Added ability to link Foundry journals to Entries, Settings, Campaigns, and PCs - great for attaching maps, multiple iamges of the same character, and various other info you want to store and/or share with your players
 - Added support for Anthropic (Claude 3) for text generation (see module settings)
 - Added ability to choose from multiple image generation models
@@ -10,7 +12,7 @@
 - Added keybindings for moving forward/back across the tab bar; changed default for closing the tab
 - Added module setting to show the type of each node in the Setting tree in hierarchy mode.
 - Consolidated "strong start" onto the Session notes tab
-- Added ability to link PCs to entries - makes tracking backstory relationships to the world way simpler
+- Added PCs to the setting directory and made the ability to link PCs to entries - makes tracking backstory relationships to the world way simpler
 - Minor UI cleanup 
 - Fixed bug where bookmarks weren't deleted when the underlying content was
 - Fixed bug where campaigns created by right-clicking in the Setting directory didn't immediately show up in the Campaign directory

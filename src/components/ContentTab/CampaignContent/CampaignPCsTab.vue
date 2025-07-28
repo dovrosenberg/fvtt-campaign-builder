@@ -35,7 +35,6 @@
 
   // types
   import { PCDetails, } from '@/types';
-  import { PC } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -78,11 +77,11 @@
   ////////////////////////////////
   // methods
   const onNameClick = async function (event: MouseEvent, uuid: string) { 
-    await navigationStore.openPC(uuid, { newTab: event.ctrlKey });
+    await navigationStore.openEntry(uuid, { newTab: event.ctrlKey });
   };
 
   const onActorClick = async function (_event: MouseEvent, uuid: string) { 
-    const pc = await PC.fromUuid(uuid);
+    const pc = await Entry.fromUuid(uuid);
 
     if (!pc)
       return;
@@ -95,6 +94,8 @@
   ////////////////////////////////
   // event handlers
   const onAddItemClick = async () => {
+    // TODO-PC
+
     const newPC = await campaignStore.addPC();
 
     if (newPC)
@@ -103,6 +104,7 @@
 
   // call mutation to remove item from relationship
   const onDeleteItemClick = async function(_id: string) {
+    // TODO-PC
     void campaignStore.deletePC(_id); 
   };
 
@@ -115,7 +117,8 @@
   }
 
   const onDropNew = async(event: DragEvent) => {
-    event.preventDefault();  
+  // TODO-PC
+//     event.preventDefault();  
 
     // parse the data 
     let data = getValidatedData(event);

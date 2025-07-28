@@ -36,9 +36,6 @@ export async function scrollToActiveEntry(): Promise<void> {
     case WindowTabType.Session:
       await scrollToSession(contentId);
       break;
-    case WindowTabType.PC:
-      // don't have tree entries
-      break;
     case WindowTabType.Setting:
       await scrollToSetting(contentId);
       break;

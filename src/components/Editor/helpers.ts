@@ -3,7 +3,7 @@
  * 
  * This module provides custom text enrichment functionality for Foundry VTT's TextEditor system.
  * It implements a custom enricher that handles content links in the read-only version of the editor
- * for campaign builder documents (Entries, PCs, Sessions, Campaigns, Settings) and ensures they open
+ * for campaign builder documents (Entries, Sessions, Campaigns, Settings) and ensures they open
  * within the campaign builder application rather than using Foundry's default document handling.
  * 
  * The enrichment system works by:
@@ -21,8 +21,8 @@ import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
 import { localize } from '@/utils/game';
 
 // types
-import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES, EntryDoc, PCDoc, SessionDoc, SettingDoc, SettingFlagKey } from '@/documents';
-import { Setting, Entry, Campaign, Session, PC } from '@/classes';
+import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES, EntryDoc, SessionDoc, SettingDoc, SettingFlagKey } from '@/documents';
+import { Setting, Entry, Campaign, Session } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 import { ValidTopic, WindowTabType } from '@/types';
 import { InternalClientDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs';
@@ -162,7 +162,7 @@ const brokenAnchor = (data: LinkData, name = 'Cross-Setting links are not suppor
  * - Tooltip text for user guidance
  * 
  * @param doc - The Foundry document being linked to
- * @param linkType - Type of window/tab to open (Entry, PC, Session, Campaign, Setting)
+ * @param linkType - Type of window/tab to open (Entry, Session, Campaign, Setting)
  * @param hash - Optional hash fragment for linking to specific sections
  * @param name - Display name for the link
  * @param icon - CSS icon class to display
@@ -200,7 +200,7 @@ const goodAnchor = <T extends InternalClientDocument>(doc: T, linkType: WindowTa
  * The function handles:
  * 1. UUID links (@UUID[...]) - Modern Foundry format
  * 2. Legacy links (@Actor[...], @Scene[...], etc.) - Older Foundry format
- * 3. Campaign builder documents (Entry, PC, Session, Campaign, Setting)
+ * 3. Campaign builder documents (Entry, Session, Campaign, Setting)
  * 4. Cross-setting references (marked as broken)
  * 5. Regular Foundry documents (passed through to default handling)
  * 
@@ -270,19 +270,19 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
         } else 
           return brokenAnchor(data, 'Invalid topic');
       }; break;
-      case DOCUMENT_TYPES.PC: {
-        const pc = new PC(unknownItem as unknown as PCDoc);
+      // case DOCUMENT_TYPES.PC: {
+      //   const pc = new PC(unknownItem as unknown as PCDoc);
 
-        // check if it's the right setting
-        const setting = await pc.getSetting();
+      //   // check if it's the right setting
+      //   const setting = await pc.getSetting();
   
-        // handle the ones we don't care about
-        if (setting.uuid !== settingId) {
-          return brokenAnchor(data);
-        } else {  // this is an fcb item for this setting
-          return goodAnchor(unknownItem, WindowTabType.PC, hash, data.name || pc.name, `fas ${getTabTypeIcon(WindowTabType.PC)}`); 
-        }
-      }; break;
+      //   // handle the ones we don't care about
+      //   if (setting.uuid !== settingId) {
+      //     return brokenAnchor(data);
+      //   } else {  // this is an fcb item for this setting
+      //     return goodAnchor(unknownItem, WindowTabType.PC, hash, data.name || pc.name, `fas ${getTabTypeIcon(WindowTabType.PC)}`); 
+      //   }
+      // }; break;
       case DOCUMENT_TYPES.Session: {
         const session = new Session(unknownItem as unknown as SessionDoc);
 

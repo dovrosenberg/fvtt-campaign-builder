@@ -18,7 +18,6 @@ export enum WindowTabType  {
   Entry,
   Campaign,
   Session,
-  PC,
   Setting,
 }
 
@@ -56,7 +55,8 @@ export enum Topics {
   Character = 1,
   Location = 2,
   Organization = 3,
-  // Event = 4, // Commented out for now
+  PC = 4,
+  // Event = 5, // Commented out for now
 }
 
 // topics except None

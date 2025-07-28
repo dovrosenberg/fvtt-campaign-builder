@@ -57,7 +57,7 @@
           @type-selection-made="onTypeSelectionMade"
         />
 
-        <div v-if="props.topic === Topics.Character">
+        <div v-if="[Topics.Character, Topics.PC].includes(props.topic)">
           <h6>
             {{ localize('labels.fields.species')}}
             <i 
@@ -189,7 +189,7 @@
 
         <!-- checkboxes at bottom -->
         <div class="generation-option">
-          <div v-if="isInPlayMode"class="generation-option-wrapper">
+          <div v-if="isInPlayMode && [Topics.Character, Topics.Location].includes(props.topic)"class="generation-option-wrapper">
             <Checkbox 
               v-model="addToCurrentSession" 
               :binary="true"
@@ -406,7 +406,7 @@
 
       let result: Awaited<ReturnType<typeof Backend.api.apiOrganizationGeneratePost | typeof Backend.api.apiLocationGeneratePost | typeof Backend.api.apiCharacterGeneratePost>>;
 
-      if (props.topic === Topics.Character) {
+      if ([Topics.Character, Topics.PC].includes(props.topic)) {
         let speciesDescription = '';
         const speciesList = ModuleSettings.get(SettingKey.speciesList);
 
@@ -568,6 +568,7 @@
           // For organizations, do nothing for now 
           // TODO: maybe add to the notes; have to figure out how to deal with open editors
         }
+        //  for PCs, they're in basically every session so we don't support this
       }
     }
   };

@@ -13,6 +13,7 @@ const entrySchema = {
     [Topics.Character]: {},
     [Topics.Location]: {},
     [Topics.Organization]: {},
+    [Topics.PC]: {},
   } as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>   // all the things related to this item, grouped by topic
   }),    // keyed by topic, then entryId
 
@@ -27,8 +28,15 @@ const entrySchema = {
     packName: new fields.StringField({ required: false, nullable: true, initial: null }),
   }), { required: true, initial: [] }),
 
-  // used only for characters
+  // used only for characters/pcs
   speciesId: new fields.StringField({ required: false, nullable: false, textSearch: false, }),
+
+  // used only for pcs
+  playerName: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
+  actorId: new fields.DocumentUUIDField({ required: false, nullable: true, }),
+  background: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
+  plotPoints: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
+  magicItems: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
 
   // Image for the entry
   img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
@@ -89,6 +97,12 @@ export interface EntryDoc extends JournalEntryPage {
     relationships: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;  // keyed by topic then by entryId
 
     speciesId?: string | undefined;
+
+    playerName?: string | undefined;
+    actorId?: string | undefined;   // uuid of the actor
+    background?: string | undefined;
+    plotPoints?: string | undefined;
+    magicItems?: string | undefined; 
 
     img: string; 
 

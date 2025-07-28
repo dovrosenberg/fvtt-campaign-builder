@@ -1,6 +1,5 @@
 export * from './entry';
 export * from './session';
-export * from './pc';
 export { CampaignDoc, CampaignFlagKey, CampaignFlagType, CampaignLore, flagSettings as campaignFlagSettings } from './campaign';
 export { SettingDoc, SettingFlagKey, SettingFlagType, flagSettings as settingFlagSettings } from './setting';
 export { TopicDoc, TopicFlagKey, TopicFlagType, flagSettings as topicFlagSettings } from './topic';
@@ -18,5 +17,5 @@ import { id as moduleId } from '@module';
 export const DOCUMENT_TYPES = {
   Entry: `${moduleId}.entry`,
   Session: `${moduleId}.session`,
-  PC: `${moduleId}.pc`,
+  PC: `${moduleId}.pc`,   // here for compatibility, but no longer used
 };

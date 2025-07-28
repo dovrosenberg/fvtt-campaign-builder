@@ -18,11 +18,13 @@ const createTitles = {
   [Topics.Character]: 'applications.createEntry.titles.create.character',
   [Topics.Location]: 'applications.createEntry.titles.create.location',
   [Topics.Organization]: 'applications.createEntry.titles.create.organization',
+  [Topics.PC]: 'applications.createEntry.titles.create.pc',
 }
 const updateTitles = {
   [Topics.Character]: 'applications.createEntry.titles.update.character',
   [Topics.Location]: 'applications.createEntry.titles.update.location',
   [Topics.Organization]: 'applications.createEntry.titles.update.organization',
+  [Topics.PC]: 'applications.createEntry.titles.update.pc',
 }
 
 class CreateEntryApplication extends VueApplicationMixin(ApplicationV2) {
@@ -193,7 +195,7 @@ const updatedCallback = async (entry: Entry, details: AnyDetails | null): Promis
   if (rolePlayingNotes)
     entry.rolePlayingNotes = rolePlayingNotes;
 
-  if (entry.topic===Topics.Character) {
+  if ([Topics.Character, Topics.PC].includes(entry.topic)) {
     entry.speciesId = (details as CharacterDetails).speciesId;
   }
   

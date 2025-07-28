@@ -137,14 +137,6 @@
   const onCreateSettingClick = async (event: MouseEvent) => {
     event.stopPropagation();
 
-    // // add 400 entries
-    // const wf = game.folders?.find((f)=>f.id==='IAAEn25ebbVZXL9V');
-    // if (wf) {
-    //   for (let i=0; i<400; i++) {
-    //     await settingDirectoryStore.createEntry(Topics.Location, { name: foundry.utils.randomID() });
-    //   }
-    // }
-
     await settingDirectoryStore.createSetting();
   };
 
