@@ -33,7 +33,7 @@ export class Entry {
     // clone it to avoid unexpected changes
     this._entryDoc = foundry.utils.deepClone(entryDoc);
     this._cumulativeUpdate = {};
-        this.topicFolder = topicFolder || null;
+    this.topicFolder = topicFolder || null;
   }
 
   // does not set the parent topic
@@ -44,7 +44,9 @@ export class Entry {
       return null;
     else {
       const entry = new Entry(entryDoc, topicFolder);
-      await entry.getActor();
+      if (entry.topic === Topics.PC)
+        await entry.getActor();
+
       return entry;
     }
   }
@@ -58,7 +60,7 @@ export class Entry {
      * @returns {Promise<Actor | null>} A promise to the actor associated with the PC.
      */
     public async getActor(): Promise<Actor | null> {
-      if (this.topicFolder?.topic !== Topics.PC)
+      if (this.topic !== Topics.PC)
         throw new Error('Attempt to getActor on non-PC entry');
 
       if (this._actor)
@@ -69,7 +71,7 @@ export class Entry {
       this._actor = await fromUuid<Actor>(this._entryDoc.system.actorId);
   
       if (!this._actor) {
-        this.actorId = '';
+        this.actorId = '';  // clean up if the actor is gone
         await this.save();
       }
   
@@ -173,8 +175,14 @@ export class Entry {
     return this._entryDoc.uuid;
   }
 
+  /** note that you need to load the actor before calling this */
   get name(): string {
-    return this._entryDoc.name;
+    if (this.topic !== Topics.PC)
+      return this._entryDoc.name;
+    else if (!this.actorId || !this.actor?.name)
+      return `<${localize('placeholders.linkToActor')}>`;
+    else
+      return this.actor.name;
   }
 
   set name(value: string) {

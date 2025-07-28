@@ -1,10 +1,8 @@
 <template>
   <form>
-    // TODO-PC - move to EntryContent
-
     <div ref="contentRef" class="fcb-sheet-container flexcol" style="overflow-y: auto">
       <header class="fcb-name-header flexrow">
-        <i :class="`fas ${getTabTypeIcon(WindowTabType.PC)} sheet-icon`"></i>
+        <i :class="`fas ${getTopicIcon(Topics.PC)} sheet-icon`"></i>
         <InputText
           v-model="name"
           for="fcb-input-name" 
@@ -21,6 +19,14 @@
           <nav class="fcb-sheet-navigation flexrow tabs" data-group="primary">
             <a class="item" data-tab="description">{{ localize('labels.tabs.entry.description') }}</a>
             <a class="item" data-tab="journals">{{ localize('labels.tabs.entry.journals') }}</a>
+            <a 
+              v-for="relationship in relationships"
+              :key="relationship.label"
+              class="item" 
+              :data-tab="relationship.tab"
+            >
+              {{ localize(relationship.label) }}
+            </a>
           </nav>
           <div class="fcb-tab-body flexrow">
             <div class="tab flexcol" data-group="primary" data-tab="description" style="height:100%">
@@ -33,7 +39,7 @@
                     @click="onActorImageClick"
                     @contextmenu.prevent="onImageContextMenu"
                   >
-                    <div v-if="currentPC?.actorId">
+                    <div v-if="currentEntry?.actorId">
                       <img 
                         class="profile"
                         :src="currentImage"
@@ -61,12 +67,22 @@
                     </div>
                     <div class="flexrow form-group">
                       <LabelWithHelp
+                        label-text="labels.fields.species"
+                      />
+                      <SpeciesSelect
+                        :initial-value="currentEntry?.speciesId || ''"
+                        :allow-new-items="false"
+                        @species-selection-made="onSpeciesSelectionMade"
+                      />
+                    </div>
+                    <div class="flexrow form-group">
+                      <LabelWithHelp
                         label-text="labels.fields.backgroundPoints"
                       />
                     </div>
                     <div class="flexrow form-group">
                       <Editor 
-                        :initial-content="currentPC?.background || ''"
+                        :initial-content="currentEntry?.background || ''"
                         fixed-height="240px"
                         @editor-saved="onBackgroundSaved"
                       />
@@ -78,7 +94,7 @@
                     </div>
                     <div class="flexrow form-group">
                       <Editor 
-                        :initial-content="currentPC?.plotPoints || ''"
+                        :initial-content="currentEntry?.plotPoints || ''"
                         fixed-height="240px"
                         @editor-saved="onPlotPointsSaved"
                       />
@@ -90,7 +106,7 @@
                     </div>
                     <div class="flexrow form-group">
                       <Editor 
-                        :initial-content="currentPC?.magicItems || ''"
+                        :initial-content="currentEntry?.magicItems || ''"
                         fixed-height="240px"
                         @editor-saved="onMagicItemsSaved"
                       />
@@ -100,14 +116,31 @@
               </div>
             </div>
             <JournalTab
-              v-if="currentPC"
-              :initial-journals="currentPC.journals"
+              v-if="currentEntry"
+              :initial-journals="currentEntry.journals"
               @journals-updated="onJournalsUpdate"
             />
+            <div 
+              v-for="relationship in relationships"
+              :key="relationship.label"
+              class="tab flexcol" data-group="primary" data-tab="characters"
+            >
+              <div class="tab-inner">
+                <RelatedItemTable :topic="relationships.topic" />
+              </div>
+            </div> 
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Related Items Management Dialog -->
+    <RelatedEntriesManagementDialog
+      v-model="showRelatedEntriesDialog"
+      :added-ids="pendingAddedUUIDs"
+      :removed-ids="pendingRemovedUUIDs"
+      @update="onRelatedEntriesDialogUpdate"
+    />
   </form>	 
 </template>
 
@@ -120,7 +153,7 @@
   // local imports
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { WindowTabType } from '@/types';
-  import { getTabTypeIcon, } from '@/utils/misc';
+  import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import { getValidatedData } from '@/utils/dragdrop';
   
@@ -131,11 +164,13 @@
   import Editor from '@/components/Editor.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
   import JournalTab from '@/components/ContentTab/JournalTab.vue';
+  import RelatedItemTable from '@/components/tables/RelatedItemTable.vue';
+  import RelatedEntriesManagementDialog from '@/components/RelatedEntriesManagementDialog.vue';
+  import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
 
   // types
-  import { PC } from '@/classes';
+  import { Topics } from '@/types';
 
-  
   ////////////////////////////////
   // props
 
@@ -146,7 +181,7 @@
   // store
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentPC, currentContentTab } = storeToRefs(mainStore);
+  const { currentEntry, currentContentTab } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
@@ -154,14 +189,30 @@
   const tabs = ref<foundry.applications.ux.Tabs>();
 
   const contentRef = ref<HTMLElement | null>(null);
- 
+
+  const relationships = [
+    { tab: 'characters', label: 'labels.tabs.entry.characters', topic: Topics.Character },
+    { tab: 'locations', label: 'labels.tabs.entry.locations', topic: Topics.Location },
+    { tab: 'organizations', label: 'labels.tabs.entry.organizations', topic: Topics.Organization },
+  ] as { tab: string; label: string; topic: Topics }[];
+
+  const showRelatedEntriesDialog = ref<boolean>(false);
+  const pendingAddedUUIDs = ref<string[]>([]);
+  const pendingRemovedUUIDs = ref<string[]>([]);
+
   ////////////////////////////////
   // computed data
-  const name = computed(() => (currentPC.value?.name || ''));
-  const currentImage = computed(() => (currentPC.value?.actor?.img || ''));
+  const name = computed(() => (currentEntry.value?.name || ''));
+  const currentImage = computed(() => (currentEntry.value?.actor?.img || ''));
 
   ////////////////////////////////
   // methods
+  const refreshEntry = async () => {
+    // load starting data values
+    name.value = currentEntry.value.name || '';
+    playerName.value = currentEntry.value.playerName || '';
+    await currentEntry.value.getActor();
+  };
   
 
   ////////////////////////////////
@@ -178,7 +229,7 @@
     event.preventDefault();
     event.stopPropagation();
 
-    if (!currentPC.value)
+    if (!currentEntry.value)
       return;
 
     // parse the data
@@ -187,12 +238,14 @@
       return;
 
     if (data.type==='Actor' && data.uuid) {
-      currentPC.value.actorId = data.uuid;
-      await currentPC.value.save();
-      await mainStore.refreshPC();
+      currentEntry.value.actorId = data.uuid;
+      await currentEntry.value.save();
+      await mainStore.refreshEntry();
 
-      // need to refreshPC first to ensure that the new actor gets loaded so we can call name
-      await navigationStore.propagateNameChange(currentPC.value.uuid, currentPC.value.name);
+      await currentEntry.value.getActor();
+
+      // need to refreshEntry first to ensure that the new actor gets loaded so we can call name
+      await navigationStore.propagateNameChange(currentEntry.value.uuid, currentEntry.value.name);
     }
   }
 
@@ -211,47 +264,86 @@
     
     nameDebounceTimer = setTimeout(async () => {
       const newValue = newName || '';
-      if (currentPC.value && currentPC.value.playerName!==newValue) {
-        currentPC.value.playerName = newValue;
-        await currentPC.value.save();
+      if (currentEntry.value && currentEntry.value.playerName!==newValue) {
+        currentEntry.value.playerName = newValue;
+        await currentEntry.value.save();
       }
     }, debounceTime);
   };
 
   const onActorImageClick = async () => {
-    const actor = await currentPC.value?.getActor();
+    const actor = await currentEntry.value?.getActor();
     if (actor)
       await toRaw(actor)?.sheet?.render(true);
   }
 
   const onBackgroundSaved = async (content: string) => {
-    if (!currentPC.value)
+    if (!currentEntry.value)
       return;
 
-    currentPC.value.background = content;
-    await currentPC.value.save();
+    currentEntry.value.background = content;
+    await currentEntry.value.save();
   }
 
   const onPlotPointsSaved = async (content: string) => {
-    if (!currentPC.value)
+    if (!currentEntry.value)
       return;
 
-    currentPC.value.plotPoints = content;
-    await currentPC.value.save();
+    currentEntry.value.plotPoints = content;
+    await currentEntry.value.save();
   }
 
   const onMagicItemsSaved = async (content: string) => {
-    if (!currentPC.value)
+    if (!currentEntry.value)
       return;
 
-    currentPC.value.magicItems = content;
-    await currentPC.value.save();
+    currentEntry.value.magicItems = content;
+    await currentEntry.value.save();
   }
 
+  const onRelatedEntriesChanged = async (addedUUIDs: string[], removedUUIDs: string[]) => {
+    if (!currentEntry.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
+      return;
+    }
+
+    // check against current relationships
+    const { added, removed } = await getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
+
+    // Store the pending changes and show dialog if there are any changes
+    if (added.length > 0 || removed.length > 0) {
+      pendingAddedUUIDs.value = added;
+      pendingRemovedUUIDs.value = removed;
+      showRelatedEntriesDialog.value = true;
+    }
+  };
+
+  const onRelatedEntriesDialogUpdate = async (addedEntries: Entry[], removedEntries: Entry[]) => {
+    if (!currentEntry.value) 
+      return;
+
+    // Handle added relationships
+    for (const entry of addedEntries) {
+      await relationshipStore.addRelationship(entry, {});
+    }
+
+    // Handle removed relationships
+    for (const entry of removedEntries) {
+      await relationshipStore.deleteRelationship(entry.topic, entry.uuid);
+    }
+  };
+
+  const onSpeciesSelectionMade = async (species: {id: string; label: string}): Promise<void> => {
+    if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
+      return;
+
+    currentEntry.value.speciesId = species.id;
+    await currentEntry.value.save();
+  };
+
   const onJournalsUpdate = async (newJournals: RelatedJournal[]) => {
-    if (currentPC.value) {
-      currentPC.value.journals = newJournals;
-      await currentPC.value.save();
+    if (currentEntry.value) {
+      currentEntry.value.journals = newJournals;
+      await currentEntry.value.save();
     }
   };
 
@@ -262,19 +354,18 @@
       tabs.value?.activate(newTab || 'description');    
   });
 
-  watch(currentPC, async (newPC: PC | null): Promise<void> => {
-    if (newPC && newPC.uuid) {
-      if (!currentContentTab.value)
-        currentContentTab.value = 'description';
+  watch(currentEntry, async (newEntry: Entry | null): Promise<void> => {
+    if (!newEntry)
+      return;
+    
+    await refreshEntry();
 
-      if (tabs.value) {
-        tabs.value.activate(currentContentTab.value); 
-      }
+    if (!currentContentTab.value) {
+      currentContentTab.value = 'description';
+    }
 
-      // load starting data values
-      playerName.value = newPC.playerName || '';
-
-      await newPC.getActor();
+    if (tabs.value) {
+      tabs.value.activate(currentContentTab.value); 
     }
   });
 
@@ -294,11 +385,11 @@
     if (contentRef.value)
       tabs.value.bind(contentRef.value);
 
-    if (currentPC.value) {
+    if (currentEntry.value) {
       // load starting data values
-      playerName.value = currentPC.value.playerName || '';
+      playerName.value = currentEntry.value.playerName || '';
 
-      await currentPC.value.getActor();
+      await currentEntry.value.getActor();
     }
   });
 

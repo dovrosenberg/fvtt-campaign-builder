@@ -51,9 +51,7 @@
   // local components 
   import EntryContent from '@/components/ContentTab/EntryContent/EntryContent.vue';
   import SessionContent from '@/components/ContentTab/SessionContent/SessionContent.vue';
-      // TODO-PC
 
-  import PCContent from '@/components/ContentTab/PCContent.vue';
   import CampaignContent from '@/components/ContentTab/CampaignContent/CampaignContent.vue';
   import HomePage from '@/components/ContentTab/HomePage.vue';
   import SettingContent from '@/components/ContentTab/SettingContent.vue';

@@ -1,4 +1,5 @@
 import { useNavigationStore, useMainStore } from '@/applications/stores';
+import { Topics } from '@/types';
 
 export function registerForUpdateHooks() {
   registerForActorHooks();
@@ -16,21 +17,35 @@ function registerForActorHooks() {
     const navigationStore = useNavigationStore();
 
     // Check if the name was changed
-    // TODO-PC
     if (changes.name) {
       // find all the PCs that need to be updated
       let pcsToUpdate = new Set<string>();
-      for (let campaignId in mainStore.currentSetting?.campaigns) {
-        const pcs = (await mainStore.currentSetting.campaigns[campaignId].filterPCs(pc => pc.actorId === actor.uuid))
-          .map(pc => pc.uuid);
 
-        pcsToUpdate = new Set([...pcsToUpdate, ...pcs]);
+      // iterate over all settings then all PCs within the setting
+      const settings = [mainStore.currentSetting];
+      for (const setting of settings) {
+        const folder = setting?.topicFolders[Topics.PC];
+        if (!folder)
+          continue;
+
+        const pcs = await folder.filterEntries(e => e.actorId === actor.uuid);
+        if (pcs)
+          pcsToUpdate = new Set([...pcsToUpdate, ...pcs.map(pc => pc.uuid)]);
+
+        // propagate all of them through all the headers 
+        pcsToUpdate.forEach(async (uuid: string) => {
+          await navigationStore.propagateNameChange(uuid, actor.name);
+        });      
+
+        // also need to update the details on campaigns
+        for (let campaign of Object.values(setting.campaigns)) {
+          const pc = campaign.pcs.find(pc => pc.uuid === actor.uuid);
+          if (pc) {
+            pc.name = actor.name;
+            await campaign.save();
+          }
+        }
       }
-
-      // propagate all of them through all the headers 
-      pcsToUpdate.forEach(async (uuid: string) => {
-        await navigationStore.propagateNameChange(uuid, actor.name);
-      });      
 
       // refresh the content window in case it's showing in a table
       await mainStore.refreshCurrentContent();

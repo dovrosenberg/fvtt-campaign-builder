@@ -185,7 +185,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
     if (campaign) {
       // if we're working on the current setting, refresh the tree and open the campaign
-      if (setting.uuid === currentSetting.value?.uuid) {
+      if (settingToUse.uuid === currentSetting.value?.uuid) {
         await refreshCampaignDirectoryTree();
         await navigationStore.openCampaign(campaign.uuid, {newTab: true});
       }

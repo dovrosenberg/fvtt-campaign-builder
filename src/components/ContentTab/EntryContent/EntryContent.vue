@@ -1,5 +1,7 @@
 <template>
-  <form>
+  <!-- PCs use their own thing because their image works differently -->
+  <PCContent v-if="topic===Topics.PC" />
+  <form v-else>
     <div ref="contentRef" class="fcb-sheet-container flexcol">
       <header class="fcb-name-header flexrow">
         <i :class="`fas ${icon} sheet-icon`"></i>
@@ -92,10 +94,7 @@
               :topic="topic as ValidTopic"
               @image-change="onImageChange"
             >
-              <div 
-                v-if="topic!==Topics.PC"
-                class="flexrow form-group"
-              >
+              <div class="flexrow form-group">
                 <LabelWithHelp
                   label-text="labels.fields.type"
                 />
@@ -106,9 +105,9 @@
                 />
               </div>
 
-              <!-- show the species for characters and PCs -->
+              <!-- show the species for characters -->
               <div 
-                v-if="[Topics.Character, Topics.PC].includes(topic)"
+                v-if="topic===Topics.Character"
                 class="flexrow form-group"
               >
                 <LabelWithHelp
@@ -200,34 +199,33 @@
               :initial-journals="currentEntry.journals"
               @journals-updated="onJournalsUpdate"
             />
-            <div class="tab flexcol" data-group="primary" data-tab="characters">
+            <div 
+              v-for="relationship in relationships"
+              :key="relationship.label"
+              class="tab flexcol" data-group="primary" data-tab="characters"
+            >
               <div class="tab-inner">
-                <RelatedItemTable :topic="Topics.Character" />
+                <RelatedItemTable :topic="relationships.topic" />
               </div>
             </div> 
-            <div class="tab flexcol" data-group="primary" data-tab="locations">
-              <div class="tab-inner">
-                <RelatedItemTable :topic="Topics.Location" />
-              </div>
-            </div>
-            <div class="tab flexcol" data-group="primary" data-tab="organizations">
-              <div class="tab-inner">
-                <RelatedItemTable :topic="Topics.Organization" />
-              </div>
-            </div>
-            <div class="tab flexcol" data-group="primary" data-tab="pcs">
-              <div class="tab-inner">
-                <RelatedItemTable :topic="Topics.PC" />
-              </div>
-            </div>
-            <div class="tab flexcol" data-group="primary" data-tab="scenes">
+            <div 
+              v-if="topic===Topics.Location"
+              class="tab flexcol" 
+              data-group="primary" 
+              data-tab="scenes"
+            >
               <div class="tab-inner">
                 <RelatedDocumentTable 
                   :document-link-type="DocumentLinkType.Scenes"
                 />
               </div>
             </div>
-            <div class="tab flexcol" data-group="primary" data-tab="actors">
+            <div 
+              v-if="topic===Topics.Character"
+              class="tab flexcol" 
+              data-group="primary" 
+              data-tab="actors"
+            >
               <div class="tab-inner">
                 <RelatedDocumentTable 
                   :document-link-type="DocumentLinkType.Actors"
@@ -266,6 +264,7 @@
   import { generateImage } from '@/utils/generation';
   import { ModuleSettings, SettingKey } from '@/settings';
   import { notifyInfo } from '@/utils/notifications';  
+  import { updateEntryDialog } from '@/dialogs/createEntry';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -274,10 +273,9 @@
   // local components
   import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
   import JournalTab from '@/components/ContentTab/JournalTab.vue';
+  import PCContent from '@/components/ContentTab/PCContent.vue';
   import RelatedItemTable from '@/components/tables/RelatedItemTable.vue';
   import RelatedDocumentTable from '@/components/tables/RelatedDocumentTable.vue';
-  import { updateEntryDialog } from '@/dialogs/createEntry';
-
   import Editor from '@/components/Editor.vue';
   import TypeAhead from '@/components/TypeAhead.vue';
   import SpeciesSelect from '@/components/ContentTab/EntryContent/SpeciesSelect.vue';
@@ -316,15 +314,14 @@
     [Topics.Character]: { namePlaceholder: 'placeholders.characterName', },
     [Topics.Location]: { namePlaceholder: 'placeholders.locationName', },
     [Topics.Organization]: { namePlaceholder: 'placeholders.organizationName', },
-    [Topics.PC]: { namePlaceholder: 'placeholders.pcName', },
   };
 
   const relationships = [
-    { tab: 'characters', label: 'labels.tabs.entry.characters', },
-    { tab: 'locations', label: 'labels.tabs.entry.locations',},
-    { tab: 'organizations', label: 'labels.tabs.entry.organizations', },
-    { tab: 'pcs', label: 'labels.tabs.entry.pcs', },
-  ] as { tab: string; label: string }[];
+    { tab: 'characters', label: 'labels.tabs.entry.characters', topic: Topics.Character },
+    { tab: 'locations', label: 'labels.tabs.entry.locations', topic: Topics.Location },
+    { tab: 'organizations', label: 'labels.tabs.entry.organizations', topic: Topics.Organization },
+    { tab: 'pcs', label: 'labels.tabs.entry.pcs', topic: Topics.PC },
+  ] as { tab: string; label: string; topic: Topics }[];
 
   const tabs = ref<foundry.applications.ux.Tabs>();
   const topic = ref<Topics | null>(null);
@@ -363,7 +360,7 @@
 
       newTopicFolder = currentEntry.value.topicFolder;
       if (!newTopicFolder) 
-        throw new Error('Invalid entry topic in EntryContent.watch-currentEntry');
+        throw new Error('Invalid entry topic in EntryContent.refreshEntry');
 
       // we're going to show a content page
       topic.value = newTopicFolder.topic;
@@ -383,8 +380,8 @@
     }
   };
 
-    /** how many campaigns have available sessions */
-    const numAvailableSessions = (): number => {
+  /** how many campaigns have available sessions */
+  const numAvailableSessions = (): number => {
     if (!currentSetting.value)
       return 0;
 

@@ -523,10 +523,19 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
         if (!settingFolder || !topicFolder)
           throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
-        const entry = await FCBDialog.createEntryDialog(topicFolder.topic, { } );
+        if (topicFolder.topic===Topics.PC) {
+          // TODO-PC - just get the player name and create
 
-        if (entry) {
-          await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+          const entry = await Entry.create(currentSetting.value?.topicFolders[Topics.PC], {});
+          if (entry) {
+            await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
+          }
+        } else {
+          const entry = await FCBDialog.createEntryDialog(topicFolder.topic, { } );
+
+          if (entry) {
+            await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
+          }
         }
       }
     }];

@@ -76,12 +76,12 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
       return this.setting;
     
     if (!this._doc.collection?.folder)
-      throw new Error('Invalid folder id in Topics.loadSetting()');
+      throw new Error('Invalid folder id in TopicFolder.loadSetting()');
 
     const settingDoc = await fromUuid<SettingDoc>(this._doc.collection.folder.uuid);
 
     if (!settingDoc)
-      throw new Error('Invalid folder id in Topics.loadSetting()');
+      throw new Error('Invalid folder id in TopicFolder.loadSetting()');
 
     this.setting = new Setting(settingDoc);
     return this.setting;
@@ -195,7 +195,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    * Returns the specified entry from inside this topic, if it exists
    * 
    * @param {uuid: string} - The id to find
-   * @returns {Entry | null} The matchingentry
+   * @returns {Entry | null} The matching entry
    */
    public findEntry(uuid: string): Entry | null { 
     const match: EntryDoc | undefined = (toRaw(this._doc).pages.contents as unknown as EntryDoc[]).find((e: EntryDoc)=> e.uuid === uuid);

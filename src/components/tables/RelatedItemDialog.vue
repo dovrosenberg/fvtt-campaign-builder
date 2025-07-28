@@ -178,7 +178,7 @@
     // if (props.mode === RelatedItemDialogModes.Edit) {
     //   return `${topicDetails[props.topic].editTitle}: ${props.itemName}`;
     // } else {
-      return topicDetails[props.topic].title;
+      return (props.topic && topicDetails[props.topic].title) || '';
     // }
   });
 

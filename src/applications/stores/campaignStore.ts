@@ -78,51 +78,35 @@ export const useCampaignStore = defineStore('campaign', () => {
   ///////////////////////////////
   // actions
   /** add PC to current campaign */
-  const addPC = async (): Promise<Entry | null> => {
-    // TODO
-    throw new Error('Adding PC to campaign Not implemented');
-    // const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
+  const addPC = async (pc: PCDetails): Promise<void> => {
+    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
 
-    // if (!campaign)
-    //   return null;
+    if (!campaign)
+      return;
 
-    // const pc = await Entry.create(currentSetting.value?.topicFolders[Topics.PC], {});
+    campaign.pcs = [...campaign.pcs, pc];
+    await campaign.save();
 
-    // await _refreshPCRows();
-
-    // if (pc) {
-    //   await mainStore.refreshCurrentContent();
-    //   return pc;
-    // } else { 
-    //   return null;
-    // }
+    await _refreshPCRows();
+    await mainStore.refreshCurrentContent();
   };
 
-  const deletePC = async (pcId: string): Promise<void> => {
-    // TODO
-    throw new Error('Deleting PC from campaign Not implemented');
-    // const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
+  /** removes from the campaign - not the entry */
+  const deletePC = async (uuid: string): Promise<void> => {
+    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
     
-    // if (!campaign)
-    //   return;
+    if (!campaign)
+      return;
 
-    // const pc = await PC.fromUuid(pcId);
+    // confirm
+    if (!(await FCBDialog.confirmDialog(localize('dialogs.confirmDeletePC.title'), localize('dialogs.confirmDeletePC.message'))))
+      return;
 
-    // if (!pc) 
-    //   throw new Error('Bad session in campaignDirectoryStore.deletePC()');
+    campaign.pcs = campaign.pcs.filter(pc => pc.uuid !== uuid);
+    await campaign.save();
 
-    // // confirm
-    // if (!(await FCBDialog.confirmDialog(localize('dialogs.confirmDeletePC.title'), localize('dialogs.confirmDeletePC.message'))))
-    //   return;
-
-    // await pc.delete();
-
-    // // update tabs/bookmarks
-    // await navigationStore.cleanupDeletedEntry(pcId);
-
-    // await _refreshPCRows();
-
-    // await mainStore.refreshCurrentContent();
+    await _refreshPCRows();
+    await mainStore.refreshCurrentContent();
   };
   
   /**
@@ -471,31 +455,21 @@ export const useCampaignStore = defineStore('campaign', () => {
   }
 
   const _refreshPCRows = async (): Promise<void> => {
-    // TODO
-    throw new Error('Refreshing PC rows Not implemented');
-    // relatedPCRows.value = [];
+    relatedPCRows.value = [];
 
-    // const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
+    const campaign = currentCampaign.value || await currentSession.value?.loadCampaign();
     
-    // if (!campaign) 
-    //   return;
+    if (!campaign) 
+      return;
     
-    // const pcs = await campaign.getPCs();
+    const pcs = (await campaign.getPCs()) || [];
 
-    // // we can't just do it in place because of a race condition
-    // const retval = [] as PCDetails[];
-
-    // if (pcs) {
-    //   for (let i = 0; i < pcs.length; i++) {
-    //     retval.push({ 
-    //       name: pcs[i].name,
-    //       playerName: pcs[i].playerName,
-    //       uuid: pcs[i].uuid,
-    //     });
-    //   }
-    // }
-
-    // relatedPCRows.value = retval;
+    relatedPCRows.value = pcs
+      .map((pc: PCDetails) => ({ 
+        name: pc.name,
+        playerName: pc.playerName,
+        uuid: pc.uuid,
+      }));
   };
 
   const _refreshLoreRows = async () => {

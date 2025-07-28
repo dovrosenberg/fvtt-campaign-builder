@@ -158,11 +158,14 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
 
     const unsetFunction = async () => {
       if (config.keyedByUUID && key) {
+        // @ts-ignore - not sure how to fix the typing
         await this._doc.unsetFlag(moduleId, `${flag}.${swapString(key, true)}`);
       } else if (!config.keyedByUUID && key){
+        // @ts-ignore - not sure how to fix the typing
         await this._doc.unsetFlag(moduleId, `${flag}${key ? '.' + key : ''}`);
       } else {
         // try to unset the whole flag
+        // @ts-ignore - not sure how to fix the typing
         await this._doc.unsetFlag(moduleId, flag);
       }
     }

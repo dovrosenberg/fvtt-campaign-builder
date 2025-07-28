@@ -27,12 +27,9 @@
    "documentTypes": {
     "JournalEntryPage": {
       "entry": {
-        "htmlFields": [ "rolePlayingNotes" ]
+        "htmlFields": [ "rolePlayingNotes", "background", "plotPoints", "magicItems" ]
       },
-      "session": {},
-      "pc": {
-        "htmlFields": [ "background", "plotPoints", "magicItems" ]
-      }
+      "session": {}
     }
   },
 

@@ -23,6 +23,12 @@ export type RelatedDocumentDetails = {
   packName: string | null;
 };
 
+export type PCDetails = {
+  uuid: string;
+  name: string;
+  actorId: string | null;
+}
+
 // ideally we'd use a getter to create the uuid, but these get serialized and it would
 //    be a pain to try to add the function back
 export type RelatedJournal = {

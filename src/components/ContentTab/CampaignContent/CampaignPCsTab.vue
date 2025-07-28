@@ -7,20 +7,27 @@
     :extra-add-text="localize('labels.campaign.addPCDrag')"
     :showFilter="false"
     :allowEdit="false"
-    :allow-drop-row="true"
+    :allow-drop-row="false"
     :delete-item-label="localize('tooltips.deleteRelationship')"
     :add-button-label="localize('labels.campaign.addPC')"
     @add-item="onAddItemClick"
     @delete-item="onDeleteItemClick"
     @drop-new="onDropNew"
-    @drop-row="onDropRow"
     @dragover="onDragover"
+  />
+
+  <RelatedItemDialog
+    v-model="addDialogShow"
+    :topic="Topics.PC"
+    :item-id="editItem.itemId"
+    :item-name="editItem.itemName"
+    :mode="RelatedItemDialogModes.Add"
   />
 </template>
 
 <script setup lang="ts">
   // library imports
-  import { computed, } from 'vue';
+  import { computed, ref } from 'vue';
   import { storeToRefs } from 'pinia';
   
   // local imports
@@ -32,9 +39,10 @@
 
   // local components
   import BaseTable from '@/components/tables/BaseTable.vue';
-
+  import RelatedItemDialog from '@/components/tables/RelatedItemDialog.vue';
+  
   // types
-  import { PCDetails, } from '@/types';
+  import { PCDetails, RelatedItemDialogModes, Topics } from '@/types';
   
   ////////////////////////////////
   // props
@@ -51,6 +59,12 @@
 
   ////////////////////////////////
   // data
+  const addDialogShow = ref(false);
+  const editItem = ref({
+    itemId: '',
+    itemName: '',
+    extraFields: [],
+  } as { itemId: string; itemName: string; extraFields: {field: string; header: string; value: string}[] });
 
   ////////////////////////////////
   // computed data
@@ -94,17 +108,11 @@
   ////////////////////////////////
   // event handlers
   const onAddItemClick = async () => {
-    // TODO-PC
-
-    const newPC = await campaignStore.addPC();
-
-    if (newPC)
-      await navigationStore.openPC(newPC.uuid, { newTab: true });
+    addDialogShow.value = true;
   };
 
   // call mutation to remove item from relationship
   const onDeleteItemClick = async function(_id: string) {
-    // TODO-PC
     void campaignStore.deletePC(_id); 
   };
 
@@ -117,48 +125,34 @@
   }
 
   const onDropNew = async(event: DragEvent) => {
-  // TODO-PC
-//     event.preventDefault();  
-
-    // parse the data 
-    let data = getValidatedData(event);
-    if (!data)
-      return;
-
-    // make sure it's the right format
-    // if it's an actor, create a new PC and link it
-    if (data.type==='Actor' && data.uuid) {
-      const newPC = await campaignStore.addPC();
-
-      if (newPC) {
-        newPC.actorId = data.uuid;
-        await newPC.save();
-        await navigationStore.openPC(newPC.uuid, { newTab: true });
-      }
-    }
-  };
-  
-  // handle actor dropped on existing PC
-  const onDropRow = async(event: DragEvent, uuid: string) => {
+    // TODO-PC - we should drop PCs here not actors
     event.preventDefault();  
 
-    // parse the data 
-    let data = getValidatedData(event);
-    if (!data)
-      return;
+    // // parse the data 
+    // let data = getValidatedData(event);
+    // if (!data)
+    //   return;
 
-    // make sure it's the right format
-    // if it's an actor, connect to the PC
-    if (data.type==='Actor' && data.uuid) {
-      const pc = await PC.fromUuid(uuid);
+    // // make sure it's the right format
+    // // if it's an actor, create a new PC and link it
+    // if (data.type==='Actor' && data.uuid) {
+    //   const newPC = await campaignStore.addPC({ });
 
-      if (pc) {
-        pc.actorId = data.uuid;
-        await pc.save();
-        await mainStore.refreshCampaign();
-      }
-    }
+    //   if (newPC) {
+    //     newPC.actorId = data.uuid;
+    //     await newPC.save();
+    //     await navigationStore.openEntry(newPC.uuid, { newTab: true });
+    //   }
+    // }
+
+    // // open the dialog to complete
+    // editItem.value = {
+    //   itemId: newPC.uuid,
+    //   itemName: newPC.name,
+    //   extraFields: [],
+    // };
   };
+  
 
   ////////////////////////////////
   // watchers
