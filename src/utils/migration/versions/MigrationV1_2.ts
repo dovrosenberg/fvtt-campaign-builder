@@ -1,8 +1,8 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { SettingDoc } from '@/documents';
-import { useMainStore } from '@/applications/stores';
+import { useMainStore, useSettingDirectoryStore } from '@/applications/stores';
 import { Setting, Entry } from '@/classes';
-import { Topics } from '@/types';
+import { Hierarchy, Topics } from '@/types';
 
 /**
  * Migration for upgrading from versions <1.2 to >=1.2
@@ -158,6 +158,7 @@ export class MigrationV1_2 implements Migration {
       const pcData = {
         playerName: oldData.playerName || '',
         actorId: oldData.actorId || '',
+        name: '<Link to Actor>',
         background: oldData.background || '',
         plotPoints: oldData.plotPoints || '',
         magicItems: oldData.magicItems || '',
@@ -167,26 +168,56 @@ export class MigrationV1_2 implements Migration {
         actors: [],
         journals: [],
         img: page.img || '',
-        rolePlayingNotes: ''
+        rolePlayingNotes: '',
       };
+
+      // get the actor name
+      if (pcData.actorId) {
+        const actor = await fromUuid(pcData.actorId);
+        if (actor)
+          pcData.name = actor.name;
+      }
 
       // find the PC folder for the setting
       const pcFolder = setting.topicFolders[Topics.PC];
       
-      const newEntry = await Entry.create(pcFolder, { name: page.name });
-
+      debugger;
+      // we need a player name
+        
+      // we can't do useSettingDirectoryStore().createEntry() because we don't have a current setting
+      const newEntry = await Entry.create(pcFolder, { name: pcData.name });
+      
       if (!newEntry)
         throw new Error('Failed to create new Entry journal entry');
       
-      newEntry.playerName = pcData.playerName;
+      newEntry.playerName = pcData.playerName || 'Unknown';
       newEntry.actorId = pcData.actorId;
       newEntry.background = pcData.background;
       newEntry.plotPoints = pcData.plotPoints;
       newEntry.magicItems = pcData.magicItems;
       newEntry.img = pcData.img;
+      newEntry.name = pcData.name;
       await newEntry.save();
 
-      console.log(`Migrated PC "${page.name}" to new Entry format`);
+      const uuid = newEntry.uuid;
+
+      // we always add a hierarchy, because we use it for filtering
+      setting.setEntryHierarchy(uuid, 
+        {
+          parentId: '',
+          ancestors: [],
+          children: [],
+          type: '',
+        } as Hierarchy
+      );
+      await setting.save();
+
+      // no parent - set as a top node
+      const topNodes = pcFolder.topNodes;
+      pcFolder.topNodes = topNodes.concat([uuid]);
+      await pcFolder.save();
+
+      console.log(`Migrated PC "${pcData.name}" to new Entry format`);
       result.migratedCount++;
     } catch (error) {
       result.failedCount++;
@@ -201,6 +232,7 @@ export class MigrationV1_2 implements Migration {
   async cleanupOldEntries(): Promise<void> {
     const oldPCEntries = await this.findOldPCEntries();
     
+    debugger;
     for (const settingId in oldPCEntries) {
       if (oldPCEntries[settingId].length === 0)
         continue;

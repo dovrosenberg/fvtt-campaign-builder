@@ -1,8 +1,9 @@
 # Change Log
 
-## v1.1.0 - AI options, quality of life improvements
+## v1.2.0 - AI options, quality of life improvements
 
 **Note!** You may need to close all your currently open tabs and reopen to avoid issues after upgrading to this version.
+**Note 2!** You will see a migration window popup briefly (usually very briefly) the first time you login after upgrading.  
 
 - Added ability to link Foundry journals to Entries, Settings, Campaigns, and PCs - great for attaching maps, multiple iamges of the same character, and various other info you want to store and/or share with your players
 - Added support for Anthropic (Claude 3) for text generation (see module settings)
