@@ -44,7 +44,6 @@ export class MigrationV1_2 implements Migration {
       };
     }
 
-    debugger;
     const result = await this.migrateAllEntries(oldPCEntries, totalCount);
 
     if (result.failedCount === 0) {
@@ -181,9 +180,6 @@ export class MigrationV1_2 implements Migration {
       // find the PC folder for the setting
       const pcFolder = setting.topicFolders[Topics.PC];
       
-      debugger;
-      // we need a player name
-        
       // we can't do useSettingDirectoryStore().createEntry() because we don't have a current setting
       const newEntry = await Entry.create(pcFolder, { name: pcData.name });
       
@@ -232,7 +228,6 @@ export class MigrationV1_2 implements Migration {
   async cleanupOldEntries(): Promise<void> {
     const oldPCEntries = await this.findOldPCEntries();
     
-    debugger;
     for (const settingId in oldPCEntries) {
       if (oldPCEntries[settingId].length === 0)
         continue;
