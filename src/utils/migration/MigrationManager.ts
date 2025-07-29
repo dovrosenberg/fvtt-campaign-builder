@@ -5,6 +5,7 @@
 import { MigrationResult, MigrationContext, MigrationConstructor } from './types';
 import { MigrationV1_2 } from './versions/MigrationV1_2';
 import { VersionUtils } from '@/utils/version';
+import { MigrationProgressDialog } from './MigrationProgressDialog';
 
 /**
  * Manages all migrations for the Campaign Builder module
@@ -70,47 +71,78 @@ export class MigrationManager {
       };
     }
 
-    const overallResult: MigrationResult = {
-      success: true,
-      migratedCount: 0,
-      failedCount: 0,
-      errors: [],
-      warnings: []
-    };
+    return await MigrationProgressDialog.withProgress(
+      'Module Migration',
+      'Migrating your campaign data to the latest version...',
+      async (progress) => {
+        const overallResult: MigrationResult = {
+          success: true,
+          migratedCount: 0,
+          failedCount: 0,
+          errors: [],
+          warnings: []
+        };
 
-    for (const migrationClass of neededMigrations) {
-      let currentVersion: string = 'unknown';
+        let totalMigrations = neededMigrations.length;
+        let completedMigrations = 0;
 
-      try {
-        const context = this.createMigrationContext();
-        const migration = new migrationClass(context);
-        
-        currentVersion = migration.targetVersion;
-        console.log(`Running migration for version ${currentVersion}`);
-        
-        const result = await migration.migrate();
-        
-        if (result.success) {
-          overallResult.migratedCount += result.migratedCount;
-          if (result.warnings) {
-            overallResult.warnings?.push(...result.warnings);
+        // Listen for progress events from migrations
+        const progressListener = (event: CustomEvent) => {
+          const { current, total, status } = event.detail;
+          progress.updateProgress(current, total, status);
+        };
+        document.addEventListener('migration-progress', progressListener as EventListener);
+
+        try {
+          for (const migrationClass of neededMigrations) {
+            let currentVersion: string = 'unknown';
+
+            try {
+              const context = this.createMigrationContext();
+              const migration = new migrationClass(context);
+              
+              currentVersion = migration.targetVersion;
+              progress.updateStatus(`Running migration for version ${currentVersion}...`);
+              
+              const result = await migration.migrate();
+              
+              if (result.success) {
+                overallResult.migratedCount += result.migratedCount;
+                if (result.warnings) {
+                  overallResult.warnings?.push(...result.warnings);
+                }
+                progress.updateStatus(`Completed migration for version ${currentVersion}`);
+              } else {
+                overallResult.success = false;
+                overallResult.failedCount += result.failedCount;
+                if (result.errors) {
+                  overallResult.errors?.push(...result.errors);
+                }
+                progress.updateStatus(`Migration failed for version ${currentVersion}`);
+              }
+            } catch (error) { 
+              overallResult.success = false;
+              const errorMsg = `Migration failed for version ${currentVersion}: ${error}`;
+              overallResult.errors?.push(errorMsg);
+              console.error(errorMsg);
+              progress.updateStatus(`Migration failed for version ${currentVersion}`);
+            }
+
+            completedMigrations++;
+            progress.updateProgress(completedMigrations, totalMigrations, 
+              `Completed ${completedMigrations}/${totalMigrations} migrations`);
           }
-        } else {
-          overallResult.success = false;
-          overallResult.failedCount += result.failedCount;
-          if (result.errors) {
-            overallResult.errors?.push(...result.errors);
-          }
+        } finally {
+          document.removeEventListener('migration-progress', progressListener as EventListener);
         }
-      } catch (error) { 
-        overallResult.success = false;
-        const errorMsg = `Migration failed for version ${currentVersion}: ${error}`;
-        overallResult.errors?.push(errorMsg);
-        console.error(errorMsg);
-      }
-    }
 
-    return overallResult;
+        if (overallResult.success) {
+          await VersionUtils.saveCurrentVersion();
+        }
+
+        return overallResult;
+      }
+    );
   }
   
   /**

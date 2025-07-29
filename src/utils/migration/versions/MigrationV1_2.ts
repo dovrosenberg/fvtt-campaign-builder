@@ -27,10 +27,11 @@ export class MigrationV1_2 implements Migration {
     const oldPCEntries = await this.findOldPCEntries();
     
     let anyTodo = false;
+    let totalCount = 0;
     for (const settingId in oldPCEntries) {
       if (oldPCEntries[settingId].length > 0) {
         anyTodo = true;
-        break;
+        totalCount += oldPCEntries[settingId].length;
       }
     }
 
@@ -44,7 +45,7 @@ export class MigrationV1_2 implements Migration {
     }
 
     debugger;
-    const result = await this.migrateAllEntries(oldPCEntries);
+    const result = await this.migrateAllEntries(oldPCEntries, totalCount);
 
     if (result.failedCount === 0) {
       await this.cleanupOldEntries();
@@ -84,7 +85,7 @@ export class MigrationV1_2 implements Migration {
     return entries;
   }
 
-  private async migrateAllEntries(oldPCEntries: Record<string, JournalEntryPage[]>): Promise<MigrationResult> {
+  private async migrateAllEntries(oldPCEntries: Record<string, JournalEntryPage[]>, totalCount: number): Promise<MigrationResult> {
     const result: MigrationResult = {
       success: true,
       migratedCount: 0,
@@ -93,9 +94,26 @@ export class MigrationV1_2 implements Migration {
       warnings: []
     };
     
+    let processedCount = 0;
+
+    // Show progress updates
+    const updateProgress = (status: string) => {
+      // Emit progress event for MigrationManager to pick up
+      const event = new CustomEvent('migration-progress', {
+        detail: {
+          current: processedCount,
+          total: totalCount,
+          status: status
+        }
+      });
+      document.dispatchEvent(event);
+    };
+
     for (const settingId in oldPCEntries) {
       if (oldPCEntries[settingId].length === 0)
         continue;
+      
+      updateProgress(`Processing setting ${settingId}...`);
       
       // @ts-ignore
       const settingDoc = await fromUuid<SettingDoc>(settingId);
@@ -105,6 +123,7 @@ export class MigrationV1_2 implements Migration {
       }
 
       const setting = new Setting(settingDoc);
+      await setting.validate();
 
       if (!setting) {
         console.log('Skipping invalid setting id in MigrationV1_2.migrateAllEntries(): ' + settingId);
@@ -112,7 +131,10 @@ export class MigrationV1_2 implements Migration {
       }
 
       for (const page of oldPCEntries[settingId]) {
+        updateProgress(`Migrating PC: ${page.name}...`);
         await this.migrateSingleEntry(setting, page, result);
+        processedCount++;
+        updateProgress(`Completed ${page.name}`);
       }
     }
 
@@ -191,6 +213,7 @@ export class MigrationV1_2 implements Migration {
         }
 
         const setting = new Setting(settingDoc);
+        await setting.validate();
 
         if (!setting) {
           console.log('Skipping invalid setting id in MigrationV1_2.cleanupOldEntries(): ' + settingId);
