@@ -394,6 +394,10 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     isTopicTreeRefreshing.value = true;
 
+    // Preserve scroll position before refresh
+    const scrollContainer = document.querySelector('.fcb-directory-panel-wrapper') as HTMLElement;
+    const originalScrollTop = scrollContainer?.scrollTop || 0;
+
     // we put in the topics only for the current setting
     let tree = [] as DirectorySetting[];
 
@@ -458,6 +462,13 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     updateFilterNodes();
 
     isTopicTreeRefreshing.value = false;
+
+    // Restore scroll position after DOM updates
+    if (scrollContainer) {
+      // Wait for next tick to ensure DOM is updated
+      await new Promise(resolve => setTimeout(resolve, 0));
+      scrollContainer.scrollTop = originalScrollTop;
+    }
   };
 
   const getTopicNodeContextMenuItems = (topic: ValidTopic, entryId: string): MenuItem[] => {

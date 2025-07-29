@@ -57,6 +57,10 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
     isCampaignTreeLoading.value = true;
 
+    // Preserve scroll position before refresh
+    const scrollContainer = document.querySelector('.fcb-directory-panel-wrapper') as HTMLElement;
+    const originalScrollTop = scrollContainer?.scrollTop || 0;
+
     const expandedNodes = currentSetting.value.expandedIds || {};
 
     currentCampaignTree.value = [];
@@ -103,6 +107,13 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       await mainStore.refreshEntry();
 
     isCampaignTreeLoading.value = false;
+
+    // Restore scroll position after DOM updates
+    if (scrollContainer) {
+      // Wait for next tick to ensure DOM is updated
+      await new Promise(resolve => setTimeout(resolve, 0));
+      scrollContainer.scrollTop = originalScrollTop;
+    }
   };
 
   const deleteCampaign = async(campaignId: string): Promise<void> => {

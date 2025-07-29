@@ -217,32 +217,61 @@ async function scrollToSession(sessionId: string): Promise<void> {
 }
 
 /**
- * Scrolls to an element in the directory tree
+ * Scrolls to an element in the directory tree if it's not already visible
  */
 async function scrollToElement(selector: string): Promise<void> {
   const element = document.querySelector(selector) as HTMLElement;
   
-  if (element) {
-    // Find the scrollable container (the directory panel)
-    const scrollContainer = element.closest('.fcb-directory-panel-wrapper') as HTMLElement;
-    
-    if (scrollContainer) {
-      // Get the element's position relative to the scroll container
-      const elementRect = element.getBoundingClientRect();
-      const containerRect = scrollContainer.getBoundingClientRect();
-      
-      // Calculate the scroll position to center the element
-      const elementTop = elementRect.top - containerRect.top + scrollContainer.scrollTop;
-      const containerHeight = scrollContainer.clientHeight;
-      const elementHeight = elementRect.height;
-      
-      const targetScrollTop = elementTop - (containerHeight / 2) + (elementHeight / 2);
-      
-      // Smooth scroll to the element
-      scrollContainer.scrollTo({
-        top: Math.max(0, targetScrollTop),
-        behavior: 'smooth'
-      });
-    }
+  if (!element || isActiveEntryVisible(selector)) 
+    return;
+
+  // Find the scrollable container (the directory panel)
+  const scrollContainer = element.closest('.fcb-directory-panel-wrapper') as HTMLElement;
+  
+  if (!scrollContainer) 
+    return;
+
+  // Get the element's position relative to the scroll container
+  const elementRect = element.getBoundingClientRect();
+  const containerRect = scrollContainer.getBoundingClientRect();
+  
+  // Calculate the scroll position to center the element
+  const elementTop = elementRect.top - containerRect.top + scrollContainer.scrollTop;
+  const containerHeight = scrollContainer.clientHeight;
+  const elementHeight = elementRect.height;
+  
+  const targetScrollTop = elementTop - (containerHeight / 2) + (elementHeight / 2);
+  
+  // Smooth scroll to the element
+  scrollContainer.scrollTo({
+    top: Math.max(0, targetScrollTop),
+    behavior: 'smooth'
+  });
+}
+
+/**
+ * Checks if the active entry is already visible in the directory tree
+ * @returns Promise that resolves to true if the entry is visible, false otherwise
+ */
+function isActiveEntryVisible(selector: string): boolean {
+  // Find the currently active/highlighted entry in the directory tree
+  const activeElement = document.querySelector(selector) as HTMLElement;
+  
+  if (!activeElement) {
+    return false;
   }
+  
+  // Find the scrollable container
+  const scrollContainer = activeElement.closest('.fcb-directory-panel-wrapper') as HTMLElement;
+  if (!scrollContainer) {
+    return false;
+  }
+  
+  // Get the element's position relative to the scroll container
+  const elementRect = activeElement.getBoundingClientRect();
+  const containerRect = scrollContainer.getBoundingClientRect();
+  
+  const padding = 20; // Add some padding for better UX
+  
+  return elementRect.top >= (containerRect.top + padding) && elementRect.bottom <= (containerRect.bottom - padding);
 } 
