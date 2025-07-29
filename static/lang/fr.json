@@ -156,12 +156,14 @@
           "create": {
             "character": "Créer un personnage",
             "location": "Créer un lieu",
-            "organization": "Créer une organisation"
+            "organization": "Créer une organisation",
+            "pc": "Créer un PC"
           },
           "update": {
             "character": "Mettre à jour le personnage",
             "location": "Mettre à jour l'emplacement",
-            "organization": "Mettre à jour l'organisation"
+            "organization": "Mettre à jour l'organisation",
+            "pc": "Mettre à jour le PC"
           }
         },
         "labels": {
@@ -223,15 +225,15 @@
       },
       "addTopic": {
         "character": "Ajouter un Personnage",
-        "event": "Ajouter un Événement",
         "location": "Ajouter un Lieu",
-        "organization": "Ajouter une Organisation"
+        "organization": "Ajouter une Organisation",
+        "pc": "Ajouter un PC"
       },
       "addTopicDrag": {
         "character": "(ou glisser/déposer un personnage)",
-        "event": "(ou glisser/déposer un événement)",
         "location": "(ou glisser/déposer un lieu)",
-        "organization": "(ou glisser/déposer une organisation)"
+        "organization": "(ou glisser/déposer une organisation)",
+        "pc": "(ou glisser/déposer un PC)"
       },
       "entry": {
         "topic": "DossierSujet",
@@ -268,7 +270,7 @@
       },
       "campaign": {
         "addPC": "Ajouter un PJ",
-        "addPCDrag": "(ou glisser/déposer un acteur)",
+        "addPCDrag": "(ou glisser/déposer un PC)",
         "description": "Description",
         "pcs": "PJ",
         "lore": "Tradition",
@@ -287,7 +289,6 @@
         "entry": {
           "description": "Description",
           "characters": "Personnages",
-          "events": "Événements",
           "locations": "Lieux",
           "locationChildren": "Lieux enfants",
           "organizations": "Organisations",
@@ -295,7 +296,8 @@
           "scenes": "Scènes",
           "actors": "Acteurs",
           "sessions": "Sessions",
-          "journals": "Journaux"
+          "journals": "Journaux",
+          "pcs": "PCs"
         },
         "campaign": {
           "description": "Description",
@@ -358,7 +360,6 @@
       "search": "Rechercher",
       "filter": "Filtrer",
       "characterName": "Nom du Personnage",
-      "eventName": "Nom de l'Événement",
       "locationName": "Nom du Lieu",
       "organizationName": "Nom de l'Organisation",
       "campaignName": "Nom de la Campagne",
@@ -366,7 +367,8 @@
       "sessionName": "Nom de la Session",
       "sessionDate": "Date",
       "sessionNumber": "Numéro de Session",
-      "linkToActor": "Lien vers l'Acteur"
+      "linkToActor": "Lien vers l'Acteur",
+      "pcName": "Nom du PC"
     },
     "compendia": {
       "entry": "Entrées",
@@ -374,13 +376,13 @@
     },
     "topics": {
       "character": "Personnage",
-      "event": "Événement",
       "location": "Lieu",
       "organization": "Organisation",
       "characters": "Personnages",
-      "events": "Événements",
       "locations": "Lieux",
-      "organizations": "Organisations"
+      "organizations": "Organisations",
+      "pc": "PC",
+      "pcs": "PCs"
     },
     "dialogs": {
       "generateNameDialog": {
@@ -394,8 +396,8 @@
         "message": "Êtes-vous sûr de vouloir supprimer cette relation ?"
       },
       "confirmDeletePC": {
-        "title": "Supprimer le PJ ?",
-        "message": "Êtes-vous sûr de vouloir supprimer ce PJ de la campagne ?"
+        "title": "Supprimer le PC ?",
+        "message": "Êtes-vous sûr de vouloir supprimer ce PC de la campagne ? Cela n'affectera pas l'entrée du PC elle-même."
       },
       "createPC": {
         "title": "Créer un PJ",
@@ -453,7 +455,14 @@
           "buttonTitle": "Ajouter une relation",
           "editButtonTitle": "Enregistrer l'organisation"
         },
-        "addToSession": "Ajouter à la session"
+        "addToSession": "Ajouter à la session",
+        "pc": {
+          "title": "Ajouter un PC",
+          "editTitle": "Modifier le PC",
+          "createButtonTitle": "Créer un PC",
+          "buttonTitle": "Ajouter une relation",
+          "editButtonTitle": "Enregistrer le PC"
+        }
       },
       "relatedDocuments": {
         "selectActors": "Sélectionner les acteurs",
@@ -510,7 +519,7 @@
           "1": "Créer un nouveau personnage",
           "2": "Créer un nouveau lieu",
           "3": "Créer une nouvelle organisation",
-          "4": "Créer un nouvel événement"
+          "4": "Créer un nouveau PC"
         }
       },
       "directoryEntry": {
@@ -565,12 +574,11 @@
           "1": "Personnage",
           "2": "Lieu",
           "3": "Organisation",
-          "4": "Événement"
+          "4": "PC"
         },
         "2": "Campagne",
         "3": "Session",
-        "4": "PJ",
-        "5": "Paramètre"
+        "4": "Paramètre"
       },
       "dragActorFromEntry": "Glisser vers la scène",
       "addToASession": "Ajouter à une session",
