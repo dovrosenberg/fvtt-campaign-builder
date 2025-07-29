@@ -76,6 +76,22 @@ export class Backend {
         }
       
       // made it here - good to go!
+      // let's set the default models if they haven't been set yet
+      if (!ModuleSettings.get(SettingKey.selectedTextModel)) {
+        const models = await Backend.api.apiModelsTextGet();
+
+        if ( models.data?.models && models.data?.models[0] ) {
+          ModuleSettings.set(SettingKey.selectedTextModel, models.data?.models[0].id);
+        }
+      }
+      if (!ModuleSettings.get(SettingKey.selectedImageModel)) {
+        const models = await Backend.api.apiModelsImageGet();
+
+        if ( models.data?.models && models.data?.models[0] ) {
+          ModuleSettings.set(SettingKey.selectedImageModel, models.data?.models[0].id);
+        }
+      }
+
       notifyGMInfo(localize('notifications.backend.successfulConnection'));
       Backend.available = true;
 
