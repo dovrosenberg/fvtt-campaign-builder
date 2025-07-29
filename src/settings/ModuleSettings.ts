@@ -24,6 +24,7 @@ export enum SettingKey {
   isInPlayMode = 'isInPlayMode',  // stores the prep/play mode state
   entryTags = 'entryTags',
   sessionTags = 'sessionTags',
+  lastKnownVersion = 'lastKnownVersion',  // tracks the last known module version - used for tracking migrations
 
   // menus
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
@@ -250,6 +251,11 @@ export class ModuleSettings {
       settingID: SettingKey.sessionTags,
       default: {},
       type: Object,
+    },
+    {
+      settingID: SettingKey.lastKnownVersion,
+      default: '1.0.0',
+      type: String,
     },
     {
       settingID: SettingKey.APIURL,

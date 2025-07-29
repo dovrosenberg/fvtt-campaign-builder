@@ -96,8 +96,10 @@ export interface EntryDoc extends JournalEntryPage {
      */
     relationships: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;  // keyed by topic then by entryId
 
+    // for characters
     speciesId?: string | undefined;
 
+    // for PCs
     playerName?: string | undefined;
     actorId?: string | undefined;   // uuid of the actor
     background?: string | undefined;

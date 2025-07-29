@@ -4,6 +4,7 @@ import { getCampaignBuilderApp } from '@/applications/CampaignBuilder';
 import { isClientGM, localize } from '@/utils/game';
 import { refreshAllSettingRollTables } from '@/utils/nameGenerators';
 import { Backend, ExternalAPI } from '@/classes';
+import { MigrationManager } from '@/utils/migration';
 
 export function registerForReadyHook() {
   Hooks.once('ready', ready);
@@ -39,6 +40,9 @@ async function ready(): Promise<void> {
   if (autoRefresh && Backend.available && Backend.api) {
     void refreshAllSettingRollTables();
   }
+
+  // Handle version checking and migration
+  await MigrationManager.performMigration();
 }
 
 const loadDefaultSpecies = async () => {

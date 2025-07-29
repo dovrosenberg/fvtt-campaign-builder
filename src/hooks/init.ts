@@ -22,7 +22,7 @@ async function init(): Promise<void> {
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
     [DOCUMENT_TYPES.Entry]: EntryDataModel,
     [DOCUMENT_TYPES.Session]: SessionDataModel,
-    // [DOCUMENT_TYPES.PC]: PCDataModel,
+    // [DOCUMENT_TYPES.PC]: PCDataModel, // Deprecated in v1.2+
   });
 
   foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
@@ -33,6 +33,7 @@ async function init(): Promise<void> {
     types: [DOCUMENT_TYPES.Session],
     makeDefault: true
   });
+  // PC entries are now handled by Entry with topic=PC
   // foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
   //   types: [DOCUMENT_TYPES.PC],
   //   makeDefault: true
