@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, } from 'vue';
+  import { computed } from 'vue';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -28,6 +28,8 @@
   import { Topics, ValidTopic, WindowTabType } from '@/types';
   import { MenuItem } from '@imengyu/vue3-context-menu';
   import { Backend } from '@/classes';
+  import { storeToRefs } from 'pinia';
+  import { useMainStore } from '@/applications/stores';
 
   ////////////////////////////////
   // props
@@ -61,6 +63,13 @@
     (e: 'create-scene', value: string): void; 
     (e: 'generate-image'): void; 
   }>();
+
+
+  ////////////////////////////////
+  // data
+  const mainStore = useMainStore();
+  const {currentEntry }= storeToRefs(mainStore);
+
 
   ////////////////////////////////
   // data
@@ -145,7 +154,8 @@
           icon: 'fa-head-side-virus',
           iconFontClass: 'fas',
           label: localize('contextMenus.image.generateImage'),
-          onClick: () => generateImage()
+          onClick: () => generateImage(),
+          disabled: Backend.isGeneratingImage[currentEntry.value?.uuid as string],
         });
       }
     } else {
@@ -197,7 +207,8 @@
           icon: 'fa-head-side-virus',
           iconFontClass: 'fas',
           label: localize('contextMenus.image.generateImage'),
-          onClick: () => generateImage()
+          onClick: () => generateImage(),
+          disabled: Backend.isGeneratingImage[currentEntry.value?.uuid as string],
         });
       }
     } 

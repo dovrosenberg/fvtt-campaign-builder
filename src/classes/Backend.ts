@@ -5,17 +5,19 @@ import { notifyGMError, notifyGMInfo, notifyGMWarn } from '@/utils/notifications
 import { isClientGM, localize } from '@/utils/game';
 import { Campaign } from '@/classes';
 import { useMainStore } from '@/applications/stores';
+import { Reactive } from 'vue';
 
 // this is the backend version that needs to be used with this version of the module
 // generally, we'll try to keep them more or less in sync, at least at the minor release level
-const REQUIRED_VERSION = '1.1';
+const REQUIRED_VERSION = '1.2';
 
 // handles connections to the backend
 export class Backend {
   static config: Configuration;
   static available: boolean = false;
   static inProgress: boolean = false;  // this is used to prevent multiple calls to the backend; if false we're in the process of checking if backend is available
-  
+  static isGeneratingImage: Reactive<Record<string, boolean>> = {};  // this is used to prevent multiple calls to the backend; if false we're in the process of checking if backend is available
+
   static api: FCBApi;
 
   /** force will reconnect even if already connected (ex. when changing credentials) */

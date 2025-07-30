@@ -73,8 +73,8 @@
               {{ localize('labels.tabs.entry.scenes') }}
             </a>
             <a 
-            v-if="topic!==Topics.PC"
-            class="item" 
+              v-if="topic!==Topics.PC"
+              class="item" 
               data-tab="sessions"
             >
               {{ localize('labels.tabs.entry.sessions') }}
@@ -201,7 +201,7 @@
               :data-tab="relationship.tab"
             >
               <div class="tab-inner">
-                <RelatedItemTable :topic="relationship.topic" />
+                <RelatedItemTable :topic="relationship.topic as ValidTopic" />
               </div>
             </div>
             <div 
@@ -249,7 +249,7 @@
 <script setup lang="ts">
 
   // library imports
-  import { computed, nextTick, onMounted, ref, watch, reactive, } from 'vue';
+  import { computed, nextTick, onMounted, ref, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -326,7 +326,7 @@
   const contentRef = ref<HTMLElement | null>(null);
   const parentId = ref<string | null>(null);
   const validParents = ref<{id: string; label: string}[]>([]);
-  const isGeneratingImage = reactive<Record<string, boolean>>({}); // Flag to track whether image generation is in progress - only one per id at a time
+
   const pushButtonTitle = ref<string>('');
   const pushButtonDisabled = ref<boolean>(false);
   const showRelatedEntriesDialog = ref<boolean>(false);
@@ -574,27 +574,11 @@
       menuItems.push({
         icon: 'fa-image',
         iconFontClass: 'fas',
-        label: `${localize('contextMenus.generate.image')} ${isGeneratingImage[currentEntry.value?.uuid as string] ? ` - ${localize('contextMenus.generate.inProgress')}` : ''}`,
-        disabled: isGeneratingImage[currentEntry.value?.uuid as string],
+        label: `${localize('contextMenus.generate.image')} ${Backend.isGeneratingImage[currentEntry.value?.uuid as string] ? ` - ${localize('contextMenus.generate.inProgress')}` : ''}`,
+        disabled: Backend.isGeneratingImage[currentEntry.value?.uuid as string],
         onClick: async () => {
-          if (!isGeneratingImage[currentEntry.value?.uuid as string] && currentSetting.value && currentEntry.value) {
-            // save entry because it could change before generation is done
-            const entryGenerated = currentEntry.value.uuid;
-
-            isGeneratingImage[entryGenerated] = true;
-
-            try {
-              await generateImage(currentSetting.value, currentEntry.value);
-
-              if (entryGenerated===currentEntry.value.uuid)
-                mainStore.refreshEntry();
-            } catch (error) {
-              // Error is already handled by generateImage function, just reset the state
-              console.error('Image generation failed:', error);
-            } finally {
-              // Always reset the generating state, even on error
-              isGeneratingImage[entryGenerated] = false;
-            }
+          if (currentSetting.value && currentEntry.value) {
+            await generateImage(currentSetting.value, currentEntry.value);
           }
         }
       });

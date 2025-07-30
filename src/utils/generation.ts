@@ -91,6 +91,13 @@ export const generateImage = async (forSetting: Setting, entry: Entry): Promise<
     return;
   }
 
+  if (Backend.isGeneratingImage[entry.uuid]) {
+    return;
+  }
+
+  const entryGenerated = entry.uuid;
+  Backend.isGeneratingImage[entryGenerated] = true;
+
   try {
     // Show a notification that we're generating an image
     ui.notifications?.info(`Generating image for ${entry.name}. This may take a minute...`);
@@ -175,5 +182,7 @@ export const generateImage = async (forSetting: Setting, entry: Entry): Promise<
     const message = `Failed to generate image: ${(error as Error).message}.`;
     ui.notifications?.error(message);
     throw new Error(message);
-  } 
+  } finally {
+    Backend.isGeneratingImage[entryGenerated] = false;
+  }
 };
