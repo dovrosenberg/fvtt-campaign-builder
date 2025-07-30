@@ -512,7 +512,8 @@
         "postToChat": "Im Chat posten",
         "createScene": "Szene erstellen",
         "addImage": "Bild hinzufügen",
-        "generateImage": "Bild generieren"
+        "generateImage": "Bild generieren",
+        "copyToClipboard": "In die Zwischenablage kopieren"
       },
       "topicFolder": {
         "create": {

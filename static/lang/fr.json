@@ -512,7 +512,8 @@
         "postToChat": "Publier dans le Chat",
         "createScene": "Créer une scène",
         "addImage": "Ajouter une image",
-        "generateImage": "Générer une image"
+        "generateImage": "Générer une image",
+        "copyToClipboard": "Copier dans le presse-papiers"
       },
       "topicFolder": {
         "create": {
