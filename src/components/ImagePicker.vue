@@ -157,6 +157,12 @@
           onClick: () => showImagePopout()
         },
         {
+          icon: 'fa-copy',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.image.copyToClipboard'),
+          onClick: () => copyImageToClipboard()
+        },
+        {
           icon: 'fa-edit',
           iconFontClass: 'fas',
           label: localize('contextMenus.image.changeImage'),
@@ -263,6 +269,111 @@
   const createScene = () => {
     if (props.modelValue) 
       emit('create-scene', props.modelValue);
+  };
+
+  const copyImageToClipboard = async () => {
+    if (!props.modelValue) return;
+
+    try {
+      // Check if it's already a PNG or supported format
+      const isPng = props.modelValue.toLowerCase().endsWith('.png');
+      const isWebP = props.modelValue.toLowerCase().endsWith('.webp');
+      const isGif = props.modelValue.toLowerCase().endsWith('.gif');
+      
+      // For supported formats, try direct copy first
+      if (isPng || isWebP || isGif) {
+        try {
+          const response = await fetch(props.modelValue);
+          const blob = await response.blob();
+          const clipboardItem = new ClipboardItem({ [blob.type]: blob });
+          await navigator.clipboard.write([clipboardItem]);
+          ui.notifications?.info('Image copied to clipboard');
+          return;
+        } catch (directError) {
+          console.log('Direct copy failed, trying canvas conversion:', directError);
+          // Fall through to canvas conversion
+        }
+      }
+
+      // For JPG/JPEG or when direct copy fails, use canvas conversion
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = props.modelValue!;
+      });
+
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Could not get canvas context');
+      }
+      
+      ctx.drawImage(img, 0, 0);
+      
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          throw new Error('Could not convert image to blob');
+        }
+        
+        try {
+          const clipboardItem = new ClipboardItem({ 'image/png': blob });
+          await navigator.clipboard.write([clipboardItem]);
+          ui.notifications?.info('Image copied to clipboard');
+        } catch (clipboardError) {
+          console.error('Clipboard write failed:', clipboardError);
+          fallbackCopyImage(img);
+        }
+      }, 'image/png');
+      
+    } catch (error) {
+      console.error('Failed to copy image to clipboard:', error);
+      ui.notifications?.error('Failed to copy image to clipboard');
+    }
+  };
+
+  const fallbackCopyImage = async (img: HTMLImageElement) => {
+    try {
+      // Fallback: create a temporary canvas and use execCommand
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      ctx.drawImage(img, 0, 0);
+      
+      // Try to select and copy the canvas
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        
+        try {
+          // Create a temporary link for download as fallback
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'image.png';
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          ui.notifications?.info('Image downloaded as fallback (clipboard not available)');
+        } catch (downloadError) {
+          ui.notifications?.error('Failed to copy or download image');
+        }
+      }, 'image/png');
+    } catch (error) {
+      console.error('Fallback copy failed:', error);
+      ui.notifications?.error('Failed to copy image');
+    }
   };
 
   ////////////////////////////////

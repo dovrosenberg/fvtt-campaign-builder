@@ -532,7 +532,8 @@
         "removeImage": "Remove Image",
         "postToChat": "Post To Chat",
         "createScene": "Create Scene",
-        "generateImage": "Generate image"
+        "generateImage": "Generate image",
+        "copyToClipboard": "Copy to clipboard"
       },
       "topicFolder": {
         "create": {

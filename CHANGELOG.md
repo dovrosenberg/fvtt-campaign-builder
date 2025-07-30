@@ -15,10 +15,12 @@
 - Added module setting to show the type of each node in the Setting tree in hierarchy mode.
 - Consolidated "strong start" onto the Session notes tab
 - Added PCs to the setting directory and made the ability to link PCs to entries - makes tracking backstory relationships to the world way simpler
+- Added ability to copy images to the clipboard
 - Minor UI cleanup 
 - Fixed bug where bookmarks weren't deleted when the underlying content was
 - Fixed bug where campaigns created by right-clicking in the Setting directory didn't immediately show up in the Campaign directory
 - Fixed bug where search index wasn't being populated if you closed and reopened the main window
+- Fixed bug where an error when generating an image prevented you from trying again
 - Eliminated inaccurate notifications about rolltables being repopulated
 - Allowed for numbering a session 0
 - Made it possible to highlight text throughout the Campaign Builder window (ex. so you can copy and paste text from an editor that's not currently open)
