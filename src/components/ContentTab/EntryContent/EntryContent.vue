@@ -583,12 +583,18 @@
 
             isGeneratingImage[entryGenerated] = true;
 
-            await generateImage(currentSetting.value, currentEntry.value);
+            try {
+              await generateImage(currentSetting.value, currentEntry.value);
 
-            if (entryGenerated===currentEntry.value.uuid)
-              mainStore.refreshEntry();
-
-            isGeneratingImage[entryGenerated] = false;
+              if (entryGenerated===currentEntry.value.uuid)
+                mainStore.refreshEntry();
+            } catch (error) {
+              // Error is already handled by generateImage function, just reset the state
+              console.error('Image generation failed:', error);
+            } finally {
+              // Always reset the generating state, even on error
+              isGeneratingImage[entryGenerated] = false;
+            }
           }
         }
       });

@@ -111,16 +111,14 @@
     }
   };
 
-  const onGenerateImage = () => {
+  const onGenerateImage = async () => {
     // confirm it's a legit topic
     if (!currentSetting.value || !currentEntry.value || ![Topics.Character, Topics.Location, Topics.Organization].includes(props.topic)) {
       return;
     }
 
-    generateImage(currentSetting.value, currentEntry.value);
-
-    
-  };
+    await generateImage(currentSetting.value, currentEntry.value);
+  };  
 
   ////////////////////////////////
   // watchers
