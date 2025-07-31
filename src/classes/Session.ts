@@ -440,6 +440,18 @@ export class Session {
     return this._sessionDoc.system.lore || [];
   }
 
+  set lore(value: SessionLore[] | readonly SessionLore[]) {
+    this._sessionDoc.system.lore = value.slice();     // we clone it so it can't be edited outside
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        lore: this._sessionDoc.system.lore
+      }
+    };
+  }
+
   async addLore(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 

@@ -114,13 +114,13 @@
     await sessionStore.moveVignetteToNext(uuid);
   }
   
-  const onReorder = (reorderedRows: BaseTableGridRow[]) => {
+  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
     // Create properly ordered vignettes with updated sortOrder values
     const reorderedVignettes = reorderedRows.map((row, index) => {
       const vignette = vignetteRows.value.find(vignette => vignette.uuid === row.uuid) as SessionVignette;
       return { ...vignette, sortOrder: index };
     });
-    sessionStore.reorderVignettes(reorderedVignettes);
+    await sessionStore.reorderVignettes(reorderedVignettes);
   };
 
   ////////////////////////////////

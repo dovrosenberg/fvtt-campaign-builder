@@ -2,7 +2,7 @@
   <!-- For available lore -->
   <SessionTable
     ref="availableLoreRef"
-    :rows="availableLoreRows"
+    :rows="mappedAvailableLoreRows"
     :columns="campaignStore.extraFields[CampaignTableTypes.Lore]"
     :delete-item-label="localize('tooltips.deleteLore')"
     :allow-edit="true"
@@ -12,6 +12,7 @@
     :allow-drop-row="true"
     :help-text="localize('labels.campaign.loreHelpText')"
     help-link="https://slyflourish.com/sharing_secrets.html"
+    :can-reorder="true"
     @add-item="onAddLore"
     @delete-item="onDeleteLore"
     @mark-item-delivered="onMarkLoreDelivered"
@@ -21,6 +22,7 @@
     @dragover-row="onDragover"
     @drop-row="onDropRow"
     @drop-new="onDropNew"
+    @reorder="onReorderAvailable"
   />
 
   <!-- For delivered lore -->
@@ -28,7 +30,7 @@
     Delivered Lore
   </div>
   <SessionTable
-    :rows="deliveredLoreRows"
+    :rows="mappedDeliveredLoreRows"
     :columns="campaignStore.extraFields[CampaignTableTypes.DeliveredLore]"
     :allow-delete="true"
     :delete-item-label="localize('tooltips.deleteLore')"
@@ -45,7 +47,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
 
   // local imports
   import { useCampaignStore, CampaignTableTypes, } from '@/applications/stores';
@@ -59,6 +61,7 @@
 
   // types
   import { DataTableCellEditCompleteEvent } from 'primevue';
+  import { BaseTableGridRow, CampaignLoreDetails } from 'src/types';
   
   ////////////////////////////////
   // props
@@ -77,6 +80,17 @@
 
   ////////////////////////////////
   // computed data
+  const mappedAvailableLoreRows = computed(() => (
+    availableLoreRows.value.map((row) => ({
+      ...row,
+    }))
+  ));
+
+  const mappedDeliveredLoreRows = computed(() => (
+    deliveredLoreRows.value.map((row) => ({
+      ...row,
+    }))
+  ));
 
   ////////////////////////////////
   // methods
@@ -174,6 +188,15 @@
       }
     }
   }
+
+  const onReorderAvailable = async (reorderedRows: BaseTableGridRow[]) => {
+    // Create properly ordered lore with updated sortOrder values
+    const reorderedLore = reorderedRows.map((row, index) => {
+      const lore = availableLoreRows.value.find(lore => lore.uuid === row.uuid) as CampaignLoreDetails;
+      return { ...lore, sortOrder: index };
+    });
+    await campaignStore.reorderAvailableLore(reorderedLore);
+  };
 
   ////////////////////////////////
   // watchers

@@ -21,7 +21,7 @@ import {
   SessionLoreDetails,
   ToDoTypes,
 } from '@/types';
-import { SessionVignette } from '@/documents';
+import { SessionLore, SessionVignette } from '@/documents';
 
 import { Entry, Session } from '@/classes';
 
@@ -45,7 +45,7 @@ export const useSessionStore = defineStore('session', () => {
   const relatedNPCRows = ref<SessionNPCDetails[]>([]);
   const relatedMonsterRows = ref<SessionMonsterDetails[]>([]);
   const vignetteRows = ref<SessionVignette[]>([]);
-  const relatedLoreRows = ref<SessionLoreDetails[]>([]); 
+  const loreRows = ref<SessionLoreDetails[]>([]); 
   
   const extraFields = {
     [SessionTableTypes.None]: [],
@@ -697,6 +697,14 @@ export const useSessionStore = defineStore('session', () => {
     await _refreshVignetteRows();
   };
 
+  const reorderLore = async (reorderedLore: SessionLore[]) => {
+    if (!currentSession.value) return;
+
+    currentSession.value.lore = reorderedLore;
+    await currentSession.value.save();
+    await _refreshLoreRows();
+  };
+
   ///////////////////////////////
   // computed state
 
@@ -705,7 +713,7 @@ export const useSessionStore = defineStore('session', () => {
   // when we click on a journal entry, open it
   async function onJournalClick (_event: MouseEvent, uuid: string) {
     // get session Id
-    const journalEntryPageId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
+    const journalEntryPageId = loreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
     const journalEntryPage = await fromUuid<JournalEntryPage>(journalEntryPageId);
 
     if (journalEntryPage)
@@ -749,7 +757,7 @@ export const useSessionStore = defineStore('session', () => {
   //   relatedNPCRows.value = [];
   //   relatedMonsterRows.value = [];
   //   vignetteRows.value = [];
-  //   relatedLoreRows.value = [];
+  //   loreRows.value = [];
 
   //   if (!currentSession.value)
   //     return;
@@ -920,7 +928,7 @@ export const useSessionStore = defineStore('session', () => {
       });
     }
 
-    relatedLoreRows.value = retval;
+    loreRows.value = retval;
   }
 
   const _refreshRowsForTab = async () => {
@@ -977,7 +985,7 @@ export const useSessionStore = defineStore('session', () => {
     relatedNPCRows,
     relatedMonsterRows,
     vignetteRows,
-    relatedLoreRows,
+    loreRows,
     extraFields,
     addLocation,
     addLocationToPlayedSession,
@@ -1006,6 +1014,7 @@ export const useSessionStore = defineStore('session', () => {
     reorderVignettes,
     addLore,
     deleteLore,
+    reorderLore,
     updateLoreDescription,
     updateLoreJournalEntry,
     markLoreDelivered,

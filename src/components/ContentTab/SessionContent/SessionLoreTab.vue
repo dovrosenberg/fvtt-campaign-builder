@@ -1,7 +1,7 @@
 <template>
   <SessionTable
     ref="sessionTableRef"
-    :rows="relatedLoreRows"
+    :rows="mappedLoreRows"
     :columns="sessionStore.extraFields[SessionTableTypes.Lore]"
     :delete-item-label="localize('tooltips.deleteLore')"
     :allow-edit="true"
@@ -13,6 +13,7 @@
     :show-move-to-campaign="true"
     :help-text="localize('labels.session.loreHelpText')"
     help-link="https://slyflourish.com/sharing_secrets.html"
+    :can-reorder="true"
     @add-item="onAddLore"
     @delete-item="onDeleteLore"
     @mark-item-delivered="onMarkLoreDelivered"
@@ -24,6 +25,7 @@
     @dragover-row="onDragover"
     @drop-row="onDropRow"
     @drop-new="onDropNew"
+    @reorder="onReorder"
   />
 </template>
 
@@ -31,7 +33,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
 
   // local imports
   import { useSessionStore, SessionTableTypes, } from '@/applications/stores';
@@ -46,6 +48,8 @@
 
   // types
   import { DataTableCellEditCompleteEvent } from 'primevue';
+  import { BaseTableGridRow, SessionLoreDetails } from '@/types';
+  import { SessionLore } from '@/documents';
   
   ////////////////////////////////
   // props
@@ -56,7 +60,7 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const { relatedLoreRows } = storeToRefs(sessionStore);
+  const { loreRows } = storeToRefs(sessionStore);
   
   ////////////////////////////////
   // data
@@ -64,6 +68,11 @@
 
   ////////////////////////////////
   // computed data
+  const mappedLoreRows = computed(() => (
+    loreRows.value.map((row) => ({
+      ...row,
+    }))
+  ));
 
   ////////////////////////////////
   // methods
@@ -159,7 +168,7 @@
 
     // make sure it's the right format - looking for JournalEntryPage
     if (data.type === 'JournalEntryPage' && data.uuid && rowUuid) {
-      const lore = relatedLoreRows.value.find((l)=>l.uuid===rowUuid);
+      const lore = loreRows.value.find((l)=>l.uuid===rowUuid);
       
       if (lore?.journalEntryPageId && 
           !(await FCBDialog.confirmDialog('Update lore?', 'Are you sure you want to replace the journal entry tied to this lore?'))) {
@@ -169,6 +178,22 @@
       await sessionStore.updateLoreJournalEntry(rowUuid, data.uuid);
     }
   }
+
+  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
+    // Create properly ordered lore with updated sortOrder values
+    const reorderedLore = reorderedRows.map((row, index) => {
+      const lore = loreRows.value.find(lore => lore.uuid === row.uuid) as SessionLoreDetails;
+      return { 
+        uuid: lore.uuid,
+        description: lore.description,
+        delivered: lore.delivered,
+        significant: lore.significant,
+        journalEntryPageId: lore.journalEntryPageId,
+        sortOrder: index 
+      } as SessionLore;
+    });
+    await sessionStore.reorderLore(reorderedLore);
+  };
 
   ////////////////////////////////
   // watchers

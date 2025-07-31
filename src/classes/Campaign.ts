@@ -5,7 +5,6 @@ import { RelatedPCDetails, RelatedJournal } from '@/types';
 import { DocumentWithFlags, Entry, Session, Setting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
-import { SessionLore } from '@/documents/session';
 import { ToDoItem, ToDoTypes, Idea } from '@/types';
 
 // represents a topic entry (ex. a character, location, etc.)
@@ -179,10 +178,15 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this.updateCumulative(CampaignFlagKey.img, value);
   }
 
-  public get lore(): SessionLore[] {
+  public get lore(): CampaignLore[] {
     return this._lore;
   }
   
+  set lore(value: CampaignLore[] | readonly CampaignLore[]) {
+    this._lore = value.slice();     // we clone it so it can't be edited outside
+    this.updateCumulative(CampaignFlagKey.lore, this._lore);
+  }
+
   // returns the uuid
   async addLore(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
@@ -195,6 +199,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       journalEntryPageId: null,
       lockedToSessionId: null,
       lockedToSessionName: null,
+      sortOrder: this._lore.reduce((max, lore) => Math.max(max, lore.sortOrder), -1) + 1,
     });
 
     this.updateCumulative(CampaignFlagKey.lore, this._lore);
