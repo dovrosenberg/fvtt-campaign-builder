@@ -273,6 +273,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       entry = await Entry.fromUuid(linkedUuid);
     }
 
+    // give it the max sortOrder
     const item: ToDoItem = {
       uuid: foundry.utils.randomID(),
       lastTouched: manualDate || new Date(),
@@ -281,7 +282,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       sessionUuid: sessionUuid || null,
       linkedText: entry ? entry.name : null,
       text: text || '',
-      sortOrder: this._todoItems.length,
+      sortOrder: this._todoItems.reduce((max, item) => Math.max(max, item.sortOrder), -1) + 1,
       type: type || ToDoTypes.Manual,
     };
 
@@ -388,7 +389,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     const item: Idea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
-      sortOrder: this._ideas.length,
+      sortOrder: this._ideas.reduce((max, item) => Math.max(max, item.sortOrder), -1) + 1,
     };
 
     this._ideas.push(item);
