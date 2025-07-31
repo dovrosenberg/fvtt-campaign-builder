@@ -1,7 +1,7 @@
 <template>
   <SessionTable
     ref="sessionTableRef"
-    :rows="relatedVignetteRows"
+    :rows="mappedVignetteRows"
     :columns="sessionStore.extraFields[SessionTableTypes.Vignette]"
     :delete-item-label="localize('tooltips.deleteVignette')"
     :allow-edit="true"
@@ -10,19 +10,21 @@
     :add-button-label="localize('labels.session.addVignette')"
     :help-text="localize('labels.session.vignetteHelpText')"
     help-link="https://slyflourish.com/scenes_catch_all_step.html"
+    :can-reorder="true"
     @add-item="onAddVignette"
     @delete-item="onDeleteVignette"
     @mark-item-delivered="onMarkVignetteDelivered"
     @unmark-item-delivered="onUnmarkVignetteDelivered"
     @move-to-next-session="onMoveVignetteToNext"
     @cell-edit-complete="onCellEditComplete"
+    @reorder="onReorder"
   />
 </template>
 
 <script setup lang="ts">
 
   // library imports
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -36,7 +38,9 @@
 
   // types
   import { DataTableCellEditCompleteEvent } from 'primevue';
-  
+  import { BaseTableGridRow } from '@/types';
+  import { SessionVignette } from '@/documents';
+
   ////////////////////////////////
   // props
 
@@ -46,7 +50,7 @@
   ////////////////////////////////
   // store
   const sessionStore = useSessionStore();
-  const { relatedVignetteRows } = storeToRefs(sessionStore);
+  const { vignetteRows } = storeToRefs(sessionStore);
   
   ////////////////////////////////
   // data
@@ -54,6 +58,11 @@
 
   ////////////////////////////////
   // computed data
+ const mappedVignetteRows = computed(() => (
+    vignetteRows.value.map((row) => ({
+      ...row,
+    }))
+  ));
 
   ////////////////////////////////
   // methods
@@ -104,6 +113,15 @@
   const onMoveVignetteToNext = async (uuid: string) => {
     await sessionStore.moveVignetteToNext(uuid);
   }
+  
+  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
+    // Create properly ordered vignettes with updated sortOrder values
+    const reorderedVignettes = reorderedRows.map((row, index) => {
+      const vignette = vignetteRows.value.find(vignette => vignette.uuid === row.uuid) as SessionVignette;
+      return { ...vignette, sortOrder: index };
+    });
+    await sessionStore.reorderVignettes(reorderedVignettes);
+  };
 
   ////////////////////////////////
   // watchers

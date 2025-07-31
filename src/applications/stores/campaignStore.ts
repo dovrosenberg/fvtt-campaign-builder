@@ -317,6 +317,24 @@ export const useCampaignStore = defineStore('campaign', () => {
     await _refreshToDoRows();
   };
 
+  const reorderAvailableLore = async (reorderedLore: CampaignLoreDetails[]) => {
+      if (!currentCampaign.value) return;
+  
+    currentCampaign.value.lore = reorderedLore.map(l => ({ 
+      uuid: l.uuid,
+      delivered: l.delivered,
+      description: l.description,
+      significant: l.significant,
+      journalEntryPageId: l.journalEntryPageId,
+      sortOrder: l.sortOrder,
+      lockedToSessionId: null,
+      lockedToSessionName: null,
+    }));
+    
+    await currentCampaign.value.save();
+    await _refreshLoreRows();
+    };
+  
   ///////////////////////////////
   // computed state
   /** only significant rows from sessions are returned */
@@ -494,6 +512,7 @@ export const useCampaignStore = defineStore('campaign', () => {
           journalEntryPageId: lore.journalEntryPageId,
           journalEntryPageName: entry?.name || null,
           packId: entry?.pack ?? null,
+          sortOrder: lore.sortOrder,
         });
       }
     }
@@ -515,6 +534,7 @@ export const useCampaignStore = defineStore('campaign', () => {
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
         packId: entry?.pack ??null,
+        sortOrder: lore.sortOrder,
       });
     }
 
@@ -594,7 +614,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     deletePC,
     addLore,
     deleteLore,
-    updateLoreDescription,
+    reorderAvailableLore,    updateLoreDescription,
     updateLoreJournalEntry,
     markLoreDelivered,
     moveLoreToLastSession,

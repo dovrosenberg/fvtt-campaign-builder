@@ -61,10 +61,8 @@
   ////////////////////////////////
   // computed data
   const mappedIdeaRows = computed(() => {
-    return ideaRows.value.map((idea: Idea) => ({
-      uuid: idea.uuid,
-      text: idea.text,
-      sortOrder: idea.sortOrder,
+    return ideaRows.value.map((row: Idea) => ({
+      ...row
     }));
   });
 
