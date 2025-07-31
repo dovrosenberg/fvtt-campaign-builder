@@ -9,7 +9,7 @@
 - Added ability to link Foundry journals to Entries, Settings, Campaigns, and PCs - great for attaching maps, multiple iamges of the same character, and various other info you want to store and/or share with your players
 - Added support for Anthropic (Claude 3) for text generation (see module settings)
 - Added ability to choose from multiple image generation models
-- Made campaign ideas and todos hold a fixed order and enabled the ability to drag and drop to reorder them
+- Made lore, ideas, and todos hold a fixed order and enabled the ability to drag and drop to reorder them
 - Removed pagination from all tables; it took up extra room and was a nuisance
 - Added keybindings for moving forward/back across the tab bar; changed default for closing the tab
 - Added module setting to show the type of each node in the Setting tree in hierarchy mode.
