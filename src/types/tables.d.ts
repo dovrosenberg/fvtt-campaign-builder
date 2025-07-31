@@ -57,11 +57,6 @@ export type SessionMonsterDetails = {
   dragTooltip?: string;
 }
 
-export type SessionVignetteDetails = {
-  uuid: string;   // the Actor document
-  description: string;
-  delivered: boolean;
-}
 
 export type SessionLoreDetails = {
   uuid: string;   

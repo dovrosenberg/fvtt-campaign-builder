@@ -18,10 +18,10 @@ import {
   Topics, 
   SessionNPCDetails, 
   SessionMonsterDetails, 
-  SessionVignetteDetails,
   SessionLoreDetails,
   ToDoTypes,
 } from '@/types';
+import { SessionVignette } from '@/documents';
 
 import { Entry, Session } from '@/classes';
 
@@ -44,7 +44,7 @@ export const useSessionStore = defineStore('session', () => {
   const relatedItemRows = ref<SessionItemDetails[]>([]);
   const relatedNPCRows = ref<SessionNPCDetails[]>([]);
   const relatedMonsterRows = ref<SessionMonsterDetails[]>([]);
-  const relatedVignetteRows = ref<SessionVignetteDetails[]>([]);
+  const vignetteRows = ref<SessionVignette[]>([]);
   const relatedLoreRows = ref<SessionLoreDetails[]>([]); 
   
   const extraFields = {
@@ -689,6 +689,14 @@ export const useSessionStore = defineStore('session', () => {
     return newSession;
   }
 
+  const reorderVignettes = async (reorderedVignettes: SessionVignette[]) => {
+    if (!currentSession.value) return;
+
+    currentSession.value.vignettes = reorderedVignettes;
+    await currentSession.value.save();
+    await _refreshVignetteRows();
+  };
+
   ///////////////////////////////
   // computed state
 
@@ -740,7 +748,7 @@ export const useSessionStore = defineStore('session', () => {
   //   relatedItemRows.value = [];
   //   relatedNPCRows.value = [];
   //   relatedMonsterRows.value = [];
-  //   relatedVignetteRows.value = [];
+  //   vignetteRows.value = [];
   //   relatedLoreRows.value = [];
 
   //   if (!currentSession.value)
@@ -876,7 +884,7 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       return;
 
-    const retval = [] as SessionVignetteDetails[];
+    const retval = [] as SessionVignette[];
 
     for (const vignette of currentSession.value?.vignettes) {
       retval.push({
@@ -886,7 +894,7 @@ export const useSessionStore = defineStore('session', () => {
       });
     }
 
-    relatedVignetteRows.value = retval;
+    vignetteRows.value = retval;
   }
 
   const _refreshLoreRows = async () => {
@@ -968,7 +976,7 @@ export const useSessionStore = defineStore('session', () => {
     relatedItemRows,
     relatedNPCRows,
     relatedMonsterRows,
-    relatedVignetteRows,
+    vignetteRows,
     relatedLoreRows,
     extraFields,
     addLocation,
@@ -995,6 +1003,7 @@ export const useSessionStore = defineStore('session', () => {
     updateVignetteDescription,
     markVignetteDelivered,
     moveVignetteToNext,
+    reorderVignettes,
     addLore,
     deleteLore,
     updateLoreDescription,
