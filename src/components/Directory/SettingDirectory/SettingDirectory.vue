@@ -45,7 +45,7 @@
           </header>
 
           <SettingDirectoryGroupedTree
-            v-if="isGroupedByType" 
+            v-if="isGroupedByType || topicNode.topicFolder.topic === Topics.Character" 
             :topic-node="topicNode as DirectoryTopicNode"
             :setting-id="setting.id"
           />
@@ -78,7 +78,7 @@
 
 
   // types
-  import { WindowTabType, DirectorySetting } from '@/types';
+  import { WindowTabType, DirectorySetting, Topics } from '@/types';
   import { DirectoryTopicNode, Setting, TopicFolder, } from '@/classes';
   
   ////////////////////////////////

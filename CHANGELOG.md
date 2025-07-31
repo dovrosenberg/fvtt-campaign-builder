@@ -13,6 +13,7 @@
 - Removed pagination from all tables; it took up extra room and was a nuisance
 - Added keybindings for moving forward/back across the tab bar; changed default for closing the tab
 - Added module setting to show the type of each node in the Setting tree in hierarchy mode.
+- Characters in setting directory now group by type regardless of whether the overall tree is grouped by type or not.  Since they don't have a hierarchy, this makes it much easier to find them when you have a long list.
 - Consolidated "strong start" onto the Session notes tab
 - Added PCs to the setting directory and made the ability to link PCs to entries - makes tracking backstory relationships to the world way simpler
 - Added ability to copy images to the clipboard
