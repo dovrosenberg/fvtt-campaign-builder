@@ -1,4 +1,4 @@
-import { useNavigationStore, useMainStore } from '@/applications/stores';
+import { useNavigationStore, useMainStore, useSettingDirectoryStore } from '@/applications/stores';
 import { Topics } from '@/types';
 
 export function registerForUpdateHooks() {
@@ -15,6 +15,7 @@ function registerForActorHooks() {
   Hooks.on('updateActor', async (actor, changes, _options, _userId) => {
     const mainStore = useMainStore();
     const navigationStore = useNavigationStore();
+    const settingDirectoryStore = useSettingDirectoryStore();
 
     // Check if the name was changed
     if (changes.name) {
@@ -30,6 +31,7 @@ function registerForActorHooks() {
           pc.name = actor.name;
           await pc.save();
           await navigationStore.propagateNameChange(pc.uuid, actor.name);
+          await settingDirectoryStore.refreshSettingDirectoryTree([pc.uuid]);
         }
 
         // also need to update the details on campaigns

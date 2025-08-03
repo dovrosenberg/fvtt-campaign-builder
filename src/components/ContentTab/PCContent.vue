@@ -299,22 +299,6 @@
     await currentEntry.value.save();
   }
 
-  const onRelatedEntriesChanged = async (addedUUIDs: string[], removedUUIDs: string[]) => {
-    if (!currentEntry.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
-      return;
-    }
-
-    // check against current relationships
-    const { added, removed } = await getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
-
-    // Store the pending changes and show dialog if there are any changes
-    if (added.length > 0 || removed.length > 0) {
-      pendingAddedUUIDs.value = added;
-      pendingRemovedUUIDs.value = removed;
-      showRelatedEntriesDialog.value = true;
-    }
-  };
-
   const onRelatedEntriesDialogUpdate = async (addedEntries: Entry[], removedEntries: Entry[]) => {
     if (!currentEntry.value) 
       return;
