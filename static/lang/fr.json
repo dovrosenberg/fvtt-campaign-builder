@@ -49,7 +49,9 @@
         "historyBack": "Reculer dans l'historique des onglets",
         "historyBackHelp": "Reculer dans l'historique de l'onglet actuel",
         "historyForward": "Avancer dans l'historique des onglets",
-        "historyForwardHelp": "Avancer dans l'historique de l'onglet actuel"
+        "historyForwardHelp": "Avancer dans l'historique de l'onglet actuel",
+        "toggleWindow": "Ouvrir/Fermer la fenêtre principale",
+        "toggleWindowHelp": "Ouvrir/Fermer la fenêtre du constructeur de campagne"
       },
       "showTypesInTree": "Afficher les types dans l'arborescence des paramètres",
       "showTypesInTreeHelp": "Lorsque c'est vrai, si le répertoire des paramètres n'est pas groupé par type, il affichera le type de chaque entrée dans l'arborescence.",
@@ -512,7 +514,9 @@
         "postToChat": "Publier dans le Chat",
         "createScene": "Créer une scène",
         "addImage": "Ajouter une image",
-        "generateImage": "Générer une image"
+        "generateImage": "Générer une image",
+        "copyToClipboard": "Copier dans le presse-papiers",
+        "copyLinkToClipboard": "Copier le lien dans le presse-papiers"
       },
       "topicFolder": {
         "create": {

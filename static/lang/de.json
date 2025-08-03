@@ -49,7 +49,9 @@
         "historyBack": "In der Tab-Historie zurückgehen",
         "historyBackHelp": "In der Historie des aktuellen Tabs \"zurück\" gehen",
         "historyForward": "In der Tab-Historie vorwärts gehen",
-        "historyForwardHelp": "In der Historie des aktuellen Tabs \"vorwärts\" gehen"
+        "historyForwardHelp": "In der Historie des aktuellen Tabs \"vorwärts\" gehen",
+        "toggleWindow": "Hauptfenster öffnen/schließen",
+        "toggleWindowHelp": "Fenster des Kampagnenbauers öffnen/schließen"
       },
       "showTypesInTree": "Typen im Einstellungsbaum anzeigen",
       "showTypesInTreeHelp": "Wenn wahr, zeigt es den Typ jedes Eintrags im Baum an, wenn das Einstellungsverzeichnis nicht nach Typ gruppiert ist.",
@@ -512,7 +514,9 @@
         "postToChat": "Im Chat posten",
         "createScene": "Szene erstellen",
         "addImage": "Bild hinzufügen",
-        "generateImage": "Bild generieren"
+        "generateImage": "Bild generieren",
+        "copyToClipboard": "In die Zwischenablage kopieren",
+        "copyLinkToClipboard": "Link in die Zwischenablage kopieren"
       },
       "topicFolder": {
         "create": {
