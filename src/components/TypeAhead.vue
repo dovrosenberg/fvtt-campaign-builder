@@ -1,7 +1,10 @@
 <template>
   <div 
+    ref="containerRef"
     class="fcb-typeahead"
     @keydown="onKeyDown"
+    @focusin="onFocusIn"
+    @focusout="onFocusOut"
   >
     <input 
       v-model="currentValue" 
@@ -80,6 +83,8 @@
   const idx = ref<number>(-1);   // selected index in the list (-1 for none)
   const filteredItems = ref<T[]>([]);
   const list = ref<T[]>([]);
+  const containerRef = ref<HTMLElement | null>(null);
+  let blurTimeout: ReturnType<typeof setTimeout> | null = null;
 
   ////////////////////////////////
   // computed data
@@ -154,6 +159,23 @@
     }
   };
 
+  /** when we leave, make sure to update the value */
+  function onFocusIn() {
+    if (blurTimeout) {
+      clearTimeout(blurTimeout);
+      blurTimeout = null;
+    }
+  }
+
+  function onFocusOut() {
+    // Delay to allow time for focus to move within the component
+    blurTimeout = setTimeout(() => {
+      if (containerRef.value && !containerRef.value.contains(document.activeElement)) {
+        onKeyDown({key: 'Tab'} as KeyboardEvent);
+      }
+    }, 0);
+  }
+
   /**
    * Handles keyboard navigation and selection.
    * @param event Keyboard event
@@ -193,7 +215,7 @@
         let selection = '';
 
         // if nothing selected, check for a match or add something new
-        // if box is empty, we don't add a new value, but we still say blank was seleted
+        // if box is empty, we don't add a new value, but we still say blank was selected
         if (idx.value===-1 && currentValue.value) {
           // exact match only to let us add values that are just different cases
           const match = objectMode.value ? (list.value as ListItem[]).find(item=>item.label===currentValue.value)?.id : (list.value as string[]).find(item=>item===currentValue.value);

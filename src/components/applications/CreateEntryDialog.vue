@@ -421,13 +421,8 @@
           speciesName.value = randomSpecies.name;
         }
         
-        if (speciesName.value === '') {
-          // didn't find it - must be a custom name
-          speciesDescription = '';
-        } else {
-          const speciesToUse = speciesList.find(s => s.id === speciesId.value);
-          speciesDescription = speciesToUse?.description || '';  // might not be there because could be just added
-        }
+        const speciesToUse = speciesList.find(s => s.id === speciesId.value);
+        speciesDescription = speciesToUse?.description || speciesName.value;  // might not be there because could be just added
 
         result = await Backend.api.apiCharacterGeneratePost({
           genre: currentSetting.value.genre,
