@@ -20,7 +20,7 @@
 - Added keybindings for moving forward/back across the tab bar; changed default for closing the tab
 - Added module setting to show the type of each node in the Setting tree in hierarchy mode.
 - Characters in setting directory now group by type regardless of whether the overall tree is grouped by type or not.  Since they don't have a hierarchy, this makes it much easier to find them when you have a long list.
-- Consolidated "strong start" onto the Session notes tab
+- Consolidated "strong start" onto the Session notes tab; it shows at the top initially, but then once the session has been played (i.e. if there's another session after it already created), it moves below notes for convenience.
 - Added PCs to the setting directory and made the ability to link PCs to entries - makes tracking backstory relationships to the world way simpler
 - Added ability to copy images to the clipboard
 - Minor UI cleanup 
