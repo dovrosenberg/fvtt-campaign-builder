@@ -70,14 +70,17 @@ class CreateEntryApplication extends VueApplicationMixin(ApplicationV2) {
   };
 }
 
+/** options.generateMode defaults to false */
 async function createEntryDialog(topic: ValidTopic, 
-  options?: { name?: string; type?: string; parentId?: string }): Promise<Entry | null> {
+  options?: { name?: string; type?: string; parentId?: string; generateMode?: boolean }): Promise<Entry | null> {
   const currentSetting = useMainStore().currentSetting;
 
   if (!currentSetting) 
     return null;
 
-  const { name, type, parentId } = options ?? {};
+  const { name, type, parentId, generateMode } = options ?? { 
+    generateMode: false 
+  };
 
   // get the valid parents
   let validParents = [] as { id: string; label: string }[];
@@ -99,6 +102,7 @@ async function createEntryDialog(topic: ValidTopic,
       validParents: validParents,
       initialParentId: parentId || '',
       initialType: type || '',
+      generateMode: generateMode,
       callback: async (details: AnyDetails | null) => {
         dialog.close(); 
 

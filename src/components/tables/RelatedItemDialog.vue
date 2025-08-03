@@ -303,7 +303,7 @@
   
   const onCreateClick = async function() {
     // the simplest way to do this is do the create box first and then just pretend like we added it
-    const newEntry = await FCBDialog.createEntryDialog(props.topic);
+    const newEntry = await FCBDialog.createEntryDialog(props.topic, { generateMode: true } );
 
     if (newEntry) {
       entryToAdd.value = newEntry.uuid;

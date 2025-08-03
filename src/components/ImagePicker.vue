@@ -173,6 +173,12 @@
           onClick: () => copyImageToClipboard()
         },
         {
+          icon: 'fa-copy',
+          iconFontClass: 'fas',
+          label: localize('contextMenus.image.copyLinkToClipboard'),
+          onClick: () => copyImageLinkToClipboard()
+        },
+        {
           icon: 'fa-edit',
           iconFontClass: 'fas',
           label: localize('contextMenus.image.changeImage'),
@@ -280,6 +286,12 @@
   const createScene = () => {
     if (props.modelValue) 
       emit('create-scene', props.modelValue);
+  };
+
+  const copyImageLinkToClipboard = () => {
+    if (!props.modelValue) return;
+    
+    navigator.clipboard.writeText(props.modelValue);
   };
 
   const copyImageToClipboard = async () => {

@@ -126,6 +126,7 @@
     const entry = await FCBDialog.createEntryDialog(topic, { 
       name: initialName.value || '',
       type: initialType.value || '',
+      generateMode: true,
     });
 
     if (entry) {

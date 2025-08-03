@@ -18,3 +18,5 @@
 [Lazy DM]: https://slyflourish.com/eight_steps_2023.html
 [To-Do List]: /reference/campaign-mgt/content/campaign/todos
 [Editors]: /reference/navigation/editors
+[Submit a Feature Request]: https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new?template=feature_request.md
+[File an issue]: https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new

@@ -15,14 +15,14 @@
           default: false,
           close: false,
           disable: loading,
-          hidden: !Backend.available,
+          hidden: !generateMode,
           callback: onGenerateClick
         },
         {
           label: localize('labels.use'),
           default: false,
           close: true,
-          disable: !name || (props.generateMode && !generatedDescription && !generatedRoleplayNotes),
+          disable: !name || (generateMode && !generatedDescription && !generatedRoleplayNotes),
           callback: onUseClick
         },
       ]"
@@ -34,7 +34,7 @@
         <h6>
           {{ localize('labels.fields.name')}}
           <i 
-            v-if="Backend.available"
+            v-if="generateMode"
             class="fas fa-info-circle tooltip-icon" 
             :data-tooltip="localize('tooltips.createEntry.name')"
           ></i>
@@ -61,7 +61,7 @@
           <h6>
             {{ localize('labels.fields.species')}}
             <i 
-              v-if="Backend.available"
+              v-if="generateMode"
               class="fas fa-info-circle tooltip-icon" 
               :data-tooltip="localize('tooltips.createEntry.species')"
             ></i>
@@ -77,7 +77,7 @@
           <h6>
             {{ localize('labels.fields.parent')}}
             <i 
-              v-if="Backend.available"
+              v-if="generateMode"
               class="fas fa-info-circle tooltip-icon" 
               :data-tooltip="localize('tooltips.createEntry.parent')"
             ></i>
@@ -90,9 +90,9 @@
         </div>
 
         <h6>
-          {{ Backend.available ? localize('labels.fields.startingDescription') : localize('labels.fields.description') }}
+          {{ generateMode ? localize('labels.fields.startingDescription') : localize('labels.fields.description') }}
           <i
-            v-if="Backend.available" 
+            v-if="generateMode" 
             class="fas fa-info-circle tooltip-icon" 
             :data-tooltip="localize('tooltips.createEntry.description')"
           ></i>
@@ -110,7 +110,7 @@
           }}"
         />
         <div 
-          v-if="Backend.available"
+          v-if="generateMode"
           class="generation-option"
         >
           <div 
@@ -146,11 +146,11 @@
         </div>
         
         <hr 
-          v-if="Backend.available"
+          v-if="generateMode"
           style="background-image: none; border: 1px solid #aaa; margin: 1rem 0 0.5rem 0"          
         >
         <div 
-          v-if="Backend.available"
+          v-if="generateMode"
           class="results-container"
         >
           <div v-if="generateError" class="error-message">
@@ -178,14 +178,13 @@
           </div>
           <div v-else class="prompt-message">
             {{ localize('dialogs.createEntry.generatePrompt')}}...<br/><br/>
-            {{ props.generateMode ? '' : localize('dialogs.createEntry.generatePrompt2')}}
+            {{ generateMode ? '' : localize('dialogs.createEntry.generatePrompt2')}}
           </div>
-        </div>
 
-        <hr 
-          v-if="Backend.available"
-          style="background-image: none; border: 1px solid #aaa; margin: 1rem 0 0 0"          
-        >
+          <hr 
+            style="background-image: none; border: 1px solid #aaa; margin: 1rem 0 0 0"          
+          >
+        </div>
 
         <!-- checkboxes at bottom -->
         <div class="generation-option">
@@ -201,7 +200,8 @@
             </label>
           </div>
           <div v-else class="generation-option-wrapper">&nbsp;</div>
-          <div v-if="Backend.available" class="generation-option-wrapper right-align">
+          
+          <div v-if="generateMode" class="generation-option-wrapper right-align">
             <Checkbox 
               v-model="generateImageAfterAccept" 
               :binary="true"
@@ -252,6 +252,10 @@
   ////////////////////////////////
   // props
   const props = defineProps({
+    topic: {
+      type: Number as PropType<ValidTopic>,
+      required: true,
+    },
     title: {
       type: String,
       required: true,
@@ -261,10 +265,6 @@
       type: Boolean,
       required: false,
       default: false,
-    },
-    topic: {
-      type: Number as PropType<ValidTopic>,
-      required: true,
     },
     initialName: {
       type: String,
@@ -355,6 +355,10 @@
       if (!style) return '';
       return style.prompt.replace('{genre}', currentSetting.value?.genre || '');
     }).filter(style => style !== '');
+  });
+
+  const generateMode = computed((): boolean => {
+    return props.generateMode && Backend.available;
   });
 
   const useRoleplayNotes = computed((): boolean => {

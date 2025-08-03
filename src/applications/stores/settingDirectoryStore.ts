@@ -483,7 +483,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
         iconFontClass: 'fas',
         label: localize(`contextMenus.topicFolder.create.${topic}`) + ' as child',
         onClick: async () => {
-          const entry = await FCBDialog.createEntryDialog(topic, { parentId: entryId} );
+          const entry = await FCBDialog.createEntryDialog(topic, { parentId: entryId, generateMode: true } );
 
           if (entry) {
             await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
@@ -516,7 +516,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
         if (!currentSetting.value)
         return;
 
-        const entry = await FCBDialog.createEntryDialog(topic, { type: type } );
+        const entry = await FCBDialog.createEntryDialog(topic, { type: type, generateMode: true } );
 
         if (entry) {
           await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
@@ -546,7 +546,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
             await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, });
           }
         } else {
-          const entry = await FCBDialog.createEntryDialog(topicFolder.topic, { } );
+          const entry = await FCBDialog.createEntryDialog(topicFolder.topic, { generateMode: true } );
 
           if (entry) {
             await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 
