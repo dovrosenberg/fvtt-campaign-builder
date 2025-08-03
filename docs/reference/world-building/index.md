@@ -20,5 +20,6 @@ Various elements in the directory will bring up detailed displays when clicked:
     * [Character Details](./content/character/)
     * [Location Specifics](./content/location/)
     * [Organization Details](./content/organization/)
+    * [PC Details](./content/pc/)
 
 

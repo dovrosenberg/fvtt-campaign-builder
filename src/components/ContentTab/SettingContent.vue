@@ -71,6 +71,7 @@
               <div class="flexrow form-group description">
                 <Editor
                     :initial-content="currentSetting.description || ''"
+                    fixed-height="240px"
                     @editor-saved="onDescriptionEditorSaved"
                   />
               </div>

@@ -11,15 +11,16 @@ next:
 ![Entry Window](/assets/images/entry-content.webp)
 
 The description tab has four main components:
-1. Image
-2. Type
-3. Topic-specific fields
-4. Description text area
+1. [Image](#image)
+2. [Type](#type)
+3. [Topic-specific fields](#topic-specific-fields)
+4. [Description](#description)
+5. [Role-playing notes](#role-playing-notes)
 
-## Image
+## Image {#image}
 See [Image] documentation.
 
-## Type
+## Type {#type}
 Type is where you categorize the type of the Entry.  For example, a Character might be a King, a Blacksmith, a Paladin, or a Hero, Villain, NPC, etc. A Location might be a City, Town, Dungeon, etc. An Organization might be a Faction, Guild, Cult, etc. It's completely up to you how to manage and organize your Entries within Types.  Type impacts these areas:
   - The Type field is searchable 
   - The [Setting Directory] can be set to group the tree by type - showing you all the entries of a certain type at once.
@@ -27,18 +28,17 @@ Type is where you categorize the type of the Entry.  For example, a Character mi
 
 For more complex type management, you can use [Tags].
 
-## Topic-Specific Fields
+## Topic-Specific Fields {#topic-specific-fields}
 Each Topic has one or more extra fields - see the topic-specific documentation for details:
   - [Characters]
   - [Locations]
   - [Organizations]
 
-## Description Text Area
-This is where you enter the description of the Entry.  Click the orange pencil to start editing, and the save button (or Control-S) to save.
+## Description {#description}
+This is where you enter the description of the Entry.  See [Editors] for more information on the functionality of editors throughout the application. 
 
-You can drag any Entry from the [Setting Directory] into the description editor, and it will insert a UUID indicator that when you save will be displayed as a clickable link that will open that Entry (hold 'Control' while clicking to open it in a new tab).
-
-It is highly suggested that you check out the [Autocomplete Mentions](/reference/navigation/main-display#autocomplete-mentions) module, which allows you to rapidly reference Foundry documents and Campaign Builder Entries/Sessions/etc. while typing in the editor.  
+## Role-playing notes {#role-playing-notes}
+This is an optional field that can be disabled in the [Module Settings] and is used for quick notes to facilitate role-playing. While building out your world, they will show below the description, but when you are in [^Play mode], they will be shown above the description. 
 
 ## Managing Relationships {#managing-relationships}
 Assuming you have the "Auto-suggest relationships" [Module Setting] turned on, whenever you save the description, it will check to see if you've added or removed any references to other [^Entries].  If you have, you will be prompted with the "Manage Related Entries" dialog:

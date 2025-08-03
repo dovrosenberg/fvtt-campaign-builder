@@ -71,20 +71,25 @@
               </div>
               <!-- spacer -->
               <div style="height: 1rem"></div>
-              <div class="flexrow form-group">
-                <LabelWithHelp
-                  label-text="labels.session.strongStart"
-                  help-text="labels.session.strongStartHelpText"
-                  @click="onStartHelpClick"
-                />
-              </div>
-              <div class="flexrow form-group">
-                <Editor 
-                  :initial-content="strongStartContent"
-                  fixed-height="180px"
-                  @editor-saved="onStartEditorSaved"
-                />
-              </div>
+
+              <!-- we put strong start at the top until the session has been played -->
+              <template v-if="strongStartAtTop">
+                <div class="flexrow form-group">
+                  <LabelWithHelp
+                    label-text="labels.session.strongStart"
+                    help-text="labels.session.strongStartHelpText"
+                    @click="onStartHelpClick"
+                  />
+                </div>
+                <div class="flexrow form-group">
+                  <Editor 
+                    :initial-content="strongStartContent"
+                    fixed-height="180px"
+                    @editor-saved="onStartEditorSaved"
+                  />
+                </div>
+              </template>
+
               <div class="flexrow form-group">
                 <LabelWithHelp
                   label-text="labels.tabs.session.notes"
@@ -97,6 +102,25 @@
                   @editor-saved="onNotesEditorSaved"
                 />
               </div>
+
+              <!-- we put strong start at the top until the session has been played -->
+              <template v-if="!strongStartAtTop">
+                <div class="flexrow form-group">
+                  <LabelWithHelp
+                    label-text="labels.session.strongStart"
+                    help-text="labels.session.strongStartHelpText"
+                    @click="onStartHelpClick"
+                  />
+                </div>
+                <div class="flexrow form-group">
+                  <Editor 
+                    :initial-content="strongStartContent"
+                    fixed-height="180px"
+                    @editor-saved="onStartEditorSaved"
+                  />
+                </div>
+              </template>
+
             </DescriptionTab>
             <div class="tab flexcol" data-group="primary" data-tab="pcs">
               <div class="tab-inner">
@@ -145,7 +169,7 @@
 
   // library imports
   import { storeToRefs } from 'pinia';
-  import { nextTick, ref, watch, onMounted, onBeforeUnmount, } from 'vue';
+  import { nextTick, ref, watch, onMounted, onBeforeUnmount, computed, } from 'vue';
 
   // local imports
   import { useMainStore, useCampaignDirectoryStore, useNavigationStore, usePlayingStore, } from '@/applications/stores';
@@ -203,6 +227,13 @@
 
   ////////////////////////////////
   // computed data
+  const strongStartAtTop = computed(() => {
+    // we put it at the top if this is the last session for its campaign
+    const campaign = currentSession.value?.campaign;
+    const campaignLastSession = campaign?.currentSession;
+
+    return campaignLastSession == null || !currentSession.value || currentSession.value.number === campaignLastSession.number; 
+  });
 
   ////////////////////////////////
   // methods

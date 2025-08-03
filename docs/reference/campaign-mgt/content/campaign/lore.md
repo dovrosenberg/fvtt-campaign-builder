@@ -28,6 +28,9 @@ This list contains "Campaign level" lore.  These are items you've fleshed out bu
  
 For each lore item, you can see the text of it and the linked entry.  Click the linked entry to open the journal entry page.
 
+### Moveable
+You can reorder the campaign lore list by dragging the handle on the left side of each row to move rows up and down.  The delivered lore list is sorted in order of when it was delivered.
+
 ### Lore Actions
 The actions column lets you take several actions with the lore entries:
   - **Delete** - Delete the lore

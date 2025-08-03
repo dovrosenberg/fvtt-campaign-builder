@@ -1,11 +1,12 @@
 import moduleJson from '@module';
-import { wbApp } from '@/applications/CampaignBuilder';
+import { getCampaignBuilderApp, wbApp } from '@/applications/CampaignBuilder';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
 
 export enum KeyBindingKeys {
   closeTab = 'closeTab',   // close the current tab
   historyBack = 'historyBack',   // move back in tab history
   historyForward = 'historyForward',   // move forward in tab history
+  toggleWindow = 'toggleWindow',   // open/close the main window
 }
 
 export class KeyBindings {
@@ -76,6 +77,29 @@ export class KeyBindings {
             modifiers: [ 
               foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.ALT,
               foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.CONTROL
+            ]
+          }
+        ],
+      },
+      {
+        bindingId: KeyBindingKeys.toggleWindow,
+        name: 'fcb.settings.keybindings.toggleWindow',
+        hint: 'fcb.settings.keybindings.toggleWindowHelp',
+        onDown: async () => { 
+          // only trap this when the window is open
+          if (wbApp?.rendered) {
+            wbApp.close();
+          } else {
+            const app = getCampaignBuilderApp();
+            app.render(true);
+          }
+        },
+        editable: [
+          {
+            key: 'Z',
+            modifiers: [ 
+              foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.CONTROL,
+              foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.SHIFT
             ]
           }
         ],

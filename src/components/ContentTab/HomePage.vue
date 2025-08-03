@@ -144,7 +144,7 @@
     if (!topicFolder)
       throw new Error('No topic folder in HomePage.onCreateEntry()');
 
-    const entry = await FCBDialog.createEntryDialog(topicFolder.topic, { } );
+    const entry = await FCBDialog.createEntryDialog(topicFolder.topic, { generateMode: true } );
 
     if (entry) {
       await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

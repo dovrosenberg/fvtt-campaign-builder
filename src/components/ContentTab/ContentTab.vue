@@ -296,14 +296,13 @@
       /* Tabs */
       &.sheet .fcb-tab-body .tab {
         height: 100% !important;
-        overflow-y: auto !important;
         align-content: flex-start;
         flex: 1;
       }
 
       &.sheet .fcb-tab-body .tab .tab-inner {
         height: 100%;
-        overflow-y: auto !important;
+        display: flex;
         align-content: flex-start;
         position: relative;
         padding-top: 2px;

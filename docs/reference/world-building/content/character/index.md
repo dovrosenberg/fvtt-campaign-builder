@@ -8,7 +8,7 @@ next:
   link: '/reference/world-building/content/location'
 ---
 # Character Details
-![Entry Window](/assets/images/character-content.webp)
+![Character Content](/assets/images/character-content.webp)
 
 Characters bring your campaign world to life. The Character details  interface is where you craft your NPCs and manage the relationships between the Characters and the world.
 

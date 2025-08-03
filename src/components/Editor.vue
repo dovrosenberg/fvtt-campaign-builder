@@ -191,7 +191,8 @@
 
     // Determine the preferred editor height
     const heights = [wrapperRef.value.offsetHeight].concat(wc ? [wc.offsetHeight] : []);
-    const height = Math.min(...heights.filter(h => Number.isFinite(h)));
+    const validHeights = heights.filter(h => Number.isFinite(h) && h > 0);
+    const height = validHeights.length > 0 ? Math.min(...validHeights) : 240; // fallback to 240px minimum
 
     // Get initial content
     const options = {

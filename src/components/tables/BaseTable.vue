@@ -1,13 +1,14 @@
 <template>
-  <div class="primevue-only">
+  <div class="primevue-only" style="display: flex">
     <DataTable
       data-key="uuid"
       :value="rows"
       size="small"
+      scrollable
+      scroll-height="flex"
       paginator-position="bottom"
       paginator-template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
       current-page-report-template="{first} to {last} of {totalRecords}"
-      :editMode="undefined"
       :sort-field="sortField"
       :sort-order="sortOrder"
       :first="pagination.first"
@@ -486,12 +487,13 @@
       // wait for the next tick to ensure the input is rendered
       nextTick(() => {
         // find the first editable column and set the focus on it
-        const firstEditableColumn = props.columns.find((col) => col.editable);
+        const firstEditableColumn = props.columns.find((col) => col.editable && col.type!=='boolean');
         if (firstEditableColumn) {
           const id = `${uuid}-${firstEditableColumn.field}`;
           const input = document.getElementById(id) as HTMLInputElement;
           if (input) {
             input.focus();
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
         }
       });

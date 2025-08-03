@@ -8,7 +8,7 @@ next:
   link: '/reference/campaign-mgt/content/session/lore'
 ---
 # Session Notes Tab
-![Session Notes Tab](/assets/images/session-content.webp)
+![Session Notes Tab](/assets/images/session-notes-tab.webp)
 
 The notes tab has four main components:
 1. Image
@@ -32,6 +32,9 @@ The session date is the date of the session.  It is only used for your reference
 This is where you enter your "Strong Start", fleshing out how you intend to begin the session.  This text is only used for your reference.
 
 See [Editors] for more info on capabilities of Editor boxes.
+
+> [!NOTE]
+> The strong start is shown above the notes area when you first create a session, but once you've played the session (i.e. once you create another session entry later than it), it moves below the notes for convenience.
 
 ## Session notes area
 This is where you enter the Session notes. 

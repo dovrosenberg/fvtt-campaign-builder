@@ -5,15 +5,17 @@
       :title="localize('dialogs.relatedEntriesManagement.title')"
       :buttons="buttons"
     >
+      <h6 style="padding: 10px 0 0 8px">{{ localize('dialogs.relatedEntriesManagement.addedItems') }}</h6>
       <div class="related-entries-management-content primevue-only">
         <!-- Added Items Section -->
-        <div v-if="addedEntries.length > 0" class="section">
-          <h3>{{ localize('dialogs.relatedEntriesManagement.addedItems') }}</h3>
+        <div v-if="addedEntries.length > 0" class="section" style="height: 100%">
           <DataTable
             :value="addedRows"
             v-model:selection="selectedAddedItems"
             data-key="uuid" 
             @update:selection="selectedAddedItems = $event"
+            scrollable
+            scroll-height="flex"
             selection-mode="multiple"
             :meta-key-selection="false"
             size="small"
@@ -219,6 +221,8 @@
 
 <style lang="scss" scoped>
 .related-entries-management-content {
+  height: 250px; 
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;

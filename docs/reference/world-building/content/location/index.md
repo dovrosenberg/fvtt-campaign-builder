@@ -8,7 +8,7 @@ next:
   link: '/reference/world-building/content/organization'
 ---
 # Location Details
-![Entry Window](/assets/images/location-content.webp)
+![Location Content](/assets/images/location-content.webp)
 
 Locations describe the world your characters live in - from planes of existence down to a room in a dungeon.  The location details interface is where you craft your locations and prepare to explore them with your players.
 

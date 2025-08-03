@@ -22,7 +22,9 @@
         "historyBack": "Move back in tab history",
         "historyBackHelp": "Move \"back\" in the history of the current tab",
         "historyForward": "Move forward in tab history",
-        "historyForwardHelp": "Move \"forward\" in the history of the current tab"
+        "historyForwardHelp": "Move \"forward\" in the history of the current tab",
+        "toggleWindow": "Open/Close Main Window",
+        "toggleWindowHelp": "Open/Close the Campaign Builder window"
       },
       "autoRefreshRollTables": "Automatically refresh RollTables",
       "autoRefreshRollTablesHelp": "When enabled, generator roll tables will be automatically refreshed with new values when the module loads",
@@ -533,7 +535,8 @@
         "postToChat": "Post To Chat",
         "createScene": "Create Scene",
         "generateImage": "Generate image",
-        "copyToClipboard": "Copy to clipboard"
+        "copyToClipboard": "Copy to clipboard",
+        "copyLinkToClipboard": "Copy link to clipboard"
       },
       "topicFolder": {
         "create": {

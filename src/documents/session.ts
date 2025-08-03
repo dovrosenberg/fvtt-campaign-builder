@@ -23,6 +23,7 @@ export interface SessionLore extends SessionRelatedItem {
   significant: boolean;
   description: string;
   journalEntryPageId: string | null;
+  sortOrder: number;
 }
 
 const fields = foundry.data.fields;

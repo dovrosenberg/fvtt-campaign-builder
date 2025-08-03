@@ -18,10 +18,10 @@ import {
   Topics, 
   SessionNPCDetails, 
   SessionMonsterDetails, 
-  SessionVignetteDetails,
   SessionLoreDetails,
   ToDoTypes,
 } from '@/types';
+import { SessionLore, SessionVignette } from '@/documents';
 
 import { Entry, Session } from '@/classes';
 
@@ -44,8 +44,8 @@ export const useSessionStore = defineStore('session', () => {
   const relatedItemRows = ref<SessionItemDetails[]>([]);
   const relatedNPCRows = ref<SessionNPCDetails[]>([]);
   const relatedMonsterRows = ref<SessionMonsterDetails[]>([]);
-  const relatedVignetteRows = ref<SessionVignetteDetails[]>([]);
-  const relatedLoreRows = ref<SessionLoreDetails[]>([]); 
+  const vignetteRows = ref<SessionVignette[]>([]);
+  const loreRows = ref<SessionLoreDetails[]>([]); 
   
   const extraFields = {
     [SessionTableTypes.None]: [],
@@ -689,6 +689,22 @@ export const useSessionStore = defineStore('session', () => {
     return newSession;
   }
 
+  const reorderVignettes = async (reorderedVignettes: SessionVignette[]) => {
+    if (!currentSession.value) return;
+
+    currentSession.value.vignettes = reorderedVignettes;
+    await currentSession.value.save();
+    await _refreshVignetteRows();
+  };
+
+  const reorderLore = async (reorderedLore: SessionLore[]) => {
+    if (!currentSession.value) return;
+
+    currentSession.value.lore = reorderedLore;
+    await currentSession.value.save();
+    await _refreshLoreRows();
+  };
+
   ///////////////////////////////
   // computed state
 
@@ -697,7 +713,7 @@ export const useSessionStore = defineStore('session', () => {
   // when we click on a journal entry, open it
   async function onJournalClick (_event: MouseEvent, uuid: string) {
     // get session Id
-    const journalEntryPageId = relatedLoreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
+    const journalEntryPageId = loreRows.value.find(r=> r.uuid===uuid)?.journalEntryPageId;
     const journalEntryPage = await fromUuid<JournalEntryPage>(journalEntryPageId);
 
     if (journalEntryPage)
@@ -740,8 +756,8 @@ export const useSessionStore = defineStore('session', () => {
   //   relatedItemRows.value = [];
   //   relatedNPCRows.value = [];
   //   relatedMonsterRows.value = [];
-  //   relatedVignetteRows.value = [];
-  //   relatedLoreRows.value = [];
+  //   vignetteRows.value = [];
+  //   loreRows.value = [];
 
   //   if (!currentSession.value)
   //     return;
@@ -876,7 +892,7 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentSession.value)
       return;
 
-    const retval = [] as SessionVignetteDetails[];
+    const retval = [] as SessionVignette[];
 
     for (const vignette of currentSession.value?.vignettes) {
       retval.push({
@@ -886,7 +902,7 @@ export const useSessionStore = defineStore('session', () => {
       });
     }
 
-    relatedVignetteRows.value = retval;
+    vignetteRows.value = retval;
   }
 
   const _refreshLoreRows = async () => {
@@ -912,7 +928,7 @@ export const useSessionStore = defineStore('session', () => {
       });
     }
 
-    relatedLoreRows.value = retval;
+    loreRows.value = retval;
   }
 
   const _refreshRowsForTab = async () => {
@@ -968,8 +984,8 @@ export const useSessionStore = defineStore('session', () => {
     relatedItemRows,
     relatedNPCRows,
     relatedMonsterRows,
-    relatedVignetteRows,
-    relatedLoreRows,
+    vignetteRows,
+    loreRows,
     extraFields,
     addLocation,
     addLocationToPlayedSession,
@@ -995,8 +1011,10 @@ export const useSessionStore = defineStore('session', () => {
     updateVignetteDescription,
     markVignetteDelivered,
     moveVignetteToNext,
+    reorderVignettes,
     addLore,
     deleteLore,
+    reorderLore,
     updateLoreDescription,
     updateLoreJournalEntry,
     markLoreDelivered,

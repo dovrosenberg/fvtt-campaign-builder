@@ -163,6 +163,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       text: {
+        ...this._cumulativeUpdate.text,
         content: value,
       }
     };
@@ -177,6 +178,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         number: value,
       }
     };
@@ -197,6 +199,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         date: value,
       }
     };
@@ -211,6 +214,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         strongStart: value,
       }
     };
@@ -225,6 +229,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         img: value,
       }
     };
@@ -246,6 +251,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         locations: this._sessionDoc.system.locations
       }
     };
@@ -259,6 +265,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         locations: this._sessionDoc.system.locations
       }
     };
@@ -276,6 +283,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         locations: this._sessionDoc.system.locations
       }
     };
@@ -299,6 +307,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         npcs: this._sessionDoc.system.npcs
       }
     };
@@ -312,6 +321,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         npcs: this._sessionDoc.system.npcs
       }
     };
@@ -329,6 +339,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         npcs: this._sessionDoc.system.npcs
       }
     };
@@ -338,6 +349,18 @@ export class Session {
 
   get vignettes(): readonly SessionVignette[] {
     return this._sessionDoc.system.vignettes || [];
+  }
+
+  set vignettes(value: SessionVignette[] | readonly SessionVignette[]) {
+    this._sessionDoc.system.vignettes = value.slice();     // we clone it so it can't be edited outside
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        vignettes: this._sessionDoc.system.vignettes
+      }
+    };
   }
 
   async addVignette(description: string): Promise<string> {
@@ -352,6 +375,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         vignettes: this._sessionDoc.system.vignettes
       }
     };
@@ -371,6 +395,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         vignettes: this._sessionDoc.system.vignettes
       }
     };
@@ -385,6 +410,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         vignettes: this._sessionDoc.system.vignettes
       }
     };
@@ -402,6 +428,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         vignettes: this._sessionDoc.system.vignettes
       }
     };
@@ -411,6 +438,18 @@ export class Session {
 
   get lore(): readonly SessionLore[] {
     return this._sessionDoc.system.lore || [];
+  }
+
+  set lore(value: SessionLore[] | readonly SessionLore[]) {
+    this._sessionDoc.system.lore = value.slice();     // we clone it so it can't be edited outside
+
+    this._cumulativeUpdate = {
+      ...this._cumulativeUpdate,
+      system: {
+        ...this._cumulativeUpdate.system,
+        lore: this._sessionDoc.system.lore
+      }
+    };
   }
 
   async addLore(description: string): Promise<string> {
@@ -427,6 +466,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         lore: this._sessionDoc.system.lore
       }
     };
@@ -446,6 +486,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         lore: this._sessionDoc.system.lore
       }
     };
@@ -464,6 +505,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         lore: this._sessionDoc.system.lore
       }
     };
@@ -478,6 +520,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         lore: this._sessionDoc.system.lore
       }
     };
@@ -495,6 +538,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         lore: this._sessionDoc.system.lore
       }
     };
@@ -512,6 +556,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         lore: this._sessionDoc.system.lore
       }
     };
@@ -536,6 +581,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         monsters: this._sessionDoc.system.monsters
       }
     };
@@ -554,6 +600,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         monsters: this._sessionDoc.system.monsters
       }
     };
@@ -567,6 +614,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         monsters: this._sessionDoc.system.monsters
       }
     };
@@ -584,6 +632,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         monsters: this._sessionDoc.system.monsters
       }
     };
@@ -607,6 +656,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         items: this._sessionDoc.system.items
       }
     };
@@ -620,6 +670,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         items: this._sessionDoc.system.items
       }
     };
@@ -637,6 +688,7 @@ export class Session {
     this._cumulativeUpdate = {
       ...this._cumulativeUpdate,
       system: {
+        ...this._cumulativeUpdate.system,
         items: this._sessionDoc.system.items
       }
     };

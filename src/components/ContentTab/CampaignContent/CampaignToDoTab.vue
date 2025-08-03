@@ -126,13 +126,13 @@
     }  
   }
 
-  const onReorder = (reorderedRows: BaseTableGridRow[]) => {
+  const onReorder = async (reorderedRows: BaseTableGridRow[]) => {
     // Create properly ordered todos with updated sortOrder values
     const reorderedToDos = reorderedRows.map((row, index) => {
       const toDo = toDoRows.value.find(toDo => toDo.uuid === row.uuid) as ToDoItem;
       return { ...toDo, sortOrder: index };
     });
-    campaignStore.reorderToDos(reorderedToDos);
+    await campaignStore.reorderToDos(reorderedToDos);
   };
 </script>
 

@@ -51,6 +51,9 @@ Right-clicking on the image will open a context menu with the following options:
 - "View Image" - Open the zoomed-in view of the image (same as clicking the image).
 - "Change Image" - Open the Foundry image selector to choose a new image.
 - "Remove Image" - Remove the image from the Entry (restoring the placeholder).
+- "Copy to clipboard" - Copy the image to the clipboard.
+- "Copy image source to clipboard" - Copy the image to the clipboard.
+- "Copy link to clipboard" - Copy the image's source link to the clipboard.  Particularly useful if you want to reuse it elsewhere without creating duplicate storage.
 - "Generate Image" (Entries only) - Generate a new image for the Entry, based on the current description. [[Advanced Feature]]
 - "Post to Chat" - Post the image in the Foundry chat for everyone to see.
 - "Create Scene" ([^Locations] only) - Create a new Foundry scene with the image as the background.  Helpful for Theater of the Mind scenes.

@@ -4,11 +4,11 @@ prev:
   text: 'Locations'
   link: '/reference/world-building/content/location'
 next: 
-  text: 'Campaigns'
-  link: '/reference/world-building/content/campaign'
+  text: 'PCs'
+  link: '/reference/world-building/content/pc'
 ---
 # Organization Details
-![Entry Window](/assets/images/organization-content.webp)
+![Organization Content](/assets/images/organization-content.webp)
 
 Organizations add depth and complexity to your campaign world by providing structure for social, political, and economic interactions. An organization could be an important clan, a religious order, a town council, or any other group of people.  The organization details interface is where you can design these structures and how they fit into your setting.
 
