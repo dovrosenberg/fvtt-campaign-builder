@@ -1,46 +1,48 @@
 <template>
-  <!-- For available lore -->
-  <SessionTable
-    ref="availableLoreRef"
-    :rows="mappedAvailableLoreRows"
-    :columns="campaignStore.extraFields[CampaignTableTypes.Lore]"
-    :delete-item-label="localize('tooltips.deleteLore')"
-    :allow-edit="true"
-    :show-add-button="true"
-    :add-button-label="localize('labels.session.addLore')"
-    :extra-add-text="localize('labels.session.addLoreDrag')"
-    :allow-drop-row="true"
-    :help-text="localize('labels.campaign.loreHelpText')"
-    help-link="https://slyflourish.com/sharing_secrets.html"
-    :can-reorder="true"
-    @add-item="onAddLore"
-    @delete-item="onDeleteLore"
-    @mark-item-delivered="onMarkLoreDelivered"
-    @move-to-next-session="onMoveLoreToNext"
-    @cell-edit-complete="onCellEditComplete"
-    @dragover-new="onDragover"
-    @dragover-row="onDragover"
-    @drop-row="onDropRow"
-    @drop-new="onDropNew"
-    @reorder="onReorderAvailable"
-  />
+  <div class="campaign-lore-container flexcol">
+    <!-- For available lore -->
+    <SessionTable
+      ref="availableLoreRef"
+      :rows="mappedAvailableLoreRows"
+      :columns="campaignStore.extraFields[CampaignTableTypes.Lore]"
+      :delete-item-label="localize('tooltips.deleteLore')"
+      :allow-edit="true"
+      :show-add-button="true"
+      :add-button-label="localize('labels.session.addLore')"
+      :extra-add-text="localize('labels.session.addLoreDrag')"
+      :allow-drop-row="true"
+      :help-text="localize('labels.campaign.loreHelpText')"
+      help-link="https://slyflourish.com/sharing_secrets.html"
+      :can-reorder="true"
+      @add-item="onAddLore"
+      @delete-item="onDeleteLore"
+      @mark-item-delivered="onMarkLoreDelivered"
+      @move-to-next-session="onMoveLoreToNext"
+      @cell-edit-complete="onCellEditComplete"
+      @dragover-new="onDragover"
+      @dragover-row="onDragover"
+      @drop-row="onDropRow"
+      @drop-new="onDropNew"
+      @reorder="onReorderAvailable"
+    />
 
-  <!-- For delivered lore -->
-  <div style="font-size: 1.3em; font-weight: bold"> 
-    Delivered Lore
+    <!-- For delivered lore -->
+    <div style="font-size: 1.3em; font-weight: bold; margin: 0.5rem 0 -1rem 8px"> 
+      Delivered Lore
+    </div>
+    <SessionTable
+      :rows="mappedDeliveredLoreRows"
+      :columns="campaignStore.extraFields[CampaignTableTypes.DeliveredLore]"
+      :allow-delete="true"
+      :delete-item-label="localize('tooltips.deleteLore')"
+      :allow-edit="true"
+      :show-add-button="false"
+      :allow-drop-row="false"
+      @delete-item="onDeleteLore"
+      @unmark-item-delivered="onUnmarkLoreDelivered"
+      @cell-edit-complete="onCellEditComplete"
+    />
   </div>
-  <SessionTable
-    :rows="mappedDeliveredLoreRows"
-    :columns="campaignStore.extraFields[CampaignTableTypes.DeliveredLore]"
-    :allow-delete="true"
-    :delete-item-label="localize('tooltips.deleteLore')"
-    :allow-edit="true"
-    :show-add-button="false"
-    :allow-drop-row="false"
-    @delete-item="onDeleteLore"
-    @unmark-item-delivered="onUnmarkLoreDelivered"
-    @cell-edit-complete="onCellEditComplete"
-  />
 </template>
 
 <script setup lang="ts">
@@ -209,5 +211,10 @@
 </script>
 
 <style lang="scss">
-
+  .campaign-lore-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
 </style>
