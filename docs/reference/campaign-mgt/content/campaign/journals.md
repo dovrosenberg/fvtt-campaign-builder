@@ -4,8 +4,8 @@ prev:
   text: 'Campaign description tab'
   link: '/reference/campaign-mgt/content/campaign/description'
 next: 
-  text: 'Campaign PCs Tab'
-  link: '/reference/campaign-mgt/content/campaign/pcs'
+  text: 'Session Details'
+  link: '/reference/campaign-mgt/content/session'
 ---
 # Entry Journals Tab
 

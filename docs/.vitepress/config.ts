@@ -72,10 +72,10 @@ export default defineConfig({
             { text: 'Characters', link: '/reference/world-building/content/character/' },
             { text: 'Locations', link: '/reference/world-building/content/location/' },
             { text: 'Organizations', link: '/reference/world-building/content/organization/' },
+            { text: 'PCs', link: '/reference/world-building/content/pc/' },
           ]},
           { text: 'Campaign Management', link: '/reference/campaign-mgt/', items: [
             { text: 'Campaigns', link: '/reference/campaign-mgt/content/campaign/' },
-            { text: 'PCs', link: '/reference/campaign-mgt/content/pc' },
             { text: 'Sessions', link: '/reference/campaign-mgt/content/session/' },
             { text: 'To-do List', link: '/reference/campaign-mgt/content/campaign/todos' },
           ] },

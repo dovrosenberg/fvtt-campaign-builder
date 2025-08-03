@@ -52,6 +52,9 @@ Using the "Group tree by type" checkbox at the top of the sidebar, you can choos
 
 ![Group by type tree](/assets/images/group-by-type.webp)
 
+> [!NOTE]
+> Characters in setting directory now group by type regardless of whether the overall tree is grouped by type or not.  Since they don't have a hierarchy, this makes it much easier to find them when you have a long list.
+
 ### Filtering
 Typing text in the "Filter" box at the top of the sidebar filters the Entry tree to only show:
 - All entries whose names contain the filter string

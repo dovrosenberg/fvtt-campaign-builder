@@ -22,6 +22,7 @@
     :item-id="editItem.itemId"
     :item-name="editItem.itemName"
     :mode="RelatedItemDialogModes.Add"
+    :allow-create="false"
   />
 </template>
 

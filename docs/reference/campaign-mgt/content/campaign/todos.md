@@ -4,8 +4,8 @@ prev:
   text: 'Campaign Ideas Tab'
   link: '/reference/campaign-mgt/content/campaign/ideas'
 next: 
-  text: 'PCs'
-  link: '/reference/campaign-mgt/content/pc'
+  text: 'Play Mode'
+  link: '/reference/play-mode'
 ---
 # Campaign To-Do Tab
 
