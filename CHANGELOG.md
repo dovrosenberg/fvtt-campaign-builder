@@ -4,11 +4,13 @@
 ![](https://img.shields.io/badge/release%20date-August%2001%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.2.0/module.zip)
 
-**Note!** You may need to close all your currently open tabs and reopen to avoid issues after upgrading to this version.
+**Note!** FOR THOSE USING THE BACKEND, THIS RELEASE REQUIRES AN UPGRADE.  SIMPLY RERUN THE SAME `curl` COMMAND YOU USED TO INSTALL THE PRIOR VERSION (FROM THE DIRECTORY WITH YOUR `.env` FILE) AND IT SHOULD JUST UPDATE IN PLACE.  YOU WILL THEN NEED TO UPDATE YOUR API KEY IN THE SETTINGS WITH THE NEW VALUE.
 
-**Note 2!** You will see a migration window popup briefly (usually very briefly) the first time you login after upgrading.  
+**Note 2!** You may need to close all your currently open tabs and reopen to avoid issues after upgrading to this version.
 
-**Note 3!** Due to the extensive changes to PCs, you will need to reconnect your PCs (now found in the Setting tree) to your campaigns.  No PC data should have been lost (see note 2), but you do have to reconnect them.  You do not need to connect them to every session - the session and campaign lists mirror each other.
+**Note 3!** You will see a migration window popup briefly (usually very briefly) the first time you login after upgrading.  
+
+**Note 4!** Due to the extensive changes to PCs, you will need to reconnect your PCs (now found in the Setting tree) to your campaigns.  No PC data should have been lost (see note 2), but you do have to reconnect them.  You do not need to connect them to every session - the session and campaign lists mirror each other.
 
 - Added ability to link Foundry journals to Entries, Settings, Campaigns, and PCs - great for attaching maps, multiple iamges of the same character, and various other info you want to store and/or share with your players
 - Added support for Anthropic (Claude 3) for text generation (see module settings)

@@ -18,24 +18,19 @@ function registerForActorHooks() {
 
     // Check if the name was changed
     if (changes.name) {
-      // find all the PCs that need to be updated
-      let pcsToUpdate = new Set<string>();
-
-      // iterate over all settings then all PCs within the setting
-      const settings = [mainStore.currentSetting];
+      // iterate over all settings then all PCs and campaigns within the setting
+      const settings = await mainStore.getAllSettings();
       for (const setting of settings) {
         const folder = setting?.topicFolders[Topics.PC];
         if (!folder)
           continue;
 
         const pcs = await folder.filterEntries(e => e.actorId === actor.uuid);
-        if (pcs)
-          pcsToUpdate = new Set([...pcsToUpdate, ...pcs.map(pc => pc.uuid)]);
-
-        // propagate all of them through all the headers 
-        pcsToUpdate.forEach(async (uuid: string) => {
-          await navigationStore.propagateNameChange(uuid, actor.name);
-        });      
+        for (const pc of pcs) {
+          pc.name = actor.name;
+          await pc.save();
+          await navigationStore.propagateNameChange(pc.uuid, actor.name);
+        }
 
         // also need to update the details on campaigns
         for (let campaign of Object.values(setting.campaigns)) {
