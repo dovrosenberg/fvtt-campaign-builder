@@ -7,6 +7,7 @@
 - When creating a scene from an image, it turns off token vision so everyone can actually see it.
 - Fixed bug when trying to copy an image URL for an image that's stored locally on the server
 - Fixed CORS error when attempting to copy image to the clipboard
+- You can now see images in editors (e.g. entry descriptions) that are closed
 
 ## v1.2.1 - Bug fixes
 ![](https://img.shields.io/badge/release%20date-August%208%2C%202025-blue)

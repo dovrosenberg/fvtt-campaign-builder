@@ -8,7 +8,7 @@ import { Entry } from '@/classes';
  */
 const allowedTags = [
   'a', 'b', 'br', 'strong', 'i', 'em', 'mark', 'small', 'del', 'ins', 'sub', 'sup',
-  'ul', 'ol', 'li', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code', 'br',
+  'ul', 'ol', 'li', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code', 'br', 'img',
 ];
 
 /**
@@ -16,7 +16,7 @@ const allowedTags = [
  * Includes standard attributes and Foundry VTT-specific data attributes for proper functionality.
  */
 const allowedAttributes = [
-  'title', 'class', 'style', 'href', 'draggable', 'inert',
+  'title', 'class', 'style', 'href', 'src', 'alt', 'width', 'height', 'draggable', 'inert',
   'data-link-type', 'data-link', 'data-uuid', 'data-id', 'data-type', 
   'data-pack', 'data-tooltip', 'data-tooltip-text'
 ];
@@ -72,6 +72,12 @@ export const sanitizeHTML = (htmlString: string): string => {
         if (allowedAttributes.includes(attrName)) {
           if (attrName === 'href') {
             if (value && value.startsWith('http')) {
+              processedAttrs += ` ${attrName}="${value}"`;
+            } else {
+              processedAttrs += ` ${attrName}=""`;
+            }
+          } else if (attrName === 'src') {
+            if (value && (value.startsWith('http') || value.startsWith('/') || value.startsWith('./') || value.startsWith('../') || value.startsWith('data:image/'))) {
               processedAttrs += ` ${attrName}="${value}"`;
             } else {
               processedAttrs += ` ${attrName}=""`;
