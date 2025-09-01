@@ -82,7 +82,9 @@
                   />
                 </div>
                 <div class="flexrow form-group">
+                  <!-- Use a key so it doesn't try to reuse; that was causing issues when it moved around -->
                   <Editor 
+                    :key="`strong-start-${currentSession?.uuid}-top`"
                     :initial-content="strongStartContent"
                     fixed-height="180px"
                     @editor-saved="onStartEditorSaved"
@@ -113,7 +115,9 @@
                   />
                 </div>
                 <div class="flexrow form-group">
+                  <!-- Use a key so it doesn't try to reuse; that was causing issues when it moved around -->
                   <Editor 
+                    :key="`strong-start-${currentSession?.uuid}-bottom`"
                     :initial-content="strongStartContent"
                     fixed-height="180px"
                     @editor-saved="onStartEditorSaved"
