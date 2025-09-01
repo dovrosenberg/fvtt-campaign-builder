@@ -33,7 +33,7 @@ export class RootFolder extends DocumentWithFlags<RootFolderDoc> {
     const settings: Setting[] = [];
 
     // all children folders should be settings
-    for (const child of (this._doc?.children || [])) {
+    for (const child of this.children) {
       const setting = new Setting(child.folder);
       
       if (setting)
@@ -108,5 +108,9 @@ export class RootFolder extends DocumentWithFlags<RootFolderDoc> {
       return this;
     }
     return null;
+  }
+
+  public get children(): Folder[] {
+    return this._doc?.children || [] as Folder[];
   }
 }
