@@ -328,7 +328,7 @@ export const useSessionStore = defineStore('session', () => {
       campaign = await currentSession.value.loadCampaign();
 
     if (vignette && delivered && campaign) {
-      await campaign.mergeToDoItem(ToDoTypes.Vignette, `Delivered in session ${currentSession.value.number}`, uuid, currentSession.value.uuid);
+      await campaign.mergeToDoItem(ToDoTypes.Vignette, `Delivered in session ${currentSession.value.number}`, null, currentSession.value.uuid);
     }
     await _refreshVignetteRows();
   }
@@ -431,7 +431,7 @@ export const useSessionStore = defineStore('session', () => {
       let campaign = await currentSession.value.loadCampaign();
 
       if (campaign) {
-        await campaign.mergeToDoItem(ToDoTypes.Lore, `Delivered in session ${currentSession.value.number}`, uuid, currentSession.value.uuid);
+        await campaign.mergeToDoItem(ToDoTypes.Lore, `Delivered in session ${currentSession.value.number}`, null, currentSession.value.uuid);
       }
     }
 
@@ -547,7 +547,7 @@ export const useSessionStore = defineStore('session', () => {
       campaign = await currentSession.value.loadCampaign();
 
     if (entry && delivered && campaign) {
-      await campaign.mergeToDoItem(ToDoTypes.Item, `Delivered in session ${currentSession.value.number}`, uuid, currentSession.value.uuid);
+      await campaign.mergeToDoItem(ToDoTypes.Item, `Delivered in session ${currentSession.value.number}`, null, currentSession.value.uuid);
     }
 
     await _refreshItemRows();
@@ -631,7 +631,7 @@ export const useSessionStore = defineStore('session', () => {
       campaign = await currentSession.value.loadCampaign();
 
     if (entry && delivered && campaign) {
-      await campaign.mergeToDoItem(ToDoTypes.Monster, `Delivered in session ${currentSession.value.number}`, uuid, currentSession.value.uuid);
+      await campaign.mergeToDoItem(ToDoTypes.Monster, `Delivered in session ${currentSession.value.number}`, null, currentSession.value.uuid);
     }
 
     await _refreshMonsterRows();

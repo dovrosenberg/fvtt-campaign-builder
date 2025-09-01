@@ -88,7 +88,8 @@ export default defineConfig(({ mode }) => {
       updateModuleManifestPlugin(),
     ],
     build: {
-      sourcemap: true,
+      sourcemap: mode === 'development',
+      minify: mode !== 'development',
       outDir: 'dist',
       rollupOptions: {
         input: 'src/main.ts',

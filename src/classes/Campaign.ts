@@ -259,7 +259,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   }
 
   /** Creates a new to-do item and adds to the campaign*/
-  async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string, manualDate?: Date): Promise<ToDoItem | null> {
+  async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string | null | undefined, sessionUuid?: string, manualDate?: Date): Promise<ToDoItem | null> {
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return null;
 
@@ -268,7 +268,16 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     }
 
     // manual entries/generated names don't have a linked uuid, but the others do
-    if ((!linkedUuid && ![ToDoTypes.Manual, ToDoTypes.GeneratedName].includes(type)) || (linkedUuid && [ToDoTypes.Manual, ToDoTypes.GeneratedName].includes(type))) {
+    const typesWithoutUuid = [
+      ToDoTypes.Manual,  // no link
+      ToDoTypes.GeneratedName,  // no link 
+      ToDoTypes.Lore,  // link to session
+      ToDoTypes.Vignette,  // link to session
+      ToDoTypes.Monster,  // link to session
+      ToDoTypes.Item     // link to session
+    ];
+
+    if ((!linkedUuid && !typesWithoutUuid.includes(type)) || (linkedUuid && typesWithoutUuid.includes(type))) {
       throw new Error('Invalid linkedUuid for type in Campaign.addToDoItem()');
     }
 
@@ -302,13 +311,18 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
    * to the end of the current text.  Otherwise, it creates a new one.
    * 
    */
-  async mergeToDoItem(type: ToDoTypes, text: string, linkedUuid?: string, sessionUuid?: string): Promise<void> {
+  async mergeToDoItem(type: ToDoTypes, text: string, linkedUuid?: string | null | undefined, sessionUuid?: string): Promise<void> {
     // Check if to-do list is enabled
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return;
 
     // see if one exists for this linked uuid
-    const existingItem = this._todoItems.find(i => i.linkedUuid === linkedUuid);
+    let existingItem = undefined as ToDoItem | undefined;
+    if (linkedUuid) {
+       existingItem = this._todoItems.find(i => i.linkedUuid === linkedUuid);
+    } else if (sessionUuid) {
+       existingItem = this._todoItems.find(i => i.sessionUuid === sessionUuid && i.type === type);
+    }
 
     // make sure the type matches
     if (existingItem && existingItem.type !== type) {
@@ -318,7 +332,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     // otherwise, if we have one, add the text to the end of the current text
     // if we don't have one, create a new one
     if (!existingItem) {
-      await this.addNewToDoItem(type, text, linkedUuid, sessionUuid);
+      await this.addNewToDoItem(type, text, linkedUuid || undefined, sessionUuid);
       return;
     } else if (existingItem.manuallyUpdated) {
         // if it's manually updated, we don't want to add to it but note the timestamp

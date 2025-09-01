@@ -397,13 +397,13 @@ export const useCampaignStore = defineStore('campaign', () => {
     // If there's a linked entity, check if it still exists
     if (toDo.linkedUuid) {
       const entry = await Entry.fromUuid(toDo.linkedUuid);
-      if (entry) 
-        return;
-
-      const document = await fromUuid<Document<any, any>>(toDo.linkedUuid);
-      if (!document) {
-        notifyWarn(localize('notifications.todoReferenceNotFound'));
-        return;
+      if (!entry)  {
+        // I don't think we currently link to documents, but just in case
+        const document = await fromUuid<Document<any, any>>(toDo.linkedUuid);
+        if (!document) {
+          notifyWarn(localize('notifications.todoReferenceNotFound'));
+          return;
+        }
       }
     }
 

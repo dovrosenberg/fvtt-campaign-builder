@@ -1,13 +1,16 @@
 # Change Log
 
 ## v1.2.2 - Bug fixes
-![](https://img.shields.io/badge/release%20date-September%208%2C%202025-blue)
+![](https://img.shields.io/badge/release%20date-September%201%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.2.2/module.zip)
 
 - When creating a scene from an image, it turns off token vision so everyone can actually see it.
 - Fixed bug when trying to copy an image URL for an image that's stored locally on the server
-- Fixed CORS error when attempting to copy image to the clipboard
-- You can now see images in editors (e.g. entry descriptions) that are closed
+- Fixed CORS error when attempting to copy image to the clipboard.
+- You can now see images in editors (e.g. entry descriptions) that are closed.
+- Fixed issue where strong start edit box wasn't being updated when moving between sessions.
+- Links to entries in campaign to-do list now work.
+- Marking lore, items, etc. as delivered now properly updates the campaign to-do list.
 
 ## v1.2.1 - Bug fixes
 ![](https://img.shields.io/badge/release%20date-August%208%2C%202025-blue)
