@@ -102,7 +102,8 @@
       },
       grid: {
         type: foundry.CONST.GRID_TYPES.GRIDLESS,
-      }
+      },
+      tokenVision: false,  // ensure everyone can see it
     }]);
 
     // add it to the linked list
