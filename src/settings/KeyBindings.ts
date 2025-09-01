@@ -1,4 +1,4 @@
-import moduleJson from '@module';
+import { moduleId } from '@/settings';
 import { getCampaignBuilderApp, wbApp } from '@/applications/CampaignBuilder';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
 
@@ -110,7 +110,7 @@ export class KeyBindings {
       const binding = keybindings[i];
 
       const { bindingId, ...bindingData } = binding;
-      game.keybindings.register(moduleJson.id, bindingId, {
+      game.keybindings.register(moduleId, bindingId, {
         onUp: () => {},
         precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL,
         restricted: true,   // restrict to GM only

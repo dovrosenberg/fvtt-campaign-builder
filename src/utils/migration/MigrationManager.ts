@@ -6,6 +6,7 @@ import { MigrationResult, MigrationContext, MigrationConstructor } from './types
 import { migrationVersions } from './versions';
 import { VersionUtils } from '@/utils/version';
 import { MigrationProgressDialog } from './MigrationProgressDialog';
+import { notifyError } from '../notifications';
 
 /**
  * Manages all migrations for the Campaign Builder module
@@ -67,8 +68,18 @@ export class MigrationManager {
         warnings: ['No migrations needed']
       };
     }
-    
-    debugger;
+
+    // if version went backward, though a danger message
+    if (VersionUtils.compareVersions(lastVersion, currentVersion) > 0) {
+      notifyError(`Version went backward from ${lastVersion} to ${currentVersion}. This is not expected and may cause issues.`);
+      return {
+        success: true,
+        migratedCount: 0,
+        failedCount: 0,
+        warnings: ['No migrations needed']
+      };
+    }
+
     console.log(`Starting migration from ${lastVersion} to ${currentVersion}`);
 
     const neededMigrations = await this.getNeededMigrations();

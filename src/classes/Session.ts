@@ -677,15 +677,20 @@ export class Session {
 
     let retval: SessionDoc | null = null;
     await setting.executeUnlocked(async () => {
-      retval = await toRaw(this._sessionDoc).update(updateData) || null;
-      if (retval) {
-        this._sessionDoc = retval;
+      // note: update returns null if nothing changed
+      try {
+        const retval = await toRaw(this._sessionDoc).update(updateData) || null;
+        if (retval) {
+          this._sessionDoc = retval;
+        }
+          
+        this._cumulativeUpdate = {};
+      } catch (e) {
+        console.error('Failed to update campaign', e);
       }
-
-      this._cumulativeUpdate = {};
     });
 
-     // Update the search index
+     // Update the search index (rely on retval being null if no changes were made)
      try {
       if (retval) {
         await searchService.addOrUpdateSessionIndex(this, setting);

@@ -108,7 +108,8 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
     const config = this.getConfig(flag);
 
     // @ts-ignore - not sure how to fix the typing
-    const setting = (this._doc.getFlag(moduleId, flag) || foundry.utils.deepClone(config.default));
+    // TODO: if the current value is null/undefined this will return to default even if we shouldn't...
+    const setting = (this._doc.getFlag(moduleId, flag) ?? foundry.utils.deepClone(config.default));
 
     if (config.keyedByUUID)
       return unprotect(setting as Record<string, any>) as FT;

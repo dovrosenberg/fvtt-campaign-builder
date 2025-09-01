@@ -535,12 +535,17 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
         if (updateData.flags && updateData.flags[moduleId])
           updateData.flags[moduleId] = this.prepareFlagsForUpdate(updateData.flags[moduleId]);
 
-        const retval = await toRaw(this._doc).update(updateData) || null;
-        if (retval) {
-          this._doc = retval;
+        // note: update returns null if nothing changed
+        try {
+          const retval = await toRaw(this._doc).update(updateData) || null;
+          if (retval) {
+            this._doc = retval;
+          }
+           
           this._cumulativeUpdate = {};
-
           success = true;
+        } catch (e) {
+          console.error('Failed to update campaign', e);
         }
 
         // update the name

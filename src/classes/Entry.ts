@@ -470,17 +470,22 @@ export class Entry {
         updateData.system.relationships = relationshipKeyReplace(updateData.system.relationships || {}, true);
       }
 
-      retval = await toRaw(this._entryDoc).update(updateData) || null;
-      if (retval) {
-        this._entryDoc = retval;
-      }
+      // note: update returns null if nothing changed
+      try {
+        const retval = await toRaw(this._entryDoc).update(updateData) || null;
+        if (retval) {
+          this._entryDoc = retval;
+        }
+          
+        // swap back
+        if (updateData.system?.relationships) {
+          this._entryDoc.system.relationships = oldRelationships;
+        }
 
-      // swap back
-      if (updateData.system?.relationships) {
-        this._entryDoc.system.relationships = oldRelationships;
+        this._cumulativeUpdate = {};
+      } catch (e) {
+        console.error('Failed to update campaign', e);
       }
-
-      this._cumulativeUpdate = {};
     });
 
     // Update the search index and to-do list
