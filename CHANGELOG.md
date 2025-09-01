@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.2.2 - Bug fixes
+![](https://img.shields.io/badge/release%20date-September%208%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.2.2/module.zip)
+
+- Fixed bug when trying to copy an image URL for an image that's stored locally on the server
+ 
 ## v1.2.1 - Bug fixes
 ![](https://img.shields.io/badge/release%20date-August%208%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.2.1/module.zip)
