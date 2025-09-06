@@ -115,8 +115,6 @@
           "backendURLHint": "Sortie du script pour déployer le backend.",
           "APIToken": "Jeton API",
           "APITokenHint": "Sortie du script pour déployer le backend.",
-          "defaultToLong": "Par défaut, utiliser des descriptions longues",
-          "defaultToLongHint": "Contrôle le paramètre par défaut pour créer une description longue ou courte lors de la génération par IA. Cela ne s'applique pas lors de l'utilisation de notes de jeu de rôle.",
           "emailDefaultSetting": "Paramètre par défaut pour l'email",
           "emailDefaultSettingHint": "Le Paramètre à utiliser par défaut pour les fonctionnalités d'email (ex. envoi de tâches par email)",
           "emailDefaultCampaign": "Campagne par défaut pour l'email",
@@ -124,13 +122,15 @@
           "selectSetting": "Sélectionnez un paramètre...",
           "selectCampaign": "Sélectionnez une campagne...",
           "longDescriptionParagraphs": "Paragraphes de longue description",
-          "longDescriptionParagraphsHint": "Nombre de paragraphes à générer pour les longues descriptions (1-4).",
+          "longDescriptionParagraphsHint": "Nombre de paragraphes à générer pour les longues descriptions (pour le style non-RPG (1-4).",
           "useGmailIdeas": "Utiliser Gmail pour les idées",
           "useGmailIdeasHint": "Lorsqu'il est activé, les éléments d'idée seront créés à partir de la boîte de réception Gmail",
           "textModel": "Modèle de génération de texte",
           "textModelHint": "Sélectionnez le modèle d'IA à utiliser pour la génération de texte",
           "imageModel": "Modèle de génération d'image",
-          "imageModelHint": "Sélectionnez le modèle d'IA à utiliser pour la génération d'images"
+          "imageModelHint": "Sélectionnez le modèle d'IA à utiliser pour la génération d'images",
+          "rpgStyle": "Descriptions de style RPG",
+          "rpgStyleHint": "Lorsqu'il est activé, les longues descriptions seront de style RPG (texte encadré + notes) par opposition à une description plus narrative, en plusieurs paragraphes."
         },
         "tabs": {
           "backend": "Backend",
