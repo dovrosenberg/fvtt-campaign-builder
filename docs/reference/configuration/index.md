@@ -28,7 +28,7 @@ This is where you configure your backend if you are using Advanced Features.
   - **API Token**: The security token that the backend deploy script gives you (also from the deploy script)
 - **AI Models Tab** - For selecting the AI models you want to use
 - **AI Content** - Settings for how AI generation should be done
-  - **Default to long descriptions**: If checked, when AI descriptions are generated they will be long paragraphs (number determined by setting below).  If unchecked, they will instead be very brief bullet points more useful for quick roleplaying reference.
+  - **RPG-style descriptions**: If checked, generated descriptions will be in the format of an RPG adventure - boxed text plus DM notes.  If unchecked, they will instead be longer, narrative descriptions.
   - **Long description paragraphs**: When using long descriptions (see above), this setting determines the number of paragraphs to generate.
 - **Email** - Settings for the [Email to Ideas List](/reference/backend/email).  Note that this feature does not use AI and can be used independently of the others (i.e. without providing AI API Keys).
   - **Use Gmail for Ideas**: Turn this on to use the ["Email to Ideas List"](/reference/backend/email) feature)
