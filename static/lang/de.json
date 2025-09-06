@@ -115,8 +115,6 @@
           "backendURLHint": "Ausgabe des Skripts zum Bereitstellen des Backends.",
           "APIToken": "API-Token",
           "APITokenHint": "Ausgabe des Skripts zum Bereitstellen des Backends.",
-          "defaultToLong": "Standardmäßig lange Beschreibungen verwenden",
-          "defaultToLongHint": "Steuert die Standardeinstellung für die Erstellung einer langen oder kurzen Beschreibung bei der KI-Generierung. Es gilt nicht bei der Verwendung von Rollenspielnotizen.",
           "emailDefaultSetting": "Standardeinstellung für E-Mail",
           "emailDefaultSettingHint": "Die Einstellung, die standardmäßig für E-Mail-Funktionen verwendet wird (z.B. E-Mail von Aufgaben)",
           "emailDefaultCampaign": "Standardkampagne für E-Mail",
@@ -124,13 +122,15 @@
           "selectSetting": "Wählen Sie eine Einstellung...",
           "selectCampaign": "Wählen Sie eine Kampagne...",
           "longDescriptionParagraphs": "Lange Beschreibungsabsätze",
-          "longDescriptionParagraphsHint": "Anzahl der Absätze, die für lange Beschreibungen generiert werden sollen (1-4).",
+          "longDescriptionParagraphsHint": "Anzahl der Absätze, die für lange Beschreibungen generiert werden sollen (für Nicht-RPG-Stil (1-4).",
           "useGmailIdeas": "Gmail für Ideen verwenden",
           "useGmailIdeasHint": "Wenn aktiviert, werden Ideenelemente aus dem Gmail-Posteingang erstellt",
           "textModel": "Textgenerierungsmodell",
           "textModelHint": "Wählen Sie das KI-Modell zur Textgenerierung aus",
           "imageModel": "Bildgenerierungsmodell",
-          "imageModelHint": "Wählen Sie das KI-Modell zur Bildgenerierung aus"
+          "imageModelHint": "Wählen Sie das KI-Modell zur Bildgenerierung aus",
+          "rpgStyle": "RPG-Stil Beschreibungen",
+          "rpgStyleHint": "Wenn aktiviert, sind lange Beschreibungen im RPG-Stil (Rahmentext + Notizen) im Gegensatz zu einer eher narrativen, mehrteiligen Beschreibung."
         },
         "tabs": {
           "backend": "Backend",
