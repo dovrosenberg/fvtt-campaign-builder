@@ -97,6 +97,12 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       // remove node if nothing left
       if (oldTypeNode.loadedChildren.length===0) {
         topicNode.loadedTypes = topicNode.loadedTypes.filter((t)=>t.name !== oldType);
+
+        // also delete from the main type list
+        if (topicNode.topicFolder) {
+          topicNode.topicFolder.types = topicNode.topicFolder.types.filter((t)=>t!==oldType);
+          await topicNode.topicFolder.save();
+        }
       }
     }
 

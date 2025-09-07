@@ -35,8 +35,7 @@ The Type field is an autocomplete, and as you start typing it will prompt you wi
 
 To add a new Type to the list, just type it in the box and hit Enter (or leave the box).
 
-
-You cannot currently delete Types.
+To remove a Type from the list, just remove it from all entries.  Unused Types will no longer be suggested.
 
 ## Tabs
 There are several tabs on the Entry details screen:
