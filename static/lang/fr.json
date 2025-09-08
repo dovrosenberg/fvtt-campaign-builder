@@ -130,7 +130,8 @@
           "imageModel": "Modèle de génération d'image",
           "imageModelHint": "Sélectionnez le modèle d'IA à utiliser pour la génération d'images",
           "rpgStyle": "Descriptions de style RPG",
-          "rpgStyleHint": "Lorsqu'il est activé, les longues descriptions seront de style RPG (texte encadré + notes) par opposition à une description plus narrative, en plusieurs paragraphes."
+          "rpgStyleHint": "Lorsqu'il est activé, les longues descriptions seront de style RPG (texte encadré + notes) par opposition à une description plus narrative, en plusieurs paragraphes.",
+          "add": "Ajouter"
         },
         "tabs": {
           "backend": "Backend",
@@ -357,7 +358,8 @@
       "journals": {
         "addJournal": "Ajouter un journal",
         "dropToAdd": "(ou glisser/déposer un journal ou une page de journal)"
-      }
+      },
+      "add": "Ajouter"
     },
     "placeholders": {
       "search": "Rechercher",
