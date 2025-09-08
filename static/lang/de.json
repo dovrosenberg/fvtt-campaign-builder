@@ -130,7 +130,8 @@
           "imageModel": "Bildgenerierungsmodell",
           "imageModelHint": "Wählen Sie das KI-Modell zur Bildgenerierung aus",
           "rpgStyle": "RPG-Stil Beschreibungen",
-          "rpgStyleHint": "Wenn aktiviert, sind lange Beschreibungen im RPG-Stil (Rahmentext + Notizen) im Gegensatz zu einer eher narrativen, mehrteiligen Beschreibung."
+          "rpgStyleHint": "Wenn aktiviert, sind lange Beschreibungen im RPG-Stil (Rahmentext + Notizen) im Gegensatz zu einer eher narrativen, mehrteiligen Beschreibung.",
+          "add": "Hinzufügen"
         },
         "tabs": {
           "backend": "Backend",
@@ -357,7 +358,8 @@
       "journals": {
         "addJournal": "Journal hinzufügen",
         "dropToAdd": "(oder ein Journal oder eine Journalseite ziehen/ablegen)"
-      }
+      },
+      "add": "Hinzufügen"
     },
     "placeholders": {
       "search": "Suche",
