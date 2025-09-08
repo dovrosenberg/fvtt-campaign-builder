@@ -111,6 +111,7 @@
       "advancedSettings": {
         "title": "Configure Advanced Settings",
         "labels": {
+          "add": "Add",
           "backendURL": "Backend URL",
           "backendURLHint": "Output from script to deploy the backend.",
           "APIToken": "API Token",
@@ -137,20 +138,6 @@
           "models": "AI Models",
           "content": "AI Content",
           "email": "Email"
-        }
-      },
-      "rollTableSettings": {
-        "title": "Configure Roll Table Settings",
-        "folderName": "Campaign Builder Roll Tables",
-        "tableDescription": "Generator table for {type}",
-        "labels": {
-          "refreshAll": "Refresh all tables",
-          "refreshAllHelp": "Replace any used items with new ones"
-        },
-        "notifications": {
-          "refreshStarted": "Generating new names for roll tables in the background",
-          "refreshSuccess": "Roll tables refreshed successfully",
-          "refreshError": "Failed to refresh roll tables. Check console for details."
         }
       },
       "rollTableSettings": {
@@ -195,6 +182,7 @@
       "settingFeeling": "ex. \"Rugged and dangerous with low level of magic\" - Improves AI generation"
     },
     "labels": {
+      "add": "Add",
       "newTab": "New Tab",
       "saveChanges": "Save Changes",
       "reset": "Reset",

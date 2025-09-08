@@ -148,6 +148,11 @@ export const usePlayingStore = defineStore('playing', () => {
   // When the setting changes, reset the current played campaign
   watch(()=> currentSetting.value, () => {
     currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
+
+    // shouldn't be in playmode if there's no current campaign
+    if (!currentPlayedCampaignId.value && isInPlayMode.value) {
+      isInPlayMode.value = false;
+    }
   });
   
   // When play mode changes, update the current played campaign

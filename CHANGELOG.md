@@ -1,5 +1,13 @@
 # Change Log
 
+## v1.3.2 - Some cleanup of entry types
+![](https://img.shields.io/badge/release%20date-September%208%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.3.2/module.zip)
+
+- If you remove a type from an entry and that was the only one using it, the type will now be removed from the suggested list.  If you have stray types laying around, you'll want to attach them to an entry and then remove them (you can do that right from the entry's type input - just make sure you click outside the box each time you change it so it will save).
+- Added a separate option for adding new types to the dropdown.  This allows the creation of types that are substrings of existing ones.
+- You should no longer be able to delete the active session in play mode (which would then cause all sorts of problems).
+
 ## v1.3.1 - Fixed related item bug
 ![](https://img.shields.io/badge/release%20date-September%207%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.3.1/module.zip)
