@@ -5,9 +5,10 @@ import { defineStore, storeToRefs, } from 'pinia';
 import { reactive, ref, watch, nextTick } from 'vue';
 
 // local imports
-import { useMainStore, useNavigationStore } from '@/applications/stores';
+import { useMainStore, useNavigationStore, usePlayingStore } from '@/applications/stores';
 import { DirectoryCampaignNode, Campaign, Session, Setting, } from '@/classes';
 import { FCBDialog } from '@/dialogs';
+import { notifyWarn } from '@/utils/notifications';
 
 // types
 
@@ -20,7 +21,9 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { currentSetting, currentEntry} = storeToRefs(mainStore); 
+  const playingStore = usePlayingStore();
+  const { currentSetting, currentEntry, isInPlayMode } = storeToRefs(mainStore); 
+  const { currentPlayedSession } = storeToRefs(playingStore);
 
   ///////////////////////////////
   // internal state
@@ -127,6 +130,12 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (!campaign) 
       throw new Error('Bad campaign in campaignDirectoryStore.deleteCampaign()');
 
+    // don't allow when in play mode
+    if (isInPlayMode.value) {
+      notifyWarn('Cannot delete campaigns when in play mode');
+      return;
+    }
+    
     // confirm
     if (!(await FCBDialog.confirmDialog('Delete campaign?', 'Are you sure you want to delete this campaign?')))
       return;
@@ -150,9 +159,18 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (!session) 
       throw new Error('Bad session in campaignDirectoryStore.deleteSession()');
 
-      // confirm
-      if (!(await FCBDialog.confirmDialog('Delete session?', 'Are you sure you want to delete this session?')))
-        return;
+    // do not delete the current session when in play mode
+    // This shouldn't be possible because the only place you can do this is from the context menu
+    //    and the option should be disabled when isInPlayMode, but some people have
+    //    reported it happening.
+    if (isInPlayMode.value && session.uuid === currentPlayedSession.value?.uuid) {
+      notifyWarn('You cannot delete the current session while in Play mode.');
+      return;
+    }
+    
+    // confirm
+    if (!(await FCBDialog.confirmDialog('Delete session?', 'Are you sure you want to delete this session?')))
+      return;
   
     await session.delete();
 

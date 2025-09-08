@@ -15,15 +15,25 @@
     <div 
       id="fcb-ta-dropdown" 
       class="fcb-ta-dropdown"
-      @click="onDropdownClick"
     >
+      <!-- Add row shown separately before the filtered items -->
+      <div
+        v-if="showAddOption"
+        :class="`typeahead-entry add ${idx===0 ? 'highlighted' : ''}`"
+        @click="onAddClick"
+        >
+        <i class="fas fa-plus"></i> {{ localize('labels.add') }} "{{ currentValue }}"
+      </div>
+
+      <!-- Render the filtered items -->
       <div
         v-for="(item, i) in filteredItems"
         :key="i"
-        :class="`typeahead-entry ${i===idx ? 'highlighted' : ''}`" 
-        :data-id="objectMode ? (item as ListItem).id : item"
+        :class="`typeahead-entry ${idx === (showAddOption ? i+1 : i) ? 'highlighted' : ''}`"
+        :data-id="objectMode ? (item as ListItem).id : (item as string)"
+        @click="onDropdownClick"
       >
-        {{ objectMode ? (item as ListItem).label : item }}
+        {{ objectMode ? (item as ListItem).label : (item as string) }}
       </div>
     </div>
   </div>
@@ -56,7 +66,7 @@
       type: Array as PropType<T[]>,
       required: true,
     },
-    /** can we add new items?  can't be used if the items are objects */
+    /** can we add new items?  */
     allowNewItems: {   
       type: Boolean,
       required: false,
@@ -91,6 +101,22 @@
    /** Determines whether we're in object mode (id/label) or string mode */
    const objectMode = computed(() => props.initialList.length>0 && isObject(props.initialList[0]));
 
+  /** Whether to show the synthetic Add row */
+  const showAddOption = computed(() => {
+    if (!props.allowNewItems)
+      return false;
+    const txt = (currentValue.value || '').trim();
+    if (!txt)
+      return false;
+    if (objectMode.value) {
+      return !(list.value as ListItem[]).some(item => item.label === txt);
+    } else {
+      return !(list.value as string[]).some(item => item === txt);
+    }
+  });
+
+  // No dropdownItems list; we render Add separately before filteredItems
+
   ////////////////////////////////
   // methods
     /**
@@ -102,12 +128,26 @@
     return typeof value === 'object' && value !== null && 'id' in value && 'label' in value;
   }
 
- /**
-   * Returns the display label for the given filtered item index.
-   * @param i Index of the item
-   * @returns Label string
-   */
-  const getLabel = (i: number) => (objectMode.value ? (filteredItems.value[i] as ListItem)?.label || '' : (filteredItems.value[i] as string));
+  /** Adds the current text as a new item and emits itemAdded */
+  function addCurrentValue() {
+    const text = (currentValue.value || '').trim();
+    if (!text || !props.allowNewItems)
+      return;
+    
+    if (objectMode.value) {
+      // make up a temp id
+      const id = foundry.utils.randomID(12);
+      
+      (list.value as ListItem[]).push({ id, label: text });
+      hasFocus.value = false;
+      emit('itemAdded', { id, label: text });
+    } else {
+      (list.value as string[]).push(text);
+      hasFocus.value = false;
+      emit('itemAdded', text);
+    }
+  }
+
 
   ////////////////////////////////
   // event handlers
@@ -132,9 +172,26 @@
       }
     }
 
-    // Render the filtered items
-    // pick the first item if there is one
+    // Default highlight rules:
+    // - If Add is shown and there are other items, highlight the first real item (index 1 overall)
+    // - If Add is shown and there are no other items, highlight Add (index 0)
+    // - Otherwise, highlight the first item if present
+    if (showAddOption.value) {
+      idx.value = filteredItems.value.length > 0 ? 1 : 0;
+    } else {
     idx.value = filteredItems.value.length > 0 ? 0 : -1;
+    }
+  };
+
+  /**
+   * Handles a click on the Add button.
+   */
+  const onAddClick = () => {
+    addCurrentValue();
+
+    // close the list
+    idx.value = -1;
+    filteredItems.value = [];
   };
 
 
@@ -148,15 +205,16 @@
     if (!target)
       return;
 
-    if (target.classList.contains('typeahead-entry')) {
-      const selection = (objectMode.value ? target.dataset.id : target.textContent) || ''; 
+    const row = target.closest('.typeahead-entry') as HTMLElement | null;
+    if (!row)
+      return;
 
-      currentValue.value = objectMode.value ? target.textContent || '' : selection;
-      filteredItems.value = [];
+    const selection = (objectMode.value ? row.dataset.id : row.textContent) || '';
+    currentValue.value = objectMode.value ? row.textContent || '' : selection;
+    filteredItems.value = [];
 
-      hasFocus.value = false;
-      emit('selectionMade', selection, target.textContent || '' );
-    }
+    hasFocus.value = false;
+    emit('selectionMade', selection, row.textContent || '' );
   };
 
   /** when we leave, make sure to update the value */
@@ -185,24 +243,28 @@
     if (!filteredItems.value)
       return;
 
-    // either arrow starts at 0 if we're not highlighting something yet
+    const totalCount = filteredItems.value.length + (showAddOption.value ? 1 : 0);
+
+    // either arrow starts at 1st entry if we're not highlighting something yet
     if (['ArrowUp', 'ArrowDown'].includes(event.key) && idx.value===-1) {
-      if (filteredItems.value.length>0) 
-        idx.value = 0;
+      if (totalCount > 0) {
+        idx.value = showAddOption.value ? (filteredItems.value.length > 0 ? 1 : 0) : 0;
+      }
+
       return;
     }
 
     switch (event.key) {
       case 'ArrowUp':
         event.preventDefault();
-        if (filteredItems.value.length>0) 
-          idx.value = ((idx.value || 0) - 1 + filteredItems.value.length) % filteredItems.value.length;
+        if (totalCount>0)
+          idx.value = ((idx.value || 0) - 1 + totalCount) % totalCount;
         return;
 
       case 'ArrowDown':
         event.preventDefault();
-        if (filteredItems.value.length>0)
-          idx.value = ((idx.value || 0) + 1) % filteredItems.value.length;
+        if (totalCount>0)
+          idx.value = ((idx.value || 0) + 1) % totalCount;
         return;
 
       case 'Enter':
@@ -212,62 +274,67 @@
           event.preventDefault();
         }
 
-        let selection = '';
-
-        // if nothing selected, check for a match or add something new
-        // if box is empty, we don't add a new value, but we still say blank was selected
-        if (idx.value===-1 && currentValue.value) {
-          // exact match only to let us add values that are just different cases
-          const match = objectMode.value ? (list.value as ListItem[]).find(item=>item.label===currentValue.value)?.id : (list.value as string[]).find(item=>item===currentValue.value);
-          if (match) {
-            // it's match, so we'll select that item but don't need to add anything (we don't use the text
-            //    in the box because it might have different case)
-            selection = match;
-          } else if (props.allowNewItems) {
-            if (objectMode.value) {
-              selection = currentValue.value;
-              // we give it an arbitrary id for now
-              const id = foundry.utils.randomID(12);
-              (list.value as ListItem[]).push({id: id, label: selection});
-
-              hasFocus.value = false;
-              emit('itemAdded', {id: id, label: selection});
+        // first handle nothing in the list
+        if (totalCount===0) {
+          if (currentValue.value) {
+            // check the full list just to be sure it's not in there
+            // shouldn't happen because filtered list is empty
+            // exact match only to let us add values that are just different cases
+            const match = objectMode.value ? (list.value as ListItem[]).find(item=>item.label===currentValue.value)?.id : (list.value as string[]).find(item=>item===currentValue.value);
+            if (match) {
+              // it's match, so we'll select that item but don't need to add anything (we don't use the text
+              //    in the box because it might have different case)
+              const label = objectMode.value ? currentValue.value : match;
+              emit('selectionMade', match, label);
+            } else if (props.allowNewItems) {
+              // list is empty; we have text - create a new one
+              addCurrentValue();
             } else {
-              selection = currentValue.value;
-              (list.value as string[]).push(selection);
-              hasFocus.value = false;
+              // there's no match but we're not allowed to add - reset back to the original
+              // find the initial item
+              if (objectMode.value) {
+                const initialItem = (props.initialList as { id: string; label: string}[]).find((item: ListItem)=>item.id===props.initialValue);
 
-              emit('itemAdded', selection);
-            }
+                // if it's not there (ex. it got deleted at some point) replace with nothing
+                currentValue.value = initialItem?.label || '';
 
-          } else {
-            // there's no match but we're not allowed to add - reset back to the original
-            // find the initial item
-            if (objectMode.value) {
-              const initialItem = (props.initialList as { id: string; label: string}[]).find((item: ListItem)=>item.id===props.initialValue);
-
-              // if it's not there (ex. it got deleted at some point) replace with nothing
-              currentValue.value = initialItem?.label || '';
-
-              // set the selection to be the id of the current item (this assumes there is only 1 valid match)
-              if (props.initialList.length > 0) {
-                selection = initialItem?.id || '';
-                emit('selectionMade', selection, getLabel(0));
+                // set the selection to be the id of the current item (this assumes there is only 1 valid match)
+                if (props.initialList.length > 0) {
+                  const selection = initialItem?.id || '';
+                  emit('selectionMade', selection, initialItem?.label || '');
+                }
+              } else {
+                const selection = props.initialValue;
+                currentValue.value = selection;
+                emit('selectionMade', selection);
               }
-            } else {
-              selection = props.initialValue;
-              currentValue.value = selection;
-              emit('selectionMade', selection);
+            }
+          } else {
+            // nothing in the list and no value in the box means we are choosing blank
+            emit('selectionMade', '', '');
+          }
+ 
+        } else if (idx.value!==-1) {
+          // we have a list and a valid index
+          // first see if it's the add option
+          if (showAddOption.value && idx.value === 0) {
+              addCurrentValue();
+          } else {
+            // we need to pick the selected item
+            // fill in the input value
+            const adjustedIndex = idx.value - (showAddOption.value ? 1 : 0);
+
+            if (adjustedIndex >= 0 && adjustedIndex < filteredItems.value.length) {
+              const value = filteredItems.value[adjustedIndex];
+              const label = objectMode.value ? (value as unknown as ListItem).label : (value as unknown as string);
+              const selection = objectMode.value ? (value as unknown as ListItem).id : (value as unknown as string);
+              currentValue.value = label;
+              emit('selectionMade', selection, label);
             }
           }
-        } else if (idx.value===-1 && !currentValue.value) {
-          // it's blank - but need to emit that
-          emit('selectionMade', '', '');
-        } else if (idx.value!==-1) {
-          // fill in the input value
-          selection = objectMode.value ? (filteredItems.value as ListItem[])[idx.value].id : getLabel(idx.value);
-          currentValue.value = getLabel(idx.value);
-          emit('selectionMade', selection, getLabel(idx.value));
+        } else {
+          // there's something in the list but no valid index - set a valid index
+          idx.value = showAddOption.value ? (filteredItems.value.length > 0 ? 1 : 0) : 0;
         }
   
         // close the list
@@ -345,6 +412,11 @@
         font-size: 1rem;
         font-weight: normal;
         font-family: Signika, sans-serif;
+
+        &.add i {
+          margin-right: 4px;
+          font-size: 0.8rem
+        }
 
         &.highlighted,
         &:hover {
