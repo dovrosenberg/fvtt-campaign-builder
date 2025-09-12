@@ -45,7 +45,7 @@
           </header>
 
           <SettingDirectoryGroupedTree
-            v-if="isGroupedByType || topicNode.topicFolder.topic === Topics.Character" 
+            v-if="(isGroupedByType && topicNode.topicFolder.topic !== Topics.PC) || topicNode.topicFolder.topic === Topics.Character" 
             :topic-node="topicNode as DirectoryTopicNode"
             :setting-id="setting.id"
           />
