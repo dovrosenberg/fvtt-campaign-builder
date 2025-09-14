@@ -32,8 +32,13 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
     //    type on the journalentry, or pack or setting, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
     //    that is also in the index)
 
+    // Determine if there are any entries without a type. If so, ensure we create a '(none)' grouping.
+    // We only add the '(none)' node when it is actually needed.
+    const hasNoTypeEntries = this.topicFolder.filterEntries((e: Entry) => !e.type).length > 0;
+    const typesToUse = hasNoTypeEntries && !types.includes(NO_TYPE_STRING) ? types.concat([NO_TYPE_STRING]) : types;
+
     // create the loadedType nodes then populate their children
-    this.loadedTypes = types.map((type: string): DirectoryTypeNode => {
+    this.loadedTypes = typesToUse.map((type: string): DirectoryTypeNode => {
       const retval = new DirectoryTypeNode(
         this.id,
         type,
