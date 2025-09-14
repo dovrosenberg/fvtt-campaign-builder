@@ -124,6 +124,7 @@
                 <TypeAhead 
                   :initial-list="validParents"
                   :initial-value="parentId || ''"
+                  :allow-new-items="false"
                   @selection-made="onParentSelectionMade"
                 />
               </div>
