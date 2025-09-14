@@ -6,7 +6,6 @@
 
 - When the setting tree is grouped by type, there are now "(none)" groups to show your entries that don't have a type.
 - PCs now show when the setting tree is grouped by type.
-- Top-level nodes in the setting tree are now styled slightly differently so they don't look like something is missing.
 
 ## v1.3.2 - Some cleanup of entry types
 ![](https://img.shields.io/badge/release%20date-September%208%2C%202025-blue)
