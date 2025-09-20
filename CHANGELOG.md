@@ -5,6 +5,7 @@
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.3.4/module.zip)
 
 - No longer shows the "Add" button when in the parent selection typeahead (which didn't do anything).
+- Created a Discord server for discussion by anyone using the module.  In preparation for 2.0, it would be great to talk with anyone using the module and understand how you're using it to avoid breaking something that someone thinks is important.
 
 ## v1.3.3 - Stop hiding entries in "group by type" mode
 ![](https://img.shields.io/badge/release%20date-September%2014%2C%202025-blue)

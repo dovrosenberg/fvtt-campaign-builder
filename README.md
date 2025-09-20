@@ -1,6 +1,10 @@
-# World & Campaign Builder
+# <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/assets/fcb-logo.webp" style="height: 64px" alt="Campaign Builder Logo"/> World & Campaign Builder
 
 [![Supported Foundry Versions](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/dovrosenberg/fvtt-campaign-builder/raw/main/static/module.json)](https://github.com/dovrosenberg/fvtt-campaign-builder)
+
+<a href="https://discord.gg/zKWCkwbnn3" title="Join our Discord Server">
+  <img src="https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white" alt="Discord Badge"/>
+</a>
 
 World & Campaign Builder is designed to streamline every part of your TTRPG prep and gameplay—from deep worldbuilding to session planning and live play tracking. Whether you're building a sprawling lore-rich universe or following the Lazy DM approach to lightweight prep, this tool lets you create interconnected characters, locations, organizations, and events with ease, all inside Foundry. It’s fast enough to use in real time during a session, and flexible enough to evolve as your world grows. Optional AI-assisted content and image generation offer powerful creative boosts, but the module is fully usable without them. 
 
