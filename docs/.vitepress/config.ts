@@ -35,7 +35,7 @@ export default defineConfig({
       provider: 'local'
     },
 
-    logo: '/assets/images/fcb-logo.webp',
+    logo: '/fcb-logo.webp',
 
     nav: [
       { text: 'Home', link: '/' },
