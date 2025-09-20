@@ -1,4 +1,4 @@
-# <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/assets/fcb-logo.webp" style="height: 64px" alt="Campaign Builder Logo"/> World & Campaign Builder
+# <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/fcb-logo.webp" style="height: 64px" /> World & Campaign Builder
 
 [![Supported Foundry Versions](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/dovrosenberg/fvtt-campaign-builder/raw/main/static/module.json)](https://github.com/dovrosenberg/fvtt-campaign-builder)
 
