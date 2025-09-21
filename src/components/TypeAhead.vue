@@ -3,8 +3,6 @@
     ref="containerRef"
     class="fcb-typeahead"
     @keydown="onKeyDown"
-    @focusin="onFocusIn"
-    @focusout="onFocusOut"
   >
     <input 
       v-model="currentValue" 
@@ -20,7 +18,7 @@
       <div
         v-if="showAddOption"
         :class="`typeahead-entry add ${idx===0 ? 'highlighted' : ''}`"
-        @click="onAddClick"
+        @click="(event) => {event.stopPropagation(); addCurrentValue(); }"
         >
         <i class="fas fa-plus"></i> {{ localize('labels.add') }} "{{ currentValue }}"
       </div>
@@ -94,7 +92,6 @@
   const filteredItems = ref<T[]>([]);
   const list = ref<T[]>([]);
   const containerRef = ref<HTMLElement | null>(null);
-  let blurTimeout: ReturnType<typeof setTimeout> | null = null;
 
   ////////////////////////////////
   // computed data
@@ -139,13 +136,14 @@
       const id = foundry.utils.randomID(12);
       
       (list.value as ListItem[]).push({ id, label: text });
-      hasFocus.value = false;
-      emit('itemAdded', { id, label: text });
     } else {
       (list.value as string[]).push(text);
-      hasFocus.value = false;
-      emit('itemAdded', text);
     }
+
+    hasFocus.value = false;
+    idx.value = -1;
+    filteredItems.value = [];
+    emit('itemAdded', text);
   }
 
 
@@ -200,6 +198,8 @@
    * @param event Mouse click event
    */
   const onDropdownClick = async (event: MouseEvent) => {
+    event.stopPropagation();
+
     const target = event.target as HTMLElement;
 
     if (!target)
@@ -217,22 +217,6 @@
     emit('selectionMade', selection, row.textContent || '' );
   };
 
-  /** when we leave, make sure to update the value */
-  function onFocusIn() {
-    if (blurTimeout) {
-      clearTimeout(blurTimeout);
-      blurTimeout = null;
-    }
-  }
-
-  function onFocusOut() {
-    // Delay to allow time for focus to move within the component
-    blurTimeout = setTimeout(() => {
-      if (containerRef.value && !containerRef.value.contains(document.activeElement)) {
-        onKeyDown({key: 'Tab'} as KeyboardEvent);
-      }
-    }, 0);
-  }
 
   /**
    * Handles keyboard navigation and selection.

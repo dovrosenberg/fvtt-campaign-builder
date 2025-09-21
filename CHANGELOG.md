@@ -1,7 +1,13 @@
 # Change Log
 
+## v1.3.5 - Fixed issue
+![](https://img.shields.io/badge/release%20date-September%2021%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.3.5/module.zip)
+
+- Clicking an option with the mouse in the type selection box for an entry now works properly
+
 ## v1.3.4 - Hide "add" option in parent select list
-![](https://img.shields.io/badge/release%20date-September%2014%2C%202025-blue)
+![](https://img.shields.io/badge/release%20date-September%2020%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.3.4/module.zip)
 
 - No longer shows the "Add" button when in the parent selection typeahead (which didn't do anything).
