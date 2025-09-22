@@ -46,7 +46,7 @@
       "advancedHelp": "Configure advanced settings (including AI)",
       "speciesList": "Manage Species List",
       "speciesListLabel": "Species List",
-      "speciesListHelp": "Define the species to make available.  These cross all Settings - file an issue if you have need more different lists per Setting.",
+      "speciesListHelp": "Define the species to make available.  These cross all Settings - file an issue if you have need different lists per Setting.",
       "hideBackendWarning": "Hide missing backend warning?",
       "hideBackendWarningHelp": "If you're not using the backend, this lets you turn off the notification that it's missing",
       "enableToDoList": "Enable To-do List",

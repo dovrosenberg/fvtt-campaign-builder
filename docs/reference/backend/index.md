@@ -21,7 +21,7 @@ This approach of setting up your own backend has the advantages of:
 ## Features {#features}
 ### AI Integration
 
-The module includes optional AI-powered features for generating descriptions and images. These features require [setting up](#setup) a backend server, which is much easier than it sounds.
+The module includes optional AI-powered features for generating descriptions and images. These features require [setting up](./setup) a backend server, which is much easier than it sounds.
 
 With AI integration, you can:
 
@@ -48,4 +48,4 @@ For heavy users, BackBlaze storage would be significantly cheaper (not free but 
 [Open AI](https://openai.com/api) is used to generate text (descriptions, names, rolltable results, etc.).  The cost is minimal - approximately $0.15 for 5000 AI-generated character descriptions - but at the current time, OpenAI has a minimum purchase of $5.00 and the credits expire after a year, so you should think of it as $5/year.  I'll be [looking at](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/369) switching to another provider to avoid this minimum charge.
 
 ### Replicate
-[Replicate](https://replicate.com/) is used to generate images.  The cost is approximately $0.01 per image, and you are only billed for actual usage.
+[Replicate](https://replicate.com/) is used to generate images.  The cost is approximately $0.01 per image, and you are only billed for actual usage.  You do now need to prepay, but you can put just a dollar or two in at a time.

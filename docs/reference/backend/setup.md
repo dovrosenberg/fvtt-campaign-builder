@@ -16,7 +16,7 @@ Setting it up is pretty straightforward but requires some basic comfort with com
 > You can connect the Campaign Builder module in multiple Foundry worlds (even on multiple Foundry servers) to the same backend if you want.  The only thing to note is that all generated images will be stored in the same output directory, so anyone with access from any of those different worlds will be able to see them all (unless you actively manage the directory and move things out).
 
 ## Requirements 
-The backend script supports Ubuntu/Debian (including WSL), MacOS (requires Homebrew), and Windows (requires Powershell).  Note: It has not been well-tested in Powershell.  I recommend using WSL for Windows if possible, but if you do use Powershell, [file an issue] if you run into trouble.  
+The backend script supports Ubuntu/Debian (including WSL), MacOS (requires Homebrew), and Windows (requires Powershell).  Note: It has not been well-tested in Powershell.  I recommend using WSL for Windows if possible, but if you do use Powershell, [file an issue] or post on the [Discord server] if you run into trouble.  
 
 Everything runs in the cloud, so there aren't any particular hardware requirements.  You will need to create accounts at Google Cloud, OpenAI, and Replicate.com.
 
@@ -26,7 +26,7 @@ Everything runs in the cloud, so there aren't any particular hardware requiremen
 
 You'll need to do this step before you can deploy the backend.
 
-There are lot of steps here, but if you follow the directions below, it should be pretty straightforward.  If you run into trouble, please [file an issue].
+There are lot of steps here, but if you follow the directions below, it should be pretty straightforward.  If you run into trouble, please [file an issue] or post on the [Discord server].
 
 1. Setup Google Cloud
 

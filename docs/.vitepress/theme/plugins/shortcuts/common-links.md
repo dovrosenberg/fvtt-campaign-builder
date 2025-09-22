@@ -20,3 +20,4 @@
 [Editors]: /reference/navigation/editors
 [Submit a Feature Request]: https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new?template=feature_request.md
 [File an issue]: https://github.com/dovrosenberg/fvtt-campaign-builder/issues/new
+[Discord server]: https://discord.gg/zKWCkwbnn3
