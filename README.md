@@ -60,7 +60,7 @@ If you believe you found a bug or would like to post a feature request, head ove
 
 ## Languages
 
-English, French, and German currently supported.  Let me know if you want others.  PRs also welcome for either new languages or fixes to bad translations in the current ones.  
+English, French, German, and Russian currently supported.  Let me know if you want others.  PRs also welcome for either new languages or fixes to bad translations in the current ones.  
 
 ## Support
 I'm happy to do this for free, as I primarily work on things I like to use myself.  But if you'd like to [buy me a root beer](https://ko-fi.com/phloro), I love knowing that people are using my projects and like them enough to make the effort. It's really appreciated!  
