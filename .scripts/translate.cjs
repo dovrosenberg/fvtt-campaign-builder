@@ -148,21 +148,14 @@ function getLanguageName(langCode) {
   const languages = {
     fr: 'French',
     de: 'German',
-    es: 'Spanish',
-    it: 'Italian',
-    ja: 'Japanese',
-    ko: 'Korean',
-    pt: 'Portuguese',
     ru: 'Russian',
-    zh: 'Chinese'
   };
   
   return languages[langCode] || langCode;
 }
 
-// Define target languages to translate to
-const TARGET_LANGUAGES = ['fr', 'de']; // Currently French and German as mentioned in CHANGELOG
-// Add more languages here as needed: 'es', 'it', 'ja', 'ko', 'pt', 'ru', 'zh'
+// Define target languages to translate to - also need to add to getLanguageName above and to module.json
+const TARGET_LANGUAGES = ['fr', 'de', 'ru']; 
 
 // Function to translate to multiple languages at once
 async function translateToMultipleLanguages(sourceFile, languages) {
