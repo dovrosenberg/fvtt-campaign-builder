@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.4.0 - Now in Russian
+![](https://img.shields.io/badge/release%20date-September%2022%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.4.0/module.zip)
+
+- Added Russian translation
+
 ## v1.3.5 - Fixed issue
 ![](https://img.shields.io/badge/release%20date-September%2021%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.3.5/module.zip)
