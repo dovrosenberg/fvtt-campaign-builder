@@ -232,139 +232,109 @@ async function translateToMultipleLanguages(sourceFile, languages) {
       console.log('No changes detected for any language. Skipping translation.');
       return;
     }
-    
-    // Prepare a unified set of strings to translate
-    // This combines all unique strings that need translation across all languages
-    const unifiedDifferences = {};
-    
-    // Collect all unique paths that need translation
-    const allPaths = new Set();
-    for (const lang in allDifferences) {
-      Object.keys(allDifferences[lang]).forEach(path => allPaths.add(path));
-    }
-    
-    // Create a unified object with all paths
-    for (const path of allPaths) {
-      // Use the value from the first language that has this path
-      for (const lang in allDifferences) {
-        if (path in allDifferences[lang]) {
-          unifiedDifferences[path] = allDifferences[lang][path];
-          break;
-        }
-      }
-    }
-    
-    console.log(`Translating ${Object.keys(unifiedDifferences).length} unique strings to ${languages.length} languages...`);
-    
-    // Prepare the prompt for OpenAI to translate to all languages at once
-    const languageNames = languages.map(lang => getLanguageName(lang)).join(', ');
-    const prompt = `
-      Translate the following JSON content from English to these languages: ${languageNames}.
-      Return a JSON object where the top-level keys are the language codes: ${languages.join(', ')}.
-      Each language object should contain the translated strings with the same paths as the source.
-      Only translate the values, not the keys or paths.
-      Maintain all JSON formatting, including nested objects.
-      Preserve any special characters or placeholders like {name}, {{value}}, etc.
-      
-      For example, if the input is:
-      {
-        "greeting": "Hello",
-        "farewell": "Goodbye"
-      }
-      
-      The output should be:
-      {
-        "fr": {
-          "greeting": "Bonjour",
-          "farewell": "Au revoir"
-        },
-        "de": {
-          "greeting": "Hallo",
-          "farewell": "Auf Wiedersehen"
-        }
-      }
-      
-      JSON to translate:
-      ${JSON.stringify(unifiedDifferences, null, 2)}
-    `;
-    
-    // Call OpenAI API
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a professional translator specializing in software localization."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.3,
-    });
-    
-    // Extract the translated JSON from the response
-    const translatedContent = response.choices[0].message.content.trim();
-    
-    // Parse the response to ensure it's valid JSON
-    let translatedLanguages;
-    try {
-      // Try to extract JSON if it's wrapped in markdown code blocks
-      if (translatedContent.includes('```json')) {
-        const jsonMatch = translatedContent.match(/```json\n([\s\S]*?)\n```/);
-        if (jsonMatch && jsonMatch[1]) {
-          translatedLanguages = JSON.parse(jsonMatch[1]);
-        } else {
-          throw new Error('Could not extract JSON from markdown response');
-        }
-      } else if (translatedContent.includes('```')) {
-        const jsonMatch = translatedContent.match(/```\n([\s\S]*?)\n```/);
-        if (jsonMatch && jsonMatch[1]) {
-          translatedLanguages = JSON.parse(jsonMatch[1]);
-        } else {
-          throw new Error('Could not extract JSON from markdown response');
-        }
-      } else {
-        // Try to parse the entire response as JSON
-        translatedLanguages = JSON.parse(translatedContent);
-      }
-    } catch (parseError) {
-      console.error('Error parsing translated JSON:', parseError);
-      console.log('Raw response:', translatedContent);
-      throw new Error('Failed to parse translated content as JSON');
-    }
-    
+
     // Process each language and update the translation files
     for (const lang of languages) {
+      const differences = allDifferences[lang];
+
       // Skip languages that had no changes
-      if (!allDifferences[lang] || Object.keys(allDifferences[lang]).length === 0) {
-        continue;
+      if (!differences || Object.keys(differences).length === 0) {
+        console.log(`No new or modified strings to translate for ${lang}.`);
+      } else {
+        console.log(`Translating ${Object.keys(differences).length} strings for ${lang}...`);
+
+        const languageName = getLanguageName(lang);
+        const prompt = `
+          Translate the following JSON content from English to ${languageName}.
+          Return a JSON object with the translated strings, each with the same paths as the source.
+          Only translate the values, not the keys or paths.
+          Maintain all JSON formatting, including nested objects.
+          Preserve any special characters or placeholders like {name}, {{value}}, etc.
+
+          For example, if the language were French and the input is:
+          {
+            "greeting": "Hello",
+            "farewell": "Goodbye"
+          }
+
+          The output should be:
+          {
+            "greeting": "Bonjour",
+            "farewell": "Au revoir"
+          }
+
+          JSON to translate:
+          ${JSON.stringify(differences, null, 2)}
+        `;
+
+        // Call OpenAI API for each language
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: "You are a professional translator specializing in software localization."
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          temperature: 0.3,
+        });
+
+        // Extract the translated JSON from the response
+        const translatedContent = response.choices[0].message.content.trim();
+        
+        // Parse the response to ensure it's valid JSON
+        let translatedDifferences;
+        try {
+          // Try to extract JSON from markdown response
+          if (translatedContent.includes('```json')) {
+            const jsonMatch = translatedContent.match(/```json\n([\s\S]*?)\n```/);
+            if (jsonMatch && jsonMatch[1]) {
+              translatedDifferences = JSON.parse(jsonMatch[1]);
+            } else {
+              throw new Error('Could not extract JSON from markdown response');
+            }
+          } else if (translatedContent.includes('```')) {
+            const jsonMatch = translatedContent.match(/```\n([\s\S]*?)\n```/);
+            if (jsonMatch && jsonMatch[1]) {
+              translatedDifferences = JSON.parse(jsonMatch[1]);
+            } else {
+              throw new Error('Could not extract JSON from markdown response');
+            }
+          } else {
+            // Try to parse the entire response as JSON
+            translatedDifferences = JSON.parse(translatedContent);
+          }
+        } catch (parseError) {
+          console.error(`Error parsing translated JSON for ${lang}:`, parseError);
+          console.log('Raw response:', translatedContent);
+          continue; // Skip this language
+        }
+
+        if (!translatedDifferences) {
+          console.error(`No translations returned for ${lang}. Skipping.`);
+          continue;
+        }
+        
+        // For partial translations, we need to update the nested paths
+        for (const path in translatedDifferences) {
+          setNestedValue(allTargetData[lang], path, translatedDifferences[path]);
+        }
       }
-      
+
+      // For all languages (even those without new translations), sync structure
       const targetFile = path.join(path.dirname(sourceFile), `${lang}.json`);
-      
-      // Get the translations for this language
-      const translatedDifferences = translatedLanguages[lang];
-      if (!translatedDifferences) {
-        console.error(`No translations returned for ${lang}. Skipping.`);
-        continue;
-      }
-      
-      // Merge the translations into the existing target data
       let finalTranslation = JSON.parse(JSON.stringify(allTargetData[lang] || {})); // Deep clone
-      
-      // For partial translations, we need to update the nested paths
-      for (const path in translatedDifferences) {
-        setNestedValue(finalTranslation, path, translatedDifferences[path]);
-      }
-      
+
       // Ensure the structure matches the source data (add missing keys and remove deleted keys)
       syncStructure(sourceData, finalTranslation);
-      
+
       // Write the translated JSON to the target file
       fs.writeFileSync(targetFile, JSON.stringify(finalTranslation, null, 2));
-      console.log(`Translation complete: ${targetFile}`);
+      console.log(`File updated: ${targetFile}`);
     }
     
   } catch (error) {
