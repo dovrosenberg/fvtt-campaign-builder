@@ -23,7 +23,8 @@
     "docs:generate-version": "node docs/.vitepress/theme/utils/generate-version.cjs",
     "docs:dev": "npm run docs:generate-version && vitepress dev docs",
     "docs:build": "npm run docs:generate-version && vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "translate": "node .scripts/translate.cjs"
   },
   "devDependencies": {
     "@ethaks/fvtt-quench": "^0.9.2",
