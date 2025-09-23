@@ -11,6 +11,10 @@ import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
 import { UserFlagKey, UserFlags } from '@/settings';
 import { useMainStore } from './mainStore';
 import { scrollToActiveEntry } from '@/utils/directoryScroll';
+import { hasUnsavedChanges, saveAndCloseAllActiveEditors, closeAllActiveEditors } from '@/utils/editorChangeDetection';
+import { FCBDialog } from '@/dialogs';
+import { SaveChangesResult } from '@/dialogs/saveChanges';
+import { notifyError, notifyInfo } from '@/utils/notifications';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
@@ -130,6 +134,13 @@ export const useNavigationStore = defineStore('navigation', () => {
     let name = localize('labels.newTab') || '';
     let icon = '';
     let badId = false;
+
+    // don't switch or activate a new tab if user doesn't want to deal with unsaved changes
+    if (!await handleUnsavedChanges()) {
+      // for there to be unsaved changes, there has to be an active tab, so this is safe
+      // @ts-ignore
+      return getActiveTab(false);
+    }
 
     // these are the default content tabs to open to
     const defaultContentTab = {
@@ -300,6 +311,41 @@ export const useNavigationStore = defineStore('navigation', () => {
     bookmarks.value = [];
   };
 
+  /** Used when changing content or tabs. Check for unsaved changes and if
+   *  any, prompt the user to save or discard.
+   * 
+   *  @return true if any changes were saved/discarded, false if we need to cancel the switch
+   */
+  const handleUnsavedChanges = async function (): Promise<boolean> {
+    // Check for unsaved changes if we're going to activate (switch tabs)
+    if (hasUnsavedChanges()) {
+      const result = await FCBDialog.saveChangesDialog();
+      
+      if (result === SaveChangesResult.Cancel) {
+        // User cancelled, don't activate but we can still create the tab if needed
+        return false;
+      } else if (result === SaveChangesResult.Save) {
+        // Save all changes before switching
+        try {
+          await saveAndCloseAllActiveEditors();
+        } catch (error) {
+          notifyError('Failed to save editors: ' + error);
+
+          // Don't continue with activate if save fails
+          return false;
+        }
+      } else {
+        // discard changes
+        notifyInfo(localize('notifications.changesDiscarded'));
+
+        // Close all editors after saving or discarding (but not canceling)
+        await closeAllActiveEditors();
+      }
+    }
+
+    return true;
+  }
+
   // activate the given tab, first closing the current subsheet
   // tabId must exist
   const activateTab = async function (tabId: string): Promise<void> {
@@ -313,6 +359,9 @@ export const useNavigationStore = defineStore('navigation', () => {
       return;
     }
 
+    if (!await handleUnsavedChanges())
+      return;
+    
     if (currentTab)
       currentTab.active = false;
     
@@ -373,6 +422,10 @@ export const useNavigationStore = defineStore('navigation', () => {
 
     // if we didn't move, return
     if (newSpot === tab.historyIdx)
+      return;
+
+    // we need to make sure that any changes are saved or discarded before we modify the index
+    if (!await handleUnsavedChanges())
       return;
 
     tab.historyIdx = newSpot;

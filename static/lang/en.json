@@ -400,7 +400,8 @@
       },
       "todoReferenceNotFound": "The linked reference for this to-do item no longer exists.",
       "addedToSession": "added to session",
-      "changesSaved": "changes saved"
+      "changesSaved": "Changes saved",
+      "changesDiscarded": "Changes discarded"
     },
     "dialogs": {
       "generateNameDialog": {
@@ -495,6 +496,13 @@
         "addItem": "Add Item",
         "addJournal": "Add Journal/Page",
         "addScene": "Add Scene"       
+      },
+      "saveChanges": {
+        "title": "Unsaved Changes",
+        "message": "You have unsaved changes in one or more open editors. What would you like to do?",
+        "save": "Save Changes",
+        "discard": "Discard Changes",
+        "cancel": "Cancel"
       },
       "relatedEntriesManagement": {
         "title": "Manage Related Entries",

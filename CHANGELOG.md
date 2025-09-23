@@ -10,6 +10,7 @@
 - Editing a description no longer suggests creating references to entries/documents that can't be related to that entry 
 - Dragging an entry, session, campaign, or setting from the tree properly inserts a link to it in the editor again
 - Generated images now include the entry's name to make them easier to manage (requires new backend)
+- Changing between tabs when an editor is open now prompts for whether you want to save or discard any changes.
 
 ## v1.4.0 - Now in Russian
 ![](https://img.shields.io/badge/release%20date-September%2022%2C%202025-blue)

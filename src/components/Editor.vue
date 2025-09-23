@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, nextTick, onMounted, ref, toRaw, watch, } from 'vue';
+  import { computed, nextTick, onMounted, onUnmounted, ref, toRaw, watch, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -54,6 +54,7 @@
   import { sanitizeHTML } from '@/utils/sanitizeHtml';
   import { replaceEntityReferences } from '@/utils/entityLinking';
   import { extractUUIDs, compareUUIDs, } from '@/utils/uuidExtraction';
+  import { registerEditor, unregisterEditor } from '@/utils/editorChangeDetection';
   import { NodeDragDropData } from '@/types';
 
   // library components
@@ -307,6 +308,26 @@
     }
   };
 
+  // don't worry about saving, etc. - just clean up
+  const closeEditor = async () => {
+    if (!editor.value)
+      return;
+
+    // For edit-only mode (like in SessionNotes), don't destroy the editor
+    if (!props.editOnlyMode) {
+      // this also blows up the DOM... don't think we actually need it
+      (toRaw(editor.value) as ProseMirrorEditor)?.destroy();  
+      editor.value = null;
+
+      buttonDisplay.value = '';   // brings the button back
+
+      // bring back the deleted div by resetting 
+      editorVisible.value = false;
+      await nextTick();
+      editorVisible.value = true;
+    }    
+  };
+
   const isDirty = (): boolean => {
     if (!editor.value)
       return false;
@@ -323,7 +344,7 @@
   }
 
   // expose methods
-  defineExpose({ isDirty, getContent });
+  defineExpose({ isDirty, getContent, saveEditor, closeEditor });
 
   ////////////////////////////////
   // event handlers
@@ -454,6 +475,13 @@
     // we create a random ID so we can use multiple instances
     editorId.value  = 'fcb-editor-' + foundry.utils.randomID();
 
+    // Register this editor instance for change tracking
+    registerEditor(editorId.value, {
+      isDirty,
+      saveEditor,
+      closeEditor,
+    });
+
     // initialize the editor
     if (!coreEditorRef.value)
       return;
@@ -471,6 +499,13 @@
     if (props.editOnlyMode) {
       await nextTick();
       await activateEditor();
+    }
+  });
+
+  onUnmounted(() => {
+    // Unregister this editor instance when component is destroyed
+    if (editorId.value) {
+      unregisterEditor(editorId.value);
     }
   });
 
