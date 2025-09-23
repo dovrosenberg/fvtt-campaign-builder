@@ -9,7 +9,7 @@ import { Reactive } from 'vue';
 
 // this is the backend version that needs to be used with this version of the module
 // generally, we'll try to keep them more or less in sync, at least at the minor release level
-const REQUIRED_VERSION = '1.3';
+const REQUIRED_VERSION = '1.4';
 
 // handles connections to the backend
 export class Backend {
