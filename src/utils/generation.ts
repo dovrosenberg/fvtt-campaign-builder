@@ -117,6 +117,7 @@ export const generateImage = async (forSetting: Setting, entry: Entry): Promise<
          result = await Backend.api.apiCharacterGenerateImagePost({
           genre: forSetting.genre,
           settingFeeling: forSetting.settingFeeling,
+          name: entry.name,
           type: entry.type,
           species: species?.name || '',
           speciesDescription: species?.description || '',
