@@ -1,5 +1,12 @@
 # Change Log
 
+## v1.4.1 - Assorted bug fixes
+![](https://img.shields.io/badge/release%20date-September%2022%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.4.1/module.zip)
+
+- You can now properly create a PC from the "New Tab" page
+- Formatting (new lines in particular) is now preserved in descriptions when creating entries with user-entered text.
+
 ## v1.4.0 - Now in Russian
 ![](https://img.shields.io/badge/release%20date-September%2022%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.4.0/module.zip)

@@ -101,6 +101,7 @@
 
   // types
   import { TabHeader, Topics, WindowTabType } from '@/types';
+  import { Entry } from '@/classes';
 
 
   ////////////////////////////////
@@ -135,7 +136,7 @@
     await campaignDirectoryStore.createCampaign();
   };
 
-  const onCreateEntry = async (topic: Topics) => {
+ const onCreateEntry = async (topic: Topics) => {
     if (!currentSetting.value)
       throw new Error('No current setting in HomePage.onCreateEntry()');
 
@@ -144,7 +145,12 @@
     if (!topicFolder)
       throw new Error('No topic folder in HomePage.onCreateEntry()');
 
-    const entry = await FCBDialog.createEntryDialog(topicFolder.topic, { generateMode: true } );
+    let entry: Entry | null = null;
+    if (topic === Topics.PC) {
+      entry = await settingDirectoryStore.createEntry(topicFolder, {});
+    } else {
+      entry = await FCBDialog.createEntryDialog(topicFolder.topic, { generateMode: true } );
+    }
 
     if (entry) {
       await navigationStore.openEntry(entry.uuid, { newTab: true, activate: true, }); 

@@ -218,7 +218,8 @@
         "createCampaign": "Create Campaign",
         "createCharacter": "Create Character",
         "createLocation": "Create Location",
-        "createOrganization": "Create Organization"
+        "createOrganization": "Create Organization",
+        "createPC": "Create PC"
       },
       "fields": {
         "type": "Type",

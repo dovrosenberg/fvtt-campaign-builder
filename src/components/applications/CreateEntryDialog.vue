@@ -522,13 +522,13 @@
       roleplayToUse = ''      
     } else {
       if (choice === 'description') {
-        descriptionToUse = generateComplete.value ? generatedTextToHTML(generatedDescription.value) : startingDescription.value;
+        descriptionToUse = generatedTextToHTML(generateComplete.value ? generatedDescription.value : startingDescription.value);
         roleplayToUse = '';
       } else if (choice === 'roleplay') {
-        descriptionToUse = startingDescription.value;
+        descriptionToUse = generatedTextToHTML(startingDescription.value);
         roleplayToUse = generateComplete.value ? generatedTextToHTML(generatedRoleplayNotes.value) : '';
       } else if (choice === 'both') {
-        descriptionToUse = generateComplete.value ? generatedTextToHTML(generatedDescription.value) : startingDescription.value;
+        descriptionToUse = generatedTextToHTML(generateComplete.value ? generatedDescription.value : startingDescription.value);
         roleplayToUse = generateComplete.value ? generatedTextToHTML(generatedRoleplayNotes.value) : '';
       }
     }
