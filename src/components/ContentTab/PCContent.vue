@@ -75,7 +75,8 @@
                         :initial-content="currentEntry?.background || ''"
                         fixed-height="240px"
                         @editor-saved="onBackgroundSaved"
-                      />
+                        @related-entries-changed="onRelatedEntriesChanged"
+                        />
                     </div>
                     <div class="flexrow form-group">
                       <LabelWithHelp
@@ -87,7 +88,8 @@
                         :initial-content="currentEntry?.plotPoints || ''"
                         fixed-height="240px"
                         @editor-saved="onPlotPointsSaved"
-                      />
+                        @related-entries-changed="onRelatedEntriesChanged"
+                        />
                     </div>
                     <div class="flexrow form-group">
                       <LabelWithHelp
@@ -147,6 +149,7 @@
   import { getTopicIcon, } from '@/utils/misc';
   import { localize } from '@/utils/game';
   import { getValidatedData } from '@/utils/dragdrop';
+  import { getRelatedEntries } from '@/utils/uuidExtraction';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -294,6 +297,48 @@
         await currentEntry.value.save();
       }
     }, debounceTime);
+  };
+
+  // referenced entries changed in an editor
+  const onRelatedEntriesChanged = async (addedUUIDs: string[], removedUUIDs: string[]) => {
+    if (!currentEntry.value || !ModuleSettings.get(SettingKey.autoRelationships)) {
+      return;
+    }
+
+    // check against current relationships
+    const { added, removed } = await getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
+
+    // filter out regular documents and PCs
+    const invalidOnes: string[] = [];
+    for (const uuid of added.concat(removed)) {
+      const doc = await fromUuid(uuid);
+
+      // make sure it's a valid entry
+      if (!doc)
+        invalidOnes.push(uuid);
+      else {
+        try {
+          // @ts-ignore
+          const entry = new Entry(doc);
+
+          // PCs don't link to other PCs
+          if (entry.topic !==Topics.PC)
+            invalidOnes.push(uuid);
+        } catch (_e) {
+          invalidOnes.push(uuid);
+        }
+      }
+    }
+
+    const finalAdded = added.filter(uuid => !invalidOnes.includes(uuid));
+    const finalRemoved = removed.filter(uuid => !invalidOnes.includes(uuid));
+
+    // Store the pending changes and show dialog if there are any changes
+    if (finalAdded.length > 0 || finalRemoved.length > 0) {
+      pendingAddedUUIDs.value = finalAdded;
+      pendingRemovedUUIDs.value = finalRemoved;
+      showRelatedEntriesDialog.value = true;
+    }
   };
 
   const onActorImageClick = async () => {

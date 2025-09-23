@@ -685,9 +685,30 @@
     // check against current relationships
     const { added, removed } = await getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
 
+    // filter out regular documents
+    const invalidOnes: string[] = [];
+    for (const uuid of added.concat(removed)) {
+      const doc = await fromUuid(uuid);
+
+      // make sure it's a valid entry
+      if (!doc)
+        invalidOnes.push(uuid);
+      else {
+        try {
+          // @ts-ignore
+          new Entry(doc);
+        } catch (_e) {
+          invalidOnes.push(uuid);
+        }
+      }
+    }
+  
+    const finalAdded = added.filter(uuid => !invalidOnes.includes(uuid));
+    const finalRemoved = removed.filter(uuid => !invalidOnes.includes(uuid));
+
     // Store the pending changes and show dialog if there are any changes
-    if (added.length > 0 || removed.length > 0) {
-      pendingAddedUUIDs.value = added;
+    if (finalAdded.length > 0 || finalRemoved.length > 0) {
+      pendingAddedUUIDs.value = finalAdded;
       pendingRemovedUUIDs.value = removed;
       showRelatedEntriesDialog.value = true;
     }
