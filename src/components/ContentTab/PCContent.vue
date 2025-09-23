@@ -73,6 +73,7 @@
                     <div class="flexrow form-group">
                       <Editor 
                         :initial-content="currentEntry?.background || ''"
+                        :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
                         fixed-height="240px"
                         @editor-saved="onBackgroundSaved"
                         @related-entries-changed="onRelatedEntriesChanged"
@@ -86,6 +87,7 @@
                     <div class="flexrow form-group">
                       <Editor 
                         :initial-content="currentEntry?.plotPoints || ''"
+                        :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
                         fixed-height="240px"
                         @editor-saved="onPlotPointsSaved"
                         @related-entries-changed="onRelatedEntriesChanged"
@@ -150,6 +152,7 @@
   import { localize } from '@/utils/game';
   import { getValidatedData } from '@/utils/dragdrop';
   import { getRelatedEntries } from '@/utils/uuidExtraction';
+  import { ModuleSettings, SettingKey } from '@/settings';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -256,7 +259,7 @@
       return;
 
     // parse the data
-    let data = getValidatedData(event);
+    let data = getValidatedData(event) as { type: string; uuid: string };
     if (!data)
       return;
 
@@ -322,7 +325,7 @@
           const entry = new Entry(doc);
 
           // PCs don't link to other PCs
-          if (entry.topic !==Topics.PC)
+          if (entry.topic === Topics.PC)
             invalidOnes.push(uuid);
         } catch (_e) {
           invalidOnes.push(uuid);
