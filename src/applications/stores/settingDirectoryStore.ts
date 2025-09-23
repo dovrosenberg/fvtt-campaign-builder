@@ -585,7 +585,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     const hierarchies = currentSetting.value.hierarchies;
 
-    const regex = new RegExp( filterText.value, 'i');  // do case insensitive search
+    const regex = new RegExp( filterText.value, 'iu');  // do case insensitive search
     const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
 
     for (let i=0; i<topics.length; i++) {
