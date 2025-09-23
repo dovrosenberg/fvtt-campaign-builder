@@ -48,7 +48,7 @@ export async function replaceEntityReferences(
 
   // Create a single regex pattern that matches any entity name
   const escapedNames = sortedNames.map(name => escapeRegExp(name));
-  const combinedPattern = new RegExp(`\\b(${escapedNames.join('|')})\\b`, 'gi');
+  const combinedPattern = new RegExp(`\\b(${escapedNames.join('|')})\\b`, 'giu');
 
   // Replace all matches in a single pass
   return content.replace(combinedPattern, (match, capturedName, offset) => {
