@@ -202,7 +202,7 @@
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend, Setting } from '@/classes';
+  import { Backend, RootFolder, Setting } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
   import { getDefaultFolders } from '@/compendia';
@@ -254,7 +254,7 @@
     if (!defaultFolders || !defaultFolders.rootFolder)
       settingOptions.value = [];
     else 
-      settingOptions.value = (toRaw(defaultFolders.rootFolder) as Folder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name })) || [];
+      settingOptions.value = (toRaw(defaultFolders.rootFolder) as RootFolder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name })) || [];
   };
 
   const loadTextModels = async () => {
