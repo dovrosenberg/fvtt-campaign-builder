@@ -1,7 +1,7 @@
 export * from './entry';
 export * from './session';
 export { CampaignDoc, CampaignFlagKey, CampaignFlagType, CampaignLore, flagSettings as campaignFlagSettings } from './campaign';
-export { SettingDoc, SettingFlagKey, SettingFlagType, flagSettings as settingFlagSettings } from './setting';
+export { SettingDoc, } from './setting';
 export { TopicDoc, TopicFlagKey, TopicFlagType, flagSettings as topicFlagSettings } from './topic';
 export { RootFolderDoc, RootFolderFlagKey, RootFolderFlagType, flagSettings as rootFolderFlagSettings } from './rootFolder';
 

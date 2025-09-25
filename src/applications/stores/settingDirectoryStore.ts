@@ -142,7 +142,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (!currentSetting.value)
       return;
 
-    await currentSetting.value.collapseSettingDirectory();
+    await currentSetting.value.collapseAll();
 
     await refreshSettingDirectoryTree();
   };

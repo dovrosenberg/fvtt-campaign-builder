@@ -12,8 +12,8 @@ import { updateSettingRollTableNames } from '@/utils/nameGenerators';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { TopicFolder, Setting, WindowTab, Entry, Campaign, Session, CollapsibleNode, } from '@/classes';
-import { EntryDoc, SessionDoc, CampaignDoc, SettingDoc, SettingFlagKey } from '@/documents';
+import { TopicFolder, Setting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, } from '@/classes';
+import { EntryDoc, SessionDoc, CampaignDoc, SettingFlagKey } from '@/documents';
 import { getDefaultFolders } from '@/compendia';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
@@ -33,7 +33,7 @@ export const useMainStore = defineStore('main', () => {
 
   ///////////////////////////////
   // external state
-  const rootFolder = ref<Folder | null>(null);
+  const rootFolder = ref<RootFolder | null>(null);
 
   /** can set this to tell current entry tab to refresh everything */
   const refreshCurrentEntry = ref<boolean>(false);
@@ -164,7 +164,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentSetting.value = new Setting(_currentSetting.value.raw as SettingDoc);
+    _currentSetting.value = new Setting(_currentSetting.value.settingId);
 
     // have to load the topic folders
     await _currentSetting.value?.loadTopics();

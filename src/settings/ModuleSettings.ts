@@ -5,6 +5,7 @@ import { SpeciesListApplication } from '@/applications/settings/SpeciesListAppli
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { SessionDisplayMode, Species, TagList, GeneratorType } from '@/types';
 import type { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from '@/apiClient';
+import { SettingDoc } from '@/documents';
 
 export enum SettingKey {
   // displayed in main settings window
@@ -25,6 +26,7 @@ export enum SettingKey {
   entryTags = 'entryTags',
   sessionTags = 'sessionTags',
   lastKnownVersion = 'lastKnownVersion',  // tracks the last known module version - used for tracking migrations
+  settings = 'settings',  // all of the Setting details
 
   // menus
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
@@ -70,6 +72,8 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.speciesList ? Species[] :
     K extends SettingKey.entryTags ? TagList :
     K extends SettingKey.sessionTags ? TagList :
+    K extends SettingKey.lastKnownVersion ? string :
+    K extends SettingKey.settings ? Record<string, SettingDoc> :
     K extends SettingKey.hideBackendWarning ? boolean :
     K extends SettingKey.enableToDoList ? boolean :
     K extends SettingKey.useGmailToDos ? boolean :
@@ -256,6 +260,11 @@ export class ModuleSettings {
       settingID: SettingKey.lastKnownVersion,
       default: '1.0.0',
       type: String,
+    },
+    {
+      settingID: SettingKey.settings,
+      default: {},
+      type: Object,
     },
     {
       settingID: SettingKey.APIURL,
