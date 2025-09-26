@@ -113,16 +113,20 @@
    * @param event The drag event
    * @param setting The setting object being dragged
    */
+  // we no longer allow this; no need
+  // editor can't support because it's a pack that doesn't have a uui
+  // and it doesn't seem like useful functionality anyway
   const onSettingDragStart = (event: DragEvent, setting: DirectorySetting): void => {
-    event.stopPropagation();
+    event.preventDefault();  // need to remove this if we bring it back
+    // event.stopPropagation();
 
-    const dragData = {
-      type: 'fcb-setting',
-      settingId: setting.id,
-      name: setting.name
-    } as SettingNodeDragData;
+    // const dragData = {
+    //   type: 'fcb-setting',
+    //   settingId: setting.id,
+    //   name: setting.name
+    // } as SettingNodeDragData;
 
-    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
+    // event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
 
   /**

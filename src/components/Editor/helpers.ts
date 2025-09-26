@@ -299,16 +299,6 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
     }
 
     // now handle the folder types
-    // if (unknownItem?.getFlag(moduleId, SettingFlagKey.isSetting)) {
-    //   const setting = new Setting(unknownItem as unknown as SettingDoc);
-
-    //   // handle the ones we don't care about
-    //   if (setting.uuid !== settingId) {
-    //     return brokenAnchor(data);
-    //   } else {  // this is an fcb item for this setting
-    //     return goodAnchor(unknownItem, WindowTabType.Setting, hash, data.name || setting.name, `fas ${getTabTypeIcon(WindowTabType.Setting)}`); 
-    //   }
-    // } else if (unknownItem?.getFlag(moduleId, CampaignFlagKey.isCampaign)) {
     if (unknownItem?.getFlag(moduleId, CampaignFlagKey.isCampaign)) {
       const campaign = new Campaign(unknownItem as unknown as CampaignDoc); 
       const setting = await campaign.getSetting();
