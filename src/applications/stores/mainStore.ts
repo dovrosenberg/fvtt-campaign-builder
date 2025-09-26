@@ -203,14 +203,6 @@ export const useMainStore = defineStore('main', () => {
    * @returns Array of Setting instances
    */
   const getAllSettings = async function (): Promise<Setting[]> {
-    if (!rootFolder.value) {
-      const defaultFolders = await getDefaultFolders();
-      rootFolder.value = defaultFolders.rootFolder;
-      if (!rootFolder.value) {
-        throw new Error('Couldn\'t get root folder in mainStore.getAllSettings()');
-      }
-    }
-
     const allSettings = ModuleSettings.get(SettingKey.settings) || {};
     const settings: Setting[] = [];
 
