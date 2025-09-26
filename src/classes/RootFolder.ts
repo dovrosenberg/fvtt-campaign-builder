@@ -34,7 +34,7 @@ export class RootFolder extends DocumentWithFlags<RootFolderDoc> {
 
     // all children folders should be settings
     for (const child of this.children) {
-      const setting = new Setting(child.folder);
+      const setting = new Setting(child.folder || undefined);
       
       if (setting)
         settings.push(setting);

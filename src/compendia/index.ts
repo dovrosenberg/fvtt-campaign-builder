@@ -1,7 +1,7 @@
 // functions for managing folders and compendia
 import { localize } from '@/utils/game';
 import { Topics, } from '@/types';
-import { UserFlagKey, UserFlags,} from '@/settings';
+import { ModuleSettings, SettingKey, UserFlagKey, UserFlags,} from '@/settings';
 import { toTopic } from '@/utils/misc';
 import { RootFolder, Setting } from '@/classes';
 
@@ -13,7 +13,7 @@ import { RootFolder, Setting } from '@/classes';
  */
 export async function getDefaultFolders(): Promise<{ rootFolder: RootFolder; setting: Setting}> {
   const rootFolder = await RootFolder.get(); // will create if needed
-  const settingId = UserFlags.get(UserFlagKey.currentSetting);  // this isn't setting-specific (obviously)
+  let settingId = UserFlags.get(UserFlagKey.currentSetting);  // this isn't setting-specific (obviously)
 
   // make sure we have a default and it exists
   let setting = null as Setting | null;
@@ -22,11 +22,13 @@ export async function getDefaultFolders(): Promise<{ rootFolder: RootFolder; set
   }   
 
   if (!setting) {
-    // couldn't find it, default to top if one exists
-    if (rootFolder.children.length>0 && rootFolder.children[0]?.folder?.uuid) {
-      setting = await Setting.fromUuid(rootFolder.children[0].folder.uuid);
+    // couldn't find it, default to first one (which is sort of random because it's not an array)
+    const settings = ModuleSettings.get(SettingKey.settings) || {};
+    if (Object.keys(settings).length>0) {
+      settingId = Object.keys(settings)[0];
+      setting = await Setting.fromUuid(settingId);
     } else {
-      // no setting folder, so create one
+      // no setting found, so create one
       setting = await Setting.create(true);
     }
   }

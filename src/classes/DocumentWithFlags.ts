@@ -1,13 +1,10 @@
 import { 
   CampaignDoc, 
-  SettingDoc, 
   TopicDoc,
   RootFolderDoc,
-  SettingFlagKey,
   CampaignFlagKey,
   TopicFlagKey,
   RootFolderFlagKey,
-  SettingFlagType,
   CampaignFlagType,
   TopicFlagType,
   RootFolderFlagType, 
@@ -15,7 +12,6 @@ import {
 import { FlagSettings, } from '@/settings/DocumentFlags';
 import { moduleId } from '@/settings';
 import { Setting } from './Setting';
-
 
 /**
  * Sometimes we want to save multiple flags at once as part of an update.  But we need to make
@@ -35,21 +31,19 @@ type FlagsObject<
 /** 
  * The allowed types to use flags (our types)
  */
-type ValidDocTypes = SettingDoc | CampaignDoc | TopicDoc | RootFolderDoc;
+type ValidDocTypes = CampaignDoc | TopicDoc | RootFolderDoc;
 
 
 /**
  * Map each ValidDocType to its configuration
  */
 type FlagKey<T extends ValidDocTypes> = 
-  T extends SettingDoc ? SettingFlagKey :
   T extends CampaignDoc ? CampaignFlagKey :
   T extends TopicDoc ? TopicFlagKey :
   T extends RootFolderDoc ? RootFolderFlagKey :
   never;
 
 type FlagType<T extends ValidDocTypes, K extends FlagKey<T>=FlagKey<T>> = 
-  T extends SettingDoc ? (K extends SettingFlagKey ? SettingFlagType<K> : never) :
   T extends CampaignDoc ? (K extends CampaignFlagKey ? CampaignFlagType<K> : never) :
   T extends TopicDoc ? (K extends TopicFlagKey ? TopicFlagType<K> : never) :
   T extends RootFolderDoc ? (K extends RootFolderFlagKey ? RootFolderFlagType<K> : never) :
@@ -90,7 +84,7 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
     throw new Error('Failed to implement DocumentWithFlags._getSetting');
   }
 
-  /** some classes - specifically Setting - don't need to be unlocked to modify flags */
+  /** some classes may not need to be unlocked to modify flags */
   protected get requiresUnlock(): boolean {
     return true;
   }

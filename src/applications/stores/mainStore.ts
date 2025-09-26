@@ -5,7 +5,7 @@ import { defineStore, } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
 // local imports
-import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, moduleId } from '@/settings';
+import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings';
 import { updateWindowTitle } from '@/utils/titleUpdater';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
 import { updateSettingRollTableNames } from '@/utils/nameGenerators';
@@ -13,7 +13,7 @@ import { updateSettingRollTableNames } from '@/utils/nameGenerators';
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { TopicFolder, Setting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, } from '@/classes';
-import { EntryDoc, SessionDoc, CampaignDoc, SettingFlagKey } from '@/documents';
+import { EntryDoc, SessionDoc, CampaignDoc, } from '@/documents';
 import { getDefaultFolders } from '@/compendia';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
@@ -72,7 +72,7 @@ export const useMainStore = defineStore('main', () => {
     const setting = await Setting.fromUuid(settingId);
     
     if (!setting)
-      throw new Error('Invalid folder id in mainStore.setNewSetting()');
+      throw new Error(`Invalid settingId in mainStore.setNewSetting(): ${settingId}`);
 
     // changing settings is problematic if we have unsaved changes in the popup because it clears the content before we can get it -- so check that
     if (SessionNotesApplication.app) {
@@ -211,18 +211,17 @@ export const useMainStore = defineStore('main', () => {
       }
     }
 
+    const allSettings = ModuleSettings.get(SettingKey.settings) || {};
     const settings: Setting[] = [];
-    
-    for (const child of rootFolder.value.children) {
-      if (child.folder && child.folder.getFlag(moduleId, SettingFlagKey.isSetting)) {
-        try {
-          const setting = await Setting.fromUuid(child.folder.uuid);
-          if (setting) {
-            settings.push(setting);
-          }
-        } catch (error) {
-          console.error(`Error loading setting ${child.folder.name}:`, error);
+
+    for (const settingId in allSettings) {
+      try {
+        const setting = await Setting.fromUuid(settingId);
+        if (setting) {
+          settings.push(setting);
         }
+      } catch (error) {
+        console.error(`Error loading setting ${settingId}:`, error);
       }
     }
 
