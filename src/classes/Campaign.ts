@@ -69,6 +69,17 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   }
 
   /**
+   * The settingId for this campaign
+   */
+  public get settingId(): string {
+    // if it belongs to us, it's in a pack
+    if (!this._doc.pack)
+      throw new Error('Missing pack in Campaign.settingId()');
+    
+    return this._doc.pack;
+  }
+  
+  /**
    * Gets the setting associated with a campaign 
    * if needed.
    * 
@@ -89,15 +100,12 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   public async loadSetting(): Promise<Setting> {
     if (this.setting)
       return this.setting;
-
-    if (!this._doc.collection?.folder)
-      throw new Error('Invalid folder id in Campaign.loadSetting()');
     
-    this.setting = await Setting.fromUuid(this._doc.collection.folder.uuid);
+    this.setting = await Setting.fromUuid(this.settingId);
 
     if (!this.setting)
       throw new Error('Error loading setting in Campaign.loadSetting()');
-
+    
     return this.setting;
   }
   

@@ -4,7 +4,7 @@
 ![](https://img.shields.io/badge/release%20date-September%2023%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.5.0/module.zip)
 
-- Version 2.0 prep: This version has some significant changes in how data is stored.  PLEASE BACKUP YOUR WORLD BEFORE UPDATING.  When you first enter a world using the module, it will automatically migrate your data to the new format.  If it runs into issues, DO NOT keep using it and DO NOT attempt to downgrade.  Instead, reach out via Github or Discord for assistance, and use your backup with the older version in the meantime.  These changes are in support of the upcoming version 2.0, which will allow entries to be shared with players.
+- Version 2.0 prep: This version has some significant changes in how data is stored.  PLEASE BACKUP YOUR WORLD BEFORE UPDATING.  When you first enter a world using the module, it will automatically migrate your data to the new format.  If it runs into issues, DO NOT keep using it and DO NOT attempt to downgrade.  Instead, reach out via Github or Discord for assistance, and use your backup (after restoring the older module version) in the meantime.  These changes are in support of the upcoming version 2.0, which will allow entries to be shared with players.
 - The ability to link to Settings in entries was removed.  I suspect no one was using it, because it wasn't very useful, it wasn't documented, and it was hard to do.
 
 ## v1.4.1 - Assorted bug fixes

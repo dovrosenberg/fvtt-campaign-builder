@@ -72,10 +72,11 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     if (this.setting)
       return this.setting;
     
-    if (!this.settingId)
-      throw new Error('Invalid settingId in TopicFolder.loadSetting()');
+    this.setting = await Setting.fromUuid(this.settingId);
 
-    this.setting = new Setting(this.settingId);
+    if (!this.setting)
+      throw new Error('Error loading setting in TopicFolder.loadSetting()');
+
     return this.setting;
   }
   
@@ -95,7 +96,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   }
 
   /**
-   * The settingId for this object
+   * The settingId for this topic folder
    */
   public get settingId(): string {
     // if it belongs to us, it's in a pack

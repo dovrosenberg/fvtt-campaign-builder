@@ -173,7 +173,7 @@ export class Setting {
     if (!settings || !settings[settingId]) {
       return null;
     }
-   else {
+    else {
       const newSetting = new Setting(settingId);
       await newSetting.validate();  // will also load topic folders
       return newSetting;
@@ -212,18 +212,11 @@ export class Setting {
   * @returns {Promise<Record<string, Campaign>>} A promise to the campaigns 
   */
   public async loadCampaigns(): Promise<Record<string, Campaign>> {
-    if (!this.campaignNames)
-      throw new Error('Invalid Setting.loadCampaigns() called before IDs loaded');
-
-    if (!this.campaigns)
-      this.campaigns = {};
-
     for (const id in this.campaignNames) {
       const campaignObj = await Campaign.fromUuid(id);
       if (!campaignObj) {
         // clean it up
         delete this.campaignNames[id];
-        
         delete this.campaigns[id];
 
         await this.save();
