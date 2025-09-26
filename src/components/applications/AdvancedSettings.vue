@@ -249,12 +249,9 @@
 
   ////////////////////////////////
   // methods
-  const loadSettings = async () => {
-    const defaultFolders = await getDefaultFolders();
-    if (!defaultFolders || !defaultFolders.rootFolder)
-      settingOptions.value = [];
-    else 
-      settingOptions.value = (toRaw(defaultFolders.rootFolder) as RootFolder)?.children?.map(w => ({ uuid: w.folder.uuid, name: w.folder.name })) || [];
+  const loadSettings = () => {
+    const allSettings = ModuleSettings.get(SettingKey.settings);
+    settingOptions.value = Object.keys(allSettings).map(settingId => ({ uuid: settingId, name: allSettings[settingId].name })) || [];
   };
 
   const loadTextModels = async () => {

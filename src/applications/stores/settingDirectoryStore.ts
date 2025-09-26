@@ -540,10 +540,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       iconFontClass: 'fas',
       label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
       onClick: async () => {
-        // get the right folder
-        const settingFolder = game.folders?.find((f)=>f.uuid===currentSetting.value?.uuid) as Folder;
-
-        if (!settingFolder || !topicFolder)
+        if (!topicFolder)
           throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
         if (topicFolder.topic===Topics.PC) {
