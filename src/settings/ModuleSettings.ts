@@ -26,8 +26,8 @@ export enum SettingKey {
   entryTags = 'entryTags',
   sessionTags = 'sessionTags',
   lastKnownVersion = 'lastKnownVersion',  // tracks the last known module version - used for tracking migrations
-  settings = 'settings',  // all of the Setting details
-
+  settings = 'settings',  // setting ids and names
+  
   // menus
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
   APIURL = 'APIURL',   // URL of backend
@@ -73,7 +73,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.entryTags ? TagList :
     K extends SettingKey.sessionTags ? TagList :
     K extends SettingKey.lastKnownVersion ? string :
-    K extends SettingKey.settings ? Record<string, SettingDoc> :
+    K extends SettingKey.settings ? Record<string, string> :
     K extends SettingKey.hideBackendWarning ? boolean :
     K extends SettingKey.enableToDoList ? boolean :
     K extends SettingKey.useGmailToDos ? boolean :

@@ -136,11 +136,6 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     this.updateCumulative(TopicFlagKey.types, value);
   }
   
-  // get direct access to the document (ex. to hook to foundry's editor)
-  get raw(): TopicDoc {
-    return this._doc;
-  }
-
   /**
    * Creates a new topic.  Does not add to setting.
    * 

@@ -2,12 +2,15 @@ import {
   CampaignDoc, 
   TopicDoc,
   RootFolderDoc,
+  ContentWrapperDoc,
   CampaignFlagKey,
   TopicFlagKey,
   RootFolderFlagKey,
   CampaignFlagType,
   TopicFlagType,
   RootFolderFlagType, 
+  ContentWrapperFlagKey,
+  ContentWrapperFlagType,
 } from '@/documents';
 import { FlagSettings, } from '@/settings/DocumentFlags';
 import { moduleId } from '@/settings';
@@ -31,7 +34,7 @@ type FlagsObject<
 /** 
  * The allowed types to use flags (our types)
  */
-type ValidDocTypes = CampaignDoc | TopicDoc | RootFolderDoc;
+type ValidDocTypes = CampaignDoc | TopicDoc | RootFolderDoc | ContentWrapperDoc;
 
 
 /**
@@ -41,12 +44,14 @@ type FlagKey<T extends ValidDocTypes> =
   T extends CampaignDoc ? CampaignFlagKey :
   T extends TopicDoc ? TopicFlagKey :
   T extends RootFolderDoc ? RootFolderFlagKey :
+  T extends ContentWrapperDoc ? ContentWrapperFlagKey :
   never;
 
 type FlagType<T extends ValidDocTypes, K extends FlagKey<T>=FlagKey<T>> = 
   T extends CampaignDoc ? (K extends CampaignFlagKey ? CampaignFlagType<K> : never) :
   T extends TopicDoc ? (K extends TopicFlagKey ? TopicFlagType<K> : never) :
   T extends RootFolderDoc ? (K extends RootFolderFlagKey ? RootFolderFlagType<K> : never) :
+  T extends ContentWrapperDoc ? (K extends ContentWrapperFlagKey ? ContentWrapperFlagType<K> : never) :
   never;
 
   interface DocumentWithFlagsConstructor {
@@ -78,6 +83,12 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
 
     this._cumulativeUpdate = {};
   }
+  
+  // get direct access to the document (ex. to hook into foundry editor)
+  get raw(): DocType {
+    return this._doc;
+  }
+
   
   /** needed so we can unlock it if needed */
   protected async _getSetting(): Promise<Setting> {
@@ -229,27 +240,18 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
 
     // We can't use get() or set() because they rely on the doc type being set already
 
-    const setFunction = async () => {
-      for (let i=0; i < flagSettings.length; i++) {
-        const flagId = flagSettings[i].flagId as FlagKey<DocType>;
+    for (let i=0; i < flagSettings.length; i++) {
+      const flagId = flagSettings[i].flagId as FlagKey<DocType>;
 
-        const value = foundry.utils.deepClone(flagSettings[i].default);
+      const value = foundry.utils.deepClone(flagSettings[i].default);
 
-        if (flagSettings[i].keyedByUUID && value) {
-          // @ts-ignore
-          await this._doc.setFlag(moduleId, flagId, protect(value as Record<string, any>) as FlagType<DocType, typeof flagId>);
-        } else {
-          // @ts-ignore
-          await this._doc.setFlag(moduleId, flagId, value as FlagType<DocType, typeof flagId>);
-        }        
-      }
-    }
-    
-    if (this.requiresUnlock) {
-      const setting = await this._getSetting();
-      await setting.executeUnlocked(setFunction);
-    } else {
-      await setFunction();
+      if (flagSettings[i].keyedByUUID && value) {
+        // @ts-ignore
+        await this._doc.setFlag(moduleId, flagId, protect(value as Record<string, any>) as FlagType<DocType, typeof flagId>);
+      } else {
+        // @ts-ignore
+        await this._doc.setFlag(moduleId, flagId, value as FlagType<DocType, typeof flagId>);
+      }        
     }
 
     return;

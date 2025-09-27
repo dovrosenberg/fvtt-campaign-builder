@@ -14,6 +14,14 @@ export * from './generators.ts';
 export type * from './generators.ts';
 
 // used to determine which component to display in the tab
+export enum ContentType {
+  Entry,
+  Campaign,
+  Session,
+  Setting,
+}
+
+// should match ContentType plus NewTab
 export enum WindowTabType  {
   NewTab,
   Entry,

@@ -9,6 +9,7 @@ import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import '@yaireo/tagify/dist/tagify.css';
 import { theme } from '@/components/styles/primeVue';
 import { moduleId } from '@/settings';
+import { ContentWrapperFlagKey } from '@/documents/contentWrapper';
 
 // setup pinia
 
@@ -110,8 +111,12 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     // if there is a document, open that content
     const doc = context.document;
     if (doc?.getFlag(moduleId, moduleId)) {
-      alert('Need to determine the content type here');
-      // useNavigationStore().openContent(doc.uuid);      
+      if (doc.getFlag(moduleId, ContentWrapperFlagKey.isContentWrapper)) {
+        alert('Need to determine the content type here');
+        // useNavigationStore().openContent(doc.uuid);      
+      } else {
+        throw new Error('Attempt to open invalid journal entry in CampaignBuilderApplication _onFirstRender')
+      }
     }
 
     // if it's false just show the default

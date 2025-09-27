@@ -1,8 +1,8 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
-import { SettingDoc } from '@/documents';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey } from '@/settings';
-import { RootFolder } from '@/classes';
+import { RootFolder, Setting } from '@/classes';
+import { localize } from '@/utils/game';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
@@ -40,43 +40,18 @@ export class MigrationV1_5 implements Migration {
         document.dispatchEvent(event);
       };
 
-      const newSettings: Record<string, SettingDoc> = {};
+      // map ids to names
+      const newSettings: Record<string, string> = {};
 
       for (const folder of allSettingFolders) {
-        const settingId: string = folder.getFlag(moduleId, 'compendiumId');
+        const settingId = await migrateSetting(folder);
 
-        // get all the setting configuration
-        const settingDetails: SettingDoc = {
-          name: folder.name,
-          topicIds: folder.getFlag(moduleId, 'topicIds'),
-          campaignNames: folder.getFlag(moduleId, 'campaignNames'),
-          expandedIds: folder.getFlag(moduleId, 'expandedIds'),
-          hierarchies: folder.getFlag(moduleId, 'hierarchies'),
-          genre: folder.getFlag(moduleId, 'genre'),
-          settingFeeling: folder.getFlag(moduleId, 'worldFeeling'), // leaving the key value for backwards compatibility
-          description: folder.getFlag(moduleId, 'description'),
-          img: folder.getFlag(moduleId, 'img'),   // image path for the setting
-          nameStyles: folder.getFlag(moduleId, 'nameStyles'),   // array of name styles to use for name generation
-          rollTableConfig: folder.getFlag(moduleId, 'rollTableConfig'),   // setting-specific roll table configuration
-          nameStyleExamples: folder.getFlag(moduleId, 'nameStyleExamples'),   // stored example names for each style with their genre and setting feeling
-          journals: folder.getFlag(moduleId, 'journals'),
-        }
-        
-        // all we need to do is create the settings for it
-        newSettings[settingId] = settingDetails;
-
-        // and update the permissions to hide and unlock the compendium
-        const pack = game.packs.get(settingId);
-        await pack?.configure({ ownership: { 
-          GAMEMASTER: 'OWNER', 
-          ASSISTANT: 'LIMITED', 
-          TRUSTED: 'LIMITED', 
-          PLAYER: 'LIMITED' 
-        }, locked: false });
+        // we then just need to save the index info to the module
+        newSettings[settingId] = folder.name ;
 
         // we don't clean up the folder because there's not really any reason to
 
-        updateProgress(`Processing setting: ${settingDetails.name}`);
+        updateProgress(`Processing setting: ${folder.name}`);
         processed++;
       }
 
@@ -97,6 +72,57 @@ export class MigrationV1_5 implements Migration {
     return result;
   }
     
+}
+
+async function migrateSetting(folder: Folder) {
+  const settingId = folder.getFlag(moduleId, 'compendiumId') as string | undefined;
+
+  if (!settingId)
+    throw new Error('Invalid settingId in MigrationV1_5.migrate()');
+
+  // and update the permissions to hide and unlock the compendium
+  const pack = game.packs.get(settingId);
+  await pack?.configure({ ownership: { 
+    GAMEMASTER: 'OWNER', 
+    ASSISTANT: 'LIMITED', 
+    TRUSTED: 'LIMITED', 
+    PLAYER: 'LIMITED' 
+  }, locked: false });
+
+  const newSetting = await Setting.create(false, folder.name, settingId, true);
+
+  if (!newSetting)
+    throw new Error('Failed to create setting in MigrationV1_5.migrate()');
+  
+  // get all the setting configuration
+  // @ts-ignore
+  newSetting.topicIds = folder.getFlag(moduleId, 'topicIds');
+  // @ts-ignore
+  newSetting.campaignNames = folder.getFlag(moduleId, 'campaignNames');
+  // @ts-ignore
+  newSetting.expandedIds = folder.getFlag(moduleId, 'expandedIds');
+  // @ts-ignore
+  newSetting.hierarchies = folder.getFlag(moduleId, 'hierarchies');
+  // @ts-ignore
+  newSetting.genre = folder.getFlag(moduleId, 'genre');
+  // @ts-ignore
+  newSetting.settingFeeling = folder.getFlag(moduleId, 'worldFeeling'); // leaving the key value for backwards compatibility
+  // @ts-ignore
+  newSetting.description = folder.getFlag(moduleId, 'description');
+  // @ts-ignore
+  newSetting.img = folder.getFlag(moduleId, 'img');   // image path for the setting
+  // @ts-ignore
+  newSetting.nameStyles = folder.getFlag(moduleId, 'nameStyles');   // array of name styles to use for name generation
+  // @ts-ignore
+  newSetting.rollTableConfig = folder.getFlag(moduleId, 'rollTableConfig');   // setting-specific roll table configuration
+  // @ts-ignore
+  newSetting.nameStyleExamples = folder.getFlag(moduleId, 'nameStyleExamples');   // stored example names for each style with their genre and setting feeling
+  // @ts-ignore
+  newSetting.journals = folder.getFlag(moduleId, 'journals');
+    
+  await newSetting.save();
+
+  return settingId;
 }
 
 /**
@@ -121,3 +147,4 @@ async function getAllSettings(): Promise<Folder[]> {
 
   return settings;
 }
+

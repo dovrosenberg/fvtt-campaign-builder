@@ -17,11 +17,6 @@ export class RootFolder extends DocumentWithFlags<RootFolderDoc> {
     return false;
   }
 
-  // direct access to Foundry document
-  get raw(): RootFolderDoc {
-    return this._doc;
-  }
-
   public get uuid(): string { return this._doc.uuid; }
   public get id(): string { return this._doc.id as string; }
   public get name(): string { return this._doc.name; }

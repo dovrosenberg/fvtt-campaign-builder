@@ -2,6 +2,12 @@
   "fcb": {
     "title": "Campaign Builder",
     "defaultRootFolderName": "Campaign Builder",
+    "contentFolders": {
+      "settings": "Settings",
+      "campaigns": "Campaigns",
+      "entries": "Entries",
+      "sessions": "Sessions"
+    },
     "settings": {
       "startCollapsed": "Sidebar starts collapsed?",
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",

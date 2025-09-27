@@ -14,7 +14,6 @@ import { updateSettingRollTableNames } from '@/utils/nameGenerators';
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { TopicFolder, Setting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc, } from '@/documents';
-import { getDefaultFolders } from '@/compendia';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 // the store definition

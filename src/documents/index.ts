@@ -1,9 +1,10 @@
 export * from './entry';
 export * from './session';
+export * from './setting';
 export { CampaignDoc, CampaignFlagKey, CampaignFlagType, CampaignLore, flagSettings as campaignFlagSettings } from './campaign';
-export { SettingDoc, } from './setting';
 export { TopicDoc, TopicFlagKey, TopicFlagType, flagSettings as topicFlagSettings } from './topic';
 export { RootFolderDoc, RootFolderFlagKey, RootFolderFlagType, flagSettings as rootFolderFlagSettings } from './rootFolder';
+export { ContentWrapperDoc, ContentWrapperFlagKey, ContentWrapperFlagType, flagSettings as contentWrapperFlagSettings } from './contentWrapper';
 
 // just need to handle our special flags
 export { RollTableFlagKey, RollTableFlagType, flagSettings as rolltableFlagSettings } from './rolltables';
@@ -18,5 +19,7 @@ import { id as moduleId } from '@module';
 export const DOCUMENT_TYPES = {
   Entry: `${moduleId}.entry`,
   Session: `${moduleId}.session`,
+  Setting: `${moduleId}.setting`,
+  Campaign: `${moduleId}.campaign`,
   PC: `${moduleId}.pc`,   // here for compatibility, but no longer used
 };
