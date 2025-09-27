@@ -114,14 +114,7 @@ export class MigrationV1_2 implements Migration {
       
       updateProgress(`Processing setting ${settingId}...`);
       
-      // @ts-ignore
-      const settingDoc = await fromUuid<SettingDoc>(settingId);
-      if (!settingDoc) {
-        console.log('Skipping invalid setting id in MigrationV1_2.migrateAllEntries(): ' + settingId);
-        continue;
-      }
-
-      const setting = new Setting(settingDoc);
+      const setting = new Setting(settingId);
       await setting.validate();
 
       if (!setting) {
@@ -233,13 +226,7 @@ export class MigrationV1_2 implements Migration {
         continue;
 
       try {
-        const settingDoc = await fromUuid<SettingDoc>(settingId);
-        if (!settingDoc) {
-          console.log('Skipping invalid setting id in MigrationV1_2.cleanupOldEntries(): ' + settingId);
-          continue;
-        }
-
-        const setting = new Setting(settingDoc);
+        const setting = new Setting(settingId);
         await setting.validate();
 
         if (!setting) {

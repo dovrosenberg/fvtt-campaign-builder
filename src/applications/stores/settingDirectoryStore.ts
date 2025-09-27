@@ -27,7 +27,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // other stores
   const mainStore = useMainStore();
   const navigationStore = useNavigationStore();
-  const { rootFolder, currentSetting, currentEntry, refreshCurrentEntry, } = storeToRefs(mainStore); 
+  const { currentSetting, currentEntry, refreshCurrentEntry, } = storeToRefs(mainStore); 
   
   ///////////////////////////////
   // internal state
@@ -142,7 +142,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (!currentSetting.value)
       return;
 
-    await currentSetting.value.collapseSettingDirectory();
+    await currentSetting.value.collapseAll();
 
     await refreshSettingDirectoryTree();
   };
@@ -354,11 +354,10 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     await setting.delete();
 
     // pick another setting
-    if (rootFolder.value?.children && rootFolder.value.children.length > 0) { 
-      if (rootFolder.value.children[0]?.folder)
-        await mainStore.setNewSetting(rootFolder.value.children[0].folder.uuid as string);
-      else
-        throw new Error('No setting found in deleteSetting()');
+    const settings = ModuleSettings.get(SettingKey.settings) || {};
+    if (Object.keys(settings).length>0) {
+      const settingId = Object.keys(settings)[0];
+      await mainStore.setNewSetting(settingId);
     } else {
       // close all tabs and bookmarks (if we're changing settings they'll reset automatically)
       await navigationStore.clearTabsAndBookmarks();
@@ -409,20 +408,24 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     // populate the setting names, and find the current one
     let currentSettingFound = false;
-    tree = rootFolder.value?.children?.map((setting): DirectorySetting => {
-      if (!setting.folder)
-        throw new Error('Setting without folder in refreshSettingDirectoryTree()');
+    const allSettings = ModuleSettings.get(SettingKey.settings) || {};
 
-      if (setting.folder.uuid===currentSetting.value?.uuid) {
+    for (const settingId in allSettings) {
+      const settingDoc = allSettings[settingId];
+      if (!settingDoc)
+        continue;
+
+      // see if it's the current one
+      if (settingId===currentSetting.value?.settingId) {
         currentSettingFound = true;
       }
 
-      return {
-        name: setting.folder.name as string,
-        id: setting.folder.uuid as string,
+      tree.push({
+        name: settingDoc.name,
+        id: settingId,
         topicNodes: []
-      };
-    }) || [];
+      });
+    }
 
     // find the record for the current setting and set the entries for each topic
     const currentSettingBlock = tree.find((w)=>w.id===currentSetting.value?.uuid);
@@ -537,10 +540,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       iconFontClass: 'fas',
       label: localize(`contextMenus.topicFolder.create.${topicFolder.topic}`), 
       onClick: async () => {
-        // get the right folder
-        const settingFolder = game.folders?.find((f)=>f.uuid===currentSetting.value?.uuid) as Folder;
-
-        if (!settingFolder || !topicFolder)
+        if (!topicFolder)
           throw new Error('Invalid header in Directory.onTopicContextMenu.onClick');
 
         if (topicFolder.topic===Topics.PC) {

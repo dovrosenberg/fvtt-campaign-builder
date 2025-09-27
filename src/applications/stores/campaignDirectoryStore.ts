@@ -43,15 +43,6 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     return await node.toggleWithLoad(expanded);
   };
 
-  const collapseAll = async(): Promise<void> => {
-    if (!currentSetting.value)
-      return;
-
-    await currentSetting.value.collapseCampaignDirectory();
-
-    await refreshCampaignDirectoryTree();
-  };
- 
   // refreshes the campaign tree 
   const refreshCampaignDirectoryTree = async (updateIds: string[] = []): Promise<void> => {
     // need to have a current setting and journals loaded
@@ -276,7 +267,6 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   return {
     currentCampaignTree,
 
-    collapseAll,
     toggleWithLoad,
     refreshCampaignDirectoryTree,
     deleteCampaign,

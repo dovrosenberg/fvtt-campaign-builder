@@ -1,69 +1,137 @@
 import { moduleId, UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
-import { SettingDoc, SettingFlagKey, settingFlagSettings } from '@/documents';
 import { Hierarchy, Topics, ValidTopic, SettingGeneratorConfig, RelatedJournal } from '@/types';
 import { FCBDialog } from '@/dialogs';
-import { DocumentWithFlags, Campaign, TopicFolder, RootFolder, } from '@/classes';
+import { Campaign, TopicFolder, RootFolder, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
 import { Backend } from '@/classes';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
+import { SettingDoc } from '@/documents';
 
 type SettingCompendium = CompendiumCollection<'JournalEntry'>;
 
 // represents a campaign setting
-export class Setting extends DocumentWithFlags<SettingDoc>{
-  static override _documentName = 'Folder';
-  static override _flagSettings = settingFlagSettings;
-
-  private _compendium: SettingCompendium;   // this is the main compendium
+// it's essentially a wrapper around a SettingDoc object stored in the 
+//    module settings
+export class Setting {
+  private _compendium: SettingCompendium;   // this is the compendium for the setting
 
   // JournalEntries
   public campaigns: Record<string, Campaign>;   // Campaigns keyed by uuid 
   public topicFolders: Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using validate()), so we assume it's never empty
 
-  // saved in flags
-  private _campaignNames: Record<string, string>;  //name of each campaign; keyed by journal entry uuid
-  private _expandedIds: Record<string, boolean | null>;  // ids of nodes that are expanded in the tree (could be compendia or entries or subentries) - handles topic tree
-  private _hierarchies: Record<string, Hierarchy>;  // the full tree hierarchy or null for topics without hierarchy
-  private _topicIds: Record<ValidTopic, string> | null;  // the uuid for each topic
-  private _compendiumId: string;  // the uuid for the setting compendium 
-  private _description: string;
-  private _genre: string;
-  private _settingFeeling: string;
-  private _img: string;
-  private _nameStyles: number[];
-  private _rollTableConfig: SettingGeneratorConfig | null;
-  private _nameStyleExamples: { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null;
-  private _journals: RelatedJournal[];
+  /**
+   * The name of the setting.get
+   */
+  public name: string = '';  
+
+  /**
+   * The uuid for the setting compendium.
+   */
+  private _settingId: string = '';  
+  
+  /**
+   * The uuid for each topic.
+   */
+  public topicIds: Record<ValidTopic, string> | Record<never, string> = {};  
+
+  /**
+   * The names of campaigns; keyed by journal entry uuid.
+   */
+  public campaignNames: Record<string, string> = {};  
+
+  /**
+   * The IDs of nodes that are expanded in the directory.
+   * Could include compendia, entries, or subentries, or campaigns.
+   */
+  public expandedIds: Record<string, boolean> = {};  
+  
+  /**
+   * The full tree hierarchy or null for topics without a hierarchy.
+   */
+  public hierarchies: Record<string, Hierarchy> = {};  
+
+  /**
+   * The genre of the setting.
+   */
+  public genre: string = '';
+
+  /**
+   * The feeling of the setting.
+   */
+  public settingFeeling: string = '';
+
+  /**
+   * The description of the setting.
+   */
+  public description: string = '';
+
+  /**
+   * The image for the setting.
+   */
+  public img: string = '';
+
+  /**
+   * The name styles for the setting.
+   */
+  public nameStyles: number[] = [0, 1, 2, 3, 4];
+
+  /**
+   * The roll table configuration for the setting.
+   */
+  public rollTableConfig: SettingGeneratorConfig | null = null;
+
+  /**
+   * The name style examples for the setting.
+   */
+  public nameStyleExamples: { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null = null;
+
+  /**
+   * The related journals for the setting.
+   */
+  public journals: RelatedJournal[] = [];
 
   /**
    * Note: you should always call validate() after creating a new Setting - this ensures the 
    * compendium exists and is properly used
-   * @param {SettingDoc} settingDoc - The Setting Foundry document
+   * @param {string} settingId - The uuid for the setting's compendium
    */
-  constructor(settingDoc: SettingDoc) {
-    super(settingDoc, SettingFlagKey.isSetting);
+  constructor(settingId?: string) {
+    this._settingId = settingId || '';
 
-    this._campaignNames = this.getFlag(SettingFlagKey.campaignNames);
-    this._expandedIds = this.getFlag(SettingFlagKey.expandedIds);
-    this._hierarchies = this.getFlag(SettingFlagKey.hierarchies);
-    this._topicIds = this.getFlag(SettingFlagKey.topicIds);
-    this._compendiumId = this.getFlag(SettingFlagKey.compendiumId);
-    this._description = this.getFlag(SettingFlagKey.description) || '';
-    this._genre = this.getFlag(SettingFlagKey.genre) || '';
-    this._settingFeeling = this.getFlag(SettingFlagKey.settingFeeling) || '';
-    this._img = this.getFlag(SettingFlagKey.img) || '';
-    this._nameStyles = this.getFlag(SettingFlagKey.nameStyles) || [0];
-    this._rollTableConfig = this.getFlag(SettingFlagKey.rollTableConfig);
-    this._nameStyleExamples = this.getFlag(SettingFlagKey.nameStyleExamples);
-    this._journals = this.getFlag(SettingFlagKey.journals) || [];
-    if (this._compendiumId) {
-      const compendium = game.packs?.get(this._compendiumId) as SettingCompendium;
+    if (settingId) {
+      const settings = game.settings.get(moduleId, SettingKey.settings);
+
+      if (!settings || !settings[settingId]) {
+        throw new Error(`Setting ${settingId} not found`);
+      }
+
+      this.importSetting(settings[settingId]);
+    }
+  }
+
+  private importSetting(settingDoc: SettingDoc): void {
+    this.name = settingDoc.name;
+    this.campaignNames = settingDoc.campaignNames;
+    this.expandedIds = settingDoc.expandedIds;
+    this.hierarchies = settingDoc.hierarchies;
+    this.topicIds = settingDoc.topicIds;
+    this.description = settingDoc.description || '';
+    this.genre = settingDoc.genre || '';
+    this.settingFeeling = settingDoc.settingFeeling || '';
+    this.img = settingDoc.img || '';
+    this.nameStyles = settingDoc.nameStyles || [0];
+    this.rollTableConfig = settingDoc.rollTableConfig;
+    this.nameStyleExamples = settingDoc.nameStyleExamples;
+    this.journals = settingDoc.journals || [];
+
+    if (this._settingId) {
+      const compendium = game.packs?.get(this._settingId) as SettingCompendium;
       
       if (!compendium) {
         // it didn't exist, so we pretend we don't have one - this will get cleaned up in validate()
-        this._compendiumId = '';
+        this._settingId = '';
       } else {
         this._compendium = compendium;
       }
@@ -73,31 +141,45 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     this.topicFolders = {} as Record<ValidTopic, TopicFolder>;
   }
 
-  override async _getSetting(): Promise<Setting> {
-    return this;
-  };
+  private exportSetting(): SettingDoc {
+    return {
+      name: this.name,
+      campaignNames: this.campaignNames,
+      expandedIds: this.expandedIds,
+      hierarchies: this.hierarchies,
+      topicIds: this.topicIds,
+      description: this.description,
+      genre: this.genre,
+      settingFeeling: this.settingFeeling,
+      img: this.img,
+      nameStyles: this.nameStyles,
+      rollTableConfig: this.rollTableConfig,
+      nameStyleExamples: this.nameStyleExamples,
+      journals: this.journals,
+    };
+ }
 
-  // Setting is a Folder so it's outside the compendium
-  override get requiresUnlock(): boolean {
-    return false;
-  };
+ 
+  /** 
+   * The uuid (alias for settingId)
+   */
+  public get uuid(): string {
+    return this._settingId;
+  }
+  
+  static async fromUuid(settingId: string): Promise<Setting | null> {
+    const settings = game.settings.get(moduleId, SettingKey.settings);
 
-  static async fromUuid(settingId: string, options?: Record<string, any>): Promise<Setting | null> {
-    const settingDoc = await fromUuid<SettingDoc>(settingId, options);
-
-    if (!settingDoc)
+    if (!settings || !settings[settingId]) {
       return null;
+    }
     else {
-      const newSetting = new Setting(settingDoc);
+      const newSetting = new Setting(settingId);
       await newSetting.validate();  // will also load topic folders
       return newSetting;
     }
   }
 
-  // get direct access to the document (ex. to hook to foundry's editor)
-  get raw(): SettingDoc {
-    return this._doc;
-  }
 
   /**
   * Gets the Topics associated with the setting. If the topics are already loaded, the promise resolves
@@ -105,13 +187,13 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   * @returns {Promise<Record<ValidTopic, TopicFolder>>} A promise to the topics
   */
   public async loadTopics(): Promise<Record<ValidTopic, TopicFolder>> {
-    if (!this._topicIds)
+    if (!this.topicIds)
       throw new Error('Invalid Setting.loadTopics() called before IDs loaded');
 
     // loop over just the numeric values
     for (const topic of Object.values(Topics).filter(t=>typeof t === 'number')) {
       if (topic !== Topics.None && !this.topicFolders[topic]) {
-        const topicObj = await TopicFolder.fromUuid(this._topicIds[topic]);
+        const topicObj = await TopicFolder.fromUuid(this.topicIds[topic]);
         if (!topicObj)
           throw new Error('Invalid topic uuid in Setting.loadTopics()');
 
@@ -130,23 +212,12 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   * @returns {Promise<Record<string, Campaign>>} A promise to the campaigns 
   */
   public async loadCampaigns(): Promise<Record<string, Campaign>> {
-    if (!this._campaignNames)
-      throw new Error('Invalid Setting.loadCampaigns() called before IDs loaded');
-
-    if (!this.campaigns)
-      this.campaigns = {};
-
-    for (const id in this._campaignNames) {
+    for (const id in this.campaignNames) {
       const campaignObj = await Campaign.fromUuid(id);
       if (!campaignObj) {
         // clean it up
-        const names = this.campaignNames;
-        delete names[id];
-        this.campaignNames = names;
-
-        const campaigns = this.campaigns;
-        delete campaigns[id];
-        this.campaigns = campaigns;
+        delete this.campaignNames[id];
+        delete this.campaigns[id];
 
         await this.save();
       } else {
@@ -158,34 +229,12 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     return this.campaigns;
   }
 
-  /** 
-   * The uuid
-   */
-  public get uuid(): string {
-    return this._doc.uuid;
-  }
 
-  /** 
-   * The setting name 
-   */
-  public get name(): string {
-    return this._doc.name;
-  }
-
-  set name(value: string) {
-    this._doc.name = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate,
-      name: value,
-    };
-  }
-
-  
   /** 
    * The uuid for the setting compendium   
    */
-  public get compendiumId(): string {
-    return this._compendiumId;
+  public get settingId(): string {
+    return this._settingId;
   }
 
   /** 
@@ -195,156 +244,35 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     return this._compendium;
   }
 
-  /**
-   * The JournalEntry UUID for each topic.
-   */
-  public get topicIds(): Record<string, string> | null {
-    return this._topicIds;
-  }
 
-  /**
-   * The name keyed by JournalEntry UUID.
-   */
-  public get campaignNames(): Record<string, string> {
-    return this._campaignNames;
-  }
-
-  /**
-   * The IDs of nodes that are expanded in the directory.
-   * Could include compendia, entries, or subentries, or campaigns.
-   */
-  public get expandedIds(): Record<string, boolean | null> {
-    return this._expandedIds;
-  }
-
-  /**
-   * The full tree hierarchy or null for topics without a hierarchy.
-   */
-  public get hierarchies(): Record<string, Hierarchy> {
-    return this._hierarchies;
-  }
-
-  get description(): string {
-    return this._description;
-  }
-
-  set description(value: string) {
-    this._description = value;
-    this.updateCumulative(SettingFlagKey.description, value);
-  }
-
-  public get genre(): string {
-    return this._genre;
-  }
-
-  public set genre(value: string) {
-    this._genre = value;
-    this.updateCumulative(SettingFlagKey.genre, value);
-  }
-
-  public get settingFeeling(): string {
-    return this._settingFeeling;
-  }
-
-  public set settingFeeling(value: string) {
-    this._settingFeeling = value;
-    this.updateCumulative(SettingFlagKey.settingFeeling, value);
-  }
-
-  public get img(): string {
-    return this._img;
-  }
-
-  public set img(value: string) {
-    this._img = value;
-    this.updateCumulative(SettingFlagKey.img, value);
-  }
-  
-  public get nameStyles(): readonly number[] {
-    return this._nameStyles;
-  }
-
-  public set nameStyles(value: number[] | readonly number[] ) {
-    this._nameStyles = value.slice();     // we clone it so it can't be edited outside
-    this.updateCumulative(SettingFlagKey.nameStyles, this._nameStyles);
-  }
-
-  public get rollTableConfig(): SettingGeneratorConfig | null {
-    return this._rollTableConfig;
-  }
-
-  public set rollTableConfig(value: SettingGeneratorConfig | null) {
-    this._rollTableConfig = value;
-    this.updateCumulative(SettingFlagKey.rollTableConfig, value);
-  }
-  
 
   /**
    * Get the hierarchy for a single entry
    */
+  // TODO: get rid of this
   public getEntryHierarchy(entryId: string): Hierarchy {
-    return this._hierarchies[entryId];
+    return this.hierarchies[entryId];
   }
 
   /**
    * set the hierarchy for a single entry
    */
+  // TODO: get rid of this
   public setEntryHierarchy(entryId: string, value: Hierarchy) {
-    this._hierarchies[entryId] = value;
-
-    // make sure to note we have an update to make
-    this.hierarchies = this._hierarchies;
+    this.hierarchies[entryId] = value;
   }
   
  
-  /**
-   * The JournalEntry UUID for each topic.
-   */
-  public set topicIds(value: Record<ValidTopic, string>) {
-    this._topicIds = value;
-    this.updateCumulative(SettingFlagKey.topicIds, value);
-  }
-
-  /**
-   * The name keyed by JournalEntry UUID.
-   */
-  public set campaignNames(value: Record<string, string>) {
-    this._campaignNames = value;
-    this.updateCumulative(SettingFlagKey.campaignNames, value);
-  }
-
-  /**
-   * The IDs of nodes that are expanded in the topic tree.
-   * Could include compendia, entries, or subentries.
-   */
-  public set expandedIds(value: Record<string, boolean | null>) {
-    this._expandedIds = value;
-    this.updateCumulative(SettingFlagKey.expandedIds, value);
-  }
-
   public async collapseNode(id: string): Promise<void> {
-    const expandedIds = this._expandedIds || {};
-    if (expandedIds[id])
-      delete expandedIds[id];
-    this._expandedIds = expandedIds;
-    await this.unsetFlag(SettingFlagKey.expandedIds, id);
-  }
-
-  public async expandNode(id: string): Promise<void> {
-    const expandedIds = this._expandedIds || {};
-    expandedIds[id] = true;
-    this.expandedIds = expandedIds;
-
+    delete this.expandedIds[id];
     await this.save();
   }
 
-  /**
-   * The full tree hierarchy or null for topics without a hierarchy.
-   */
-  public set hierarchies(value: Record<string, Hierarchy>) {
-    this._hierarchies = value;
-    this.updateCumulative(SettingFlagKey.hierarchies, value);
+  public async expandNode(id: string): Promise<void> {
+    this.expandedIds[id] = true;
+    await this.save();
   }
+
 
   /**
    * Updates a setting in the database.  Handles locking.
@@ -354,27 +282,17 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   public async save(): Promise<Setting | null> {
     let success = false;
 
-    // note: no unlock needed for changes to the setting because it's not in
-    //    a compendium
+    if (!this._settingId)
+      return null;
 
-    const updateData = this._cumulativeUpdate;
-    if (Object.keys(updateData).length !== 0) {
-      // protect any complex flags
-      if (updateData && updateData.flags[moduleId])
-        updateData.flags[moduleId] = this.prepareFlagsForUpdate(updateData.flags[moduleId]);
+    try {
+      const allSettings = ModuleSettings.get(SettingKey.settings);
+      allSettings[this._settingId] = this.exportSetting();
+      await ModuleSettings.set(SettingKey.settings,  allSettings);
 
-      // note: update returns null if nothing changed
-      try {
-        const retval = await this._doc.update(updateData) || null;
-        if (retval) {
-          this._doc = retval;
-        }
-          
-        this._cumulativeUpdate = {};
-        success = true;
-      } catch (e) {
-        console.error('Failed to update campaign', e);
-      }
+      success = true;
+    } catch (e) {
+      console.error('Failed to update setting', e);
     }
 
     return success ? this : null;
@@ -386,8 +304,6 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
    * @returns The new setting, or null if the user cancelled the dialog.
    */
   public static async create(makeCurrent = false): Promise<Setting | null> {
-    const rootFolder = await RootFolder.get(); // will create if needed
-
     // get the name
     let name;
 
@@ -395,29 +311,19 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
       name = await FCBDialog.inputDialog(localize('dialogs.createSetting.title'), `${localize('dialogs.createSetting.settingName')}:`); 
       
       if (name) {
-        // create the setting folder
-        const settingDocs = await Folder.createDocuments([{
-          name,
-          type: 'Compendium',
-          folder: rootFolder.id,
-          sorting: 'a',
-        }]) as unknown as SettingDoc[];
-    
-        if (!settingDocs)
-          throw new Error('Couldn\'t create new folder for Setting');
-
-        const settingDoc = settingDocs[0];
-
-        const newSetting = new Setting(settingDoc);
-        await newSetting.setup();
-
-        // set as the current setting
-        if (makeCurrent) {
-          await UserFlags.set(UserFlagKey.currentSetting, newSetting.uuid);
-        }
+        const newSetting = new Setting();
+        newSetting.name = name;
 
         await newSetting.validate();
 
+        if (!newSetting.settingId)
+          throw new Error('Failed to create setting in Setting.create()');
+
+        // set as the current setting
+        if (makeCurrent) {
+          await UserFlags.set(UserFlagKey.currentSetting, newSetting.settingId);
+        }
+        
         // create the rolltables
         await initializeSettingRollTables(newSetting);
 
@@ -438,8 +344,8 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   // make sure we have a compendium in the folder; create a new one if needed
   // also loads all the topics
   public async validate() {
-    if (this._compendiumId) {
-      const compendium = game.packs?.get(this._compendiumId) as SettingCompendium;
+    if (this._settingId) {
+      const compendium = game.packs?.get(this._settingId) as SettingCompendium;
       if (!compendium) 
         throw new Error('Invalid compendiumId in Setting.validate()');
       
@@ -467,7 +373,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     let updated = false;
 
     const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
-    let topicIds = this._topicIds;
+    let topicIds = this.topicIds;
     const topicObjects = {} as Record<ValidTopic, TopicFolder>;
 
     if (!topicIds) {
@@ -516,17 +422,24 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   private async createCompendium(): Promise<void> {
     const metadata = { 
       name: foundry.utils.randomID(), 
-      label: this._doc.name,
+      label: `FCB - ${this.name}`,
       type: 'JournalEntry' as const, 
+      ownership: {
+        GAMEMASTER: 'OWNER',
+        ASSISTANT: 'LIMITED',
+        TRUSTED: 'LIMITED',
+        PLAYER: 'LIMITED'
+      },
+      locked: false
     };
 
+    const rootFolder = await RootFolder.get();
     const pack = await foundry.documents.collections.CompendiumCollection.createCompendium(metadata) as SettingCompendium;
-    await pack.setFolder(this._doc as Folder);
-    await pack.configure({ locked:true });
+    await pack.setFolder(rootFolder.raw);
 
     this._compendium = pack;
-    this._compendiumId = pack.metadata.id;
-    await this.setFlag(SettingFlagKey.compendiumId, this._compendiumId);
+    this._settingId = pack.metadata.id;
+    await this.save();
   }
   
   /**
@@ -556,7 +469,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
    * Handles nested calls by checking the actual lock state of the compendium.
    */
   public async executeUnlocked(executeFunction: () => Promise<void>): Promise<void> {
-    const compendiumId = this._compendiumId;
+    const compendiumId = this._settingId;
     
     // If the compendium is already unlocked, just execute the function without locking/unlocking
     if (!this.isLocked) {
@@ -601,19 +514,11 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     return operation;
   }
   
-  public async collapseCampaignDirectory() {
-    // we just unset the entire expandedIds flag
-    await this.unsetFlag(SettingFlagKey.expandedIds);
-  }
-
-  public async collapseSettingDirectory() {
-    // we just unset the entire expandedIds flag
-    await this.unsetFlag(SettingFlagKey.expandedIds);
-
-    // then need to reset it
+  public async collapseAll() {
     this.expandedIds = {};
     await this.save();
   }
+
 
   /**
    * Remove a campaign from the setting metadata.  NOTE: SETTING MUST BE UNLOCKED FIRST
@@ -627,17 +532,8 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
       this.campaigns = campaigns;
     }
 
-    const campaignNames = this.campaignNames;
-    if (campaignNames[campaignId]) {
-      delete campaignNames[campaignId];
-      this.campaignNames = campaignNames;
-    }
-
-    const expandedIds = this.expandedIds;
-    if (expandedIds[campaignId]) {
-      delete expandedIds[campaignId];
-      this.expandedIds = expandedIds;
-    }
+    delete this.campaignNames[campaignId];
+    delete this.expandedIds[campaignId];
 
     await this.save();
   }  
@@ -645,8 +541,8 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
   // remove an entry from the setting metadata
   // note: SETTING MUST BE UNLOCKED FIRST
   public async deleteEntryFromSetting(topicFolder: TopicFolder, entryId: string) {
-    const hierarchy = this._hierarchies[entryId];
-
+    const hierarchy = this.hierarchies[entryId];
+    
     let topNodesCleaned = false;
     if (hierarchy) {
       // delete from any trees (also cleans up topNodes)
@@ -655,9 +551,7 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
         topNodesCleaned = true;
       } else {
         // Even if there are no ancestors or children, we still need to delete the hierarchy
-        delete this._hierarchies[entryId];
-        this.hierarchies = this._hierarchies;
-        await this.save();
+        delete this.hierarchies[entryId];
       }
     }
 
@@ -667,29 +561,28 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
 
       if (folder.topNodes.includes(entryId)) {
         folder.topNodes = folder.topNodes.filter(id => id !== entryId);
-        await folder.save();
       }
     }
 
     // remove from the expanded list
-    await this.unsetFlag(SettingFlagKey.expandedIds, entryId);
+    delete this.expandedIds[entryId];
+    
+    await this.save();
   }  
 
   // remove a session from the setting metadata
   // note: SETTING MUST BE UNLOCKED FIRST
   public async deleteSessionFromSetting(sessionId: string) {
-    await this.unsetFlag(SettingFlagKey.expandedIds, sessionId);
+    delete this.expandedIds[sessionId];    
+    await this.save();
   }  
 
   // change a campaign name inside all the setting metadata
   // note: SETTING MUST BE UNLOCKED FIRST
   public async updateCampaignName(campaignId: string, name: string) {
-    this._campaignNames[campaignId] = name;
+    this.campaignNames[campaignId] = name;
     
-    await this.setFlag(SettingFlagKey.campaignNames, {
-      ... (this.getFlag(SettingFlagKey.campaignNames) || {}),
-      [campaignId]: name
-    });
+    await this.save();
   }
 
   public async delete() {
@@ -700,8 +593,13 @@ export class Setting extends DocumentWithFlags<SettingDoc>{
     if (this._compendium) {
       await this._compendium.deleteCompendium();
     }
-    // delete the setting folder
-    await this._doc.delete();
+
+    // delete the setting
+    const allSettings = ModuleSettings.get(SettingKey.settings);
+    if (allSettings[this._settingId]) {
+      delete allSettings[this._settingId];
+    }
+    await ModuleSettings.set(SettingKey.settings, allSettings);
 
     // Delete all associated roll tables.
     await this.deleteRollTables();
@@ -848,21 +746,4 @@ private async deleteRollTables() : Promise<void> {
     }
   }
 
-  public get nameStyleExamples(): { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null {
-    return this._nameStyleExamples;
-  }
-
-  public get journals(): readonly RelatedJournal[] {
-    return this._journals;
-  }
-
-  public set journals(value: RelatedJournal[] | readonly RelatedJournal[]) {
-    this._journals = [...value];
-    this.updateCumulative(SettingFlagKey.journals, this._journals);
-  }
-
-  public set nameStyleExamples(value: { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null) {
-    this._nameStyleExamples = value;
-    this.updateCumulative(SettingFlagKey.nameStyleExamples, value);
-  }
 }

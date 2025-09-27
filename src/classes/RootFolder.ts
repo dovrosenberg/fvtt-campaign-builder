@@ -29,20 +29,6 @@ export class RootFolder extends DocumentWithFlags<RootFolderDoc> {
     this._cumulativeUpdate = foundry.utils.mergeObject(this._cumulativeUpdate, { name: value });
   }
 
-  public get settings(): Setting[] {
-    const settings: Setting[] = [];
-
-    // all children folders should be settings
-    for (const child of this.children) {
-      const setting = new Setting(child.folder);
-      
-      if (setting)
-        settings.push(setting);
-    }
-
-    return settings;
-  }
-
   /**
    * Gets the root folder.
    * If it is not stored in settings, creates a new folder and saves it to settings.

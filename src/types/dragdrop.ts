@@ -14,12 +14,6 @@ export type CampaignNodeDragData = {
   name: string;
 };
 
-export type SettingNodeDragData = {
-  type: 'fcb-setting';
-  settingId: string;
-  name: string;
-};
-
 export type SessionNodeDragData = {
   type: 'fcb-session';
   sessionId: string;
@@ -39,7 +33,6 @@ export type TabDragData = {
 export type NodeDragDropData = 
   | EntryNodeDragData 
   | CampaignNodeDragData 
-  | SessionNodeDragData 
-  | SettingNodeDragData;
+  | SessionNodeDragData;
 
   

@@ -389,10 +389,6 @@
         entryUuid = data.campaignId;
         break;
 
-      case 'fcb-setting': 
-        // From SettingDirectory setting
-        entryUuid = data.settingId;
-        break;
       case 'fcb-session': 
         // From SessionDirectoryNode
         entryUuid = data.sessionId;

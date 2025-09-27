@@ -56,4 +56,11 @@ There are a variety of [module settings](configuration/) you can manage in the F
 Details on how to install the backend capabilities to enable [^Advanced Features] are [here](/reference/backend/).
 
 ## Where's all this stored?
-For the curious, each Setting has its own folder in your compendia (inside a top-level folder called 'Campaign Builder').  Inside the Setting folder is a compendium for the Setting.  All of the module's data is stored in Journal Entries inside this compendium.  *Don't mess with it if you want everything to keep working.*
+For the curious, each Setting has its own compendium (inside a top-level folder called 'Campaign Builder').  All of the module's data is stored in Journal Entries inside this compendium.  
+
+You can move this compendium outside the folder structure if you want, *but otherwise, don't mess with it if you want everything to keep working.*  Version 2.0 plans to open this restriction up somewhat.
+
+The compendium is hidden from players.
+
+> [!WARNING]
+> Foundry does not allow renaming of compendia.  So, changing the name of your setting after creating it will not update the name of the compendium.  This doesn't really impact anything other than possibly causing confusion.  As a result, though, I strongly suggest never deleting a compendium unless you're sure what's in it.  Campaign Builder compendia (starting with those created in v1.5) have "FCB" as a prefix in the name to help with identification.  Delete your Settings inside the module and the correct compendium will be removed from your world.

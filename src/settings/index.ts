@@ -1,6 +1,6 @@
 import { id } from '@module';
 import { SettingKey, SettingKeyType } from './ModuleSettings';
-import { CampaignFlagKey, CampaignFlagType, RollTableFlagKey, RollTableFlagType, SettingFlagKey, SettingFlagType, } from '@/documents';
+import { CampaignFlagKey, CampaignFlagType, RollTableFlagKey, RollTableFlagType, } from '@/documents';
 
 export * from './UserFlags';
 export * from './ModuleSettings';
@@ -17,19 +17,12 @@ export const moduleId: ModuleId = id as ModuleId;
 
 // flesh out the flag types 
 
-type SettingFolderFlags = {
-  [M in ModuleId]: {
-    [K in SettingFlagKey]: SettingFlagType<K>; 
-  };
-}
-
 type CampaignFlags = {
   [M in ModuleId]: {
     [K in CampaignFlagKey]: CampaignFlagType<K>; 
   };
 }
 
-type FolderFlags = SettingFolderFlags;
 type JournalEntryFlags = CampaignFlags;
 type RollTableFlags = {
   [M in ModuleId]: {
@@ -45,7 +38,6 @@ type WBSettings = {
 declare global {
   interface FlagConfig {
     JournalEntry: JournalEntryFlags;
-    Folder: FolderFlags;
     RollTable: RollTableFlags;
   }
 

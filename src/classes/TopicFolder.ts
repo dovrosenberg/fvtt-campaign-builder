@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 import { moduleId, } from '@/settings'; 
-import { TopicDoc, SettingDoc, TopicFlagKey, topicFlagSettings, EntryDoc } from '@/documents';
+import { TopicDoc, TopicFlagKey, topicFlagSettings, EntryDoc } from '@/documents';
 import { DocumentWithFlags, Entry, Setting } from '@/classes';
 import { ValidTopic } from '@/types';
 import { getTopicTextPlural } from '@/compendia';
@@ -72,15 +72,11 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     if (this.setting)
       return this.setting;
     
-    if (!this._doc.collection?.folder)
-      throw new Error('Invalid folder id in TopicFolder.loadSetting()');
+    this.setting = await Setting.fromUuid(this.settingId);
 
-    const settingDoc = await fromUuid<SettingDoc>(this._doc.collection.folder.uuid);
+    if (!this.setting)
+      throw new Error('Error loading setting in TopicFolder.loadSetting()');
 
-    if (!settingDoc)
-      throw new Error('Invalid folder id in TopicFolder.loadSetting()');
-
-    this.setting = new Setting(settingDoc);
     return this.setting;
   }
   
@@ -97,6 +93,17 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   public set topNodes(value: string[] | readonly string[]) {
     this._topNodes = value.slice();   // we clone it so it can't be edited outside
     this.updateCumulative(TopicFlagKey.topNodes, this._topNodes);
+  }
+
+  /**
+   * The settingId for this topic folder
+   */
+  public get settingId(): string {
+    // if it belongs to us, it's in a pack
+    if (!this._doc.pack)
+      throw new Error('Missing pack in TopicFolder.settingId()');
+    
+    return this._doc.pack;
   }
 
   /**

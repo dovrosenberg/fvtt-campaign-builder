@@ -1,10 +1,13 @@
 # Change Log
 
-## v1.4.2 - Bug fix
-![](https://img.shields.io/badge/release%20date-October%209%2C%202025-blue)
-![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.4.2/module.zip)
+## v1.5.0 - ____________________
+![](https://img.shields.io/badge/release%20date-September%2023%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.5.0/module.zip)
 
-- Fixed issue where players were prompted to create a session after modifying non-Campaign Builder documents in some circumstances.
+- Version 2.0 prep: This version has some significant changes in how data is stored.  PLEASE BACKUP YOUR WORLD BEFORE UPDATING.  When you first enter a world using the module, it will automatically migrate your data to the new format.  If it runs into issues, DO NOT keep using it and DO NOT attempt to downgrade.  Instead, reach out via Github or Discord for assistance, and use your backup (after restoring the older module version) in the meantime.  These changes are in support of the upcoming version 2.0, which will allow entries to be shared with players.
+- You are now able to move the compendia that hold each world, rather than being required to keep them in the created folder structure.  New compendia will still  be created in the "Campaign Builder" folder, but if you don't like that organization system, you are free to change.
+- On the flip side, the compendia are no longer visible to anyone but the GM.  Note that this is just a change in visibility in the Foundry UI - anyone could programatically access them from the console.  The purpose here is to prevent players from being able to see all of the entries via Foundry's sidebar, while still (eventually) allowing them to access specific pieces via the Campaign Builder interface.
+- The ability to link to Settings in entries was removed.  I suspect no one was using it, because it wasn't very useful, it wasn't documented, and it was hard to do.
 
 ## v1.4.1 - Assorted bug fixes
 ![](https://img.shields.io/badge/release%20date-September%2023%2C%202025-blue)
