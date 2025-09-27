@@ -113,12 +113,12 @@ export const useNavigationStore = defineStore('navigation', () => {
    * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
    * @param contentId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param contentType The type of content to open. If null, defaults to entry.
    * @param options Options for the tab.
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
-   * @param contentType The type of content to open. If null, defaults to entry.
    * @returns The newly opened tab.
    */
   const openContent = async function (contentId = null as string | null, contentType: WindowTabType, options?: OpenContentOptions,): Promise<WindowTab> { 

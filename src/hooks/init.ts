@@ -1,6 +1,7 @@
 import { moduleId, ModuleSettings, } from '@/settings';
 import { KeyBindings } from '@/settings/KeyBindings';
 import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel, PCDataModel } from '@/documents';
+import { CampaignBuilderApplication } from '@/applications/CampaignBuilder';
 
 export function registerForInitHook() {
   Hooks.once('init', init);
@@ -25,17 +26,11 @@ async function init(): Promise<void> {
     // [DOCUMENT_TYPES.PC]: PCDataModel, // Deprecated in v1.2+
   });
 
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
-    types: [DOCUMENT_TYPES.Entry],
-    makeDefault: true
+  
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntry, moduleId, CampaignBuilderApplication, {
+    canBeDefault: false,
+    canConfigure: false,
+    makeDefault: false,
+    label: 'FCB - IF YOU\'RE SEEING THIS SOMETHING IS BROKEN'
   });
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
-    types: [DOCUMENT_TYPES.Session],
-    makeDefault: true
-  });
-  // PC entries are now handled by Entry with topic=PC
-  // foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
-  //   types: [DOCUMENT_TYPES.PC],
-  //   makeDefault: true
-  // });
 }
