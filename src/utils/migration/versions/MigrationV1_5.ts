@@ -72,7 +72,7 @@ export class MigrationV1_5 implements Migration {
           ASSISTANT: 'LIMITED', 
           TRUSTED: 'LIMITED', 
           PLAYER: 'LIMITED' 
-        } });
+        }, locked: false });
 
         // we don't clean up the folder because there's not really any reason to
 
