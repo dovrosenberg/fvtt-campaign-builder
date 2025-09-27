@@ -17,6 +17,9 @@ The Setting header has just two parts:
   1. Name - This is where you edit the Setting's name.
   2. Generate Button - This gives access to Setting-specific configuration, specifically [Name Styles](./namestyles).
 
+> [!WARNING]
+> Foundry does not allow renaming of compendia.  So, changing the name of your setting after creating it will not update the name of the compendium.  This doesn't really impact anything other than possibly causing confusion.  As a result, though, I strongly suggest never deleting a compendium unless you're sure what's in it.  Campaign Builder compendia (starting with those created in v1.5) have "FCB" as a prefix in the name to help with identification.  Delete your Settings inside the module and the correct compendium will be removed from your world.
+
 ## Tabs
 There are two tabs on the Setting details screen:
   1. [Description tab](./description) - overview information about the Setting

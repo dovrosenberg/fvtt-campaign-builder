@@ -65,6 +65,15 @@ export class MigrationV1_5 implements Migration {
         // all we need to do is create the settings for it
         newSettings[settingId] = settingDetails;
 
+        // and update the permissions to hide and unlock the compendium
+        const pack = game.packs.get(settingId);
+        await pack?.configure({ ownership: { 
+          GAMEMASTER: 'OWNER', 
+          ASSISTANT: 'LIMITED', 
+          TRUSTED: 'LIMITED', 
+          PLAYER: 'LIMITED' 
+        } });
+
         // we don't clean up the folder because there's not really any reason to
 
         updateProgress(`Processing setting: ${settingDetails.name}`);
@@ -79,6 +88,10 @@ export class MigrationV1_5 implements Migration {
       // eslint-disable-next-line no-console
       notifyError(`MigrationV1_5 failed: ${outer}`);
       console.error('MigrationV1_5 fatal error:', outer);
+
+      // I don't think there's any reason to set the permissions back the way they were
+      //    by keeping things hidden, we also likely make their folders hidden which will
+      //    keep people from breaking things in the meantime
     }
 
     return result;

@@ -289,7 +289,7 @@ export class Setting {
       const allSettings = ModuleSettings.get(SettingKey.settings);
       allSettings[this._settingId] = this.exportSetting();
       await ModuleSettings.set(SettingKey.settings,  allSettings);
-        
+
       success = true;
     } catch (e) {
       console.error('Failed to update setting', e);
@@ -312,6 +312,7 @@ export class Setting {
       
       if (name) {
         const newSetting = new Setting();
+        newSetting.name = name;
 
         await newSetting.validate();
 
@@ -421,16 +422,20 @@ export class Setting {
   private async createCompendium(): Promise<void> {
     const metadata = { 
       name: foundry.utils.randomID(), 
-      label: this.name,
+      label: `FCB - ${this.name}`,
       type: 'JournalEntry' as const, 
+      ownership: {
+        GAMEMASTER: 'OWNER',
+        ASSISTANT: 'LIMITED',
+        TRUSTED: 'LIMITED',
+        PLAYER: 'LIMITED'
+      },
+      locked: false
     };
 
     const rootFolder = await RootFolder.get();
     const pack = await foundry.documents.collections.CompendiumCollection.createCompendium(metadata) as SettingCompendium;
     await pack.setFolder(rootFolder.raw);
-
-    throw new Error('Need to set compendium to invisible')
-    await pack.configure({ locked:true });
 
     this._compendium = pack;
     this._settingId = pack.metadata.id;
