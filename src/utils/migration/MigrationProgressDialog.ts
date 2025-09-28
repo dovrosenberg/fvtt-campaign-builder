@@ -53,9 +53,6 @@ export class MigrationProgressDialog {
    * Update the progress
    */
   public updateProgress(current: number, total: number, status?: string): void {
-    this.totalItems = total;
-    this.processedItems = current;
-
     if (this.progressElement) {
       const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
       const progressBar = this.progressElement.querySelector('.progress-bar-fill') as HTMLElement;

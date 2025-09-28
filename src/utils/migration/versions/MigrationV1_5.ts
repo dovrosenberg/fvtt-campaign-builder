@@ -13,7 +13,7 @@ export class MigrationV1_5 implements Migration {
   public readonly targetVersion = '1.5.0';
   public readonly description = 'Moves all setting data off of existing Setting folders and into module settings';
 
-  private _context: MigrationContext;
+  // private _context: MigrationContext;
 
   constructor(context: MigrationContext) {
     this._context = context;
