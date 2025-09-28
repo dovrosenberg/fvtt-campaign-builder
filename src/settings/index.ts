@@ -1,6 +1,6 @@
 import { id } from '@module';
 import { SettingKey, SettingKeyType } from './ModuleSettings';
-import { CampaignFlagKey, CampaignFlagType, RollTableFlagKey, RollTableFlagType, } from '@/documents';
+import { CampaignFlagKey, CampaignFlagType, ContentWrapperFlagKey, ContentWrapperFlagType, RollTableFlagKey, RollTableFlagType, } from '@/documents';
 
 export * from './UserFlags';
 export * from './ModuleSettings';
@@ -23,7 +23,14 @@ type CampaignFlags = {
   };
 }
 
-type JournalEntryFlags = CampaignFlags;
+type ContentWrapperFlags = {
+  [M in ModuleId]: {
+    [K in ContentWrapperFlagKey]: ContentWrapperFlagType<K>; 
+  };
+}
+
+type JournalEntryFlags = CampaignFlags | ContentWrapperFlags;
+
 type RollTableFlags = {
   [M in ModuleId]: {
     [K in RollTableFlagKey]: RollTableFlagType<K>; 
