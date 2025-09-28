@@ -26,7 +26,7 @@ export enum SettingKey {
   entryTags = 'entryTags',
   sessionTags = 'sessionTags',
   lastKnownVersion = 'lastKnownVersion',  // tracks the last known module version - used for tracking migrations
-  settings = 'settings',  // setting ids and names
+  settings = 'settings',  // map setting ids and names
   
   // menus
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu

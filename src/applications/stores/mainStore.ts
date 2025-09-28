@@ -28,7 +28,7 @@ export const useMainStore = defineStore('main', () => {
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
-  const _currentSetting = ref<Setting | null>(null);  // the current setting folder
+  const _currentSetting = ref<Setting | null>(null);  // the current setting
 
   ///////////////////////////////
   // external state

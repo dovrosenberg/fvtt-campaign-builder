@@ -29,7 +29,7 @@ async function init(): Promise<void> {
 
   
   foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntry, moduleId, CampaignBuilderApplication, {
-    canBeDefault: false,
+    canBeDefault: true,
     canConfigure: false,
     makeDefault: true,
     label: 'FCB - IF YOU\'RE SEEING THIS SOMETHING IS BROKEN'

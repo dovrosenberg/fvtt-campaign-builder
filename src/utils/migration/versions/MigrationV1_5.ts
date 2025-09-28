@@ -1,8 +1,7 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
-import { ModuleSettings, SettingKey } from '@/settings';
+import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
 import { RootFolder, Setting } from '@/classes';
-import { localize } from '@/utils/game';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
@@ -42,12 +41,14 @@ export class MigrationV1_5 implements Migration {
 
       // map ids to names
       const newSettings: Record<string, string> = {};
+      const mapSettingIds: Record<string, string> = {};   // map old folder Ids to new ids
 
       for (const folder of allSettingFolders) {
         const settingId = await migrateSetting(folder);
 
         // we then just need to save the index info to the module
-        newSettings[settingId] = folder.name ;
+        newSettings[settingId] = folder.name;
+        mapSettingIds[folder.uuid] = settingId;
 
         // we don't clean up the folder because there's not really any reason to
 
@@ -57,6 +58,17 @@ export class MigrationV1_5 implements Migration {
 
       // save them all
       await ModuleSettings.set(SettingKey.settings, newSettings);
+
+      // remap the current settings to the updated ids 
+      const currentSettingId = UserFlags.get(UserFlagKey.currentSetting);
+      if (currentSettingId) {
+        UserFlags.set(UserFlagKey.currentSetting, mapSettingIds[currentSettingId]);
+      }
+
+      const currentEmailId = ModuleSettings.get(SettingKey.emailDefaultSetting);
+      if (currentEmailId) {
+        ModuleSettings.set(SettingKey.emailDefaultSetting, mapSettingIds[currentEmailId]);
+      }
     } catch (outer) {
       result.success = false;
       result.errors?.push(`MigrationV1_5 failed: ${outer}`);
@@ -74,6 +86,7 @@ export class MigrationV1_5 implements Migration {
     
 }
 
+/** returns the settingId (uuid of the journal entry) */
 async function migrateSetting(folder: Folder) {
   const settingId = folder.getFlag(moduleId, 'compendiumId') as string | undefined;
 
@@ -122,7 +135,7 @@ async function migrateSetting(folder: Folder) {
     
   await newSetting.save();
 
-  return settingId;
+  return newSetting.settingId;
 }
 
 /**
