@@ -3,16 +3,14 @@ import { localize } from '@/utils/game';
 import { Topics, } from '@/types';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags,} from '@/settings';
 import { toTopic } from '@/utils/misc';
-import { RootFolder, Setting } from '@/classes';
+import { Setting } from '@/classes';
 
 
 /**
- * Gets the root and setting folders.
- * Will create new folders if missing.
- * @returns The root and setting folders.
+ * Gets the current setting (will create one if there isn't one) 
+ * @returns The Setting 
  */
-export async function getDefaultFolders(): Promise<{ rootFolder: RootFolder; setting: Setting}> {
-  const rootFolder = await RootFolder.get(); // will create if needed
+export async function getCurrentSetting(): Promise<Setting> {
   let settingId = UserFlags.get(UserFlagKey.currentSetting);  // this isn't setting-specific (obviously)
 
   // make sure we have a default and it exists
@@ -35,9 +33,9 @@ export async function getDefaultFolders(): Promise<{ rootFolder: RootFolder; set
 
   // if we couldn't create one, then throw an error
   if (!setting)
-    throw new Error('Couldn\'t create setting folder in compendia/index.getDefaultFolders()');
+    throw new Error('Couldn\'t create setting folder in compendia/index.getCurrentSetting()');
 
-  return { rootFolder, setting };
+  return setting;
 }
 
 
