@@ -82,7 +82,7 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
       // the only way we should ever have a false flag in _onFirstRender is if we're just loading without a doc
       //    because we check it below if a normal doc comes in that way
       // can't use setFlag because we're not async
-      newDoc.flags[moduleId] = { [moduleId]: false }; 
+      newDoc.flags[moduleId] = { isContentWrapper: false }; 
 
       // note: we're not saving it to the world :) 
       finalOptions = {
@@ -93,7 +93,7 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
       finalOptions = new.target._migrateConstructorParams(options, args);
 
       const doc = finalOptions.document;
-      if (!doc?.getFlag(moduleId, moduleId)) { 
+      if (!doc?.getFlag(moduleId, 'isContentWrapper')) { 
         throw new Error('Attempt to open non-FCB journal entry in CampaignBuilderApplication constructor')
       }
 
@@ -110,13 +110,11 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
 
     // if there is a document, open that content
     const doc = context.document;
-    if (doc?.getFlag(moduleId, moduleId)) {
-      if (doc.getFlag(moduleId, ContentWrapperFlagKey.isContentWrapper)) {
-        alert('Need to determine the content type here');
-        // useNavigationStore().openContent(doc.uuid);      
-      } else {
-        throw new Error('Attempt to open invalid journal entry in CampaignBuilderApplication _onFirstRender')
-      }
+    if (doc.getFlag(moduleId, ContentWrapperFlagKey.isContentWrapper)) {
+      alert('Need to determine the content type here');
+      // useNavigationStore().openContent(doc.uuid);      
+    } else if (doc.getFlag(moduleId, ContentWrapperFlagKey.isContentWrapper) == undefined) {
+      throw new Error('Attempt to open invalid journal entry in CampaignBuilderApplication _onFirstRender')
     }
 
     // if it's false just show the default

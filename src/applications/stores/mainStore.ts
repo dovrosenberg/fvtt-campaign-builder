@@ -163,7 +163,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentSetting.value = new Setting(_currentSetting.value.settingId);
+    _currentSetting.value = new Setting(_currentSetting.value.raw);
 
     // have to load the topic folders
     await _currentSetting.value?.loadTopics();
