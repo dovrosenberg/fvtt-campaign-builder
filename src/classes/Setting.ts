@@ -423,15 +423,6 @@ export class Setting extends ContentWrapper<ContentType.Setting> {
     }
   }
   
-  /** 
-   * Execute a function after unlocking (if needed), then re-lock when done.
-   * Uses a queue system to prevent race conditions between multiple calls.
-   * Handles nested calls by checking the actual lock state of the compendium.
-   */
-  public async executeUnlocked(executeFunction: () => Promise<void>): Promise<void> {
-    return executeFunction();
-  }
-  
   public async collapseAll() {
     this.expandedIds = {};
     await this.save();

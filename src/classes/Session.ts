@@ -93,19 +93,18 @@ export class Session {
     const setting = await campaign.getSetting();
 
     let sessionDoc: SessionDoc[] = [];
-    await setting.executeUnlocked(async () => {
-      sessionDoc = await JournalEntryPage.createDocuments([{
-        type: DOCUMENT_TYPES.Session,
-        name: nameToUse,
-        system: {
-          number: campaign.nextSessionNumber,
-          description: '',
-          img: '',
-        }
-      }],{
-        parent: campaign.raw as JournalEntry,
-      }) as unknown as SessionDoc[];
-    });
+
+    sessionDoc = await JournalEntryPage.createDocuments([{
+      type: DOCUMENT_TYPES.Session,
+      name: nameToUse,
+      system: {
+        number: campaign.nextSessionNumber,
+        description: '',
+        img: '',
+      }
+    }],{
+      parent: campaign.raw as JournalEntry,
+    }) as unknown as SessionDoc[];
 
     if (sessionDoc && sessionDoc.length > 0) {
       const session = new Session(sessionDoc[0], campaign);
@@ -738,19 +737,18 @@ export class Session {
     }
 
     let retval: SessionDoc | null = null;
-    await setting.executeUnlocked(async () => {
-      // note: update returns null if nothing changed
-      try {
-        const retval = await toRaw(this._sessionDoc).update(updateData) || null;
-        if (retval) {
-          this._sessionDoc = retval;
-        }
-          
-        this._cumulativeUpdate = {};
-      } catch (e) {
-        console.error('Failed to update campaign', e);
+
+  // note: update returns null if nothing changed
+    try {
+      const retval = await toRaw(this._sessionDoc).update(updateData) || null;
+      if (retval) {
+        this._sessionDoc = retval;
       }
-    });
+        
+      this._cumulativeUpdate = {};
+    } catch (e) {
+      console.error('Failed to update campaign', e);
+    }
 
      // Update the search index (rely on retval being null if no changes were made)
      try {
@@ -771,12 +769,10 @@ export class Session {
     const id = this._sessionDoc.uuid;
     const setting = await this.getSetting() as Setting;
 
-    await setting.executeUnlocked(async () => {
-      await this._sessionDoc.delete();
+    await this._sessionDoc.delete();
 
-      // remove from the expanded list
-      await setting.deleteSessionFromSetting(id);
-    });
+    // remove from the expanded list
+    await setting.deleteSessionFromSetting(id);
   }
   
   /**

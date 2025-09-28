@@ -462,20 +462,17 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       if (name) {
         let newCampaignDoc: CampaignDoc;
 
-        await setting.executeUnlocked(async () => {
-          // create a journal entry for the campaign
-          newCampaignDoc = await JournalEntry.create({
-            name: name,
-            folder: foundry.utils.parseUuid(setting.uuid).id,
-          },{
-            pack: setting.compendium.metadata.id,
-          }) as unknown as CampaignDoc;  
+        // create a journal entry for the campaign
+        newCampaignDoc = await JournalEntry.create({
+          name: name,
+          folder: foundry.utils.parseUuid(setting.uuid).id,
+        },{
+          pack: setting.compendium.metadata.id,
+        }) as unknown as CampaignDoc;  
 
-          if (!newCampaignDoc)
-            throw new Error('Couldn\'t create new journal entry for campaign');
-        });
+        if (!newCampaignDoc)
+          throw new Error('Couldn\'t create new journal entry for campaign');
 
-        // @ts-ignore - assigned in executeUnlocked
         const newCampaign = new Campaign(newCampaignDoc, setting);
         await newCampaign.setup();
 
@@ -552,31 +549,29 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     let success = false;
     let setting = await this.getSetting();
 
-    await setting.executeUnlocked(async () => {
-      if (Object.keys(updateData).length !== 0) {
-        // protect any complex flags
-        if (updateData.flags && updateData.flags[moduleId])
-          updateData.flags[moduleId] = this.prepareFlagsForUpdate(updateData.flags[moduleId]);
+    if (Object.keys(updateData).length !== 0) {
+      // protect any complex flags
+      if (updateData.flags && updateData.flags[moduleId])
+        updateData.flags[moduleId] = this.prepareFlagsForUpdate(updateData.flags[moduleId]);
 
-        // note: update returns null if nothing changed
-        try {
-          const retval = await toRaw(this._doc).update(updateData) || null;
-          if (retval) {
-            this._doc = retval;
-          }
-           
-          this._cumulativeUpdate = {};
-          success = true;
-        } catch (e) {
-          console.error('Failed to update campaign', e);
+      // note: update returns null if nothing changed
+      try {
+        const retval = await toRaw(this._doc).update(updateData) || null;
+        if (retval) {
+          this._doc = retval;
         }
-
-        // update the name
-        if (updateData.name !== undefined) {
-          await setting.updateCampaignName(this.uuid, updateData.name);
-        }
+          
+        this._cumulativeUpdate = {};
+        success = true;
+      } catch (e) {
+        console.error('Failed to update campaign', e);
       }
-    });
+
+      // update the name
+      if (updateData.name !== undefined) {
+        await setting.updateCampaignName(this.uuid, updateData.name);
+      }
+    }
     
     return success ? this : null;
   }
@@ -594,10 +589,8 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     let setting = await this.getSetting();
 
-    await setting.executeUnlocked(async () => {
-      await this._doc.delete();
+    await this._doc.delete();
 
-      await setting.deleteCampaignFromSetting(id);
-    });
+    await setting.deleteCampaignFromSetting(id);
   }
 }

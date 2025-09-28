@@ -157,12 +157,7 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
       }
     };
 
-    if (this.requiresUnlock) {
-      const setting = await this._getSetting();
-      await setting.executeUnlocked(setFunction);
-    } else {
-      await setFunction();
-    }
+    await setFunction();
   };
 
   /** 
@@ -188,12 +183,7 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
       }
     }
 
-    if (this.requiresUnlock) {
-      const setting = await this._getSetting();
-      await setting.executeUnlocked(unsetFunction);
-    } else {
-      await unsetFunction();
-    }
+    await unsetFunction();
   };
 
   protected prepareFlagsForUpdate = <

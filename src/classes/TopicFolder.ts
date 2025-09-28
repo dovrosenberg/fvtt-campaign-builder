@@ -146,15 +146,13 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   static async create(setting: Setting, topic: ValidTopic): Promise<TopicFolder | null> {
     let newTopicDoc: TopicDoc | null = null;
 
-    await setting.executeUnlocked(async () => {
-      // create a journal entry for the campaign
-      newTopicDoc = await JournalEntry.create({
-        name: getTopicTextPlural(topic),
-        folder: foundry.utils.parseUuid(setting.uuid).id,
-      },{
-        pack: setting.compendium.metadata.id,
-      }) as unknown as TopicDoc;
-    });
+    // create a journal entry for the campaign
+    newTopicDoc = await JournalEntry.create({
+      name: getTopicTextPlural(topic),
+      folder: foundry.utils.parseUuid(setting.uuid).id,
+    },{
+      pack: setting.compendium.metadata.id,
+    }) as unknown as TopicDoc;
 
     if (!newTopicDoc)
       throw new Error('Couldn\'t create new topic');
@@ -210,27 +208,21 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   public async save(): Promise<TopicFolder | null> {
     const updateData = this._cumulativeUpdate;
 
-    let setting = this.setting;
-
-    if (!setting)
-      setting = await this.loadSetting();
-
     let success = false;
-    await setting.executeUnlocked(async () => {
-      if (Object.keys(updateData).length !== 0) {
-        // protect any complex flags
-        if (updateData.flags && updateData.flags[moduleId])
-          updateData.flags[moduleId] = this.prepareFlagsForUpdate(updateData.flags[moduleId]);
 
-        const retval = await toRaw(this._doc).update(updateData) || null;
-        if (retval) {
-          this._doc = retval;
-          this._cumulativeUpdate = {};
+    if (Object.keys(updateData).length !== 0) {
+      // protect any complex flags
+      if (updateData.flags && updateData.flags[moduleId])
+        updateData.flags[moduleId] = this.prepareFlagsForUpdate(updateData.flags[moduleId]);
 
-          success = true;
-        }
+      const retval = await toRaw(this._doc).update(updateData) || null;
+      if (retval) {
+        this._doc = retval;
+        this._cumulativeUpdate = {};
+
+        success = true;
       }
-    });
+    }
     
     return success ? this : null;
   }
@@ -248,8 +240,6 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     if (!setting)
       setting = await this.loadSetting();
 
-    await setting.executeUnlocked(async () => {
-      await this._doc.delete();
-    });
+    await this._doc.delete();
   }   
 }

@@ -239,9 +239,7 @@ export class MigrationV1_2 implements Migration {
             continue;
           }
 
-          await setting.executeUnlocked(async () => {
-            await oldPage.delete();
-          });
+          await oldPage.delete();
           
           console.log(`Deleted old PC entry: ${oldPage.name}`);
         }
