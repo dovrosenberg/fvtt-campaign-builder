@@ -103,7 +103,14 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
 
   /** This should be called after construction to ensure everything asynchronous is ready */
   public setup = async (): Promise<void> => {
-    return this.setFlagDefaults();
+    // we need to merge any existing settings in 
+    const currentSettings = this._doc.flags[moduleId] || {};
+
+    await this.setFlagDefaults();
+
+    for (const setting of Object.keys(currentSettings)) {
+      await this._doc.setFlag(moduleId, setting, currentSettings[setting]);
+    }
   }
 
   protected getFlag = <

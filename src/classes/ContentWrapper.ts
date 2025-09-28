@@ -58,7 +58,7 @@ export abstract class ContentWrapper<T extends ContentType> extends DocumentWith
   }
 
   protected get _page(): PageDocType<T> {
-    return this._doc.pages.contents[0] as unknown as PageDocType<T>;
+    return toRaw(this._doc).pages.contents[0] as unknown as PageDocType<T>;
   }
 
   override async _getSetting(): Promise<Setting> {
@@ -190,7 +190,7 @@ export abstract class ContentWrapper<T extends ContentType> extends DocumentWith
     if (!newContentWrapperDoc)
       throw new Error('Couldn\'t create new content wrapper');
 
-    // one-time setting of the content type
+    // one-time setting of the content type (have to do this because the constructor checks it)
     await newContentWrapperDoc.setFlag(moduleId, ContentWrapperFlagKey.contentType, contentType);
 
     const newContentWrapper = new this(newContentWrapperDoc) as InstanceType<Constructor>;
