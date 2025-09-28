@@ -1,14 +1,14 @@
 import { toRaw } from 'vue';
-import { ContentWrapperDoc, ContentWrapperFlagKey, contentWrapperFlagSettings, DOCUMENT_TYPES, EntryDoc, SettingDoc } from '@/documents';
-import { DocumentWithFlags, Setting } from '@/classes';
+import { ContentWrapperDoc, ContentWrapperFlagKey, contentWrapperFlagSettings, DOCUMENT_TYPES, SettingDoc } from '@/documents';
+import { DocumentWithFlags } from '@/classes';
 import { ContentType } from '@/types';
 import { moduleId } from '@/settings';
 
 // map the JournalEntryPage subtypes to the ContentType enum
-type ContentPageType<T extends ContentType> = 
-  // T extends ContentType.Campaign ? CampaignPage :
-  // T extends ContentType.Session ? SessionPage :
-  // T extends ContentType.Entry ? EntryPage :
+export type PageDocType<T extends ContentType> = 
+  // T extends ContentType.Campaign ? CampaignDoc :
+  // T extends ContentType.Session ? SessionDoc :
+  // T extends ContentType.Entry ? EntryDoc :
   T extends ContentType.Setting ? SettingDoc:
   never;
 
@@ -29,10 +29,7 @@ const ContentDocumentTypes = {
 //    just expose the wrapped content and not have to worry about the fact that it's
 //    inside a page that's inside a journal entry
 
-export abstract class ContentWrapper<
-  T extends ContentType, 
-  PageDocType extends ContentPageType<T> = ContentPageType<T>
-> extends DocumentWithFlags<ContentWrapperDoc> {
+export abstract class ContentWrapper<T extends ContentType> extends DocumentWithFlags<ContentWrapperDoc> {
   static override _documentName = 'JournalEntry';
   static override _flagSettings = contentWrapperFlagSettings;
 
@@ -60,37 +57,28 @@ export abstract class ContentWrapper<
     this.setting = setting || null;
   }
 
-  protected get content(): PageDocType {
-    return this._doc.pages.contents[0] as unknown as PageDocType;
+  protected get _page(): PageDocType<T> {
+    return this._doc.pages.contents[0] as unknown as PageDocType<T>;
   }
 
   override async _getSetting(): Promise<Setting> {
     return await this.getSetting();
   };
   
-  static async fromUuid<T extends ContentType>(contentId: string, options?: Record<string, any>): Promise<ContentWrapper<T> | null> {
-    const wrapperDoc = await fromUuid<ContentWrapperDoc>(contentId, options);
+  static async docFromUuid<T extends ContentType>(contentId: string, contentType: T): Promise<ContentWrapperDoc | null> {
+    const wrapperDoc = await fromUuid<ContentWrapperDoc>(contentId);
 
     if (!wrapperDoc)
       return null;
-    else {
-      const contentType = wrapperDoc.getFlag(moduleId, ContentWrapperFlagKey.contentType) as unknown as T;
-      if (!contentType)
-        throw new Error('Missing content type in ContentWrapper.fromUuid()');
-      
-      switch (contentType) {
-        // case ContentType.Campaign:
-        //   return new Campaign(wrapperDoc);
-        // case ContentType.Session:
-        //   return new Session(wrapperDoc);
-        // case ContentType.Entry:
-        //   return new Entry(wrapperDoc);
-        case ContentType.Setting:
-          return new Setting(wrapperDoc as unknosn as Setting) as ContentWrapper<T>;
-        default:
-          throw new Error('Invalid content type in ContentWrapper.fromUuid()');
-      }
-    }
+    
+    const docContentType = wrapperDoc.getFlag(moduleId, ContentWrapperFlagKey.contentType) as T;
+    if (!docContentType)
+      throw new Error('Missing content type in ContentWrapper.fromUuid()');
+
+    if (docContentType !== contentType)
+      throw new Error('Invalid content type in ContentWrapper.fromUuid()');
+    
+    return wrapperDoc;
   }
 
   get uuid(): string {
@@ -101,6 +89,21 @@ export abstract class ContentWrapper<
     return this.getFlag(ContentWrapperFlagKey.contentType);
   }
 
+
+  /**
+   * The name of the entry
+   */
+  public get name(): string {
+    return this._page.name;
+  } 
+
+  // want to set it on the wrapper and the underlying content
+  public set name(value: string) {
+    this._doc.name = value;
+    this._page.name = value;
+  } 
+
+
   /**
    * Gets the setting associated with a content wrapper, loading it if needed
    * 
@@ -110,7 +113,7 @@ export abstract class ContentWrapper<
     if (!this.setting)
       await this.loadSetting();
 
-    return (this.setting as Setting);
+    return (this.setting as unknown as Setting);
   }
   
   /**
@@ -156,8 +159,8 @@ export abstract class ContentWrapper<
   >(
     this: Constructor, 
     settingId: string, 
-    contentType: ContentType,
-     name: string
+    contentType: T,
+    name: string
   ): Promise<InstanceType<Constructor> | null> {
     // find the folder it goes in 
     const pack = game.packs.get(settingId);
@@ -201,7 +204,7 @@ export abstract class ContentWrapper<
       system: newContentWrapper._getDefaultContent()
     }],{
       parent: newContentWrapperDoc,
-    }) as unknown as ContentPageType<T>[];
+    }) as unknown as PageDocType<T>[];
 
     return newContentWrapper;
   }
@@ -209,20 +212,20 @@ export abstract class ContentWrapper<
   /**
    * Updates the name and underlying document in the database
    * 
-   * @returns {Promise<Session | null>} The updated ContentWrapper, or null if the update failed.
+   * @returns {Promise<ContentWrapper<T> | null>} The updated ContentWrapper, or null if the update failed.
    */
   public async save(): Promise<ContentWrapper<T> | null> {
     // update the name on the wrapper
-    await toRaw(this._doc).update({ name: this.content.name });
+    await toRaw(this._doc).update({ name: this._page.name });
     
     // update the wrapped page  
-    let retval: PageDocType | null = null;
+    let retval: PageDocType<T> | null = null;
     // note: update returns null if nothing changed
     try {
-      retval = await toRaw(this.content).update({
-        name: this.content.name,
-        text: { content: this.content.text.content } ,
-        system: this.content.system
+      retval = await toRaw(this._page).update({
+        name: this._page.name,
+        text: { content: this._page.text.content },
+        system: this._page.system
     }) || null;
     } catch (e) {
       console.error('Failed to update campaign', e);
