@@ -12,11 +12,6 @@ export class RootFolder extends DocumentWithFlags<RootFolderDoc> {
     super(doc, RootFolderFlagKey.isRootFolder);
   }
 
-  // Root folder is a Folder so it's outside compendia
-  override get requiresUnlock(): boolean {
-    return false;
-  }
-
   public get uuid(): string { return this._doc.uuid; }
   public get id(): string { return this._doc.id as string; }
   public get name(): string { return this._doc.name; }

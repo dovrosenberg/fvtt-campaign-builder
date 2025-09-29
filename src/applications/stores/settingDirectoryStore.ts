@@ -411,17 +411,13 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     const allSettings = ModuleSettings.get(SettingKey.settings) || {};
 
     for (const settingId in allSettings) {
-      const settingDoc = allSettings[settingId];
-      if (!settingDoc)
-        continue;
-
       // see if it's the current one
       if (settingId===currentSetting.value?.settingId) {
         currentSettingFound = true;
       }
 
       tree.push({
-        name: settingDoc.name,
+        name: allSettings[settingId],
         id: settingId,
         topicNodes: []
       });

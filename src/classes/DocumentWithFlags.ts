@@ -95,12 +95,6 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
     throw new Error('Failed to implement DocumentWithFlags._getSetting');
   }
 
-  /** some classes may not need to be unlocked to modify flags */
-  protected get requiresUnlock(): boolean {
-    return true;
-  }
-
-
   /** This should be called after construction to ensure everything asynchronous is ready */
   public setup = async (): Promise<void> => {
     // we need to merge any existing settings in 
