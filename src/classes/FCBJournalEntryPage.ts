@@ -61,7 +61,7 @@ export function FCBJournalEntryPageMixin<
   
       
     /**
-     * Creates a new content wrapper.  Does not add to Setting (but does put in the compendium).
+     * Creates a new content wrapper.  Does not add to FCBSetting (but does put in the compendium).
      * 
      * @param {string} compendiumId - The compendium to create the content in. 
      * @param {ValidDocType} documentType - The subtype of JournalEntryPage
@@ -114,25 +114,29 @@ export function FCBJournalEntryPageMixin<
     }
      
     /**
-     * Updates the name and underlying document in the database
+     * Updates document in the database
      * 
      * @returns {Promise<FCBJournalEntryPage | null>} The updated FCBJournalEntryPage, or null if the update failed.
      */
-    public async save(): Promise<FCBJournalEntryPage | null> {
-      // update the name on the wrapper
+    public async update(updateData: JEPageType): Promise<FCBJournalEntryPage | null> {
       if (!this.parent)
         return null;
 
-      await this.parent.update({ name: this.name });
+      let success = true;
+      try {
+        // update the name on the wrapper
+        if (updateData.name) {
+          await this.parent.update({ name: updateData.name });
+        }
 
-      // now save the page
-      const retval = await this.update({
-        name: this.name,
-        text: { content: this.text.content },
-        system: this.system
-      });
-    
-      return retval ? this : null;
+        // now save the page
+        await super.update(updateData);
+      } catch (e) {
+        console.error(`Error updating journal entry page ${this.uuid}`, e);
+        success = false;;
+      }
+
+      return success ? this : null;
     }
 
     // this is the compendium for the setting
@@ -140,7 +144,7 @@ export function FCBJournalEntryPageMixin<
       const packId = this.pack;
   
       if (!packId)
-        throw new Error('Missing packId in Setting.compendium()');
+        throw new Error('Missing packId in FCBSetting.compendium()');
       
       return game.packs.get(packId) as SettingCompendium;
     };   

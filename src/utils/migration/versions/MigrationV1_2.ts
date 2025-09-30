@@ -1,6 +1,6 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { useMainStore, } from '@/applications/stores';
-import { Setting, Entry } from '@/classes';
+import { FCBSetting, Entry } from '@/classes';
 import { Hierarchy, Topics } from '@/types';
 
 /**
@@ -113,7 +113,7 @@ export class MigrationV1_2 implements Migration {
       
       updateProgress(`Processing setting ${settingId}...`);
       
-      const setting = new Setting(settingId);
+      const setting = new FCBSetting(settingId);
       await setting.validate();
 
       if (!setting) {
@@ -137,7 +137,7 @@ export class MigrationV1_2 implements Migration {
    * Migrate a single PC journal entry
    * Updates result
    */
-  private async migrateSingleEntry(setting: Setting, page: JournalEntryPage, result: MigrationResult): Promise<void> {
+  private async migrateSingleEntry(setting: FCBSetting, page: JournalEntryPage, result: MigrationResult): Promise<void> {
     if (this._context.dryRun) {
       console.log(`[DRY RUN] Would migrate PC: ${page.name}`);
       return;
@@ -225,7 +225,7 @@ export class MigrationV1_2 implements Migration {
         continue;
 
       try {
-        const setting = new Setting(settingId);
+        const setting = new FCBSetting(settingId);
         await setting.validate();
 
         if (!setting) {

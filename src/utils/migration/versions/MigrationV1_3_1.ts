@@ -1,6 +1,6 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { useMainStore } from '@/applications/stores';
-import { Setting, } from '@/classes';
+import { FCBSetting, } from '@/classes';
 import { relationshipKeyReplace } from '@/documents';
 import { RelatedItemDetails, ValidTopic } from '@/types';
 
@@ -94,7 +94,7 @@ export class MigrationV1_3_1 implements Migration {
     return result;
   }
 
-  private countEntriesInSetting(setting: Setting): number {
+  private countEntriesInSetting(setting: FCBSetting): number {
     let count = 0;
     for (const topicFolder of Object.values(setting.topicFolders as Record<ValidTopic, any>)) {
       count += topicFolder.allEntries().length;

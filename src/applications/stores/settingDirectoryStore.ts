@@ -14,7 +14,7 @@ import { FCBDialog } from '@/dialogs';
 import { scrollToActiveEntry } from '@/utils/directoryScroll';
 
 // types
-import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, Setting, TopicFolder, } from '@/classes';
+import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder, } from '@/classes';
 import { DirectorySetting, Hierarchy, Topics, ValidTopic, } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
@@ -53,7 +53,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   ///////////////////////////////
   // actions
   const createSetting = async(): Promise<void> => {
-    const setting = await Setting.create(true);
+    const setting = await FCBSetting.create(true);
     if (setting) {
       await mainStore.setNewSetting(setting.uuid);
 
@@ -342,7 +342,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
    * @returns A promise that resolves when the setting and its compendia are deleted.
    */
   const deleteSetting = async (settingId: string): Promise<void> => {
-    const setting = await Setting.fromUuid(settingId);
+    const setting = await FCBSetting.fromUuid(settingId);
 
     if (!setting)
       return;
@@ -432,7 +432,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
       const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
       currentSettingBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
-        const id = `${(currentSetting.value as Setting).uuid}.topic.${topic}`;
+        const id = `${(currentSetting.value as FCBSetting).uuid}.topic.${topic}`;
         const topicObj = topicFolders[topic] as TopicFolder;
 
         return new DirectoryTopicNode(
@@ -616,7 +616,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // when the root folder changes, load the top level info (settings and packs)
   // when the setting changes, clean out the cache of loaded items
   //@ts-ignore - Vue can't handle reactive classes
-  watch(currentSetting, async (newSetting: Setting | null): Promise<void> => {
+  watch(currentSetting, async (newSetting: FCBSetting | null): Promise<void> => {
     if (!newSetting) {
       return;
     }

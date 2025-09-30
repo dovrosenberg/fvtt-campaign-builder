@@ -4,7 +4,7 @@ import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace } from '@/documents';
 import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
-import { TopicFolder, Setting } from '@/classes';
+import { TopicFolder, FCBSetting } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
@@ -445,9 +445,9 @@ export class Entry {
     * Gets the setting associated with a entry, loading into the topic
     * if needed.
     * 
-    * @returns {Promise<Setting>} A promise to the setting associated with the entry.
+    * @returns {Promise<FCBSetting>} A promise to the setting associated with the entry.
     */
-  public async getSetting(): Promise<Setting> {
+  public async getSetting(): Promise<FCBSetting> {
     if (!this.topicFolder)
       await this.loadTopic();
   

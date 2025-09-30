@@ -1,17 +1,18 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
-import { RootFolder, Setting } from '@/classes';
+import { RootFolder, FCBSetting } from '@/classes';
+import { SettingDataModel, SettingDoc } from 'src/documents';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
 /**
  * Migration 1.5.0
- * Moves all setting data off of existing Setting folders and into module settings
+ * Moves all setting data off of existing FCBSetting folders and into module settings
  */
 export class MigrationV1_5 implements Migration {
   public readonly targetVersion = '1.5.0';
-  public readonly description = 'Moves all setting data off of existing Setting folders and into module settings';
+  public readonly description = 'Moves all setting data off of existing FCBSetting folders and into module settings';
 
   // private _context: MigrationContext;
 
@@ -87,7 +88,7 @@ export class MigrationV1_5 implements Migration {
 }
 
 /** returns the settingId (uuid of the journal entry) */
-async function migrateSetting(folder: Folder): Promise<Setting> {
+async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   const compendiumId = folder.getFlag(moduleId, 'compendiumId') as string | undefined;
 
   if (!compendiumId)
@@ -102,38 +103,44 @@ async function migrateSetting(folder: Folder): Promise<Setting> {
     PLAYER: 'LIMITED' 
   }, locked: false });
 
-  const newSetting = await Setting.create(false, folder.name, compendiumId, true);
+  const newSetting = await FCBSetting.create(false, folder.name, compendiumId, true);
 
   if (!newSetting)
     throw new Error('Failed to create setting in MigrationV1_5.migrate()');
   
   // get all the setting configuration
-  // @ts-ignore
-  newSetting.topicIds = folder.getFlag(moduleId, 'topicIds');
-  // @ts-ignore
-  newSetting.campaignNames = folder.getFlag(moduleId, 'campaignNames');
-  // @ts-ignore
-  newSetting.expandedIds = folder.getFlag(moduleId, 'expandedIds');
-  // @ts-ignore
-  newSetting.hierarchies = folder.getFlag(moduleId, 'hierarchies');
-  // @ts-ignore
-  newSetting.genre = folder.getFlag(moduleId, 'genre');
-  // @ts-ignore
-  newSetting.settingFeeling = folder.getFlag(moduleId, 'worldFeeling'); // leaving the key value for backwards compatibility
-  // @ts-ignore
-  newSetting.description = folder.getFlag(moduleId, 'description');
-  // @ts-ignore
-  newSetting.img = folder.getFlag(moduleId, 'img');   // image path for the setting
-  // @ts-ignore
-  newSetting.nameStyles = folder.getFlag(moduleId, 'nameStyles');   // array of name styles to use for name generation
-  // @ts-ignore
-  newSetting.rollTableConfig = folder.getFlag(moduleId, 'rollTableConfig');   // setting-specific roll table configuration
-  // @ts-ignore
-  newSetting.nameStyleExamples = folder.getFlag(moduleId, 'nameStyleExamples');   // stored example names for each style with their genre and setting feeling
-  // @ts-ignore
-  newSetting.journals = folder.getFlag(moduleId, 'journals');
-    
-  await newSetting.save();
+  const updateData: FCBSetting.UpdateData = {
+    text: {
+      // @ts-ignore
+      content: folder.getFlag(moduleId, 'description'),
+    },
+    system: {
+      // @ts-ignore
+      topicIds: folder.getFlag(moduleId, 'topicIds'),
+      // @ts-ignore
+      campaignNames: folder.getFlag(moduleId, 'campaignNames'),
+      // @ts-ignore
+      expandedIds: folder.getFlag(moduleId, 'expandedIds'),
+      // @ts-ignore
+      hierarchies: folder.getFlag(moduleId, 'hierarchies'),
+      // @ts-ignore
+      genre: folder.getFlag(moduleId, 'genre'),
+      // @ts-ignore
+      settingFeeling: folder.getFlag(moduleId, 'worldFeeling'), // leaving the key value for backwards compatibility
+      // @ts-ignore
+      img: folder.getFlag(moduleId, 'img'),   // image path for the setting
+      // @ts-ignore
+      nameStyles: folder.getFlag(moduleId, 'nameStyles'),   // array of name styles to use for name generation
+      // @ts-ignore
+      rollTableConfig: folder.getFlag(moduleId, 'rollTableConfig'),   // setting-specific roll table configuration
+      // @ts-ignore
+      nameStyleExamples: folder.getFlag(moduleId, 'nameStyleExamples'),   // stored example names for each style with their genre and setting feeling
+      // @ts-ignore
+      journals: folder.getFlag(moduleId, 'journals'),
+    }
+  };
+
+  await newSetting.update(updateData);
 
   return newSetting;
 }

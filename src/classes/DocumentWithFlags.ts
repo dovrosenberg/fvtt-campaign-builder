@@ -14,7 +14,7 @@ import {
 } from '@/documents';
 import { FlagSettings, } from '@/settings/DocumentFlags';
 import { moduleId } from '@/settings';
-import { Setting } from './Setting';
+import { FCBSetting } from './FCBSetting';
 
 /**
  * Sometimes we want to save multiple flags at once as part of an update.  But we need to make
@@ -91,7 +91,7 @@ export class DocumentWithFlags<DocType extends ValidDocTypes> {
 
   
   /** needed so we can unlock it if needed */
-  protected async _getSetting(): Promise<Setting> {
+  protected async _getSetting(): Promise<FCBSetting> {
     throw new Error('Failed to implement DocumentWithFlags._getSetting');
   }
 

@@ -66,7 +66,7 @@
 
   // types
   import { WindowTabType, Topics, ValidTopic } from '@/types';
-  import { Backend, RootFolder, Setting, } from '@/classes';
+  import { Backend, RootFolder, FCBSetting, } from '@/classes';
   import { CampaignDoc } from '@/documents';
 
 
@@ -149,7 +149,7 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentSetting, async (newSetting: Setting | null, oldSetting: Setting | null) => {
+  watch(currentSetting, async (newSetting: FCBSetting | null, oldSetting: FCBSetting | null) => {
     // Update the window title when the setting changes
     updateWindowTitle(newSetting?.name || null);
     

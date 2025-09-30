@@ -3,7 +3,7 @@ import { toRaw } from 'vue';
 import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
-import { Campaign, Setting } from '@/classes';
+import { Campaign, FCBSetting } from '@/classes';
 import { localize } from '@/utils/game';
 import { TagInfo, } from '@/types';
 
@@ -65,9 +65,9 @@ export class Session {
    * Gets the setting associated with a session, loading into the campaign 
    * if needed.
    * 
-   * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
+   * @returns {Promise<FCBSetting>} A promise to the setting associated with the campaign.
    */
-  public async getSetting(): Promise<Setting> {
+  public async getSetting(): Promise<FCBSetting> {
     if (!this.campaign)
       this.campaign = await this.loadCampaign();
 
@@ -767,7 +767,7 @@ export class Session {
       return;
 
     const id = this._sessionDoc.uuid;
-    const setting = await this.getSetting() as Setting;
+    const setting = await this.getSetting() as FCBSetting;
 
     await this._sessionDoc.delete();
 

@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { moduleId, } from '@/settings'; 
 import { TopicDoc, TopicFlagKey, topicFlagSettings, EntryDoc } from '@/documents';
-import { DocumentWithFlags, Entry, Setting } from '@/classes';
+import { DocumentWithFlags, Entry, FCBSetting } from '@/classes';
 import { ValidTopic } from '@/types';
 import { getTopicTextPlural } from '@/compendia';
 
@@ -10,7 +10,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   static override _documentName = 'JournalEntry';
   static override _flagSettings = topicFlagSettings;
 
-  public setting: Setting | null;  // the setting the topic is in (if we don't setup up front, we can load it later)
+  public setting: FCBSetting | null;  // the setting the topic is in (if we don't setup up front, we can load it later)
 
   // saved in flags
   private _topNodes: string[];
@@ -20,9 +20,9 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   /**
    * 
    * @param {TopicDoc} topicDoc - The topic Foundry document
-   * @param {Setting} setting - The setting the campaign is in
+   * @param {FCBSetting} setting - The setting the campaign is in
    */
-  constructor(topicDoc: TopicDoc, setting?: Setting) {
+  constructor(topicDoc: TopicDoc, setting?: FCBSetting) {
     super(topicDoc, TopicFlagKey.isTopic);
 
     this.setting = setting || null;
@@ -32,7 +32,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     this._topic = this.getFlag(TopicFlagKey.topic);
   }
 
-  override async _getSetting(): Promise<Setting> {
+  override async _getSetting(): Promise<FCBSetting> {
     return await this.getSetting();
   };
   
@@ -54,25 +54,25 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    * Gets the setting associated with a topic, loading into the campaign 
    * if needed.
    * 
-   * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
+   * @returns {Promise<FCBSetting>} A promise to the setting associated with the campaign.
    */
-  public async getSetting(): Promise<Setting> {
+  public async getSetting(): Promise<FCBSetting> {
     if (!this.setting)
       await this.loadSetting();
 
-    return (this.setting as Setting);
+    return (this.setting as FCBSetting);
   }
   
   /**
-   * Gets the Setting associated with the topic. If the setting is already loaded, the promise resolves
+   * Gets the FCBSetting associated with the topic. If the setting is already loaded, the promise resolves
    * to the existing setting; otherwise, it loads the setting and then resolves to it.
-   * @returns {Promise<Setting>} A promise to the setting associated with the topic.
+   * @returns {Promise<FCBSetting>} A promise to the setting associated with the topic.
    */
-  public async loadSetting(): Promise<Setting> {
+  public async loadSetting(): Promise<FCBSetting> {
     if (this.setting)
       return this.setting;
     
-    this.setting = await Setting.fromUuid(this.settingId);
+    this.setting = await FCBSetting.fromUuid(this.settingId);
 
     if (!this.setting)
       throw new Error('Error loading setting in TopicFolder.loadSetting()');
@@ -139,11 +139,11 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
   /**
    * Creates a new topic.  Does not add to setting.
    * 
-   * @param {Setting} setting - The setting to create the topic in. 
+   * @param {FCBSetting} setting - The setting to create the topic in. 
    * @param {ValidTopic} topic - The topic for the TopicFolder
    * @returns A promise that resolves when the topic has been created, with either the resulting entry or null on error
    */
-  static async create(setting: Setting, topic: ValidTopic): Promise<TopicFolder | null> {
+  static async create(setting: FCBSetting, topic: ValidTopic): Promise<TopicFolder | null> {
     let newTopicDoc: TopicDoc | null = null;
 
     // create a journal entry for the campaign

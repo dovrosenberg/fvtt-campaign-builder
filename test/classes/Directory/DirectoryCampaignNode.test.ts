@@ -4,7 +4,7 @@ import { DirectorySessionNode } from '@/classes/Directory/DirectorySessionNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
 import { Campaign } from '@/classes/Campaign';
 import { Session } from '@/classes/Session';
-import { Setting } from '@/classes/Setting';
+import { FCBSetting } from '@/classes/FCBSetting';
 import * as sinon from 'sinon';
 
 export const registerDirectoryCampaignNodeTests = () => {
@@ -14,7 +14,7 @@ export const registerDirectoryCampaignNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('DirectoryCampaignNode', () => {
-        let mockSetting: Setting;
+        let mockSetting: FCBSetting;
         let mockCampaign: Campaign;
         let mockSession: Session;
         let campaignNode: DirectoryCampaignNode;
@@ -29,7 +29,7 @@ export const registerDirectoryCampaignNodeTests = () => {
               'campaign-uuid': true,
               'session-uuid': true
             }
-          } as unknown as Setting;
+          } as unknown as FCBSetting;
 
           // Create a mock session
           mockSession = {

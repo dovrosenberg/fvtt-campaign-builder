@@ -3,20 +3,20 @@ import { localize } from '@/utils/game';
 import { Topics, } from '@/types';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags,} from '@/settings';
 import { toTopic } from '@/utils/misc';
-import { Setting } from '@/classes';
+import { FCBSetting } from '@/classes';
 
 
 /**
  * Gets the current setting (will create one if there isn't one) 
- * @returns The Setting 
+ * @returns The FCBSetting 
  */
-export async function getCurrentSetting(): Promise<Setting> {
+export async function getCurrentSetting(): Promise<FCBSetting> {
   let settingId = UserFlags.get(UserFlagKey.currentSetting);  // this isn't setting-specific (obviously)
 
   // make sure we have a default and it exists
-  let setting = null as Setting | null;
+  let setting = null as FCBSetting | null;
   if (settingId) {
-    setting = await Setting.fromUuid(settingId);
+    setting = await FCBSetting.fromUuid(settingId);
   }   
 
   if (!setting) {
@@ -24,11 +24,14 @@ export async function getCurrentSetting(): Promise<Setting> {
     const settings = ModuleSettings.get(SettingKey.settings) || {};
     if (Object.keys(settings).length>0) {
       settingId = Object.keys(settings)[0];
-      setting = await Setting.fromUuid(settingId);
+      setting = await FCBSetting.fromUuid(settingId);
     } else {
       // no setting found, so create one
-      setting = await Setting.create(true);
+      setting = await FCBSetting.create(true);
     }
+
+    if (setting?.uuid)
+      await UserFlags.set(UserFlagKey.currentSetting, setting.uuid);  // this isn't setting-specific (obviously)
   }
 
   // if we couldn't create one, then throw an error

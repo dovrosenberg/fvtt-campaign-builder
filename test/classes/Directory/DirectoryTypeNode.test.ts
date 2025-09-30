@@ -4,7 +4,7 @@ import { DirectoryTypeEntryNode } from '@/classes/Directory/DirectoryTypeEntryNo
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
 import { Entry } from '@/classes/Entry';
 import { TopicFolder } from '@/classes/TopicFolder';
-import { Setting } from '@/classes/Setting';
+import { FCBSetting } from '@/classes/FCBSetting';
 import { Topics } from '@/types';
 import * as sinon from 'sinon';
 
@@ -15,7 +15,7 @@ export const registerDirectoryTypeNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('DirectoryTypeNode', () => {
-        let mockSetting: Setting;
+        let mockSetting: FCBSetting;
         let mockTopicFolder: TopicFolder;
         let mockEntry: Entry;
         let typeNode: DirectoryTypeNode;
@@ -36,7 +36,7 @@ export const registerDirectoryTypeNodeTests = () => {
               ancestors: [],
               type: 'Character'
             })
-          } as unknown as Setting;
+          } as unknown as FCBSetting;
 
           // Create a mock topic folder
           mockTopicFolder = {

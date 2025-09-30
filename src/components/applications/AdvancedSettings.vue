@@ -202,7 +202,7 @@
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend, Setting } from '@/classes';
+  import { Backend, FCBSetting } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
   
@@ -281,7 +281,7 @@
       return;
     }
 
-    const setting = await Setting.fromUuid(settingUuid);
+    const setting = await FCBSetting.fromUuid(settingUuid);
     if (!setting) {
       campaignOptions.value = [];
       return;

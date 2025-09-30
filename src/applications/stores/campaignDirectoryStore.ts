@@ -6,7 +6,7 @@ import { reactive, ref, watch, nextTick } from 'vue';
 
 // local imports
 import { useMainStore, useNavigationStore, usePlayingStore } from '@/applications/stores';
-import { DirectoryCampaignNode, Campaign, Session, Setting, } from '@/classes';
+import { DirectoryCampaignNode, Campaign, Session, FCBSetting, } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { notifyWarn } from '@/utils/notifications';
 
@@ -66,7 +66,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     for (const id in campaigns) {
       const campaign = await Campaign.fromUuid(id);
 
-      // shouldn't happen but maybe something didn't get cleaned up; we'll clean it up in Setting.loadCampaigns() at some point
+      // shouldn't happen but maybe something didn't get cleaned up; we'll clean it up in FCBSetting.loadCampaigns() at some point
       if (!campaign) {
         continue;
       }
@@ -191,10 +191,10 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
    * @param setting The setting to create the campaign in; defaults to the current setting if there is one
    * @returns The created campaign, or null if the setting is not found
    */
-  const createCampaign = async (setting?: Setting): Promise<Campaign | null> => {
+  const createCampaign = async (setting?: FCBSetting): Promise<Campaign | null> => {
     let campaign: Campaign | null = null;
 
-    let settingToUse: Setting | null;
+    let settingToUse: FCBSetting | null;
     
     if (!setting || setting.uuid === currentSetting.value?.uuid)
       settingToUse = currentSetting.value;
@@ -249,7 +249,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // watchers
 
   // when the setting changes, clean out the cache of loaded items
-  watch(currentSetting, async (newSetting: Setting | null): Promise<void> => {
+  watch(currentSetting, async (newSetting: FCBSetting | null): Promise<void> => {
     if (!newSetting) {
       currentCampaignTree.value = [];
       return;

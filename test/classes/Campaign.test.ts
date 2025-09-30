@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { Campaign } from '@/classes/Campaign';
-import { Setting } from '@/classes/Setting';
+import { FCBSetting } from '@/classes/FCBSetting';
 import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES } from '@/documents';
 import { SessionLore } from '@/documents/session';
 import * as sinon from 'sinon';
@@ -15,7 +15,7 @@ export const registerCampaignTests = () => {
 
       describe('Campaign', () => {
         let mockCampaignDoc: CampaignDoc;
-        let mockSetting: Setting;
+        let mockSetting: FCBSetting;
         let campaign: Campaign;
         let fromUuidStub;
         let inputDialogStub;
@@ -72,7 +72,7 @@ export const registerCampaignTests = () => {
             unsetFlag: sinon.stub().resolves(undefined)
           } as unknown as CampaignDoc;
 
-          // Create a mock Setting
+          // Create a mock FCBSetting
           mockSetting = {
             uuid: 'setting-uuid',
             unlock: sinon.stub().resolves(undefined),
@@ -85,7 +85,7 @@ export const registerCampaignTests = () => {
                 id: 'test-compendium'
               }
             }
-          } as unknown as Setting;
+          } as unknown as FCBSetting;
 
           // Create a Campaign instance
           campaign = new Campaign(mockCampaignDoc, mockSetting);
@@ -148,8 +148,8 @@ export const registerCampaignTests = () => {
               uuid: 'setting-uuid'
             });
             
-            // Stub Setting.fromUuid
-            sinon.stub(Setting, 'fromUuid').resolves(mockSetting);
+            // Stub FCBSetting.fromUuid
+            sinon.stub(FCBSetting, 'fromUuid').resolves(mockSetting);
             
             const result = await campaignWithoutSetting.getSetting();
             expect(result).to.equal(mockSetting);

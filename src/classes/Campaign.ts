@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, SessionDoc, CampaignLore } from '@/documents';
 import { RelatedPCDetails, RelatedJournal } from '@/types';
-import { DocumentWithFlags, Entry, Session, Setting } from '@/classes';
+import { DocumentWithFlags, Entry, Session, FCBSetting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { ToDoItem, ToDoTypes, Idea } from '@/types';
@@ -12,7 +12,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   static override _documentName = 'JournalEntry';
   static override _flagSettings = campaignFlagSettings;
 
-  public setting: Setting | null;  // the setting the campaign is in (if we don't setup up front, we can load it later)
+  public setting: FCBSetting | null;  // the setting the campaign is in (if we don't setup up front, we can load it later)
 
   // saved on JournalEntry
   private _name: string;
@@ -30,9 +30,9 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   /**
    * 
    * @param {CampaignDoc} campaignDoc - The campaign Foundry document
-   * @param {Setting} setting - setting the campaign is in
+   * @param {FCBSetting} setting - setting the campaign is in
    */
-  constructor(campaignDoc: CampaignDoc, setting?: Setting) {
+  constructor(campaignDoc: CampaignDoc, setting?: FCBSetting) {
     super(campaignDoc, CampaignFlagKey.isCampaign);
 
     this.setting = setting || null;
@@ -48,7 +48,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     this._journals = this.getFlag(CampaignFlagKey.journals) || [];
   }
 
-  override async _getSetting(): Promise<Setting> {
+  override async _getSetting(): Promise<FCBSetting> {
     return await this.getSetting();
   };
 
@@ -83,9 +83,9 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
    * Gets the setting associated with a campaign 
    * if needed.
    * 
-   * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
+   * @returns {Promise<FCBSetting>} A promise to the setting associated with the campaign.
    */
-  public async getSetting(): Promise<Setting> {
+  public async getSetting(): Promise<FCBSetting> {
     if (!this.setting)
       this.setting = await this.loadSetting();
 
@@ -93,15 +93,15 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   }
   
   /**
-   * Gets the Setting associated with the campaign. If the setting is already loaded, the promise resolves
+   * Gets the FCBSetting associated with the campaign. If the setting is already loaded, the promise resolves
    * to the existing setting; otherwise, it loads the setting and then resolves to it.
-   * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
+   * @returns {Promise<FCBSetting>} A promise to the setting associated with the campaign.
    */
-  public async loadSetting(): Promise<Setting> {
+  public async loadSetting(): Promise<FCBSetting> {
     if (this.setting)
       return this.setting;
     
-    this.setting = await Setting.fromUuid(this.settingId);
+    this.setting = await FCBSetting.fromUuid(this.settingId);
 
     if (!this.setting)
       throw new Error('Error loading setting in Campaign.loadSetting()');
@@ -449,10 +449,10 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   /**
    * Creates a new campaign.  Prompts for a name.
    * 
-   * @param {Setting} setting - The setting to create the campaign in. 
+   * @param {FCBSetting} setting - The setting to create the campaign in. 
    * @returns A promise that resolves when the campaign has been created, with either the resulting entry or null on error
    */
-  static async create(setting: Setting): Promise<Campaign | null> {
+  static async create(setting: FCBSetting): Promise<Campaign | null> {
     // get the name
     let name;
 

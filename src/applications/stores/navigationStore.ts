@@ -18,7 +18,7 @@ import { notifyError, notifyInfo } from '@/utils/notifications';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, Setting } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, FCBSetting } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -165,7 +165,7 @@ export const useNavigationStore = defineStore('navigation', () => {
         }
       } break;
       case WindowTabType.Setting: {
-        const setting = contentId ? await Setting.fromUuid(contentId) : null;
+        const setting = contentId ? await FCBSetting.fromUuid(contentId) : null;
         if (!setting) {
           badId = true;
         } else {
