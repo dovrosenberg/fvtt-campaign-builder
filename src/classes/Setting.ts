@@ -7,59 +7,65 @@ import { localize } from '@/utils/game';
 import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
 import { Backend } from '@/classes';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
-import { SettingDoc, } from '@/documents';
-import { ContentWrapper } from './ContentWrapper';
-
-type SettingCompendium = CompendiumCollection<'JournalEntry'>;
+import { DOCUMENT_TYPES, SettingDoc, } from '@/documents';
+import { FCBJournalEntryPageMixin } from './FCBJournalEntryPage';
 
 // represents a campaign setting
 // it's essentially a wrapper around a SettingDoc object stored in the 
 //    module settings
-export class Setting extends ContentWrapper<ContentType.Setting> {
-  protected static override _getFolderName = () => { return localize('contentFolders.settings'); }
+export class Setting extends FCBJournalEntryPageMixin<typeof DOCUMENT_TYPES.Setting>(SettingDoc, DOCUMENT_TYPES.Setting) {
+  public static override folderName = 'Settings';
+  public static override defaultSystem = { 
+    name: '',  
+    topicIds: {},  
+    campaignNames: {},  
+    expandedIds: {},  
+    hierarchies: {},  
+    genre: '',  
+    settingFeeling: '',   
+    img: '',   
+    nameStyles: [],   
+    rollTableConfig: null,   
+    nameStyleExamples: null,   
+    journals: [], 
+   };
   
   // JournalEntries
   public campaigns: Record<string, Campaign>;   // Campaigns keyed by uuid 
   public topicFolders: Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using validate()), so we assume it's never empty
 
-  // this is the compendium for the setting
-  public get compendium(): SettingCompendium {
-    const packId = this._doc.pack;
-
-    if (!packId)
-      throw new Error('Missing packId in Setting.compendium()');
-    
-    return game.packs.get(packId) as SettingCompendium;
-  };   
-
- 
-  /**
-   * The id of the compendium its in
+    /**
+   * Note: you should always call validate() after creating a new Setting - this ensures the 
+   * compendium exists and is properly used
+   * 
    */
-  public get compendiumId(): string {
-    return this.compendium.metadata.id;
-  } 
-
+    constructor() {
+      super();
+  
+      this.campaigns = {} as Record<string, Campaign>;
+      this.topicFolders = {} as Record<ValidTopic, TopicFolder>;
+    }
+  
   /**
    * The uuid for each topic.
    */
   public get topicIds(): Record<ValidTopic, string> | Record<never, string> {
-    return this._page.system.topicIds;
+    return this.system.topicIds;
   };  
 
   public set topicIds(value: Record<ValidTopic, string>) {
-    this._page.system.topicIds = value;
+    this.system.topicIds = value;
   };  
 
   /**
    * The names of campaigns; keyed by journal entry uuid.
    */
   public get campaignNames(): Record<string, string> {
-    return this._page.system.campaignNames;
+    return this.system.campaignNames;
   } 
 
   public set campaignNames(value: Record<string, string>) {
-    this._page.system.campaignNames = value;
+    this.system.campaignNames = value;
   } 
 
   /**
@@ -67,160 +73,121 @@ export class Setting extends ContentWrapper<ContentType.Setting> {
    * Could include compendia, entries, or subentries, or campaigns.
    */
   public get expandedIds(): Record<string, boolean> {
-    return this._page.system.expandedIds;
+    return this.system.expandedIds;
   } 
 
   public set expandedIds(value: Record<string, boolean>) {
-    this._page.system.expandedIds = value;
+    this.system.expandedIds = value;
   }  
   
   /**
    * The full tree hierarchy or null for topics without a hierarchy.
    */
   public get hierarchies(): Record<string, Hierarchy> {
-    return this._page.system.hierarchies;
+    return this.system.hierarchies;
   } 
 
   public set hierarchies(value: Record<string, Hierarchy>) {
-    this._page.system.hierarchies = value;
+    this.system.hierarchies = value;
   }  
 
   /**
    * The genre of the setting.
    */
   public get genre(): string {
-    return this._page.system.genre;
+    return this.system.genre;
   } 
 
   public set genre(value: string) {
-    this._page.system.genre = value;
+    this.system.genre = value;
   }  
 
   /**
    * The feeling of the setting.
    */
   public get settingFeeling(): string {
-    return this._page.system.settingFeeling;
+    return this.system.settingFeeling;
   } 
 
   public set settingFeeling(value: string) {
-    this._page.system.settingFeeling = value;
+    this.system.settingFeeling = value;
   }
 
   /**
    * The description of the setting.
    */
   public get description(): string {    
-    return this._page.text?.content || '';
+    return this.text?.content || '';
   }
 
   public set description(value: string) {
-    this._page.text.content = value;
+    this.text.content = value;
   }  
 
   /**
    * The image for the setting.
    */
   public get img(): string {
-    return this._page.system.img;
+    return this.system.img;
   } 
 
   public set img(value: string) {
-    this._page.system.img = value;
+    this.system.img = value;
   }  
 
   /**
    * The name styles for the setting.
    */
   public get nameStyles(): number[] {
-    return this._page.system.nameStyles;
+    return this.system.nameStyles;
   } 
 
   public set nameStyles(value: number[]) {
-    this._page.system.nameStyles = value;
+    this.system.nameStyles = value;
   }
 
   /**
    * The roll table configuration for the setting.
    */
   public get rollTableConfig(): SettingGeneratorConfig | null {
-    return this._page.system.rollTableConfig;
+    return this.system.rollTableConfig;
   } 
 
   public set rollTableConfig(value: SettingGeneratorConfig | null) {
-    this._page.system.rollTableConfig = value;
+    this.system.rollTableConfig = value;
   }
 
   /**
    * The name style examples for the setting.
    */
   public get nameStyleExamples(): { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null {
-    return this._page.system.nameStyleExamples;
+    return this.system.nameStyleExamples;
   } 
 
   public set nameStyleExamples(value: { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null) {
-    this._page.system.nameStyleExamples = value;
+    this.system.nameStyleExamples = value;
   }
 
   /**
    * The related journals for the setting.
    */
   public get journals(): RelatedJournal[] {
-    return this._page.system.journals;
+    return this.system.journals;
   } 
 
   public set journals(value: RelatedJournal[]) {
-    this._page.system.journals = value;
+    this.system.journals = value;
   }
-
-
-  protected override _getDefaultContent(): Record<string, any> {
-    return {
-      topicIds: {},
-      campaignNames: {},
-      expandedIds: {},
-      hierarchies: {},
-      genre: '',
-      settingFeeling: '',
-      img: '',
-      nameStyles: [],
-      rollTableConfig: null,
-      nameStyleExamples: null,
-      journals: [],
-    };
-  }
-  
-  /**
-   * Note: you should always call validate() after creating a new Setting - this ensures the 
-   * compendium exists and is properly used
-   * 
-   * @param {SettingDoc} settingDoc - The setting Foundry JE document
-   */
-  constructor(settingDoc: SettingDoc) {
-    super(settingDoc, ContentType.Setting);
-
-    this.campaigns = {} as Record<string, Campaign>;
-    this.topicFolders = {} as Record<ValidTopic, TopicFolder>;
-  }
-
  
-  /** 
-   * Alias for settingId
-   */
-  public get uuid(): string {
-    return this.settingId;
-  }
-  
   static async fromUuid(settingId: string): Promise<Setting | null> {
-    const settingDoc = await ContentWrapper.docFromUuid(settingId, ContentType.Setting) as unknown as SettingDoc | null;
+    const setting = await super.fromUuid(settingId);
 
-    if (!settingDoc)
+    if (!setting)
       return null;
     
-    const setting = new Setting(settingDoc as SettingDoc);
     await setting.validate();
 
-    return setting;
+    return setting as unknown as Setting;
   }
 
 
@@ -273,14 +240,6 @@ export class Setting extends ContentWrapper<ContentType.Setting> {
   }
 
 
-  /** 
-   * The id for the setting JournalEntry (NOT the page)  
-   */
-  public get settingId(): string {
-    return this._doc.uuid;
-  }
-
-
   /**
    * Get the hierarchy for a single entry
    */
@@ -313,11 +272,11 @@ export class Setting extends ContentWrapper<ContentType.Setting> {
    * Create a new setting, including the compendium and the Setting content
    * @param {boolean} [makeCurrent=false] If true, sets the new setting as the current setting.
    * @param {string} [name] The name of the new setting.
-   * @param {string} [settingId] The ID of the new setting.
+   * @param {string} [compendiumId] The ID of the compendium to use.
    * @param {boolean} [skipValidation=false] If true, skips validation.  Mostly only useful for migration
    * @returns The new setting, or null if the user cancelled the dialog.
    */
-  public static async create(makeCurrent = false, name = '', settingId = '', skipValidation = false): Promise<Setting | null> {
+  public static async create(makeCurrent = false, name = '', compendiumId = '', skipValidation = false): Promise<Setting | null> {
     // get the name
     let nameToUse = name || '';
 
@@ -326,11 +285,10 @@ export class Setting extends ContentWrapper<ContentType.Setting> {
         nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSetting.title'), `${localize('dialogs.createSetting.settingName')}:`) || ''; 
       
       if (nameToUse) {
-        let compendiumId;
-        if (settingId) {
-          // use the existing compendium... this is rare but useful (for ex.) when migrating or fixing things that went bad
-          compendiumId = settingId;
-        } else {
+        // using the existing compendium is rare but useful (for ex.) when migrating or fixing things that went bad
+
+        // more typically, we create a new one
+        if (!compendiumId) {
           // create the compendium
           compendiumId = await createCompendium(nameToUse);
 
@@ -338,7 +296,7 @@ export class Setting extends ContentWrapper<ContentType.Setting> {
             throw new Error('Failed to create compendium in Setting.create()');
         }
 
-        const newSetting = await super.create(compendiumId, ContentType.Setting, nameToUse) as Setting;
+        const newSetting = await super.create(compendiumId, DOCUMENT_TYPES.Setting, nameToUse) as unknown as Setting;
         if (skipValidation)
           return newSetting;
 
@@ -499,8 +457,8 @@ export class Setting extends ContentWrapper<ContentType.Setting> {
 
     // delete the setting
     const allSettings = ModuleSettings.get(SettingKey.settings);
-    if (allSettings[this.settingId]) {
-      delete allSettings[this.settingId];
+    if (allSettings[this.uuid]) {
+      delete allSettings[this.uuid];
     }
     await ModuleSettings.set(SettingKey.settings, allSettings);
 

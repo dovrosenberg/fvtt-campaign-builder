@@ -23,3 +23,4 @@ export const DOCUMENT_TYPES = {
   Campaign: `${moduleId}.campaign`,
   PC: `${moduleId}.pc`,   // here for compatibility, but no longer used
 };
+

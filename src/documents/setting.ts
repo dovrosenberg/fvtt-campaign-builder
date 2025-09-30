@@ -1,5 +1,6 @@
 import { Hierarchy, RelatedJournal, SettingGeneratorConfig, ValidTopic } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
+import { DOCUMENT_TYPES } from '@/documents';
 
 const fields = foundry.data.fields;
 const settingSchema = {
@@ -49,10 +50,7 @@ export class SettingDataModel<Schema extends SettingSchemaType, ParentNode exten
   // }
 }
 
-// @ts-ignore - error because ts can't properly handle the structure of JournalEntryPage
-export interface SettingDoc extends JournalEntryPage {
-  __type: 'SettingDoc';
-
+export class SettingDoc extends JournalEntryPage<DOCUMENT_TYPES.Setting> {
   system: {
     name: string;  
     topicIds: Record<ValidTopic, string> | Record<never, string>;  

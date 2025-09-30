@@ -15,8 +15,8 @@ export class MigrationV1_5 implements Migration {
 
   // private _context: MigrationContext;
 
-  constructor(context: MigrationContext) {
-    this._context = context;
+  constructor(_context: MigrationContext) {
+    // this._context = context;
   }
 
   async migrate(): Promise<MigrationResult> {
@@ -44,11 +44,11 @@ export class MigrationV1_5 implements Migration {
       const mapSettingIds: Record<string, string> = {};   // map old folder Ids to new ids
 
       for (const folder of allSettingFolders) {
-        const settingId = await migrateSetting(folder);
+        const setting = await migrateSetting(folder);
 
         // we then just need to save the index info to the module
-        newSettings[settingId] = folder.name;
-        mapSettingIds[folder.uuid] = settingId;
+        newSettings[setting.uuid] = folder.name;
+        mapSettingIds[folder.uuid] = setting.uuid;
 
         // we don't clean up the folder because there's not really any reason to
 
@@ -87,14 +87,14 @@ export class MigrationV1_5 implements Migration {
 }
 
 /** returns the settingId (uuid of the journal entry) */
-async function migrateSetting(folder: Folder) {
-  const settingId = folder.getFlag(moduleId, 'compendiumId') as string | undefined;
+async function migrateSetting(folder: Folder): Promise<Setting> {
+  const compendiumId = folder.getFlag(moduleId, 'compendiumId') as string | undefined;
 
-  if (!settingId)
+  if (!compendiumId)
     throw new Error('Invalid settingId in MigrationV1_5.migrate()');
 
   // and update the permissions to hide and unlock the compendium
-  const pack = game.packs.get(settingId);
+  const pack = game.packs.get(compendiumId);
   await pack?.configure({ ownership: { 
     GAMEMASTER: 'OWNER', 
     ASSISTANT: 'LIMITED', 
@@ -102,7 +102,7 @@ async function migrateSetting(folder: Folder) {
     PLAYER: 'LIMITED' 
   }, locked: false });
 
-  const newSetting = await Setting.create(false, folder.name, settingId, true);
+  const newSetting = await Setting.create(false, folder.name, compendiumId, true);
 
   if (!newSetting)
     throw new Error('Failed to create setting in MigrationV1_5.migrate()');
@@ -135,7 +135,7 @@ async function migrateSetting(folder: Folder) {
     
   await newSetting.save();
 
-  return newSetting.settingId;
+  return newSetting;
 }
 
 /**
@@ -151,7 +151,7 @@ async function getAllSettings(): Promise<Folder[]> {
 
   const settings: Folder[] = [];
   
-  for (const child of rootFolder.children) {
+  for (const child of (rootFolder.raw as Folder)?.children || []) {
     // it had a couple different names
     if (child.folder && (child.folder.getFlag(moduleId, 'isSetting') || child.folder.getFlag(moduleId, 'isWorld'))) {
       settings.push(child.folder);
