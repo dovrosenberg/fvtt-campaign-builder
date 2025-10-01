@@ -1,6 +1,5 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
-import { Campaign } from '@/classes/Campaign';
-import { FCBSetting } from '@/classes/FCBSetting';
+import { Campaign, FCBSetting } from '@/classes';
 import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES } from '@/documents';
 import { SessionLore } from '@/documents/session';
 import * as sinon from 'sinon';

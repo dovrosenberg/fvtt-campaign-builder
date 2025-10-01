@@ -27,7 +27,7 @@ export async function getCurrentSetting(): Promise<FCBSetting> {
       setting = await FCBSetting.fromUuid(settingId);
     } else {
       // no setting found, so create one
-      setting = await FCBSetting.create(true);
+      setting = await FCBSetting.createSetting(true);
     }
 
     if (setting?.uuid)

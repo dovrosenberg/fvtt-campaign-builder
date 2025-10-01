@@ -124,8 +124,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     if (hierarchy.type !== newType) {
       hierarchy.type = newType;
-      currentSetting.value.setEntryHierarchy(entry.uuid, hierarchy);
-      await currentSetting.value.save();
+      await currentSetting.value.setEntryHierarchy(entry.uuid, hierarchy);
     }
 
     await refreshSettingDirectoryTree([entry.uuid, newTypeNode.id]);
@@ -159,8 +158,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       if (!currentSetting.value)
         return;
 
-      currentSetting.value.setEntryHierarchy(entry.uuid, node.convertToHierarchy());
-      await currentSetting.value.save();
+      await currentSetting.value.setEntryHierarchy(entry.uuid, node.convertToHierarchy());
     };
 
     // topic has to have hierarchy
@@ -299,7 +297,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       const uuid = entry.uuid;
 
       // we always add a hierarchy, because we use it for filtering
-      currentSetting.value.setEntryHierarchy(uuid, 
+      await currentSetting.value.setEntryHierarchy(uuid, 
         {
           parentId: '',
           ancestors: [],
@@ -307,7 +305,6 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
           type: '',
         } as Hierarchy
       );
-      await currentSetting.value.save();
 
       // set parent if specified
       if (options.parentId==undefined) {

@@ -1,6 +1,5 @@
 import { Hierarchy, RelatedJournal, SettingGeneratorConfig, ValidTopic } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
-import { DOCUMENT_TYPES } from '@/documents';
 
 export namespace FCBSetting {
   const fields = foundry.data.fields;
@@ -39,10 +38,13 @@ export namespace FCBSetting {
     journals: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false }), { initial: [] as RelatedJournal[] }),
   };
 
-  type SettingSchemaType = typeof settingSchema;
+  type SchemaType = typeof settingSchema;
 
-  export class SettingDataModel<Schema extends SettingSchemaType = SettingSchemaType, ParentNode extends JournalEntry = JournalEntry> extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
-    static defineSchema(): SettingSchemaType {
+  export class DataModel<
+    Schema extends SchemaType = SchemaType, 
+    ParentNode extends JournalEntry = JournalEntry
+  > extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
+    static defineSchema(): SchemaType {
       return settingSchema;
     }
 
@@ -51,11 +53,12 @@ export namespace FCBSetting {
     // }
   }
 
-  export type  UpdateData = SettingDataModel & JournalEntryPage.UpdateData;
+  export type UpdateData = Partial<DataModel & JournalEntryPage.UpdateData>;
 
-  export class SettingDoc extends JournalEntryPage<DOCUMENT_TYPES.Setting> {
+  export interface DocModel extends Omit<JournalEntryPage, 'system'> {
+    __type: 'FCBSettingDoc'; 
+
     system: {
-      name: string;  
       topicIds: Record<ValidTopic, string> | Record<never, string>;  
       campaignNames: Record<string, string>;  
       expandedIds: Record<string, boolean>;  

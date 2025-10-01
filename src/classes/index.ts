@@ -4,7 +4,7 @@ export * from './Entry';
 export * from './DocumentWithFlags';
 export * from './Campaign';
 export * from './TopicFolder';
-export * from './FCBSetting';
+export * from './Documents';
 export * from './Session';
 export * from './Backend';
 export * from './ExternalAPI';

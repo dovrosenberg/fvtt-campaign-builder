@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
-import { FCBSetting } from '@/classes/FCBSetting';
+import { FCBSetting } from '@/classes';
 import * as sinon from 'sinon';
 
 // Create a concrete implementation of CollapsibleNode for testing

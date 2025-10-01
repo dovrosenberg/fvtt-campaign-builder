@@ -2,7 +2,7 @@ import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
 import { RootFolder, FCBSetting } from '@/classes';
-import { SettingDataModel, SettingDoc } from 'src/documents';
+import { FCBSetting as SettingNamespace } from '@/documents';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
@@ -103,13 +103,13 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
     PLAYER: 'LIMITED' 
   }, locked: false });
 
-  const newSetting = await FCBSetting.create(false, folder.name, compendiumId, true);
+  const newSetting = await FCBSetting.createSetting(false, folder.name, compendiumId, true);
 
   if (!newSetting)
     throw new Error('Failed to create setting in MigrationV1_5.migrate()');
   
   // get all the setting configuration
-  const updateData: FCBSetting.UpdateData = {
+  const updateData: SettingNamespace.UpdateData = {
     text: {
       // @ts-ignore
       content: folder.getFlag(moduleId, 'description'),
@@ -158,7 +158,8 @@ async function getAllSettings(): Promise<Folder[]> {
 
   const settings: Folder[] = [];
   
-  for (const child of (rootFolder.raw as Folder)?.children || []) {
+  // @ts-ignore
+  for (const child of ((rootFolder.raw as Folder)?.children || [])) {
     // it had a couple different names
     if (child.folder && (child.folder.getFlag(moduleId, 'isSetting') || child.folder.getFlag(moduleId, 'isWorld'))) {
       settings.push(child.folder);

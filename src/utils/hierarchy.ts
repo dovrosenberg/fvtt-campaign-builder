@@ -1,5 +1,5 @@
 import { TabSummary,  Hierarchy, Topics, } from '@/types';
-import { TopicFolder, Entry, FCBFCBSetting, } from '@/classes';
+import { TopicFolder, Entry, FCBSetting, } from '@/classes';
 
 /**
  * Display string used for entries that have no type assigned.

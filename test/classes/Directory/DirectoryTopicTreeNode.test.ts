@@ -4,7 +4,7 @@ import { DirectoryEntryNode } from '@/classes/Directory/DirectoryEntryNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
 import { Entry } from '@/classes/Entry';
 import { TopicFolder } from '@/classes/TopicFolder';
-import { FCBSetting } from '@/classes/FCBSetting';
+import { FCBSetting } from '@/classes';
 import { Topics } from '@/types';
 import * as sinon from 'sinon';
 

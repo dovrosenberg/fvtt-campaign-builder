@@ -3,7 +3,7 @@ import { DirectoryTopicNode } from '@/classes/Directory/DirectoryTopicNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
 import { TopicFolder } from '@/classes/TopicFolder';
 import { Entry } from '@/classes/Entry';
-import { FCBSetting } from '@/classes/FCBSetting';
+import { FCBSetting } from '@/classes';
 import { Topics } from '@/types';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 import * as sinon from 'sinon';

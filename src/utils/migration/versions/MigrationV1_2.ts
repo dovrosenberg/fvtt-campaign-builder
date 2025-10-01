@@ -114,7 +114,7 @@ export class MigrationV1_2 implements Migration {
       updateProgress(`Processing setting ${settingId}...`);
       
       const setting = new FCBSetting(settingId);
-      await setting.validate();
+      await setting.populate();
 
       if (!setting) {
         console.log('Skipping invalid setting id in MigrationV1_2.migrateAllEntries(): ' + settingId);
@@ -190,7 +190,7 @@ export class MigrationV1_2 implements Migration {
       const uuid = newEntry.uuid;
 
       // we always add a hierarchy, because we use it for filtering
-      setting.setEntryHierarchy(uuid, 
+      await setting.setEntryHierarchy(uuid, 
         {
           parentId: '',
           ancestors: [],
@@ -198,7 +198,6 @@ export class MigrationV1_2 implements Migration {
           type: '',
         } as Hierarchy
       );
-      await setting.save();
 
       // no parent - set as a top node
       const topNodes = pcFolder.topNodes;
@@ -226,7 +225,7 @@ export class MigrationV1_2 implements Migration {
 
       try {
         const setting = new FCBSetting(settingId);
-        await setting.validate();
+        await setting.populate();
 
         if (!setting) {
           console.log('Skipping invalid setting id in MigrationV1_2.cleanupOldEntries(): ' + settingId);

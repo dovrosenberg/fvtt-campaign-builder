@@ -1,4 +1,4 @@
-import { searchService, FCBSearchResult } from '@/utils/search';
+import { searchService, } from '@/utils/search';
 import { FCBSetting } from '@/classes';
 
 /**

@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { TopicFolder } from '@/classes/TopicFolder';
-import { FCBSetting } from '@/classes/FCBSetting';
+import { FCBSetting } from '@/classes';
 import { Entry } from '@/classes/Entry';
 import { TopicDoc, TopicFlagKey, EntryDoc, DOCUMENT_TYPES } from '@/documents';
 import { Topics } from '@/types';

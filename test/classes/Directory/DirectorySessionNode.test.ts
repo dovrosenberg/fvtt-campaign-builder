@@ -2,7 +2,7 @@ import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { DirectorySessionNode } from '@/classes/Directory/DirectorySessionNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
 import { Session } from '@/classes/Session';
-import { FCBSetting } from '@/classes/FCBSetting';
+import { FCBSetting } from '@/classes';
 import * as sinon from 'sinon';
 
 export const registerDirectorySessionNodeTests = () => {

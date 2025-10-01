@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
-import { ContentWrapperDoc, ContentWrapperFlagKey, contentWrapperFlagSettings, DOCUMENT_TYPES, SettingDoc } from '@/documents';
-import { DocumentWithFlags } from '@/classes';
+import { ContentWrapperDoc, ContentWrapperFlagKey, contentWrapperFlagSettings, DOCUMENT_TYPES,  } from '@/documents';
+import { DocumentWithFlags, FCBSetting } from '@/classes';
 import { ContentType } from '@/types';
 import { moduleId } from '@/settings';
 
@@ -9,14 +9,13 @@ export type PageDocType<T extends ContentType> =
   // T extends ContentType.Campaign ? CampaignDoc :
   // T extends ContentType.Session ? SessionDoc :
   // T extends ContentType.Entry ? EntryDoc :
-  T extends ContentType.Setting ? SettingDoc:
+  // T extends ContentType.Setting ? SettingDoc:
   never;
 
 const ContentDocumentTypes = { 
   [ContentType.Campaign]: DOCUMENT_TYPES.Campaign,
   [ContentType.Session]: DOCUMENT_TYPES.Session,
   [ContentType.Entry]: DOCUMENT_TYPES.Entry,
-  [ContentType.Setting]: DOCUMENT_TYPES.Setting,
 };
 
 // represents the journal entry wrapper around content

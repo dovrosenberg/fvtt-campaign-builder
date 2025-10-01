@@ -1,7 +1,8 @@
 import { moduleId, ModuleSettings, } from '@/settings';
 import { KeyBindings } from '@/settings/KeyBindings';
-import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel, SettingDataModel } from '@/documents';
+import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel, } from '@/documents';
 import { CampaignBuilderApplication } from '@/applications/CampaignBuilder';
+import { FCBSetting as SettingNamespace } from '@/documents';
 
 export function registerForInitHook() {
   Hooks.once('init', init);
@@ -23,7 +24,7 @@ async function init(): Promise<void> {
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
     [DOCUMENT_TYPES.Entry]: EntryDataModel,
     [DOCUMENT_TYPES.Session]: SessionDataModel,
-    [DOCUMENT_TYPES.Setting]: SettingDataModel,
+    [DOCUMENT_TYPES.Setting]: SettingNamespace.DataModel,
     // [DOCUMENT_TYPES.PC]: PCDataModel, // Deprecated in v1.2+
   });
 

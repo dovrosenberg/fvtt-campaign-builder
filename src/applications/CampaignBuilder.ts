@@ -1,6 +1,6 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin';
 import PrimeVue from 'primevue/config';
-import { pinia, useNavigationStore } from '@/applications/stores';
+import { pinia, } from '@/applications/stores';
 import App from '@/components/applications/CampaignBuilder.vue';
 
 const { DocumentSheetV2 } = foundry.applications.api;
@@ -73,17 +73,14 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
 
     // there are three scenarios here:
     //  1. we opened it with the main button so we don't have a document
+    const FCB_OPEN_WINDOW_NAME = 'FCB-Open-Window!!!@#';
     if (!options) {
       // we need to fake a document or the DocumentSheetV2 constructor throws an error
+      // we use the name as a flag to know that we're opening the window without a document
       const newDoc = new foundry.documents.JournalEntry({
-        name: 'FCB-Open-Window'
+        name: FCB_OPEN_WINDOW_NAME
       });
       
-      // the only way we should ever have a false flag in _onFirstRender is if we're just loading without a doc
-      //    because we check it below if a normal doc comes in that way
-      // can't use setFlag because we're not async
-      newDoc.flags[moduleId] = { isContentWrapper: false }; 
-
       // note: we're not saving it to the world :) 
       finalOptions = {
         document: newDoc
@@ -93,7 +90,7 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
       finalOptions = new.target._migrateConstructorParams(options, args);
 
       const doc = finalOptions.document;
-      if (!doc?.getFlag(moduleId, 'isContentWrapper')) { 
+      if (doc.name !== FCB_OPEN_WINDOW_NAME) { 
         throw new Error('Attempt to open non-FCB journal entry in CampaignBuilderApplication constructor')
       }
 

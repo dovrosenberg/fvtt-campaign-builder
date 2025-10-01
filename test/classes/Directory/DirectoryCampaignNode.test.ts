@@ -4,7 +4,7 @@ import { DirectorySessionNode } from '@/classes/Directory/DirectorySessionNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
 import { Campaign } from '@/classes/Campaign';
 import { Session } from '@/classes/Session';
-import { FCBSetting } from '@/classes/FCBSetting';
+import { FCBSetting } from '@/classes';
 import * as sinon from 'sinon';
 
 export const registerDirectoryCampaignNodeTests = () => {
