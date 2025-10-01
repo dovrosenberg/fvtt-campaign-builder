@@ -20,7 +20,6 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
 
   protected static _folderName = 'Settings';
   protected static _defaultSystem = { 
-    name: '',  
     topicIds: {},  
     campaignNames: {},  
     expandedIds: {},  
@@ -38,7 +37,20 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
   public campaigns: Record<string, Campaign> = {};   // Campaigns keyed by uuid 
   public topicFolders: Record<ValidTopic, TopicFolder> = {} as Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using populate()), so we assume it's never empty
 
- 
+  // getters for system
+  get topicIds() { return this.system.topicIds; }
+  get campaignNames() { return this.system.campaignNames; }
+  get expandedIds() { return this.system.expandedIds; }
+  get hierarchies() { return this.system.hierarchies; }
+  get genre() { return this.system.genre; }
+  get settingFeeling() { return this.system.settingFeeling; }
+  get img() { return this.system.img; }
+  get nameStyles() { return this.system.nameStyles; }
+  get rollTableConfig() { return this.system.rollTableConfig; }
+  get nameStyleExamples() { return this.system.nameStyleExamples; }
+  get journals() { return this.system.journals; }
+
+
   static async fromUuid(settingId: string): Promise<FCBSetting | null> {
     const setting = await fromUuid<JournalEntryPage>(settingId);
 

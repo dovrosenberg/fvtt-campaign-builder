@@ -8,13 +8,14 @@ const { DocumentSheetV2 } = foundry.applications.api;
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import '@yaireo/tagify/dist/tagify.css';
 import { theme } from '@/components/styles/primeVue';
-import { moduleId } from '@/settings';
-import { ContentWrapperFlagKey } from '@/documents/contentWrapper';
 
 // setup pinia
 
 // the global instance - needed for keybindings, among other things
 export let wbApp: CampaignBuilderApplication | null = null;
+
+// a (hopefully) never used name to indicate opening window without a doc
+const FCB_OPEN_WINDOW_NAME = 'FCB-Open-Window!!!@#';
 
 export const getCampaignBuilderApp = (): CampaignBuilderApplication => {
   if (wbApp)
@@ -67,13 +68,11 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     }
   };
 
-
   constructor(options?: any, ...args: any[]) {
     let finalOptions = options;
 
     // there are three scenarios here:
     //  1. we opened it with the main button so we don't have a document
-    const FCB_OPEN_WINDOW_NAME = 'FCB-Open-Window!!!@#';
     if (!options) {
       // we need to fake a document or the DocumentSheetV2 constructor throws an error
       // we use the name as a flag to know that we're opening the window without a document
@@ -107,10 +106,10 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
 
     // if there is a document, open that content
     const doc = context.document;
-    if (doc.getFlag(moduleId, ContentWrapperFlagKey.isContentWrapper)) {
+    if (doc.type) {
       alert('Need to determine the content type here');
       // useNavigationStore().openContent(doc.uuid);      
-    } else if (doc.getFlag(moduleId, ContentWrapperFlagKey.isContentWrapper) == undefined) {
+    } else if (doc.name !== FCB_OPEN_WINDOW_NAME) {
       throw new Error('Attempt to open invalid journal entry in CampaignBuilderApplication _onFirstRender')
     }
 

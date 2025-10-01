@@ -151,7 +151,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
       name: getTopicTextPlural(topic),
       folder: foundry.utils.parseUuid(setting.uuid).id,
     },{
-      pack: setting.compendium.metadata.id,
+      pack: setting.pack,
     }) as unknown as TopicDoc;
 
     if (!newTopicDoc)

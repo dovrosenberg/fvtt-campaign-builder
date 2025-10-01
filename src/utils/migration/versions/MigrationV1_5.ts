@@ -118,11 +118,11 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
       // @ts-ignore
       topicIds: folder.getFlag(moduleId, 'topicIds'),
       // @ts-ignore
-      campaignNames: folder.getFlag(moduleId, 'campaignNames'),
+      campaignNames: cleanKeys(folder.getFlag(moduleId, 'campaignNames')),
       // @ts-ignore
-      expandedIds: folder.getFlag(moduleId, 'expandedIds'),
+      expandedIds: cleanKeys(folder.getFlag(moduleId, 'expandedIds')),
       // @ts-ignore
-      hierarchies: folder.getFlag(moduleId, 'hierarchies'),
+      hierarchies: cleanKeys(folder.getFlag(moduleId, 'hierarchies')),
       // @ts-ignore
       genre: folder.getFlag(moduleId, 'genre'),
       // @ts-ignore
@@ -140,7 +140,8 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
     }
   };
 
-  await newSetting.update(updateData);
+  newSetting.system = updateData.system;
+  await newSetting.update({system: newSetting.system});
 
   return newSetting;
 }
@@ -169,3 +170,14 @@ async function getAllSettings(): Promise<Folder[]> {
   return settings;
 }
 
+const cleanKeys = <T extends Record<string, unknown>>(obj: T): T => {
+  const result = {} as Record<string, unknown>;
+
+  for (const [key, value] of Object.entries(obj)) {
+    // filter out the bad ones
+    if (key !== 'Compendium')
+      result[key.replaceAll('#&#','.')] = value;
+  }
+
+  return result as T;
+}

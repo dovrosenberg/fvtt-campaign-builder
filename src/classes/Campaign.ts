@@ -467,7 +467,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
           name: name,
           folder: foundry.utils.parseUuid(setting.uuid).id,
         },{
-          pack: setting.compendium.metadata.id,
+          pack: setting.pack,
         }) as unknown as CampaignDoc;  
 
         if (!newCampaignDoc)
@@ -476,11 +476,11 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
         const newCampaign = new Campaign(newCampaignDoc, setting);
         await newCampaign.setup();
 
-        setting.campaignNames = {
+        const campaignNames = {
           ...setting.campaignNames,
           [newCampaign.uuid]: name,
         };
-        await setting.save();
+        await setting.update({system: {campaignNames}});
         
         return newCampaign;
       }
