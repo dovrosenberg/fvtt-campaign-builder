@@ -1,6 +1,7 @@
 import { Hierarchy, RelatedJournal, SettingGeneratorConfig, ValidTopic } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 import { DOCUMENT_TYPES } from './types';
+import { cleanKeysOnLoad,  } from '@/utils/cleanKeys';
 
 const fields = foundry.data.fields;
 const settingSchema = {
@@ -14,7 +15,19 @@ const settingSchema = {
   expandedIds: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, boolean> }),
 
   /** the full tree hierarchy or null for topics without hierarchy */
-  hierarchies: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, Hierarchy> }),
+  hierarchies: new fields.TypedObjectField(
+    new fields.SchemaField({
+      parentId: new fields.StringField({ required: true, nullable: true }),
+      ancestors: new fields.ArrayField(
+        new fields.StringField({ required: true, nullable: false })
+      ),
+      children: new fields.ArrayField(
+        new fields.StringField({ required: true, nullable: false })
+      ),
+      type: new fields.StringField({ required: true, nullable: false })
+    }), 
+    { required: true, nullable: false, initial: {} as Record<string, Hierarchy> }
+  ),
 
   /** genre of the setting */
   genre: new fields.StringField({ required: true, nullable: false, initial: '' }),
@@ -32,10 +45,29 @@ const settingSchema = {
   rollTableConfig: new fields.ObjectField({ required: false, nullable: true, initial: null }),
 
   /** stored example names for each style with their genre and setting feeling */
-  nameStyleExamples: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false }), { initial: [] as { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] }[] }),
+  nameStyleExamples: new fields.ArrayField(
+    new fields.SchemaField({
+      genre: new fields.StringField({ required: true, nullable: false }),
+      settingFeeling: new fields.StringField({ required: true, nullable: false }),
+      examples: new fields.ArrayField(
+        new fields.ObjectField({ required: true, nullable: false }),
+        { required: true, nullable: false, initial: [] as ApiNamePreviewPost200ResponsePreviewInner[] }
+      ),
+    }, { required: true, nullable: false }), { initial: [] as NameStyleExample[] }
+  ),
 
   /** related journal entries */
-  journals: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false }), { initial: [] as RelatedJournal[] }),
+  journals: new fields.ArrayField(
+    new fields.SchemaField({
+      uuid: new fields.StringField({ required: true, nullable: false }),
+      journalUuid: new fields.DocumentUUIDField({ required: true, nullable: false}),
+      pageUuid: new fields.DocumentUUIDField({ required: true, nullable: true}),
+      packId: new fields.StringField({ required: true, nullable: true}),
+      packName: new fields.StringField({ required: true, nullable: true}),
+    }, { required: true, nullable: false}
+    ),
+    { required: true, nullable: false, initial: [] as RelatedJournal[] }
+  ), 
 };
 
 type SchemaType = typeof settingSchema;
@@ -48,9 +80,11 @@ export class SettingDataModel<
     return settingSchema;
   }
 
-  /** @override */
-  // prepareBaseData(): void {
-  // }
+  override prepareBaseData(): void {
+    this.hierarchies = cleanKeysOnLoad(this.hierarchies);
+    this.campaignNames = cleanKeysOnLoad(this.campaignNames);
+    this.expandedIds = cleanKeysOnLoad(this.expandedIds);
+  }
 }
 
 export type NameStyleExample = { 

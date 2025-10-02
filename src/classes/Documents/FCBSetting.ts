@@ -8,8 +8,8 @@ import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/n
 import { Backend } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
-import { ApiNamePreviewPost200ResponsePreviewInner } from 'src/apiClient';
-import { NameStyleExample } from 'src/documents';
+import { NameStyleExample } from '@/documents';
+import { cleanKeysOnSave } from '@/utils/cleanKeys';
 
 type SettingCompendium = CompendiumCollection<'JournalEntry'>;
 
@@ -36,7 +36,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   // JournalEntries
   public campaigns: Record<string, Campaign> = {};   // Campaigns keyed by uuid 
   public topicFolders: Record<ValidTopic, TopicFolder> = {} as Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using populate()), so we assume it's never empty
-
+    
   static override async fromUuid<
     T extends typeof FCBJournalEntryPage,
   > (this: T, settingId: string): Promise<InstanceType<T> | null> { 
@@ -239,6 +239,10 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     await this.save();
   }
 
+  // alias for uuid
+  public get settingId(): string {
+    return this.uuid;
+  }
 
   /**
    * Create a new setting, including the compendium and the FCBSetting content
@@ -415,6 +419,16 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public async updateCampaignName(campaignId: string, name: string) {
     this.campaignNames[campaignId] = name;
     await this.save();
+  }
+
+  public async save() {
+    // convert unsafe keys
+    this.hierarchies = cleanKeysOnSave(this.hierarchies);
+    this.campaignNames = cleanKeysOnSave(this.campaignNames);
+    this.expandedIds = cleanKeysOnSave(this.expandedIds);
+    
+    // now save the page - this will put clone back where it should be
+    await super.save();
   }
 
   public async delete(): Promise<this | undefined> {

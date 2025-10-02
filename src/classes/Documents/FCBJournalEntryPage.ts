@@ -1,4 +1,5 @@
 import { DOCUMENT_TYPES } from '@/documents/types';
+import { toRaw } from 'vue';
 
 type ValidDocType = typeof DOCUMENT_TYPES.Setting;
 
@@ -74,11 +75,23 @@ export class FCBJournalEntryPage<
     try {
       // update the name on the wrapper
       if (this._doc.name !== this._clone.name) {
-        await this._doc.parent.update({ name: this._clone.name });
+        // because the child class objects can get proxied by Vue, this might be proxied, 
+        //   which can then cause issues with the update
+        await toRaw(this._doc)?.parent?.update({ name: this._clone.name });
       }
-  
+        
       // now save the page
-      await this._doc.update(this._clone.toObject());
+      // need to pass false to toObject to use the current in memory version
+      const retval = await toRaw(this._doc)?.update(this._clone.toObject(false))  as DocClass | undefined;
+
+      // no update done; should probably reload clone to avoid data loss
+      if (!retval) {
+        this._clone = await this._doc.clone({}, { keepId: true });
+      } else {
+        // reset the doc and clone
+        this._doc = retval;
+        this._clone = retval.clone({}, { keepId: true });
+      }      
     } catch (e) {
       throw new Error(`Error updating journal entry page ${this._doc.uuid}: ${e}`);
     }

@@ -39,7 +39,7 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
       height: 700,
     },
     form: {
-      submitOnChange: true,
+      submitOnChange: false,
     },
     actions: {} //override the sheet actions
   };

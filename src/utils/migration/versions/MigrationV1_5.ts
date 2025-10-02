@@ -2,7 +2,6 @@ import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
 import { RootFolder, FCBSetting } from '@/classes';
-import { DOCUMENT_TYPES } from '@/documents';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
@@ -116,13 +115,13 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   newSetting.topicIds = folder.getFlag(moduleId, 'topicIds');
   
   // @ts-ignore
-  newSetting.campaignNames = cleanKeys(folder.getFlag(moduleId, 'campaignNames'));
+  newSetting.campaignNames = folder.getFlag(moduleId, 'campaignNames');
   
   // @ts-ignore
-  newSetting.expandedIds = cleanKeys(folder.getFlag(moduleId, 'expandedIds'));
+  newSetting.expandedIds = folder.getFlag(moduleId, 'expandedIds');
   
   // @ts-ignore
-  newSetting.hierarchies = cleanKeys(folder.getFlag(moduleId, 'hierarchies'));
+  newSetting.hierarchies = folder.getFlag(moduleId, 'hierarchies');
   
   // @ts-ignore
   newSetting.genre = folder.getFlag(moduleId, 'genre');
@@ -172,16 +171,4 @@ async function getAllSettings(): Promise<Folder[]> {
   }
 
   return settings;
-}
-
-const cleanKeys = <T extends Record<string, unknown>>(obj: T): T => {
-  const result = {} as Record<string, unknown>;
-
-  for (const [key, value] of Object.entries(obj)) {
-    // filter out the bad ones
-    if (key !== 'Compendium')
-      result[key.replaceAll('#&#','.')] = value;
-  }
-
-  return result as T;
 }
