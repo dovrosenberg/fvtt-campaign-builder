@@ -21,8 +21,8 @@ import { getTabTypeIcon, getTopicIcon } from '@/utils/misc';
 import { localize } from '@/utils/game';
 
 // types
-import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES, EntryDoc, SessionDoc, SettingDoc, } from '@/documents';
-import { Setting, Entry, Campaign, Session } from '@/classes';
+import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES, EntryDoc, SessionDoc, } from '@/documents';
+import { Entry, Campaign, Session } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 import { ValidTopic, WindowTabType } from '@/types';
 import { InternalClientDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs';

@@ -24,6 +24,7 @@ type CampaignFlags = {
 }
 
 type JournalEntryFlags = CampaignFlags;
+
 type RollTableFlags = {
   [M in ModuleId]: {
     [K in RollTableFlagKey]: RollTableFlagType<K>; 

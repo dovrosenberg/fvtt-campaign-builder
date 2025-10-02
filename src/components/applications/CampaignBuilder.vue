@@ -46,7 +46,7 @@
 
   // local imports
   import { pinia } from '@/applications/stores';
-  import { getDefaultFolders, } from '@/compendia';
+  import { getCurrentSetting, } from '@/compendia';
   import { SettingKey, ModuleSettings, } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
@@ -66,7 +66,7 @@
 
   // types
   import { WindowTabType, Topics, ValidTopic } from '@/types';
-  import { Backend, Setting, } from '@/classes';
+  import { Backend, RootFolder, FCBSetting, } from '@/classes';
   import { CampaignDoc } from '@/documents';
 
 
@@ -149,7 +149,7 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentSetting, async (newSetting: Setting | null, oldSetting: Setting | null) => {
+  watch(currentSetting, async (newSetting: FCBSetting | null, oldSetting: FCBSetting | null) => {
     // Update the window title when the setting changes
     updateWindowTitle(newSetting?.name || null);
     
@@ -263,17 +263,12 @@
       }, 0);
     }
 
-    const folders = await getDefaultFolders();
+    rootFolder.value = await RootFolder.get();
 
-    if (!folders || !folders.rootFolder)
-        throw new Error(`Couldn't get folders in CampaignBuilder.onMounted()`);
+    if (!rootFolder.value)
+        throw new Error(`Couldn't get root folder in CampaignBuilder.onMounted()`);
 
-    const setting = folders.setting;
-    const settingId = folders.setting?.uuid;
-    const settingCompendium = folders.setting?.compendium || null;
-
-    if (!setting || !settingId || !settingCompendium)
-        throw new Error(`Could not find setting/compendium for setting ${settingId} in CampaignBuilder.onMounted()`);
+    const setting = await getCurrentSetting();
 
     if (setting.topicIds) {
       // this will force a refresh of the directory; before we do that make sure all the static variables are setup
@@ -293,7 +288,7 @@
         topicJournals[t] = await fromUuid<JournalEntry>(setting.topicIds[t]);
 
         if (!topicJournals[t])
-          throw new Error(`Could not find journal for topic ${t} in setting ${settingId}`);
+          throw new Error(`Could not find journal for topic ${t} in setting ${setting.settingId}`);
       }
 
       for (const campaignId in setting.campaignNames) {
@@ -304,8 +299,7 @@
         }
       }
 
-      rootFolder.value = folders.rootFolder;
-      mainStore.setNewSetting(folders.setting.uuid);
+      mainStore.setNewSetting(setting.uuid);
 
       // Wait up to 5 seconds for the backend to finish configuring
       for (let i = 0; i < 50; i++) {

@@ -1,23 +1,22 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
-import { SettingDoc } from '@/documents';
 import { notifyError } from '@/utils/notifications';
-import { ModuleSettings, SettingKey } from '@/settings';
-import { RootFolder } from '@/classes';
+import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
+import { RootFolder, FCBSetting } from '@/classes';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
 /**
  * Migration 1.5.0
- * Moves all setting data off of existing Setting folders and into module settings
+ * Moves all setting data off of existing FCBSetting folders and into module settings
  */
 export class MigrationV1_5 implements Migration {
   public readonly targetVersion = '1.5.0';
-  public readonly description = 'Moves all setting data off of existing Setting folders and into module settings';
+  public readonly description = 'Moves all setting data off of existing FCBSetting folders and into module settings';
 
-  private _context: MigrationContext;
+  // private _context: MigrationContext;
 
-  constructor(context: MigrationContext) {
-    this._context = context;
+  constructor(_context: MigrationContext) {
+    // this._context = context;
   }
 
   async migrate(): Promise<MigrationResult> {
@@ -40,48 +39,36 @@ export class MigrationV1_5 implements Migration {
         document.dispatchEvent(event);
       };
 
-      const newSettings: Record<string, SettingDoc> = {};
+      // map ids to names
+      const newSettings: Record<string, string> = {};
+      const mapSettingIds: Record<string, string> = {};   // map old folder Ids to new ids
 
       for (const folder of allSettingFolders) {
-        const settingId: string = folder.getFlag(moduleId, 'compendiumId');
+        const setting = await migrateSetting(folder);
 
-        // get all the setting configuration
-        const settingDetails: SettingDoc = {
-          name: folder.name,
-          topicIds: folder.getFlag(moduleId, 'topicIds'),
-          campaignNames: folder.getFlag(moduleId, 'campaignNames'),
-          expandedIds: folder.getFlag(moduleId, 'expandedIds'),
-          hierarchies: folder.getFlag(moduleId, 'hierarchies'),
-          genre: folder.getFlag(moduleId, 'genre'),
-          settingFeeling: folder.getFlag(moduleId, 'worldFeeling'), // leaving the key value for backwards compatibility
-          description: folder.getFlag(moduleId, 'description'),
-          img: folder.getFlag(moduleId, 'img'),   // image path for the setting
-          nameStyles: folder.getFlag(moduleId, 'nameStyles'),   // array of name styles to use for name generation
-          rollTableConfig: folder.getFlag(moduleId, 'rollTableConfig'),   // setting-specific roll table configuration
-          nameStyleExamples: folder.getFlag(moduleId, 'nameStyleExamples'),   // stored example names for each style with their genre and setting feeling
-          journals: folder.getFlag(moduleId, 'journals'),
-        }
-        
-        // all we need to do is create the settings for it
-        newSettings[settingId] = settingDetails;
-
-        // and update the permissions to hide and unlock the compendium
-        const pack = game.packs.get(settingId);
-        await pack?.configure({ ownership: { 
-          GAMEMASTER: 'OWNER', 
-          ASSISTANT: 'LIMITED', 
-          TRUSTED: 'LIMITED', 
-          PLAYER: 'LIMITED' 
-        }, locked: false });
+        // we then just need to save the index info to the module
+        newSettings[setting.uuid] = folder.name;
+        mapSettingIds[folder.uuid] = setting.uuid;
 
         // we don't clean up the folder because there's not really any reason to
 
-        updateProgress(`Processing setting: ${settingDetails.name}`);
+        updateProgress(`Processing setting: ${folder.name}`);
         processed++;
       }
 
       // save them all
       await ModuleSettings.set(SettingKey.settings, newSettings);
+
+      // remap the current settings to the updated ids 
+      const currentSettingId = UserFlags.get(UserFlagKey.currentSetting);
+      if (currentSettingId) {
+        UserFlags.set(UserFlagKey.currentSetting, mapSettingIds[currentSettingId]);
+      }
+
+      const currentEmailId = ModuleSettings.get(SettingKey.emailDefaultSetting);
+      if (currentEmailId) {
+        ModuleSettings.set(SettingKey.emailDefaultSetting, mapSettingIds[currentEmailId]);
+      }
     } catch (outer) {
       result.success = false;
       result.errors?.push(`MigrationV1_5 failed: ${outer}`);
@@ -99,6 +86,69 @@ export class MigrationV1_5 implements Migration {
     
 }
 
+/** returns the settingId (uuid of the journal entry) */
+async function migrateSetting(folder: Folder): Promise<FCBSetting> {
+  const compendiumId = folder.getFlag(moduleId, 'compendiumId') as string | undefined;
+
+  if (!compendiumId)
+    throw new Error('Invalid settingId in MigrationV1_5.migrate()');
+
+  // and update the permissions to hide and unlock the compendium
+  const pack = game.packs.get(compendiumId);
+  await pack?.configure({ ownership: { 
+    GAMEMASTER: 'OWNER', 
+    ASSISTANT: 'LIMITED', 
+    TRUSTED: 'LIMITED', 
+    PLAYER: 'LIMITED' 
+  }, locked: false });
+
+  const newSetting = await FCBSetting.createSetting(false, folder.name, compendiumId, true);
+
+  if (!newSetting)
+    throw new Error('Failed to create setting in MigrationV1_5.migrate()');
+  
+  // get all the setting configuration
+  // @ts-ignore
+  newSetting.description = folder.getFlag(moduleId, 'description');
+  
+  // @ts-ignore
+  newSetting.topicIds = folder.getFlag(moduleId, 'topicIds');
+  
+  // @ts-ignore
+  newSetting.campaignNames = folder.getFlag(moduleId, 'campaignNames');
+  
+  // @ts-ignore
+  newSetting.expandedIds = folder.getFlag(moduleId, 'expandedIds');
+  
+  // @ts-ignore
+  newSetting.hierarchies = folder.getFlag(moduleId, 'hierarchies');
+  
+  // @ts-ignore
+  newSetting.genre = folder.getFlag(moduleId, 'genre');
+  
+  // @ts-ignore
+  newSetting.settingFeeling = folder.getFlag(moduleId, 'worldFeeling'); // leaving the key value for backwards compatibility
+  
+  // @ts-ignore
+  newSetting.img = folder.getFlag(moduleId, 'img');   // image path for the setting
+  
+  // @ts-ignore
+  newSetting.nameStyles = folder.getFlag(moduleId, 'nameStyles');   // array of name styles to use for name generation
+  
+  // @ts-ignore
+  newSetting.rollTableConfig = folder.getFlag(moduleId, 'rollTableConfig');   // setting-specific roll table configuration
+  
+  // @ts-ignore
+  newSetting.nameStyleExamples = folder.getFlag(moduleId, 'nameStyleExamples');   // stored example names for each style with their genre and setting feeling
+  
+  // @ts-ignore
+  newSetting.journals = folder.getFlag(moduleId, 'journals');
+
+  await newSetting.save();
+
+  return newSetting;
+}
+
 /**
  * Get all setting folders from the root folder - the old way
  * @returns Array of setting folders
@@ -112,7 +162,8 @@ async function getAllSettings(): Promise<Folder[]> {
 
   const settings: Folder[] = [];
   
-  for (const child of rootFolder.children) {
+  // @ts-ignore
+  for (const child of ((rootFolder.raw as Folder)?.children || [])) {
     // it had a couple different names
     if (child.folder && (child.folder.getFlag(moduleId, 'isSetting') || child.folder.getFlag(moduleId, 'isWorld'))) {
       settings.push(child.folder);

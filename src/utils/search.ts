@@ -1,5 +1,5 @@
 import MiniSearch from 'minisearch';
-import { Entry, Session, Setting } from '@/classes';
+import { Entry, Session, FCBSetting } from '@/classes';
 import { Topics, ValidTopic, } from '@/types';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
@@ -119,7 +119,7 @@ class SearchService {
    * @returns A promise that resolves when the index is built
    * @throws {Error} If the search index cannot be created
    */
-  public async buildIndex(setting: Setting): Promise<void> {
+  public async buildIndex(setting: FCBSetting): Promise<void> {
     // always reinitialize because otherwise we'll be adding duplicates
     await this.initIndex();
 
@@ -170,7 +170,7 @@ class SearchService {
    * @param setting - The setting containing the item
    * @returns A promise that resolves to the searchable item
    */
-  private async createSearchableItemFromEntry(entry: Entry, setting: Setting): Promise<SearchableItem> {
+  private async createSearchableItemFromEntry(entry: Entry, setting: FCBSetting): Promise<SearchableItem> {
     const snippets: string[] = [];
     let description = '';
     let species = '';
@@ -373,7 +373,7 @@ class SearchService {
    * @param setting - The setting containing the entry
    * @returns A promise that resolves when the operation is complete
    */
-  public async addOrUpdateEntryIndex(entry: Entry, setting: Setting): Promise<void> {
+  public async addOrUpdateEntryIndex(entry: Entry, setting: FCBSetting): Promise<void> {
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
     }
@@ -398,7 +398,7 @@ class SearchService {
    * @param setting - The setting containing the entry
    * @returns A promise that resolves when the operation is complete
    */
-  public async addOrUpdateSessionIndex(session: Session, setting: Setting): Promise<void> {
+  public async addOrUpdateSessionIndex(session: Session, setting: FCBSetting): Promise<void> {
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
     }

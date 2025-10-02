@@ -285,7 +285,7 @@
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal } from '@/types';
-  import { Setting, TopicFolder, Backend, Entry } from '@/classes';
+  import { FCBSetting, TopicFolder, Backend, Entry } from '@/classes';
 
 
   ////////////////////////////////
@@ -370,7 +370,7 @@
       if (currentSetting.value) {    
         parentId.value = await currentEntry.value.getParentId();
 
-        validParents.value = validParentItems(currentSetting.value as Setting, currentEntry.value).map((e)=> ({
+        validParents.value = validParentItems(currentSetting.value as FCBSetting, currentEntry.value).map((e)=> ({
           id: e.id,
           label: e.name || '',
         }));

@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { TopicFolder } from '@/classes/TopicFolder';
-import { Setting } from '@/classes/Setting';
+import { FCBSetting } from '@/classes';
 import { Entry } from '@/classes/Entry';
 import { TopicDoc, TopicFlagKey, EntryDoc, DOCUMENT_TYPES } from '@/documents';
 import { Topics } from '@/types';
@@ -15,7 +15,7 @@ export const registerTopicFolderTests = () => {
 
       describe('TopicFolder', () => {
         let mockTopicDoc: TopicDoc;
-        let mockSetting: Setting;
+        let mockSetting: FCBSetting;
         let topicFolder: TopicFolder;
         let fromUuidStub;
         let getFlag;
@@ -82,7 +82,7 @@ export const registerTopicFolderTests = () => {
             },
           } as unknown as TopicDoc;
 
-          // Create a mock Setting
+          // Create a mock FCBSetting
           mockSetting = {
             uuid: 'setting-uuid',
             unlock: sinon.stub().resolves(undefined),
@@ -96,7 +96,7 @@ export const registerTopicFolderTests = () => {
             hierarchies: {},
             expandedIds: {},
             updateTopicId: sinon.stub().resolves(undefined)
-          } as unknown as Setting;
+          } as unknown as FCBSetting;
 
           // Create a TopicFolder instance
           topicFolder = new TopicFolder(mockTopicDoc, mockSetting);
@@ -178,7 +178,7 @@ export const registerTopicFolderTests = () => {
             const result = await topicFolderWithoutSetting.loadSetting();
             
             // Assert
-            expect(result).to.be.instanceOf(Setting);
+            expect(result).to.be.instanceOf(FCBSetting);
             expect(result.uuid).to.equal('setting-uuid');
           });
 

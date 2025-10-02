@@ -3,7 +3,7 @@ import { toRaw } from 'vue';
 import { DOCUMENT_TYPES, SessionDoc, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
-import { Campaign, Setting } from '@/classes';
+import { Campaign, FCBSetting } from '@/classes';
 import { localize } from '@/utils/game';
 import { TagInfo, } from '@/types';
 
@@ -65,9 +65,9 @@ export class Session {
    * Gets the setting associated with a session, loading into the campaign 
    * if needed.
    * 
-   * @returns {Promise<Setting>} A promise to the setting associated with the campaign.
+   * @returns {Promise<FCBSetting>} A promise to the setting associated with the campaign.
    */
-  public async getSetting(): Promise<Setting> {
+  public async getSetting(): Promise<FCBSetting> {
     if (!this.campaign)
       this.campaign = await this.loadCampaign();
 
@@ -93,19 +93,18 @@ export class Session {
     const setting = await campaign.getSetting();
 
     let sessionDoc: SessionDoc[] = [];
-    await setting.executeUnlocked(async () => {
-      sessionDoc = await JournalEntryPage.createDocuments([{
-        type: DOCUMENT_TYPES.Session,
-        name: nameToUse,
-        system: {
-          number: campaign.nextSessionNumber,
-          description: '',
-          img: '',
-        }
-      }],{
-        parent: campaign.raw as JournalEntry,
-      }) as unknown as SessionDoc[];
-    });
+
+    sessionDoc = await JournalEntryPage.createDocuments([{
+      type: DOCUMENT_TYPES.Session,
+      name: nameToUse,
+      system: {
+        number: campaign.nextSessionNumber,
+        description: '',
+        img: '',
+      }
+    }],{
+      parent: campaign.raw as JournalEntry,
+    }) as unknown as SessionDoc[];
 
     if (sessionDoc && sessionDoc.length > 0) {
       const session = new Session(sessionDoc[0], campaign);
@@ -738,19 +737,18 @@ export class Session {
     }
 
     let retval: SessionDoc | null = null;
-    await setting.executeUnlocked(async () => {
-      // note: update returns null if nothing changed
-      try {
-        const retval = await toRaw(this._sessionDoc).update(updateData) || null;
-        if (retval) {
-          this._sessionDoc = retval;
-        }
-          
-        this._cumulativeUpdate = {};
-      } catch (e) {
-        console.error('Failed to update campaign', e);
+
+  // note: update returns null if nothing changed
+    try {
+      const retval = await toRaw(this._sessionDoc).update(updateData) || null;
+      if (retval) {
+        this._sessionDoc = retval;
       }
-    });
+        
+      this._cumulativeUpdate = {};
+    } catch (e) {
+      console.error('Failed to update campaign', e);
+    }
 
      // Update the search index (rely on retval being null if no changes were made)
      try {
@@ -769,14 +767,12 @@ export class Session {
       return;
 
     const id = this._sessionDoc.uuid;
-    const setting = await this.getSetting() as Setting;
+    const setting = await this.getSetting() as FCBSetting;
 
-    await setting.executeUnlocked(async () => {
-      await this._sessionDoc.delete();
+    await this._sessionDoc.delete();
 
-      // remove from the expanded list
-      await setting.deleteSessionFromSetting(id);
-    });
+    // remove from the expanded list
+    await setting.deleteSessionFromSetting(id);
   }
   
   /**

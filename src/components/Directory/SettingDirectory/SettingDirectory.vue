@@ -79,7 +79,7 @@
 
   // types
   import { WindowTabType, DirectorySetting, Topics } from '@/types';
-  import { DirectoryTopicNode, Setting, TopicFolder, } from '@/classes';
+  import { DirectoryTopicNode, FCBSetting, TopicFolder, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -183,7 +183,7 @@
           label: localize('contextMenus.settingFolder.createCampaign'), 
           onClick: async () => {
             if (settingId) {
-              const setting = await Setting.fromUuid(settingId);
+              const setting = await FCBSetting.fromUuid(settingId);
 
               if (setting) {
                 await campaignDirectoryStore.createCampaign(setting);

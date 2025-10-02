@@ -12,9 +12,8 @@ import { updateSettingRollTableNames } from '@/utils/nameGenerators';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { TopicFolder, Setting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, } from '@/classes';
+import { TopicFolder, FCBSetting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc, } from '@/documents';
-import { getDefaultFolders } from '@/compendia';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 // the store definition
@@ -29,7 +28,7 @@ export const useMainStore = defineStore('main', () => {
   const _currentCampaign = ref<Campaign | null>(null);  // current campaign (when showing a campaign tab)
   const _currentSession = ref<Session  | null>(null);  // current session (when showing a session tab)
   const _currentTab = ref<WindowTab | null>(null);  // current tab
-  const _currentSetting = ref<Setting | null>(null);  // the current setting folder
+  const _currentSetting = ref<FCBSetting | null>(null);  // the current setting
 
   ///////////////////////////////
   // external state
@@ -59,7 +58,7 @@ export const useMainStore = defineStore('main', () => {
   const currentSession = computed((): Session | null => (_currentSession?.value || null) as Session | null);
   const currentContentType = computed((): WindowTabType => _currentTab?.value?.tabType || WindowTabType.NewTab);  
   const currentTab = computed((): WindowTab | null => _currentTab?.value);  
-  const currentSetting = computed((): Setting | null => (_currentSetting?.value || null) as Setting | null);
+  const currentSetting = computed((): FCBSetting | null => (_currentSetting?.value || null) as FCBSetting | null);
 
   ///////////////////////////////
   // actions
@@ -69,7 +68,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // load the setting
-    const setting = await Setting.fromUuid(settingId);
+    const setting = await FCBSetting.fromUuid(settingId);
     
     if (!setting)
       throw new Error(`Invalid settingId in mainStore.setNewSetting(): ${settingId}`);
@@ -111,7 +110,7 @@ export const useMainStore = defineStore('main', () => {
         // we can only set tabs within a setting, so we don't actually need to do anything here
         // if (tab.header.uuid) {
         //   _currentEntry.value = null;
-        //   _currentSetting.value = await Setting.fromUuid(tab.header.uuid);
+        //   _currentSetting.value = await FCBSetting.fromUuid(tab.header.uuid);
         //   if (!_currentSetting.value)
         //     throw new Error('Invalid entry uuid in mainStore.setNewTab()');
         // }
@@ -156,7 +155,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentSetting.value as Setting);
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentSetting.value as FCBSetting);
   };
 
   const refreshSetting = async function (): Promise<void> {
@@ -164,7 +163,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentSetting.value = new Setting(_currentSetting.value.settingId);
+    _currentSetting.value = new FCBSetting(_currentSetting.value.raw);
 
     // have to load the topic folders
     await _currentSetting.value?.loadTopics();
@@ -191,7 +190,7 @@ export const useMainStore = defineStore('main', () => {
       case WindowTabType.Session:
         await refreshSession();
         break;
-      case WindowTabType.Setting:
+      case WindowTabType.FCBSetting:
         await refreshSetting();
         break;
       default:
@@ -200,15 +199,15 @@ export const useMainStore = defineStore('main', () => {
 
   /**
    * Get all settings from the root folder
-   * @returns Array of Setting instances
+   * @returns Array of FCBSetting instances
    */
-  const getAllSettings = async function (): Promise<Setting[]> {
+  const getAllSettings = async function (): Promise<FCBSetting[]> {
     const allSettings = ModuleSettings.get(SettingKey.settings) || {};
-    const settings: Setting[] = [];
+    const settings: FCBSetting[] = [];
 
     for (const settingId in allSettings) {
       try {
-        const setting = await Setting.fromUuid(settingId);
+        const setting = await FCBSetting.fromUuid(settingId);
         if (setting) {
           settings.push(setting);
         }
@@ -225,7 +224,7 @@ export const useMainStore = defineStore('main', () => {
    * This should be called after the setting name has been changed and saved
    * @param setting The setting whose name changed
    */
-  const propagateSettingNameChange = async function (setting: Setting): Promise<void> {
+  const propagateSettingNameChange = async function (setting: FCBSetting): Promise<void> {
     // Update roll table names if roll tables are configured
     if (setting.rollTableConfig) {
       try {

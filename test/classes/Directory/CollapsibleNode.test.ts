@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
-import { Setting } from '@/classes/Setting';
+import { FCBSetting } from '@/classes';
 import * as sinon from 'sinon';
 
 // Create a concrete implementation of CollapsibleNode for testing
@@ -31,7 +31,7 @@ export const registerCollapsibleNodeTests = () => {
       const { describe, it, expect, beforeEach, afterEach } = context;
 
       describe('CollapsibleNode', () => {
-        let mockSetting: Setting;
+        let mockSetting: FCBSetting;
         let node: TestNode;
 
         beforeEach(() => {
@@ -44,7 +44,7 @@ export const registerCollapsibleNodeTests = () => {
               'node1': true,
               'node2': true
             }
-          } as unknown as Setting;
+          } as unknown as FCBSetting;
 
           // Set the current setting
           CollapsibleNode.currentSetting = mockSetting;
@@ -83,7 +83,7 @@ export const registerCollapsibleNodeTests = () => {
             CollapsibleNode._loadedNodes = { 'test-node': node as any };
             
             // Set a new setting
-            const newSetting = { uuid: 'new-setting-uuid' } as Setting;
+            const newSetting = { uuid: 'new-setting-uuid' } as FCBSetting;
             CollapsibleNode.currentSetting = newSetting;
             
             // Check that the setting was set and loaded nodes were cleared

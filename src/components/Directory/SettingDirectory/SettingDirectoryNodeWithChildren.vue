@@ -59,7 +59,7 @@
   
   // types
   import { EntryNodeDragData, ValidTopic } from '@/types';
-  import { Entry, DirectoryEntryNode, Setting, TopicFolder } from '@/classes';
+  import { Entry, DirectoryEntryNode, FCBSetting, TopicFolder } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -189,7 +189,7 @@
     if (!childEntry)
       return;
 
-    if (!(validParentItems(currentSetting.value as Setting, childEntry)).find(e=>e.id===parentId))
+    if (!(validParentItems(currentSetting.value as FCBSetting, childEntry)).find(e=>e.id===parentId))
       return;
 
     // add the dropped item as a child on the other (will also refresh the tree)

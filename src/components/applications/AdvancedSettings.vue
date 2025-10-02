@@ -198,15 +198,14 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, ref, toRaw, nextTick } from 'vue';
+  import { onMounted, ref, nextTick } from 'vue';
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend, RootFolder, Setting } from '@/classes';
+  import { Backend, FCBSetting } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
-  import { getDefaultFolders } from '@/compendia';
-
+  
   // library components
   import InputText from 'primevue/inputtext';
   import Checkbox from 'primevue/checkbox';
@@ -282,7 +281,7 @@
       return;
     }
 
-    const setting = await Setting.fromUuid(settingUuid);
+    const setting = await FCBSetting.fromUuid(settingUuid);
     if (!setting) {
       campaignOptions.value = [];
       return;

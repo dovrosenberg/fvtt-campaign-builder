@@ -1,185 +1,166 @@
-import { moduleId, UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
-import { Hierarchy, Topics, ValidTopic, SettingGeneratorConfig, RelatedJournal } from '@/types';
+import { UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
+import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { Campaign, TopicFolder, RootFolder, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
 import { Backend } from '@/classes';
-import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
-import { SettingDoc } from '@/documents';
+import { DOCUMENT_TYPES } from '@/documents/types';
+import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
+import { NameStyleExample } from '@/documents';
+import { cleanKeysOnSave } from '@/utils/cleanKeys';
 
 type SettingCompendium = CompendiumCollection<'JournalEntry'>;
 
+type SettingDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Setting>;
+
 // represents a campaign setting
-// it's essentially a wrapper around a SettingDoc object stored in the 
-//    module settings
-export class Setting {
-  private _compendium: SettingCompendium;   // this is the compendium for the setting
-
-  // JournalEntries
-  public campaigns: Record<string, Campaign>;   // Campaigns keyed by uuid 
-  public topicFolders: Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using validate()), so we assume it's never empty
-
-  /**
-   * The name of the setting.get
-   */
-  public name: string = '';  
-
-  /**
-   * The uuid for the setting compendium.
-   */
-  private _settingId: string = '';  
+export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Setting> {
+  protected static override _folderName = 'Settings';
+  protected static override _documentType = DOCUMENT_TYPES.Setting;
+  protected static override _defaultSystem = { 
+    topicIds: {},  
+    campaignNames: {},  
+    expandedIds: {},  
+    hierarchies: {},  
+    genre: '',  
+    settingFeeling: '',   
+    img: '',   
+    nameStyles: [],   
+    rollTableConfig: null,   
+    nameStyleExamples: [],   
+    journals: [], 
+  } as unknown as SettingDocClass['system'];
   
-  /**
-   * The uuid for each topic.
-   */
-  public topicIds: Record<ValidTopic, string> | Record<never, string> = {};  
+  // JournalEntries
+  public campaigns: Record<string, Campaign> = {};   // Campaigns keyed by uuid 
+  public topicFolders: Record<ValidTopic, TopicFolder> = {} as Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using populate()), so we assume it's never empty
+    
+  static override async fromUuid<
+    T extends typeof FCBJournalEntryPage,
+  > (this: T, settingId: string): Promise<InstanceType<T> | null> { 
+    const setting = await super.fromUuid(settingId) as unknown as (FCBSetting | null);
+    
+    if (!setting)
+      return null;
+
+    await setting.populate();
+
+    return setting as InstanceType<T>;
+  }
 
   /**
-   * The names of campaigns; keyed by journal entry uuid.
+   * The JournalEntry UUID for each topic.
    */
-  public campaignNames: Record<string, string> = {};  
+  public get topicIds(): Record<ValidTopic, string> | Record<never, string> {
+    return this._clone.system.topicIds;
+  }
+
+  public set topicIds(value: Record<ValidTopic, string> | Record<never, string>) {
+    this._clone.system.topicIds = value;
+  }
+
+  /**
+   * The name keyed by JournalEntry UUID.
+   */
+  public get campaignNames(): Record<string, string> {
+    return this._clone.system.campaignNames as Record<string, string>;
+  }
+
+  public set campaignNames(value: Record<string, string>) {
+    this._clone.system.campaignNames = value;
+  }
 
   /**
    * The IDs of nodes that are expanded in the directory.
    * Could include compendia, entries, or subentries, or campaigns.
    */
-  public expandedIds: Record<string, boolean> = {};  
-  
+  public get expandedIds(): Record<string, boolean> {
+    return this._clone.system.expandedIds as Record<string, boolean>;
+  }
+
+  public set expandedIds(value: Record<string, boolean>) {
+    this._clone.system.expandedIds = value;
+  }
+
   /**
    * The full tree hierarchy or null for topics without a hierarchy.
    */
-  public hierarchies: Record<string, Hierarchy> = {};  
-
-  /**
-   * The genre of the setting.
-   */
-  public genre: string = '';
-
-  /**
-   * The feeling of the setting.
-   */
-  public settingFeeling: string = '';
-
-  /**
-   * The description of the setting.
-   */
-  public description: string = '';
-
-  /**
-   * The image for the setting.
-   */
-  public img: string = '';
-
-  /**
-   * The name styles for the setting.
-   */
-  public nameStyles: number[] = [0, 1, 2, 3, 4];
-
-  /**
-   * The roll table configuration for the setting.
-   */
-  public rollTableConfig: SettingGeneratorConfig | null = null;
-
-  /**
-   * The name style examples for the setting.
-   */
-  public nameStyleExamples: { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null = null;
-
-  /**
-   * The related journals for the setting.
-   */
-  public journals: RelatedJournal[] = [];
-
-  /**
-   * Note: you should always call validate() after creating a new Setting - this ensures the 
-   * compendium exists and is properly used
-   * @param {string} settingId - The uuid for the setting's compendium
-   */
-  constructor(settingId?: string) {
-    this._settingId = settingId || '';
-
-    if (settingId) {
-      const settings = game.settings.get(moduleId, SettingKey.settings);
-
-      if (!settings || !settings[settingId]) {
-        throw new Error(`Setting ${settingId} not found`);
-      }
-
-      this.importSetting(settings[settingId]);
-    }
+  public get hierarchies(): Record<string, Hierarchy> {
+    return this._clone.system.hierarchies as Record<string, Hierarchy>;
   }
 
-  private importSetting(settingDoc: SettingDoc): void {
-    this.name = settingDoc.name;
-    this.campaignNames = settingDoc.campaignNames;
-    this.expandedIds = settingDoc.expandedIds;
-    this.hierarchies = settingDoc.hierarchies;
-    this.topicIds = settingDoc.topicIds;
-    this.description = settingDoc.description || '';
-    this.genre = settingDoc.genre || '';
-    this.settingFeeling = settingDoc.settingFeeling || '';
-    this.img = settingDoc.img || '';
-    this.nameStyles = settingDoc.nameStyles || [0];
-    this.rollTableConfig = settingDoc.rollTableConfig;
-    this.nameStyleExamples = settingDoc.nameStyleExamples;
-    this.journals = settingDoc.journals || [];
-
-    if (this._settingId) {
-      const compendium = game.packs?.get(this._settingId) as SettingCompendium;
-      
-      if (!compendium) {
-        // it didn't exist, so we pretend we don't have one - this will get cleaned up in validate()
-        this._settingId = '';
-      } else {
-        this._compendium = compendium;
-      }
-    }  
-
-    this.campaigns = {} as Record<string, Campaign>;
-    this.topicFolders = {} as Record<ValidTopic, TopicFolder>;
+  public set hierarchies(value: Record<string, Hierarchy>) {
+    this._clone.system.hierarchies = value;
   }
 
-  private exportSetting(): SettingDoc {
-    return {
-      name: this.name,
-      campaignNames: this.campaignNames,
-      expandedIds: this.expandedIds,
-      hierarchies: this.hierarchies,
-      topicIds: this.topicIds,
-      description: this.description,
-      genre: this.genre,
-      settingFeeling: this.settingFeeling,
-      img: this.img,
-      nameStyles: this.nameStyles,
-      rollTableConfig: this.rollTableConfig,
-      nameStyleExamples: this.nameStyleExamples,
-      journals: this.journals,
+  get description(): string {
+    return this._clone.text?.content || '';
+  }
+
+  set description(value: string) {
+    this._clone.text = {
+      ...this._clone.text,
+      content: value
     };
- }
+  }
 
- 
-  /** 
-   * The uuid (alias for settingId)
-   */
-  public get uuid(): string {
-    return this._settingId;
+  public get genre(): string {
+    return this._clone.system.genre;
+  }
+
+  public set genre(value: string) {
+    this._clone.system.genre = value;
+  }
+
+  public get settingFeeling(): string {
+    return this._clone.system.settingFeeling;
+  }
+
+  public set settingFeeling(value: string) {
+    this._clone.system.settingFeeling = value;
+  }
+
+  public get img(): string {
+    return this._clone.system.img || '';
+  }
+
+  public set img(value: string) {
+    this._clone.system.img = value;
   }
   
-  static async fromUuid(settingId: string): Promise<Setting | null> {
-    const settings = game.settings.get(moduleId, SettingKey.settings);
-
-    if (!settings || !settings[settingId]) {
-      return null;
-    }
-    else {
-      const newSetting = new Setting(settingId);
-      await newSetting.validate();  // will also load topic folders
-      return newSetting;
-    }
+  public get nameStyles(): readonly number[] {
+    return this._clone.system.nameStyles;
   }
 
+  public set nameStyles(value: number[] | readonly number[] ) {
+    this._clone.system.nameStyles = value.slice();     // we clone it so it can't be edited outside
+  }
+
+  public get rollTableConfig(): SettingGeneratorConfig | null {
+    return (this._clone.system.rollTableConfig || null) as unknown as SettingGeneratorConfig | null;
+  }
+
+  public set rollTableConfig(value: SettingGeneratorConfig | null) {
+    (this._clone.system.rollTableConfig as SettingGeneratorConfig | null) = value;
+  }
+
+  public get nameStyleExamples(): NameStyleExample[] | null {
+    return (this._clone.system.nameStyleExamples || null) as unknown as NameStyleExample[] | null;
+  } 
+
+  public set nameStyleExamples(value: NameStyleExample[] | null) {
+    (this._clone.system.nameStyleExamples as NameStyleExample[] | null) = value;
+  }
+
+  public get journals(): RelatedJournal[] {
+    return this._clone.system.journals as RelatedJournal[];
+  }
+
+  public set journals(value: RelatedJournal[]) {
+    (this._clone.system.journals as RelatedJournal[]) = value;
+  } 
 
   /**
   * Gets the Topics associated with the setting. If the topics are already loaded, the promise resolves
@@ -188,14 +169,14 @@ export class Setting {
   */
   public async loadTopics(): Promise<Record<ValidTopic, TopicFolder>> {
     if (!this.topicIds)
-      throw new Error('Invalid Setting.loadTopics() called before IDs loaded');
+      throw new Error('Invalid FCBSetting.loadTopics() called before IDs loaded');
 
     // loop over just the numeric values
     for (const topic of Object.values(Topics).filter(t=>typeof t === 'number')) {
       if (topic !== Topics.None && !this.topicFolders[topic]) {
         const topicObj = await TopicFolder.fromUuid(this.topicIds[topic]);
         if (!topicObj)
-          throw new Error('Invalid topic uuid in Setting.loadTopics()');
+          throw new Error('Invalid topic uuid in FCBSetting.loadTopics()');
 
         topicObj.setting = this;
         this.topicFolders[topic] = topicObj;
@@ -230,36 +211,21 @@ export class Setting {
   }
 
 
-  /** 
-   * The uuid for the setting compendium   
-   */
-  public get settingId(): string {
-    return this._settingId;
-  }
-
-  /** 
-   * The actual compendium 
-   */
-  public get compendium(): SettingCompendium {
-    return this._compendium;
-  }
-
-
-
   /**
    * Get the hierarchy for a single entry
    */
   // TODO: get rid of this
   public getEntryHierarchy(entryId: string): Hierarchy {
-    return this.hierarchies[entryId];
+    return this.hierarchies[entryId] as Hierarchy;
   }
 
   /**
    * set the hierarchy for a single entry
    */
   // TODO: get rid of this
-  public setEntryHierarchy(entryId: string, value: Hierarchy) {
+  public async setEntryHierarchy(entryId: string, value: Hierarchy) {
     this.hierarchies[entryId] = value;
+    await this.save();
   }
   
  
@@ -273,60 +239,50 @@ export class Setting {
     await this.save();
   }
 
+  // alias for uuid
+  public get settingId(): string {
+    return this.uuid;
+  }
 
   /**
-   * Updates a setting in the database.  Handles locking.
-   * 
-   * @returns {Promise<Setting | null>} The updated Setting, or null if the update failed.
-   */
-  public async save(): Promise<Setting | null> {
-    let success = false;
-
-    if (!this._settingId)
-      return null;
-
-    try {
-      const allSettings = ModuleSettings.get(SettingKey.settings);
-      allSettings[this._settingId] = this.exportSetting();
-      await ModuleSettings.set(SettingKey.settings,  allSettings);
-
-      success = true;
-    } catch (e) {
-      console.error('Failed to update setting', e);
-    }
-
-    return success ? this : null;
-  }  
-
-  /**
-   * Create a new setting.
+   * Create a new setting, including the compendium and the FCBSetting content
    * @param {boolean} [makeCurrent=false] If true, sets the new setting as the current setting.
+   * @param {string} [name] The name of the new setting.
+   * @param {string} [compendiumId] The ID of the compendium to use.
+   * @param {boolean} [skipValidation=false] If true, skips validation.  Mostly only useful for migration
    * @returns The new setting, or null if the user cancelled the dialog.
    */
-  public static async create(makeCurrent = false): Promise<Setting | null> {
+  public static async createSetting(makeCurrent = false, name = '', compendiumId = '', skipValidation = false): Promise<FCBSetting | null> {
     // get the name
-    let name;
+    let nameToUse = name || '';
 
     do {
-      name = await FCBDialog.inputDialog(localize('dialogs.createSetting.title'), `${localize('dialogs.createSetting.settingName')}:`); 
+      if (!nameToUse) 
+        nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSetting.title'), `${localize('dialogs.createSetting.settingName')}:`) || ''; 
       
-      if (name) {
-        const newSetting = new Setting();
-        newSetting.name = name;
+      if (nameToUse) {
+        // using the existing compendium is rare but useful (for ex.) when migrating or fixing things that went bad
 
-        await newSetting.validate();
+        // more typically, we create a new one
+        if (!compendiumId) {
+          // create the compendium
+          compendiumId = await createCompendium(nameToUse);
 
-        if (!newSetting.settingId)
-          throw new Error('Failed to create setting in Setting.create()');
+          if (!compendiumId)
+            throw new Error('Failed to create compendium in FCBSetting.create()');
+        }
+
+        const newSetting = await super.create(compendiumId, nameToUse) as unknown as FCBSetting;
+        if (skipValidation)
+          return newSetting;
+
+        await newSetting.populate();
 
         // set as the current setting
         if (makeCurrent) {
-          await UserFlags.set(UserFlagKey.currentSetting, newSetting.settingId);
+          await UserFlags.set(UserFlagKey.currentSetting, newSetting.uuid);
         }
         
-        // create the rolltables
-        await initializeSettingRollTables(newSetting);
-
         // If auto-refresh is enabled, populate tables in background
         const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
         if (autoRefresh && Backend.available && Backend.api) {
@@ -335,7 +291,7 @@ export class Setting {
 
         return newSetting;
       }
-    } while (name==='');  // if hit ok, must have a value
+    } while (nameToUse==='');  // if hit ok, must have a value
 
     // if name isn't '' and we're here, then we cancelled the dialog
     return null;
@@ -343,24 +299,7 @@ export class Setting {
 
   // make sure we have a compendium in the folder; create a new one if needed
   // also loads all the topics
-  public async validate() {
-    if (this._settingId) {
-      const compendium = game.packs?.get(this._settingId) as SettingCompendium;
-      if (!compendium) 
-        throw new Error('Invalid compendiumId in Setting.validate()');
-      
-      this._compendium = compendium;
-    }
-
-    // check it
-    // if the value is blank or we can't find the compendia create a new one
-    if (!this._compendium) {
-      await this.createCompendium();
-    }
-
-    if (!this._compendium)
-      throw new Error('Failed to create compendium in Setting.validate()');
-
+  public async populate() {
     // load the topics and campaigns
     await this.populateTopics();
     await this.loadCampaigns();
@@ -373,11 +312,10 @@ export class Setting {
     let updated = false;
 
     const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
-    let topicIds = this.topicIds;
     const topicObjects = {} as Record<ValidTopic, TopicFolder>;
 
-    if (!topicIds) {
-      topicIds = {} as Record<ValidTopic, string>;
+    if (!this.topicIds) {
+      this.topicIds = {} as Record<ValidTopic, string>;
     }
 
     // load the topics, creating them if needed
@@ -385,8 +323,8 @@ export class Setting {
       const t = topics[i];
 
       let topicFolder;
-      if (topicIds[t]) {
-        topicFolder = await TopicFolder.fromUuid(topicIds[t]);
+      if (this.topicIds[t]) {
+        topicFolder = await TopicFolder.fromUuid(this.topicIds[t]);
 
         if (topicFolder)
           topicFolder.setting = this;
@@ -397,10 +335,10 @@ export class Setting {
         topicFolder = await TopicFolder.create(this, t);
 
         if (!topicFolder)
-          throw new Error('Couldn\'t create topicFolder in Setting.validate()');
+          throw new Error('Couldn\'t create topicFolder in FCBSetting.populateTopics()');
 
         topicFolder.setting = this;
-        topicIds[t] = topicFolder.uuid;
+        this.topicIds[t] = topicFolder.uuid;
         topicObjects[t] = topicFolder;
 
         updated = true;
@@ -413,105 +351,8 @@ export class Setting {
 
     // if we changed things, save new compendia flag
     if (updated) {
-      this.topicIds = topicIds;
-      await this.save();
+      this.save();
     }
-  }
-
-  // returns the compendium
-  private async createCompendium(): Promise<void> {
-    const metadata = { 
-      name: foundry.utils.randomID(), 
-      label: `FCB - ${this.name}`,
-      type: 'JournalEntry' as const, 
-      ownership: {
-        GAMEMASTER: 'OWNER',
-        ASSISTANT: 'LIMITED',
-        TRUSTED: 'LIMITED',
-        PLAYER: 'LIMITED'
-      },
-      locked: false
-    };
-
-    const rootFolder = await RootFolder.get();
-    const pack = await foundry.documents.collections.CompendiumCollection.createCompendium(metadata) as SettingCompendium;
-    await pack.setFolder(rootFolder.raw);
-
-    this._compendium = pack;
-    this._settingId = pack.metadata.id;
-    await this.save();
-  }
-  
-  /**
-   * Unlock the setting compendium to allow edits
-   */
-  public async unlock() {
-    await this._compendium.configure({locked:false});
-  }
-
-  /**
-   * Lock the setting compendium to stop edits
-   */
-  public async lock() {
-    await this._compendium.configure({locked:true});
-  }
-
-  // Track ongoing unlock operations to prevent race conditions
-  private static _unlockOperations: Record<string, Promise<void> | null> = {};  // mapped by compendiumId
-
-  public get isLocked(): boolean {
-    return this._compendium.config.locked;
-  }
-  
-  /** 
-   * Execute a function after unlocking (if needed), then re-lock when done.
-   * Uses a queue system to prevent race conditions between multiple calls.
-   * Handles nested calls by checking the actual lock state of the compendium.
-   */
-  public async executeUnlocked(executeFunction: () => Promise<void>): Promise<void> {
-    const compendiumId = this._settingId;
-    
-    // If the compendium is already unlocked, just execute the function without locking/unlocking
-    if (!this.isLocked) {
-      return executeFunction();
-    }
-    
-    // Create a new operation that will wait for any existing operation to complete
-    const operation = (async () => {
-      // Wait for any previous operation on this compendium to complete
-      if (Setting._unlockOperations[compendiumId]) {
-        try {
-          await Setting._unlockOperations[compendiumId];
-        } catch (error) {
-          // If previous operation failed, we still want to continue with our operation
-          console.error("Previous unlock operation failed:", error);
-        }
-      }
-
-      // Check again if the compendium is locked after waiting for previous operations
-      const needsUnlock = this.isLocked;
-      if (needsUnlock) {
-        await this.unlock();
-      }
-
-      try {
-        await executeFunction();
-      } finally {
-        // Always re-lock, but only if we were the ones who unlocked it
-        if (needsUnlock) {
-          await this.lock();
-        }
-        
-        // Remove our operation from the map once it's done
-        delete Setting._unlockOperations[compendiumId];
-      }
-    })();
-
-    // Store the promise so other operations can wait for it
-    Setting._unlockOperations[compendiumId] = operation;
-
-    // Wait for our operation to complete
-    return operation;
   }
   
   public async collapseAll() {
@@ -521,15 +362,13 @@ export class Setting {
 
 
   /**
-   * Remove a campaign from the setting metadata.  NOTE: SETTING MUST BE UNLOCKED FIRST
+   * Remove a campaign from the setting metadata.  
    * @param {string} campaignId - the uuid of the campaign to remove
    */
   // TODO: should delete all the sessions from expanded entries, too
   public async deleteCampaignFromSetting(campaignId: string) {
-    const campaigns = this.campaigns;
-    if (campaigns[campaignId]) {
-      delete campaigns[campaignId];
-      this.campaigns = campaigns;
+    if (this.campaigns[campaignId]) {
+      delete this.campaigns[campaignId];
     }
 
     delete this.campaignNames[campaignId];
@@ -539,7 +378,6 @@ export class Setting {
   }  
 
   // remove an entry from the setting metadata
-  // note: SETTING MUST BE UNLOCKED FIRST
   public async deleteEntryFromSetting(topicFolder: TopicFolder, entryId: string) {
     const hierarchy = this.hierarchies[entryId];
     
@@ -566,43 +404,51 @@ export class Setting {
 
     // remove from the expanded list
     delete this.expandedIds[entryId];
-    
+
+    // save the updates
     await this.save();
   }  
 
   // remove a session from the setting metadata
-  // note: SETTING MUST BE UNLOCKED FIRST
   public async deleteSessionFromSetting(sessionId: string) {
     delete this.expandedIds[sessionId];    
     await this.save();
   }  
 
   // change a campaign name inside all the setting metadata
-  // note: SETTING MUST BE UNLOCKED FIRST
   public async updateCampaignName(campaignId: string, name: string) {
     this.campaignNames[campaignId] = name;
-    
     await this.save();
   }
 
-  public async delete() {
-    // have to unlock the pack - we won't need to lock at the end
-    await this.unlock();
+  public async save() {
+    // convert unsafe keys
+    this.hierarchies = cleanKeysOnSave(this.hierarchies);
+    this.campaignNames = cleanKeysOnSave(this.campaignNames);
+    this.expandedIds = cleanKeysOnSave(this.expandedIds);
+    
+    // now save the page - this will put clone back where it should be
+    await super.save();
+  }
 
-    // delete the pack
-    if (this._compendium) {
-      await this._compendium.deleteCompendium();
-    }
-
+  public async delete(): Promise<this | undefined> {
     // delete the setting
     const allSettings = ModuleSettings.get(SettingKey.settings);
-    if (allSettings[this._settingId]) {
-      delete allSettings[this._settingId];
+    if (allSettings[this.uuid]) {
+      delete allSettings[this.uuid];
     }
     await ModuleSettings.set(SettingKey.settings, allSettings);
 
     // Delete all associated roll tables.
     await this.deleteRollTables();
+
+    // delete the pack - this will delete everything else
+    if (!this.compendium)
+      throw new Error ('Missing compendium in FCBSetting.delete');
+
+    await this.compendium.deleteCompendium();
+
+    return undefined;
   }
 
 /**
@@ -746,4 +592,50 @@ private async deleteRollTables() : Promise<void> {
     }
   }
 
+}
+
+/** create a new compendium and the folder structure
+ * 
+ * @param name - The name of the compendium
+ * @returns The id of the compendium
+ */
+const createCompendium = async(name: string): Promise<string> => {
+  const metadata = { 
+    name: foundry.utils.randomID(), 
+    label: `FCB - ${name}`,
+    type: 'JournalEntry' as const, 
+    ownership: {
+      GAMEMASTER: 'OWNER',
+      ASSISTANT: 'LIMITED',
+      TRUSTED: 'LIMITED',
+      PLAYER: 'LIMITED'
+    },
+    locked: false
+  };
+
+  const rootFolder = await RootFolder.get();
+  const pack = await foundry.documents.collections.CompendiumCollection.createCompendium(metadata) as  SettingCompendium;
+  await pack.setFolder(rootFolder.raw);
+
+  const compendiumId = pack.metadata.id;
+
+  // create the folders inside
+  const folderNames = [
+    localize('contentFolders.settings'),
+    localize('contentFolders.campaigns'),
+    localize('contentFolders.entries'),
+    localize('contentFolders.sessions'),
+  ];
+
+  const folders = folderNames.map((folderName) => ({
+    name: folderName,
+    type: 'JournalEntry' as const,
+    sorting: 'a' as const,
+  }));
+
+  await Folder.createDocuments(folders, { pack: compendiumId });
+
+  if (!folders) throw new Error("Couldn't create root folder");
+
+  return compendiumId;
 }

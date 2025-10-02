@@ -4,7 +4,7 @@ import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace } from '@/documents';
 import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
-import { TopicFolder, Setting } from '@/classes';
+import { TopicFolder, FCBSetting } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
@@ -123,38 +123,36 @@ export class Entry {
 
     // create the entry
     let entryDoc: EntryDoc[] = [];
-    await setting.executeUnlocked(async () => {
-      entryDoc = await JournalEntryPage.createDocuments([{
-        // @ts-ignore- we know this type is valid
-        type: DOCUMENT_TYPES.Entry,
-        name: topicFolder.topic === Topics.PC ? `<${localize('placeholders.linkToActor')}>` : nameToUse,
-        system: {
-          playerName: topicFolder.topic === Topics.PC ? nameToUse : '',
-          actorId: null,
-          plotPoints: '',
-          background: '',
-          magicItems: '',
-          type: topicFolder.topic === Topics.PC ? 'PC' : options.type || '',
-          topic: topicFolder.topic,
-          relationships: {
-            [Topics.Character]: {},
-            [Topics.Location]: {},
-            [Topics.Organization]: {},
-            [Topics.PC]: {},
-          },
-          actors: [],
-          scenes: [],
-          img: '',
-        }
-      }],{
-        parent: topicFolder.raw,
-      }) as unknown as EntryDoc[];
-
-      if (options.type) {
-        await Entry.addTypeIfNeeded(topicFolder, options.type);
+    entryDoc = await JournalEntryPage.createDocuments([{
+      // @ts-ignore- we know this type is valid
+      type: DOCUMENT_TYPES.Entry,
+      name: topicFolder.topic === Topics.PC ? `<${localize('placeholders.linkToActor')}>` : nameToUse,
+      system: {
+        playerName: topicFolder.topic === Topics.PC ? nameToUse : '',
+        actorId: null,
+        plotPoints: '',
+        background: '',
+        magicItems: '',
+        type: topicFolder.topic === Topics.PC ? 'PC' : options.type || '',
+        topic: topicFolder.topic,
+        relationships: {
+          [Topics.Character]: {},
+          [Topics.Location]: {},
+          [Topics.Organization]: {},
+          [Topics.PC]: {},
+        },
+        actors: [],
+        scenes: [],
+        img: '',
       }
-    });
+    }],{
+      parent: topicFolder.raw,
+    }) as unknown as EntryDoc[];
 
+    if (options.type) {
+      await Entry.addTypeIfNeeded(topicFolder, options.type);
+    }
+ 
     if (entryDoc && entryDoc.length > 0) {
       const entry = new Entry(entryDoc[0], topicFolder);
       
@@ -447,9 +445,9 @@ export class Entry {
     * Gets the setting associated with a entry, loading into the topic
     * if needed.
     * 
-    * @returns {Promise<Setting>} A promise to the setting associated with the entry.
+    * @returns {Promise<FCBSetting>} A promise to the setting associated with the entry.
     */
-  public async getSetting(): Promise<Setting> {
+  public async getSetting(): Promise<FCBSetting> {
     if (!this.topicFolder)
       await this.loadTopic();
   
@@ -478,40 +476,38 @@ export class Entry {
 
     let retval: EntryDoc | null = null;
 
-    await setting.executeUnlocked(async () => {
-      // add the type to the master list if it was changed and doesn't exist
-      if (updateData.system?.type) {
-        const topicFolder = setting.topicFolders[this.topic];
+    // add the type to the master list if it was changed and doesn't exist
+    if (updateData.system?.type) {
+      const topicFolder = setting.topicFolders[this.topic];
 
-        await Entry.addTypeIfNeeded(topicFolder, updateData.system?.type);
+      await Entry.addTypeIfNeeded(topicFolder, updateData.system?.type);
+    }
+
+    let oldRelationships;
+    
+    if (updateData.system?.relationships) {
+      // do the serialization of the relationships field
+      oldRelationships = updateData.system.relationships;
+
+      updateData.system.relationships = relationshipKeyReplace(updateData.system.relationships || {}, true);
+    }
+
+    // note: update returns null if nothing changed
+    try {
+      const retval = await toRaw(this._entryDoc).update(updateData) || null;
+      if (retval) {
+        this._entryDoc = retval;
       }
-
-      let oldRelationships;
-      
+        
+      // swap back
       if (updateData.system?.relationships) {
-        // do the serialization of the relationships field
-        oldRelationships = updateData.system.relationships;
-
-        updateData.system.relationships = relationshipKeyReplace(updateData.system.relationships || {}, true);
+        this._entryDoc.system.relationships = oldRelationships;
       }
 
-      // note: update returns null if nothing changed
-      try {
-        const retval = await toRaw(this._entryDoc).update(updateData) || null;
-        if (retval) {
-          this._entryDoc = retval;
-        }
-          
-        // swap back
-        if (updateData.system?.relationships) {
-          this._entryDoc.system.relationships = oldRelationships;
-        }
-
-        this._cumulativeUpdate = {};
-      } catch (e) {
-        console.error('Failed to update campaign', e);
-      }
-    });
+      this._cumulativeUpdate = {};
+    } catch (e) {
+      console.error('Failed to update campaign', e);
+    }
 
     // Update the search index and to-do list
     try {
@@ -540,11 +536,9 @@ export class Entry {
     if (!topicFolder)
       throw new Error('Attempting to delete entry without parent TopicFolder in Entry.delete()');
 
-    await setting.executeUnlocked(async () => {
-      await this._entryDoc.delete();
+    await this._entryDoc.delete();
 
-      await setting.deleteEntryFromSetting(topicFolder, id);
-    });
+    await setting.deleteEntryFromSetting(topicFolder, id);
 
     // Remove from search index
     try {
