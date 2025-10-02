@@ -1,8 +1,8 @@
 import { moduleId, ModuleSettings, } from '@/settings';
 import { KeyBindings } from '@/settings/KeyBindings';
-import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel, } from '@/documents';
+import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel, SettingDataModel, } from '@/documents';
 import { CampaignBuilderApplication } from '@/applications/CampaignBuilder';
-import { FCBSetting as SettingNamespace } from '@/documents';
+import { SettingDataModel } from '@/documents';
 
 export function registerForInitHook() {
   Hooks.once('init', init);
@@ -23,11 +23,10 @@ async function init(): Promise<void> {
   // register the data models
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
     [DOCUMENT_TYPES.Entry]: EntryDataModel,
-    [DOCUMENT_TYPES.Session]: SessionDataModel,
-    [DOCUMENT_TYPES.Setting]: SettingNamespace.DataModel,
-    // [DOCUMENT_TYPES.PC]: PCDataModel, // Deprecated in v1.2+
+    [DOCUMENT_TYPES.Session]: SessionDataModel,    
+    // [DOCUMENT_TYPES.Campaign]: CampaignDataModel,
+    [DOCUMENT_TYPES.Setting]: SettingDataModel,
   });
-
   
   foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntry, moduleId, CampaignBuilderApplication, {
     canBeDefault: true,
@@ -41,10 +40,4 @@ async function init(): Promise<void> {
     types: [DOCUMENT_TYPES.Entry, DOCUMENT_TYPES.Session, DOCUMENT_TYPES.Setting ],
     makeDefault: true,
   });
-
-  // PC entries are now handled by Entry with topic=PC
-  // foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
-  //   types: [DOCUMENT_TYPES.PC],
-  //   makeDefault: true
-  // });
 }

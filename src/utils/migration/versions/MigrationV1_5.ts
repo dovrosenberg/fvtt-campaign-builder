@@ -2,7 +2,7 @@ import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
 import { RootFolder, FCBSetting } from '@/classes';
-import { FCBSetting as SettingNamespace } from '@/documents';
+import { DOCUMENT_TYPES } from '@/documents';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
@@ -109,39 +109,43 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
     throw new Error('Failed to create setting in MigrationV1_5.migrate()');
   
   // get all the setting configuration
-  const updateData: SettingNamespace.UpdateData = {
-    text: {
-      // @ts-ignore
-      content: folder.getFlag(moduleId, 'description'),
-    },
-    system: {
-      // @ts-ignore
-      topicIds: folder.getFlag(moduleId, 'topicIds'),
-      // @ts-ignore
-      campaignNames: cleanKeys(folder.getFlag(moduleId, 'campaignNames')),
-      // @ts-ignore
-      expandedIds: cleanKeys(folder.getFlag(moduleId, 'expandedIds')),
-      // @ts-ignore
-      hierarchies: cleanKeys(folder.getFlag(moduleId, 'hierarchies')),
-      // @ts-ignore
-      genre: folder.getFlag(moduleId, 'genre'),
-      // @ts-ignore
-      settingFeeling: folder.getFlag(moduleId, 'worldFeeling'), // leaving the key value for backwards compatibility
-      // @ts-ignore
-      img: folder.getFlag(moduleId, 'img'),   // image path for the setting
-      // @ts-ignore
-      nameStyles: folder.getFlag(moduleId, 'nameStyles'),   // array of name styles to use for name generation
-      // @ts-ignore
-      rollTableConfig: folder.getFlag(moduleId, 'rollTableConfig'),   // setting-specific roll table configuration
-      // @ts-ignore
-      nameStyleExamples: folder.getFlag(moduleId, 'nameStyleExamples'),   // stored example names for each style with their genre and setting feeling
-      // @ts-ignore
-      journals: folder.getFlag(moduleId, 'journals'),
-    }
-  };
+  // @ts-ignore
+  newSetting.description = folder.getFlag(moduleId, 'description');
+  
+  // @ts-ignore
+  newSetting.topicIds = folder.getFlag(moduleId, 'topicIds');
+  
+  // @ts-ignore
+  newSetting.campaignNames = cleanKeys(folder.getFlag(moduleId, 'campaignNames'));
+  
+  // @ts-ignore
+  newSetting.expandedIds = cleanKeys(folder.getFlag(moduleId, 'expandedIds'));
+  
+  // @ts-ignore
+  newSetting.hierarchies = cleanKeys(folder.getFlag(moduleId, 'hierarchies'));
+  
+  // @ts-ignore
+  newSetting.genre = folder.getFlag(moduleId, 'genre');
+  
+  // @ts-ignore
+  newSetting.settingFeeling = folder.getFlag(moduleId, 'worldFeeling'); // leaving the key value for backwards compatibility
+  
+  // @ts-ignore
+  newSetting.img = folder.getFlag(moduleId, 'img');   // image path for the setting
+  
+  // @ts-ignore
+  newSetting.nameStyles = folder.getFlag(moduleId, 'nameStyles');   // array of name styles to use for name generation
+  
+  // @ts-ignore
+  newSetting.rollTableConfig = folder.getFlag(moduleId, 'rollTableConfig');   // setting-specific roll table configuration
+  
+  // @ts-ignore
+  newSetting.nameStyleExamples = folder.getFlag(moduleId, 'nameStyleExamples');   // stored example names for each style with their genre and setting feeling
+  
+  // @ts-ignore
+  newSetting.journals = folder.getFlag(moduleId, 'journals');
 
-  newSetting.system = updateData.system;
-  await newSetting.update({system: newSetting.system});
+  await newSetting.save();
 
   return newSetting;
 }

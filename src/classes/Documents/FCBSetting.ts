@@ -1,25 +1,25 @@
 import { UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
-import { Hierarchy, Topics, ValidTopic } from '@/types';
+import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { Campaign, TopicFolder, RootFolder, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
 import { Backend } from '@/classes';
-import { DOCUMENT_TYPES, } from '@/documents';
-import { FCBSetting as SettingNamespace } from '@/documents';
-import { create as createHelper, update as updateHelper } from '@/classes/Documents/helpers';
+import { DOCUMENT_TYPES } from '@/documents/types';
+import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
+import { ApiNamePreviewPost200ResponsePreviewInner } from 'src/apiClient';
+import { NameStyleExample } from 'src/documents';
 
 type SettingCompendium = CompendiumCollection<'JournalEntry'>;
 
-// represents a campaign setting
-// it's essentially a wrapper around a SettingDoc object stored in the 
-//    module settings
-export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
-  declare system: SettingNamespace.DocModel['system'];
+type SettingDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Setting>;
 
-  protected static _folderName = 'Settings';
-  protected static _defaultSystem = { 
+// represents a campaign setting
+export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Setting> {
+  protected static override _folderName = 'Settings';
+  protected static override _documentType = DOCUMENT_TYPES.Setting;
+  protected static override _defaultSystem = { 
     topicIds: {},  
     campaignNames: {},  
     expandedIds: {},  
@@ -29,41 +29,138 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
     img: '',   
     nameStyles: [],   
     rollTableConfig: null,   
-    nameStyleExamples: null,   
+    nameStyleExamples: [],   
     journals: [], 
-   };
+  } as unknown as SettingDocClass['system'];
   
   // JournalEntries
   public campaigns: Record<string, Campaign> = {};   // Campaigns keyed by uuid 
   public topicFolders: Record<ValidTopic, TopicFolder> = {} as Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using populate()), so we assume it's never empty
 
-  // getters for system
-  get topicIds() { return this.system.topicIds; }
-  get campaignNames() { return this.system.campaignNames; }
-  get expandedIds() { return this.system.expandedIds; }
-  get hierarchies() { return this.system.hierarchies; }
-  get genre() { return this.system.genre; }
-  get settingFeeling() { return this.system.settingFeeling; }
-  get img() { return this.system.img; }
-  get nameStyles() { return this.system.nameStyles; }
-  get rollTableConfig() { return this.system.rollTableConfig; }
-  get nameStyleExamples() { return this.system.nameStyleExamples; }
-  get journals() { return this.system.journals; }
-
-
-  static async fromUuid(settingId: string): Promise<FCBSetting | null> {
-    const setting = await fromUuid<JournalEntryPage>(settingId);
-
+  static override async fromUuid<
+    T extends typeof FCBJournalEntryPage,
+  > (this: T, settingId: string): Promise<InstanceType<T> | null> { 
+    const setting = await super.fromUuid(settingId) as unknown as (FCBSetting | null);
+    
     if (!setting)
       return null;
 
-    // need to change the prototype to get it as an FCBSetting
-    Object.setPrototypeOf(setting, FCBSetting.prototype);
-    
-    await (setting as unknown as FCBSetting).populate();
+    await setting.populate();
 
-    return setting as unknown as FCBSetting;
+    return setting as InstanceType<T>;
   }
+
+  /**
+   * The JournalEntry UUID for each topic.
+   */
+  public get topicIds(): Record<ValidTopic, string> | Record<never, string> {
+    return this._clone.system.topicIds;
+  }
+
+  public set topicIds(value: Record<ValidTopic, string> | Record<never, string>) {
+    this._clone.system.topicIds = value;
+  }
+
+  /**
+   * The name keyed by JournalEntry UUID.
+   */
+  public get campaignNames(): Record<string, string> {
+    return this._clone.system.campaignNames as Record<string, string>;
+  }
+
+  public set campaignNames(value: Record<string, string>) {
+    this._clone.system.campaignNames = value;
+  }
+
+  /**
+   * The IDs of nodes that are expanded in the directory.
+   * Could include compendia, entries, or subentries, or campaigns.
+   */
+  public get expandedIds(): Record<string, boolean> {
+    return this._clone.system.expandedIds as Record<string, boolean>;
+  }
+
+  public set expandedIds(value: Record<string, boolean>) {
+    this._clone.system.expandedIds = value;
+  }
+
+  /**
+   * The full tree hierarchy or null for topics without a hierarchy.
+   */
+  public get hierarchies(): Record<string, Hierarchy> {
+    return this._clone.system.hierarchies as Record<string, Hierarchy>;
+  }
+
+  public set hierarchies(value: Record<string, Hierarchy>) {
+    this._clone.system.hierarchies = value;
+  }
+
+  get description(): string {
+    return this._clone.text?.content || '';
+  }
+
+  set description(value: string) {
+    this._clone.text = {
+      ...this._clone.text,
+      content: value
+    };
+  }
+
+  public get genre(): string {
+    return this._clone.system.genre;
+  }
+
+  public set genre(value: string) {
+    this._clone.system.genre = value;
+  }
+
+  public get settingFeeling(): string {
+    return this._clone.system.settingFeeling;
+  }
+
+  public set settingFeeling(value: string) {
+    this._clone.system.settingFeeling = value;
+  }
+
+  public get img(): string {
+    return this._clone.system.img || '';
+  }
+
+  public set img(value: string) {
+    this._clone.system.img = value;
+  }
+  
+  public get nameStyles(): readonly number[] {
+    return this._clone.system.nameStyles;
+  }
+
+  public set nameStyles(value: number[] | readonly number[] ) {
+    this._clone.system.nameStyles = value.slice();     // we clone it so it can't be edited outside
+  }
+
+  public get rollTableConfig(): SettingGeneratorConfig | null {
+    return (this._clone.system.rollTableConfig || null) as unknown as SettingGeneratorConfig | null;
+  }
+
+  public set rollTableConfig(value: SettingGeneratorConfig | null) {
+    (this._clone.system.rollTableConfig as SettingGeneratorConfig | null) = value;
+  }
+
+  public get nameStyleExamples(): NameStyleExample[] | null {
+    return (this._clone.system.nameStyleExamples || null) as unknown as NameStyleExample[] | null;
+  } 
+
+  public set nameStyleExamples(value: NameStyleExample[] | null) {
+    (this._clone.system.nameStyleExamples as NameStyleExample[] | null) = value;
+  }
+
+  public get journals(): RelatedJournal[] {
+    return this._clone.system.journals as RelatedJournal[];
+  }
+
+  public set journals(value: RelatedJournal[]) {
+    (this._clone.system.journals as RelatedJournal[]) = value;
+  } 
 
   /**
   * Gets the Topics associated with the setting. If the topics are already loaded, the promise resolves
@@ -71,13 +168,13 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
   * @returns {Promise<Record<ValidTopic, TopicFolder>>} A promise to the topics
   */
   public async loadTopics(): Promise<Record<ValidTopic, TopicFolder>> {
-    if (!this.system.topicIds)
+    if (!this.topicIds)
       throw new Error('Invalid FCBSetting.loadTopics() called before IDs loaded');
 
     // loop over just the numeric values
     for (const topic of Object.values(Topics).filter(t=>typeof t === 'number')) {
       if (topic !== Topics.None && !this.topicFolders[topic]) {
-        const topicObj = await TopicFolder.fromUuid(this.system.topicIds[topic]);
+        const topicObj = await TopicFolder.fromUuid(this.topicIds[topic]);
         if (!topicObj)
           throw new Error('Invalid topic uuid in FCBSetting.loadTopics()');
 
@@ -96,20 +193,14 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
   * @returns {Promise<Record<string, Campaign>>} A promise to the campaigns 
   */
   public async loadCampaigns(): Promise<Record<string, Campaign>> {
-    for (const id in this.system.campaignNames) {
+    for (const id in this.campaignNames) {
       const campaignObj = await Campaign.fromUuid(id);
       if (!campaignObj) {
         // clean it up
-        const campaignNames = this.system.campaignNames;
-        delete campaignNames[id];
-        
+        delete this.campaignNames[id];
         delete this.campaigns[id];
 
-        await this.update({
-          system: {
-            campaignNames
-          }
-        });
+        await this.save();
       } else {
         campaignObj.setting = this;
         this.campaigns[id] = campaignObj;
@@ -125,7 +216,7 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
    */
   // TODO: get rid of this
   public getEntryHierarchy(entryId: string): Hierarchy {
-    return this.system.hierarchies[entryId];
+    return this.hierarchies[entryId] as Hierarchy;
   }
 
   /**
@@ -133,37 +224,19 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
    */
   // TODO: get rid of this
   public async setEntryHierarchy(entryId: string, value: Hierarchy) {
-    await this.update({
-      system: {
-        hierarchies: {
-          ...this.system.hierarchies,
-          [entryId]: value
-        }
-      }
-    });
+    this.hierarchies[entryId] = value;
+    await this.save();
   }
   
  
   public async collapseNode(id: string): Promise<void> {
-    const expandedIds = { ...this.system.expandedIds }; 
-    delete expandedIds[id];
-
-    await this.update({
-      system: {
-        expandedIds
-      }
-    })
+    delete this.expandedIds[id];
+    await this.save();
   }
 
   public async expandNode(id: string): Promise<void> {
-    const expandedIds = { ...this.system.expandedIds }; 
-    expandedIds[id] = true;
-
-    await this.update({
-      system: {
-        expandedIds
-      }
-    })
+    this.expandedIds[id] = true;
+    await this.save();
   }
 
 
@@ -195,7 +268,7 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
             throw new Error('Failed to create compendium in FCBSetting.create()');
         }
 
-        const newSetting = await createHelper<FCBSetting>(compendiumId, this._folderName, DOCUMENT_TYPES.Setting, nameToUse, this._defaultSystem) as unknown as FCBSetting;
+        const newSetting = await super.create(compendiumId, nameToUse) as unknown as FCBSetting;
         if (skipValidation)
           return newSetting;
 
@@ -220,11 +293,6 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
     return null;
   }
 
-  public async update(updateData?: SettingNamespace.UpdateData): Promise<this | undefined> {
-    // use the helper to make sure we update the wrapper name if needed
-    return updateHelper(this, updateData);
-  }
-
   // make sure we have a compendium in the folder; create a new one if needed
   // also loads all the topics
   public async populate() {
@@ -240,11 +308,10 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
     let updated = false;
 
     const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
-    let topicIds = foundry.utils.deepClone(this.system.topicIds);
     const topicObjects = {} as Record<ValidTopic, TopicFolder>;
 
-    if (!topicIds) {
-      topicIds = {} as Record<ValidTopic, string>;
+    if (!this.topicIds) {
+      this.topicIds = {} as Record<ValidTopic, string>;
     }
 
     // load the topics, creating them if needed
@@ -252,8 +319,8 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
       const t = topics[i];
 
       let topicFolder;
-      if (topicIds[t]) {
-        topicFolder = await TopicFolder.fromUuid(topicIds[t]);
+      if (this.topicIds[t]) {
+        topicFolder = await TopicFolder.fromUuid(this.topicIds[t]);
 
         if (topicFolder)
           topicFolder.setting = this;
@@ -267,7 +334,7 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
           throw new Error('Couldn\'t create topicFolder in FCBSetting.populateTopics()');
 
         topicFolder.setting = this;
-        topicIds[t] = topicFolder.uuid;
+        this.topicIds[t] = topicFolder.uuid;
         topicObjects[t] = topicFolder;
 
         updated = true;
@@ -280,12 +347,13 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
 
     // if we changed things, save new compendia flag
     if (updated) {
-      await this.update({ system: { topicIds }});
+      this.save();
     }
   }
   
   public async collapseAll() {
-    await this.update({ system: { expandedIds:  {} } });
+    this.expandedIds = {};
+    await this.save();
   }
 
 
@@ -295,25 +363,19 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
    */
   // TODO: should delete all the sessions from expanded entries, too
   public async deleteCampaignFromSetting(campaignId: string) {
-    // clone the system object for ease of maintenance
-    const system = foundry.utils.deepClone(this.system);
-
     if (this.campaigns[campaignId]) {
       delete this.campaigns[campaignId];
     }
 
-    delete system.campaignNames[campaignId];
-    delete system.expandedIds[campaignId];
+    delete this.campaignNames[campaignId];
+    delete this.expandedIds[campaignId];
 
-    await this.update({ system });
+    await this.save();
   }  
 
   // remove an entry from the setting metadata
   public async deleteEntryFromSetting(topicFolder: TopicFolder, entryId: string) {
-    // clone the system object for ease of maintenance
-    const system = foundry.utils.deepClone(this.system);
-
-    const hierarchy = system.hierarchies[entryId];
+    const hierarchy = this.hierarchies[entryId];
     
     let topNodesCleaned = false;
     if (hierarchy) {
@@ -323,7 +385,7 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
         topNodesCleaned = true;
       } else {
         // Even if there are no ancestors or children, we still need to delete the hierarchy
-        delete system.hierarchies[entryId];
+        delete this.hierarchies[entryId];
       }
     }
 
@@ -337,29 +399,25 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
     }
 
     // remove from the expanded list
-    delete system.expandedIds[entryId];
+    delete this.expandedIds[entryId];
 
     // save the updates
-    await this.update({ system });
+    await this.save();
   }  
 
   // remove a session from the setting metadata
   public async deleteSessionFromSetting(sessionId: string) {
-    const expandedIds = foundry.utils.deepClone(this.system.expandedIds);
-    delete expandedIds[sessionId];    
-    await this.update({ system: { expandedIds } });
+    delete this.expandedIds[sessionId];    
+    await this.save();
   }  
 
   // change a campaign name inside all the setting metadata
   public async updateCampaignName(campaignId: string, name: string) {
-    const campaignNames = foundry.utils.deepClone(this.system.campaignNames);
-    campaignNames[campaignId] = name;
-    
-    await this.update({ system: { campaignNames } });
+    this.campaignNames[campaignId] = name;
+    await this.save();
   }
 
-  /** Always returns undefined */
-  public override async delete(): Promise<this | undefined> {
+  public async delete(): Promise<this | undefined> {
     // delete the setting
     const allSettings = ModuleSettings.get(SettingKey.settings);
     if (allSettings[this.uuid]) {
@@ -371,13 +429,10 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
     await this.deleteRollTables();
 
     // delete the pack - this will delete everything else
-    if (!this.pack)
+    if (!this.compendium)
       throw new Error ('Missing compendium in FCBSetting.delete');
 
-    const pack = game.packs.get(this.pack);
-    if (pack) {
-      await pack.deleteCompendium();
-    }
+    await this.compendium.deleteCompendium();
 
     return undefined;
   }
@@ -386,7 +441,7 @@ export class FCBSetting extends JournalEntryPage<JournalEntryPage.SubType> {
  * Deletes all roll tables and the containing folder for the setting
  */
 private async deleteRollTables() : Promise<void> {
-  const config = this.system.rollTableConfig;
+  const config = this.rollTableConfig;
 
   if (!config) {
     return; // No roll tables configured for this setting
@@ -472,9 +527,9 @@ private async deleteRollTables() : Promise<void> {
   /** remove from the journals tabs -- don't worry about lore for now */
   public async deleteJournalEntryFromSetting(journalId: string) {
     // remove from the setting
-    if (this.system.journals.find(j => j.journalUuid === journalId)) {
-      const journals = this.system.journals.filter(j => j.journalUuid !== journalId);
-      await this.update({ system: { journals }});
+    if (this.journals.find(j => j.journalUuid === journalId)) {
+      this.journals = this.journals.filter(j => j.journalUuid !== journalId);
+      await this.save();
     }
 
     // remove from any Campaigns that are linked to it
@@ -499,9 +554,9 @@ private async deleteRollTables() : Promise<void> {
   /** remove from the journals tabs -- don't worry about lore for now */
   public async deleteJournalEntryPageFromSetting(journalId: string) {
     // remove from the setting
-    if (this.system.journals.find(j => j.pageUuid === journalId)) {
-      const journals = this.system.journals.filter(j => j.pageUuid !== journalId);
-      await this.update({ system: { journals }});
+    if (this.journals.find(j => j.pageUuid === journalId)) {
+      this.journals = this.journals.filter(j => j.pageUuid !== journalId);
+      await this.save();
     }
 
     // remove from any Campaigns that are linked to it

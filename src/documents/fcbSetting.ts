@@ -1,75 +1,78 @@
 import { Hierarchy, RelatedJournal, SettingGeneratorConfig, ValidTopic } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
+import { DOCUMENT_TYPES } from './types';
 
-export namespace FCBSetting {
-  const fields = foundry.data.fields;
-  const settingSchema = {
-    /** the uuid for each topic */
-    topicIds: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<ValidTopic, string> | Record<never, string> }),  
+const fields = foundry.data.fields;
+const settingSchema = {
+  /** the uuid for each topic */
+  topicIds: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<ValidTopic, string> | Record<never, string> }),  
 
-    /** name of each campaign; keyed by journal entry uuid */
-    campaignNames: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, string> }),
+  /** name of each campaign; keyed by journal entry uuid */
+  campaignNames: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, string> }),
 
-    /** ids of nodes that are expanded in the tree (could be compendia or entries or subentries) - handles topic tree */
-    expandedIds: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, boolean> }),
+  /** ids of nodes that are expanded in the tree (could be compendia or entries or subentries) - handles topic tree */
+  expandedIds: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, boolean> }),
 
-    /** the full tree hierarchy or null for topics without hierarchy */
-    hierarchies: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, Hierarchy> }),
+  /** the full tree hierarchy or null for topics without hierarchy */
+  hierarchies: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, Hierarchy> }),
 
-    /** genre of the setting */
-    genre: new fields.StringField({ required: true, nullable: false, initial: '' }),
+  /** genre of the setting */
+  genre: new fields.StringField({ required: true, nullable: false, initial: '' }),
 
-    /** setting feeling of the setting */
-    settingFeeling: new fields.StringField({ required: true, nullable: false, initial: '' }),
+  /** setting feeling of the setting */
+  settingFeeling: new fields.StringField({ required: true, nullable: false, initial: '' }),
 
-    /** image path for the setting */
-    img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
+  /** image path for the setting */
+  img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
 
-    /** array of name styles to use for name generation */
-    nameStyles: new fields.ArrayField(new fields.NumberField({ required: true, nullable: false }), { initial: [] as number[] }),
+  /** array of name styles to use for name generation */
+  nameStyles: new fields.ArrayField(new fields.NumberField({ required: true, nullable: false }), { initial: [] as number[] }),
 
-    /** setting-specific roll table configuration */
-    rollTableConfig: new fields.ObjectField({ required: false, nullable: true, initial: null }),
+  /** setting-specific roll table configuration */
+  rollTableConfig: new fields.ObjectField({ required: false, nullable: true, initial: null }),
 
-    /** stored example names for each style with their genre and setting feeling */
-    nameStyleExamples: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false }), { initial: [] as { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] }[] }),
+  /** stored example names for each style with their genre and setting feeling */
+  nameStyleExamples: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false }), { initial: [] as { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] }[] }),
 
-    /** related journal entries */
-    journals: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false }), { initial: [] as RelatedJournal[] }),
+  /** related journal entries */
+  journals: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false }), { initial: [] as RelatedJournal[] }),
+};
+
+type SchemaType = typeof settingSchema;
+
+export class SettingDataModel<
+  Schema extends SchemaType = SchemaType, 
+  ParentNode extends JournalEntry = JournalEntry
+> extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
+  static defineSchema(): SchemaType {
+    return settingSchema;
+  }
+
+  /** @override */
+  // prepareBaseData(): void {
+  // }
+}
+
+export type NameStyleExample = { 
+  genre: string; 
+  settingFeeling: string; 
+  examples: ApiNamePreviewPost200ResponsePreviewInner[] 
+};
+
+export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_TYPES.Setting>, 'system'> {
+  __type: 'FCBSettingDoc'; 
+
+  system: {
+    topicIds: Record<ValidTopic, string> | Record<never, string>;  
+    campaignNames: Record<string, string>;  
+    expandedIds: Record<string, boolean>;  
+    hierarchies: Record<string, Hierarchy>;  
+    genre: string;  
+    settingFeeling: string;   
+    img: string;   
+    nameStyles: number[];   
+    rollTableConfig: SettingGeneratorConfig | null;   
+    nameStyleExamples: NameStyleExample[];   
+    journals: RelatedJournal[]; 
   };
-
-  type SchemaType = typeof settingSchema;
-
-  export class DataModel<
-    Schema extends SchemaType = SchemaType, 
-    ParentNode extends JournalEntry = JournalEntry
-  > extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
-    static defineSchema(): SchemaType {
-      return settingSchema;
-    }
-
-    /** @override */
-    // prepareBaseData(): void {
-    // }
-  }
-
-  export type UpdateData = Partial<DataModel & JournalEntryPage.UpdateData>;
-
-  export interface DocModel extends Omit<JournalEntryPage, 'system'> {
-    __type: 'FCBSettingDoc'; 
-
-    system: {
-      topicIds: Record<ValidTopic, string> | Record<never, string>;  
-      campaignNames: Record<string, string>;  
-      expandedIds: Record<string, boolean>;  
-      hierarchies: Record<string, Hierarchy>;  
-      genre: string;  
-      settingFeeling: string;   
-      img: string;   
-      nameStyles: number[];   
-      rollTableConfig: SettingGeneratorConfig | null;   
-      nameStyleExamples: { genre: string; settingFeeling: string; examples: ApiNamePreviewPost200ResponsePreviewInner[] } | null;   
-      journals: RelatedJournal[]; 
-    };
-  }
 }
