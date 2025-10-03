@@ -131,3 +131,8 @@ export interface Idea {
 
 export type BaseTableGridRow = { uuid: string; sortOrder?: number } & Record<string, any>;
 
+export type SettingIndex = {
+  settingId: string;
+  name: string;
+  packId: string;
+}

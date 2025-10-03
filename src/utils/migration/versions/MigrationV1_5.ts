@@ -2,6 +2,7 @@ import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
 import { RootFolder, FCBSetting } from '@/classes';
+import { SettingIndex } from '@/types';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
@@ -40,14 +41,19 @@ export class MigrationV1_5 implements Migration {
       };
 
       // map ids to names
-      const newSettings: Record<string, string> = {};
+      const newSettings: SettingIndex[] = [];
       const mapSettingIds: Record<string, string> = {};   // map old folder Ids to new ids
 
       for (const folder of allSettingFolders) {
         const setting = await migrateSetting(folder);
 
         // we then just need to save the index info to the module
-        newSettings[setting.uuid] = folder.name;
+        newSettings.push({
+          settingId: setting.uuid,
+          name: folder.name,
+          packId: folder.uuid,
+        });
+        
         mapSettingIds[folder.uuid] = setting.uuid;
 
         // we don't clean up the folder because there's not really any reason to
@@ -57,7 +63,7 @@ export class MigrationV1_5 implements Migration {
       }
 
       // save them all
-      await ModuleSettings.set(SettingKey.settings, newSettings);
+      await ModuleSettings.set(SettingKey.settingIndex, newSettings);
 
       // remap the current settings to the updated ids 
       const currentSettingId = UserFlags.get(UserFlagKey.currentSetting);
@@ -102,7 +108,7 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
     PLAYER: 'LIMITED' 
   }, locked: false });
 
-  const newSetting = await FCBSetting.createSetting(false, folder.name, compendiumId, true);
+  const newSetting = await FCBSetting.create(false, folder.name, compendiumId, true);
 
   if (!newSetting)
     throw new Error('Failed to create setting in MigrationV1_5.migrate()');

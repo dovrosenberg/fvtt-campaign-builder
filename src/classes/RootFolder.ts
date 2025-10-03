@@ -1,5 +1,5 @@
-import { moduleId, ModuleSettings, SettingKey } from '@/settings';
-import { RootFolderDoc, RootFolderFlagKey, } from '@/documents';
+import { ModuleSettings, SettingKey } from '@/settings';
+import { RootFolderDoc, } from '@/documents';
 import { localize } from '@/utils/game';
 
 export class RootFolder {
@@ -8,7 +8,7 @@ export class RootFolder {
   constructor(doc: RootFolderDoc) {
     // make sure it's the right kind of document
     if (doc.documentName !== 'Folder')
-      throw new Error('Invalid document type in DocumentWithFlags constructor');
+      throw new Error('Invalid document type in RootFolder constructor');
 
     // clone it to avoid unexpected changes, also drop the proxy
     this._doc = foundry.utils.deepClone(doc);

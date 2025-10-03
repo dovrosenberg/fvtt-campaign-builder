@@ -1,7 +1,12 @@
 import { DOCUMENT_TYPES } from '@/documents/types';
+import { ModuleSettings, SettingKey } from 'src/settings';
 import { toRaw } from 'vue';
+import { FCBSetting } from './FCBSetting';
 
-type ValidDocType = typeof DOCUMENT_TYPES.Setting;
+type ValidDocType = 
+  typeof DOCUMENT_TYPES.Setting | 
+  typeof DOCUMENT_TYPES.Campaign | 
+  typeof DOCUMENT_TYPES.Session;
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
@@ -10,6 +15,19 @@ type DocTypeOf<T> =
 // get the DocClass out of a constructor for a child
 type DocClassOf<T> = JournalEntryPage<DocTypeOf<T>>;
 
+// Helper: the static side every subclass must provide
+type FCBJournalEntryPageStatic<
+  DocType extends ValidDocType,
+  DocClass extends JournalEntryPage<DocType>
+> = {
+  // constructor
+  new (doc: DocClass, ...args: any[]): FCBJournalEntryPage<DocType, DocClass>;
+  // required statics used by base helpers
+  _defaultSystem: DocClass['system'];
+  _folderName: string;
+  _documentType: DocType;
+};
+
 export class FCBJournalEntryPage<
   DocType extends ValidDocType,
   DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>
@@ -17,9 +35,9 @@ export class FCBJournalEntryPage<
   protected _clone: DocClass;
   protected _doc: DocClass;
 
-  protected static _defaultSystem: DocClassOf<any>['system'];
-  protected static _folderName: string;
-  protected static _documentType: ValidDocType;
+  static _defaultSystem: DocClassOf<any>['system'];
+  static _folderName: string;
+  static _documentType: ValidDocType;
 
   constructor(doc: DocClass) {
     this._doc = doc;
@@ -49,11 +67,24 @@ export class FCBJournalEntryPage<
   get compendium(): CompendiumCollection<'JournalEntry'> | null { 
     return (game.packs.get(this.compendiumId) || null) as unknown as CompendiumCollection<'JournalEntry'> | null;
   }
-  
+
+  get settingId(): string {
+    const settings = ModuleSettings.get(SettingKey.settingIndex);
+
+    const setting = settings.find(s => s.packId === this._doc.pack);
+
+    if (!setting)
+      throw new Error(`Setting not found for FCBJournalEntryPage ${this.uuid}`);
+    
+    return setting.settingId;
+  }
+
   static async fromUuid<
-    T extends typeof FCBJournalEntryPage,
+    DocType extends ValidDocType,
+    DocClass extends JournalEntryPage<DocType>,
+    T extends FCBJournalEntryPageStatic<DocType, DocClass>
   > (this: T, uuid: string): Promise<InstanceType<T> | null> {
-    const doc = await fromUuid<DocClassOf<T>>(uuid) as DocClassOf<T> | undefined;
+    const doc = await fromUuid<DocClass>(uuid) as DocClass | undefined;
 
     if (!doc)
       return null;
@@ -105,8 +136,10 @@ export class FCBJournalEntryPage<
    * @param {string} name - The name of the content 
    * @returns A promise that resolves when the page has been created with either the page or null for failure
    */
-  public static async create<
-    T extends typeof FCBJournalEntryPage,
+  protected static async _create<
+    DocType extends ValidDocType,
+    DocClass extends JournalEntryPage<DocType>,
+    T extends FCBJournalEntryPageStatic<DocType, DocClass>
   > (this: T, compendiumId: string, name: string): Promise<InstanceType<T> | null> {
     // find the folder it goes in 
     const pack = game.packs.get(compendiumId);
@@ -143,7 +176,7 @@ export class FCBJournalEntryPage<
       system: this._defaultSystem
     }],{
       parent: journalEntry,
-    }) as unknown as DocClassOf<T>[];
+    }) as unknown as DocClass[];
   
     if (!pages || pages.length === 0)
       throw new Error('Couldn\'t create new journal entry page');

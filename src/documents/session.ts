@@ -1,4 +1,5 @@
 import { TagInfo } from '@/types';
+import { schemas } from './fields';
 
 export interface SessionRelatedItem {
   uuid: string;
@@ -28,20 +29,59 @@ export interface SessionLore extends SessionRelatedItem {
 
 const fields = foundry.data.fields;
 const sessionSchema = {
+  /** the campaign this session is in */
+  campaignId: new fields.DocumentUUIDField({ required: true, nullable: false }),
+
+  /** the session number */
   number: new fields.NumberField({ required: true, nullable: false }),
+
+  /** date of the session */
   date: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: false, }),
+
+  /** the strong start text */
   strongStart: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-  locations: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionLocation[] }),  
-  npcs: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionNPC[] }),  
-  items: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionItem[] }),  
-  monsters: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionMonster[] }),  
-  vignettes: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionVignette[] }),  
-  lore: new fields.ArrayField(new fields.ObjectField({ required: true, nullable: false, }), { initial: [] as SessionLore[] }),  
-  img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
-  tags: new fields.ArrayField(
-    new fields.ObjectField({ required: true, nullable: false, }), 
-    { required: true, initial: [], }
-  ),
+
+  /** array of locations */
+  locations: new fields.ArrayField(
+    schemas.SessionLocation,
+    { initial: [] as SessionLocation[] }
+  ),  
+
+  /** array of npcs */
+  npcs: new fields.ArrayField(
+    schemas.SessionNPC,
+    { initial: [] as SessionNPC[] }
+  ),  
+
+  /** array of magical items */
+  items: new fields.ArrayField(
+    schemas.SessionItem,
+    { initial: [] as SessionItem[] }
+  ),  
+
+  /** array of monsters */
+  monsters: new fields.ArrayField(
+    schemas.SessionMonster,
+    { initial: [] as SessionMonster[] }
+  ),  
+
+  /** array of vignettes */
+  vignettes: new fields.ArrayField(
+    schemas.SessionVignette,
+    { initial: [] as SessionVignette[] }
+  ),  
+
+  /** array of lore */
+  lore: new fields.ArrayField(
+    schemas.SessionLore,
+    { initial: [] as SessionLore[] }
+  ),  
+
+  /** image URL */
+  img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
+
+  /** array of tags */
+  tags: schemas.Tags,
 };
 
 type SessionSchemaType = typeof sessionSchema;
@@ -61,6 +101,7 @@ export interface SessionDoc extends JournalEntryPage {
   __type: 'SessionDoc';
 
   system: {
+    campaignId: string;
     number: number;
     date: string | null;
     strongStart: string;

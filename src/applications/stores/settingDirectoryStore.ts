@@ -351,9 +351,9 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     await setting.delete();
 
     // pick another setting
-    const settings = ModuleSettings.get(SettingKey.settings) || {};
-    if (Object.keys(settings).length>0) {
-      const settingId = Object.keys(settings)[0];
+    const settings = ModuleSettings.get(SettingKey.settingIndex) || [];
+    if (settings.length>0) {
+      const settingId = settings[0].settingId;
       await mainStore.setNewSetting(settingId);
     } else {
       // close all tabs and bookmarks (if we're changing settings they'll reset automatically)
@@ -405,17 +405,17 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     // populate the setting names, and find the current one
     let currentSettingFound = false;
-    const allSettings = ModuleSettings.get(SettingKey.settings) || {};
+    const allSettings = ModuleSettings.get(SettingKey.settingIndex) || [];
 
-    for (const settingId in allSettings) {
+    for (const settingIndex of allSettings) {
       // see if it's the current one
-      if (settingId===currentSetting.value?.settingId) {
+      if (settingIndex.settingId===currentSetting.value?.settingId) {
         currentSettingFound = true;
       }
 
       tree.push({
-        name: allSettings[settingId],
-        id: settingId,
+        name: settingIndex.name,
+        id: settingIndex.settingId,
         topicNodes: []
       });
     }

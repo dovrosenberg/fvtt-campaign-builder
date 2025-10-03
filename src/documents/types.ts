@@ -3,6 +3,7 @@ import { id as moduleId } from '@module';
 import { EntryDataModel } from './entry';
 import { SessionDataModel } from './session';
 import { SettingDataModel } from './fcbSetting';
+import { CampaignDataModel } from './campaign';
 
 // only need these for things that are actually subtyped
 // JournalEntry can't be subtyped, so we handle campaign (and TopicFolder) differently
@@ -20,7 +21,7 @@ export type FCB_DOCUMENT_TYPES = typeof DOCUMENT_TYPES[keyof typeof DOCUMENT_TYP
 
 export type JournalEntryPageTypes = 
   { [K in (typeof DOCUMENT_TYPES)['Entry']]: typeof EntryDataModel } &
-  // { [K in (typeof DOCUMENT_TYPES)['Campaign']]: typeof CampaignDataModel } &
+  { [K in (typeof DOCUMENT_TYPES)['Campaign']]: typeof CampaignDataModel } &
   { [K in (typeof DOCUMENT_TYPES)['Session']]: typeof SessionDataModel } &
   { [K in (typeof DOCUMENT_TYPES)['Setting']]: typeof SettingDataModel };
 

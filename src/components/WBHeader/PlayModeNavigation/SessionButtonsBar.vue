@@ -67,11 +67,8 @@
 
     // special case - it's on the campaign
     if (tabId === 'todo') {
-      if (!currentSession.campaign)
-        return;
-
       // Check if we already have a tab open to that campaign
-      const campaignId = currentSession.campaign.uuid;
+      const campaignId = currentSession.campaignId;
       const campaignTab = tabs.value.find((t) => t.header?.uuid === campaignId);
 
       // If there isn't a tab open to the most recent session, open one

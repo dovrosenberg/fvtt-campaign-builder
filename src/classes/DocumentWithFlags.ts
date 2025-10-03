@@ -1,20 +1,11 @@
 import { 
-  CampaignDoc, 
   TopicDoc,
-  RootFolderDoc,
-  ContentWrapperDoc,
-  CampaignFlagKey,
   TopicFlagKey,
-  RootFolderFlagKey,
-  CampaignFlagType,
   TopicFlagType,
-  RootFolderFlagType, 
-  ContentWrapperFlagKey,
-  ContentWrapperFlagType,
 } from '@/documents';
 import { FlagSettings, } from '@/settings/DocumentFlags';
 import { moduleId } from '@/settings';
-import { FCBSetting } from './FCBSetting';
+import { FCBSetting } from './Documents';
 
 /**
  * Sometimes we want to save multiple flags at once as part of an update.  But we need to make
@@ -34,24 +25,18 @@ type FlagsObject<
 /** 
  * The allowed types to use flags (our types)
  */
-type ValidDocTypes = CampaignDoc | TopicDoc | RootFolderDoc | ContentWrapperDoc;
+type ValidDocTypes = TopicDoc;
 
 
 /**
  * Map each ValidDocType to its configuration
  */
 type FlagKey<T extends ValidDocTypes> = 
-  T extends CampaignDoc ? CampaignFlagKey :
   T extends TopicDoc ? TopicFlagKey :
-  T extends RootFolderDoc ? RootFolderFlagKey :
-  T extends ContentWrapperDoc ? ContentWrapperFlagKey :
   never;
 
 type FlagType<T extends ValidDocTypes, K extends FlagKey<T>=FlagKey<T>> = 
-  T extends CampaignDoc ? (K extends CampaignFlagKey ? CampaignFlagType<K> : never) :
   T extends TopicDoc ? (K extends TopicFlagKey ? TopicFlagType<K> : never) :
-  T extends RootFolderDoc ? (K extends RootFolderFlagKey ? RootFolderFlagType<K> : never) :
-  T extends ContentWrapperDoc ? (K extends ContentWrapperFlagKey ? ContentWrapperFlagType<K> : never) :
   never;
 
   interface DocumentWithFlagsConstructor {

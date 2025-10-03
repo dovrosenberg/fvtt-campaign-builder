@@ -249,8 +249,8 @@
   ////////////////////////////////
   // methods
   const loadSettings = () => {
-    const allSettings = ModuleSettings.get(SettingKey.settings);
-    settingOptions.value = Object.keys(allSettings).map(settingId => ({ uuid: settingId, name: allSettings[settingId].name })) || [];
+    const allSettings = ModuleSettings.get(SettingKey.settingIndex);
+    settingOptions.value = allSettings.map(setting => ({ uuid: setting.settingId, name: setting.name })) || [];
   };
 
   const loadTextModels = async () => {

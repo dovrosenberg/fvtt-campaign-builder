@@ -1,10 +1,69 @@
-import { FlagSettings } from '@/settings';
 import { SessionLore, } from '@/documents/session';
 import { ToDoItem, Idea, RelatedJournal, RelatedPCDetails } from '@/types';
+import { DOCUMENT_TYPES } from './types';
+import { schemas } from './fields';
 
-// campaigns are journal entries, not documents
-export interface CampaignDoc extends JournalEntry {
-  __type: 'CampaignDoc';
+const fields = foundry.data.fields;
+const campaignSchema = {
+  /** campaign description */
+  description: new fields.StringField({ required: true, nullable: false, initial: '' }),  
+
+  /** campaign house rules */
+  houseRules: new fields.StringField({ required: true, nullable: false, initial: '' }),
+ 
+  /** all the sessionIds */
+  sessions: new fields.ArrayField(
+    new fields.DocumentUUIDField({ required: true, nullable: false }),
+    { required: true, nullable: false, initial: [] as string[] }
+  ),
+    
+  /** campaign lore */
+  lore: new fields.ArrayField(
+    schemas.CampaignLore,
+    { required: true, nullable: false, initial: [] as CampaignLore[] }
+  ),  
+
+  /** url of image */
+  img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),   
+
+  /** todo items */
+  todoItems: new fields.ArrayField(
+    schemas.ToDoItem, 
+    { required: true, nullable: false, initial: [] as ToDoItem[] }
+  ),
+
+  /** ideas */
+  ideas: new fields.ArrayField(
+    schemas.Idea,
+    { required: true, nullable: false, initial: [] as Idea[] }
+  ),
+
+  /** related journal entries */
+  journals: new fields.ArrayField(
+    schemas.RelatedJournal,
+    { required: true, nullable: false, initial: [] as RelatedJournal[] }
+  ), 
+
+  /** related PCs */
+  pcs: new fields.ArrayField(
+    schemas.RelatedPCDetails,
+    { required: true, nullable: false, initial: [] as RelatedPCDetails[] }
+  ),
+
+};
+
+type SchemaType = typeof campaignSchema;
+
+export class CampaignDataModel<
+  Schema extends SchemaType = SchemaType, 
+  ParentNode extends JournalEntry = JournalEntry
+> extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
+  static defineSchema(): SchemaType {
+    return campaignSchema;
+  }
+
+  // override prepareBaseData(): void {
+  // }
 }
 
 export type CampaignLore = SessionLore & {
@@ -12,66 +71,17 @@ export type CampaignLore = SessionLore & {
   lockedToSessionName: string | null;  
 }
 
-export enum CampaignFlagKey {
-  isCampaign = 'isCampaign',    // used to mark the JE as a campaign
-  description = 'description',
-  houseRules = 'houseRules',
-  lore = 'lore',
-  img = 'img',   // image path for the campaign
-  todoItems = 'todoItems',
-  ideas = 'ideas',
-  journals = 'journals',
-  pcs = 'pcs',
+export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>, 'system'> {
+  __type: 'CampaignDoc'; 
+
+  system: {
+    description: string;
+    houseRules: string;
+    lore: CampaignLore[];  
+    img: string;   
+    todoItems: ToDoItem[];   
+    ideas: Idea[];   
+    journals: RelatedJournal[]; 
+    pcs: RelatedPCDetails[];
+  };
 }
-
-export type CampaignFlagType<K extends CampaignFlagKey> =
-  K extends CampaignFlagKey.isCampaign ? true :
-  K extends CampaignFlagKey.description ? string :
-  K extends CampaignFlagKey.houseRules ? string :
-  K extends CampaignFlagKey.lore ? CampaignLore[] :
-  K extends CampaignFlagKey.img ? string :
-  K extends CampaignFlagKey.todoItems ? ToDoItem[] :
-  K extends CampaignFlagKey.ideas ? Idea[] :
-  K extends CampaignFlagKey.journals ? RelatedJournal[] :
-  K extends CampaignFlagKey.pcs ? RelatedPCDetails[] :
-  never;  
-
-export const flagSettings = [
-  {
-    flagId: CampaignFlagKey.isCampaign,
-    default: true,
-  },
-  {
-    flagId: CampaignFlagKey.description,
-    default: '' as string,
-  },
-  { 
-    flagId: CampaignFlagKey.houseRules,
-    default: '' as string,
-  },
-  {
-    flagId: CampaignFlagKey.lore,
-    default: [] as CampaignLore[],
-  },
-  {
-    flagId: CampaignFlagKey.img,
-    default: '' as string,
-  },
-  {
-    flagId: CampaignFlagKey.todoItems,
-    default: [] as ToDoItem[],
-  },
-  {
-    flagId: CampaignFlagKey.ideas,
-    default: [] as Idea[],
-  },
-  {
-    flagId: CampaignFlagKey.journals,
-    default: [] as RelatedJournal[],
-  },
-  {
-    flagId: CampaignFlagKey.pcs,
-    default: [] as RelatedPCDetails[],
-  },
-] as FlagSettings<CampaignFlagKey, {[K in CampaignFlagKey]: CampaignFlagType<K>}>[];
-

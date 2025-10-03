@@ -167,10 +167,9 @@ class SearchService {
    * Extracts relationships, hierarchy information, and other metadata for indexing.
    * 
    * @param entry - The entry to convert
-   * @param setting - The setting containing the item
    * @returns A promise that resolves to the searchable item
    */
-  private async createSearchableItemFromEntry(entry: Entry, setting: FCBSetting): Promise<SearchableItem> {
+  private async createSearchableItemFromEntry(entry: Entry): Promise<SearchableItem> {
     const snippets: string[] = [];
     let description = '';
     let species = '';

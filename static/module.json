@@ -45,7 +45,10 @@
         "htmlFields": [ "rolePlayingNotes", "background", "plotPoints", "magicItems" ]
       },
       "session": {},
-      "setting": {}
+      "setting": {},
+      "campaign": {
+        "htmlFields": [ "houseRules" ]
+      }
     }
   },
 

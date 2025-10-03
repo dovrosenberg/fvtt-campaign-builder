@@ -1,120 +1,54 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
-import { CampaignDoc, CampaignFlagKey, campaignFlagSettings, DOCUMENT_TYPES, SessionDoc, CampaignLore } from '@/documents';
+import { DOCUMENT_TYPES, CampaignLore } from '@/documents';
 import { RelatedPCDetails, RelatedJournal } from '@/types';
-import { DocumentWithFlags, Entry, Session, FCBSetting } from '@/classes';
+import { Entry, Session, FCBSetting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { ToDoItem, ToDoTypes, Idea } from '@/types';
+import { FCBJournalEntryPage } from './FCBJournalEntryPage';
+
+type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
+
+type CampaignConstructor<
+  DocType extends typeof DOCUMENT_TYPES.Campaign = typeof DOCUMENT_TYPES.Campaign,
+  DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>
+> = {
+  // constructor
+  new (doc: DocClass, ...args: any[]): Campaign;
+  // required statics used by base helpers
+  _defaultSystem: DocClass['system'];
+  _folderName: string;
+  _documentType: DocType;
+};
 
 // represents a topic entry (ex. a character, location, etc.)
-export class Campaign extends DocumentWithFlags<CampaignDoc> {
-  static override _documentName = 'JournalEntry';
-  static override _flagSettings = campaignFlagSettings;
+export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign> {
+  static override _folderName = 'Campaigns';
+  static override _documentType = DOCUMENT_TYPES.Campaign;
+  static override _defaultSystem = { 
+    description: '',  
+    houseRules: '',  
+    sessions: [],
+    lore: [],  
+    img: '',   
+    todoItems: [],   
+    ideas: [],   
+    journals: [], 
+    pcs: [],
+  } as unknown as CampaignDocClass['system'];
 
-  public setting: FCBSetting | null;  // the setting the campaign is in (if we don't setup up front, we can load it later)
+  // public setting: FCBSetting | null;  // the setting the campaign is in (if we don't setup up front, we can load it later)
 
-  // saved on JournalEntry
-  private _name: string;
 
-  // saved in flags
-  private _description: string;
-  private _houseRules: string;
-  private _lore: CampaignLore[];
-  private _img: string;
-  private _todoItems: ToDoItem[];
-  private _ideas: Idea[];
-  private _pcs: RelatedPCDetails[];
-  private _journals: RelatedJournal[];
-
-  /**
-   * 
-   * @param {CampaignDoc} campaignDoc - The campaign Foundry document
-   * @param {FCBSetting} setting - setting the campaign is in
-   */
-  constructor(campaignDoc: CampaignDoc, setting?: FCBSetting) {
-    super(campaignDoc, CampaignFlagKey.isCampaign);
-
-    this.setting = setting || null;
-
-    this._description = this.getFlag(CampaignFlagKey.description) || '';
-    this._houseRules = this.getFlag(CampaignFlagKey.houseRules) || '';
-    this._lore = this.getFlag(CampaignFlagKey.lore) || [];
-    this._img = this.getFlag(CampaignFlagKey.img) || '';
-    this._name = campaignDoc.name;
-    this._todoItems = this.getFlag(CampaignFlagKey.todoItems) || [];
-    this._ideas = this.getFlag(CampaignFlagKey.ideas) || [];
-    this._pcs = this.getFlag(CampaignFlagKey.pcs) || [];
-    this._journals = this.getFlag(CampaignFlagKey.journals) || [];
-  }
-
-  override async _getSetting(): Promise<FCBSetting> {
-    return await this.getSetting();
-  };
-
-  /** note: DOES NOT attach the setting */
-  static async fromUuid(campaignId: string, options?: Record<string, any>): Promise<Campaign | null> {
-    const campaignDoc = await fromUuid<CampaignDoc>(campaignId, options);
-
-    if (!campaignDoc)
-      return null;
-    else {
-      const campaign = new Campaign(campaignDoc);
-      return campaign;
-    }
-  }
-
-  get uuid(): string {
-    return this._doc.uuid;
-  }
-
-  /**
-   * The settingId for this campaign
-   */
-  public get settingId(): string {
-    // if it belongs to us, it's in a pack
-    if (!this._doc.pack)
-      throw new Error('Missing pack in Campaign.settingId()');
-    
-    return this._doc.pack;
-  }
-  
-  /**
-   * Gets the setting associated with a campaign 
-   * if needed.
-   * 
-   * @returns {Promise<FCBSetting>} A promise to the setting associated with the campaign.
-   */
-  public async getSetting(): Promise<FCBSetting> {
-    if (!this.setting)
-      this.setting = await this.loadSetting();
-
-    return this.setting;
-  }
-  
-  /**
-   * Gets the FCBSetting associated with the campaign. If the setting is already loaded, the promise resolves
-   * to the existing setting; otherwise, it loads the setting and then resolves to it.
-   * @returns {Promise<FCBSetting>} A promise to the setting associated with the campaign.
-   */
-  public async loadSetting(): Promise<FCBSetting> {
-    if (this.setting)
-      return this.setting;
-    
-    this.setting = await FCBSetting.fromUuid(this.settingId);
-
-    if (!this.setting)
-      throw new Error('Error loading setting in Campaign.loadSetting()');
-    
-    return this.setting;
-  }
-  
   /**  get the highest numbered session (if in play mode, this will be the played one, too) */
   get currentSession (): Session | null {
+    TODO! WE NEED TO STORE THE CURRENT SESSION ID IN THE CAMPAIGN DOC AND UPDATE WHEN IT CHANGES
     let maxNumber = 0;
-    let doc: SessionDoc | null = null;
+    let doc: Session | null = null;
 
-    toRaw(this._doc).pages.forEach((page: JournalEntryPage) => {
+    this._clone.sessions.forEach((sessionId: string) => {
+
       if (page.type === DOCUMENT_TYPES.Session && (page as unknown as SessionDoc).system.number > maxNumber) {
         doc = page as unknown as SessionDoc;
         maxNumber = doc.system.number;
@@ -128,6 +62,7 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
   // we calculate each time because it's fast enough and we don't need to continually be updating 
   //    metadata
   get nextSessionNumber(): number {
+    TODO! WE NEED TO STORE THE CURRENT SESSION ID IN THE CAMPAIGN DOC AND UPDATE WHEN IT CHANGES
     let maxNumber = 0;
     toRaw(this._doc).pages.forEach((page: JournalEntryPage) => {
       if (page.type === DOCUMENT_TYPES.Session && (page as unknown as SessionDoc).system.number > maxNumber)
@@ -142,64 +77,43 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     return this.filterSessions(()=>true);
   }
 
-  get name(): string {
-    return this._name;
-  }
-
-  set name(value: string) {
-    this._name = value;
-    this._cumulativeUpdate = {
-      ...this._cumulativeUpdate, 
-      name: value,
-    };
-  }
-
-  // get direct access to the document (ex. to hook to foundry's editor)
-  get raw(): CampaignDoc {
-    return this._doc;
-  }
-
   get description(): string {
-    return this._description;
+    return this._clone.system.description;
   }
 
   set description(value: string) {
-    this._description = value;
-    this.updateCumulative(CampaignFlagKey.description, value);
+    this._clone.system.description = value;
   }
 
   public get houseRules(): string {
-    return this._houseRules;
+    return this._clone.system.houseRules;
   }
 
   public set houseRules(value: string) {
-    this._houseRules = value;
-    this.updateCumulative(CampaignFlagKey.houseRules, value);
+    this._clone.system.houseRules = value;
   }
 
   public get img(): string {
-    return this._img;
+    return this._clone.system.img;
   }
 
   public set img(value: string) {
-    this._img = value;
-    this.updateCumulative(CampaignFlagKey.img, value);
+    this._clone.system.img = value;
   }
 
   public get lore(): CampaignLore[] {
-    return this._lore;
+    return this._clone.system.lore;
   }
   
   set lore(value: CampaignLore[] | readonly CampaignLore[]) {
-    this._lore = value.slice();     // we clone it so it can't be edited outside
-    this.updateCumulative(CampaignFlagKey.lore, this._lore);
+    this._clone.system.lore = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
   // returns the uuid
   async addLore(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 
-    this._lore.push({
+    this._clone.system.lore.push({
       uuid: uuid,
       description: description,
       delivered: false,
@@ -207,74 +121,63 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       journalEntryPageId: null,
       lockedToSessionId: null,
       lockedToSessionName: null,
-      sortOrder: this._lore.reduce((max, lore) => Math.max(max, lore.sortOrder), -1) + 1,
+      sortOrder: this._clone.system.lore.reduce((max, lore) => Math.max(max, lore.sortOrder), -1) + 1,
     });
-
-    this.updateCumulative(CampaignFlagKey.lore, this._lore);
 
     await this.save();
     return uuid;
   }
 
   async updateLoreDescription(uuid: string, description: string): Promise<void> {
-    const lore = this._lore.find(l=> l.uuid===uuid);
+    const lore = this._clone.system.lore.find(l=> l.uuid===uuid);
 
     if (!lore)
       return;
 
     lore.description = description;
-    this.updateCumulative(CampaignFlagKey.lore, this._lore);
 
     await this.save();
   }
 
   async updateLoreJournalEntry(loreUuid: string, journalEntryPageId: string | null): Promise<void> {
-    const lore = this._lore.find(l=> l.uuid===loreUuid);
+    const lore = this._clone.system.lore.find(l=> l.uuid===loreUuid);
 
     if (!lore)
       return;
 
     lore.journalEntryPageId = journalEntryPageId;
 
-    this.updateCumulative(CampaignFlagKey.lore, this._lore);
     await this.save();
   }
 
   async deleteLore(uuid: string): Promise<void> {
-    this._lore = this._lore.filter(l=> l.uuid!==uuid);
+    this._clone.system.lore = this._clone.system.lore.filter(l=> l.uuid!==uuid);
 
-    this.updateCumulative(CampaignFlagKey.lore, this._lore);
     await this.save();
   }
 
   async markLoreDelivered(uuid: string, delivered: boolean): Promise<void> {
-    const lore = this._lore.find((l) => l.uuid===uuid);
+    const lore = this._clone.system.lore.find((l) => l.uuid===uuid);
     if (!lore)
       return;
     
     lore.delivered = delivered;
 
-    this.updateCumulative(CampaignFlagKey.lore, this._lore);
     await this.save();
   }
 
   get todoItems(): readonly ToDoItem[] {
-    return this._todoItems;
+    return this._clone.system.todoItems;
   }
 
   set todoItems(value: ToDoItem[] | readonly ToDoItem[]) {
-    this._todoItems = value.slice();     // we clone it so it can't be edited outside
-    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+    this._clone.system.todoItems = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
   /** Creates a new to-do item and adds to the campaign*/
   async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string | null | undefined, sessionUuid?: string, manualDate?: Date): Promise<ToDoItem | null> {
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return null;
-
-    if (!this._todoItems) {
-      this._todoItems = [];
-    }
 
     // manual entries/generated names don't have a linked uuid, but the others do
     const typesWithoutUuid = [
@@ -304,12 +207,11 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
       sessionUuid: sessionUuid || null,
       linkedText: entry ? entry.name : null,
       text: text || '',
-      sortOrder: this._todoItems.reduce((max, item) => Math.max(max, item.sortOrder), -1) + 1,
+      sortOrder: this._clone.system.todoItems.reduce((max, item) => Math.max(max, item.sortOrder), -1) + 1,
       type: type || ToDoTypes.Manual,
     };
 
-    this._todoItems.push(item);
-    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+    this._clone.system.todoItems.push(item);
     await this.save();
 
     return item;
@@ -328,9 +230,9 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
     // see if one exists for this linked uuid
     let existingItem = undefined as ToDoItem | undefined;
     if (linkedUuid) {
-       existingItem = this._todoItems.find(i => i.linkedUuid === linkedUuid);
+       existingItem = this._clone.system.todoItems.find(i => i.linkedUuid === linkedUuid);
     } else if (sessionUuid) {
-       existingItem = this._todoItems.find(i => i.sessionUuid === sessionUuid && i.type === type);
+       existingItem = this._clone.system.todoItems.find(i => i.sessionUuid === sessionUuid && i.type === type);
     }
 
     // make sure the type matches
@@ -353,96 +255,76 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
         existingItem.lastTouched = new Date();
       }
 
-    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
     await this.save();
 }
 
   async updateToDoItem(uuid: string, newDescription: string): Promise<void> {
-    const item = this._todoItems.find(i => i.uuid === uuid);
+    const item = this._clone.system.todoItems.find(i => i.uuid === uuid);
     if (!item)
       return;
 
     item.text = newDescription;
     item.lastTouched = new Date();
     item.manuallyUpdated = true;
-    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+
     await this.save();
   }
 
   async completeToDoItem(uuid: string): Promise<void> {
-    if (!this._todoItems) {
-      this._todoItems = [];
-    }
-
-    this._todoItems = this._todoItems.filter(i => i.uuid !== uuid);
-    this.updateCumulative(CampaignFlagKey.todoItems, this._todoItems);
+    this._clone.system.todoItems = this._clone.system.todoItems.filter(i => i.uuid !== uuid);
     await this.save();
   }
 
-  get journals(): readonly RelatedJournal[] {
-    return this._journals;
+  get journals(): RelatedJournal[] {
+    return this._clone.system.journals;
   }
 
   set journals(value: RelatedJournal[] | readonly RelatedJournal[]) {
-    this._journals = [...value];
-    this.updateCumulative(CampaignFlagKey.journals, this._journals);
+    this._clone.system.journals = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
   get ideas(): readonly Idea[] {
-    return this._ideas;
+    return this._clone.system.ideas;
   }
 
   set ideas(value: Idea[] | readonly Idea[]) {
-    this._ideas = value.slice();     // we clone it so it can't be edited outside
-    this.updateCumulative(CampaignFlagKey.ideas, this._ideas);
+    this._clone.system.ideas = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
-  get pcs(): readonly RelatedPCDetails[] {
-    return this._pcs;
+  get pcs(): RelatedPCDetails[] {
+    return this._clone.system.pcs;
   }
 
   set pcs(value: RelatedPCDetails[] | readonly RelatedPCDetails[]) {
-    this._pcs = value.slice();     // we clone it so it can't be edited outside
-    this.updateCumulative(CampaignFlagKey.pcs, this._pcs);
+    this._clone.system.pcs = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
   /** Creates a new idea item and adds to the campaign*/
   /** returns the uuid */
   async addIdea(text: string): Promise<string | null> {
-    if (!this._ideas) {
-      this._ideas = [];
-    }
-
     const item: Idea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
-      sortOrder: this._ideas.reduce((max, item) => Math.max(max, item.sortOrder), -1) + 1,
+      sortOrder: this._clone.system.ideas.reduce((max, item) => Math.max(max, item.sortOrder), -1) + 1,
     };
 
-    this._ideas.push(item);
-    this.updateCumulative(CampaignFlagKey.ideas, this._ideas);
+    this._clone.system.ideas.push(item);
     await this.save();
 
     return item.uuid;
   }
 
   async updateIdea(uuid: string, newText: string): Promise<void> {
-    const item = this._ideas.find(i => i.uuid === uuid);
+    const item = this._clone.system.ideas.find(i => i.uuid === uuid);
     if (!item)
       return;
 
     item.text = newText;
-    this.updateCumulative(CampaignFlagKey.ideas, this._ideas);
     await this.save();
   }
 
   async deleteIdea(uuid: string): Promise<void> {
-    if (!this._ideas) {
-      this._ideas = [];
-    }
-
-    this._ideas = this._ideas.filter(i => i.uuid !== uuid);
-    this.updateCumulative(CampaignFlagKey.ideas, this._ideas);
+    this._clone.system.ideas = this._clone.system.ideas.filter(i => i.uuid !== uuid);
     await this.save();
   }
 
@@ -587,7 +469,10 @@ export class Campaign extends DocumentWithFlags<CampaignDoc> {
 
     const id = this._doc.uuid;
 
-    let setting = await this.getSetting();
+    let setting = await FCBSetting.fromUuid(this.settingId);
+
+    if (!setting)
+      throw new Error('Invalid setting in Campaign.delete()');
 
     await this._doc.delete();
 

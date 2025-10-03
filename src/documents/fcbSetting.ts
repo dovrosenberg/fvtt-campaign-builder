@@ -2,6 +2,7 @@ import { Hierarchy, RelatedJournal, SettingGeneratorConfig, ValidTopic } from '@
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 import { DOCUMENT_TYPES } from './types';
 import { cleanKeysOnLoad,  } from '@/utils/cleanKeys';
+import { schemas } from './fields';
 
 const fields = foundry.data.fields;
 const settingSchema = {
@@ -16,16 +17,7 @@ const settingSchema = {
 
   /** the full tree hierarchy or null for topics without hierarchy */
   hierarchies: new fields.TypedObjectField(
-    new fields.SchemaField({
-      parentId: new fields.StringField({ required: true, nullable: true }),
-      ancestors: new fields.ArrayField(
-        new fields.StringField({ required: true, nullable: false })
-      ),
-      children: new fields.ArrayField(
-        new fields.StringField({ required: true, nullable: false })
-      ),
-      type: new fields.StringField({ required: true, nullable: false })
-    }), 
+    schemas.Hierarchy,
     { required: true, nullable: false, initial: {} as Record<string, Hierarchy> }
   ),
 
@@ -36,7 +28,7 @@ const settingSchema = {
   settingFeeling: new fields.StringField({ required: true, nullable: false, initial: '' }),
 
   /** image path for the setting */
-  img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
+  img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
 
   /** array of name styles to use for name generation */
   nameStyles: new fields.ArrayField(new fields.NumberField({ required: true, nullable: false }), { initial: [] as number[] }),
@@ -58,14 +50,7 @@ const settingSchema = {
 
   /** related journal entries */
   journals: new fields.ArrayField(
-    new fields.SchemaField({
-      uuid: new fields.StringField({ required: true, nullable: false }),
-      journalUuid: new fields.DocumentUUIDField({ required: true, nullable: false}),
-      pageUuid: new fields.DocumentUUIDField({ required: true, nullable: true}),
-      packId: new fields.StringField({ required: true, nullable: true}),
-      packName: new fields.StringField({ required: true, nullable: true}),
-    }, { required: true, nullable: false}
-    ),
+    schemas.RelatedJournal,
     { required: true, nullable: false, initial: [] as RelatedJournal[] }
   ), 
 };
