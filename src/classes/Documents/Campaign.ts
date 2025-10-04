@@ -1,27 +1,15 @@
-import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { DOCUMENT_TYPES, CampaignLore } from '@/documents';
-import { RelatedPCDetails, RelatedJournal, SessionIndex } from '@/types';
+import { RelatedPCDetails, RelatedJournal, SessionIndex, ValidDocType } from '@/types';
 import { Entry, Session, FCBSetting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { ToDoItem, ToDoTypes, Idea } from '@/types';
-import { FCBJournalEntryPage, } from './FCBJournalEntryPage';
+import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
 import { JournalEntryFlagKey } from '@/settings';
+import { toRaw } from 'vue';
 
 type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
-
-type CampaignConstructor<
-  DocType extends typeof DOCUMENT_TYPES.Campaign = typeof DOCUMENT_TYPES.Campaign,
-  DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>
-> = {
-  // constructor
-  new (doc: DocClass, ...args: any[]): Campaign;
-  // required statics used by base helpers
-  _defaultSystem: DocClass['system'];
-  _folderName: string;
-  _documentType: DocType;
-};
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign> {
@@ -43,11 +31,9 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   public currentSession: Session | null;
 
   static override async fromUuid<
-    DocType extends typeof DOCUMENT_TYPES.Campaign = typeof DOCUMENT_TYPES.Campaign,
-    DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>,
-    T extends CampaignConstructor<DocType, DocClass>=CampaignConstructor<DocType, DocClass>
-  > (this: T, sessionId: string): Promise<InstanceType<T> | null> { 
-    const campaign = await super.fromUuid(sessionId) as unknown as (Campaign | null);
+    T extends FCBJournalEntryPageStatic<any, any>
+  > (this: T, uuid: string): Promise<InstanceType<T> | null> { 
+    const campaign = await super.fromUuid(uuid) as unknown as (Campaign | null);
     
     if (!campaign)
       return null;
@@ -440,7 +426,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
         // @ts-ignore
         e.flags?.flagKey===DOCUMENT_TYPES.Session &&
         // @ts-ignore
-        e.pages?.find((p: SessionIndex)=> this._clone.system.sessionIds.includes(p.uuid))
+        !!e.pages?.find((p)=> this._clone.system.sessionIds.includes(p.uuid))
       ))
       .map((e) => ({ name: e.name, uuid: e.uuid } as SessionIndex))
 
@@ -464,7 +450,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @returns Promise that returns after the update
    */
   public async save(): Promise<void> {
-    const updateName = this._clone.name !== this.doc.name;
+    const updateName = this._clone.name !== this._doc.name;
 
     await super.save();
 
@@ -495,7 +481,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     if (!setting)
       throw new Error('Invalid setting in Campaign.delete()');
 
-    await this._doc.delete();
+    await toRaw(this._doc)?.delete();
 
     await setting.deleteCampaignFromSetting(id);
   }

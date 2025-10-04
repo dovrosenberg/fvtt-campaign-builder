@@ -1,4 +1,4 @@
-import { moduleId, ModuleSettings, SettingKey } from '@/settings';
+import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { ValidDocType } from '@/types';
 import { toRaw } from 'vue';
 
@@ -10,7 +10,7 @@ type DocTypeOf<T> =
 type DocClassOf<T> = JournalEntryPage<DocTypeOf<T>>;
 
 // Helper: the static side every subclass must provide
-type FCBJournalEntryPageStatic<
+export type FCBJournalEntryPageStatic<
   DocType extends ValidDocType,
   DocClass extends JournalEntryPage<DocType>
 > = {

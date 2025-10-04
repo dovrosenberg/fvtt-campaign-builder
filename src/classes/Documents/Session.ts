@@ -1,5 +1,6 @@
 // represents a game session 
 
+import { toRaw } from 'vue';
 import { DOCUMENT_TYPES, SessionLocation, SessionItem, SessionNPC, SessionMonster, SessionVignette, SessionLore, } from '@/documents';
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
@@ -7,21 +8,9 @@ import { Campaign } from './Campaign';
 import { FCBSetting } from './FCBSetting';
 import { localize } from '@/utils/game';
 import { TagInfo, } from '@/types';
-import { FCBJournalEntryPage } from './FCBJournalEntryPage';
+import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 
 type SessionDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Session>;
-
-type SessionConstructor<
-  DocType extends typeof DOCUMENT_TYPES.Session = typeof DOCUMENT_TYPES.Session,
-  DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>
-> = {
-  // constructor
-  new (doc: DocClass, ...args: any[]): Session;
-  // required statics used by base helpers
-  _defaultSystem: DocClass['system'];
-  _folderName: string;
-  _documentType: DocType;
-};
 
 export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> {
   static override _folderName = 'Sessions';
@@ -53,11 +42,9 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     this.campaign = campaign || null;
   }
 
-    static override async fromUuid<
-      DocType extends typeof DOCUMENT_TYPES.Session = typeof DOCUMENT_TYPES.Session,
-      DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>,
-      T extends SessionConstructor<DocType, DocClass>=SessionConstructor<DocType, DocClass>
-    > (this: T, sessionId: string): Promise<InstanceType<T> | null> { 
+  static override async fromUuid<
+    T extends FCBJournalEntryPageStatic<any, any>
+  > (this: T, sessionId: string): Promise<InstanceType<T> | null> { 
       const session = await super.fromUuid(sessionId) as unknown as (Session | null);
       
       if (!session)
@@ -452,7 +439,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
   public async save(): Promise<void> {
     // see if the number is taken, if so, everything after it needs to be renumbered
     const campaign = await this.loadCampaign();
-    const sessions = (await campaign.getsessions()).sort((a, b) => a.number - b.number);
+    const sessions = (await campaign.getSessions()).sort((a, b) => a.number - b.number);
 
     // find the index of the session with the same number 
     const currentNumberedSession = sessions.findIndex(s=> s.number===this.number && s.uuid!==this.uuid);
@@ -490,7 +477,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     if (!setting)
       throw new Error('Setting not found in Session.delete()');
     
-    await this._doc.delete();
+    await toRaw(this._doc).delete();
 
     // remove from the expanded list
     await setting.deleteSessionFromSetting(id);
