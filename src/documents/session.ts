@@ -43,37 +43,37 @@ const sessionSchema = {
 
   /** array of locations */
   locations: new fields.ArrayField(
-    schemas.SessionLocation,
+    schemas.SessionLocation(),
     { initial: [] as SessionLocation[] }
   ),  
 
   /** array of npcs */
   npcs: new fields.ArrayField(
-    schemas.SessionNPC,
+    schemas.SessionNPC(),
     { initial: [] as SessionNPC[] }
   ),  
 
   /** array of magical items */
   items: new fields.ArrayField(
-    schemas.SessionItem,
+    schemas.SessionItem(),
     { initial: [] as SessionItem[] }
   ),  
 
   /** array of monsters */
   monsters: new fields.ArrayField(
-    schemas.SessionMonster,
+    schemas.SessionMonster(),
     { initial: [] as SessionMonster[] }
   ),  
 
   /** array of vignettes */
   vignettes: new fields.ArrayField(
-    schemas.SessionVignette,
+    schemas.SessionVignette(),
     { initial: [] as SessionVignette[] }
   ),  
 
   /** array of lore */
   lore: new fields.ArrayField(
-    schemas.SessionLore,
+    schemas.SessionLore(),
     { initial: [] as SessionLore[] }
   ),  
 
@@ -81,7 +81,7 @@ const sessionSchema = {
   img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
 
   /** array of tags */
-  tags: schemas.Tags,
+  tags: schemas.Tags(),
 };
 
 type SessionSchemaType = typeof sessionSchema;

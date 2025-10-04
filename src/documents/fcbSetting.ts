@@ -17,7 +17,7 @@ const settingSchema = {
 
   /** the full tree hierarchy or null for topics without hierarchy */
   hierarchies: new fields.TypedObjectField(
-    schemas.Hierarchy,
+    schemas.Hierarchy(),
     { required: true, nullable: false, initial: {} as Record<string, Hierarchy> }
   ),
 
@@ -50,7 +50,7 @@ const settingSchema = {
 
   /** related journal entries */
   journals: new fields.ArrayField(
-    schemas.RelatedJournal,
+    schemas.RelatedJournal(),
     { required: true, nullable: false, initial: [] as RelatedJournal[] }
   ), 
 };

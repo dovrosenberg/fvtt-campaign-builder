@@ -21,7 +21,7 @@ const campaignSchema = {
     
   /** campaign lore */
   lore: new fields.ArrayField(
-    schemas.CampaignLore,
+    schemas.CampaignLore(),
     { required: true, nullable: false, initial: [] as CampaignLore[] }
   ),  
 
@@ -30,25 +30,25 @@ const campaignSchema = {
 
   /** todo items */
   todoItems: new fields.ArrayField(
-    schemas.ToDoItem, 
+    schemas.ToDoItem(), 
     { required: true, nullable: false, initial: [] as ToDoItem[] }
   ),
 
   /** ideas */
   ideas: new fields.ArrayField(
-    schemas.Idea,
+    schemas.Idea(),
     { required: true, nullable: false, initial: [] as Idea[] }
   ),
 
   /** related journal entries */
   journals: new fields.ArrayField(
-    schemas.RelatedJournal,
+    schemas.RelatedJournal(),
     { required: true, nullable: false, initial: [] as RelatedJournal[] }
   ), 
 
   /** related PCs */
   pcs: new fields.ArrayField(
-    schemas.RelatedPCDetails,
+    schemas.RelatedPCDetails(),
     { required: true, nullable: false, initial: [] as RelatedPCDetails[] }
   ),
 

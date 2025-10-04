@@ -167,6 +167,10 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     return this._clone.system.locations || [];
   }
 
+  set locations(value: SessionLocation[] | readonly SessionLocation[]) {
+    this._clone.system.locations = value.slice();     // we clone it so it can't be edited outside
+  }
+
   async addLocation(uuid: string, delivered: boolean = false): Promise<void> {
     if (this._clone.system.locations.find(l=> l.uuid===uuid))
       return;
@@ -196,6 +200,10 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
   get npcs(): SessionNPC[] {
     return this._clone.system.npcs || [];
+  }
+
+  set npcs(value: SessionNPC[] | readonly SessionNPC[]) {
+    this._clone.system.npcs = value.slice();     // we clone it so it can't be edited outside
   }
 
   async addNPC(uuid: string, delivered: boolean = false): Promise<void> {
@@ -352,6 +360,10 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     return this._clone.system.monsters || [];
   }
 
+  set monsters(value: SessionMonster[] | readonly SessionMonster[]) {
+    this._clone.system.monsters = value.slice();     // we clone it so it can't be edited outside
+  }
+
   async addMonster(uuid: string, number = 1): Promise<void> {
     if (this._clone.system.monsters.find(l=> l.uuid===uuid))
       return;
@@ -394,6 +406,10 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
   get items(): SessionItem[] {
     return this._clone.system.items || [];
+  }
+
+  set items(value: SessionItem[] | readonly SessionItem[]) {
+    this._clone.system.items = value.slice();     // we clone it so it can't be edited outside
   }
 
   async addItem(uuid: string): Promise<void> {
