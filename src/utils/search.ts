@@ -149,7 +149,9 @@ class SearchService {
     // add all the sessions, by campaign
     for (const campaignId in setting.campaigns) {
       const campaign = setting.campaigns[campaignId];
-      for (const session of campaign.sessions) { 
+
+      const sessions = await campaign.getSessions();
+      for (const session of sessions) { 
         // Create a searchable item for each session
         const item = await this.createSearchableItemFromSession(session);
         items.push(item);
@@ -169,7 +171,7 @@ class SearchService {
    * @param entry - The entry to convert
    * @returns A promise that resolves to the searchable item
    */
-  private async createSearchableItemFromEntry(entry: Entry): Promise<SearchableItem> {
+  private async createSearchableItemFromEntry(entry: Entry, setting: FCBSetting): Promise<SearchableItem> {
     const snippets: string[] = [];
     let description = '';
     let species = '';

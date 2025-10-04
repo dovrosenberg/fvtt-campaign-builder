@@ -501,7 +501,8 @@ private async deleteRollTables() : Promise<void> {
 
     for (let campaign of Object.values(this.campaigns)) {
       // remove from any monsters that are linked to it
-      for (let session of campaign.sessions) {
+      const sessions = await campaign.getSessions();
+      for (let session of sessions) {
         const monsters = session.monsters.map(m=>m.uuid);
         for (let i=0; i<monsters.length; i++) {
           if (monsters[i] === actorId) {
@@ -542,7 +543,9 @@ private async deleteRollTables() : Promise<void> {
   public async deleteItemFromSetting(itemId: string) {
     // remove from any Magic Items that are linked to it
     for (let campaign of Object.values(this.campaigns)) {
-      for (let session of campaign.sessions) {
+      const sessions = await campaign.getSessions();
+
+      for (let session of sessions) {
         const items = session.items.map(i=>i.uuid);
         for (let i=0; i<items.length; i++) {
           if (items[i] === itemId) {

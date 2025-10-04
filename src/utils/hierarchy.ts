@@ -23,29 +23,6 @@ export const NO_NAME_STRING = '<Blank>';
 export const hasHierarchy = (topic: Topics): boolean => [Topics.Organization, Topics.Location].includes(topic);
 
 /**
- * Returns a list of valid possible children for a hierarchical entry.
- * Used to populate dropdowns and selection lists for FCBSetting child relationships.
- * A valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself.
- * Only works for topics that have hierarchy support.
- * 
- * @param FCBSetting - The FCBSetting containing the hierarchy data
- * @param entry - The entry to find valid children for
- * @returns Array of entry summaries that can be set as children of the given entry
- */
-export function validChildItems(FCBSetting: FCBSetting, entry: Entry): TabSummary[] {
-  if (!entry.uuid)
-    return [];
-
-  const topicFolder = FCBSetting.topicFolders[entry.topic];
-
-  const ancestors = FCBSetting.getEntryHierarchy(entry.uuid)?.ancestors || [];
-
-  // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
-  return topicFolder.filterEntries((e: Entry)=>(e.uuid !== entry.uuid && !ancestors.includes(entry.uuid)))
-    .map(mapEntryToSummary) || [];
-}
-
-/**
  * Returns a list of valid possible parents for a hierarchical entry.
  * Used to populate dropdowns and selection lists for FCBSetting parent relationships.
  * A valid parent is anything that does not have this object as an ancestor (to avoid creating loops).

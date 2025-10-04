@@ -12,10 +12,12 @@ const campaignSchema = {
   houseRules: new fields.StringField({ required: true, nullable: false, initial: '' }),
  
   /** all the sessionIds */
-  sessions: new fields.ArrayField(
+  sessionIds: new fields.ArrayField(
     new fields.DocumentUUIDField({ required: true, nullable: false }),
     { required: true, nullable: false, initial: [] as string[] }
   ),
+
+  
     
   /** campaign lore */
   lore: new fields.ArrayField(

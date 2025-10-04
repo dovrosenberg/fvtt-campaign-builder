@@ -1,12 +1,6 @@
-import { DOCUMENT_TYPES } from '@/documents/types';
-import { ModuleSettings, SettingKey } from 'src/settings';
+import { moduleId, ModuleSettings, SettingKey } from '@/settings';
+import { ValidDocType } from '@/types';
 import { toRaw } from 'vue';
-import { FCBSetting } from './FCBSetting';
-
-type ValidDocType = 
-  typeof DOCUMENT_TYPES.Setting | 
-  typeof DOCUMENT_TYPES.Campaign | 
-  typeof DOCUMENT_TYPES.Session;
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
@@ -64,8 +58,8 @@ export class FCBJournalEntryPage<
     return this._doc.pack || '';
   }
 
-  get compendium(): CompendiumCollection<'JournalEntry'> | null { 
-    return (game.packs.get(this.compendiumId) || null) as unknown as CompendiumCollection<'JournalEntry'> | null;
+  get compendium(): CompendiumCollection<'JournalEntry'> { 
+    return game.packs.get(this.compendiumId) as unknown as CompendiumCollection<'JournalEntry'>;
   }
 
   get settingId(): string {
@@ -168,6 +162,9 @@ export class FCBJournalEntryPage<
   
     if (!journalEntry)
       throw new Error('Couldn\'t create new journal entry');
+
+    // flag it
+    await journalEntry.setFlag(moduleId, JournalEntryFlagKey.campaignBuilderType, this._documentType);
   
     // now add the page
     const pages = await JournalEntryPage.createDocuments([{

@@ -1,12 +1,13 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { DOCUMENT_TYPES, CampaignLore } from '@/documents';
-import { RelatedPCDetails, RelatedJournal } from '@/types';
+import { RelatedPCDetails, RelatedJournal, SessionIndex } from '@/types';
 import { Entry, Session, FCBSetting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { ToDoItem, ToDoTypes, Idea } from '@/types';
-import { FCBJournalEntryPage } from './FCBJournalEntryPage';
+import { FCBJournalEntryPage, } from './FCBJournalEntryPage';
+import { JournalEntryFlagKey } from '@/settings';
 
 type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
 
@@ -38,43 +39,65 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     pcs: [],
   } as unknown as CampaignDocClass['system'];
 
-  // public setting: FCBSetting | null;  // the setting the campaign is in (if we don't setup up front, we can load it later)
+  /**  the highest numbered session (if in play mode, this will be the played one, too) */
+  public currentSession: Session | null;
 
+  static override async fromUuid<
+    DocType extends typeof DOCUMENT_TYPES.Campaign = typeof DOCUMENT_TYPES.Campaign,
+    DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>,
+    T extends CampaignConstructor<DocType, DocClass>=CampaignConstructor<DocType, DocClass>
+  > (this: T, sessionId: string): Promise<InstanceType<T> | null> { 
+    const campaign = await super.fromUuid(sessionId) as unknown as (Campaign | null);
+    
+    if (!campaign)
+      return null;
 
-  /**  get the highest numbered session (if in play mode, this will be the played one, too) */
-  get currentSession (): Session | null {
-    TODO! WE NEED TO STORE THE CURRENT SESSION ID IN THE CAMPAIGN DOC AND UPDATE WHEN IT CHANGES
-    let maxNumber = 0;
-    let doc: Session | null = null;
-
-    this._clone.sessions.forEach((sessionId: string) => {
-
-      if (page.type === DOCUMENT_TYPES.Session && (page as unknown as SessionDoc).system.number > maxNumber) {
-        doc = page as unknown as SessionDoc;
-        maxNumber = doc.system.number;
-      }
-    });
-
-    return doc ? new Session(doc, this) : null;
+    await campaign.loadCurrentSession();
+        
+    return campaign as InstanceType<T>;
   }
 
   // we return the next number after the highest currently existing session number
   // we calculate each time because it's fast enough and we don't need to continually be updating 
   //    metadata
   get nextSessionNumber(): number {
-    TODO! WE NEED TO STORE THE CURRENT SESSION ID IN THE CAMPAIGN DOC AND UPDATE WHEN IT CHANGES
-    let maxNumber = 0;
-    toRaw(this._doc).pages.forEach((page: JournalEntryPage) => {
-      if (page.type === DOCUMENT_TYPES.Session && (page as unknown as SessionDoc).system.number > maxNumber)
-        maxNumber = (page as unknown as SessionDoc).system.number;
-    });
-
-    return maxNumber + 1;
+    return this.currentSession ? this.currentSession.number + 1 : 0;
   }
 
-  get sessions(): Session[] {
-    // just return all the sessions
-    return this.filterSessions(()=>true);
+  async getSessions(): Promise<Session[]> {
+    const allSessions = await this.filterSessions(()=>true);
+    return allSessions;
+  }
+
+  public async loadCurrentSession(): Promise<void> {
+    // load the current session
+    // find the uuid of the one with the highest number
+    const entries = await this.compendium.getIndex({
+      fields: [
+        // @ts-ignore
+        'pages.uuid', 
+        // @ts-ignore
+        'pages.system.number'
+      ]
+    }) as unknown as Record<string, SessionIndex>;
+
+    let maxNumber = -1;
+    let maxsessionId = '';
+    for (const index of Object.values(entries)) {
+      if (!index.pages?.length)
+        continue;
+
+      if (index.pages[0].system.number > maxNumber) {
+        maxNumber = index.pages[0].system.number;
+        maxsessionId = index.pages[0].uuid;
+      }
+    }
+
+    this.currentSession = await Session.fromUuid(maxsessionId);
+  }    
+  
+  get sessionsIds(): string[] {
+    return this._clone.system.sessionIds;
   }
 
   get description(): string {
@@ -167,7 +190,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   get todoItems(): readonly ToDoItem[] {
-    return this._clone.system.todoItems;
+    return this._clone.system.todoItems as ToDoItem[];
   }
 
   set todoItems(value: ToDoItem[] | readonly ToDoItem[]) {
@@ -201,7 +224,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     // give it the max sortOrder
     const item: ToDoItem = {
       uuid: foundry.utils.randomID(),
-      lastTouched: manualDate || new Date(),
+      lastTouched: manualDate?.toISOString() || new Date().toISOString(),
       manuallyUpdated: false,
       linkedUuid: linkedUuid || null,
       sessionUuid: sessionUuid || null,
@@ -230,9 +253,9 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     // see if one exists for this linked uuid
     let existingItem = undefined as ToDoItem | undefined;
     if (linkedUuid) {
-       existingItem = this._clone.system.todoItems.find(i => i.linkedUuid === linkedUuid);
+       existingItem = (this._clone.system.todoItems as ToDoItem[]).find(i => i.linkedUuid === linkedUuid);
     } else if (sessionUuid) {
-       existingItem = this._clone.system.todoItems.find(i => i.sessionUuid === sessionUuid && i.type === type);
+       existingItem = (this._clone.system.todoItems as ToDoItem[]).find(i => i.sessionUuid === sessionUuid && i.type === type);
     }
 
     // make sure the type matches
@@ -247,12 +270,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       return;
     } else if (existingItem.manuallyUpdated) {
         // if it's manually updated, we don't want to add to it but note the timestamp
-        existingItem.lastTouched = new Date();
+        existingItem.lastTouched = new Date().toISOString();
       } else {
         // make sure the text isn't already in there
         if (!existingItem.text.includes(text))
           existingItem.text += '; ' + text;
-        existingItem.lastTouched = new Date();
+        existingItem.lastTouched = new Date().toISOString();
       }
 
     await this.save();
@@ -264,7 +287,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       return;
 
     item.text = newDescription;
-    item.lastTouched = new Date();
+    item.lastTouched = new Date().toISOString();
     item.manuallyUpdated = true;
 
     await this.save();
@@ -335,41 +358,23 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @returns A promise that resolves when the campaign has been created, with either the resulting entry or null on error
    */
   static async create(setting: FCBSetting): Promise<Campaign | null> {
-    // get the name
-    let name;
+    let name = '' as string | null;
 
-    do {
+    while (name==='') {  // if hit ok, must have a value
       name = await FCBDialog.inputDialog(localize('dialogs.createCampaign.title'), `${localize('dialogs.createCampaign.campaignName')}:`); 
+    }  
 
-      if (name) {
-        let newCampaignDoc: CampaignDoc;
+    // if name is null, then we cancelled the dialog
+    if (!name)
+      return null;
+    
+    // create a journal entry for the campaign
+    const campaign = await super._create(setting.compendiumId, name) as unknown as Campaign;  
 
-        // create a journal entry for the campaign
-        newCampaignDoc = await JournalEntry.create({
-          name: name,
-          folder: foundry.utils.parseUuid(setting.uuid).id,
-        },{
-          pack: setting.pack,
-        }) as unknown as CampaignDoc;  
+    if (!campaign)
+      throw new Error('Couldn\'t create new journal entry for campaign');
 
-        if (!newCampaignDoc)
-          throw new Error('Couldn\'t create new journal entry for campaign');
-
-        const newCampaign = new Campaign(newCampaignDoc, setting);
-        await newCampaign.setup();
-
-        const campaignNames = {
-          ...setting.campaignNames,
-          [newCampaign.uuid]: name,
-        };
-        await setting.update({system: {campaignNames}});
-        
-        return newCampaign;
-      }
-    } while (name==='');  // if hit ok, must have a value
-
-    // if name isn't '' and we're here, then we cancelled the dialog
-    return null;
+    return campaign;
   }
   
   /**
@@ -393,9 +398,9 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    */
     public async filterPCs(filterFn: (e: RelatedPCDetails) => boolean): Promise<Entry[]> { 
       let retval = [] as Entry[];
-      for (let i=0; i<this._pcs.length; i++) {
-        if (filterFn(this._pcs[i])) {
-          const entry = await Entry.fromUuid(this._pcs[i].uuid);
+      for (let i=0; i<this._clone.system.pcs.length; i++) {
+        if (filterFn(this._clone.system.pcs[i])) {
+          const entry = await Entry.fromUuid(this._clone.system.pcs[i].uuid);
           if (entry)
             retval.push(entry);
         }
@@ -411,51 +416,67 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @param {(e: Session) => boolean} filterFn - The filter function
    * @returns {Session[]} The entries that pass the filter
    */
-  public filterSessions(filterFn: (e: Session) => boolean): Session[] { 
-    return (toRaw(this._doc).pages.contents as unknown as SessionDoc[])
-      .filter((p) => p.type===DOCUMENT_TYPES.Session)
-      .map((s: SessionDoc)=> new Session(s, this))
-      .filter((s: Session)=> filterFn(s)) || [];
+  public async filterSessions(filterFn: (s: SessionIndex) => boolean): Promise<Session[]> { 
+    //we make available the fields on the JournalEntry index
+
+    // get all the journal entries
+    const flagKey = `${moduleId}.${JournalEntryFlagKey.campaignBuilderType}`;
+    const entries = await this.compendium.getIndex({
+      fields: [
+        // @ts-ignore
+        `flags.${flagKey}`, 
+        // @ts-ignore
+        'pages.uuid', 
+        // @ts-ignore
+        'pages.name'
+      ]
+    });
+
+    // find the sessions connected to this campaign
+
+    const sessions = entries
+      // first find the relevant ones
+      .filter((e)=> (
+        // @ts-ignore
+        e.flags?.flagKey===DOCUMENT_TYPES.Session &&
+        // @ts-ignore
+        e.pages?.find((p: SessionIndex)=> this._clone.system.sessionIds.includes(p.uuid))
+      ))
+      .map((e) => ({ name: e.name, uuid: e.uuid } as SessionIndex))
+
+      // now filter by the function passed in 
+      .filter((s: SessionIndex)=> filterFn(s)) || [];
+
+    let retval = [] as Session[];
+    for (let i=0; i<sessions.length; i++) {
+      const session = await Session.fromUuid(sessions[i].uuid);
+      if (session)
+        retval.push(session);
+    }
+
+    return retval;
   }
 
   
   /**
    * Updates a campaign in the database 
    * 
-   * @returns {Promise<Campaign | null>} The updated entry, or null if the update failed.
+   * @returns Promise that returns after the update
    */
-  public async save(): Promise<Campaign | null> {
-    const updateData = this._cumulativeUpdate;
+  public async save(): Promise<void> {
+    const updateName = this._clone.name !== this.doc.name;
 
-    // unlock compendium to make the change
-    let success = false;
-    let setting = await this.getSetting();
+    await super.save();
 
-    if (Object.keys(updateData).length !== 0) {
-      // protect any complex flags
-      if (updateData.flags && updateData.flags[moduleId])
-        updateData.flags[moduleId] = this.prepareFlagsForUpdate(updateData.flags[moduleId]);
+    // update the name
+    if (updateName) {    
+      let setting = await FCBSetting.fromUuid(this.settingId);
 
-      // note: update returns null if nothing changed
-      try {
-        const retval = await toRaw(this._doc).update(updateData) || null;
-        if (retval) {
-          this._doc = retval;
-        }
-          
-        this._cumulativeUpdate = {};
-        success = true;
-      } catch (e) {
-        console.error('Failed to update campaign', e);
-      }
+      if (!setting)
+        throw new Error('Invalid setting in Campaign.save()');
 
-      // update the name
-      if (updateData.name !== undefined) {
-        await setting.updateCampaignName(this.uuid, updateData.name);
-      }
+      await setting.updateCampaignName(this.uuid, this.name);
     }
-    
-    return success ? this : null;
   }
 
   /**

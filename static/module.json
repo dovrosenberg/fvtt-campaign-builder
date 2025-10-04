@@ -44,7 +44,9 @@
       "entry": {
         "htmlFields": [ "rolePlayingNotes", "background", "plotPoints", "magicItems" ]
       },
-      "session": {},
+      "session": {
+        "htmlFields": [ "strongStart" ]
+      },
       "setting": {},
       "campaign": {
         "htmlFields": [ "houseRules" ]

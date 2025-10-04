@@ -106,7 +106,12 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
 
     // if there is a document, open that content
     const doc = context.document;
-    if (doc.type) {
+    let docType: DOCUMENT_TYPES | null = null;
+
+    debugger;
+    // if it's a journalentrypage get the type; if it's a journalentry, pull it from the flag
+
+    if (docType) {
       alert('Need to determine the content type here');
       // useNavigationStore().openContent(doc.uuid);      
     } else if (doc.name !== FCB_OPEN_WINDOW_NAME) {
