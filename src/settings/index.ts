@@ -1,6 +1,7 @@
 import { id } from '@module';
 import { SettingKey, SettingKeyType } from './ModuleSettings';
 import { RollTableFlagKey, RollTableFlagType, } from '@/documents';
+import { JournalEntryFlagKey, JournalEntryFlagType } from './FCBJournalEntry';
 
 export * from './UserFlags';
 export * from './ModuleSettings';

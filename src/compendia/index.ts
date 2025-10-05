@@ -13,6 +13,7 @@ import { FCBSetting } from '@/classes';
 export async function getCurrentSetting(): Promise<FCBSetting> {
   let settingId = UserFlags.get(UserFlagKey.currentSetting);  // this isn't setting-specific (obviously)
 
+  
   // make sure we have a default and it exists
   let setting = null as FCBSetting | null;
   if (settingId) {

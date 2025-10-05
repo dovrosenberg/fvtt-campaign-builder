@@ -1,5 +1,5 @@
 import { toRaw } from 'vue';
-import { moduleId, } from '@/settings'; 
+import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { TopicDoc, TopicFlagKey, topicFlagSettings, EntryDoc } from '@/documents';
 import { DocumentWithFlags, Entry, FCBSetting } from '@/classes';
 import { ValidTopic } from '@/types';
@@ -103,7 +103,12 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
     if (!this._doc.pack)
       throw new Error('Missing pack in TopicFolder.settingId()');
     
-    return this._doc.pack;
+    const settingId = ModuleSettings.get(SettingKey.settingIndex).find((s) => s.packId === this._doc.pack)?.settingId;
+
+    if (!settingId)
+      throw new Error('Missing settingId in TopicFolder.settingId()');
+
+    return settingId;
   }
 
   /**

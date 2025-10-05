@@ -1,13 +1,13 @@
+import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
-import { DOCUMENT_TYPES, CampaignLore } from '@/documents';
-import { RelatedPCDetails, RelatedJournal, SessionIndex, ValidDocType } from '@/types';
+import { DOCUMENT_TYPES, CampaignLore, sessionIndexFields } from '@/documents';
+import { RelatedPCDetails, RelatedJournal, SessionIndex, SessionFilterIndex } from '@/types';
 import { Entry, Session, FCBSetting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { ToDoItem, ToDoTypes, Idea } from '@/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
 import { JournalEntryFlagKey } from '@/settings';
-import { toRaw } from 'vue';
 
 type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
 
@@ -58,34 +58,37 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   public async loadCurrentSession(): Promise<void> {
     // load the current session
     // find the uuid of the one with the highest number
-    const entries = await this.compendium.getIndex({
-      fields: [
-        // @ts-ignore
-        'pages.uuid', 
-        // @ts-ignore
-        'pages.system.number'
-      ]
-    }) as unknown as Record<string, SessionIndex>;
+    const entries = await toRaw(this.compendium).getIndex(sessionIndexFields) as unknown as Record<string, SessionIndex>;
 
     let maxNumber = -1;
     let maxsessionId = '';
     for (const index of Object.values(entries)) {
-      if (!index.pages?.length)
+      // filter out non-sessions, broken ones, and ones that belong to other campaigns
+      if (index.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType] !== DOCUMENT_TYPES.Session || 
+        !index.pages?.length || !this._clone.system.sessionIds.includes(`${index.uuid}.JournalEntryPage.${index.pages[0]._id}`))
         continue;
 
       if (index.pages[0].system.number > maxNumber) {
         maxNumber = index.pages[0].system.number;
-        maxsessionId = index.pages[0].uuid;
+        maxsessionId = `${index.uuid}.JournalEntryPage.${index.pages[0]._id}`;
       }
     }
+
+    // no session found
+    if (maxNumber === -1)
+      return; 
 
     this.currentSession = await Session.fromUuid(maxsessionId);
   }    
   
-  get sessionsIds(): string[] {
+  get sessionIds(): string[] {
     return this._clone.system.sessionIds;
   }
 
+  set sessionIds(value: string[] | readonly string[]) {
+    this._clone.system.sessionIds = value.slice();     // we clone it so it can't be edited outside
+  }
+  
   get description(): string {
     return this._clone.system.description;
   }
@@ -343,19 +346,19 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @param {FCBSetting} setting - The setting to create the campaign in. 
    * @returns A promise that resolves when the campaign has been created, with either the resulting entry or null on error
    */
-  static async create(setting: FCBSetting): Promise<Campaign | null> {
-    let name = '' as string | null;
+  static async create(setting: FCBSetting, name = ''): Promise<Campaign | null> {
+    let nameToUse: string | null = name;
 
-    while (name==='') {  // if hit ok, must have a value
-      name = await FCBDialog.inputDialog(localize('dialogs.createCampaign.title'), `${localize('dialogs.createCampaign.campaignName')}:`); 
+    while (nameToUse==='') {  // if hit ok, must have a value
+      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createCampaign.title'), `${localize('dialogs.createCampaign.campaignName')}:`); 
     }  
 
     // if name is null, then we cancelled the dialog
-    if (!name)
+    if (!nameToUse)
       return null;
     
     // create a journal entry for the campaign
-    const campaign = await super._create(setting.compendiumId, name) as unknown as Campaign;  
+    const campaign = await super._create(setting.compendiumId, nameToUse) as unknown as Campaign;  
 
     if (!campaign)
       throw new Error('Couldn\'t create new journal entry for campaign');
@@ -402,36 +405,26 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @param {(e: Session) => boolean} filterFn - The filter function
    * @returns {Session[]} The entries that pass the filter
    */
-  public async filterSessions(filterFn: (s: SessionIndex) => boolean): Promise<Session[]> { 
-    //we make available the fields on the JournalEntry index
-
+  public async filterSessions(filterFn: (s: SessionFilterIndex) => boolean): Promise<Session[]> { 
     // get all the journal entries
-    const flagKey = `${moduleId}.${JournalEntryFlagKey.campaignBuilderType}`;
-    const entries = await this.compendium.getIndex({
-      fields: [
-        // @ts-ignore
-        `flags.${flagKey}`, 
-        // @ts-ignore
-        'pages.uuid', 
-        // @ts-ignore
-        'pages.name'
-      ]
-    });
+    const entries = await toRaw(this.compendium).getIndex(sessionIndexFields);
 
     // find the sessions connected to this campaign
-
     const sessions = entries
       // first find the relevant ones
       .filter((e)=> (
         // @ts-ignore
-        e.flags?.flagKey===DOCUMENT_TYPES.Session &&
-        // @ts-ignore
-        !!e.pages?.find((p)=> this._clone.system.sessionIds.includes(p.uuid))
+        e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
+        this._clone.system.sessionIds.includes(`${e.uuid}.JournalEntryPage.${e.pages[0]._id}`)
       ))
-      .map((e) => ({ name: e.name, uuid: e.uuid } as SessionIndex))
+      .map((e) => ({ 
+        name: e.name, 
+        uuid: `${e.uuid}.JournalEntryPage.${e.pages[0]._id}`,
+        number: e.pages[0].system.number 
+      } as SessionFilterIndex))
 
       // now filter by the function passed in 
-      .filter((s: SessionIndex)=> filterFn(s)) || [];
+      .filter((s: SessionFilterIndex)=> filterFn(s)) || [];
 
     let retval = [] as Session[];
     for (let i=0; i<sessions.length; i++) {

@@ -347,7 +347,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     return allRelatedLoreRows.value.filter((r) => !r.delivered);
   });
 
-    const availableCampaigns = computed((): Campaign[] => {
+  const availableCampaigns = computed((): Campaign[] => {
     if (!currentSetting.value) {
       return [];
     }

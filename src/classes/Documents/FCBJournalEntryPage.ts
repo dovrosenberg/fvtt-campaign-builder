@@ -1,6 +1,6 @@
+import { toRaw } from 'vue';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { ValidDocType } from '@/types';
-import { toRaw } from 'vue';
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
@@ -80,7 +80,7 @@ export class FCBJournalEntryPage<
   > (this: T, uuid: string): Promise<InstanceType<T> | null> {
     const doc = await fromUuid<DocClass>(uuid) as DocClass | undefined;
 
-    if (!doc)
+    if (!doc || doc.documentName !== 'JournalEntryPage' || doc.type !== this._documentType)
       return null;
     else {
       const fcbDoc = new this(doc) as InstanceType<T>;
@@ -134,7 +134,7 @@ export class FCBJournalEntryPage<
     DocType extends ValidDocType,
     DocClass extends JournalEntryPage<DocType>,
     T extends FCBJournalEntryPageStatic<DocType, DocClass>
-  > (this: T, compendiumId: string, name: string): Promise<InstanceType<T> | null> {
+  > (this: T, compendiumId: string, name: string, initialData: Record<string, unknown> = {}): Promise<InstanceType<T> | null> {
     // find the folder it goes in 
     const pack = game.packs.get(compendiumId);
     let folder = pack?.folders.find(f => f.name === this._folderName);
@@ -166,12 +166,14 @@ export class FCBJournalEntryPage<
     // flag it
     await journalEntry.setFlag(moduleId, JournalEntryFlagKey.campaignBuilderType, this._documentType);
   
-    // now add the page
-    const pages = await JournalEntryPage.createDocuments([{
+    const pageData = foundry.utils.mergeObject({
       type: this._documentType,
       name: name,
-      system: this._defaultSystem
-    }],{
+      system: this._defaultSystem,
+    }, initialData) as JournalEntryPage.CreateData;
+
+      // now add the page
+    const pages = await JournalEntryPage.createDocuments([pageData],{
       parent: journalEntry,
     }) as unknown as DocClass[];
   

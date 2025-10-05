@@ -14,4 +14,12 @@ export type SessionIndex = {
     }
   }[]
 }
+
+/** the type available of filterSessions */
+type SessionFilterIndex = {
+  name: string;
+  uuid: string;
+  number: number;  
+}
+
   

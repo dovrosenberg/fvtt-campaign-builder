@@ -1,3 +1,4 @@
+import { toRaw } from 'vue';
 import { UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
 import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic } from '@/types';
 import { FCBDialog } from '@/dialogs';
@@ -209,20 +210,32 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   * @returns {Promise<Record<string, Campaign>>} A promise to the campaigns 
   */
   public async loadCampaigns(): Promise<Record<string, Campaign>> {
+    let changes = false;
+
+    // we clean up bad ones because various old versions may have stranded entries
     for (const id in this.campaignNames) {
       const campaignObj = await Campaign.fromUuid(id);
+
       if (!campaignObj) {
         // clean it up
+
+        // because we're going to save the changes, we'll put in these things to delete the keys and
+        //    then when save completes it will refresh so those won't be there any more
+        // @ts-ignore
+        this.campaignNames[`-=${id}`] = null;
+
+        // clean up locally
         delete this.campaignNames[id];
         delete this.campaigns[id];
 
-        await this.save();
+        changes = true;
       } else {
-        campaignObj.setting = this;
         this.campaigns[id] = campaignObj;
       }
     }
 
+    if (changes)
+      await this.save();
     return this.campaigns;
   }
 
@@ -270,7 +283,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    */
   public static async create(makeCurrent = false, name = '', compendiumId = '', skipValidation = false): Promise<FCBSetting | null> {
     // get the name
-    let nameToUse: string | null = name || null;
+    let nameToUse: string | null = name;
 
     while (nameToUse==='') {  // if hit ok, must have a value
       nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`); 
@@ -461,7 +474,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     if (!this.compendium)
       throw new Error ('Missing compendium in FCBSetting.delete');
 
-    await this.compendium.deleteCompendium();
+    await toRaw(this.compendium).deleteCompendium();
 
     return undefined;
   }

@@ -16,8 +16,6 @@ const campaignSchema = {
     new fields.DocumentUUIDField({ required: true, nullable: false }),
     { required: true, nullable: false, initial: [] as string[] }
   ),
-
-  
     
   /** campaign lore */
   lore: new fields.ArrayField(

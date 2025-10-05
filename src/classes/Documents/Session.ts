@@ -74,9 +74,10 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
   }
   
   // creates a new session in the proper campaign
-  static async create(campaign: Campaign): Promise<Session | null> 
+  static async create(campaign: Campaign, name = ''): Promise<Session | null> 
   {
-    let nameToUse = '' as string | null;
+    let nameToUse: string | null = name;
+
     while (nameToUse==='') {  // if hit ok, must have a value
       nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`); 
     }  
@@ -85,13 +86,23 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     if (!nameToUse)
       return null;
 
-    const session = await super._create(campaign.compendiumId, nameToUse) as unknown as Session | null;
+    // by default, we make it the next session number
+    const sessionNumber = campaign.nextSessionNumber;
+
+    const session = await super._create(
+      campaign.compendiumId, 
+      nameToUse,
+      { system: { campaignId: campaign.uuid, number: sessionNumber }}
+    ) as unknown as Session | null;
 
     if (!session)
       return null;
 
-    session.campaignId = campaign.uuid;
     await session.save();
+
+    // add to campaign
+    campaign.sessionIds.push(session.uuid);
+    await campaign.save();
     
     // Add to search index
     try {
@@ -492,6 +503,14 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
     if (!setting)
       throw new Error('Setting not found in Session.delete()');
+    
+    // remove from campaign
+    const campaign = await Campaign.fromUuid(this.campaignId);
+    if (!campaign)
+      throw new Error('Campaign not found in Session.delete()');
+    
+    campaign.sessionIds = campaign.sessionIds.filter(s=> s!==id);
+    await campaign.save();
     
     await toRaw(this._doc).delete();
 

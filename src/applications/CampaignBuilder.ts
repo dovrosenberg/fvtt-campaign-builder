@@ -1,6 +1,6 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin';
 import PrimeVue from 'primevue/config';
-import { pinia, } from '@/applications/stores';
+import { pinia, useNavigationStore, } from '@/applications/stores';
 import App from '@/components/applications/CampaignBuilder.vue';
 
 const { DocumentSheetV2 } = foundry.applications.api;
@@ -8,6 +8,8 @@ const { DocumentSheetV2 } = foundry.applications.api;
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import '@yaireo/tagify/dist/tagify.css';
 import { theme } from '@/components/styles/primeVue';
+import { JournalEntryFlagKey, moduleId } from '@/settings';
+import { DOCUMENT_TYPES } from '@/documents';
 
 // setup pinia
 
@@ -106,14 +108,34 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
 
     // if there is a document, open that content
     const doc = context.document;
-    let docType: DOCUMENT_TYPES | null = null;
+    let docType: typeof DOCUMENT_TYPES[keyof typeof DOCUMENT_TYPES] | null = null;
 
-    debugger;
     // if it's a journalentrypage get the type; if it's a journalentry, pull it from the flag
+    switch (doc.documentName) {
+      case 'JournalEntry':
+        if (doc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType))
+          docType = doc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType);
+        break;
+      case 'JournalEntryPage':
+        docType = doc.type;
+        break;
+    }
 
     if (docType) {
-      alert('Need to determine the content type here');
-      // useNavigationStore().openContent(doc.uuid);      
+      switch (docType) {
+        case DOCUMENT_TYPES.Campaign:
+          useNavigationStore().openCampaign(doc.uuid);
+          break;
+        case DOCUMENT_TYPES.Session:
+          useNavigationStore().openSession(doc.uuid);
+          break;
+        case DOCUMENT_TYPES.Setting:
+          useNavigationStore().openSetting(doc.uuid);
+          break;
+        case DOCUMENT_TYPES.Entry:
+          useNavigationStore().openEntry(doc.uuid);
+          break;
+      }
     } else if (doc.name !== FCB_OPEN_WINDOW_NAME) {
       throw new Error('Attempt to open invalid journal entry in CampaignBuilderApplication _onFirstRender')
     }
