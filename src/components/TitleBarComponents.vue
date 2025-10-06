@@ -115,6 +115,7 @@
   display: flex;
   align-items: center;
   margin-right: 10px;
+  font-family: var(--fcb-font-family);
 
   // Separator styling
   .separator {

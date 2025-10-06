@@ -37,7 +37,7 @@ export type RelatedJournal = {
   uuid: string;  // composite key journalUuid|pageUuid
   journalUuid: DocumentUUID;
   pageUuid: DocumentUUID | null;
-  packId: string | null;   // uuid of the parent compendium (null if it's a setting compendium)
+  packId: string | null;   // uuid of the parent compendium (null if it's a world entry)
   packName: string | null;
 };
 

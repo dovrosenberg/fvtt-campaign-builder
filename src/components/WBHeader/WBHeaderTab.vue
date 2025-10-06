@@ -195,7 +195,7 @@
     background: var(--fcb-header-tab-background);
     border: var(--fcb-header-tab-border);
     position: relative;
-    font-family: 'Signika', sans-serif;
+    font-family: var(--fcb-font-family);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

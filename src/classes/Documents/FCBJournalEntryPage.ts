@@ -1,7 +1,6 @@
-import { DOCUMENT_TYPES } from '@/documents/types';
 import { toRaw } from 'vue';
-
-type ValidDocType = typeof DOCUMENT_TYPES.Setting;
+import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
+import { ValidDocType } from '@/types';
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
@@ -10,6 +9,19 @@ type DocTypeOf<T> =
 // get the DocClass out of a constructor for a child
 type DocClassOf<T> = JournalEntryPage<DocTypeOf<T>>;
 
+// Helper: the static side every subclass must provide
+export type FCBJournalEntryPageStatic<
+  DocType extends ValidDocType,
+  DocClass extends JournalEntryPage<DocType>
+> = {
+  // constructor
+  new (doc: DocClass, ...args: any[]): FCBJournalEntryPage<DocType, DocClass>;
+  // required statics used by base helpers
+  _defaultSystem: DocClass['system'];
+  _folderName: string;
+  _documentType: DocType;
+};
+
 export class FCBJournalEntryPage<
   DocType extends ValidDocType,
   DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>
@@ -17,9 +29,9 @@ export class FCBJournalEntryPage<
   protected _clone: DocClass;
   protected _doc: DocClass;
 
-  protected static _defaultSystem: DocClassOf<any>['system'];
-  protected static _folderName: string;
-  protected static _documentType: ValidDocType;
+  static _defaultSystem: DocClassOf<any>['system'];
+  static _folderName: string;
+  static _documentType: ValidDocType;
 
   constructor(doc: DocClass) {
     this._doc = doc;
@@ -46,16 +58,29 @@ export class FCBJournalEntryPage<
     return this._doc.pack || '';
   }
 
-  get compendium(): CompendiumCollection<'JournalEntry'> | null { 
-    return (game.packs.get(this.compendiumId) || null) as unknown as CompendiumCollection<'JournalEntry'> | null;
+  get compendium(): CompendiumCollection<'JournalEntry'> { 
+    return game.packs.get(this.compendiumId) as unknown as CompendiumCollection<'JournalEntry'>;
   }
-  
-  static async fromUuid<
-    T extends typeof FCBJournalEntryPage,
-  > (this: T, uuid: string): Promise<InstanceType<T> | null> {
-    const doc = await fromUuid<DocClassOf<T>>(uuid) as DocClassOf<T> | undefined;
 
-    if (!doc)
+  get settingId(): string {
+    const settings = ModuleSettings.get(SettingKey.settingIndex);
+
+    const setting = settings.find(s => s.packId === this._doc.pack);
+
+    if (!setting)
+      throw new Error(`Setting not found for FCBJournalEntryPage ${this.uuid}`);
+    
+    return setting.settingId;
+  }
+
+  static async fromUuid<
+    DocType extends ValidDocType,
+    DocClass extends JournalEntryPage<DocType>,
+    T extends FCBJournalEntryPageStatic<DocType, DocClass>
+  > (this: T, uuid: string): Promise<InstanceType<T> | null> {
+    const doc = await fromUuid<DocClass>(uuid) as DocClass | undefined;
+
+    if (!doc || doc.documentName !== 'JournalEntryPage' || doc.type !== this._documentType)
       return null;
     else {
       const fcbDoc = new this(doc) as InstanceType<T>;
@@ -105,9 +130,11 @@ export class FCBJournalEntryPage<
    * @param {string} name - The name of the content 
    * @returns A promise that resolves when the page has been created with either the page or null for failure
    */
-  public static async create<
-    T extends typeof FCBJournalEntryPage,
-  > (this: T, compendiumId: string, name: string): Promise<InstanceType<T> | null> {
+  protected static async _create<
+    DocType extends ValidDocType,
+    DocClass extends JournalEntryPage<DocType>,
+    T extends FCBJournalEntryPageStatic<DocType, DocClass>
+  > (this: T, compendiumId: string, name: string, initialData: Record<string, unknown> = {}): Promise<InstanceType<T> | null> {
     // find the folder it goes in 
     const pack = game.packs.get(compendiumId);
     let folder = pack?.folders.find(f => f.name === this._folderName);
@@ -135,15 +162,20 @@ export class FCBJournalEntryPage<
   
     if (!journalEntry)
       throw new Error('Couldn\'t create new journal entry');
+
+    // flag it
+    await journalEntry.setFlag(moduleId, JournalEntryFlagKey.campaignBuilderType, this._documentType);
   
-    // now add the page
-    const pages = await JournalEntryPage.createDocuments([{
+    const pageData = foundry.utils.mergeObject({
       type: this._documentType,
       name: name,
-      system: this._defaultSystem
-    }],{
+      system: this._defaultSystem,
+    }, initialData) as JournalEntryPage.CreateData;
+
+      // now add the page
+    const pages = await JournalEntryPage.createDocuments([pageData],{
       parent: journalEntry,
-    }) as unknown as DocClassOf<T>[];
+    }) as unknown as DocClass[];
   
     if (!pages || pages.length === 0)
       throw new Error('Couldn\'t create new journal entry page');

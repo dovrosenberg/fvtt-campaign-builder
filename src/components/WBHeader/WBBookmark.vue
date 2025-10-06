@@ -154,6 +154,7 @@
 
 <style lang="scss">
   .fcb-bookmark-button, #fcb-add-bookmark {
+    font-family: var(--fcb-font-family);
     height: 28px;
     border-radius: 28px;
     margin-left: 4px;

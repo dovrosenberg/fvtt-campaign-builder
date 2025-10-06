@@ -1,7 +1,8 @@
+import { toRaw } from 'vue';
 import { UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
 import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic } from '@/types';
 import { FCBDialog } from '@/dialogs';
-import { Campaign, TopicFolder, RootFolder, } from '@/classes';
+import { TopicFolder, RootFolder, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
@@ -10,16 +11,30 @@ import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
 import { NameStyleExample } from '@/documents';
 import { cleanKeysOnSave } from '@/utils/cleanKeys';
+import { Campaign } from './Campaign';
 
 type SettingCompendium = CompendiumCollection<'JournalEntry'>;
 
 type SettingDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Setting>;
 
+type FCBSettingConstructor<
+  DocType extends typeof DOCUMENT_TYPES.Setting = typeof DOCUMENT_TYPES.Setting,
+  DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>
+> = {
+  // constructor
+  new (doc: DocClass, ...args: any[]): FCBSetting;
+  // required statics used by base helpers
+  _defaultSystem: DocClass['system'];
+  _folderName: string;
+  _documentType: DocType;
+};
+
+
 // represents a campaign setting
 export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Setting> {
-  protected static override _folderName = 'Settings';
-  protected static override _documentType = DOCUMENT_TYPES.Setting;
-  protected static override _defaultSystem = { 
+  static override _folderName = 'Settings';
+  static override _documentType = DOCUMENT_TYPES.Setting;
+  static override _defaultSystem = { 
     topicIds: {},  
     campaignNames: {},  
     expandedIds: {},  
@@ -38,7 +53,9 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public topicFolders: Record<ValidTopic, TopicFolder> = {} as Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using populate()), so we assume it's never empty
     
   static override async fromUuid<
-    T extends typeof FCBJournalEntryPage,
+    DocType extends typeof DOCUMENT_TYPES.Setting = typeof DOCUMENT_TYPES.Setting,
+    DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>,
+    T extends FCBSettingConstructor<DocType, DocClass>=FCBSettingConstructor<DocType, DocClass>
   > (this: T, settingId: string): Promise<InstanceType<T> | null> { 
     const setting = await super.fromUuid(settingId) as unknown as (FCBSetting | null);
     
@@ -193,20 +210,32 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   * @returns {Promise<Record<string, Campaign>>} A promise to the campaigns 
   */
   public async loadCampaigns(): Promise<Record<string, Campaign>> {
+    let changes = false;
+
+    // we clean up bad ones because various old versions may have stranded entries
     for (const id in this.campaignNames) {
       const campaignObj = await Campaign.fromUuid(id);
+
       if (!campaignObj) {
         // clean it up
+
+        // because we're going to save the changes, we'll put in these things to delete the keys and
+        //    then when save completes it will refresh so those won't be there any more
+        // @ts-ignore
+        this.campaignNames[`-=${id}`] = null;
+
+        // clean up locally
         delete this.campaignNames[id];
         delete this.campaigns[id];
 
-        await this.save();
+        changes = true;
       } else {
-        campaignObj.setting = this;
         this.campaigns[id] = campaignObj;
       }
     }
 
+    if (changes)
+      await this.save();
     return this.campaigns;
   }
 
@@ -252,49 +281,51 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    * @param {boolean} [skipValidation=false] If true, skips validation.  Mostly only useful for migration
    * @returns The new setting, or null if the user cancelled the dialog.
    */
-  public static async createSetting(makeCurrent = false, name = '', compendiumId = '', skipValidation = false): Promise<FCBSetting | null> {
+  public static async create(makeCurrent = false, name = '', compendiumId = '', skipValidation = false): Promise<FCBSetting | null> {
     // get the name
-    let nameToUse = name || '';
+    let nameToUse: string | null = name;
 
-    do {
-      if (!nameToUse) 
-        nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSetting.title'), `${localize('dialogs.createSetting.settingName')}:`) || ''; 
-      
-      if (nameToUse) {
-        // using the existing compendium is rare but useful (for ex.) when migrating or fixing things that went bad
+    while (nameToUse==='') {  // if hit ok, must have a value
+      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`); 
+    }  
 
-        // more typically, we create a new one
-        if (!compendiumId) {
-          // create the compendium
-          compendiumId = await createCompendium(nameToUse);
+    // if name is null, then we cancelled the dialog
+    if (!nameToUse)
+      return null;
+    
+    // using the existing compendium is rare but useful (for ex.) when migrating or fixing things that went bad
 
-          if (!compendiumId)
-            throw new Error('Failed to create compendium in FCBSetting.create()');
-        }
+    // more typically, we create a new one
+    if (!compendiumId) {
+      // create the compendium
+      compendiumId = await createCompendium(nameToUse);
 
-        const newSetting = await super.create(compendiumId, nameToUse) as unknown as FCBSetting;
-        if (skipValidation)
-          return newSetting;
+      if (!compendiumId)
+        throw new Error('Failed to create compendium in FCBSetting.create()');
+    }
 
-        await newSetting.populate();
+    const newSetting = await super._create(compendiumId, nameToUse) as unknown as FCBSetting | null;
 
-        // set as the current setting
-        if (makeCurrent) {
-          await UserFlags.set(UserFlagKey.currentSetting, newSetting.uuid);
-        }
-        
-        // If auto-refresh is enabled, populate tables in background
-        const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
-        if (autoRefresh && Backend.available && Backend.api) {
-          void refreshSettingRollTables(newSetting);
-        }
+    if (!newSetting)
+      return null;
+    
+    if (skipValidation)
+      return newSetting;
 
-        return newSetting;
-      }
-    } while (nameToUse==='');  // if hit ok, must have a value
+    await newSetting.populate();
 
-    // if name isn't '' and we're here, then we cancelled the dialog
-    return null;
+    // set as the current setting
+    if (makeCurrent) {
+      await UserFlags.set(UserFlagKey.currentSetting, newSetting.uuid);
+    }
+    
+    // If auto-refresh is enabled, populate tables in background
+    const autoRefresh = ModuleSettings.get(SettingKey.autoRefreshRollTables);
+    if (autoRefresh && Backend.available && Backend.api) {
+      void refreshSettingRollTables(newSetting);
+    }
+
+    return newSetting;
   }
 
   // make sure we have a compendium in the folder; create a new one if needed
@@ -433,11 +464,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
   public async delete(): Promise<this | undefined> {
     // delete the setting
-    const allSettings = ModuleSettings.get(SettingKey.settings);
-    if (allSettings[this.uuid]) {
-      delete allSettings[this.uuid];
-    }
-    await ModuleSettings.set(SettingKey.settings, allSettings);
+    const allSettings = ModuleSettings.get(SettingKey.settingIndex).filter(s=>s.settingId!==this.uuid);
+    await ModuleSettings.set(SettingKey.settingIndex, allSettings);
 
     // Delete all associated roll tables.
     await this.deleteRollTables();
@@ -446,7 +474,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     if (!this.compendium)
       throw new Error ('Missing compendium in FCBSetting.delete');
 
-    await this.compendium.deleteCompendium();
+    await toRaw(this.compendium).deleteCompendium();
 
     return undefined;
   }
@@ -486,7 +514,8 @@ private async deleteRollTables() : Promise<void> {
 
     for (let campaign of Object.values(this.campaigns)) {
       // remove from any monsters that are linked to it
-      for (let session of campaign.sessions) {
+      const sessions = await campaign.getSessions();
+      for (let session of sessions) {
         const monsters = session.monsters.map(m=>m.uuid);
         for (let i=0; i<monsters.length; i++) {
           if (monsters[i] === actorId) {
@@ -527,7 +556,9 @@ private async deleteRollTables() : Promise<void> {
   public async deleteItemFromSetting(itemId: string) {
     // remove from any Magic Items that are linked to it
     for (let campaign of Object.values(this.campaigns)) {
-      for (let session of campaign.sessions) {
+      const sessions = await campaign.getSessions();
+
+      for (let session of sessions) {
         const items = session.items.map(i=>i.uuid);
         for (let i=0; i<items.length; i++) {
           if (items[i] === itemId) {

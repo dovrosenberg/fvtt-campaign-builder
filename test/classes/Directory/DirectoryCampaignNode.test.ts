@@ -2,9 +2,7 @@ import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { DirectoryCampaignNode } from '@/classes/Directory/DirectoryCampaignNode';
 import { DirectorySessionNode } from '@/classes/Directory/DirectorySessionNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
-import { Campaign } from '@/classes/Campaign';
-import { Session } from '@/classes/Session';
-import { FCBSetting } from '@/classes';
+import { Campaign, Session, FCBSetting } from '@/classes/Documents';
 import * as sinon from 'sinon';
 
 export const registerDirectoryCampaignNodeTests = () => {

@@ -1,3 +1,5 @@
+import { DOCUMENT_TYPES } from 'src/documents/types.js';
+
 export type * from './directory.d.ts';
 export type * from './tables.d.ts';
 export type * from './relationships.d.ts';
@@ -8,6 +10,7 @@ export type * from './dialogs.d.ts';
 export type * from './search.d.ts';
 export type * from './tags.d.ts';
 export type * from './dragdrop.ts';
+export type * from './documentIndices.ts';
 
 // @ts-ignore - need to pull enum
 export * from './generators.ts';
@@ -113,7 +116,7 @@ export enum ToDoTypes {
 
 export interface ToDoItem {
   uuid: string;  // uuid of the to-do item
-  lastTouched: Date;
+  lastTouched: string;  // ISO string
   manuallyUpdated: boolean;   // has the user edited the text yet
   linkedUuid: string | null;  // uuid of the linked entry, lore, etc.
   linkedText: string | null;  // text to display for linked items
@@ -131,3 +134,14 @@ export interface Idea {
 
 export type BaseTableGridRow = { uuid: string; sortOrder?: number } & Record<string, any>;
 
+export type SettingIndex = {
+  settingId: string;
+  name: string;
+  packId: string;
+}
+
+export type ValidDocType = 
+  typeof DOCUMENT_TYPES.Setting | 
+  typeof DOCUMENT_TYPES.Campaign | 
+  typeof DOCUMENT_TYPES.Entry | 
+  typeof DOCUMENT_TYPES.Session;

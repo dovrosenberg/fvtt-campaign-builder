@@ -5,7 +5,7 @@
 
   "compatibility": {
     "minimum": "13",
-    "verified": "13.348"
+    "verified": "13.350"
   },
 
   "esmodules": [
@@ -44,8 +44,13 @@
       "entry": {
         "htmlFields": [ "rolePlayingNotes", "background", "plotPoints", "magicItems" ]
       },
-      "session": {},
-      "setting": {}
+      "session": {
+        "htmlFields": [ "strongStart" ]
+      },
+      "setting": {},
+      "campaign": {
+        "htmlFields": [ "houseRules" ]
+      }
     }
   },
 

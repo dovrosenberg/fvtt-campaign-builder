@@ -13,6 +13,7 @@ import { FCBSetting } from '@/classes';
 export async function getCurrentSetting(): Promise<FCBSetting> {
   let settingId = UserFlags.get(UserFlagKey.currentSetting);  // this isn't setting-specific (obviously)
 
+  
   // make sure we have a default and it exists
   let setting = null as FCBSetting | null;
   if (settingId) {
@@ -21,13 +22,13 @@ export async function getCurrentSetting(): Promise<FCBSetting> {
 
   if (!setting) {
     // couldn't find it, default to first one (which is sort of random because it's not an array)
-    const settings = ModuleSettings.get(SettingKey.settings) || {};
-    if (Object.keys(settings).length>0) {
-      settingId = Object.keys(settings)[0];
+    const settings = ModuleSettings.get(SettingKey.settingIndex) || [];
+    if (settings.length>0) {
+      settingId = settings[0].settingId;
       setting = await FCBSetting.fromUuid(settingId);
     } else {
       // no setting found, so create one
-      setting = await FCBSetting.createSetting(true);
+      setting = await FCBSetting.create(true);
     }
 
     if (setting?.uuid)

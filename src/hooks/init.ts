@@ -1,8 +1,8 @@
 import { moduleId, ModuleSettings, } from '@/settings';
 import { KeyBindings } from '@/settings/KeyBindings';
-import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel, SettingDataModel, } from '@/documents';
+import { CampaignDataModel, DOCUMENT_TYPES, EntryDataModel, SessionDataModel, SettingDataModel, } from '@/documents';
 import { CampaignBuilderApplication } from '@/applications/CampaignBuilder';
-import { SettingDataModel } from '@/documents';
+import { JournalEntryFlagKey } from '@/settings';
 
 export function registerForInitHook() {
   Hooks.once('init', init);
@@ -24,10 +24,19 @@ async function init(): Promise<void> {
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
     [DOCUMENT_TYPES.Entry]: EntryDataModel,
     [DOCUMENT_TYPES.Session]: SessionDataModel,    
-    // [DOCUMENT_TYPES.Campaign]: CampaignDataModel,
+    [DOCUMENT_TYPES.Campaign]: CampaignDataModel,
     [DOCUMENT_TYPES.Setting]: SettingDataModel,
   });
-  
+
+  // register the index fields we need
+  CONFIG.JournalEntry.compendiumIndexFields.push(
+    `flags.${moduleId}.${JournalEntryFlagKey.campaignBuilderType}`,
+    'pages.uuid',
+    'pages.name',
+    'pages.system.number',  // for sessions
+  );
+    
+  // the sheet  
   foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntry, moduleId, CampaignBuilderApplication, {
     canBeDefault: true,
     canConfigure: false,
@@ -35,9 +44,9 @@ async function init(): Promise<void> {
     label: 'FCB - IF YOU\'RE SEEING THIS SOMETHING IS BROKEN'
   });
 
-  // we need to add the default sheet even though we never use them
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
-    types: [DOCUMENT_TYPES.Entry, DOCUMENT_TYPES.Session, DOCUMENT_TYPES.Setting ],
+  // we need to add these in case someone opens one manually somehow
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, CampaignBuilderApplication, {
+    types: [DOCUMENT_TYPES.Entry, DOCUMENT_TYPES.Session, DOCUMENT_TYPES.Setting, DOCUMENT_TYPES.Campaign ],
     makeDefault: true,
   });
 }

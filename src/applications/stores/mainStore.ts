@@ -202,17 +202,17 @@ export const useMainStore = defineStore('main', () => {
    * @returns Array of FCBSetting instances
    */
   const getAllSettings = async function (): Promise<FCBSetting[]> {
-    const allSettings = ModuleSettings.get(SettingKey.settings) || {};
+    const allSettings = ModuleSettings.get(SettingKey.settingIndex) || [];
     const settings: FCBSetting[] = [];
 
-    for (const settingId in allSettings) {
+    for (const settingIndex of allSettings) {
       try {
-        const setting = await FCBSetting.fromUuid(settingId);
+        const setting = await FCBSetting.fromUuid(settingIndex.settingId);
         if (setting) {
           settings.push(setting);
         }
       } catch (error) {
-        console.error(`Error loading setting ${settingId}:`, error);
+        console.error(`Error loading setting ${settingIndex.settingId}:`, error);
       }
     }
 

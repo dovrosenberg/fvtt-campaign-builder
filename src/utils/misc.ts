@@ -74,3 +74,12 @@ export function getTabTypeIcon(type: string | number | WindowTabType | null | un
   }
 }
 
+/** Formats a date to a locale-specific string */
+export function formatDate(ISODate: string): string {
+  return (new Date(ISODate)).toLocaleString(undefined, { 
+    day: 'numeric', 
+    month: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).replace(/\s*([AP]M)/i, (_, p1) => p1.toLowerCase()); // replace AM/PM with am/pm
+}

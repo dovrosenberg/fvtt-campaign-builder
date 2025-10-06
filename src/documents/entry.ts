@@ -39,7 +39,7 @@ const entrySchema = {
   magicItems: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
 
   // Image for the entry
-  img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
+  img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
 
   rolePlayingNotes: new fields.HTMLField({required: false, blank: true}),
 };

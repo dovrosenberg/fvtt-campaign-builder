@@ -71,7 +71,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
         continue;
       }
 
-      const children = campaign.sessions?.map(session => session.uuid) || [];
+      const children = (await campaign.getSessions())?.map(session => session.uuid) || [];
 
       currentCampaignTree.value.push(new DirectoryCampaignNode(
         id,
@@ -131,7 +131,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (!(await FCBDialog.confirmDialog('Delete campaign?', 'Are you sure you want to delete this campaign?')))
       return;
   
-    const sessions = campaign.sessions;
+    const sessions = await campaign.getSessions();
     for (let i=0; i<sessions.length; i++) {
       await navigationStore.cleanupDeletedEntry(sessions[i].uuid);
     }

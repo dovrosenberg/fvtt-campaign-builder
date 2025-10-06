@@ -1,4 +1,8 @@
 <template>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet"> 
+
   <div  
     class="fcb"
     @click="onClickApplication"
@@ -353,6 +357,12 @@
 
   .fcb-main-window {  
     min-width: 640px;
+
+    // set the font-family across everything (override Foundry defaults)
+    // but exclude header control icons
+    a.button, button:not(.header-control.icon), input, textarea, select, thead.p-datatable-thead {
+      font-family: var(--fcb-font-family) !important;
+    }
 
     .window-header {
       // we need it to be higher than the content so search results can cover

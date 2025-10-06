@@ -347,7 +347,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     return allRelatedLoreRows.value.filter((r) => !r.delivered);
   });
 
-    const availableCampaigns = computed((): Campaign[] => {
+  const availableCampaigns = computed((): Campaign[] => {
     if (!currentSetting.value) {
       return [];
     }
@@ -450,7 +450,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!currentCampaign.value)
       return null;
 
-    const sessions = currentCampaign.value.sessions; 
+    const sessions = await currentCampaign.value.getSessions(); 
 
     if (sessions.length!==0) {
       return sessions.reduce((session, maxSession) => {
@@ -493,7 +493,8 @@ export const useCampaignStore = defineStore('campaign', () => {
     const retval = [] as CampaignLoreDetails[];
 
     // go through everything in the sessions that was delivered
-    for (const session of currentCampaign.value.sessions) {
+    const sessions = await currentCampaign.value.getSessions();
+    for (const session of sessions) {
       for (const lore of session.lore) {
         if (!lore.delivered)
           continue;

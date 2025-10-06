@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { Campaign, FCBSetting } from '@/classes';
-import { CampaignDoc, CampaignFlagKey, DOCUMENT_TYPES } from '@/documents';
+import { DOCUMENT_TYPES } from '@/documents';
 import { SessionLore } from '@/documents/session';
 import * as sinon from 'sinon';
 import { moduleId } from '@/settings';
@@ -220,7 +220,7 @@ export const registerCampaignTests = () => {
         });
 
         describe('sessions getter', () => {
-          it('should return an array of Session objects', () => {
+          it('should return an array of Session objects', async () => {
             // Add mock sessions to the campaign
             mockCampaignDoc.pages.contents = [
               {
@@ -240,7 +240,7 @@ export const registerCampaignTests = () => {
               }
             ];
             
-            const sessions = campaign.sessions;
+            const sessions = await campaign.getSessions();
             expect(sessions).to.have.length(2);
             expect(sessions[0].uuid).to.equal('session1-uuid');
             expect(sessions[1].uuid).to.equal('session2-uuid');

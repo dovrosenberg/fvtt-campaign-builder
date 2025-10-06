@@ -4,7 +4,7 @@
 import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
 import { Topics, ValidTopic } from '@/types';
 import { log } from '@/utils/log';
-import { Campaign } from '@/classes/Campaign';
+import { Campaign } from '@/classes/Documents/Campaign';
 import { FCBDialog } from '@/dialogs';
 
 type GetListReturnValue = { uuid: string; name: string};
@@ -96,7 +96,7 @@ export class ExternalAPI {
     const retval = [] as GetListReturnValue[];
     for (const campaignId in setting.campaigns) {
       const campaign = setting.campaigns[campaignId];
-      const sessions = campaign.sessions;
+      const sessions = await campaign.getSessions();
 
       for (let i=0; i<sessions.length; i++) {
         retval.push({ uuid: sessions[i].uuid, name: sessions[i].name })

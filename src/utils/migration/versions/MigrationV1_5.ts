@@ -1,9 +1,14 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
-import { RootFolder, FCBSetting } from '@/classes';
+import { RootFolder, FCBSetting, Session, Campaign } from '@/classes';
+import { Idea, RelatedJournal, RelatedPCDetails, SettingIndex, TagInfo, ToDoItem } from '@/types';
+import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette } from '@/documents';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
+
+// map old id to new id
+const globalUuidMap: Record<string, string> = {};
 
 /**
  * Migration 1.5.0
@@ -39,16 +44,8 @@ export class MigrationV1_5 implements Migration {
         document.dispatchEvent(event);
       };
 
-      // map ids to names
-      const newSettings: Record<string, string> = {};
-      const mapSettingIds: Record<string, string> = {};   // map old folder Ids to new ids
-
       for (const folder of allSettingFolders) {
-        const setting = await migrateSetting(folder);
-
-        // we then just need to save the index info to the module
-        newSettings[setting.uuid] = folder.name;
-        mapSettingIds[folder.uuid] = setting.uuid;
+        await migrateSetting(folder);
 
         // we don't clean up the folder because there's not really any reason to
 
@@ -56,18 +53,23 @@ export class MigrationV1_5 implements Migration {
         processed++;
       }
 
-      // save them all
-      await ModuleSettings.set(SettingKey.settings, newSettings);
-
       // remap the current settings to the updated ids 
       const currentSettingId = UserFlags.get(UserFlagKey.currentSetting);
       if (currentSettingId) {
-        UserFlags.set(UserFlagKey.currentSetting, mapSettingIds[currentSettingId]);
+        UserFlags.set(UserFlagKey.currentSetting, globalUuidMap[currentSettingId]);
       }
 
       const currentEmailId = ModuleSettings.get(SettingKey.emailDefaultSetting);
       if (currentEmailId) {
-        ModuleSettings.set(SettingKey.emailDefaultSetting, mapSettingIds[currentEmailId]);
+        ModuleSettings.set(SettingKey.emailDefaultSetting, globalUuidMap[currentEmailId]);
+      }
+
+      // clean up all the user settings
+      for (const user of game.users.filter(()=>true)) {
+        const oldSettingId = user.getFlag(moduleId, UserFlagKey.currentSetting) as string;
+        if (oldSettingId) {
+          user.setFlag(moduleId, UserFlagKey.currentSetting, globalUuidMap[oldSettingId]);
+        }
       }
     } catch (outer) {
       result.success = false;
@@ -88,6 +90,7 @@ export class MigrationV1_5 implements Migration {
 
 /** returns the settingId (uuid of the journal entry) */
 async function migrateSetting(folder: Folder): Promise<FCBSetting> {
+  // @ts-ignore
   const compendiumId = folder.getFlag(moduleId, 'compendiumId') as string | undefined;
 
   if (!compendiumId)
@@ -102,11 +105,16 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
     PLAYER: 'LIMITED' 
   }, locked: false });
 
-  const newSetting = await FCBSetting.createSetting(false, folder.name, compendiumId, true);
+  const newSetting = await FCBSetting.create(false, folder.name, compendiumId, true);
 
   if (!newSetting)
     throw new Error('Failed to create setting in MigrationV1_5.migrate()');
+
+  // add it to the index
+  await addToSettingIndex(newSetting.uuid, folder.name, compendiumId);
   
+  globalUuidMap[folder.uuid] = newSetting.uuid;
+
   // get all the setting configuration
   // @ts-ignore
   newSetting.description = folder.getFlag(moduleId, 'description');
@@ -146,6 +154,34 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
 
   await newSetting.save();
 
+  // now migrate all the campaigns
+  for (const id in newSetting.campaignNames) {
+    const campaign = await fromUuid<JournalEntry>(id);
+
+    // NOTE! This may generate a bunch of console warnings because the old stuff wasn't 
+    //    compatible with the new schema
+
+    // if it's not a campaign, clean up
+    if (!campaign || !campaign.getFlag(moduleId, 'isCampaign')) {
+      delete newSetting.campaignNames[id];
+      await newSetting.save();
+      continue;
+    }
+
+    await migrateCampaign(campaign, newSetting);
+  }
+
+  // now that the campaigns are migrated, we need to update our keys
+  newSetting.campaignNames = Object.keys(newSetting.campaignNames).reduce((retval, id) => {
+    if (globalUuidMap[id]) {
+      retval[globalUuidMap[id]] = newSetting.campaignNames[id];
+    }
+
+    return retval;
+  }, {} as Record<string, string>);
+
+  await newSetting.save();
+
   return newSetting;
 }
 
@@ -172,3 +208,102 @@ async function getAllSettings(): Promise<Folder[]> {
 
   return settings;
 }
+
+async function migrateCampaign(oldCampaign: JournalEntry, setting: FCBSetting): Promise<void> {
+  // first create the campaign
+  const newCampaign = await Campaign.create(setting, oldCampaign.name);
+
+  if (!newCampaign)
+    throw new Error('Failed to create campaign in MigrationV1_5.migrateCampaign()');
+
+  newCampaign.description = oldCampaign.getFlag(moduleId, 'description') as string || '';
+  newCampaign.houseRules = oldCampaign.getFlag(moduleId, 'houseRules') as string || '';
+  newCampaign.img = oldCampaign.getFlag(moduleId, 'img') as string || '';
+  newCampaign.lore = oldCampaign.getFlag(moduleId, 'lore') as CampaignLore[] || [];
+  newCampaign.todoItems = oldCampaign.getFlag(moduleId, 'todoItems') as ToDoItem[] || [];
+  newCampaign.ideas = oldCampaign.getFlag(moduleId, 'ideas') as Idea[] || [];
+  newCampaign.journals = oldCampaign.getFlag(moduleId, 'journals') as RelatedJournal[] || [];
+  newCampaign.pcs = oldCampaign.getFlag(moduleId, 'pcs') as RelatedPCDetails[] || [];
+
+  // some old lore don't have sort orders
+  if (newCampaign.lore.find((lore)=>lore.sortOrder == null)) {
+    // if any don't the probably all don't, so just reset them all
+    newCampaign.lore = newCampaign.lore.map((lore, index)=>({
+      ...lore,
+      sortOrder: index,
+    }));
+  }
+
+  await newCampaign.save();
+
+  globalUuidMap[oldCampaign.uuid] = newCampaign.uuid;
+
+  // now migrate all the sessions
+  for (const session of oldCampaign.pages) {
+    await migrateSession(newCampaign, session);
+  }
+
+  // rename the old one so we don't get confused prior to deleting
+  // this will probably throw an error because the journal entry has a bad format; but it will stll change the name
+  try {
+    await oldCampaign.update({ name: 'ARCHIVE - ' + oldCampaign.name });
+  }
+  catch (e) {
+    // @ts-ignore
+    const fail = e?.getFailure();
+
+    if (!fail || fail.message !== 'SessionDataModel validation errors:')
+      throw new Error('Failed to rename old campaign in MigrationV1_5.migrateCampaign()', e);
+  }
+}
+
+// returns the new uuid
+async function migrateSession(campaign: Campaign, oldSession: JournalEntryPage): Promise<string> {
+  // sessions are easy because the format stayed almost the same - we mostly just need to 
+  //    wrap them in journal entries and put them in the right folder 
+  // and we need to map the uuids so we can handle relationships
+  const newSession = await Session.create(campaign, oldSession.name);
+
+  if (!newSession)
+    throw new Error('Failed to create session in MigrationV1_5.migrateSession()');
+
+  newSession.notes = oldSession.text.content || '';
+  newSession.number = oldSession.system.number || 0;
+  newSession.date = oldSession.system.date ? new Date(oldSession.system.date) : null;
+  newSession.strongStart = oldSession.system.strongStart || '';
+  newSession.img = oldSession.system.img || '';
+  newSession.locations = oldSession.system.locations as SessionLocation[] || [];
+  newSession.items = oldSession.system.items as SessionItem[] || [];
+  newSession.npcs = oldSession.system.npcs as SessionNPC[] || [];
+  newSession.monsters = oldSession.system.monsters as SessionMonster[] || [];
+  newSession.vignettes = oldSession.system.vignettes as SessionVignette[] || [];
+  newSession.lore = oldSession.system.lore as SessionLore[] || [];
+  newSession.tags = oldSession.system.tags as unknown as TagInfo[] || [];
+
+  // some old lore don't have sort orders
+  if (newSession.lore.find((lore)=>lore.sortOrder == null)) {
+    // if any don't the probably all don't, so just reset them all
+    newSession.lore = newSession.lore.map((lore, index)=>({
+      ...lore,
+      sortOrder: index,
+    }));
+  }
+
+  await newSession.save();
+
+  globalUuidMap[oldSession.uuid] = newSession.uuid;
+  return newSession.uuid;
+}
+  
+async function addToSettingIndex(settingId: string, name: string, packId: string): Promise<void> {
+  const index = ModuleSettings.get(SettingKey.settingIndex) as SettingIndex[];
+
+  index.push({
+    settingId,
+    name,
+    packId,
+  });
+  
+  await ModuleSettings.set(SettingKey.settingIndex, index);
+}
+

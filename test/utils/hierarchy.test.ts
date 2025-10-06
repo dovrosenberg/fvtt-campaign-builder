@@ -3,7 +3,6 @@ import {
   hasHierarchy,
   getParentId,
   validParentItems,
-  validChildItems,
   cleanTrees,
   NO_TYPE_STRING,
   NO_NAME_STRING
