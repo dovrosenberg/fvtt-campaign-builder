@@ -1,4 +1,4 @@
-import { Hierarchy, RelatedJournal, SettingGeneratorConfig, ValidTopic } from '@/types';
+import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 import { DOCUMENT_TYPES } from './types';
 import { cleanKeysOnLoad,  } from '@/utils/cleanKeys';
@@ -6,8 +6,20 @@ import { schemas } from './fields';
 
 const fields = foundry.data.fields;
 const settingSchema = {
-  /** the uuid for each topic */
-  topicIds: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<ValidTopic, string> | Record<never, string> }),  
+  /** the topics; keyed by topic id (the Topics enum) */
+  topics: new fields.SchemaField({
+    [Topics.Character]: schemas.Topic(),
+    [Topics.Location]: schemas.Topic(),
+    [Topics.Organization]: schemas.Topic(),
+    [Topics.PC]: schemas.Topic(),
+  },
+    { required: true, nullable: false, initial: {
+      [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [] },
+      [Topics.Location]: { topic: Topics.Character, topNodes: [], types: [] },
+      [Topics.Organization]: { topic: Topics.Character, topNodes: [], types: [] },
+      [Topics.PC]: { topic: Topics.Character, topNodes: [], types: [] },
+    } }
+  ),
 
   /** name of each campaign; keyed by journal entry uuid */
   campaignNames: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, string> }),
@@ -78,11 +90,12 @@ export type NameStyleExample = {
   examples: ApiNamePreviewPost200ResponsePreviewInner[] 
 };
 
+export type TopicFlatType = { topic: string; types: string[]; topNodes: string[]; };
 export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_TYPES.Setting>, 'system'> {
   __type: 'FCBSettingDoc'; 
 
   system: {
-    topicIds: Record<ValidTopic, string> | Record<never, string>;  
+    topics: Record<string, TopicFlatType>
     campaignNames: Record<string, string>;  
     expandedIds: Record<string, boolean>;  
     hierarchies: Record<string, Hierarchy>;  

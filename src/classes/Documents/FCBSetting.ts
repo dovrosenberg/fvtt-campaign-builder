@@ -1,15 +1,15 @@
 import { toRaw } from 'vue';
 import { UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
-import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic } from '@/types';
+import { EntryFilterIndex, Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic } from '@/types';
 import { FCBDialog } from '@/dialogs';
-import { TopicFolder, RootFolder, } from '@/classes';
+import { TopicFolder, RootFolder, Entry, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
 import { Backend } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
-import { NameStyleExample } from '@/documents';
+import { entryIndexFields, NameStyleExample, TopicFlatType } from '@/documents';
 import { cleanKeysOnSave } from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
 
@@ -35,7 +35,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   static override _folderName = 'Settings';
   static override _documentType = DOCUMENT_TYPES.Setting;
   static override _defaultSystem = { 
-    topicIds: {},  
+    topics: {},
     campaignNames: {},  
     expandedIds: {},  
     hierarchies: {},  
@@ -67,15 +67,12 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     return setting as InstanceType<T>;
   }
 
-  /**
-   * The JournalEntry UUID for each topic.
-   */
-  public get topicIds(): Record<ValidTopic, string> | Record<never, string> {
-    return this._clone.system.topicIds;
-  }
-
-  public set topicIds(value: Record<ValidTopic, string> | Record<never, string>) {
-    this._clone.system.topicIds = value;
+  public setTopic(topicId: ValidTopic, value: TopicFolder) {
+    this._clone.system.topics[topicId] = {
+      topNodes: value.topNodes.slice(),
+      types: value.types.slice(),
+      topic: value.topic,
+    };
   }
 
   /**
@@ -121,6 +118,15 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
       ...this._clone.text,
       content: value
     };
+  }
+
+  // get the topics
+  public get topics(): TopicFlatType[] {
+    return this._clone.system.topics as TopicFlatType[];
+  }
+
+  public set topics(value: TopicFlatType[]) {
+    this._clone.system.topics = value;
   }
 
   public get genre(): string {
@@ -179,30 +185,6 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     (this._clone.system.journals as RelatedJournal[]) = value;
   } 
 
-  /**
-  * Gets the Topics associated with the setting. If the topics are already loaded, the promise resolves
-  * to the existing ones; otherwise, it loads the topics and then resolves to the set.
-  * @returns {Promise<Record<ValidTopic, TopicFolder>>} A promise to the topics
-  */
-  public async loadTopics(): Promise<Record<ValidTopic, TopicFolder>> {
-    if (!this.topicIds)
-      throw new Error('Invalid FCBSetting.loadTopics() called before IDs loaded');
-
-    // loop over just the numeric values
-    for (const topic of Object.values(Topics).filter(t=>typeof t === 'number')) {
-      if (topic !== Topics.None && !this.topicFolders[topic]) {
-        const topicObj = await TopicFolder.fromUuid(this.topicIds[topic]);
-        if (!topicObj)
-          throw new Error('Invalid topic uuid in FCBSetting.loadTopics()');
-
-        topicObj.setting = this;
-        this.topicFolders[topic] = topicObj;
-      }
-    }
-
-    return this.topicFolders;
-  }
-  
 
   /**
   * Gets the Campaigns associated with the setting. If the campaigns are already loaded, the promise resolves
@@ -331,66 +313,91 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   // make sure we have a compendium in the folder; create a new one if needed
   // also loads all the topics
   public async populate() {
-    // load the topics and campaigns
-    await this.populateTopics();
+    // load the campaigns and topics
     await this.loadCampaigns();
+    await this.populateTopics();
     
     // Initialize roll tables for this setting if they don't exist - but don't wait for the generation
     await initializeSettingRollTables(this);      
   }
 
   private async populateTopics() {
-    let updated = false;
-
     const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
-    const topicObjects = {} as Record<ValidTopic, TopicFolder>;
 
-    if (!this.topicIds) {
-      this.topicIds = {} as Record<ValidTopic, string>;
+    if (!this._clone.system.topics) {
+      // @ts-ignore - ignore conversion of ValidTopic to string
+      this._clone.system.topics = {} as Record<ValidTopic, TopicFlatType>;
     }
 
     // load the topics, creating them if needed
     for (let i=0; i<topics.length; i++) {
       const t = topics[i];
 
-      let topicFolder;
-      if (this.topicIds[t]) {
-        topicFolder = await TopicFolder.fromUuid(this.topicIds[t]);
-
-        if (topicFolder)
-          topicFolder.setting = this;
-      }
-
-      if (!topicFolder) {
-        // create the missing one
-        topicFolder = await TopicFolder.create(this, t);
-
-        if (!topicFolder)
-          throw new Error('Couldn\'t create topicFolder in FCBSetting.populateTopics()');
-
-        topicFolder.setting = this;
-        this.topicIds[t] = topicFolder.uuid;
-        topicObjects[t] = topicFolder;
-
-        updated = true;
-      } else {
-        topicObjects[t] = topicFolder;
-      }
-    }
-
-    this.topicFolders = topicObjects;
-
-    // if we changed things, save new compendia flag
-    if (updated) {
-      this.save();
+      // @ts-ignore - ignore conversion of ValidTopic to string
+      this.topicFolders[t] = new TopicFolder(t, this);
     }
   }
-  
+
+  /**
+   * Given a filter function, returns all the matching Entries
+   * inside this topic
+   * 
+   * @param {(e: EntryFilterIndex) => boolean} filterFn - The filter function
+   * @param {boolean} fullEntry - return full Entry objects or just EntryFilterIndexes
+   * @returns {Entry[] | EntryFilterIndex[]} The entries that pass the filter (or simplified index versions, depending on fullEntry)
+   */
+  public async filterEntries(filterFn: (e: EntryFilterIndex) => boolean, fullEntry: true): Promise<Entry[]>;
+  public async filterEntries(filterFn: (e: EntryFilterIndex) => boolean, fullEntry: false): Promise<EntryFilterIndex[]>; 
+  public async filterEntries(filterFn: (e: EntryFilterIndex) => boolean, fullEntry: boolean = true): Promise<Entry[] | EntryFilterIndex[]> { 
+    // get all the journal entries
+    const indexEntries = await toRaw(this.compendium).getIndex(entryIndexFields);
+
+    // find the sessions connected to this campaign
+    const entries = indexEntries
+      // first find the relevant ones
+      .filter((e)=> (
+        // @ts-ignore
+        e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Entry &&
+        e.pages && e.pages!.length > 0
+      ))
+      .map((e) => ({ 
+        name: e.name, 
+        uuid: `${e.uuid}.JournalEntryPage.${e.pages![0]._id}`,
+        topic: e.pages![0].system.topic,
+        type: e.pages![0].system.type,
+      } as EntryFilterIndex))
+
+      // now filter by the function passed in 
+      .filter((e: EntryFilterIndex)=> filterFn(e)) || [];
+
+    if (!fullEntry)
+      return entries;
+
+    let retval = [] as Entry[];
+    for (let i=0; i<entries.length; i++) {
+      const entry = await Entry.fromUuid(entries[i].uuid);
+      if (entry)
+        retval.push(entry);
+    }
+
+    return retval;
+  }
+
+  /**
+   * Returns all the entries inside this topic
+   * 
+   * @returns {Entry[]} The entries
+   */
+  public async allEntries(fullEntry: true): Promise<Entry[]>;
+  public async allEntries(fullEntry: false): Promise<EntryFilterIndex[]>;
+  public async allEntries(fullEntry: boolean = true): Promise<Entry[] | EntryFilterIndex[]> { 
+    return await this.filterEntries(() => true, fullEntry);
+  }
+
   public async collapseAll() {
     this.expandedIds = {};
     await this.save();
   }
-
 
   /**
    * Remove a campaign from the setting metadata.  

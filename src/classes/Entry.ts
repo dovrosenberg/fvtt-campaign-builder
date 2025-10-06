@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, EntryDoc, relationshipKeyReplace } from '@/documents';
-import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes } from '@/types';
+import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes, SettingIndex } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, FCBSetting } from '@/classes';
@@ -9,6 +9,7 @@ import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
+import { ModuleSettings, SettingKey } from 'src/settings';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -83,25 +84,6 @@ export class Entry {
       return this._actor;
     }
   
-  /**
-   * Gets the TopicFolder associated with the entry. If the topic  is already loaded, the promise resolves
-   * to the existing TopicFolder; otherwise, it loads the TopicFolder and then resolves to it.
-   * @returns {Promise<TopicFolder>} A promise to the TopicFolder  associated with the entry.
-   */
-  public async loadTopic(): Promise<TopicFolder> {
-    if (this.topicFolder)
-      return this.topicFolder;
-    
-    if (!this._entryDoc.parent)
-      throw new Error('call to Entry.loadTopic() without _sessionDoc');
-
-    this.topicFolder = await TopicFolder.fromUuid(this._entryDoc.parent.uuid);
-
-    if (!this.topicFolder)
-      throw new Error('Invalid entry in Entry.getTopic()');
-
-    return this.topicFolder;
-  }
   
   // creates a new entry in the proper compendium in the given setting
   // if name is populated will skip the dialog
@@ -448,10 +430,17 @@ export class Entry {
     * @returns {Promise<FCBSetting>} A promise to the setting associated with the entry.
     */
   public async getSetting(): Promise<FCBSetting> {
-    if (!this.topicFolder)
-      await this.loadTopic();
-  
-    return await (this.topicFolder as TopicFolder).getSetting();
+    // map the pack to the setting
+    const settingIndex = ModuleSettings.get(SettingKey.settingIndex);
+    const settingId = settingIndex.find((s: SettingIndex) => s.packId === this._entryDoc.parent?.pack)?.settingId;
+    if (!settingId)
+      throw new Error('Failed to find setting for pack ' + this._entryDoc.parent?.pack);
+    
+    const setting = await FCBSetting.fromUuid(settingId);
+    if (!setting)
+      throw new Error('Failed to find setting for pack ' + this._entryDoc.parent?.pack);
+    
+    return setting;
   }
   
   // used to set arbitrary properties on the entryDoc

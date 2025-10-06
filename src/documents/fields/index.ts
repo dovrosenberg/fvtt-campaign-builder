@@ -11,6 +11,7 @@ import { SessionVignetteSchema } from './SessionVignette';
 import { SessionLoreSchema } from './SessionLore';
 import { SessionLocationSchema } from './SessionLocation';
 import { TagsSchema } from './Tags';
+import { TopicSchema } from './Topic';
 
 export const schemas = {
   ToDoItem: ToDoItemSchema,
@@ -26,4 +27,5 @@ export const schemas = {
   SessionVignette: SessionVignetteSchema,
   SessionLore: SessionLoreSchema,
   SessionLocation: SessionLocationSchema,
+  Topic: TopicSchema,
 }
