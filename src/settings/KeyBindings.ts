@@ -1,5 +1,5 @@
 import { moduleId } from '@/settings';
-import { getCampaignBuilderApp, wbApp } from '@/applications/CampaignBuilder';
+import { renderCampaignBuilderApp, wbApp } from '@/applications/CampaignBuilder';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
 
 export enum KeyBindingKeys {
@@ -90,8 +90,7 @@ export class KeyBindings {
           if (wbApp?.rendered) {
             wbApp.close();
           } else {
-            const app = getCampaignBuilderApp();
-            app.render(true);
+            renderCampaignBuilderApp(true);
           }
         },
         editable: [

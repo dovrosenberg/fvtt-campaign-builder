@@ -415,12 +415,13 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       .filter((e)=> (
         // @ts-ignore
         e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
-        this._clone.system.sessionIds.includes(`${e.uuid}.JournalEntryPage.${e.pages[0]._id}`)
+        e.pages && e.pages!.length > 0 &&
+        this._clone.system.sessionIds.includes(`${e.uuid}.JournalEntryPage.${e.pages![0]._id}`)
       ))
       .map((e) => ({ 
         name: e.name, 
-        uuid: `${e.uuid}.JournalEntryPage.${e.pages[0]._id}`,
-        number: e.pages[0].system.number 
+        uuid: `${e.uuid}.JournalEntryPage.${e.pages![0]._id}`,
+        number: e.pages![0].system.number 
       } as SessionFilterIndex))
 
       // now filter by the function passed in 

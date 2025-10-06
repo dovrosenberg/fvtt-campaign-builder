@@ -77,7 +77,7 @@ export default definePreset(Aura, {
       },
  
       borderRadius: '4px',
-      fontSize: '16px',
+      fontSize: '0.9rem',
       padding: {
         x: '3px',
         y: '1px',
@@ -147,6 +147,7 @@ export default definePreset(Aura, {
           focusRingColor: foundryVariables.colorWarm2,
         }
       },
+      fontSize: '0.9rem',
       borderRadius: '4px',
       padding: {
         x: '3px',

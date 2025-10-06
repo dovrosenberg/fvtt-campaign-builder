@@ -44,9 +44,9 @@ async function init(): Promise<void> {
     label: 'FCB - IF YOU\'RE SEEING THIS SOMETHING IS BROKEN'
   });
 
-  // we need to add the default sheet even though we never use them
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
-    types: [DOCUMENT_TYPES.Entry, DOCUMENT_TYPES.Session, DOCUMENT_TYPES.Setting ],
+  // we need to add these in case someone opens one manually somehow
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, CampaignBuilderApplication, {
+    types: [DOCUMENT_TYPES.Entry, DOCUMENT_TYPES.Session, DOCUMENT_TYPES.Setting, DOCUMENT_TYPES.Campaign ],
     makeDefault: true,
   });
 }

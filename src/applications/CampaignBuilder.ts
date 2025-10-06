@@ -10,6 +10,9 @@ import '@yaireo/tagify/dist/tagify.css';
 import { theme } from '@/components/styles/primeVue';
 import { JournalEntryFlagKey, moduleId } from '@/settings';
 import { DOCUMENT_TYPES } from '@/documents';
+import { MigrationManager } from '@/utils/migration';
+import { notifyError } from '@/utils/notifications';
+import { localize } from '@/utils/game';
 
 // setup pinia
 
@@ -19,13 +22,23 @@ export let wbApp: CampaignBuilderApplication | null = null;
 // a (hopefully) never used name to indicate opening window without a doc
 const FCB_OPEN_WINDOW_NAME = 'FCB-Open-Window!!!@#';
 
-export const getCampaignBuilderApp = (): CampaignBuilderApplication => {
-  if (wbApp)
-    return wbApp;
 
-  return wbApp = new CampaignBuilderApplication();
+export const renderCampaignBuilderApp = async (render = false) => {
+  // Check if migration failed - prevent opening if it did
+  if (MigrationManager.migrationFailed) {
+    notifyError(localize('notifications.migration.cannotOpen'));
+    return null;
+  }
+  
+  if (!wbApp) {
+    wbApp = new CampaignBuilderApplication();
+  }
+
+  await wbApp.render(render);
+
 };
-export class CampaignBuilderApplication extends VueApplicationMixin(DocumentSheetV2<JournalEntry>) {
+
+export class CampaignBuilderApplication extends VueApplicationMixin(DocumentSheetV2<JournalEntry | JournalEntryPage>) {
 
   static override DEFAULT_OPTIONS = {
     id: `app-fcb-CampaignBuilder`,
@@ -70,6 +83,47 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     }
   };
 
+  _canRender(options) { 
+    // prevent the window from opening at all if we're trying to open an invalid
+    //    doc or we had a failed migration
+    if (MigrationManager.migrationFailed) {
+      notifyError(localize('notifications.migration.cannotOpen'));
+      return false;
+    }
+
+    const doc = this.document;
+
+    if (!doc)
+      return false;
+
+    // handle our special one
+    if (doc.name === FCB_OPEN_WINDOW_NAME) 
+      return true;
+
+    if (!['JournalEntry', 'JournalEntryPage'].includes(doc.documentName)) {
+      notifyError('Attempt to open invalid document in Campaign Builder');
+      return false;
+    }
+    const docToCheck = doc.documentName === 'JournalEntryPage' ? doc.parent : doc;
+
+    if (!docToCheck) {
+      notifyError('Attempt to open invalid journal entry in Campaign Builder');
+      return false;
+    }
+
+    if (!docToCheck.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType)) {
+      // not FCB
+      notifyError('Attempt to open invalid journal entry in Campaign Builder');
+      return false;
+    } else if (docToCheck.pages.contents.length === 0) {
+      // no pages
+      notifyError('Attempt to open invalid journal entry in Campaign Builder');
+      return false;
+    }
+    
+    return true;
+  }
+
   constructor(options?: any, ...args: any[]) {
     let finalOptions = options;
 
@@ -90,13 +144,7 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
       //  2. we opened it with a non-FCB journal entry - this shouldn't be possible; we throw an error to prevent opening
       finalOptions = new.target._migrateConstructorParams(options, args);
 
-      const doc = finalOptions.document;
-      if (doc.name !== FCB_OPEN_WINDOW_NAME) { 
-        throw new Error('Attempt to open non-FCB journal entry in CampaignBuilderApplication constructor')
-      }
-
-      //  3. we opened it with a FCB journal entry - we want to make sure that content is opened
-      //  we handle that in _onFirstRender
+      //  3. we opened it with a FCB journal entry - we handle that in _onFirstRender
     }
 
     super(finalOptions);
@@ -110,33 +158,45 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     const doc = context.document;
     let docType: typeof DOCUMENT_TYPES[keyof typeof DOCUMENT_TYPES] | null = null;
 
+    let uuid: string; 
+
+    // if it's our special one, just open if
+    if (doc.name === FCB_OPEN_WINDOW_NAME) {
+      return;
+    }
+    
     // if it's a journalentrypage get the type; if it's a journalentry, pull it from the flag
+    // we dont have to validate here because we did it in _canRender
     switch (doc.documentName) {
-      case 'JournalEntry':
-        if (doc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType))
-          docType = doc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType);
+      case 'JournalEntry':          
+        docType = doc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType);
+        uuid = doc.pages?.contents?.[0]?.uuid;
         break;
       case 'JournalEntryPage':
         docType = doc.type;
+        uuid = doc.uuid;
         break;
+
+      default:
+        throw new Error('Attempt to open non-journal entry in CampaignBuilderApplication _onFirstRender');
     }
 
     if (docType) {
       switch (docType) {
         case DOCUMENT_TYPES.Campaign:
-          useNavigationStore().openCampaign(doc.uuid);
+          useNavigationStore().openCampaign(uuid, doc.pack);
           break;
         case DOCUMENT_TYPES.Session:
-          useNavigationStore().openSession(doc.uuid);
+          useNavigationStore().openSession(uuid, doc.pack);
           break;
         case DOCUMENT_TYPES.Setting:
-          useNavigationStore().openSetting(doc.uuid);
+          useNavigationStore().openSetting(uuid, doc.pack);
           break;
         case DOCUMENT_TYPES.Entry:
-          useNavigationStore().openEntry(doc.uuid);
+          useNavigationStore().openEntry(uuid, doc.pack);
           break;
       }
-    } else if (doc.name !== FCB_OPEN_WINDOW_NAME) {
+    } else {
       throw new Error('Attempt to open invalid journal entry in CampaignBuilderApplication _onFirstRender')
     }
 

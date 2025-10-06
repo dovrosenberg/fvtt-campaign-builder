@@ -359,9 +359,9 @@
     min-width: 640px;
 
     // set the font-family across everything (override Foundry defaults)
-    a.button, button, input, textarea, select, thead.p-datatable-thead {
+    // but exclude header control icons
+    a.button, button:not(.header-control.icon), input, textarea, select, thead.p-datatable-thead {
       font-family: var(--fcb-font-family) !important;
-      
     }
 
     .window-header {

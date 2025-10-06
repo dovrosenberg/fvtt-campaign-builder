@@ -407,7 +407,11 @@
       "todoReferenceNotFound": "The linked reference for this to-do item no longer exists.",
       "addedToSession": "added to session",
       "changesSaved": "Changes saved",
-      "changesDiscarded": "Changes discarded"
+      "changesDiscarded": "Changes discarded",
+      "migration": {
+        "minimumVersionRequired": "Campign Builder cannot migrate from version {0}. You must first upgrade to version {1} or higher before upgrading to {2}.",
+        "cannotOpen": "Campaign Builder cannot be opened because migration failed. Please check the console for details and resolve the migration issue."
+      }
     },
     "dialogs": {
       "generateNameDialog": {

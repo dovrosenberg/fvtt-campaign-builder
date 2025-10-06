@@ -6,13 +6,32 @@ import { MigrationResult, MigrationContext, MigrationConstructor } from './types
 import { migrationVersions } from './versions';
 import { VersionUtils } from '@/utils/version';
 import { MigrationProgressDialog } from './MigrationProgressDialog';
-import { notifyError } from '../notifications';
+import { notifyError } from '@/utils/notifications';
+import { localize } from '@/utils/game';
 
 /**
  * Manages all migrations for the Campaign Builder module
  */
 export class MigrationManager {
   private static migrations: Record<string, MigrationConstructor> = migrationVersions;
+  
+  /**
+   * Minimum version required to perform migrations.
+   * If the last known version is below this, the user must upgrade to this version first.
+   */
+  private static readonly MINIMUM_VERSION = '1.3.1';
+  private static readonly UPDATE_TO_VERSION = '1.3.1';
+  /**
+   * Tracks whether migration has failed. If true, the Campaign Builder should not be opened.
+   */
+  private static _migrationFailed = false;
+  
+  /**
+   * Check if migration has failed
+   */
+  public static get migrationFailed(): boolean {
+    return this._migrationFailed;
+  }
 
   /**
    * Check if any migrations are needed
@@ -71,12 +90,31 @@ export class MigrationManager {
 
     // if version went backward, though a danger message
     if (VersionUtils.compareVersions(lastVersion, currentVersion) > 0) {
-      notifyError(`Version went backward from ${lastVersion} to ${currentVersion}. This is not expected and may cause issues.`);
+      notifyError(`Version went backward from ${lastVersion} to ${currentVersion}. This is not expected - please report to module owner for next steps.`);
+      this._migrationFailed = true;
+
       return {
         success: true,
         migratedCount: 0,
         failedCount: 0,
         warnings: ['No migrations needed']
+      };
+    }
+
+    // Check if last version is below minimum required version
+    if (VersionUtils.compareVersions(lastVersion, this.MINIMUM_VERSION) < 0) {
+      const errorMsg = localize('notifications.migration.minimumVersionRequired')
+        .replace('{0}', lastVersion)
+        .replace('{1}', this.UPDATE_TO_VERSION)
+        .replace('{2}', currentVersion);
+      notifyError(errorMsg);
+      console.error(errorMsg);
+      this._migrationFailed = true;
+      return {
+        success: false,
+        migratedCount: 0,
+        failedCount: 1,
+        errors: [errorMsg]
       };
     }
 
@@ -160,6 +198,8 @@ export class MigrationManager {
 
         if (overallResult.success) {
           await VersionUtils.saveCurrentVersion();
+        } else {
+          this._migrationFailed = true;
         }
 
         return overallResult;

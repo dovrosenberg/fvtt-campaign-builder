@@ -70,18 +70,6 @@ export function VueApplicationMixin<TBase extends new (...args: any[]) => foundr
     }
 
     /**
-     * Perform pre-render operations before the first render of the Vue application.
-     * @param {Object} context - The render context.
-     * @param {Object} options - The render options.
-     * @returns {Promise<void>}
-     */
-    // TODO: This function used to load vue files using SFC, but since that has been removed, this function appears to do nothing.
-    // ?? Maybe this function should be removed or updated to do something else?
-    async _preFirstRender(context, options) {
-      await super._preFirstRender(context, options);
-    }
-
-    /**
      * Render the HTML content of the Vue application.
      * @param {Object} context - The render context.
      * @param {Object} options - The render options.
