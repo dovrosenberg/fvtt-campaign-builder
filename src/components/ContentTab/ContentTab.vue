@@ -214,8 +214,9 @@
           padding: 0px 4px 5px 4px;
           border-bottom: 2px groove var(--fcb-sheet-tab-bottom-border);
           font-family: var(--fcb-font-family);
-          font-size: 15px;
-          font-weight: 700;
+          font-size: 0.9rem;
+          font-weight: 600;
+          gap: 5px;
 
 
           &.tabs {
@@ -237,6 +238,7 @@
 
             .item.active {
               border-bottom-color: var(--fcb-sheet-tab-border-active);
+              text-shadow: 0 0 10px var(--fcb-active-color)
             }
 
             .tab {
@@ -306,6 +308,7 @@
         align-content: flex-start;
         position: relative;
         padding-top: 2px;
+        font-family: var(--fcb-font-family);
 
         &.flexcol {
           flex:1;

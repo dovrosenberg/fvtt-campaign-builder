@@ -239,6 +239,7 @@
     min-height: 31px;
     width: 100%;
     position: relative;
+    font-family: var(--fcb-font-family);
   }
 
   .tagify {

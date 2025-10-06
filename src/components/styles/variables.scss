@@ -1,6 +1,6 @@
 body {
-  --fcb-name-font-family: 'Modesto Condensed', 'Palatino Linotype', serif;
-  --fcb-font-family: (var--font-body);
+  --fcb-name-font-family: 'Inter', 'Signika', sans-serif;
+  --fcb-font-family: 'Inter', 'Signika', sans-serif;
 
   --fcb-dark-overlay: rgba(0, 0, 0, 0.05);
   --fcb-light-overlay: rgba(255, 255, 255, 0.10);
@@ -39,7 +39,6 @@ body {
   --fcb-sheet-header-icon-color: #777;
   --fcb-sheet-tab-bottom-border: rgb(250, 250, 230);
   --fcb-sheet-tab-border: 3px solid rgb(181, 179, 164);
-  --fcb-sheet-tab-border-active: rgb(68, 25, 26);
   --fcb-sheet-page-control-color: var(--color-text-dark-primary);
   --fcb-sheet-page-control-background: rgb(192, 192, 192);
   --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
@@ -109,7 +108,7 @@ body.theme-dark {
   --fcb-sheet-header-icon-color: #777;
   --fcb-sheet-tab-bottom-border: var(--color-dark-1);
   --fcb-sheet-tab-border: 3px solid var(--color-dark-4);
-  --fcb-sheet-tab-border-active: rgb(255, 120, 90);
+  --fcb-sheet-tab-border-active: var(--fcb-active-color);
   --fcb-sheet-page-control-color: var(--color-text-light-primary);
   --fcb-sheet-page-control-background: var(--color-dark-4);
   --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);

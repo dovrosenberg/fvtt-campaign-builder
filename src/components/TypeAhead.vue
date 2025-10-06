@@ -395,7 +395,7 @@
         padding: 1px 3px;
         font-size: 1rem;
         font-weight: normal;
-        font-family: Signika, sans-serif;
+        font-family: var(--fcb-font-family);
 
         &.add i {
           margin-right: 4px;

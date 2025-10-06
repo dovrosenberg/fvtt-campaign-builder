@@ -520,9 +520,9 @@
       right: 12px;
       top: 3px;
       color: coral;
-      font-family: var(--font-body);
+      font-family: var(--fcb-font-family);
       font-size: var(--font-size-14);
-      font-weight: normal;
+      font-weight: 400;
 
       &:hover {
         color: green;
@@ -539,9 +539,9 @@
       border: 1px solid var(--fcb-button-border-color);
       overflow-y: auto !important;
       border-radius: 4px;
-      font-family: var(--font-body);
+      font-family: var(--fcb-font-family);
       font-size: var(--font-size-14);
-      font-weight: normal;
+      font-weight: 400;
       padding: 0;
       background: var(--fcb-dark-overlay);
       color: var(--color-dark-2);

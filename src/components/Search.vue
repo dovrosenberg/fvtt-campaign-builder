@@ -252,6 +252,7 @@
   width: 100%;
   max-width: 400px;
   z-index: 10;  // try to bring the whole container forward
+  font-family: var(--fcb-font-family);
   
   .fcb-search-input-container {
     position: relative;

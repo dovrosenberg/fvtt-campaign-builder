@@ -1,5 +1,5 @@
 <template>
-  <div class="primevue-only" style="display: flex">
+  <div class="primevue-only fcb-table-wrapper" style="display: flex">
     <DataTable
       data-key="uuid"
       :value="rows"
@@ -691,7 +691,12 @@
 </script>
 
 <style lang="scss" scoped>
-    .fcb-action-icon {
+  .fcb-table-wrapper {
+    font-family: var(--fcb-font-family);
+    font-size: 0.8rem;
+  }
+
+  .fcb-action-icon {
     cursor: pointer;
     margin-right: 3px;
   }

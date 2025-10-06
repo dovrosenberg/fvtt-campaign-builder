@@ -244,16 +244,19 @@
 
   // the setting list section
   .fcb-directory-panel-wrapper {
+    font-family: var(--fcb-font-family);
+
     .fcb-setting-list {
       padding: 0;
       flex-grow: 1;
-      margin-top: 3px;
+      margin-top: 3px;      
 
       .fcb-setting-folder {
         align-items: flex-start;
         justify-content: flex-start;
         min-width: 100%;
         width: max-content;
+        font-weight: 700;
 
         &.active {
           background: #cfcdc2;
@@ -322,6 +325,9 @@
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
   .fcb-directory-compendium {
+    font-size: 0.8rem;
+    font-family: var(--fcb-font-family);
+
     .fcb-entry-item, .fcb-type-item {
       position: relative;
       padding-left: 1em;
@@ -330,7 +336,8 @@
 
     // bold the active one
     .fcb-current-directory-entry {
-      font-weight: bold;
+      color: var(--fcb-active-color);
+      font-weight: 700;
       cursor: pointer;
     }
 
@@ -347,8 +354,6 @@
         padding: 0;
         margin: -0.5em 0 0 0;
 
-        font-family: 'Signika', sans-serif;
-        font-size: var(--font-size-14);
         font-weight: normal;
 
         // this draws the top-half ot the vertical plus the horizontal tree connector lines

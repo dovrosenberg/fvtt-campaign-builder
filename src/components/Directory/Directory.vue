@@ -188,6 +188,7 @@
       color: var(--fcb-sidebar-label-color);
       margin-bottom: 0px;
       padding: 8px 0px 8px 8px;
+      font-family: var(--fcb-font-family);
 
       .fcb-header-filter {
         #fcb-directory-filter {

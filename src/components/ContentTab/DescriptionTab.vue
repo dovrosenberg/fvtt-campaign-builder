@@ -137,10 +137,11 @@
   .tab-inner {
     height: 100%;
     overflow-y: auto;
+    font-family: var(--fcb-font-family);
   }
 
   .fcb-description-wrapper {
-    font-family: var(--font-body);
+    font-family: var(--fcb-font-family);
     align-items: flex-start;
     align-self: flex-start;
     overflow-y: visible;
@@ -160,7 +161,7 @@
       
         label {
           font-size: var(--font-size-16);
-          font-weight: 600;
+          font-weight: 700;
           font-family: var(--fcb-font-family);
           color: var(--fcb-sheet-header-label-color);
           text-align: left;
@@ -170,6 +171,7 @@
           // this is for the labels that are on the left side of the field
           &.side-label {
             max-width: 175px;
+            align-self: flex-start;
           }
         }
 

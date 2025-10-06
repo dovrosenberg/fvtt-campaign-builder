@@ -30,6 +30,7 @@
 <style lang="scss">
   .fcb-play-mode-navigation {
     width: 100%;
+    font-family: var(--fcb-font-family);
   }
 
   .play-navigation-container {
