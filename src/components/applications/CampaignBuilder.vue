@@ -69,10 +69,8 @@
   import TitleBarComponents from '@/components/TitleBarComponents.vue';
 
   // types
-  import { WindowTabType, Topics, ValidTopic } from '@/types';
+  import { WindowTabType, } from '@/types';
   import { Backend, RootFolder, FCBSetting, } from '@/classes';
-  import { CampaignDoc } from '@/documents';
-
 
   
   ////////////////////////////////
@@ -157,43 +155,10 @@
     // Update the window title when the setting changes
     updateWindowTitle(newSetting?.name || null);
     
-    if (currentSetting.value && currentSetting.value.topicIds && newSetting?.uuid!==oldSetting?.uuid) {
-      // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const settingId = currentSetting.value.uuid;
-
-      const settingCompendium = currentSetting.value.compendium || null;
-
-      if (!settingCompendium)
-        throw new Error(`Could not find compendium for setting ${settingId} in CampaignBuilder.currentSetting watch`);
-
-      const topicIds = currentSetting.value.topicIds;
-      const campaignNames = currentSetting.value.campaignNames;
-      const topics = [ Topics.Character, Topics.Location, Topics.Organization, Topics.PC ] as ValidTopic[];
-      const topicJournals = {
-        [Topics.Character]: null,
-        [Topics.Location]: null,
-        [Topics.Organization]: null,
-        [Topics.PC]: null,
-      } as Record<ValidTopic, JournalEntry | null>;
-      const campaignJournals = {} as Record<string, CampaignDoc>;
-
-      for (let i=0; i<topics.length; i++) {
-        const t = topics[i];
-
-        // we need to load the actual entries - not just the index headers
-        topicJournals[t] = await fromUuid<JournalEntry>(topicIds[t]);
-
-        if (!topicJournals[t])
-          throw new Error(`Could not find journal for topic ${t} in setting ${settingId}`);
-      }
-
-      for (const campaignId in campaignNames) {
-        // we need to load the actual entries - not just the index headers
-        const j = await(fromUuid(campaignId)) as CampaignDoc | null;
-        if (j) {
-          campaignJournals[j.uuid] = j;
-        }
-      }
+    if (currentSetting.value && newSetting?.uuid!==oldSetting?.uuid) {
+      // make sure we have a compendium
+      if (!currentSetting.value.compendium)
+        throw new Error(`Could not find compendium for setting ${currentSetting.value.uuid} in CampaignBuilder.currentSetting watch`);
     }
   });
 
@@ -274,67 +239,34 @@
 
     const setting = await getCurrentSetting();
 
-    if (setting.topicIds) {
-      // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const topics = [ Topics.Character, Topics.Location, Topics.Organization, Topics.PC ] as ValidTopic[];
-      const topicJournals = {
-        [Topics.Character]: null,
-        [Topics.Location]: null,
-        [Topics.Organization]: null,
-        [Topics.PC]: null,
-      } as Record<ValidTopic, JournalEntry | null>;
-      const campaignJournals = {} as Record<string, CampaignDoc>;
+    mainStore.setNewSetting(setting.uuid);
 
-      for (let i=0; i<topics.length; i++) {
-        const t = topics[i];
-
-        // we need to load the actual entries - not just the index headers
-        topicJournals[t] = await fromUuid<JournalEntry>(setting.topicIds[t]);
-
-        if (!topicJournals[t])
-          throw new Error(`Could not find journal for topic ${t} in setting ${setting.settingId}`);
-      }
-
-      for (const campaignId in setting.campaignNames) {
-        // we need to load the actual entries - not just the index headers
-        const j = await fromUuid<CampaignDoc>(campaignId);
-        if (j) {
-          campaignJournals[j.uuid] = j;
-        }
-      }
-
-      mainStore.setNewSetting(setting.uuid);
-
-      // Wait up to 5 seconds for the backend to finish configuring
-      for (let i = 0; i < 50; i++) {
-        if (!Backend.inProgress) break;
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-
-      // Check if backend is available and show warning if not
-      if (!Backend.available) {
-        if (!ModuleSettings.get(SettingKey.hideBackendWarning)) {
-          notifyWarn(localize('notifications.backend.rollTablesNotAvailable'));
-        }
-      } else {
-        // this is a convenient time to poll for email
-        await Backend.pollForEmail();
-      }
-
-      mainStore.refreshCurrentContent();
-
-      // Add the prep/play toggle to the header
-      // Use setTimeout to ensure the DOM is fully rendered
-      setTimeout(() => {
-        createTitleBarComponents();
-        // Initialize the window title with the current setting name
-        updateWindowTitle(currentSetting.value?.name || null);
-      }, 100);
-    } else {
-      throw new Error('Failed to load or create folder structure');
+    // Wait up to 5 seconds for the backend to finish configuring
+    for (let i = 0; i < 50; i++) {
+      if (!Backend.inProgress) break;
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
-  });
 
+    // Check if backend is available and show warning if not
+    if (!Backend.available) {
+      if (!ModuleSettings.get(SettingKey.hideBackendWarning)) {
+        notifyWarn(localize('notifications.backend.rollTablesNotAvailable'));
+      }
+    } else {
+      // this is a convenient time to poll for email
+      await Backend.pollForEmail();
+    }
+
+    mainStore.refreshCurrentContent();
+
+    // Add the prep/play toggle to the header
+    // Use setTimeout to ensure the DOM is fully rendered
+    setTimeout(() => {
+      createTitleBarComponents();
+      // Initialize the window title with the current setting name
+      updateWindowTitle(currentSetting.value?.name || null);
+    }, 100);
+  });
 
 </script>
 
