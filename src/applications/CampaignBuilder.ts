@@ -184,16 +184,16 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     if (docType) {
       switch (docType) {
         case DOCUMENT_TYPES.Campaign:
-          useNavigationStore().openCampaign(uuid, doc.pack);
+          useNavigationStore().openCampaign(uuid);
           break;
         case DOCUMENT_TYPES.Session:
-          useNavigationStore().openSession(uuid, doc.pack);
+          useNavigationStore().openSession(uuid);
           break;
         case DOCUMENT_TYPES.Setting:
-          useNavigationStore().openSetting(uuid, doc.pack);
+          useNavigationStore().openSetting(uuid);
           break;
         case DOCUMENT_TYPES.Entry:
-          useNavigationStore().openEntry(uuid, doc.pack);
+          useNavigationStore().openEntry(uuid);
           break;
       }
     } else {

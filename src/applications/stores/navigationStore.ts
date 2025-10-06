@@ -160,6 +160,10 @@ export const useNavigationStore = defineStore('navigation', () => {
         if (!entry) {
           badId = true;
         } else {
+          // if (entry.settingId !== currentSetting.value?.uuid) {
+          //   await mainStore.setNewSetting(entry.settingId);  
+          // }
+
           name = entry.name;
           icon = getTopicIcon(entry.topic);
         }
@@ -169,6 +173,10 @@ export const useNavigationStore = defineStore('navigation', () => {
         if (!setting) {
           badId = true;
         } else {
+          if (setting.settingId !== currentSetting.value?.uuid) {
+            await mainStore.setNewSetting(setting.uuid);  
+          }
+
           name = setting.name;
           icon = getTabTypeIcon(WindowTabType.Setting);
         }
@@ -179,6 +187,10 @@ export const useNavigationStore = defineStore('navigation', () => {
         if (!campaign) {
           badId = true;
         } else {
+          if (campaign.settingId !== currentSetting.value?.uuid) {
+            await mainStore.setNewSetting(campaign.settingId);  
+          }
+
           name = campaign.name; 
           icon = getTabTypeIcon(WindowTabType.Campaign);
         }
@@ -188,6 +200,10 @@ export const useNavigationStore = defineStore('navigation', () => {
         if (!session) {
           badId = true;
         } else {
+          if (session.settingId !== currentSetting.value?.uuid) {
+            await mainStore.setNewSetting(session.settingId);  
+          }
+
           name = `${localize('labels.session.session')} ${session.number}`;
           icon = getTabTypeIcon(WindowTabType.Session);
         }
