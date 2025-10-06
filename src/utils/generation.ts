@@ -72,7 +72,7 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
   await entry.save();
   
   if (details.generateImage)
-    void generateImage(await topicFolder.getSetting(), entry);
+    void generateImage(topicFolder.setting, entry);
 
   return entry;
 };

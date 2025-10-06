@@ -92,7 +92,7 @@ export class Entry {
     const topicText = getTopicText(topicFolder.topic);
     const promptText = topicFolder.topic === Topics.PC ? localize('dialogs.createPC.playerName') : `${topicText} Name:`;
 
-    const setting = await topicFolder.getSetting();
+    const setting = await topicFolder.setting;
 
     let nameToUse = options.name || '' as string | null;
     while (nameToUse==='') {  // if hit ok, must have a value
