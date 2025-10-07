@@ -15,11 +15,10 @@ import { hasUnsavedChanges, saveAndCloseAllActiveEditors, closeAllActiveEditors 
 import { FCBDialog } from '@/dialogs';
 import { SaveChangesResult } from '@/dialogs/saveChanges';
 import { notifyError, notifyInfo } from '@/utils/notifications';
-import { getGlobalSetting, } from '@/applications/CampaignBuilder';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, getGlobalSetting } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {

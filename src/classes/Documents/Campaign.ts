@@ -2,13 +2,12 @@ import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { DOCUMENT_TYPES, CampaignLore, sessionIndexFields } from '@/documents';
 import { RelatedPCDetails, RelatedJournal, SessionIndex, SessionFilterIndex } from '@/types';
-import { Entry, Session, FCBSetting } from '@/classes';
+import { Entry, Session, FCBSetting, getGlobalSetting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { ToDoItem, ToDoTypes, Idea } from '@/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
 import { JournalEntryFlagKey } from '@/settings';
-import { getGlobalSetting, } from '@/applications/CampaignBuilder';
 
 type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
 

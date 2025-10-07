@@ -20,11 +20,11 @@ export const EntrySchema = {
   speciesId: new fields.StringField({ required: false, nullable: false, textSearch: false, }),
 
   // used only for pcs
-  playerName: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-  actorId: new fields.DocumentUUIDField({ required: false, nullable: true, }),
-  background: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-  plotPoints: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-  magicItems: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
+  playerName: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
+  actorId: new fields.DocumentUUIDField({ required: true, nullable: true, initial: null }),
+  background: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
+  plotPoints: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
+  magicItems: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
 
   // Image for the entry
   img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
@@ -67,11 +67,11 @@ export interface EntryDoc extends JournalEntryPage {
     speciesId?: string | undefined;
 
     // for PCs
-    playerName?: string | undefined;
-    actorId?: string | undefined;   // uuid of the actor
-    background?: string | undefined;
-    plotPoints?: string | undefined;
-    magicItems?: string | undefined; 
+    playerName?: string | null;
+    actorId?: string | null;   // uuid of the actor
+    background?: string | null;
+    plotPoints?: string | null;
+    magicItems?: string | null; 
 
     img: string; 
 

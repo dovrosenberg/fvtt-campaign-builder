@@ -202,10 +202,9 @@
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend, } from '@/classes';
+  import { Backend, getGlobalSetting } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
-  import { getGlobalSetting, } from '@/applications/CampaignBuilder';
   
   // library components
   import InputText from 'primevue/inputtext';

@@ -1,14 +1,23 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
-import { RootFolder, FCBSetting, Session, Campaign } from '@/classes';
-import { Idea, RelatedJournal, RelatedPCDetails, SettingIndex, TagInfo, ToDoItem } from '@/types';
-import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette } from '@/documents';
+import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder } from '@/classes';
+import { Idea, RelatedJournal, RelatedPCDetails, SettingIndex, TagInfo, ToDoItem, ValidTopic } from '@/types';
+import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, TopicFlatType } from '@/documents';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
 // map old id to new id
 const globalUuidMap: Record<string, string> = {};
+
+let processed = 0;
+let totalEntries= 0;
+const updateProgress = (status: string) => {
+  const event = new CustomEvent('migration-progress', {
+    detail: { current: processed, totalEntries, status }
+  });
+  document.dispatchEvent(event);
+};
 
 /**
  * Migration 1.5.0
@@ -36,21 +45,25 @@ export class MigrationV1_5 implements Migration {
     try {
       const allSettingFolders = await getAllSettings();
 
-      let processed = 0;
-      const updateProgress = (status: string) => {
-        const event = new CustomEvent('migration-progress', {
-          detail: { current: processed, total: allSettingFolders.length, status }
-        });
-        document.dispatchEvent(event);
-      };
+      // entries are the bulk of the data, so we use them to estimate progress
+      for (const folder of allSettingFolders) {
+        const topicIds = folder.getFlag(moduleId, 'topicIds') as string[] | undefined;
+        if (!topicIds)
+          continue;
+
+        for (const topicId of topicIds) {
+          const topic = await fromUuid(topicId) as JournalEntry | null;
+          if (topic) {
+            totalEntries += await topic?.pages?.contents?.length;
+          }
+        }
+      }
 
       for (const folder of allSettingFolders) {
         await migrateSetting(folder);
 
         // we don't clean up the folder because there's not really any reason to
-
         updateProgress(`Processing setting: ${folder.name}`);
-        processed++;
       }
 
       // remap the current settings to the updated ids 
@@ -106,6 +119,7 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   }, locked: false });
 
   const newSetting = await FCBSetting.create(false, folder.name, compendiumId, true);
+  let topicIds = [] as string[];
 
   if (!newSetting)
     throw new Error('Failed to create setting in MigrationV1_5.migrate()');
@@ -120,7 +134,7 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   newSetting.description = folder.getFlag(moduleId, 'description');
   
   // @ts-ignore
-  newSetting.topicIds = folder.getFlag(moduleId, 'topicIds');
+  topicIds = folder.getFlag(moduleId, 'topicIds');
   
   // @ts-ignore
   newSetting.campaignNames = folder.getFlag(moduleId, 'campaignNames');
@@ -153,6 +167,15 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   newSetting.journals = folder.getFlag(moduleId, 'journals');
 
   await newSetting.save();
+
+  // migrate all the topicfolders 
+  for (const topicId of topicIds) {
+    // topic ids are JournalEntry
+    const topic = await fromUuid<JournalEntry>(topicId);
+    if (topic) {
+      await migrateTopicFolder(newSetting, topic);
+    }
+  }
 
   // now migrate all the campaigns
   for (const id in newSetting.campaignNames) {
@@ -295,6 +318,59 @@ async function migrateSession(campaign: Campaign, oldSession: JournalEntryPage):
   return newSession.uuid;
 }
   
+async function migrateTopicFolder(setting: FCBSetting, journalEntry: JournalEntry): Promise<void> {
+  const topic = journalEntry.getFlag(moduleId, 'topic') as unknown as ValidTopic;
+
+  const topicFolder = new TopicFolder(topic, setting);
+
+  // topic folders now are just an object on the setting
+  topicFolder.types = journalEntry.getFlag(moduleId, 'types') as string[];
+  topicFolder.topNodes = journalEntry.getFlag(moduleId, 'topNodes') as string[];
+  topicFolder.entries = {} as Record<string, string>;  // will populate as we create the entries
+  await topicFolder.save();
+
+  // migrate all the entries
+  for (const entry of journalEntry.pages.contents) {
+    await migrateEntry(topicFolder, entry);
+    topicFolder.entries[entry.uuid] = entry.name;
+
+    processed++;
+    updateProgress(`Processed entry: ${entry.name}`);  
+  }
+
+  setting.topicFolders[topicFolder.topic] = topicFolder;
+  await setting.save();
+}
+
+async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): Promise<void> {
+  const newEntry = await Entry.create(topicFolder, { name: entry.name });
+
+  if (!newEntry)
+    throw new Error(`Unable to create entry for ${entry.uuid} in migrateEntry`);
+
+  const system = entry.system;
+
+  newEntry.type = system.type || '';
+  newEntry.tags = system.tags as unknown as TagInfo[]|| [];
+  newEntry.rolePlayingNotes = system.rolePlayingNotes || '';
+  newEntry.relationships = system.relationships as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;
+  newEntry.speciesId = system.speciesId || undefined  ;
+  newEntry.playerName = system.playerName || null;
+  newEntry.actorId = system.actorId || null;
+  newEntry.background = system.background || null;
+  newEntry.plotPoints = system.plotPoints || null;
+  newEntry.magicItems = system.magicItems || null;
+  newEntry.img = system.img || '';
+  newEntry.scenes = system.scenes as string[] || [];
+  newEntry.actors = system.actors as string[] || [];
+  newEntry.journals = system.journals || [];
+  
+  await newEntry.save();  
+
+  // add to the mapping
+  globalUuidMap[entry.uuid] = newEntry.uuid;
+}
+
 async function addToSettingIndex(settingId: string, name: string, packId: string): Promise<void> {
   const index = ModuleSettings.get(SettingKey.settingIndex) as SettingIndex[];
 

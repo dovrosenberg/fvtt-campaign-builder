@@ -12,10 +12,9 @@ import { updateSettingRollTableNames } from '@/utils/nameGenerators';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { TopicFolder, FCBSetting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, } from '@/classes';
+import { TopicFolder, FCBSetting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, getGlobalSetting } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc, } from '@/documents';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
-import { getGlobalSetting } from '@/applications/CampaignBuilder';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {

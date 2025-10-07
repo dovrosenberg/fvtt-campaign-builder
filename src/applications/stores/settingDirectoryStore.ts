@@ -2,7 +2,7 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { reactive, onMounted, ref, toRaw, watch, nextTick } from 'vue';
+import { reactive, onMounted, ref, watch, nextTick } from 'vue';
 
 // local imports
 import { ModuleSettings, SettingKey, } from '@/settings';
@@ -12,10 +12,9 @@ import { getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
 import { scrollToActiveEntry } from '@/utils/directoryScroll';
-import { getGlobalSetting, } from '@/applications/CampaignBuilder';
 
 // types
-import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder, } from '@/classes';
+import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder, getGlobalSetting } from '@/classes';
 import { DirectorySetting, Hierarchy, Topics, ValidTopic, EntryFilterIndex } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
 

@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, } from '@/documents';
-import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes, SettingIndex } from '@/types';
+import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder, FCBSetting } from '@/classes';
@@ -154,6 +154,8 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
       return null;
 
     entry.topicFolder = topicFolder;
+    topicFolder.entries[entry.uuid] = entry.name;
+    await topicFolder.save();
     await entry.save();
 
     if (options.type) {
@@ -200,7 +202,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     return this._clone.system.playerName || '';
   }
 
-  set playerName(value: string) {
+  set playerName(value: string | null) {
     this._clone.system.playerName = value;
   }
 
@@ -208,7 +210,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     return this._clone.system.plotPoints || '';
   }
 
-  set plotPoints(value: string) {
+  set plotPoints(value: string | null) {
     this._clone.system.plotPoints = value;
   }
 
@@ -216,7 +218,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     return this._clone.system.background || '';
   }
 
-  set background(value: string) {
+  set background(value: string | null) {
     this._clone.system.background = value;
   }
 
@@ -224,7 +226,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     return this._clone.system.magicItems || '';
   }
   
-  set magicItems(value: string) {
+  set magicItems(value: string | null) {
     this._clone.system.magicItems = value;
   }
   
@@ -249,7 +251,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     return this._clone.system.actorId || '';
   }
 
-  set actorId(value: string) {
+  set actorId(value: string | null) {
     if (this.topic !== Topics.PC)
       throw new Error('Attempt to set actorId on non-PC entry');
     
@@ -365,6 +367,12 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
       await Entry.addTypeIfNeeded(topicFolder, this._clone.system.type);
     }
 
+    // update name index if it changed
+    if (this._clone.name !== this._doc.name && this.topicFolder) {
+      this.topicFolder.entries[this.uuid] = this._clone.name;
+      await this.topicFolder?.save();
+    }
+
     this._clone.system.relationships = cleanRelationshipKeysOnSave(this._clone.system.relationships)
 
     // this will reload relationships with a valid value
@@ -383,7 +391,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   public async delete() {
     const setting = await this.getSetting();
 
-    const id = this.uuid;
+    const uuid = this.uuid;
     const topicFolder = this.topicFolder;
     
     if (!topicFolder)
@@ -391,11 +399,16 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
 
     await toRaw(this._doc).delete();
 
-    await setting.deleteEntryFromSetting(topicFolder, id);
+    // remove from master entry list and topnodes
+    delete topicFolder.entries[uuid];
+    topicFolder.topNodes = topicFolder.topNodes.filter((node) => node !== uuid);
+    await topicFolder.save();
+
+    await setting.deleteEntryFromSetting(topicFolder, uuid);
 
     // Remove from search index
     try {
-      searchService.removeEntry(id);
+      searchService.removeEntry(uuid);
     } catch (error) {
       console.error('Failed to remove entry from search index:', error);
     }

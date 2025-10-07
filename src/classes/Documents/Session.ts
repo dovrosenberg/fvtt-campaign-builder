@@ -5,7 +5,7 @@ import { DOCUMENT_TYPES, SessionLocation, SessionItem, SessionNPC, SessionMonste
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
-import { getGlobalSetting, } from '@/applications/CampaignBuilder';
+import { getGlobalSetting, } from './FCBSetting';
 import { localize } from '@/utils/game';
 import { TagInfo, } from '@/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
