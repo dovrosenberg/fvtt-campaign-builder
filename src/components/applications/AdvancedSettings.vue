@@ -202,9 +202,10 @@
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend, FCBSetting } from '@/classes';
+  import { Backend, } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
+  import { getGlobalSetting, } from '@/applications/CampaignBuilder';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -281,7 +282,7 @@
       return;
     }
 
-    const setting = await FCBSetting.fromUuid(settingUuid);
+    const setting = await getGlobalSetting(settingUuid);
     if (!setting) {
       campaignOptions.value = [];
       return;

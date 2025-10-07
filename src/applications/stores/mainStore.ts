@@ -15,6 +15,7 @@ import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { TopicFolder, FCBSetting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, } from '@/classes';
 import { EntryDoc, SessionDoc, CampaignDoc, } from '@/documents';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
+import { getGlobalSetting } from '@/applications/CampaignBuilder';
 
 // the store definition
 export const useMainStore = defineStore('main', () => {
@@ -68,7 +69,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // load the setting
-    const setting = await FCBSetting.fromUuid(settingId);
+    const setting = await getGlobalSetting(settingId);
     
     if (!setting)
       throw new Error(`Invalid settingId in mainStore.setNewSetting(): ${settingId}`);
@@ -110,7 +111,7 @@ export const useMainStore = defineStore('main', () => {
         // we can only set tabs within a setting, so we don't actually need to do anything here
         // if (tab.header.uuid) {
         //   _currentEntry.value = null;
-        //   _currentSetting.value = await FCBSetting.fromUuid(tab.header.uuid);
+        //   _currentSetting.value = await getGlobalSetting(tab.header.uuid);
         //   if (!_currentSetting.value)
         //     throw new Error('Invalid entry uuid in mainStore.setNewTab()');
         // }
@@ -207,7 +208,7 @@ export const useMainStore = defineStore('main', () => {
 
     for (const settingIndex of allSettings) {
       try {
-        const setting = await FCBSetting.fromUuid(settingIndex.settingId);
+        const setting = await getGlobalSetting(settingIndex.settingId);
         if (setting) {
           settings.push(setting);
         }

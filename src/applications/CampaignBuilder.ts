@@ -13,11 +13,46 @@ import { DOCUMENT_TYPES } from '@/documents';
 import { MigrationManager } from '@/utils/migration';
 import { notifyError } from '@/utils/notifications';
 import { localize } from '@/utils/game';
+import { FCBSetting } from '@/classes';
 
 // setup pinia
 
 // the global instance - needed for keybindings, among other things
 export let wbApp: CampaignBuilderApplication | null = null;
+
+// the global settings - the vast majority of users likely have a single setting
+// by keeping a global instance we can avoid the overhead in memory and time of having
+//    to continually load the setting over the network; since we'll always have one
+//    one setting in use anyway, this incurs no additional overhead when the world only
+//    contains one
+// even for worlds with multiple settings, the old way (loading setting as needed) 
+//    typically resulted in multiple (many) copies in memory at once
+let globalSettings: Record<string, FCBSetting> = {};
+
+export const getGlobalSetting = async (settingId: string): Promise<FCBSetting> => {
+  // see if we already have it
+  let setting: FCBSetting | undefined | null = globalSettings[settingId];
+
+  if (setting)
+    return setting;
+
+  // otherwise load it
+  setting = await FCBSetting.fromUuid(settingId);
+
+  if (!setting)
+    throw new Error(`Setting not found for ${settingId} in CampaignBuilder.getSetting`);
+  
+  globalSettings[settingId] = setting;
+  return setting;
+}
+
+export const updateGlobalSetting = (setting: FCBSetting) => {
+  globalSettings[setting.uuid] = setting;
+}
+
+export const removeGlobalSetting = (settingId: string) => {
+  delete globalSettings[settingId];
+}
 
 // a (hopefully) never used name to indicate opening window without a doc
 const FCB_OPEN_WINDOW_NAME = 'FCB-Open-Window!!!@#';

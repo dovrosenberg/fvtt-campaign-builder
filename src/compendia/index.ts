@@ -4,6 +4,7 @@ import { Topics, } from '@/types';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags,} from '@/settings';
 import { toTopic } from '@/utils/misc';
 import { FCBSetting } from '@/classes';
+import { getGlobalSetting, } from '@/applications/CampaignBuilder';
 
 
 /**
@@ -17,7 +18,7 @@ export async function getCurrentSetting(): Promise<FCBSetting> {
   // make sure we have a default and it exists
   let setting = null as FCBSetting | null;
   if (settingId) {
-    setting = await FCBSetting.fromUuid(settingId);
+    setting = await getGlobalSetting(settingId);
   }   
 
   if (!setting) {
@@ -25,7 +26,7 @@ export async function getCurrentSetting(): Promise<FCBSetting> {
     const settings = ModuleSettings.get(SettingKey.settingIndex) || [];
     if (settings.length>0) {
       settingId = settings[0].settingId;
-      setting = await FCBSetting.fromUuid(settingId);
+      setting = await getGlobalSetting(settingId);
     } else {
       // no setting found, so create one
       setting = await FCBSetting.create(true);

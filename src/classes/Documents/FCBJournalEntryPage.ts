@@ -1,6 +1,8 @@
 import { toRaw } from 'vue';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { ValidDocType } from '@/types';
+import { FCBSetting } from './FCBSetting';
+import { getGlobalSetting, } from '@/applications/CampaignBuilder';
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
@@ -38,15 +40,15 @@ export class FCBJournalEntryPage<
     this._clone = doc.clone({}, { keepId: true });
   }
 
-  get uuid(): string {
+  public get uuid(): string {
     return this._clone.uuid;
   }
 
-  get name(): string {
+  public get name(): string {
     return this._clone.name;
   }
 
-  set name(value: string)  {
+  public set name(value: string)  {
     this._clone.name = value;
 
     // also set the parent
@@ -54,15 +56,15 @@ export class FCBJournalEntryPage<
       this._clone.parent.name = value;
   }
 
-  get compendiumId(): string {
+  public get compendiumId(): string {
     return this._doc.pack || '';
   }
 
-  get compendium(): CompendiumCollection<'JournalEntry'> { 
+  public get compendium(): CompendiumCollection<'JournalEntry'> { 
     return game.packs.get(this.compendiumId) as unknown as CompendiumCollection<'JournalEntry'>;
   }
 
-  get settingId(): string {
+  public get settingId(): string {
     const settings = ModuleSettings.get(SettingKey.settingIndex);
 
     const setting = settings.find(s => s.packId === this._doc.pack);
@@ -72,6 +74,11 @@ export class FCBJournalEntryPage<
     
     return setting.settingId;
   }
+
+  public async getSetting(): Promise<FCBSetting> {
+    return await getGlobalSetting(this.settingId);
+  }
+
 
   static async fromUuid<
     DocType extends ValidDocType,

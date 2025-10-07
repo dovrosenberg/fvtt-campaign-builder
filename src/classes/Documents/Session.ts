@@ -5,7 +5,7 @@ import { DOCUMENT_TYPES, SessionLocation, SessionItem, SessionNPC, SessionMonste
 import { searchService } from '@/utils/search';
 import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
-import { FCBSetting } from './FCBSetting';
+import { getGlobalSetting, } from '@/applications/CampaignBuilder';
 import { localize } from '@/utils/game';
 import { TagInfo, } from '@/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
@@ -106,7 +106,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     
     // Add to search index
     try {
-      const setting = await FCBSetting.fromUuid(session.settingId);
+      const setting = await getGlobalSetting(session.settingId);
       if (!setting)
         throw new Error('Invalid setting in Session.create()');
 
@@ -486,7 +486,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
     // Update the search index (rely on retval being null if no changes were made)
     try {
-      const setting = await FCBSetting.fromUuid(this.settingId);
+      const setting = await getGlobalSetting(this.settingId);
 
       if (!setting)
         throw new Error('Setting not found in Session.save()');
@@ -499,7 +499,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
   public async delete() {
     const id = this.uuid;
-    const setting = await FCBSetting.fromUuid(this.settingId);
+    const setting = await getGlobalSetting(this.settingId);
 
     if (!setting)
       throw new Error('Setting not found in Session.delete()');

@@ -349,21 +349,6 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     return getParentId(setting, this);
   }
 
-  /**
-    * Gets the setting associated with a entry, loading into the topic
-    * if needed.
-    * 
-    * @returns {Promise<FCBSetting>} A promise to the setting associated with the entry.
-    */
-  public async getSetting(): Promise<FCBSetting> {
-    const setting = await FCBSetting.fromUuid(this.settingId);
-
-    if (!setting)
-      throw new Error('Invalid settingId in Entry.getSetting()');
-
-    return setting;
-  }
-  
   // used to set arbitrary properties on the entryDoc
   /**
    * Updates an entry in the database

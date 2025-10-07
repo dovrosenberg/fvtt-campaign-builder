@@ -68,6 +68,7 @@
   import { localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
+  import { getGlobalSetting, } from '@/applications/CampaignBuilder';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -183,7 +184,7 @@
           label: localize('contextMenus.settingFolder.createCampaign'), 
           onClick: async () => {
             if (settingId) {
-              const setting = await FCBSetting.fromUuid(settingId);
+              const setting = await getGlobalSetting(settingId);
 
               if (setting) {
                 await campaignDirectoryStore.createCampaign(setting);

@@ -9,9 +9,10 @@ import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/n
 import { Backend } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
-import { entryIndexFields, NameStyleExample, SettingDataModel, SettingSchema, TopicFlatType } from '@/documents';
+import { entryIndexFields, NameStyleExample, TopicFlatType } from '@/documents';
 import { cleanKeysOnSave } from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
+import { removeGlobalSetting, updateGlobalSetting } from '@/applications/CampaignBuilder';
 
 type SettingCompendium = CompendiumCollection<'JournalEntry'>;
 
@@ -291,6 +292,9 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     if (!newSetting)
       return null;
     
+    // add to master list
+    updateGlobalSetting(newSetting);
+
     if (skipValidation)
       return newSetting;
 
@@ -472,6 +476,9 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
     // Delete all associated roll tables.
     await this.deleteRollTables();
+
+    // remove from master
+    removeGlobalSetting(this.uuid);
 
     // delete the pack - this will delete everything else
     if (!this.compendium)

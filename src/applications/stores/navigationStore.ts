@@ -15,10 +15,11 @@ import { hasUnsavedChanges, saveAndCloseAllActiveEditors, closeAllActiveEditors 
 import { FCBDialog } from '@/dialogs';
 import { SaveChangesResult } from '@/dialogs/saveChanges';
 import { notifyError, notifyInfo } from '@/utils/notifications';
+import { getGlobalSetting, } from '@/applications/CampaignBuilder';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, FCBSetting } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -169,7 +170,7 @@ export const useNavigationStore = defineStore('navigation', () => {
         }
       } break;
       case WindowTabType.Setting: {
-        const setting = contentId ? await FCBSetting.fromUuid(contentId) : null;
+        const setting = contentId ? await getGlobalSetting(contentId) : null;
         if (!setting) {
           badId = true;
         } else {
