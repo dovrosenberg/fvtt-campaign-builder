@@ -9,7 +9,7 @@ import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
-import { ModuleSettings, SettingKey } from 'src/settings';
+import { ModuleSettings, SettingKey } from '@/settings';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 

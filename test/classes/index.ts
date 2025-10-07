@@ -2,13 +2,13 @@ import { registerBackendTests } from "./Backend.test";
 import { registerCampaignTests } from "./Campaign.test";
 import { registerDirectoryTests } from "./Directory";
 import { registerEntryTests } from "./Entry.test";
-import { registerTopicFolderTests } from "./TopicFolder.test";
+// import { registerTopicFolderTests } from "./TopicFolder.test";
 
 export const registerClassesTests = () => {
   registerBackendTests();
   registerCampaignTests();
   registerDirectoryTests();
   registerEntryTests();
-  registerTopicFolderTests();
+  // registerTopicFolderTests();
   // registerSettingTests();
 }

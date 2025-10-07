@@ -44,7 +44,7 @@ export class TopicFolder {
    * An object where each key is a topic, and the value is an array of valid types.
    */
   public set types(value: string[]) {
-    this.setting.topics[this.topic].types = value);
+    this.setting.topics[this.topic].types = value;
   }
 
   public get entries(): Record<string, string> {

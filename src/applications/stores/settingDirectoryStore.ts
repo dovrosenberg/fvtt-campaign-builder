@@ -461,7 +461,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     currentSettingTree.value = tree;
 
     // make sure the node list is up to date
-    updateFilterNodes();
+    await updateFilterNodes();
 
     isTopicTreeRefreshing.value = false;
 
@@ -565,7 +565,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // this includes: all nodes matching the filterText, all of their ancestors, and
   //    all of their types (we also ways leave the packs)
   // it's an object keyed by topic with a list of all the ids to include
-  const updateFilterNodes = (): void => {
+  const updateFilterNodes = async (): Promise<void> => {
     if (!currentSetting.value)
       return;
 
@@ -636,8 +636,8 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   });
 
   // update the filter when text changes
-  watch(filterText, () => {
-    updateFilterNodes();
+  watch(filterText, async () => {
+    await updateFilterNodes();
   });
   
   ///////////////////////////////

@@ -2,8 +2,8 @@
  * An abstract class representing a node of any sort in the topic tree structures
  */
 
-import { Entry, CollapsibleNode, DirectoryEntryNode, TopicFolder, } from '@/classes';
-import { EntryFilterIndex } from 'src/types';
+import { CollapsibleNode, DirectoryEntryNode, TopicFolder, } from '@/classes';
+import { EntryFilterIndex } from '@/types';
 
 export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEntryNode> {
   topicFolder: TopicFolder;

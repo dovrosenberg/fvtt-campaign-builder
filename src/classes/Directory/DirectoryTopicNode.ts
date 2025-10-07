@@ -4,7 +4,7 @@
 
 import { TopicFolder, Entry, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
-import { EntryFilterIndex } from 'src/types';
+import { EntryFilterIndex } from '@/types';
 
 export class DirectoryTopicNode extends DirectoryTopicTreeNode {
   name: string;
