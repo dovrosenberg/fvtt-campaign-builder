@@ -10,7 +10,7 @@ import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
-import { cleanRelationshipKeysOnSave } from 'src/utils/cleanKeys';
+import { cleanRelationshipKeysOnSave } from '@/utils/cleanKeys';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 

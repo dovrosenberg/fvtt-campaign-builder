@@ -3,7 +3,7 @@ import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 import { DOCUMENT_TYPES, } from './types';
 import { cleanKeysOnLoad,  } from '@/utils/cleanKeys';
 import { schemas } from './fields';
-import { TopicFlatType } from './fields/TopicFolder';
+import type { TopicFlatType } from './fields/TopicFolder';
 export { TopicFlatType };
 
 const fields = foundry.data.fields;

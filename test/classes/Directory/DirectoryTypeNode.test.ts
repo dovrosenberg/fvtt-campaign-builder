@@ -2,7 +2,7 @@ import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 import { DirectoryTypeNode } from '@/classes/Directory/DirectoryTypeNode';
 import { DirectoryTypeEntryNode } from '@/classes/Directory/DirectoryTypeEntryNode';
 import { CollapsibleNode } from '@/classes/Directory/CollapsibleNode';
-import { Entry } from '@/classes/Entry';
+import { Entry } from '@/classes/Documents/Entry';
 import { TopicFolder } from '@/classes/TopicFolder';
 import { FCBSetting } from '@/classes';
 import { Topics } from '@/types';

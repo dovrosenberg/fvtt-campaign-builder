@@ -1,7 +1,7 @@
 import * as sinon from 'sinon';
 import { QuenchBatchContext } from '@ethaks/fvtt-quench';
 
-import { Entry } from '@/classes/Entry';
+import { Entry } from '@/classes/Documents/Entry';
 import { DOCUMENT_TYPES, EntryDoc } from '@/documents';
 
 import { Topics } from '@/types';
