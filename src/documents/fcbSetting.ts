@@ -3,6 +3,8 @@ import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 import { DOCUMENT_TYPES } from './types';
 import { cleanKeysOnLoad,  } from '@/utils/cleanKeys';
 import { schemas } from './fields';
+import { TopicFlatType } from './fields/Topic';
+export { TopicFlatType };
 
 const fields = foundry.data.fields;
 const settingSchema = {
@@ -90,7 +92,6 @@ export type NameStyleExample = {
   examples: ApiNamePreviewPost200ResponsePreviewInner[] 
 };
 
-export type TopicFlatType = { topic: string; types: string[]; topNodes: string[]; };
 export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_TYPES.Setting>, 'system'> {
   __type: 'FCBSettingDoc'; 
 

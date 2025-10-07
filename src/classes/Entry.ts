@@ -549,7 +549,7 @@ export class Entry {
    */
   public static async getEntriesForTopic(topicFolder: TopicFolder, notRelatedTo?: Entry | undefined): Promise<Entry[]> {
     // we find all journal entries with this topic
-    let entries = await topicFolder.filterEntries(()=>true);
+    let entries = await topicFolder.allEntries(true);
 
     // filter unique ones if needed
     if (notRelatedTo) {

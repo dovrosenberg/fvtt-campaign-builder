@@ -402,7 +402,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * Given a filter function, returns all the matching Sessions
    * inside this campaign
    * 
-   * @param {(e: Session) => boolean} filterFn - The filter function
+   * @param {(e: SessionFilterIndex) => boolean} filterFn - The filter function
    * @returns {Session[]} The entries that pass the filter
    */
   public async filterSessions(filterFn: (s: SessionFilterIndex) => boolean): Promise<Session[]> { 

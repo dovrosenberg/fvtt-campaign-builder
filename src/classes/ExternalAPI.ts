@@ -35,9 +35,9 @@ export class ExternalAPI {
 
       const results = [] as GetListReturnValue[];
 
-      topicFolder.allEntries().forEach((entry) => {
-        results.push({ uuid: entry.uuid, name: entry.name });
-      })
+      for (const entryId in topicFolder.entries) {
+        results.push({ uuid: entryId, name: topicFolder.entries[entryId] });
+      }
 
       return results;
     } catch (_e) {

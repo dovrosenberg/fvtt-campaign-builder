@@ -22,7 +22,7 @@ function registerForActorHooks() {
       // iterate over all settings then all PCs and campaigns within the setting
       const settings = await mainStore.getAllSettings();
       for (const setting of settings) {
-        const pcs = await setting.filterEntries((e: EntryFilterIndex) => e.topic===Topics.PC, false);
+        const pcs = await setting.filterEntries((e: EntryFilterIndex) => e.topic===Topics.PC, true);
         for (const pc of pcs) {
           if (pc.actorId !== actor.uuid)
             continue;

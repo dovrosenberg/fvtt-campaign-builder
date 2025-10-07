@@ -138,7 +138,7 @@ class SearchService {
       if (!topicFolder) continue;
       
       // Get all entries for this topic
-      const entries = topicFolder.filterEntries(() => true);
+      const entries = await topicFolder.filterEntries(() => true, true);
       
       for (const entry of entries) {
         // Create a searchable item for each entry

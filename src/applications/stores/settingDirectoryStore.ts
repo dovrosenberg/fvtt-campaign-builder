@@ -15,7 +15,7 @@ import { scrollToActiveEntry } from '@/utils/directoryScroll';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder, } from '@/classes';
-import { DirectorySetting, Hierarchy, Topics, ValidTopic, } from '@/types';
+import { DirectorySetting, Hierarchy, Topics, ValidTopic, EntryFilterIndex } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
 // the store definition
@@ -375,7 +375,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     // save the parent
     const parentId = currentSetting.value.getEntryHierarchy(entryId)?.parentId || null;
 
-    const entry = currentSetting.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId)[0];
+    const entry = await (currentSetting.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId, true))[0];
     await entry.delete();
 
     // update tabs/bookmarks
@@ -585,7 +585,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       const topicObj = currentSetting.value.topicFolders[topics[i]];
 
       // filter on name and type
-      const matchedEntryObjects = topicObj.filterEntries((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )));
+      const matchedEntryObjects = await topicObj.filterEntries((e: EntryFilterIndex)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )), false);
     
       let allItemsToShow: string[] = [];
 

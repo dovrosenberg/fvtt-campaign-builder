@@ -1,7 +1,7 @@
-import { toRaw } from 'vue';
-import { EntryDoc } from '@/documents';
+import { toRaw, version } from 'vue';
+import { EntryDoc, entryIndexFields } from '@/documents';
 import { Entry, FCBSetting } from '@/classes';
-import { ValidTopic } from '@/types';
+import { EntryFilterIndex, ValidTopic } from '@/types';
 
 // represents a topic entry (ex. a character, location, etc.)
 export class TopicFolder {
@@ -46,28 +46,60 @@ export class TopicFolder {
   public set types(value: string[]) {
     this.setting.topics[this.topic].types = value);
   }
-  
-  TODO
-  /**
-   * Given a filter function, returns all the matching Entries
-   * inside this topic
-   * 
-   * @param {(e: Entry) => boolean} filterFn - The filter function
-   * @returns {Entry[]} The entries that pass the filter
-   */
-  public filterEntries(filterFn: (e: Entry) => boolean): Entry[] { 
-    return (toRaw(this._doc).pages.contents as unknown as EntryDoc[])
-      .map((e: EntryDoc)=> new Entry(e, this))
-      .filter((e: Entry)=> filterFn(e));
+
+  public get entries(): Record<string, string> {
+    return this.setting.topics[this.topic].entries;
   }
 
+  public set entries(value: Record<string, string>) {
+    this.setting.topics[this.topic].entries = value;
+  }
+  
+  /**
+   * Given a filter function, returns all the matching entries
+   * inside this topic
+   * 
+   * @param {(e: EntryFilterIndex) => boolean} filterFn - The filter function
+   * @returns {Entry[]} The entries that pass the filter
+   */
+  public async filterEntries<T extends boolean>(filterFn: (s: EntryFilterIndex) => boolean, fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
+    // get all the journal entries
+    const indexes = await toRaw(this.setting.compendium).getIndex(entryIndexFields);
+  
+    // find the sessions connected to this campaign
+    const entries = indexes
+      // first find the relevant ones
+      .filter((e)=> !!this.entries[`${e.uuid}.JournalEntryPage.${e.pages![0]._id}`])
+      .map((e) => ({ 
+        name: e.name, 
+        uuid: `${e.uuid}.JournalEntryPage.${e.pages![0]._id}`,
+        type: e.pages![0].system.type,
+        topic: this.topic,
+      } as EntryFilterIndex))
+
+      // now filter by the function passed in 
+      .filter((s: EntryFilterIndex)=> filterFn(s)) || [];
+
+    if (!fullEntry)
+      return entries;
+    
+    let retval = [] as Entry[];
+    for (let i=0; i<entries.length; i++) {
+      const entry = await Entry.fromUuid(entries[i].uuid);
+      if (entry)
+        retval.push(entry);
+    }
+
+    return retval;
+  }
+  
   /**
    * Returns all the entries inside this topic
    * 
-   * @returns {Entry[]} The entries
+   * @returns {Entry[] | EntryFilterIndex[]} The entries
    */
-  public allEntries(): Entry[] { 
-    return this.filterEntries(() => true);
+  public async allEntries<T extends boolean>(fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
+    return await this.filterEntries(() => true, fullEntry);
   }
 
    /**

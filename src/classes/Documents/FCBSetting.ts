@@ -346,9 +346,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    * @param {boolean} fullEntry - return full Entry objects or just EntryFilterIndexes
    * @returns {Entry[] | EntryFilterIndex[]} The entries that pass the filter (or simplified index versions, depending on fullEntry)
    */
-  public async filterEntries(filterFn: (e: EntryFilterIndex) => boolean, fullEntry: true): Promise<Entry[]>;
-  public async filterEntries(filterFn: (e: EntryFilterIndex) => boolean, fullEntry: false): Promise<EntryFilterIndex[]>; 
-  public async filterEntries(filterFn: (e: EntryFilterIndex) => boolean, fullEntry: boolean = true): Promise<Entry[] | EntryFilterIndex[]> { 
+  public async filterEntries<T extends boolean>(filterFn: (e: EntryFilterIndex) => boolean, fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
     // get all the journal entries
     const indexEntries = await toRaw(this.compendium).getIndex(entryIndexFields);
 
@@ -388,9 +386,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    * 
    * @returns {Entry[]} The entries
    */
-  public async allEntries(fullEntry: true): Promise<Entry[]>;
-  public async allEntries(fullEntry: false): Promise<EntryFilterIndex[]>;
-  public async allEntries(fullEntry: boolean = true): Promise<Entry[] | EntryFilterIndex[]> { 
+  public async allEntries<T extends boolean>(fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
     return await this.filterEntries(() => true, fullEntry);
   }
 
@@ -533,7 +529,7 @@ private async deleteRollTables() : Promise<void> {
     }
 
     // remove from any Characters that are linked to it
-    for (let character of this.topicFolders[Topics.Character].allEntries()) {
+    for (let character of (await this.topicFolders[Topics.Character].allEntries(true))) {
       // check the related documents
       for (let i=0; i<character.actors.length; i++) {
         if (character.actors[i] === actorId) {
@@ -547,7 +543,7 @@ private async deleteRollTables() : Promise<void> {
 
   public async deleteSceneFromSetting(sceneId: string) {
     // remove from any Locations that are linked to it
-    for (let locations of this.topicFolders[Topics.Location].allEntries()) {
+    for (let locations of (await this.topicFolders[Topics.Location].allEntries(true))) {
       // check the related documents
       for (let i=0; i<locations.scenes.length; i++) {
         if (locations.scenes[i] === sceneId) {
@@ -594,7 +590,7 @@ private async deleteRollTables() : Promise<void> {
 
     // remove from any Entries that are linked to it
     for (let topic of Object.values(this.topicFolders)) {
-      for (let entry of topic.allEntries()) {
+      for (let entry of (await topic.allEntries(true))) {
         if (entry.journals.find(j => j.journalUuid === journalId)) {
           entry.journals = entry.journals.filter(j => j.journalUuid !== journalId);
           await entry.save();
@@ -621,7 +617,7 @@ private async deleteRollTables() : Promise<void> {
 
     // remove from any Entries that are linked to it
     for (let topic of Object.values(this.topicFolders)) {
-      for (let entry of topic.allEntries()) {
+      for (let entry of (await topic.allEntries(true))) {
         if (entry.journals.find(j => j.pageUuid === journalId)) {
           entry.journals = entry.journals.filter(j => j.pageUuid !== journalId);
           await entry.save();
