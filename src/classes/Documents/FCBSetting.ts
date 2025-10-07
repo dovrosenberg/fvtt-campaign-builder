@@ -9,7 +9,7 @@ import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/n
 import { Backend } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
-import { entryIndexFields, NameStyleExample, TopicFlatType } from '@/documents';
+import { entryIndexFields, NameStyleExample, SettingDataModel, SettingSchema, TopicFlatType } from '@/documents';
 import { cleanKeysOnSave } from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
 

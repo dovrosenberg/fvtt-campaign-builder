@@ -1,19 +1,19 @@
 import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
-import { DOCUMENT_TYPES } from './types';
+import { DOCUMENT_TYPES, } from './types';
 import { cleanKeysOnLoad,  } from '@/utils/cleanKeys';
 import { schemas } from './fields';
-import type { TopicFlatType } from './fields/Topic';
+import { TopicFlatType } from './fields/TopicFolder';
 export { TopicFlatType };
 
 const fields = foundry.data.fields;
-const settingSchema = {
+export const SettingSchema = {
   /** the topics; keyed by topic id (the Topics enum) */
   topics: new fields.SchemaField({
-    [Topics.Character]: schemas.Topic(),
-    [Topics.Location]: schemas.Topic(),
-    [Topics.Organization]: schemas.Topic(),
-    [Topics.PC]: schemas.Topic(),
+    [Topics.Character]: schemas.TopicFolder(),
+    [Topics.Location]: schemas.TopicFolder(),
+    [Topics.Organization]: schemas.TopicFolder(),
+    [Topics.PC]: schemas.TopicFolder(),
   },
     { required: true, nullable: false, initial: {
       [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [] },
@@ -69,14 +69,14 @@ const settingSchema = {
   ), 
 };
 
-type SchemaType = typeof settingSchema;
+type SchemaType = typeof SettingSchema;
 
 export class SettingDataModel<
   Schema extends SchemaType = SchemaType, 
   ParentNode extends JournalEntry = JournalEntry
 > extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
   static defineSchema(): SchemaType {
-    return settingSchema;
+    return SettingSchema;
   }
 
   override prepareBaseData(): void {

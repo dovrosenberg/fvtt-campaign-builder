@@ -1,7 +1,5 @@
 export * from './Directory';
 export * from './WindowTab';
-export * from './Entry';
-export * from './DocumentWithFlags';
 export * from './TopicFolder';
 export * from './Documents';
 export * from './Backend';
