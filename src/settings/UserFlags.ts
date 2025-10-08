@@ -37,7 +37,7 @@ export abstract class UserFlags {
         t.historyIdx
       )) as unknown as UserFlagType<T>;
     } else if (flag === UserFlagKey.currentSetting) {
-      return (game.user?.getFlag(moduleId, `${flag}.${settingId}`) ||  '') as UserFlagType<T>;
+      return (game.user?.getFlag(moduleId, flag) ||  '') as UserFlagType<T>;
     } else {
       return (game.user?.getFlag(moduleId, `${flag}.${settingId}`) ||  []) as UserFlagType<T>;
     }
@@ -48,7 +48,11 @@ export abstract class UserFlags {
     if (!game.user)
       return;
 
-    // @ts-ignore - We don't want to setup the configuration with all the possible setting/flag combos
-    await game.user?.setFlag(moduleId, `${flag}.${settingId}`, value);
+    if (flag === UserFlagKey.currentSetting) {
+      await game.user?.setFlag(moduleId, flag, value);
+    } else {
+      // @ts-ignore - We don't want to setup the configuration with all the possible setting/flag combos
+      await game.user?.setFlag(moduleId, `${flag}.${settingId}`, value);
+    }
   }
 }

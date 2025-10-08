@@ -103,7 +103,7 @@ export const useMainStore = defineStore('main', () => {
           if (!_currentEntry.value)
             throw new Error('Invalid entry uuid in mainStore.setNewTab()');
 
-          _currentEntry.value.topicFolder = currentSetting.value.topicFolders[_currentEntry.value.topic];
+          // _currentEntry.value.topicFolder = currentSetting.value.topicFolders[_currentEntry.value.topic];
         }
         break;
       case WindowTabType.Setting:
@@ -143,11 +143,8 @@ export const useMainStore = defineStore('main', () => {
     if (!_currentEntry.value)
       return;
 
-    if (!_currentEntry.value.topicFolder)
-      throw new Error('Invalid current parent topic in mainStore.refreshEntry()');
-
     // just force all reactivity to update
-    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc, _currentEntry.value.topicFolder as TopicFolder);
+    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc);
   };
 
   const refreshCampaign = async function (): Promise<void> {

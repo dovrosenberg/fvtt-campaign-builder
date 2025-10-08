@@ -206,8 +206,9 @@ const updatedCallback = async (entry: Entry, details: AnyDetails | null): Promis
     entry.speciesId = (details as CharacterDetails).speciesId;
   }
   
+  const topicFolder = await entry.getTopicFolder();
   if (hasHierarchy(entry.topic)) {
-    await settingDirectoryStore.setNodeParent(entry.topicFolder as TopicFolder, entry.uuid, (details as LocationDetails).parentId || null);
+    await settingDirectoryStore.setNodeParent(topicFolder, entry.uuid, (details as LocationDetails).parentId || null);
   }
 
   // Save the entry

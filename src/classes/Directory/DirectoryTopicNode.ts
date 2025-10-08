@@ -55,13 +55,21 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
     for (let i=0; i<this.loadedTypes.length; i++) {
       const type = this.loadedTypes[i].name;
 
-      this.loadedTypes[i].loadedChildren = (await this.topicFolder.filterEntries((e: EntryFilterIndex): boolean=> {
-        const entryType = e.type;
-        return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type) as boolean;
-      }, true))
-        .map((entry: Entry): DirectoryTypeEntryNode => DirectoryTypeEntryNode.fromEntry(entry, this.loadedTypes[i]))
-        .sort((a, b) => a.name.localeCompare(b.name));
+      const loadedChildren = 
+        (await this.topicFolder.filterEntries((e: EntryFilterIndex): boolean=> {
+          const entryType = e.type;
+          return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type) as boolean;
+        }, true)
+      );
+
+      let loadedChildrenNodes = [] as DirectoryTypeEntryNode[];
+      for (const entry of loadedChildren) {
+        loadedChildrenNodes.push(await DirectoryTypeEntryNode.fromEntry(entry, this.loadedTypes[i]));
+      }
       
+      loadedChildrenNodes = loadedChildrenNodes.sort((a, b) => a.name.localeCompare(b.name));
+      
+      this.loadedTypes[i].loadedChildren = loadedChildrenNodes;
       this.loadedTypes[i].children = this.loadedTypes[i].loadedChildren.map((n: DirectoryTypeEntryNode) => n.id);
     }
   }

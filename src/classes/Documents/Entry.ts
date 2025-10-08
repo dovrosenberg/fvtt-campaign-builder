@@ -4,13 +4,14 @@ import { DOCUMENT_TYPES, } from '@/documents';
 import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
-import { TopicFolder,  } from '@/classes';
+import { getGlobalSetting, TopicFolder,  } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { cleanTopicKeysOnSave } from '@/utils/cleanKeys';
+import GlobalLightSource from 'node_modules/@types/fvtt-types/src/foundry/client/canvas/sources/global-light-source.mjs';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -43,20 +44,9 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     rolePlayingNotes: ''
   } as unknown as EntryDocClass['system'];
 
-  public topicFolder: TopicFolder | null;
-
   private _actor: Actor | null;  // for pcs
 
-  /**
-   * 
-   * @param {EntryDoc} entryDoc - The entry Foundry document
-   */
-  constructor(entryDoc: EntryDocClass, topicFolder?: TopicFolder) {
-    super(entryDoc);
-
-    this.topicFolder = topicFolder || null;
-  }
-
+  
   // does not set the parent topic
   static override async fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
@@ -66,15 +56,19 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     if (!entry)
       return null;
 
-    if (topicFolder)
-      entry.topicFolder = topicFolder;
-
     if (entry.topic === Topics.PC)
       await entry.getActor();
 
     return entry as InstanceType<T>;
   }
 
+  /** return the topicFolder */
+  public async getTopicFolder(): Promise<TopicFolder> {
+    const setting = await this.getSetting();
+
+    return setting.topicFolders[this._clone.system.topic];
+  }
+  
   /**
    * Gets the Actor associated with the PC. If the actor is already loaded, the promise resolves
    * to the existing actor; otherwise, it loads the actor and then resolves to it.
@@ -153,7 +147,6 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     if (!entry)
       return null;
 
-    entry.topicFolder = topicFolder;
     topicFolder.entries[entry.uuid] = entry.name;
     await topicFolder.save();
     await entry.save();
@@ -368,9 +361,10 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     }
 
     // update name index if it changed
-    if (this._clone.name !== this._doc.name && this.topicFolder) {
-      this.topicFolder.entries[this.uuid] = this._clone.name;
-      await this.topicFolder?.save();
+    if (this._clone.name !== this._doc.name) {
+      const topicFolder = await this.getTopicFolder();
+      topicFolder.entries[this.uuid] = this._clone.name;
+      await topicFolder.save();
     }
 
     this._clone.system.relationships = cleanTopicKeysOnSave(this._clone.system.relationships)
@@ -392,11 +386,8 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     const setting = await this.getSetting();
 
     const uuid = this.uuid;
-    const topicFolder = this.topicFolder;
+    const topicFolder = await this.getTopicFolder();
     
-    if (!topicFolder)
-      throw new Error('Attempting to delete entry without parent TopicFolder in Entry.delete()');
-
     await toRaw(this._doc).delete();
 
     // remove from master entry list and topnodes

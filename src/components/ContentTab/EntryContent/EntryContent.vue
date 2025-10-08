@@ -356,7 +356,7 @@
     } else {
       let newTopicFolder: TopicFolder | null;
 
-      newTopicFolder = currentEntry.value.topicFolder;
+      newTopicFolder = await currentEntry.value.getTopicFolder();
       if (!newTopicFolder) 
         throw new Error('Invalid entry topic in EntryContent.refreshEntry');
 
@@ -654,10 +654,9 @@
     if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
       return;
 
-    if (!currentEntry.value.topicFolder)
-      throw new Error('Invalid topic in EntryContent.onParentSelectionMade()');
+    const topicFolder = await currentEntry.value.getTopicFolder();
 
-    await settingDirectoryStore.setNodeParent(currentEntry.value.topicFolder, currentEntry.value.uuid, selection || null);
+    await settingDirectoryStore.setNodeParent(topicFolder, currentEntry.value.uuid, selection || null);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {

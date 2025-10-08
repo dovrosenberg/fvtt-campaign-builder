@@ -1,4 +1,4 @@
-import { toRaw, version } from 'vue';
+import { toRaw, } from 'vue';
 import { EntryDoc, entryIndexFields } from '@/documents';
 import { Entry, FCBSetting } from '@/classes';
 import { EntryFilterIndex, ValidTopic } from '@/types';
@@ -114,7 +114,7 @@ export class TopicFolder {
    public findEntry(uuid: string): Entry | null { 
     const match: EntryDoc | undefined = (toRaw(this._doc).pages.contents as unknown as EntryDoc[]).find((e: EntryDoc)=> e.uuid === uuid);
 
-    return match ? new Entry(match, this) : null;
+    return match ? new Entry(match) : null;
   }
 
   /**

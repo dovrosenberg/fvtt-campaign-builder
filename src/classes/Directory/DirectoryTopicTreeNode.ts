@@ -35,7 +35,7 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
     const entries = await this.topicFolder.filterEntries((e: EntryFilterIndex)=>uuidsToLoad.includes(e.uuid), true);
 
     for (let i=0; i<entries.length; i++) {
-      const newNode = DirectoryEntryNode.fromEntry(entries[i]);
+      const newNode = await DirectoryEntryNode.fromEntry(entries[i]);
       CollapsibleNode._loadedNodes[newNode.id] = newNode;
     }
   }
