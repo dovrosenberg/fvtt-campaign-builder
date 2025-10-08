@@ -2,7 +2,7 @@ import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
 import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder } from '@/classes';
-import { Idea, RelatedJournal, RelatedPCDetails, SettingIndex, TagInfo, ToDoItem, ValidTopic } from '@/types';
+import { Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, SettingIndex, TagInfo, ToDoItem, Topics, ValidTopic } from '@/types';
 import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, TopicFlatType } from '@/documents';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
@@ -51,7 +51,7 @@ export class MigrationV1_5 implements Migration {
         if (!topicIds)
           continue;
 
-        for (const topicId of topicIds) {
+        for (const topicId of Object.values(topicIds)) {
           const topic = await fromUuid(topicId) as JournalEntry | null;
           if (topic) {
             totalEntries += await topic?.pages?.contents?.length;
@@ -169,7 +169,7 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   await newSetting.save();
 
   // migrate all the topicfolders 
-  for (const topicId of topicIds) {
+  for (const topicId of Object.values(topicIds)) {
     // topic ids are JournalEntry
     const topic = await fromUuid<JournalEntry>(topicId);
     if (topic) {
@@ -266,18 +266,8 @@ async function migrateCampaign(oldCampaign: JournalEntry, setting: FCBSetting): 
     await migrateSession(newCampaign, session);
   }
 
-  // rename the old one so we don't get confused prior to deleting
-  // this will probably throw an error because the journal entry has a bad format; but it will stll change the name
-  try {
-    await oldCampaign.update({ name: 'ARCHIVE - ' + oldCampaign.name });
-  }
-  catch (e) {
-    // @ts-ignore
-    const fail = e?.getFailure();
-
-    if (!fail || fail.message !== 'SessionDataModel validation errors:')
-      throw new Error('Failed to rename old campaign in MigrationV1_5.migrateCampaign()', e);
-  }
+  // delete the old campaign (and all the sessions)
+  await oldCampaign.delete();
 }
 
 // returns the new uuid
@@ -318,19 +308,19 @@ async function migrateSession(campaign: Campaign, oldSession: JournalEntryPage):
   return newSession.uuid;
 }
   
-async function migrateTopicFolder(setting: FCBSetting, journalEntry: JournalEntry): Promise<void> {
-  const topic = journalEntry.getFlag(moduleId, 'topic') as unknown as ValidTopic;
+async function migrateTopicFolder(setting: FCBSetting, oldTopicFolder: JournalEntry): Promise<void> {
+  const topic = oldTopicFolder.getFlag(moduleId, 'topic') as unknown as ValidTopic;
 
   const topicFolder = new TopicFolder(topic, setting);
 
   // topic folders now are just an object on the setting
-  topicFolder.types = journalEntry.getFlag(moduleId, 'types') as string[];
-  topicFolder.topNodes = journalEntry.getFlag(moduleId, 'topNodes') as string[];
+  topicFolder.types = oldTopicFolder.getFlag(moduleId, 'types') as string[];
+  topicFolder.topNodes = oldTopicFolder.getFlag(moduleId, 'topNodes') as string[];
   topicFolder.entries = {} as Record<string, string>;  // will populate as we create the entries
   await topicFolder.save();
 
   // migrate all the entries
-  for (const entry of journalEntry.pages.contents) {
+  for (const entry of oldTopicFolder.pages.contents) {
     await migrateEntry(topicFolder, entry);
     topicFolder.entries[entry.uuid] = entry.name;
 
@@ -340,6 +330,9 @@ async function migrateTopicFolder(setting: FCBSetting, journalEntry: JournalEntr
 
   setting.topicFolders[topicFolder.topic] = topicFolder;
   await setting.save();
+
+  // delete the old one (and all the entries)
+  await oldTopicFolder.delete();
 }
 
 async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): Promise<void> {
@@ -354,12 +347,19 @@ async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): 
   newEntry.tags = system.tags as unknown as TagInfo[]|| [];
   newEntry.rolePlayingNotes = system.rolePlayingNotes || '';
   newEntry.relationships = system.relationships as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;
-  newEntry.speciesId = system.speciesId || undefined  ;
-  newEntry.playerName = system.playerName || null;
-  newEntry.actorId = system.actorId || null;
-  newEntry.background = system.background || null;
-  newEntry.plotPoints = system.plotPoints || null;
-  newEntry.magicItems = system.magicItems || null;
+
+  if (topicFolder.topic === Topics.Character) {
+    newEntry.speciesId = system.speciesId || undefined;
+  }
+
+  if (topicFolder.topic === Topics.PC) {
+    newEntry.playerName = system.playerName || null;
+    newEntry.actorId = system.actorId || null;
+    newEntry.background = system.background || null;
+    newEntry.plotPoints = system.plotPoints || null;
+    newEntry.magicItems = system.magicItems || null;
+  }
+ 
   newEntry.img = system.img || '';
   newEntry.scenes = system.scenes as string[] || [];
   newEntry.actors = system.actors as string[] || [];

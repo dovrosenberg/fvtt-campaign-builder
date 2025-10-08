@@ -424,7 +424,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     const currentSettingBlock = tree.find((w)=>w.id===currentSetting.value?.uuid);
     if (currentSettingBlock && currentSettingFound && currentSetting.value) {
       // make sure the folders have been loaded
-      const topicFolders = await currentSetting.value.loadTopics();
+      const topicFolders = currentSetting.value.topicFolders;
       const expandedNodes = currentSetting.value.expandedIds;
 
       const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];

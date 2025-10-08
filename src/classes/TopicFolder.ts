@@ -66,10 +66,13 @@ export class TopicFolder {
     // get all the journal entries
     const indexes = await toRaw(this.setting.compendium).getIndex(entryIndexFields);
   
-    // find the sessions connected to this campaign
+    // find the sessions connected to this entries in this folder
     const entries = indexes
-      // first find the relevant ones
-      .filter((e)=> !!this.entries[`${e.uuid}.JournalEntryPage.${e.pages![0]._id}`])
+      .filter((e)=> (
+        // filter out just the ones that are in this folders' entries list
+        !!e.pages && e.pages.length===1 &&
+        !!this.entries[`${e.uuid}.JournalEntryPage.${e.pages![0]._id}`]
+      ))
       .map((e) => ({ 
         name: e.name, 
         uuid: `${e.uuid}.JournalEntryPage.${e.pages![0]._id}`,

@@ -8,8 +8,8 @@
 - You are now able to move the compendia that hold each world, rather than being required to keep them in the created folder structure.  New compendia will still  be created in the "Campaign Builder" folder, but if you don't like that organization system, you are free to change.
 - On the flip side, the compendia are no longer visible to anyone but the GM.  Note that this is just a change in visibility in the Foundry UI - anyone could programatically access them from the console.  The purpose here is to prevent players from being able to see all of the entries via Foundry's sidebar, while still (eventually) allowing them to access specific pieces via the Campaign Builder interface.
 - The ability to link to Settings in entries was removed.  I suspect no one was using it, because it wasn't very useful, it wasn't documented, and it was hard to do.
-- Some UX modernization.
-- Some performance improvements - particularly for very large settings
+- Some UX modernization (font/color updates - nothing functional for now).
+- Some performance improvements - particularly for large Settings
 
 ## v1.4.1 - Assorted bug fixes
 ![](https://img.shields.io/badge/release%20date-September%2023%2C%202025-blue)

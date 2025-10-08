@@ -164,9 +164,6 @@ export const useMainStore = defineStore('main', () => {
 
     // just force all reactivity to update
     _currentSetting.value = new FCBSetting(_currentSetting.value.raw);
-
-    // have to load the topic folders
-    await _currentSetting.value?.loadTopics();
   };
 
   const refreshSession = async function (): Promise<void> {

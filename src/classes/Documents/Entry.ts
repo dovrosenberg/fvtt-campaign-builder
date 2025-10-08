@@ -4,13 +4,13 @@ import { DOCUMENT_TYPES, } from '@/documents';
 import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
-import { TopicFolder, FCBSetting } from '@/classes';
+import { TopicFolder,  } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
-import { cleanRelationshipKeysOnSave } from '@/utils/cleanKeys';
+import { cleanTopicKeysOnSave } from '@/utils/cleanKeys';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
@@ -252,7 +252,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   }
 
   set actorId(value: string | null) {
-    if (this.topic !== Topics.PC)
+    if (this.topic !== Topics.PC && value)
       throw new Error('Attempt to set actorId on non-PC entry');
     
     this._clone.system.actorId = value;
@@ -373,7 +373,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
       await this.topicFolder?.save();
     }
 
-    this._clone.system.relationships = cleanRelationshipKeysOnSave(this._clone.system.relationships)
+    this._clone.system.relationships = cleanTopicKeysOnSave(this._clone.system.relationships)
 
     // this will reload relationships with a valid value
     await super.save();        
@@ -460,6 +460,9 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
    *  Requires the setting to be unlocked already
    */
   private static async addTypeIfNeeded(topicFolder: TopicFolder, type: string): Promise<void> {
+    if (!topicFolder)
+        debugger;
+
     const currentTypes = topicFolder.types;
 
     // if not a duplicate, add to the valid type lists 

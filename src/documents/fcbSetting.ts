@@ -1,4 +1,4 @@
-import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, } from '@/types';
+import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic, } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 import { DOCUMENT_TYPES, } from './types';
 import { cleanKeysOnLoad,  } from '@/utils/cleanKeys';
@@ -83,6 +83,13 @@ export class SettingDataModel<
     this.hierarchies = cleanKeysOnLoad(this.hierarchies);
     this.campaignNames = cleanKeysOnLoad(this.campaignNames);
     this.expandedIds = cleanKeysOnLoad(this.expandedIds);
+
+    for (const topic in this.topics) {
+      this.topics[topic] = {
+        ...this.topics[topic],
+        entries: cleanKeysOnLoad(this.topics[topic].entries),
+      }
+    }
   }
 }
 
@@ -96,7 +103,7 @@ export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_T
   __type: 'FCBSettingDoc'; 
 
   system: {
-    topics: Record<string, TopicFlatType>
+    topics: Record<ValidTopic, TopicFlatType>
     campaignNames: Record<string, string>;  
     expandedIds: Record<string, boolean>;  
     hierarchies: Record<string, Hierarchy>;  

@@ -10,7 +10,7 @@ import { Backend } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
 import { entryIndexFields, NameStyleExample, TopicFlatType } from '@/documents';
-import { cleanKeysOnSave } from '@/utils/cleanKeys';
+import { cleanKeysOnSave, } from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
 
 // the global settings - the vast majority of users likely have a single setting
@@ -70,7 +70,12 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   static override _folderName = 'Settings';
   static override _documentType = DOCUMENT_TYPES.Setting;
   static override _defaultSystem = { 
-    topics: {},
+    topics: {
+      [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [] },
+      [Topics.Location]: { topic: Topics.Character, topNodes: [], types: [] },
+      [Topics.Organization]: { topic: Topics.Character, topNodes: [], types: [] },
+      [Topics.PC]: { topic: Topics.Character, topNodes: [], types: [] },
+    },
     campaignNames: {},  
     expandedIds: {},  
     hierarchies: {},  
@@ -85,6 +90,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   
   // JournalEntries
   public campaigns: Record<string, Campaign> = {};   // Campaigns keyed by uuid 
+
+  /** these are the the class objects - see topics for just the flattened system data */
   public topicFolders: Record<ValidTopic, TopicFolder> = {} as Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using populate()), so we assume it's never empty
     
   static override async fromUuid<
@@ -155,11 +162,12 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     };
   }
 
-  // get the topics
+  /** these are the the flattened system data for the topics (see topicFolders for the class objects) */
   public get topics(): TopicFlatType[] {
     return this._clone.system.topics as TopicFlatType[];
   }
 
+  /** these are the the flattened system data for the topics (see topicFolders for the class objects) */
   public set topics(value: TopicFlatType[]) {
     this._clone.system.topics = value;
   }
@@ -353,23 +361,27 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public async populate() {
     // load the campaigns and topics
     await this.loadCampaigns();
-    await this.populateTopics();
+    this.populateTopics();
     
     // Initialize roll tables for this setting if they don't exist - but don't wait for the generation
     await initializeSettingRollTables(this);      
   }
 
-  private async populateTopics() {
-    const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
+  private populateTopics() {
+    const topicList = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
 
-    if (!this._clone.system.topics) {
-      // @ts-ignore - ignore conversion of ValidTopic to string
-      this._clone.system.topics = {} as Record<ValidTopic, TopicFlatType>;
+    if (!this._clone.system.topics || Object.keys(this._clone.system.topics).length === 0) {
+      this._clone.system.topics = {
+        [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [], entries: {} },
+        [Topics.Location]: { topic: Topics.Location, topNodes: [], types: [], entries: {} },
+        [Topics.Organization]: { topic: Topics.Organization, topNodes: [], types: [], entries: {} },
+        [Topics.PC]: { topic: Topics.PC, topNodes: [], types: [], entries: {} },
+      } as unknown as Record<ValidTopic, TopicFlatType>;
     }
 
-    // load the topics, creating them if needed
-    for (let i=0; i<topics.length; i++) {
-      const t = topics[i];
+    // load the topics
+    for (let i=0; i<topicList.length; i++) {
+      const t = topicList[i];
 
       // @ts-ignore - ignore conversion of ValidTopic to string
       this.topicFolders[t] = new TopicFolder(t, this);
@@ -498,6 +510,16 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     this.hierarchies = cleanKeysOnSave(this.hierarchies);
     this.campaignNames = cleanKeysOnSave(this.campaignNames);
     this.expandedIds = cleanKeysOnSave(this.expandedIds);
+
+    // populate the topic folders; important in case we changed anything in topics
+    this.populateTopics();
+
+    for (const topic in this.topics) {
+      this.topics[topic] = {
+        ...this.topics[topic],
+        entries: cleanKeysOnSave(this.topics[topic].entries)
+      }
+    }
     
     // now save the page - this will put clone back where it should be
     await super.save();

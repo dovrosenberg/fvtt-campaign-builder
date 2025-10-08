@@ -29,25 +29,26 @@ export const cleanKeysOnSave = <InnerType extends any, T extends Record<string, 
 }
 
 
-type RelationshipFieldType = Record<ValidTopic, Record<string,RelatedItemDetails<any, any>>>; 
+// things like relationships and entries that are keyed by topic and then by uuid
+type TopicFieldType = Record<ValidTopic, Record<string, unknown>>;
 
 // can't just use cleanKeysOnLoad because it's the second layer in
-export const cleanRelationshipKeysOnLoad = (relationships: RelationshipFieldType): RelationshipFieldType => {
-  const newRelationships = {} as RelationshipFieldType;
+export const cleanTopicKeysOnLoad = (objectToClean: TopicFieldType): TopicFieldType => {
+  const newObject = {} as TopicFieldType;
 
-  for (const topic in relationships) {
-    newRelationships[topic] = cleanKeysOnLoad(relationships[topic]);  
+  for (const topic in objectToClean) {
+    newObject[topic] = cleanKeysOnLoad(objectToClean[topic]);  
   }
 
-  return newRelationships;
+  return newObject;
 };
 
-export const cleanRelationshipKeysOnSave = (relationships: RelationshipFieldType): RelationshipFieldType => {
-  const newRelationships = {} as RelationshipFieldType;
+export const cleanTopicKeysOnSave = (objectToClean: TopicFieldType): TopicFieldType => {
+  const newObject = {} as TopicFieldType;
 
-  for (const topic in relationships) {
-    newRelationships[topic] = cleanKeysOnSave(relationships[topic]);  
+  for (const topic in objectToClean) {
+    newObject[topic] = cleanKeysOnSave(objectToClean[topic]);  
   }
 
-  return newRelationships;
+  return newObject;
 };
