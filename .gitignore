@@ -6,3 +6,5 @@ coverage/
 .npmrc
 tsconfig.tsbuildinfo
 docs/.vitepress/cache
+playwright-report/
+test-results/

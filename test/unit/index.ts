@@ -3,9 +3,9 @@
 // -------------------------------- //
 
 import { SettingKey, ModuleSettings } from '@/settings';
-import { registerClassesTests } from '@test/classes';
-import { registerSettingsTests } from '@test/settings';
-import { registerUtilsTests } from '@test/utils';
+import { registerClassesTests } from '@unittest/classes';
+import { registerSettingsTests } from '@unittest/settings';
+import { registerUtilsTests } from '@unittest/utils';
 
 // Registers all `Quench` tests
 Hooks.on("quenchReady", () => {
