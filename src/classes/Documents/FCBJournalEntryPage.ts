@@ -114,7 +114,8 @@ export class FCBJournalEntryPage<
         
       // now save the page
       // need to pass false to toObject to use the current in memory version
-      const retval = await toRaw(this._doc)?.update(this._clone.toObject(false))  as DocClass | undefined;
+      // we use recursive: false so that removed keys, etc. are removed from the database
+      const retval = await toRaw(this._doc)?.update(this._clone.toObject(false), { recursive: false })  as DocClass | undefined;
 
       // no update done; should probably reload clone to avoid data loss
       if (!retval) {

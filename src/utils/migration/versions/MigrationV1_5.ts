@@ -1,8 +1,8 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
-import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder } from '@/classes';
-import { Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, SettingIndex, TagInfo, ToDoItem, Topics, ValidTopic } from '@/types';
+import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder, WindowTab } from '@/classes';
+import { Bookmark, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, SettingIndex, TabHeader, TagInfo, ToDoItem, Topics, ValidTopic } from '@/types';
 import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, TopicFlatType } from '@/documents';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
@@ -10,11 +10,14 @@ const moduleId = 'campaign-builder';  // don't want to use from settings because
 // map old id to new id
 const globalUuidMap: Record<string, string> = {};
 
+// track the compendiums
+const compendiumsToClean: string[] = [];
+
 let processed = 0;
 let totalEntries= 0;
 const updateProgress = (status: string) => {
   const event = new CustomEvent('migration-progress', {
-    detail: { current: processed, totalEntries, status }
+    detail: { current: processed, total: totalEntries, status }
   });
   document.dispatchEvent(event);
 };
@@ -59,11 +62,20 @@ export class MigrationV1_5 implements Migration {
         }
       }
 
+      // double totalEntries because we have to hit every entry twice (once to create and once to 
+      //    remap links)
+      totalEntries *= 2;
+
       for (const folder of allSettingFolders) {
         await migrateSetting(folder);
 
         // we don't clean up the folder because there's not really any reason to
         updateProgress(`Processing setting: ${folder.name}`);
+      }
+
+      // all the old entries should be deleted so now we can remap all the relationships
+      for (const idx of ModuleSettings.get(SettingKey.settingIndex)) {
+        await cleanCompendiumIds(idx.settingId);
       }
 
       // remap the current settings to the updated ids 
@@ -79,9 +91,40 @@ export class MigrationV1_5 implements Migration {
 
       // clean up all the user settings
       for (const user of game.users.filter(()=>true)) {
+        // current settings
         const oldSettingId = user.getFlag(moduleId, UserFlagKey.currentSetting) as string;
         if (oldSettingId) {
           user.setFlag(moduleId, UserFlagKey.currentSetting, globalUuidMap[oldSettingId]);
+        }
+
+        // bookmarks
+        const oldBookmarks = user.getFlag(moduleId, UserFlagKey.bookmarks) as Bookmark[] | undefined;
+        if (oldBookmarks) {
+          await user.setFlag(moduleId, UserFlagKey.bookmarks, oldBookmarks.map((b)=>({
+            ...b,
+            id: globalUuidMap[b.id]
+          })));
+        }
+
+        // tabs
+        const oldTabs = user.getFlag(moduleId, UserFlagKey.tabs) as WindowTab[] | undefined;
+        if (oldTabs) {
+          await user.setFlag(moduleId, UserFlagKey.tabs, oldTabs.map((t)=>({
+            ...t,
+            history: t.history.map((h)=>({
+              ...h,
+              contentId: h.contentId ? globalUuidMap[h.contentId] : h.contentId
+            }))
+          })));
+        }
+
+        // recent viewed
+        const oldRecentViewed = user.getFlag(moduleId, UserFlagKey.recentlyViewed) as TabHeader[] | undefined;
+        if (oldRecentViewed) {
+          await user.setFlag(moduleId, UserFlagKey.recentlyViewed, oldRecentViewed.map((t)=>({
+            ...t,
+            uuid: t.uuid ? globalUuidMap[t.uuid] : t.uuid
+          })));
         }
       }
     } catch (outer) {
@@ -108,6 +151,8 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
 
   if (!compendiumId)
     throw new Error('Invalid settingId in MigrationV1_5.migrate()');
+
+  compendiumsToClean.push(compendiumId);
 
   // and update the permissions to hide and unlock the compendium
   const pack = game.packs.get(compendiumId);
@@ -346,7 +391,18 @@ async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): 
   newEntry.type = system.type || '';
   newEntry.tags = system.tags as unknown as TagInfo[]|| [];
   newEntry.rolePlayingNotes = system.rolePlayingNotes || '';
-  newEntry.relationships = system.relationships as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;
+
+  // relationships used to use _ in keys
+  const newRelationships = {} as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;
+
+  for (const topic in system.relationships) {
+    const newTopicBlock = {} as Record<string, RelatedItemDetails<any, any>>;
+    for (const entryId in system.relationships[topic]) {
+      newTopicBlock[entryId.replaceAll('_', '.')] = system.relationships[topic][entryId];
+    }
+    newRelationships[topic] = newTopicBlock;
+  }
+  newEntry.relationships = newRelationships;
 
   if (topicFolder.topic === Topics.Character) {
     newEntry.speciesId = system.speciesId || undefined;
@@ -383,3 +439,129 @@ async function addToSettingIndex(settingId: string, name: string, packId: string
   await ModuleSettings.set(SettingKey.settingIndex, index);
 }
 
+// remap all of the uuids in the full setting
+const cleanCompendiumIds = async (settingId: string) => {
+  const setting = await FCBSetting.fromUuid(settingId);
+
+  if (!setting)
+    throw new Error(`Couldn't find setting ${setting} when cleaning ids in cleanCompendiumIds()`);
+
+  // expanded ids
+  const newExpandedIds = {} as Record<string, boolean>;
+  for (const expandedId in setting.expandedIds) {
+    // only copy the true ones
+    if (setting.expandedIds[expandedId])
+      newExpandedIds[globalUuidMap[expandedId]] = true;
+  }  
+  setting.expandedIds = newExpandedIds;
+
+  // hierarchies
+  const newHierarchies = {} as Record<string, Hierarchy>;
+  for (const hierarchyId in setting.hierarchies) {
+    const oldHierarchy = setting.hierarchies[hierarchyId];
+    const updatedHierarchy = {
+      ...oldHierarchy,
+      parentId: globalUuidMap[hierarchyId],
+      ancestors: oldHierarchy.ancestors.map((id)=>globalUuidMap[id]),
+      children: oldHierarchy.children.map((id)=>globalUuidMap[id]),
+    };
+
+    newHierarchies[globalUuidMap[hierarchyId]] = updatedHierarchy;
+  }
+
+  setting.hierarchies = newHierarchies;
+  await setting.save();
+
+
+  // topicfolders
+  for (const topicFolder of Object.values(setting.topicFolders)) {
+    // topNodes
+    topicFolder.topNodes = topicFolder.topNodes.map((id)=>globalUuidMap[id]);
+
+    // entries object
+    const entries = {}
+    for (const entryId in topicFolder.entries) {
+      entries[globalUuidMap[entryId]] = topicFolder.entries[entryId];
+    }
+    topicFolder.entries = entries;
+    await topicFolder.save();
+
+    // entries
+    for (const entry of await topicFolder.allEntries(true)) {
+      // relationships
+      const newRelationships = {} as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;
+      
+      for (const topic in entry.relationships) {
+        const relationships = entry.relationships[topic];
+        const updatedRelationships = {} as Record<string, RelatedItemDetails<any, any>>;
+
+        for (const relationshipId in relationships) {
+          if (!globalUuidMap[relationshipId] || !globalUuidMap[relationships[relationshipId].uuid])
+            throw new Error(`Failed to lookup relationship on ${entry.name}, ${topic}, ${relationshipId}`);
+
+          updatedRelationships[globalUuidMap[relationshipId]] = {
+            ...relationships[relationshipId],
+            uuid: globalUuidMap[relationships[relationshipId].uuid],
+          }
+        }
+        newRelationships[topic] = updatedRelationships;
+      }     
+
+      entry.relationships = newRelationships;
+      await entry.save();
+      
+      processed++;
+      updateProgress(`Updated id mappings in entry: ${entry.name}`);    
+    }
+  }
+
+  // campaigns
+  for (const campaign of Object.values(setting.campaigns)) {
+    // todo - linkedUuid could be an item, actor, or one of our entries
+    campaign.todoItems = campaign.todoItems.map((t)=>({
+      ...t,
+      linkedUuid: t.linkedUuid && globalUuidMap[t.linkedUuid] ? globalUuidMap[t.linkedUuid] : t.linkedUuid,
+    }));
+
+    // pcs
+    campaign.pcs = campaign.pcs.map((pc)=>({
+      ...pc,
+      uuid: globalUuidMap[pc.uuid],
+    }));
+
+    // lore -- only ties to document
+    // ideas -- no uuid
+    // journals -- only ties to document
+
+    await campaign.save();
+
+    // sessions
+    for (const sessionId of campaign.sessionIds) {
+      const session = await Session.fromUuid(sessionId);
+
+      if (!session)
+        throw new Error(`Unable to find session ${sessionId} when cleaning ids in cleanCompendiumIds()`);
+      
+      // locations
+      session.locations = session.locations.map((l)=>({
+        ...l,
+        uuid: globalUuidMap[l.uuid],
+      }));
+      
+      // npcs 
+      session.locations = session.npcs.map((n)=>({
+        ...n,
+        uuid: globalUuidMap[n.uuid],
+      }));
+
+
+      // items -- only ties to document
+      // monsters -- only ties to document
+      // vignettes -- no uuid
+      // lore -- only ties to document
+
+      await session.save();
+    }
+  }
+  
+}

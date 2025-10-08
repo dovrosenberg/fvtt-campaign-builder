@@ -16,10 +16,10 @@ export const SettingSchema = {
     [Topics.PC]: schemas.TopicFolder(),
   },
     { required: true, nullable: false, initial: {
-      [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [] },
-      [Topics.Location]: { topic: Topics.Character, topNodes: [], types: [] },
-      [Topics.Organization]: { topic: Topics.Character, topNodes: [], types: [] },
-      [Topics.PC]: { topic: Topics.Character, topNodes: [], types: [] },
+      [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [], entries: {} },
+      [Topics.Location]: { topic: Topics.Location, topNodes: [], types: [], entries: {} },
+      [Topics.Organization]: { topic: Topics.Organization, topNodes: [], types: [], entries: {} },
+      [Topics.PC]: { topic: Topics.PC, topNodes: [], types: [], entries: {} },
     } }
   ),
 

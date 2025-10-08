@@ -71,10 +71,10 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   static override _documentType = DOCUMENT_TYPES.Setting;
   static override _defaultSystem = { 
     topics: {
-      [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [] },
-      [Topics.Location]: { topic: Topics.Character, topNodes: [], types: [] },
-      [Topics.Organization]: { topic: Topics.Character, topNodes: [], types: [] },
-      [Topics.PC]: { topic: Topics.Character, topNodes: [], types: [] },
+      [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [], entries: {} },
+      [Topics.Location]: { topic: Topics.Location, topNodes: [], types: [], entries: {} },
+      [Topics.Organization]: { topic: Topics.Organization, topNodes: [], types: [], entries: {} },
+      [Topics.PC]: { topic: Topics.PC, topNodes: [], types: [], entries: {} },
     },
     campaignNames: {},  
     expandedIds: {},  
@@ -247,7 +247,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         // because we're going to save the changes, we'll put in these things to delete the keys and
         //    then when save completes it will refresh so those won't be there any more
         // @ts-ignore
-        this.campaignNames[`-=${id}`] = null;
+        // this.campaignNames[`-=${id}`] = null;
 
         // clean up locally
         delete this.campaignNames[id];
