@@ -364,6 +364,7 @@
   .fcb-left-panel {
     position: relative;
     overflow: visible !important;  // make sure the tab shows
+    background: var(--fcb-main-section-background);
   }
 
   .fcb-sidebar-toggle-tab {

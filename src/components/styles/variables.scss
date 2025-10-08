@@ -8,6 +8,7 @@ body {
 
 // themed variables
 body {
+  --fcb-main-section-background: #ffffff;
   --fcb-header-border-color: rgb(192, 192, 192);
   // --fcb-header-background: #e5dbc5;
   --fcb-header-color: var(--color-text-dark-primary);
@@ -70,6 +71,7 @@ body {
 
 
 body.theme-dark {
+  --fcb-main-section-background: #ffffff;
   --fcb-header-border-color: var(--color-dark-4);
   // --fcb-header-background: var(--color-dark-2);
   --fcb-header-color: var(--color-text-light-primary);
