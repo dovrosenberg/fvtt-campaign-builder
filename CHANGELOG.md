@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.4.2 - Bug fix
+![](https://img.shields.io/badge/release%20date-October%209%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.4.2/module.zip)
+
+- Fixed issue where players were prompted to create a session after modifying non-Campaign Builder documents in some circumstances.
+
 ## v1.4.1 - Assorted bug fixes
 ![](https://img.shields.io/badge/release%20date-September%2023%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.4.1/module.zip)
