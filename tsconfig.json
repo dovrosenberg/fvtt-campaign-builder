@@ -35,7 +35,7 @@
 			"src/*": ["./src/*"],
 			"@/*": ["./src/*"],
 			"@unittest/*": ["./test/unit/*"],
-			"@playwright/*": ["./test/e2e/*"],
+			"@e2etest/*": ["./test/e2e/*"],
 			"@module": ["./static/module.json"]
 		}
 	},

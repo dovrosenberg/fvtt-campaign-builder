@@ -67,7 +67,7 @@ type FCBSettingConstructor<
 
 // represents a campaign setting
 export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Setting> {
-  static override _folderName = 'Settings';
+  static override _folderName = '';  // put it in the root
   static override _documentType = DOCUMENT_TYPES.Setting;
   static override _defaultSystem = { 
     topics: {
@@ -311,7 +311,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     let nameToUse: string | null = name;
 
     while (nameToUse==='') {  // if hit ok, must have a value
-      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSession.title'), `${localize('dialogs.createSession.sessionName')}:`); 
+      nameToUse = await FCBDialog.inputDialog(localize('dialogs.createSetting.title'), `${localize('dialogs.createSetting.settingName')}:`); 
     }  
 
     // if name is null, then we cancelled the dialog

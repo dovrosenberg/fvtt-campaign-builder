@@ -1,1 +1,2 @@
-export * from './create-and-delete-setting.test';
+export * from './create';
+export * from './delete';

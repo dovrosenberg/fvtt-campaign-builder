@@ -145,28 +145,31 @@ export class FCBJournalEntryPage<
   > (this: T, compendiumId: string, name: string, initialData: Record<string, unknown> = {}): Promise<InstanceType<T> | null> {
     // find the folder it goes in 
     const pack = game.packs.get(compendiumId);
-    let folder = pack?.folders.find(f => f.name === this._folderName);
-    if (!folder) {
-      // make it
-      const folders = await Folder.createDocuments([{
-        name: this._folderName,
-        type: 'JournalEntry' as const,
-        sorting: 'a' as const,
-      }], { pack: compendiumId });
-  
-      if (!folders)
-        throw new Error('Invalid folder in FCBJournalEntryPage.create()');
-  
-      folder = folders[0];
+
+    let folder;
+    if (this._folderName) {
+      folder = pack?.folders.find(f => f.name === this._folderName);
+      if (!folder) {
+        // make it
+        const folders = await Folder.createDocuments([{
+          name: this._folderName,
+          type: 'JournalEntry' as const,
+          sorting: 'a' as const,
+        }], { pack: compendiumId });
+    
+        if (!folders)
+          throw new Error('Invalid folder in FCBJournalEntryPage.create()');
+    
+        folder = folders[0];
+      }
     }
-  
+
+    const options = { name } as { name: string; folder?: string };
+    if (this._folderName)
+      options.folder = folder.id;
+
     // create a wrapping journal entry for the content
-    const journalEntry = await JournalEntry.create({
-      name: name,
-      folder: folder.id,
-    },{
-      pack: compendiumId,
-    });
+    const journalEntry = await JournalEntry.create(options, { pack: compendiumId });
   
     if (!journalEntry)
       throw new Error('Couldn\'t create new journal entry');

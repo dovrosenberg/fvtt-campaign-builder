@@ -1,5 +1,5 @@
 import { Page } from 'playwright';
-import { BrowserContext } from 'playwright/test';
+import { BrowserContext, expect } from 'playwright/test';
 
 const USER = process.env.FVTT_GM_USER || 'Gamemaster';
 const PASS = process.env.FVTT_GM_PASSWORD || '';
@@ -15,7 +15,9 @@ export async function initializeWorld(page: Page, context: BrowserContext){
       page.waitForNavigation(/*{ url: 'http://localhost:30000/join' }*/),
       page.locator(`[data-package-id="${WORLDID}"] a.play`).dispatchEvent('click')
     ]);
-  }
+  } 
+
+  // we may start here if we end up on join
 
   // Select user
   await page.locator('select[name="userid"]').focus();
@@ -43,3 +45,21 @@ export async function initializeWorld(page: Page, context: BrowserContext){
   const openButton = page.locator('#fcb-launch');
   await openButton.click({ force: true })
 }
+
+export async function fillOutNameDialog(page: Page, headerText: string, name: string) {
+  const dialog = await page.locator('div.app.window-app.dialog', { 
+    has: page.locator(`header h4:has-text("${headerText}")`)
+  });
+
+  // find the text box - it's in a <section> tag that is in the same <div> as the <header>
+  //   that contains the <h4>
+  const nameInput = await dialog.locator('section div p input[type="text"]');
+  await expect(nameInput).toBeVisible();
+
+  // put in text
+  await nameInput.fill(name);
+
+  // click the button
+  await dialog.locator('.dialog-button.ok').click();
+}
+
