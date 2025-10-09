@@ -49,6 +49,11 @@ export class MigrationManager {
     const lastVersion = VersionUtils.getLastKnownVersion();  // version when we last did a migration
     const currentVersion = await VersionUtils.getCurrentModuleVersion();  // version currently running
 
+    // if there's no prior version, no migration is needed
+    if (lastVersion === '') {
+      return needed;
+    }
+
     // any migration with a key greater than last known version and <= current version is needed
     //   (the second part of that is belt and suspenders, as it should never happen)
     for (const [version, migration] of Object.entries(MigrationManager.migrations)) {
@@ -79,7 +84,7 @@ export class MigrationManager {
     const lastVersion = VersionUtils.getLastKnownVersion();
     const currentVersion = await VersionUtils.getCurrentModuleVersion();
 
-    if (lastVersion === currentVersion) {
+    if (lastVersion === '' || lastVersion === currentVersion) {
       return {
         success: true,
         migratedCount: 0,
