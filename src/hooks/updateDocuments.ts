@@ -1,5 +1,6 @@
 import { useNavigationStore, useMainStore, useSettingDirectoryStore } from '@/applications/stores';
 import { Topics } from '@/types';
+import { isClientGM } from '@/utils/game';
 
 export function registerForUpdateHooks() {
   registerForActorHooks();
@@ -12,6 +13,9 @@ export function registerForUpdateHooks() {
  * Register for the updateActor hook to catch when an actor's name changes and update any PCs that are linked to it
  */
 function registerForActorHooks() {
+  if (!isClientGM())
+    return;
+
   Hooks.on('updateActor', async (actor, changes, _options, _userId) => {
     const mainStore = useMainStore();
     const navigationStore = useNavigationStore();
@@ -71,6 +75,9 @@ function registerForActorHooks() {
  * For items, just need to update the table if needed
  */
 function registerForItemHooks() {
+  if (!isClientGM())
+    return;
+
   Hooks.on('updateItem', async (_item, changes, _options, _userId) => {
     // Check if the name was changed
     if (changes.name) {
@@ -98,6 +105,9 @@ function registerForItemHooks() {
  * For scenes, just need to update the table if needed
  */
 function registerForSceneHooks() {
+  if (!isClientGM())
+    return;
+
   Hooks.on('updateScene', async (_scene, changes, _options, _userId) => {
     // Check if the name was changed
     if (changes.name) {
@@ -125,6 +135,9 @@ function registerForSceneHooks() {
  * For journals and pages, just need to delete from any lists they are in
  */
 function registerForJournalHooks() {
+  if (!isClientGM())
+    return;
+
   Hooks.on('deleteJournalEntry', async (_journal, _options, _userId) => {
     const mainStore = useMainStore();
 
