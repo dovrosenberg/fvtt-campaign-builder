@@ -9,6 +9,12 @@
 - On the flip side, the compendia are no longer visible to anyone but the GM.  Note that this is just a change in visibility in the Foundry UI - anyone could programatically access them from the console.  The purpose here is to prevent players from being able to see all of the entries via Foundry's sidebar, while still (eventually) allowing them to access specific pieces via the Campaign Builder interface.
 - The ability to link to Settings in entries was removed.  I suspect no one was using it, because it wasn't very useful, it wasn't documented, and it was hard to do.
 
+## v1.4.2 - Bug fix
+![](https://img.shields.io/badge/release%20date-October%209%2C%202025-blue)
+![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.4.2/module.zip)
+
+- Fixed issue where players were prompted to create a session after modifying non-Campaign Builder documents in some circumstances.
+
 ## v1.4.1 - Assorted bug fixes
 ![](https://img.shields.io/badge/release%20date-September%2023%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.4.1/module.zip)
