@@ -40,7 +40,7 @@ export default {
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    headless:false,
+    headless: false,
     ignoreHTTPSErrors: true,
     viewport: { width: 1920, height: 1080 },
   },
@@ -49,21 +49,20 @@ export default {
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'setup',
+      name: 'chromium',
       testMatch: /.*main\.test\.ts/,
       use: {
         ...devices['Desktop Chrome'],
+        channel: 'chrome',  // Use installed Google Chrome
+        launchOptions: {
+          args: [
+            '--disable-dev-shm-usage',
+            '--no-sandbox',
+            '--ozone-platform=wayland',
+          ],
+        },
       },
     },
-    {
-      name: 'settings',
-      testMatch: /.*settings.*\.test\.ts/,
-      dependencies: ['setup'],
-      use: {
-        ...devices['Desktop Chrome'],
-      },
-    },
-    // Add more projects as needed, each with dependencies on previous ones
   ],
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
