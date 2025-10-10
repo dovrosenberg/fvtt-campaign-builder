@@ -1,11 +1,12 @@
+export * from './dialogs';
+
 import { Page } from 'playwright';
-import { BrowserContext, expect } from 'playwright/test';
 
 const USER = process.env.FVTT_GM_USER || 'Gamemaster';
-const PASS = process.env.FVTT_GM_PASSWORD || '';
+// const PASS = process.env.FVTT_GM_PASSWORD || '';
 const WORLDID = process.env.FVTT_WORLDID || 'campaignbuildertest';
 
-export async function initializeWorld(page: Page, context: BrowserContext){
+export async function initializeWorld(page: Page){
   // Go to http://localhost:30000/setup
   await page.goto('http://localhost:30000/setup', { waitUntil: 'networkidle' });
 
@@ -45,21 +46,3 @@ export async function initializeWorld(page: Page, context: BrowserContext){
   const openButton = page.locator('#fcb-launch');
   await openButton.click({ force: true })
 }
-
-export async function fillOutNameDialog(page: Page, headerText: string, name: string) {
-  const dialog = await page.locator('div.app.window-app.dialog', { 
-    has: page.locator(`header h4:has-text("${headerText}")`)
-  });
-
-  // find the text box - it's in a <section> tag that is in the same <div> as the <header>
-  //   that contains the <h4>
-  const nameInput = await dialog.locator('section div p input[type="text"]');
-  await expect(nameInput).toBeVisible();
-
-  // put in text
-  await nameInput.fill(name);
-
-  // click the button
-  await dialog.locator('.dialog-button.ok').click();
-}
-

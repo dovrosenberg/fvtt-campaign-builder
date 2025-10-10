@@ -57,6 +57,7 @@
   import { updateWindowTitle } from '@/utils/titleUpdater';
   import { theme } from '@/components/styles/primeVue';
   import { notifyWarn } from '@/utils/notifications';
+  import { wbApp } from '@/applications/CampaignBuilder';
   
   // library components
   import Splitter from 'primevue/splitter';
@@ -238,6 +239,11 @@
         throw new Error(`Couldn't get root folder in CampaignBuilder.onMounted()`);
 
     const setting = await getCurrentSetting();
+    if (!setting) {
+      // likely asked to create new one and was canceled - just close the window
+      wbApp?.close();
+      return;
+    }
 
     mainStore.setNewSetting(setting.uuid);
 

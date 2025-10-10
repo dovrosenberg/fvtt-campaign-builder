@@ -1,6 +1,8 @@
 import { test, expect, Page, BrowserContext } from '@playwright/test';
-import { initializeWorld } from './utils';
-import { createInitialSetting,  } from './settings';
+import { initializeWorld } from '@e2etest/utils';
+import { createInitialSetting, createSettingFromSidebar } from '@e2etest/settings';
+import { testData } from '@e2etest/data';
+import '../../src/types/globals.d.ts';
 
 // Step functions are imported from separate files for organization
 
@@ -31,9 +33,9 @@ test.describe.serial('Setup', () => {
 			await createInitialSetting(page);
 		});
 		
-		test('Create a second setting from menu', async () => {
-			await createSettingFromMenu(page, testData.settings[1].name);
-		});
+		// test('Create a second setting from menu', async () => {
+			createSettingFromSidebar(page, testData.settings[1].name);
+		// });
 
 		test('Expand first setting', async () => {
 			// confirm all there
@@ -44,6 +46,18 @@ test.describe.serial('Setup', () => {
 			// switch to another setting and make sure it's not there
 		});
 	});
+
+	// see if
+	// identify the priorities (data existing and saving and changing) and list the others but don't build for now
+	// settings - change name; edit all the fields and make sure they stick (switch between settings to reload)
+	// campaigns - create, add sessions, change name and check that it changes 
+	// sessions - create; check renumbering; change name and check that it changes everywhere
+	// entries - change name and check that it changes everywhere
+	// ensure we can close and reopen the main window and that all the tabs are preserved
+	// header - make sure bookmarks work, forward/back buttons, close tab controls
+	// check the compendium folder structure and contents and that you
+	//    can open each content type from there
+
 
 	test.describe.serial('Blah', () => {
 		test('Blah', async () => {

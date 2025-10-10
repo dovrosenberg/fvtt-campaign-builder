@@ -9,11 +9,12 @@ import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings'
 import { updateWindowTitle } from '@/utils/titleUpdater';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
 import { updateSettingRollTableNames } from '@/utils/nameGenerators';
+import { wbApp } from '@/applications/CampaignBuilder';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { TopicFolder, FCBSetting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, getGlobalSetting } from '@/classes';
-import { EntryDoc, SessionDoc, CampaignDoc, } from '@/documents';
+import { FCBSetting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, getGlobalSetting } from '@/classes';
+import { EntryDoc, SessionDoc, } from '@/documents';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 // the store definition
@@ -64,8 +65,13 @@ export const useMainStore = defineStore('main', () => {
   // actions
   // set a new setting from a uuid
   const setNewSetting = async function (settingId: string | null): Promise<void> {
-    if (!settingId)
+    if (!settingId) {
+      _currentSetting.value = null;
+      CollapsibleNode.currentSetting = null;
+      await UserFlags.set(UserFlagKey.currentSetting, '');
+      wbApp?.close();
       return;
+    }
 
     // load the setting
     const setting = await getGlobalSetting(settingId);

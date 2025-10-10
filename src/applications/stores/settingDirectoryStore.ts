@@ -8,7 +8,7 @@ import { reactive, onMounted, ref, watch, nextTick } from 'vue';
 import { ModuleSettings, SettingKey, } from '@/settings';
 import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore } from '@/applications/stores';
-import { getTopicTextPlural, } from '@/compendia';
+import { getCurrentSetting, getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
 import { scrollToActiveEntry } from '@/utils/directoryScroll';
@@ -339,7 +339,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
    * @returns A promise that resolves when the setting and its compendia are deleted.
    */
   const deleteSetting = async (settingId: string): Promise<void> => {
-    const setting = await getGlobalSetting(settingId);
+    let setting = await getGlobalSetting(settingId);
 
     if (!setting)
       return;
@@ -351,13 +351,13 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     await setting.delete();
 
     // pick another setting
-    const settings = ModuleSettings.get(SettingKey.settingIndex) || [];
-    if (settings.length>0) {
-      const settingId = settings[0].settingId;
-      await mainStore.setNewSetting(settingId);
+    setting = await getCurrentSetting();
+    if (setting) {
+      await mainStore.setNewSetting(setting.uuid);
     } else {
       // close all tabs and bookmarks (if we're changing settings they'll reset automatically)
       await navigationStore.clearTabsAndBookmarks();
+      await mainStore.setNewSetting(null);
     }
 
     await refreshSettingDirectoryTree();
@@ -391,8 +391,11 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshSettingDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current setting and journals loaded
-    if (!currentSetting.value)
+    if (!currentSetting.value) {
+      // empty it out
+      currentSettingTree.value = [];
       return;
+    }
 
     isTopicTreeRefreshing.value = true;
 

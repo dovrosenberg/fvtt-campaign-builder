@@ -22,7 +22,7 @@ import { Campaign } from './Campaign';
 //    typically resulted in multiple (many) copies in memory at once
 let globalSettings: Record<string, FCBSetting> = {};
 
-export const getGlobalSetting = async (settingId: string): Promise<FCBSetting> => {
+export const getGlobalSetting = async (settingId: string): Promise<FCBSetting | null> => {
   // see if we already have it
   let setting: FCBSetting | undefined | null = globalSettings[settingId];
 
@@ -32,8 +32,15 @@ export const getGlobalSetting = async (settingId: string): Promise<FCBSetting> =
   // otherwise load it
   setting = await FCBSetting.fromUuid(settingId);
 
-  if (!setting)
-    throw new Error(`Setting not found for ${settingId} in CampaignBuilder.getSetting`);
+  if (!setting) {
+    // the most likely cause here is that someone deleted the compendium; remove it from the index
+    // so we can just try again
+    let indexes = ModuleSettings.get(SettingKey.settingIndex);
+    indexes = indexes.filter(index => index.settingId !== settingId);
+    await ModuleSettings.set(SettingKey.settingIndex, indexes);
+
+    return null;
+  }
   
   globalSettings[settingId] = setting;
   return setting;
@@ -333,6 +340,15 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
     if (!newSetting)
       return null;
+        
+    // add to index
+    const indexes = ModuleSettings.get(SettingKey.settingIndex);
+    indexes.push({
+      name: nameToUse,
+      settingId: newSetting.uuid,
+      packId: compendiumId,
+    });
+    await ModuleSettings.set(SettingKey.settingIndex, indexes);
     
     // add to master list
     updateGlobalSetting(newSetting);
@@ -721,7 +737,7 @@ const createCompendium = async(name: string): Promise<string> => {
     localize('contentFolders.settings'),
     localize('contentFolders.campaigns'),
     localize('contentFolders.entries'),
-    localize('contentFolders.sessions'),
+    // localize('contentFolders.sessions'),  // we now put the sesion in the top level
   ];
 
   const folders = folderNames.map((folderName) => ({

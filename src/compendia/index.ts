@@ -9,7 +9,7 @@ import { FCBSetting, getGlobalSetting } from '@/classes';
  * Gets the current setting (will create one if there isn't one) 
  * @returns The FCBSetting 
  */
-export async function getCurrentSetting(): Promise<FCBSetting> {
+export async function getCurrentSetting(): Promise<FCBSetting | null> {
   let settingId = UserFlags.get(UserFlagKey.currentSetting);  // this isn't setting-specific (obviously)
 
   
@@ -23,9 +23,15 @@ export async function getCurrentSetting(): Promise<FCBSetting> {
     // couldn't find it, default to first one (which is sort of random because it's not an array)
     const settings = ModuleSettings.get(SettingKey.settingIndex) || [];
     if (settings.length>0) {
-      settingId = settings[0].settingId;
-      setting = await getGlobalSetting(settingId);
-    } else {
+      // in case any are bad - loop through them all
+      do {
+        settingId = settings[0].settingId;
+        setting = await getGlobalSetting(settingId);
+      } while (!setting && settings.length>0);
+    }
+
+    // still don't have one (because whatever ws in the index was bad)
+    if (!setting) {
       // no setting found, so create one
       setting = await FCBSetting.create(true);
     }
@@ -34,11 +40,7 @@ export async function getCurrentSetting(): Promise<FCBSetting> {
       await UserFlags.set(UserFlagKey.currentSetting, setting.uuid);  // this isn't setting-specific (obviously)
   }
 
-  // if we couldn't create one, then throw an error
-  if (!setting)
-    throw new Error('Couldn\'t create setting folder in compendia/index.getCurrentSetting()');
-
-  return setting;
+  return setting || null;
 }
 
 

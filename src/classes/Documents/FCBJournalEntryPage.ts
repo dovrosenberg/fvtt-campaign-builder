@@ -76,7 +76,10 @@ export class FCBJournalEntryPage<
   }
 
   public async getSetting(): Promise<FCBSetting> {
-    return await getGlobalSetting(this.settingId);
+    const setting = await getGlobalSetting(this.settingId);
+    if (!setting)
+      throw new Error(`Setting not found for FCBJournalEntryPage ${this.uuid}`);
+    return setting;
   }
 
 
