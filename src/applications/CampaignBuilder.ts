@@ -33,6 +33,12 @@ export const renderCampaignBuilderApp = async (render = false) => {
   
   if (!wbApp) {
     wbApp = new CampaignBuilderApplication();
+
+    // we hold it here... there's an issue where we can't import this file
+    //    into other places that need access to wbApp because it triggers
+    //    an issue with pinia reference instantiation order
+    // @ts-ignore
+    game.modules.get(moduleId).activeWindow = wbApp;    
   }
 
   await wbApp.render(render);

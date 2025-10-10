@@ -5,11 +5,11 @@ import { defineStore, } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
 // local imports
-import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings';
+import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, moduleId, } from '@/settings';
 import { updateWindowTitle } from '@/utils/titleUpdater';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
 import { updateSettingRollTableNames } from '@/utils/nameGenerators';
-import { wbApp } from '@/applications/CampaignBuilder';
+import { moduleId } from '@/settings';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
@@ -69,7 +69,9 @@ export const useMainStore = defineStore('main', () => {
       _currentSetting.value = null;
       CollapsibleNode.currentSetting = null;
       await UserFlags.set(UserFlagKey.currentSetting, '');
-      wbApp?.close();
+
+      // @ts-ignore
+      game.modules.get(moduleId)?.activeWindow?.close();
       return;
     }
 

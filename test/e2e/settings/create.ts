@@ -1,6 +1,6 @@
 import test, { expect, Page } from '@playwright/test';
 import { testData } from '@e2etest/data';
-import { fillOutNameDialog } from '@e2etest/utils';
+import { confirmSettingInList, fillOutNameDialog } from '@e2etest/utils';
 
 export async function createInitialSetting(page: Page) {
   // the box should already be there
@@ -28,9 +28,3 @@ async function fillOutSettingNameDialog(page: Page, settingName: string) {
   await fillOutNameDialog(page, "Create Setting", settingName);
 }
 
-async function confirmSettingInList(page: Page, settingName: string) {
-  await page.waitForSelector('#fcb-directory', { state: 'visible' });
-  
-  const settingHeader = page.locator('.fcb-setting-folder:not(.collapsed) > .folder-header');
-  await expect(settingHeader).toContainText(settingName);
-}

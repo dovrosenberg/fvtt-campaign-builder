@@ -2,7 +2,6 @@ import { test, expect, Page, BrowserContext } from '@playwright/test';
 import { initializeWorld } from '@e2etest/utils';
 import { createInitialSetting, createSettingFromSidebar } from '@e2etest/settings';
 import { testData } from '@e2etest/data';
-import '../../src/types/globals.d.ts';
 
 // Step functions are imported from separate files for organization
 
