@@ -9,7 +9,6 @@ import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, moduleId, } from '@
 import { updateWindowTitle } from '@/utils/titleUpdater';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
 import { updateSettingRollTableNames } from '@/utils/nameGenerators';
-import { moduleId } from '@/settings';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';

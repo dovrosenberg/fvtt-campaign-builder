@@ -24,6 +24,20 @@ export class ExternalAPI {
     log(false, 'Campaign Builder External API initialized');
   }
 
+  /** should only be used for testing purposes - this will delete all of
+   *  the data associated with this module (settings, campaigns, entries)
+   */
+  public async resetAll(): Promise<void> {
+    // super dangerous - only load this code in development mode
+    if (import.meta.env.MODE === 'development') {
+      for (const setting of await useMainStore().getAllSettings()) {
+        await setting.delete();
+      }
+    } else {
+      throw new Error('resetAll() can only be called in development mode');
+    }
+  }
+    
   public getEntries(topic: ValidTopic): GetListReturnValue[] {
     const setting = useMainStore().currentSetting;
 

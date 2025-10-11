@@ -1,10 +1,13 @@
-import { Page } from 'playwright';
+import { TestContext } from '../types';
+import { useMainStore } from '@/applications/stores/mainStore';
 
 const USER = process.env.FVTT_GM_USER || 'Gamemaster';
 // const PASS = process.env.FVTT_GM_PASSWORD || '';
 const WORLDID = process.env.FVTT_WORLDID || 'campaignbuildertest';
 
-export async function initializeWorld(page: Page){
+export async function initializeWorld(context: TestContext){
+  const page = context.page!;
+
   // Go to http://localhost:30000/setup
   await page.goto('http://localhost:30000/setup', { waitUntil: 'networkidle' });
 
@@ -12,7 +15,7 @@ export async function initializeWorld(page: Page){
     // open the world
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://localhost:30000/join' }*/),
-      page.locator(`[data-package-id="${WORLDID}"] a.play`).dispatchEvent('click')
+      page.locator(`[data-package-id="${WORLDID}"] a.play`).click()
     ]);
   } 
 
@@ -38,6 +41,11 @@ export async function initializeWorld(page: Page){
   //Wait for campaign builder to load
   await page.waitForFunction(() => {
     return !!jQuery && jQuery('#fcb-launch').length > 0;
+  });
+
+  // lets delete all the settings...
+  await page.evaluate(async () => {
+    return await game.modules.get('campaign-builder')?.api.resetAll();
   });
 
   // click on the button

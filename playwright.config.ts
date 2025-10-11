@@ -31,6 +31,12 @@ export default {
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
+
+   // Configure the 'open' property for the HTML reporter
+   html: {
+    open: 'never', // or on-failure once things running better
+  },
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
@@ -40,7 +46,7 @@ export default {
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    headless: false,
+    // headless: false,
     ignoreHTTPSErrors: true,
     viewport: { width: 1920, height: 1080 },
   },
@@ -48,21 +54,44 @@ export default {
 
   /* Configure projects for major browsers */
   projects: [
+    // this is the headless version
     {
-      name: 'chromium',
+      name: 'chromium-gpu',
       testMatch: /.*main\.test\.ts/,
       use: {
         ...devices['Desktop Chrome'],
-        channel: 'chrome',  // Use installed Google Chrome
+        headless: true, // Still runs in headless mode
         launchOptions: {
           args: [
-            '--disable-dev-shm-usage',
-            '--no-sandbox',
-            '--ozone-platform=wayland',
+            "--no-sandbox", // Recommended for Linux environments
+            "--use-gl=egl", // Use EGL as the graphics backend
+            "--enable-features=Vulkan", // (Optional) Use Vulkan for newer setups
+            "--use-angle=vulkan", // (Optional) Use ANGLE with Vulkan backend
+            "--ignore-gpu-blocklist", // Ignore a list of blocked GPUs
           ],
         },
       },
     },
+    // this opens a browser
+    // {
+    //   name: 'chromium',
+    //   testMatch: /.*main\.test\.ts/,
+    //   use: {
+    //     ...devices['Desktop Chrome'],
+    //     channel: 'chrome',  // Use installed Google Chrome
+    //     launchOptions: {
+    //       args: [
+    //         '--disable-dev-shm-usage',
+    //         '--no-sandbox',
+    //         '--ozone-platform=wayland',
+    //         '--enable-gpu',
+    //         '--enable-accelerated-2d-canvas',
+    //         '--enable-webgl',
+    //         '--ignore-gpu-blocklist',
+    //       ],
+    //     },
+    //   },
+    // },
   ],
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */

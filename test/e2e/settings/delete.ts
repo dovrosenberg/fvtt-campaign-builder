@@ -1,6 +1,8 @@
 import { Page, expect } from '@playwright/test';
+import { TestContext } from '../types';
 
-export async function deleteSetting(page: Page, settingName: string) {
+export async function deleteSetting(context: TestContext, settingName: string) {
+  const page = context.page!;
   const settingHeader = page.locator('.fcb-setting-folder:not(.collapsed) > .folder-header');
   
   await settingHeader.click({ button: 'right' });
