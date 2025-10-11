@@ -14,6 +14,7 @@
       <div class="flexrow">
         <div 
           class="new-link"
+          data-testid="create-setting-button"
           @click="onCreateSetting"
         >
           <div><i class="fas fa-globe"></i></div>
@@ -21,6 +22,7 @@
         </div>
         <div 
           class="new-link"
+          data-testid="create-campaign-button"
           @click="onCreateCampaign"
         >
           <div><i class="fas fa-book"></i></div>
@@ -28,6 +30,7 @@
         </div>
         <div 
           class="new-link"
+          data-testid="create-pc-button"
           @click="onCreateEntry(Topics.PC)"
         >
           <div><i :class="`fas ${getTopicIcon(Topics.PC)}`"></i></div>
@@ -41,6 +44,7 @@
       >
         <div 
           class="new-link"
+          data-testid="create-character-button"
           @click="onCreateEntry(Topics.Character)"
         >
           <div><i :class="`fas ${getTopicIcon(Topics.Character)}`"></i></div>
@@ -48,6 +52,7 @@
         </div>
         <div 
           class="new-link"
+          data-testid="create-location-button"
           @click="onCreateEntry(Topics.Location)"
         >
           <div><i :class="`fas ${getTopicIcon(Topics.Location)}`"></i></div>
@@ -55,6 +60,7 @@
         </div>
         <div 
           class="new-link"
+          data-testid="create-organization-button"
           @click="onCreateEntry(Topics.Organization)"
         >
           <div><i :class="`fas ${getTopicIcon(Topics.Organization)}`"></i></div>
@@ -71,6 +77,7 @@
           v-for="recentItem, idx in recent"
           :key="idx"
           class="recent-link" 
+          :data-testid="`recent-item-${idx}`"
           @click="onRecentClick(recentItem)"
         >
           <div>

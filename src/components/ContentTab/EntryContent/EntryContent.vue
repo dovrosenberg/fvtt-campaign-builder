@@ -9,6 +9,7 @@
           v-model="name"
           for="fcb-input-name"
           class="fcb-input-name"
+          data-testid="entry-name-input"
           unstyled
           :placeholder="namePlaceholder"
           :pt="{
@@ -19,6 +20,7 @@
         <button
           v-if="topic===Topics.Character || topic===Topics.Location"
           class="fcb-push-to-session-button"
+          data-testid="entry-push-to-session-button"
           @click="onPushToSessionClick"
           :disabled="pushButtonDisabled"
           :title="pushButtonTitle"
@@ -28,6 +30,7 @@
         <button
           v-if="canGenerate"
           class="fcb-generate-button"
+          data-testid="entry-generate-button"
           @click="onGenerateButtonClick"
           :disabled="generateDisabled"
           :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"

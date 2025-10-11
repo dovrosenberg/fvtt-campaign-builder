@@ -11,6 +11,7 @@
       :class="`${props.node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
       style="pointer-events: auto;"
       draggable="true"
+      :data-testid="`directory-entry-${props.node.id}`"
       @click="onDirectoryItemClick"
       @dragstart="onDragStart($event, props.node.id, props.node.name)"
       @drop="onDrop"

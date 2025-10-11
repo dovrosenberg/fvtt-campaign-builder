@@ -12,7 +12,7 @@ export const confirmSettingInList = async (context: TestContext, settingName: st
   expect(page.locator('.fcb-setting-directory')).toBeVisible();  
     
   const folderHeader = page
-    .locator('.fcb-setting-directory .fcb-setting-folder > .folder-header')
+    .getByTestId(`setting-folder-${settingName}`)
     .filter({ hasText: settingName });
   
   await expect(folderHeader).toHaveCount(1); // this forces the DOM to settle

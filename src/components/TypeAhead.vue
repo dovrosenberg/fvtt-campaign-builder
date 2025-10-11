@@ -7,6 +7,7 @@
     <input 
       v-model="currentValue" 
       type="text"
+      data-testid="typeahead-input"
       :placeholder="`${localize('placeholders.search')}...`"
       @input="onInput"
     />
@@ -18,6 +19,7 @@
       <div
         v-if="showAddOption"
         :class="`typeahead-entry add ${idx===0 ? 'highlighted' : ''}`"
+        data-testid="typeahead-add-option"
         @click="(event) => {event.stopPropagation(); addCurrentValue(); }"
         >
         <i class="fas fa-plus"></i> {{ localize('labels.add') }} "{{ currentValue }}"
@@ -29,6 +31,7 @@
         :key="i"
         :class="`typeahead-entry ${idx === (showAddOption ? i+1 : i) ? 'highlighted' : ''}`"
         :data-id="objectMode ? (item as ListItem).id : (item as string)"
+        :data-testid="`typeahead-option-${i}`"
         @click="onDropdownClick"
       >
         {{ objectMode ? (item as ListItem).label : (item as string) }}

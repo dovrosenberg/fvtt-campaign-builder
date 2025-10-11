@@ -3,6 +3,7 @@
     :class="'fcb-tab flexrow ' + (tab.active ? 'active' : '')" 
     draggable="true"
     :title="tab.header.name" 
+    :data-testid="`header-tab-${tab.id}`"
     @click="onTabClick"
     @dragstart="onDragStart"
     @drop="onDrop"
@@ -20,6 +21,7 @@
     </div>
     <div 
       class="close"
+      data-testid="tab-close-button"
       @click="onTabCloseClick"
     >
       <i class="fas fa-times"></i>

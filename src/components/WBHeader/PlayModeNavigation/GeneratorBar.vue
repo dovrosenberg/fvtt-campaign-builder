@@ -7,6 +7,7 @@
       v-for="generator in generators"
       :key="generator.id"
       class="fcb-generator-button"
+      :data-testid="`generator-button-${generator.id}`"
       @click="onGeneratorClick(generator.id)"
       :title="generator.tooltip"
     >

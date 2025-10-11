@@ -4,6 +4,7 @@
       v-for="tab in sessionButtons"
       :key="tab.id"
       class="fcb-play-tab-button"
+      :data-testid="`session-tab-button-${tab.id}`"
       @click="onTabClick($event, tab.id)"
       :title="tab.label"
     >
@@ -21,7 +22,7 @@
   // local imports
   import { useMainStore, usePlayingStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
-  import { openSessionNotes, SessionNotesApplication } from '@/applications/SessionNotes';
+  import { openSessionNotes, } from '@/applications/SessionNotes';
 
   // types
 

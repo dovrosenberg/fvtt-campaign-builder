@@ -1,6 +1,7 @@
 <template>
   <div
     class="fcb-sheet-image"
+    data-testid="image-picker"
     @click="onImageClick"
     @contextmenu="onContextMenu"
     :title="isDefaultImage ? 'Click to select an image' : 'Click to view image (right-click for more options)'"

@@ -9,6 +9,9 @@ import { PCDescriptor } from './pc';
 
 export class SettingDescriptor {
   public name: string;
+  public genre: string;
+  public settingFeeling: string;
+  public description: string;
 
   public characters: CharacterDescriptor[];
   public locations: LocationDescriptor[];
@@ -19,6 +22,9 @@ export class SettingDescriptor {
 
   constructor() {
     this.name = faker.lorem.words({ min: 1, max: 4 })
+    this.genre = faker.lorem.words({ min: 1, max: 1 })
+    this.settingFeeling = faker.lorem.sentence()
+    this.description = faker.lorem.sentences({ min: 3, max: 5 })
 
     this.characters = [
       new CharacterDescriptor(),

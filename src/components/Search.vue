@@ -5,6 +5,7 @@
         v-model="searchQuery"
         type="text"
         class="fcb-search-input"
+        data-testid="search-input"
         :placeholder="localize('placeholders.search')"
         @input="onSearchInput"
         @keydown.enter="onEnterPress"
@@ -32,6 +33,7 @@
         v-for="(result, index) in searchResults" 
         :key="result.uuid"
         :class="['fcb-search-result', { 'fcb-search-result-selected': index === selectedIndex }]"
+        :data-testid="`search-result-${index}`"
         @click="selectResult($event, result)"
         @mouseenter="selectedIndex = index"
       >

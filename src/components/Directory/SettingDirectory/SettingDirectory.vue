@@ -10,6 +10,7 @@
     >
       <header
         class="folder-header flexrow"
+        :data-testid="`setting-folder-${setting.name}`"
         @contextmenu="onSettingContextMenu($event, setting.id)"
         @click="onSettingFolderClick($event, setting.id)"
       >

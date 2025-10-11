@@ -6,6 +6,7 @@
         <div class="form-fields">
           <Checkbox
             v-model="autoRefresh"
+            data-testid="auto-refresh-checkbox"
             binary
           />
         </div>
@@ -18,6 +19,7 @@
         <div class="form-fields">
           <Inputtext
             v-model="defaultTypes[GeneratorType.NPC]"
+            data-testid="default-type-npc-input"
             unstyled
           />
         </div>
@@ -30,6 +32,7 @@
         <div class="form-fields">
           <Inputtext
           v-model="defaultTypes[GeneratorType.Town]"
+          data-testid="default-type-town-input"
           unstyled
           />
         </div>
@@ -42,6 +45,7 @@
         <div class="form-fields">
           <Inputtext
           v-model="defaultTypes[GeneratorType.Store]"
+          data-testid="default-type-store-input"
           unstyled
           />
         </div>
@@ -54,6 +58,7 @@
         <div class="form-fields">
           <Inputtext
           v-model="defaultTypes[GeneratorType.Tavern]"
+          data-testid="default-type-tavern-input"
           unstyled
           />
         </div>
@@ -64,6 +69,7 @@
 
       <footer class="form-footer" data-application-part="footer">
         <button
+          data-testid="refresh-tables-button"
           @click="onRefreshTablesClick"
           :disabled="isRefreshing"
         >
@@ -71,6 +77,7 @@
           <label>{{ localize('applications.rollTableSettings.labels.refreshAll') }}</label>
         </button>
         <button 
+          data-testid="roll-table-settings-save-button"
           @click="onSubmitClick"
         >
           <i class="fa-solid fa-save"></i>

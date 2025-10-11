@@ -14,9 +14,10 @@
         <i
           class="fas fa-folder-open fa-fw"
           style="margin-right: 4px;"
+          data-testid="campaign-folder-toggle"
           @click="onCampaignFolderClick"
         ></i>
-        <span @click="onCampaignSelectClick">
+        <span data-testid="campaign-name" @click="onCampaignSelectClick">
           {{ props.campaignNode.name }}
         </span>
       </div>

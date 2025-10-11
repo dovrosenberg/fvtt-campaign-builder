@@ -25,6 +25,13 @@ export const createSettingFromSidebar = (context: TestContext, settingName: stri
     
     await fillOutSettingNameDialog(context, settingName);
 
+    const folderHeader = page
+    .locator('.fcb-setting-directory .fcb-setting-folder > .folder-header')
+    .filter({ hasText: settingName });
+  
+    console.log(await folderHeader.count());
+    await expect(folderHeader).toHaveCount(1); // this forces the DOM to settle
+
     await confirmSettingInList(context, settingName);
   });
 }

@@ -3,6 +3,7 @@
     <input 
       id="fcb-tags-input" 
       :class="'tags-input' + (isInitialized ? '' : ' uninitialized')" 
+      data-testid="tags-input"
       :value="JSON.stringify(currentValue)" 
       :placeholder="'Tags...'"
     />

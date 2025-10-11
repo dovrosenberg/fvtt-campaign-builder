@@ -16,12 +16,14 @@
 
       <footer class="form-footer" data-application-part="footer">
         <button 
+          data-testid="species-list-reset-button"
           @click="onClickReset"
         >
           <i class="fa-solid fa-undo"></i>
           <label>{{ localize('labels.reset') }}</label>
         </button>
         <button 
+          data-testid="species-list-save-button"
           @click="onClickSubmit"
         >
           <i class="fa-solid fa-save"></i>

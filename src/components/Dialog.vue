@@ -13,6 +13,7 @@
       <div class="fcb-window-title">{{ title }}</div>
       <a 
         class="header-button control close"
+        data-testid="dialog-close-button"
         @click="() => { show = false; emit('cancel'); }"
       >
         <i class="fas fa-times"></i>
@@ -32,6 +33,7 @@
             :disabled="btn.disable"
             :style="btn.hidden ? {display:'none'} : {}"
             :class="`fcb-dialog-button ${btn.default ? 'default' : ''}`"
+            :data-testid="`dialog-button-${btn.label.toLowerCase().replace(/\s+/g, '-')}`"
             @click="onButtonClick(btn)"
           >
             <i v-if="btn.icon" :class="`fas ${btn.icon}`"></i>

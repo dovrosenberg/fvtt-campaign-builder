@@ -41,6 +41,7 @@
             <Button
               v-if="props.showAddButton"
               unstyled
+              data-testid="table-add-button"
               :label="props.addButtonLabel" 
               style="flex: initial; width:auto;"
               @click="emit('addItem')"
@@ -78,6 +79,7 @@
             </InputIcon>
             <InputText 
               v-model="pagination.filters.global.value"  
+              data-testid="table-filter-input"
               style="font-size: var(--font-size-14);"
               :placeholder="localize('placeholders.search')"
             />
@@ -117,6 +119,7 @@
               <a 
                 v-if="props.allowDelete"
                 class="fcb-action-icon" 
+                :data-testid="`table-delete-${data.uuid}`"
                 :data-tooltip="props.deleteItemLabel"
                 @click.stop="emit('deleteItem', data.uuid)" 
               >
@@ -125,6 +128,7 @@
               <a 
                 v-if="props.allowEdit"
                 class="fcb-action-icon" 
+                :data-testid="`table-edit-${data.uuid}`"
                 :data-tooltip="props.editItemLabel"
                 @click.stop="onEditButtonClick(data)" 
               >
@@ -209,6 +213,7 @@
                   v-model="editingRowData[field]"
                   style="width: 100%; font-size: inherit;"
                   :id="`${data.uuid}-${field}`" 
+                  :data-testid="`table-textarea-${field}`"
                   rows="2"
                   @keydown.enter="saveCurrentlyEditingRow" 
                   @keydown.esc.stop="cancelEdit"
@@ -218,6 +223,7 @@
                   v-model="editingRowData[field]"
                   style="width: 100%; font-size: inherit;"
                   :id="`${data.uuid}-${field}`" 
+                  :data-testid="`table-input-${field}`"
                   @keydown.enter.stop="saveCurrentlyEditingRow" 
                   @keydown.esc.stop="cancelEdit"
                 />
@@ -246,6 +252,7 @@
               <Checkbox 
                 :model-value="data[field]" 
                 :binary="true" 
+                :data-testid="`table-checkbox-${field}`"
                 @update:model-value="onCheckboxChange(data, field, $event)"
               />
             </div>
