@@ -30,7 +30,11 @@ export const getGlobalSetting = async (settingId: string): Promise<FCBSetting | 
     return setting;
 
   // otherwise load it
-  setting = await FCBSetting.fromUuid(settingId);
+  try {
+    setting = await FCBSetting.fromUuid(settingId);
+  } catch (e) {
+    // do nothing
+  }
 
   if (!setting) {
     // the most likely cause here is that someone deleted the compendium; remove it from the index
@@ -42,7 +46,11 @@ export const getGlobalSetting = async (settingId: string): Promise<FCBSetting | 
     return null;
   }
   
-  globalSettings[settingId] = setting;
+  if (setting)
+    globalSettings[settingId] = setting;
+  else 
+    delete globalSettings[settingId];
+  
   return setting;
 }
 

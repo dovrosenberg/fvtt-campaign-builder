@@ -64,10 +64,14 @@ export default {
         launchOptions: {
           args: [
             "--no-sandbox", // Recommended for Linux environments
+            "--disable-dev-shm-usage",
+            "--enable-gpu",
             "--use-gl=egl", // Use EGL as the graphics backend
             "--enable-features=Vulkan", // (Optional) Use Vulkan for newer setups
             "--use-angle=vulkan", // (Optional) Use ANGLE with Vulkan backend
             "--ignore-gpu-blocklist", // Ignore a list of blocked GPUs
+            "--enable-accelerated-2d-canvas",
+            "--enable-webgl",
           ],
         },
       },
