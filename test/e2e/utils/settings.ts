@@ -1,22 +1,18 @@
-import { expect, Page } from 'playwright/test';
+import { expect, Locator, } from 'playwright/test';
 import { TestContext } from '../types';
 
-export async function switchToSetting(context: TestContext, settingName: string) {
-  const page = context.page!;
-
-  expect(page.locator('.fcb-setting-directory')).toBeVisible();  
-
-  const settingHeader = page.locator(`.fcb-setting-folder .folder-header div i:has-text("${settingName}")`);
-  await settingHeader.click();
+export const switchToSetting = async (context: TestContext, settingName: string) => {
+  const header = await confirmSettingInList(context, settingName);
+  await header.click();
 }
 
-export async function confirmSettingInList(context: TestContext, settingName: string) {
+export const confirmSettingInList = async (context: TestContext, settingName: string): Promise<Locator> => {
   const page = context.page!;
   
   expect(page.locator('.fcb-setting-directory')).toBeVisible();  
   
-  // const settingHeader = page.locator(`.fcb-setting-folder .folder-header div i:has-text("${settingName}")`);
-  const settingHeader = page.locator(`.fcb-setting-folder .folder-header div i`);
-  await expect(`x${await settingHeader.innerHTML()}x`).toBe(`x${settingName}x`);
+  const settingHeader = page.locator('.fcb-setting-directory .folder-header').getByText(settingName);
   await expect(settingHeader).toBeVisible();
+
+  return settingHeader;
 }

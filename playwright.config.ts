@@ -32,8 +32,8 @@ export default {
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
 
-   // Configure the 'open' property for the HTML reporter
-   html: {
+  // Configure the 'open' property for the HTML reporter
+  html: {
     open: 'never', // or on-failure once things running better
   },
 

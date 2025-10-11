@@ -1,15 +1,16 @@
-import { test, Page, } from '@playwright/test';
-import { testData } from '@e2etest/data';
+import { test } from '@playwright/test';
 import { createInitialSetting, createSettingFromSidebar } from './create';
-import { deleteSetting } from './delete';
 import { TestContext } from '../types';
+import { testData } from '@e2etest/data';
+import { updateSetting } from './update';
 
 export const runSettingsTests = (context: TestContext) => {
   test.describe.serial('Do basic setting tests', () => {
     createInitialSetting(context);
     
-    // createSettingFromSidebar(context, testData.settings[1].name);
+    createSettingFromSidebar(context, testData.settings[1].name);
 
-    // expand the first setting
+    // this requires switching back to the first setting
+    updateSetting(context, testData.settings[0].name);
   });
 };
