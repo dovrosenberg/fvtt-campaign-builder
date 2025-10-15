@@ -217,19 +217,24 @@
               height: 30px !important;
               line-height: 32px;
               margin: 0 12px;
+              color: var(--fcb-text);
               border-bottom: var(--fcb-sheet-tab-border);
               max-width: 150px;
 
               &.first-child {
                 margin-left: 0;
               }
-            }
 
-            .item.active {
-              border-bottom-color: var(--fcb-sheet-tab-border-active);
-              text-shadow: 0 0 10px var(--fcb-active-color)
-            }
+              &.active {
+                border-bottom-color: var(--fcb-sheet-tab-border-active);
+                text-shadow: 0 0 10px var(--fcb-sheet-tab-shadow-active);
+              }
 
+              &:hover {
+                text-shadow: 0 0 10px var(--fcb-sheet-tab-shadow-hover);
+              }
+            }
+            
             .tab {
               flex: 1;
             }
@@ -260,7 +265,7 @@
       .page-controls {
         flex-grow: 0;
         padding-top: 1px;
-        border-bottom: 2px groove var(--fcb-sheet-details-section-border);
+        border-bottom: 2px groove var(--fcb-control-border);
 
         button {
           flex: 0 0 130px;

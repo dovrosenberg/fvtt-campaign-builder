@@ -290,7 +290,7 @@
   // the launch button in the top right corner
   #fcb-launch {
     background-color: rgba(0,0,0,.5);
-    color: var(--fcb-text-invert);
+    color: var(--fcb-primary-400);
   }
 
   .fcb-main-window {  
@@ -298,47 +298,7 @@
 
     // use an id for these to give them precedence
     &#app-fcb-CampaignBuilder {
-      // set the font-family across everything (override Foundry defaults)
-      // but exclude header control icons
-      a.button, button:not(.header-control.icon), input, textarea, select, thead.p-datatable-thead {
-        font-family: var(--fcb-font-family) !important;
-      }
-
-      // set the default control colors
-      input[type="text"], input[type="checkbox"], textarea, select {
-        color: var(--fcb-control-text);
-        background-color: var(--fcb-control-bg);
-        border-color: var(--fcb-control-border);
-        
-        &::placeholder {
-          color: var(--fcb-control-text-muted);
-        }
-
-        &:hover {
-          background-color: var(--fcb-control-bg-alt);
-          border-color: var(--fcb-control-border-hover);
-        }
-
-        &:focus {
-          border-color: var(--fcb-control-border-focus);
-        }
-      }
-
-      button {
-        color: var(--fcb-control-text);
-        background-color: var(--fcb-button-bg);
-        border-color: var(--fcb-button-border);
-        
-        &:hover {
-          color: var(--fcb-button-text-hover);
-          background-color: var(--fcb-button-bg-hover);
-          border-color: var(--fcb-button-border-hover);
-        }
-      }
-
-      label {
-        color: var(--fcb-control-text-muted);
-      }
+      @include style-base-components;
     }
     
     .window-header {

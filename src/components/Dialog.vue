@@ -22,7 +22,7 @@
     </header>
     <section class="window-content">
       <div class="fcb-dialog-content-wrapper">
-        <div class="fcb-dialog-content">
+        <div id="fcb-dialog-content">
           <slot />
         </div>
         <div class="fcb-dialog-buttons">
@@ -224,8 +224,10 @@
       padding: 0px 8px 5px 8px;
       gap: 16px;
       overflow: visible;
+      background-color: var(--fcb-surface);
 
-      .fcb-dialog-content {
+      // this is an ID so that we get css priority
+      #fcb-dialog-content {
         font-size: var(--font-size-14);
         width: 100%;
         overflow: visible !important; // allow typeaheads to come out
@@ -233,6 +235,8 @@
         input, textarea {
           font-size: var(--font-size-14) !important;
         }
+
+        @include style-base-components;
       }
 
       .fcb-dialog-buttons {
@@ -255,10 +259,10 @@
           cursor: pointer;
           transition: all 0.2s ease;
           font-weight: 500;
-          border: 2px groove solid rgb(240, 240, 224);
+          border: 2px groove solid var(--fcb-control-border);
 
             &:hover:not(:disabled) {
-              border-color: #a5a394;
+              border-color: var(--fcb-control-border-hover);
               box-shadow: 0 0 5px var(--color-shadow-primary);
             }
 
@@ -268,7 +272,7 @@
             color: var(--fcb-text-invert);
 
             &:hover:not(:disabled) {
-              border-color: #a5a394;
+              border-color: var(--fcb-control-border-hover-disabled);
               box-shadow: 0 0 5px var(--color-shadow-primary);
             }
           }

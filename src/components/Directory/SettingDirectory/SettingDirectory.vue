@@ -338,7 +338,7 @@
 
     // bold the active one
     .fcb-current-directory-entry {
-      color: var(--fcb-active-color);
+      color: var(--fcb-accent-400);
       font-weight: 700;
       cursor: pointer;
     }

@@ -14,12 +14,14 @@ body {
   --fcb-accent-l: 55%;  // #ff6400
 
   // primary scale - greens
-  --fcb-primary-50:  hsl(var(--fcb-primary-h) 25% 96%); // use: subtle background tint
-  --fcb-primary-100: hsl(var(--fcb-primary-h) 40% 92%); 
-  --fcb-primary-200: hsl(var(--fcb-primary-h) 44% 84%); // use: selected rows, badges
-  --fcb-primary-300: hsl(var(--fcb-primary-h) 46% 72%); 
-  --fcb-primary-400: hsl(var(--fcb-primary-h) 47% 45%); // use: hover for outlines/links
   --fcb-primary-500: hsl(var(--fcb-primary-h) var(--fcb-primary-s) var(--fcb-primary-l)); /* #1B4D3E */  // use: primary button
+
+  // we derive the lights ones because my other approach was making them "minty"
+  --fcb-primary-50:  color-mix(in oklch, var(--fcb-primary-500), white 92%); // use: subtle background tint
+  --fcb-primary-100: color-mix(in oklch, var(--fcb-primary-500), white 86%);
+  --fcb-primary-200: color-mix(in oklch, var(--fcb-primary-500), white 74%); // use: selected rows, badges
+  --fcb-primary-300: color-mix(in oklch, var(--fcb-primary-500), white 58%);
+  --fcb-primary-400: color-mix(in oklch, var(--fcb-primary-500), white 36%); // use: hover for outlines/links
   --fcb-primary-600: hsl(var(--fcb-primary-h) 50% 16%); // use: hover on primary
   --fcb-primary-700: hsl(var(--fcb-primary-h) 52% 13%); // use: active/pressed state on primary
   --fcb-primary-800: hsl(var(--fcb-primary-h) 55% 10%); // use: darkest strokes in dark mode
@@ -75,7 +77,7 @@ body {
   --fcb-border:        var(--fcb-gray-300);
   --fcb-shadow:        0 1px 2px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
 
-  --fcb-text:          var(--fcb-gray-800);
+  --fcb-text:          var(--fcb-gray-900);
   --fcb-text-muted:    var(--fcb-gray-600);
   --fcb-text-invert:   #fff;
 
@@ -106,7 +108,9 @@ body {
   /* Component-specific */
   --fcb-tab-active-bg:     var(--fcb-surface);
   --fcb-tab-active-text:   var(--fcb-text);
-  --fcb-tab-underline:     var(--fcb-primary);
+  --fcb-tab-shadow-active: var(--fcb-accent-600);
+  --fcb-tab-shadow-hover:  var(--fcb-accent-300);
+  --fcb-tab-border:        var(--fcb-control-border);
   --fcb-sidebar-bg:        var(--fcb-surface-shaded);
   --fcb-sidebar-border:    var(--fcb-gray-300);
   --fcb-list-item-hover:   var(--fcb-gray-100);
@@ -169,7 +173,9 @@ body.theme-dark {
 
   --fcb-tab-active-bg:     var(--fcb-surface);
   --fcb-tab-active-text:   var(--fcb-text);
-  --fcb-tab-underline:     var(--fcb-accent);
+  --fcb-tab-border:        var(--fcb-control-border);
+  --fcb-tab-shadow-active: var(--fcb-accent-300);
+  --fcb-tab-shadow-hover:  var(--fcb-accent-600);
   --fcb-sidebar-bg:        var(--fcb-surface-shaded);
   --fcb-sidebar-border:    var(--fcb-border);
   --fcb-list-item-hover:   hsl(210 14% 22%);
@@ -191,7 +197,7 @@ body {
   --fcb-header-color: var(--fcb-text);
   --fcb-header-tab-color: var(--fcb-header-color);
   --fcb-header-tab-background: var(--fcb-surface-2);
-  --fcb-header-tab-border: var(--fcb-border);
+  --fcb-header-tab-border: var(--fcb-tab-border);
   --fcb-header-tab-active: var(--fcb-tab-active-bg);
   --fcb-header-nav-btn-color: var(--fcb-header-color);
   --fcb-header-nav-btn-background: var(--fcb-button-bg);
@@ -209,17 +215,18 @@ body {
   --fcb-sheet-header-label-color: rgb(75, 74, 68);
   --fcb-sheet-header-icon-color: #777;
   --fcb-sheet-tab-bottom-border: rgb(250, 250, 230);
-  --fcb-sheet-tab-border: 3px solid rgb(181, 179, 164);
+  --fcb-sheet-tab-border: 3px solid var(--fcb-control-border);
+  --fcb-sheet-tab-shadow-active: var(--fcb-tab-shadow-active);
+  --fcb-sheet-tab-shadow-hover: var(--fcb-tab-shadow-hover);
+  --fcb-sheet-tab-border-active: var(--fcb-primary);
   --fcb-sheet-page-control-color: var(--color-text-dark-primary);
   --fcb-sheet-page-control-background: rgb(192, 192, 192);
   --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
-  --fcb-sheet-details-section-border:  rgb(238, 237, 224);
-  --fcb-active-color: rgb(255, 100, 0);
   --fcb-icon-background: var(--fcb-primary);
   --fcb-icon-shadow: rgba(0, 0, 0, 0.4);
   --fcb-icon-outline: rgba(0, 0, 0, 0.4);
-  --fcb-home-color: var(--fcb-primary);
-  --fcb-home-link-hover: var(--fcb-secondary);
+  --fcb-home-color: var(--fcb-text);
+  --fcb-home-link-hover: var(--fcb-accent-400);
   
   --fcb-sidebar-background: var(--fcb-sidebar-bg); 
   --fcb-sidebar-label-color: var(--color-text-dark-primary);

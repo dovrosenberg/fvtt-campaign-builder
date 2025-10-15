@@ -87,6 +87,14 @@ export default defineConfig(({ mode }) => {
       }),
       updateModuleManifestPlugin(),
     ],
+    css: {
+      preprocessorOptions: {
+        scss: {
+          // Injected at the top of every <style lang="scss"> block and .scss file
+          additionalData: `@use "@/components/styles/mixins" as *;`
+        }
+      }
+    },
     build: {
       sourcemap: mode === 'development',
       minify: mode !== 'development',

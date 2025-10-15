@@ -157,7 +157,7 @@
 
   .mode-label {
     margin: 0 5px;
-    color: var(--fcb-text-muted);
+    color: var(--fcb-gray-300);
     font-weight: normal;
 
     &.active {

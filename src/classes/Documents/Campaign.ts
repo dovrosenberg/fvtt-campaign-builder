@@ -363,6 +363,10 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     if (!campaign)
       throw new Error('Couldn\'t create new journal entry for campaign');
 
+    // add it to the setting's list
+    setting.campaignNames[campaign.uuid] = nameToUse;
+    await setting.save();
+    
     return campaign;
   }
   

@@ -71,7 +71,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
         continue;
       }
 
-      const children = (await campaign.getSessions())?.map(session => session.uuid) || [];
+      const children = campaign.sessionIds || [];
 
       currentCampaignTree.value.push(new DirectoryCampaignNode(
         id,

@@ -195,7 +195,7 @@
     border-top-right-radius: 4px;
     line-height: 20px;
     background: var(--fcb-header-tab-background);
-    border: var(--fcb-header-tab-border);
+    border: 1px solid var(--fcb-header-tab-border);
     position: relative;
     font-family: var(--fcb-font-family);
     overflow: hidden;
