@@ -169,7 +169,8 @@
 
     &:hover {
       color: var(--fcb-header-nav-btn-color-hover);
-      background-color: var(--fcb-header-nav-btn-background-hover);
+      background-color: var(--fcb-hover);
+      border-color: var(--fcb-control-border-hover);
       box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
     }
   }

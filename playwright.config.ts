@@ -28,7 +28,7 @@ export default {
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
 
-  workers: 1, // important so tests don't interfere with
+  workers: 1, // important so tests don't interfere with each other
 
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
@@ -55,45 +55,66 @@ export default {
 
   /* Configure projects for major browsers */
   projects: [
-    // Setup must run first
+    // this is the headless version
     {
-      name: 'setup',
-      testMatch: /.*setup\.test\.ts/,
+      name: 'headless-with-gpu',
+      testMatch: /.*main\.test\.ts/,
       use: {
         ...devices['Desktop Chrome'],
-        headless: true,
+        headless: true, // Still runs in headless mode
         launchOptions: {
           args: [
-            "--no-sandbox",
+            "--no-sandbox", // Recommended for Linux environments
             "--disable-dev-shm-usage",
             "--enable-gpu",
-            "--use-gl=egl",
-            "--enable-features=Vulkan",
-            "--use-angle=vulkan",
-            "--ignore-gpu-blocklist",
+            "--use-gl=egl", // Use EGL as the graphics backend
+            "--enable-features=Vulkan", // (Optional) Use Vulkan for newer setups
+            "--use-angle=vulkan", // (Optional) Use ANGLE with Vulkan backend
+            "--ignore-gpu-blocklist", // Ignore a list of blocked GPUs
             "--enable-accelerated-2d-canvas",
             "--enable-webgl",
           ],
         },
       },
     },
-    // All other tests depend on setup
+    // only run the rebuild
     {
-      name: 'tests',
-      testMatch: /.*\.(dataSetup|settings|campaigns)\.test\.ts/,
-      dependencies: ['setup'],
+      name: 'rebuild',
+      testMatch: /.*rebuild\.test\.ts/,
       use: {
         ...devices['Desktop Chrome'],
-        headless: true,
+        headless: true, // Still runs in headless mode
         launchOptions: {
           args: [
-            "--no-sandbox",
+            "--no-sandbox", // Recommended for Linux environments
             "--disable-dev-shm-usage",
             "--enable-gpu",
-            "--use-gl=egl",
-            "--enable-features=Vulkan",
-            "--use-angle=vulkan",
-            "--ignore-gpu-blocklist",
+            "--use-gl=egl", // Use EGL as the graphics backend
+            "--enable-features=Vulkan", // (Optional) Use Vulkan for newer setups
+            "--use-angle=vulkan", // (Optional) Use ANGLE with Vulkan backend
+            "--ignore-gpu-blocklist", // Ignore a list of blocked GPUs
+            "--enable-accelerated-2d-canvas",
+            "--enable-webgl",
+          ],
+        },
+      },
+    },
+    // only run the rebuild
+    {
+      name: 'headless-with-gpu',
+      testMatch: /.*main\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        headless: true, // Still runs in headless mode
+        launchOptions: {
+          args: [
+            "--no-sandbox", // Recommended for Linux environments
+            "--disable-dev-shm-usage",
+            "--enable-gpu",
+            "--use-gl=egl", // Use EGL as the graphics backend
+            "--enable-features=Vulkan", // (Optional) Use Vulkan for newer setups
+            "--use-angle=vulkan", // (Optional) Use ANGLE with Vulkan backend
+            "--ignore-gpu-blocklist", // Ignore a list of blocked GPUs
             "--enable-accelerated-2d-canvas",
             "--enable-webgl",
           ],

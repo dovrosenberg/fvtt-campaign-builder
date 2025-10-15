@@ -1,8 +1,6 @@
 // resets the world and then repopulates with the setup test data
-// then runs all the tests
 
-console.error("not sure how to do the config so it runs this stuff and then all the rests of the tests")
-import { test, } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { initializeWorld, loginToWorld, openCampaignBuilder } from '@e2etest/utils';
 import { sharedContext } from './sharedContext';
 import { populateWorld } from './setup';

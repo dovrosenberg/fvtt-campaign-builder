@@ -167,10 +167,11 @@
     flex-grow: 0;
     white-space: nowrap;
     border: 1px solid var(--fcb-header-nav-btn-border);
-    background: var(--fcb-header-nav-btn-background);
+    background: var(--fcb-button-background);
 
     &:hover {
-      background: var(--fcb-header-nav-btn-background-hover);
+      background: var(--fcb-hover);
+      border-color: var(--fcb-control-border-hover);
     }
 
     &#fcb-add-bookmark {
@@ -203,12 +204,9 @@
       margin-right: 2px;
     }
 
-    &:hover {
-      background: var(--fcb-header-bookmark-hover);
-    }
-
-    &#fcb-add-bookmark:not(.disabled):hover {
-      background: var(--fcb-header-add-bookmark-hover);
+    &:hover, &#fcb-add-bookmark:not(.disabled):hover {
+      background: var(--fcb-hover);
+      border-color: var(--fcb-control-border-hover);
     }
 }
 </style>

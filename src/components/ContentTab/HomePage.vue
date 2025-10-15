@@ -218,7 +218,7 @@
     align-items: center;
     justify-content: center;
     font-size: var(--font-size-16);
-    color: var(--fcb-blank-color);
+    color: var(--fcb-home-color);
     font-weight: bold;
 
     .message {
@@ -266,7 +266,7 @@
 
     .recent-link:hover,
     .new-link:hover {
-      color: var(--fcb-blank-link-hover);
+      color: var(--fcb-home-link-hover);
       background: rgba(255, 255, 255, 0.1);
       transform: translateY(-2px);
     }

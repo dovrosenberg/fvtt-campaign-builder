@@ -1,7 +1,6 @@
 import { test } from '@playwright/test';
 import { confirmSettingInList, openSettingContent, switchToSetting } from '@e2etest/utils';
 import { TestContext } from '../types';
-import { faker } from '@faker-js/faker';
 
 export const updateSetting = (context: TestContext, settingName: string) => {
   test('Update setting name', async () => {  
@@ -24,8 +23,10 @@ export const updateSetting = (context: TestContext, settingName: string) => {
 }
 
 const updateName = async (context: TestContext, name: string) => {
-  const newName = faker.lorem.words({ min: 1, max: 4 });
-  await context.page!.locator('setting-name-header')
+  const page = context.page!;
+
+  const newName = 'Temporary Test Name';
+  await page.getByTestId('setting-name-header')
     .locator('input')
     .fill(newName);
 
@@ -33,7 +34,7 @@ const updateName = async (context: TestContext, name: string) => {
   await confirmSettingInList(context, newName);
 
   // change it back
-  await context.page!.locator('setting-name-header')
+  await page.getByTestId('setting-name-header')
     .locator('input')
     .fill(name);
 

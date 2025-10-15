@@ -240,12 +240,13 @@
       border-radius: 4px;
       border: 1px solid var(--fcb-header-nav-btn-border);
       margin-top: 1px;
-      background: var(--fcb-header-nav-btn-background);
+      background: var(--fcb-button-background);
 
       &:not(.disabled):hover {
         box-shadow: 0 0 5px red;
         cursor: pointer;
-        background: var(--fcb-header-nav-btn-background-hover);
+        background: var(--fcb-hover);
+        border-color: var(--fcb-control-border-hover);
       }
 
       &.disabled {

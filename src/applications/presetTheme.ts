@@ -2,8 +2,6 @@ import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 
 const foundryVariables = {
-  colorTextDarkPrimary: 'rgb(25, 24, 19)',    //'#191813',
-  colorTextLightPrimary: 'rgb(181, 179, 164)',  //#b5b3a4',
   colorWarm1: 'rgb(238, 155, 58)',  //'ee9b3a',
   colorWarm2: 'rgb(201, 89, 63)',   //'c9593f'
   colorWarm3: 'rgb(93, 20, 43)',   //'#5d142b',  
@@ -11,10 +9,25 @@ const foundryVariables = {
 };
 
 const fcbVariables = {
+  light: {
+    fcbText: 'hsl(210 12% 18%)',
+    fcbSurface2: 'hsl(210 15% 95%)',
+    fcbControlBg: '#fff',
+    fcbRing: 'hsl(22 100% 55%)',
+    fcbControlBorder: 'hsl(210 10% 82%)',
+  },
+  dark: {
+    fcbText: 'hsl(210 20% 94%)',
+    fcbSurface2: 'hsl(210 14% 15%)',
+    fcbControlBg: 'hsl(210, 12%, 18%)',
+    fcbRing: 'hsl(22 100% 55%)',
+    fcbControlBorder: 'hsl(210 12% 24%)',
+  },
   fcbDarkOverlay: 'rgba(0, 0, 0, 0.05)',
   fcbLightOverlay: 'rgba(255, 255, 255, 0.10)',
   fcbSheetInputBorder: 'rgb(122, 121, 113)',
   fcbButtonBorderColor: '#444',
+  
 };
 
 export default definePreset(Aura, {
@@ -23,14 +36,14 @@ export default definePreset(Aura, {
       colorScheme: {
         light: {
           headerCellSelectedColor: foundryVariables.colorWarm3,
-          rowColor: foundryVariables.colorTextDarkPrimary,
-          rowHoverColor: foundryVariables.colorTextDarkPrimary,
+          rowColor: fcbVariables.light.fcbText,
+          rowHoverColor: fcbVariables.light.fcbSurface2,
           bodyCellBorderColor: 'rgb(165, 165, 155)',
         },
         dark: {
           headerCellSelectedColor: foundryVariables.colorWarm2,
-          rowColor: foundryVariables.colorTextLightPrimary,
-          rowHoverColor: foundryVariables.colorTextLightPrimary,
+          rowColor: fcbVariables.dark.fcbText,
+          rowHoverColor: fcbVariables.dark.fcbSurface2,
           bodyCellBorderColor: 'rgb(165, 165, 155)',
         }
       },
@@ -61,17 +74,17 @@ export default definePreset(Aura, {
     inputtext: {
       colorScheme: {
         light: {
-          color: foundryVariables.colorTextDarkPrimary,
-          background: 'rgba(0, 0, 0, 0.1)',
-          borderColor: fcbVariables.fcbSheetInputBorder,
-          focusBorderColor: 'black',  // change to var
+          color: fcbVariables.light.fcbText,
+          background: fcbVariables.light.fcbControlBg,
+          borderColor: fcbVariables.light.fcbControlBorder,
+          focusBorderColor: fcbVariables.light.fcbRing,  // change to var
           focusRingColor: foundryVariables.colorWarm2,
         },
         dark: {
-          color: foundryVariables.colorTextLightPrimary,
-          background: 'rgb(48, 40, 49)',
-          borderColor: fcbVariables.fcbSheetInputBorder,
-          focusBorderColor: 'black',  // change to var
+          color: fcbVariables.dark.fcbText,
+          background: fcbVariables.dark.fcbControlBg,
+          borderColor: fcbVariables.dark.fcbControlBorder,
+          focusBorderColor: fcbVariables.dark.fcbRing,  // change to var
           focusRingColor: foundryVariables.colorWarm2,
         }
       },
@@ -165,7 +178,7 @@ export default definePreset(Aura, {
         color: 'inherit',
       }, 
       gutter: {
-        background: 'rgb(185, 185, 172)',
+        background: 'rgba(222, 225, 230, 1)',
       }
     },
     splitterpanel: {
