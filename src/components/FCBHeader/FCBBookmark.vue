@@ -166,11 +166,11 @@
     flex-wrap: nowrap;
     flex-grow: 0;
     white-space: nowrap;
-    border: 1px solid var(--fcb-header-nav-btn-border);
-    background: var(--fcb-button-background);
+    border: 1px solid var(--fcb-button-border);
+    background: var(--fcb-button-bg);
 
     &:hover {
-      background: var(--fcb-hover);
+      background: var(--fcb-button-bg-hover);
       border-color: var(--fcb-control-border-hover);
     }
 

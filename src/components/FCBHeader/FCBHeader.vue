@@ -5,7 +5,7 @@
   >
     <div class="fcb-tab-bar flexrow">
       <div class="fcb-tab-row flexrow">
-        <WBHeaderTab
+        <FCBHeaderTab
           v-for="tab in tabs"
           :key="tab.id"
           :tab="tab"
@@ -56,7 +56,7 @@
         <i class="fas fa-star"></i>
       </div>
 
-      <WBBookmark 
+      <FCBBookmark 
         v-for="bookmark in bookmarks"
         :key="bookmark.id"
         :bookmark="bookmark"
@@ -77,8 +77,8 @@
   // library components
 
   // local components
-  import WBHeaderTab from './WBHeaderTab.vue';
-  import WBBookmark from './WBBookmark.vue';
+  import FCBHeaderTab from './FCBHeaderTab.vue';
+  import FCBBookmark from './FCBBookmark.vue';
   import PlayModeNavigation from './PlayModeNavigation/PlayModeNavigation.vue';
 
   // types

@@ -19,7 +19,7 @@
         class="fcb-left-panel"
       > 
         <div class="fcb-body flexcol">
-          <WBHeader />
+          <FCBHeader />
           <div class="fcb-content flexcol editable">
             <ContentTab />
           </div>
@@ -63,7 +63,7 @@
   import SplitterPanel from 'primevue/splitterpanel';
 
   // local components
-  import WBHeader from '@/components/WBHeader/WBHeader.vue';
+  import FCBHeader from '@/components/FCBHeader/FCBHeader.vue';
   import ContentTab from '@/components/ContentTab/ContentTab.vue';
   import Directory from '@/components/Directory/Directory.vue';
   import TitleBarComponents from '@/components/TitleBarComponents.vue';
@@ -296,29 +296,43 @@
   .fcb-main-window {  
     min-width: 640px;
 
-    // set the font-family across everything (override Foundry defaults)
-    // but exclude header control icons
-    a.button, button:not(.header-control.icon), input, textarea, select, thead.p-datatable-thead {
-      font-family: var(--fcb-font-family) !important;
-    }
+    // use an id for these to give them precedence
+    &#app-fcb-CampaignBuilder {
+      // set the font-family across everything (override Foundry defaults)
+      // but exclude header control icons
+      a.button, button:not(.header-control.icon), input, textarea, select, thead.p-datatable-thead {
+        font-family: var(--fcb-font-family) !important;
+      }
 
-    // set the default control colors
-    input {
-      color: var(--fcb-text);
-    }
+      // set the default control colors
+      input[type="text"], input[type="checkbox"], textarea, select {
+        color: var(--fcb-control-text);
+        background-color: var(--fcb-control-bg);
+        border-color: var(--fcb-control-border);
 
-    button {
-      color: var(--fcb-text);
-      background-color: var(--fcb-button);
-      border-color: var(--fcb-button-border);
-      
-      &:hover {
-        color: var(--fcb-button-hover-text);
-        background-color: var(--fcb-button-hover);
-        border-color: var(--fcb-button-border-hover);
+        &:hover {
+          background-color: var(--fcb-control-bg-alt);
+          border-color: var(--fcb-control-border-hover);
+        }
+
+        &:focus {
+          border-color: var(--fcb-control-border-focus);
+        }
+      }
+
+      button {
+        color: var(--fcb-text);
+        background-color: var(--fcb-button-bg);
+        border-color: var(--fcb-button-border);
+        
+        &:hover {
+          color: var(--fcb-button-text-hover);
+          background-color: var(--fcb-button-bg-hover);
+          border-color: var(--fcb-button-border-hover);
+        }
       }
     }
-
+    
     .window-header {
       // we need it to be higher than the content so search results can cover
       z-index: 2;
@@ -402,7 +416,7 @@
     height: 40px;
     background-color: var(--color-light-5) !important;
     color: white;
-    border-color: var(--button-hover-border-color);
+    border-color: var(--fcb-button-border);
     border: 1px;
     border-radius: 4px;
     cursor: pointer;

@@ -154,9 +154,6 @@
           padding: 0px 3px;
           cursor: pointer;
           box-shadow: none;
-          color: var(--fcb-sheet-header-button-color);
-          background: var(--fcb-sheet-header-button-background);
-          border: 1px solid var(--fcb-sheet-header-button-border-color);
           border-radius: 4px;
           display: flex;
           align-items: center;
@@ -169,12 +166,6 @@
 
           &:last-child {
             margin-right: 8px;
-          }
-
-          &:hover {
-            background: var(--button-hover-background-color);
-            border-color: var(--button-hover-border-color);
-            color: var(--button-hover-text-color);
           }
 
           i {

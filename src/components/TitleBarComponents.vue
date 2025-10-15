@@ -61,7 +61,7 @@
   import ToggleSwitch from 'primevue/toggleswitch';
 
   // local components
-  import CampaignSelector from '@/components/WBHeader/PlayModeNavigation/CampaignSelector.vue';
+  import CampaignSelector from '@/components/FCBHeader/PlayModeNavigation/CampaignSelector.vue';
   import Search from '@/components/Search.vue';
   
   // Store references

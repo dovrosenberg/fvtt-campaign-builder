@@ -79,11 +79,11 @@ body {
   --fcb-text-muted:    var(--fcb-gray-600);
   --fcb-text-invert:   #fff;
 
-  --fcb-button:       var(--fcb-primary-50);
+  --fcb-button-bg:       var(--fcb-primary-50);
   --fcb-button-text:  var(--fcb-text);
   --fcb-button-border: var(--fcb-border);
-  --fcb-button-hover: var(--fcb-primary-100);
-  --fcb-button-hover-text: var(--fcb-text);
+  --fcb-button-bg-hover: var(--fcb-primary-100);
+  --fcb-button-text-hover: var(--fcb-text);
   --fcb-button-border-hover: var(--fcb-accent-500);
   
   /* Interactive */
@@ -145,11 +145,11 @@ body.theme-dark {
   --fcb-text-muted:    hsl(210 15% 75%);
   --fcb-text-invert:   #0b0e0c;
 
-  --fcb-button:       var(--fcb-primary-50);
+  --fcb-button-bg:       var(--fcb-primary-50);
   --fcb-button-text:  var(--fcb-text);
   --fcb-button-border: var(--fcb-border);
-  --fcb-button-hover: var(--fcb-primary-100);
-  --fcb-button-hover-text: var(--fcb-text);
+  --fcb-button-bg-hover: var(--fcb-primary-100);
+  --fcb-button-text-hover: var(--fcb-text);
   --fcb-button-border-hover: var(--fcb-accent-500);
 
   --fcb-link:          hsl(var(--fcb-primary-h) 50% 70%);
@@ -192,22 +192,19 @@ body {
   --fcb-header-tab-border: var(--fcb-border);
   --fcb-header-tab-active: var(--fcb-tab-active-bg);
   --fcb-header-nav-btn-color: var(--fcb-header-color);
-  --fcb-header-nav-btn-background: var(--fcb-button);
+  --fcb-header-nav-btn-background: var(--fcb-button-bg);
   --fcb-header-nav-btn-border: var(--fcb-button-border);
   --fcb-header-nav-btn-disabled: rgb(136, 136, 136);
   --fcb-header-nav-btn-background-disabled: inherit;
   --fcb-header-nav-btn-border-disabled: inherit;
   --fcb-header-nav-btn-color-hover: var(--fcb-header-nav-btn-color);
-  --fcb-header-nav-btn-background-hover: var(--fcb-button-hover);
+  --fcb-header-nav-btn-background-hover: var(--fcb-button-bg-hover);
   --fcb-header-nav-btn-border-hover: var(--fcb-button-border-hover);
   --fcb-header-nav-vertical-line:  rgb(238, 237, 224);
   --fcb-tab-body-background: var(--fcb-main-section-background);
   --fcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);
   --fcb-sheet-header-input-background: var(--fcb-dark-overlay);
   --fcb-sheet-header-label-color: rgb(75, 74, 68);
-  --fcb-sheet-header-button-border-color: var(--color-text-subtle);
-  --fcb-sheet-header-button-color: var(--color-text-primary);
-  --fcb-sheet-header-button-background: var(--button-background-color);
   --fcb-sheet-header-icon-color: #777;
   --fcb-sheet-tab-bottom-border: rgb(250, 250, 230);
   --fcb-sheet-tab-border: 3px solid rgb(181, 179, 164);

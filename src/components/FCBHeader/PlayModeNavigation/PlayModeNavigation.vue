@@ -18,8 +18,8 @@
   import { useMainStore } from '@/applications/stores';
 
   // components
-  import SessionButtonsBar from '@/components/WBHeader/PlayModeNavigation/SessionButtonsBar.vue';
-  import GeneratorBar from '@/components/WBHeader/PlayModeNavigation/GeneratorBar.vue';
+  import SessionButtonsBar from '@/components/FCBHeader/PlayModeNavigation/SessionButtonsBar.vue';
+  import GeneratorBar from '@/components/FCBHeader/PlayModeNavigation/GeneratorBar.vue';
 
   ////////////////////////////////
   // store

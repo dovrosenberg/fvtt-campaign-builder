@@ -35,7 +35,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   ///////////////////////////////
   // external state
-  const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of WBHeader)
+  const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of FCBHeader)
   const bookmarks = ref<Bookmark[]>([]);
   const recent = ref<TabHeader[]>([]);
 
