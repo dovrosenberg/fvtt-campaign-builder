@@ -27,8 +27,9 @@ export default {
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: 1,
+
+  workers: 1, // important so tests don't interfere with
+
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
 
@@ -54,22 +55,45 @@ export default {
 
   /* Configure projects for major browsers */
   projects: [
-    // this is the headless version
+    // Setup must run first
     {
-      name: 'headless-with-gpu',
-      testMatch: /.*main\.test\.ts/,
+      name: 'setup',
+      testMatch: /.*setup\.test\.ts/,
       use: {
         ...devices['Desktop Chrome'],
-        headless: true, // Still runs in headless mode
+        headless: true,
         launchOptions: {
           args: [
-            "--no-sandbox", // Recommended for Linux environments
+            "--no-sandbox",
             "--disable-dev-shm-usage",
             "--enable-gpu",
-            "--use-gl=egl", // Use EGL as the graphics backend
-            "--enable-features=Vulkan", // (Optional) Use Vulkan for newer setups
-            "--use-angle=vulkan", // (Optional) Use ANGLE with Vulkan backend
-            "--ignore-gpu-blocklist", // Ignore a list of blocked GPUs
+            "--use-gl=egl",
+            "--enable-features=Vulkan",
+            "--use-angle=vulkan",
+            "--ignore-gpu-blocklist",
+            "--enable-accelerated-2d-canvas",
+            "--enable-webgl",
+          ],
+        },
+      },
+    },
+    // All other tests depend on setup
+    {
+      name: 'tests',
+      testMatch: /.*\.(dataSetup|settings|campaigns)\.test\.ts/,
+      dependencies: ['setup'],
+      use: {
+        ...devices['Desktop Chrome'],
+        headless: true,
+        launchOptions: {
+          args: [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--enable-gpu",
+            "--use-gl=egl",
+            "--enable-features=Vulkan",
+            "--use-angle=vulkan",
+            "--ignore-gpu-blocklist",
             "--enable-accelerated-2d-canvas",
             "--enable-webgl",
           ],
