@@ -79,9 +79,9 @@ body {
   --fcb-text-muted:    var(--fcb-gray-600);
   --fcb-text-invert:   #fff;
 
-  --fcb-button-bg:       var(--fcb-primary-50);
-  --fcb-button-text:  var(--fcb-text);
-  --fcb-button-border: var(--fcb-border);
+  --fcb-button-bg:      var(--fcb-primary-50);
+  --fcb-button-text:    var(--fcb-text);
+  --fcb-button-border:  var(--fcb-border);
   --fcb-button-bg-hover: var(--fcb-primary-100);
   --fcb-button-text-hover: var(--fcb-text);
   --fcb-button-border-hover: var(--fcb-accent-500);
@@ -96,6 +96,7 @@ body {
   --fcb-control-bg:        var(--fcb-surface);
   --fcb-control-bg-alt:    var(--fcb-surface-2);
   --fcb-control-text:      var(--fcb-text);
+  --fcb-control-text-muted:      var(--fcb-text-muted);
   --fcb-control-placeholder: var(--fcb-gray-500);
   --fcb-control-border:    var(--fcb-gray-300);
   --fcb-control-border-hover: var(--fcb-gray-400);
@@ -145,10 +146,10 @@ body.theme-dark {
   --fcb-text-muted:    hsl(210 15% 75%);
   --fcb-text-invert:   #0b0e0c;
 
-  --fcb-button-bg:       var(--fcb-primary-50);
-  --fcb-button-text:  var(--fcb-text);
-  --fcb-button-border: var(--fcb-border);
-  --fcb-button-bg-hover: var(--fcb-primary-100);
+  --fcb-button-bg:      var(--fcb-primary-900);
+  --fcb-button-text:    var(--fcb-text);
+  --fcb-button-border:  var(--fcb-border);
+  --fcb-button-bg-hover: var(--fcb-primary-800);
   --fcb-button-text-hover: var(--fcb-text);
   --fcb-button-border-hover: var(--fcb-accent-500);
 
@@ -159,6 +160,7 @@ body.theme-dark {
   --fcb-control-bg:        var(--fcb-surface);
   --fcb-control-bg-alt:    var(--fcb-surface-2);
   --fcb-control-text:      var(--fcb-text);
+  --fcb-control-text-muted:      var(--fcb-text-muted);
   --fcb-control-placeholder: hsl(210 10% 65%);
   --fcb-control-border:    hsl(210 12% 30%);
   --fcb-control-border-hover: hsl(210 12% 40%);

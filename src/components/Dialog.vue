@@ -255,9 +255,7 @@
           cursor: pointer;
           transition: all 0.2s ease;
           font-weight: 500;
-          background: rgba(0, 0, 0, 0.1);
           border: 2px groove solid rgb(240, 240, 224);
-          color: var(--fcb-text);
 
             &:hover:not(:disabled) {
               border-color: #a5a394;
@@ -265,9 +263,9 @@
             }
 
           &.default {
-            background: rgba(0, 0, 0, 0.05);
+            background: var(--fcb-primary);
             border: 2px groove solid rgb(201, 199, 184);
-            color: var(--fcb-text);
+            color: var(--fcb-text-invert);
 
             &:hover:not(:disabled) {
               border-color: #a5a394;

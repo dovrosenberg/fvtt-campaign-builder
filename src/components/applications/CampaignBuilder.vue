@@ -309,6 +309,10 @@
         color: var(--fcb-control-text);
         background-color: var(--fcb-control-bg);
         border-color: var(--fcb-control-border);
+        
+        &::placeholder {
+          color: var(--fcb-control-text-muted);
+        }
 
         &:hover {
           background-color: var(--fcb-control-bg-alt);
@@ -321,7 +325,7 @@
       }
 
       button {
-        color: var(--fcb-text);
+        color: var(--fcb-control-text);
         background-color: var(--fcb-button-bg);
         border-color: var(--fcb-button-border);
         
@@ -330,6 +334,10 @@
           background-color: var(--fcb-button-bg-hover);
           border-color: var(--fcb-button-border-hover);
         }
+      }
+
+      label {
+        color: var(--fcb-control-text-muted);
       }
     }
     

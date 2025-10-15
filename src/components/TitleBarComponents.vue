@@ -157,11 +157,11 @@
 
   .mode-label {
     margin: 0 5px;
-    color: #666;
+    color: var(--fcb-text-muted);
     font-weight: normal;
 
     &.active {
-      color: #2196F3;
+      color: var(--fcb-accent-300);
       font-weight: bold;
     }
   }

@@ -343,7 +343,7 @@
         
         .fcb-search-result-topic-type {
           font-size: 12px;
-          color: var(--color-text-secondary);
+          color: var(--fcb-text-muted);
         }
       }
     }
