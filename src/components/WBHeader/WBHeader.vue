@@ -239,8 +239,8 @@
       height: 24px;
       border-radius: 4px;
       border: 1px solid var(--fcb-header-nav-btn-border);
+      background-color: var(--fcb-header-nav-btn-background);
       margin-top: 1px;
-      background: var(--fcb-button-background);
 
       &:not(.disabled):hover {
         box-shadow: 0 0 5px red;

@@ -151,7 +151,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc);
+    _currentEntry.value = new Entry(_currentEntry.value.raw);
   };
 
   const refreshCampaign = async function (): Promise<void> {
@@ -159,7 +159,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentSetting.value as FCBSetting);
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw);
   };
 
   const refreshSetting = async function (): Promise<void> {
@@ -176,7 +176,7 @@ export const useMainStore = defineStore('main', () => {
 
     // just force all reactivity to update
     const campaign = await _currentSession.value.loadCampaign();
-    _currentSession.value = new Session(_currentSession.value.raw as SessionDoc, campaign || undefined);
+    _currentSession.value = new Session(_currentSession.value.raw, campaign || undefined);
   };
 
   /** Refresh whatever content is currently showing */

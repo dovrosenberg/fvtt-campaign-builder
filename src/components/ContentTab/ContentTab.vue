@@ -120,15 +120,13 @@
       .fcb-name-header {
         font-size: var(--font-size-20);
         font-weight: 700;
-        font-family: var(--fcb-font-family);
         align-items: center;
         overflow-y: visible;
         margin-bottom: 4px;
         
         .fcb-input-name {
           background: none;
-          font-family: var(--fcb-name-font-family);
-          color: var(--color-text-primary);
+          color: var(--fcb-text);
           margin-left: 3px;
           margin-right: 8px;
           font-size: 32px;

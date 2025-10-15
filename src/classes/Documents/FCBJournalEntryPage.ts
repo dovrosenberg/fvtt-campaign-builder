@@ -40,6 +40,10 @@ export class FCBJournalEntryPage<
     this._clone = doc.clone({}, { keepId: true });
   }
 
+  public get raw(): DocClass {
+    return this._doc;
+  }
+
   public get uuid(): string {
     return this._clone.uuid;
   }

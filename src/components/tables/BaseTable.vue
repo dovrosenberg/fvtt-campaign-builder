@@ -742,10 +742,10 @@
 
   .fcb-table-new-drop-box {
     line-height:var(--input-height); 
-    color: var(--color-text-primary); 
+    color: var(--fcb-text); 
     margin-left: 0.75rem; 
     margin-top: -2px;
-    border: var(--color-text-primary) 1px dashed; 
+    border: var(--fcb-text) 1px dashed; 
     padding: 0 2px 0 2px;
     transition: all 0.2s ease;
     

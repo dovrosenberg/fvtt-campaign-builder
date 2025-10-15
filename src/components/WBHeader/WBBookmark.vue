@@ -185,6 +185,7 @@
       margin-left: 2px;
       overflow: hidden;
       color: var(--fcb-header-nav-btn-color);
+      background-color: var(--fcb-header-nav-btn-background);
 
       &.disabled {
         cursor: default;

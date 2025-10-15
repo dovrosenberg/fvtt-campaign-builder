@@ -387,7 +387,7 @@
       padding: 0;
       display: flex;
       flex-direction: column;
-      color: var(--color-text-primary);
+      color: var(--fcb-text);
       background-color: var(--fcb-list-background);
       box-shadow: 0 0 5px #555555;
       border-radius: 3px;

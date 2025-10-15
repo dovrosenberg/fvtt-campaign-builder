@@ -222,7 +222,8 @@
 
     &.active {
       font-weight: bold;
-      background-color: var(--fcb-header-tab-active);
+      background-color: var(--fcb-header-tab-active-bg);
+      color: var(--fcb-header-tab-active-text);
       outline: none;
     }
 

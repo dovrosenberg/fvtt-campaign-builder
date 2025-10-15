@@ -257,7 +257,7 @@
           font-weight: 500;
           background: rgba(0, 0, 0, 0.1);
           border: 2px groove solid rgb(240, 240, 224);
-          color: var(--color-text-primary);
+          color: var(--fcb-text);
 
             &:hover:not(:disabled) {
               border-color: #a5a394;
@@ -267,7 +267,7 @@
           &.default {
             background: rgba(0, 0, 0, 0.05);
             border: 2px groove solid rgb(201, 199, 184);
-            color: var(--color-text-primary);
+            color: var(--fcb-text);
 
             &:hover:not(:disabled) {
               border-color: #a5a394;

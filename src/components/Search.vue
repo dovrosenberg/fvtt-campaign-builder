@@ -338,7 +338,7 @@
         .fcb-search-result-name {
           font-size: 12px;
           font-weight: bold;
-          color: var(--color-text-primary);
+          color: var(--fcb-text);
         }
         
         .fcb-search-result-topic-type {

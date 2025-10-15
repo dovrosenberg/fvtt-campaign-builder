@@ -6,7 +6,7 @@ body {
   --fcb-light-overlay: rgba(255, 255, 255, 0.10);
 
   --fcb-primary-h: 164;  // hunter green
-  --fcb-primary-s: 48%
+  --fcb-primary-s: 48%;
   --fcb-primary-l: 20%;  // #1b4d3e 
 
   --fcb-accent-h: 22;   // orange
@@ -14,18 +14,18 @@ body {
   --fcb-accent-l: 55%;  // #ff6400
 
   // primary scale - greens
-  --fcb-primary-50:  hsl(var(--fcb-primary-h) 45% 96%);
-  --fcb-primary-100: hsl(var(--fcb-primary-h) 42% 92%);
-  --fcb-primary-200: hsl(var(--fcb-primary-h) 40% 84%);
-  --fcb-primary-300: hsl(var(--fcb-primary-h) 38% 72%);
-  --fcb-primary-400: hsl(var(--fcb-primary-h) 42% 45%);
-  --fcb-primary-500: hsl(var(--fcb-primary-h) var(--fcb-primary-s) var(--fcb-primary-l)); /* #1B4D3E */
-  --fcb-primary-600: hsl(var(--fcb-primary-h) 50% 16%);
-  --fcb-primary-700: hsl(var(--fcb-primary-h) 52% 13%);
-  --fcb-primary-800: hsl(var(--fcb-primary-h) 55% 10%);
+  --fcb-primary-50:  hsl(var(--fcb-primary-h) 25% 96%); // use: subtle background tint
+  --fcb-primary-100: hsl(var(--fcb-primary-h) 40% 92%); 
+  --fcb-primary-200: hsl(var(--fcb-primary-h) 44% 84%); // use: selected rows, badges
+  --fcb-primary-300: hsl(var(--fcb-primary-h) 46% 72%); 
+  --fcb-primary-400: hsl(var(--fcb-primary-h) 47% 45%); // use: hover for outlines/links
+  --fcb-primary-500: hsl(var(--fcb-primary-h) var(--fcb-primary-s) var(--fcb-primary-l)); /* #1B4D3E */  // use: primary button
+  --fcb-primary-600: hsl(var(--fcb-primary-h) 50% 16%); // use: hover on primary
+  --fcb-primary-700: hsl(var(--fcb-primary-h) 52% 13%); // use: active/pressed state on primary
+  --fcb-primary-800: hsl(var(--fcb-primary-h) 55% 10%); // use: darkest strokes in dark mode
 
   // accent scale - oranges
-  --fcb-accent-50:  hsl(var(--fcb-accent-h) 100% 96%);
+  --fcb-accent-50:  hsl(var(--fcb-accent-h) 100% 98%);
   --fcb-accent-100: hsl(var(--fcb-accent-h) 100% 92%);
   --fcb-accent-200: hsl(var(--fcb-accent-h) 100% 85%);
   --fcb-accent-300: hsl(var(--fcb-accent-h) 100% 70%);
@@ -55,20 +55,7 @@ body {
 
 // role tokens 
 // Light theme 
-body {
-  /* Surfaces & text */
-  --fcb-bg:            var(--fcb-gray-50);
-  --fcb-surface:       #fff;
-  --fcb-surface-2:     var(--fcb-gray-100);
-  --fcb-surface-3:     var(--fcb-gray-200);
-  --fcb-elevated:      #fff;
-  --fcb-border:        var(--fcb-gray-300);
-  --fcb-shadow:        0 1px 2px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
-
-  --fcb-text:          var(--fcb-gray-800);
-  --fcb-text-muted:    var(--fcb-gray-600);
-  --fcb-text-invert:   #fff;
-
+body {  
   /* Brand & accent application */
   --fcb-primary:       var(--fcb-primary-500);
   --fcb-primary-weak:  var(--fcb-primary-100);
@@ -78,12 +65,32 @@ body {
   --fcb-accent-weak:   var(--fcb-accent-100);
   --fcb-accent-strong: var(--fcb-accent-600);
 
+  /* Surfaces & text */
+  --fcb-bg:            var(--fcb-gray-50);
+  --fcb-surface:       #fff;
+  --fcb-surface-2:     var(--fcb-gray-100);
+  --fcb-surface-3:     var(--fcb-gray-200);
+  --fcb-surface-shaded: var(--fcb-primary-50);
+  --fcb-elevated:      #fff;
+  --fcb-border:        var(--fcb-gray-300);
+  --fcb-shadow:        0 1px 2px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+
+  --fcb-text:          var(--fcb-gray-800);
+  --fcb-text-muted:    var(--fcb-gray-600);
+  --fcb-text-invert:   #fff;
+
+  --fcb-button:       var(--fcb-primary-50);
+  --fcb-button-text:  var(--fcb-text);
+  --fcb-button-border: var(--fcb-border);
+  --fcb-button-hover: var(--fcb-primary-100);
+  --fcb-button-hover-text: var(--fcb-text);
+  --fcb-button-border-hover: var(--fcb-accent-500);
+  
   /* Interactive */
-  --fcb-link:          var(--fcb-primary-600);
-  --fcb-link-visited:  hsl(var(--fcb-primary-h) 45% 22%);
-  --fcb-hover:         color-mix(in oklab, var(--fcb-primary) 20%, white);
-  --fcb-active:        color-mix(in oklab, var(--fcb-primary) 30%, black);
-  --fcb-selection:     color-mix(in oklab, var(--fcb-accent-500) 18%, white);
+  --fcb-link:          var(--fcb-primary-500);
+  --fcb-link-hover:    var(--fcb-primary-400);
+  --fcb-hover:         var(--fcb-primary-600);
+  --fcb-active:        var(--fcb-primary-700);
 
   /* Controls */
   --fcb-control-bg:        var(--fcb-surface);
@@ -99,7 +106,7 @@ body {
   --fcb-tab-active-bg:     var(--fcb-surface);
   --fcb-tab-active-text:   var(--fcb-text);
   --fcb-tab-underline:     var(--fcb-primary);
-  --fcb-sidebar-bg:        var(--fcb-surface);
+  --fcb-sidebar-bg:        var(--fcb-surface-shaded);
   --fcb-sidebar-border:    var(--fcb-gray-300);
   --fcb-list-item-hover:   var(--fcb-gray-100);
   --fcb-badge-bg:          var(--fcb-primary-100);
@@ -116,18 +123,6 @@ body {
 
 /* Dark theme */
 body.theme-dark {
-  --fcb-bg:            var(--fcb-gray-900);
-  --fcb-surface:       var(--fcb-gray-800);
-  --fcb-surface-2:     hsl(210 14% 15%);
-  --fcb-surface-3:     hsl(210 14% 13%);
-  --fcb-elevated:      hsl(210 14% 18%);
-  --fcb-border:        hsl(210 12% 24%);
-  --fcb-shadow:        0 1px 2px rgba(0,0,0,.6), 0 8px 24px rgba(0,0,0,.45);
-
-  --fcb-text:          hsl(210 20% 94%);
-  --fcb-text-muted:    hsl(210 15% 75%);
-  --fcb-text-invert:   #0b0e0c;
-
   /* Slightly brighten/dedesaturate for dark */
   --fcb-primary:       hsl(var(--fcb-primary-h) 45% 28%);
   --fcb-primary-weak:  hsl(var(--fcb-primary-h) 35% 18%);
@@ -137,11 +132,29 @@ body.theme-dark {
   --fcb-accent-weak:   hsl(var(--fcb-accent-h) 80% 18%);
   --fcb-accent-strong: hsl(var(--fcb-accent-h) 100% 50%);
 
+  --fcb-bg:            var(--fcb-gray-900);
+  --fcb-surface:       var(--fcb-gray-800);
+  --fcb-surface-2:     hsl(210 14% 15%);
+  --fcb-surface-3:     hsl(210 14% 13%);
+  --fcb-surface-shaded: color-mix(in oklab, var(--fcb-primary) 16%, var(--fcb-surface));
+  --fcb-elevated:      hsl(210 14% 18%);
+  --fcb-border:        hsl(210 12% 24%);
+  --fcb-shadow:        0 1px 2px rgba(0,0,0,.6), 0 8px 24px rgba(0,0,0,.45);
+
+  --fcb-text:          hsl(210 20% 94%);
+  --fcb-text-muted:    hsl(210 15% 75%);
+  --fcb-text-invert:   #0b0e0c;
+
+  --fcb-button:       var(--fcb-primary-50);
+  --fcb-button-text:  var(--fcb-text);
+  --fcb-button-border: var(--fcb-border);
+  --fcb-button-hover: var(--fcb-primary-100);
+  --fcb-button-hover-text: var(--fcb-text);
+  --fcb-button-border-hover: var(--fcb-accent-500);
+
   --fcb-link:          hsl(var(--fcb-primary-h) 50% 70%);
-  --fcb-link-visited:  hsl(var(--fcb-primary-h) 45% 62%);
   --fcb-hover:         color-mix(in oklab, var(--fcb-primary) 28%, white);
   --fcb-active:        color-mix(in oklab, var(--fcb-primary) 45%, black);
-  --fcb-selection:     color-mix(in oklab, var(--fcb-accent) 28%, white);
 
   --fcb-control-bg:        var(--fcb-surface);
   --fcb-control-bg-alt:    var(--fcb-surface-2);
@@ -155,7 +168,7 @@ body.theme-dark {
   --fcb-tab-active-bg:     var(--fcb-surface);
   --fcb-tab-active-text:   var(--fcb-text);
   --fcb-tab-underline:     var(--fcb-accent);
-  --fcb-sidebar-bg:        var(--fcb-surface-2);
+  --fcb-sidebar-bg:        var(--fcb-surface-shaded);
   --fcb-sidebar-border:    var(--fcb-border);
   --fcb-list-item-hover:   hsl(210 14% 22%);
   --fcb-badge-bg:          hsl(var(--fcb-primary-h) 28% 22%);
@@ -168,25 +181,27 @@ body.theme-dark {
   --fcb-ring: var(--fcb-accent);
 }
 
-// specific component mapping
+// specific component mapping - this should be the same for light and dark and should only use
+//    variables defined above for colors
 body {
   --fcb-main-section-background: var(--fcb-surface);
   --fcb-header-border-color: var(--fcb-border);
-  // --fcb-header-background: #e5dbc5;
-  --fcb-header-color: var(fcb-text);
+  --fcb-header-color: var(--fcb-text);
   --fcb-header-tab-color: var(--fcb-header-color);
   --fcb-header-tab-background: var(--fcb-surface-2);
-  --fcb-header-tab-border: var(fcb-border);
-  --fcb-header-tab-active: var(--fcb-active);
+  --fcb-header-tab-border: var(--fcb-border);
+  --fcb-header-tab-active: var(--fcb-tab-active-bg);
   --fcb-header-nav-btn-color: var(--fcb-header-color);
-  --fcb-header-nav-background: rgb(233, 231, 225);
-  --fcb-header-nav-btn-border: rgb(192, 192, 192);
+  --fcb-header-nav-btn-background: var(--fcb-button);
+  --fcb-header-nav-btn-border: var(--fcb-button-border);
   --fcb-header-nav-btn-disabled: rgb(136, 136, 136);
   --fcb-header-nav-btn-background-disabled: inherit;
   --fcb-header-nav-btn-border-disabled: inherit;
   --fcb-header-nav-btn-color-hover: var(--fcb-header-nav-btn-color);
+  --fcb-header-nav-btn-background-hover: var(--fcb-button-hover);
+  --fcb-header-nav-btn-border-hover: var(--fcb-button-border-hover);
   --fcb-header-nav-vertical-line:  rgb(238, 237, 224);
-  --fcb-tab-body-background: rgba(238, 237, 224, 0.3);
+  --fcb-tab-body-background: var(--fcb-main-section-background);
   --fcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);
   --fcb-sheet-header-input-background: var(--fcb-dark-overlay);
   --fcb-sheet-header-label-color: rgb(75, 74, 68);
@@ -201,7 +216,7 @@ body {
   --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
   --fcb-sheet-details-section-border:  rgb(238, 237, 224);
   --fcb-active-color: rgb(255, 100, 0);
-  --fcb-icon-background: rgba(236, 233, 223, 1);
+  --fcb-icon-background: var(--fcb-primary);
   --fcb-icon-shadow: rgba(0, 0, 0, 0.4);
   --fcb-icon-outline: rgba(0, 0, 0, 0.4);
   --fcb-home-color: var(--fcb-primary);
@@ -227,56 +242,3 @@ body {
   --fcb-color-text-generate-message: var(--color-text-dark-secondary);
 }
 
-
-// body.theme-dark {
-//   --fcb-main-section-background: #ffffff;
-//   --fcb-header-border-color: var(--color-dark-4);
-//   // --fcb-header-background: var(--color-dark-2);
-//   --fcb-header-color: var(--color-text-light-primary);
-//   --fcb-header-tab-color: var(--fcb-header-color);
-//   --fcb-header-tab-background: rgba(255, 255, 240, 0.5);
-//   --fcb-header-tab-border: 1px solid var(--color-dark-4);
-//   --fcb-header-tab-active: var(--color-dark-1);
-//   --fcb-header-nav-btn-color: var(--fcb-header-color);
-//   --fcb-header-nav-background: var(--color-dark-1);
-//   --fcb-header-nav-btn-border: var(--color-dark-4);
-//   --fcb-header-nav-btn-disabled: rgb(136, 136, 136);
-//   --fcb-header-nav-btn-color-hover: var(--fcb-header-nav-btn-color);
-//   --fcb-header-nav-vertical-line: var(--color-dark-3);
-
-//   --fcb-sheet-header-input-border: 1px solid var(--color-dark-5);
-//   --fcb-sheet-header-input-background: var(--fcb-light-overlay);
-//   --fcb-sheet-header-label-color: var(--color-text-secondary);
-//   --fcb-sheet-header-button-border-color: var(--color-text-subtle);
-//   --fcb-sheet-header-button-color: var(--color-text-primary);
-//   --fcb-sheet-header-button-background: var(--button-background-color);
-//   --fcb-sheet-header-icon-color: #777;
-//   --fcb-sheet-tab-bottom-border: var(--color-dark-1);
-//   --fcb-sheet-tab-border: 3px solid var(--color-dark-4);
-//   --fcb-sheet-tab-border-active: var(--fcb-active-color);
-//   --fcb-sheet-page-control-color: var(--color-text-light-primary);
-//   --fcb-sheet-page-control-background: var(--color-dark-4);
-//   --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
-//   --fcb-sheet-details-section-border: var(--color-dark-1);
-//   --fcb-icon-background: var(--color-dark-1);
-//   --fcb-icon-shadow: rgba(0, 0, 0, 0.5);
-//   --fcb-icon-outline: rgba(255, 255, 255, 0.1);
-//   --fcb-home-color: var(--fcb-primary);
-//   --fcb-home-link-hover: var(--fcb-secondary);
-  
-//   --fcb-sidebar-background: #efefefff;
-//   --fcb-sidebar-label-color: var(--color-text-light-primary);
-//   --fcb-sidebar-setting-color: var(--color-text-light-highlight);
-//   --fcb-sidebar-setting-background: var(--color-dark-3);
-//   --fcb-sidebar-setting-border: var(--color-dark-2);
-//   --fcb-sidebar-setting-color-collapsed: var(--color-dark-6);
-//   --fcb-sidebar-setting-background-collapsed: var(--color-dark-2);
-//   --fcb-sidebar-setting-border-collapsed: var(--color-dark-2);
-//   --fcb-sidebar-campaign-color: var(--fcb-sidebar-setting-color);
-//   --fcb-sidebar-campaign-color-collapsed: var(--fcb-sidebar-campaign-color);
-//   --fcb-sidebar-topic-icon-color: var(--color-light-6);
-
-//   --fcb-list-background: var(--color-dark-2);
-//   --fcb-list-highlight: rgba(85, 85, 153, 0.13);
-//   --fcb-color-text-generate-message: var(--color-text-light-secondary);
-// }

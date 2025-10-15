@@ -15,6 +15,7 @@ const fcbVariables = {
     fcbControlBg: '#fff',
     fcbRing: 'hsl(22 100% 55%)',
     fcbControlBorder: 'hsl(210 10% 82%)',
+    fcbSheetInputBorder: 'rgb(122, 121, 113)',
   },
   dark: {
     fcbText: 'hsl(210 20% 94%)',
@@ -22,10 +23,10 @@ const fcbVariables = {
     fcbControlBg: 'hsl(210, 12%, 18%)',
     fcbRing: 'hsl(22 100% 55%)',
     fcbControlBorder: 'hsl(210 12% 24%)',
+    fcbSheetInputBorder: 'rgb(122, 121, 113)',
   },
   fcbDarkOverlay: 'rgba(0, 0, 0, 0.05)',
   fcbLightOverlay: 'rgba(255, 255, 255, 0.10)',
-  fcbSheetInputBorder: 'rgb(122, 121, 113)',
   fcbButtonBorderColor: '#444',
   
 };
@@ -146,16 +147,16 @@ export default definePreset(Aura, {
     textarea: {
       colorScheme: {
         light: {
-          color: foundryVariables.colorTextDarkPrimary,
+          color: fcbVariables.light.fcbText,
           background: 'rgba(0, 0, 0, 0.1)',
-          borderColor: fcbVariables.fcbSheetInputBorder,
+          borderColor: fcbVariables.light.fcbSheetInputBorder,
           focusBorderColor: 'black',  
           focusRingColor: foundryVariables.colorWarm2,
         },
         dark: {
-          color: foundryVariables.colorTextLightPrimary,
+          color: fcbVariables.dark.fcbText,
           background: 'rgb(48, 40, 49)',
-          borderColor: fcbVariables.fcbSheetInputBorder,
+          borderColor: fcbVariables.dark.fcbSheetInputBorder,
           focusBorderColor: 'black',  
           focusRingColor: foundryVariables.colorWarm2,
         }

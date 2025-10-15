@@ -290,7 +290,7 @@
   // the launch button in the top right corner
   #fcb-launch {
     background-color: rgba(0,0,0,.5);
-    color: var(--color-text-light-highlight);
+    color: var(--fcb-text-invert);
   }
 
   .fcb-main-window {  
@@ -302,9 +302,28 @@
       font-family: var(--fcb-font-family) !important;
     }
 
+    // set the default control colors
+    input {
+      color: var(--fcb-text);
+    }
+
+    button {
+      color: var(--fcb-text);
+      background-color: var(--fcb-button);
+      border-color: var(--fcb-button-border);
+      
+      &:hover {
+        color: var(--fcb-button-hover-text);
+        background-color: var(--fcb-button-hover);
+        border-color: var(--fcb-button-border-hover);
+      }
+    }
+
     .window-header {
       // we need it to be higher than the content so search results can cover
       z-index: 2;
+
+      background-color: var(--fcb-primary);
 
       overflow: visible;  // for the search drop down
     }
