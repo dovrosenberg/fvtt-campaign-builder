@@ -77,7 +77,7 @@
 
   .fcb-dropdown {
     min-width: 150px;
-    font-size: 12px;
+    font-size: var(--font-size-12);
 
     .fcb-dropdown-input {
       padding: 2px 5px;
@@ -85,8 +85,8 @@
       border: 1px solid #ccc;
       background-color: #fff;
       color: #333;
-      font-size: 12px;
-      height: 24px;
+      font-size: var(--font-size-12);
+      height: 1.5rem;
 
       &:hover {
         border-color: #2196F3;
@@ -107,7 +107,7 @@
 
   .fcb-dropdown-item {
     padding: 4px 8px;
-    font-size: 12px;
+    font-size: var(--font-size-12);
 
     &:hover {
       background-color: rgba(33, 150, 243, 0.1);

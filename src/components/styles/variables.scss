@@ -100,7 +100,7 @@ body {
   --fcb-control-text:      var(--fcb-text);
   --fcb-control-text-muted:      var(--fcb-text-muted);
   --fcb-control-placeholder: var(--fcb-gray-500);
-  --fcb-control-border:    var(--fcb-gray-300);
+  --fcb-control-border:    var(--fcb-border);
   --fcb-control-border-hover: var(--fcb-gray-400);
   --fcb-control-border-focus: var(--fcb-primary);
   --fcb-control-filled:    var(--fcb-primary-50);
@@ -113,6 +113,7 @@ body {
   --fcb-tab-border:        var(--fcb-control-border);
   --fcb-sidebar-bg:        var(--fcb-surface-shaded);
   --fcb-sidebar-border:    var(--fcb-gray-300);
+  --fcb-sidebar-splitter:  var(--fcb-control-border);
   --fcb-list-item-hover:   var(--fcb-gray-100);
   --fcb-badge-bg:          var(--fcb-primary-100);
   --fcb-badge-text:        var(--fcb-primary-700);
@@ -141,13 +142,13 @@ body.theme-dark {
   --fcb-surface:       var(--fcb-gray-800);
   --fcb-surface-2:     hsl(210 14% 15%);
   --fcb-surface-3:     hsl(210 14% 13%);
-  --fcb-surface-shaded: color-mix(in oklab, var(--fcb-primary) 16%, var(--fcb-surface));
+  --fcb-surface-shaded: color-mix(in oklab, var(--fcb-primary) 10%, var(--fcb-surface));
   --fcb-elevated:      hsl(210 14% 18%);
-  --fcb-border:        hsl(210 12% 24%);
+  --fcb-border:        var(--fcb-gray-700);
   --fcb-shadow:        0 1px 2px rgba(0,0,0,.6), 0 8px 24px rgba(0,0,0,.45);
 
-  --fcb-text:          hsl(210 20% 94%);
-  --fcb-text-muted:    hsl(210 15% 75%);
+  --fcb-text:          var(--fcb-gray-200);
+  --fcb-text-muted:    var(--fcb-gray-400);
   --fcb-text-invert:   #0b0e0c;
 
   --fcb-button-bg:      var(--fcb-primary-900);
@@ -166,7 +167,7 @@ body.theme-dark {
   --fcb-control-text:      var(--fcb-text);
   --fcb-control-text-muted:      var(--fcb-text-muted);
   --fcb-control-placeholder: hsl(210 10% 65%);
-  --fcb-control-border:    hsl(210 12% 30%);
+  --fcb-control-border:    var(--fcb-border);
   --fcb-control-border-hover: hsl(210 12% 40%);
   --fcb-control-border-focus: var(--fcb-accent);
   --fcb-control-filled:    hsl(var(--fcb-primary-h) 25% 17%);
@@ -178,6 +179,7 @@ body.theme-dark {
   --fcb-tab-shadow-hover:  var(--fcb-accent-600);
   --fcb-sidebar-bg:        var(--fcb-surface-shaded);
   --fcb-sidebar-border:    var(--fcb-border);
+  --fcb-sidebar-splitter:  var(--fcb-control-border);
   --fcb-list-item-hover:   hsl(210 14% 22%);
   --fcb-badge-bg:          hsl(var(--fcb-primary-h) 28% 22%);
   --fcb-badge-text:        hsl(160 30% 85%);
@@ -229,7 +231,7 @@ body {
   --fcb-home-link-hover: var(--fcb-accent-400);
   
   --fcb-sidebar-background: var(--fcb-sidebar-bg); 
-  --fcb-sidebar-label-color: var(--color-text-dark-primary);
+  --fcb-sidebar-label-color: var(--fcb-text-muted);
   --fcb-sidebar-setting-color: var(--color-text-light-highlight);
   --fcb-sidebar-setting-background: rgb(215, 215, 202);
   --fcb-sidebar-setting-border: rgb(219, 219, 219);
@@ -241,6 +243,9 @@ body {
   --fcb-sidebar-campaign-color-collapsed: var(--fcb-sidebar-campaign-color);
   --fcb-sidebar-campaign-background-collapsed: inherit;  //var(--fcb-sidebar-setting-background-collapsed);
   --fcb-sidebar-topic-icon-color: #999;
+
+  --fcb-scrollbar: var(--fcb-primary-300);
+  --fcb-scrollbar-thumb: transparent;
 
   // for typeaheads, search
   --fcb-list-background: rgb(220, 220, 220);

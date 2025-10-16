@@ -105,6 +105,8 @@
 
 <style lang="scss">
   #fcb-directory {
+    // main color
+    color: var(--fcb-text);
 
     // the campaign list section
     .fcb-directory-panel-wrapper {
@@ -112,7 +114,7 @@
         padding: 0;
         flex-grow: 1;
         /* overflow: hidden; */
-        margin-top: 3px;
+        margin-top: .1875rem;
 
         .fcb-setting-folder > .folder-header {
           background: inherit !important;

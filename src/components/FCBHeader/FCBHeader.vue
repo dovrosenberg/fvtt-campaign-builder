@@ -193,7 +193,7 @@
   flex-grow: 0;
 
   & > * {
-    flex: 0 0 30px;
+    flex: 0 0 1.875rem;
     border-bottom: 1px solid var(--fcb-header-border-color);
   }
 
@@ -218,7 +218,7 @@
   // Bookmark bar
   .fcb-bookmark-bar {
     padding-left: 2px;
-    flex: 0 0 36px;
+    flex: 0 0 2.25rem;
     color: var(--fcb-header-nav-btn-color);
 
     hr.vertical {
@@ -230,13 +230,13 @@
     }
 
     .nav-button {
-      flex: 0 0 24px;
+      flex: 0 0 1.5rem;
       text-align: center;
-      line-height: 24px;
-      font-size: 14px;
+      line-height: 1.5rem;
+      font-size: var(--font-size-14);
       margin-right: 4px;
-      width: 24px;
-      height: 24px;
+      width: 1.5rem;
+      height: 1.5rem;
       border-radius: 4px;
       border: 1px solid var(--fcb-header-nav-btn-border);
       background-color: var(--fcb-header-nav-btn-background);

@@ -193,7 +193,7 @@
     padding: 4px;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
-    line-height: 20px;
+    line-height: 1.25rem;
     background: var(--fcb-header-tab-background);
     border: 1px solid var(--fcb-header-tab-border);
     position: relative;

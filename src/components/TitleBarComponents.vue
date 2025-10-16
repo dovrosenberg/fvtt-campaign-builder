@@ -119,7 +119,7 @@
 
   // Separator styling
   .separator {
-    height: 20px;
+    height: 1.25rem;
     width: 1px;
     background-color: #ccc;
     margin: 0 10px;
@@ -141,7 +141,7 @@
       border: 1px solid #ccc;
       background-color: #fff;
       color: #333;
-      font-size: 12px;
+      font-size: var(--font-size-12);
 
       &:hover {
         border-color: #2196F3;

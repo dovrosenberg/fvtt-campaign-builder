@@ -383,7 +383,7 @@
 
     .fcb-ta-dropdown {
       position: absolute;
-      margin-top: 2px;
+      margin-top: 0.125rem;
       padding: 0;
       display: flex;
       flex-direction: column;

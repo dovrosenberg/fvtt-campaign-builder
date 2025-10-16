@@ -157,7 +157,7 @@
       flex: 1;
 
       .form-group {
-        margin: 4px 8px 0px 0px;
+        margin: .25rem 8px 0px 0px;
       
         label {
           font-size: var(--font-size-16);
@@ -195,7 +195,7 @@
 
         &.description {
           overflow: hidden; // keep the editor the right size
-          margin-top: 6px;
+          margin-top: 0.375rem;
           flex: 1;
         }
       }

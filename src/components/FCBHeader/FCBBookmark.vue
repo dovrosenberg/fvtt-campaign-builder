@@ -155,13 +155,13 @@
 <style lang="scss">
   .fcb-bookmark-button, #fcb-add-bookmark {
     font-family: var(--fcb-font-family);
-    height: 28px;
+    height: 1.75rem;
     border-radius: 28px;
     margin-left: 4px;
-    margin-top: 1px;
-    line-height: 27px;
+    margin-top: .0625rem;
+    line-height: 1.6875rem;
     padding: 0px 10px;
-    font-size: 14px;
+    font-size: var(--font-size-14);
     cursor: pointer;
     flex-wrap: nowrap;
     flex-grow: 0;
@@ -176,11 +176,11 @@
 
     &#fcb-add-bookmark {
       border-radius: 4px;
-      flex: 0 0 24px;
-      height: 24px;
-      font-size: 16px;
+      flex: 0 0 1.5rem;
+      height: 1.5rem;
+      font-size: var(--font-size-16);
       padding-left: 2px;
-      line-height: 22px;
+      line-height: 1.375rem;
       text-overflow: clip;
       margin-left: 2px;
       overflow: hidden;
@@ -201,7 +201,7 @@
     }
 
     &:not(#fcb-add-bookmark) i {
-      margin-top: 4px;
+      margin-top: .25rem;
       margin-right: 2px;
     }
 

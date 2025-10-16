@@ -38,7 +38,7 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(-8px);
-  margin-bottom: 4px;
+  margin-bottom: 0.25rem;
 }
 
 /* Tooltip arrow */
@@ -51,7 +51,7 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: -1px;
+  margin-bottom: -0.0625rem;
 }
 
 /* Show tooltip on hover */
@@ -92,7 +92,7 @@
   
   .tooltip-container::after {
     border-width: 4px;
-    margin-bottom: 0px;
+    margin-bottom: 0rem;
   }
 }
 

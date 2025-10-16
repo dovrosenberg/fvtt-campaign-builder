@@ -16,6 +16,7 @@ const fcbVariables = {
     fcbRing: 'hsl(22 100% 55%)',
     fcbControlBorder: 'hsl(210 10% 82%)',
     fcbSheetInputBorder: 'rgb(122, 121, 113)',
+    fcbSplitterGutter: 'hsl(210 10% 82%)',
   },
   dark: {
     fcbText: 'hsl(210 20% 94%)',
@@ -24,6 +25,7 @@ const fcbVariables = {
     fcbRing: 'hsl(22 100% 55%)',
     fcbControlBorder: 'hsl(210 12% 24%)',
     fcbSheetInputBorder: 'rgb(122, 121, 113)',
+    fcbSplitterGutter: 'hsl(210 10% 28%)',
   },
   fcbDarkOverlay: 'rgba(0, 0, 0, 0.05)',
   fcbLightOverlay: 'rgba(255, 255, 255, 0.10)',
@@ -178,9 +180,18 @@ export default definePreset(Aura, {
         borderColor: 'none',
         color: 'inherit',
       }, 
-      gutter: {
-        background: 'rgba(222, 225, 230, 1)',
-      }
+      colorScheme: {
+        light: {
+          gutter: {
+            background: fcbVariables.light.fcbSplitterGutter,
+          }
+        },
+        dark: {
+          gutter: {
+            background: fcbVariables.dark.fcbSplitterGutter,
+          }
+        }
+      },
     },
     splitterpanel: {
       borderRadius: '0',

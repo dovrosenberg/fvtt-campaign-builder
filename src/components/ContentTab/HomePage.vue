@@ -40,7 +40,7 @@
 
       <div 
         class="flexrow"
-        style="margin-bottom: 20px;"
+        style="margin-bottom: 1.25rem;"
       >
         <div 
           class="new-link"
@@ -231,7 +231,7 @@
     }
 
     .search-container {
-      margin-bottom: 20px;
+      margin-bottom: 1.25rem;
       width: 100%;
       max-width: 600px;
       margin-left: auto;
@@ -259,8 +259,8 @@
       max-width: 130px;
 
       i {
-        font-size: 24px;
-        margin-bottom: 8px;
+        font-size: var(--font-size-24);
+        margin-bottom: .5rem;
       }
     }
 

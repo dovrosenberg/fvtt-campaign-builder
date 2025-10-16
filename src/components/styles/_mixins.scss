@@ -9,31 +9,34 @@
   input[type="text"], input[type="checkbox"], textarea, select {
     color: var(--fcb-control-text);
     background-color: var(--fcb-control-bg);
-    border-color: var(--fcb-control-border);
+    border: 0.8px solid var(--fcb-control-border);
     
+    &:hover {
+      background-color: var(--fcb-control-bg-alt);
+      border: 0.8px solid var(--fcb-control-border-hover);
+    }
+
+    &:focus {
+      border: 0.8px solid var(--fcb-control-border-focus);
+    }
+  }
+
+  input[type="text"], textarea {
     &::placeholder {
       color: var(--fcb-control-text-muted);
     }
 
-    &:hover {
-      background-color: var(--fcb-control-bg-alt);
-      border-color: var(--fcb-control-border-hover);
-    }
-
-    &:focus {
-      border-color: var(--fcb-control-border-focus);
-    }
   }
 
   button {
     color: var(--fcb-control-text);
     background-color: var(--fcb-button-bg);
-    border-color: var(--fcb-button-border);
+    border: 0.8px solid var(--fcb-button-border);
     
     &:hover {
       color: var(--fcb-button-text-hover);
       background-color: var(--fcb-button-bg-hover);
-      border-color: var(--fcb-button-border-hover);
+      border: 0.8px solid var(--fcb-button-border-hover);
     }
   }
 

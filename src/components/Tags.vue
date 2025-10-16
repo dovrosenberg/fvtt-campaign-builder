@@ -237,6 +237,7 @@
 
 <style lang="scss">
   .tags-wrapper {
+    // TODO - do these heights need to change when font size scales? Should it be like xrem+1px or something?
     min-height: 31px;
     width: 100%;
     position: relative;

@@ -204,11 +204,11 @@
         transition: all 0.2s ease;
 
         i {
-          font-size: 14px;
+          font-size: var(--font-size-14);
         }
 
         .close-text {
-          font-size: 14px;
+          font-size: var(--font-size-14);
         }
       }
 
@@ -283,7 +283,7 @@
           }
 
           i {
-            font-size: 14px;
+            font-size: var(--font-size-14);
           }
         }
       }

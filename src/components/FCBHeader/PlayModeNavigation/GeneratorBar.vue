@@ -146,7 +146,7 @@
   .fcb-generate-label {
     margin: 0px;
     padding: 5px 8px;
-    font-size: 12px;
+    font-size: var(--font-size-12);
     font-weight: 500;
     flex: 0 1;
   }
@@ -158,7 +158,7 @@
     background-color: var(--color-light-6);
     color: white;
     border: 1px solid transparent;
-    font-size: 12px;
+    font-size: var(--font-size-12);
     align-items: center;
     justify-content: center;
     max-width: 100px;

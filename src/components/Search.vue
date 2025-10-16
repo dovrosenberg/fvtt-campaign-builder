@@ -262,9 +262,9 @@
     
     .fcb-search-input {
       width: 180px;
-      height: 24px;
+      height: 1.5rem;
       padding: 4px 24px 4px 8px;
-      font-size: 12px;
+      font-size: var(--font-size-12);
       border-radius: 3px;
       
       &:focus {
@@ -282,7 +282,7 @@
     .fcb-search-icon {
       position: absolute;
       right: 6px;
-      font-size: 12px;
+      font-size: var(--font-size-12);
       top: 50%;
       transform: translateY(-50%);
       color: var(--color-text-secondary);
@@ -303,8 +303,8 @@
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    margin-top: 4px;
-    font-size: 12px;
+    margin-top: 0.25rem;
+    font-size: var(--font-size-12);
     z-index: 10; // Higher z-index to appear above other elements
  
     .fcb-search-loading,
@@ -333,16 +333,16 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 2px;
+        margin-bottom: 0.125rem;
         
         .fcb-search-result-name {
-          font-size: 12px;
+          font-size: var(--font-size-12);
           font-weight: bold;
           color: var(--fcb-text);
         }
         
         .fcb-search-result-topic-type {
-          font-size: 12px;
+          font-size: var(--font-size-12);
           color: var(--fcb-text-muted);
         }
       }

@@ -289,7 +289,7 @@
 
   // the launch button in the top right corner
   #fcb-launch {
-    background-color: rgba(0,0,0,.5);
+    background-color: rgba(0,0,0,.7);
     color: var(--fcb-primary-400);
   }
 
@@ -299,6 +299,9 @@
     // use an id for these to give them precedence
     &#app-fcb-CampaignBuilder {
       @include style-base-components;
+
+      scrollbar-width: thin !important;
+      scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb) !important;
     }
     
     .window-header {
@@ -380,8 +383,8 @@
     transform: translateY(-50%); // Adjust for perfect vertical centering
     left: calc(100% - 12px); // Position on the edge of the left panel
     z-index: 100;
-    width: 12px;
-    height: 40px;
+    width: 0.75rem;
+    height: 2.5rem;
     background-color: var(--color-light-5) !important;
     color: white;
     border-color: var(--fcb-button-border);
@@ -391,7 +394,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: var(--font-size-14);
 
     &:hover {
       background-color: #fda948;

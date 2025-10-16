@@ -122,15 +122,15 @@
         font-weight: 700;
         align-items: center;
         overflow-y: visible;
-        margin-bottom: 4px;
+        margin-bottom: 0.25rem;
         
         .fcb-input-name {
           background: none;
           color: var(--fcb-text);
           margin-left: 3px;
           margin-right: 8px;
-          font-size: 32px;
-          height: 36px;
+          font-size: var(--font-size-32);
+          height: 2.25rem;
 
           // the box shadow when we're not focused makes the box look like the wrong background color
           box-shadow: none;
@@ -146,11 +146,11 @@
 
         button {
           margin-right: 4px;
-          flex: 0 0 30px;
-          height: 30px;
-          width: 30px;
-          font-size: 18px;
-          line-height: 28px;
+          flex: 0 0 1.875rem;
+          height: 1.875rem;
+          width: 1.875rem;
+          font-size: var(--font-size-18);
+          line-height: 1.75rem;
           padding: 0px 3px;
           cursor: pointer;
           box-shadow: none;
@@ -158,7 +158,7 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 3px 5px 0px 0px;
+          margin: .1875rem 5px 0px 0px;
 
           &:first-child {
             margin-left: 5px;
@@ -169,17 +169,17 @@
           }
 
           i {
-            font-size: 14px;
+            font-size: var(--font-size-14);
             color: currentColor;
           }
         }
 
         .sheet-icon {
-        line-height: 35px;
-        margin-top: 0px;
-        color: var(--fcb-sheet-header-icon-color);
-        flex: 0 0 20px;
-        font-size: 20px;
+          line-height: 2.1875rem;
+          margin-top: 0px;
+          color: var(--fcb-sheet-header-icon-color);
+          flex: 0 0 1.25rem;
+          font-size: var(--font-size-20);
         }
       }
 
@@ -214,8 +214,8 @@
             
             .item {
               flex: 0 0 auto;
-              height: 30px !important;
-              line-height: 32px;
+              height: 1.875rem !important;
+              line-height: 2rem;
               margin: 0 12px;
               color: var(--fcb-text);
               border-bottom: var(--fcb-sheet-tab-border);
@@ -254,7 +254,7 @@
 
       /* Dialog */
       .dialog-content {
-        margin-bottom: 8px;
+        margin-bottom: 0.5rem;
       }
 
       .fcb-sheet-container a[disabled] {

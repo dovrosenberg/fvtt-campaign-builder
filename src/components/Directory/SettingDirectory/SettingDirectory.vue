@@ -251,7 +251,7 @@
     .fcb-setting-list {
       padding: 0;
       flex-grow: 1;
-      margin-top: 3px;      
+      margin-top: .1875rem;      
 
       .fcb-setting-folder {
         align-items: flex-start;
@@ -393,7 +393,7 @@
         background: #777;
         display: block;
         width: 15px;
-        height: 15px;
+        height: .9375rem;
         border-radius: 50em;
         left: -1.2em;
         top: 0.5em;

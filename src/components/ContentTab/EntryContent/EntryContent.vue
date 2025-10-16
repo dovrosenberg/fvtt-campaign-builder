@@ -148,7 +148,7 @@
               >
                 <Editor
                     :initial-content="currentEntry?.rolePlayingNotes || ''"
-                    :style="{ 'height': '180px', 'margin-bottom': '6px'}"
+                    :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
                     @editor-saved="onRolePlayingNotesSaved"
                   />
               </div>
@@ -164,7 +164,7 @@
                   :initial-content="currentEntry?.description || ''"
                   :current-entity-uuid="currentEntry?.uuid"
                   :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
-                  :style="{ 'height': '240px', 'margin-bottom': '6px'}"
+                  :style="{ 'height': '240px', 'margin-bottom': '.375rem'}"
                   @editor-saved="onDescriptionEditorSaved"
                   @related-entries-changed="onRelatedEntriesChanged"
                 />
@@ -186,7 +186,7 @@
               >
                 <Editor
                     :initial-content="currentEntry?.rolePlayingNotes || ''"
-                    :style="{ 'height': '180px', 'margin-bottom': '6px'}"
+                    :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
                     @editor-saved="onRolePlayingNotesSaved"
                   />
               </div>
@@ -794,6 +794,7 @@
   }
   
   .tags-container {
+    // TODO - search for "31" and see todo note about changing this to rem
     min-height: 43px; /* Set a fixed minimum height for the tags container */
     position: relative;
   }
