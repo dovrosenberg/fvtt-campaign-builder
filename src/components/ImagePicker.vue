@@ -1,6 +1,7 @@
 <template>
   <div
     class="fcb-sheet-image"
+    data-testid="image-picker"
     @click="onImageClick"
     @contextmenu="onContextMenu"
     :title="isDefaultImage ? 'Click to select an image' : 'Click to view image (right-click for more options)'"
@@ -427,7 +428,7 @@
 <style lang="scss">
   .fcb-sheet-image {
     flex: 0 0 180px;
-    font-size: 13px;
+    font-size: var(--font-size-13);
     height: 240px;
     width: 180px;
     position: relative;
@@ -460,7 +461,7 @@
       color: white;
       border-radius: 3px;
       padding: 3px 5px;
-      font-size: 12px;
+      font-size: var(--font-size-12);
       opacity: 0.7;
       transition: opacity 0.2s;
 

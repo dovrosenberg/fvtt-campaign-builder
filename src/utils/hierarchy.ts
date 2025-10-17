@@ -43,9 +43,9 @@ export function validParentItems(FCBSetting: FCBSetting, entry: Entry): {name: s
     return [];
 
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
-  return topicFolder
-    .filterEntries((e: Entry)=>( e.uuid !== entry.uuid && !(hierarchies[e.uuid]?.ancestors || []).includes(entry.uuid)))
-    .map((e: Entry)=>({ name: e.name, id: e.uuid}));
+  return Object.keys(topicFolder.entries)
+    .map((uuid)=> ({ name: topicFolder.entries[uuid], id: uuid}))
+    .filter(e=>( e.id !== entry.uuid && !(hierarchies[e.id]?.ancestors || []).includes(entry.uuid)));
 }
 
 /**

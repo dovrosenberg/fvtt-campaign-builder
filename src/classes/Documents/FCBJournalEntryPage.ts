@@ -1,6 +1,8 @@
 import { toRaw } from 'vue';
 import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/settings';
 import { ValidDocType } from '@/types';
+import { FCBSetting } from './FCBSetting';
+import { getGlobalSetting } from '@/classes';
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
@@ -38,15 +40,19 @@ export class FCBJournalEntryPage<
     this._clone = doc.clone({}, { keepId: true });
   }
 
-  get uuid(): string {
+  public get raw(): DocClass {
+    return this._doc;
+  }
+
+  public get uuid(): string {
     return this._clone.uuid;
   }
 
-  get name(): string {
+  public get name(): string {
     return this._clone.name;
   }
 
-  set name(value: string)  {
+  public set name(value: string)  {
     this._clone.name = value;
 
     // also set the parent
@@ -54,15 +60,15 @@ export class FCBJournalEntryPage<
       this._clone.parent.name = value;
   }
 
-  get compendiumId(): string {
+  public get compendiumId(): string {
     return this._doc.pack || '';
   }
 
-  get compendium(): CompendiumCollection<'JournalEntry'> { 
+  public get compendium(): CompendiumCollection<'JournalEntry'> { 
     return game.packs.get(this.compendiumId) as unknown as CompendiumCollection<'JournalEntry'>;
   }
 
-  get settingId(): string {
+  public get settingId(): string {
     const settings = ModuleSettings.get(SettingKey.settingIndex);
 
     const setting = settings.find(s => s.packId === this._doc.pack);
@@ -72,6 +78,14 @@ export class FCBJournalEntryPage<
     
     return setting.settingId;
   }
+
+  public async getSetting(): Promise<FCBSetting> {
+    const setting = await getGlobalSetting(this.settingId);
+    if (!setting)
+      throw new Error(`Setting not found for FCBJournalEntryPage ${this.uuid}`);
+    return setting;
+  }
+
 
   static async fromUuid<
     DocType extends ValidDocType,
@@ -107,7 +121,8 @@ export class FCBJournalEntryPage<
         
       // now save the page
       // need to pass false to toObject to use the current in memory version
-      const retval = await toRaw(this._doc)?.update(this._clone.toObject(false))  as DocClass | undefined;
+      // we use recursive: false so that removed keys, etc. are removed from the database
+      const retval = await toRaw(this._doc)?.update(this._clone.toObject(false), { recursive: false })  as DocClass | undefined;
 
       // no update done; should probably reload clone to avoid data loss
       if (!retval) {
@@ -137,28 +152,31 @@ export class FCBJournalEntryPage<
   > (this: T, compendiumId: string, name: string, initialData: Record<string, unknown> = {}): Promise<InstanceType<T> | null> {
     // find the folder it goes in 
     const pack = game.packs.get(compendiumId);
-    let folder = pack?.folders.find(f => f.name === this._folderName);
-    if (!folder) {
-      // make it
-      const folders = await Folder.createDocuments([{
-        name: this._folderName,
-        type: 'JournalEntry' as const,
-        sorting: 'a' as const,
-      }], { pack: compendiumId });
-  
-      if (!folders)
-        throw new Error('Invalid folder in FCBJournalEntryPage.create()');
-  
-      folder = folders[0];
+
+    let folder;
+    if (this._folderName) {
+      folder = pack?.folders.find(f => f.name === this._folderName);
+      if (!folder) {
+        // make it
+        const folders = await Folder.createDocuments([{
+          name: this._folderName,
+          type: 'JournalEntry' as const,
+          sorting: 'a' as const,
+        }], { pack: compendiumId });
+    
+        if (!folders)
+          throw new Error('Invalid folder in FCBJournalEntryPage.create()');
+    
+        folder = folders[0];
+      }
     }
-  
+
+    const options = { name } as { name: string; folder?: string };
+    if (this._folderName)
+      options.folder = folder.id;
+
     // create a wrapping journal entry for the content
-    const journalEntry = await JournalEntry.create({
-      name: name,
-      folder: folder.id,
-    },{
-      pack: compendiumId,
-    });
+    const journalEntry = await JournalEntry.create(options, { pack: compendiumId });
   
     if (!journalEntry)
       throw new Error('Couldn\'t create new journal entry');

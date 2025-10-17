@@ -10,6 +10,7 @@
       v-if="!props.editOnlyMode && props.editable"
       ref="buttonRef"
       class="editor-edit"
+      data-testid="editor-edit-button"
       :style="`display: ${ buttonDisplay }`"
       @click="activateEditor"
     >

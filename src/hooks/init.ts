@@ -11,7 +11,7 @@ export function registerForInitHook() {
 async function init(): Promise<void> {
   // Load Quench test in development environment
   if (import.meta.env.MODE === 'development') {
-    await import('@test/index');
+    // await import('@unittest/index');
   }
 
   // initialize settings first, so other things can use them
@@ -34,6 +34,8 @@ async function init(): Promise<void> {
     'pages.uuid',
     'pages.name',
     'pages.system.number',  // for sessions
+    'pages.system.topic',  // for entries
+    'pages.system.type',  // for entries
   );
     
   // the sheet  

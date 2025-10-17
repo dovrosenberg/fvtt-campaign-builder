@@ -1,4 +1,4 @@
-import { DOCUMENT_TYPES } from 'src/documents/types.js';
+import { DOCUMENT_TYPES } from '@/documents/types.js';
 
 export type * from './directory.d.ts';
 export type * from './tables.d.ts';

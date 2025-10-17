@@ -187,7 +187,7 @@
       border-bottom: 1px solid var(--fcb-header-border-color);
       color: var(--fcb-sidebar-label-color);
       margin-bottom: 0px;
-      padding: 8px 0px 8px 8px;
+      padding: 8px 0px 0px 8px;
       font-family: var(--fcb-font-family);
 
       .fcb-header-filter {
@@ -222,10 +222,14 @@
 
       .fcb-header-group-type {
         flex: 1;
-        height: var(--form-field-height);
+        font-size: var(--font-size-12);
 
         #fcb-group-by-type {
           flex: 0;
+        }
+
+        label {
+          padding-left: 3px;
         }
       }
     }

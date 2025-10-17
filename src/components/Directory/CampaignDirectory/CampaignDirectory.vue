@@ -105,9 +105,8 @@
 
 <style lang="scss">
   #fcb-directory {
-    .action-buttons {
-      padding-left: 30px;
-    }
+    // main color
+    color: var(--fcb-text);
 
     // the campaign list section
     .fcb-directory-panel-wrapper {
@@ -115,13 +114,12 @@
         padding: 0;
         flex-grow: 1;
         /* overflow: hidden; */
-        margin-top: 3px;
-      }
+        margin-top: .1875rem;
 
-      .fcb-setting-folder {
-        min-width: 100%;
-        width: max-content;
-        font-weight: 700;
+        .fcb-setting-folder > .folder-header {
+          background: inherit !important;
+          font-weight: 700;
+        }
       }
 
       .fcb-campaign-contents {

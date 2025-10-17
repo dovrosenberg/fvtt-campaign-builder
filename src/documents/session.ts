@@ -1,6 +1,8 @@
 import { TagInfo } from '@/types';
 import { schemas } from './fields';
 
+const fields = foundry.data.fields;
+
 export interface SessionRelatedItem {
   uuid: string;
   delivered: boolean;
@@ -27,8 +29,7 @@ export interface SessionLore extends SessionRelatedItem {
   sortOrder: number;
 }
 
-const fields = foundry.data.fields;
-const sessionSchema = {
+export const SessionSchema = {
   /** the campaign this session is in */
   campaignId: new fields.DocumentUUIDField({ required: true, nullable: false }),
 
@@ -84,11 +85,11 @@ const sessionSchema = {
   tags: schemas.Tags(),
 };
 
-type SessionSchemaType = typeof sessionSchema;
+type SessionSchemaType = typeof SessionSchema;
 
 export class SessionDataModel<Schema extends SessionSchemaType, ParentNode extends JournalEntry> extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
   static defineSchema(): SessionSchemaType {
-    return sessionSchema;
+    return SessionSchema;
   }
 
   /** @override */

@@ -20,7 +20,7 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
   }
 
   // converts the entry to a DirectoryEntryNode for cleaner interface
-  static fromEntry = (entry: Entry): DirectoryEntryNode => {
+  static fromEntry = async (entry: Entry): Promise<DirectoryEntryNode> => {
     if (!CollapsibleNode._currentSetting)
       throw new Error('No currentSetting in DirectoryEntryNode.fromEntry()');
 
@@ -28,14 +28,11 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
     const expandedIds = CollapsibleNode._currentSetting.expandedIds;
     const expanded = (expandedIds && expandedIds[entry.uuid]) || false;
 
-    if (!entry.topicFolder)
-      throw new Error('No topicFolder in DirectoryEntryNode.fromEntry()');
-
     return new DirectoryEntryNode(
       entry.uuid,
       entry.name || NO_NAME_STRING,
       entry.type || NO_TYPE_STRING,
-      entry.topicFolder,
+      await entry.getTopicFolder(),
       hierarchy?.parentId || null,
       hierarchy?.children || [],
       [],

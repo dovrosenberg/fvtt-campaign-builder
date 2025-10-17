@@ -7,6 +7,7 @@
       <div :class="'summary ' + (props.top ? 'top' : '')">      
         <div 
           class="fcb-directory-expand-button"
+          data-testid="directory-expand-button"
           @click="onEntryToggleClick"
         >
           <span v-if="currentNode.expanded">-</span><span v-else>+</span>
@@ -14,6 +15,7 @@
         <div 
           :class="`${currentNode.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
           draggable="true"
+          :data-testid="`directory-entry-with-children-${currentNode.id}`"
           @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"
           @dragstart="onDragStart($event, currentNode.id, currentNode.name)"
           @drop="onDrop"

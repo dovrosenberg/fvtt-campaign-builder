@@ -1,196 +1,108 @@
-import { toRaw } from 'vue';
-import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
-import { TopicDoc, TopicFlagKey, topicFlagSettings, EntryDoc } from '@/documents';
-import { DocumentWithFlags, Entry, FCBSetting } from '@/classes';
-import { ValidTopic } from '@/types';
-import { getTopicTextPlural } from '@/compendia';
+import { toRaw, } from 'vue';
+import { EntryDoc, entryIndexFields } from '@/documents';
+import { Entry, FCBSetting } from '@/classes';
+import { EntryFilterIndex, ValidTopic } from '@/types';
 
 // represents a topic entry (ex. a character, location, etc.)
-export class TopicFolder extends DocumentWithFlags<TopicDoc> {
-  static override _documentName = 'JournalEntry';
-  static override _flagSettings = topicFlagSettings;
-
-  public setting: FCBSetting | null;  // the setting the topic is in (if we don't setup up front, we can load it later)
-
-  // saved in flags
-  private _topNodes: string[];
-  private _types: string[];
-  private _topic: ValidTopic;
+export class TopicFolder {
+  public setting: FCBSetting;  // the setting the topic is in (if we don't setup up front, we can load it later)
+  public topic: ValidTopic;
 
   /**
    * 
    * @param {TopicDoc} topicDoc - The topic Foundry document
    * @param {FCBSetting} setting - The setting the campaign is in
    */
-  constructor(topicDoc: TopicDoc, setting?: FCBSetting) {
-    super(topicDoc, TopicFlagKey.isTopic);
-
-    this.setting = setting || null;
-
-    this._topNodes = this.getFlag(TopicFlagKey.topNodes);
-    this._types = this.getFlag(TopicFlagKey.types);
-    this._topic = this.getFlag(TopicFlagKey.topic);
+  constructor(topic: ValidTopic, setting: FCBSetting) {
+    this.setting = setting;
+    this.topic = topic;
   }
 
-  override async _getSetting(): Promise<FCBSetting> {
-    return await this.getSetting();
-  };
-  
-  static async fromUuid(topicId: string, options?: Record<string, any>): Promise<TopicFolder | null> {
-    const topicDoc = await fromUuid<TopicDoc>(topicId, options);
 
-    if (!topicDoc)
-      return null;
-    else {
-      return new TopicFolder(topicDoc);
-    }
-  }
-
-  get uuid(): string {
-    return this._doc.uuid;
-  }
-
-  /**
-   * Gets the setting associated with a topic, loading into the campaign 
-   * if needed.
-   * 
-   * @returns {Promise<FCBSetting>} A promise to the setting associated with the campaign.
-   */
-  public async getSetting(): Promise<FCBSetting> {
-    if (!this.setting)
-      await this.loadSetting();
-
-    return (this.setting as FCBSetting);
-  }
-  
-  /**
-   * Gets the FCBSetting associated with the topic. If the setting is already loaded, the promise resolves
-   * to the existing setting; otherwise, it loads the setting and then resolves to it.
-   * @returns {Promise<FCBSetting>} A promise to the setting associated with the topic.
-   */
-  public async loadSetting(): Promise<FCBSetting> {
-    if (this.setting)
-      return this.setting;
-    
-    this.setting = await FCBSetting.fromUuid(this.settingId);
-
-    if (!this.setting)
-      throw new Error('Error loading setting in TopicFolder.loadSetting()');
-
-    return this.setting;
-  }
-  
   /**
    * An array of top-level nodes.
    */
   public get topNodes(): readonly string[] {
-    return this._topNodes;
+    return this.setting.topics[this.topic].topNodes;
   }
   
   /**
    * An array of top-level nodes.
    */
   public set topNodes(value: string[] | readonly string[]) {
-    this._topNodes = value.slice();   // we clone it so it can't be edited outside
-    this.updateCumulative(TopicFlagKey.topNodes, this._topNodes);
-  }
-
-  /**
-   * The settingId for this topic folder
-   */
-  public get settingId(): string {
-    // if it belongs to us, it's in a pack
-    if (!this._doc.pack)
-      throw new Error('Missing pack in TopicFolder.settingId()');
-    
-    const settingId = ModuleSettings.get(SettingKey.settingIndex).find((s) => s.packId === this._doc.pack)?.settingId;
-
-    if (!settingId)
-      throw new Error('Missing settingId in TopicFolder.settingId()');
-
-    return settingId;
-  }
-
-  /**
-   * The topic for this object
-   */
-  public get topic(): ValidTopic {
-    return this._topic;
-  }
-
-  /**
-   * The topic
-   */
-  public set topic(value: ValidTopic) {
-    this._topic = value;
-    this.updateCumulative(TopicFlagKey.topic, value);
+    this.setting.topics[this.topic].topNodes = value.slice();
   }
 
   /**
    * An object where each key is a topic, and the value is an array of valid types.
    */
   public get types(): string[] {
-    return this._types;
+    return this.setting.topics[this.topic].types;
   }
 
   /**
    * An object where each key is a topic, and the value is an array of valid types.
    */
   public set types(value: string[]) {
-    this._types = value;
-    this.updateCumulative(TopicFlagKey.types, value);
+    this.setting.topics[this.topic].types = value;
+  }
+
+  public get entries(): Record<string, string> {
+    return this.setting.topics[this.topic].entries;
+  }
+
+  public set entries(value: Record<string, string>) {
+    this.setting.topics[this.topic].entries = value;
   }
   
   /**
-   * Creates a new topic.  Does not add to setting.
-   * 
-   * @param {FCBSetting} setting - The setting to create the topic in. 
-   * @param {ValidTopic} topic - The topic for the TopicFolder
-   * @returns A promise that resolves when the topic has been created, with either the resulting entry or null on error
-   */
-  static async create(setting: FCBSetting, topic: ValidTopic): Promise<TopicFolder | null> {
-    let newTopicDoc: TopicDoc | null = null;
-
-    // create a journal entry for the campaign
-    newTopicDoc = await JournalEntry.create({
-      name: getTopicTextPlural(topic),
-      folder: foundry.utils.parseUuid(setting.uuid).id,
-    },{
-      pack: setting.pack,
-    }) as unknown as TopicDoc;
-
-    if (!newTopicDoc)
-      throw new Error('Couldn\'t create new topic');
-
-    const newTopic = new TopicFolder(newTopicDoc, setting);
-    await newTopic.setup();
-
-    newTopic.topic = topic;
-    await newTopic.save();
-
-    return newTopic;
-  }
-  
-  /**
-   * Given a filter function, returns all the matching Entries
+   * Given a filter function, returns all the matching entries
    * inside this topic
    * 
-   * @param {(e: Entry) => boolean} filterFn - The filter function
+   * @param {(e: EntryFilterIndex) => boolean} filterFn - The filter function
    * @returns {Entry[]} The entries that pass the filter
    */
-  public filterEntries(filterFn: (e: Entry) => boolean): Entry[] { 
-    return (toRaw(this._doc).pages.contents as unknown as EntryDoc[])
-      .map((e: EntryDoc)=> new Entry(e, this))
-      .filter((e: Entry)=> filterFn(e));
-  }
+  public async filterEntries<T extends boolean>(filterFn: (s: EntryFilterIndex) => boolean, fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
+    // get all the journal entries
+    const indexes = await toRaw(this.setting.compendium).getIndex(entryIndexFields);
+  
+    // find the sessions connected to this entries in this folder
+    const entries = indexes
+      .filter((e)=> (
+        // filter out just the ones that are in this folders' entries list
+        !!e.pages && e.pages.length===1 &&
+        !!this.entries[`${e.uuid}.JournalEntryPage.${e.pages![0]._id}`]
+      ))
+      .map((e) => ({ 
+        name: e.name, 
+        uuid: `${e.uuid}.JournalEntryPage.${e.pages![0]._id}`,
+        type: e.pages![0].system.type,
+        topic: this.topic,
+      } as EntryFilterIndex))
 
+      // now filter by the function passed in 
+      .filter((s: EntryFilterIndex)=> filterFn(s)) || [];
+
+    if (!fullEntry)
+      return entries;
+    
+    let retval = [] as Entry[];
+    for (let i=0; i<entries.length; i++) {
+      const entry = await Entry.fromUuid(entries[i].uuid);
+      if (entry)
+        retval.push(entry);
+    }
+
+    return retval;
+  }
+  
   /**
    * Returns all the entries inside this topic
    * 
-   * @returns {Entry[]} The entries
+   * @returns {Entry[] | EntryFilterIndex[]} The entries
    */
-  public allEntries(): Entry[] { 
-    return this.filterEntries(() => true);
+  public async allEntries<T extends boolean>(fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
+    return await this.filterEntries(() => true, fullEntry);
   }
 
    /**
@@ -202,7 +114,7 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    public findEntry(uuid: string): Entry | null { 
     const match: EntryDoc | undefined = (toRaw(this._doc).pages.contents as unknown as EntryDoc[]).find((e: EntryDoc)=> e.uuid === uuid);
 
-    return match ? new Entry(match, this) : null;
+    return match ? new Entry(match) : null;
   }
 
   /**
@@ -211,40 +123,8 @@ export class TopicFolder extends DocumentWithFlags<TopicDoc> {
    * @returns {Promise<TopicFolder | null>} The updated topic, or null if the update failed.
    */
   public async save(): Promise<TopicFolder | null> {
-    const updateData = this._cumulativeUpdate;
-
-    let success = false;
-
-    if (Object.keys(updateData).length !== 0) {
-      // protect any complex flags
-      if (updateData.flags && updateData.flags[moduleId])
-        updateData.flags[moduleId] = this.prepareFlagsForUpdate(updateData.flags[moduleId]);
-
-      const retval = await toRaw(this._doc).update(updateData) || null;
-      if (retval) {
-        this._doc = retval;
-        this._cumulativeUpdate = {};
-
-        success = true;
-      }
-    }
-    
-    return success ? this : null;
+    // it's on the setting
+    await this.setting?.save();
+    return this;
   }
-
-  /**
-   * Deletes a topic from the database, along with all the related entries
-   * 
-   * @returns {Promise<void>}
-   */
-  public async delete() {
-    if (!this._doc)
-      return;
-
-    let setting = this.setting;
-    if (!setting)
-      setting = await this.loadSetting();
-
-    await this._doc.delete();
-  }   
 }

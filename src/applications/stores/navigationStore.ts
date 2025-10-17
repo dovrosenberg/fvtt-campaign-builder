@@ -18,7 +18,7 @@ import { notifyError, notifyInfo } from '@/utils/notifications';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, FCBSetting } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, getGlobalSetting } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -35,7 +35,7 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   ///////////////////////////////
   // external state
-  const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of WBHeader)
+  const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of FCBHeader)
   const bookmarks = ref<Bookmark[]>([]);
   const recent = ref<TabHeader[]>([]);
 
@@ -160,15 +160,23 @@ export const useNavigationStore = defineStore('navigation', () => {
         if (!entry) {
           badId = true;
         } else {
+          // if (entry.settingId !== currentSetting.value?.uuid) {
+          //   await mainStore.setNewSetting(entry.settingId);  
+          // }
+
           name = entry.name;
           icon = getTopicIcon(entry.topic);
         }
       } break;
       case WindowTabType.Setting: {
-        const setting = contentId ? await FCBSetting.fromUuid(contentId) : null;
+        const setting = contentId ? await getGlobalSetting(contentId) : null;
         if (!setting) {
           badId = true;
         } else {
+          if (setting.settingId !== currentSetting.value?.uuid) {
+            await mainStore.setNewSetting(setting.uuid);  
+          }
+
           name = setting.name;
           icon = getTabTypeIcon(WindowTabType.Setting);
         }
@@ -179,6 +187,10 @@ export const useNavigationStore = defineStore('navigation', () => {
         if (!campaign) {
           badId = true;
         } else {
+          if (campaign.settingId !== currentSetting.value?.uuid) {
+            await mainStore.setNewSetting(campaign.settingId);  
+          }
+
           name = campaign.name; 
           icon = getTabTypeIcon(WindowTabType.Campaign);
         }
@@ -188,6 +200,10 @@ export const useNavigationStore = defineStore('navigation', () => {
         if (!session) {
           badId = true;
         } else {
+          if (session.settingId !== currentSetting.value?.uuid) {
+            await mainStore.setNewSetting(session.settingId);  
+          }
+
           name = `${localize('labels.session.session')} ${session.number}`;
           icon = getTabTypeIcon(WindowTabType.Session);
         }

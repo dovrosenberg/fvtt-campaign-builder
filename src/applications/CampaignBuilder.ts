@@ -13,6 +13,7 @@ import { DOCUMENT_TYPES } from '@/documents';
 import { MigrationManager } from '@/utils/migration';
 import { notifyError } from '@/utils/notifications';
 import { localize } from '@/utils/game';
+import { FCBSetting } from '@/classes';
 
 // setup pinia
 
@@ -32,6 +33,12 @@ export const renderCampaignBuilderApp = async (render = false) => {
   
   if (!wbApp) {
     wbApp = new CampaignBuilderApplication();
+
+    // we hold it here... there's an issue where we can't import this file
+    //    into other places that need access to wbApp because it triggers
+    //    an issue with pinia reference instantiation order
+    // @ts-ignore
+    game.modules.get(moduleId).activeWindow = wbApp;    
   }
 
   await wbApp.render(render);
@@ -184,16 +191,16 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     if (docType) {
       switch (docType) {
         case DOCUMENT_TYPES.Campaign:
-          useNavigationStore().openCampaign(uuid, doc.pack);
+          useNavigationStore().openCampaign(uuid);
           break;
         case DOCUMENT_TYPES.Session:
-          useNavigationStore().openSession(uuid, doc.pack);
+          useNavigationStore().openSession(uuid);
           break;
         case DOCUMENT_TYPES.Setting:
-          useNavigationStore().openSetting(uuid, doc.pack);
+          useNavigationStore().openSetting(uuid);
           break;
         case DOCUMENT_TYPES.Entry:
-          useNavigationStore().openEntry(uuid, doc.pack);
+          useNavigationStore().openEntry(uuid);
           break;
       }
     } else {

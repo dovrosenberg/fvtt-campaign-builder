@@ -34,7 +34,8 @@
 		"paths": {
 			"src/*": ["./src/*"],
 			"@/*": ["./src/*"],
-			"@test/*": ["./test/*"],
+			"@unittest/*": ["./test/unit/*"],
+			"@e2etest/*": ["./test/e2e/*"],
 			"@module": ["./static/module.json"]
 		}
 	},

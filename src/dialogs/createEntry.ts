@@ -8,6 +8,7 @@ import { Entry, TopicFolder } from '@/classes';
 import { generateImage, handleGeneratedEntry } from '@/utils/generation';
 import { localize } from '@/utils/game';
 import { theme } from '@/components/styles/primeVue';
+import { registerTopicFolderTests } from '@unittest/classes/TopicFolder.test';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -86,9 +87,10 @@ async function createEntryDialog(topic: ValidTopic,
   let validParents = [] as { id: string; label: string }[];
   const topicFolder = currentSetting.topicFolders[topic];
 
+  // TODO - shouldn't we check here to make sure it's a legal parent?
   if (topicFolder && hasHierarchy(topic)) {
-    validParents = topicFolder
-      .allEntries().map((e: Entry)=>({ label: e.name, id: e.uuid}));
+    validParents = Object.keys(topicFolder.entries)
+      .map((entryId: string)=>({ label: topicFolder.entries[entryId], id: entryId}));
   }
   
   // construct a promise that returns when the callback is called
@@ -145,9 +147,10 @@ async function updateEntryDialog(entry: Entry): Promise<Entry | null> {
   let validParents = [] as { id: string; label: string }[];
   const topicFolder = currentSetting.topicFolders[topic];
 
+  // TODO - shouldn't we check here to make sure it's a legal parent?
   if (topicFolder && hasHierarchy(topic)) {
-    validParents = topicFolder
-      .allEntries().map((e: Entry)=>({ label: e.name, id: e.uuid}));
+    validParents = Object.keys(topicFolder.entries)
+      .map((entryId: string)=>({ label: topicFolder.entries[entryId], id: entryId}));
   }
   
   // construct a promise that returns when the callback is called
@@ -203,8 +206,9 @@ const updatedCallback = async (entry: Entry, details: AnyDetails | null): Promis
     entry.speciesId = (details as CharacterDetails).speciesId;
   }
   
+  const topicFolder = await entry.getTopicFolder();
   if (hasHierarchy(entry.topic)) {
-    await settingDirectoryStore.setNodeParent(entry.topicFolder as TopicFolder, entry.uuid, (details as LocationDetails).parentId || null);
+    await settingDirectoryStore.setNodeParent(topicFolder, entry.uuid, (details as LocationDetails).parentId || null);
   }
 
   // Save the entry

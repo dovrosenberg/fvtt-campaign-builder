@@ -696,7 +696,7 @@
 
     .tooltip-icon {
       margin-left: 5px;
-      font-size: 12px;
+      font-size: var(--font-size-12);
       color: #888;
       cursor: help;
 

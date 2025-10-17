@@ -2,20 +2,20 @@
 
 // library imports
 import { defineStore, storeToRefs, } from 'pinia';
-import { reactive, onMounted, ref, toRaw, watch, nextTick } from 'vue';
+import { reactive, onMounted, ref, watch, nextTick } from 'vue';
 
 // local imports
 import { ModuleSettings, SettingKey, } from '@/settings';
 import { hasHierarchy, NO_TYPE_STRING } from '@/utils/hierarchy';
 import { useMainStore, useNavigationStore } from '@/applications/stores';
-import { getTopicTextPlural, } from '@/compendia';
+import { getCurrentSetting, getTopicTextPlural, } from '@/compendia';
 import { localize } from '@/utils/game';
 import { FCBDialog } from '@/dialogs';
 import { scrollToActiveEntry } from '@/utils/directoryScroll';
 
 // types
-import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder, } from '@/classes';
-import { DirectorySetting, Hierarchy, Topics, ValidTopic, } from '@/types';
+import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder, getGlobalSetting } from '@/classes';
+import { DirectorySetting, Hierarchy, Topics, ValidTopic, EntryFilterIndex } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
 // the store definition
@@ -114,7 +114,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       topicNode.loadedTypes.push(newTypeNode);
     }
 
-    newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([DirectoryTypeEntryNode.fromEntry(entry, newTypeNode)]).sort((a,b)=>a.name.localeCompare(b.name));
+    newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([await DirectoryTypeEntryNode.fromEntry(entry, newTypeNode)]).sort((a,b)=>a.name.localeCompare(b.name));
     newTypeNode.children.push(entry.uuid);
 
     // update the hierarchy (even for entries without hierarchy, we still need it for filtering)
@@ -171,7 +171,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (!child)
       return false;
 
-    const childNode =  DirectoryEntryNode.fromEntry(child);
+    const childNode =  await DirectoryEntryNode.fromEntry(child);
     const oldParentId = childNode.parentId;
 
     // make sure it's not already in the right place
@@ -180,7 +180,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     // get the parent, if any, and create the nodes for simpler syntax 
     const parent = parentId ? await Entry.fromUuid(parentId, topicFolder) : null;
-    const parentNode = parent ? DirectoryEntryNode.fromEntry(parent) : null;
+    const parentNode = parent ? await DirectoryEntryNode.fromEntry(parent) : null;
     
     // make sure they share a topic (if parent isn't null)
     if (parent && child.topic !== parent.topic)
@@ -195,7 +195,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       const oldParent = await Entry.fromUuid(childNode.parentId, topicFolder);
 
       if (oldParent) {
-        const oldParentNode = DirectoryEntryNode.fromEntry(oldParent);
+        const oldParentNode = await DirectoryEntryNode.fromEntry(oldParent);
         if (oldParentNode) {
           oldParentNode.children = oldParentNode.children.filter((c)=>c!==childId);
           await saveHierarchyToEntryFromNode(oldParent, oldParentNode);
@@ -242,7 +242,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
           if (!child)
             continue;
 
-          const childNode = DirectoryEntryNode.fromEntry(child);
+          const childNode = await DirectoryEntryNode.fromEntry(child);
           childNode.ancestors = childNode.ancestors.filter(a => !ancestorsToRemove.includes(a));
           childNode.ancestors = childNode.ancestors.concat(ancestorsToAdd);
 
@@ -339,7 +339,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
    * @returns A promise that resolves when the setting and its compendia are deleted.
    */
   const deleteSetting = async (settingId: string): Promise<void> => {
-    const setting = await FCBSetting.fromUuid(settingId);
+    let setting = await getGlobalSetting(settingId);
 
     if (!setting)
       return;
@@ -351,13 +351,13 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     await setting.delete();
 
     // pick another setting
-    const settings = ModuleSettings.get(SettingKey.settingIndex) || [];
-    if (settings.length>0) {
-      const settingId = settings[0].settingId;
-      await mainStore.setNewSetting(settingId);
+    setting = await getCurrentSetting();
+    if (setting) {
+      await mainStore.setNewSetting(setting.uuid);
     } else {
       // close all tabs and bookmarks (if we're changing settings they'll reset automatically)
       await navigationStore.clearTabsAndBookmarks();
+      await mainStore.setNewSetting(null);
     }
 
     await refreshSettingDirectoryTree();
@@ -375,7 +375,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     // save the parent
     const parentId = currentSetting.value.getEntryHierarchy(entryId)?.parentId || null;
 
-    const entry = currentSetting.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId)[0];
+    const entry = await (currentSetting.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId, true))[0];
     await entry.delete();
 
     // update tabs/bookmarks
@@ -391,8 +391,11 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshSettingDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
     // need to have a current setting and journals loaded
-    if (!currentSetting.value)
+    if (!currentSetting.value) {
+      // empty it out
+      currentSettingTree.value = [];
       return;
+    }
 
     isTopicTreeRefreshing.value = true;
 
@@ -424,7 +427,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     const currentSettingBlock = tree.find((w)=>w.id===currentSetting.value?.uuid);
     if (currentSettingBlock && currentSettingFound && currentSetting.value) {
       // make sure the folders have been loaded
-      const topicFolders = await currentSetting.value.loadTopics();
+      const topicFolders = currentSetting.value.topicFolders;
       const expandedNodes = currentSetting.value.expandedIds;
 
       const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
@@ -461,7 +464,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     currentSettingTree.value = tree;
 
     // make sure the node list is up to date
-    updateFilterNodes();
+    await updateFilterNodes();
 
     isTopicTreeRefreshing.value = false;
 
@@ -565,7 +568,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // this includes: all nodes matching the filterText, all of their ancestors, and
   //    all of their types (we also ways leave the packs)
   // it's an object keyed by topic with a list of all the ids to include
-  const updateFilterNodes = (): void => {
+  const updateFilterNodes = async (): Promise<void> => {
     if (!currentSetting.value)
       return;
 
@@ -585,7 +588,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       const topicObj = currentSetting.value.topicFolders[topics[i]];
 
       // filter on name and type
-      const matchedEntryObjects = topicObj.filterEntries((e: Entry)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )));
+      const matchedEntryObjects = await topicObj.filterEntries((e: EntryFilterIndex)=>( filterText.value === '' || regex.test( e.name || '' ) || regex.test( e.type || '' )), false);
     
       let allItemsToShow: string[] = [];
 
@@ -636,8 +639,8 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   });
 
   // update the filter when text changes
-  watch(filterText, () => {
-    updateFilterNodes();
+  watch(filterText, async () => {
+    await updateFilterNodes();
   });
   
   ///////////////////////////////

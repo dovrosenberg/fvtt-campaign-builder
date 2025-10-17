@@ -2,7 +2,7 @@
   <!-- For some reason, submitting this form (and only this form, not any of the other content forms) by hitting enter in the name input crashes the browser -->
   <form @submit.prevent="">
     <div ref="contentRef" class="fcb-sheet-container flexcol">
-      <header class="fcb-name-header flexrow" style="margin-bottom: 10px;">
+      <header class="fcb-name-header flexrow" style="margin-bottom: .625rem;">
         <i :class="`fas ${icon} sheet-icon`"></i>
         <InputText
           v-model="name"

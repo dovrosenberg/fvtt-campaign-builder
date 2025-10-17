@@ -3,6 +3,7 @@
     <input 
       id="fcb-tags-input" 
       :class="'tags-input' + (isInitialized ? '' : ' uninitialized')" 
+      data-testid="tags-input"
       :value="JSON.stringify(currentValue)" 
       :placeholder="'Tags...'"
     />
@@ -236,6 +237,7 @@
 
 <style lang="scss">
   .tags-wrapper {
+    // TODO - do these heights need to change when font size scales? Should it be like xrem+1px or something?
     min-height: 31px;
     width: 100%;
     position: relative;

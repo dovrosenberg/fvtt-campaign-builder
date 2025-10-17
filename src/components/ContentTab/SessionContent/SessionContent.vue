@@ -413,7 +413,7 @@
     font-weight: 600;
     font-family: var(--fcb-font-family);
     color: var(--fcb-sheet-header-label-color);
-    margin-bottom: 8px;
+    margin-bottom: .5rem;
   }
   .fcb-table-help-icon {
     margin-left: 8px;

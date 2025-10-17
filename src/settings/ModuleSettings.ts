@@ -257,7 +257,7 @@ export class ModuleSettings {
     },
     {
       settingID: SettingKey.lastKnownVersion,
-      default: '1.0.0',
+      default: '',
       type: String,
     },
     {

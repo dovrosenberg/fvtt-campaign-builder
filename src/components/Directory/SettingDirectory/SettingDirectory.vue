@@ -10,6 +10,7 @@
     >
       <header
         class="folder-header flexrow"
+        :data-testid="`setting-folder-${setting.name}`"
         @contextmenu="onSettingContextMenu($event, setting.id)"
         @click="onSettingFolderClick($event, setting.id)"
       >
@@ -68,6 +69,7 @@
   import { localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
+  import { getGlobalSetting } from '@/classes';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -183,7 +185,7 @@
           label: localize('contextMenus.settingFolder.createCampaign'), 
           onClick: async () => {
             if (settingId) {
-              const setting = await FCBSetting.fromUuid(settingId);
+              const setting = await getGlobalSetting(settingId);
 
               if (setting) {
                 await campaignDirectoryStore.createCampaign(setting);
@@ -249,7 +251,7 @@
     .fcb-setting-list {
       padding: 0;
       flex-grow: 1;
-      margin-top: 3px;      
+      margin-top: .1875rem;      
 
       .fcb-setting-folder {
         align-items: flex-start;
@@ -336,7 +338,7 @@
 
     // bold the active one
     .fcb-current-directory-entry {
-      color: var(--fcb-active-color);
+      color: var(--fcb-accent-400);
       font-weight: 700;
       cursor: pointer;
     }
@@ -391,7 +393,7 @@
         background: #777;
         display: block;
         width: 15px;
-        height: 15px;
+        height: .9375rem;
         border-radius: 50em;
         left: -1.2em;
         top: 0.5em;

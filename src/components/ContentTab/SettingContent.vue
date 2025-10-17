@@ -3,7 +3,7 @@
     v-if="currentSetting"
   >
     <div ref="contentRef" class="fcb-sheet-container flexcol">
-      <header class="fcb-name-header flexrow">
+      <header class="fcb-name-header flexrow" data-testid="setting-name-header">
         <i :class="`fas ${icon} sheet-icon`"></i>
         <InputText
           v-model="name"
@@ -18,6 +18,7 @@
         />
         <button
           class="fcb-generate-button"
+          data-testid="setting-generate-button"
           @click="onGenerateButtonClick"
           :disabled="generateDisabled"
           :title="`${localize('tooltips.settingGenerateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"
@@ -46,6 +47,7 @@
                 <InputText
                   v-model="currentSetting.genre"
                   type="text"
+                  data-testid="setting-genre-input"
                   style="width: 250px; font-family: var(--fcb-font-family)"
                   @update:model-value="onGenreSaved"
                 />
@@ -58,6 +60,7 @@
                 <Textarea
                   v-model="currentSetting.settingFeeling"
                   rows="3"
+                  data-testid="setting-feeling-textarea"
                   style="width: calc(100% - 2px); font-family: var(--fcb-font-family)"
                   @update:model-value="onSettingFeelingSaved"
                 />

@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"typeRoots": [ "../../src/types", "node", "@playwright/test"],
+		"noEmit": true
+	},
+	"include": [
+		"./**/*.ts",
+		"../../src/types/**/*.d.ts"
+	],
+	"exclude": []
+}

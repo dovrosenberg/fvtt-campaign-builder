@@ -283,23 +283,23 @@ export const useRelationshipStore = defineStore('relationship', () => {
       delete entryRelationships[relatedItemTopic][relatedEntry.uuid];
 
       // @ts-ignore - foundry code to delete the key
-      entryRelationships[relatedItemTopic][`-=${relatedItemId}`] = null;
+      // entryRelationships[relatedItemTopic][`-=${relatedItemId}`] = null;
       entry.relationships = entryRelationships;
       await entry.save();
 
       // clean out the entry that tells foundry to delete the key
-      delete entryRelationships[relatedItemTopic][`-=${relatedItemId}`];
+      // delete entryRelationships[relatedItemTopic][`-=${relatedItemId}`];
     }
     if (relatedEntryRelationships && relatedEntryRelationships[entryTopic] && relatedEntryRelationships[entryTopic][entry.uuid]) {
       delete relatedEntryRelationships[entryTopic][entry.uuid];
 
       // @ts-ignore - foundry code to delete the key
-      relatedEntryRelationships[entryTopic][`-=${entry.uuid}`] = null;
+      // relatedEntryRelationships[entryTopic][`-=${entry.uuid}`] = null;
       relatedEntry.relationships = relatedEntryRelationships;
       await relatedEntry.save();
 
       // clean out the entry that tells foundry to delete the key
-      delete relatedEntryRelationships[entryTopic][`-=${entry.uuid}`];
+      // delete relatedEntryRelationships[entryTopic][`-=${entry.uuid}`];
     }
 
     await mainStore.refreshEntry();

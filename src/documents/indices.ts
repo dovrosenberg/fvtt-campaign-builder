@@ -13,3 +13,13 @@ export const sessionIndexFields = {
     'pages.system.number'
   ]
 } as any;
+
+export const entryIndexFields = {
+  fields: [
+    TYPE_FIELD,
+    'pages.name', 
+    'pages.uuid', 
+    'pages.system.topic',
+    'pages.system.type'
+  ]
+} as any;

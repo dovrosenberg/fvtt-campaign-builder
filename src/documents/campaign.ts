@@ -4,7 +4,7 @@ import { DOCUMENT_TYPES } from './types';
 import { schemas } from './fields';
 
 const fields = foundry.data.fields;
-const campaignSchema = {
+export const CampaignSchema = {
   /** campaign description */
   description: new fields.StringField({ required: true, nullable: false, initial: '' }),  
 
@@ -52,14 +52,14 @@ const campaignSchema = {
 
 };
 
-type SchemaType = typeof campaignSchema;
+type SchemaType = typeof CampaignSchema;
 
 export class CampaignDataModel<
   Schema extends SchemaType = SchemaType, 
   ParentNode extends JournalEntry = JournalEntry
 > extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
   static defineSchema(): SchemaType {
-    return campaignSchema;
+    return CampaignSchema;
   }
 
   // override prepareBaseData(): void {

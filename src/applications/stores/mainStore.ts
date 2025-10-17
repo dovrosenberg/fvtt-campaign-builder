@@ -5,15 +5,15 @@ import { defineStore, } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
 // local imports
-import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, } from '@/settings';
+import { UserFlagKey, UserFlags, ModuleSettings, SettingKey, moduleId, } from '@/settings';
 import { updateWindowTitle } from '@/utils/titleUpdater';
 import { useNavigationStore } from '@/applications/stores/navigationStore';
 import { updateSettingRollTableNames } from '@/utils/nameGenerators';
 
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
-import { TopicFolder, FCBSetting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, } from '@/classes';
-import { EntryDoc, SessionDoc, CampaignDoc, } from '@/documents';
+import { FCBSetting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, getGlobalSetting } from '@/classes';
+import { EntryDoc, SessionDoc, } from '@/documents';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 // the store definition
@@ -64,11 +64,18 @@ export const useMainStore = defineStore('main', () => {
   // actions
   // set a new setting from a uuid
   const setNewSetting = async function (settingId: string | null): Promise<void> {
-    if (!settingId)
+    if (!settingId) {
+      _currentSetting.value = null;
+      CollapsibleNode.currentSetting = null;
+      await UserFlags.set(UserFlagKey.currentSetting, '');
+
+      // @ts-ignore
+      game.modules.get(moduleId)?.activeWindow?.close();
       return;
+    }
 
     // load the setting
-    const setting = await FCBSetting.fromUuid(settingId);
+    const setting = await getGlobalSetting(settingId);
     
     if (!setting)
       throw new Error(`Invalid settingId in mainStore.setNewSetting(): ${settingId}`);
@@ -103,14 +110,14 @@ export const useMainStore = defineStore('main', () => {
           if (!_currentEntry.value)
             throw new Error('Invalid entry uuid in mainStore.setNewTab()');
 
-          _currentEntry.value.topicFolder = currentSetting.value.topicFolders[_currentEntry.value.topic];
+          // _currentEntry.value.topicFolder = currentSetting.value.topicFolders[_currentEntry.value.topic];
         }
         break;
       case WindowTabType.Setting:
         // we can only set tabs within a setting, so we don't actually need to do anything here
         // if (tab.header.uuid) {
         //   _currentEntry.value = null;
-        //   _currentSetting.value = await FCBSetting.fromUuid(tab.header.uuid);
+        //   _currentSetting.value = await getGlobalSetting(tab.header.uuid);
         //   if (!_currentSetting.value)
         //     throw new Error('Invalid entry uuid in mainStore.setNewTab()');
         // }
@@ -143,11 +150,8 @@ export const useMainStore = defineStore('main', () => {
     if (!_currentEntry.value)
       return;
 
-    if (!_currentEntry.value.topicFolder)
-      throw new Error('Invalid current parent topic in mainStore.refreshEntry()');
-
     // just force all reactivity to update
-    _currentEntry.value = new Entry(_currentEntry.value.raw as EntryDoc, _currentEntry.value.topicFolder as TopicFolder);
+    _currentEntry.value = new Entry(_currentEntry.value.raw);
   };
 
   const refreshCampaign = async function (): Promise<void> {
@@ -155,7 +159,7 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentCampaign.value = new Campaign(_currentCampaign.value.raw as CampaignDoc, currentSetting.value as FCBSetting);
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw);
   };
 
   const refreshSetting = async function (): Promise<void> {
@@ -164,9 +168,6 @@ export const useMainStore = defineStore('main', () => {
 
     // just force all reactivity to update
     _currentSetting.value = new FCBSetting(_currentSetting.value.raw);
-
-    // have to load the topic folders
-    await _currentSetting.value?.loadTopics();
   };
 
   const refreshSession = async function (): Promise<void> {
@@ -175,7 +176,7 @@ export const useMainStore = defineStore('main', () => {
 
     // just force all reactivity to update
     const campaign = await _currentSession.value.loadCampaign();
-    _currentSession.value = new Session(_currentSession.value.raw as SessionDoc, campaign || undefined);
+    _currentSession.value = new Session(_currentSession.value.raw, campaign || undefined);
   };
 
   /** Refresh whatever content is currently showing */
@@ -207,7 +208,7 @@ export const useMainStore = defineStore('main', () => {
 
     for (const settingIndex of allSettings) {
       try {
-        const setting = await FCBSetting.fromUuid(settingIndex.settingId);
+        const setting = await getGlobalSetting(settingIndex.settingId);
         if (setting) {
           settings.push(setting);
         }

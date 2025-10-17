@@ -2,7 +2,7 @@ import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { DOCUMENT_TYPES, CampaignLore, sessionIndexFields } from '@/documents';
 import { RelatedPCDetails, RelatedJournal, SessionIndex, SessionFilterIndex } from '@/types';
-import { Entry, Session, FCBSetting } from '@/classes';
+import { Entry, Session, FCBSetting, getGlobalSetting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
 import { ToDoItem, ToDoTypes, Idea } from '@/types';
@@ -30,7 +30,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   /**  the highest numbered session (if in play mode, this will be the played one, too) */
   public currentSession: Session | null;
 
-  static override async fromUuid<
+  public static override async fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
   > (this: T, uuid: string): Promise<InstanceType<T> | null> { 
     const campaign = await super.fromUuid(uuid) as unknown as (Campaign | null);
@@ -46,11 +46,11 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   // we return the next number after the highest currently existing session number
   // we calculate each time because it's fast enough and we don't need to continually be updating 
   //    metadata
-  get nextSessionNumber(): number {
+  public get nextSessionNumber(): number {
     return this.currentSession ? this.currentSession.number + 1 : 0;
   }
 
-  async getSessions(): Promise<Session[]> {
+  public async getSessions(): Promise<Session[]> {
     const allSessions = await this.filterSessions(()=>true);
     return allSessions;
   }
@@ -81,19 +81,19 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     this.currentSession = await Session.fromUuid(maxsessionId);
   }    
   
-  get sessionIds(): string[] {
+  public get sessionIds(): string[] {
     return this._clone.system.sessionIds;
   }
 
-  set sessionIds(value: string[] | readonly string[]) {
+  public set sessionIds(value: string[] | readonly string[]) {
     this._clone.system.sessionIds = value.slice();     // we clone it so it can't be edited outside
   }
   
-  get description(): string {
+  public get description(): string {
     return this._clone.system.description;
   }
 
-  set description(value: string) {
+  public set description(value: string) {
     this._clone.system.description = value;
   }
 
@@ -117,12 +117,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return this._clone.system.lore;
   }
   
-  set lore(value: CampaignLore[] | readonly CampaignLore[]) {
+  public set lore(value: CampaignLore[] | readonly CampaignLore[]) {
     this._clone.system.lore = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
   // returns the uuid
-  async addLore(description: string): Promise<string> {
+  public async addLore(description: string): Promise<string> {
     const uuid = foundry.utils.randomID();
 
     this._clone.system.lore.push({
@@ -140,7 +140,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return uuid;
   }
 
-  async updateLoreDescription(uuid: string, description: string): Promise<void> {
+  public async updateLoreDescription(uuid: string, description: string): Promise<void> {
     const lore = this._clone.system.lore.find(l=> l.uuid===uuid);
 
     if (!lore)
@@ -151,7 +151,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
-  async updateLoreJournalEntry(loreUuid: string, journalEntryPageId: string | null): Promise<void> {
+  public async updateLoreJournalEntry(loreUuid: string, journalEntryPageId: string | null): Promise<void> {
     const lore = this._clone.system.lore.find(l=> l.uuid===loreUuid);
 
     if (!lore)
@@ -162,13 +162,13 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
-  async deleteLore(uuid: string): Promise<void> {
+  public async deleteLore(uuid: string): Promise<void> {
     this._clone.system.lore = this._clone.system.lore.filter(l=> l.uuid!==uuid);
 
     await this.save();
   }
 
-  async markLoreDelivered(uuid: string, delivered: boolean): Promise<void> {
+  public async markLoreDelivered(uuid: string, delivered: boolean): Promise<void> {
     const lore = this._clone.system.lore.find((l) => l.uuid===uuid);
     if (!lore)
       return;
@@ -178,16 +178,16 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
-  get todoItems(): readonly ToDoItem[] {
+  public get todoItems(): readonly ToDoItem[] {
     return this._clone.system.todoItems as ToDoItem[];
   }
 
-  set todoItems(value: ToDoItem[] | readonly ToDoItem[]) {
+  public set todoItems(value: ToDoItem[] | readonly ToDoItem[]) {
     this._clone.system.todoItems = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
   /** Creates a new to-do item and adds to the campaign*/
-  async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string | null | undefined, sessionUuid?: string, manualDate?: Date): Promise<ToDoItem | null> {
+  public async addNewToDoItem(type: ToDoTypes, text: string, linkedUuid?: string | null | undefined, sessionUuid?: string, manualDate?: Date): Promise<ToDoItem | null> {
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return null;
 
@@ -234,7 +234,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * to the end of the current text.  Otherwise, it creates a new one.
    * 
    */
-  async mergeToDoItem(type: ToDoTypes, text: string, linkedUuid?: string | null | undefined, sessionUuid?: string): Promise<void> {
+  public async mergeToDoItem(type: ToDoTypes, text: string, linkedUuid?: string | null | undefined, sessionUuid?: string): Promise<void> {
     // Check if to-do list is enabled
     if (!ModuleSettings.get(SettingKey.enableToDoList)) 
       return;
@@ -268,9 +268,9 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       }
 
     await this.save();
-}
+  }
 
-  async updateToDoItem(uuid: string, newDescription: string): Promise<void> {
+  public async updateToDoItem(uuid: string, newDescription: string): Promise<void> {
     const item = this._clone.system.todoItems.find(i => i.uuid === uuid);
     if (!item)
       return;
@@ -282,38 +282,38 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
-  async completeToDoItem(uuid: string): Promise<void> {
+  public async completeToDoItem(uuid: string): Promise<void> {
     this._clone.system.todoItems = this._clone.system.todoItems.filter(i => i.uuid !== uuid);
     await this.save();
   }
 
-  get journals(): RelatedJournal[] {
+  public get journals(): RelatedJournal[] {
     return this._clone.system.journals;
   }
 
-  set journals(value: RelatedJournal[] | readonly RelatedJournal[]) {
+  public set journals(value: RelatedJournal[] | readonly RelatedJournal[]) {
     this._clone.system.journals = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
-  get ideas(): readonly Idea[] {
+  public get ideas(): readonly Idea[] {
     return this._clone.system.ideas;
   }
 
-  set ideas(value: Idea[] | readonly Idea[]) {
+  public set ideas(value: Idea[] | readonly Idea[]) {
     this._clone.system.ideas = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
-  get pcs(): RelatedPCDetails[] {
+  public get pcs(): RelatedPCDetails[] {
     return this._clone.system.pcs;
   }
 
-  set pcs(value: RelatedPCDetails[] | readonly RelatedPCDetails[]) {
+  public set pcs(value: RelatedPCDetails[] | readonly RelatedPCDetails[]) {
     this._clone.system.pcs = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
 
   /** Creates a new idea item and adds to the campaign*/
   /** returns the uuid */
-  async addIdea(text: string): Promise<string | null> {
+  public async addIdea(text: string): Promise<string | null> {
     const item: Idea = {
       uuid: foundry.utils.randomID(),
       text: text || '',
@@ -326,7 +326,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return item.uuid;
   }
 
-  async updateIdea(uuid: string, newText: string): Promise<void> {
+  public async updateIdea(uuid: string, newText: string): Promise<void> {
     const item = this._clone.system.ideas.find(i => i.uuid === uuid);
     if (!item)
       return;
@@ -335,7 +335,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }
 
-  async deleteIdea(uuid: string): Promise<void> {
+  public async deleteIdea(uuid: string): Promise<void> {
     this._clone.system.ideas = this._clone.system.ideas.filter(i => i.uuid !== uuid);
     await this.save();
   }
@@ -363,6 +363,10 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     if (!campaign)
       throw new Error('Couldn\'t create new journal entry for campaign');
 
+    // add it to the setting's list
+    setting.campaignNames[campaign.uuid] = nameToUse;
+    await setting.save();
+    
     return campaign;
   }
   
@@ -378,31 +382,31 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return await this.filterPCs(()=>true);
   }
 
-    /**
+  /**
    * Given a filter function, returns all the matching Sessions
    * inside this campaign
    * 
    * @param {(e: RelatedPCDetails) => boolean} filterFn - The filter function
    * @returns {Entry[]} The entries that pass the filter
    */
-    public async filterPCs(filterFn: (e: RelatedPCDetails) => boolean): Promise<Entry[]> { 
-      let retval = [] as Entry[];
-      for (let i=0; i<this._clone.system.pcs.length; i++) {
-        if (filterFn(this._clone.system.pcs[i])) {
-          const entry = await Entry.fromUuid(this._clone.system.pcs[i].uuid);
-          if (entry)
-            retval.push(entry);
-        }
+  public async filterPCs(filterFn: (e: RelatedPCDetails) => boolean): Promise<Entry[]> { 
+    let retval = [] as Entry[];
+    for (let i=0; i<this._clone.system.pcs.length; i++) {
+      if (filterFn(this._clone.system.pcs[i])) {
+        const entry = await Entry.fromUuid(this._clone.system.pcs[i].uuid);
+        if (entry)
+          retval.push(entry);
       }
-
-      return retval;
     }
+
+    return retval;
+  }
   
   /**
    * Given a filter function, returns all the matching Sessions
    * inside this campaign
    * 
-   * @param {(e: Session) => boolean} filterFn - The filter function
+   * @param {(e: SessionFilterIndex) => boolean} filterFn - The filter function
    * @returns {Session[]} The entries that pass the filter
    */
   public async filterSessions(filterFn: (s: SessionFilterIndex) => boolean): Promise<Session[]> { 
@@ -450,7 +454,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
     // update the name
     if (updateName) {    
-      let setting = await FCBSetting.fromUuid(this.settingId);
+      let setting = await getGlobalSetting(this.settingId);
 
       if (!setting)
         throw new Error('Invalid setting in Campaign.save()');
@@ -470,7 +474,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
     const id = this._doc.uuid;
 
-    let setting = await FCBSetting.fromUuid(this.settingId);
+    let setting = await getGlobalSetting(this.settingId);
 
     if (!setting)
       throw new Error('Invalid setting in Campaign.delete()');

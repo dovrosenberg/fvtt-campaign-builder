@@ -1,13 +1,27 @@
-import { Hierarchy, RelatedJournal, SettingGeneratorConfig, ValidTopic } from '@/types';
+import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic, } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
-import { DOCUMENT_TYPES } from './types';
+import { DOCUMENT_TYPES, } from './types';
 import { cleanKeysOnLoad,  } from '@/utils/cleanKeys';
 import { schemas } from './fields';
+import type { TopicFlatType } from './fields/TopicFolder';
+export { TopicFlatType };
 
 const fields = foundry.data.fields;
-const settingSchema = {
-  /** the uuid for each topic */
-  topicIds: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<ValidTopic, string> | Record<never, string> }),  
+export const SettingSchema = {
+  /** the topics; keyed by topic id (the Topics enum) */
+  topics: new fields.SchemaField({
+    [Topics.Character]: schemas.TopicFolder(),
+    [Topics.Location]: schemas.TopicFolder(),
+    [Topics.Organization]: schemas.TopicFolder(),
+    [Topics.PC]: schemas.TopicFolder(),
+  },
+    { required: true, nullable: false, initial: {
+      [Topics.Character]: { topic: Topics.Character, topNodes: [], types: [], entries: {} },
+      [Topics.Location]: { topic: Topics.Location, topNodes: [], types: [], entries: {} },
+      [Topics.Organization]: { topic: Topics.Organization, topNodes: [], types: [], entries: {} },
+      [Topics.PC]: { topic: Topics.PC, topNodes: [], types: [], entries: {} },
+    } }
+  ),
 
   /** name of each campaign; keyed by journal entry uuid */
   campaignNames: new fields.ObjectField({ required: true, nullable: false, initial: {} as Record<string, string> }),
@@ -55,20 +69,27 @@ const settingSchema = {
   ), 
 };
 
-type SchemaType = typeof settingSchema;
+type SchemaType = typeof SettingSchema;
 
 export class SettingDataModel<
   Schema extends SchemaType = SchemaType, 
   ParentNode extends JournalEntry = JournalEntry
 > extends foundry.abstract.TypeDataModel<Schema, ParentNode> {
   static defineSchema(): SchemaType {
-    return settingSchema;
+    return SettingSchema;
   }
 
   override prepareBaseData(): void {
     this.hierarchies = cleanKeysOnLoad(this.hierarchies);
     this.campaignNames = cleanKeysOnLoad(this.campaignNames);
     this.expandedIds = cleanKeysOnLoad(this.expandedIds);
+
+    for (const topic in this.topics) {
+      this.topics[topic] = {
+        ...this.topics[topic],
+        entries: cleanKeysOnLoad(this.topics[topic].entries),
+      }
+    }
   }
 }
 
@@ -82,7 +103,7 @@ export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_T
   __type: 'FCBSettingDoc'; 
 
   system: {
-    topicIds: Record<ValidTopic, string> | Record<never, string>;  
+    topics: Record<ValidTopic, TopicFlatType>
     campaignNames: Record<string, string>;  
     expandedIds: Record<string, boolean>;  
     hierarchies: Record<string, Hierarchy>;  

@@ -54,6 +54,13 @@
     }
   },
 
+  "flags": {
+    "hotReload": {
+      "extensions": ["css", "json"],
+      "paths": ["styles", "lang/en.json"]
+    }
+  },
+
   "authors": [
     {
       "name": "Dov Rosenberg",
