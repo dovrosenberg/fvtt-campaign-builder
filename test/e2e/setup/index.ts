@@ -16,10 +16,14 @@ export const populateWorld = async () => {
 
   // we're going to do this all manually
   for (const settingDescriptor of testData.settings) {
-    await page.evaluate(async ({settingDescriptor, topicValues}: {settingDescriptor: SettingDescriptor, topicValues: typeof topicValues}) => {
+    await page.evaluate(async ({settingDescriptor, tv}: {settingDescriptor: SettingDescriptor, tv: typeof topicValues}) => {
       const api = game.modules.get('campaign-builder')?.api.testAPI;
 
+      const time = Date.now();
       const setting = await api.createSetting(settingDescriptor.name, false);
+      const time2 = Date.now();
+      console.error(`Setting created ${settingDescriptor.name} in ${time2 - time}ms`);
+      
       if (!setting) {
         throw new Error('Failed to create setting in populateWorld()');
       }
@@ -34,6 +38,7 @@ export const populateWorld = async () => {
         if (!character) {
           throw new Error('Failed to create character in populateWorld()');
         }
+        console.error(`Character created ${characterDescriptor.name}`);
       }
 
       for (const locationDescriptor of settingDescriptor.locations) {
@@ -41,6 +46,7 @@ export const populateWorld = async () => {
         if (!location) {
           throw new Error('Failed to create location in populateWorld()');
         }
+        console.error(`Location created ${locationDescriptor.name}`);
       }
 
       for (const organizationDescriptor of settingDescriptor.organizations) {
@@ -48,6 +54,7 @@ export const populateWorld = async () => {
         if (!organization) {
           throw new Error('Failed to create organization in populateWorld()');
         }
+        console.error(`Organization created ${organizationDescriptor.name}`);
       }
 
       for (const pcDescriptor of settingDescriptor.pcs) {
@@ -55,6 +62,7 @@ export const populateWorld = async () => {
         if (!pc) {
           throw new Error('Failed to create pc in populateWorld()');
         }
+        console.error(`PC created ${pcDescriptor.name}`);
       }
 
       for (const campaignDescriptor of settingDescriptor.campaigns) {
@@ -68,14 +76,16 @@ export const populateWorld = async () => {
           if (!session) {
             throw new Error('Failed to create session in populateWorld()');
           }
+          console.error(`Session created ${sessionDescriptor.name}`);
         }
+        console.error(`Campaign created ${campaignDescriptor.name}`);
       }
 
-      console.log(`Setting populated ${settingDescriptor.name}`);
+      console.error(`Setting populated ${settingDescriptor.name}`);
 
       await setting.save();
-      console.log(`Setting created ${settingDescriptor.name}`);
-      }, { settingDescriptor, topicValues});
+      console.error(`Setting created ${settingDescriptor.name}`);
+      }, { settingDescriptor, tv: topicValues});
   }
 }
 

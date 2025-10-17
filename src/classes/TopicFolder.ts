@@ -47,6 +47,7 @@ export class TopicFolder {
     this.setting.topics[this.topic].types = value;
   }
 
+  /** map of entry uuid to name for all entries in the folder */
   public get entries(): Record<string, string> {
     return this.setting.topics[this.topic].entries;
   }
