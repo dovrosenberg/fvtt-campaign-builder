@@ -232,16 +232,8 @@ body {
   
   --fcb-sidebar-background: var(--fcb-sidebar-bg); 
   --fcb-sidebar-label-color: var(--fcb-text-muted);
-  --fcb-sidebar-setting-color: var(--color-text-light-highlight);
-  --fcb-sidebar-setting-background: rgb(215, 215, 202);
   --fcb-sidebar-setting-border: rgb(219, 219, 219);
-  --fcb-sidebar-setting-color-collapsed: rgb(130, 130, 130);
-  --fcb-sidebar-setting-background-collapsed: rgb(219, 219, 219);
-  --fcb-sidebar-setting-border-collapsed: rgb(199, 199, 199);
-  --fcb-sidebar-campaign-color: var(--fcb-sidebar-setting-color);
-  --fcb-sidebar-campaign-background: inherit;    // var(--fcb-sidebar-setting-background);
-  --fcb-sidebar-campaign-color-collapsed: var(--fcb-sidebar-campaign-color);
-  --fcb-sidebar-campaign-background-collapsed: inherit;  //var(--fcb-sidebar-setting-background-collapsed);
+  --fcb-sidebar-campaign-background: inherit;    
   --fcb-sidebar-topic-icon-color: #999;
 
   --fcb-scrollbar: var(--fcb-primary-300);

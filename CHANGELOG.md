@@ -10,6 +10,7 @@
 - Settings, campaigns, sessions, and entries are now each stored in their own Journal Entry and Campaign Builder is the viewer for those entries.  This has a variety of implications, but the most important one at the moment is that you can use Campaign Builder content as map notes.  To do this, open the compendium and drag the desired entry to the scene where you want it.  You can leave the 'journal entry page' field blank or set it - it has no impact.  Then double clicking the book icon on the map will open the content in Campaign Builder.
 - The ability to link to Settings in entries was removed.  I suspect no one was using it, because it wasn't very useful, it wasn't documented, and it was hard to do.
 - UX modernization (font/color updates - nothing functional for now), including complete overhaul of dark mode.
+- As part of that, if your Foundry world has multiple Settings, you now choose which you want to use from a drop-down.  This allows the setting directory to be a bit cleaner visually for the vast majority of people who only have a single setting.
 - Some performance improvements - particularly for large Settings
 
 ## v1.4.1 - Assorted bug fixes
