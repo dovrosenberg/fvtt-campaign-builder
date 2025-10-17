@@ -3,10 +3,15 @@
   <div v-if="currentSettingTree.value.length>1">
     <Select
       v-model="selectedSetting"
-      data-testid="setting-select"
       :options="settingOptions"
       optionLabel="name"
       optionValue="uuid"
+      :pt="{
+        root: { 
+          'data-testid': 'setting-select',
+          style: 'width: 100%'
+        }
+      }"
       @change="onSettingChange"
     />    
   </div>
