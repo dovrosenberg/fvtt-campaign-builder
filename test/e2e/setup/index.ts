@@ -28,37 +28,15 @@ export const populateSetting = async (settingDescriptor: SettingDescriptor) => {
     setting.settingFeeling = settingDescriptor.settingFeeling;
     setting.description = settingDescriptor.description;
 
-    // characters
-    for (const characterDescriptor of settingDescriptor.characters) {
-      const character = await api.createEntry(setting, tv.Character, characterDescriptor.name);
-      if (!character) {
-        throw new Error('Failed to create character in populateSetting()');
+    // entries
+    for (const topic in settingDescriptor.topics) {
+      for (const descriptor of settingDescriptor.topics[topic]) {
+        const entry = await api.createEntry(setting, topic, descriptor.name);
+        if (!entry) {
+          throw new Error('Failed to create entry in populateSetting()');
+        }
+        console.error(`Entry created ${descriptor.name}`);
       }
-      console.error(`Character created ${characterDescriptor.name}`);
-    }
-
-    for (const locationDescriptor of settingDescriptor.locations) {
-      const location = await api.createEntry(setting, tv.Location, locationDescriptor.name);
-      if (!location) {
-        throw new Error('Failed to create location in populateSetting()');
-      }
-      console.error(`Location created ${locationDescriptor.name}`);
-    }
-
-    for (const organizationDescriptor of settingDescriptor.organizations) {
-      const organization = await api.createEntry(setting, tv.Organization, organizationDescriptor.name);
-      if (!organization) {
-        throw new Error('Failed to create organization in populateSetting()');
-      }
-      console.error(`Organization created ${organizationDescriptor.name}`);
-    }
-
-    for (const pcDescriptor of settingDescriptor.pcs) {
-      const pc = await api.createEntry(setting, tv.PC, pcDescriptor.name);
-      if (!pc) {
-        throw new Error('Failed to create pc in populateSetting()');
-      }
-      console.error(`PC created ${pcDescriptor.name}`);
     }
 
     for (const campaignDescriptor of settingDescriptor.campaigns) {

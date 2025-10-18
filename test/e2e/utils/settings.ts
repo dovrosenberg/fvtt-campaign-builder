@@ -1,29 +1,28 @@
 import { expect, Locator, } from 'playwright/test';
-import { TestContext } from '../types';
+import { sharedContext } from '../sharedContext';
 
-export const switchToSetting = async (context: TestContext, settingName: string) => {
-  const header = await confirmSettingInList(context, settingName);
-  await header.click();
+export const switchToSetting = async (settingName: string) => {
+  const page = sharedContext.page!;
+
+  await page.getByTestId('setting-select').click();
+  await page.locator('.p-select-option-label')
+    .filter({hasText: settingName})
+    .click();
+
+  await expect(page.getByTestId(`setting-folder-${settingName}`)).toBeVisible();
 }
 
-export const confirmSettingInList = async (context: TestContext, settingName: string): Promise<Locator> => {
-  const page = context.page!;
-  
-  expect(page.locator('.fcb-setting-directory')).toBeVisible();  
-    
-  const folderHeader = page
-    .getByTestId(`setting-folder-${settingName}`)
-    .filter({ hasText: settingName });
-  
-  await expect(folderHeader).toHaveCount(1); // this forces the DOM to settle
+export const confirmSettingInList = async (settingName: string): Promise<Locator> => {
+  const page = sharedContext.page!;
+
+  await page.getByTestId('setting-select').click();
+  await page.locator('.p-select-option-label')
+    .filter({hasText: settingName})
+    .click();
+
+  // return the locator for the folder header
+  const folderHeader = page.getByTestId(`setting-folder-${settingName}`);
   await expect(folderHeader).toBeVisible();
 
   return folderHeader;
-}
-
-export const openSettingContent = async (context: TestContext, settingName: string) => {
-  await switchToSetting(context, settingName);
-
-  // click on the setting name
-  // await header.click();
 }

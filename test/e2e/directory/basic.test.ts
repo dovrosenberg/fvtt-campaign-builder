@@ -2,37 +2,58 @@ import { expect, test } from '@playwright/test';
 import { sharedContext } from '@e2etest/sharedContext';
 import { testData } from '@e2etest/data';
 import { ensureSetup } from '../ensureSetup';
+import { switchToSetting } from '@e2etest/utils';
+import { Topics } from '@/types';
 
 test.describe.serial('Basic Directory functions', () => {
 	test.beforeAll(async ({ browser }) => {
 		// Ensure setup is done (will only run once per test session)
 		await ensureSetup(browser);
 		
-		const page = sharedContext.page!;
 		const setting = testData.settings[0];
 
 		// pick the right setting
-		await page.getByTestId('setting-select').click();
-		await page.locator(`.p-select-option-label[has-text="${setting.name}"]`).click();
-
-		await expect(page.getByTestId(`setting-folder-${setting.name}`)).toBeVisible();
+		await switchToSetting(setting.name);
 
 		// close the tabs?
 	});
 
 	test('Expand entry folders', async () => {
 		const page = sharedContext.page!;
+		const setting = testData.settings[0];
 
 		// make sure everything closed to start, just in case
 		await page.getByTestId('collapse-all-button').click();
 
-		// make sure the 1st location isn't visible
-		await expect(page.locator(`.fcb-directory-entry[has-text="${testData.settings[0]}"]`))
+		// make sure the 1st topic isn't visible
+		await expect(page.locator('.fcb-directory-entry')
+			.filter({ hasText: setting.topics[Topics.Character][0].name}))
 			.toHaveCount(0);
 
 		// open each folder and make sure the 1st node is visible
+		for (const topic in setting.topics) {
+			await page.getByTestId(`topic-folder-${topic}`).click();
+
+			// for characters, we need to expand the 'none' folder first
+			if (Number.parseInt(topic) === Topics.Character) {
+				await page.locator('.fcb-directory-type')
+					.filter({ hasText: '(none)'})
+					.click();
+			}
+
+			const entries = setting.topics[topic];
+			await expect(page.locator('.fcb-directory-entry')
+				.filter({ hasText: entries[0].name}))
+				.toHaveCount(1);
+		}
 
 		// also check collapse all
+		await page.getByTestId('collapse-all-button').click();
+
+		// make sure the 1st topic isn't visible
+		await expect(page.locator('.fcb-directory-entry')
+			.filter({ hasText: setting.topics[0][0].name}))
+			.toHaveCount(0);
 	});
 
 	test('Expand campaign folders', async () => {

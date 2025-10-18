@@ -34,6 +34,7 @@
             <div 
               class="fcb-compendium-label noborder" 
               style="margin-bottom:0px"
+              :data-testid="`topic-folder-${topicNode.topicFolder.topic}`"
               @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
               @contextmenu="onTopicContextMenu($event, currentSettingTreeObject.id, topicNode.topicFolder as TopicFolder)"
             >

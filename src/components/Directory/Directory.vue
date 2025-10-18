@@ -249,10 +249,9 @@
           align-items: center;
 
           i {
-            position: absolute;
-
             &.fa-plus {
-              top: -.6875rem;
+              position: absolute;
+              top: -.4rem;
               right: .1875rem;
               // font-size: 0.6rem;
               // transform instead of font-size because if browser has a 

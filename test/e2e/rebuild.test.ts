@@ -14,15 +14,11 @@ test.beforeAll(async ({ browser }) => {
 });
 
 test.describe.serial('Setup', () => {
-	// we do these one at a time due to timeout issues
-	test('Populate Setting 1', async () => {
+	test('Populate Settings', async () => {
+		test.slow();
 		await populateSetting(testData.settings[0]);
-	});
-
-	test('Populate Setting 2', async () => {
 		await populateSetting(testData.settings[1]);
 	});
-
 
 	// runCampaignTests(page);
 

@@ -17,7 +17,7 @@
           <span v-if="currentType.expanded">-</span><span v-else>+</span>
         </div>
         <div 
-          class="fcb-current-directory-type"
+          class="fcb-directory-type"
           @drop="onDrop"
           @dragover="onDragover"
           @contextmenu="onTypeContextMenu"

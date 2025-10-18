@@ -3,7 +3,7 @@ import { sharedContext } from '@e2etest/sharedContext';
 
 const USER = process.env.FVTT_GM_USER || 'Gamemaster';
 // const PASS = process.env.FVTT_GM_PASSWORD || '';
-const WORLDID = process.env.FVTT_WORLDID || 'campaignbuildertest';
+// const WORLDID = process.env.FVTT_WORLDID || 'campaignbuildertest';
 
 export async function loginToWorld(){
   const page = sharedContext.page!;
@@ -44,6 +44,11 @@ export async function loginToWorld(){
   // Wait for Foundry
   await page.waitForFunction(() => {
     return game && game.ready;
+  });
+
+  // Disable tooltips during tests to prevent interference with Playwright
+  await page.evaluate(() => {
+    game.tooltip.activate = function() {};
   });
 
   //Wait for campaign builder to load

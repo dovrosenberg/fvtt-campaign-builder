@@ -1,5 +1,6 @@
 // contains the data for the tests
 
+import { Topics } from '@/types';
 import { SettingDescriptor } from './setting';
 
 class DataGenerator {
@@ -12,29 +13,31 @@ class DataGenerator {
       genre: 'Science Fiction',
       settingFeeling: 'Gritty survival meets wonder in a harsh crystalline desert',
       description: 'A harsh desert planet where ancient crystalline towers rise from the dunes, remnants of a long-lost civilization. The crystals hum with energy, powering strange technology that the inhabitants barely understand. Water is precious, and survival depends on cooperation between nomadic tribes and settled oasis communities.',
-      characters: [
-        { name: 'Zephyr Vale' },
-        { name: 'Kira Sandborn' },
-        { name: 'Oren Crystalwright' },
-        { name: 'Nyx the Wanderer' },
-      ],
-      locations: [
-        { name: 'The Amber Oasis' },
-        { name: 'Crystal Spire Valley' },
-        { name: 'Dune Merchant Caravan' },
-        { name: 'The Buried Archives' },
-      ],
-      organizations: [
-        { name: 'The Water Council' },
-        { name: 'Crystal Seekers Guild' },
-        { name: 'Nomad Confederation' },
-        { name: 'Archive Keepers' },
-      ],
-      pcs: [
-        { name: 'Rasha Dunestrider' },
-        { name: 'Theron Brightstone' },
-        { name: 'Mira Windcaller' },
-      ],
+      topics: {
+        [Topics.Character]: [
+          { name: 'Zephyr Vale' },
+          { name: 'Kira Sandborn' },
+          { name: 'Oren Crystalwright' },
+          { name: 'Nyx the Wanderer' },
+        ],
+        [Topics.Location]: [
+          { name: 'The Amber Oasis' },
+          { name: 'Crystal Spire Valley' },
+          { name: 'Dune Merchant Caravan' },
+          { name: 'The Buried Archives' },
+        ],
+        [Topics.Organization]: [
+          { name: 'The Water Council' },
+          { name: 'Crystal Seekers Guild' },
+          { name: 'Nomad Confederation' },
+          { name: 'Archive Keepers' },
+        ],
+        [Topics.PC]: [
+          { name: 'Rasha Dunestrider' },
+          { name: 'Theron Brightstone' },
+          { name: 'Mira Windcaller' },
+        ],
+      },
       campaigns: [
         {
           name: 'The Crystal Awakening',
@@ -62,33 +65,35 @@ class DataGenerator {
       genre: 'Science Fiction',
       settingFeeling: 'Swashbuckling adventure in a world of floating islands and airships',
       description: 'A world where the surface has been lost to an eternal mist called the Umbral Sea. Civilization thrives on floating islands suspended by mysterious gravitational anomalies. Airships sail between islands, carrying trade goods and adventurers. Sky pirates prowl the trade routes while scholars seek to understand the ancient magic that keeps the islands afloat.',
-      characters: [
-        { name: 'Captain Vex Stormwright' },
-        { name: 'Professor Elara Windsong' },
-        { name: 'Grimm the Quartermaster' },
-        { name: 'Lady Seraphine Cloudreach' },
-        { name: 'Boggs the Engineer' },
-      ],
-      locations: [
-        { name: 'Port Horizon' },
-        { name: 'The Floating Gardens' },
-        { name: 'Skyhold Academy' },
-        { name: 'The Shattered Isles' },
-        { name: 'Tidemark Station' },
-      ],
-      organizations: [
-        { name: 'The Sky Merchants Company' },
-        { name: 'Brotherhood of the Umbral Deep' },
-        { name: 'Windcaller Academy' },
-        { name: 'The Crimson Sails' },
-        { name: 'Island Council' },
-      ],
-      pcs: [
-        { name: 'Dash Cloudrunner' },
-        { name: 'Astrid Ironhull' },
-        { name: 'Felix Brightsail' },
-        { name: 'Raven Mistwalker' },
-      ],
+      topics: {
+        [Topics.Character]: [
+          { name: 'Captain Vex Stormwright' },
+          { name: 'Professor Elara Windsong' },
+          { name: 'Grimm the Quartermaster' },
+          { name: 'Lady Seraphine Cloudreach' },
+          { name: 'Boggs the Engineer' },
+        ],
+        [Topics.Location]: [
+          { name: 'Port Horizon' },
+          { name: 'The Floating Gardens' },
+          { name: 'Skyhold Academy' },
+          { name: 'The Shattered Isles' },
+          { name: 'Tidemark Station' },
+        ],
+        [Topics.Organization]: [
+          { name: 'The Sky Merchants Company' },
+          { name: 'Brotherhood of the Umbral Deep' },
+          { name: 'Windcaller Academy' },
+          { name: 'The Crimson Sails' },
+          { name: 'Island Council' },
+        ],
+        [Topics.PC]: [
+          { name: 'Dash Cloudrunner' },
+          { name: 'Astrid Ironhull' },
+          { name: 'Felix Brightsail' },
+          { name: 'Raven Mistwalker' },
+        ],
+      },
       campaigns: [
         {
           name: 'The Lost Island',
