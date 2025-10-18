@@ -46,7 +46,10 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   // we return the next number after the highest currently existing session number
   // we calculate each time because it's fast enough and we don't need to continually be updating 
   //    metadata
-  public get nextSessionNumber(): number {
+  public async getNextSessionNumber(): Promise<number> {
+    // make sure the latest session is loaded
+    await this.loadCurrentSession();
+
     return this.currentSession ? this.currentSession.number + 1 : 0;
   }
 

@@ -87,7 +87,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       return null;
 
     // by default, we make it the next session number
-    const sessionNumber = campaign.nextSessionNumber;
+    const sessionNumber = await campaign.getNextSessionNumber();
 
     const session = await super._create(
       campaign.compendiumId, 
