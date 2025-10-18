@@ -385,8 +385,8 @@
     z-index: 100;
     width: 0.75rem;
     height: 2.5rem;
-    background-color: var(--color-light-5) !important;
-    color: white;
+    background-color: var(--fcb-surface-2) !important;
+    color: var(--fcb-text-inverted);
     border-color: var(--fcb-button-border);
     border: 1px;
     border-radius: 4px;
@@ -397,8 +397,8 @@
     font-size: var(--font-size-14);
 
     &:hover {
-      background-color: #fda948;
-      border-color: var(--color-warm-3);
+      background-color: var(--fcb-button-bg-hover);
+      border-color: var(--fcb-button-border-hover);
     }
   }
 

@@ -1,9 +1,9 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
-import { ModuleSettings, SettingKey, UserFlagKey, UserFlags } from '@/settings';
+import { ModuleSettings, SettingKey, UserFlagKey, } from '@/settings';
 import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder, WindowTab } from '@/classes';
-import { Bookmark, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, SettingIndex, TabHeader, TagInfo, ToDoItem, Topics, ValidTopic } from '@/types';
-import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, TopicFlatType } from '@/documents';
+import { Bookmark, defaultCustomFields, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, SettingIndex, TabHeader, TagInfo, ToDoItem, Topics, ValidTopic } from '@/types';
+import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, } from '@/documents';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
@@ -49,6 +49,9 @@ export class MigrationV1_5 implements Migration {
     };
 
     try {
+      // setup the default custom fields
+      await ModuleSettings.set(SettingKey.customFields, defaultCustomFields);
+
       const allSettingFolders = await getAllSettings();
 
       // entries are the bulk of the data, so we use them to estimate progress

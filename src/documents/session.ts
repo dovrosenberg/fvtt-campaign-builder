@@ -42,6 +42,9 @@ export const SessionSchema = {
   /** the strong start text */
   strongStart: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
 
+  /** map from field name to value */
+  customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
+
   /** array of locations */
   locations: new fields.ArrayField(
     schemas.SessionLocation(),
@@ -106,6 +109,7 @@ export interface SessionDoc extends JournalEntryPage {
     number: number;
     date: string | null;
     strongStart: string;
+    customFields: Record<string, string>;
     locations: SessionLocation[];
     items: SessionItem[];
     npcs: SessionNPC[];

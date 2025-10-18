@@ -8,6 +8,9 @@ export const EntrySchema = {
   type: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
   tags: schemas.Tags(),
 
+  /** map from field name to value */
+  customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
+
   /** keyed by topic, then entryId */
   relationships: schemas.Relationships(),
 
@@ -28,8 +31,6 @@ export const EntrySchema = {
 
   // Image for the entry
   img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
-
-  rolePlayingNotes: new fields.HTMLField({required: true, blank: true, nullable: false, initial: ''}),
 };
 
 type EntrySchemaType = typeof EntrySchema;
@@ -56,7 +57,7 @@ export interface EntryDoc extends JournalEntryPage {
     topic: ValidTopic;
     type: string;
     tags: TagInfo[];
-    rolePlayingNotes: string;
+    customFields: Record<string, string>;
 
     /**
      * Keyed by topic, then entryId

@@ -263,17 +263,17 @@
 
             &:hover:not(:disabled) {
               border-color: var(--fcb-control-border-hover);
-              box-shadow: 0 0 5px var(--color-shadow-primary);
+              box-shadow: 0 0 5px var(--fcb-accent);
             }
 
           &.default {
             background: var(--fcb-primary);
             border: 2px groove solid rgb(201, 199, 184);
-            color: var(--fcb-text-invert);
+            color: var(--fcb-text-inverted);
 
             &:hover:not(:disabled) {
               border-color: var(--fcb-control-border-hover-disabled);
-              box-shadow: 0 0 5px var(--color-shadow-primary);
+              box-shadow: 0 0 5px var(--fcb-accent);
             }
           }
 

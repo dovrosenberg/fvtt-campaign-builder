@@ -15,7 +15,7 @@ The description tab has four main components:
 2. [Type](#type)
 3. [Topic-specific fields](#topic-specific-fields)
 4. [Description](#description)
-5. [Role-playing notes](#role-playing-notes)
+5. [Roleplaying notes](#roleplaying-notes)
 
 ## Image {#image}
 See [Image] documentation.
@@ -37,8 +37,8 @@ Each Topic has one or more extra fields - see the topic-specific documentation f
 ## Description {#description}
 This is where you enter the description of the Entry.  See [Editors] for more information on the functionality of editors throughout the application. 
 
-## Role-playing notes {#role-playing-notes}
-This is an optional field that can be disabled in the [Module Settings] and is used for quick notes to facilitate role-playing. While building out your world, they will show below the description, but when you are in [^Play mode], they will be shown above the description. 
+## Roleplaying notes {#roleplaying-notes}
+This is an optional field that can be disabled in the [Module Settings] and is used for quick notes to facilitate roleplaying. While building out your world, they will show below the description, but when you are in [^Play mode], they will be shown above the description. 
 
 ## Managing Relationships {#managing-relationships}
 Assuming you have the "Auto-suggest relationships" [Module Setting] turned on, whenever you save the description, it will check to see if you've added or removed any references to other [^Entries].  If you have, you will be prompted with the "Manage Related Entries" dialog:

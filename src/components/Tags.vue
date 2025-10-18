@@ -249,8 +249,8 @@
     
     &:focus-within {
       outline: none;
-      border-color: var(--color-border-highlight);
-      box-shadow: 0 0 0 1px var(--color-border-highlight);
+      border-color: var(--fcb-control-border);
+      box-shadow: 0 0 0 1px var(--fcb-accent);
     }
   }
 

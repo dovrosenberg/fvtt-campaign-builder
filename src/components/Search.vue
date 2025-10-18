@@ -269,8 +269,8 @@
       
       &:focus {
         outline: none;
-        border-color: var(--color-border-highlight);
-        box-shadow: 0 0 0 1px var(--color-border-highlight);
+        border-color: var(--fcb-control-border-focus);
+        box-shadow: 0 0 0 1px var(--fcb-accent);
       }
 
       // in light mode, inputs are darker than background, so need to override
@@ -285,7 +285,7 @@
       font-size: var(--font-size-12);
       top: 50%;
       transform: translateY(-50%);
-      color: var(--color-text-secondary);
+      color: var(--fcb-text);
       pointer-events: none;
     }
   }
@@ -299,7 +299,7 @@
     max-height: 300px;
     overflow-y: auto;
     background-color: var(--fcb-list-background); 
-    border: 1px solid var(--color-border-primary);
+    border: 1px solid var(--fcb-control-border);
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
@@ -311,12 +311,12 @@
     .fcb-search-no-results {
       padding: 12px;
       text-align: center;
-      color: var(--color-text-secondary);
+      color: var(--fcb-text);
     }
     
     .fcb-search-result {
       padding: 6px 8px;
-      border-bottom: 1px solid var(--color-border-secondary);
+      border-bottom: 1px solid var(--fcb-control-border);
       cursor: pointer;
       background-color: var(--fcb-list-background);
       
@@ -337,7 +337,7 @@
         
         .fcb-search-result-name {
           font-size: var(--font-size-12);
-          font-weight: bold;
+          font-weight: 500;
           color: var(--fcb-text);
         }
         

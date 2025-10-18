@@ -155,8 +155,8 @@
     margin: 0px;
     padding: 5px 8px;
     border-radius: 4px;
-    background-color: var(--color-light-6);
-    color: white;
+    background-color: var(--fcb-surface-2);
+    color: var(--fcb-text);
     border: 1px solid transparent;
     font-size: var(--font-size-12);
     align-items: center;

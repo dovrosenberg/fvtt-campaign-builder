@@ -67,7 +67,7 @@
                     </div>
                     <div class="flexrow form-group">
                       <LabelWithHelp
-                        label-text="labels.fields.backgroundPoints"
+                        label-text="labels.fields.background"
                       />
                     </div>
                     <div class="flexrow form-group">

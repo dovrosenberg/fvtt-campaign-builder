@@ -204,11 +204,13 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   }
 
   get plotPoints(): string {
-    return this._clone.system.plotPoints || '';
+    // @ts-ignore - fvtt bug
+    return this._clone.system.customFields.other_plot_points || '';
   }
 
   set plotPoints(value: string | null) {
-    this._clone.system.plotPoints = value;
+    // @ts-ignore - fvtt bug
+    this._clone.system.customFields.other_plot_points = value;
   }
 
   get background(): string {
@@ -220,11 +222,13 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   }
 
   get magicItems(): string {
-    return this._clone.system.magicItems || '';
+    // @ts-ignore - fvtt bug
+    return this._clone.system.customFields.desired_magic_items || '';
   }
   
   set magicItems(value: string | null) {
-    this._clone.system.magicItems = value;
+    // @ts-ignore - fvtt bug
+    this._clone.system.customFields.desired_magic_items = value;
   }
   
   get speciesId(): string | undefined {
@@ -280,11 +284,13 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   }
 
   get rolePlayingNotes(): string {
-    return this._clone.system.rolePlayingNotes || '';
+    // @ts-ignore - fvtt bug
+    return this._clone.system.customFields.roleplaying_notes || '';
   }
 
   set rolePlayingNotes(value: string) {
-    this._clone.system.rolePlayingNotes = value;
+    // @ts-ignore - fvtt bug
+    this._clone.system.customFields.roleplaying_notes = value;
   }
 
   get img(): string | undefined {

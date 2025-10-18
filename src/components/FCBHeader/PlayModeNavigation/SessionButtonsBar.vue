@@ -110,8 +110,8 @@
     margin: 0px;
     padding: 5px 8px;
     border-radius: 4px;
-    background-color: var(--color-light-5);
-    color: white;
+    background-color: var(--fcb-surface-3);
+    color: var(--fcb-text);
     border: 1px solid transparent;
     font-size: 12px;
     align-items: center;

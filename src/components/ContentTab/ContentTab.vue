@@ -269,12 +269,12 @@
 
         button {
           flex: 0 0 130px;
-          background: var(--fcb-sheet-page-control-background);
+          background: var(--fcb-sheet-page-control-bg);
           color: var(--fcb-sheet-page-control-color);
         }
 
         button:hover {
-          background: var(--fcb-sheet-page-control-background-hover);
+          background: var(--fcb-sheet-page-control-bg-hover);
         }
 
         button.fcb-header-control {

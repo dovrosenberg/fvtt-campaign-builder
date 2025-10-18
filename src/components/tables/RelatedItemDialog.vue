@@ -410,13 +410,13 @@
   padding: 1rem 0;
   background-color: rgba(0, 0, 0, 0.05);
   border-radius: 6px;
-  color: var(--color-text-dark-secondary);
+  color: var(--fcb-text);
   font-style: italic;
   gap: 0.75rem;
 
   i {
     font-size: 1.25rem;
-    color: var(--color-text-dark-tertiary);
+    color: var(--fcb-text);
   }
 }
 </style>

@@ -101,11 +101,13 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   public get houseRules(): string {
-    return this._clone.system.houseRules;
+    // @ts-ignore - fvtt bug
+    return this._clone.system.customFields.house_rules;
   }
 
   public set houseRules(value: string) {
-    this._clone.system.houseRules = value;
+    // @ts-ignore - fvtt bug
+    this._clone.system.customFields.house_rules = value;
   }
 
   public get img(): string {

@@ -189,7 +189,7 @@
           background: var(--fcb-sheet-header-input-background);
 
           &:hover {
-            box-shadow: 0 0 8px var(--color-shadow-primary);
+            box-shadow: 0 0 8px var(--fcb-accent);
           }
         }
 

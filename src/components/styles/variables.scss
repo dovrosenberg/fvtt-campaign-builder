@@ -79,7 +79,7 @@ body {
 
   --fcb-text:          var(--fcb-gray-900);
   --fcb-text-muted:    var(--fcb-gray-600);
-  --fcb-text-invert:   #fff;
+  --fcb-text-inverted:   #fff;
 
   --fcb-button-bg:      var(--fcb-primary-50);
   --fcb-button-text:    var(--fcb-text);
@@ -149,7 +149,7 @@ body.theme-dark {
 
   --fcb-text:          var(--fcb-gray-200);
   --fcb-text-muted:    var(--fcb-gray-400);
-  --fcb-text-invert:   #0b0e0c;
+  --fcb-text-inverted:   #0b0e0c;
 
   --fcb-button-bg:      var(--fcb-primary-900);
   --fcb-button-text:    var(--fcb-text);
@@ -221,9 +221,9 @@ body {
   --fcb-sheet-tab-shadow-active: var(--fcb-tab-shadow-active);
   --fcb-sheet-tab-shadow-hover: var(--fcb-tab-shadow-hover);
   --fcb-sheet-tab-border-active: var(--fcb-primary);
-  --fcb-sheet-page-control-color: var(--color-text-dark-primary);
-  --fcb-sheet-page-control-background: rgb(192, 192, 192);
-  --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
+  --fcb-sheet-page-control-color: var(--fcb-control-text);
+  --fcb-sheet-page-control-bg: rgb(192, 192, 192);
+  --fcb-sheet-page-control-bg-hover: var(--fcb-sheet-page-control-bg);
   --fcb-icon-background: var(--fcb-primary);
   --fcb-icon-shadow: rgba(0, 0, 0, 0.4);
   --fcb-icon-outline: rgba(0, 0, 0, 0.4);
@@ -242,6 +242,6 @@ body {
   // for typeaheads, search
   --fcb-list-background: rgb(220, 220, 220);
   --fcb-list-highlight: rgba(85, 85, 153, 0.13);
-  --fcb-color-text-generate-message: var(--color-text-dark-secondary);
+  --fcb-color-text-generate-message: var(--fcb-text);
 }
 
