@@ -26,14 +26,11 @@
           @click="onCreateSettingClick"
         >
           <i class="fas fa-globe"></i>
-          <i
-            class="fas fa-plus"
-            style="color: black; background: rgba(255, 255, 255, 0.7); font-size: 0.6rem;"
-          >
-          </i>
+          <i class="fas fa-plus"></i>
         </a>
         <a
           class="fcb-header-control collapse-all"
+          data-testid="collapse-all-button"
           :data-tooltip="localize('tooltips.collapseAllTopics')"
           @click="onCollapseAllClick"
         >
@@ -54,7 +51,7 @@
     </header>
 
     <!-- First, a setting dropdown if here is more than one setting -->
-    <div v-if="currentSettingTree.value.length>1">
+    <div v-if="(ModuleSettings.get(SettingKey.settingIndex) || []).length>1">
       <Select
         v-model="selectedSetting"
         :options="settingOptions"
@@ -100,13 +97,14 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, watch, onMounted  } from 'vue';
+  import { ref, computed, watch, onMounted } from 'vue';
   import { storeToRefs } from 'pinia';
   import ProgressSpinner from 'primevue/progressspinner';
 
   // local imports
   import { localize } from '@/utils/game';
   import { useSettingDirectoryStore, useMainStore } from '@/applications/stores';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -198,7 +196,6 @@
   onMounted(() => {
     selectedSetting.value = currentSetting.value?.uuid || null;
   });
-
 </script>
 
 <style lang="scss">
@@ -253,14 +250,17 @@
           align-items: center;
 
           i {
-            position: absolute;
-
             &.fa-plus {
-              top: -10px;
-              right: 3px;
-              font-size: 0.5rem;
-              background: black;
-              color: var(--color-text-light-highlight);
+              position: absolute;
+              top: -.4rem;
+              right: .1875rem;
+              // font-size: 0.6rem;
+              // transform instead of font-size because if browser has a 
+              //    min font size we don't want to obscure the globe
+              transform: scale(0.65);
+              transform-origin: top right;
+              background: rgba(255, 255, 255, 0.7);
+              color: black;
               padding: 1px;
               border-radius: 4px;
             }  

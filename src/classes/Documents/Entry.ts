@@ -147,6 +147,11 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
       return null;
 
     topicFolder.entries[entry.uuid] = entry.name;
+
+    // if there's no parent, add it to topnodes
+    if (!options.parentId) {
+      topicFolder.topNodes = [...topicFolder.topNodes, entry.uuid];
+    }
     await topicFolder.save();
     await entry.save();
 

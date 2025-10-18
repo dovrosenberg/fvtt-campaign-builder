@@ -1,5 +1,6 @@
 // contains the data for the tests
 
+import { Topics } from '@/types';
 import { CampaignDescriptor } from './campaign';
 import { CharacterDescriptor } from './character';
 import { LocationDescriptor } from './location';
@@ -12,10 +13,12 @@ export type SettingDescriptor = {
   settingFeeling: string;
   description: string;
 
-  characters: CharacterDescriptor[];
-  locations: LocationDescriptor[];
-  organizations: OrganizationDescriptor[];
-  pcs: PCDescriptor[];
+  topics: {
+    [Topics.Character]: CharacterDescriptor[];
+    [Topics.Location]: LocationDescriptor[];
+    [Topics.Organization]: OrganizationDescriptor[];
+    [Topics.PC]: PCDescriptor[];
+  };
 
   campaigns: CampaignDescriptor[];
 }

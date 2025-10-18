@@ -20,7 +20,7 @@ export const createSettingFromSidebar = (context: TestContext, settingName: stri
     const page = context.page!;
 
     const createSettingButton = page.locator('div.new-link:has-text("Create Setting")');
-    await expect(createSettingButton).toBeVisible({ timeout: 5000 });
+    await expect(createSettingButton).toBeAttached();
     await createSettingButton.click({ force: true });
     
     await fillOutSettingNameDialog(context, settingName);

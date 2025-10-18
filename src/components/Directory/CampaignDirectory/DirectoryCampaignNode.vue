@@ -1,6 +1,6 @@
 <template>
   <li
-    :class="`fcb-campaign-folder folder entry flexcol fcb-directory-compendium ${props.campaignNode.expanded ? '' : 'collapsed'} ${isActiveCampaign ? 'active' : ''}`"
+    :class="`fcb-campaign-folder folder entry flexcol ${props.campaignNode.expanded ? '' : 'collapsed'} ${isActiveCampaign ? 'active' : ''}`"
     :data-campaign="props.campaignNode.id"
     draggable="true"
     @dragstart="onDragStart"
@@ -234,7 +234,7 @@
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  .fcb-directory-compendium {
+  .fcb-campaign-folder{
     // add margin when these are immediate children of summary
     div.summary.top > .fcb-directory-entry,
     div.summary.top > .fcb-current-directory-entry {

@@ -27,7 +27,7 @@
     "translate": "node .scripts/translate.cjs",
     "test:rebuild": "playwright test --project=rebuild",
     "test:all": "playwright test --project=all",
-    "test": "playwright test --project=rebuild"
+    "test": "playwright test --project=headless"
   },
   "devDependencies": {
     "@ethaks/fvtt-quench": "^0.9.2",

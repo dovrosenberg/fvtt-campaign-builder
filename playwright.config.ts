@@ -15,13 +15,13 @@ export default {
   /* Run tests in serial mode - all tests share the same page */
   fullyParallel: false,
   /* Maximum time one test can run for. */
-  timeout: 60 * 1000,
+  // timeout: 30 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
      * For example in `await expect(locator).toHaveText();`
      */
-    timeout: 10000
+    timeout: 5000
   },
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
@@ -50,40 +50,47 @@ export default {
     // headless: false,
     ignoreHTTPSErrors: true,
     viewport: { width: 1920, height: 1080 },
+    trace: 'off',
+    video: 'off',
+    screenshot: 'off',
+    trace: 'on',
   },
 
 
   /* Configure projects for major browsers */
   projects: [
-    // this is the headless version
+    // Default project for running specific test files
     {
-      name: 'headless-with-gpu',
-      testMatch: /.*main\.test\.ts/,
+      name: 'headless',
       use: {
         ...devices['Desktop Chrome'],
-        headless: true, // Still runs in headless mode
+        headless: true,
         launchOptions: {
           args: [
             "--no-sandbox", // Recommended for Linux environments
             "--disable-dev-shm-usage",
-            "--enable-gpu",
-            "--use-gl=egl", // Use EGL as the graphics backend
-            "--enable-features=Vulkan", // (Optional) Use Vulkan for newer setups
-            "--use-angle=vulkan", // (Optional) Use ANGLE with Vulkan backend
-            "--ignore-gpu-blocklist", // Ignore a list of blocked GPUs
-            "--enable-accelerated-2d-canvas",
-            "--enable-webgl",
+            "--disable-gpu", // because we're not using canas
+            '--use-gl=swiftshader',    // fast, predictable software GL
+            "--enable-unsafe-swiftshader",
+            '--disable-webgl2',
+            '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
+            // "--use-gl=egl", // Use EGL as the graphics backend
+            // "--enable-features=Vulkan", // (Optional) Use Vulkan for newer setups
+            // "--use-angle=vulkan", // (Optional) Use ANGLE with Vulkan backend
+            // "--ignore-gpu-blocklist", // Ignore a list of blocked GPUs
+            // "--enable-accelerated-2d-canvas",
+            // "--enable-webgl",
           ],
         },
       },
     },
-    // only run the rebuild
+    // Setup project: only runs initialize and rebuild
     {
       name: 'rebuild',
       testMatch: /.*rebuild\.test\.ts/,
       use: {
         ...devices['Desktop Chrome'],
-        headless: true, // Still runs in headless mode
+        headless: true,
         launchOptions: {
           args: [
             "--no-sandbox", // Recommended for Linux environments
@@ -99,13 +106,14 @@ export default {
         },
       },
     },
-    // only run the rebuild
+    // Tests project: runs all tests except rebuild
     {
-      name: 'headless-with-gpu',
-      testMatch: /.*main\.test\.ts/,
+      name: 'all',
+      dependencies: ['rebuild'],
+      testIgnore: [/.*rebuild\.test\.ts/],
       use: {
         ...devices['Desktop Chrome'],
-        headless: true, // Still runs in headless mode
+        headless: true,
         launchOptions: {
           args: [
             "--no-sandbox", // Recommended for Linux environments
@@ -121,26 +129,26 @@ export default {
         },
       },
     },
-    // this opens a browser
-    // {
-    //   name: 'chromium',
-    //   testMatch: /.*main\.test\.ts/,
-    //   use: {
-    //     ...devices['Desktop Chrome'],
-    //     channel: 'chrome',  // Use installed Google Chrome
-    //     launchOptions: {
-    //       args: [
-    //         '--disable-dev-shm-usage',
-    //         '--no-sandbox',
-    //         '--ozone-platform=wayland',
-    //         '--enable-gpu',
-    //         '--enable-accelerated-2d-canvas',
-    //         '--enable-webgl',
-    //         '--ignore-gpu-blocklist',
-    //       ],
-    //     },
-    //   },
-    // },
+    // this opens a browser (ex. for debugging)
+    {
+      name: 'browser',
+      testIgnore: [/.*rebuild\.test\.ts/],
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',  // Use installed Google Chrome
+        launchOptions: {
+          args: [
+            '--disable-dev-shm-usage',
+            '--no-sandbox',
+            '--ozone-platform=wayland',
+            '--enable-gpu',
+            '--enable-accelerated-2d-canvas',
+            '--enable-webgl',
+            '--ignore-gpu-blocklist',
+          ],
+        },
+      },
+    },
   ],
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
