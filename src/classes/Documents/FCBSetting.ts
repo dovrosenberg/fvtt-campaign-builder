@@ -745,10 +745,10 @@ const createCompendium = async(name: string): Promise<string> => {
 
   // create the folders inside
   const folderNames = [
-    localize('contentFolders.settings'),
+    localize('contentFolders.sessions'),
     localize('contentFolders.campaigns'),
     localize('contentFolders.entries'),
-    // localize('contentFolders.sessions'),  // we now put the sesion in the top level
+    // localize('contentFolders.settings'),  // we now put the settings in the top level
   ];
 
   const folders = folderNames.map((folderName) => ({

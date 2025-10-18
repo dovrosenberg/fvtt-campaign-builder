@@ -1,21 +1,4 @@
 <template>
-  <!-- First, a setting dropdown if here is more than one setting -->
-  <div v-if="currentSettingTree.value.length>1">
-    <Select
-      v-model="selectedSetting"
-      :options="settingOptions"
-      optionLabel="name"
-      optionValue="uuid"
-      :pt="{
-        root: { 
-          'data-testid': 'setting-select',
-          style: 'width: 100%'
-        }
-      }"
-      @change="onSettingChange"
-    />    
-  </div>
-
   <!-- these are the settings -->
   <ol class="fcb-setting-list">
     <li
@@ -79,7 +62,7 @@
 <script setup lang="ts">
   // library imports
   import { storeToRefs } from 'pinia';
-  import { computed, ref, watch, onMounted } from 'vue';
+  import { computed, } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
@@ -89,7 +72,6 @@
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
-  import Select, { SelectChangeEvent } from 'primevue/select';
 
   // local components
   import SettingDirectoryNestedTree from './SettingDirectoryNestedTree.vue';
@@ -117,17 +99,9 @@
 
   ////////////////////////////////
   // data
-  const selectedSetting = ref<string | null>(currentSetting.value?.uuid || null);
   
   ////////////////////////////////
   // computed data
-  const settingOptions = computed(() => {
-    return currentSettingTree.value.value.map((setting) => ({
-      name: setting.name,
-      uuid: setting.id
-    }));
-  });
-
   const currentSettingTreeObject = computed(() => {
     return currentSettingTree.value.value.find((setting) => setting.id === currentSetting.value?.uuid) || null;
   });
@@ -137,19 +111,6 @@
 
   ////////////////////////////////
   // event handlers
-
-  /**
-   * Handles changing the setting in the dropdown
-   * @param event The change event
-   */
-  const onSettingChange = async (event: SelectChangeEvent) => {
-    const settingId = event.value;
-
-    if (settingId) {
-      // we're changing settings
-      await mainStore.setNewSetting(settingId);
-    }
-  };
 
 
   /**
@@ -247,17 +208,9 @@
 
   ////////////////////////////////
   // watchers
-  watch(() => currentSetting.value?.uuid, (newSettingId) => {
-    if (newSettingId !== selectedSetting.value) {
-      selectedSetting.value = newSettingId || null;
-    }
-  });
 
   ////////////////////////////////
   // lifecycle events
-  onMounted(() => {
-    selectedSetting.value = currentSetting.value?.uuid || null;
-  });
 
 </script>
 
@@ -298,9 +251,7 @@
       color: var(--fcb-text);
       background: inherit;
       text-shadow: none;
-      position: sticky;
-      top: 0;
-      z-index: 2;
+      position: relative;
     }
 
     // topic folder styling
@@ -310,6 +261,7 @@
       color: var(--fcb-text);
       text-shadow: none;   // override foundry default
       cursor: pointer;
+      position: relative;
 
       i.icon {
         color: var(--fcb-sidebar-topic-icon-color);
@@ -325,7 +277,6 @@
       margin: 0px;
       /* width: 100%; */
       padding-left: 10px;
-      z-index: 1;  // make sure it stays behind the setting header
     }    
   }
 

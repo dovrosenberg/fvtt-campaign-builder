@@ -53,6 +53,23 @@
       </div>
     </header>
 
+    <!-- First, a setting dropdown if here is more than one setting -->
+    <div v-if="currentSettingTree.value.length>1">
+      <Select
+        v-model="selectedSetting"
+        :options="settingOptions"
+        optionLabel="name"
+        optionValue="uuid"
+        :pt="{
+          root: { 
+            'data-testid': 'setting-select',
+            style: 'width: 100%'
+          }
+        }"
+        @change="onSettingChange"
+      />    
+    </div>
+
     <Splitter layout="vertical" class="fcb-directory-splitter">
       <SplitterPanel :size="60" class="fcb-directory-panel">
         <div v-if="isTopicTreeRefreshing" class="fcb-loading-container">
@@ -83,18 +100,19 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, } from 'vue';
+  import { ref, computed, watch, onMounted  } from 'vue';
   import { storeToRefs } from 'pinia';
   import ProgressSpinner from 'primevue/progressspinner';
 
   // local imports
   import { localize } from '@/utils/game';
-  import { useSettingDirectoryStore } from '@/applications/stores';
+  import { useSettingDirectoryStore, useMainStore } from '@/applications/stores';
 
   // library components
   import InputText from 'primevue/inputtext';
   import Splitter from 'primevue/splitter';
   import SplitterPanel from 'primevue/splitterpanel';
+  import Select, { SelectChangeEvent } from 'primevue/select';
 
   // local components
   import CampaignDirectory from './CampaignDirectory/CampaignDirectory.vue';
@@ -111,20 +129,42 @@
   ////////////////////////////////
   // store
   const settingDirectoryStore = useSettingDirectoryStore();
-  const { filterText, isTopicTreeRefreshing, isGroupedByType } = storeToRefs(settingDirectoryStore);
+  const mainStore = useMainStore();
+  const { currentSetting } = storeToRefs(mainStore);
+  const { filterText, isTopicTreeRefreshing, isGroupedByType, currentSettingTree } = storeToRefs(settingDirectoryStore);
 
   ////////////////////////////////
   // data
   const root = ref<HTMLElement>();
+  const selectedSetting = ref<string | null>(currentSetting.value?.uuid || null);
   
   ////////////////////////////////
   // computed data
+  const settingOptions = computed(() => {
+    return currentSettingTree.value.value.map((setting) => ({
+      name: setting.name,
+      uuid: setting.id
+    }));
+  });
 
   ////////////////////////////////
   // methods
 
   ////////////////////////////////
   // event handlers
+  /**
+   * Handles changing the setting in the dropdown
+   * @param event The change event
+   */
+  const onSettingChange = async (event: SelectChangeEvent) => {
+    const settingId = event.value;
+
+    if (settingId) {
+      // we're changing settings
+      await mainStore.setNewSetting(settingId);
+    }
+  };
+
 
   // close all topics
   const onCollapseAllClick = (event: MouseEvent) => {
@@ -147,9 +187,17 @@
   
   ////////////////////////////////
   // watchers
+  watch(() => currentSetting.value?.uuid, (newSettingId) => {
+    if (newSettingId !== selectedSetting.value) {
+      selectedSetting.value = newSettingId || null;
+    }
+  });
 
   ////////////////////////////////
   // lifecycle events
+  onMounted(() => {
+    selectedSetting.value = currentSetting.value?.uuid || null;
+  });
 
 </script>
 
