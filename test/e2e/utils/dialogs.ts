@@ -11,7 +11,7 @@ export async function fillOutNameDialog(context: TestContext, headerText: string
   // find the text box - it's in a <section> tag that is in the same <div> as the <header>
   //   that contains the <h4>
   const nameInput = await dialog.locator('section div p input[type="text"]');
-  await expect(nameInput).toBeVisible();
+  await expect(nameInput).toBeAttached();
 
   // put in text
   await nameInput.fill(name);

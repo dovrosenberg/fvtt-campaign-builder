@@ -25,6 +25,9 @@ test.describe.serial('Basic Directory functions', () => {
 		// make sure everything closed to start, just in case
 		await page.getByTestId('collapse-all-button').click();
 
+		// Wait for the collapse to complete
+		await expect(page.locator('.fcb-topic-folder.collapsed').first()).toBeAttached();
+
 		// make sure the 1st topic isn't visible
 		await expect(page.locator('.fcb-directory-entry')
 			.filter({ hasText: setting.topics[Topics.Character][0].name}))

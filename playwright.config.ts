@@ -50,6 +50,10 @@ export default {
     // headless: false,
     ignoreHTTPSErrors: true,
     viewport: { width: 1920, height: 1080 },
+    trace: 'off',
+    video: 'off',
+    screenshot: 'off',
+    trace: 'on',
   },
 
 
@@ -65,13 +69,17 @@ export default {
           args: [
             "--no-sandbox", // Recommended for Linux environments
             "--disable-dev-shm-usage",
-            "--enable-gpu",
-            "--use-gl=egl", // Use EGL as the graphics backend
-            "--enable-features=Vulkan", // (Optional) Use Vulkan for newer setups
-            "--use-angle=vulkan", // (Optional) Use ANGLE with Vulkan backend
-            "--ignore-gpu-blocklist", // Ignore a list of blocked GPUs
-            "--enable-accelerated-2d-canvas",
-            "--enable-webgl",
+            "--disable-gpu", // because we're not using canas
+            '--use-gl=swiftshader',    // fast, predictable software GL
+            "--enable-unsafe-swiftshader",
+            '--disable-webgl2',
+            '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
+            // "--use-gl=egl", // Use EGL as the graphics backend
+            // "--enable-features=Vulkan", // (Optional) Use Vulkan for newer setups
+            // "--use-angle=vulkan", // (Optional) Use ANGLE with Vulkan backend
+            // "--ignore-gpu-blocklist", // Ignore a list of blocked GPUs
+            // "--enable-accelerated-2d-canvas",
+            // "--enable-webgl",
           ],
         },
       },

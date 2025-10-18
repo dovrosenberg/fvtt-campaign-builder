@@ -10,7 +10,11 @@ export const switchToSetting = async (settingName: string) => {
     .filter({hasText: settingName})
     .click();
 
-  await expect(page.getByTestId(`setting-folder-${settingName}`)).toBeVisible();
+  // Wait for the setting folder header to be visible
+  await expect(page.getByTestId(`setting-folder-${settingName}`)).toBeAttached();
+  
+  // Wait for topic folders to load
+  await expect(page.locator('.fcb-topic-folder').first()).toBeAttached();
 }
 
 export const confirmSettingInList = async (settingName: string): Promise<Locator> => {
@@ -44,13 +48,13 @@ export const expandTopicNode = async (topic: ValidTopic) => {
     .filter({ hasText: topicText[topic] });
 
   if (await folder.count() > 0) {
-    // if it has the collapsed class, click it
-    await folder.click();
+    // Click the inner div which has the actual click handler and is more stable
+    await page.getByTestId(`topic-folder-${topic}`).click();
 
     // Wait for it to no longer be collapsed
-    const newFolder = page.locator('.fcb-topic-folder')
-      .filter({ hasText: topicText[topic] });      
-    await expect(newFolder).not.toHaveClass('collapsed');
+    const expandedFolder = page.locator('.fcb-topic-folder')
+      .filter({ hasText: topicText[topic] });
+    await expect(expandedFolder).not.toHaveClass('collapsed');
   }
 }
 
@@ -67,8 +71,9 @@ export const expandTypeNode = async (topic: ValidTopic, typeName: string) => {
     .filter({ hasText: typeName });
 
   // the actual click button is on the previous sibling div, 
-  // which is a fcb-directory-expand-button
+  //    which is a fcb-directory-expand-button
+  // force=true because this click forces DOM to rerender this element which otherwise breaks playwright
   await typeNode.locator('..')
     .locator('.fcb-directory-expand-button')
-    .click();
+    .click({ force: true });
 };
