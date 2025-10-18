@@ -171,18 +171,22 @@ export class FCBJournalEntryPage<
       }
     }
 
-    const options = { name } as { name: string; folder?: string };
+    const options = { 
+      name,
+      flags: {
+        [moduleId]: {
+          [JournalEntryFlagKey.campaignBuilderType]: this._documentType
+        }
+      }
+    } as { name: string; folder?: string; flags: Record<string, any> };
     if (this._folderName)
       options.folder = folder.id;
 
-    // create a wrapping journal entry for the content
+    // create a wrapping journal entry for the content with flag set during creation
     const journalEntry = await JournalEntry.create(options, { pack: compendiumId });
   
     if (!journalEntry)
       throw new Error('Couldn\'t create new journal entry');
-
-    // flag it
-    await journalEntry.setFlag(moduleId, JournalEntryFlagKey.campaignBuilderType, this._documentType);
   
     const pageData = foundry.utils.mergeObject({
       type: this._documentType,

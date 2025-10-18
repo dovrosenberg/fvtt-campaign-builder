@@ -3,7 +3,6 @@
     "title": "Campaign Builder",
     "defaultRootFolderName": "Campaign Builder",
     "contentFolders": {
-      "settings": "Settings",
       "campaigns": "Campaigns",
       "entries": "Entries",
       "sessions": "Sessions"

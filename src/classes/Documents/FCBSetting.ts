@@ -318,7 +318,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    * @param {boolean} [makeCurrent=false] If true, sets the new setting as the current setting.
    * @param {string} [name] The name of the new setting.
    * @param {string} [compendiumId] The ID of the compendium to use.
-   * @param {boolean} [skipValidation=false] If true, skips validation.  Mostly only useful for migration
+   * @param {boolean} [skipValidation=false] If true, skips validation and rolltables.  Mostly only useful for migration
    * @returns The new setting, or null if the user cancelled the dialog.
    */
   public static async create(makeCurrent = false, name = '', compendiumId = '', skipValidation = false): Promise<FCBSetting | null> {
@@ -361,10 +361,10 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     // add to master list
     updateGlobalSetting(newSetting);
 
+    await newSetting.populate(skipValidation);
+
     if (skipValidation)
       return newSetting;
-
-    await newSetting.populate();
 
     // set as the current setting
     if (makeCurrent) {
@@ -377,18 +377,21 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
       void refreshSettingRollTables(newSetting);
     }
 
+    console.error(`Setting created in ${Date.now()-time}ms`);
     return newSetting;
   }
 
   // make sure we have a compendium in the folder; create a new one if needed
   // also loads all the topics
-  public async populate() {
+  // skipRollTables used for migration/testing
+  public async populate(skipRollTables = false) {
     // load the campaigns and topics
     await this.loadCampaigns();
     this.populateTopics();
     
     // Initialize roll tables for this setting if they don't exist - but don't wait for the generation
-    await initializeSettingRollTables(this);      
+    if (!skipRollTables)
+      await initializeSettingRollTables(this);      
   }
 
   private populateTopics() {
@@ -742,10 +745,10 @@ const createCompendium = async(name: string): Promise<string> => {
 
   // create the folders inside
   const folderNames = [
-    localize('contentFolders.settings'),
+    localize('contentFolders.sessions'),
     localize('contentFolders.campaigns'),
     localize('contentFolders.entries'),
-    // localize('contentFolders.sessions'),  // we now put the sesion in the top level
+    // localize('contentFolders.settings'),  // we now put the settings in the top level
   ];
 
   const folders = folderNames.map((folderName) => ({

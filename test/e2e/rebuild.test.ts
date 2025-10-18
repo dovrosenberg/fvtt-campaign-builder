@@ -1,9 +1,10 @@
 // resets the world and then repopulates with the setup test data
 
-import { test, expect } from '@playwright/test';
+import { test,  } from '@playwright/test';
 import { initializeWorld, loginToWorld, openCampaignBuilder } from '@e2etest/utils';
 import { sharedContext } from './sharedContext';
-import { populateWorld } from './setup';
+import { populateSetting } from './setup';
+import { testData } from './data';
 
 // Step functions are imported from separate files for organization
 
@@ -31,8 +32,13 @@ test.beforeAll(async ({ browser }) => {
 });
 
 test.describe.serial('Setup', () => {
-	test('Rebuild the world', async () => {
-		await populateWorld();
+	// we do these one at a time due to timeout issues
+	test('Populate Setting 1', async () => {
+		await populateSetting(testData.settings[0]);
+	});
+
+	test('Populate Setting 2', async () => {
+		await populateSetting(testData.settings[1]);
 	});
 
 

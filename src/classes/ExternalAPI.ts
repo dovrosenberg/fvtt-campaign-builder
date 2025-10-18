@@ -156,7 +156,7 @@ class TestAPI {
    * @returns The new setting
    */
   public async createSetting(name: string, makeCurrent = true): Promise<FCBSetting | null> {
-    return await FCBSetting.create(makeCurrent, name);
+    return await FCBSetting.create(makeCurrent, name, '', true);
   }
 
   public async createCampaign(setting: FCBSetting, name: string): Promise<Campaign | null> {

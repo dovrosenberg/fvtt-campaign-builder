@@ -229,10 +229,20 @@ class SearchService {
     if (hierarchy) {
       const names = [] as string[];
 
+      // Use cached entry names from topic folders 
       for (let i=0; i<hierarchy.ancestors.length; i++) {
-        const entry = await Entry.fromUuid(hierarchy.ancestors[i]);
-        if (entry)
-          names.push(entry.name);
+        const ancestorUuid = hierarchy.ancestors[i];
+        // Check all topic folders for this entry's name
+        let ancestorName: string | undefined;
+        for (const topicKey in setting.topicFolders) {
+          const topicFolder = setting.topicFolders[topicKey];
+          if (topicFolder.entries[ancestorUuid]) {
+            ancestorName = topicFolder.entries[ancestorUuid];
+            break;
+          }
+        }
+        if (ancestorName)
+          names.push(ancestorName);
       }
 
       // do one layer of children as part of our experimenting
@@ -243,7 +253,8 @@ class SearchService {
       //     names.push(entry.name);
       // }
 
-      snippets.push(names.join('|'));
+      if (names.length > 0)
+        snippets.push(names.join('|'));
     }
 
     return {

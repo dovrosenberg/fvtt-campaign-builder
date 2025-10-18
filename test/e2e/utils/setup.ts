@@ -70,4 +70,6 @@ export async function initializeWorld(){
   await page.evaluate(async () => {
     return await game.modules.get('campaign-builder')!.api!.testAPI!.resetAll();
   });
+  
+  console.log(`World reset`);
 }
