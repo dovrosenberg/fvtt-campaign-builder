@@ -26,11 +26,7 @@
           @click="onCreateSettingClick"
         >
           <i class="fas fa-globe"></i>
-          <i
-            class="fas fa-plus"
-            style="color: black; background: rgba(255, 255, 255, 0.7); font-size: 0.6rem;"
-          >
-          </i>
+          <i class="fas fa-plus"></i>
         </a>
         <a
           class="fcb-header-control collapse-all"
@@ -100,7 +96,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, computed, watch, onMounted  } from 'vue';
+  import { ref, computed, watch, onMounted } from 'vue';
   import { storeToRefs } from 'pinia';
   import ProgressSpinner from 'primevue/progressspinner';
 
@@ -198,7 +194,6 @@
   onMounted(() => {
     selectedSetting.value = currentSetting.value?.uuid || null;
   });
-
 </script>
 
 <style lang="scss">
@@ -256,11 +251,15 @@
             position: absolute;
 
             &.fa-plus {
-              top: -10px;
-              right: 3px;
-              font-size: 0.5rem;
-              background: black;
-              color: var(--color-text-light-highlight);
+              top: -.6875rem;
+              right: .1875rem;
+              // font-size: 0.6rem;
+              // transform instead of font-size because if browser has a 
+              //    min font size we don't want to obscure the globe
+              transform: scale(0.65);
+              transform-origin: top right;
+              background: rgba(255, 255, 255, 0.7);
+              color: black;
               padding: 1px;
               border-radius: 4px;
             }  
