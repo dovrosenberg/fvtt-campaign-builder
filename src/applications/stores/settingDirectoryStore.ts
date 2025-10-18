@@ -36,6 +36,8 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // external state
 
   // the top-level folder structure
+  // its an array for historic reasons and in case we ever want to go back
+  //    to showing more than 1 setting in the list
   const currentSettingTree = reactive<{value: DirectorySetting[]}>({value:[]});
 
   // topic tree currently refreshing
@@ -403,65 +405,58 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     let scrollContainer: HTMLElement | null = document.querySelector('.fcb-setting-directory') as HTMLElement;
     const originalScrollTop = scrollContainer?.scrollTop || 0;
 
-    // we put in the topics only for the current setting
-    let tree = [] as DirectorySetting[];
-
     // populate the setting names, and find the current one
     let currentSettingFound = false;
     const allSettings = ModuleSettings.get(SettingKey.settingIndex) || [];
+    const currentSettingIndex = allSettings.find((s)=>s.settingId===currentSetting.value?.settingId);
 
-    for (const settingIndex of allSettings) {
-      // see if it's the current one
-      if (settingIndex.settingId===currentSetting.value?.settingId) {
-        currentSettingFound = true;
-      }
-
-      tree.push({
-        name: settingIndex.name,
-        id: settingIndex.settingId,
-        topicNodes: []
-      });
+    if (!currentSettingIndex) {
+      currentSettingTree.value = [];
+      return;
     }
+    
+    const currentSettingBlock = {
+      name: currentSettingIndex.name,
+      id: currentSettingIndex.settingId,
+      topicNodes: []
+    } as DirectorySetting;
 
     // find the record for the current setting and set the entries for each topic
-    const currentSettingBlock = tree.find((w)=>w.id===currentSetting.value?.uuid);
-    if (currentSettingBlock && currentSettingFound && currentSetting.value) {
-      // make sure the folders have been loaded
-      const topicFolders = currentSetting.value.topicFolders;
-      const expandedNodes = currentSetting.value.expandedIds;
+    // make sure the folders have been loaded
+    const topicFolders = currentSetting.value.topicFolders;
+    const expandedNodes = currentSetting.value.expandedIds;
 
-      const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
-      currentSettingBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
-        const id = `${(currentSetting.value as FCBSetting).uuid}.topic.${topic}`;
-        const topicObj = topicFolders[topic] as TopicFolder;
+    const topics = [Topics.Character, Topics.Location, Topics.Organization, Topics.PC] as ValidTopic[];
+    currentSettingBlock.topicNodes = topics.map((topic: ValidTopic): DirectoryTopicNode => {
+      const id = `${(currentSetting.value as FCBSetting).uuid}.topic.${topic}`;
+      const topicObj = topicFolders[topic] as TopicFolder;
 
-        return new DirectoryTopicNode(
-          id,
-          getTopicTextPlural(topic),
-          topicObj,
-          topicObj.topNodes.concat(),
-          [],
-          [],
-          expandedNodes[id] || false,
-        );
-      }).sort((a: DirectoryTopicNode, b: DirectoryTopicNode): number => a.topicFolder.topic - b.topicFolder.topic);
+      return new DirectoryTopicNode(
+        id,
+        getTopicTextPlural(topic),
+        topicObj,
+        topicObj.topNodes.concat(),
+        [],
+        [],
+        expandedNodes[id] || false,
+      );
+    }).sort((a: DirectoryTopicNode, b: DirectoryTopicNode): number => a.topicFolder.topic - b.topicFolder.topic);
 
-      // load the children for any open topics
-      for (let i=0; i<currentSettingBlock?.topicNodes.length; i++) {
-        const directoryTopicNode = currentSettingBlock.topicNodes[i];
+    // load the children for any open topics
+    for (let i=0; i<currentSettingBlock?.topicNodes.length; i++) {
+      const directoryTopicNode = currentSettingBlock.topicNodes[i];
 
-        if (!directoryTopicNode.expanded)
-          continue;
+      if (!directoryTopicNode.expanded)
+        continue;
 
-        // have to check all children are loaded and expanded properly
-        await directoryTopicNode.recursivelyLoadNode(expandedNodes, updateEntryIds);
+      // have to check all children are loaded and expanded properly
+      await directoryTopicNode.recursivelyLoadNode(expandedNodes, updateEntryIds);
 
-        // load the type-grouped entries
-        await directoryTopicNode.loadTypeEntries(topicFolders[directoryTopicNode.topicFolder.topic].types, expandedNodes);
-      }
+      // load the type-grouped entries
+      await directoryTopicNode.loadTypeEntries(topicFolders[directoryTopicNode.topicFolder.topic].types, expandedNodes);
     }
 
-    currentSettingTree.value = tree;
+    currentSettingTree.value = [currentSettingBlock];
 
     // make sure the node list is up to date
     await updateFilterNodes();

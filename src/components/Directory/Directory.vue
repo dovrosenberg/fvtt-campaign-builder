@@ -51,7 +51,7 @@
     </header>
 
     <!-- First, a setting dropdown if here is more than one setting -->
-    <div v-if="currentSettingTree.value.length>1">
+    <div v-if="(ModuleSettings.get(SettingKey.settingIndex) || []).length>1">
       <Select
         v-model="selectedSetting"
         :options="settingOptions"
@@ -104,6 +104,7 @@
   // local imports
   import { localize } from '@/utils/game';
   import { useSettingDirectoryStore, useMainStore } from '@/applications/stores';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
   import InputText from 'primevue/inputtext';

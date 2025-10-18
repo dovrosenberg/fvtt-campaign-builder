@@ -9,6 +9,8 @@ import { ensureSetup } from './ensureSetup';
 // Step functions are imported from separate files for organization
 
 test.beforeAll(async ({ browser }) => {
+	test.setTimeout(90000);  // the initialization of everything could take a while
+
 	// Ensure setup is done (will only run once per test session)
 	await ensureSetup(browser, true);
 });

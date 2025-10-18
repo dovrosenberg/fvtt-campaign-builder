@@ -27,12 +27,12 @@
         <li 
           v-for="topicNode in currentSettingTreeObject.topicNodes.sort((a, b) => (a.topicFolder.topic < b.topicFolder.topic ? -1 : 1))"
           :key="topicNode.topicFolder.topic"
-          :class="'fcb-topic-folder folder entry flexcol fcb-directory-compendium ' + (topicNode.expanded ? '' : 'collapsed')"
+          :class="'fcb-topic-folder folder entry flexcol ' + (topicNode.expanded ? '' : 'collapsed')"
           :data-topic="topicNode.topicFolder.topic" 
         >
           <header class="folder-header flexrow">
             <div 
-              class="fcb-compendium-label noborder" 
+              class="noborder" 
               style="margin-bottom:0px"
               :data-testid="`topic-folder-${topicNode.topicFolder.topic}`"
               @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
@@ -284,7 +284,7 @@
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  .fcb-directory-compendium {
+  .fcb-topic-folder {
     font-size: 0.8rem;
     font-family: var(--fcb-font-family);
 

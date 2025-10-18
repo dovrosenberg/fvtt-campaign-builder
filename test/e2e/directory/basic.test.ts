@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { sharedContext } from '@e2etest/sharedContext';
 import { testData } from '@e2etest/data';
 import { ensureSetup } from '../ensureSetup';
-import { switchToSetting } from '@e2etest/utils';
+import { expandTopicNode, expandTypeNode, switchToSetting } from '@e2etest/utils';
 import { Topics } from '@/types';
 
 test.describe.serial('Basic Directory functions', () => {
@@ -32,13 +32,11 @@ test.describe.serial('Basic Directory functions', () => {
 
 		// open each folder and make sure the 1st node is visible
 		for (const topic in setting.topics) {
-			await page.getByTestId(`topic-folder-${topic}`).click();
+			await expandTopicNode(Number.parseInt(topic));
 
 			// for characters, we need to expand the 'none' folder first
 			if (Number.parseInt(topic) === Topics.Character) {
-				await page.locator('.fcb-directory-type')
-					.filter({ hasText: '(none)'})
-					.click();
+				await expandTypeNode(Number.parseInt(topic), '(none)');
 			}
 
 			const entries = setting.topics[topic];
@@ -52,7 +50,7 @@ test.describe.serial('Basic Directory functions', () => {
 
 		// make sure the 1st topic isn't visible
 		await expect(page.locator('.fcb-directory-entry')
-			.filter({ hasText: setting.topics[0][0].name}))
+			.filter({ hasText: setting.topics[Topics.Character][0].name}))
 			.toHaveCount(0);
 	});
 
