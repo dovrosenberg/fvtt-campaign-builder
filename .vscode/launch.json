@@ -6,7 +6,7 @@
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/@playwright/test/cli.js",
-      "args": ["test"],
+      "args": ["test", "--project=browser", "directory"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "env": { "PWDEBUG": "1" }

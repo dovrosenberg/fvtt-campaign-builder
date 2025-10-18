@@ -1,34 +1,16 @@
 // resets the world and then repopulates with the setup test data
 
-import { test,  } from '@playwright/test';
-import { initializeWorld, loginToWorld, openCampaignBuilder } from '@e2etest/utils';
+import { test } from '@playwright/test';
 import { sharedContext } from './sharedContext';
 import { populateSetting } from './setup';
 import { testData } from './data';
+import { ensureSetup } from './ensureSetup';
 
 // Step functions are imported from separate files for organization
 
 test.beforeAll(async ({ browser }) => {
-	// setup browser
-	sharedContext.context = await browser.newContext({
-			viewport: { width: 1920, height: 1080 },
-			ignoreHTTPSErrors: true,
-		});
-
-	sharedContext.page = await sharedContext.context.newPage();
-
-	sharedContext.page.on('console', msg => {
-		if (msg.type() === 'error') console.log(`Console error: ${msg.text()}`);
-	});
-
-	// login
-	await loginToWorld();
-
-	// reset the world
-	await initializeWorld();
-
-	// open the window
-	await openCampaignBuilder();
+	// Ensure setup is done (will only run once per test session)
+	await ensureSetup(browser, true);
 });
 
 test.describe.serial('Setup', () => {

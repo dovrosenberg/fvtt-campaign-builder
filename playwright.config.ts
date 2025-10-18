@@ -55,13 +55,12 @@ export default {
 
   /* Configure projects for major browsers */
   projects: [
-    // this is the headless version
+    // Default project for running specific test files
     {
-      name: 'headless-with-gpu',
-      testMatch: /.*main\.test\.ts/,
+      name: 'headless',
       use: {
         ...devices['Desktop Chrome'],
-        headless: true, // Still runs in headless mode
+        headless: true,
         launchOptions: {
           args: [
             "--no-sandbox", // Recommended for Linux environments
@@ -77,13 +76,13 @@ export default {
         },
       },
     },
-    // only run the rebuild
+    // Setup project: only runs initialize and rebuild
     {
       name: 'rebuild',
       testMatch: /.*rebuild\.test\.ts/,
       use: {
         ...devices['Desktop Chrome'],
-        headless: true, // Still runs in headless mode
+        headless: true,
         launchOptions: {
           args: [
             "--no-sandbox", // Recommended for Linux environments
@@ -99,13 +98,14 @@ export default {
         },
       },
     },
-    // only run the rebuild
+    // Tests project: runs all tests except rebuild
     {
-      name: 'headless-with-gpu',
-      testMatch: /.*main\.test\.ts/,
+      name: 'all',
+      dependencies: ['rebuild'],
+      testIgnore: [/.*rebuild\.test\.ts/],
       use: {
         ...devices['Desktop Chrome'],
-        headless: true, // Still runs in headless mode
+        headless: true,
         launchOptions: {
           args: [
             "--no-sandbox", // Recommended for Linux environments
@@ -121,26 +121,26 @@ export default {
         },
       },
     },
-    // this opens a browser
-    // {
-    //   name: 'chromium',
-    //   testMatch: /.*main\.test\.ts/,
-    //   use: {
-    //     ...devices['Desktop Chrome'],
-    //     channel: 'chrome',  // Use installed Google Chrome
-    //     launchOptions: {
-    //       args: [
-    //         '--disable-dev-shm-usage',
-    //         '--no-sandbox',
-    //         '--ozone-platform=wayland',
-    //         '--enable-gpu',
-    //         '--enable-accelerated-2d-canvas',
-    //         '--enable-webgl',
-    //         '--ignore-gpu-blocklist',
-    //       ],
-    //     },
-    //   },
-    // },
+    // this opens a browser (ex. for debugging)
+    {
+      name: 'browser',
+      testIgnore: [/.*rebuild\.test\.ts/],
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',  // Use installed Google Chrome
+        launchOptions: {
+          args: [
+            '--disable-dev-shm-usage',
+            '--no-sandbox',
+            '--ozone-platform=wayland',
+            '--enable-gpu',
+            '--enable-accelerated-2d-canvas',
+            '--enable-webgl',
+            '--ignore-gpu-blocklist',
+          ],
+        },
+      },
+    },
   ],
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */

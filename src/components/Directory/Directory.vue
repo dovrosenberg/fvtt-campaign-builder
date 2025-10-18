@@ -30,6 +30,7 @@
         </a>
         <a
           class="fcb-header-control collapse-all"
+          data-testid="collapse-all-button"
           :data-tooltip="localize('tooltips.collapseAllTopics')"
           @click="onCollapseAllClick"
         >
