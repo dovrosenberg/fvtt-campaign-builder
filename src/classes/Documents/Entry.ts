@@ -4,14 +4,13 @@ import { DOCUMENT_TYPES, } from '@/documents';
 import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
-import { getGlobalSetting, TopicFolder,  } from '@/classes';
+import { TopicFolder,  } from '@/classes';
 import { getParentId } from '@/utils/hierarchy';
 import { searchService } from '@/utils/search';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
 import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { cleanTopicKeysOnSave } from '@/utils/cleanKeys';
-import GlobalLightSource from 'node_modules/@types/fvtt-types/src/foundry/client/canvas/sources/global-light-source.mjs';
 
 export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
 
