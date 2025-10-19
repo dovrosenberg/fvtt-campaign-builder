@@ -1,5 +1,5 @@
 import { toRaw, } from 'vue';
-import { EntryDoc, entryIndexFields } from '@/documents';
+import { EntryDoc, entryIndexFields, entryIndexFields2 } from '@/documents';
 import { Entry, FCBSetting } from '@/classes';
 import { EntryFilterIndex, ValidTopic } from '@/types';
 
@@ -84,7 +84,7 @@ export class TopicFolder {
       // now filter by the function passed in 
       .filter((s: EntryFilterIndex)=> filterFn(s)) || [];
 
-    if (!fullEntry)
+    if (!fullEntry || entries.length===0)
       return entries;
     
     let retval = [] as Entry[];

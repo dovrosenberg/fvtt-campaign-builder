@@ -3,6 +3,7 @@ import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/set
 import { ValidDocType } from '@/types';
 import { FCBSetting } from './FCBSetting';
 import { getGlobalSetting } from '@/classes';
+import { entryIndexFields2 } from '@/documents';
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
@@ -153,6 +154,9 @@ export class FCBJournalEntryPage<
     // find the folder it goes in 
     const pack = game.packs.get(compendiumId);
 
+    if (!pack)
+      throw new Error(`Invalid compendium in FCBJournalEntryPage ${compendiumId}`);
+
     let folder;
     if (this._folderName) {
       folder = pack?.folders.find(f => f.name === this._folderName);
@@ -194,14 +198,16 @@ export class FCBJournalEntryPage<
       system: this._defaultSystem,
     }, initialData) as JournalEntryPage.CreateData;
 
-      // now add the page
-    const pages = await JournalEntryPage.createDocuments([pageData],{
-      parent: journalEntry,
-    }) as unknown as DocClass[];
+    // now add the page
+    const pages = await journalEntry.createEmbeddedDocuments('JournalEntryPage', [pageData]) as unknown as DocClass[];
   
     if (!pages || pages.length === 0)
       throw new Error('Couldn\'t create new journal entry page');
-    
+
+    // rebuild the index (by adding a random ID) because otherwise it won't pick up the page
+    // don't really need to await this
+    void pack.getIndex(entryIndexFields2());
+
     return new this(pages[0]) as InstanceType<T>;
   }
   

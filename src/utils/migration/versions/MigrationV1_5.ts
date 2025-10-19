@@ -1,7 +1,7 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, } from '@/settings';
-import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder, WindowTab } from '@/classes';
+import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder, WindowTab, } from '@/classes';
 import { Bookmark, defaultCustomFields, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, SettingIndex, TabHeader, TagInfo, ToDoItem, Topics, ValidTopic } from '@/types';
 import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, } from '@/documents';
 
@@ -84,6 +84,7 @@ export class MigrationV1_5 implements Migration {
         await cleanCompendiumIds(idx.settingId);
       }
 
+      // remap the email settings
       const emailSettingId = ModuleSettings.get(SettingKey.emailDefaultSetting);
       const emailCampaignId = ModuleSettings.get(SettingKey.emailDefaultCampaign);
       if (emailSettingId) {
