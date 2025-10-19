@@ -3,7 +3,6 @@ import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/set
 import { ValidDocType } from '@/types';
 import { FCBSetting } from './FCBSetting';
 import { getGlobalSetting } from '@/classes';
-import { entryIndexFields2 } from '@/documents';
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
@@ -132,6 +131,15 @@ export class FCBJournalEntryPage<
         // reset the doc and clone
         this._doc = retval;
         this._clone = retval.clone({}, { keepId: true });
+
+        // rebuild the index (by adding a random field name) because otherwise index won't update
+        // see Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
+        // don't really need to await this
+        const pack = game.packs.get(this._doc.pack);
+        if (!pack)
+          throw new Error(`Invalid compendium in FCBJournalEntryPage.save() ${this._doc.pack}`);
+        // @ts-ignore
+        void pack.getIndex({ fields: [foundry.utils.randomID()]});
       }      
     } catch (e) {
       throw new Error(`Error updating journal entry page ${this._doc.uuid}: ${e}`);
@@ -204,9 +212,11 @@ export class FCBJournalEntryPage<
     if (!pages || pages.length === 0)
       throw new Error('Couldn\'t create new journal entry page');
 
-    // rebuild the index (by adding a random ID) because otherwise it won't pick up the page
+    // rebuild the index (by adding a random field name) because otherwise it won't pick up the page
+    // see Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
     // don't really need to await this
-    void pack.getIndex(entryIndexFields2());
+    // @ts-ignore
+    void pack.getIndex({ fields: [foundry.utils.randomID()]});
 
     return new this(pages[0]) as InstanceType<T>;
   }

@@ -24,18 +24,3 @@ export const entryIndexFields = {
     'pages.system.type'
   ]
 } as any;
-
-// we inject a random field name to force the cache to always rebuild
-// this is way slower since this same index is used A LOT it doesn't actually
-//    change all that much
-// but it's the only way to deal with this Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
-export const entryIndexFields2 = () => ({
-  fields: [
-    foundry.utils.randomID(),
-    TYPE_FIELD,
-    'pages.name', 
-    'pages.uuid', 
-    'pages.system.topic',
-    'pages.system.type'
-  ]
-}) as any;

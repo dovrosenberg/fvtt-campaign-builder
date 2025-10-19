@@ -1,5 +1,5 @@
 import { toRaw, } from 'vue';
-import { EntryDoc, entryIndexFields, entryIndexFields2 } from '@/documents';
+import { EntryDoc, entryIndexFields, } from '@/documents';
 import { Entry, FCBSetting } from '@/classes';
 import { EntryFilterIndex, ValidTopic } from '@/types';
 
