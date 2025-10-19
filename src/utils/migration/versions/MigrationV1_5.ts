@@ -128,7 +128,7 @@ export class MigrationV1_5 implements Migration {
         }
 
         // tabs
-        const oldTabs = user.getFlag(moduleId, 'tabs' + folder.uuid) as WindowTab[] || [];
+        const oldTabs = user.getFlag(moduleId, 'tabs.' + folder.uuid) as WindowTab[] || [];
         if (oldTabs.length > 0) {
           const newTabs = oldTabs.map((t)=>({
             ...t,
@@ -147,7 +147,7 @@ export class MigrationV1_5 implements Migration {
         }
 
         // recent viewed
-        const oldRecentViewed = user.getFlag(moduleId, 'recentlyViewed' + folder.uuid) as TabHeader[] || [];
+        const oldRecentViewed = user.getFlag(moduleId, 'recentlyViewed.' + folder.uuid) as TabHeader[] || [];
         if (oldRecentViewed.length > 0) {
           const newRecentViewed = oldRecentViewed.map((t)=>({
             ...t,
@@ -155,7 +155,7 @@ export class MigrationV1_5 implements Migration {
           }));
 
           await user.unsetFlag(moduleId, 'recentlyViewed' + folder.uuid);
-          await user.setFlag(moduleId, 'recentlyViewed' + globalUuidMap[folder.uuid], newRecentViewed);
+          await user.setFlag(moduleId, 'recentlyViewed.' + globalUuidMap[folder.uuid], newRecentViewed);
         }
       }
     } catch (outer) {

@@ -55,18 +55,16 @@
 * Open the world in v1.5
 - [x] Confirm entry and campaign trees are correct
 - [ ] Confirm each content's info is correct
-    - **Entries missing basically everything**
     - Entry related items work
+    - **Need to remap ids in content**
     - **Entry session connection broken**
     - Campaign works
 - [ ] Confirm tags are correct
-- [ ] Confirm the bookmarks all work
-    - **Bookmarks broken**
-- [ ] Confirm the tabs are correct, including the history
-    - **Tabs broken**
-- [ ] Confirm the advanced setting is correct and the current setting was retained
+- [ ] Check that session links to npc and locations working
+- [x] Confirm the bookmarks all work
+- [x] Confirm the tabs are correct, including the history
+- [] Confirm the advanced setting is correct and the current setting was retained
     - **Setting worked but not campaign**
-- [ ] Confirm the current tab was preserved in the off setting
-    - **Tab broken**
+- [x] Confirm the current tab was preserved in the off setting
 - [a] Confirm the expanded tree is correct in both settings
 - [x] Confirm the off setting type isn't in the main setting
