@@ -40,7 +40,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     plotPoints: '',
     magicItems: '',
     img: '',
-    rolePlayingNotes: ''
+    roleplayingNotes: ''
   } as unknown as EntryDocClass['system'];
 
   private _actor: Actor | null;  // for pcs
@@ -283,12 +283,12 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     this._clone.text.content = value;
   }
 
-  get rolePlayingNotes(): string {
+  get roleplayingNotes(): string {
     // @ts-ignore - fvtt bug
     return this._clone.system.customFields.roleplaying_notes || '';
   }
 
-  set rolePlayingNotes(value: string) {
+  set roleplayingNotes(value: string) {
     // @ts-ignore - fvtt bug
     this._clone.system.customFields.roleplaying_notes = value;
   }

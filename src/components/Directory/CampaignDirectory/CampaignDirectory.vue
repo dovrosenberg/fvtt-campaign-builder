@@ -116,16 +116,40 @@
         /* overflow: hidden; */
         margin-top: .1875rem;
 
-        .fcb-setting-folder > .folder-header {
-          background: inherit !important;
+        .fcb-setting-folder {
+          align-items: flex-start;
+          justify-content: flex-start;
+          min-width: 100%;
+          width: max-content;
           font-weight: 700;
-        }
-      }
 
-      .fcb-campaign-contents {
-        // make sure it goes behind the header
-        z-index: 1;
+          & > .folder-header {
+            border-bottom: none;
+            width: 100%;
+            flex: 1;
+            cursor: pointer;
+          }
+    
+          // setting folder styling
+          &:not(.collapsed) > .folder-header {
+            color: var(--fcb-text);
+            background: inherit;
+            text-shadow: none;
+            position: relative;
+          }
+          
+        }
+      
+        // .fcb-setting-folder > .folder-header {
+        //   background: inherit !important;
+        //   font-weight: 700;
+        // }
       }
+    }
+
+    .fcb-campaign-contents {
+      // make sure it goes behind the header
+      z-index: 1;
+    }
   }
-}
 </style>

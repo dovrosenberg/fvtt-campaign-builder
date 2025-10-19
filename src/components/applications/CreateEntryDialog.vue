@@ -541,7 +541,7 @@
         name: generateComplete.value ? generatedName.value : name.value,
         type: type.value,
         description: descriptionToUse,
-        rolePlayingNotes: roleplayToUse,
+        roleplayingNotes: roleplayToUse,
         speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
         generateImage: generateImageAfterAccept.value
       }
@@ -551,7 +551,7 @@
         type: type.value,
         parentId: parentId.value,
         description: descriptionToUse,
-        rolePlayingNotes: roleplayToUse,
+        roleplayingNotes: roleplayToUse,
         generateImage: generateImageAfterAccept.value
       }
     }

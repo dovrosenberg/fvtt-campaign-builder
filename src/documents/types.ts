@@ -6,15 +6,14 @@ import { SettingDataModel } from './fcbSetting';
 import { CampaignDataModel } from './campaign';
 
 // only need these for things that are actually subtyped
-// JournalEntry can't be subtyped, so we handle campaign (and TopicFolder) differently
-// For PCs, we don't want to subtype Actor because we want to be able to attach to the 
-//    same actor documents used by the system
+// updated all to x2 at v1.5 because the whole structure changed (journal entry pages
+//    were separated into separate journal entries)
+// these should also match what's in module.json
 export const DOCUMENT_TYPES = {
-  Entry: `${moduleId}.entry` as const,
-  Session: `${moduleId}.session` as const,
-  Setting: `${moduleId}.setting` as const,
-  Campaign: `${moduleId}.campaign` as const,
-  PC: `${moduleId}.pc` as const,   // here for compatibility, but no longer used
+  Entry: `${moduleId}.entry2` as const,  
+  Session: `${moduleId}.session2` as const,
+  Setting: `${moduleId}.setting2` as const,
+  Campaign: `${moduleId}.campaign2` as const,
 } as const;
 
 export type FCB_DOCUMENT_TYPES = typeof DOCUMENT_TYPES[keyof typeof DOCUMENT_TYPES];

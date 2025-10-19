@@ -2,7 +2,7 @@ const fields = foundry.data.fields;
 
 export const IdeaSchema = () => (
   new fields.SchemaField({
-    /** uuid of the idea item */
+    /** uuid  but our own, so just a string*/
     uuid: new fields.StringField({ required: true, nullable: false }),
 
     /** the idea description */

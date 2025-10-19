@@ -1,5 +1,5 @@
 <template>
-  <!-- these are the settings -->
+  <!-- these are the settings (well, really just one) -->
   <ol class="fcb-setting-list">
     <li
       v-if="currentSettingTreeObject"
@@ -237,22 +237,22 @@
         min-width: 100%;
         width: max-content;
         font-weight: 700;
+
+        & > .folder-header {
+          border-bottom: none;
+          width: 100%;
+          flex: 1;
+          cursor: pointer;
+        }
+
+        // setting folder styling
+        &:not(.collapsed) > .folder-header {
+          color: var(--fcb-text);
+          background: inherit;
+          text-shadow: none;
+          position: relative;
+        }
       }
-    }
-
-    .fcb-setting-folder > .folder-header {
-      border-bottom: none;
-      width: 100%;
-      flex: 1;
-      cursor: pointer;
-    }
-
-    // setting folder styling
-    .fcb-setting-folder:not(.collapsed) > .folder-header {
-      color: var(--fcb-text);
-      background: inherit;
-      text-shadow: none;
-      position: relative;
     }
 
     // topic folder styling

@@ -84,83 +84,78 @@ export class MigrationV1_5 implements Migration {
         await cleanCompendiumIds(idx.settingId);
       }
 
-      const currentEmailId = ModuleSettings.get(SettingKey.emailDefaultSetting);
-      if (currentEmailId) {
-        ModuleSettings.set(SettingKey.emailDefaultSetting, globalUuidMap[currentEmailId]);
+      const emailSettingId = ModuleSettings.get(SettingKey.emailDefaultSetting);
+      const emailCampaignId = ModuleSettings.get(SettingKey.emailDefaultCampaign);
+      if (emailSettingId) {
+        ModuleSettings.set(SettingKey.emailDefaultSetting, globalUuidMap[emailSettingId]);
+        ModuleSettings.set(SettingKey.emailDefaultCampaign, globalUuidMap[emailCampaignId]);
       }
 
-      // clean up all the user settings
-      for (const user of game.users.filter(()=>true)) {
-        // current settings
-        const oldSettingId = user.getFlag(moduleId, UserFlagKey.currentSetting) as Record<string, string> || undefined;
-        if (oldSettingId) {
-          // it was encoded in a reall odd way
-          user.setFlag(moduleId, UserFlagKey.currentSetting, globalUuidMap[oldSettingId['']]);
-        }
+      // clean up all the user settings - only care about the GM user, which
+      //    must be the current one
+      const user = game.user;
+      if (!user || !user.isGM)
+        throw new Error('MigrationV1_5.migrate() - somehow user isn\'t GM');
 
-        // bookmarks, tabs, and recently viewed are indexed by setting id (not uuid)
-        // bookmarks - object keyed by setting id (not uuid) 
-        const oldBookmarks = user.getFlag(moduleId, UserFlagKey.bookmarks) as Record<string, Bookmark[]> | undefined;
-        const newBookmarks = {} as Record<string, Bookmark[]>
-        if (oldBookmarks) {
-          for (const oldSettingId in oldBookmarks) {
-            if (!settingIdMap[oldSettingId]) {
-              // probably a corrupt old one
-              continue;
+      // current setting
+      const oldSettingId = user.getFlag(moduleId, UserFlagKey.currentSetting) as Record<string, string> || undefined;
+      if (oldSettingId) {
+        // it was encoded in a real odd way
+        await user.setFlag(moduleId, UserFlagKey.currentSetting, globalUuidMap[oldSettingId['']]);
+      }
+
+      // if there's a currentWorld, delete it - that's old
+      await user.unsetFlag(moduleId, 'currentWorld');
+
+      // bookmarks, tabs, and recently viewed are indexed by setting id (not uuid)
+      for (const folder of allSettingFolders) {
+        const oldBookmarks = user.getFlag(moduleId, 'bookmarks.'+ folder.uuid) as Bookmark[] || [];
+        if (oldBookmarks.length > 0) {
+          const newBookmarks = oldBookmarks.map((b)=>({
+            ...b,  // the base id is just a string
+            header: {
+              ...b.header,
+              uuid: b.header.uuid ? globalUuidMap[b.header.uuid] : null,
+            },
+            tabInfo: {
+              ...b.tabInfo,
+              contentId: b.tabInfo.contentId ? globalUuidMap[b.tabInfo.contentId] : null,
             }
-            const newSettingBookmarks = oldBookmarks[oldSettingId].map((b)=>({
-              ...b,
-              id: globalUuidMap[b.id]
-            }));
+          }));
 
-            newBookmarks[settingIdMap[oldSettingId]] = newSettingBookmarks;
-          }
+          await user.unsetFlag(moduleId, 'bookmarks.'+ folder.uuid);
+          await user.setFlag(moduleId, 'bookmarks.'+ globalUuidMap[folder.uuid], newBookmarks);
         }
-        await user.setFlag(moduleId, UserFlagKey.bookmarks, newBookmarks);
 
         // tabs
-        const oldTabs = user.getFlag(moduleId, UserFlagKey.tabs) as Record<string, WindowTab[]> | undefined;
-        const newTabs = {} as Record<string, WindowTab[]>
-        if (oldTabs) {
-          for (const oldSettingId in oldTabs) {
-            if (!settingIdMap[oldSettingId]) {
-              // probably a corrupt old one
-              continue;
-            }
+        const oldTabs = user.getFlag(moduleId, 'tabs' + folder.uuid) as WindowTab[] || [];
+        if (oldTabs.length > 0) {
+          const newTabs = oldTabs.map((t)=>({
+            ...t,
+            header: {
+              ...t.header,
+              uuid: t.header.uuid ? globalUuidMap[t.header.uuid] : null,
+            },
+            history: t.history.map((h)=>({
+              ...h,
+              contentId: h.contentId ? globalUuidMap[h.contentId] : h.contentId
+            }))
+          }));
 
-            const newSettingTabs = oldTabs[oldSettingId].map((t)=>({
-              ...t,
-              history: t.history.map((h)=>({
-                ...h,
-                contentId: h.contentId ? globalUuidMap[h.contentId] : h.contentId
-              }))
-            }));
-
-            // the tabs are set as a class, so have to adjust
-            // @ts-ignore - we're not using the class, but it's ok because we're not really getting a class out anyway
-            newTabs[settingIdMap[oldSettingId]] = newSettingTabs;
-          }
-          await user.setFlag(moduleId, UserFlagKey.tabs, newTabs);
+          await user.unsetFlag(moduleId, 'tabs.' + folder.uuid);
+          await user.setFlag(moduleId, 'tabs.' + globalUuidMap[folder.uuid], newTabs);
         }
 
         // recent viewed
-        const oldRecentViewed = user.getFlag(moduleId, UserFlagKey.recentlyViewed) as Record<string, TabHeader[]> | undefined;
-        const newRecentViewed = {} as Record<string, TabHeader[]>;
-        if (oldRecentViewed) {
-          for (const oldSettingId in oldRecentViewed) {
-            if (!settingIdMap[oldSettingId]) {
-              // probably a corrupt old one
-              continue;
-            }
+        const oldRecentViewed = user.getFlag(moduleId, 'recentlyViewed' + folder.uuid) as TabHeader[] || [];
+        if (oldRecentViewed.length > 0) {
+          const newRecentViewed = oldRecentViewed.map((t)=>({
+            ...t,
+            uuid: t.uuid ? globalUuidMap[t.uuid] : t.uuid
+          }));
 
-            const newSettingRecentViewed = oldRecentViewed[oldSettingId].map((t)=>({
-              ...t,
-              uuid: t.uuid ? globalUuidMap[t.uuid] : t.uuid
-            }));
-
-            newRecentViewed[settingIdMap[oldSettingId]] = newSettingRecentViewed;
-          }
-          await user.setFlag(moduleId, UserFlagKey.recentlyViewed, newRecentViewed);
+          await user.unsetFlag(moduleId, 'recentlyViewed' + folder.uuid);
+          await user.setFlag(moduleId, 'recentlyViewed' + globalUuidMap[folder.uuid], newRecentViewed);
         }
       }
     } catch (outer) {
@@ -205,9 +200,6 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   if (!newSetting)
     throw new Error('Failed to create setting in MigrationV1_5.migrate()');
 
-  // add it to the index
-  await addToSettingIndex(newSetting.uuid, folder.name, compendiumId);
-  
   globalUuidMap[folder.uuid] = newSetting.uuid;
   settingIdMap[foundry.utils.parseUuid(folder.uuid).id] = foundry.utils.parseUuid(newSetting.uuid).id;
 
@@ -362,22 +354,23 @@ async function migrateSession(campaign: Campaign, oldSession: JournalEntryPage):
   if (!newSession)
     throw new Error('Failed to create session in MigrationV1_5.migrateSession()');
 
+  const system = oldSession.system;
   newSession.notes = oldSession.text.content || '';
-  newSession.number = oldSession.system.number || 0;
-  newSession.date = oldSession.system.date ? new Date(oldSession.system.date) : null;
-  newSession.strongStart = oldSession.system.strongStart || '';
-  newSession.img = oldSession.system.img || '';
-  newSession.locations = oldSession.system.locations as SessionLocation[] || [];
-  newSession.items = oldSession.system.items as SessionItem[] || [];
-  newSession.npcs = oldSession.system.npcs as SessionNPC[] || [];
-  newSession.monsters = oldSession.system.monsters as SessionMonster[] || [];
-  newSession.vignettes = oldSession.system.vignettes as SessionVignette[] || [];
-  newSession.lore = oldSession.system.lore as SessionLore[] || [];
-  newSession.tags = oldSession.system.tags as unknown as TagInfo[] || [];
+  newSession.number = system.number || 0;
+  newSession.date = system.date ? new Date(system.date) : null;
+  newSession.strongStart = system.strongStart || '';
+  newSession.img = system.img || '';
+  newSession.locations = system.locations as SessionLocation[] || [];
+  newSession.items = system.items as SessionItem[] || [];
+  newSession.npcs = system.npcs as SessionNPC[] || [];
+  newSession.monsters = system.monsters as SessionMonster[] || [];
+  newSession.vignettes = system.vignettes as SessionVignette[] || [];
+  newSession.lore = system.lore as SessionLore[] || [];
+  newSession.tags = system.tags as unknown as TagInfo[] || [];
 
   // some old lore don't have sort orders
   if (newSession.lore.find((lore)=>lore.sortOrder == null)) {
-    // if any don't the probably all don't, so just reset them all
+    // if any don't they probably all don't, so just reset them all
     newSession.lore = newSession.lore.map((lore, index)=>({
       ...lore,
       sortOrder: index,
@@ -397,26 +390,32 @@ async function migrateTopicFolder(setting: FCBSetting, oldTopicFolder: JournalEn
 
   // topic folders now are just an object on the setting
   topicFolder.types = oldTopicFolder.getFlag(moduleId, 'types') as string[];
-  topicFolder.topNodes = oldTopicFolder.getFlag(moduleId, 'topNodes') as string[];
-  topicFolder.entries = {} as Record<string, string>;  // will populate as we create the entries
+
+  // these populate as you go
+  // topicFolder.topNodes = oldTopicFolder.getFlag(moduleId, 'topNodes') as string[];
+  // topicFolder.entries = {} as Record<string, string>;  
   await topicFolder.save();
+
+  // update the map - but the topic ids are settingid.topic.# 
+  const oldSettingId = Object.keys(globalUuidMap).find((key)=>globalUuidMap[key] === setting.uuid);
+  globalUuidMap[`${oldSettingId}.topic.${topic}`] = `${setting.uuid}.topic.${topic}`;
 
   // migrate all the entries
   for (const entry of oldTopicFolder.pages.contents) {
     await migrateEntry(topicFolder, entry);
 
-    if (topicFolder.topNodes.includes(entry.uuid)) {
-      // adjust topnodes if needed
-      const newTopNodes = topicFolder.topNodes.filter((node)=>node !== entry.uuid);
-      newTopNodes.push(globalUuidMap[entry.uuid]);
-      topicFolder.topNodes = newTopNodes;
-      
-      await topicFolder.save();
-    }
-
     processed++;
     updateProgress(`Processed entry: ${entry.name}`);  
   }
+
+  // everything gets added as a topNode because we don't know the right 
+  //    parentId yet; so we need to make it match the old one (so things with
+  //    parents don't show up)
+  const oldTopNodes = oldTopicFolder.getFlag(moduleId, 'topNodes') as string[] || [] ;
+  const newTopNodes = oldTopNodes.map((uuid) => globalUuidMap[uuid]);
+  topicFolder.topNodes = newTopNodes;
+
+  await topicFolder.save();
 
   setting.topicFolders[topicFolder.topic] = topicFolder;
   await setting.save();
@@ -433,9 +432,10 @@ async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): 
 
   const system = entry.system;
 
+  newEntry.description = entry.text.content || '';
   newEntry.type = system.type || '';
   newEntry.tags = system.tags as unknown as TagInfo[]|| [];
-  newEntry.rolePlayingNotes = system.rolePlayingNotes || '';
+  newEntry.roleplayingNotes = system.rolePlayingNotes || ''; // note different caps in old one
 
   // relationships used to use _ in keys
   const newRelationships = {} as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;
@@ -472,18 +472,6 @@ async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): 
   globalUuidMap[entry.uuid] = newEntry.uuid;
 }
 
-async function addToSettingIndex(settingId: string, name: string, packId: string): Promise<void> {
-  const index = ModuleSettings.get(SettingKey.settingIndex) as SettingIndex[];
-
-  index.push({
-    settingId,
-    name,
-    packId,
-  });
-  
-  await ModuleSettings.set(SettingKey.settingIndex, index);
-}
-
 // remap all of the uuids in the full setting
 const cleanCompendiumIds = async (settingId: string) => {
   const setting = await FCBSetting.fromUuid(settingId);
@@ -503,12 +491,29 @@ const cleanCompendiumIds = async (settingId: string) => {
   // hierarchies
   const newHierarchies = {} as Record<string, Hierarchy>;
   for (const hierarchyId in setting.hierarchies) {
+    // if we don't have a mapping it's probably a bogus entry
+    if (!globalUuidMap[hierarchyId])
+      continue;
+    
     const oldHierarchy = setting.hierarchies[hierarchyId];
+    const newParentId = oldHierarchy.parentId ? globalUuidMap[oldHierarchy.parentId] : '';
+    
+    if (newParentId == undefined) {
+      console.error(`Failed to find parent for old hierarchy ${hierarchyId}`);
+    }
+
+    // also alert (with the specific missing id) if any ancestors or children didn't get mapped
+    const badAncestors = oldHierarchy.ancestors.filter((id)=>globalUuidMap[id] == undefined);
+    const badChildren = oldHierarchy.children.filter((id)=>globalUuidMap[id] == undefined);
+    if (badAncestors.length > 0 || badChildren.length > 0) {
+      console.error(`Failed to find ancestors or children for old hierarchy ${hierarchyId}: ${badAncestors.join(', ')} | ${badChildren.join(', ')}`);
+    }      
+
     const updatedHierarchy = {
       ...oldHierarchy,
-      parentId: globalUuidMap[hierarchyId],
-      ancestors: oldHierarchy.ancestors.map((id)=>globalUuidMap[id]),
-      children: oldHierarchy.children.map((id)=>globalUuidMap[id]),
+      parentId: newParentId || null,
+      ancestors: oldHierarchy.ancestors.map((id)=>globalUuidMap[id]).filter(id => id !== undefined),
+      children: oldHierarchy.children.map((id)=>globalUuidMap[id]).filter(id => id !== undefined),
     };
 
     newHierarchies[globalUuidMap[hierarchyId]] = updatedHierarchy;
@@ -520,18 +525,8 @@ const cleanCompendiumIds = async (settingId: string) => {
 
   // topicfolders
   for (const topicFolder of Object.values(setting.topicFolders)) {
-    // topNodes
-    // did it when we created the entry
-    // topicFolder.topNodes = topicFolder.topNodes.map((id)=>globalUuidMap[id]);
-
+    // topNodes - did it when we created the entry
     // entries object - should already be correct because they're added when they're created
-    // const entries = {}
-    // for (const entryId in topicFolder.entries) {
-    //   if (globalUuidMap[entryId])
-    //     entries[globalUuidMap[entryId]] = topicFolder.entries[entryId];
-    // }
-    // topicFolder.entries = entries;
-    // await topicFolder.save();
 
     // entries
     for (const entry of await topicFolder.allEntries(true)) {
@@ -598,7 +593,7 @@ const cleanCompendiumIds = async (settingId: string) => {
       }));
       
       // npcs 
-      session.locations = session.npcs.map((n)=>({
+      session.npcs = session.npcs.map((n)=>({
         ...n,
         uuid: globalUuidMap[n.uuid],
       }));

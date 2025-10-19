@@ -2,7 +2,7 @@ const fields = foundry.data.fields;
 
 export const CampaignLoreSchema = () => (
   new fields.SchemaField({
-    /** uuid */
+    /** uuid  but our own, so just a string*/
     uuid: new fields.StringField({ required: true, nullable: false }),
 
     /** has it been flagged as delivered */
