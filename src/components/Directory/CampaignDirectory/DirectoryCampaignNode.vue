@@ -1,11 +1,13 @@
 <template>
+  <!-- make fcb-campaign-folder same css as fcb-setting-folder
+  except with ability to collapse -->
   <li
-    :class="`fcb-campaign-folder folder entry flexcol ${props.campaignNode.expanded ? '' : 'collapsed'} ${isActiveCampaign ? 'active' : ''}`"
+    :class="`fcb-campaign-folder folder flexcol ${props.campaignNode.expanded ? '' : 'collapsed'} ${isActiveCampaign ? 'active' : ''}`"
     :data-campaign="props.campaignNode.id"
   >
     <header class="folder-header flexrow">
       <div
-        class="fcb-compendium-label noborder"
+        class="noborder"
         style="margin-bottom:0px"
         draggable="true"
         @contextmenu="onCampaignContextMenu"
@@ -234,6 +236,70 @@
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
   .fcb-campaign-folder{
+    // font-size: 0.8rem;
+    // font-family: var(--fcb-font-family);
+
+    .fcb-directory-entry, .fcb-current-directory-entry {
+      position: relative;
+      padding-left: 1em;
+      cursor: pointer;
+    }
+
+    .fcb-directory-entry {
+      font-weight: 400;
+    }
+
+    // bold the active one
+    .fcb-current-directory-entry {
+      color: var(--fcb-accent-400);
+      font-weight: 700;
+    }
+
+
+    // leaving this here for when we introduce story arcs
+    // ul {
+    //   list-style: none;
+    //   line-height: 2em;   // this makes the horizontal lines centered (when combined with the height on the li::before
+
+    //   li {
+    //     position: relative;
+    //     padding: 0;
+    //     margin: -0.5em 0 0 0;
+
+    //     font-weight: normal;
+
+    //     // this draws the top-half ot the vertical plus the horizontal tree connector lines
+    //     &::before {
+    //       top: 0px;
+    //       border-bottom: 2px solid gray;
+    //       height: 1em;   // controls vertical position of horizontal lines
+    //     }
+
+    //     // extends the vertical lines down
+    //     &::after {
+    //       bottom: 0px;
+    //       height: 100%;
+    //     }
+
+    //     &::before, &::after {
+    //       content: "";
+    //       position: absolute;
+    //       left: -10px;   // pushes them left of the text
+    //       border-left: 2px solid gray;
+    //       width: 10px;   // controls the length of the horizontal lines
+    //     }
+
+    //     &:last-child::after {
+    //       display: none;   // avoid a little tail at the bottom of the vertical lines
+    //     }
+    //   }
+    // }
+
+    // // move the text away from the end of the horizontal lines
+    // li {
+    //   padding-left: 3px;
+    // }
+
     // add margin when these are immediate children of summary
     div.summary.top > .fcb-directory-entry,
     div.summary.top > .fcb-current-directory-entry {
