@@ -169,20 +169,12 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     return entry;
   }
 
-  get uuid(): string {
-    return this._clone.uuid;
-  }
-
   /** note that you need to load the actor before calling this */
   get name(): string {
     if (this.topic !== Topics.PC || this._clone.name)
       return this._clone.name;
     else 
       return `<${localize('placeholders.linkToActor')}>`;
-  }
-
-  set name(value: string) {
-    this._clone.name = value;
   }
 
   get tags(): TagInfo[] {

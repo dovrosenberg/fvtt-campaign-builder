@@ -108,7 +108,7 @@ export const useMainStore = defineStore('main', () => {
         if (tab.header.uuid) {
           _currentEntry.value = await Entry.fromUuid(tab.header.uuid);
           if (!_currentEntry.value)
-            throw new Error('Invalid entry uuid in mainStore.setNewTab()');
+            throw new Error(`Invalid entry uuid ${tab.header.uuid} in mainStore.setNewTab()`);
 
           // _currentEntry.value.topicFolder = currentSetting.value.topicFolders[_currentEntry.value.topic];
         }
@@ -127,14 +127,14 @@ export const useMainStore = defineStore('main', () => {
           _currentCampaign.value = await Campaign.fromUuid(tab.header.uuid);
 
           if (!_currentCampaign.value)
-            throw new Error('Invalid campaign uuid in mainStore.setNewTab()');
+            throw new Error(`Invalid campaign uuid ${tab.header.uuid} in mainStore.setNewTab()`);
         }
         break;
       case WindowTabType.Session:
         if (tab.header.uuid) {
           _currentSession.value = await Session.fromUuid(tab.header.uuid);
           if (!_currentSession.value)
-            throw new Error('Invalid session uuid in mainStore.setNewTab()');
+            throw new Error(`Invalid session uuid ${tab.header.uuid} in mainStore.setNewTab()`);
         }
         break;
       default:  // make it a 'new entry' window

@@ -598,7 +598,7 @@ const cleanCompendiumIds = async (settingId: string) => {
     campaign.pcs = campaign.pcs.map((pc)=>({
       ...pc,
       uuid: globalUuidMap[pc.uuid],
-    }));
+    })).filter(pc => pc.uuid !== undefined);
 
     // lore -- only ties to document
     // ideas -- no uuid
@@ -620,13 +620,13 @@ const cleanCompendiumIds = async (settingId: string) => {
       session.locations = session.locations.map((l)=>({
         ...l,
         uuid: globalUuidMap[l.uuid],
-      }));
+      })).filter(l => l.uuid !== undefined);
       
       // npcs 
       session.npcs = session.npcs.map((n)=>({
         ...n,
         uuid: globalUuidMap[n.uuid],
-      }));
+      })).filter(n => n.uuid !== undefined);
 
 
       // items -- only ties to document
