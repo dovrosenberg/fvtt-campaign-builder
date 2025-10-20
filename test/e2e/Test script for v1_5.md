@@ -24,6 +24,7 @@
     - Test PC
     - Campaign 1 (2 lore, 1 delivered; 2 ideas, out of order; 2 todo, 1 linkd to John)
     - Session 1-1
+- [ ] Add a reference to an actor somewhere, a world journal entry, and then a local content in all text fields 
 - [ ] *Set tags on everything*
 - [x] In off setting, create one of each content to make sure no bleed
 - [x] In off setting, create a unique type 
@@ -58,10 +59,10 @@
 - [x] Confirm entry and campaign trees are correct
 - [ ] Confirm each content's info is correct
     - Entry related items work
-    - **Need to remap ids in content**
     - **Entry session connection broken - because links broke**
     - Campaign works
 - [ ] Confirm tags are correct
+- [ ] Confirm that all uuid references transfer correctly
 - [x] Check that session links to npc and locations working
 - [x] Confirm the bookmarks all work
 - [x] Confirm the tabs are correct, including the history

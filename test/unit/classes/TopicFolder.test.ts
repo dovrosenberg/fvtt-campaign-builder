@@ -384,7 +384,7 @@ export const registerTopicFolderTests = () => {
             }));
             
             // Act
-            const result = topicFolder.filterEntries((e) => e.name === 'Entry 1');
+            const result = await topicFolder.filterEntries((e) => e.name === 'Entry 1');
             
             // Assert
             expect(result.length).to.equal(1);

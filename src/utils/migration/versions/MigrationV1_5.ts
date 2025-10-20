@@ -533,6 +533,8 @@ const cleanCompendiumIds = async (settingId: string) => {
   }
 
   setting.hierarchies = newHierarchies;
+
+  setting.description = cleanUuid(setting.description);
   await setting.save();
   
   // Update the global cache so the app uses this fresh instance with hierarchies
@@ -569,6 +571,14 @@ const cleanCompendiumIds = async (settingId: string) => {
       }     
 
       entry.relationships = newRelationships;
+
+      // replace UUID references in text
+      entry.description = cleanUuid(entry.description);
+      entry.roleplayingNotes = cleanUuid(entry.roleplayingNotes);
+      entry.background = cleanUuid(entry.background);
+      entry.plotPoints = cleanUuid(entry.plotPoints);
+      entry.magicItems = cleanUuid(entry.magicItems);
+
       await entry.save();
       
       processed++;
@@ -593,6 +603,9 @@ const cleanCompendiumIds = async (settingId: string) => {
     // lore -- only ties to document
     // ideas -- no uuid
     // journals -- only ties to document
+
+    campaign.description = cleanUuid(campaign.description);
+    campaign.houseRules = cleanUuid(campaign.houseRules);
 
     await campaign.save();
 
@@ -621,8 +634,35 @@ const cleanCompendiumIds = async (settingId: string) => {
       // vignettes -- no uuid
       // lore -- only ties to document
 
+      session.notes = cleanUuid(session.notes);
+      session.strongStart = cleanUuid(session.strongStart);
+
       await session.save();
     }
   }
   
+}
+
+const cleanUuid = (text: string) => {
+  let updatedText: string;
+
+  // everything we care about is:
+  // 1. JE or JEP in compendium: (Compendium[a-z0-9\.]*)\.JournalEntry\.([a-z0-9\.]){16}(\.JournalEntryPage\.([a-z0-9]){16})?
+  // 2. Folder or Topic: (Folder\.[a-z0-9\.]*\s)
+  // 3: Compendium itself, though I don't think you can actually reference it: (Compendium[a-z0-9\.]*\s)
+  // search for anything that looks like a uuid and replace
+  //    it from the global map
+  updatedText = text.replace(/(Compendium[a-z0-9\.]*)\.JournalEntry\.([a-z0-9\.]){16}(\.JournalEntryPage\.([a-z0-9]){16})?/gi, (match) => {
+    return globalUuidMap[match] || match;
+  });
+
+  updatedText = updatedText.replace(/(Folder\.[a-z0-9\.]*)\s/gi, (match) => {
+    return globalUuidMap[match] || match;
+  });
+
+  updatedText = updatedText.replace(/(Compendium[a-z0-9\.]*)\s/gi, (match) => {
+    return globalUuidMap[match] || match;
+  });
+
+  return updatedText;
 }

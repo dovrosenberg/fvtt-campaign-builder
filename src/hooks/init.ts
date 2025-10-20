@@ -33,6 +33,7 @@ async function init(): Promise<void> {
     `flags.${moduleId}.${JournalEntryFlagKey.campaignBuilderType}`,
     'pages.uuid',
     'pages.name',
+    'actorId',  // for PCs
     'pages.system.number',  // for sessions
     'pages.system.topic',  // for entries
     'pages.system.type',  // for entries

@@ -62,7 +62,7 @@ export class MigrationProgressDialog {
         progressBar.style.width = `${percentage}%`;
       }
       if (progressText) {
-        progressText.textContent = `${current}/${total} (${percentage}%)`;
+        progressText.textContent = `${percentage}%`;
       }
     }
 
