@@ -289,6 +289,7 @@
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal } from '@/types';
   import { FCBSetting, TopicFolder, Backend, Entry } from '@/classes';
+  import { DOCUMENT_TYPES } from '@/documents';
 
 
   ////////////////////////////////
@@ -687,31 +688,38 @@
     // check against current relationships
     const { added, removed } = await getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
 
-    // filter out regular documents
-    const invalidOnes: string[] = [];
-    for (const uuid of added.concat(removed)) {
-      const doc = await fromUuid(uuid);
+    let invalidOnes: string[] = [];
 
-      // make sure it's a valid entry
-      if (!doc)
+    // we can only link to things in the current setting's compendium; filter others out quickly
+    for (const uuid of added.concat(removed)) {
+      if (!uuid.startsWith(`Compendium.${currentEntry.value.compendiumId}`))
         invalidOnes.push(uuid);
-      else {
-        try {
-          // @ts-ignore
-          new Entry(doc);
-        } catch (_e) {
-          invalidOnes.push(uuid);
-        }
+    }
+
+    // remove those
+    let finalAdded = added.filter(uuid => !invalidOnes.includes(uuid));
+    let finalRemoved = removed.filter(uuid => !invalidOnes.includes(uuid));
+
+    // from what's left filter out settings, campaigns, and sessions
+    // we know the uuids are journalentries, so the id is the last 16
+    const ids = added.concat(removed).map(uuid => uuid.slice(-16));
+    const possibleConnections = await currentEntry.value.compendium.getDocuments({ _id__in: ids });
+
+    invalidOnes = [];
+    for (const doc of possibleConnections) {
+      // get the type - we only care about entries
+      if (!doc.pages?.contents ||doc.pages.contents[0].type!==DOCUMENT_TYPES.Entry) {
+        invalidOnes.push(doc.uuid);
       }
     }
   
-    const finalAdded = added.filter(uuid => !invalidOnes.includes(uuid));
-    const finalRemoved = removed.filter(uuid => !invalidOnes.includes(uuid));
+    finalAdded = finalAdded.filter(uuid => !invalidOnes.includes(uuid));
+    finalRemoved = finalRemoved.filter(uuid => !invalidOnes.includes(uuid));
 
     // Store the pending changes and show dialog if there are any changes
     if (finalAdded.length > 0 || finalRemoved.length > 0) {
       pendingAddedUUIDs.value = finalAdded;
-      pendingRemovedUUIDs.value = removed;
+      pendingRemovedUUIDs.value = finalRemoved;
       showRelatedEntriesDialog.value = true;
     }
   };

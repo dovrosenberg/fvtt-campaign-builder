@@ -2,14 +2,14 @@
   <li
     :class="`fcb-campaign-folder folder entry flexcol ${props.campaignNode.expanded ? '' : 'collapsed'} ${isActiveCampaign ? 'active' : ''}`"
     :data-campaign="props.campaignNode.id"
-    draggable="true"
-    @dragstart="onDragStart"
   >
     <header class="folder-header flexrow">
       <div
         class="fcb-compendium-label noborder"
         style="margin-bottom:0px"
+        draggable="true"
         @contextmenu="onCampaignContextMenu"
+        @dragstart="onDragStart"
       >
         <i
           class="fas fa-folder-open fa-fw"
@@ -57,8 +57,8 @@
   import SessionDirectoryNode from './SessionDirectoryNode.vue';
   
   // types
-  import { DirectoryCampaignNode, } from '@/classes';
-  import { DirectorySessionNode, WindowTabType } from '@/types';
+  import { DirectoryCampaignNode, DirectorySessionNode } from '@/classes';
+  import { CampaignNodeDragData, WindowTabType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -108,11 +108,10 @@
     event.stopPropagation();
 
     const dragData = {
-      type: 'fcb-node',
-      campaignNode: true,
+      type: 'fcb-campaign',
       campaignId: props.campaignNode.id,
       name: props.campaignNode.name
-    };
+    } as CampaignNodeDragData;
 
     event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   };
