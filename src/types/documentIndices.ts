@@ -43,6 +43,7 @@ export type SessionFilterIndex = {
 /** the type available for use in filterEntries */
 export type EntryFilterIndex = {
   name: string;
+  id: string;
   uuid: string;
   topic: ValidTopic;
   type: string;

@@ -76,7 +76,9 @@ export class TopicFolder {
       ))
       .map((e) => ({ 
         name: e.name, 
+        id: e._id,
         uuid: e.uuid,
+        actorId: e.pages![0].system.actorId,
         type: e.pages![0].system.type,
         topic: this.topic,
       } as EntryFilterIndex))
@@ -87,7 +89,7 @@ export class TopicFolder {
     if (!fullEntry || entries.length===0)
       return entries;
     
-    const idList = entries.map((e)=> e.uuid);
+    const idList = entries.map((e)=> e.id);
     const documentSet = await this.setting.compendium.getDocuments({ _id__in: idList });
 
     let retval = [] as Entry[];
