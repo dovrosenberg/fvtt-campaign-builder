@@ -57,10 +57,11 @@
 - [ ] Confirm current setting saved
     - **it's not**
 - [x] Confirm entry and campaign trees are correct
-- [ ] Confirm each content's info is correct
-    - Entry related items work
-    - **Entry session connection broken - because links broke**
+- [x] Confirm each content's info is correct
+    - Settings work
+    - Entry works
     - Campaign works
+    - Session works
 - [ ] Confirm tags are correct
 - [ ] Confirm that all uuid references transfer correctly
 - [x] Check that session links to npc and locations working
