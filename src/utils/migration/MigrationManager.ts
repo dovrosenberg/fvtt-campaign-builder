@@ -137,7 +137,7 @@ export class MigrationManager {
     }
 
     return await MigrationProgressDialog.withProgress(
-      'Module Migration',
+      'Migrating Campaign Builder to new version',
       'Migrating your campaign data to the latest version...',
       async (progress) => {
         const overallResult: MigrationResult = {
