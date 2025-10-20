@@ -168,7 +168,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       return false;
 
     // have to have a child
-    const child = await Entry.fromUuid(childId, topicFolder);
+    const child = await Entry.fromUuid(childId);
 
     if (!child)
       return false;
@@ -181,7 +181,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       return false;
 
     // get the parent, if any, and create the nodes for simpler syntax 
-    const parent = parentId ? await Entry.fromUuid(parentId, topicFolder) : null;
+    const parent = parentId ? await Entry.fromUuid(parentId) : null;
     const parentNode = parent ? await DirectoryEntryNode.fromEntry(parent) : null;
     
     // make sure they share a topic (if parent isn't null)
@@ -194,7 +194,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     // if the child already has a parent, remove it from that parent's children
     if (childNode.parentId) {
-      const oldParent = await Entry.fromUuid(childNode.parentId, topicFolder);
+      const oldParent = await Entry.fromUuid(childNode.parentId);
 
       if (oldParent) {
         const oldParentNode = await DirectoryEntryNode.fromEntry(oldParent);
@@ -239,7 +239,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
         // this seems safe, despite 
         for (let i=0; i<children?.length; i++) {
-          const child = await Entry.fromUuid(children[i], topicFolder);
+          const child = await Entry.fromUuid(children[i]);
 
           if (!child)
             continue;

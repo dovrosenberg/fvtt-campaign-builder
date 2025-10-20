@@ -72,11 +72,11 @@ export class TopicFolder {
       .filter((e)=> (
         // filter out just the ones that are in this folders' entries list
         !!e.pages && e.pages.length===1 &&
-        !!this.entries[`${e.uuid}.JournalEntryPage.${e.pages![0]._id}`]
+        !!this.entries[e.uuid]
       ))
       .map((e) => ({ 
         name: e.name, 
-        uuid: `${e.uuid}.JournalEntryPage.${e.pages![0]._id}`,
+        uuid: e.uuid,
         type: e.pages![0].system.type,
         topic: this.topic,
       } as EntryFilterIndex))

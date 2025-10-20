@@ -49,7 +49,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   // does not set the parent topic
   static override async fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
-  > (this: T, entryId: string, topicFolder?: TopicFolder): Promise<InstanceType<T> | null> {
+  > (this: T, entryId: string): Promise<InstanceType<T> | null> {
     const entry = await super.fromUuid(entryId) as unknown as (Entry | null);
 
     if (!entry)

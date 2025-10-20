@@ -68,12 +68,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     for (const index of Object.values(entries)) {
       // filter out non-sessions, broken ones, and ones that belong to other campaigns
       if (index.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType] !== DOCUMENT_TYPES.Session || 
-        !index.pages?.length || !this._clone.system.sessionIds.includes(`${index.uuid}.JournalEntryPage.${index.pages[0]._id}`))
+        !index.pages?.length || !this._clone.system.sessionIds.includes(index.uuid))
         continue;
 
       if (index.pages[0].system.number > maxNumber) {
         maxNumber = index.pages[0].system.number;
-        maxsessionId = `${index.uuid}.JournalEntryPage.${index.pages[0]._id}`;
+        maxsessionId = index.uuid;
       }
     }
 
@@ -425,11 +425,11 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
         // @ts-ignore
         e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
         e.pages && e.pages!.length > 0 &&
-        this._clone.system.sessionIds.includes(`${e.uuid}.JournalEntryPage.${e.pages![0]._id}`)
+        this._clone.system.sessionIds.includes(e.uuid)
       ))
       .map((e) => ({ 
         name: e.name, 
-        uuid: `${e.uuid}.JournalEntryPage.${e.pages![0]._id}`,
+        uuid: e.uuid,
         number: e.pages![0].system.number 
       } as SessionFilterIndex))
 

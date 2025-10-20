@@ -156,7 +156,7 @@
       return;
 
     // is this a legal parent?
-    const childEntry = await Entry.fromUuid(data.childId, topicFolder as TopicFolder);
+    const childEntry = await Entry.fromUuid(data.childId);
 
     if (!childEntry)
       return;

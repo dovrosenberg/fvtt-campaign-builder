@@ -11,13 +11,15 @@ type DocTypeOf<T> =
 // get the DocClass out of a constructor for a child
 type DocClassOf<T> = JournalEntryPage<DocTypeOf<T>>;
 
+type JournalEntry = foundry.documents.JournalEntry;
+
 // Helper: the static side every subclass must provide
 export type FCBJournalEntryPageStatic<
   DocType extends ValidDocType,
   DocClass extends JournalEntryPage<DocType>
 > = {
   // constructor
-  new (doc: DocClass, ...args: any[]): FCBJournalEntryPage<DocType, DocClass>;
+  new (entry: JournalEntry, ...args: any[]): FCBJournalEntryPage<DocType, DocClass>;
   // required statics used by base helpers
   _defaultSystem: DocClass['system'];
   _folderName: string;
@@ -28,24 +30,28 @@ export class FCBJournalEntryPage<
   DocType extends ValidDocType,
   DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>
 > {
-  protected _clone: DocClass;
+  protected _clone: DocClass;  // these are the pages - not the journalentry
   protected _doc: DocClass;
 
   static _defaultSystem: DocClassOf<any>['system'];
   static _folderName: string;
   static _documentType: ValidDocType;
 
-  constructor(doc: DocClass) {
-    this._doc = doc;
-    this._clone = doc.clone({}, { keepId: true });
+  constructor(journalEntry: JournalEntry) {
+    if (!journalEntry.pages || journalEntry.pages.contents.length !== 1)
+      throw new Error(`Invalid journalEntry in FCBJournalEntryPage ${journalEntry.uuid}`);
+
+    this._doc = journalEntry.pages.contents[0] as DocClass;
+    this._clone = this._doc.clone({}, { keepId: true });
   }
 
   public get raw(): DocClass {
     return this._doc;
   }
 
+  /** Note that we always refer to the uuid of the wrapping JournalEntry  */
   public get uuid(): string {
-    return this._clone.uuid;
+    return this._doc.parent.uuid;
   }
 
   public get name(): string {
@@ -87,17 +93,23 @@ export class FCBJournalEntryPage<
   }
 
 
+  /** takes the uuid of the wrapper entry */
   static async fromUuid<
     DocType extends ValidDocType,
     DocClass extends JournalEntryPage<DocType>,
     T extends FCBJournalEntryPageStatic<DocType, DocClass>
   > (this: T, uuid: string): Promise<InstanceType<T> | null> {
-    const doc = await fromUuid<DocClass>(uuid) as DocClass | undefined;
+    const entry = await fromUuid<JournalEntry>(uuid) as JournalEntry | undefined;
+    
+    if (!entry || entry.documentName !== 'JournalEntry' || !entry.pages || entry.pages.contents.length !== 1)
+      return null;
 
-    if (!doc || doc.documentName !== 'JournalEntryPage' || doc.type !== this._documentType)
+    const doc = entry.pages.contents[0];
+
+    if (!doc || doc.type !== this._documentType)
       return null;
     else {
-      const fcbDoc = new this(doc) as InstanceType<T>;
+      const fcbDoc = new this(entry) as InstanceType<T>;
       return fcbDoc;
     }
   }
@@ -135,7 +147,7 @@ export class FCBJournalEntryPage<
         // rebuild the index (by adding a random field name) because otherwise index won't update
         // see Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
         // don't really need to await this
-        const pack = game.packs.get(this._doc.pack);
+        const pack = game.packs.get(this._doc.pack as string);
         if (!pack)
           throw new Error(`Invalid compendium in FCBJournalEntryPage.save() ${this._doc.pack}`);
         // @ts-ignore
@@ -218,7 +230,7 @@ export class FCBJournalEntryPage<
     // @ts-ignore
     void pack.getIndex({ fields: [foundry.utils.randomID()]});
 
-    return new this(pages[0]) as InstanceType<T>;
+    return new this(journalEntry) as InstanceType<T>;
   }
   
 }

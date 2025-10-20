@@ -377,7 +377,6 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
       void refreshSettingRollTables(newSetting);
     }
 
-    console.error(`Setting created in ${Date.now()-time}ms`);
     return newSetting;
   }
 
@@ -437,7 +436,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
       ))
       .map((e) => ({ 
         name: e.name, 
-        uuid: `${e.uuid}.JournalEntryPage.${e.pages![0]._id}`,
+        uuid: e.uuid,
         topic: e.pages![0].system.topic,
         type: e.pages![0].system.type,
       } as EntryFilterIndex))
@@ -446,6 +445,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
       .filter((e: EntryFilterIndex)=> filterFn(e)) || [];
 
     if (!fullEntry || entries.length===0)
+      // @ts-ignore - we know it's false and entries is a EntryFilterIndex[]
       return entries;
 
     let retval = [] as Entry[];
