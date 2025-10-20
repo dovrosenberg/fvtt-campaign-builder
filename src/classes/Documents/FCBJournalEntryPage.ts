@@ -38,10 +38,13 @@ export class FCBJournalEntryPage<
   static _documentType: ValidDocType;
 
   constructor(journalEntry: JournalEntry) {
-    if (!journalEntry.pages || journalEntry.pages.contents.length !== 1)
+    // in case we got a proxy
+    const je = toRaw(journalEntry);
+
+    if (!je.pages || je.pages.contents.length !== 1)
       throw new Error(`Invalid journalEntry in FCBJournalEntryPage ${journalEntry.uuid}`);
 
-    this._doc = journalEntry.pages.contents[0] as DocClass;
+    this._doc = je.pages.contents[0] as DocClass;
     this._clone = this._doc.clone({}, { keepId: true });
   }
 
@@ -51,7 +54,7 @@ export class FCBJournalEntryPage<
 
   /** Note that we always refer to the uuid of the wrapping JournalEntry  */
   public get uuid(): string {
-    return this._doc.parent.uuid;
+    return this._doc.parent!.uuid;
   }
 
   public get name(): string {

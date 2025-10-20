@@ -335,7 +335,7 @@
       if (!currentSession.value && !(currentEntry.value && currentEntryTopic.value))
         throw new Error('Trying to show RelatedItemDialog without a current entry/session');
       
-        selectItems.value = (await Entry.getEntriesForTopic(currentSetting.value.topicFolders[props.topic] as TopicFolder, currentEntry.value || undefined)).map(mapEntryToOption);
+      selectItems.value = (await Entry.getEntriesForTopic(currentSetting.value.topicFolders[props.topic] as TopicFolder, currentEntry.value || undefined)).map(mapEntryToOption);
       
       extraFields.value = currentSession.value ? [] : relationshipStore.extraFields[currentEntryTopic.value][props.topic];
       extraFieldValuesObj.value = {};

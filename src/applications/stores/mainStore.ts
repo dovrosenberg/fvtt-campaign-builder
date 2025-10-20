@@ -147,36 +147,36 @@ export const useMainStore = defineStore('main', () => {
    * This is achieved by simply creating a new entry based on the EntryDoc of the current one
    */
   const refreshEntry = async function (): Promise<void> {
-    if (!_currentEntry.value)
+    if (!_currentEntry.value?.raw?.parent)
       return;
 
     // just force all reactivity to update
-    _currentEntry.value = new Entry(_currentEntry.value.raw);
+    _currentEntry.value = new Entry(_currentEntry.value.raw.parent);
   };
 
   const refreshCampaign = async function (): Promise<void> {
-    if (!_currentCampaign.value || !currentSetting.value)
+    if (!_currentCampaign.value?.raw?.parent || !currentSetting.value)
       return;
 
     // just force all reactivity to update
-    _currentCampaign.value = new Campaign(_currentCampaign.value.raw);
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw.parent);
   };
 
   const refreshSetting = async function (): Promise<void> {
-    if (!_currentSetting.value)
+    if (!_currentSetting.value?.raw?.parent)
       return;
 
     // just force all reactivity to update
-    _currentSetting.value = new FCBSetting(_currentSetting.value.raw);
+    _currentSetting.value = new FCBSetting(_currentSetting.value.raw.parent);
   };
 
   const refreshSession = async function (): Promise<void> {
-    if (!_currentSession.value)
+    if (!_currentSession.value?.raw?.parent)
       return;
 
     // just force all reactivity to update
     const campaign = await _currentSession.value.loadCampaign();
-    _currentSession.value = new Session(_currentSession.value.raw, campaign || undefined);
+    _currentSession.value = new Session(_currentSession.value.raw.parent, campaign || undefined);
   };
 
   /** Refresh whatever content is currently showing */
@@ -191,7 +191,7 @@ export const useMainStore = defineStore('main', () => {
       case WindowTabType.Session:
         await refreshSession();
         break;
-      case WindowTabType.FCBSetting:
+      case WindowTabType.Setting:
         await refreshSetting();
         break;
       default:

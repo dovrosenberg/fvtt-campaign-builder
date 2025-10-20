@@ -5,6 +5,7 @@ import { ValidTopic } from '.';
 export type SessionIndex = {
   type: typeof DOCUMENT_TYPES.Session;
   name: string;
+  _id: string;
   uuid: string;
 
   pages: {
@@ -20,6 +21,7 @@ export type SessionIndex = {
 export type EntryIndex = {
   type: typeof DOCUMENT_TYPES.Entry;
   name: string;
+  _id: string;
   uuid: string;
 
   pages: {
@@ -35,6 +37,7 @@ export type EntryIndex = {
 /** the type available for use in filterSessions */
 export type SessionFilterIndex = {
   name: string;
+  id: string;
   uuid: string;
   number: number;  
 }

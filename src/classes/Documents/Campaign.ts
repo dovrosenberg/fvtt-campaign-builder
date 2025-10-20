@@ -53,7 +53,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return this.currentSession ? this.currentSession.number + 1 : 0;
   }
 
-  public async getSessions(): Promise<Session[]> {
+  public async allSessions(): Promise<Session[]> {
     const allSessions = await this.filterSessions(()=>true);
     return allSessions;
   }
@@ -429,6 +429,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       ))
       .map((e) => ({ 
         name: e.name, 
+        id: e._id,
         uuid: e.uuid,
         number: e.pages![0].system.number 
       } as SessionFilterIndex))
@@ -436,9 +437,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       // now filter by the function passed in 
       .filter((s: SessionFilterIndex)=> filterFn(s)) || [];
 
+    const idList = sessions.map((s)=> s.id);
+    const documentSet = await this.compendium.getDocuments({ _id__in: idList });
+
     let retval = [] as Session[];
-    for (let i=0; i<sessions.length; i++) {
-      const session = await Session.fromUuid(sessions[i].uuid);
+    for (const doc of documentSet) {
+      const session = new Session(doc);
       if (session)
         retval.push(session);
     }

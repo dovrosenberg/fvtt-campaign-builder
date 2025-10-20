@@ -131,7 +131,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (!(await FCBDialog.confirmDialog('Delete campaign?', 'Are you sure you want to delete this campaign?')))
       return;
   
-    const sessions = await campaign.getSessions();
+    const sessions = await campaign.allSessions();
     for (let i=0; i<sessions.length; i++) {
       await navigationStore.cleanupDeletedEntry(sessions[i].uuid);
     }
