@@ -36,7 +36,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
    * 
    * @param {SessionDoc} sessionDoc - The session Foundry document
    */
-  constructor(sessionDoc: SessionDocClass, campaign?: Campaign) {
+  constructor(sessionDoc: JournalEntry, campaign?: Campaign) {
     super(sessionDoc);
 
     this.campaign = campaign || null;
