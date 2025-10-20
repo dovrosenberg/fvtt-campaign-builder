@@ -445,7 +445,7 @@ export const registerCampaignTests = () => {
           });
         });
 
-        describe('getSessions', () => {
+        describe('allSessions', () => {
           it('should return all sessions in the campaign', async () => {
             // Setup
             sinon.stub(campaign, 'filterSessions').returns([
@@ -454,7 +454,7 @@ export const registerCampaignTests = () => {
             ] as any);
             
             // Act
-            const result = await campaign.getSessions();
+            const result = await campaign.allSessions();
             
             // Assert
             expect(result.length).to.equal(2);
@@ -476,7 +476,7 @@ export const registerCampaignTests = () => {
             };
             
             // Act
-            const result = await campaign.getSessions(mockSession as any);
+            const result = await campaign.allSessions(mockSession as any);
             
             // Assert
             expect(result.length).to.equal(2);

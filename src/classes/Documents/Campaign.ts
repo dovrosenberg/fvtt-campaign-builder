@@ -53,7 +53,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return this.currentSession ? this.currentSession.number + 1 : 0;
   }
 
-  public async getSessions(): Promise<Session[]> {
+  public async allSessions(): Promise<Session[]> {
     const allSessions = await this.filterSessions(()=>true);
     return allSessions;
   }
@@ -68,12 +68,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     for (const index of Object.values(entries)) {
       // filter out non-sessions, broken ones, and ones that belong to other campaigns
       if (index.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType] !== DOCUMENT_TYPES.Session || 
-        !index.pages?.length || !this._clone.system.sessionIds.includes(`${index.uuid}.JournalEntryPage.${index.pages[0]._id}`))
+        !index.pages?.length || !this._clone.system.sessionIds.includes(index.uuid))
         continue;
 
       if (index.pages[0].system.number > maxNumber) {
         maxNumber = index.pages[0].system.number;
-        maxsessionId = `${index.uuid}.JournalEntryPage.${index.pages[0]._id}`;
+        maxsessionId = index.uuid;
       }
     }
 
@@ -425,20 +425,24 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
         // @ts-ignore
         e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
         e.pages && e.pages!.length > 0 &&
-        this._clone.system.sessionIds.includes(`${e.uuid}.JournalEntryPage.${e.pages![0]._id}`)
+        this._clone.system.sessionIds.includes(e.uuid)
       ))
       .map((e) => ({ 
         name: e.name, 
-        uuid: `${e.uuid}.JournalEntryPage.${e.pages![0]._id}`,
+        id: e._id,
+        uuid: e.uuid,
         number: e.pages![0].system.number 
       } as SessionFilterIndex))
 
       // now filter by the function passed in 
       .filter((s: SessionFilterIndex)=> filterFn(s)) || [];
 
+    const idList = sessions.map((s)=> s.id);
+    const documentSet = await this.compendium.getDocuments({ _id__in: idList });
+
     let retval = [] as Session[];
-    for (let i=0; i<sessions.length; i++) {
-      const session = await Session.fromUuid(sessions[i].uuid);
+    for (const doc of documentSet) {
+      const session = new Session(doc);
       if (session)
         retval.push(session);
     }

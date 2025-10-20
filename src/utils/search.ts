@@ -150,7 +150,7 @@ class SearchService {
     for (const campaignId in setting.campaigns) {
       const campaign = setting.campaigns[campaignId];
 
-      const sessions = await campaign.getSessions();
+      const sessions = await campaign.allSessions();
       for (const session of sessions) { 
         // Create a searchable item for each session
         const item = await this.createSearchableItemFromSession(session);

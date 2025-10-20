@@ -253,54 +253,57 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
     if (!settingId)
       return unknownItem.toAnchor({ name: data.name, dataset: { hash } });
 
-    switch (unknownItem.type) {
-      case DOCUMENT_TYPES.Entry: {
-        const entry = new Entry(unknownItem as unknown as EntryDoc);
+    //note - references are to journalentry, so we have to unwind a little
+    if (unknownItem.documentName === 'JournalEntry') {
+      switch (unknownItem.pages.contents[0].type) {
+        case DOCUMENT_TYPES.Entry: {
+          const entry = new Entry(unknownItem as unknown as JournalEntry);
 
-        if (entry.topic) {
-          const setting = await entry.getSetting();
+          if (entry.topic) {
+            const setting = await entry.getSetting();
 
+            // handle the ones we don't care about
+            if (setting.uuid !== settingId) {
+              // we're in the wrong setting
+              return brokenAnchor(data);
+            } else {  // this is an fcb item for this setting
+              return goodAnchor(unknownItem, WindowTabType.Entry, hash, data.name || entry.name, `fas ${getTopicIcon(entry.topic)}`, entry.topic); 
+            }
+          } else 
+            return brokenAnchor(data, 'Invalid topic');
+        }; break;
+        // case DOCUMENT_TYPES.PC: {
+        //   const pc = new PC(unknownItem as unknown as PCDoc);
+
+        //   // check if it's the right setting
+        //   const setting = await pc.getSetting();
+    
+        //   // handle the ones we don't care about
+        //   if (setting.uuid !== settingId) {
+        //     return brokenAnchor(data);
+        //   } else {  // this is an fcb item for this setting
+        //     return goodAnchor(unknownItem, WindowTabType.PC, hash, data.name || pc.name, `fas ${getTabTypeIcon(WindowTabType.PC)}`); 
+        //   }
+        // }; break;
+        case DOCUMENT_TYPES.Session: {
+          const session = new Session(unknownItem as unknown as JournalEntry);
+
+          // check if it's the right setting
+          const setting = await session.getSetting();
+    
           // handle the ones we don't care about
           if (setting.uuid !== settingId) {
-            // we're in the wrong setting
             return brokenAnchor(data);
           } else {  // this is an fcb item for this setting
-            return goodAnchor(unknownItem, WindowTabType.Entry, hash, data.name || entry.name, `fas ${getTopicIcon(entry.topic)}`, entry.topic); 
+            return goodAnchor(unknownItem, WindowTabType.Session, hash, data.name || session.name, `fas ${getTabTypeIcon(WindowTabType.Session)}`); 
           }
-        } else 
-          return brokenAnchor(data, 'Invalid topic');
-      }; break;
-      // case DOCUMENT_TYPES.PC: {
-      //   const pc = new PC(unknownItem as unknown as PCDoc);
-
-      //   // check if it's the right setting
-      //   const setting = await pc.getSetting();
-  
-      //   // handle the ones we don't care about
-      //   if (setting.uuid !== settingId) {
-      //     return brokenAnchor(data);
-      //   } else {  // this is an fcb item for this setting
-      //     return goodAnchor(unknownItem, WindowTabType.PC, hash, data.name || pc.name, `fas ${getTabTypeIcon(WindowTabType.PC)}`); 
-      //   }
-      // }; break;
-      case DOCUMENT_TYPES.Session: {
-        const session = new Session(unknownItem as unknown as SessionDoc);
-
-        // check if it's the right setting
-        const setting = await session.getSetting();
-  
-        // handle the ones we don't care about
-        if (setting.uuid !== settingId) {
-          return brokenAnchor(data);
-        } else {  // this is an fcb item for this setting
-          return goodAnchor(unknownItem, WindowTabType.Session, hash, data.name || session.name, `fas ${getTabTypeIcon(WindowTabType.Session)}`); 
-        }
-      }; break;
+        }; break;
+      }
     }
 
     // now handle the folder types
     if (unknownItem?.getFlag(moduleId, CampaignFlagKey.isCampaign)) {
-      const campaign = new Campaign(unknownItem as unknown as CampaignDoc); 
+      const campaign = new Campaign(unknownItem as unknown as JournalEntry); 
       const setting = await campaign.getSetting();
 
       // handle the ones we don't care about

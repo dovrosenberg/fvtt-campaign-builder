@@ -450,7 +450,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     if (!currentCampaign.value)
       return null;
 
-    const sessions = await currentCampaign.value.getSessions(); 
+    const sessions = await currentCampaign.value.allSessions(); 
 
     if (sessions.length!==0) {
       return sessions.reduce((session, maxSession) => {
@@ -493,7 +493,7 @@ export const useCampaignStore = defineStore('campaign', () => {
     const retval = [] as CampaignLoreDetails[];
 
     // go through everything in the sessions that was delivered
-    const sessions = await currentCampaign.value.getSessions();
+    const sessions = await currentCampaign.value.allSessions();
     for (const session of sessions) {
       for (const lore of session.lore) {
         if (!lore.delivered)

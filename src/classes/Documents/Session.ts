@@ -466,7 +466,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
   public async save(): Promise<void> {
     // see if the number is taken, if so, everything after it needs to be renumbered
     const campaign = await this.loadCampaign();
-    const sessions = (await campaign.getSessions()).sort((a, b) => a.number - b.number);
+    const sessions = (await campaign.allSessions()).sort((a, b) => a.number - b.number);
 
     // find the index of the session with the same number 
     const currentNumberedSession = sessions.findIndex(s=> s.number===this.number && s.uuid!==this.uuid);

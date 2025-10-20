@@ -107,7 +107,7 @@ export class ExternalAPI {
     const retval = [] as GetListReturnValue[];
     for (const campaignId in setting.campaigns) {
       const campaign = setting.campaigns[campaignId];
-      const sessions = await campaign.getSessions();
+      const sessions = await campaign.allSessions();
 
       for (let i=0; i<sessions.length; i++) {
         retval.push({ uuid: sessions[i].uuid, name: sessions[i].name })

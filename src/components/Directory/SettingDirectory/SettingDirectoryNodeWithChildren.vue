@@ -186,7 +186,7 @@
 
     // is this a legal parent?
     const topicFolder = currentSetting.value.topicFolders[props.topic];
-    const childEntry = await Entry.fromUuid(data.childId, topicFolder as TopicFolder); 
+    const childEntry = await Entry.fromUuid(data.childId); 
     
     if (!childEntry)
       return;
