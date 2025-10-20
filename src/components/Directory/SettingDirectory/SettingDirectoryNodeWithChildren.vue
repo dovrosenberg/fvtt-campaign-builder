@@ -27,7 +27,7 @@
       </div>
       <ul>
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
-        <div v-if="currentNode.expanded">
+        <template v-if="currentNode.expanded">
           <SettingDirectoryNodeComponent 
             v-for="child in sortedChildren"
             :key="child.id"
@@ -36,7 +36,7 @@
             :topic="props.topic"
             :top="false"
           />
-        </div>
+        </template>
       </ul>
     </div>
   </li>
