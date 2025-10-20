@@ -1,9 +1,11 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, } from '@/settings';
-import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder, WindowTab, } from '@/classes';
+import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder, WindowTab } from '@/classes';
+import { updateGlobalSetting } from '@/classes/Documents/FCBSetting';
 import { Bookmark, defaultCustomFields, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, SettingIndex, TabHeader, TagInfo, ToDoItem, Topics, ValidTopic } from '@/types';
 import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, } from '@/documents';
+import { cleanKeysOnLoad } from '@/utils/cleanKeys';
 
 const moduleId = 'campaign-builder';  // don't want to use from settings because maybe it changed
 
@@ -15,6 +17,9 @@ const settingIdMap: Record<string, string> = {};
 
 // track the compendiums
 const compendiumsToClean: string[] = [];
+
+// store old hierarchies so we can remap them properly after migration
+const oldHierarchiesMap: Record<string, Record<string, Hierarchy>> = {};
 
 let processed = 0;
 let totalEntries= 0;
@@ -217,8 +222,13 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   // @ts-ignore
   newSetting.expandedIds = folder.getFlag(moduleId, 'expandedIds');
   
+  // Store old hierarchies for later remapping - don't set them on the setting yet
+  // They have old UUIDs that won't match the new entries until cleanCompendiumIds() runs
+  // Need to clean the keys because Foundry stores them with #&# instead of dots
   // @ts-ignore
-  newSetting.hierarchies = folder.getFlag(moduleId, 'hierarchies');
+  const oldHierarchies = folder.getFlag(moduleId, 'hierarchies') as Record<string, Hierarchy> || {};
+  const cleanedHierarchies = cleanKeysOnLoad(oldHierarchies);
+  oldHierarchiesMap[newSetting.uuid] = cleanedHierarchies;
   
   // @ts-ignore
   newSetting.genre = folder.getFlag(moduleId, 'genre');
@@ -489,14 +499,16 @@ const cleanCompendiumIds = async (settingId: string) => {
   }  
   setting.expandedIds = newExpandedIds;
 
-  // hierarchies
+  // hierarchies - use the old ones we stored during migration
+  const oldHierarchies = oldHierarchiesMap[settingId] || {};
   const newHierarchies = {} as Record<string, Hierarchy>;
-  for (const hierarchyId in setting.hierarchies) {
+  for (const hierarchyId in oldHierarchies) {
     // if we don't have a mapping it's probably a bogus entry
-    if (!globalUuidMap[hierarchyId])
+    if (!globalUuidMap[hierarchyId]) {
       continue;
+    }
     
-    const oldHierarchy = setting.hierarchies[hierarchyId];
+    const oldHierarchy = oldHierarchies[hierarchyId];
     const newParentId = oldHierarchy.parentId ? globalUuidMap[oldHierarchy.parentId] : '';
     
     if (newParentId == undefined) {
@@ -522,6 +534,10 @@ const cleanCompendiumIds = async (settingId: string) => {
 
   setting.hierarchies = newHierarchies;
   await setting.save();
+  
+  // Update the global cache so the app uses this fresh instance with hierarchies
+  // instead of the stale instance from migrateSetting()
+  updateGlobalSetting(setting);
 
 
   // topicfolders
