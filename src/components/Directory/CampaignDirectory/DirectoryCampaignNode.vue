@@ -1,6 +1,4 @@
 <template>
-  <!-- make fcb-campaign-folder same css as fcb-setting-folder
-  except with ability to collapse -->
   <li
     :class="`fcb-campaign-folder folder flexcol ${props.campaignNode.expanded ? '' : 'collapsed'} ${isActiveCampaign ? 'active' : ''}`"
     :data-campaign="props.campaignNode.id"

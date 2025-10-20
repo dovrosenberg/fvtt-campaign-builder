@@ -99,7 +99,7 @@
         /* overflow: hidden; */
         margin-top: .1875rem;
 
-        .fcb-setting-folder {
+        .fcb-campaign-folder {
           align-items: flex-start;
           justify-content: flex-start;
           min-width: 100%;
@@ -120,6 +120,16 @@
             text-shadow: none;
             position: relative;
           }
+
+          div.details {
+            padding-left: 0.5em;
+            
+            // For simple nodes without children (no ul), add margin-bottom to match the ul margin-top
+            &:not(:has(ul)) {
+              margin-bottom: 0.25rem;
+            }
+          }
+
           
         }
       
