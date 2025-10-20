@@ -121,5 +121,6 @@ export class VersionUtils {
   public static async saveCurrentVersion(): Promise<void> {
     const currentVersion = await this.getCurrentModuleVersion();
     await ModuleSettings.set(SettingKey.lastKnownVersion, currentVersion);
+    console.log('Upgraded Campaign Builder to version ' + currentVersion);
   }
 }

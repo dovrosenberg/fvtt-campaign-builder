@@ -84,6 +84,11 @@ export class MigrationManager {
     const lastVersion = VersionUtils.getLastKnownVersion();
     const currentVersion = await VersionUtils.getCurrentModuleVersion();
 
+    // set to the new version if needed
+    if (lastVersion === '') {
+      await VersionUtils.saveCurrentVersion();
+    }
+
     if (lastVersion === '' || lastVersion === currentVersion) {
       return {
         success: true,

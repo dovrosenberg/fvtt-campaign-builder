@@ -53,12 +53,13 @@
 - [x] Save the world in v1.4
 
 * Open the world in v1.5
+- [ ] Confirm current setting saved
+    - **it's not**
 - [x] Confirm entry and campaign trees are correct
 - [ ] Confirm each content's info is correct
     - Entry related items work
     - **Need to remap ids in content**
     - **Entry session connection broken - because links broke**
-    - **grandchild bar not in folder**
     - Campaign works
 - [ ] Confirm tags are correct
 - [x] Check that session links to npc and locations working
@@ -67,4 +68,5 @@
 - [x] Confirm the advanced setting is correct and the current setting was retained
 - [x] Confirm the current tab was preserved in the off setting
 - [x] Confirm the expanded tree is correct in both settings
+    - chars folder is expanded when it shouldn't be an inside trees aren't, but I think it's close enough
 - [x] Confirm the off setting type isn't in the main setting
