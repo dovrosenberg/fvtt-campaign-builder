@@ -87,9 +87,12 @@ export class TopicFolder {
     if (!fullEntry || entries.length===0)
       return entries;
     
+    const idList = entries.map((e)=> e.uuid);
+    const documentSet = await this.setting.compendium.getDocuments({ _id__in: idList });
+
     let retval = [] as Entry[];
-    for (let i=0; i<entries.length; i++) {
-      const entry = await Entry.fromUuid(entries[i].uuid);
+    for (const doc of documentSet) {
+      const entry = new Entry(doc);
       if (entry)
         retval.push(entry);
     }
