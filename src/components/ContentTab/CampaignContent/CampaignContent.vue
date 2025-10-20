@@ -48,7 +48,7 @@
               </div>
               <div class="flexrow form-group">
                 <LabelWithHelp
-                  label-text="labels.fields.campaignHouseRules"
+                  label-text="labels.fields.houseRules"
                   top-label
                 />
               </div>

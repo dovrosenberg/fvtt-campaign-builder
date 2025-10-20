@@ -3,7 +3,7 @@ import { moduleId } from './index';
 import { AdvancedSettingsApplication } from '@/applications/settings/AdvancedSettingsApplication';
 import { SpeciesListApplication } from '@/applications/settings/SpeciesListApplication';
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
-import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex } from '@/types';
+import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, defaultCustomFields } from '@/types';
 import type { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from '@/apiClient';
 
 export enum SettingKey {
@@ -26,6 +26,7 @@ export enum SettingKey {
   sessionTags = 'sessionTags',
   lastKnownVersion = 'lastKnownVersion',  // tracks the last known module version - used for tracking migrations
   settingIndex = 'settingIndex',  // array of high-level setting info (name, packId)
+  customFields = 'customFields',  // mapping of CustCustomFieldContentType to CustomFieldType
   
   // menus
   advancedSettingsMenu = 'advancedSettingsMenu',  // display the advanced setting menu
@@ -73,6 +74,7 @@ export type SettingKeyType<K extends SettingKey> =
     K extends SettingKey.sessionTags ? TagList :
     K extends SettingKey.lastKnownVersion ? string :
     K extends SettingKey.settingIndex ? SettingIndex[] :
+    K extends SettingKey.customFields ? Record<CustomFieldContentType, CustomFieldDescription[]> :
     K extends SettingKey.hideBackendWarning ? boolean :
     K extends SettingKey.enableToDoList ? boolean :
     K extends SettingKey.useGmailToDos ? boolean :
@@ -264,6 +266,11 @@ export class ModuleSettings {
       settingID: SettingKey.settingIndex,
       default: [],
       type: Array,
+    },
+    {
+      settingID: SettingKey.customFields,
+      default: defaultCustomFields,
+      type: Object,
     },
     {
       settingID: SettingKey.APIURL,

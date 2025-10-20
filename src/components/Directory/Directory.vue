@@ -51,7 +51,7 @@
     </header>
 
     <!-- First, a setting dropdown if here is more than one setting -->
-    <div v-if="(ModuleSettings.get(SettingKey.settingIndex) || []).length>1">
+    <div v-if="settingOptions.length > 1">
       <Select
         v-model="selectedSetting"
         :options="settingOptions"
@@ -139,9 +139,11 @@
   ////////////////////////////////
   // computed data
   const settingOptions = computed(() => {
-    return currentSettingTree.value.value.map((setting) => ({
+    const settings = ModuleSettings.get(SettingKey.settingIndex) || [];
+    
+    return settings.map((setting) => ({
       name: setting.name,
-      uuid: setting.id
+      uuid: setting.settingId
     }));
   });
 

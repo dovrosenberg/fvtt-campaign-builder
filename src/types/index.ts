@@ -16,6 +16,10 @@ export type * from './documentIndices.ts';
 export * from './generators.ts';
 export type * from './generators.ts';
 
+// @ts-ignore - need to pull enum
+export * from './customFields.ts';
+export type * from './customFields.ts';
+
 // used to determine which component to display in the tab
 export enum ContentType {
   Entry,

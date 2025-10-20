@@ -445,7 +445,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
       // now filter by the function passed in 
       .filter((e: EntryFilterIndex)=> filterFn(e)) || [];
 
-    if (!fullEntry)
+    if (!fullEntry || entries.length===0)
       return entries;
 
     let retval = [] as Entry[];

@@ -131,6 +131,15 @@ export class FCBJournalEntryPage<
         // reset the doc and clone
         this._doc = retval;
         this._clone = retval.clone({}, { keepId: true });
+
+        // rebuild the index (by adding a random field name) because otherwise index won't update
+        // see Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
+        // don't really need to await this
+        const pack = game.packs.get(this._doc.pack);
+        if (!pack)
+          throw new Error(`Invalid compendium in FCBJournalEntryPage.save() ${this._doc.pack}`);
+        // @ts-ignore
+        void pack.getIndex({ fields: [foundry.utils.randomID()]});
       }      
     } catch (e) {
       throw new Error(`Error updating journal entry page ${this._doc.uuid}: ${e}`);
@@ -152,6 +161,9 @@ export class FCBJournalEntryPage<
   > (this: T, compendiumId: string, name: string, initialData: Record<string, unknown> = {}): Promise<InstanceType<T> | null> {
     // find the folder it goes in 
     const pack = game.packs.get(compendiumId);
+
+    if (!pack)
+      throw new Error(`Invalid compendium in FCBJournalEntryPage ${compendiumId}`);
 
     let folder;
     if (this._folderName) {
@@ -194,14 +206,18 @@ export class FCBJournalEntryPage<
       system: this._defaultSystem,
     }, initialData) as JournalEntryPage.CreateData;
 
-      // now add the page
-    const pages = await JournalEntryPage.createDocuments([pageData],{
-      parent: journalEntry,
-    }) as unknown as DocClass[];
+    // now add the page
+    const pages = await journalEntry.createEmbeddedDocuments('JournalEntryPage', [pageData]) as unknown as DocClass[];
   
     if (!pages || pages.length === 0)
       throw new Error('Couldn\'t create new journal entry page');
-    
+
+    // rebuild the index (by adding a random field name) because otherwise it won't pick up the page
+    // see Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
+    // don't really need to await this
+    // @ts-ignore
+    void pack.getIndex({ fields: [foundry.utils.randomID()]});
+
     return new this(pages[0]) as InstanceType<T>;
   }
   

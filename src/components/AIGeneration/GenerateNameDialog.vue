@@ -288,18 +288,18 @@
       
       .option-item {
         padding: 0.75rem;
-        border: 1px solid var(--color-border-light-tertiary);
+        border: 1px solid var(--fcb-control-border);
         border-radius: 4px;
         cursor: pointer;
         transition: all 0.2s ease;
         
         &:hover {
-          background-color: rgba(0, 0, 0, 0.05);
+          background-color: var(--fcb-accent-200);
         }
         
         &.selected {
-          background-color: rgba(0, 0, 0, 0.1);
-          border-color: var(--color-border-highlight);
+          background-color: var(--fcb-surface-2);
+          border-color: var(--fcb-accent);
         }
 
         .option-content {

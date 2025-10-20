@@ -715,10 +715,10 @@
     align-items: center;
     height: 100%;
     width: 100%;
-    color: var(--color-text-dark-secondary);
+    color: var(--fcb-link);
     
     &:hover {
-      color: var(--color-text-hyperlink);
+      color: var(--fcb-link-hover);
     }
   }
 
@@ -735,8 +735,8 @@
 
   .fcb-row-wrapper {
     &.valid-drag-hover {
-      color: var(--color-text-accent);
-      border-color: var(--color-text-accent);
+      color: var(--fcb-link-hover);
+      border-color: var(--fcb-link-hover);
     }
   }
 
@@ -750,8 +750,8 @@
     transition: all 0.2s ease;
     
     &.valid-drag-hover {
-      color: var(--color-text-accent);
-      border-color: var(--color-text-accent);
+      color: var(--fcb-link-hover);
+      border-color: var(--fcb-link-hover);
     }
   }
 

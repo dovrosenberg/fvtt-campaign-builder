@@ -72,7 +72,7 @@
   label {
     margin-right: 8px;
     font-weight: bold;
-    color: var(--color-light-1);
+    color: var(--fcb-text);
   }
 
   .fcb-dropdown {
@@ -82,9 +82,9 @@
     .fcb-dropdown-input {
       padding: 2px 5px;
       border-radius: 3px;
-      border: 1px solid #ccc;
-      background-color: #fff;
-      color: #333;
+      border: 1px solid var(--fcb-control-border);
+      background-color: var(--fcb-control-bg);
+      color: var(--fcb-text);
       font-size: var(--font-size-12);
       height: 1.5rem;
 

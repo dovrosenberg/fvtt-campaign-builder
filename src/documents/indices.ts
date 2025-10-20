@@ -16,6 +16,7 @@ export const sessionIndexFields = {
 
 export const entryIndexFields = {
   fields: [
+    foundry.utils.randomID(),
     TYPE_FIELD,
     'pages.name', 
     'pages.uuid', 

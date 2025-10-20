@@ -20,7 +20,7 @@ export class MigrationProgressDialog {
    * Show the migration progress dialog
    */
   public async show(options: MigrationProgressOptions = {}): Promise<void> {
-    const title = options.title || 'Module Migration';
+    const title = options.title || 'Migrating Campaign Builder to new version';
     const message = options.message || 'Migrating data to new format...';
     const showProgress = options.showProgress !== false;
 

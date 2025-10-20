@@ -8,9 +8,9 @@ export const CampaignSchema = {
   /** campaign description */
   description: new fields.StringField({ required: true, nullable: false, initial: '' }),  
 
-  /** campaign house rules */
-  houseRules: new fields.StringField({ required: true, nullable: false, initial: '' }),
- 
+  /** map from field name to value */
+  customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
+
   /** all the sessionIds */
   sessionIds: new fields.ArrayField(
     new fields.DocumentUUIDField({ required: true, nullable: false }),
@@ -76,7 +76,7 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
 
   system: {
     description: string;
-    houseRules: string;
+    customFields: Record<string, string>;
     lore: CampaignLore[];  
     img: string;   
     todoItems: ToDoItem[];   

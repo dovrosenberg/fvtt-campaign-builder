@@ -147,7 +147,7 @@
                 class="flexrow form-group"
               >
                 <Editor
-                    :initial-content="currentEntry?.rolePlayingNotes || ''"
+                    :initial-content="currentEntry?.roleplayingNotes || ''"
                     :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
                     @editor-saved="onRolePlayingNotesSaved"
                   />
@@ -185,7 +185,7 @@
                 class="flexrow form-group"
               >
                 <Editor
-                    :initial-content="currentEntry?.rolePlayingNotes || ''"
+                    :initial-content="currentEntry?.roleplayingNotes || ''"
                     :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
                     @editor-saved="onRolePlayingNotesSaved"
                   />
@@ -675,7 +675,7 @@
     if (!currentEntry.value)
       return;
 
-    currentEntry.value.rolePlayingNotes = newContent;
+    currentEntry.value.roleplayingNotes = newContent;
     await currentEntry.value.save();
   };
 

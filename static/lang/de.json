@@ -211,7 +211,7 @@
         "generateImage": "Bild generieren",
         "description": "Beschreibung",
         "campaign": "Kampagne",
-        "campaignHouseRules": "Hausregeln",
+        "houseRules": "Hausregeln",
         "addToCurrentSession": "Zur aktuellen Sitzung hinzufügen",
         "topic": "Thema",
         "settingFeeling": "Einstellung Gefühl",

@@ -414,7 +414,7 @@ export const registerTopicFolderTests = () => {
             expect(result[1].uuid).to.equal('entry2-uuid');
           });
 
-          it('should find entry by uuid', () => {
+          it('should find entry by uuid', async () => {
             // Setup mock entries
             mockTopicDoc.pages.contents = [
               { uuid: 'entry1-uuid', name: 'Entry 1', type: DOCUMENT_TYPES.Entry },
@@ -429,21 +429,21 @@ export const registerTopicFolderTests = () => {
             }));
             
             // Act
-            const result = topicFolder.findEntry('entry2-uuid');
+            const result = await topicFolder.findEntry('entry2-uuid');
             
             // Assert
             expect(result).not.to.be.null;
             expect(result?.uuid).to.equal('entry2-uuid');
           });
 
-          it('should return null when entry is not found', () => {
+          it('should return null when entry is not found', async () => {
             // Setup mock entries
             mockTopicDoc.pages.contents = [
               { uuid: 'entry1-uuid', name: 'Entry 1', type: DOCUMENT_TYPES.Entry }
             ] as any[];
             
             // Act
-            const result = topicFolder.findEntry('non-existent-uuid');
+            const result = await topicFolder.findEntry('non-existent-uuid');
             
             // Assert
             expect(result).to.be.null;

@@ -84,6 +84,11 @@ export class MigrationManager {
     const lastVersion = VersionUtils.getLastKnownVersion();
     const currentVersion = await VersionUtils.getCurrentModuleVersion();
 
+    // set to the new version if needed
+    if (lastVersion === '') {
+      await VersionUtils.saveCurrentVersion();
+    }
+
     if (lastVersion === '' || lastVersion === currentVersion) {
       return {
         success: true,
@@ -137,7 +142,7 @@ export class MigrationManager {
     }
 
     return await MigrationProgressDialog.withProgress(
-      'Module Migration',
+      'Migrating Campaign Builder to new version',
       'Migrating your campaign data to the latest version...',
       async (progress) => {
         const overallResult: MigrationResult = {

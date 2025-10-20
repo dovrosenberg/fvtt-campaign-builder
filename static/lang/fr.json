@@ -211,7 +211,7 @@
         "generateImage": "Générer une image",
         "description": "Description",
         "campaign": "Campagne",
-        "campaignHouseRules": "Règles de maison",
+        "houseRules": "Règles de maison",
         "addToCurrentSession": "Ajouter à la session en cours",
         "topic": "Sujet",
         "settingFeeling": "Ambiance du cadre",

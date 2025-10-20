@@ -41,6 +41,9 @@ export const SettingSchema = {
   /** setting feeling of the setting */
   settingFeeling: new fields.StringField({ required: true, nullable: false, initial: '' }),
 
+  /** map from field name to value */
+  customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
+
   /** image path for the setting */
   img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
 
