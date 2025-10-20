@@ -112,10 +112,10 @@ export class TopicFolder {
    * @param {uuid: string} - The id to find
    * @returns {Entry | null} The matching entry
    */
-   public findEntry(uuid: string): Entry | null { 
-    const match: EntryDoc | undefined = (toRaw(this._doc).pages.contents as unknown as EntryDoc[]).find((e: EntryDoc)=> e.uuid === uuid);
+   public async findEntry(uuid: string): Promise<Entry | null> { 
+    const entries = await this.filterEntries((e)=> e.uuid === uuid, true);
 
-    return match ? new Entry(match) : null;
+    return entries.length>0 ? entries[0] : null
   }
 
   /**

@@ -57,14 +57,14 @@
 - [ ] Confirm each content's info is correct
     - Entry related items work
     - **Need to remap ids in content**
-    - **Entry session connection broken**
+    - **Entry session connection broken - because links broke**
+    - **grandchild bar not in folder**
     - Campaign works
 - [ ] Confirm tags are correct
-- [ ] Check that session links to npc and locations working
+- [x] Check that session links to npc and locations working
 - [x] Confirm the bookmarks all work
 - [x] Confirm the tabs are correct, including the history
-- [] Confirm the advanced setting is correct and the current setting was retained
-    - **Setting worked but not campaign**
+- [x] Confirm the advanced setting is correct and the current setting was retained
 - [x] Confirm the current tab was preserved in the off setting
-- [a] Confirm the expanded tree is correct in both settings
+- [x] Confirm the expanded tree is correct in both settings
 - [x] Confirm the off setting type isn't in the main setting
