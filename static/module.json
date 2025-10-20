@@ -41,16 +41,12 @@
 
    "documentTypes": {
     "JournalEntryPage": {
-      "entry2": {
-        "htmlFields": [ "roleplayingNotes", "background", "plotPoints", "magicItems" ]
-      },
+      "entry2": {},
       "session2": {
         "htmlFields": [ "strongStart" ]
       },
       "setting2": {},
-      "campaign2": {
-        "htmlFields": [ "houseRules" ]
-      }
+      "campaign2": {}
     }
   },
 

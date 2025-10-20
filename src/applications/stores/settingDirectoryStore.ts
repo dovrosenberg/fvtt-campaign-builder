@@ -377,7 +377,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     // save the parent
     const parentId = currentSetting.value.getEntryHierarchy(entryId)?.parentId || null;
 
-    const entry = await (currentSetting.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId, true))[0];
+    const entry = (await currentSetting.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId, true))[0];
     await entry.delete();
 
     // update tabs/bookmarks

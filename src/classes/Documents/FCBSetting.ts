@@ -600,7 +600,7 @@ private async deleteRollTables() : Promise<void> {
   public async deleteActorFromSetting(actorId: string)
    {
     // remove from any PCs that are linked to it
-    for (let pc of this.topicFolders[Topics.PC].filterEntries((e)=>e.actorId === actorId)) {
+    for (let pc of (await this.topicFolders[Topics.PC].filterEntries((e)=>e.actorId === actorId, true))) {
       pc.actorId = '';
       await pc.save();
     }

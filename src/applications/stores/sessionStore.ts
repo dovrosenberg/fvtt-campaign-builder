@@ -671,7 +671,7 @@ export const useSessionStore = defineStore('session', () => {
       return null;
 
     const nextSessionNumber = currentSession.value.number+1;
-    const nextSession = campaign.filterSessions(s => s.number === nextSessionNumber);
+    const nextSession = await campaign.filterSessions(s => s.number === nextSessionNumber);
 
     // found it - just return it
     if (nextSession.length>0) 

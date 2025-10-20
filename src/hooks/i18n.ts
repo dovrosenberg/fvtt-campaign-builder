@@ -34,7 +34,13 @@ const i18nInit = () => {
     }
   ];
   
-  defaultCustomFields[CustomFieldContentType.PC] = [{
+  defaultCustomFields[CustomFieldContentType.PC] = [
+    {
+      name: 'background',
+      label: localize('labels.fields.background'),
+      fieldType: FieldType.Editor,
+      sortOrder: 0,
+    },{
       name: 'other_plot_points',
       label: localize('labels.fields.otherPlotPoints'),
       fieldType: FieldType.Editor,

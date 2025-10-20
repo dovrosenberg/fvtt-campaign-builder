@@ -26,6 +26,7 @@ export type CustomFieldDescription = {
 }
 
 // this is the default custom field description for each type
+// this will be populated after i18n initialized
 export let defaultCustomFields: Record<CustomFieldContentType, CustomFieldDescription[]> = {
   [CustomFieldContentType.Setting]: [],
   [CustomFieldContentType.Character]: [],

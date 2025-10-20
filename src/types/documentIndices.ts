@@ -46,5 +46,6 @@ export type EntryFilterIndex = {
   uuid: string;
   topic: ValidTopic;
   type: string;
+  actorId: string;  // for PCs
 }
   
