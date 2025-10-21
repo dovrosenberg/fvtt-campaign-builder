@@ -8,6 +8,12 @@ export const CampaignSchema = {
   /** campaign description */
   description: new fields.StringField({ required: true, nullable: false, initial: '' }),  
 
+  /** the session number of latest session */
+  currentSessionNumber: new fields.NumberField({ required: true, nullable: true, integer: true, initial: null }),
+
+  /** the session id of latest session */
+  currentSessionId: new fields.DocumentUUIDField({ required: true, nullable: true, initial: null }),
+
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
@@ -75,6 +81,8 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
   __type: 'CampaignDoc'; 
 
   system: {
+    currentSessionNumber: number;
+    currentSessionId: string;
     description: string;
     customFields: Record<string, string>;
     lore: CampaignLore[];  

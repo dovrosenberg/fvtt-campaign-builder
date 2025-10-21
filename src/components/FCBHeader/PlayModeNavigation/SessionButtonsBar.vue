@@ -60,16 +60,19 @@
     event.preventDefault();
     event.stopPropagation();
 
+    if (!currentPlayedCampaign.value)
+      return;
+    
     // First, find the most recent session 
-    const currentSession = currentPlayedCampaign.value?.currentSession;
-
-    if (!currentSession) 
+    const currentSessionId = currentPlayedCampaign.value.currentSessionId;
+    const currentSessionNumber = currentPlayedCampaign.value.currentSessionNumber;
+    if (!currentSessionId || currentSessionNumber==null)
       return;
 
     // special case - it's on the campaign
     if (tabId === 'todo') {
       // Check if we already have a tab open to that campaign
-      const campaignId = currentSession.campaignId;
+      const campaignId = currentPlayedCampaign.value.uuid;
       const campaignTab = tabs.value.find((t) => t.header?.uuid === campaignId);
 
       // If there isn't a tab open to the most recent session, open one
@@ -80,15 +83,15 @@
         await navigationStore.activateTab(campaignTab.id);
       }
     } else if (tabId === 'noteBox') {  // special case - it's the popout box
-      await openSessionNotes(currentSession, false);  
+      await openSessionNotes(currentSessionNumber, false);  
       return;
     } else {
       // Check if we already have a tab open to that session
-      const sessionTab = tabs.value.find((t) => t.header?.uuid === currentSession.uuid);
+      const sessionTab = tabs.value.find((t) => t.header?.uuid === currentSessionId);
 
       // If there isn't a tab open to the most recent session, open one
       if (!sessionTab) {
-        await navigationStore.openSession(currentSession.uuid, { newTab: true });
+        await navigationStore.openSession(currentSessionId, { newTab: true });
       } else {
         // it exists- so switch to it
         await navigationStore.activateTab(sessionTab.id);

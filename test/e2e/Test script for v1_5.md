@@ -64,6 +64,7 @@
     - Session works
 - [ ] Confirm tags are correct
 - [ ] Confirm that all uuid references transfer correctly
+- [ ] Confirm that the session play buttons work for both campaigns
 - [x] Check that session links to npc and locations working
 - [x] Confirm the bookmarks all work
 - [x] Confirm the tabs are correct, including the history

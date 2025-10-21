@@ -87,7 +87,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       return null;
 
     // by default, we make it the next session number
-    const sessionNumber = await campaign.getNextSessionNumber();
+    const sessionNumber = campaign.currentSessionNumber==null ? 0 : campaign.currentSessionNumber + 1;
 
     const session = await super._create(
       campaign.compendiumId, 
@@ -101,8 +101,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     await session.save();
 
     // add to campaign
-    campaign.sessionIds.push(session.uuid);
-    await campaign.save();
+    await campaign.addSession(session);
     
     // Add to search index
     try {
@@ -509,8 +508,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     if (!campaign)
       throw new Error('Campaign not found in Session.delete()');
     
-    campaign.sessionIds = campaign.sessionIds.filter(s=> s!==id);
-    await campaign.save();
+    await campaign.deleteSession(this);
     
     await toRaw(this._doc).delete();
 

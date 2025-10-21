@@ -8,6 +8,7 @@ import { theme } from '@/components/styles/primeVue';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import SessionNotes from '@/components/applications/SessionNotes.vue';
+import { SuperCall } from 'typescript';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -54,7 +55,11 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
    */
     async close(options = {}) {
       const component = SessionNotesApplication.component;
-      const session = usePlayingStore().currentPlayedSession;
+
+      if (!usePlayingStore().currentPlayedSessionId)
+        return;
+
+      const session = await Session.fromUuid(usePlayingStore().currentPlayedSessionId);
       
       if (component && session) {
         // check if the session notes window is dirty and save if needed
@@ -102,7 +107,7 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
 }
 
 // Function to open the session notes window
-export async function openSessionNotes(session: Session, forceReset = true): Promise<void> {
+export async function openSessionNotes(sessionNumber: number, forceReset = true): Promise<void> {
   // if it's open, we either just activate it or close and reopen
   if (SessionNotesApplication.app) {
     if (forceReset) {
@@ -116,7 +121,7 @@ export async function openSessionNotes(session: Session, forceReset = true): Pro
   }
 
   // setup and render a new one
-  SessionNotesApplication.title = `Session ${session.number}`;
+  SessionNotesApplication.title = `Session ${sessionNumber}`;
   SessionNotesApplication.app = new SessionNotesApplication();
 
   await SessionNotesApplication.app.render(true);

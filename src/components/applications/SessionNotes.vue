@@ -25,7 +25,7 @@
   // stores
   const mainStore = useMainStore();
   const playingStore = usePlayingStore();
-  const { currentPlayedSession } = storeToRefs(playingStore);
+  const { currentPlayedSessionId, currentPlayedSessionNotes } = storeToRefs(playingStore);
   const { currentSession } = storeToRefs(mainStore);
 
   // data
@@ -37,12 +37,17 @@
 
   // methods
   const onNotesEditorSaved = async (newContent: string) => {
-    const session = currentPlayedSession.value;
+    if (!currentPlayedSessionId.value)
+      return;
 
-    if (!session) return;
+    const session = await Session.fromUuid(currentPlayedSessionId.value);
+    if (!session)
+      return;
 
     session.notes = newContent;
-    await session.save();
+    await session.save();  // do this before the reactive update in case something reloads the session
+
+    currentPlayedSessionNotes.value = newContent;
 
     // if we're showing the session, refresh it
     if (currentSession.value && currentSession.value.uuid===session.uuid) {
@@ -57,7 +62,14 @@
   ////////////////////////////////
   // watchers
   // changes to the played session 
-  watch(() => currentPlayedSession.value, async (newSession: Session | null, oldSession: Session | null) => {
+  watch(() => currentPlayedSessionId.value, async (newSessionId: string | null, oldSessionId: string | null) => {
+    if (!newSessionId)
+      return;
+
+    const newSession = await Session.fromUuid(newSessionId);
+    if (!newSession)
+      return;
+
     sessionNotes.value = newSession?.notes || '';
 
     // if (!oldSession) 
@@ -76,13 +88,24 @@
   }, { immediate: true });
 
   /** Handle when the notes are saved by the main session screen */
-  watch(() => currentPlayedSession.value?.notes, async () => {
-    sessionNotes.value = currentPlayedSession.value?.notes || '';
+  watch(() => currentPlayedSessionNotes.value, async () => {
+    sessionNotes.value = currentPlayedSessionNotes.value || '';
   }, { immediate: true });
 
   // lifecycle
-  onMounted(() => {
-    sessionNotes.value = currentPlayedSession.value?.notes || '';
+  onMounted(async () => {
+    if (!currentPlayedSessionId.value) {
+      sessionNotes.value = '';
+      return;
+    }
+
+    const session = await Session.fromUuid(currentPlayedSessionId.value);
+    if (!session) {
+      sessionNotes.value = '';
+      return;
+    }
+
+    sessionNotes.value = session?.notes || '';
   })
 </script>
 

@@ -215,7 +215,7 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const playingStore = usePlayingStore();
   const { currentSession, currentContentTab, isInPlayMode } = storeToRefs(mainStore);
-  const { currentPlayedSession } = storeToRefs(playingStore);
+  const { currentPlayedSessionId, currentPlayedSessionNotes } = storeToRefs(playingStore);
   
   ////////////////////////////////
   // data
@@ -234,9 +234,9 @@
   const strongStartAtTop = computed(() => {
     // we put it at the top if this is the last session for its campaign
     const campaign = currentSession.value?.campaign;
-    const campaignLastSession = campaign?.currentSession;
+    const campaignLastSessionNumber = campaign?.currentSessionNumber;
 
-    return campaignLastSession == null || !currentSession.value || currentSession.value.number === campaignLastSession.number; 
+    return campaignLastSessionNumber == null || !currentSession.value || currentSession.value.number === campaignLastSessionNumber; 
   });
 
   ////////////////////////////////
@@ -301,8 +301,8 @@
     mainStore.refreshSession();
 
     // trigger reactivity on the session notes window if needed
-    if (currentPlayedSession.value?.uuid===currentSession.value.uuid) {
-      currentPlayedSession.value.notes = newContent;
+    if (currentPlayedSessionId.value===currentSession.value.uuid) {
+      currentPlayedSessionNotes.value = newContent;
     }
   };
 
@@ -372,12 +372,23 @@
     }
   });
   
+  // watch for changes to the notes
+  watch(() => currentPlayedSessionNotes.value, async () => {
+    if (currentSession.value && currentSession.value.uuid===currentPlayedSessionId.value) {
+      // I'm not 100% sure why both of these are needed, which makes me a little 
+      //    nervous... but it seems to work
+      await mainStore.refreshSession();  // update the screen
+      sessionNotesContent.value = currentPlayedSessionNotes.value || '';
+    }
+
+  }, { immediate: true });
+
   // Watch for changes to the played session (which might include a refresh  
   // so we need to update the standalone notes window)
-  watch(() => currentPlayedSession.value, async () => {
-    if (currentPlayedSession.value?.uuid === currentSession.value?.uuid) 
-      sessionNotesContent.value = currentPlayedSession.value?.notes || '';
-  }, { immediate: true });
+  // watch(() => currentPlayedSessionId.value, async () => {
+  //   if (currentPlayedSessionId.value === currentSession.value?.uuid) 
+  //     sessionNotesContent.value = currentPlayedSessionNotes.value || '';
+  // }, { immediate: true });
 
 
 

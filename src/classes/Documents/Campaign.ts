@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { DOCUMENT_TYPES, CampaignLore, sessionIndexFields } from '@/documents';
-import { RelatedPCDetails, RelatedJournal, SessionIndex, SessionFilterIndex } from '@/types';
+import { RelatedPCDetails, RelatedJournal, SessionFilterIndex } from '@/types';
 import { Entry, Session, FCBSetting, getGlobalSetting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
@@ -26,10 +26,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     journals: [], 
     pcs: [],
   } as unknown as CampaignDocClass['system'];
-
-  /**  the highest numbered session (if in play mode, this will be the played one, too) */
-  public currentSession: Session | null;
-
+  
   public static override async fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
   > (this: T, uuid: string): Promise<InstanceType<T> | null> { 
@@ -38,19 +35,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     if (!campaign)
       return null;
 
-    await campaign.loadCurrentSession();
-        
     return campaign as InstanceType<T>;
-  }
-
-  // we return the next number after the highest currently existing session number
-  // we calculate each time because it's fast enough and we don't need to continually be updating 
-  //    metadata
-  public async getNextSessionNumber(): Promise<number> {
-    // make sure the latest session is loaded
-    await this.loadCurrentSession();
-
-    return this.currentSession ? this.currentSession.number + 1 : 0;
   }
 
   public async allSessions(): Promise<Session[]> {
@@ -58,38 +43,62 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return allSessions;
   }
 
-  public async loadCurrentSession(): Promise<void> {
-    // load the current session
+  public async resetCurrentSession(): Promise<void> {
     // find the uuid of the one with the highest number
-    const entries = await toRaw(this.compendium).getIndex(sessionIndexFields) as unknown as Record<string, SessionIndex>;
+    const entries = await toRaw(this.compendium).getIndex(sessionIndexFields)
 
-    let maxNumber = -1;
-    let maxsessionId = '';
-    for (const index of Object.values(entries)) {
-      // filter out non-sessions, broken ones, and ones that belong to other campaigns
-      if (index.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType] !== DOCUMENT_TYPES.Session || 
-        !index.pages?.length || !this._clone.system.sessionIds.includes(index.uuid))
-        continue;
-
-      if (index.pages[0].system.number > maxNumber) {
-        maxNumber = index.pages[0].system.number;
-        maxsessionId = index.uuid;
-      }
-    }
+    const maxSessionInfo = entries
+      // first find the relevant ones
+      .filter((e)=> (
+        // @ts-ignore
+        e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
+        e.pages && e.pages!.length > 0 &&
+        this._clone.system.sessionIds.includes(e.uuid)
+      ))
+      .reduce((maxInfo: {num: number; sessionId: string}, e): { num: number; sessionId: string}=> {
+        const number = e.pages![0].system.number;
+        return {
+          num: number > maxInfo.num ? number : maxInfo.num,
+          sessionId: number > maxInfo.num ? e.uuid : maxInfo.sessionId
+        }        
+      }, {num:-1, sessionId:''})
 
     // no session found
-    if (maxNumber === -1)
-      return; 
+    if (maxSessionInfo.num === -1) {
+      this.currentSessionNumber = null;
+      this.currentSessionId = null;
+    } else {
+      this.currentSessionNumber = maxSessionInfo.num;
+      this.currentSessionId = maxSessionInfo.sessionId;
+    }
 
-    this.currentSession = await Session.fromUuid(maxsessionId);
+    await this.save();
   }    
   
-  public get sessionIds(): string[] {
+  public get sessionIds(): readonly string[] {
     return this._clone.system.sessionIds;
   }
 
-  public set sessionIds(value: string[] | readonly string[]) {
-    this._clone.system.sessionIds = value.slice();     // we clone it so it can't be edited outside
+  public async addSession(session: Session): Promise<void> {
+    this._clone.system.sessionIds.push(session.uuid);
+
+    if (session.number > this.currentSessionNumber) {
+      this.currentSessionNumber = session.number;
+      this.currentSessionId = session.uuid;
+    }
+    
+    await this.save();
+  }
+
+  public async deleteSession(session: Session): Promise<void> {
+    this._clone.system.sessionIds = this._clone.system.sessionIds.filter(s=> s!==session.uuid);
+
+    const reset = (session.uuid === this.currentSessionId);
+    
+    await this.save();
+
+    if (reset)
+      await this.resetCurrentSession();
   }
   
   public get description(): string {
@@ -98,6 +107,22 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
   public set description(value: string) {
     this._clone.system.description = value;
+  }
+
+  public get currentSessionNumber(): number | null {
+    return this._clone.system.currentSessionNumber;
+  }
+
+  public set currentSessionNumber(value: number | null) {
+    this._clone.system.currentSessionNumber = value;
+  }
+
+  public get currentSessionId(): string | null {
+    return this._clone.system.currentSessionId;
+  }
+
+  public set currentSessionId(value: string | null) {
+    this._clone.system.currentSessionId = value;
   }
 
   public get houseRules(): string {
