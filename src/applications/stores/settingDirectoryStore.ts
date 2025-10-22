@@ -406,7 +406,6 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     const originalScrollTop = scrollContainer?.scrollTop || 0;
 
     // populate the setting names, and find the current one
-    let currentSettingFound = false;
     const allSettings = ModuleSettings.get(SettingKey.settingIndex) || [];
     const currentSettingIndex = allSettings.find((s)=>s.settingId===currentSetting.value?.settingId);
 

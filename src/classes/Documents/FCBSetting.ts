@@ -533,6 +533,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   }
 
   public async save() {
+    const nameChanged = this._clone.name !== this._doc.name;
+
     // convert unsafe keys
     this.hierarchies = cleanKeysOnSave(this.hierarchies);
     this.campaignNames = cleanKeysOnSave(this.campaignNames);
@@ -547,9 +549,27 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         entries: cleanKeysOnSave(this.topics[topic].entries)
       }
     }
-    
-    // now save the page - this will put clone back where it should be
+
+    // now save the setting - this will put clone back where it should be
     await super.save();
+
+    // settings have long lived-cache... we need to refresh that in case we modified 
+    //    something that was a copy
+    updateGlobalSetting(this);
+
+    // finally, update the setting index if needed
+    if (nameChanged) {
+      const settingIndex = ModuleSettings.get(SettingKey.settingIndex);
+      const settingIndexUpdated = settingIndex.map((s)=> (
+        s.settingId !== this.uuid ? 
+          s : 
+          {
+            ...s,
+            name: this.name,
+          }
+      ));
+      await ModuleSettings.set(SettingKey.settingIndex, settingIndexUpdated);
+      }
   }
 
   public async delete(): Promise<this | undefined> {
