@@ -148,7 +148,7 @@
       "rollTableSettings": {
         "title": "Configure Roll Table Settings",
         "folderName": "Campaign Builder Roll Tables",
-        "tableDescription": "Generator table for {type}",
+        "tableDescription": "Generator table for",
         "labels": {
           "refreshAll": "Refresh all tables",
           "refreshAllHelp": "Replace any used items with new ones"
@@ -414,15 +414,14 @@
     },
     "dialogs": {
       "generateNameDialog": {
-        "errorMessage": "There was an error:"
+        "title": "Select an Option",
+        "errorMessage": "There was an error:",
+        "emptyTable": "There are no undrawn names left in the RollTable.  You can open it and add some fresh ones, or use 'Reset Results' to reuse old names."
       },
       "configureNames": {
         "title": "Configure Name Styles",
         "description": "Select the naming styles you'd like to use for AI-generated names in this setting. You can preview examples of each style below, based on this setting's genre and feeling.",
         "errorMessage": "There was an error:"
-      },
-      "generateOptions": {
-        "title": "Select an Option"
       },
       "confirmDeleteRelationship": {
         "title": "Remove from relationship?",

@@ -8,7 +8,7 @@
       :key="generator.id"
       class="fcb-generator-button"
       :data-testid="`generator-button-${generator.id}`"
-      @click="onGeneratorClick(generator.id)"
+      @click="onGeneratorClick($event, generator.id)"
       :title="generator.tooltip"
     >
       <i v-if="generator.icon" :class="`fas ${generator.icon}`"></i>
@@ -67,7 +67,10 @@
   
   ////////////////////////////////
   // methods
-  const onGeneratorClick = (type: GeneratorType) => {
+  const onGeneratorClick = (event: MouseEvent, type: GeneratorType) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
     currentGeneratorType.value = type;
     showGenerateNameDialog.value = true;
   };
