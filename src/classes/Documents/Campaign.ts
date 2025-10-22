@@ -82,7 +82,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   public async addSession(session: Session): Promise<void> {
     this._clone.system.sessionIds.push(session.uuid);
 
-    if (session.number > this.currentSessionNumber) {
+    if (this.currentSessionNumber==null || session.number > this.currentSessionNumber) {
       this.currentSessionNumber = session.number;
       this.currentSessionId = session.uuid;
     }

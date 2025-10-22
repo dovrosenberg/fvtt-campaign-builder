@@ -2,7 +2,7 @@
  * An node representing a topic in the topic tree structures
  */
 
-import { TopicFolder, Entry, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, } from '@/classes';
+import { TopicFolder, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
 import { EntryFilterIndex } from '@/types';
 

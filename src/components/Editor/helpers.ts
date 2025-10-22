@@ -22,7 +22,7 @@ import { localize } from '@/utils/game';
 
 // types
 import { DOCUMENT_TYPES, EntryDoc, SessionDoc, } from '@/documents';
-import { Entry, Campaign, Session } from '@/classes';
+import { Entry, Campaign, Session, getGlobalSetting } from '@/classes';
 import { DOCUMENT_LINK_TYPES, EMBEDDED_DOCUMENT_TYPES, WORLD_DOCUMENT_TYPES } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/constants.mjs';
 import { ValidTopic, WindowTabType } from '@/types';
 import { InternalClientDocument } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs';
@@ -304,8 +304,11 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
           }
         }; break;
         case DOCUMENT_TYPES.Setting: {
-          const setting = new FCBSetting(unknownItem as unknown as JournalEntry);
+          const setting = await getGlobalSetting(unknownItem.uuid);
 
+          if (!setting)
+            return brokenAnchor(data);
+          
           // handle the ones we don't care about
           if (setting.settingId !== settingId) {
             return brokenAnchor(data);

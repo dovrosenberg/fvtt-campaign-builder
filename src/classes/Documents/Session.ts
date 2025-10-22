@@ -483,6 +483,10 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
 
     await super.save();
 
+    // we could get more specific about exactly whether we need to renumber the
+    //    campaign or not, but don't bother
+    await campaign.resetCurrentSession();
+
     // Update the search index (rely on retval being null if no changes were made)
     try {
       const setting = await getGlobalSetting(this.settingId);

@@ -169,7 +169,7 @@ export const usePlayingStore = defineStore('playing', () => {
       if (!currentPlayedCampaign.value)
         return;
       
-      // make sure the sessions are up to date
+      // make sure the sessions are up to date (we shouldn't really need this)
       await currentPlayedCampaign.value?.resetCurrentSession();
       
       const sessionNumber = await currentPlayedCampaign.value?.currentSessionNumber;

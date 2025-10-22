@@ -166,7 +166,9 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentSetting.value = new FCBSetting(_currentSetting.value.raw.parent);
+    const newSetting = new FCBSetting(_currentSetting.value.raw.parent);
+    await newSetting.populate();
+    _currentSetting.value = newSetting;
   };
 
   const refreshSession = async function (): Promise<void> {
