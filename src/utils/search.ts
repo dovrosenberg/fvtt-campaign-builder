@@ -300,8 +300,8 @@ class SearchService {
           snippets.push(`${fullRelatedItem?.name}`);
       }
     };
-    await addEntrySnippet(session.locations, Entry.fromUuid);
-    await addEntrySnippet(session.npcs, Entry.fromUuid);
+    await addEntrySnippet(session.locations, (uuid) => Entry.fromUuid(uuid));
+    await addEntrySnippet(session.npcs, (uuid) => Entry.fromUuid(uuid));
     await addEntrySnippet(session.items, fromUuid);
     await addEntrySnippet(session.monsters, fromUuid);
 

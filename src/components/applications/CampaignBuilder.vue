@@ -300,8 +300,11 @@
     &#app-fcb-CampaignBuilder {
       @include style-base-components;
 
-      scrollbar-width: thin !important;
-      scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb) !important;
+      // Apply scrollbar styles to this element AND all descendants
+      &, & * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb);
+      }
     }
     
     .window-header {
@@ -385,10 +388,11 @@
     z-index: 100;
     width: 0.75rem;
     height: 2.5rem;
-    background-color: var(--fcb-surface-2) !important;
-    color: var(--fcb-text-inverted);
+    background-color: var(--fcb-primary) !important;
+    color: var(--fcb-text-on-primary);
     border-color: var(--fcb-button-border);
     border: 1px;
+    margin-left: 2px;  // so it doesn't bump up against scrollbars
     border-radius: 4px;
     cursor: pointer;
     display: flex;

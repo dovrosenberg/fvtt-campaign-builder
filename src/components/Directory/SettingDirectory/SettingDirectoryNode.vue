@@ -7,18 +7,22 @@
     :top="props.top"
   />
   <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)" :class="{ 'fcb-top-level-node': props.top }">
-    <div 
-      :class="`${props.node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
-      style="pointer-events: auto;"
-      draggable="true"
-      :data-testid="`directory-entry-${props.node.id}`"
-      @click="onDirectoryItemClick"
-      @dragstart="onDragStart($event, props.node.id, props.node.name)"
-      @drop="onDrop"
-      @dragover="onDragover"
-      @contextmenu="onEntryContextMenu"
-    >
-      {{ displayName }}
+    <div class="details">
+      <div class="summary">
+        <div 
+          :class="`${props.node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
+          style="pointer-events: auto;"
+          draggable="true"
+          :data-testid="`directory-entry-${props.node.id}`"
+          @click="onDirectoryItemClick"
+          @dragstart="onDragStart($event, props.node.id, props.node.name)"
+          @drop="onDrop"
+          @dragover="onDragover"
+          @contextmenu="onEntryContextMenu"
+        >
+          {{ displayName }}
+        </div>
+      </div>
     </div>
   </li>
 </template>
@@ -197,8 +201,4 @@
 </script>
 
 <style lang="scss">
-  // Ensure top-level nodes without children align with top-level nodes with children
-  .fcb-entry-item.fcb-top-level-node {
-    margin-left: 1em !important;
-  }
 </style>

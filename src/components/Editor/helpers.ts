@@ -260,10 +260,8 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
           const entry = new Entry(unknownItem as unknown as JournalEntry);
 
           if (entry.topic) {
-            const setting = await entry.getSetting();
-
             // handle the ones we don't care about
-            if (setting.uuid !== settingId) {
+            if (entry.settingId !== settingId) {
               // we're in the wrong setting
               return brokenAnchor(data);
             } else {  // this is an fcb item for this setting
@@ -288,31 +286,37 @@ const customEnrichContentLinks = async (match: RegExpMatchArray, options?: {sett
         case DOCUMENT_TYPES.Session: {
           const session = new Session(unknownItem as unknown as JournalEntry);
 
-          // check if it's the right setting
-          const setting = await session.getSetting();
-    
           // handle the ones we don't care about
-          if (setting.uuid !== settingId) {
+          if (session.settingId !== settingId) {
             return brokenAnchor(data);
           } else {  // this is an fcb item for this setting
             return goodAnchor(unknownItem, WindowTabType.Session, hash, data.name || session.name, `fas ${getTabTypeIcon(WindowTabType.Session)}`); 
           }
         }; break;
+        case DOCUMENT_TYPES.Campaign: {
+          const campaign = new Campaign(unknownItem as unknown as JournalEntry);
+
+          // handle the ones we don't care about
+          if (campaign.settingId !== settingId) {
+            return brokenAnchor(data);
+          } else {  // this is an fcb item for this setting
+            return goodAnchor(unknownItem, WindowTabType.Campaign, hash, data.name || campaign.name, `fas ${getTabTypeIcon(WindowTabType.Campaign)}`); 
+          }
+        }; break;
+        case DOCUMENT_TYPES.Setting: {
+          const setting = new FCBSetting(unknownItem as unknown as JournalEntry);
+
+          // handle the ones we don't care about
+          if (setting.settingId !== settingId) {
+            return brokenAnchor(data);
+          } else {  // this is an fcb item for this setting
+            return goodAnchor(unknownItem, WindowTabType.Setting, hash, data.name || setting.name, `fas ${getTabTypeIcon(WindowTabType.Setting)}`); 
+          }
+        }; break;
       }
     }
 
-    // now handle the folder types
-    if (unknownItem?.getFlag(moduleId, CampaignFlagKey.isCampaign)) {
-      const campaign = new Campaign(unknownItem as unknown as JournalEntry); 
-      const setting = await campaign.getSetting();
-
-      // handle the ones we don't care about
-      if (setting.uuid !== settingId) {
-        return brokenAnchor(data);
-      } else {  // this is an fcb item for this setting
-        return goodAnchor(unknownItem, WindowTabType.Campaign, hash, data.name || campaign.name, `fas ${getTabTypeIcon(WindowTabType.Campaign)}`); 
-      }      
-    } else if (type==='UUID' && unknownItem) {
+    if (type==='UUID' && unknownItem) {
       // handle like default
       return unknownItem.toAnchor({ name: data.name, dataset: { hash } });
     }

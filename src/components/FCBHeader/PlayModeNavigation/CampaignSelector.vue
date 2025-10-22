@@ -72,12 +72,12 @@
   label {
     margin-right: 8px;
     font-weight: bold;
-    color: var(--fcb-text);
+    color: var(--fcb-gray-300) !important;
   }
 
   .fcb-dropdown {
     min-width: 150px;
-    font-size: var(--font-size-12);
+    font-size: 0.75rem !important;
 
     .fcb-dropdown-input {
       padding: 2px 5px;
@@ -85,7 +85,7 @@
       border: 1px solid var(--fcb-control-border);
       background-color: var(--fcb-control-bg);
       color: var(--fcb-text);
-      font-size: var(--font-size-12);
+      font-size: 0.75rem !important;
       height: 1.5rem;
 
       &:hover {
@@ -107,7 +107,7 @@
 
   .fcb-dropdown-item {
     padding: 4px 8px;
-    font-size: var(--font-size-12);
+    font-size: 0.75rem !important;
 
     &:hover {
       background-color: rgba(33, 150, 243, 0.1);

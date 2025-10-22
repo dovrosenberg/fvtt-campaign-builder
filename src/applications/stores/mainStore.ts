@@ -13,7 +13,6 @@ import { updateSettingRollTableNames } from '@/utils/nameGenerators';
 // types
 import { Topics, WindowTabType, DocumentLinkType } from '@/types';
 import { FCBSetting, WindowTab, Entry, Campaign, Session, CollapsibleNode, RootFolder, getGlobalSetting } from '@/classes';
-import { EntryDoc, SessionDoc, } from '@/documents';
 import { SessionNotesApplication } from '@/applications/SessionNotes';
 
 // the store definition

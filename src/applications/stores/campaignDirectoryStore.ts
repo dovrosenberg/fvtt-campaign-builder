@@ -23,7 +23,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   const navigationStore = useNavigationStore();
   const playingStore = usePlayingStore();
   const { currentSetting, currentEntry, isInPlayMode } = storeToRefs(mainStore); 
-  const { currentPlayedSession } = storeToRefs(playingStore);
+  const { currentPlayedSessionId } = storeToRefs(playingStore);
 
   ///////////////////////////////
   // internal state
@@ -154,7 +154,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     // This shouldn't be possible because the only place you can do this is from the context menu
     //    and the option should be disabled when isInPlayMode, but some people have
     //    reported it happening.
-    if (isInPlayMode.value && session.uuid === currentPlayedSession.value?.uuid) {
+    if (isInPlayMode.value && session.uuid === currentPlayedSessionId) {
       notifyWarn('You cannot delete the current session while in Play mode.');
       return;
     }

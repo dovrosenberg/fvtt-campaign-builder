@@ -1,29 +1,12 @@
 <template>
   <!-- these are the campaigns -->
   <ol class="fcb-campaign-list">
-    <li 
+    <DirectoryCampaignNodeComponent
       v-if="currentSetting" 
-      class="fcb-setting-folder folder flexcol" 
-    >
-      <header 
-        class="folder-header flexrow"
-        @contextmenu="onHeaderContextMenu"
-      >
-        <div class="noborder">
-          <i class="fas fa-folder-open fa-fw"></i>
-          {{ currentSetting.name }} Campaigns
-        </div>
-      </header>
-
-      <!-- Note that we have to use value despite being in a template because it's reactive not ref -->
-      <ol v-if="currentCampaignTree.value.length > 0" class="fcb-campaign-contents">
-        <DirectoryCampaignNodeComponent 
-          v-for="campaign in currentCampaignTree.value"
-          :key="campaign.id"
-          :campaign-node="campaign"
-        />
-      </ol>
-    </li>
+      v-for="campaign in currentCampaignTree.value"
+      :key="campaign.id"
+      :campaign-node="campaign"
+    />
   </ol>
 </template>
 
@@ -116,7 +99,7 @@
         /* overflow: hidden; */
         margin-top: .1875rem;
 
-        .fcb-setting-folder {
+        .fcb-campaign-folder {
           align-items: flex-start;
           justify-content: flex-start;
           min-width: 100%;
@@ -137,6 +120,16 @@
             text-shadow: none;
             position: relative;
           }
+
+          div.details {
+            padding-left: 0.5em;
+            
+            // For simple nodes without children (no ul), add margin-bottom to match the ul margin-top
+            &:not(:has(ul)) {
+              margin-bottom: 0.25rem;
+            }
+          }
+
           
         }
       

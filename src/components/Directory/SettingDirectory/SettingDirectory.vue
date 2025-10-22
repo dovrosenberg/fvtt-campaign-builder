@@ -308,6 +308,7 @@
     ul {
       list-style: none;
       line-height: 2em;   // this makes the horizontal lines centered (when combined with the height on the li::before
+      margin-top: 0.25rem;
 
       li {
         position: relative;
@@ -364,6 +365,11 @@
 
       div.details {
         padding-left: 0.5em;
+        
+        // For simple nodes without children (no ul), add margin-bottom to match the ul margin-top
+        &:not(:has(ul)) {
+          margin-bottom: 0.25rem;
+        }
       }
     }
 

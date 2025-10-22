@@ -3,6 +3,7 @@ import { JournalEntryFlagKey, moduleId, ModuleSettings, SettingKey } from '@/set
 import { ValidDocType } from '@/types';
 import { FCBSetting } from './FCBSetting';
 import { getGlobalSetting } from '@/classes';
+import { sanitizeHTML } from '@/utils/sanitizeHtml';
 
 //pull the DocType out of a constructor for a child
 type DocTypeOf<T> =
@@ -95,6 +96,26 @@ export class FCBJournalEntryPage<
     return setting;
   }
 
+  /**
+   * Sanitizes HTML content in custom fields that are of type Editor.
+   * This must be called before saving to ensure HTML is cleaned before being sent to the server.
+   */
+  protected sanitizeCustomFields(): void {
+    // we just sanitize every field because we don't yet have the custom field infrastructure 
+    // TODO: could make this more efficient once we have that 
+    const customFields = this._clone.system.customFields as Record<string, string>;
+
+    if (!customFields || typeof customFields !== 'object') 
+      return;
+
+    for (const fieldName in customFields) {
+      // const field = customFields[fieldName];
+      // if (field.fieldType !== FieldType.Editor) 
+      //   continue;
+
+      customFields[fieldName] = sanitizeHTML(customFields[fieldName]);
+    }
+  }
 
   /** takes the uuid of the wrapper entry */
   static async fromUuid<
@@ -127,6 +148,9 @@ export class FCBJournalEntryPage<
       return;
   
     try {
+      // Sanitize HTML in custom fields before saving
+      this.sanitizeCustomFields();
+
       // update the name on the wrapper
       if (this._doc.name !== this._clone.name) {
         // because the child class objects can get proxied by Vue, this might be proxied, 

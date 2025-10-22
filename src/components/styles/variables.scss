@@ -53,6 +53,9 @@ body {
   --fcb-success-500: hsl(145 55% 35%);
   --fcb-warning-500: hsl(35 95% 45%);
   --fcb-danger-500:  hsl(0 75% 48%);
+
+  // this is the main text color to use on top of the primary
+  --fcb-text-on-primary: var(--fcb-gray-50) 
 }
 
 // role tokens 
@@ -102,7 +105,7 @@ body {
   --fcb-control-placeholder: var(--fcb-gray-500);
   --fcb-control-border:    var(--fcb-border);
   --fcb-control-border-hover: var(--fcb-gray-400);
-  --fcb-control-border-focus: var(--fcb-primary);
+  --fcb-control-border-focus: var(--fcb-accent);
   --fcb-control-filled:    var(--fcb-primary-50);
 
   /* Component-specific */
@@ -224,7 +227,7 @@ body {
   --fcb-sheet-page-control-color: var(--fcb-control-text);
   --fcb-sheet-page-control-bg: rgb(192, 192, 192);
   --fcb-sheet-page-control-bg-hover: var(--fcb-sheet-page-control-bg);
-  --fcb-icon-background: var(--fcb-primary);
+  --fcb-icon-background: var(--fcb-surface-shaded);
   --fcb-icon-shadow: rgba(0, 0, 0, 0.4);
   --fcb-icon-outline: rgba(0, 0, 0, 0.4);
   --fcb-home-color: var(--fcb-text);

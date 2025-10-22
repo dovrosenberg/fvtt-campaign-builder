@@ -172,11 +172,16 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   /** note that you need to load the actor before calling this */
   get name(): string {
     if (this.topic !== Topics.PC || this._clone.name)
-      return this._clone.name;
+      return super.name;
     else 
       return `<${localize('placeholders.linkToActor')}>`;
   }
 
+  /** required because get name() exists */
+  set name(value: string) {
+    super.name = value;
+  }
+  
   get tags(): TagInfo[] {
     // @ts-ignore
     return this._clone.system.tags;
@@ -379,8 +384,9 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
 
     // Update the to-do list if in play mode
     const campaign = usePlayingStore().currentPlayedCampaign;
-    if (useMainStore().isInPlayMode && campaign) {
-      await campaign.mergeToDoItem(ToDoTypes.Entry, `Edited during session ${campaign.currentSession?.number}`, this.uuid);
+    const sessionNumber = campaign?.currentSessionNumber;
+    if (useMainStore().isInPlayMode && campaign && sessionNumber!==null) {
+      await campaign.mergeToDoItem(ToDoTypes.Entry, `Edited during session ${sessionNumber}`, this.uuid);
     }
   }
 

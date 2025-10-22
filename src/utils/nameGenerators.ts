@@ -189,7 +189,7 @@ async function createSettingRollTable(type: GeneratorType, folderId: string, set
   const table = await RollTable.create({
     name: tableName,
     folder: folderId,
-    description: `${localize('applications.rollTableSettings.tableDescription')}-${setting.name}-${type}`,
+    description: `${localize('applications.rollTableSettings.tableDescription')} ${setting.name}-${type}`,
     formula: `1d${TABLE_SIZE}`,
     replacement: false, // Don't replace drawn results
     displayRoll: false, // Don't display the roll publicly
@@ -240,7 +240,7 @@ export const refreshSettingRollTable = async (rollTable: RollTable, setting: FCB
     if (drawnResults.length > 0) {
       await rollTable.updateEmbeddedDocuments("TableResult", drawnResults.map((id: string, i: number) => ({
         _id: id,
-        text: newResults[i],
+        name: newResults[i],
         drawn: false,
       })));
     }
@@ -252,7 +252,7 @@ export const refreshSettingRollTable = async (rollTable: RollTable, setting: FCB
         newResults.slice(numUsed).map((val: string, index: number) => ({
           type: CONST.TABLE_RESULT_TYPES.TEXT,
           drawn: false,
-          text: val,
+          name: val,
           weight: 1,
           range: [rollTable.results.size + index + 1, rollTable.results.size + index + 1],
         }))
@@ -366,7 +366,7 @@ export const updateSettingRollTableNames = async(setting: FCBSetting) : Promise<
       const newName = `${setting.name} - ${type.charAt(0).toUpperCase() + type.slice(1)} Generator`;
       await table.update({
         name: newName,
-        description: `${localize('applications.rollTableSettings.tableDescription')}-${type} for ${setting.name}`
+        description: `${localize('applications.rollTableSettings.tableDescription')} ${setting.name}-${type} for ${setting.name}`
       });
     }
   }

@@ -15,6 +15,7 @@ const fcbVariables = {
     fcbControlBg: '#fff',
     fcbRing: 'hsl(22 100% 55%)',
     fcbControlBorder: 'hsl(210 10% 82%)',
+    fcbControlBorderFocus: 'hsl(22 100% 55%)',
     fcbSheetInputBorder: 'rgb(122, 121, 113)',
     fcbSplitterGutter: 'hsl(210 10% 82%)',
   },
@@ -24,6 +25,7 @@ const fcbVariables = {
     fcbControlBg: 'hsl(210, 12%, 18%)',
     fcbRing: 'hsl(22 100% 55%)',
     fcbControlBorder: 'hsl(210 12% 24%)',
+    fcbControlBorderFocus: 'hsl(22 100% 55%)',
     fcbSheetInputBorder: 'rgb(122, 121, 113)',
     fcbSplitterGutter: 'hsl(210 10% 28%)',
   },
@@ -80,15 +82,15 @@ export default definePreset(Aura, {
           color: fcbVariables.light.fcbText,
           background: fcbVariables.light.fcbControlBg,
           borderColor: fcbVariables.light.fcbControlBorder,
-          focusBorderColor: fcbVariables.light.fcbRing,  // change to var
-          focusRingColor: foundryVariables.colorWarm2,
+          focusBorderColor: fcbVariables.light.fcbControlBorderFocus, 
+          focusRingColor: fcbVariables.light.fcbRing,
         },
         dark: {
           color: fcbVariables.dark.fcbText,
           background: fcbVariables.dark.fcbControlBg,
           borderColor: fcbVariables.dark.fcbControlBorder,
-          focusBorderColor: fcbVariables.dark.fcbRing,  // change to var
-          focusRingColor: foundryVariables.colorWarm2,
+          focusBorderColor: fcbVariables.dark.fcbControlBorderFocus,  
+          focusRingColor: fcbVariables.dark.fcbRing,
         }
       },
  
@@ -106,7 +108,7 @@ export default definePreset(Aura, {
     checkbox: {
       colorScheme: {
         light: {
-          background: fcbVariables.fcbDarkOverlay,
+          // background: fcbVariables.fcbDarkOverlay,
           hoverBackground: fcbVariables.fcbDarkOverlay,
           borderColor: fcbVariables.fcbButtonBorderColor,
           checked: {
@@ -125,7 +127,7 @@ export default definePreset(Aura, {
           focusBorderColor: 'black',
         },
         dark: {
-          background: fcbVariables.fcbLightOverlay,
+          // background: fcbVariables.fcbLightOverlay,
           hoverBackground: fcbVariables.fcbLightOverlay,
           borderColor: fcbVariables.fcbButtonBorderColor,
           checked: {
