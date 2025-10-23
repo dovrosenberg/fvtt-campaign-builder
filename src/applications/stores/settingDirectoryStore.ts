@@ -231,10 +231,12 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     // then, update all of the child's descendants ancestor fields with that set of changes
     if (ancestorsToAdd || ancestorsToRemove) {
-      const hierarchies = currentSetting.value.hierarchies;
-
       // we switch to entries because of all the data retrieval
       const doUpdateOnDescendants = async (entry: Entry): Promise<void> => {
+        // Re-fetch hierarchies each time to avoid stale references after saves
+        // This was a tricky bug but setting is getting replaced during the recusion (whenever hierarchies are saved)
+        //    so we need to make sure we're not using a stale version (because it ends up in a broken state)
+        const hierarchies = currentSetting.value!.hierarchies;
         const children = hierarchies[entry.uuid]?.children || [];
 
         // this seems safe, despite 
@@ -274,9 +276,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     await topicFolder.save();
 
     // force current entry to refresh if needed
-    if ([childId, parentId].includes(currentEntry.value?.uuid || null)) {
-      refreshCurrentEntry.value = true;      
-    }
+    const needCurrentRefresh = [childId, parentId].includes(currentEntry.value?.uuid || null);
 
     // if we have a valid parent - make sure it's expanded
     if (parentId && currentSetting.value) {
@@ -284,6 +284,12 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     }
 
     await refreshSettingDirectoryTree([parentId, oldParentId, childId].filter((id)=>id!==null));
+
+    // wait for the tree to be rebuilt first or we get race conditions with the
+    //   status of currentSetting.hierarchies
+    if (needCurrentRefresh) {
+      refreshCurrentEntry.value = true;      
+    }
 
     return true;
   };
@@ -573,6 +579,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       [Topics.PC]: [],
     };
 
+    // note this is safe only because setting doesn't get updated during the loop below
     const hierarchies = currentSetting.value.hierarchies;
 
     const regex = new RegExp( filterText.value, 'iu');  // do case insensitive search
