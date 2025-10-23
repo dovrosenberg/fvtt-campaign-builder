@@ -155,12 +155,12 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (!currentSetting.value)
       return false;
 
-    // we're going to use this to simplify syntax below
-    const saveHierarchyToEntryFromNode = async (entry: Entry, node: DirectoryEntryNode) : Promise<void> => {
+    // Batch hierarchy updates - update the object directly without saving
+    const updateHierarchyFromNode = (entryUuid: string, node: DirectoryEntryNode) : void => {
       if (!currentSetting.value)
         return;
 
-      await currentSetting.value.setEntryHierarchy(entry.uuid, node.convertToHierarchy());
+      currentSetting.value.hierarchies[entryUuid] = node.convertToHierarchy();
     };
 
     // topic has to have hierarchy
@@ -200,7 +200,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
         const oldParentNode = await DirectoryEntryNode.fromEntry(oldParent);
         if (oldParentNode) {
           oldParentNode.children = oldParentNode.children.filter((c)=>c!==childId);
-          await saveHierarchyToEntryFromNode(oldParent, oldParentNode);
+          updateHierarchyFromNode(oldParent.uuid, oldParentNode);
         }
       }
     }
@@ -210,17 +210,17 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (parent && parentNode) {   
       // add the child to the children list of the parent (if it has a parent)
       parentNode.children = [...parentNode.children, childId];
-      await saveHierarchyToEntryFromNode(parent, parentNode);
+      updateHierarchyFromNode(parent.uuid, parentNode);
 
       // set the parent and the ancestors of the child (ancestors = parent + parent's ancestors)
       childNode.parentId = parentId;
       childNode.ancestors = parentNode.ancestors.concat(parentId ? [parentId] : []);
-      await saveHierarchyToEntryFromNode(child, childNode);
+      updateHierarchyFromNode(child.uuid, childNode);
     } else {
       // parent and ancestors are null
       childNode.parentId = null;
       childNode.ancestors = [];
-      await saveHierarchyToEntryFromNode(child, childNode);
+      updateHierarchyFromNode(child.uuid, childNode);
     }
 
     // recalculate the ancestor lists for all of the descendants of the child
@@ -233,13 +233,9 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (ancestorsToAdd || ancestorsToRemove) {
       // we switch to entries because of all the data retrieval
       const doUpdateOnDescendants = async (entry: Entry): Promise<void> => {
-        // Re-fetch hierarchies each time to avoid stale references after saves
-        // This was a tricky bug but setting is getting replaced during the recusion (whenever hierarchies are saved)
-        //    so we need to make sure we're not using a stale version (because it ends up in a broken state)
         const hierarchies = currentSetting.value!.hierarchies;
         const children = hierarchies[entry.uuid]?.children || [];
 
-        // this seems safe, despite 
         for (let i=0; i<children?.length; i++) {
           const child = await Entry.fromUuid(children[i]);
 
@@ -250,7 +246,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
           childNode.ancestors = childNode.ancestors.filter(a => !ancestorsToRemove.includes(a));
           childNode.ancestors = childNode.ancestors.concat(ancestorsToAdd);
 
-          await saveHierarchyToEntryFromNode(child, childNode);
+          updateHierarchyFromNode(child.uuid, childNode);
 
           // now do it's kids
           await doUpdateOnDescendants(child);
@@ -273,15 +269,20 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     }
     
     topicFolder.topNodes = topNodes;
+
+    // if we have a valid parent - make sure it's expanded (batch with save below)
+    if (parentId && currentSetting.value) {
+      currentSetting.value.expandedIds[parentId] = true;
+    }
+
+    // Save all hierarchy and expandedIds changes in one batch
+    await currentSetting.value.save();
+    
+    // Save topicFolder separately
     await topicFolder.save();
 
     // force current entry to refresh if needed
     const needCurrentRefresh = [childId, parentId].includes(currentEntry.value?.uuid || null);
-
-    // if we have a valid parent - make sure it's expanded
-    if (parentId && currentSetting.value) {
-      await currentSetting.value.expandNode(parentId);
-    }
 
     await refreshSettingDirectoryTree([parentId, oldParentId, childId].filter((id)=>id!==null));
 
