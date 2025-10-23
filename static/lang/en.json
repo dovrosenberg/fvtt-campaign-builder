@@ -635,7 +635,8 @@
       }
     },
     "errors": {
-      "duplicateBookmark": "Already stored as a bookmark"
+      "duplicateBookmark": "Already stored as a bookmark",
+      "nameRequired": "Name cannot be blank"
     }
   }
 }

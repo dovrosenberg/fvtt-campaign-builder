@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, onMounted, computed, } from 'vue';
+  import { ref, watch, onMounted, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports

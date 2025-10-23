@@ -372,6 +372,19 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
    * @returns {Promise<void>} A promise that resolves after the update
    */
   public async save(): Promise<void> {
+    const needNameUpdate = this._clone.name !== this._doc.name;
+
+    // we attempt to save first - because if it fails, we don't 
+    //    want to adjust anything else
+    try {
+      this._clone.system.relationships = cleanTopicKeysOnSave(this._clone.system.relationships)
+
+      // this will reload relationships with a valid value
+      await super.save();        
+    } catch (error) {
+      throw error;
+    }
+
     const setting = await this.getSetting();
 
     // add the type to the master list if it was changed and doesn't exist
@@ -382,16 +395,11 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     }
 
     // update name index if it changed
-    if (this._clone.name !== this._doc.name) {
+    if (needNameUpdate) {
       const topicFolder = await this.getTopicFolder();
       topicFolder.entries[this.uuid] = this._clone.name;
       await topicFolder.save();
     }
-
-    this._clone.system.relationships = cleanTopicKeysOnSave(this._clone.system.relationships)
-
-    // this will reload relationships with a valid value
-    await super.save();        
 
     // Update the search index and to-do list
     await searchService.addOrUpdateEntryIndex(this, setting);

@@ -265,7 +265,7 @@
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { notifyInfo } from '@/utils/notifications';  
+  import { notifyInfo, notifyWarn } from '@/utils/notifications';  
   import { updateEntryDialog } from '@/dialogs/createEntry';
 
   // library components
@@ -452,6 +452,14 @@
 
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
+      
+      // name can't be blank
+      if (newValue.trim() === '') {
+        notifyWarn('errors.nameRequired');
+        name.value = currentEntry.value?.name!;
+        return;
+      }
+
       if (currentEntry.value && currentEntry.value.name!==newValue) {
         currentEntry.value.name = newValue;
         await currentEntry.value.save();

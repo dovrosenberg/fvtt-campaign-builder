@@ -111,6 +111,7 @@
   import { useMainStore, useNavigationStore, useSettingDirectoryStore } from '@/applications/stores';
   import { updateWindowTitle } from '@/utils/titleUpdater';
   import { Backend } from '@/classes';
+  import { notifyWarn } from '@/utils/notifications';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -170,6 +171,14 @@
     
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
+
+      // name can't be blank
+      if (newValue.trim() === '') {
+        notifyWarn('errors.nameRequired');
+        name.value = currentSetting.value?.name!;
+        return;
+      }
+
       if (currentSetting.value && currentSetting.value.name!==newValue) {
         currentSetting.value.name = newValue;
         await currentSetting.value.save();

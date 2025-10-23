@@ -519,23 +519,29 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public async save() {
     const nameChanged = this._clone.name !== this._doc.name;
 
-    // convert unsafe keys
-    this.hierarchies = cleanKeysOnSave(this.hierarchies);
-    this.campaignNames = cleanKeysOnSave(this.campaignNames);
-    this.expandedIds = cleanKeysOnSave(this.expandedIds);
+    // we attempt to save first - because if it fails, we don't 
+    //    want to adjust anything else
+    try {
+      // convert unsafe keys
+      this.hierarchies = cleanKeysOnSave(this.hierarchies);
+      this.campaignNames = cleanKeysOnSave(this.campaignNames);
+      this.expandedIds = cleanKeysOnSave(this.expandedIds);
 
-    // populate the topic folders; important in case we changed anything in topics
-    this.populateTopics();
+      // populate the topic folders; important in case we changed anything in topics
+      this.populateTopics();
 
-    for (const topic in this.topics) {
-      this.topics[topic] = {
-        ...this.topics[topic],
-        entries: cleanKeysOnSave(this.topics[topic].entries)
+      for (const topic in this.topics) {
+        this.topics[topic] = {
+          ...this.topics[topic],
+          entries: cleanKeysOnSave(this.topics[topic].entries)
+        }
       }
-    }
 
-    // now save the setting - this will put clone back where it should be
-    await super.save();
+      // now save the setting - this will put clone back where it should be
+      await super.save();
+    } catch (error) {
+      throw error;
+    }
 
     // settings have long lived-cache... we need to refresh that in case we modified 
     //    something that was a copy

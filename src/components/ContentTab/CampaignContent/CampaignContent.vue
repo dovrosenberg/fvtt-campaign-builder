@@ -105,6 +105,7 @@
   import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { ModuleSettings, SettingKey } from '@/settings';
+  import { notifyWarn } from '@/utils/notifications';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -168,6 +169,14 @@
     
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
+
+      // name can't be blank
+      if (newValue.trim() === '') {
+        notifyWarn('errors.nameRequired');
+        name.value = currentCampaign.value?.name!;
+        return;
+      }
+
       if (currentCampaign.value && currentCampaign.value.name!==newValue) {
         currentCampaign.value.name = newValue;
         await currentCampaign.value.save();

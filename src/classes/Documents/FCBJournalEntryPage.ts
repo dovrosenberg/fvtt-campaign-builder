@@ -140,10 +140,12 @@ export class FCBJournalEntryPage<
    * Updates document in the database and updates the name on the parent
    *    journal entry if needed
    * 
+   * Throws an error on failure (ex. a foundry validation or other error)
+   * 
    */
   async save(): Promise<void> {
     if (!this._doc.parent)
-      return;
+      throw new Error(`Invalid journal entry page in FCBJournalEntryPage.save() ${this.uuid}`);
   
     try {
       // Sanitize HTML in custom fields before saving
