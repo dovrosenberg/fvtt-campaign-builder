@@ -75,6 +75,7 @@
                 <Editor
                     :initial-content="currentSetting.description || ''"
                     fixed-height="240px"
+                    :current-entity-uuid="currentSetting?.uuid"
                     @editor-saved="onDescriptionEditorSaved"
                   />
               </div>

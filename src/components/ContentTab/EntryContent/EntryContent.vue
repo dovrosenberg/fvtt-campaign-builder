@@ -149,6 +149,7 @@
                 <Editor
                     :initial-content="currentEntry?.roleplayingNotes || ''"
                     :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
+                    :current-entity-uuid="currentEntry?.uuid"
                     @editor-saved="onRolePlayingNotesSaved"
                   />
               </div>
@@ -187,6 +188,7 @@
                 <Editor
                     :initial-content="currentEntry?.roleplayingNotes || ''"
                     :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
+                    :current-entity-uuid="currentEntry?.uuid"
                     @editor-saved="onRolePlayingNotesSaved"
                   />
               </div>

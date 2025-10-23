@@ -87,6 +87,7 @@
                     :key="`strong-start-${currentSession?.uuid}-top`"
                     :initial-content="strongStartContent"
                     fixed-height="180px"
+                    :current-entity-uuid="currentSession?.uuid"
                     @editor-saved="onStartEditorSaved"
                   />
                 </div>
@@ -101,6 +102,7 @@
                 <Editor 
                   :initial-content="sessionNotesContent"
                   fixed-height="400px"
+                  :current-entity-uuid="currentSession?.uuid"
                   @editor-saved="onNotesEditorSaved"
                 />
               </div>
@@ -120,6 +122,7 @@
                     :key="`strong-start-${currentSession?.uuid}-bottom`"
                     :initial-content="strongStartContent"
                     fixed-height="180px"
+                    :current-entity-uuid="currentSession?.uuid"
                     @editor-saved="onStartEditorSaved"
                   />
                 </div>

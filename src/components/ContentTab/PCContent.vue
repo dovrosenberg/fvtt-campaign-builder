@@ -75,6 +75,7 @@
                         :initial-content="currentEntry?.background || ''"
                         :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
                         fixed-height="240px"
+                        :current-entity-uuid="currentEntry?.uuid"
                         @editor-saved="onBackgroundSaved"
                         @related-entries-changed="onRelatedEntriesChanged"
                         />
@@ -88,6 +89,7 @@
                       <Editor 
                         :initial-content="currentEntry?.plotPoints || ''"
                         :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+                        :current-entity-uuid="currentEntry?.uuid"
                         fixed-height="240px"
                         @editor-saved="onPlotPointsSaved"
                         @related-entries-changed="onRelatedEntriesChanged"
@@ -101,6 +103,7 @@
                     <div class="flexrow form-group">
                       <Editor 
                         :initial-content="currentEntry?.magicItems || ''"
+                        :current-entity-uuid="currentEntry?.uuid"
                         fixed-height="240px"
                         @editor-saved="onMagicItemsSaved"
                       />

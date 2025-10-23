@@ -43,6 +43,7 @@
                 <Editor 
                   :initial-content="currentCampaign?.description || ''"
                   fixed-height="240px"
+                  :current-entity-uuid="currentCampaign?.uuid"
                   @editor-saved="onDescriptionEditorSaved"
                 />
               </div>
@@ -56,6 +57,7 @@
                 <Editor 
                   :initial-content="currentCampaign?.houseRules || ''"
                   fixed-height="240px"
+                  :current-entity-uuid="currentCampaign?.uuid"
                   @editor-saved="onHouseRulesEditorSaved"
                 />
               </div>
