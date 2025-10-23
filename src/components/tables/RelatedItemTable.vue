@@ -46,6 +46,7 @@
   import { localize } from '@/utils/game';
   import { Entry } from '@/classes';
   import { getValidatedData } from '@/utils/dragdrop';
+  import { FCBDialog } from '@/dialogs';
 
   // library components
 
@@ -259,12 +260,14 @@
   // call mutation to remove item  from relationship
   const onDeleteItemClick = async function(_id: string) {
     // show the confirmation dialog 
-    await Dialog.confirm({
-      title: localize('dialogs.confirmDeleteRelationship.title'),
-      content: localize('dialogs.confirmDeleteRelationship.message'),
-      yes: () => { void relationshipStore.deleteRelationship(props.topic, _id); },
-      no: () => {},
-    });
+    const confirmed = await FCBDialog.confirmDialog(
+      localize('dialogs.confirmDeleteRelationship.title'),
+      localize('dialogs.confirmDeleteRelationship.message')
+    );
+    
+    if (confirmed) {
+      void relationshipStore.deleteRelationship(props.topic, _id);
+    }
   };
 
   const onCellEditComplete = async (event: { data: { uuid: string }; field: string; newValue: any; /* other PrimeVue event fields */ }) => {

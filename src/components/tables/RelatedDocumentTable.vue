@@ -36,6 +36,7 @@
   import { useRelationshipStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { getValidatedData, actorDragStart, itemDragStart } from '@/utils/dragdrop';
+  import { FCBDialog } from '@/dialogs';
 
   // library components
   import { DataTableRowContextMenuEvent } from 'primevue/datatable';
@@ -243,17 +244,17 @@
   // call mutation to remove item  from relationship
   const onDeleteItemClick = async (id: string) => {
     // show the confirmation dialog 
-    await Dialog.confirm({
-      title: localize('dialogs.confirmDeleteRelationship.title'),
-      content: localize('dialogs.confirmDeleteRelationship.message'),
-      yes: () => { 
-        if (props.documentLinkType===DocumentLinkType.Scenes)
-          void relationshipStore.deleteScene(id); 
-        else if (props.documentLinkType===DocumentLinkType.Actors)
-          void relationshipStore.deleteActor(id); 
-      },
-      no: () => {},
-    });
+    const confirmed = await FCBDialog.confirmDialog(
+      localize('dialogs.confirmDeleteRelationship.title'),
+      localize('dialogs.confirmDeleteRelationship.message')
+    );
+    
+    if (confirmed) {
+      if (props.documentLinkType===DocumentLinkType.Scenes)
+        void relationshipStore.deleteScene(id); 
+      else if (props.documentLinkType===DocumentLinkType.Actors)
+        void relationshipStore.deleteActor(id);
+    }
   };
 
   const onDragover = (event: DragEvent) => {

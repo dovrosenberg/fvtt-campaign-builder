@@ -1,36 +1,39 @@
-import { localize } from '@/utils/game';
+import { createApp } from 'vue';
+import InputDialogComponent from '@/components/InputDialog.vue';
 
 // creates a simple input dialog with the given title
 // returns the entered value or null if canceled
-export async function inputDialog(title: string, prompt: string): Promise<string | null> {
-  let response = null as string | null;
+export async function inputDialog(title: string, prompt: string, initialValue?: string): Promise<string | null> {
+  return new Promise<string | null>((resolve) => {
+    // Create a container for the dialog
+    const container = document.createElement('div');
+    document.body.appendChild(container);
 
-  const data = {prompt};
-  const inputContent = await renderTemplate('modules/campaign-builder/templates/InputDialog.hbs', data);
-
-  const dialog = {
-    title,
-    content: inputContent,
-    buttons: {
-      ok: {
-        label: localize('labels.ok'),
-        callback: (html: JQuery<HTMLElement>): void => { response = (html.find('#response')[0] as HTMLInputElement).value; },
+    // Create the Vue app
+    const app = createApp(InputDialogComponent, {
+      modelValue: true,
+      title,
+      message: prompt,
+      initialValue: initialValue || '',
+      'onUpdate:modelValue': (value: boolean) => {
+        if (!value) {
+          // Dialog was closed without a definitive answer
+          cleanup();
+        }
       },
-      cancel: {
-        label: localize('labels.cancel'),
-        callback:  () => { response = null; }
-      }
-    },
-    default: 'ok',
-  };
+      onResult: (result: string | null) => {
+        resolve(result);
+        cleanup();
+      },
+    });
 
-  // this uses the Foundry Dialog
-  try {
-    await Dialog.wait(dialog);
-  } catch (error) {
-    // it throws if you close the dialog
-    response = null;
-  }
+    // Mount the app
+    app.mount(container);
 
-  return response;
+    // Cleanup function
+    function cleanup() {
+      app.unmount();
+      document.body.removeChild(container);
+    }
+  });
 }
