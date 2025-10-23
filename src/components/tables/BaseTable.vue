@@ -80,6 +80,7 @@
             <InputText 
               v-model="pagination.filters.global.value"  
               data-testid="table-filter-input"
+              unstyled
               style="font-size: var(--font-size-14);"
               :placeholder="localize('placeholders.search')"
             />
@@ -215,6 +216,7 @@
                   :id="`${data.uuid}-${field}`" 
                   :data-testid="`table-textarea-${field}`"
                   rows="2"
+                  unstyled
                   @keydown.enter="saveCurrentlyEditingRow" 
                   @keydown.esc.stop="cancelEdit"
                 />
@@ -224,6 +226,7 @@
                   style="width: 100%; font-size: inherit;"
                   :id="`${data.uuid}-${field}`" 
                   :data-testid="`table-input-${field}`"
+                  unstyled
                   @keydown.enter.stop="saveCurrentlyEditingRow" 
                   @keydown.esc.stop="cancelEdit"
                 />

@@ -31,6 +31,7 @@
                   :id="field.field"
                   v-model="extraFieldValuesObj[field.field]"
                   type="text"
+                  unstyled
                   class="field-input"
                   :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
                 />

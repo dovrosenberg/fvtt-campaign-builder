@@ -2,7 +2,7 @@ body {
   --fcb-name-font-family: 'Inter', 'Signika', sans-serif;
   --fcb-font-family: 'Inter', 'Signika', sans-serif;
 
-  --fcb-dark-overlay: rgba(0, 0, 0, 0.05);
+  --fcb-dark-overlay: rgba(0, 0, 0, 0.10);
   --fcb-light-overlay: rgba(255, 255, 255, 0.10);
 
   --fcb-primary-h: 164;  // hunter green
@@ -100,6 +100,7 @@ body {
   /* Controls */
   --fcb-control-bg:        var(--fcb-surface);
   --fcb-control-bg-alt:    var(--fcb-surface-2);
+  --fcb-control-bg-hover:  var(--fcb-dark-overlay);
   --fcb-control-text:      var(--fcb-text);
   --fcb-control-text-muted:      var(--fcb-text-muted);
   --fcb-control-placeholder: var(--fcb-gray-500);
@@ -167,6 +168,7 @@ body.theme-dark {
 
   --fcb-control-bg:        var(--fcb-surface);
   --fcb-control-bg-alt:    var(--fcb-surface-2);
+  --fcb-control-bg-hover:  var(--fcb-dark-overlay);
   --fcb-control-text:      var(--fcb-text);
   --fcb-control-text-muted:      var(--fcb-text-muted);
   --fcb-control-placeholder: hsl(210 10% 65%);
