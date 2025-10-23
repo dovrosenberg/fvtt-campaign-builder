@@ -455,7 +455,7 @@
       
       // name can't be blank
       if (newValue.trim() === '') {
-        notifyWarn('errors.nameRequired');
+        notifyWarn(localize('errors.nameRequired'));
         name.value = currentEntry.value?.name!;
         return;
       }
