@@ -8,7 +8,7 @@ import { localize } from '@/utils/game';
 import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
 import { Backend } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents/types';
-import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
+import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Documents/FCBJournalEntryPage';
 import { entryIndexFields, NameStyleExample, TopicFlatType } from '@/documents';
 import { cleanKeysOnSave, } from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
@@ -67,22 +67,8 @@ type SettingCompendium = CompendiumCollection<'JournalEntry'>;
 
 type SettingDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Setting>;
 
-type FCBSettingConstructor<
-  DocType extends typeof DOCUMENT_TYPES.Setting = typeof DOCUMENT_TYPES.Setting,
-  DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>
-> = {
-  // constructor
-  new (doc: DocClass, ...args: any[]): FCBSetting;
-  // required statics used by base helpers
-  _defaultSystem: DocClass['system'];
-  _folderName: string;
-  _documentType: DocType;
-};
-
-
 // represents a campaign setting
 export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Setting> {
-  static override _folderName = '';  // put it in the root
   static override _documentType = DOCUMENT_TYPES.Setting;
   static override _defaultSystem = { 
     topics: {
@@ -110,9 +96,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public topicFolders: Record<ValidTopic, TopicFolder> = {} as Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using populate()), so we assume it's never empty
     
   static override async fromUuid<
-    DocType extends typeof DOCUMENT_TYPES.Setting = typeof DOCUMENT_TYPES.Setting,
-    DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>,
-    T extends FCBSettingConstructor<DocType, DocClass>=FCBSettingConstructor<DocType, DocClass>
+    T extends FCBJournalEntryPageStatic<any, any>
   > (this: T, settingId: string): Promise<InstanceType<T> | null> { 
     const setting = await super.fromUuid(settingId) as unknown as (FCBSetting | null);
     
@@ -344,7 +328,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         throw new Error('Failed to create compendium in FCBSetting.create()');
     }
 
-    const newSetting = await super._create(compendiumId, nameToUse) as unknown as FCBSetting | null;
+    const newSetting = await super._create(compendiumId, nameToUse, '') as unknown as FCBSetting | null;
 
     if (!newSetting)
       return null;

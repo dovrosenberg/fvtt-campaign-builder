@@ -13,7 +13,6 @@ import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntr
 type SessionDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Session>;
 
 export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> {
-  static override _folderName = 'Sessions';
   static override _documentType = DOCUMENT_TYPES.Session;
   static override _defaultSystem = { 
     campaignId: '',  
@@ -92,6 +91,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     const session = await super._create(
       campaign.compendiumId, 
       nameToUse,
+      'Sessions',
       { system: { campaignId: campaign.uuid, number: sessionNumber }}
     ) as unknown as Session | null;
 

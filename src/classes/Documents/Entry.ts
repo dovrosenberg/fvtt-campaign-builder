@@ -18,7 +18,6 @@ type EntryDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Entry>;
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
-  static override _folderName = 'Entries';
   static override _documentType = DOCUMENT_TYPES.Entry;
   static override _defaultSystem = { 
     topic: Topics.None,  
@@ -107,7 +106,21 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   {
     const topicText = getTopicText(topicFolder.topic);
     const promptText = topicFolder.topic === Topics.PC ? localize('dialogs.createPC.playerName') : `${topicText} Name:`;
-
+    let folderName = '';
+    switch (topicFolder.topic) {
+      case Topics.Character:
+        folderName = 'Characters';
+        break;
+      case Topics.Location:
+        folderName = 'Locations';
+        break;
+      case Topics.Organization:
+        folderName = 'Organizations';
+        break;
+      case Topics.PC:
+        folderName = 'PCs';
+        break;
+    }
     const setting = topicFolder.setting;
 
     let nameToUse: string | null = options.name || null;
@@ -123,6 +136,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     const entry = await super._create(
       setting.compendiumId,
       nameToUse,
+      folderName,
       { system: {
         playerName: topicFolder.topic === Topics.PC ? nameToUse : '',
         actorId: null,

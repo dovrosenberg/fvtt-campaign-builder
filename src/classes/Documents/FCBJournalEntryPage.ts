@@ -23,7 +23,6 @@ export type FCBJournalEntryPageStatic<
   new (entry: JournalEntry, ...args: any[]): FCBJournalEntryPage<DocType, DocClass>;
   // required statics used by base helpers
   _defaultSystem: DocClass['system'];
-  _folderName: string;
   _documentType: DocType;
 };
 
@@ -35,7 +34,6 @@ export class FCBJournalEntryPage<
   protected _doc: DocClass;
 
   static _defaultSystem: DocClassOf<any>['system'];
-  static _folderName: string;
   static _documentType: ValidDocType;
 
   constructor(journalEntry: JournalEntry) {
@@ -197,7 +195,7 @@ export class FCBJournalEntryPage<
     DocType extends ValidDocType,
     DocClass extends JournalEntryPage<DocType>,
     T extends FCBJournalEntryPageStatic<DocType, DocClass>
-  > (this: T, compendiumId: string, name: string, initialData: Record<string, unknown> = {}): Promise<InstanceType<T> | null> {
+  > (this: T, compendiumId: string, name: string, folderName: string, initialData: Record<string, unknown> = {}): Promise<InstanceType<T> | null> {
     // find the folder it goes in 
     const pack = game.packs.get(compendiumId);
 
@@ -205,33 +203,34 @@ export class FCBJournalEntryPage<
       throw new Error(`Invalid compendium in FCBJournalEntryPage ${compendiumId}`);
 
     let folder;
-    if (this._folderName) {
-      folder = pack?.folders.find(f => f.name === this._folderName);
+    if (folderName) {
+      folder = pack?.folders.find(f => f.name === folderName);
       if (!folder) {
         // make it
-        const folders = await Folder.createDocuments([{
-          name: this._folderName,
-          type: 'JournalEntry' as const,
-          sorting: 'a' as const,
-        }], { pack: compendiumId });
-    
-        if (!folders)
-          throw new Error('Invalid folder in FCBJournalEntryPage.create()');
-    
-        folder = folders[0];
+        // we're just going to hardcode this for now, but Entries go inside the Entries folders
+        if (!['Characters', 'Locations', 'Organizations', 'PCs'].includes(folderName)) {
+          folder = await makeFolder(folderName, compendiumId);
+        } else {
+          // make sure the Entries folder exists
+          let entryFolder = pack?.folders.find(f => f.name === 'Entries');
+          if (!entryFolder) {
+            entryFolder = await makeFolder('Entries', compendiumId);
+          }
+
+          folder = await makeFolder(folderName, compendiumId, entryFolder?.id)
+        }
       }
     }
 
     const options = { 
       name,
+      folder: folder?.id ? folder.id : undefined,
       flags: {
         [moduleId]: {
           [JournalEntryFlagKey.campaignBuilderType]: this._documentType
         }
       }
-    } as { name: string; folder?: string; flags: Record<string, any> };
-    if (this._folderName)
-      options.folder = folder.id;
+    };
 
     // create a wrapping journal entry for the content with flag set during creation
     const journalEntry = await JournalEntry.create(options, { pack: compendiumId });
@@ -260,4 +259,20 @@ export class FCBJournalEntryPage<
     return new this(journalEntry) as InstanceType<T>;
   }
   
+}
+
+async function makeFolder(folderName: string, compendiumId: string, parentFolderId?: string): Promise<Folder<'JournalEntry'>> {
+  const options = { 
+    name: folderName,
+    folder: parentFolderId ? parentFolderId : undefined,
+    type: 'JournalEntry' as const,
+    sorting: 'a' as const,
+  };
+
+  const folders = await Folder.createDocuments([options], { pack: compendiumId });
+      
+  if (!folders)
+    throw new Error('Invalid folder in FCBJournalEntryPage.makeFolder()');
+
+  return folders[0] as Folder<'JournalEntry'>;
 }

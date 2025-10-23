@@ -13,7 +13,6 @@ type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign> {
-  static override _folderName = 'Campaigns';
   static override _documentType = DOCUMENT_TYPES.Campaign;
   static override _defaultSystem = { 
     description: '',  
@@ -388,7 +387,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       return null;
     
     // create a journal entry for the campaign
-    const campaign = await super._create(setting.compendiumId, nameToUse) as unknown as Campaign;  
+    const campaign = await super._create(setting.compendiumId, nameToUse, 'Campaigns') as unknown as Campaign;  
 
     if (!campaign)
       throw new Error('Couldn\'t create new journal entry for campaign');
