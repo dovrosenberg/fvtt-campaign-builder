@@ -8,7 +8,6 @@ import { theme } from '@/components/styles/primeVue';
 import { useMainStore, usePlayingStore } from '@/applications/stores';
 import { FCBDialog } from '@/dialogs';
 import SessionNotes from '@/components/applications/SessionNotes.vue';
-import { SuperCall } from 'typescript';
 
 const { ApplicationV2 } = foundry.applications.api;
 
@@ -73,7 +72,9 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
               await session.save();
 
             // refresh the content in case we're looking at the notes page for that session
-            await useMainStore().refreshCurrentContent();
+            if (useMainStore().currentSession?.uuid === session.uuid) {
+              await useMainStore().refreshSession(true);
+            }
           }
         }
       }
@@ -103,21 +104,25 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
         },
       }
     }
-  };
+  };  
 }
 
 // Function to open the session notes window
 export async function openSessionNotes(sessionNumber: number, forceReset = true): Promise<void> {
   // if it's open, we either just activate it or close and reopen
   if (SessionNotesApplication.app) {
-    if (forceReset) {
-      // Create and render the application
-      await SessionNotesApplication.app.close();
-    } else {
-      // just activate it
+    // Check if the session number matches the current title
+    const currentSessionNumber = SessionNotesApplication.title.match(/Session (\d+)/)?.[1];
+    const isSameSession = currentSessionNumber === String(sessionNumber);
+
+    if (!forceReset || isSameSession) {
+      // just activate it - don't close and reopen
       await SessionNotesApplication.app.render(true);
       return;
     }
+
+    // Different session with forceReset - close and recreate
+    await SessionNotesApplication.app.close();
   }
 
   // setup and render a new one

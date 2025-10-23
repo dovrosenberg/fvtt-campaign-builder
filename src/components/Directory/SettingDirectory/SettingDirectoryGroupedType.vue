@@ -18,6 +18,7 @@
         </div>
         <div 
           class="fcb-directory-type"
+          @click="onTypeToggleClick"
           @drop="onDrop"
           @dragover="onDragover"
           @contextmenu="onTypeContextMenu"
