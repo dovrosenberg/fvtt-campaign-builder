@@ -281,14 +281,13 @@
           <!-- STANDARD -->
           <div v-else>
             <div 
-              :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
-                      col.onClick ? 'clickable' : '']"
+              :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '']"
               @dragover="onDragoverRow($event, data.uuid)"
               @dragleave="onDragLeaveRow(data.uuid)"
               @drop="onDropRow($event, data.uuid)"
             >
               <div
-                :class="['fcb-table-body-text']"
+                :class="['fcb-table-body-text', col.onClick ? 'clickable' : '']"
                 @click.stop="col.onClick && col.onClick($event, data.uuid)"
               >
                 <span :style="col.onClick ? 'text-decoration: underline;' : ''">
