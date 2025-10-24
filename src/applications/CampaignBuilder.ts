@@ -202,7 +202,6 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
 
       const docSettingId = (new Entry(doc))?.settingId;
 
-      // we do it by compendiumId because it doesn't require loading the doc into a class
       if (mainStore.currentSetting?.uuid !== docSettingId) {
         // Map DOCUMENT_TYPES to WindowTabType
         const docTypeToWindowTabType: Record<string, WindowTabType> = {
