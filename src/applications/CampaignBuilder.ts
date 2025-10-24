@@ -13,7 +13,10 @@ import { DOCUMENT_TYPES } from '@/documents';
 import { MigrationManager } from '@/utils/migration';
 import { notifyError } from '@/utils/notifications';
 import { localize } from '@/utils/game';
-import { Entry } from '@/classes';
+import { Entry, WindowTab, getGlobalSetting, Campaign, Session } from '@/classes';
+import { UserFlagKey, UserFlags } from '@/settings';
+import { WindowTabType, TabHeader } from '@/types';
+import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
 
 // setup pinia
 
@@ -194,29 +197,102 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
 
     if (docType && uuid) {
       // Before opening the content, check if it belongs to a different setting
-      // If so, switch settings first (this handles opening from compendium, map, etc.)
+      // If so, create a tab for it in the target setting, then switch settings
+      // This avoids a race condition where we try to open content before tabs are loaded
       const mainStore = useMainStore();
 
       const docSettingId = (new Entry(doc))?.settingId;
 
       // we do it by compendiumId because it doesn't require loading the doc into a class
       if (mainStore.currentSetting?.uuid !== docSettingId) {
+        // Load the document to get its name and prepare tab data
+        let name = '';
+        let icon = '';
+        let contentType: WindowTabType = WindowTabType.NewTab;
+        
+        switch (docType) {
+          case DOCUMENT_TYPES.Campaign: {
+            const campaign = await Campaign.fromUuid(uuid);
+            name = campaign?.name || 'Campaign';
+            icon = getTabTypeIcon(WindowTabType.Campaign);
+            contentType = WindowTabType.Campaign;
+            break;
+          }
+          case DOCUMENT_TYPES.Session: {
+            const session = await Session.fromUuid(uuid);
+            name = `${localize('labels.session.session')} ${session?.number || ''}`;
+            icon = getTabTypeIcon(WindowTabType.Session);
+            contentType = WindowTabType.Session;
+            break;
+          }
+          case DOCUMENT_TYPES.Setting: {
+            const setting = await getGlobalSetting(uuid);
+            name = setting?.name || 'Setting';
+            icon = getTabTypeIcon(WindowTabType.Setting);
+            contentType = WindowTabType.Setting;
+            break;
+          }
+          case DOCUMENT_TYPES.Entry: {
+            const entry = await Entry.fromUuid(uuid);
+            name = entry?.name || 'Entry';
+            icon = getTopicIcon(entry?.topic);
+            contentType = WindowTabType.Entry;
+            break;
+          }
+        }
+
+        // Get the default content tab for this type
+        const defaultContentTab = {
+          [WindowTabType.Entry]: 'description',
+          [WindowTabType.Setting]: 'description',
+          [WindowTabType.Campaign]: 'description',
+          [WindowTabType.Session]: 'notes',
+          [WindowTabType.NewTab]: '',
+        } as Record<WindowTabType, string>;
+
+        // Create the tab header
+        const headerData: TabHeader = { uuid: uuid, name: name, icon: icon };
+
+        // Create a new tab for this content
+        const newTab = new WindowTab(
+          true,  // active
+          headerData,
+          uuid,
+          contentType,
+          null,  // generate new ID
+          defaultContentTab[contentType]
+        );
+
+        // Load existing tabs for the target setting
+        const existingTabs = UserFlags.get(UserFlagKey.tabs, docSettingId) || [];
+        
+        // Mark all existing tabs as inactive
+        existingTabs.forEach((t: WindowTab) => t.active = false);
+        
+        // Add the new tab
+        existingTabs.push(newTab);
+        
+        // Save the tabs to the target setting
+        await UserFlags.set(UserFlagKey.tabs, existingTabs, docSettingId);
+        
+        // Now switch settings - the tab will be loaded automatically by the watcher
         await mainStore.setNewSetting(docSettingId);
-      }
-      
-      switch (docType) {
-        case DOCUMENT_TYPES.Campaign:
-          useNavigationStore().openCampaign(uuid);
-          break;
-        case DOCUMENT_TYPES.Session:
-          useNavigationStore().openSession(uuid);
-          break;
-        case DOCUMENT_TYPES.Setting:
-          useNavigationStore().openSetting(uuid);
-          break;
-        case DOCUMENT_TYPES.Entry:
-          useNavigationStore().openEntry(uuid);
-          break;
+      } else {
+        // Same setting, just open the content normally
+        switch (docType) {
+          case DOCUMENT_TYPES.Campaign:
+            useNavigationStore().openCampaign(uuid);
+            break;
+          case DOCUMENT_TYPES.Session:
+            useNavigationStore().openSession(uuid);
+            break;
+          case DOCUMENT_TYPES.Setting:
+            useNavigationStore().openSetting(uuid);
+            break;
+          case DOCUMENT_TYPES.Entry:
+            useNavigationStore().openEntry(uuid);
+            break;
+        }
       }
     } else {
       throw new Error('Attempt to open invalid journal entry in CampaignBuilderApplication _onFirstRender')
