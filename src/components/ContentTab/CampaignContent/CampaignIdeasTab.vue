@@ -14,12 +14,15 @@
       :edit-item-label="localize('tooltips.editRow')"
       :delete-item-label="localize('tooltips.deleteIdea')"
       :show-move-to-campaign="false"
+      :show-move-to-to-do="true"
+      :move-to-to-do-label="localize('tooltips.moveToToDo')"
       :draggable-rows="false"
       :can-reorder="true"
       @delete-item="onDeleteIdea"
       @add-item="onAddIdea"
       @cell-edit-complete="onCellEditComplete"
       @reorder="onReorder"
+      @move-to-to-do="onMoveToToDo"
     >
     </BaseTable>
   </div>
@@ -118,6 +121,10 @@
       return { ...idea, sortOrder: index };
     });
     await campaignStore.reorderIdeas(reorderedIdeas);
+  };
+
+  const onMoveToToDo = async (uuid: string) => {
+    await campaignStore.moveIdeaToToDo(uuid);
   };
 
   ////////////////////////////////

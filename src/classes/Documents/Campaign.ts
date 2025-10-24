@@ -372,6 +372,40 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   /**
+   * Moves an idea to the to-do list
+   * @param uuid The UUID of the idea to move
+   */
+  public async moveIdeaToToDo(uuid: string): Promise<void> {
+    const idea = this._clone.system.ideas.find(i => i.uuid === uuid);
+    if (!idea)
+      return;
+
+    // Create a new to-do item with the idea's text
+    await this.addNewToDoItem(ToDoTypes.Manual, idea.text);
+
+    // Remove the idea
+    this._clone.system.ideas = this._clone.system.ideas.filter(i => i.uuid !== uuid);
+    await this.save();
+  }
+
+  /**
+   * Moves a to-do item to the ideas list
+   * @param uuid The UUID of the to-do item to move
+   */
+  public async moveToDoToIdea(uuid: string): Promise<void> {
+    const toDo = this._clone.system.todoItems.find(i => i.uuid === uuid);
+    if (!toDo)
+      return;
+
+    // Create a new idea with the to-do's text
+    await this.addIdea(toDo.text);
+
+    // Remove the to-do item
+    this._clone.system.todoItems = this._clone.system.todoItems.filter(i => i.uuid !== uuid);
+    await this.save();
+  }
+
+  /**
    * Creates a new campaign.  Prompts for a name.
    * 
    * @param {FCBSetting} setting - The setting to create the campaign in. 

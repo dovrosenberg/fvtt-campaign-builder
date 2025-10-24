@@ -135,6 +135,24 @@
               >
                 <i class="fas fa-pen"></i>
               </a>
+              <a 
+                v-if="props.showMoveToToDo"
+                class="fcb-action-icon" 
+                :data-testid="`table-move-to-todo-${data.uuid}`"
+                :data-tooltip="props.moveToToDoLabel"
+                @click.stop="emit('moveToToDo', data.uuid)" 
+              >
+                <i class="fas fa-arrow-right"></i>
+              </a>
+              <a 
+                v-if="props.showMoveToIdeas"
+                class="fcb-action-icon" 
+                :data-testid="`table-move-to-ideas-${data.uuid}`"
+                :data-tooltip="props.moveToIdeasLabel"
+                @click.stop="emit('moveToIdeas', data.uuid)" 
+              >
+                <i class="fas fa-arrow-left"></i>
+              </a>
               <span v-if="props.trackDelivery">
                 <!-- this is a session one that's not delivered -->
                 <a 
@@ -398,6 +416,22 @@
       type: Boolean,
       default: false,
     },
+    showMoveToToDo: {
+      type: Boolean,
+      default: false,
+    },
+    moveToToDoLabel: {
+      type: String,
+      default: '',
+    },
+    showMoveToIdeas: {
+      type: Boolean,
+      default: false,
+    },
+    moveToIdeasLabel: {
+      type: String,
+      default: '',
+    },
     draggableRows: {
       type: Boolean,
       required: false,
@@ -428,6 +462,8 @@
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;
     (e: 'moveToCampaign', uuid: string): void;
+    (e: 'moveToToDo', uuid: string): void;
+    (e: 'moveToIdeas', uuid: string): void;
     (e: 'dragstart', event: DragEvent, uuid: string): void;
     (e: 'dragoverNew', event: DragEvent): void;
     (e: 'dragoverRow', event: DragEvent, uuid: string): void;

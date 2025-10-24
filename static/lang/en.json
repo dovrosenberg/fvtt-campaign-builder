@@ -599,6 +599,8 @@
       "deleteLore": "Delete lore",
       "deleteToDo": "Complete to-do item",
       "deleteIdea": "Delete idea",
+      "moveToToDo": "Move to to-do list",
+      "moveToIdeas": "Move to ideas list",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",
