@@ -106,7 +106,8 @@
               'font-size': 'var(--font-size-14)', 
               'color': 'var(--input-text-color)',
               'min-height': '6rem',
-              'max-height': '6rem',
+              'max-height': '20rem',
+              'resize': 'vertical',
               'background': !generateComplete ? 'var(--fcb-surface-shaded)' : '',
             }
           }}"

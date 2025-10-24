@@ -13,6 +13,7 @@
 - As part of that, if your Foundry world has multiple Settings, you now choose which you want to use from a drop-down.  This allows the setting directory to be a bit cleaner visually for the vast majority of people who only have a single setting.
 - Some performance improvements - particularly for large Settings
 - Dragging a campaign name into an editor now properly creates a link.
+- The description box in the create entry dialog can now be expanded if desired.
 
 ## v1.4.1 - Assorted bug fixes
 ![](https://img.shields.io/badge/release%20date-September%2023%2C%202025-blue)
