@@ -505,7 +505,8 @@ async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): 
   newEntry.scenes = system.scenes as string[] || [];
   newEntry.actors = system.actors as string[] || [];
   newEntry.journals = system.journals || [];
-  
+
+  console.log(JSON.stringify(newEntry.tags));
   await newEntry.save();  
 
   // add to the mapping

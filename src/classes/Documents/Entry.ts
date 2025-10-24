@@ -40,10 +40,12 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     playerName: '',
     actorId: null,
     background: '',
-    plotPoints: '',
-    magicItems: '',
     img: '',
-    roleplayingNotes: ''
+    customFields: {
+      other_plot_points: '',
+      desired_magic_items: '',
+      roleplaying_notes: '',
+    },
   } as unknown as EntryDocClass['system'];
 
   private _actor: Actor | null;  // for pcs

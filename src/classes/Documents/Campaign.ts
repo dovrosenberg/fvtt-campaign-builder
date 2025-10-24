@@ -16,7 +16,6 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   static override _documentType = DOCUMENT_TYPES.Campaign;
   static override _defaultSystem = { 
     description: '',  
-    houseRules: '',  
     sessions: [],
     lore: [],  
     img: '',   
@@ -24,6 +23,9 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     ideas: [],   
     journals: [], 
     pcs: [],
+    customFields: {
+     house_rules: '',  
+    },
   } as unknown as CampaignDocClass['system'];
   
   public static override async fromUuid<
