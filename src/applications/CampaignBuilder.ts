@@ -13,10 +13,9 @@ import { DOCUMENT_TYPES } from '@/documents';
 import { MigrationManager } from '@/utils/migration';
 import { notifyError } from '@/utils/notifications';
 import { localize } from '@/utils/game';
-import { Entry, WindowTab, getGlobalSetting, Campaign, Session } from '@/classes';
+import { Entry, WindowTab } from '@/classes';
 import { UserFlagKey, UserFlags } from '@/settings';
-import { WindowTabType, TabHeader } from '@/types';
-import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
+import { WindowTabType } from '@/types';
 
 // setup pinia
 
@@ -205,62 +204,29 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
 
       // we do it by compendiumId because it doesn't require loading the doc into a class
       if (mainStore.currentSetting?.uuid !== docSettingId) {
-        // Load the document to get its name and prepare tab data
-        let name = '';
-        let icon = '';
-        let contentType: WindowTabType = WindowTabType.NewTab;
+        // Map DOCUMENT_TYPES to WindowTabType
+        const docTypeToWindowTabType: Record<string, WindowTabType> = {
+          [DOCUMENT_TYPES.Entry]: WindowTabType.Entry,
+          [DOCUMENT_TYPES.Campaign]: WindowTabType.Campaign,
+          [DOCUMENT_TYPES.Session]: WindowTabType.Session,
+          [DOCUMENT_TYPES.Setting]: WindowTabType.Setting,
+        };
         
-        switch (docType) {
-          case DOCUMENT_TYPES.Campaign: {
-            const campaign = await Campaign.fromUuid(uuid);
-            name = campaign?.name || 'Campaign';
-            icon = getTabTypeIcon(WindowTabType.Campaign);
-            contentType = WindowTabType.Campaign;
-            break;
-          }
-          case DOCUMENT_TYPES.Session: {
-            const session = await Session.fromUuid(uuid);
-            name = `${localize('labels.session.session')} ${session?.number || ''}`;
-            icon = getTabTypeIcon(WindowTabType.Session);
-            contentType = WindowTabType.Session;
-            break;
-          }
-          case DOCUMENT_TYPES.Setting: {
-            const setting = await getGlobalSetting(uuid);
-            name = setting?.name || 'Setting';
-            icon = getTabTypeIcon(WindowTabType.Setting);
-            contentType = WindowTabType.Setting;
-            break;
-          }
-          case DOCUMENT_TYPES.Entry: {
-            const entry = await Entry.fromUuid(uuid);
-            name = entry?.name || 'Entry';
-            icon = getTopicIcon(entry?.topic);
-            contentType = WindowTabType.Entry;
-            break;
-          }
-        }
-
-        // Get the default content tab for this type
-        const defaultContentTab = {
-          [WindowTabType.Entry]: 'description',
-          [WindowTabType.Setting]: 'description',
-          [WindowTabType.Campaign]: 'description',
-          [WindowTabType.Session]: 'notes',
-          [WindowTabType.NewTab]: '',
-        } as Record<WindowTabType, string>;
-
-        // Create the tab header
-        const headerData: TabHeader = { uuid: uuid, name: name, icon: icon };
+        const windowTabType = docTypeToWindowTabType[docType];
+        
+        // Load the document metadata using the shared helper
+        const metadata = await useNavigationStore().loadContentMetadata(uuid, windowTabType);
+        
+        const headerData = { uuid: uuid, name: metadata.name, icon: metadata.icon };
 
         // Create a new tab for this content
         const newTab = new WindowTab(
           true,  // active
           headerData,
           uuid,
-          contentType,
+          metadata.contentType,
           null,  // generate new ID
-          defaultContentTab[contentType]
+          metadata.defaultContentTab
         );
 
         // Load existing tabs for the target setting
@@ -269,13 +235,13 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
         // Mark all existing tabs as inactive
         existingTabs.forEach((t: WindowTab) => t.active = false);
         
-        // Add the new tab
+        // Add the new tab to the front (it will be active)
         existingTabs.push(newTab);
         
         // Save the tabs to the target setting
         await UserFlags.set(UserFlagKey.tabs, existingTabs, docSettingId);
         
-        // Now switch settings - the tab will be loaded automatically by the watcher
+        // Now switch settings - loadTabs() will be triggered by the watcher and load our new tab
         await mainStore.setNewSetting(docSettingId);
       } else {
         // Same setting, just open the content normally
