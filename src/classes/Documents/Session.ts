@@ -7,7 +7,6 @@ import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
 import { getGlobalSetting, } from './FCBSetting';
 import { localize } from '@/utils/game';
-import { TagInfo, } from '@/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 
 type SessionDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Session>;
@@ -117,12 +116,12 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     return session;
   }
 
-  get tags(): TagInfo[] {
+  get tags(): string[] {
     // @ts-ignore
     return this._clone.system.tags;
   }
 
-  set tags(value: TagInfo[]) {
+  set tags(value: string[]) {
     // @ts-ignore
     this._clone.system.tags = value;
   }

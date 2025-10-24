@@ -3,7 +3,7 @@ import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, } from '@/settings';
 import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder, WindowTab } from '@/classes';
 import { updateGlobalSetting } from '@/classes/Documents/FCBSetting';
-import { Bookmark, defaultCustomFields, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, TabHeader, TagInfo, ToDoItem, Topics, ValidTopic, ValidTopicRecord } from '@/types';
+import { Bookmark, defaultCustomFields, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, TabHeader, ToDoItem, Topics, ValidTopic, ValidTopicRecord } from '@/types';
 import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, } from '@/documents';
 import { cleanKeysOnLoad } from '@/utils/cleanKeys';
 
@@ -402,7 +402,9 @@ async function migrateSession(campaign: Campaign, oldSession: JournalEntryPage):
   newSession.monsters = system.monsters as SessionMonster[] || [];
   newSession.vignettes = system.vignettes as SessionVignette[] || [];
   newSession.lore = system.lore as SessionLore[] || [];
-  newSession.tags = system.tags as unknown as TagInfo[] || [];
+  // Convert old TagInfo[] format to string[] if needed
+  const oldTags = system.tags as unknown as any[] || [];
+  newSession.tags = oldTags.map(t => typeof t === 'string' ? t : t.value);
 
   // some old lore don't have sort orders
   if (newSession.lore.find((lore)=>lore.sortOrder == null)) {
@@ -473,7 +475,9 @@ async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): 
 
   newEntry.description = entry.text.content || '';
   newEntry.type = system.type || '';
-  newEntry.tags = system.tags as unknown as TagInfo[]|| [];
+  // Convert old TagInfo[] format to string[] if needed
+  const oldTags = system.tags as unknown as any[] || [];
+  newEntry.tags = oldTags.map(t => typeof t === 'string' ? t : t.value);
   // @ts-ignore
   newEntry.roleplayingNotes = system.rolePlayingNotes || ''; // note different caps in old one
 

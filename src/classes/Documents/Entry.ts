@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, } from '@/documents';
-import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes, ValidTopicRecord, } from '@/types';
+import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, ToDoTypes, ValidTopicRecord, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder,  } from '@/classes';
@@ -202,12 +202,12 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     super.name = value;
   }
   
-  get tags(): TagInfo[] {
+  get tags(): string[] {
     // @ts-ignore
     return this._clone.system.tags;
   }
 
-  set tags(value: TagInfo[]) {
+  set tags(value: string[]) {
     // @ts-ignore
     this._clone.system.tags = value;
   }

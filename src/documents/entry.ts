@@ -1,4 +1,4 @@
-import { RelatedItemDetails, TagInfo, ValidTopic, RelatedJournal, ValidTopicRecord } from '@/types';
+import { RelatedItemDetails, ValidTopic, RelatedJournal, ValidTopicRecord } from '@/types';
 import { schemas } from './fields';
 import { cleanTopicKeysOnLoad } from '@/utils/cleanKeys';
 
@@ -56,7 +56,7 @@ export interface EntryDoc extends JournalEntryPage {
   system: {
     topic: ValidTopic;
     type: string;
-    tags: TagInfo[];
+    tags: string[];
     customFields: Record<string, string>;
 
     /**
