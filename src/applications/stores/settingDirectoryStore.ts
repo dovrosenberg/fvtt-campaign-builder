@@ -399,6 +399,11 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   //    but that means that when names change or children change, we're not refreshing them properly
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshSettingDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
+    // Prevent concurrent refreshes
+    if (isTopicTreeRefreshing.value) {
+      return;
+    }
+
     // need to have a current setting and journals loaded
     if (!currentSetting.value) {
       // empty it out
@@ -614,12 +619,15 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // when the root folder changes, load the top level info (settings and packs)
   // when the setting changes, clean out the cache of loaded items
   //@ts-ignore - Vue can't handle reactive classes
-  watch(currentSetting, async (newSetting: FCBSetting | null): Promise<void> => {
+  watch(currentSetting, async (newSetting: FCBSetting | null, oldSetting: FCBSetting | null): Promise<void> => {
     if (!newSetting) {
       return;
     }
 
-    await refreshSettingDirectoryTree();
+    // Only refresh if the setting actually changed (not just a reactive update)
+        if (newSetting.uuid !== oldSetting?.uuid) {
+      await refreshSettingDirectoryTree();
+    }
   });
   
   // when the current journal set is updated, refresh the tree
