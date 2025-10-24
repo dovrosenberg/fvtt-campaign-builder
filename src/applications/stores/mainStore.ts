@@ -146,7 +146,7 @@ export const useMainStore = defineStore('main', () => {
    * This is achieved by simply creating a new entry based on the EntryDoc of the current one
    */
   const refreshEntry = async function (): Promise<void> {
-    if (!_currentEntry.value?.raw?.parent)
+    if (!_currentEntry.value?.raw?.parent || !currentSetting.value)
       return;
 
     // just force all reactivity to update
@@ -178,7 +178,7 @@ export const useMainStore = defineStore('main', () => {
   };
 
   const refreshSession = async function (reload = false): Promise<void> {
-    if (!_currentSession.value?.raw?.parent)
+    if (!_currentSession.value?.raw?.parent || !currentSetting.value)
       return;
 
     // just force all reactivity to update

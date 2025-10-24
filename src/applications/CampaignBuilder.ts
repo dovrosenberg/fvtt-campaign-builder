@@ -1,6 +1,6 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin';
 import PrimeVue from 'primevue/config';
-import { pinia, useNavigationStore, } from '@/applications/stores';
+import { pinia, useNavigationStore, useMainStore } from '@/applications/stores';
 import App from '@/components/applications/CampaignBuilder.vue';
 
 const { DocumentSheetV2 } = foundry.applications.api;
@@ -13,6 +13,7 @@ import { DOCUMENT_TYPES } from '@/documents';
 import { MigrationManager } from '@/utils/migration';
 import { notifyError } from '@/utils/notifications';
 import { localize } from '@/utils/game';
+import { Entry } from '@/classes';
 
 // setup pinia
 
@@ -192,6 +193,17 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     }
 
     if (docType && uuid) {
+      // Before opening the content, check if it belongs to a different setting
+      // If so, switch settings first (this handles opening from compendium, map, etc.)
+      const mainStore = useMainStore();
+
+      const docSettingId = (new Entry(doc))?.settingId;
+
+      // we do it by compendiumId because it doesn't require loading the doc into a class
+      if (mainStore.currentSetting?.uuid !== docSettingId) {
+        await mainStore.setNewSetting(docSettingId);
+      }
+      
       switch (docType) {
         case DOCUMENT_TYPES.Campaign:
           useNavigationStore().openCampaign(uuid);
