@@ -89,6 +89,11 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     }
   };
 
+  // Override to prevent DocumentSheetV2 from adding default controls
+  override _getHeaderControls() {
+    return [];
+  }
+
   _canRender(options) { 
     // prevent the window from opening at all if we're trying to open an invalid
     //    doc or we had a failed migration
