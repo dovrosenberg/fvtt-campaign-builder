@@ -206,6 +206,16 @@
     setTimeout(() => {
       var input = document.getElementById("fcb-tags-input") as HTMLInputElement;
 
+      // Check if Tagify is already initialized on this input
+      // @ts-ignore - Tagify adds this property to the input element
+      if (input && input.__tagify) {
+        // Reuse the existing Tagify instance
+        // @ts-ignore
+        tagify.value = input.__tagify;
+        isInitialized.value = true;
+        return;
+      }
+
       tagify.value = new Tagify(input, {
         whitelist: getWhitelist(),
         dropdown: {
