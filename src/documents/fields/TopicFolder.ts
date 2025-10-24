@@ -18,7 +18,7 @@ export const TopicFolderSchema = () => (
   }, { required: true, nullable: false} )
 );
 
-export type TopicFlatType = { 
+export interface TopicFlatType { 
   topic: string; 
   types: string[]; 
   topNodes: string[]; 

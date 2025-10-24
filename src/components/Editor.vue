@@ -66,7 +66,7 @@
   const TextEditor = foundry.applications.ux.TextEditor;
   const ProseMirror = foundry.prosemirror;
 
-  // type EditorOptions = {
+  // interface EditorOptions {
   //   document: Document<any>,
   //   fieldName: string,
   //   height: number, 

@@ -42,7 +42,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   ///////////////////////////////
   // actions
  
-  type OpenContentOptions = {
+  interface OpenContentOptions {
     activate?: boolean;
     newTab?: boolean;
     updateHistory?: boolean;

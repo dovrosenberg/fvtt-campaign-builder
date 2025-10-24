@@ -50,7 +50,10 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  type SessionTableGridRow = { uuid: string; delivered: boolean } & Record<string, any>;
+  interface SessionTableGridRow extends Record<string, any> { 
+    uuid: string; 
+    delivered: boolean;
+  };
 
   ////////////////////////////////
   // props

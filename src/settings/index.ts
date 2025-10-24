@@ -2,6 +2,7 @@ import { id } from '@module';
 import { SettingKey, SettingKeyType } from './ModuleSettings';
 import { RollTableFlagKey, RollTableFlagType, } from '@/documents';
 import { JournalEntryFlagKey, JournalEntryFlagType } from './FCBJournalEntry';
+import { UserFlagKey } from './UserFlags';
 
 export * from './UserFlags';
 export * from './ModuleSettings';
@@ -31,6 +32,12 @@ type RollTableFlags = {
   };
 }
 
+type UserFlags = {
+  [M in ModuleId]: {
+    [K in UserFlagKey]?: any;
+  };
+}
+
 // settings
 type WBSettings = {
   [K in SettingKey as `${ModuleId}.${K}`]: K extends SettingKey ? SettingKeyType<K> : never;
@@ -40,6 +47,7 @@ declare global {
   interface FlagConfig {
     JournalEntry: JournalEntryFlags;
     RollTable: RollTableFlags;
+    User: UserFlags;
   }
 
   interface SettingConfig extends WBSettings {}

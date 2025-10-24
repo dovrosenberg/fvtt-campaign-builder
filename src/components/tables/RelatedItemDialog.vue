@@ -66,16 +66,16 @@
   import Dialog from '@/components/Dialog.vue';
 
   // types
-  import { Topics, ValidTopic, RelatedItemDialogModes } from '@/types';
+  import { Topics, ValidTopic, RelatedItemDialogModes, ValidTopicRecord } from '@/types';
   import { Entry, TopicFolder } from '@/classes';
 
-  type ExtraFieldValue = {
+  interface ExtraFieldValue {
     field: string;
     header: string;
     value: string;
   };
 
-  type ButtonProp = {
+  interface ButtonProp {
     label: string;
     close?: boolean;
     default?: boolean;
@@ -168,7 +168,7 @@
       buttonTitle: localize('dialogs.relatedItems.pc.buttonTitle'),
       // editButtonTitle: localize('dialogs.relatedItems.pc.editButtonTitle'),
     },
-  } as Record<ValidTopic, { 
+  } as ValidTopicRecord<{ 
     title: string; 
     // editTitle: string; 
     buttonTitle: string; 

@@ -507,7 +507,7 @@
     // if there's more than one, we need the menu
     const campaigns = currentSetting.value.campaigns;
 
-    type MenuItem = {
+    interface MenuItem {
       label: string;
       onClick: () => void | Promise<void>;
       customClass?: string;

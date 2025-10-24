@@ -70,7 +70,11 @@
 
   ////////////////////////////////
   // computed data
-  type CampaignPCsGridRow = { uuid: string; name: string, actor: string };
+  interface CampaignPCsGridRow { 
+    uuid: string; 
+    name: string, 
+    actor: string 
+  };
 
   const rows = computed((): CampaignPCsGridRow[] => (
     relatedPCRows.value.map((pc: RelatedPCDetails) => ({

@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 import { UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
-import { EntryFilterIndex, Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic } from '@/types';
+import { EntryFilterIndex, Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { TopicFolder, RootFolder, Entry, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
@@ -93,7 +93,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public campaigns: Record<string, Campaign> = {};   // Campaigns keyed by uuid 
 
   /** these are the the class objects - see topics for just the flattened system data */
-  public topicFolders: Record<ValidTopic, TopicFolder> = {} as Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using populate()), so we assume it's never empty
+  public topicFolders: ValidTopicRecord<TopicFolder> = {};  // we load them when we load the setting (using populate()), so we assume it's never empty
     
   static override async fromUuid<
     T extends FCBJournalEntryPageStatic<any, any>
@@ -386,7 +386,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         [Topics.Location]: { topic: Topics.Location, topNodes: [], types: [], entries: {} },
         [Topics.Organization]: { topic: Topics.Organization, topNodes: [], types: [], entries: {} },
         [Topics.PC]: { topic: Topics.PC, topNodes: [], types: [], entries: {} },
-      } as unknown as Record<ValidTopic, TopicFlatType>;
+      } as unknown as ValidTopicRecord<TopicFlatType>;
     }
 
     // load the topics

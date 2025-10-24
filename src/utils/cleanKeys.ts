@@ -1,6 +1,6 @@
 /** converts to a record that uses uuids (or anything with . in it) from a record that uses #&# */
 
-import { RelatedItemDetails, ValidTopic } from '@/types';
+import { RelatedItemDetails, ValidTopic, ValidTopicRecord } from '@/types';
 
 /** use after loading data from db */
 export const cleanKeysOnLoad = <InnerType extends any, T extends Record<string, InnerType>>(obj: T): T => {
@@ -30,7 +30,7 @@ export const cleanKeysOnSave = <InnerType extends any, T extends Record<string, 
 
 
 // things like relationships and entries that are keyed by topic and then by uuid
-type TopicFieldType = Record<ValidTopic, Record<string, unknown>>;
+type TopicFieldType = ValidTopicRecord<Record<string, unknown>>;
 
 // can't just use cleanKeysOnLoad because it's the second layer in
 export const cleanTopicKeysOnLoad = (objectToClean: TopicFieldType): TopicFieldType => {

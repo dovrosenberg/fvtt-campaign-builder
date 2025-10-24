@@ -52,7 +52,10 @@
   // local components
 
   // types
-  type ListItem = {id: string; label: string};
+  interface ListItem {
+    id: string; 
+    label: string
+  };
 
   ////////////////////////////////
   // props

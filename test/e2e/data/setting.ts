@@ -7,7 +7,7 @@ import { LocationDescriptor } from './location';
 import { OrganizationDescriptor } from './organization';
 import { PCDescriptor } from './pc';
 
-export type SettingDescriptor = {
+export interface SettingDescriptor {
   name: string;
   genre: string;
   settingFeeling: string;

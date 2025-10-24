@@ -93,7 +93,10 @@
   });
 
 
-  type RelatedDocumentGridRow = { uuid: string; name: string };
+  interface RelatedDocumentGridRow { 
+    uuid: string; 
+    name: string 
+  };
 
   const rows = computed((): RelatedDocumentGridRow[] => 
     relatedDocumentRows.value.map((item: RelatedDocumentDetails) => {

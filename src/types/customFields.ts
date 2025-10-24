@@ -16,7 +16,7 @@ export enum CustomFieldContentType {
 }
 
 // types and functions used to manage topic hierarchies
-export type CustomFieldDescription = {
+export interface CustomFieldDescription {
   name: string;  // lowercase version of description with spaces converted to _
   label: string;
   fieldType: FieldType;

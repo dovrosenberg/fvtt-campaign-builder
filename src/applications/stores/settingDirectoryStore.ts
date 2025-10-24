@@ -15,7 +15,7 @@ import { scrollToActiveEntry } from '@/utils/directoryScroll';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder, getGlobalSetting } from '@/classes';
-import { DirectorySetting, Hierarchy, Topics, ValidTopic, EntryFilterIndex } from '@/types';
+import { DirectorySetting, Hierarchy, Topics, ValidTopic, EntryFilterIndex, ValidTopicRecord } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
 // the store definition
@@ -50,7 +50,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   const filterText = ref<string>('');
 
   // currently displayed nodes and types
-  const filterNodes = ref<Record<ValidTopic, string[]>>({} as Record<ValidTopic, string[]>);
+  const filterNodes = ref<ValidTopicRecord<string[]>>({});
 
   ///////////////////////////////
   // actions
@@ -384,7 +384,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     // save the parent
     const parentId = currentSetting.value.getEntryHierarchy(entryId)?.parentId || null;
 
-    const entry = (await currentSetting.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId, true))[0];
+    const entry = (await currentSetting.value.topicFolders[topic].filterEntries((e: EntryFilterIndex) => e.uuid === entryId, true))[0];
     await entry.delete();
 
     // update tabs/bookmarks
@@ -462,6 +462,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       await directoryTopicNode.loadTypeEntries(topicFolders[directoryTopicNode.topicFolder.topic].types, expandedNodes);
     }
 
+    // @ts-ignore (fvtt circularity issue)
     currentSettingTree.value = [currentSettingBlock];
 
     // make sure the node list is up to date
@@ -573,12 +574,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (!currentSetting.value)
       return;
 
-    const retval: Record<ValidTopic, string[]> = {
-      [Topics.Character]: [],
-      [Topics.Location]: [],
-      [Topics.Organization]: [],
-      [Topics.PC]: [],
-    };
+    const retval: ValidTopicRecord<string[]> = {};
 
     // note this is safe only because setting doesn't get updated during the loop below
     const hierarchies = currentSetting.value.hierarchies;
@@ -627,7 +623,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   });
   
   // when the current journal set is updated, refresh the tree
-  // watch(currentTopicJournals, async (_newJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
+  // watch(currentTopicJournals, async (_newJournals: ValidTopicRecord<JournalEntry> | null): Promise<void> => {
   //   await refreshSettingDirectoryTree();
   // });
   

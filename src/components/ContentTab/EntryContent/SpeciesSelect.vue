@@ -22,7 +22,10 @@
 
   // types
   import { onMounted, onUnmounted } from 'vue';
-  type SpeciesSelectOption = { id: string; label: string };
+  interface SpeciesSelectOption { 
+    id: string; 
+    label: string 
+  };
 
   ////////////////////////////////
   // props

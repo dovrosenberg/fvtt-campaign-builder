@@ -9,9 +9,11 @@ import { FCBDialog } from '@/dialogs';
 import { FCBSetting } from '@/classes/Documents/FCBSetting';
 import { Entry } from '@/classes/Documents/Entry';
 import { Session } from './Documents';
-import { TopicFolder } from './TopicFolder';
 
-type GetListReturnValue = { uuid: string; name: string};
+interface GetListReturnValue { 
+  uuid: string; 
+  name: string
+};
 
 export class ExternalAPI {
   public TOPICS = {

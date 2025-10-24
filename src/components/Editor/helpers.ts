@@ -114,7 +114,7 @@ export const enrichFcbHTML = async(settingId: string | null, text: string): Prom
 /**
  * Type definition for link data used in anchor creation
  */
-type LinkData = {
+interface LinkData {
   classes: string[];
   attrs: { draggable?: string };
   dataset: { link?: string }

@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, } from '@/documents';
-import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes, } from '@/types';
+import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes, ValidTopicRecord, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder,  } from '@/classes';
@@ -12,7 +12,11 @@ import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { cleanTopicKeysOnSave } from '@/utils/cleanKeys';
 
-export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
+export interface CreateEntryOptions { 
+  name?: string; 
+  type?: string; 
+  parentId?: string
+};
 
 type EntryDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Entry>;
 
@@ -313,11 +317,11 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   }
 
   // keyed by topic then by entryId
-  get relationships(): Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> {
-    return this._clone.system.relationships as unknown as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;
+  get relationships(): ValidTopicRecord<Record<string, RelatedItemDetails<any, any>>> {
+    return this._clone.system.relationships as unknown as ValidTopicRecord<Record<string, RelatedItemDetails<any, any>>>;
   }  
 
-  set relationships(value: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>) {
+  set relationships(value: ValidTopicRecord<Record<string, RelatedItemDetails<any, any>>>) {
     this._clone.system.relationships = value;
   }
 

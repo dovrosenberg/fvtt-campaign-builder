@@ -55,9 +55,13 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { Topics, ValidTopic, RelatedItemDetails, RelatedItemDialogModes, EntryNodeDragData } from '@/types';
+  import { Topics, ValidTopic, RelatedItemDetails, RelatedItemDialogModes, EntryNodeDragData, ValidTopicRecord } from '@/types';
   
-  type RelatedItemGridRow = { uuid: string; name: string; type: string } & Record<string, any>;
+  interface RelatedItemGridRow extends Record<string, any> { 
+    uuid: string; 
+    name: string; 
+    type: string;
+  };
 
   ////////////////////////////////
   // props
@@ -175,7 +179,7 @@
         nameColumn,
         typeColumn,
       ],
-    } as Record<ValidTopic, any[]>;
+    } as ValidTopicRecord<any[]>;
 
     if (extraColumns.value.length > 0) {
       // add the extra fields

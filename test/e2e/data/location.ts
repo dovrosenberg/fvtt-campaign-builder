@@ -1,5 +1,5 @@
 // contains the data for the tests
 
-export type LocationDescriptor = {
+export interface LocationDescriptor {
   name: string;
 }

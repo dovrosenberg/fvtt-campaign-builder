@@ -24,7 +24,7 @@
   // local components
 
   // types
-  type TagEventData = {
+  interface TagEventData {
     __tagId: string;
     __isValid: boolean | string;
     value: string;
@@ -105,7 +105,7 @@
     const value = tagInfo.value;
     const color = tagInfo.color;
 
-    // tagify calls add unnecesarily when rebuilding its internal list
+    // tagify calls add unnecessarily when rebuilding its internal list
     if (currentValue.value.find((t) => t.value === value))  
       return;
  
@@ -237,7 +237,7 @@
 
 <style lang="scss">
   .tags-wrapper {
-    // TODO - do these heights need to change when font size scales? Should it be like xrem+1px or something?
+    // TODO - do these heights need to change when font size scales? Should it be like x rem+1px or something?
     min-height: 31px;
     width: 100%;
     position: relative;

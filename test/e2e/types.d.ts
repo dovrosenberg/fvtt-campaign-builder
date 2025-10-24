@@ -1,6 +1,6 @@
 import { BrowserContext, Page } from "playwright";
 
-export type TestContext = {
+export interface TestContext {
   page?: Page,
   context?: BrowserContext
 }

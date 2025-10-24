@@ -57,7 +57,7 @@
   // local components
 
   // types
-  type ButtonProp = {
+  interface ButtonProp {
     label: string;
     close?: boolean;  // close after clicking
     default?: boolean;

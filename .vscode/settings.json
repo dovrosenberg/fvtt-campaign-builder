@@ -18,6 +18,7 @@
     "SHADOWROOT",
     "splitterpanel",
     "subsheet",
+    "tagify",
     "tinymce",
     "toggleswitch",
     "Undrawn",
@@ -27,7 +28,8 @@
   "cSpell.ignoreWords": [
     "Fori",
     "Kanka",
-    "xmark"
+    "xmark",
+    "yaireo"
   ],
   "typescript.tsdk": "node_modules/typescript/lib"
 }

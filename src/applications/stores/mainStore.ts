@@ -161,12 +161,18 @@ export const useMainStore = defineStore('main', () => {
     _currentCampaign.value = new Campaign(_currentCampaign.value.raw.parent as unknown as JournalEntry);
   };
 
-  const refreshSetting = async function (): Promise<void> {
+  const refreshSetting = async function (reload = false): Promise<void> {
     if (!_currentSetting.value?.raw?.parent)
       return;
 
     // just force all reactivity to update
-    const newSetting = new FCBSetting(_currentSetting.value.raw.parent as unknown as JournalEntry);
+    let newSetting;
+    if (reload) {
+      newSetting = await FCBSetting.fromUuid(_currentSetting.value.raw.parent.uuid);
+    } else {
+      newSetting = new FCBSetting(_currentSetting.value.raw.parent as unknown as JournalEntry);
+    }
+
     await newSetting.populate();
     _currentSetting.value = newSetting;
   };

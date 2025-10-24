@@ -1,4 +1,4 @@
-export type SessionDescriptor = {
+export interface SessionDescriptor {
   name: string;
   number: number;
 }
