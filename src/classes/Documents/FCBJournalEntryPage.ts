@@ -230,6 +230,9 @@ export class FCBJournalEntryPage<
       flags: {
         [moduleId]: {
           [JournalEntryFlagKey.campaignBuilderType]: this._documentType
+        },
+        core: {
+          sheetClass: `${moduleId}._CampaignBuilderApplication`
         }
       }
     };

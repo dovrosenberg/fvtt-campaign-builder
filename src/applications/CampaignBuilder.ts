@@ -13,7 +13,6 @@ import { DOCUMENT_TYPES } from '@/documents';
 import { MigrationManager } from '@/utils/migration';
 import { notifyError } from '@/utils/notifications';
 import { localize } from '@/utils/game';
-import { FCBSetting } from '@/classes';
 
 // setup pinia
 
@@ -164,7 +163,6 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     // if there is a document, open that content
     const doc = context.document;
     let docType: typeof DOCUMENT_TYPES[keyof typeof DOCUMENT_TYPES] | null = null;
-
     let uuid: string; 
 
     // if it's our special one, just open if
@@ -177,18 +175,18 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     switch (doc.documentName) {
       case 'JournalEntry':          
         docType = doc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType);
-        uuid = doc.pages?.contents?.[0]?.uuid;
+        uuid = doc.uuid;
         break;
       case 'JournalEntryPage':
         docType = doc.type;
-        uuid = doc.uuid;
+        uuid = doc.parent?.uuid || '';
         break;
 
       default:
         throw new Error('Attempt to open non-journal entry in CampaignBuilderApplication _onFirstRender');
     }
 
-    if (docType) {
+    if (docType && uuid) {
       switch (docType) {
         case DOCUMENT_TYPES.Campaign:
           useNavigationStore().openCampaign(uuid);

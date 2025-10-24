@@ -355,11 +355,40 @@ async function migrateCampaign(oldCampaign: JournalEntry, setting: FCBSetting): 
   // @ts-ignore
   newCampaign.pcs = oldCampaign.getFlag(moduleId, 'pcs') as RelatedPCDetails[] || [];
 
+  // sort with missing values at the end
+  const sortWithMissing = (a: null | undefined | number, b: null | undefined | number) => {
+    if (a == null && b == null)
+      return 0;
+    if (a == null)
+      return 1;
+    if (b == null)
+      return -1;
+    return a - b;
+  };
   // some old lore don't have sort orders
   if (newCampaign.lore.find((lore)=>lore.sortOrder == null)) {
     // if any don't the probably all don't, so just reset them all
-    newCampaign.lore = newCampaign.lore.map((lore, index)=>({
+    // but sort first in case some have it ... but missing ones at the end
+    newCampaign.lore = newCampaign.lore.slice().sort((a, b)=>sortWithMissing(a.sortOrder, b.sortOrder)).map((lore, index)=>({
       ...lore,
+      sortOrder: index,
+    }));
+  }
+
+  // some old ideas don't have sort orders
+  if (newCampaign.ideas.find((idea)=>idea.sortOrder == null)) {
+    // if any don't they probably all don't, so just reset them all
+    newCampaign.ideas = newCampaign.ideas.slice().sort((a, b)=>sortWithMissing(a.sortOrder, b.sortOrder)).map((idea, index)=>({
+      ...idea,
+      sortOrder: index,
+    }));
+  }
+
+  // some old todos don't have sort orders
+  if (newCampaign.todoItems.find((todo)=>todo.sortOrder == null)) {
+    // if any don't they probably all don't, so just reset them all
+    newCampaign.todoItems = newCampaign.todoItems.slice().sort((a, b)=>sortWithMissing(a.sortOrder, b.sortOrder)).map((todo, index)=>({
+      ...todo,
       sortOrder: index,
     }));
   }
@@ -487,7 +516,11 @@ async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): 
   for (const topic in system.relationships) {
     const newTopicBlock = {} as Record<string, RelatedItemDetails<any, any>>;
     for (const entryId in system.relationships[topic]) {
-      newTopicBlock[entryId.replaceAll('_', '.')] = system.relationships[topic][entryId];
+      const relationship = system.relationships[topic][entryId];
+      // Filter out invalid relationships with null/undefined values
+      if (relationship && relationship.uuid && relationship.topic !== undefined) {
+        newTopicBlock[entryId.replaceAll('_', '.')] = relationship;
+      }
     }
     newRelationships[topic] = newTopicBlock;
   }

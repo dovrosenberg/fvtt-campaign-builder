@@ -41,15 +41,15 @@ async function init(): Promise<void> {
     
   // the sheet  
   foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntry, moduleId, CampaignBuilderApplication, {
-    canBeDefault: true,
+    canBeDefault: false,
     canConfigure: false,
-    makeDefault: true,
+    makeDefault: false,
     label: 'FCB - IF YOU\'RE SEEING THIS SOMETHING IS BROKEN'
   });
 
   // we need to add these in case someone opens one manually somehow
   foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, CampaignBuilderApplication, {
     types: [DOCUMENT_TYPES.Entry, DOCUMENT_TYPES.Session, DOCUMENT_TYPES.Setting, DOCUMENT_TYPES.Campaign ],
-    makeDefault: true,
+    makeDefault: true,  // only applies to these types
   });
 }
