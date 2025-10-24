@@ -54,16 +54,15 @@ export const SettingSchema = {
   rollTableConfig: new fields.ObjectField({ required: false, nullable: true, initial: null }),
 
   /** stored example names for each style with their genre and setting feeling */
-  nameStyleExamples: new fields.ArrayField(
-    new fields.SchemaField({
-      genre: new fields.StringField({ required: true, nullable: false }),
-      settingFeeling: new fields.StringField({ required: true, nullable: false }),
-      examples: new fields.ArrayField(
-        new fields.ObjectField({ required: true, nullable: false }),
-        { required: true, nullable: false, initial: [] as ApiNamePreviewPost200ResponsePreviewInner[] }
-      ),
-    }, { required: true, nullable: false }), { initial: [] as NameStyleExample[] }
-  ),
+  nameStyleExamples: new fields.SchemaField({
+    genre: new fields.StringField({ required: true, nullable: false }),
+    settingFeeling: new fields.StringField({ required: true, nullable: false }),
+    examples: new fields.ArrayField(
+      new fields.ObjectField({ required: true, nullable: false }),
+      { required: true, nullable: false, initial: [] as ApiNamePreviewPost200ResponsePreviewInner[] }
+    ),
+    // @ts-ignore - complex type it couldn't get
+  }, { required: true, nullable: false, initial: { genre: '', settingFeeling: '', examples: [] as ApiNamePreviewPost200ResponsePreviewInner[] } as NameStyleExamples }),
 
   /** related journal entries */
   journals: new fields.ArrayField(
@@ -96,7 +95,7 @@ export class SettingDataModel<
   }
 }
 
-export interface NameStyleExample { 
+export interface NameStyleExamples { 
   genre: string; 
   settingFeeling: string; 
   examples: ApiNamePreviewPost200ResponsePreviewInner[] 
@@ -115,7 +114,7 @@ export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_T
     img: string;   
     nameStyles: number[];   
     rollTableConfig: SettingGeneratorConfig | null;   
-    nameStyleExamples: NameStyleExample[];   
+    nameStyleExamples: NameStyleExamples;   
     journals: RelatedJournal[]; 
   };
 }

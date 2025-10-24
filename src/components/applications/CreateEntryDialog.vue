@@ -514,7 +514,7 @@
 
     // create the entry and kick off image generation if needed
     // if we haven't generated a description, use whatever's in brief description
-    // the idea is that - especially when we're dealing with a rolltable name - user can use this form as a sort of quick create
+    // the idea is that - especially when we're dealing with a RollTable name - user can use this form as a sort of quick create
     let details: CharacterDetails | LocationDetails | OrganizationDetails | null = null;
     let descriptionToUse = '';
     let roleplayToUse = '';

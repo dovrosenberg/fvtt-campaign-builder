@@ -224,16 +224,16 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
 
   // get all the setting configuration
   // @ts-ignore
-  newSetting.description = folder.getFlag(moduleId, 'description');
+  newSetting.description = folder.getFlag(moduleId, 'description') || '';
   
   // @ts-ignore
-  topicIds = folder.getFlag(moduleId, 'topicIds');
+  topicIds = folder.getFlag(moduleId, 'topicIds') || [];
   
   // @ts-ignore
-  newSetting.campaignNames = folder.getFlag(moduleId, 'campaignNames');
+  newSetting.campaignNames = folder.getFlag(moduleId, 'campaignNames') || {};
   
   // @ts-ignore
-  newSetting.expandedIds = folder.getFlag(moduleId, 'expandedIds');
+  newSetting.expandedIds = folder.getFlag(moduleId, 'expandedIds') || {};
   
   // Store old hierarchies for later remapping - don't set them on the setting yet
   // They have old UUIDs that won't match the new entries until cleanCompendiumIds() runs
@@ -253,16 +253,16 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   newSetting.img = folder.getFlag(moduleId, 'img');   // image path for the setting
   
   // @ts-ignore
-  newSetting.nameStyles = folder.getFlag(moduleId, 'nameStyles');   // array of name styles to use for name generation
+  newSetting.nameStyles = folder.getFlag(moduleId, 'nameStyles') || [];   // array of name styles to use for name generation
   
   // @ts-ignore
-  newSetting.rollTableConfig = folder.getFlag(moduleId, 'rollTableConfig');   // setting-specific roll table configuration
+  newSetting.rollTableConfig = folder.getFlag(moduleId, 'rollTableConfig') || null;   // setting-specific roll table configuration
   
   // @ts-ignore
-  newSetting.nameStyleExamples = folder.getFlag(moduleId, 'nameStyleExamples');   // stored example names for each style with their genre and setting feeling
+  newSetting.nameStyleExamples = folder.getFlag(moduleId, 'nameStyleExamples') || { genre: '', settingFeeling: '', examples: [] } as NameStyleExamples;   // stored example names for each style with their genre and setting feeling
   
   // @ts-ignore
-  newSetting.journals = folder.getFlag(moduleId, 'journals');
+  newSetting.journals = folder.getFlag(moduleId, 'journals') || [];
 
   await newSetting.save();
 
@@ -427,7 +427,7 @@ async function migrateTopicFolder(setting: FCBSetting, oldTopicFolder: JournalEn
 
   // topic folders now are just an object on the setting
   // @ts-ignore
-  topicFolder.types = oldTopicFolder.getFlag(moduleId, 'types') as string[];
+  topicFolder.types = oldTopicFolder.getFlag(moduleId, 'types') as string[] || [];
 
   // these populate as you go
   // topicFolder.topNodes = oldTopicFolder.getFlag(moduleId, 'topNodes') as string[];

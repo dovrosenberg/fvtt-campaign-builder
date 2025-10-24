@@ -9,7 +9,7 @@ import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/n
 import { Backend } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Documents/FCBJournalEntryPage';
-import { entryIndexFields, NameStyleExample, TopicFlatType } from '@/documents';
+import { entryIndexFields, NameStyleExamples, TopicFlatType } from '@/documents';
 import { cleanKeysOnSave, } from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
 
@@ -85,7 +85,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     img: '',   
     nameStyles: [],   
     rollTableConfig: null,   
-    nameStyleExamples: [],   
+    nameStyleExamples: { genre: '', settingFeeling: '', examples: [] },   
     journals: [], 
   } as unknown as SettingDocClass['system'];
   
@@ -162,12 +162,12 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   }
 
   /** these are the the flattened system data for the topics (see topicFolders for the class objects) */
-  public get topics(): TopicFlatType[] {
-    return this._clone.system.topics as TopicFlatType[];
+  public get topics(): ValidTopicRecord<TopicFlatType> {
+    return this._clone.system.topics;
   }
 
   /** these are the the flattened system data for the topics (see topicFolders for the class objects) */
-  public set topics(value: TopicFlatType[]) {
+  public set topics(value: ValidTopicRecord<TopicFlatType>) {
     this._clone.system.topics = value;
   }
 
@@ -211,12 +211,13 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     (this._clone.system.rollTableConfig as SettingGeneratorConfig | null) = value;
   }
 
-  public get nameStyleExamples(): NameStyleExample[] | null {
-    return (this._clone.system.nameStyleExamples || null) as unknown as NameStyleExample[] | null;
+  public get nameStyleExamples(): NameStyleExamples {
+    return this._clone.system.nameStyleExamples as NameStyleExamples;
   } 
 
-  public set nameStyleExamples(value: NameStyleExample[] | null) {
-    (this._clone.system.nameStyleExamples as NameStyleExample[] | null) = value;
+  public set nameStyleExamples(value: NameStyleExamples) {
+    // @ts-ignore
+    this._clone.system.nameStyleExamples = value;
   }
 
   public get journals(): RelatedJournal[] {
@@ -302,7 +303,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    * @param {boolean} [makeCurrent=false] If true, sets the new setting as the current setting.
    * @param {string} [name] The name of the new setting.
    * @param {string} [compendiumId] The ID of the compendium to use.
-   * @param {boolean} [skipValidation=false] If true, skips validation and rolltables.  Mostly only useful for migration
+   * @param {boolean} [skipValidation=false] If true, skips validation and RollTables.  Mostly only useful for migration
    * @returns The new setting, or null if the user cancelled the dialog.
    */
   public static async create(makeCurrent = false, name = '', compendiumId = '', skipValidation = false): Promise<FCBSetting | null> {
@@ -429,7 +430,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
       .filter((e: EntryFilterIndex)=> filterFn(e)) || [];
 
     if (!fullEntry || entries.length===0)
-      // @ts-ignore - we know it's false and entries is a EntryFilterIndex[]
+      // @ts-ignore - we know it's false and entries is a EntryFilterIndex[] or it's an empty array
       return entries;
 
     let retval = [] as Entry[];
@@ -439,6 +440,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         retval.push(entry);
     }
 
+    // @ts-ignore - we know fullEntry is true and retval is an Entry[]
     return retval;
   }
 
