@@ -5,7 +5,6 @@ import { SpeciesListApplication } from '@/applications/settings/SpeciesListAppli
 import { RollTableSettingsApplication } from '@/applications/settings/RollTableSettingsApplication';
 import { SessionDisplayMode, Species, TagList, GeneratorType, SettingIndex, CustomFieldContentType, CustomFieldDescription, defaultCustomFields } from '@/types';
 import type { ApiLocationGenerateImagePostRequestImageModelEnum, ApiLocationGenerateImagePostRequestTextModelEnum } from '@/apiClient';
-import { SettingDoc } from '@/documents';
 
 export enum SettingKey {
   // displayed in main settings window
