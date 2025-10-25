@@ -31,7 +31,7 @@
     <div class="fcb-bookmark-bar flexrow">
       <div 
         id="fcb-history-back" 
-        :class="'nav-button ' + (canBack() ? '' : 'disabled')" 
+        :class="'nav-button ' + (canBack ? '' : 'disabled')" 
         :title="localize('tooltips.historyBack')"
         @click="onHistoryBackClick"
       >
@@ -39,7 +39,7 @@
       </div>
       <div 
         id="fcb-history-forward" 
-        :class="'nav-button ' + (canForward() ? '' : 'disabled')" 
+        :class="'nav-button ' + (canForward ? '' : 'disabled')" 
         :title="localize('tooltips.historyForward')"
         @click="onHistoryForwardClick"
       >
@@ -97,7 +97,6 @@
 
   // types
   import { Bookmark, } from '@/types';
-  import { WindowTab, } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -290,23 +289,23 @@
     }, 10);
   };
 
-  const canBack = function (tab?: WindowTab): boolean {
-    const checkTab = tab || navigationStore.getActiveTab();
+  const canBack = computed(() => {
+    const checkTab = navigationStore.getActiveTab();
 
     if (!checkTab)
       return false;
 
     return (checkTab.history?.length > 1) && (checkTab.historyIdx > 0 );
-  };
+  });
 
-  const canForward = function (tab?: WindowTab): boolean {
-    const checkTab = tab || navigationStore.getActiveTab();
+  const canForward = computed(() => {
+    const checkTab = navigationStore.getActiveTab();
 
     if (!checkTab)
       return false;
 
     return (checkTab.history?.length > 1) && (checkTab.historyIdx < checkTab.history.length-1);
-  };
+  });
 
 
   ////////////////////////////////

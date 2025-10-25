@@ -468,6 +468,10 @@ export const useNavigationStore = defineStore('navigation', () => {
       return;
 
     tab.historyIdx = newSpot;
+    
+    // Trigger reactivity by reassigning the tabs array
+    tabs.value = [...tabs.value];
+    
     await openContent(tab.history[tab.historyIdx].contentId, tab.history[tab.historyIdx].tabType, { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
 
     // Restore the content tab from history
