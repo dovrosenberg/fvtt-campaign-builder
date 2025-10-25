@@ -36,15 +36,6 @@ export const renderCampaignBuilderApp = async () => {
   // wbApp is managed inside _canRender, which gets called both by this as well
   //    as any Foundry attempts to render
   const newWindow = new CampaignBuilderApplication();
-
-  if (!wbApp) {
-    // we hold it here... there's an issue where we can't import this file
-    //    into other places that need access to wbApp because it triggers
-    //    an issue with pinia reference instantiation order
-    // but we need it to be able to close it programatically
-    // @ts-ignore
-    game.modules.get(moduleId).activeWindow = wbApp;    
-  }
   newWindow.render(true);
 };
 
@@ -93,9 +84,6 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     }
   };
 
-  // Foundry's isFirstRender isn't available yet in _canRender and neither is #state
-  private isFirstRender = true;
-
   // Override to prevent DocumentSheetV2 from adding default controls
   override _getHeaderControls() {
     return [];
@@ -114,81 +102,99 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     
     this._inMiddleOfRender = true;
 
-    // prevent the window from opening at all if we're trying to open an invalid
-    //    doc or we had a failed migration
-    if (MigrationManager.migrationFailed) {
-      notifyError(localize('notifications.migration.cannotOpen'));
-      this._inMiddleOfRender = false;
-      return false;
-    }
-
-    // if we already have a wbApp, don't render another CampaignBuilder
-    // we will return false to prevent Foundry from opening another window
-    //    but we need to handle the document we're trying to open here otherwise
-    //    we can never open a specific document after the first time
-    let preventRender = (!!wbApp || !this.isFirstRender);
-
-    this.isFirstRender = false;    
-
-    if (!wbApp)
-      wbApp = this;
-
-    const doc = this.document;
-
-    // handle the scenarios where we just need to abort
-    if (!doc) {
-      this._inMiddleOfRender = false;
-      return false;
-    }
-
-    const docToCheck = doc.documentName === 'JournalEntryPage' ? doc.parent : doc;
-
-    if (!docToCheck) {
-      notifyError('Attempt to open invalid journal entry in Campaign Builder');
-      this._inMiddleOfRender = false;
-      return false;
-    }
-
-    // if it's our fake one, don't worry about other details 
-    if (doc.name !== FCB_OPEN_WINDOW_NAME) {
-      if (!['JournalEntry', 'JournalEntryPage'].includes(doc.documentName)) {
-        notifyError('Attempt to open invalid document in Campaign Builder');
+    try {
+      // Prevent opening before the ready hook - settingIndex hasn't been populated yet
+      // Map notes are somehow automatically trying to open before the ready hook fires
+      if (!game.ready) {
         this._inMiddleOfRender = false;
         return false;
       }
 
-      if (!docToCheck.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType)) {
-        // not FCB
-        notifyError('Attempt to open invalid journal entry in Campaign Builder');
+      // prevent the window from opening at all if we're trying to open an invalid
+      //    doc or we had a failed migration
+      if (MigrationManager.migrationFailed) {
+        notifyError(localize('notifications.migration.cannotOpen'));
         this._inMiddleOfRender = false;
         return false;
-      } else if (docToCheck.pages.contents.length === 0) {
-        // no pages
+      }
+
+      if (!wbApp) {
+        wbApp = this;
+
+        // we hold it here... there's an issue where we can't import this file
+        //    into other places that need access to wbApp because it triggers
+        //    an issue with pinia reference instantiation order
+        // but we need it to be able to close it programatically
+        // @ts-ignore
+        game.modules.get(moduleId).activeWindow = wbApp;    
+      }
+
+      // if we already have a wbApp, don't render another CampaignBuilder
+      // we will return false to prevent Foundry from opening another window
+      //    but we need to handle the document we're trying to open here otherwise
+      //    we can never open a specific document after the first time
+      let preventRender = wbApp.rendered;
+
+      const doc = this.document;
+
+      // handle the scenarios where we just need to abort
+      if (!doc) {
+        this._inMiddleOfRender = false;
+        return false;
+      }
+
+      const docToCheck = doc.documentName === 'JournalEntryPage' ? doc.parent : doc;
+
+      if (!docToCheck) {
         notifyError('Attempt to open invalid journal entry in Campaign Builder');
         this._inMiddleOfRender = false;
         return false;
       }
-    }
 
-    // at this point we know this is a first attempt to open the window (though it 
-    //    might be a new instance we want to cancel)
-    // so we handle the document
+      // if it's our fake one, don't worry about other details 
+      if (doc.name !== FCB_OPEN_WINDOW_NAME) {
+        if (!['JournalEntry', 'JournalEntryPage'].includes(doc.documentName)) {
+          notifyError('Attempt to open invalid document in Campaign Builder');
+          this._inMiddleOfRender = false;
+          return false;
+        }
 
-    // handle our special one
-    if (doc.name === FCB_OPEN_WINDOW_NAME) {
+        if (!docToCheck.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType)) {
+          // not FCB
+          notifyError('Attempt to open invalid journal entry in Campaign Builder');
+          this._inMiddleOfRender = false;
+          return false;
+        } else if (docToCheck.pages.contents.length === 0) {
+          // no pages
+          notifyError('Attempt to open invalid journal entry in Campaign Builder');
+          this._inMiddleOfRender = false;
+          return false;
+        }
+      }
+
+      // at this point we know this is a first attempt to open the window (though it 
+      //    might be a new instance we want to cancel)
+      // so we handle the document
+
+      // handle our special one
+      if (doc.name === FCB_OPEN_WINDOW_NAME) {
+        this._inMiddleOfRender = false;
+        return;
+      }
+
+      // handle opening any other document
+      // this is async, but should be OK
+      CampaignBuilderApplication.handleDocument(docToCheck);
+
       this._inMiddleOfRender = false;
-      return;
+      if (preventRender)
+        return false;  // we already had a wbApp open, so don't need another
+      else 
+        return;  // this is really the first time we're opening any CampaignBuilder
+    } catch (e) {
+      this._inMiddleOfRender = false;
+      throw e;
     }
-
-    // handle opening any other document
-    // this is async, but should be OK
-    CampaignBuilderApplication.handleDocument(docToCheck);
-
-    this._inMiddleOfRender = false;
-    if (preventRender)
-      return false;  // we already had a wbApp open, so don't need another
-    else 
-      return;  // this is really the first time we're opening any CampaignBuilder
   }
 
   constructor(options?: any, ...args: any[]) {
@@ -219,8 +225,20 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
 
   // called when we first open the window
   // doc must already have been checked to be a FCB entry
-  static async handleDocument(doc: foundry.documents.JournalEntry) {
-    let docType = doc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType);
+  static async handleDocument(incomingDoc: foundry.documents.JournalEntry) {
+    let docType = incomingDoc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType);
+    let doc = incomingDoc;
+
+    // Check if this is a world copy - if so, redirect to the original compendium entry
+    const originalUuid = doc.getFlag(moduleId, JournalEntryFlagKey.originalUuid) as string | undefined;
+    if (originalUuid && originalUuid !== incomingDoc.uuid) {
+      // This is a world copy, load the original compendium entry instead
+      const originalDoc = await fromUuid(originalUuid) as foundry.documents.JournalEntry | null;
+      if (originalDoc) {
+        doc = originalDoc;
+      }
+    }
+
     let uuid = doc.uuid; 
 
     if (!docType || !uuid || !Object.values(DOCUMENT_TYPES).includes(docType))

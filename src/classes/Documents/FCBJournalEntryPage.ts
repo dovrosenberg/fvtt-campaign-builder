@@ -68,8 +68,13 @@ export class FCBJournalEntryPage<
       this._clone.parent.name = value;
   }
 
+  // we use a custom flag to hold this because that way if a copy is made to the local 
+  //    world, the flag goes with it and when we open that, we'll actually be editing the 
+  //    master copy.  The only thing that matters in the local copy is the name, uuid 
+  //    (also stored in a flag to keep the link to the original), and this compendiumId.
   public get compendiumId(): string {
-    return this._doc.pack || '';
+    const packId = this._doc.parent?.getFlag(moduleId, JournalEntryFlagKey.originalPackId);
+    return packId || '';
   }
 
   public get compendium(): CompendiumCollection<'JournalEntry'> { 
@@ -79,7 +84,7 @@ export class FCBJournalEntryPage<
   public get settingId(): string {
     const settings = ModuleSettings.get(SettingKey.settingIndex);
 
-    const setting = settings.find(s => s.packId === this._doc.pack);
+    const setting = settings.find(s => s.packId === this.compendiumId);
 
     if (!setting)
       throw new Error(`Setting not found for FCBJournalEntryPage ${this.uuid}`);
@@ -174,9 +179,9 @@ export class FCBJournalEntryPage<
         // rebuild the index (by adding a random field name) because otherwise index won't update
         // see Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
         // don't really need to await this
-        const pack = game.packs.get(this._doc.pack as string);
+        const pack = game.packs.get(this.compendiumId);
         if (!pack)
-          throw new Error(`Invalid compendium in FCBJournalEntryPage.save() ${this._doc.pack}`);
+          throw new Error(`Invalid compendium in FCBJournalEntryPage.save() ${this.compendiumId}`);
         // @ts-ignore
         void pack.getIndex({ fields: [foundry.utils.randomID()]});
       }      
@@ -229,7 +234,8 @@ export class FCBJournalEntryPage<
       folder: folder?.id ? folder.id : undefined,
       flags: {
         [moduleId]: {
-          [JournalEntryFlagKey.campaignBuilderType]: this._documentType
+          [JournalEntryFlagKey.campaignBuilderType]: this._documentType,
+          [JournalEntryFlagKey.originalPackId]: compendiumId
         },
         core: {
           sheetClass: `${moduleId}._CampaignBuilderApplication`
@@ -242,6 +248,9 @@ export class FCBJournalEntryPage<
   
     if (!journalEntry)
       throw new Error('Couldn\'t create new journal entry');
+  
+    // Set the originalUuid flag to point to itself (this persists when copied to world)
+    await journalEntry.setFlag(moduleId, JournalEntryFlagKey.originalUuid, journalEntry.uuid);
   
     const pageData = foundry.utils.mergeObject({
       type: this._documentType,
