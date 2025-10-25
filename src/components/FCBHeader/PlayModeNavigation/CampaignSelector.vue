@@ -3,7 +3,7 @@
     <label for="campaign-selector">{{localize('labels.fields.campaign')}}:</label>
     <Select
       id="campaign-selector"
-      v-model="currentPlayedCampaignId"
+      v-model="selectedCampaignId"
       :options="playableCampaigns"
       optionLabel="name"
       optionValue="uuid"
@@ -20,12 +20,16 @@
 
 <script setup lang="ts">
   // library imports
-  import { computed, } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
   import { useMainStore, usePlayingStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import { SessionNotesApplication } from '@/applications/SessionNotes';
+  import { hasUnsavedChanges, saveAndCloseAllActiveEditors, closeAllActiveEditors } from '@/utils/editorChangeDetection';
+  import { saveChangesDialog, SaveChangesResult } from '@/dialogs/saveChanges';
+  import { notifyError, notifyInfo } from '@/utils/notifications';
 
   // library components
   import Select from 'primevue/select';
@@ -43,6 +47,9 @@
 
   ////////////////////////////////
   // data
+  
+  // Local ref for the selected campaign to intercept changes
+  const selectedCampaignId = ref<string | null>(currentPlayedCampaignId.value);
 
   // Only show the selector if there are multiple campaigns
   const showSelector = computed(() => {
@@ -58,6 +65,54 @@
 
   ////////////////////////////////
   // watchers
+  
+  // Keep local ref in sync with store
+  watch(() => currentPlayedCampaignId.value, (newValue) => {
+    selectedCampaignId.value = newValue;
+  }, { immediate: true });
+  
+  // Intercept campaign changes to handle cleanup
+  watch(selectedCampaignId, async (newValue, oldValue) => {
+    // Skip if no actual change or initializing
+    if (newValue === oldValue || oldValue === null) {
+      return;
+    }
+
+    // NOTE: the change to the global has to happen at the very end
+    //    because it will trigger a current session change
+    // Check for unsaved changes in editors
+    if (hasUnsavedChanges()) {
+      const result = await saveChangesDialog();
+      
+      if (result === SaveChangesResult.Cancel) {
+        // Revert the selection
+        selectedCampaignId.value = oldValue;
+        return;
+      } else if (result === SaveChangesResult.Save) {
+        // Save all changes before switching
+        try {
+          await saveAndCloseAllActiveEditors();
+        } catch (error) {
+          notifyError('Failed to save editors: ' + error);
+          // Revert the selection if save fails
+          selectedCampaignId.value = oldValue;
+          return;
+        }
+      } else {
+        // Discard changes
+        notifyInfo(localize('notifications.changesDiscarded'));
+        // Close all editors without saving
+        await closeAllActiveEditors();
+      }
+    }
+    
+    // Close session notes window (which will save if dirty)
+    // This mimics what happens when exiting play mode
+    await SessionNotesApplication.close();
+    
+    // Now update the store to trigger the actual campaign switch
+    currentPlayedCampaignId.value = newValue;
+  });
 
   ////////////////////////////////
   // lifecycle events

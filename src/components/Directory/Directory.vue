@@ -57,10 +57,12 @@
         :options="settingOptions"
         optionLabel="name"
         optionValue="uuid"
+        :disabled="isInPlayMode"
         :pt="{
           root: { 
             'data-testid': 'setting-select',
-            style: 'width: 100%'
+            style: 'width: 100%',
+            'data-tooltip': isInPlayMode ? localize('tooltips.cannotChangeSettingInPlayMode') : ''
           }
         }"
         @change="onSettingChange"
@@ -132,7 +134,7 @@
   const settingDirectoryStore = useSettingDirectoryStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const mainStore = useMainStore();
-  const { currentSetting } = storeToRefs(mainStore);
+  const { currentSetting, isInPlayMode } = storeToRefs(mainStore);
   const { filterText, isSettingTreeRefreshing, isGroupedByType, } = storeToRefs(settingDirectoryStore);
   const { isCampaignTreeRefreshing } = storeToRefs(campaignDirectoryStore);
 

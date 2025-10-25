@@ -290,7 +290,7 @@
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal } from '@/types';
-  import { FCBSetting, TopicFolder, Backend, Entry } from '@/classes';
+  import { FCBSetting, TopicFolder, Backend, Entry, Session } from '@/classes';
   import { DOCUMENT_TYPES } from '@/documents';
 
 
@@ -519,11 +519,11 @@
     // if we're in play mode with an active session, put that at the top
     let currentCampaignId: string | null = null;
     let activeItem: MenuItem | null = null;
-    if (currentPlayedCampaign.value?.currentSession) {
+    if (currentPlayedCampaign.value?.currentSessionId) {
       currentCampaignId = currentPlayedCampaign.value.uuid;
       
       activeItem = {
-        label: `${campaigns[currentCampaignId].name} (#${campaigns[currentCampaignId].currentSession?.number})`,        
+        label: `${campaigns[currentCampaignId].name} (#${campaigns[currentCampaignId].currentSessionNumber})`,        
         customClass: 'push-to-active-campaign-menu-item',
         onClick: async () => { await selectCampaignForPush(currentCampaignId as string); },
         divided: campaignsWithSessions.length > 1 ? 'down' : undefined,
@@ -537,11 +537,11 @@
         continue;
 
       // skip ones without sessions
-      if (!campaigns[campaignId].currentSession)
+      if (!campaigns[campaignId].currentSessionId)
         continue;
 
       menuItems.push({
-        label: `${campaigns[campaignId].name} (#${campaigns[campaignId].currentSession?.number})`,        
+        label: `${campaigns[campaignId].name} (#${campaigns[campaignId].currentSessionNumber})`,        
         onClick: async () => { await selectCampaignForPush(campaignId); },
       });
     }
@@ -564,11 +564,11 @@
   const selectCampaignForPush = async (campaignUuid: string): Promise<void> => {
     // get the campaign
     const campaign = await currentSetting.value?.campaigns[campaignUuid];
-    if (!campaign)
+    if (!campaign || !campaign.currentSessionId)
       return;
 
     // get the session
-    const session = campaign.currentSession;
+    const session = await Session.fromUuid(campaign.currentSessionId);
     if (!session || !currentEntry.value)
       return;
 
