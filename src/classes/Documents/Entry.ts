@@ -397,7 +397,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     if (this._clone.system.type !== this._doc.system.type) {
       const topicFolder = setting.topicFolders[this.topic];
 
-      await Entry.addTypeIfNeeded(topicFolder, this._clone.system.type);
+      await Entry.addTypeIfNeeded(topicFolder!, this._clone.system.type);
     }
 
     // update name index if it changed
@@ -480,16 +480,13 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
       return [];
 
     // if the flag has this topic, it's a Record keyed by uuid
-    return Object.keys(relationships[topicFolder.topic]);
+    return Object.keys(relationships[topicFolder.topic] || {});
   }
 
   /** Adds the type to the list on the topic, if it's not there already.
    *  Requires the setting to be unlocked already
    */
   private static async addTypeIfNeeded(topicFolder: TopicFolder, type: string): Promise<void> {
-    if (!topicFolder)
-        debugger;
-
     const currentTypes = topicFolder.types;
 
     // if not a duplicate, add to the valid type lists 
