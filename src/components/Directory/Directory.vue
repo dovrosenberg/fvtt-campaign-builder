@@ -133,7 +133,7 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const mainStore = useMainStore();
   const { currentSetting } = storeToRefs(mainStore);
-  const { filterText, isSettingTreeRefreshing, isGroupedByType, currentSettingTree } = storeToRefs(settingDirectoryStore);
+  const { filterText, isSettingTreeRefreshing, isGroupedByType, } = storeToRefs(settingDirectoryStore);
   const { isCampaignTreeRefreshing } = storeToRefs(campaignDirectoryStore);
 
   ////////////////////////////////
