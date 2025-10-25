@@ -200,7 +200,6 @@
         "sessionNumber": "Nummer",
         "sessionDate": "Sitzungsdatum",
         "playerName": "Spielername",
-        "backgroundPoints": "Hintergrundpunkte",
         "otherPlotPoints": "Andere Handlungspunkte",
         "desiredMagicItems": "Gewünschte magische Gegenstände",
         "species": "Art",
@@ -224,7 +223,8 @@
           "description": "Beschreibung",
           "roleplay": "Rollenspielnotizen",
           "both": "Beides"
-        }
+        },
+        "background": "Hintergrund"
       },
       "addTopic": {
         "character": "Charakter hinzufügen",
@@ -393,7 +393,8 @@
     "dialogs": {
       "generateNameDialog": {
         "title": "Option auswählen",
-        "errorMessage": "Es gab einen Fehler:"
+        "errorMessage": "Es gab einen Fehler:",
+        "emptyTable": "Es sind keine ungezogenen Namen mehr in der RollTable vorhanden. Sie können sie öffnen und neue hinzufügen oder 'Ergebnisse zurücksetzen' verwenden, um alte Namen wiederzuverwenden."
       },
       "confirmDeleteRelationship": {
         "title": "Aus Beziehung entfernen?",
@@ -609,10 +610,15 @@
       "deleteToDo": "Aufgabe abschließen",
       "editRow": "Dieses Element bearbeiten. Drücken Sie die Eingabetaste, um Änderungen zu speichern.",
       "deleteIdea": "Idee löschen",
-      "settingGenerateContent": "Einstellungsgenerierungskonfiguration verwalten"
+      "settingGenerateContent": "Verwaltung der Generierungskonfiguration für Einstellungen",
+      "moreBookmarks": "Weitere Lesezeichen",
+      "moveToToDo": "Zur Aufgabenliste verschieben",
+      "moveToIdeas": "Zur Ideenliste verschieben",
+      "cannotChangeSettingInPlayMode": "Einstellung kann im Spielmodus nicht geändert werden"
     },
     "errors": {
-      "duplicateBookmark": "Bereits als Lesezeichen gespeichert"
+      "duplicateBookmark": "Bereits als Lesezeichen gespeichert",
+      "nameRequired": "Name darf nicht leer sein"
     },
     "notifications": {
       "backend": {
@@ -625,7 +631,16 @@
       "addedToSession": "zur Sitzung hinzugefügt",
       "changesSaved": "Änderungen gespeichert",
       "todoReferenceNotFound": "Die verknüpfte Referenz für dieses To-Do-Element existiert nicht mehr.",
-      "changesDiscarded": "Änderungen verworfen"
+      "changesDiscarded": "Änderungen verworfen",
+      "migration": {
+        "minimumVersionRequired": "Campign Builder kann nicht von Version {0} migrieren. Sie müssen zuerst auf Version {1} oder höher aktualisieren, bevor Sie auf {2} upgraden.",
+        "cannotOpen": "Campaign Builder kann nicht geöffnet werden, da die Migration fehlgeschlagen ist. Bitte überprüfen Sie die Konsole auf Details und beheben Sie das Migrationsproblem."
+      }
+    },
+    "contentFolders": {
+      "campaigns": "Kampagnen",
+      "entries": "Einträge",
+      "sessions": "Sitzungen"
     }
   }
 }
