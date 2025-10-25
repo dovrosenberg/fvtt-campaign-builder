@@ -159,7 +159,7 @@ body.theme-dark {
   --fcb-button-text:    var(--fcb-text);
   --fcb-button-border:  var(--fcb-border);
   --fcb-button-bg-hover: var(--fcb-primary-800);
-  --fcb-button-text-hover: var(--fcb-text);
+  --fcb-button-text-hover: var(--fcb-text-on-primary);
   --fcb-button-border-hover: var(--fcb-accent-500);
 
   --fcb-link:          hsl(var(--fcb-primary-h) 50% 70%);
