@@ -1,5 +1,5 @@
 import { useNavigationStore, useMainStore, useSettingDirectoryStore } from '@/applications/stores';
-import { EntryFilterIndex, Topics } from '@/types';
+import { Topics, EntryFilterIndex } from '@/types';
 import { isClientGM } from '@/utils/game';
 
 export function registerForUpdateHooks() {
