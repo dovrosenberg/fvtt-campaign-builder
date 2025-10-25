@@ -114,81 +114,86 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     
     this._inMiddleOfRender = true;
 
-    // prevent the window from opening at all if we're trying to open an invalid
-    //    doc or we had a failed migration
-    if (MigrationManager.migrationFailed) {
-      notifyError(localize('notifications.migration.cannotOpen'));
-      this._inMiddleOfRender = false;
-      return false;
-    }
-
-    // if we already have a wbApp, don't render another CampaignBuilder
-    // we will return false to prevent Foundry from opening another window
-    //    but we need to handle the document we're trying to open here otherwise
-    //    we can never open a specific document after the first time
-    let preventRender = (!!wbApp || !this.isFirstRender);
-
-    this.isFirstRender = false;    
-
-    if (!wbApp)
-      wbApp = this;
-
-    const doc = this.document;
-
-    // handle the scenarios where we just need to abort
-    if (!doc) {
-      this._inMiddleOfRender = false;
-      return false;
-    }
-
-    const docToCheck = doc.documentName === 'JournalEntryPage' ? doc.parent : doc;
-
-    if (!docToCheck) {
-      notifyError('Attempt to open invalid journal entry in Campaign Builder');
-      this._inMiddleOfRender = false;
-      return false;
-    }
-
-    // if it's our fake one, don't worry about other details 
-    if (doc.name !== FCB_OPEN_WINDOW_NAME) {
-      if (!['JournalEntry', 'JournalEntryPage'].includes(doc.documentName)) {
-        notifyError('Attempt to open invalid document in Campaign Builder');
+    try {
+      // prevent the window from opening at all if we're trying to open an invalid
+      //    doc or we had a failed migration
+      if (MigrationManager.migrationFailed) {
+        notifyError(localize('notifications.migration.cannotOpen'));
         this._inMiddleOfRender = false;
         return false;
       }
 
-      if (!docToCheck.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType)) {
-        // not FCB
-        notifyError('Attempt to open invalid journal entry in Campaign Builder');
+      // if we already have a wbApp, don't render another CampaignBuilder
+      // we will return false to prevent Foundry from opening another window
+      //    but we need to handle the document we're trying to open here otherwise
+      //    we can never open a specific document after the first time
+      let preventRender = (!!wbApp || !this.isFirstRender);
+
+      this.isFirstRender = false;    
+
+      if (!wbApp)
+        wbApp = this;
+
+      const doc = this.document;
+
+      // handle the scenarios where we just need to abort
+      if (!doc) {
         this._inMiddleOfRender = false;
         return false;
-      } else if (docToCheck.pages.contents.length === 0) {
-        // no pages
+      }
+
+      const docToCheck = doc.documentName === 'JournalEntryPage' ? doc.parent : doc;
+
+      if (!docToCheck) {
         notifyError('Attempt to open invalid journal entry in Campaign Builder');
         this._inMiddleOfRender = false;
         return false;
       }
-    }
 
-    // at this point we know this is a first attempt to open the window (though it 
-    //    might be a new instance we want to cancel)
-    // so we handle the document
+      // if it's our fake one, don't worry about other details 
+      if (doc.name !== FCB_OPEN_WINDOW_NAME) {
+        if (!['JournalEntry', 'JournalEntryPage'].includes(doc.documentName)) {
+          notifyError('Attempt to open invalid document in Campaign Builder');
+          this._inMiddleOfRender = false;
+          return false;
+        }
 
-    // handle our special one
-    if (doc.name === FCB_OPEN_WINDOW_NAME) {
+        if (!docToCheck.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType)) {
+          // not FCB
+          notifyError('Attempt to open invalid journal entry in Campaign Builder');
+          this._inMiddleOfRender = false;
+          return false;
+        } else if (docToCheck.pages.contents.length === 0) {
+          // no pages
+          notifyError('Attempt to open invalid journal entry in Campaign Builder');
+          this._inMiddleOfRender = false;
+          return false;
+        }
+      }
+
+      // at this point we know this is a first attempt to open the window (though it 
+      //    might be a new instance we want to cancel)
+      // so we handle the document
+
+      // handle our special one
+      if (doc.name === FCB_OPEN_WINDOW_NAME) {
+        this._inMiddleOfRender = false;
+        return;
+      }
+
+      // handle opening any other document
+      // this is async, but should be OK
+      CampaignBuilderApplication.handleDocument(docToCheck);
+
       this._inMiddleOfRender = false;
-      return;
+      if (preventRender)
+        return false;  // we already had a wbApp open, so don't need another
+      else 
+        return;  // this is really the first time we're opening any CampaignBuilder
+    } catch (e) {
+      this._inMiddleOfRender = false;
+      throw e;
     }
-
-    // handle opening any other document
-    // this is async, but should be OK
-    CampaignBuilderApplication.handleDocument(docToCheck);
-
-    this._inMiddleOfRender = false;
-    if (preventRender)
-      return false;  // we already had a wbApp open, so don't need another
-    else 
-      return;  // this is really the first time we're opening any CampaignBuilder
   }
 
   constructor(options?: any, ...args: any[]) {
