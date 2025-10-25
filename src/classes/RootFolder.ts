@@ -1,34 +1,21 @@
 import { ModuleSettings, SettingKey } from '@/settings';
-import { RootFolderDoc, RootFolderFlagKey, rootFolderFlagSettings } from '@/documents';
-import { DocumentWithFlags } from '@/classes/DocumentWithFlags';
+import { RootFolderDoc, } from '@/documents';
 import { localize } from '@/utils/game';
-import { Setting } from './Setting';
 
-export class RootFolder extends DocumentWithFlags<RootFolderDoc> {
-  static override _documentName = 'Folder';
-  static override _flagSettings = rootFolderFlagSettings;
+export class RootFolder {
+  protected _doc: RootFolderDoc;
 
   constructor(doc: RootFolderDoc) {
-    super(doc, RootFolderFlagKey.isRootFolder);
+    // make sure it's the right kind of document
+    if (doc.documentName !== 'Folder')
+      throw new Error('Invalid document type in RootFolder constructor');
+
+    // clone it to avoid unexpected changes, also drop the proxy
+    this._doc = foundry.utils.deepClone(doc);
   }
 
-  // Root folder is a Folder so it's outside compendia
-  override get requiresUnlock(): boolean {
-    return false;
-  }
-
-  // direct access to Foundry document
-  get raw(): RootFolderDoc {
-    return this._doc;
-  }
-
-  public get uuid(): string { return this._doc.uuid; }
-  public get id(): string { return this._doc.id as string; }
-  public get name(): string { return this._doc.name; }
-  public set name(value: string) {
-    this._cumulativeUpdate = foundry.utils.mergeObject(this._cumulativeUpdate, { name: value });
-  }
-
+  public get raw(): RootFolderDoc { return this._doc; }
+  
   /**
    * Gets the root folder.
    * If it is not stored in settings, creates a new folder and saves it to settings.
@@ -74,29 +61,10 @@ export class RootFolder extends DocumentWithFlags<RootFolderDoc> {
 
     const doc = folders[0] as RootFolderDoc;
     const rf = new RootFolder(doc);
-    await rf.setup();
 
     // update the module settings
-    await ModuleSettings.set(SettingKey.rootFolderId, rf.uuid);
+    await ModuleSettings.set(SettingKey.rootFolderId, doc.uuid);
 
     return rf;
-  }
-
-  /** save any accumulated changes */
-  public async save(): Promise<RootFolder | null> {
-    const updateData = this._cumulativeUpdate;
-    if (Object.keys(updateData).length === 0) return this;
-
-    const retval = await this._doc.update(updateData) || null;
-    if (retval) {
-      this._doc = retval;
-      this._cumulativeUpdate = {};
-      return this;
-    }
-    return null;
-  }
-
-  public get children(): Folder[] {
-    return this._doc?.children || [] as Folder[];
   }
 }

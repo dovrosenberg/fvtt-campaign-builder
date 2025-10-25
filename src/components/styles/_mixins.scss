@@ -1,0 +1,46 @@
+@mixin style-base-components {
+  // set the font-family across everything (override Foundry defaults)
+  // but exclude header control icons
+  a.button, button:not(.header-control.icon), input, textarea, select, thead.p-datatable-thead {
+    font-family: var(--fcb-font-family) !important;
+  }
+
+  // set the default control colors
+  input[type="text"], input[type="checkbox"], textarea, select {
+    color: var(--fcb-control-text);
+    background-color: var(--fcb-control-bg);
+    border: 0.8px solid var(--fcb-control-border);
+    
+    &:hover {
+      background-color: var(--fcb-control-bg-alt);
+      border: 0.8px solid var(--fcb-control-border-hover);
+    }
+
+    &:focus {
+      border: 0.8px solid var(--fcb-control-border-focus);
+    }
+  }
+
+  input[type="text"], textarea {
+    &::placeholder {
+      color: var(--fcb-control-text-muted);
+    }
+
+  }
+
+  button {
+    color: var(--fcb-control-text);
+    background-color: var(--fcb-button-bg);
+    border: 0.8px solid var(--fcb-button-border);
+    
+    &:hover {
+      color: var(--fcb-button-text-hover);
+      background-color: var(--fcb-button-bg-hover);
+      border: 0.8px solid var(--fcb-button-border-hover);
+    }
+  }
+
+  label {
+    color: var(--fcb-control-text-muted);
+  }
+}

@@ -13,6 +13,7 @@
           label: localize('labels.tryAgain'),
           default: false,
           close: false,
+          disable: tooFewOptions,
           callback: onTryAgainClick
         },
         {
@@ -35,7 +36,7 @@
       <div
         class="flexcol generate-options-dialog"
       >
-        <h3>{{ localize('dialogs.generateOptions.title') }}</h3>
+        <h3 style="margin-top: 1rem;">{{ localize('dialogs.generateNameDialog.title') }}</h3>
         <div class="options-container">
           <div v-if="loading" class="loading-container">
             <ProgressSpinner />
@@ -51,7 +52,7 @@
               :class="{ selected: selectedOptionIndex === index }"
               @click="selectOption(index)"
             >
-              <div class="option-content">{{ option.description }}</div>
+              <div class="option-content">{{ option.name || option.text }}</div>
             </div>
           </div>
         </div>
@@ -102,6 +103,7 @@
   const loading = ref<boolean>(false);
   const error = ref<string>('');
   const rollTable = ref<RollTable | null>(null);
+  const tooFewOptions = ref<boolean>(false);  // not enough to try again
 
   ////////////////////////////////
   // computed data
@@ -114,7 +116,7 @@
     if (selectedOptionIndex.value === null) 
       return null;
     
-    return options.value[selectedOptionIndex.value].description;
+    return options.value[selectedOptionIndex.value].name;
   });
 
   ////////////////////////////////
@@ -160,18 +162,24 @@
       if (!rollTable.value)
         throw new Error('Invalid uuid in GenerateNameDialog.drawOptions()');
       
+      // figure out how many to draw
+      const desiredCount = 3;
+      const remaining = toRaw(rollTable.value).results.size;
+
+      // If we got results, select the first one by default
+      if (remaining === 0) {
+        // could happen... we're showing 3 at a time of 100... 
+        throw new Error('Ran out of results in GenerateNameDialog.drawOptions');
+      } else if (remaining <= desiredCount) {
+        // TODO - when we load the dialog, if there are too few left, refresh the generator
+        tooFewOptions.value = true;
+      }
+
       // Draw 3 results from the table
-      const draws = await toRaw(rollTable.value).drawMany(3, {
+      const draws = await toRaw(rollTable.value).drawMany(Math.min(desiredCount, remaining), {
         displayChat: false
       });
-      options.value = draws.results;
-      
-      // If we got results, select the first one by default
-      if (options.value.length === 0) {
-        // could happen... we're showing 3 at a time of 100... 
-        // TODO - when we load the dialog, if there are too few left, refresh the generator
-        throw new Error('Ran out of results in GenerateNameDialog.drawOptions');
-      }
+      options.value = draws.results;      
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);
     } finally {
@@ -288,18 +296,18 @@
       
       .option-item {
         padding: 0.75rem;
-        border: 1px solid var(--color-border-light-tertiary);
+        border: 1px solid var(--fcb-control-border);
         border-radius: 4px;
         cursor: pointer;
         transition: all 0.2s ease;
         
         &:hover {
-          background-color: rgba(0, 0, 0, 0.05);
+          background-color: var(--fcb-accent-200);
         }
         
         &.selected {
-          background-color: rgba(0, 0, 0, 0.1);
-          border-color: var(--color-border-highlight);
+          background-color: var(--fcb-surface-2);
+          border-color: var(--fcb-accent);
         }
 
         .option-content {

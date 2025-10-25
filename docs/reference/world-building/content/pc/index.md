@@ -27,7 +27,7 @@ PCs are directly tied to the Actors for those characters in Foundry.  To make th
 ### Description
 The description tab has the following fields instead of the normal ones:
 * Player Name
-* Background Points - good for keeping track of key background on the character you want to review before each session (as opposed to more detailed bios that may exist on the character sheet)
+* Background - good for keeping track of key background on the character you want to review before each session (as opposed to more detailed bios that may exist on the character sheet)
 * Other Plot Points - this is where you can track background items that will make for good plot hooks (ex. an enemy)
 * Desired Magic Items - keep a list of ideas for future magic items you might want to give the character
 

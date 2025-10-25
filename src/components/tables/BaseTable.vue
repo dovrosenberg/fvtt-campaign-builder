@@ -1,5 +1,5 @@
 <template>
-  <div class="primevue-only" style="display: flex">
+  <div class="primevue-only fcb-table-wrapper" style="display: flex">
     <DataTable
       data-key="uuid"
       :value="rows"
@@ -41,6 +41,7 @@
             <Button
               v-if="props.showAddButton"
               unstyled
+              data-testid="table-add-button"
               :label="props.addButtonLabel" 
               style="flex: initial; width:auto;"
               @click="emit('addItem')"
@@ -78,6 +79,8 @@
             </InputIcon>
             <InputText 
               v-model="pagination.filters.global.value"  
+              data-testid="table-filter-input"
+              unstyled
               style="font-size: var(--font-size-14);"
               :placeholder="localize('placeholders.search')"
             />
@@ -117,6 +120,7 @@
               <a 
                 v-if="props.allowDelete"
                 class="fcb-action-icon" 
+                :data-testid="`table-delete-${data.uuid}`"
                 :data-tooltip="props.deleteItemLabel"
                 @click.stop="emit('deleteItem', data.uuid)" 
               >
@@ -125,10 +129,29 @@
               <a 
                 v-if="props.allowEdit"
                 class="fcb-action-icon" 
+                :data-testid="`table-edit-${data.uuid}`"
                 :data-tooltip="props.editItemLabel"
                 @click.stop="onEditButtonClick(data)" 
               >
                 <i class="fas fa-pen"></i>
+              </a>
+              <a 
+                v-if="props.showMoveToToDo"
+                class="fcb-action-icon" 
+                :data-testid="`table-move-to-todo-${data.uuid}`"
+                :data-tooltip="props.moveToToDoLabel"
+                @click.stop="emit('moveToToDo', data.uuid)" 
+              >
+                <i class="fas fa-arrow-right"></i>
+              </a>
+              <a 
+                v-if="props.showMoveToIdeas"
+                class="fcb-action-icon" 
+                :data-testid="`table-move-to-ideas-${data.uuid}`"
+                :data-tooltip="props.moveToIdeasLabel"
+                @click.stop="emit('moveToIdeas', data.uuid)" 
+              >
+                <i class="fas fa-arrow-left"></i>
               </a>
               <span v-if="props.trackDelivery">
                 <!-- this is a session one that's not delivered -->
@@ -209,7 +232,9 @@
                   v-model="editingRowData[field]"
                   style="width: 100%; font-size: inherit;"
                   :id="`${data.uuid}-${field}`" 
+                  :data-testid="`table-textarea-${field}`"
                   rows="2"
+                  unstyled
                   @keydown.enter="saveCurrentlyEditingRow" 
                   @keydown.esc.stop="cancelEdit"
                 />
@@ -218,6 +243,8 @@
                   v-model="editingRowData[field]"
                   style="width: 100%; font-size: inherit;"
                   :id="`${data.uuid}-${field}`" 
+                  :data-testid="`table-input-${field}`"
+                  unstyled
                   @keydown.enter.stop="saveCurrentlyEditingRow" 
                   @keydown.esc.stop="cancelEdit"
                 />
@@ -246,6 +273,7 @@
               <Checkbox 
                 :model-value="data[field]" 
                 :binary="true" 
+                :data-testid="`table-checkbox-${field}`"
                 @update:model-value="onCheckboxChange(data, field, $event)"
               />
             </div>
@@ -271,14 +299,13 @@
           <!-- STANDARD -->
           <div v-else>
             <div 
-              :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
-                      col.onClick ? 'clickable' : '']"
+              :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '']"
               @dragover="onDragoverRow($event, data.uuid)"
               @dragleave="onDragLeaveRow(data.uuid)"
               @drop="onDropRow($event, data.uuid)"
             >
               <div
-                :class="['fcb-table-body-text']"
+                :class="['fcb-table-body-text', col.onClick ? 'clickable' : '']"
                 @click.stop="col.onClick && col.onClick($event, data.uuid)"
               >
                 <span :style="col.onClick ? 'text-decoration: underline;' : ''">
@@ -389,6 +416,22 @@
       type: Boolean,
       default: false,
     },
+    showMoveToToDo: {
+      type: Boolean,
+      default: false,
+    },
+    moveToToDoLabel: {
+      type: String,
+      default: '',
+    },
+    showMoveToIdeas: {
+      type: Boolean,
+      default: false,
+    },
+    moveToIdeasLabel: {
+      type: String,
+      default: '',
+    },
     draggableRows: {
       type: Boolean,
       required: false,
@@ -419,6 +462,8 @@
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;
     (e: 'moveToCampaign', uuid: string): void;
+    (e: 'moveToToDo', uuid: string): void;
+    (e: 'moveToIdeas', uuid: string): void;
     (e: 'dragstart', event: DragEvent, uuid: string): void;
     (e: 'dragoverNew', event: DragEvent): void;
     (e: 'dragoverRow', event: DragEvent, uuid: string): void;
@@ -691,7 +736,12 @@
 </script>
 
 <style lang="scss" scoped>
-    .fcb-action-icon {
+  .fcb-table-wrapper {
+    font-family: var(--fcb-font-family);
+    font-size: 0.8rem;
+  }
+
+  .fcb-action-icon {
     cursor: pointer;
     margin-right: 3px;
   }
@@ -703,10 +753,10 @@
     align-items: center;
     height: 100%;
     width: 100%;
-    color: var(--color-text-dark-secondary);
+    color: var(--fcb-link);
     
     &:hover {
-      color: var(--color-text-hyperlink);
+      color: var(--fcb-link-hover);
     }
   }
 
@@ -723,23 +773,23 @@
 
   .fcb-row-wrapper {
     &.valid-drag-hover {
-      color: var(--color-text-accent);
-      border-color: var(--color-text-accent);
+      color: var(--fcb-link-hover);
+      border-color: var(--fcb-link-hover);
     }
   }
 
   .fcb-table-new-drop-box {
     line-height:var(--input-height); 
-    color: var(--color-text-primary); 
+    color: var(--fcb-text); 
     margin-left: 0.75rem; 
     margin-top: -2px;
-    border: var(--color-text-primary) 1px dashed; 
+    border: var(--fcb-text) 1px dashed; 
     padding: 0 2px 0 2px;
     transition: all 0.2s ease;
     
     &.valid-drag-hover {
-      color: var(--color-text-accent);
-      border-color: var(--color-text-accent);
+      color: var(--fcb-link-hover);
+      border-color: var(--fcb-link-hover);
     }
   }
 

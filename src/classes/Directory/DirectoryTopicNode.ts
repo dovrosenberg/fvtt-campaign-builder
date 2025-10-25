@@ -2,8 +2,9 @@
  * An node representing a topic in the topic tree structures
  */
 
-import { TopicFolder, Entry, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, } from '@/classes';
+import { TopicFolder, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
+import { EntryFilterIndex } from '@/types';
 
 export class DirectoryTopicNode extends DirectoryTopicTreeNode {
   name: string;
@@ -34,7 +35,7 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
 
     // Determine if there are any entries without a type. If so, ensure we create a '(none)' grouping.
     // We only add the '(none)' node when it is actually needed.
-    const hasNoTypeEntries = this.topicFolder.filterEntries((e: Entry) => !e.type).length > 0;
+    const hasNoTypeEntries = (await this.topicFolder.filterEntries((e: EntryFilterIndex) => !e.type, false)).length > 0;
     const typesToUse = hasNoTypeEntries && !types.includes(NO_TYPE_STRING) ? types.concat([NO_TYPE_STRING]) : types;
 
     // create the loadedType nodes then populate their children
@@ -54,13 +55,21 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
     for (let i=0; i<this.loadedTypes.length; i++) {
       const type = this.loadedTypes[i].name;
 
-      this.loadedTypes[i].loadedChildren = this.topicFolder.filterEntries((e: Entry): boolean=> {
-        const entryType = e.type;
-        return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type) as boolean;
-      })
-        .map((entry: Entry): DirectoryTypeEntryNode => DirectoryTypeEntryNode.fromEntry(entry, this.loadedTypes[i]))
-        .sort((a, b) => a.name.localeCompare(b.name));
+      const loadedChildren = 
+        (await this.topicFolder.filterEntries((e: EntryFilterIndex): boolean=> {
+          const entryType = e.type;
+          return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type) as boolean;
+        }, true)
+      );
+
+      let loadedChildrenNodes = [] as DirectoryTypeEntryNode[];
+      for (const entry of loadedChildren) {
+        loadedChildrenNodes.push(await DirectoryTypeEntryNode.fromEntry(entry, this.loadedTypes[i]));
+      }
       
+      loadedChildrenNodes = loadedChildrenNodes.sort((a, b) => a.name.localeCompare(b.name));
+      
+      this.loadedTypes[i].loadedChildren = loadedChildrenNodes;
       this.loadedTypes[i].children = this.loadedTypes[i].loadedChildren.map((n: DirectoryTypeEntryNode) => n.id);
     }
   }

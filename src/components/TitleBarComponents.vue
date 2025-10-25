@@ -61,7 +61,7 @@
   import ToggleSwitch from 'primevue/toggleswitch';
 
   // local components
-  import CampaignSelector from '@/components/WBHeader/PlayModeNavigation/CampaignSelector.vue';
+  import CampaignSelector from '@/components/FCBHeader/PlayModeNavigation/CampaignSelector.vue';
   import Search from '@/components/Search.vue';
   
   // Store references
@@ -115,10 +115,11 @@
   display: flex;
   align-items: center;
   margin-right: 10px;
+  font-family: var(--fcb-font-family);
 
   // Separator styling
   .separator {
-    height: 20px;
+    height: 1.25rem;
     width: 1px;
     background-color: #ccc;
     margin: 0 10px;
@@ -140,7 +141,7 @@
       border: 1px solid #ccc;
       background-color: #fff;
       color: #333;
-      font-size: 12px;
+      font-size: var(--font-size-12);
 
       &:hover {
         border-color: #2196F3;
@@ -156,11 +157,11 @@
 
   .mode-label {
     margin: 0 5px;
-    color: #666;
+    color: var(--fcb-gray-300);
     font-weight: normal;
 
     &.active {
-      color: #2196F3;
+      color: var(--fcb-accent-300);
       font-weight: bold;
     }
   }

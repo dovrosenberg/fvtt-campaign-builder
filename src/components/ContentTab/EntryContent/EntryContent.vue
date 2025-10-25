@@ -9,6 +9,7 @@
           v-model="name"
           for="fcb-input-name"
           class="fcb-input-name"
+          data-testid="entry-name-input"
           unstyled
           :placeholder="namePlaceholder"
           :pt="{
@@ -19,6 +20,7 @@
         <button
           v-if="topic===Topics.Character || topic===Topics.Location"
           class="fcb-push-to-session-button"
+          data-testid="entry-push-to-session-button"
           @click="onPushToSessionClick"
           :disabled="pushButtonDisabled"
           :title="pushButtonTitle"
@@ -28,6 +30,7 @@
         <button
           v-if="canGenerate"
           class="fcb-generate-button"
+          data-testid="entry-generate-button"
           @click="onGenerateButtonClick"
           :disabled="generateDisabled"
           :title="`${localize('tooltips.generateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"
@@ -144,8 +147,9 @@
                 class="flexrow form-group"
               >
                 <Editor
-                    :initial-content="currentEntry?.rolePlayingNotes || ''"
-                    :style="{ 'height': '180px', 'margin-bottom': '6px'}"
+                    :initial-content="currentEntry?.roleplayingNotes || ''"
+                    :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
+                    :current-entity-uuid="currentEntry?.uuid"
                     @editor-saved="onRolePlayingNotesSaved"
                   />
               </div>
@@ -161,7 +165,7 @@
                   :initial-content="currentEntry?.description || ''"
                   :current-entity-uuid="currentEntry?.uuid"
                   :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
-                  :style="{ 'height': '240px', 'margin-bottom': '6px'}"
+                  :style="{ 'height': '240px', 'margin-bottom': '.375rem'}"
                   @editor-saved="onDescriptionEditorSaved"
                   @related-entries-changed="onRelatedEntriesChanged"
                 />
@@ -182,8 +186,9 @@
                 class="flexrow form-group"
               >
                 <Editor
-                    :initial-content="currentEntry?.rolePlayingNotes || ''"
-                    :style="{ 'height': '180px', 'margin-bottom': '6px'}"
+                    :initial-content="currentEntry?.roleplayingNotes || ''"
+                    :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
+                    :current-entity-uuid="currentEntry?.uuid"
                     @editor-saved="onRolePlayingNotesSaved"
                   />
               </div>
@@ -260,7 +265,7 @@
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { notifyInfo } from '@/utils/notifications';  
+  import { notifyInfo, notifyWarn } from '@/utils/notifications';  
   import { updateEntryDialog } from '@/dialogs/createEntry';
 
   // library components
@@ -285,7 +290,8 @@
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal } from '@/types';
-  import { Setting, TopicFolder, Backend, Entry } from '@/classes';
+  import { FCBSetting, TopicFolder, Backend, Entry, Session } from '@/classes';
+  import { DOCUMENT_TYPES } from '@/documents';
 
 
   ////////////////////////////////
@@ -356,7 +362,7 @@
     } else {
       let newTopicFolder: TopicFolder | null;
 
-      newTopicFolder = currentEntry.value.topicFolder;
+      newTopicFolder = await currentEntry.value.getTopicFolder();
       if (!newTopicFolder) 
         throw new Error('Invalid entry topic in EntryContent.refreshEntry');
 
@@ -370,7 +376,7 @@
       if (currentSetting.value) {    
         parentId.value = await currentEntry.value.getParentId();
 
-        validParents.value = validParentItems(currentSetting.value as Setting, currentEntry.value).map((e)=> ({
+        validParents.value = validParentItems(currentSetting.value as FCBSetting, currentEntry.value).map((e)=> ({
           id: e.id,
           label: e.name || '',
         }));
@@ -446,6 +452,14 @@
 
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
+      
+      // name can't be blank
+      if (newValue.trim() === '') {
+        notifyWarn(localize('errors.nameRequired'));
+        name.value = currentEntry.value?.name!;
+        return;
+      }
+
       if (currentEntry.value && currentEntry.value.name!==newValue) {
         currentEntry.value.name = newValue;
         await currentEntry.value.save();
@@ -493,7 +507,7 @@
     // if there's more than one, we need the menu
     const campaigns = currentSetting.value.campaigns;
 
-    type MenuItem = {
+    interface MenuItem {
       label: string;
       onClick: () => void | Promise<void>;
       customClass?: string;
@@ -505,11 +519,11 @@
     // if we're in play mode with an active session, put that at the top
     let currentCampaignId: string | null = null;
     let activeItem: MenuItem | null = null;
-    if (currentPlayedCampaign.value?.currentSession) {
+    if (currentPlayedCampaign.value?.currentSessionId) {
       currentCampaignId = currentPlayedCampaign.value.uuid;
       
       activeItem = {
-        label: `${campaigns[currentCampaignId].name} (#${campaigns[currentCampaignId].currentSession?.number})`,        
+        label: `${campaigns[currentCampaignId].name} (#${campaigns[currentCampaignId].currentSessionNumber})`,        
         customClass: 'push-to-active-campaign-menu-item',
         onClick: async () => { await selectCampaignForPush(currentCampaignId as string); },
         divided: campaignsWithSessions.length > 1 ? 'down' : undefined,
@@ -523,11 +537,11 @@
         continue;
 
       // skip ones without sessions
-      if (!campaigns[campaignId].currentSession)
+      if (!campaigns[campaignId].currentSessionId)
         continue;
 
       menuItems.push({
-        label: `${campaigns[campaignId].name} (#${campaigns[campaignId].currentSession?.number})`,        
+        label: `${campaigns[campaignId].name} (#${campaigns[campaignId].currentSessionNumber})`,        
         onClick: async () => { await selectCampaignForPush(campaignId); },
       });
     }
@@ -550,11 +564,11 @@
   const selectCampaignForPush = async (campaignUuid: string): Promise<void> => {
     // get the campaign
     const campaign = await currentSetting.value?.campaigns[campaignUuid];
-    if (!campaign)
+    if (!campaign || !campaign.currentSessionId)
       return;
 
     // get the session
-    const session = campaign.currentSession;
+    const session = await Session.fromUuid(campaign.currentSessionId);
     if (!session || !currentEntry.value)
       return;
 
@@ -654,10 +668,9 @@
     if (!currentEntry.value?.topic || !currentEntry.value?.uuid)
       return;
 
-    if (!currentEntry.value.topicFolder)
-      throw new Error('Invalid topic in EntryContent.onParentSelectionMade()');
+    const topicFolder = await currentEntry.value.getTopicFolder();
 
-    await settingDirectoryStore.setNodeParent(currentEntry.value.topicFolder, currentEntry.value.uuid, selection || null);
+    await settingDirectoryStore.setNodeParent(topicFolder, currentEntry.value.uuid, selection || null);
   };
 
   const onDescriptionEditorSaved = async (newContent: string) => {
@@ -673,7 +686,7 @@
     if (!currentEntry.value)
       return;
 
-    currentEntry.value.rolePlayingNotes = newContent;
+    currentEntry.value.roleplayingNotes = newContent;
     await currentEntry.value.save();
   };
 
@@ -685,31 +698,38 @@
     // check against current relationships
     const { added, removed } = await getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
 
-    // filter out regular documents
-    const invalidOnes: string[] = [];
-    for (const uuid of added.concat(removed)) {
-      const doc = await fromUuid(uuid);
+    let invalidOnes: string[] = [];
 
-      // make sure it's a valid entry
-      if (!doc)
+    // we can only link to things in the current setting's compendium; filter others out quickly
+    for (const uuid of added.concat(removed)) {
+      if (!uuid.startsWith(`Compendium.${currentEntry.value.compendiumId}`))
         invalidOnes.push(uuid);
-      else {
-        try {
-          // @ts-ignore
-          new Entry(doc);
-        } catch (_e) {
-          invalidOnes.push(uuid);
-        }
+    }
+
+    // remove those
+    let finalAdded = added.filter(uuid => !invalidOnes.includes(uuid));
+    let finalRemoved = removed.filter(uuid => !invalidOnes.includes(uuid));
+
+    // from what's left filter out settings, campaigns, and sessions
+    // we know the uuids are journalentries, so the id is the last 16
+    const ids = added.concat(removed).map(uuid => uuid.slice(-16));
+    const possibleConnections = await currentEntry.value.compendium.getDocuments({ _id__in: ids });
+
+    invalidOnes = [];
+    for (const doc of possibleConnections) {
+      // get the type - we only care about entries
+      if (!doc.pages?.contents ||doc.pages.contents[0].type!==DOCUMENT_TYPES.Entry) {
+        invalidOnes.push(doc.uuid);
       }
     }
   
-    const finalAdded = added.filter(uuid => !invalidOnes.includes(uuid));
-    const finalRemoved = removed.filter(uuid => !invalidOnes.includes(uuid));
+    finalAdded = finalAdded.filter(uuid => !invalidOnes.includes(uuid));
+    finalRemoved = finalRemoved.filter(uuid => !invalidOnes.includes(uuid));
 
     // Store the pending changes and show dialog if there are any changes
     if (finalAdded.length > 0 || finalRemoved.length > 0) {
       pendingAddedUUIDs.value = finalAdded;
-      pendingRemovedUUIDs.value = removed;
+      pendingRemovedUUIDs.value = finalRemoved;
       showRelatedEntriesDialog.value = true;
     }
   };
@@ -792,6 +812,7 @@
   }
   
   .tags-container {
+    // TODO - search for "31" and see todo note about changing this to rem
     min-height: 43px; /* Set a fixed minimum height for the tags container */
     position: relative;
   }

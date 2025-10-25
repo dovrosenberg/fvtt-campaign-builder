@@ -3,41 +3,44 @@ import { localize } from '@/utils/game';
 import { Topics, } from '@/types';
 import { ModuleSettings, SettingKey, UserFlagKey, UserFlags,} from '@/settings';
 import { toTopic } from '@/utils/misc';
-import { RootFolder, Setting } from '@/classes';
-
+import { FCBSetting, getGlobalSetting } from '@/classes';
 
 /**
- * Gets the root and setting folders.
- * Will create new folders if missing.
- * @returns The root and setting folders.
+ * Gets the current setting (will create one if there isn't one) 
+ * @returns The FCBSetting 
  */
-export async function getDefaultFolders(): Promise<{ rootFolder: RootFolder; setting: Setting}> {
-  const rootFolder = await RootFolder.get(); // will create if needed
+export async function getCurrentSetting(): Promise<FCBSetting | null> {
   let settingId = UserFlags.get(UserFlagKey.currentSetting);  // this isn't setting-specific (obviously)
 
+  
   // make sure we have a default and it exists
-  let setting = null as Setting | null;
+  let setting = null as FCBSetting | null;
   if (settingId) {
-    setting = await Setting.fromUuid(settingId);
+    setting = await getGlobalSetting(settingId);
   }   
 
   if (!setting) {
     // couldn't find it, default to first one (which is sort of random because it's not an array)
-    const settings = ModuleSettings.get(SettingKey.settings) || {};
-    if (Object.keys(settings).length>0) {
-      settingId = Object.keys(settings)[0];
-      setting = await Setting.fromUuid(settingId);
-    } else {
-      // no setting found, so create one
-      setting = await Setting.create(true);
+    const settings = ModuleSettings.get(SettingKey.settingIndex) || [];
+    if (settings.length>0) {
+      // in case any are bad - loop through them all
+      do {
+        settingId = settings[0].settingId;
+        setting = await getGlobalSetting(settingId);
+      } while (!setting && settings.length>0);
     }
+
+    // still don't have one (because whatever ws in the index was bad)
+    if (!setting) {
+      // no setting found, so create one
+      setting = await FCBSetting.create(true);
+    }
+
+    if (setting?.uuid)
+      await UserFlags.set(UserFlagKey.currentSetting, setting.uuid);  // this isn't setting-specific (obviously)
   }
 
-  // if we couldn't create one, then throw an error
-  if (!setting)
-    throw new Error('Couldn\'t create setting folder in compendia/index.getDefaultFolders()');
-
-  return { rootFolder, setting };
+  return setting || null;
 }
 
 

@@ -4,7 +4,7 @@ import { Backend } from '@/classes';
 import { nameStyles } from '@/utils/nameStyles';
 
 import { GeneratorType, SettingGeneratorConfig } from '@/types';
-import { Setting } from '@/classes';
+import { FCBSetting } from '@/classes';
 import { RollTableFlagKey } from '@/documents';
 import { notifyInfo } from './notifications';
 
@@ -22,7 +22,7 @@ export const TABLE_SIZE = 100;
  * @returns A promise that resolves when initialization is complete
  */
 let initializationInProgress = false;
-export async function initializeSettingRollTables(setting: Setting): Promise<void> {
+export async function initializeSettingRollTables(setting: FCBSetting): Promise<void> {
   // Prevent multiple concurrent initializations - don't need to queue because they all do the same things
   if (initializationInProgress) {
     return;
@@ -84,7 +84,7 @@ export async function initializeSettingRollTables(setting: Setting): Promise<voi
  * @param setting - The setting to create the folder for
  * @returns A promise that resolves to the folder ID
  */
-const getOrCreateSettingRollTableFolder = async(setting: Setting): Promise<string> => {
+const getOrCreateSettingRollTableFolder = async(setting: FCBSetting): Promise<string> => {
   // Check if we already have a folder ID stored
   const config = setting.rollTableConfig;
   if (config?.folderId) {
@@ -118,7 +118,7 @@ const getOrCreateSettingRollTableFolder = async(setting: Setting): Promise<strin
  * @returns A promise that resolves to an array of generated names
  * @throws {Error} If the backend is unavailable or generation fails
  */
-const generateSettingTableResults = async (type: GeneratorType, count: number, setting: Setting): Promise<string[]> => {
+const generateSettingTableResults = async (type: GeneratorType, count: number, setting: FCBSetting): Promise<string[]> => {
   // If backend is not available, just return
   if (!Backend.available || !Backend.api) {
     return [];
@@ -182,14 +182,14 @@ const generateSettingTableResults = async (type: GeneratorType, count: number, s
  * @param setting - The setting this table belongs to
  * @returns A promise that resolves to the created RollTable, or null if creation failed
  */
-async function createSettingRollTable(type: GeneratorType, folderId: string, setting: Setting): Promise<RollTable | null> {
+async function createSettingRollTable(type: GeneratorType, folderId: string, setting: FCBSetting): Promise<RollTable | null> {
   const tableName = `${setting.name} - ${type.charAt(0).toUpperCase() + type.slice(1)} Generator`;
   
   // Create the table
   const table = await RollTable.create({
     name: tableName,
     folder: folderId,
-    description: `${localize('applications.rollTableSettings.tableDescription')}-${setting.name}-${type}`,
+    description: `${localize('applications.rollTableSettings.tableDescription')} ${setting.name}-${type}`,
     formula: `1d${TABLE_SIZE}`,
     replacement: false, // Don't replace drawn results
     displayRoll: false, // Don't display the roll publicly
@@ -213,7 +213,7 @@ async function createSettingRollTable(type: GeneratorType, folderId: string, set
  * @returns A promise that resolves when the table is refreshed
  * @throws {Error} If the table type is missing or generation fails
  */
-export const refreshSettingRollTable = async (rollTable: RollTable, setting: Setting) : Promise<void> => {
+export const refreshSettingRollTable = async (rollTable: RollTable, setting: FCBSetting) : Promise<void> => {
   // requires backend
   if (!Backend.available || !Backend.api) {
     throw new Error('Backend is not available. Please check your backend settings.');
@@ -240,7 +240,7 @@ export const refreshSettingRollTable = async (rollTable: RollTable, setting: Set
     if (drawnResults.length > 0) {
       await rollTable.updateEmbeddedDocuments("TableResult", drawnResults.map((id: string, i: number) => ({
         _id: id,
-        text: newResults[i],
+        name: newResults[i],
         drawn: false,
       })));
     }
@@ -252,7 +252,7 @@ export const refreshSettingRollTable = async (rollTable: RollTable, setting: Set
         newResults.slice(numUsed).map((val: string, index: number) => ({
           type: CONST.TABLE_RESULT_TYPES.TEXT,
           drawn: false,
-          text: val,
+          name: val,
           weight: 1,
           range: [rollTable.results.size + index + 1, rollTable.results.size + index + 1],
         }))
@@ -270,7 +270,7 @@ export const refreshSettingRollTable = async (rollTable: RollTable, setting: Set
  * @returns A promise that resolves when all tables are refreshed
  */
 let refreshInProgress = false;
-export const refreshSettingRollTables = async(setting: Setting, empty: boolean = false) : Promise<void> => {
+export const refreshSettingRollTables = async(setting: FCBSetting, empty: boolean = false) : Promise<void> => {
   // Prevent multiple concurrent refreshes - don't need to queue because they all do the same things
   if (refreshInProgress) {
     return;
@@ -344,7 +344,7 @@ export const refreshAllSettingRollTables = async(empty: boolean = false) : Promi
  * @param setting - The setting whose table names should be updated
  * @returns A promise that resolves when all table names are updated
  */
-export const updateSettingRollTableNames = async(setting: Setting) : Promise<void> => {
+export const updateSettingRollTableNames = async(setting: FCBSetting) : Promise<void> => {
   const config = setting.rollTableConfig;
 
   if (!config || !isClientGM()) {
@@ -366,7 +366,7 @@ export const updateSettingRollTableNames = async(setting: Setting) : Promise<voi
       const newName = `${setting.name} - ${type.charAt(0).toUpperCase() + type.slice(1)} Generator`;
       await table.update({
         name: newName,
-        description: `${localize('applications.rollTableSettings.tableDescription')}-${type} for ${setting.name}`
+        description: `${localize('applications.rollTableSettings.tableDescription')} ${setting.name}-${type} for ${setting.name}`
       });
     }
   }

@@ -1,5 +1,5 @@
-import { searchService, FCBSearchResult } from '@/utils/search';
-import { Setting } from '@/classes';
+import { searchService, } from '@/utils/search';
+import { FCBSetting } from '@/classes';
 
 /**
  * Interface for entity reference replacement options
@@ -18,7 +18,7 @@ export interface EntityLinkingOptions {
  */
 export async function replaceEntityReferences(
   content: string, 
-  _setting: Setting, 
+  _setting: FCBSetting, 
   options: EntityLinkingOptions = {}
 ): Promise<string> {
   const { currentEntityUuid } = options;

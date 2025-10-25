@@ -3,6 +3,7 @@
     <input 
       id="fcb-tags-input" 
       :class="'tags-input' + (isInitialized ? '' : ' uninitialized')" 
+      data-testid="tags-input"
       :value="JSON.stringify(currentValue)" 
       :placeholder="'Tags...'"
     />
@@ -15,7 +16,6 @@
 
   // local imports
   import { ModuleSettings, SettingKey } from "@/settings";
-  import { TagInfo } from "@/types";
 
   // library components
   import Tagify from "@yaireo/tagify"
@@ -23,18 +23,24 @@
   // local components
 
   // types
-  type TagEventData = {
+  interface TagEventData {
     __tagId: string;
     __isValid: boolean | string;
     value: string;
     color: string;
   };
 
+  interface TagData {
+    value: string;
+    color?: string;
+    style?: string;
+  };
+
   ////////////////////////////////
   // props
   const props = defineProps({
     modelValue: {
-      type: Array as PropType<TagInfo[]>,
+      type: Array as PropType<string[]>,
       required: true,
     },
     tagSetting: {   // key of setting to pull tag counts from 
@@ -47,9 +53,9 @@
   ////////////////////////////////
   // emits
   const emit = defineEmits<{
-    (e: 'update:modelValue', newValue: TagInfo[]): void;
-    (e: 'tagAdded', newValue: TagInfo): void;
-    (e: 'tagRemoved', removedValue: TagInfo): void;
+    (e: 'update:modelValue', newValue: string[]): void;
+    (e: 'tagAdded', newValue: string): void;
+    (e: 'tagRemoved', removedValue: string): void;
   }>();
 
   ////////////////////////////////
@@ -58,7 +64,7 @@
   ////////////////////////////////
   // data
   const tagify = ref<Tagify>();
-  const currentValue = ref<TagInfo[]>(props.modelValue);
+  const currentValue = ref<string[]>(props.modelValue);
   const isInitialized = ref<boolean>(false);
 
   ////////////////////////////////
@@ -69,7 +75,7 @@
   const rand = (min, max) => (min + Math.random() * (max - min));
 
   // generate a random color
-  const transformTag = ( tagData: TagInfo & { color?: string; style?: string; } ) => {
+  const transformTag = ( tagData: TagData ) => {
     // see if there's a color
     tagData.color = ModuleSettings.get(props.tagSetting)[tagData.value]?.color;
     
@@ -104,8 +110,8 @@
     const value = tagInfo.value;
     const color = tagInfo.color;
 
-    // tagify calls add unnecesarily when rebuilding its internal list
-    if (currentValue.value.find((t) => t.value === value))  
+    // tagify calls add unnecessarily when rebuilding its internal list
+    if (currentValue.value.includes(value))  
       return;
  
     if (!tagify.value)
@@ -125,15 +131,15 @@
 
     await ModuleSettings.set(props.tagSetting, tagList);
 
-    // trigger reactivity - map back to just the name of the tag
-    currentValue.value = tagify.value.value.map((t) => ({ value: t.value }));
+    // trigger reactivity - map to just the string values
+    currentValue.value = tagify.value.value.map((t) => t.value);
 
     // don't need to update the whitelist on an add because we shouldn't be adding it again
     // anyway
 
     // emit to the parent to update the field
     emit('update:modelValue', currentValue.value);
-    emit('tagAdded', { value });  
+    emit('tagAdded', value);  
   };
 
   const onTagRemoved = async (event: CustomEvent<Tagify.AddEventData<any>>): Promise<void> => {
@@ -162,16 +168,16 @@
     // update the whitelist
     tagify.value.whitelist = getWhitelist();
 
-    currentValue.value = tagify.value.value;
+    currentValue.value = tagify.value.value.map((t) => t.value);
 
     // emit to the parent to update the field
     emit('update:modelValue', currentValue.value);
-    emit('tagRemoved', { value });  
+    emit('tagRemoved', value);  
   };
 
   ////////////////////////////////
   // watchers
-  watch(props.modelValue, (newVal: TagInfo[]) => {
+  watch(props.modelValue, (newVal: string[]) => {
     currentValue.value = newVal;
     
     // If tagify is already initialized, we can update it directly
@@ -199,6 +205,16 @@
     // Use setTimeout to ensure the DOM is fully rendered
     setTimeout(() => {
       var input = document.getElementById("fcb-tags-input") as HTMLInputElement;
+
+      // Check if Tagify is already initialized on this input
+      // @ts-ignore - Tagify adds this property to the input element
+      if (input && input.__tagify) {
+        // Reuse the existing Tagify instance
+        // @ts-ignore
+        tagify.value = input.__tagify;
+        isInitialized.value = true;
+        return;
+      }
 
       tagify.value = new Tagify(input, {
         whitelist: getWhitelist(),
@@ -236,9 +252,11 @@
 
 <style lang="scss">
   .tags-wrapper {
+    // TODO - do these heights need to change when font size scales? Should it be like x rem+1px or something?
     min-height: 31px;
     width: 100%;
     position: relative;
+    font-family: var(--fcb-font-family);
   }
 
   .tagify {
@@ -246,8 +264,8 @@
     
     &:focus-within {
       outline: none;
-      border-color: var(--color-border-highlight);
-      box-shadow: 0 0 0 1px var(--color-border-highlight);
+      border-color: var(--fcb-control-border);
+      box-shadow: 0 0 0 1px var(--fcb-accent);
     }
   }
 

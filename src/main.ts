@@ -2,6 +2,7 @@ import { registerForHooks } from '@/hooks';
 import { moduleId } from '@/settings';
 import { DevModeApi } from '@/libraries/foundry/devMode';
 
+console.log('Campaign Builder: main.ts is loading');
 
 /**
 * Register module in Developer Mode module (https://github.com/League-of-Foundry-Developers/foundryvtt-devMode)
@@ -13,4 +14,6 @@ Hooks.once('devModeReady', async ({ registerPackageDebugFlag: registerPackageDeb
   // CONFIG.debug.hooks = true;
 });
 
+console.log('Campaign Builder: about to call registerForHooks');
 registerForHooks();
+console.log('Campaign Builder: registerForHooks called');

@@ -17,6 +17,8 @@ declare global {
 export function log(force: boolean, ...args): void {
   try {
     const messagePrefix = `${moduleId} | `;
+
+    // @ts-ignore
     const isDebugging = game.modules.get('_dev-mode')?.api?.getPackageDebugValue(moduleId) || false;
 
     if (force || isDebugging) {

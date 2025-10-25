@@ -17,7 +17,8 @@ export class DirectoryTypeEntryNode extends CollapsibleNode<never> {
   }
 
   // converts the entry to a DirectoryTypeEntryNode for cleaner interface
-  static fromEntry = (entry: Entry, parentTypeNode: DirectoryTypeNode): DirectoryTypeEntryNode => {
+  // async just for compatibility with DirectoryEntryNode.fromEntry
+  static fromEntry = async (entry: Entry, parentTypeNode: DirectoryTypeNode): Promise<DirectoryTypeEntryNode> => {
     return new DirectoryTypeEntryNode(
       entry.uuid,
       entry.name || NO_NAME_STRING,

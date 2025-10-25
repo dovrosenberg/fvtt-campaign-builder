@@ -14,12 +14,15 @@
       :edit-item-label="localize('tooltips.editRow')"
       :delete-item-label="localize('tooltips.deleteToDo')"
       :show-move-to-campaign="false"
+      :show-move-to-ideas="true"
+      :move-to-ideas-label="localize('tooltips.moveToIdeas')"
       :draggable-rows="false"
       :can-reorder="true"
       @delete-item="onDeleteToDoItem"
       @add-item="onAddToDoItem"
       @cell-edit-complete="onCellEditComplete"
       @reorder="onReorder"
+      @move-to-ideas="onMoveToIdeas"
     >
     </BaseTable>
   </div>
@@ -33,6 +36,7 @@
   // local imports
   import { useCampaignStore, CampaignTableTypes, } from '@/applications/stores';
   import { localize } from '@/utils/game';
+  import { formatDate } from '@/utils/misc';
 
   // library components
 
@@ -75,14 +79,7 @@
     toDoRows.value.map((row) => ({
       ...row,
       entry: mapToDoToName(row),
-      lastTouched: row.lastTouched ? 
-        new Date(row.lastTouched).toLocaleString(undefined, { 
-          day: 'numeric', 
-          month: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-        }).replace(/\s*([AP]M)/i, (_, p1) => p1.toLowerCase()) : // replace AM/PM with am/pm
-        '',  
+      lastTouched: row.lastTouched ? formatDate(row.lastTouched) : '', 
     }))
   ));
 
@@ -133,6 +130,10 @@
       return { ...toDo, sortOrder: index };
     });
     await campaignStore.reorderToDos(reorderedToDos);
+  };
+
+  const onMoveToIdeas = async (uuid: string) => {
+    await campaignStore.moveToDoToIdea(uuid);
   };
 </script>
 

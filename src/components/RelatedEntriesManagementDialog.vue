@@ -230,7 +230,7 @@
 
   .description {
     margin-bottom: 1rem;
-    color: var(--color-text-dark-secondary);
+    color: var(--fcb-text);
     font-size: var(--font-size-14);
     line-height: 1.4;
   }
@@ -240,7 +240,7 @@
       margin-bottom: 0.75rem;
       font-size: var(--font-size-16);
       font-weight: 600;
-      color: var(--color-text-dark-primary);
+      color: var(--fcb-text);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding-bottom: 0.25rem;
     }
@@ -249,7 +249,7 @@
   .no-changes {
     text-align: center;
     padding: 2rem;
-    color: var(--color-text-dark-secondary);
+    color: var(--fcb-text);
     font-style: italic;
   }
 }

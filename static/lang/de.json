@@ -143,7 +143,7 @@
       "rollTableSettings": {
         "title": "Rolltabelleneinstellungen konfigurieren",
         "folderName": "Kampagnen-Builder Rolltabellen",
-        "tableDescription": "Generatortabelle für {type}",
+        "tableDescription": "Generatortabelle für",
         "labels": {
           "refreshAll": "Alle Tabellen aktualisieren",
           "refreshAllHelp": "Ersetze alle verwendeten Elemente durch neue"
@@ -211,7 +211,7 @@
         "generateImage": "Bild generieren",
         "description": "Beschreibung",
         "campaign": "Kampagne",
-        "campaignHouseRules": "Hausregeln",
+        "houseRules": "Hausregeln",
         "addToCurrentSession": "Zur aktuellen Sitzung hinzufügen",
         "topic": "Thema",
         "settingFeeling": "Einstellung Gefühl",
@@ -392,10 +392,8 @@
     },
     "dialogs": {
       "generateNameDialog": {
+        "title": "Option auswählen",
         "errorMessage": "Es gab einen Fehler:"
-      },
-      "generateOptions": {
-        "title": "Option auswählen"
       },
       "confirmDeleteRelationship": {
         "title": "Aus Beziehung entfernen?",

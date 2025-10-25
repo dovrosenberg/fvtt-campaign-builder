@@ -18,6 +18,7 @@
                   <div class="form-fields">
                     <InputText
                       v-model="APIURL"
+                      data-testid="api-url-input"
                       unstyled
                     />
                   </div>
@@ -31,6 +32,7 @@
                   <div class="form-fields">
                     <InputText
                       v-model="APIToken"
+                      data-testid="api-token-input"
                       unstyled
                     />
                   </div>
@@ -49,6 +51,7 @@
                   <div class="form-fields">
                     <Select
                       v-model="selectedTextModel"
+                      data-testid="text-model-select"
                       :options="textModelOptions"
                       optionLabel="name"
                       optionValue="id"
@@ -71,6 +74,7 @@
                   <div class="form-fields">
                     <Select
                       v-model="selectedImageModel"
+                      data-testid="image-model-select"
                       :options="imageModelOptions"
                       optionLabel="name"
                       optionValue="id"
@@ -98,6 +102,7 @@
                   <div class="form-fields">
                     <Checkbox 
                         v-model="rpgStyle" 
+                        data-testid="rpg-style-checkbox"
                         :binary="true"
                       />
                   </div>
@@ -127,6 +132,7 @@
                   <div class="form-fields">
                     <Checkbox 
                         v-model="useGmailToDos" 
+                        data-testid="use-gmail-checkbox"
                         :binary="true"
                       />
                   </div>
@@ -145,6 +151,7 @@
                   <div class="form-fields">
                     <Select
                       v-model="emailDefaultSetting"
+                      data-testid="email-default-setting-select"
                       :options="settingOptions"
                       optionLabel="name"
                       optionValue="uuid"
@@ -161,6 +168,7 @@
                   <div class="form-fields">
                     <Select
                       v-model="emailDefaultCampaign"
+                      data-testid="email-default-campaign-select"
                       :options="campaignOptions"
                       optionLabel="name"
                       optionValue="uuid"
@@ -178,6 +186,7 @@
       </div>
       <footer class="form-footer" data-application-part="footer">
         <button 
+          data-testid="advanced-settings-reset-button"
           @click="onResetClick"
         >
           <i class="fa-solid fa-undo"></i>
@@ -185,6 +194,7 @@
         </button>
         <button 
           class="fcb-save-button"
+          data-testid="advanced-settings-save-button"
           :disabled="useGmailToDos && (!emailDefaultSetting || !emailDefaultCampaign)"
           @click="onSubmitClick"
         >
@@ -198,15 +208,14 @@
 
 <script setup lang="ts">
   // library imports
-  import { onMounted, ref, toRaw, nextTick } from 'vue';
+  import { onMounted, ref, nextTick } from 'vue';
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend, RootFolder, Setting } from '@/classes';
+  import { Backend, getGlobalSetting } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
-  import { getDefaultFolders } from '@/compendia';
-
+  
   // library components
   import InputText from 'primevue/inputtext';
   import Checkbox from 'primevue/checkbox';
@@ -250,8 +259,8 @@
   ////////////////////////////////
   // methods
   const loadSettings = () => {
-    const allSettings = ModuleSettings.get(SettingKey.settings);
-    settingOptions.value = Object.keys(allSettings).map(settingId => ({ uuid: settingId, name: allSettings[settingId].name })) || [];
+    const allSettings = ModuleSettings.get(SettingKey.settingIndex);
+    settingOptions.value = allSettings.map(setting => ({ uuid: setting.settingId, name: setting.name })) || [];
   };
 
   const loadTextModels = async () => {
@@ -282,7 +291,7 @@
       return;
     }
 
-    const setting = await Setting.fromUuid(settingUuid);
+    const setting = await getGlobalSetting(settingUuid);
     if (!setting) {
       campaignOptions.value = [];
       return;

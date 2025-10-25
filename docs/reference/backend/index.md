@@ -45,7 +45,7 @@ That's likely enough for most use cases, and pretty cheap for storage.  But if y
 For heavy users, BackBlaze storage would be significantly cheaper (not free but only $0.005/GB for storage and $0.01/GB for egress), so we could add that as an option in the future.  Let me know if you're running into limits.  I haven't spent time looking into it because it would require yet another account users would have to create and manage.
 
 ### OpenAI
-[Open AI](https://openai.com/api) is used to generate text (descriptions, names, rolltable results, etc.).  The cost is minimal - approximately $0.15 for 5000 AI-generated character descriptions - but at the current time, OpenAI has a minimum purchase of $5.00 and the credits expire after a year, so you should think of it as $5/year.  I'll be [looking at](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/369) switching to another provider to avoid this minimum charge.
+[Open AI](https://openai.com/api) is used to generate text (descriptions, names, RollTable results, etc.).  The cost is minimal - approximately $0.15 for 5000 AI-generated character descriptions - but at the current time, OpenAI has a minimum purchase of $5.00 and the credits expire after a year, so you should think of it as $5/year.  I'll be [looking at](https://github.com/dovrosenberg/fvtt-campaign-builder/issues/369) switching to another provider to avoid this minimum charge.
 
 ### Replicate
 [Replicate](https://replicate.com/) is used to generate images.  The cost is approximately $0.01 per image, and you are only billed for actual usage.  You do now need to prepay, but you can put just a dollar or two in at a time.

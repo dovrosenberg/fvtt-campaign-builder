@@ -1,3 +1,5 @@
+import { DOCUMENT_TYPES } from '@/documents/types.js';
+
 export type * from './directory.d.ts';
 export type * from './tables.d.ts';
 export type * from './relationships.d.ts';
@@ -8,12 +10,25 @@ export type * from './dialogs.d.ts';
 export type * from './search.d.ts';
 export type * from './tags.d.ts';
 export type * from './dragdrop.ts';
+export type * from './documentIndices.ts';
 
 // @ts-ignore - need to pull enum
 export * from './generators.ts';
 export type * from './generators.ts';
 
+// @ts-ignore - need to pull enum
+export * from './customFields.ts';
+export type * from './customFields.ts';
+
 // used to determine which component to display in the tab
+export enum ContentType {
+  Entry,
+  Campaign,
+  Session,
+  Setting,
+}
+
+// should match ContentType plus NewTab
 export enum WindowTabType  {
   NewTab,
   Entry,
@@ -22,19 +37,19 @@ export enum WindowTabType  {
   Setting,
 }
 
-export type WindowTabHistory = {
+export interface WindowTabHistory {
   contentId: string | null;   // the uuid of the entry, campaign, etc.
   tabType: WindowTabType;
   contentTab: string | null;  // the current content tab (subtab) that was active
 }
 
-export type Bookmark = {
+export interface Bookmark {
   id: string;   // id of the bookmark
   tabInfo: WindowTabHistory;
   header: TabHeader;
 }
 
-export type TabHeader = {
+export interface TabHeader {
   /** uuid of the entity being displayed */
   uuid: string | null;   
 
@@ -45,7 +60,7 @@ export type TabHeader = {
   icon: string; 
 }
 
-export type TabSummary = {
+export interface TabSummary {
   uuid: string;   
   name: string;
 }
@@ -63,6 +78,9 @@ export enum Topics {
 // topics except None
 export type ValidTopic = Exclude<Topics, Topics.None>;
 
+// this  is a common structure
+export type ValidTopicRecord<T> = Partial<Record<ValidTopic, T>>;
+
 // content tabs that are document links not other entries
 export enum DocumentLinkType {
   None,
@@ -73,7 +91,7 @@ export enum DocumentLinkType {
 }
 
 // relationships
-export type TreeNode = {
+export interface TreeNode {
   text: string;   // the label
   value: string;   // a value to be passed up when clicked (ex. a uuid)
   children: TreeNode[];   // the children, if any
@@ -105,7 +123,7 @@ export enum ToDoTypes {
 
 export interface ToDoItem {
   uuid: string;  // uuid of the to-do item
-  lastTouched: Date;
+  lastTouched: string;  // ISO string
   manuallyUpdated: boolean;   // has the user edited the text yet
   linkedUuid: string | null;  // uuid of the linked entry, lore, etc.
   linkedText: string | null;  // text to display for linked items
@@ -121,5 +139,19 @@ export interface Idea {
   sortOrder: number;
 }
 
-export type BaseTableGridRow = { uuid: string; sortOrder?: number } & Record<string, any>;
+export interface BaseTableGridRow extends Record<string, any> { 
+  uuid: string; 
+  sortOrder?: number 
+}
 
+export interface SettingIndex {
+  settingId: string;
+  name: string;
+  packId: string;
+}
+
+export type ValidDocType = 
+  typeof DOCUMENT_TYPES.Setting | 
+  typeof DOCUMENT_TYPES.Campaign | 
+  typeof DOCUMENT_TYPES.Entry | 
+  typeof DOCUMENT_TYPES.Session;

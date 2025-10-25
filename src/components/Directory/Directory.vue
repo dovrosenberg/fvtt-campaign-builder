@@ -26,14 +26,11 @@
           @click="onCreateSettingClick"
         >
           <i class="fas fa-globe"></i>
-          <i
-            class="fas fa-plus"
-            style="color: black; background: rgba(255, 255, 255, 0.7); font-size: 0.6rem;"
-          >
-          </i>
+          <i class="fas fa-plus"></i>
         </a>
         <a
           class="fcb-header-control collapse-all"
+          data-testid="collapse-all-button"
           :data-tooltip="localize('tooltips.collapseAllTopics')"
           @click="onCollapseAllClick"
         >
@@ -53,17 +50,39 @@
       </div>
     </header>
 
+    <!-- First, a setting dropdown if here is more than one setting -->
+    <div v-if="settingOptions.length > 1">
+      <Select
+        v-model="selectedSetting"
+        :options="settingOptions"
+        optionLabel="name"
+        optionValue="uuid"
+        :disabled="isInPlayMode"
+        :pt="{
+          root: { 
+            'data-testid': 'setting-select',
+            style: 'width: 100%',
+            'data-tooltip': isInPlayMode ? localize('tooltips.cannotChangeSettingInPlayMode') : ''
+          }
+        }"
+        @change="onSettingChange"
+      />    
+    </div>
+
     <Splitter layout="vertical" class="fcb-directory-splitter">
       <SplitterPanel :size="60" class="fcb-directory-panel">
-        <div v-if="isTopicTreeRefreshing" class="fcb-loading-container">
-          <ProgressSpinner v-if="isTopicTreeRefreshing" />
+        <div v-if="isSettingTreeRefreshing" class="fcb-loading-container">
+          <ProgressSpinner v-if="isSettingTreeRefreshing" />
         </div>
         <div v-else class="fcb-directory-panel-wrapper fcb-setting-directory">
           <SettingDirectory />
         </div>
       </SplitterPanel>
       <SplitterPanel :size="40" class="fcb-directory-panel">
-        <div class="fcb-directory-panel-wrapper fcb-campaign-directory">
+        <div v-if="isCampaignTreeRefreshing" class="fcb-loading-container">
+          <ProgressSpinner v-if="isCampaignTreeRefreshing" />
+        </div>
+        <div v-else class="fcb-directory-panel-wrapper fcb-campaign-directory">
           <CampaignDirectory />
         </div>
       </SplitterPanel>
@@ -83,18 +102,20 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, } from 'vue';
+  import { ref, computed, watch, onMounted } from 'vue';
   import { storeToRefs } from 'pinia';
   import ProgressSpinner from 'primevue/progressspinner';
 
   // local imports
   import { localize } from '@/utils/game';
-  import { useSettingDirectoryStore } from '@/applications/stores';
+  import { useSettingDirectoryStore, useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
+  import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
   import InputText from 'primevue/inputtext';
   import Splitter from 'primevue/splitter';
   import SplitterPanel from 'primevue/splitterpanel';
+  import Select, { SelectChangeEvent } from 'primevue/select';
 
   // local components
   import CampaignDirectory from './CampaignDirectory/CampaignDirectory.vue';
@@ -111,20 +132,46 @@
   ////////////////////////////////
   // store
   const settingDirectoryStore = useSettingDirectoryStore();
-  const { filterText, isTopicTreeRefreshing, isGroupedByType } = storeToRefs(settingDirectoryStore);
+  const campaignDirectoryStore = useCampaignDirectoryStore();
+  const mainStore = useMainStore();
+  const { currentSetting, isInPlayMode } = storeToRefs(mainStore);
+  const { filterText, isSettingTreeRefreshing, isGroupedByType, } = storeToRefs(settingDirectoryStore);
+  const { isCampaignTreeRefreshing } = storeToRefs(campaignDirectoryStore);
 
   ////////////////////////////////
   // data
   const root = ref<HTMLElement>();
+  const selectedSetting = ref<string | null>(currentSetting.value?.uuid || null);
   
   ////////////////////////////////
   // computed data
+  const settingOptions = computed(() => {
+    const settings = ModuleSettings.get(SettingKey.settingIndex) || [];
+    
+    return settings.map((setting) => ({
+      name: setting.name,
+      uuid: setting.settingId
+    }));
+  });
 
   ////////////////////////////////
   // methods
 
   ////////////////////////////////
   // event handlers
+  /**
+   * Handles changing the setting in the dropdown
+   * @param event The change event
+   */
+  const onSettingChange = async (event: SelectChangeEvent) => {
+    const settingId = event.value;
+
+    if (settingId) {
+      // we're changing settings
+      await mainStore.setNewSetting(settingId);
+    }
+  };
+
 
   // close all topics
   const onCollapseAllClick = (event: MouseEvent) => {
@@ -147,10 +194,17 @@
   
   ////////////////////////////////
   // watchers
+  watch(() => currentSetting.value?.uuid, (newSettingId) => {
+    if (newSettingId !== selectedSetting.value) {
+      selectedSetting.value = newSettingId || null;
+    }
+  });
 
   ////////////////////////////////
   // lifecycle events
-
+  onMounted(() => {
+    selectedSetting.value = currentSetting.value?.uuid || null;
+  });
 </script>
 
 <style lang="scss">
@@ -187,7 +241,8 @@
       border-bottom: 1px solid var(--fcb-header-border-color);
       color: var(--fcb-sidebar-label-color);
       margin-bottom: 0px;
-      padding: 8px 0px 8px 8px;
+      padding: 8px 0px 0px 8px;
+      font-family: var(--fcb-font-family);
 
       .fcb-header-filter {
         #fcb-directory-filter {
@@ -204,14 +259,17 @@
           align-items: center;
 
           i {
-            position: absolute;
-
             &.fa-plus {
-              top: -10px;
-              right: 3px;
-              font-size: 0.5rem;
-              background: black;
-              color: var(--color-text-light-highlight);
+              position: absolute;
+              top: -.4rem;
+              right: .1875rem;
+              // font-size: 0.6rem;
+              // transform instead of font-size because if browser has a 
+              //    min font size we don't want to obscure the globe
+              transform: scale(0.65);
+              transform-origin: top right;
+              background: rgba(255, 255, 255, 0.7);
+              color: black;
               padding: 1px;
               border-radius: 4px;
             }  
@@ -221,10 +279,14 @@
 
       .fcb-header-group-type {
         flex: 1;
-        height: var(--form-field-height);
+        font-size: var(--font-size-12);
 
         #fcb-group-by-type {
           flex: 0;
+        }
+
+        label {
+          padding-left: 3px;
         }
       }
     }

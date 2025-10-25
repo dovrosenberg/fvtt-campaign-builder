@@ -1,17 +1,17 @@
 // types used in event handlers for dialogs
-export type CharacterDetails = {
+export interface CharacterDetails {
   name: string;
   description: string;
-  rolePlayingNotes: string;
+  roleplayingNotes: string;
   type: string;
   speciesId: string;
   generateImage: boolean;
 };
 
-export type LocationDetails = {
+export interface LocationDetails {
   name: string;
   description: string;
-  rolePlayingNotes: string;
+  roleplayingNotes: string;
   type: string;
   parentId: string;
   generateImage: boolean;

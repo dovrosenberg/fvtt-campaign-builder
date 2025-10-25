@@ -11,7 +11,7 @@ import {
   Species, 
   Topics, 
 } from '@/types';
-import { Entry, TopicFolder, Setting, } from '@/classes';
+import { Entry, TopicFolder, FCBSetting, } from '@/classes';
 import { Backend } from '@/classes';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { notifyError, notifyInfo } from './notifications';
@@ -34,7 +34,7 @@ export type GeneratedDetails =
  * @returns A promise that resolves to the created entry, or undefined if creation failed
  */
 export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolder: TopicFolder): Promise<Entry | undefined> => {
-  const { name, description, type, rolePlayingNotes } = details;
+  const { name, description, type, roleplayingNotes } = details;
   const settingDirectoryStore = useSettingDirectoryStore();
   
   if (!topicFolder)
@@ -49,8 +49,8 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
   // if they return empty string then don't set it
   if (description)
     entry.description = description;
-  if (rolePlayingNotes)
-    entry.rolePlayingNotes = details.rolePlayingNotes;
+  if (roleplayingNotes)
+    entry.roleplayingNotes = details.roleplayingNotes;
 
   // add the other things based on topic
   switch (topicFolder.topic) {
@@ -72,7 +72,7 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
   await entry.save();
   
   if (details.generateImage)
-    void generateImage(await topicFolder.getSetting(), entry);
+    void generateImage(topicFolder.setting, entry);
 
   return entry;
 };
@@ -87,7 +87,7 @@ export const handleGeneratedEntry = async (details: GeneratedDetails, topicFolde
  * @returns A promise that resolves when image generation is complete
  * @throws {Error} If image generation fails or the entry type is not supported
  */
-export const generateImage = async (forSetting: Setting, entry: Entry): Promise<void> => {
+export const generateImage = async (forSetting: FCBSetting, entry: Entry): Promise<void> => {
   if (!entry || !forSetting || ![Topics.Character, Topics.Location, Topics.Organization].includes(entry.topic)) {
     return;
   }

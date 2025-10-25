@@ -1,4 +1,8 @@
 <template>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet"> 
+
   <div  
     class="fcb"
     @click="onClickApplication"
@@ -15,7 +19,7 @@
         class="fcb-left-panel"
       > 
         <div class="fcb-body flexcol">
-          <WBHeader />
+          <FCBHeader />
           <div class="fcb-content flexcol editable">
             <ContentTab />
           </div>
@@ -46,8 +50,8 @@
 
   // local imports
   import { pinia } from '@/applications/stores';
-  import { getDefaultFolders, } from '@/compendia';
-  import { SettingKey, ModuleSettings, } from '@/settings';
+  import { getCurrentSetting, } from '@/compendia';
+  import { SettingKey, ModuleSettings, moduleId } from '@/settings';
   import { useMainStore, useNavigationStore } from '@/applications/stores';
   import { localize } from '@/utils/game';
   import { updateWindowTitle } from '@/utils/titleUpdater';
@@ -59,16 +63,14 @@
   import SplitterPanel from 'primevue/splitterpanel';
 
   // local components
-  import WBHeader from '@/components/WBHeader/WBHeader.vue';
+  import FCBHeader from '@/components/FCBHeader/FCBHeader.vue';
   import ContentTab from '@/components/ContentTab/ContentTab.vue';
   import Directory from '@/components/Directory/Directory.vue';
   import TitleBarComponents from '@/components/TitleBarComponents.vue';
 
   // types
-  import { WindowTabType, Topics, ValidTopic } from '@/types';
-  import { Backend, Setting, } from '@/classes';
-  import { CampaignDoc } from '@/documents';
-
+  import { WindowTabType, } from '@/types';
+  import { Backend, RootFolder, FCBSetting, } from '@/classes';
 
   
   ////////////////////////////////
@@ -149,47 +151,14 @@
 
   ////////////////////////////////
   // watchers
-  watch(currentSetting, async (newSetting: Setting | null, oldSetting: Setting | null) => {
+  watch(currentSetting, async (newSetting: FCBSetting | null, oldSetting: FCBSetting | null) => {
     // Update the window title when the setting changes
     updateWindowTitle(newSetting?.name || null);
     
-    if (currentSetting.value && currentSetting.value.topicIds && newSetting?.uuid!==oldSetting?.uuid) {
-      // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const settingId = currentSetting.value.uuid;
-
-      const settingCompendium = currentSetting.value.compendium || null;
-
-      if (!settingCompendium)
-        throw new Error(`Could not find compendium for setting ${settingId} in CampaignBuilder.currentSetting watch`);
-
-      const topicIds = currentSetting.value.topicIds;
-      const campaignNames = currentSetting.value.campaignNames;
-      const topics = [ Topics.Character, Topics.Location, Topics.Organization, Topics.PC ] as ValidTopic[];
-      const topicJournals = {
-        [Topics.Character]: null,
-        [Topics.Location]: null,
-        [Topics.Organization]: null,
-        [Topics.PC]: null,
-      } as Record<ValidTopic, JournalEntry | null>;
-      const campaignJournals = {} as Record<string, CampaignDoc>;
-
-      for (let i=0; i<topics.length; i++) {
-        const t = topics[i];
-
-        // we need to load the actual entries - not just the index headers
-        topicJournals[t] = await fromUuid<JournalEntry>(topicIds[t]);
-
-        if (!topicJournals[t])
-          throw new Error(`Could not find journal for topic ${t} in setting ${settingId}`);
-      }
-
-      for (const campaignId in campaignNames) {
-        // we need to load the actual entries - not just the index headers
-        const j = await(fromUuid(campaignId)) as CampaignDoc | null;
-        if (j) {
-          campaignJournals[j.uuid] = j;
-        }
-      }
+    if (currentSetting.value && newSetting?.uuid!==oldSetting?.uuid) {
+      // make sure we have a compendium
+      if (!currentSetting.value.compendium)
+        throw new Error(`Could not find compendium for setting ${currentSetting.value.uuid} in CampaignBuilder.currentSetting watch`);
     }
   });
 
@@ -263,80 +232,47 @@
       }, 0);
     }
 
-    const folders = await getDefaultFolders();
+    rootFolder.value = await RootFolder.get();
 
-    if (!folders || !folders.rootFolder)
-        throw new Error(`Couldn't get folders in CampaignBuilder.onMounted()`);
+    if (!rootFolder.value)
+        throw new Error(`Couldn't get root folder in CampaignBuilder.onMounted()`);
 
-    const setting = folders.setting;
-    const settingId = folders.setting?.uuid;
-    const settingCompendium = folders.setting?.compendium || null;
-
-    if (!setting || !settingId || !settingCompendium)
-        throw new Error(`Could not find setting/compendium for setting ${settingId} in CampaignBuilder.onMounted()`);
-
-    if (setting.topicIds) {
-      // this will force a refresh of the directory; before we do that make sure all the static variables are setup
-      const topics = [ Topics.Character, Topics.Location, Topics.Organization, Topics.PC ] as ValidTopic[];
-      const topicJournals = {
-        [Topics.Character]: null,
-        [Topics.Location]: null,
-        [Topics.Organization]: null,
-        [Topics.PC]: null,
-      } as Record<ValidTopic, JournalEntry | null>;
-      const campaignJournals = {} as Record<string, CampaignDoc>;
-
-      for (let i=0; i<topics.length; i++) {
-        const t = topics[i];
-
-        // we need to load the actual entries - not just the index headers
-        topicJournals[t] = await fromUuid<JournalEntry>(setting.topicIds[t]);
-
-        if (!topicJournals[t])
-          throw new Error(`Could not find journal for topic ${t} in setting ${settingId}`);
-      }
-
-      for (const campaignId in setting.campaignNames) {
-        // we need to load the actual entries - not just the index headers
-        const j = await fromUuid<CampaignDoc>(campaignId);
-        if (j) {
-          campaignJournals[j.uuid] = j;
-        }
-      }
-
-      rootFolder.value = folders.rootFolder;
-      mainStore.setNewSetting(folders.setting.uuid);
-
-      // Wait up to 5 seconds for the backend to finish configuring
-      for (let i = 0; i < 50; i++) {
-        if (!Backend.inProgress) break;
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-
-      // Check if backend is available and show warning if not
-      if (!Backend.available) {
-        if (!ModuleSettings.get(SettingKey.hideBackendWarning)) {
-          notifyWarn(localize('notifications.backend.rollTablesNotAvailable'));
-        }
-      } else {
-        // this is a convenient time to poll for email
-        await Backend.pollForEmail();
-      }
-
-      mainStore.refreshCurrentContent();
-
-      // Add the prep/play toggle to the header
-      // Use setTimeout to ensure the DOM is fully rendered
-      setTimeout(() => {
-        createTitleBarComponents();
-        // Initialize the window title with the current setting name
-        updateWindowTitle(currentSetting.value?.name || null);
-      }, 100);
-    } else {
-      throw new Error('Failed to load or create folder structure');
+    const setting = await getCurrentSetting();
+    if (!setting) {
+      // likely asked to create new one and was canceled - just close the window
+      // @ts-ignore
+      game.modules.get(moduleId)?.activeWindow?.close();
+      return;
     }
-  });
 
+    mainStore.setNewSetting(setting.uuid);
+
+    // Wait up to 5 seconds for the backend to finish configuring
+    for (let i = 0; i < 50; i++) {
+      if (!Backend.inProgress) break;
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    // Check if backend is available and show warning if not
+    if (!Backend.available) {
+      if (!ModuleSettings.get(SettingKey.hideBackendWarning)) {
+        notifyWarn(localize('notifications.backend.rollTablesNotAvailable'));
+      }
+    } else {
+      // this is a convenient time to poll for email
+      await Backend.pollForEmail();
+    }
+
+    mainStore.refreshCurrentContent();
+
+    // Add the prep/play toggle to the header
+    // Use setTimeout to ensure the DOM is fully rendered
+    setTimeout(() => {
+      createTitleBarComponents();
+      // Initialize the window title with the current setting name
+      updateWindowTitle(currentSetting.value?.name || null);
+    }, 100);
+  });
 
 </script>
 
@@ -353,16 +289,29 @@
 
   // the launch button in the top right corner
   #fcb-launch {
-    background-color: rgba(0,0,0,.5);
-    color: var(--color-text-light-highlight);
+    background-color: rgba(0,0,0,.7);
+    color: var(--fcb-primary-400);
   }
 
   .fcb-main-window {  
     min-width: 640px;
 
+    // use an id for these to give them precedence
+    &#app-fcb-CampaignBuilder {
+      @include style-base-components;
+
+      // Apply scrollbar styles to this element AND all descendants
+      &, & * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--fcb-scrollbar) var(--fcb-scrollbar-thumb);
+      }
+    }
+    
     .window-header {
       // we need it to be higher than the content so search results can cover
       z-index: 2;
+
+      background-color: var(--fcb-primary);
 
       overflow: visible;  // for the search drop down
     }
@@ -428,6 +377,7 @@
   .fcb-left-panel {
     position: relative;
     overflow: visible !important;  // make sure the tab shows
+    background: var(--fcb-main-section-background);
   }
 
   .fcb-sidebar-toggle-tab {
@@ -436,22 +386,23 @@
     transform: translateY(-50%); // Adjust for perfect vertical centering
     left: calc(100% - 12px); // Position on the edge of the left panel
     z-index: 100;
-    width: 12px;
-    height: 40px;
-    background-color: var(--color-light-5) !important;
-    color: white;
-    border-color: var(--button-hover-border-color);
+    width: 0.75rem;
+    height: 2.5rem;
+    background-color: var(--fcb-primary) !important;
+    color: var(--fcb-text-on-primary);
+    border-color: var(--fcb-button-border);
     border: 1px;
+    margin-left: 2px;  // so it doesn't bump up against scrollbars
     border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: var(--font-size-14);
 
     &:hover {
-      background-color: #fda948;
-      border-color: var(--color-warm-3);
+      background-color: var(--fcb-button-bg-hover);
+      border-color: var(--fcb-button-border-hover);
     }
   }
 

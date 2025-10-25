@@ -1,42 +1,42 @@
 <template>
-  <!-- these are the settings -->
+  <!-- these are the settings (well, really just one) -->
   <ol class="fcb-setting-list">
     <li
-      v-for="setting in currentSettingTree.value"
-      :key="setting.id"
-      :class="'fcb-setting-folder folder flexcol ' + (currentSetting?.uuid===setting.id ? '' : 'collapsed')"
+      v-if="currentSettingTreeObject"
+      :key="currentSettingTreeObject.id"
+      class="fcb-setting-folder folder flexcol"
       draggable="true"
-      @dragstart="onSettingDragStart($event, setting)"
     >
       <header
         class="folder-header flexrow"
-        @contextmenu="onSettingContextMenu($event, setting.id)"
-        @click="onSettingFolderClick($event, setting.id)"
+        :data-testid="`setting-folder-${currentSettingTreeObject.name}`"
+        @contextmenu="onSettingContextMenu($event, currentSettingTreeObject.id)"
+        @click="onSettingFolderClick($event, currentSettingTreeObject.id)"
       >
         <div class="noborder">
-          <i :class="`fas ${currentSetting?.uuid===setting.id ? 'fa-folder-open' : 'fa-folder'} fa-fw`"></i>
-          {{ setting.name }}
+          <i class="fas fa-folder-open fa-fw"></i>
+          {{ currentSettingTreeObject.name }}
         </div>
       </header>
 
       <!-- These are the topic compendia -->
       <ol 
-        v-if="currentSetting?.uuid===setting.id"
         class="fcb-setting-contents"
       >
         <!-- data-topic-id is used by drag and drop and toggleEntry-->
         <li 
-          v-for="topicNode in setting.topicNodes.sort((a, b) => (a.topicFolder.topic < b.topicFolder.topic ? -1 : 1))"
+          v-for="topicNode in currentSettingTreeObject.topicNodes.sort((a, b) => (a.topicFolder.topic < b.topicFolder.topic ? -1 : 1))"
           :key="topicNode.topicFolder.topic"
-          :class="'fcb-topic-folder folder entry flexcol fcb-directory-compendium ' + (topicNode.expanded ? '' : 'collapsed')"
+          :class="'fcb-topic-folder folder entry flexcol ' + (topicNode.expanded ? '' : 'collapsed')"
           :data-topic="topicNode.topicFolder.topic" 
         >
           <header class="folder-header flexrow">
             <div 
-              class="fcb-compendium-label noborder" 
+              class="noborder" 
               style="margin-bottom:0px"
+              :data-testid="`topic-folder-${topicNode.topicFolder.topic}`"
               @click="onTopicFolderClick($event, topicNode as DirectoryTopicNode)"
-              @contextmenu="onTopicContextMenu($event, setting.id, topicNode.topicFolder as TopicFolder)"
+              @contextmenu="onTopicContextMenu($event, currentSettingTreeObject.id, topicNode.topicFolder as TopicFolder)"
             >
               <i class="fas fa-folder-open fa-fw" style="margin-right: 4px;"></i>
               <i :class="'icon fas ' + getTopicIcon(topicNode.topicFolder.topic)" style="margin-right: 4px;"></i>
@@ -47,12 +47,12 @@
           <SettingDirectoryGroupedTree
             v-if="(isGroupedByType && topicNode.topicFolder.topic !== Topics.PC) || topicNode.topicFolder.topic === Topics.Character" 
             :topic-node="topicNode as DirectoryTopicNode"
-            :setting-id="setting.id"
+            :setting-id="currentSettingTreeObject.id"
           />
           <SettingDirectoryNestedTree
             v-else 
             :topic-node="topicNode as DirectoryTopicNode"
-            :setting-id="setting.id"
+            :setting-id="currentSettingTreeObject.id"
           />
         </li>
       </ol>
@@ -63,11 +63,13 @@
 <script setup lang="ts">
   // library imports
   import { storeToRefs } from 'pinia';
+  import { computed, } from 'vue';
 
   // local imports
   import { localize } from '@/utils/game';
   import { getTopicIcon, getTabTypeIcon } from '@/utils/misc';
   import { useSettingDirectoryStore, useMainStore, useNavigationStore, useCampaignDirectoryStore } from '@/applications/stores';
+  import { getGlobalSetting } from '@/classes';
   
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -78,8 +80,8 @@
 
 
   // types
-  import { WindowTabType, DirectorySetting, Topics } from '@/types';
-  import { DirectoryTopicNode, Setting, TopicFolder, } from '@/classes';
+  import { WindowTabType, Topics } from '@/types';
+  import { DirectoryTopicNode, TopicFolder, } from '@/classes';
   
   ////////////////////////////////
   // props
@@ -101,6 +103,9 @@
   
   ////////////////////////////////
   // computed data
+  const currentSettingTreeObject = computed(() => {
+    return currentSettingTree.value.value.find((setting) => setting.id === currentSetting.value?.uuid) || null;
+  });
 
   ////////////////////////////////
   // methods
@@ -108,29 +113,9 @@
   ////////////////////////////////
   // event handlers
 
-  /**
-   * Handles dragging a setting folder.
-   * @param event The drag event
-   * @param setting The setting object being dragged
-   */
-  // we no longer allow this; no need
-  // editor can't support because it's a pack that doesn't have a uui
-  // and it doesn't seem like useful functionality anyway
-  const onSettingDragStart = (event: DragEvent, setting: DirectorySetting): void => {
-    event.preventDefault();  // need to remove this if we bring it back
-    // event.stopPropagation();
-
-    // const dragData = {
-    //   type: 'fcb-setting',
-    //   settingId: setting.id,
-    //   name: setting.name
-    // } as SettingNodeDragData;
-
-    // event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
-  };
 
   /**
-   * Handles clicking on a setting folder to activate it and navigate to it.
+   * Handles clicking on a setting folder to open its description.
    * @param event The click event
    * @param settingId The UUID of the selected setting
    */
@@ -139,15 +124,10 @@
     event.stopPropagation();
 
     if (settingId) {
-      if (settingId === currentSetting.value?.uuid) {
-        // if we're in the same setting, we just open a tab like we normally would
-        await navigationStore.openSetting(settingId, {newTab: event.ctrlKey});
-      } else {
-        // we're changing settings, so we don't want to open a new tab -- just switch
-        await mainStore.setNewSetting(settingId);
-      }
+      await navigationStore.openSetting(settingId, {newTab: event.ctrlKey});
     }
   };
+
 
   /**
    * Handles right-click context menu on a setting folder, offering actions like delete or create campaign.
@@ -183,7 +163,7 @@
           label: localize('contextMenus.settingFolder.createCampaign'), 
           onClick: async () => {
             if (settingId) {
-              const setting = await Setting.fromUuid(settingId);
+              const setting = await getGlobalSetting(settingId);
 
               if (setting) {
                 await campaignDirectoryStore.createCampaign(setting);
@@ -244,61 +224,45 @@
 
   // the setting list section
   .fcb-directory-panel-wrapper {
+    font-family: var(--fcb-font-family);
+
     .fcb-setting-list {
       padding: 0;
       flex-grow: 1;
-      margin-top: 3px;
+      margin-top: .1875rem;      
 
       .fcb-setting-folder {
         align-items: flex-start;
         justify-content: flex-start;
         min-width: 100%;
         width: max-content;
+        font-weight: 700;
 
-        &.active {
-          background: #cfcdc2;
+        & > .folder-header {
+          border-bottom: none;
+          width: 100%;
+          flex: 1;
+          cursor: pointer;
+        }
+
+        // setting folder styling
+        &:not(.collapsed) > .folder-header {
+          color: var(--fcb-text);
+          background: inherit;
+          text-shadow: none;
+          position: relative;
         }
       }
-    }
-
-    .fcb-setting-folder > .folder-header {
-      border-bottom: none;
-      width: 100%;
-      flex: 1;
-      cursor: pointer;
-    }
-
-    // setting folder styling
-    .fcb-setting-folder:not(.collapsed) > .folder-header {
-      border-top: 1px solid var(--fcb-sidebar-setting-border);
-      background: var(--fcb-sidebar-setting-background);
-      color: var(--fcb-sidebar-setting-color);
-      text-shadow: none;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-    }
-
-    .fcb-setting-folder.collapsed > .folder-header {
-      cursor: pointer;
-      border-top: 1px solid var(--fcb-sidebar-setting-border-collapsed);
-      background: var(--fcb-sidebar-setting-background-collapsed);
-      color: var(--fcb-sidebar-setting-color-collapsed);
-      text-shadow: none;
-    }
-
-    .fcb-setting-folder .folder-header.context {
-      border-top: 1px solid var(--mej-active-color);
-      border-bottom: 1px solid var(--mej-active-color);
     }
 
     // topic folder styling
     .fcb-topic-folder.collapsed > .folder-header, .fcb-topic-folder:not(.collapsed) > .folder-header {
       background: inherit;  // override foundry default
       border: 0px;
-      color: var(--fcb-sidebar-setting-color);
+      color: var(--fcb-text);
       text-shadow: none;   // override foundry default
       cursor: pointer;
+      position: relative;
 
       i.icon {
         color: var(--fcb-sidebar-topic-icon-color);
@@ -314,14 +278,16 @@
       margin: 0px;
       /* width: 100%; */
       padding-left: 10px;
-      z-index: 1;  // make sure it stays behind the setting header
     }    
   }
 
   // the nested tree structure
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
-  .fcb-directory-compendium {
+  .fcb-topic-folder {
+    font-size: 0.8rem;
+    font-family: var(--fcb-font-family);
+
     .fcb-entry-item, .fcb-type-item {
       position: relative;
       padding-left: 1em;
@@ -330,7 +296,8 @@
 
     // bold the active one
     .fcb-current-directory-entry {
-      font-weight: bold;
+      color: var(--fcb-accent-400);
+      font-weight: 700;
       cursor: pointer;
     }
 
@@ -341,14 +308,13 @@
     ul {
       list-style: none;
       line-height: 2em;   // this makes the horizontal lines centered (when combined with the height on the li::before
+      margin-top: 0.25rem;
 
       li {
         position: relative;
         padding: 0;
         margin: -0.5em 0 0 0;
 
-        font-family: 'Signika', sans-serif;
-        font-size: var(--font-size-14);
         font-weight: normal;
 
         // this draws the top-half ot the vertical plus the horizontal tree connector lines
@@ -386,7 +352,7 @@
         background: #777;
         display: block;
         width: 15px;
-        height: 15px;
+        height: .9375rem;
         border-radius: 50em;
         left: -1.2em;
         top: 0.5em;
@@ -399,6 +365,11 @@
 
       div.details {
         padding-left: 0.5em;
+        
+        // For simple nodes without children (no ul), add margin-bottom to match the ul margin-top
+        &:not(:has(ul)) {
+          margin-bottom: 0.25rem;
+        }
       }
     }
 

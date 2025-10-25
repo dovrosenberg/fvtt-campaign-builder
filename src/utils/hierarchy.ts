@@ -1,5 +1,5 @@
 import { TabSummary,  Hierarchy, Topics, } from '@/types';
-import { TopicFolder, Entry, Setting, } from '@/classes';
+import { TopicFolder, Entry, FCBSetting, } from '@/classes';
 
 /**
  * Display string used for entries that have no type assigned.
@@ -23,67 +23,44 @@ export const NO_NAME_STRING = '<Blank>';
 export const hasHierarchy = (topic: Topics): boolean => [Topics.Organization, Topics.Location].includes(topic);
 
 /**
- * Returns a list of valid possible children for a hierarchical entry.
- * Used to populate dropdowns and selection lists for setting child relationships.
- * A valid child is one that is not an ancestor of the parent (to avoid creating loops) or the parent itself.
- * Only works for topics that have hierarchy support.
- * 
- * @param setting - The setting containing the hierarchy data
- * @param entry - The entry to find valid children for
- * @returns Array of entry summaries that can be set as children of the given entry
- */
-export function validChildItems(setting: Setting, entry: Entry): TabSummary[] {
-  if (!entry.uuid)
-    return [];
-
-  const topicFolder = setting.topicFolders[entry.topic];
-
-  const ancestors = setting.getEntryHierarchy(entry.uuid)?.ancestors || [];
-
-  // get the list - every entry in the pack that is not the one we're looking for or any of its ancestors
-  return topicFolder.filterEntries((e: Entry)=>(e.uuid !== entry.uuid && !ancestors.includes(entry.uuid)))
-    .map(mapEntryToSummary) || [];
-}
-
-/**
  * Returns a list of valid possible parents for a hierarchical entry.
- * Used to populate dropdowns and selection lists for setting parent relationships.
+ * Used to populate dropdowns and selection lists for FCBSetting parent relationships.
  * A valid parent is anything that does not have this object as an ancestor (to avoid creating loops).
  * Only works for topics that have hierarchy support.
  * 
- * @param setting - The setting containing the hierarchy data
+ * @param FCBSetting - The FCBSetting containing the hierarchy data
  * @param entry - The entry to find valid parents for
  * @returns Array of objects with name and id properties representing valid parent entries
  */
-export function validParentItems(setting: Setting, entry: Entry): {name: string; id: string}[] {
+export function validParentItems(FCBSetting: FCBSetting, entry: Entry): {name: string; id: string}[] {
   if (!entry.uuid)
     return [];
 
-  const hierarchies = setting.hierarchies;
-  const topicFolder = setting.topicFolders[entry.topic];
+  const hierarchies = FCBSetting.hierarchies;
+  const topicFolder = FCBSetting.topicFolders[entry.topic];
 
   if (!topicFolder || !hasHierarchy(entry.topic))
     return [];
 
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
-  return topicFolder
-    .filterEntries((e: Entry)=>( e.uuid !== entry.uuid && !(hierarchies[e.uuid]?.ancestors || []).includes(entry.uuid)))
-    .map((e: Entry)=>({ name: e.name, id: e.uuid}));
+  return Object.keys(topicFolder.entries)
+    .map((uuid)=> ({ name: topicFolder.entries[uuid], id: uuid}))
+    .filter(e=>( e.id !== entry.uuid && !(hierarchies[e.id]?.ancestors || []).includes(entry.uuid)));
 }
 
 /**
  * Gets the parent ID for a hierarchical entry.
  * Returns null for topics that don't support hierarchy or entries without parents.
  * 
- * @param setting - The setting containing the hierarchy data
+ * @param FCBSetting - The FCBSetting containing the hierarchy data
  * @param entry - The entry to get the parent ID for
  * @returns The UUID of the parent entry, or null if no parent exists
  */
-export function getParentId(setting: Setting, entry: Entry): string | null {
+export function getParentId(FCBSetting: FCBSetting, entry: Entry): string | null {
   if (!hasHierarchy(entry.topic))
     return null;
 
-  const hierarchies = setting.hierarchies;
+  const hierarchies = FCBSetting.hierarchies;
   const hierarchy = hierarchies[entry.uuid];
   return hierarchy?.parentId ?? null;
 }
@@ -108,14 +85,14 @@ const mapEntryToSummary = (entry: Entry): TabSummary => ({
  * @private We need to remove it from any trees where it is a child or ancestor, and from the ancestor
  * list of all the items that will now be orphaned below it
  * 
- * @param setting - The setting containing the hierarchy data
+ * @param FCBSetting - The FCBSetting containing the hierarchy data
  * @param topicFolder - The topic folder containing the deleted item
  * @param deletedItemId - The UUID of the item that was deleted
  * @param deletedHierarchy - The hierarchy data of the deleted item before deletion
  * @returns A promise that resolves when cleanup is complete
  */
-export const cleanTrees = async function(setting: Setting, topicFolder: TopicFolder, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
-  const hierarchies = setting.hierarchies;
+export const cleanTrees = async function(FCBSetting: FCBSetting, topicFolder: TopicFolder, deletedItemId: string, deletedHierarchy: Hierarchy): Promise<void> {
+  const hierarchies = FCBSetting.hierarchies;
 
   // Get the grandparent ID (if any)
   const grandparentId = deletedHierarchy.parentId || null;
@@ -168,8 +145,8 @@ export const cleanTrees = async function(setting: Setting, topicFolder: TopicFol
   delete hierarchies[deletedItemId];
 
   // store updated hierarchy
-  setting.hierarchies = hierarchies;
-  await setting.save();
+  FCBSetting.hierarchies = hierarchies;
+  await FCBSetting.save();
 
   // update topNodes
   const topNodes = topicFolder.topNodes;

@@ -120,19 +120,17 @@
       .fcb-name-header {
         font-size: var(--font-size-20);
         font-weight: 700;
-        font-family: var(--fcb-font-family);
         align-items: center;
         overflow-y: visible;
-        margin-bottom: 4px;
+        margin-bottom: 0.25rem;
         
         .fcb-input-name {
           background: none;
-          font-family: var(--fcb-name-font-family);
-          color: var(--color-text-primary);
+          color: var(--fcb-text);
           margin-left: 3px;
           margin-right: 8px;
-          font-size: 32px;
-          height: 36px;
+          font-size: var(--font-size-32);
+          height: 2.25rem;
 
           // the box shadow when we're not focused makes the box look like the wrong background color
           box-shadow: none;
@@ -148,22 +146,19 @@
 
         button {
           margin-right: 4px;
-          flex: 0 0 30px;
-          height: 30px;
-          width: 30px;
-          font-size: 18px;
-          line-height: 28px;
+          flex: 0 0 1.875rem;
+          height: 1.875rem;
+          width: 1.875rem;
+          font-size: var(--font-size-18);
+          line-height: 1.75rem;
           padding: 0px 3px;
           cursor: pointer;
           box-shadow: none;
-          color: var(--fcb-sheet-header-button-color);
-          background: var(--fcb-sheet-header-button-background);
-          border: 1px solid var(--fcb-sheet-header-button-border-color);
           border-radius: 4px;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 3px 5px 0px 0px;
+          margin: .1875rem 5px 0px 0px;
 
           &:first-child {
             margin-left: 5px;
@@ -173,24 +168,18 @@
             margin-right: 8px;
           }
 
-          &:hover {
-            background: var(--button-hover-background-color);
-            border-color: var(--button-hover-border-color);
-            color: var(--button-hover-text-color);
-          }
-
           i {
-            font-size: 14px;
+            font-size: var(--font-size-14);
             color: currentColor;
           }
         }
 
         .sheet-icon {
-        line-height: 35px;
-        margin-top: 0px;
-        color: var(--fcb-sheet-header-icon-color);
-        flex: 0 0 20px;
-        font-size: 20px;
+          line-height: 2.1875rem;
+          margin-top: 0px;
+          color: var(--fcb-sheet-header-icon-color);
+          flex: 0 0 1.25rem;
+          font-size: var(--font-size-20);
         }
       }
 
@@ -214,8 +203,9 @@
           padding: 0px 4px 5px 4px;
           border-bottom: 2px groove var(--fcb-sheet-tab-bottom-border);
           font-family: var(--fcb-font-family);
-          font-size: 15px;
-          font-weight: 700;
+          font-size: 0.9rem;
+          font-weight: 600;
+          gap: 5px;
 
 
           &.tabs {
@@ -224,21 +214,27 @@
             
             .item {
               flex: 0 0 auto;
-              height: 30px !important;
-              line-height: 32px;
+              height: 1.875rem !important;
+              line-height: 2rem;
               margin: 0 12px;
+              color: var(--fcb-text);
               border-bottom: var(--fcb-sheet-tab-border);
               max-width: 150px;
 
               &.first-child {
                 margin-left: 0;
               }
-            }
 
-            .item.active {
-              border-bottom-color: var(--fcb-sheet-tab-border-active);
-            }
+              &.active {
+                border-bottom-color: var(--fcb-sheet-tab-border-active);
+                text-shadow: 0 0 10px var(--fcb-sheet-tab-shadow-active);
+              }
 
+              &:hover {
+                text-shadow: 0 0 10px var(--fcb-sheet-tab-shadow-hover);
+              }
+            }
+            
             .tab {
               flex: 1;
             }
@@ -258,7 +254,7 @@
 
       /* Dialog */
       .dialog-content {
-        margin-bottom: 8px;
+        margin-bottom: 0.5rem;
       }
 
       .fcb-sheet-container a[disabled] {
@@ -269,16 +265,16 @@
       .page-controls {
         flex-grow: 0;
         padding-top: 1px;
-        border-bottom: 2px groove var(--fcb-sheet-details-section-border);
+        border-bottom: 2px groove var(--fcb-control-border);
 
         button {
           flex: 0 0 130px;
-          background: var(--fcb-sheet-page-control-background);
+          background: var(--fcb-sheet-page-control-bg);
           color: var(--fcb-sheet-page-control-color);
         }
 
         button:hover {
-          background: var(--fcb-sheet-page-control-background-hover);
+          background: var(--fcb-sheet-page-control-bg-hover);
         }
 
         button.fcb-header-control {
@@ -306,6 +302,7 @@
         align-content: flex-start;
         position: relative;
         padding-top: 2px;
+        font-family: var(--fcb-font-family);
 
         &.flexcol {
           flex:1;

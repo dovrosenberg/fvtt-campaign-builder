@@ -3,7 +3,7 @@
     v-if="currentSetting"
   >
     <div ref="contentRef" class="fcb-sheet-container flexcol">
-      <header class="fcb-name-header flexrow">
+      <header class="fcb-name-header flexrow" data-testid="setting-name-header">
         <i :class="`fas ${icon} sheet-icon`"></i>
         <InputText
           v-model="name"
@@ -18,6 +18,7 @@
         />
         <button
           class="fcb-generate-button"
+          data-testid="setting-generate-button"
           @click="onGenerateButtonClick"
           :disabled="generateDisabled"
           :title="`${localize('tooltips.settingGenerateContent')}${generateDisabled ? ` - ${localize('tooltips.backendNotAvailable')}` : ''}`"
@@ -46,7 +47,9 @@
                 <InputText
                   v-model="currentSetting.genre"
                   type="text"
-                  style="width: 250px; font-family: var(--font-body)"
+                  unsyled
+                  data-testid="setting-genre-input"
+                  style="width: 250px; font-family: var(--fcb-font-family)"
                   @update:model-value="onGenreSaved"
                 />
               </div>
@@ -58,7 +61,9 @@
                 <Textarea
                   v-model="currentSetting.settingFeeling"
                   rows="3"
-                  style="width: calc(100% - 2px); font-family: var(--font-body)"
+                  data-testid="setting-feeling-textarea"
+                  unstyled
+                  style="width: calc(100% - 2px); font-family: var(--fcb-font-family)"
                   @update:model-value="onSettingFeelingSaved"
                 />
               </div>
@@ -72,6 +77,7 @@
                 <Editor
                     :initial-content="currentSetting.description || ''"
                     fixed-height="240px"
+                    :current-entity-uuid="currentSetting?.uuid"
                     @editor-saved="onDescriptionEditorSaved"
                   />
               </div>
@@ -105,6 +111,7 @@
   import { useMainStore, useNavigationStore, useSettingDirectoryStore } from '@/applications/stores';
   import { updateWindowTitle } from '@/utils/titleUpdater';
   import { Backend } from '@/classes';
+  import { notifyWarn } from '@/utils/notifications';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -164,6 +171,14 @@
     
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
+
+      // name can't be blank
+      if (newValue.trim() === '') {
+        notifyWarn(localize('errors.nameRequired'));
+        name.value = currentSetting.value?.name!;
+        return;
+      }
+
       if (currentSetting.value && currentSetting.value.name!==newValue) {
         currentSetting.value.name = newValue;
         await currentSetting.value.save();

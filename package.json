@@ -24,13 +24,17 @@
     "docs:dev": "npm run docs:generate-version && vitepress dev docs",
     "docs:build": "npm run docs:generate-version && vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "translate": "node .scripts/translate.cjs"
+    "translate": "node .scripts/translate.cjs",
+    "test:rebuild": "playwright test --project=rebuild",
+    "test:all": "playwright test --project=all",
+    "test": "playwright test --project=headless"
   },
   "devDependencies": {
     "@ethaks/fvtt-quench": "^0.9.2",
     "@faker-js/faker": "^9.3.0",
     "@openapitools/openapi-generator-cli": "^2.21.0",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
+    "@playwright/test": "^1.56.0",
     "@primevue/auto-import-resolver": "^4.2.5",
     "@types/fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "@types/jquery": "^3.5.32",
@@ -73,6 +77,7 @@
     "@yaireo/tagify": "^4.34.0",
     "minisearch": "^7.1.2",
     "pinia": "^2.3.0",
+    "playwright": "^1.56.0",
     "primevue": "^4.2.5",
     "vue": "^3.5.13"
   }

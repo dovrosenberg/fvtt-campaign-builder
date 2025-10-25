@@ -17,7 +17,8 @@
           <span v-if="currentType.expanded">-</span><span v-else>+</span>
         </div>
         <div 
-          class="fcb-current-directory-type"
+          class="fcb-directory-type"
+          @click="onTypeToggleClick"
           @drop="onDrop"
           @dragover="onDragover"
           @contextmenu="onTypeContextMenu"
@@ -152,7 +153,7 @@
       return;
 
     // set the new type
-    const entry = await Entry.fromUuid(data.childId, currentSetting.value.topicFolders[topic]);
+    const entry = await Entry.fromUuid(data.childId);
     if (entry) {
       const oldType = entry.type;
       entry.type = currentType.value.name;

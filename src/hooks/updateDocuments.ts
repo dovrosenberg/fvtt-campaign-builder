@@ -1,5 +1,5 @@
 import { useNavigationStore, useMainStore, useSettingDirectoryStore } from '@/applications/stores';
-import { Topics } from '@/types';
+import { Topics, EntryFilterIndex } from '@/types';
 import { isClientGM } from '@/utils/game';
 
 export function registerForUpdateHooks() {
@@ -26,12 +26,11 @@ function registerForActorHooks() {
       // iterate over all settings then all PCs and campaigns within the setting
       const settings = await mainStore.getAllSettings();
       for (const setting of settings) {
-        const folder = setting?.topicFolders[Topics.PC];
-        if (!folder)
-          continue;
-
-        const pcs = await folder.filterEntries(e => e.actorId === actor.uuid);
+        const pcs = await setting.filterEntries((e: EntryFilterIndex) => e.topic===Topics.PC, true);
         for (const pc of pcs) {
+          if (pc.actorId !== actor.uuid)
+            continue;
+          
           pc.name = actor.name;
           await pc.save();
           await navigationStore.propagateNameChange(pc.uuid, actor.name);

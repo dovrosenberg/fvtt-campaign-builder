@@ -18,7 +18,7 @@ import { notifyError, notifyInfo } from '@/utils/notifications';
 
 // types
 import { Bookmark, TabHeader, WindowTabType, } from '@/types';
-import { WindowTab, Entry, Campaign, Session, Setting } from '@/classes';
+import { WindowTab, Entry, Campaign, Session, getGlobalSetting } from '@/classes';
 
 // the store definition
 export const useNavigationStore = defineStore('navigation', () => {
@@ -35,18 +35,113 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   ///////////////////////////////
   // external state
-  const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of WBHeader)
+  const tabs = ref<WindowTab[]>([]);       // the main tabs of entries (top of FCBHeader)
   const bookmarks = ref<Bookmark[]>([]);
   const recent = ref<TabHeader[]>([]);
 
   ///////////////////////////////
   // actions
  
-  type OpenContentOptions = {
+  interface OpenContentOptions {
     activate?: boolean;
     newTab?: boolean;
     updateHistory?: boolean;
     contentTabId?: string;
+  }
+
+  interface ContentMetadata {
+    name: string;
+    icon: string;
+    contentType: WindowTabType;
+    defaultContentTab: string;
+    badId: boolean;
+  }
+
+  /**
+   * Load metadata for content including name, icon, and default content tab.
+   * This is shared logic used by both openContent and when creating tabs before switching settings.
+   * 
+   * @param contentId - The uuid of the content to load
+   * @param contentType - The type of content
+   * @returns Content metadata including name, icon, type, default content tab, and whether the ID was invalid
+   */
+  const loadContentMetadata = async function(contentId: string | null, contentType: WindowTabType): Promise<ContentMetadata> {
+    // these are the default content tabs to open to
+    const defaultContentTabMap = {
+      [WindowTabType.Entry]: 'description',
+      [WindowTabType.Setting]: 'description',
+      [WindowTabType.Campaign]: 'description',
+      [WindowTabType.Session]: 'notes',
+      [WindowTabType.NewTab]: '',  // no tabs
+    } as Record<WindowTabType, string>;
+
+    let name = localize('labels.newTab') || '';
+    let icon = '';
+    let badId = false;
+
+    if (!contentId) {
+      contentType = WindowTabType.NewTab;
+    } else {
+      switch (contentType) {
+        case WindowTabType.Entry: {
+          const entry = await Entry.fromUuid(contentId);
+          if (!entry) {
+            badId = true;
+          } else {
+            name = entry.name;
+            icon = getTopicIcon(entry.topic);
+          }
+          break;
+        }
+        case WindowTabType.Setting: {
+          const setting = await getGlobalSetting(contentId);
+          if (!setting) {
+            badId = true;
+          } else {
+            name = setting.name;
+            icon = getTabTypeIcon(WindowTabType.Setting);
+          }
+          break;
+        }
+        case WindowTabType.Campaign: {
+          const campaign = await Campaign.fromUuid(contentId);
+          if (!campaign) {
+            badId = true;
+          } else {
+            name = campaign.name;
+            icon = getTabTypeIcon(WindowTabType.Campaign);
+          }
+          break;
+        }
+        case WindowTabType.Session: {
+          const session = await Session.fromUuid(contentId);
+          if (!session) {
+            badId = true;
+          } else {
+            name = `${localize('labels.session.session')} ${session.number}`;
+            icon = getTabTypeIcon(WindowTabType.Session);
+          }
+          break;
+        }
+        case WindowTabType.NewTab:
+          break;
+        default:
+          badId = true;
+          break;
+      }
+    }
+
+    if (badId) {
+      contentType = WindowTabType.NewTab;
+    }
+
+    return {
+      name,
+      icon,
+      contentType,
+      defaultContentTab: defaultContentTabMap[contentType],
+      badId
+    };
   }
 
   /**
@@ -113,12 +208,12 @@ export const useNavigationStore = defineStore('navigation', () => {
    * Open a new tab to the given entry. If no entry is given, a blank "New Tab" is opened.  if not !newTab and contentId is the same as currently active tab, then does nothing
    * 
    * @param contentId The uuid of the entry, campaign, or session to open in the tab. If null, a blank tab is opened.
+   * @param contentType The type of content to open. If null, defaults to entry.
    * @param options Options for the tab.
    * @param options.activate Should we switch to the tab after creating? Defaults to true.
    * @param options.newTab Should the entry open in a new tab? Defaults to true.
    * @param options.updateHistory Should the entry be added to the history of the tab? Defaults to true.
    * @param options.contentTabId The id of the content tab to open. If null, defaults to the default content tab for the type.
-   * @param contentType The type of content to open. If null, defaults to entry.
    * @returns The newly opened tab.
    */
   const openContent = async function (contentId = null as string | null, contentType: WindowTabType, options?: OpenContentOptions,): Promise<WindowTab> { 
@@ -131,10 +226,6 @@ export const useNavigationStore = defineStore('navigation', () => {
       ...options,
     };
 
-    let name = localize('labels.newTab') || '';
-    let icon = '';
-    let badId = false;
-
     // don't switch or activate a new tab if user doesn't want to deal with unsaved changes
     if (!await handleUnsavedChanges()) {
       // for there to be unsaved changes, there has to be an active tab, so this is safe
@@ -142,69 +233,17 @@ export const useNavigationStore = defineStore('navigation', () => {
       return getActiveTab(false);
     }
 
-    // these are the default content tabs to open to
-    const defaultContentTab = {
-      [WindowTabType.Entry]: 'description',
-      [WindowTabType.Setting]: 'description',
-      [WindowTabType.Campaign]: 'description',
-      [WindowTabType.Session]: 'notes',
-      [WindowTabType.NewTab]: '',  // no tabs
-    } as Record<WindowTabType, string>;
-
-    if (!contentId) 
-      contentType = WindowTabType.NewTab;
-
-    switch (contentType) {
-      case WindowTabType.Entry: {
-        const entry = contentId ? await Entry.fromUuid(contentId) : null;
-        if (!entry) {
-          badId = true;
-        } else {
-          name = entry.name;
-          icon = getTopicIcon(entry.topic);
-        }
-      } break;
-      case WindowTabType.Setting: {
-        const setting = contentId ? await Setting.fromUuid(contentId) : null;
-        if (!setting) {
-          badId = true;
-        } else {
-          name = setting.name;
-          icon = getTabTypeIcon(WindowTabType.Setting);
-        }
-      } break;
-      case WindowTabType.Campaign: {
-        const campaign = contentId ? await Campaign.fromUuid(contentId) : null; 
-
-        if (!campaign) {
-          badId = true;
-        } else {
-          name = campaign.name; 
-          icon = getTabTypeIcon(WindowTabType.Campaign);
-        }
-      } break;
-      case WindowTabType.Session: {
-        const session = contentId ? await Session.fromUuid(contentId) : null;
-        if (!session) {
-          badId = true;
-        } else {
-          name = `${localize('labels.session.session')} ${session.number}`;
-          icon = getTabTypeIcon(WindowTabType.Session);
-        }
-      } break;
-      case WindowTabType.NewTab: 
-        break;
-      default: {
-        badId = true;
-      } break;
-    }
-
-    if (badId) {
+    // Load content metadata (name, icon, type)
+    const metadata = await loadContentMetadata(contentId, contentType);
+    
+    if (metadata.badId) {
       contentType = WindowTabType.NewTab;
       contentId = null;
+    } else {
+      contentType = metadata.contentType;
     }
 
-    const headerData: TabHeader = { uuid: contentId || null, name: name, icon: icon };
+    const headerData: TabHeader = { uuid: contentId || null, name: metadata.name, icon: metadata.icon };
 
     // see if we need a new tab
     let tab;
@@ -215,12 +254,12 @@ export const useNavigationStore = defineStore('navigation', () => {
         headerData.uuid,
         contentType, 
         null,
-        options.contentTabId || defaultContentTab[contentType]
+        options.contentTabId || metadata.defaultContentTab
       );
 
       //add to tabs list
       tabs.value.push(tab);
-      tab.addToHistory(contentId, contentType, options.contentTabId || defaultContentTab[contentType]);
+      tab.addToHistory(contentId, contentType, options.contentTabId || metadata.defaultContentTab);
     } else {
       tab = getActiveTab(false);
 
@@ -234,7 +273,7 @@ export const useNavigationStore = defineStore('navigation', () => {
       // add to history -- it should go immediately after the current tab and all other forward history should go away
       // this is a new thing so the contentTab should always be the default
       if (headerData.uuid && options.updateHistory) {
-        tab.addToHistory(contentId, contentType, options.contentTabId || defaultContentTab[contentType]);
+        tab.addToHistory(contentId, contentType, options.contentTabId || metadata.defaultContentTab);
       }
 
       // force a refresh of reactivity
@@ -429,6 +468,10 @@ export const useNavigationStore = defineStore('navigation', () => {
       return;
 
     tab.historyIdx = newSpot;
+    
+    // Trigger reactivity by reassigning the tabs array
+    tabs.value = [...tabs.value];
+    
     await openContent(tab.history[tab.historyIdx].contentId, tab.history[tab.historyIdx].tabType, { activate: false, newTab: false, updateHistory: false});  // will also save the tab and update recent
 
     // Restore the content tab from history
@@ -711,6 +754,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     cleanupDeletedEntry,
     clearTabsAndBookmarks,
     traverseTabs,
-    navigateHistory
+    navigateHistory,
+    loadContentMetadata
   };
 });

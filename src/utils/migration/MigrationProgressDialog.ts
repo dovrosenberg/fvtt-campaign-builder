@@ -20,7 +20,7 @@ export class MigrationProgressDialog {
    * Show the migration progress dialog
    */
   public async show(options: MigrationProgressOptions = {}): Promise<void> {
-    const title = options.title || 'Module Migration';
+    const title = options.title || 'Migrating Campaign Builder to new version';
     const message = options.message || 'Migrating data to new format...';
     const showProgress = options.showProgress !== false;
 
@@ -53,9 +53,6 @@ export class MigrationProgressDialog {
    * Update the progress
    */
   public updateProgress(current: number, total: number, status?: string): void {
-    this.totalItems = total;
-    this.processedItems = current;
-
     if (this.progressElement) {
       const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
       const progressBar = this.progressElement.querySelector('.progress-bar-fill') as HTMLElement;
@@ -65,7 +62,7 @@ export class MigrationProgressDialog {
         progressBar.style.width = `${percentage}%`;
       }
       if (progressText) {
-        progressText.textContent = `${current}/${total} (${percentage}%)`;
+        progressText.textContent = `${percentage}%`;
       }
     }
 

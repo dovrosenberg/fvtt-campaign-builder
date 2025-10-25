@@ -2,21 +2,21 @@ import { DocumentUUID } from '@league-of-foundry-developers/foundry-vtt-types/sr
 import { ValidTopic, FieldData } from '@/types';
 
 // lay out the extra fields for each combination of topics
-export type FieldDataByTopic = Record<ValidTopic, Record<ValidTopic, FieldData>>;
+export type FieldDataByTopic = ValidTopicRecord<ValidTopicRecord<FieldData>>;
 
-export type RelatedItem<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic> = {
+export interface RelatedItem<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic> {
   uuid: string;   // the other item
   topic: PrimaryTopic;   
   type: string;   // the type of the item  (store here because it's not currently indexed, unlike name)
   extraFields: FieldDataByTopic[PrimaryTopic][RelatedTopic];   // optional fields depending on topics (ex. role for character/location relationship)
-};
+}
 
 // includes additional details
-export type RelatedItemDetails<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic> = RelatedItem<PrimaryTopic, RelatedTopic> & {
+export interface RelatedItemDetails<PrimaryTopic extends ValidTopic, RelatedTopic extends ValidTopic> extends RelatedItem<PrimaryTopic, RelatedTopic> {
   name: string;
 }
 
-export type RelatedDocumentDetails = {
+export interface RelatedDocumentDetails {
   uuid: string;   // the other item
   name: string;
   packId: string | null;   // uuid of the parent compendium (null if it's a setting compendium)
@@ -24,7 +24,7 @@ export type RelatedDocumentDetails = {
 };
 
 /** used for rows in the various tables */
-export type RelatedPCDetails = {
+export interface RelatedPCDetails {
   uuid: string;
   name: string;
   type: string;
@@ -33,11 +33,11 @@ export type RelatedPCDetails = {
 
 // ideally we'd use a getter to create the uuid, but these get serialized and it would
 //    be a pain to try to add the function back
-export type RelatedJournal = {
+export interface RelatedJournal {
   uuid: string;  // composite key journalUuid|pageUuid
   journalUuid: DocumentUUID;
   pageUuid: DocumentUUID | null;
-  packId: string | null;   // uuid of the parent compendium (null if it's a setting compendium)
+  packId: string | null;   // uuid of the parent compendium (null if it's a world entry)
   packName: string | null;
 };
 

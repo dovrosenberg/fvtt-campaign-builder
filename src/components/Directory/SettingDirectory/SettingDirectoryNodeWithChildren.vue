@@ -7,6 +7,7 @@
       <div :class="'summary ' + (props.top ? 'top' : '')">      
         <div 
           class="fcb-directory-expand-button"
+          data-testid="directory-expand-button"
           @click="onEntryToggleClick"
         >
           <span v-if="currentNode.expanded">-</span><span v-else>+</span>
@@ -14,6 +15,7 @@
         <div 
           :class="`${currentNode.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
           draggable="true"
+          :data-testid="`directory-entry-with-children-${currentNode.id}`"
           @click="onDirectoryItemClick($event, currentNode as DirectoryEntryNode)"
           @dragstart="onDragStart($event, currentNode.id, currentNode.name)"
           @drop="onDrop"
@@ -25,7 +27,7 @@
       </div>
       <ul>
         <!-- if not expanded, we style the same way, but don't add any of the children (because they might not be loaded) -->
-        <div v-if="currentNode.expanded">
+        <template v-if="currentNode.expanded">
           <SettingDirectoryNodeComponent 
             v-for="child in sortedChildren"
             :key="child.id"
@@ -34,7 +36,7 @@
             :topic="props.topic"
             :top="false"
           />
-        </div>
+        </template>
       </ul>
     </div>
   </li>
@@ -59,7 +61,7 @@
   
   // types
   import { EntryNodeDragData, ValidTopic } from '@/types';
-  import { Entry, DirectoryEntryNode, Setting, TopicFolder } from '@/classes';
+  import { Entry, DirectoryEntryNode, FCBSetting, TopicFolder } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -184,12 +186,12 @@
 
     // is this a legal parent?
     const topicFolder = currentSetting.value.topicFolders[props.topic];
-    const childEntry = await Entry.fromUuid(data.childId, topicFolder as TopicFolder); 
+    const childEntry = await Entry.fromUuid(data.childId); 
     
     if (!childEntry)
       return;
 
-    if (!(validParentItems(currentSetting.value as Setting, childEntry)).find(e=>e.id===parentId))
+    if (!(validParentItems(currentSetting.value as FCBSetting, childEntry)).find(e=>e.id===parentId))
       return;
 
     // add the dropped item as a child on the other (will also refresh the tree)

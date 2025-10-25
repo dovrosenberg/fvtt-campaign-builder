@@ -143,7 +143,7 @@
       "rollTableSettings": {
         "title": "Configurer les Paramètres des Roll Tables",
         "folderName": "Tables de Roll du Constructeur de Campagne",
-        "tableDescription": "Tableau générateur pour {type}",
+        "tableDescription": "Tableau générateur pour",
         "labels": {
           "refreshAll": "Rafraîchir toutes les tables",
           "refreshAllHelp": "Remplacer tous les éléments utilisés par de nouveaux"
@@ -211,7 +211,7 @@
         "generateImage": "Générer une image",
         "description": "Description",
         "campaign": "Campagne",
-        "campaignHouseRules": "Règles de maison",
+        "houseRules": "Règles de maison",
         "addToCurrentSession": "Ajouter à la session en cours",
         "topic": "Sujet",
         "settingFeeling": "Ambiance du cadre",
@@ -392,10 +392,8 @@
     },
     "dialogs": {
       "generateNameDialog": {
+        "title": "Sélectionner une Option",
         "errorMessage": "Il y a eu une erreur :"
-      },
-      "generateOptions": {
-        "title": "Sélectionner une Option"
       },
       "confirmDeleteRelationship": {
         "title": "Retirer de la relation ?",

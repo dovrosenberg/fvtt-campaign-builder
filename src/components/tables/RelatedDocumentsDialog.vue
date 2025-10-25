@@ -49,7 +49,7 @@
 
   // types
   type DocumentType = 'actor' | 'item' | 'scene' | 'journal';
-  type DocumentOption = {
+  interface DocumentOption {
     id: string;  // uuid
     label: string; // name with type
   };

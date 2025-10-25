@@ -1,7 +1,7 @@
 /**
  * Version utilities for handling module updates and migrations
  */
-import { version } from '@module';
+import { version, id as moduleId } from '@module';
 import { SettingKey, ModuleSettings } from '@/settings';
 
 export interface VersionInfo {
@@ -95,7 +95,24 @@ export class VersionUtils {
    * Get the last known version from settings
    */
   public static getLastKnownVersion(): string {
-    return ModuleSettings.get(SettingKey.lastKnownVersion);
+    const lastVersion = ModuleSettings.get(SettingKey.lastKnownVersion);
+
+    if (lastVersion)
+      return lastVersion;
+
+    // now - if we haven't updated since before we started setting version, it's blank
+    //   but! it's also blank if we've just installed the module; we can tell the difference
+    //   based on the user flags for the GM user (because way back then only the GM was a user)
+    // if we're checking this for a player we have to have already been on a version
+    //   that sets the flag, so must be a new installation
+    if (!game.user.isGM)
+      return '';
+
+    // see if there are any flags - if so, it's a really old installation
+    if (game.user.flags[moduleId])
+      return '1.0.0';
+    else
+      return '';
   }
 
   /**
@@ -104,5 +121,6 @@ export class VersionUtils {
   public static async saveCurrentVersion(): Promise<void> {
     const currentVersion = await this.getCurrentModuleVersion();
     await ModuleSettings.set(SettingKey.lastKnownVersion, currentVersion);
+    console.log('Upgraded Campaign Builder to version ' + currentVersion);
   }
 }

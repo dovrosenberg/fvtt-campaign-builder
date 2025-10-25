@@ -42,6 +42,7 @@
         <InputText
           v-model="name"
           type="text"
+          unstyled
           :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
         />
 
@@ -99,13 +100,15 @@
         </h6>
         <Textarea
           v-model="startingDescription"
+          unstyled
           :pt="{ root: { 
             style: { 
               'font-size': 'var(--font-size-14)', 
               'color': 'var(--input-text-color)',
               'min-height': '6rem',
-              'max-height': '6rem',
-              'background': !generateComplete ? 'rgba(255, 228, 196, .3)' : '',
+              'max-height': '20rem',
+              'resize': 'vertical',
+              'background': !generateComplete ? 'var(--fcb-surface-shaded)' : '',
             }
           }}"
         />
@@ -156,16 +159,16 @@
               <span class="error-label">{{ localize('dialogs.generateNameDialog.errorMessage') }}</span> {{ generateError }}
             </div>
             <template v-else-if="generateComplete">
-              <div v-if="!name && (generatedDescription || generatedRoleplayNotes)" class="generated-content" style="background: rgba(255, 228, 196, .3)">
+              <div v-if="!name && (generatedDescription || generatedRoleplayNotes)" class="generated-content" style="background: var(--fcb-surface-shaded)">
                 <div><span class="label">{{ localize('dialogs.createEntry.generatedName')}}:</span> {{ generatedName }}</div>
               </div>
-              <div v-if="generatedDescription" class="generated-content" style="background: rgba(255, 228, 196, .3)">
+              <div v-if="generatedDescription" class="generated-content" style="background: var(--fcb-surface-shaded)">
                 <div class="description">
                   <p><span class="label">{{ localize('dialogs.createEntry.generatedDescription')}}:</span></p>
                   {{ generatedDescription }}
                 </div>
               </div>
-              <div v-if="generatedRoleplayNotes" class="generated-content" style="background: rgba(255, 228, 196, .3)">
+              <div v-if="generatedRoleplayNotes" class="generated-content" style="background: var(--fcb-surface-shaded)">
                 <div class="description">
                   <p><span class="label">{{ localize('dialogs.createEntry.generatedRoleplayNotes')}}</span></p>
                   {{ generatedRoleplayNotes }}
@@ -512,7 +515,7 @@
 
     // create the entry and kick off image generation if needed
     // if we haven't generated a description, use whatever's in brief description
-    // the idea is that - especially when we're dealing with a rolltable name - user can use this form as a sort of quick create
+    // the idea is that - especially when we're dealing with a RollTable name - user can use this form as a sort of quick create
     let details: CharacterDetails | LocationDetails | OrganizationDetails | null = null;
     let descriptionToUse = '';
     let roleplayToUse = '';
@@ -541,7 +544,7 @@
         name: generateComplete.value ? generatedName.value : name.value,
         type: type.value,
         description: descriptionToUse,
-        rolePlayingNotes: roleplayToUse,
+        roleplayingNotes: roleplayToUse,
         speciesId: validSpecies.includes(speciesId.value) ? speciesId.value : '',
         generateImage: generateImageAfterAccept.value
       }
@@ -551,7 +554,7 @@
         type: type.value,
         parentId: parentId.value,
         description: descriptionToUse,
-        rolePlayingNotes: roleplayToUse,
+        roleplayingNotes: roleplayToUse,
         generateImage: generateImageAfterAccept.value
       }
     }
@@ -696,7 +699,7 @@
 
     .tooltip-icon {
       margin-left: 5px;
-      font-size: 12px;
+      font-size: var(--font-size-12);
       color: #888;
       cursor: help;
 

@@ -1,6 +1,6 @@
 import { setupEnricher } from '@/components/Editor/helpers';
 import { moduleId, ModuleSettings, SettingKey } from '@/settings';
-import { getCampaignBuilderApp } from '@/applications/CampaignBuilder';
+import { renderCampaignBuilderApp } from '@/applications/CampaignBuilder';
 import { isClientGM, localize } from '@/utils/game';
 import { refreshAllSettingRollTables } from '@/utils/nameGenerators';
 import { Backend, ExternalAPI } from '@/classes';
@@ -27,6 +27,15 @@ async function ready(): Promise<void> {
   // setup the enricher
   setupEnricher();
 
+  // Handle version checking and migration FIRST - before anything else
+  await MigrationManager.performMigration();
+  
+  // If migration failed, don't continue with setup
+  if (MigrationManager.migrationFailed) {
+    console.error('Campaign Builder migration failed. Application will not be available.');
+    return;
+  }
+
   // load default species if not defined
   const speciesList = ModuleSettings.get(SettingKey.speciesList);
   if (!speciesList || speciesList.length === 0) {
@@ -40,9 +49,6 @@ async function ready(): Promise<void> {
   if (autoRefresh && Backend.available && Backend.api) {
     void refreshAllSettingRollTables();
   }
-
-  // Handle version checking and migration
-  await MigrationManager.performMigration();
 }
 
 const loadDefaultSpecies = async () => {
@@ -87,6 +93,6 @@ async function addMainButton(): Promise<void> {
 
   button.on('click', null, async (): Promise<void> => {
     // create the instance and render 
-    await getCampaignBuilderApp().render(true);
+    await renderCampaignBuilderApp(true);
   });
 }

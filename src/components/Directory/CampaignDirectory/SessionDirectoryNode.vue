@@ -1,15 +1,20 @@
 <template>
   <li>
-    <div
-      :class="`${props.sessionNode.id===currentSession?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
-      style="pointer-events: auto;"
-      draggable="true"
-      :data-tooltip="props.sessionNode.tooltip"
-      @click="onSessionClick"
-      @contextmenu="onSessionContextMenu"
-      @dragstart="onDragStart"
-    >
-      {{ props.sessionNode.name }}
+    <div class="details">
+      <div class="summary">
+        <div
+          :class="`${props.sessionNode.id===currentSession?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
+          style="pointer-events: auto;"
+          draggable="true"
+          :data-testid="`session-node-${props.sessionNode.id}`"
+          :data-tooltip="props.sessionNode.tooltip"
+          @click="onSessionClick"
+          @contextmenu="onSessionContextMenu"
+          @dragstart="onDragStart"
+        >
+          {{ props.sessionNode.name }}
+        </div>
+      </div>
     </div>
   </li>
 </template>

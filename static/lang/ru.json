@@ -143,7 +143,7 @@
       "rollTableSettings": {
         "title": "Настроить параметры таблицы бросков",
         "folderName": "Таблицы бросков конструктора кампании",
-        "tableDescription": "Таблица генератора для {type}",
+        "tableDescription": "Таблица генератора для",
         "labels": {
           "refreshAll": "Обновить все таблицы",
           "refreshAllHelp": "Заменить использованные элементы новыми"
@@ -239,7 +239,7 @@
         "settingGenre": "Сеттинг",
         "settingFeeling": "Ощущения от сеттинга",
         "campaignDescription": "Описание кампании",
-        "campaignHouseRules": "Домашние правила",
+        "houseRules": "Домашние правила",
         "settingDescription": "Описание сеттинга",
         "startingDescription": "Начальное описание",
         "description": "Описание",
@@ -405,15 +405,13 @@
     },
     "dialogs": {
       "generateNameDialog": {
+        "title": "Выберите вариант",
         "errorMessage": "Произошла ошибка:"
       },
       "configureNames": {
         "title": "Настроить стили имен",
         "description": "Выберите стили имен, которые вы хотите использовать для имен, сгенерированных ИИ, в этой настройке. Вы можете предварительно просмотреть примеры каждого стиля ниже, основанные на жанре и чувстве этой настройки.",
         "errorMessage": "Произошла ошибка:"
-      },
-      "generateOptions": {
-        "title": "Выберите вариант"
       },
       "confirmDeleteRelationship": {
         "title": "Удалить из отношений?",

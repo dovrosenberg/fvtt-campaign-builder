@@ -2,12 +2,12 @@
  * A class representing a node (which might have children) in the topic or campaign tree structures
  */
 
-import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, Setting } from '@/classes';
+import { DirectoryEntryNode, DirectoryTypeEntryNode, DirectorySessionNode, FCBSetting } from '@/classes';
 
 type NodeType = DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode;
 
 export abstract class CollapsibleNode<ChildType extends NodeType | never> {
-  protected static _currentSetting: Setting | null = null;
+  protected static _currentSetting: FCBSetting | null = null;
 
   /** maps uuid to the node for easy lookup **/
   protected static _loadedNodes = {} as Record<string, DirectoryEntryNode | DirectoryTypeEntryNode | DirectorySessionNode>;   
@@ -30,7 +30,7 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
     this.ancestors = ancestors;
   }
 
-  public static set currentSetting(setting: Setting | null) {
+  public static set currentSetting(setting: FCBSetting | null) {
     CollapsibleNode._currentSetting = setting;
     CollapsibleNode._loadedNodes = {};
   }
@@ -130,6 +130,7 @@ export abstract class CollapsibleNode<ChildType extends NodeType | never> {
         this.loadedChildren.push(child);
       } else {
         // should never happen because everything should be in _loadedNodes
+        // this happens (for ex.) when an entry is in the setting's hierarchy but the topic's filterEntries() doesn't return it
         throw new Error('Entry failed to load properly in CollapsibleNode.recursivelyLoadNode() ');
       }
 

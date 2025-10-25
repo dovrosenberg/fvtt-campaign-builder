@@ -35,6 +35,7 @@ export const usePlayingStore = defineStore('playing', () => {
   
   ///////////////////////////////
   // external state
+  const currentPlayedSessionNotes = ref<string | null>(null);
 
   ///////////////////////////////
   // actions
@@ -42,8 +43,7 @@ export const usePlayingStore = defineStore('playing', () => {
   ///////////////////////////////
   // computed state
   /** if we're in play mode, the current session; otherwise null */
-  const currentPlayedSession = computed((): Session | null => (currentPlayedCampaign?.value?.currentSession || null) as Session | null);
-  
+  const currentPlayedSessionId = computed((): string | null => (currentPlayedCampaign?.value?.currentSessionId || null));
 
   // The currently played campaign object (update it by updating currentPlayedCampaignId)
   // note if we're just leaving isInPlayMode, this will still be the old campaign until everything resolves
@@ -87,7 +87,7 @@ export const usePlayingStore = defineStore('playing', () => {
   });
 
   const playableCampaigns = computed((): Campaign[] => {
-    return availableCampaigns.value.filter((c) => c.sessions.length !== 0);
+    return availableCampaigns.value.filter((c) => c.sessionIds.length !== 0);
   });
 
 
@@ -103,11 +103,14 @@ export const usePlayingStore = defineStore('playing', () => {
   //   - if oldSession is null and new one isn't, we need to just capture the starting notes to check for dirty later
   //   - if newSession is null and old one isn't, we're closing so we need to check for dirty and also for To Dos
   //   - if both are not null, ditto
-  watch(() => currentPlayedSession.value, async (newSession: Session | null, oldSession: Session | null) => {
+  watch(() => currentPlayedSessionId.value, async (newSessionId: string | null, oldSessionId: string | null) => {
     // make the sure the id changed
-    if (oldSession?.uuid === newSession?.uuid)
+    if (oldSessionId === newSessionId)
       return;
 
+    const oldSession = oldSessionId == null ? null : await Session.fromUuid(oldSessionId);
+    const newSession = newSessionId == null ? null : await Session.fromUuid(newSessionId);
+    
     // if we have an old session, we will need to check for to dos
     // campaign might be closed, so pull from the session
     if (oldSession && oldSession.campaign) {
@@ -137,10 +140,11 @@ export const usePlayingStore = defineStore('playing', () => {
     // if newSession exists, capture the starting notes and open window if needed
     if (newSession) {
       initialSessionNotes.value = newSession?.notes ?? '';
+      currentPlayedSessionNotes.value = newSession?.notes ?? '';
 
       // close and reopen window to get the title right
       if (ModuleSettings.get(SettingKey.displaySessionNotes)) {
-        await openSessionNotes(newSession);
+        await openSessionNotes(newSession.number);
       }
     }
   });
@@ -162,17 +166,29 @@ export const usePlayingStore = defineStore('playing', () => {
       currentPlayedCampaignId.value = currentPlayedCampaign.value?.uuid ?? null;
 
       // If entering play mode, open the session notes window
-      const session = currentPlayedCampaign.value?.currentSession;
-      if (ModuleSettings.get(SettingKey.displaySessionNotes) && session) {
-        await openSessionNotes(session);
+      if (!currentPlayedCampaign.value)
+        return;
+      
+      // make sure the sessions are up to date (we shouldn't really need this)
+      await currentPlayedCampaign.value?.resetCurrentSession();
+      
+      const sessionNumber = await currentPlayedCampaign.value?.currentSessionNumber;
+      if (ModuleSettings.get(SettingKey.displaySessionNotes) && sessionNumber!==null) {
+        await openSessionNotes(sessionNumber);
+      }
+
+      if (currentPlayedSessionId.value!==null) {
+        const session = await Session.fromUuid(currentPlayedSessionId.value);
+        if (session)
+          currentPlayedSessionNotes.value = session.notes;        
       }
     } else {
       // When exiting play mode, first close the session notes window (which will save if needed)
       // have to do this first because once the current session changes, reactivity will lose any unsaved edits
       await SessionNotesApplication.close();
 
-      // clear the current played campaign
-      currentPlayedCampaignId.value = null;
+      // clear the notes; don't clear the campaign id because we need to save it
+      currentPlayedSessionNotes.value = null;
     }
   });
 
@@ -188,8 +204,10 @@ export const usePlayingStore = defineStore('playing', () => {
   // return the public interface
   return {
     currentPlayedCampaign,
-    currentPlayedSession,
+    
+    currentPlayedSessionId,
     currentPlayedCampaignId,    
+    currentPlayedSessionNotes,
     playableCampaigns,
   };
 });

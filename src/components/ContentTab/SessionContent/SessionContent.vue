@@ -87,6 +87,7 @@
                     :key="`strong-start-${currentSession?.uuid}-top`"
                     :initial-content="strongStartContent"
                     fixed-height="180px"
+                    :current-entity-uuid="currentSession?.uuid"
                     @editor-saved="onStartEditorSaved"
                   />
                 </div>
@@ -101,6 +102,7 @@
                 <Editor 
                   :initial-content="sessionNotesContent"
                   fixed-height="400px"
+                  :current-entity-uuid="currentSession?.uuid"
                   @editor-saved="onNotesEditorSaved"
                 />
               </div>
@@ -120,6 +122,7 @@
                     :key="`strong-start-${currentSession?.uuid}-bottom`"
                     :initial-content="strongStartContent"
                     fixed-height="180px"
+                    :current-entity-uuid="currentSession?.uuid"
                     @editor-saved="onStartEditorSaved"
                   />
                 </div>
@@ -180,6 +183,7 @@
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { SettingKey, } from '@/settings';
+  import { notifyWarn } from '@/utils/notifications';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -215,7 +219,7 @@
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const playingStore = usePlayingStore();
   const { currentSession, currentContentTab, isInPlayMode } = storeToRefs(mainStore);
-  const { currentPlayedSession } = storeToRefs(playingStore);
+  const { currentPlayedSessionId, currentPlayedSessionNotes } = storeToRefs(playingStore);
   
   ////////////////////////////////
   // data
@@ -234,9 +238,9 @@
   const strongStartAtTop = computed(() => {
     // we put it at the top if this is the last session for its campaign
     const campaign = currentSession.value?.campaign;
-    const campaignLastSession = campaign?.currentSession;
+    const campaignLastSessionNumber = campaign?.currentSessionNumber;
 
-    return campaignLastSession == null || !currentSession.value || currentSession.value.number === campaignLastSession.number; 
+    return campaignLastSessionNumber == null || !currentSession.value || currentSession.value.number === campaignLastSessionNumber; 
   });
 
   ////////////////////////////////
@@ -255,6 +259,14 @@
     
     nameDebounceTimer = setTimeout(async () => {
       const newValue = newName || '';
+
+      // name can't be blank
+      if (newValue.trim() === '') {
+        notifyWarn(localize('errors.nameRequired'));
+        name.value = currentSession.value?.name!;
+        return;
+      }
+
       if (currentSession.value && currentSession.value.name!==newValue) {
         currentSession.value.name = newValue;
         await currentSession.value.save();
@@ -279,7 +291,7 @@
         await currentSession.value.save();
 
         // the save may renumber a bunch of things, so need to refresh the campaign directory tree (every node with a number >= the new number)
-        const sessionsToRefresh = currentSession.value.campaign?.filterSessions(s=> s.number>=newValue) || [];
+        const sessionsToRefresh = await currentSession.value.campaign?.filterSessions(s=> s.number>=newValue) || [];
 
         await campaignDirectoryStore.refreshCampaignDirectoryTree(sessionsToRefresh.map(s=> s.uuid));
         await navigationStore.propagateNameChange(currentSession.value.uuid, `${localize('labels.session.session')} ${newValue.toString()}`);
@@ -301,8 +313,8 @@
     mainStore.refreshSession();
 
     // trigger reactivity on the session notes window if needed
-    if (currentPlayedSession.value?.uuid===currentSession.value.uuid) {
-      currentPlayedSession.value.notes = newContent;
+    if (currentPlayedSessionId.value===currentSession.value.uuid) {
+      currentPlayedSessionNotes.value = newContent;
     }
   };
 
@@ -372,12 +384,23 @@
     }
   });
   
+  // watch for changes to the notes
+  watch(() => currentPlayedSessionNotes.value, async () => {
+    if (currentSession.value && currentSession.value.uuid===currentPlayedSessionId.value) {
+      // I'm not 100% sure why both of these are needed, which makes me a little 
+      //    nervous... but it seems to work
+      await mainStore.refreshSession();  // update the screen
+      sessionNotesContent.value = currentPlayedSessionNotes.value || '';
+    }
+
+  }, { immediate: true });
+
   // Watch for changes to the played session (which might include a refresh  
   // so we need to update the standalone notes window)
-  watch(() => currentPlayedSession.value, async () => {
-    if (currentPlayedSession.value?.uuid === currentSession.value?.uuid) 
-      sessionNotesContent.value = currentPlayedSession.value?.notes || '';
-  }, { immediate: true });
+  // watch(() => currentPlayedSessionId.value, async () => {
+  //   if (currentPlayedSessionId.value === currentSession.value?.uuid) 
+  //     sessionNotesContent.value = currentPlayedSessionNotes.value || '';
+  // }, { immediate: true });
 
 
 
@@ -413,7 +436,7 @@
     font-weight: 600;
     font-family: var(--fcb-font-family);
     color: var(--fcb-sheet-header-label-color);
-    margin-bottom: 8px;
+    margin-bottom: .5rem;
   }
   .fcb-table-help-icon {
     margin-left: 8px;

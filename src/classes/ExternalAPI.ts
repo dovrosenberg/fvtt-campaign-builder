@@ -4,10 +4,16 @@
 import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
 import { Topics, ValidTopic } from '@/types';
 import { log } from '@/utils/log';
-import { Campaign } from '@/classes/Campaign';
+import { Campaign } from '@/classes/Documents/Campaign';
 import { FCBDialog } from '@/dialogs';
+import { FCBSetting } from '@/classes/Documents/FCBSetting';
+import { Entry } from '@/classes/Documents/Entry';
+import { Session } from './Documents';
 
-type GetListReturnValue = { uuid: string; name: string};
+interface GetListReturnValue { 
+  uuid: string; 
+  name: string
+};
 
 export class ExternalAPI {
   public TOPICS = {
@@ -17,10 +23,17 @@ export class ExternalAPI {
     PC: Topics.PC,
   };
 
+  /** only available in development mode */
+  public testAPI: TestAPI | null = null;
+
   /**
    * Initialize the API
    */
   constructor() {
+    if (import.meta.env.MODE === 'development') {
+      this.testAPI = new TestAPI();
+    }
+
     log(false, 'Campaign Builder External API initialized');
   }
 
@@ -35,9 +48,9 @@ export class ExternalAPI {
 
       const results = [] as GetListReturnValue[];
 
-      topicFolder.allEntries().forEach((entry) => {
-        results.push({ uuid: entry.uuid, name: entry.name });
-      })
+      for (const entryId in topicFolder.entries) {
+        results.push({ uuid: entryId, name: topicFolder.entries[entryId] });
+      }
 
       return results;
     } catch (_e) {
@@ -96,7 +109,7 @@ export class ExternalAPI {
     const retval = [] as GetListReturnValue[];
     for (const campaignId in setting.campaigns) {
       const campaign = setting.campaigns[campaignId];
-      const sessions = campaign.sessions;
+      const sessions = await campaign.allSessions();
 
       for (let i=0; i<sessions.length; i++) {
         retval.push({ uuid: sessions[i].uuid, name: sessions[i].name })
@@ -112,5 +125,51 @@ export class ExternalAPI {
     const setting = useMainStore().currentSetting;
 
     return setting ? [{ uuid: setting.uuid, name: setting.name }] : [];
-  }  
+  }
+
+}
+
+class TestAPI {
+  public loaded: boolean = false;
+
+  constructor() {
+    this.loaded = true;
+  }
+
+  /** should only be used for testing purposes - this will delete all of
+   *  the data associated with this module (settings, campaigns, entries)
+   */
+  public async resetAll(): Promise<void> {
+    // super dangerous - only load this code in development mode
+    if (import.meta.env.MODE === 'development') {
+      for (const setting of await useMainStore().getAllSettings()) {
+        await setting.delete();
+      }
+    } else {
+      throw new Error('resetAll() can only be called in development mode');
+    }
+  }
+
+
+  /**
+   * Creates a new setting
+   * @param name The name of the setting
+   * @param makeCurrent Whether to make this the current setting
+   * @returns The new setting
+   */
+  public async createSetting(name: string, makeCurrent = true): Promise<FCBSetting | null> {
+    return await FCBSetting.create(makeCurrent, name, '', true);
+  }
+
+  public async createCampaign(setting: FCBSetting, name: string): Promise<Campaign | null> {
+    return await Campaign.create(setting, name);
+  }
+
+  public async createSession(campaign: Campaign, name: string): Promise<Session | null> {
+    return await Session.create(campaign, name);
+  }
+
+  public async createEntry(setting: FCBSetting, topic: ValidTopic, name: string): Promise<Entry | null> {
+    return await Entry.create(setting.topicFolders[topic], { name });
+  }
 }

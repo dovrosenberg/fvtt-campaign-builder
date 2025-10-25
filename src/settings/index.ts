@@ -1,11 +1,14 @@
 import { id } from '@module';
 import { SettingKey, SettingKeyType } from './ModuleSettings';
-import { CampaignFlagKey, CampaignFlagType, RollTableFlagKey, RollTableFlagType, } from '@/documents';
+import { RollTableFlagKey, RollTableFlagType, } from '@/documents';
+import { JournalEntryFlagKey, JournalEntryFlagType } from './FCBJournalEntry';
+import { UserFlagKey } from './UserFlags';
 
 export * from './UserFlags';
 export * from './ModuleSettings';
 // export * from './KeyBindings';     // importing this here creates a circular dependency, since keybindings needs CampaignBuilder which needs moduleId
 export * from './DocumentFlags';
+export * from './FCBJournalEntry';
 
 // NOTE: if the module ID changes, this needs to change... couldn't figure out how to automate it because
 //    needed a static type
@@ -17,16 +20,21 @@ export const moduleId: ModuleId = id as ModuleId;
 
 // flesh out the flag types 
 
-type CampaignFlags = {
+type JournalEntryFlags = {
   [M in ModuleId]: {
-    [K in CampaignFlagKey]: CampaignFlagType<K>; 
+    [K in JournalEntryFlagKey]: JournalEntryFlagType<K>; 
   };
 }
 
-type JournalEntryFlags = CampaignFlags;
 type RollTableFlags = {
   [M in ModuleId]: {
     [K in RollTableFlagKey]: RollTableFlagType<K>; 
+  };
+}
+
+type UserFlags = {
+  [M in ModuleId]: {
+    [K in UserFlagKey]?: any;
   };
 }
 
@@ -39,6 +47,7 @@ declare global {
   interface FlagConfig {
     JournalEntry: JournalEntryFlags;
     RollTable: RollTableFlags;
+    User: UserFlags;
   }
 
   interface SettingConfig extends WBSettings {}

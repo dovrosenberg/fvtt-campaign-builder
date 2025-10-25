@@ -14,6 +14,7 @@
       <div class="flexrow">
         <div 
           class="new-link"
+          data-testid="create-setting-button"
           @click="onCreateSetting"
         >
           <div><i class="fas fa-globe"></i></div>
@@ -21,6 +22,7 @@
         </div>
         <div 
           class="new-link"
+          data-testid="create-campaign-button"
           @click="onCreateCampaign"
         >
           <div><i class="fas fa-book"></i></div>
@@ -28,6 +30,7 @@
         </div>
         <div 
           class="new-link"
+          data-testid="create-pc-button"
           @click="onCreateEntry(Topics.PC)"
         >
           <div><i :class="`fas ${getTopicIcon(Topics.PC)}`"></i></div>
@@ -37,10 +40,11 @@
 
       <div 
         class="flexrow"
-        style="margin-bottom: 20px;"
+        style="margin-bottom: 1.25rem;"
       >
         <div 
           class="new-link"
+          data-testid="create-character-button"
           @click="onCreateEntry(Topics.Character)"
         >
           <div><i :class="`fas ${getTopicIcon(Topics.Character)}`"></i></div>
@@ -48,6 +52,7 @@
         </div>
         <div 
           class="new-link"
+          data-testid="create-location-button"
           @click="onCreateEntry(Topics.Location)"
         >
           <div><i :class="`fas ${getTopicIcon(Topics.Location)}`"></i></div>
@@ -55,6 +60,7 @@
         </div>
         <div 
           class="new-link"
+          data-testid="create-organization-button"
           @click="onCreateEntry(Topics.Organization)"
         >
           <div><i :class="`fas ${getTopicIcon(Topics.Organization)}`"></i></div>
@@ -71,6 +77,7 @@
           v-for="recentItem, idx in recent"
           :key="idx"
           class="recent-link" 
+          :data-testid="`recent-item-${idx}`"
           @click="onRecentClick(recentItem)"
         >
           <div>
@@ -211,7 +218,7 @@
     align-items: center;
     justify-content: center;
     font-size: var(--font-size-16);
-    color: var(--fcb-blank-color);
+    color: var(--fcb-home-color);
     font-weight: bold;
 
     .message {
@@ -224,7 +231,7 @@
     }
 
     .search-container {
-      margin-bottom: 20px;
+      margin-bottom: 1.25rem;
       width: 100%;
       max-width: 600px;
       margin-left: auto;
@@ -252,14 +259,14 @@
       max-width: 130px;
 
       i {
-        font-size: 24px;
-        margin-bottom: 8px;
+        font-size: var(--font-size-24);
+        margin-bottom: .5rem;
       }
     }
 
     .recent-link:hover,
     .new-link:hover {
-      color: var(--fcb-blank-link-hover);
+      color: var(--fcb-home-link-hover);
       background: rgba(255, 255, 255, 0.1);
       transform: translateY(-2px);
     }

@@ -2,6 +2,11 @@
   "fcb": {
     "title": "Campaign Builder",
     "defaultRootFolderName": "Campaign Builder",
+    "contentFolders": {
+      "campaigns": "Campaigns",
+      "entries": "Entries",
+      "sessions": "Sessions"
+    },
     "settings": {
       "startCollapsed": "Sidebar starts collapsed?",
       "startCollapsedHelp": "Should the sidebar start closed when opening the window for the first time?",
@@ -143,7 +148,7 @@
       "rollTableSettings": {
         "title": "Configure Roll Table Settings",
         "folderName": "Campaign Builder Roll Tables",
-        "tableDescription": "Generator table for {type}",
+        "tableDescription": "Generator table for",
         "labels": {
           "refreshAll": "Refresh all tables",
           "refreshAllHelp": "Replace any used items with new ones"
@@ -228,18 +233,18 @@
         "sessionNumber": "Number",
         "sessionDate": "Session Date",
         "playerName": "Player Name",
-        "backgroundPoints": "Background Points",
+        "background": "Background",
         "otherPlotPoints": "Other Plot Points",
         "desiredMagicItems": "Desired Magic Items",
         "name": "Name",
         "topic": "Topic",
         "species": "Species",
         "entryDescription": "Description",
-        "entryRolePlayingNotes": "Role-playing Notes",
+        "entryRolePlayingNotes": "Roleplaying Notes",
         "settingGenre": "Genre",
         "settingFeeling": "Setting Feeling",
         "campaignDescription": "Campaign description",
-        "campaignHouseRules": "House rules",
+        "houseRules": "House rules",
         "settingDescription": "Setting description",
         "startingDescription": "Starting description",
         "description": "Description",
@@ -247,7 +252,7 @@
         "generateText": "What to generate",
         "generateChoice": {
           "description": "Description",
-          "roleplay": "Role-playing Notes",
+          "roleplay": "Roleplaying Notes",
           "both": "Both"
         },
         "generateImage": "Generate Image",
@@ -401,19 +406,22 @@
       "todoReferenceNotFound": "The linked reference for this to-do item no longer exists.",
       "addedToSession": "added to session",
       "changesSaved": "Changes saved",
-      "changesDiscarded": "Changes discarded"
+      "changesDiscarded": "Changes discarded",
+      "migration": {
+        "minimumVersionRequired": "Campign Builder cannot migrate from version {0}. You must first upgrade to version {1} or higher before upgrading to {2}.",
+        "cannotOpen": "Campaign Builder cannot be opened because migration failed. Please check the console for details and resolve the migration issue."
+      }
     },
     "dialogs": {
       "generateNameDialog": {
-        "errorMessage": "There was an error:"
+        "title": "Select an Option",
+        "errorMessage": "There was an error:",
+        "emptyTable": "There are no undrawn names left in the RollTable.  You can open it and add some fresh ones, or use 'Reset Results' to reuse old names."
       },
       "configureNames": {
         "title": "Configure Name Styles",
         "description": "Select the naming styles you'd like to use for AI-generated names in this setting. You can preview examples of each style below, based on this setting's genre and feeling.",
         "errorMessage": "There was an error:"
-      },
-      "generateOptions": {
-        "title": "Select an Option"
       },
       "confirmDeleteRelationship": {
         "title": "Remove from relationship?",
@@ -430,7 +438,7 @@
       "createEntry": {
         "generatedName": "Generated name",
         "generatedDescription": "Generated description",
-        "generatedRoleplayNotes": "Generated role-playing notes",
+        "generatedRoleplayNotes": "Generated roleplaying notes",
         "generatePrompt": "Press generate for results",
         "generatePrompt2": "Otherwise, \"Brief Description\" will be used as the new Entry description."
       },
@@ -577,6 +585,7 @@
       "collapseDirectory": "Collapse directory",
       "collapseAllTopics": "Collapse all",
       "addBookmark": "Add bookmark",
+      "moreBookmarks": "More bookmarks",
       "historyBack": "Back",
       "historyForward": "Forward",
       "editRelationship": "Edit relationship",
@@ -591,6 +600,8 @@
       "deleteLore": "Delete lore",
       "deleteToDo": "Complete to-do item",
       "deleteIdea": "Delete idea",
+      "moveToToDo": "Move to to-do list",
+      "moveToIdeas": "Move to ideas list",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",
@@ -599,12 +610,13 @@
       "addToASession": "Add to a session",
       "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",
       "generateContent": "Generate content",
-      "settingGenerateContent": "Manage setting generation configuration",
+      "settingGenerateContent": "Manage Setting generation configuration",
       "backendNotAvailable": "Backend not available",
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",
       "dragMonsterFromSession": "Drag to scene",
       "dragItemFromSession": "Drag to actor, etc.",
       "dragActorFromEntry": "Drag to scene",
+      "cannotChangeSettingInPlayMode": "Cannot change Setting while in play mode",
       "contentLinks": {
         "1": {
           "1": "Character",
@@ -627,7 +639,8 @@
       }
     },
     "errors": {
-      "duplicateBookmark": "Already stored as a bookmark"
+      "duplicateBookmark": "Already stored as a bookmark",
+      "nameRequired": "Name cannot be blank"
     }
   }
 }

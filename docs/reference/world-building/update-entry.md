@@ -37,7 +37,7 @@ When checked, the description generated will be two full paragraphs with lots of
 
 ![Example long description](/assets/images/generate-long-description.webp)
 
-When off, it will simply create a quick description useful for role-playing the character, including a brief description of their personality and appearance, and some suggested role-playing approaches:
+When off, it will simply create a quick description useful for roleplaying the character, including a brief description of their personality and appearance, and some suggested roleplaying approaches:
 
 ![Example short description](/assets/images/generate-short-description.webp)
 

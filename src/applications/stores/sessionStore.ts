@@ -89,7 +89,7 @@ export const useSessionStore = defineStore('session', () => {
   const campaignDirectoryStore = useCampaignDirectoryStore();
   const playingStore = usePlayingStore();
   const { currentSetting, currentContentTab, currentSession, } = storeToRefs(mainStore);
-  const { currentPlayedSession } = storeToRefs(playingStore);
+  const { currentPlayedSessionId } = storeToRefs(playingStore);
 
   ///////////////////////////////
   // internal state
@@ -117,11 +117,19 @@ export const useSessionStore = defineStore('session', () => {
    * @param uuid the UUID of the location to add.
    */
   const addLocationToPlayedSession = async (uuid: string, delivered: boolean = false): Promise<void> => {
-    if (!currentPlayedSession.value)
+    if (!currentPlayedSessionId.value)
+      throw new Error('Invalid session Id in sessionStore.addLocationToPlayedSession()');
+
+    const session = await Session.fromUuid(currentPlayedSessionId.value);
+    if (!session)
       throw new Error('Invalid session in sessionStore.addLocationToPlayedSession()');
 
-    await currentPlayedSession.value.addLocation(uuid, delivered);
+    await session.addLocation(uuid, delivered);
     await _refreshLocationRows();
+
+    // refresh the viewed session if needed
+    if (currentSession.value?.uuid === session.uuid)
+      await mainStore.refreshSession(true);
   }
 
   /**
@@ -201,10 +209,14 @@ export const useSessionStore = defineStore('session', () => {
    * @param uuid the UUID of the character to add.
    */
   const addNPCToPlayedSession = async (uuid: string, delivered: boolean = false): Promise<void> => {
-    if (!currentPlayedSession.value)
+    if (!currentPlayedSessionId.value)
+      throw new Error('Invalid session Id in sessionStore.addNPCToPlayedSession()');
+
+    const session = await Session.fromUuid(currentPlayedSessionId.value);
+    if (!session)
       throw new Error('Invalid session in sessionStore.addNPCToPlayedSession()');
 
-    await currentPlayedSession.value.addNPC(uuid, delivered);
+    await session.addNPC(uuid, delivered);
     await _refreshNPCRows();
   }
 
@@ -671,7 +683,7 @@ export const useSessionStore = defineStore('session', () => {
       return null;
 
     const nextSessionNumber = currentSession.value.number+1;
-    const nextSession = campaign.filterSessions(s => s.number === nextSessionNumber);
+    const nextSession = await campaign.filterSessions(s => s.number === nextSessionNumber);
 
     // found it - just return it
     if (nextSession.length>0) 
@@ -922,6 +934,7 @@ export const useSessionStore = defineStore('session', () => {
         delivered: lore.delivered,
         significant: lore.significant,
         description: lore.description,
+        sortOrder: lore.sortOrder,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
         packId: entry?.pack || null,

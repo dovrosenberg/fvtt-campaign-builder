@@ -1,5 +1,15 @@
 {
   "version": "1.0.0",
   "configurations": [
+    {
+      "name": "Playwright Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/@playwright/test/cli.js",
+      "args": ["test", "--project=browser", "directory"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "env": { "PWDEBUG": "1" }
+    }    
   ]
 }

@@ -2,7 +2,8 @@
  * An abstract class representing a node of any sort in the topic tree structures
  */
 
-import { Entry, CollapsibleNode, DirectoryEntryNode, TopicFolder, } from '@/classes';
+import { CollapsibleNode, DirectoryEntryNode, TopicFolder, } from '@/classes';
+import { EntryFilterIndex } from '@/types';
 
 export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEntryNode> {
   topicFolder: TopicFolder;
@@ -31,10 +32,10 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
     // we only want to load ones not already in _loadedNodes, unless its in updateIds
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
-    const entries = this.topicFolder.filterEntries((e: Entry)=>uuidsToLoad.includes(e.uuid));
+    const entries = await this.topicFolder.filterEntries((e: EntryFilterIndex)=>uuidsToLoad.includes(e.uuid), true);
 
     for (let i=0; i<entries.length; i++) {
-      const newNode = DirectoryEntryNode.fromEntry(entries[i]);
+      const newNode = await DirectoryEntryNode.fromEntry(entries[i]);
       CollapsibleNode._loadedNodes[newNode.id] = newNode;
     }
   }

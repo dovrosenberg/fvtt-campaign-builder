@@ -31,6 +31,7 @@
                   :id="field.field"
                   v-model="extraFieldValuesObj[field.field]"
                   type="text"
+                  unstyled
                   class="field-input"
                   :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
                 />
@@ -65,16 +66,16 @@
   import Dialog from '@/components/Dialog.vue';
 
   // types
-  import { Topics, ValidTopic, RelatedItemDialogModes } from '@/types';
+  import { Topics, ValidTopic, RelatedItemDialogModes, ValidTopicRecord } from '@/types';
   import { Entry, TopicFolder } from '@/classes';
 
-  type ExtraFieldValue = {
+  interface ExtraFieldValue {
     field: string;
     header: string;
     value: string;
   };
 
-  type ButtonProp = {
+  interface ButtonProp {
     label: string;
     close?: boolean;
     default?: boolean;
@@ -167,7 +168,7 @@
       buttonTitle: localize('dialogs.relatedItems.pc.buttonTitle'),
       // editButtonTitle: localize('dialogs.relatedItems.pc.editButtonTitle'),
     },
-  } as Record<ValidTopic, { 
+  } as ValidTopicRecord<{ 
     title: string; 
     // editTitle: string; 
     buttonTitle: string; 
@@ -335,7 +336,7 @@
       if (!currentSession.value && !(currentEntry.value && currentEntryTopic.value))
         throw new Error('Trying to show RelatedItemDialog without a current entry/session');
       
-        selectItems.value = (await Entry.getEntriesForTopic(currentSetting.value.topicFolders[props.topic] as TopicFolder, currentEntry.value || undefined)).map(mapEntryToOption);
+      selectItems.value = (await Entry.getEntriesForTopic(currentSetting.value.topicFolders[props.topic] as TopicFolder, currentEntry.value || undefined)).map(mapEntryToOption);
       
       extraFields.value = currentSession.value ? [] : relationshipStore.extraFields[currentEntryTopic.value][props.topic];
       extraFieldValuesObj.value = {};
@@ -410,13 +411,13 @@
   padding: 1rem 0;
   background-color: rgba(0, 0, 0, 0.05);
   border-radius: 6px;
-  color: var(--color-text-dark-secondary);
+  color: var(--fcb-text);
   font-style: italic;
   gap: 0.75rem;
 
   i {
     font-size: 1.25rem;
-    color: var(--color-text-dark-tertiary);
+    color: var(--fcb-text);
   }
 }
 </style>

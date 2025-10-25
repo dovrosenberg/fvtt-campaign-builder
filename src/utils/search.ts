@@ -1,5 +1,5 @@
 import MiniSearch from 'minisearch';
-import { Entry, Session, Setting } from '@/classes';
+import { Entry, Session, FCBSetting } from '@/classes';
 import { Topics, ValidTopic, } from '@/types';
 import { ModuleSettings, SettingKey } from '@/settings';
 import { SessionLore, SessionRelatedItem, SessionVignette } from '@/documents';
@@ -119,7 +119,7 @@ class SearchService {
    * @returns A promise that resolves when the index is built
    * @throws {Error} If the search index cannot be created
    */
-  public async buildIndex(setting: Setting): Promise<void> {
+  public async buildIndex(setting: FCBSetting): Promise<void> {
     // always reinitialize because otherwise we'll be adding duplicates
     await this.initIndex();
 
@@ -138,7 +138,7 @@ class SearchService {
       if (!topicFolder) continue;
       
       // Get all entries for this topic
-      const entries = topicFolder.filterEntries(() => true);
+      const entries = await topicFolder.filterEntries(() => true, true);
       
       for (const entry of entries) {
         // Create a searchable item for each entry
@@ -149,7 +149,9 @@ class SearchService {
     // add all the sessions, by campaign
     for (const campaignId in setting.campaigns) {
       const campaign = setting.campaigns[campaignId];
-      for (const session of campaign.sessions) { 
+
+      const sessions = await campaign.allSessions();
+      for (const session of sessions) { 
         // Create a searchable item for each session
         const item = await this.createSearchableItemFromSession(session);
         items.push(item);
@@ -167,10 +169,9 @@ class SearchService {
    * Extracts relationships, hierarchy information, and other metadata for indexing.
    * 
    * @param entry - The entry to convert
-   * @param setting - The setting containing the item
    * @returns A promise that resolves to the searchable item
    */
-  private async createSearchableItemFromEntry(entry: Entry, setting: Setting): Promise<SearchableItem> {
+  private async createSearchableItemFromEntry(entry: Entry, setting: FCBSetting): Promise<SearchableItem> {
     const snippets: string[] = [];
     let description = '';
     let species = '';
@@ -228,10 +229,20 @@ class SearchService {
     if (hierarchy) {
       const names = [] as string[];
 
+      // Use cached entry names from topic folders 
       for (let i=0; i<hierarchy.ancestors.length; i++) {
-        const entry = await Entry.fromUuid(hierarchy.ancestors[i]);
-        if (entry)
-          names.push(entry.name);
+        const ancestorUuid = hierarchy.ancestors[i];
+        // Check all topic folders for this entry's name
+        let ancestorName: string | undefined;
+        for (const topicKey in setting.topicFolders) {
+          const topicFolder = setting.topicFolders[topicKey];
+          if (topicFolder.entries[ancestorUuid]) {
+            ancestorName = topicFolder.entries[ancestorUuid];
+            break;
+          }
+        }
+        if (ancestorName)
+          names.push(ancestorName);
       }
 
       // do one layer of children as part of our experimenting
@@ -242,14 +253,15 @@ class SearchService {
       //     names.push(entry.name);
       // }
 
-      snippets.push(names.join('|'));
+      if (names.length > 0)
+        snippets.push(names.join('|'));
     }
 
     return {
       uuid: entry.uuid,
       name: entry.name,
       resultType: 'entry',
-      tags: !entry.tags ? '' : entry.tags.map(t=>t.value).join(', '),
+      tags: !entry.tags ? '' : entry.tags.join(', '),
       description: description,
       topic: topic,
       species: species,
@@ -288,8 +300,8 @@ class SearchService {
           snippets.push(`${fullRelatedItem?.name}`);
       }
     };
-    await addEntrySnippet(session.locations, Entry.fromUuid);
-    await addEntrySnippet(session.npcs, Entry.fromUuid);
+    await addEntrySnippet(session.locations, (uuid) => Entry.fromUuid(uuid));
+    await addEntrySnippet(session.npcs, (uuid) => Entry.fromUuid(uuid));
     await addEntrySnippet(session.items, fromUuid);
     await addEntrySnippet(session.monsters, fromUuid);
 
@@ -310,7 +322,7 @@ class SearchService {
       uuid: session.uuid,
       name: session.name,
       resultType: 'session',
-      tags: !session.tags ? '' : session.tags.map(t=>t.value).join(', '),
+      tags: !session.tags ? '' : session.tags.join(', '),
       description: description,
       topic: 'session',
       species: '',
@@ -373,7 +385,7 @@ class SearchService {
    * @param setting - The setting containing the entry
    * @returns A promise that resolves when the operation is complete
    */
-  public async addOrUpdateEntryIndex(entry: Entry, setting: Setting): Promise<void> {
+  public async addOrUpdateEntryIndex(entry: Entry, setting: FCBSetting): Promise<void> {
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
     }
@@ -398,7 +410,7 @@ class SearchService {
    * @param setting - The setting containing the entry
    * @returns A promise that resolves when the operation is complete
    */
-  public async addOrUpdateSessionIndex(session: Session, setting: Setting): Promise<void> {
+  public async addOrUpdateSessionIndex(session: Session, setting: FCBSetting): Promise<void> {
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
     }

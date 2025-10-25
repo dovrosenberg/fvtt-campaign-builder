@@ -5,7 +5,7 @@
 
   "compatibility": {
     "minimum": "13",
-    "verified": "13.348"
+    "verified": "13.350"
   },
 
   "esmodules": [
@@ -41,10 +41,19 @@
 
    "documentTypes": {
     "JournalEntryPage": {
-      "entry": {
-        "htmlFields": [ "rolePlayingNotes", "background", "plotPoints", "magicItems" ]
+      "entry2": {},
+      "session2": {
+        "htmlFields": [ "strongStart" ]
       },
-      "session": {}
+      "setting2": {},
+      "campaign2": {}
+    }
+  },
+
+  "flags": {
+    "hotReload": {
+      "extensions": ["css", "json"],
+      "paths": ["styles", "lang/en.json"]
     }
   },
 

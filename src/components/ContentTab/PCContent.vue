@@ -67,7 +67,7 @@
                     </div>
                     <div class="flexrow form-group">
                       <LabelWithHelp
-                        label-text="labels.fields.backgroundPoints"
+                        label-text="labels.fields.background"
                       />
                     </div>
                     <div class="flexrow form-group">
@@ -75,6 +75,7 @@
                         :initial-content="currentEntry?.background || ''"
                         :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
                         fixed-height="240px"
+                        :current-entity-uuid="currentEntry?.uuid"
                         @editor-saved="onBackgroundSaved"
                         @related-entries-changed="onRelatedEntriesChanged"
                         />
@@ -88,6 +89,7 @@
                       <Editor 
                         :initial-content="currentEntry?.plotPoints || ''"
                         :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
+                        :current-entity-uuid="currentEntry?.uuid"
                         fixed-height="240px"
                         @editor-saved="onPlotPointsSaved"
                         @related-entries-changed="onRelatedEntriesChanged"
@@ -101,6 +103,7 @@
                     <div class="flexrow form-group">
                       <Editor 
                         :initial-content="currentEntry?.magicItems || ''"
+                        :current-entity-uuid="currentEntry?.uuid"
                         fixed-height="240px"
                         @editor-saved="onMagicItemsSaved"
                       />
@@ -167,6 +170,7 @@
   // types
   import { Entry } from '@/classes';
   import { Topics, RelatedJournal } from '@/types';
+  import { DOCUMENT_TYPES } from '@/documents';
 
   ////////////////////////////////
   // props
@@ -311,30 +315,39 @@
     // check against current relationships
     const { added, removed } = await getRelatedEntries(addedUUIDs, removedUUIDs, currentEntry.value);
 
-    // filter out regular documents and PCs
-    const invalidOnes: string[] = [];
+    let invalidOnes: string[] = [];
+
+    // we can only link to things in the current setting's compendium; filter others out quickly
     for (const uuid of added.concat(removed)) {
-      const doc = await fromUuid(uuid);
-
-      // make sure it's a valid entry
-      if (!doc)
+      if (!uuid.startsWith(`Compendium.${currentEntry.value.compendiumId}`))
         invalidOnes.push(uuid);
-      else {
-        try {
-          // @ts-ignore
-          const entry = new Entry(doc);
-
-          // PCs don't link to other PCs
-          if (entry.topic === Topics.PC)
-            invalidOnes.push(uuid);
-        } catch (_e) {
-          invalidOnes.push(uuid);
-        }
-      }
     }
 
-    const finalAdded = added.filter(uuid => !invalidOnes.includes(uuid));
-    const finalRemoved = removed.filter(uuid => !invalidOnes.includes(uuid));
+    // remove those
+    let finalAdded = added.filter(uuid => !invalidOnes.includes(uuid));
+    let finalRemoved = removed.filter(uuid => !invalidOnes.includes(uuid));
+
+    // from what's left filter out settings, campaigns, and sessions
+    // we know the uuids are journalentries, so the id is the last 16
+    const ids = added.concat(removed).map(uuid => uuid.slice(-16));
+    const possibleConnections = await currentEntry.value.compendium.getDocuments({ _id__in: ids });
+
+    invalidOnes = [];
+    for (const doc of possibleConnections) {
+      // get the type - we only care about entries
+      if (!doc.pages?.contents ||doc.pages.contents[0].type!==DOCUMENT_TYPES.Entry) {
+        invalidOnes.push(doc.uuid);
+      } else {
+        const entry = new Entry(doc);
+
+        // pcs don't link to other pcs
+        if (entry.topic===Topics.PC)
+          invalidOnes.push(doc.uuid);
+      }
+    }
+  
+    finalAdded = finalAdded.filter(uuid => !invalidOnes.includes(uuid));
+    finalRemoved = finalRemoved.filter(uuid => !invalidOnes.includes(uuid));
 
     // Store the pending changes and show dialog if there are any changes
     if (finalAdded.length > 0 || finalRemoved.length > 0) {

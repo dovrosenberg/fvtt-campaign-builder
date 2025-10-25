@@ -1,29 +1,12 @@
 <template>
   <!-- these are the campaigns -->
   <ol class="fcb-campaign-list">
-    <li 
+    <DirectoryCampaignNodeComponent
       v-if="currentSetting" 
-      class="fcb-setting-folder folder flexcol" 
-    >
-      <header 
-        class="folder-header flexrow"
-        @contextmenu="onHeaderContextMenu"
-      >
-        <div class="noborder">
-          <i class="fas fa-folder-open fa-fw"></i>
-          {{ currentSetting.name }} Campaigns
-        </div>
-      </header>
-
-      <!-- Note that we have to use value despite being in a template because it's reactive not ref -->
-      <ol v-if="currentCampaignTree.value.length > 0" class="fcb-campaign-contents">
-        <DirectoryCampaignNodeComponent 
-          v-for="campaign in currentCampaignTree.value"
-          :key="campaign.id"
-          :campaign-node="campaign"
-        />
-      </ol>
-    </li>
+      v-for="campaign in currentCampaignTree.value"
+      :key="campaign.id"
+      :campaign-node="campaign"
+    />
   </ol>
 </template>
 
@@ -105,9 +88,8 @@
 
 <style lang="scss">
   #fcb-directory {
-    .action-buttons {
-      padding-left: 30px;
-    }
+    // main color
+    color: var(--fcb-text);
 
     // the campaign list section
     .fcb-directory-panel-wrapper {
@@ -115,124 +97,52 @@
         padding: 0;
         flex-grow: 1;
         /* overflow: hidden; */
-        margin-top: 3px;
-      }
+        margin-top: .1875rem;
 
-      .fcb-setting-folder {
-        min-width: 100%;
-        width: max-content;
-      }
+        .fcb-campaign-folder {
+          align-items: flex-start;
+          justify-content: flex-start;
+          min-width: 100%;
+          width: max-content;
+          font-weight: 700;
 
-      .fcb-campaign-contents {
-        // make sure it goes behind the header
-        z-index: 1;
-      }
-  }
+          & > .folder-header {
+            border-bottom: none;
+            width: 100%;
+            flex: 1;
+            cursor: pointer;
+          }
+    
+          // setting folder styling
+          &:not(.collapsed) > .folder-header {
+            color: var(--fcb-text);
+            background: inherit;
+            text-shadow: none;
+            position: relative;
+          }
 
-  // the nested tree structure
-  // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
+          div.details {
+            padding-left: 0.5em;
+            
+            // For simple nodes without children (no ul), add margin-bottom to match the ul margin-top
+            &:not(:has(ul)) {
+              margin-bottom: 0.25rem;
+            }
+          }
 
-  .fcb-directory-compendium {
-    .fcb-entry-item, .fcb-type-item {
-      position: relative;
-      padding-left: 0.5em;
-      cursor: pointer;
-    }
-
-    // bold the active one
-    .fcb-current-directory-entry {
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .fcb-directory-entry {
-      cursor: pointer;
-    }
-
-    ul {
-      list-style: none;
-      line-height: 2em;   // this makes the horizontal lines centered (when combined with the height on the li::before
-
-      li {
-        position: relative;
-        padding: 0;
-        margin: -0.5em 0 0 0;
-
-        font-family: 'Signika', sans-serif;
-        font-size: var(--font-size-14);
-        font-weight: normal;
-
-        // this draws the top-half ot the vertical plus the horizontal tree connector lines
-        &::before {
-          top: 0px;
-          border-bottom: 2px solid gray;
-          height: 1em;   // controls vertical position of horizontal lines
+          
         }
-
-        // extends the vertical lines down
-        &::after {
-          bottom: 0px;
-          height: 100%;
-        }
-
-        &::before, &::after {
-          content: "";
-          position: absolute;
-          left: -10px;   // pushes them left of the text
-          border-left: 2px solid gray;
-          width: 10px;   // controls the length of the horizontal lines
-        }
-
-        &:last-child::after {
-          display: none;   // avoid a little tail at the bottom of the vertical lines
-        }
-      }
-
-      // add the little open markers
-      div.summary .fcb-directory-expand-button {
-        position: absolute;
-        text-align: center;
-        line-height: 0.80em;
-        color: black;
-        background: var(--fcb-directory-expand-button-background);
-        display: block;
-        width: 15px;
-        height: 15px;
-        border-radius: 50em;
-        left: -1.2em;
-        top: 0.5em;
-        z-index: 1;
-      }
-
-      div.summary.top .fcb-directory-expand-button {
-        margin-left: 1em;
-      }
-
-      div.details {
-        padding-left: 0.5em;
+      
+        // .fcb-setting-folder > .folder-header {
+        //   background: inherit !important;
+        //   font-weight: 700;
+        // }
       }
     }
 
-    // move the text away from the end of the horizontal lines
-    li {
-      padding-left: 3px;
-    }
-
-    // the top level
-    & > ul {
-      div.summary {
-        list-style: none; 
-
-        &::marker, &::-webkit-details-marker {
-          display: none !important;
-        }
-      }
-
+    .fcb-campaign-contents {
+      // make sure it goes behind the header
+      z-index: 1;
     }
   }
-
-  ul.fcb-directory-tree > li:after, ul.fcb-directory-tree > li:before {
-    display:none;
-  }
-}
 </style>

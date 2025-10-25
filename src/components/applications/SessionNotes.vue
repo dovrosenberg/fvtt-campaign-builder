@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, onMounted, computed, } from 'vue';
+  import { ref, watch, onMounted, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -25,7 +25,7 @@
   // stores
   const mainStore = useMainStore();
   const playingStore = usePlayingStore();
-  const { currentPlayedSession } = storeToRefs(playingStore);
+  const { currentPlayedSessionId, currentPlayedSessionNotes } = storeToRefs(playingStore);
   const { currentSession } = storeToRefs(mainStore);
 
   // data
@@ -37,12 +37,17 @@
 
   // methods
   const onNotesEditorSaved = async (newContent: string) => {
-    const session = currentPlayedSession.value;
+    if (!currentPlayedSessionId.value)
+      return;
 
-    if (!session) return;
+    const session = await Session.fromUuid(currentPlayedSessionId.value);
+    if (!session)
+      return;
 
     session.notes = newContent;
-    await session.save();
+    await session.save();  // do this before the reactive update in case something reloads the session
+
+    currentPlayedSessionNotes.value = newContent;
 
     // if we're showing the session, refresh it
     if (currentSession.value && currentSession.value.uuid===session.uuid) {
@@ -56,34 +61,13 @@
 
   ////////////////////////////////
   // watchers
-  // changes to the played session 
-  watch(() => currentPlayedSession.value, async (newSession: Session | null, oldSession: Session | null) => {
-    sessionNotes.value = newSession?.notes || '';
-
-    // if (!oldSession) 
-    //   return;
-
-    // // check if the session notes window is dirty and save if needed
-    // if (editorRef.value && isDirty()) {
-    //   if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
-    //     oldSession.notes = editorRef.value.getContent();
-    //     await oldSession.save();
-
-    //     // refresh the content in case we're looking at the notes page for that session
-    //     await mainStore.refreshCurrentContent();
-    //   }
-    // }
-  }, { immediate: true });
-
   /** Handle when the notes are saved by the main session screen */
-  watch(() => currentPlayedSession.value?.notes, async () => {
-    sessionNotes.value = currentPlayedSession.value?.notes || '';
+  watch(() => currentPlayedSessionNotes.value, async (newNotes) => {
+    // Only update if we have notes - this prevents race conditions on mount
+    if (newNotes !== null) {
+      sessionNotes.value = newNotes || '';
+    }
   }, { immediate: true });
-
-  // lifecycle
-  onMounted(() => {
-    sessionNotes.value = currentPlayedSession.value?.notes || '';
-  })
 </script>
 
 <style lang="scss">

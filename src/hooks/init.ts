@@ -1,6 +1,8 @@
 import { moduleId, ModuleSettings, } from '@/settings';
 import { KeyBindings } from '@/settings/KeyBindings';
-import { DOCUMENT_TYPES, EntryDataModel, SessionDataModel, PCDataModel } from '@/documents';
+import { CampaignDataModel, DOCUMENT_TYPES, EntryDataModel, SessionDataModel, SettingDataModel, } from '@/documents';
+import { CampaignBuilderApplication } from '@/applications/CampaignBuilder';
+import { JournalEntryFlagKey } from '@/settings';
 
 export function registerForInitHook() {
   Hooks.once('init', init);
@@ -9,7 +11,7 @@ export function registerForInitHook() {
 async function init(): Promise<void> {
   // Load Quench test in development environment
   if (import.meta.env.MODE === 'development') {
-    await import('@test/index');
+    // await import('@unittest/index');
   }
 
   // initialize settings first, so other things can use them
@@ -21,21 +23,33 @@ async function init(): Promise<void> {
   // register the data models
   Object.assign(CONFIG.JournalEntryPage.dataModels, {
     [DOCUMENT_TYPES.Entry]: EntryDataModel,
-    [DOCUMENT_TYPES.Session]: SessionDataModel,
-    // [DOCUMENT_TYPES.PC]: PCDataModel, // Deprecated in v1.2+
+    [DOCUMENT_TYPES.Session]: SessionDataModel,    
+    [DOCUMENT_TYPES.Campaign]: CampaignDataModel,
+    [DOCUMENT_TYPES.Setting]: SettingDataModel,
   });
 
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
-    types: [DOCUMENT_TYPES.Entry],
-    makeDefault: true
+  // register the index fields we need
+  CONFIG.JournalEntry.compendiumIndexFields.push(
+    `flags.${moduleId}.${JournalEntryFlagKey.campaignBuilderType}`,
+    'pages.uuid',
+    'pages.name',
+    'actorId',  // for PCs
+    'pages.system.number',  // for sessions
+    'pages.system.topic',  // for entries
+    'pages.system.type',  // for entries
+  );
+    
+  // the sheet  
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntry, moduleId, CampaignBuilderApplication, {
+    canBeDefault: false,
+    canConfigure: false,
+    makeDefault: false,
+    label: 'FCB - IF YOU\'RE SEEING THIS SOMETHING IS BROKEN'
   });
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
-    types: [DOCUMENT_TYPES.Session],
-    makeDefault: true
+
+  // we need to add these in case someone opens one manually somehow
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, CampaignBuilderApplication, {
+    types: [DOCUMENT_TYPES.Entry, DOCUMENT_TYPES.Session, DOCUMENT_TYPES.Setting, DOCUMENT_TYPES.Campaign ],
+    makeDefault: true,  // only applies to these types
   });
-  // PC entries are now handled by Entry with topic=PC
-  // foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntryPage, moduleId, foundry.appv1.sheets.JournalPageSheet, {
-  //   types: [DOCUMENT_TYPES.PC],
-  //   makeDefault: true
-  // });
 }

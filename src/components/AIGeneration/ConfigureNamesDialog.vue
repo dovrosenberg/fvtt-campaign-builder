@@ -232,7 +232,7 @@
 
   .styles-summary {
     background-color: rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--color-border-light-tertiary);
+    border: 1px solid var(--fcb-control-border);
     border-radius: 4px;
     padding: 0.75rem;
     margin-bottom: 1rem;
@@ -246,7 +246,7 @@
       }
       
       strong {
-        color: var(--color-text-dark-primary);
+        color: var(--fcb-text);
       }
     }
   }

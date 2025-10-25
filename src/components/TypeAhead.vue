@@ -7,6 +7,7 @@
     <input 
       v-model="currentValue" 
       type="text"
+      data-testid="typeahead-input"
       :placeholder="`${localize('placeholders.search')}...`"
       @input="onInput"
     />
@@ -18,6 +19,7 @@
       <div
         v-if="showAddOption"
         :class="`typeahead-entry add ${idx===0 ? 'highlighted' : ''}`"
+        data-testid="typeahead-add-option"
         @click="(event) => {event.stopPropagation(); addCurrentValue(); }"
         >
         <i class="fas fa-plus"></i> {{ localize('labels.add') }} "{{ currentValue }}"
@@ -29,6 +31,7 @@
         :key="i"
         :class="`typeahead-entry ${idx === (showAddOption ? i+1 : i) ? 'highlighted' : ''}`"
         :data-id="objectMode ? (item as ListItem).id : (item as string)"
+        :data-testid="`typeahead-option-${i}`"
         @click="onDropdownClick"
       >
         {{ objectMode ? (item as ListItem).label : (item as string) }}
@@ -49,7 +52,10 @@
   // local components
 
   // types
-  type ListItem = {id: string; label: string};
+  interface ListItem {
+    id: string; 
+    label: string
+  };
 
   ////////////////////////////////
   // props
@@ -380,22 +386,22 @@
 
     .fcb-ta-dropdown {
       position: absolute;
-      margin-top: 2px;
+      margin-top: 0.125rem;
       padding: 0;
       display: flex;
       flex-direction: column;
-      color: var(--color-text-primary);
+      color: var(--fcb-text);
       background-color: var(--fcb-list-background);
       box-shadow: 0 0 5px #555555;
       border-radius: 3px;
       width: calc(100% - 2px);
-      z-index: 1;
+      z-index: 20;
       
       .typeahead-entry {
         padding: 1px 3px;
         font-size: 1rem;
         font-weight: normal;
-        font-family: Signika, sans-serif;
+        font-family: var(--fcb-font-family);
 
         &.add i {
           margin-right: 4px;

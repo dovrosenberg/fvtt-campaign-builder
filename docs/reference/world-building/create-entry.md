@@ -35,14 +35,14 @@ These will all populate from any existing information on the Entry.  Name, speci
 There are 2-3 options below the description field:
 
 ### What to generate 
-You can generate a long description, role-playing notes, or both.  
+You can generate a long description, roleplaying notes, or both.  
 
-If you are using role-playing notes (see [Module Settings]), you will have the choice to populate the description, the notes, or both. If you have that field turned off, you will instead have the option to do long vs. short description.  Note that a short description is the same text as the role-playing notes would have been - it's just used in place of the other description.  The number of paragraphs generated for long descriptions, can be set in the [Module Settings].
+If you are using roleplaying notes (see [Module Settings]), you will have the choice to populate the description, the notes, or both. If you have that field turned off, you will instead have the option to do long vs. short description.  Note that a short description is the same text as the roleplaying notes would have been - it's just used in place of the other description.  The number of paragraphs generated for long descriptions, can be set in the [Module Settings].
 
 Sample long description:
 ![Example long description](/assets/images/generate-long-description.webp)
 
-Sample role-playing notes/short description:
+Sample roleplaying notes/short description:
 ![Example short description](/assets/images/generate-short-description.webp)
 
 ### Generate image [[Advanced Feature]]
@@ -52,4 +52,4 @@ When checked, after you finalize and hit "Use", the AI will [generate an image](
 This option is only available if you are in [^Play Mode], and only for Characters or Locations.  When checked, this Entry will be added to the [^Current Session] after you hit "Use".  Characters are added as [NPCs](/reference/campaign-mgt/content/session/npcs), while Locations are added as [Locations](/reference/campaign-mgt/content/session/locations).  The default value of this checkbox is controlled by the "Default 'Add to current session'" [Module Setting].
 
 ## Generated description [[Advanced Feature]]
-Pressing "Generate" will generate a description (and/or role-play notes) for the Entry.  Any of the fields you left blank will be populated, but the ones you filled will be used as is.  Once generation is complete, you can hit "Use" to create the Entry, or hit "Generate" again to try a new description.  If you do retry, make sure to clear any fields that you don't want to keep for the next run.
+Pressing "Generate" will generate a description (and/or roleplay notes) for the Entry.  Any of the fields you left blank will be populated, but the ones you filled will be used as is.  Once generation is complete, you can hit "Use" to create the Entry, or hit "Generate" again to try a new description.  If you do retry, make sure to clear any fields that you don't want to keep for the next run.

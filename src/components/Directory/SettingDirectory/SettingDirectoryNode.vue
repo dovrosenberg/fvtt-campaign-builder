@@ -7,17 +7,22 @@
     :top="props.top"
   />
   <li v-else-if="filterNodes[props.topic]?.includes(props.node.id)" :class="{ 'fcb-top-level-node': props.top }">
-    <div 
-      :class="`${props.node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
-      style="pointer-events: auto;"
-      draggable="true"
-      @click="onDirectoryItemClick"
-      @dragstart="onDragStart($event, props.node.id, props.node.name)"
-      @drop="onDrop"
-      @dragover="onDragover"
-      @contextmenu="onEntryContextMenu"
-    >
-      {{ displayName }}
+    <div class="details">
+      <div class="summary">
+        <div 
+          :class="`${props.node.id===currentEntry?.uuid ? 'fcb-current-directory-entry' : 'fcb-directory-entry'}`"
+          style="pointer-events: auto;"
+          draggable="true"
+          :data-testid="`directory-entry-${props.node.id}`"
+          @click="onDirectoryItemClick"
+          @dragstart="onDragStart($event, props.node.id, props.node.name)"
+          @drop="onDrop"
+          @dragover="onDragover"
+          @contextmenu="onEntryContextMenu"
+        >
+          {{ displayName }}
+        </div>
+      </div>
     </div>
   </li>
 </template>
@@ -41,7 +46,7 @@
   
   // types
   import { EntryNodeDragData, ValidTopic } from '@/types';
-  import { DirectoryEntryNode, Entry, Setting, TopicFolder } from '@/classes';
+  import { DirectoryEntryNode, Entry, FCBSetting, TopicFolder } from '@/classes';
 
   ////////////////////////////////
   // props
@@ -155,12 +160,12 @@
       return;
 
     // is this a legal parent?
-    const childEntry = await Entry.fromUuid(data.childId, topicFolder as TopicFolder);
+    const childEntry = await Entry.fromUuid(data.childId);
 
     if (!childEntry)
       return;
 
-    if (!(validParentItems(currentSetting.value as Setting, childEntry)).find(e=>e.id===parentId))
+    if (!(validParentItems(currentSetting.value as FCBSetting, childEntry)).find(e=>e.id===parentId))
       return;
 
     // add the dropped item as a child on the other  (will also refresh the tree)
@@ -196,8 +201,4 @@
 </script>
 
 <style lang="scss">
-  // Ensure top-level nodes without children align with top-level nodes with children
-  .fcb-entry-item.fcb-top-level-node {
-    margin-left: 1em !important;
-  }
 </style>

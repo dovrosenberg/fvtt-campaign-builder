@@ -1,6 +1,6 @@
 import { DataTableFilterMetaData } from 'primevue';
 
-export type TablePagination = {
+export interface TablePagination {
   first: number;   // the cardinal number of the first included row (=rowsPerPage*page)
   page: number;    // the current page
   rowsPerPage: number;
@@ -9,7 +9,7 @@ export type TablePagination = {
   filters: Record<string, { value: string | null; matchMode: DataTableFilterMetaData['matchMode']}>;   // maps field name to filter value applied to it
 }
 
-export type FieldData = {
+export interface FieldData {
   field:string; 
   header: string;
   editable?: boolean;
@@ -17,14 +17,14 @@ export type FieldData = {
   sortable?: boolean;
 }[];
 
-export type PaginationResult<T extends AnyRow> = {
+export interface PaginationResult<T extends AnyRow> {
   rows: T[];
   rowsAvailable: number;
 }
 
 export type AnyPaginationResult = PaginationResult<any>;
 
-export type SessionLocationDetails = {
+export interface SessionLocationDetails {
   uuid: string;   // the location entry
   name: string;
   type: string;
@@ -34,7 +34,7 @@ export type SessionLocationDetails = {
   delivered: boolean;
 }
 
-export type SessionNPCDetails = {
+export interface SessionNPCDetails {
   uuid: string;   // the character entry
   name: string;
   type: string;
@@ -42,14 +42,14 @@ export type SessionNPCDetails = {
   delivered: boolean;
 }
 
-export type SessionItemDetails = {
+export interface SessionItemDetails {
   uuid: string;   // the Item document
   name: string;
   delivered: boolean;
   dragTooltip?: string;
 }
 
-export type SessionMonsterDetails = {
+export interface SessionMonsterDetails {
   uuid: string;   // the Actor document
   name: string;
   number: number;
@@ -58,7 +58,7 @@ export type SessionMonsterDetails = {
 }
 
 
-export type SessionLoreDetails = {
+export interface SessionLoreDetails {
   uuid: string;   
   delivered: boolean;
   description: string;
@@ -70,7 +70,7 @@ export type SessionLoreDetails = {
   onClick?: (event: MouseEvent, uuid: string) => void | Promise<void>;
 }
 
-export type CampaignLoreDetails = SessionLoreDetails & {
+export interface CampaignLoreDetails extends SessionLoreDetails {
   /** uuid of the session it came from */
   lockedToSessionId: string | null;  
   lockedToSessionName: string | null;  

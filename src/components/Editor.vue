@@ -10,6 +10,7 @@
       v-if="!props.editOnlyMode && props.editable"
       ref="buttonRef"
       class="editor-edit"
+      data-testid="editor-edit-button"
       :style="`display: ${ buttonDisplay }`"
       @click="activateEditor"
     >
@@ -65,7 +66,7 @@
   const TextEditor = foundry.applications.ux.TextEditor;
   const ProseMirror = foundry.prosemirror;
 
-  // type EditorOptions = {
+  // interface EditorOptions {
   //   document: Document<any>,
   //   fieldName: string,
   //   height: number, 
@@ -516,13 +517,13 @@
 
     .editor-edit {
       position: absolute;
-      z-index: 1000;
+      z-index: 10;
       right: 12px;
       top: 3px;
       color: coral;
-      font-family: var(--font-body);
+      font-family: var(--fcb-font-family);
       font-size: var(--font-size-14);
-      font-weight: normal;
+      font-weight: 400;
 
       &:hover {
         color: green;
@@ -539,12 +540,12 @@
       border: 1px solid var(--fcb-button-border-color);
       overflow-y: auto !important;
       border-radius: 4px;
-      font-family: var(--font-body);
+      font-family: var(--fcb-font-family);
       font-size: var(--font-size-14);
-      font-weight: normal;
+      font-weight: 400;
       padding: 0;
-      background: var(--fcb-dark-overlay);
-      color: var(--color-dark-2);
+      background: var(--fcb-surface-2);
+      color: var(--fcb-text);
 
       .editor {
         overflow: visible;
@@ -563,19 +564,14 @@
 
       .theme-dark & {
         background: var(--fcb-light-overlay);
-        color: var(--color-light-2);
       }
 
       &:focus-within {
-        border: 2px solid var(--color-warm-2);
+        border: 2px solid var(--fcb-accent);
       }
 
       &:disabled {
-        color: var(--color-dark-4);
-
-        .theme-dark & {
-           background: var(--color-light-4);
-        }
+        color: var(--fcb-text-muted);
       }
 
       .prosemirror {

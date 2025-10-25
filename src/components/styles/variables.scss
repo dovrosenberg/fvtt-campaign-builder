@@ -1,145 +1,252 @@
 body {
-  --fcb-name-font-family: 'Modesto Condensed', 'Palatino Linotype', serif;
-  --fcb-font-family: (var--font-body);
+  --fcb-name-font-family: 'Inter', 'Signika', sans-serif;
+  --fcb-font-family: 'Inter', 'Signika', sans-serif;
 
-  --fcb-dark-overlay: rgba(0, 0, 0, 0.05);
+  --fcb-dark-overlay: rgba(0, 0, 0, 0.10);
   --fcb-light-overlay: rgba(255, 255, 255, 0.10);
+
+  --fcb-primary-h: 164;  // hunter green
+  --fcb-primary-s: 48%;
+  --fcb-primary-l: 20%;  // #1b4d3e 
+
+  --fcb-accent-h: 22;   // orange
+  --fcb-accent-s: 100%;
+  --fcb-accent-l: 55%;  // #ff6400
+
+  // primary scale - greens
+  --fcb-primary-500: hsl(var(--fcb-primary-h) var(--fcb-primary-s) var(--fcb-primary-l)); /* #1B4D3E */  // use: primary button
+
+  // we derive the lights ones because my other approach was making them "minty"
+  --fcb-primary-50:  color-mix(in oklch, var(--fcb-primary-500), white 92%); // use: subtle background tint
+  --fcb-primary-100: color-mix(in oklch, var(--fcb-primary-500), white 86%);
+  --fcb-primary-200: color-mix(in oklch, var(--fcb-primary-500), white 74%); // use: selected rows, badges
+  --fcb-primary-300: color-mix(in oklch, var(--fcb-primary-500), white 58%);
+  --fcb-primary-400: color-mix(in oklch, var(--fcb-primary-500), white 36%); // use: hover for outlines/links
+  --fcb-primary-600: hsl(var(--fcb-primary-h) 50% 16%); // use: hover on primary
+  --fcb-primary-700: hsl(var(--fcb-primary-h) 52% 13%); // use: active/pressed state on primary
+  --fcb-primary-800: hsl(var(--fcb-primary-h) 55% 10%); // use: darkest strokes in dark mode
+
+  // accent scale - oranges
+  --fcb-accent-50:  hsl(var(--fcb-accent-h) 100% 98%);
+  --fcb-accent-100: hsl(var(--fcb-accent-h) 100% 92%);
+  --fcb-accent-200: hsl(var(--fcb-accent-h) 100% 85%);
+  --fcb-accent-300: hsl(var(--fcb-accent-h) 100% 70%);
+  --fcb-accent-400: hsl(var(--fcb-accent-h) 100% 60%); /* ~#FF7A1A */
+  --fcb-accent-500: hsl(var(--fcb-accent-h) var(--fcb-accent-s) var(--fcb-accent-l)); /* #FF6400 */
+  --fcb-accent-600: hsl(var(--fcb-accent-h) 100% 46%);
+  --fcb-accent-700: hsl(var(--fcb-accent-h) 100% 40%);
+
+  // neutral gray scale (UI scaffolding)
+  // TODO - use foundry variables instead?
+  --fcb-gray-50:  hsl(210 15% 98%);
+  --fcb-gray-100: hsl(210 15% 95%);
+  --fcb-gray-200: hsl(210 15% 90%);
+  --fcb-gray-300: hsl(210 10% 82%);
+  --fcb-gray-400: hsl(210 8% 65%);
+  --fcb-gray-500: hsl(210 7% 50%);
+  --fcb-gray-600: hsl(210 9% 38%);
+  --fcb-gray-700: hsl(210 10% 28%);
+  --fcb-gray-800: hsl(210 12% 18%);
+  --fcb-gray-900: hsl(210 14% 12%);
+
+  // status colors
+  --fcb-success-500: hsl(145 55% 35%);
+  --fcb-warning-500: hsl(35 95% 45%);
+  --fcb-danger-500:  hsl(0 75% 48%);
+
+  // this is the main text color to use on top of the primary
+  --fcb-text-on-primary: var(--fcb-gray-50) 
 }
 
-// themed variables
+// role tokens 
+// Light theme 
+body {  
+  /* Brand & accent application */
+  --fcb-primary:       var(--fcb-primary-500);
+  --fcb-primary-weak:  var(--fcb-primary-100);
+  --fcb-primary-strong:var(--fcb-primary-600);
+
+  --fcb-accent:        var(--fcb-accent-500);
+  --fcb-accent-weak:   var(--fcb-accent-100);
+  --fcb-accent-strong: var(--fcb-accent-600);
+
+  /* Surfaces & text */
+  --fcb-bg:            var(--fcb-gray-50);
+  --fcb-surface:       #fff;
+  --fcb-surface-2:     var(--fcb-gray-100);
+  --fcb-surface-3:     var(--fcb-gray-200);
+  --fcb-surface-shaded: var(--fcb-primary-50);
+  --fcb-elevated:      #fff;
+  --fcb-border:        var(--fcb-gray-300);
+  --fcb-shadow:        0 1px 2px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+
+  --fcb-text:          var(--fcb-gray-900);
+  --fcb-text-muted:    var(--fcb-gray-600);
+  --fcb-text-inverted:   #fff;
+
+  --fcb-button-bg:      var(--fcb-primary-50);
+  --fcb-button-text:    var(--fcb-text);
+  --fcb-button-border:  var(--fcb-border);
+  --fcb-button-bg-hover: var(--fcb-primary-100);
+  --fcb-button-text-hover: var(--fcb-text);
+  --fcb-button-border-hover: var(--fcb-accent-500);
+  
+  /* Interactive */
+  --fcb-link:          var(--fcb-primary-500);
+  --fcb-link-hover:    var(--fcb-primary-400);
+  --fcb-hover:         var(--fcb-primary-600);
+  --fcb-active:        var(--fcb-primary-700);
+
+  /* Controls */
+  --fcb-control-bg:        var(--fcb-surface);
+  --fcb-control-bg-alt:    var(--fcb-surface-2);
+  --fcb-control-bg-hover:  var(--fcb-dark-overlay);
+  --fcb-control-text:      var(--fcb-text);
+  --fcb-control-text-muted:      var(--fcb-text-muted);
+  --fcb-control-placeholder: var(--fcb-gray-500);
+  --fcb-control-border:    var(--fcb-border);
+  --fcb-control-border-hover: var(--fcb-gray-400);
+  --fcb-control-border-focus: var(--fcb-accent);
+  --fcb-control-filled:    var(--fcb-primary-50);
+
+  /* Component-specific */
+  --fcb-tab-active-bg:     var(--fcb-surface);
+  --fcb-tab-active-text:   var(--fcb-text);
+  --fcb-tab-shadow-active: var(--fcb-accent-600);
+  --fcb-tab-shadow-hover:  var(--fcb-accent-300);
+  --fcb-tab-border:        var(--fcb-control-border);
+  --fcb-sidebar-bg:        var(--fcb-surface-shaded);
+  --fcb-sidebar-border:    var(--fcb-gray-300);
+  --fcb-sidebar-splitter:  var(--fcb-control-border);
+  --fcb-list-item-hover:   var(--fcb-gray-100);
+  --fcb-badge-bg:          var(--fcb-primary-100);
+  --fcb-badge-text:        var(--fcb-primary-700);
+
+  /* Status */
+  --fcb-success: var(--fcb-success-500);
+  --fcb-warning: var(--fcb-warning-500);
+  --fcb-danger:  var(--fcb-danger-500);
+
+  /* Focus ring */
+  --fcb-ring: var(--fcb-ring);
+}
+
+/* Dark theme */
+body.theme-dark {
+  /* Slightly brighten/dedesaturate for dark */
+  --fcb-primary:       hsl(var(--fcb-primary-h) 45% 28%);
+  --fcb-primary-weak:  hsl(var(--fcb-primary-h) 35% 18%);
+  --fcb-primary-strong:hsl(var(--fcb-primary-h) 55% 24%);
+
+  --fcb-accent:        hsl(var(--fcb-accent-h) 95% 56%);
+  --fcb-accent-weak:   hsl(var(--fcb-accent-h) 80% 18%);
+  --fcb-accent-strong: hsl(var(--fcb-accent-h) 100% 50%);
+
+  --fcb-bg:            var(--fcb-gray-900);
+  --fcb-surface:       var(--fcb-gray-800);
+  --fcb-surface-2:     hsl(210 14% 15%);
+  --fcb-surface-3:     hsl(210 14% 13%);
+  --fcb-surface-shaded: color-mix(in oklab, var(--fcb-primary) 10%, var(--fcb-surface));
+  --fcb-elevated:      hsl(210 14% 18%);
+  --fcb-border:        var(--fcb-gray-700);
+  --fcb-shadow:        0 1px 2px rgba(0,0,0,.6), 0 8px 24px rgba(0,0,0,.45);
+
+  --fcb-text:          var(--fcb-gray-200);
+  --fcb-text-muted:    var(--fcb-gray-400);
+  --fcb-text-inverted:   #0b0e0c;
+
+  --fcb-button-bg:      var(--fcb-primary-900);
+  --fcb-button-text:    var(--fcb-text);
+  --fcb-button-border:  var(--fcb-border);
+  --fcb-button-bg-hover: var(--fcb-primary-800);
+  --fcb-button-text-hover: var(--fcb-text-on-primary);
+  --fcb-button-border-hover: var(--fcb-accent-500);
+
+  --fcb-link:          hsl(var(--fcb-primary-h) 50% 70%);
+  --fcb-hover:         color-mix(in oklab, var(--fcb-primary) 28%, white);
+  --fcb-active:        color-mix(in oklab, var(--fcb-primary) 45%, black);
+
+  --fcb-control-bg:        var(--fcb-surface);
+  --fcb-control-bg-alt:    var(--fcb-surface-2);
+  --fcb-control-bg-hover:  var(--fcb-dark-overlay);
+  --fcb-control-text:      var(--fcb-text);
+  --fcb-control-text-muted:      var(--fcb-text-muted);
+  --fcb-control-placeholder: hsl(210 10% 65%);
+  --fcb-control-border:    var(--fcb-border);
+  --fcb-control-border-hover: hsl(210 12% 40%);
+  --fcb-control-border-focus: var(--fcb-accent);
+  --fcb-control-filled:    hsl(var(--fcb-primary-h) 25% 17%);
+
+  --fcb-tab-active-bg:     var(--fcb-surface);
+  --fcb-tab-active-text:   var(--fcb-text);
+  --fcb-tab-border:        var(--fcb-control-border);
+  --fcb-tab-shadow-active: var(--fcb-accent-300);
+  --fcb-tab-shadow-hover:  var(--fcb-accent-600);
+  --fcb-sidebar-bg:        var(--fcb-surface-shaded);
+  --fcb-sidebar-border:    var(--fcb-border);
+  --fcb-sidebar-splitter:  var(--fcb-control-border);
+  --fcb-list-item-hover:   hsl(210 14% 22%);
+  --fcb-badge-bg:          hsl(var(--fcb-primary-h) 28% 22%);
+  --fcb-badge-text:        hsl(160 30% 85%);
+
+  --fcb-success: hsl(145 55% 48%);
+  --fcb-warning: hsl(35 95% 56%);
+  --fcb-danger:  hsl(0 75% 60%);
+
+  --fcb-ring: var(--fcb-accent);
+}
+
+// specific component mapping - this should be the same for light and dark and should only use
+//    variables defined above for colors
 body {
-  --fcb-header-border-color: rgb(192, 192, 192);
-  // --fcb-header-background: #e5dbc5;
-  --fcb-header-color: var(--color-text-dark-primary);
+  --fcb-main-section-background: var(--fcb-surface);
+  --fcb-header-border-color: var(--fcb-border);
+  --fcb-header-color: var(--fcb-text);
   --fcb-header-tab-color: var(--fcb-header-color);
-  --fcb-header-tab-btn-color: rgb(103, 102, 99);
-  --fcb-header-tab-background: rgba(255, 255, 240, 0.5);
-  --fcb-header-tab-border: 1px solid rgb(181, 179, 164);
-  --fcb-header-tab-active: rgba(255, 255, 255, 0.9);
-  --fcb-header-bookmark-hover: rgba(0, 0, 0, 0.1);
-  --fcb-header-add-bookmark-hover: var(--fcb-header-bookmark-hover);
+  --fcb-header-tab-background: var(--fcb-surface-2);
+  --fcb-header-tab-border: var(--fcb-tab-border);
+  --fcb-header-tab-active: var(--fcb-tab-active-bg);
   --fcb-header-nav-btn-color: var(--fcb-header-color);
-  --fcb-header-nav-background: rgb(233, 231, 225);
-  --fcb-header-nav-btn-background: rgba(255, 255, 240, 0.8);
-  --fcb-header-nav-btn-border: rgb(192, 192, 192);
+  --fcb-header-nav-btn-background: var(--fcb-button-bg);
+  --fcb-header-nav-btn-border: var(--fcb-button-border);
   --fcb-header-nav-btn-disabled: rgb(136, 136, 136);
   --fcb-header-nav-btn-background-disabled: inherit;
   --fcb-header-nav-btn-border-disabled: inherit;
-  --fcb-header-nav-btn-background-hover: var(--fcb-header-nav-btn-background);
   --fcb-header-nav-btn-color-hover: var(--fcb-header-nav-btn-color);
+  --fcb-header-nav-btn-background-hover: var(--fcb-button-bg-hover);
+  --fcb-header-nav-btn-border-hover: var(--fcb-button-border-hover);
   --fcb-header-nav-vertical-line:  rgb(238, 237, 224);
-  --fcb-tab-body-background: rgba(238, 237, 224, 0.3);
+  --fcb-tab-body-background: var(--fcb-main-section-background);
   --fcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);
   --fcb-sheet-header-input-background: var(--fcb-dark-overlay);
   --fcb-sheet-header-label-color: rgb(75, 74, 68);
-  --fcb-sheet-header-button-border-color: var(--color-text-subtle);
-  --fcb-sheet-header-button-color: var(--color-text-primary);
-  --fcb-sheet-header-button-background: var(--button-background-color);
-  --fcb-sheet-header-detail-input-color: var(--color-text-primary);
   --fcb-sheet-header-icon-color: #777;
   --fcb-sheet-tab-bottom-border: rgb(250, 250, 230);
-  --fcb-sheet-tab-border: 3px solid rgb(181, 179, 164);
-  --fcb-sheet-tab-border-active: rgb(68, 25, 26);
-  --fcb-sheet-page-control-color: var(--color-text-dark-primary);
-  --fcb-sheet-page-control-background: rgb(192, 192, 192);
-  --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
-  --fcb-sheet-details-section-border:  rgb(238, 237, 224);
-  --fcb-sheet-input-border: 1px solid rgb(122, 121, 113);
-  --fcb-sheet-input-background: var(--fcb-dark-overlay);
-  --fcb-sheet-input-color: var(--color-text-dark-primary);
-  --fcb-sheet-button-color: var(--color-text-dark-primary);
-  --fcb-active-color: rgb(255, 100, 0);
-  --fcb-icon-background: rgba(236, 233, 223, 1);
+  --fcb-sheet-tab-border: 3px solid var(--fcb-control-border);
+  --fcb-sheet-tab-shadow-active: var(--fcb-tab-shadow-active);
+  --fcb-sheet-tab-shadow-hover: var(--fcb-tab-shadow-hover);
+  --fcb-sheet-tab-border-active: var(--fcb-primary);
+  --fcb-sheet-page-control-color: var(--fcb-control-text);
+  --fcb-sheet-page-control-bg: rgb(192, 192, 192);
+  --fcb-sheet-page-control-bg-hover: var(--fcb-sheet-page-control-bg);
+  --fcb-icon-background: var(--fcb-surface-shaded);
   --fcb-icon-shadow: rgba(0, 0, 0, 0.4);
   --fcb-icon-outline: rgba(0, 0, 0, 0.4);
-  --fcb-blank-color: rgba(0, 0, 0, 0.5);
-  --fcb-blank-link-hover: rgba(0, 0, 0, 0.8);
+  --fcb-home-color: var(--fcb-text);
+  --fcb-home-link-hover: var(--fcb-accent-400);
   
-  --fcb-sidebar-background: rgba( 255, 255, 255, 0.3); 
-  --fcb-sidebar-label-color: var(--color-text-dark-primary);
-  --fcb-sidebar-setting-color: var(--color-text-light-highlight);
-  --fcb-sidebar-setting-background: rgb(215, 215, 202);
+  --fcb-sidebar-background: var(--fcb-sidebar-bg); 
+  --fcb-sidebar-label-color: var(--fcb-text-muted);
   --fcb-sidebar-setting-border: rgb(219, 219, 219);
-  --fcb-sidebar-setting-color-collapsed: rgb(130, 130, 130);
-  --fcb-sidebar-setting-background-collapsed: rgb(219, 219, 219);
-  --fcb-sidebar-setting-border-collapsed: rgb(199, 199, 199);
-  --fcb-sidebar-campaign-color: var(--fcb-sidebar-setting-color);
-  --fcb-sidebar-campaign-background: inherit;    // var(--fcb-sidebar-setting-background);
-  --fcb-sidebar-campaign-border: var(--fcb-sidebar-setting-border);;
-  --fcb-sidebar-campaign-color-collapsed: var(--fcb-sidebar-campaign-color);
-  --fcb-sidebar-campaign-background-collapsed: inherit;  //var(--fcb-sidebar-setting-background-collapsed);
-  --fcb-sidebar-campaign-border-collapsed: var(--fcb-sidebar-setting-border-collapsed);
-  --fcb-directory-expand-button-background: #999;
+  --fcb-sidebar-campaign-background: inherit;    
   --fcb-sidebar-topic-icon-color: #999;
+
+  --fcb-scrollbar: var(--fcb-primary-300);
+  --fcb-scrollbar-thumb: transparent;
 
   // for typeaheads, search
   --fcb-list-background: rgb(220, 220, 220);
   --fcb-list-highlight: rgba(85, 85, 153, 0.13);
-  --fcb-color-text-generate-message: var(--color-text-dark-secondary);
+  --fcb-color-text-generate-message: var(--fcb-text);
 }
 
-
-body.theme-dark {
-  --fcb-header-border-color: var(--color-dark-4);
-  // --fcb-header-background: var(--color-dark-2);
-  --fcb-header-color: var(--color-text-light-primary);
-  --fcb-header-tab-color: var(--fcb-header-color);
-  --fcb-header-tab-btn-color: var(--color-dark-6);
-  --fcb-header-tab-background: rgba(255, 255, 240, 0.5);
-  --fcb-header-tab-border: 1px solid var(--color-dark-4);
-  --fcb-header-tab-active: var(--color-dark-1);
-  --fcb-header-bookmark-hover: rgba(0, 0, 0, 0.1);
-  --fcb-header-add-bookmark-hover: var(--fcb-header-bookmark-hover);
-  --fcb-header-nav-btn-color: var(--fcb-header-color);
-  --fcb-header-nav-background: var(--color-dark-1);
-  --fcb-header-nav-btn-background: rgba(255, 255, 255, 0.03);
-  --fcb-header-nav-btn-border: var(--color-dark-4);
-  --fcb-header-nav-btn-disabled: rgb(136, 136, 136);
-  --fcb-header-nav-btn-background-hover: var(--fcb-header-nav-btn-background);
-  --fcb-header-nav-btn-color-hover: var(--fcb-header-nav-btn-color);
-  --fcb-header-nav-vertical-line: var(--color-dark-3);
-
-  --fcb-sheet-header-input-border: 1px solid var(--color-dark-5);
-  --fcb-sheet-header-input-background: var(--fcb-light-overlay);
-  --fcb-sheet-header-label-color: var(--color-text-secondary);
-  --fcb-sheet-header-button-border-color: var(--color-text-subtle);
-  --fcb-sheet-header-button-color: var(--color-text-primary);
-  --fcb-sheet-header-button-background: var(--button-background-color);
-  --fcb-sheet-header-detail-input-color: var(--color-text-primary);
-  --fcb-sheet-header-icon-color: #777;
-  --fcb-sheet-tab-bottom-border: var(--color-dark-1);
-  --fcb-sheet-tab-border: 3px solid var(--color-dark-4);
-  --fcb-sheet-tab-border-active: rgb(255, 120, 90);
-  --fcb-sheet-page-control-color: var(--color-text-light-primary);
-  --fcb-sheet-page-control-background: var(--color-dark-4);
-  --fcb-sheet-page-control-background-hover: var(--fcb-sheet-page-control-background);
-  --fcb-sheet-details-section-border: var(--color-dark-1);
-  --fcb-sheet-input-border: 1px solid rgb(122, 121, 113);
-  --fcb-sheet-input-background: var(--fcb-light-overlay);
-  --fcb-sheet-input-color: var(--color-text-dark-primary);
-  --fcb-sheet-button-color: var(--color-text-light-primary);
-  --fcb-icon-background: var(--color-dark-1);
-  --fcb-icon-shadow: rgba(0, 0, 0, 0.5);
-  --fcb-icon-outline: rgba(255, 255, 255, 0.1);
-  --fcb-blank-color: rgba(255, 255, 255, 0.3);
-  --fcb-blank-link-hover: rgba(255, 255, 255, 0.6);
-  
-  --fcb-sidebar-background: inherit;  //url(../../../ui/parchment.jpg) repeat;
-  --fcb-sidebar-label-color: var(--color-text-light-primary);
-  --fcb-sidebar-setting-color: var(--color-text-light-highlight);
-  --fcb-sidebar-setting-background: var(--color-dark-3);
-  --fcb-sidebar-setting-border: var(--color-dark-2);
-  --fcb-sidebar-setting-color-collapsed: var(--color-dark-6);
-  --fcb-sidebar-setting-background-collapsed: var(--color-dark-2);
-  --fcb-sidebar-setting-border-collapsed: var(--color-dark-2);
-  --fcb-sidebar-campaign-color: var(--fcb-sidebar-setting-color);
-  --fcb-sidebar-campaign-border: var(--fcb-sidebar-setting-border);;
-  --fcb-sidebar-campaign-color-collapsed: var(--fcb-sidebar-campaign-color);
-  --fcb-sidebar-campaign-border-collapsed: var(--fcb-sidebar-setting-border-collapsed);
-  --fcb-directory-expand-button-background: var(--color-light-6);
-  --fcb-sidebar-topic-icon-color: var(--color-light-6);
-
-  --fcb-list-background: var(--color-dark-2);
-  --fcb-list-highlight: rgba(85, 85, 153, 0.13);
-  --fcb-color-text-generate-message: var(--color-text-light-secondary);
-}

@@ -46,6 +46,7 @@
   import { localize } from '@/utils/game';
   import { Entry } from '@/classes';
   import { getValidatedData } from '@/utils/dragdrop';
+  import { FCBDialog } from '@/dialogs';
 
   // library components
 
@@ -54,9 +55,13 @@
   import BaseTable from '@/components/tables/BaseTable.vue';
 
   // types
-  import { Topics, ValidTopic, RelatedItemDetails, RelatedItemDialogModes, EntryNodeDragData } from '@/types';
+  import { Topics, ValidTopic, RelatedItemDetails, RelatedItemDialogModes, EntryNodeDragData, ValidTopicRecord } from '@/types';
   
-  type RelatedItemGridRow = { uuid: string; name: string; type: string } & Record<string, any>;
+  interface RelatedItemGridRow extends Record<string, any> { 
+    uuid: string; 
+    name: string; 
+    type: string;
+  };
 
   ////////////////////////////////
   // props
@@ -174,7 +179,7 @@
         nameColumn,
         typeColumn,
       ],
-    } as Record<ValidTopic, any[]>;
+    } as ValidTopicRecord<any[]>;
 
     if (extraColumns.value.length > 0) {
       // add the extra fields
@@ -259,12 +264,14 @@
   // call mutation to remove item  from relationship
   const onDeleteItemClick = async function(_id: string) {
     // show the confirmation dialog 
-    await Dialog.confirm({
-      title: localize('dialogs.confirmDeleteRelationship.title'),
-      content: localize('dialogs.confirmDeleteRelationship.message'),
-      yes: () => { void relationshipStore.deleteRelationship(props.topic, _id); },
-      no: () => {},
-    });
+    const confirmed = await FCBDialog.confirmDialog(
+      localize('dialogs.confirmDeleteRelationship.title'),
+      localize('dialogs.confirmDeleteRelationship.message')
+    );
+    
+    if (confirmed) {
+      void relationshipStore.deleteRelationship(props.topic, _id);
+    }
   };
 
   const onCellEditComplete = async (event: { data: { uuid: string }; field: string; newValue: any; /* other PrimeVue event fields */ }) => {

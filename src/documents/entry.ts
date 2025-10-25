@@ -1,90 +1,53 @@
-import { RelatedItemDetails, TagInfo, Topics, ValidTopic, RelatedJournal } from '@/types';
+import { RelatedItemDetails, ValidTopic, RelatedJournal, ValidTopicRecord } from '@/types';
+import { schemas } from './fields';
+import { cleanTopicKeysOnLoad } from '@/utils/cleanKeys';
 
 const fields = foundry.data.fields;
-const entrySchema = {
-  topic: new fields.NumberField({ required: true, nullable: false, validate: (value: number) => { return Object.values(Topics).includes(value); }, textSearch: true, }),
+export const EntrySchema = {
+  topic: schemas.Topic(),
   type: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-  tags: new fields.ArrayField(
-    new fields.ObjectField({ required: true, nullable: false, }), 
-    { required: true, initial: [], }
-  ),
+  tags: schemas.Tags(),
 
-  relationships: new fields.ObjectField({ required: true, nullable: false, initial: {
-    [Topics.Character]: {},
-    [Topics.Location]: {},
-    [Topics.Organization]: {},
-    [Topics.PC]: {},
-  } as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>   // all the things related to this item, grouped by topic
-  }),    // keyed by topic, then entryId
+  /** map from field name to value */
+  customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
+
+  /** keyed by topic, then entryId */
+  relationships: schemas.Relationships(),
 
   // we store these separately, for simplicity... for now, they're only used by one topic each
   scenes: new fields.ArrayField(new fields.DocumentUUIDField({blank: false, type: 'Scene'}), { required: true, initial: [] }),
   actors: new fields.ArrayField(new fields.DocumentUUIDField({blank: false, type: 'Actor'}), { required: true, initial: [] }),
-  journals: new fields.ArrayField(new fields.SchemaField({
-    uuid: new fields.StringField({ required: true, blank: false }),
-    journalUuid: new fields.DocumentUUIDField({ required: true, type: 'JournalEntry' }),
-    pageUuid: new fields.DocumentUUIDField({ required: false, type: 'JournalEntryPage', nullable: true, initial: null }),
-    packId: new fields.StringField({ required: false, nullable: true, initial: null }),
-    packName: new fields.StringField({ required: false, nullable: true, initial: null }),
-  }), { required: true, initial: [] }),
+  journals: new fields.ArrayField(schemas.RelatedJournal(), { required: true, initial: [] }),
 
   // used only for characters/pcs
   speciesId: new fields.StringField({ required: false, nullable: false, textSearch: false, }),
 
   // used only for pcs
-  playerName: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-  actorId: new fields.DocumentUUIDField({ required: false, nullable: true, }),
-  background: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-  plotPoints: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
-  magicItems: new fields.StringField({ required: true, nullable: false, initial: '', textSearch: true, }),
+  playerName: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
+  actorId: new fields.DocumentUUIDField({ required: true, nullable: true, initial: null }),
+  background: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
+  plotPoints: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
+  magicItems: new fields.StringField({ required: true, nullable: true, initial: null, textSearch: true, }),
 
   // Image for the entry
-  img: new fields.FilePathField({blank: true, required: false, nullable: true, initial: '', categories: ['IMAGE']}),
-
-  rolePlayingNotes: new fields.HTMLField({required: false, blank: true}),
+  img: new fields.FilePathField({blank: true, required: true, nullable: false, initial: '', categories: ['IMAGE']}),
 };
 
-type EntrySchemaType = typeof entrySchema;
-
-type RelationshipFieldType = Record<ValidTopic, Record<string,RelatedItemDetails<any, any>>>; 
+type EntrySchemaType = typeof EntrySchema;
 
 export class EntryDataModel extends foundry.abstract.TypeDataModel<EntrySchemaType, JournalEntry> {
   static defineSchema(): EntrySchemaType {
-    return entrySchema;
+    return EntrySchema;
   }
 
   /** @override */
   prepareBaseData(): void {
     if (this.relationships) {
       // Decode any protected keys back to normal
-      this.relationships = relationshipKeyReplace(this.relationships as RelationshipFieldType, false);
+      this.relationships = cleanTopicKeysOnLoad(this.relationships);
     }
   }
 }
-
-// swap '.' and '!@' in relationship keys
-// serialize = true means replace '.' with '_'
-export const relationshipKeyReplace = (relationships: RelationshipFieldType, serialize: boolean): RelationshipFieldType => {
-  const newRelationships = {} as RelationshipFieldType;
-
-  for (const topic in relationships) {
-    newRelationships[topic] = {};
-  
-    // keep the values, but do a string replace to swap '.' for '_'
-    for (const entryId in relationships[topic]) {
-      const newkey = serialize ? serializeEntryId(entryId) : deserializeEntryId(entryId);
-      newRelationships[topic][newkey] = relationships[topic][entryId];
-    }
-  }
-
-  return newRelationships;
-};
-
-// Use a unique token that will never appear in a UUID to protect keys containing '.' during document updates
-const REL_KEY_TOKEN = '_';
-const serializeEntryId = (entryId: string): string => { return entryId.replaceAll('.', REL_KEY_TOKEN); };
-const deserializeEntryId = (entryId: string): string => { return entryId.replaceAll(REL_KEY_TOKEN, '.'); };
-
 
 // @ts-ignore - error because ts can't properly handle the structure of JournalEntryPage
 export interface EntryDoc extends JournalEntryPage {
@@ -93,23 +56,23 @@ export interface EntryDoc extends JournalEntryPage {
   system: {
     topic: ValidTopic;
     type: string;
-    tags: TagInfo[];
-    rolePlayingNotes: string;
+    tags: string[];
+    customFields: Record<string, string>;
 
     /**
      * Keyed by topic, then entryId
      */
-    relationships: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;  // keyed by topic then by entryId
+    relationships: ValidTopicRecord<Record<string, RelatedItemDetails<any, any>>>;  // keyed by topic then by entryId
 
     // for characters
     speciesId?: string | undefined;
 
     // for PCs
-    playerName?: string | undefined;
-    actorId?: string | undefined;   // uuid of the actor
-    background?: string | undefined;
-    plotPoints?: string | undefined;
-    magicItems?: string | undefined; 
+    playerName?: string | null;
+    actorId?: string | null;   // uuid of the actor
+    background?: string | null;
+    plotPoints?: string | null;
+    magicItems?: string | null; 
 
     img: string; 
 
