@@ -41,7 +41,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   const currentSettingTree = reactive<{value: DirectorySetting[]}>({value:[]});
 
   // topic tree currently refreshing
-  const isTopicTreeRefreshing = ref<boolean>(false);
+  const isSettingTreeRefreshing = ref<boolean>(false);
 
   // which mode are we un
   const isGroupedByType = ref<boolean>(false);
@@ -400,7 +400,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshSettingDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
     // Prevent concurrent refreshes
-    if (isTopicTreeRefreshing.value) {
+    if (isSettingTreeRefreshing.value) {
       return;
     }
 
@@ -411,7 +411,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       return;
     }
 
-    isTopicTreeRefreshing.value = true;
+    isSettingTreeRefreshing.value = true;
 
     // Preserve scroll position before refresh
     let scrollContainer: HTMLElement | null = document.querySelector('.fcb-setting-directory') as HTMLElement;
@@ -473,7 +473,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     // make sure the node list is up to date
     await updateFilterNodes();
 
-    isTopicTreeRefreshing.value = false;
+    isSettingTreeRefreshing.value = false;
 
     // Wait for next tick to ensure DOM is updated
     await nextTick();
@@ -659,7 +659,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // return the public interface
   return {
     currentSettingTree,
-    isTopicTreeRefreshing,
+    isSettingTreeRefreshing,
     isGroupedByType,
     filterText,
     filterNodes,

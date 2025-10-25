@@ -27,7 +27,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
   ///////////////////////////////
   // internal state
-  const isCampaignTreeLoading = ref<boolean>(false);
+  const isCampaignTreeRefreshing = ref<boolean>(false);
 
   ///////////////////////////////
   // external state
@@ -45,11 +45,16 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
 
   // refreshes the campaign tree 
   const refreshCampaignDirectoryTree = async (updateIds: string[] = []): Promise<void> => {
+    // Prevent concurrent refreshes
+    if (isCampaignTreeRefreshing.value) {
+      return;
+    }
+
     // need to have a current setting and journals loaded
     if (!currentSetting.value)
       return;
 
-    isCampaignTreeLoading.value = true;
+    isCampaignTreeRefreshing.value = true;
 
     // Preserve scroll position before refresh
     let scrollContainer: HTMLElement | null = document.querySelector('.fcb-campaign-directory') as HTMLElement;
@@ -100,7 +105,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     if (currentEntry.value)
       await mainStore.refreshEntry();
 
-    isCampaignTreeLoading.value = false;
+    isCampaignTreeRefreshing.value = false;
 
     // Wait for next tick to ensure DOM is updated
     await nextTick();
@@ -266,6 +271,7 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
   // return the public interface
   return {
     currentCampaignTree,
+    isCampaignTreeRefreshing,
 
     toggleWithLoad,
     refreshCampaignDirectoryTree,
