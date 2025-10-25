@@ -249,6 +249,9 @@ export class FCBJournalEntryPage<
     if (!journalEntry)
       throw new Error('Couldn\'t create new journal entry');
   
+    // Set the originalUuid flag to point to itself (this persists when copied to world)
+    await journalEntry.setFlag(moduleId, JournalEntryFlagKey.originalUuid, journalEntry.uuid);
+  
     const pageData = foundry.utils.mergeObject({
       type: this._documentType,
       name: name,

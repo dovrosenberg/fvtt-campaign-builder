@@ -5,7 +5,6 @@ import { isClientGM, localize } from '@/utils/game';
 import { refreshAllSettingRollTables } from '@/utils/nameGenerators';
 import { Backend, ExternalAPI } from '@/classes';
 import { MigrationManager } from '@/utils/migration';
-import { notifyError } from '@/utils/notifications';
 
 export function registerForReadyHook() {
   Hooks.once('ready', ready);

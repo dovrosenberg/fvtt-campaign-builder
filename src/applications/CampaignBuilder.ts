@@ -115,6 +115,13 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     this._inMiddleOfRender = true;
 
     try {
+      // Prevent opening before the ready hook - settingIndex hasn't been populated yet
+      // Map notes are somehow automatically trying to open before the ready hook fires
+      if (!game.ready) {
+        this._inMiddleOfRender = false;
+        return false;
+      }
+
       // prevent the window from opening at all if we're trying to open an invalid
       //    doc or we had a failed migration
       if (MigrationManager.migrationFailed) {
@@ -224,8 +231,20 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
 
   // called when we first open the window
   // doc must already have been checked to be a FCB entry
-  static async handleDocument(doc: foundry.documents.JournalEntry) {
-    let docType = doc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType);
+  static async handleDocument(incomingDoc: foundry.documents.JournalEntry) {
+    let docType = incomingDoc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType);
+    let doc = incomingDoc;
+
+    // Check if this is a world copy - if so, redirect to the original compendium entry
+    const originalUuid = doc.getFlag(moduleId, JournalEntryFlagKey.originalUuid) as string | undefined;
+    if (originalUuid && originalUuid !== incomingDoc.uuid) {
+      // This is a world copy, load the original compendium entry instead
+      const originalDoc = await fromUuid(originalUuid) as foundry.documents.JournalEntry | null;
+      if (originalDoc) {
+        doc = originalDoc;
+      }
+    }
+
     let uuid = doc.uuid; 
 
     if (!docType || !uuid || !Object.values(DOCUMENT_TYPES).includes(docType))
