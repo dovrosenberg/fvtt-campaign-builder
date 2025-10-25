@@ -7,13 +7,11 @@ import { FCBDialog } from '@/dialogs';
 import { Campaign } from './Campaign';
 import { getGlobalSetting, } from './FCBSetting';
 import { localize } from '@/utils/game';
-import { TagInfo, } from '@/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 
 type SessionDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Session>;
 
 export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> {
-  static override _folderName = 'Sessions';
   static override _documentType = DOCUMENT_TYPES.Session;
   static override _defaultSystem = { 
     campaignId: '',  
@@ -92,6 +90,7 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     const session = await super._create(
       campaign.compendiumId, 
       nameToUse,
+      'Sessions',
       { system: { campaignId: campaign.uuid, number: sessionNumber }}
     ) as unknown as Session | null;
 
@@ -117,12 +116,12 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     return session;
   }
 
-  get tags(): TagInfo[] {
+  get tags(): string[] {
     // @ts-ignore
     return this._clone.system.tags;
   }
 
-  set tags(value: TagInfo[]) {
+  set tags(value: string[]) {
     // @ts-ignore
     this._clone.system.tags = value;
   }
@@ -463,25 +462,32 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
    * @returns A promise that resolves after the update
    */
   public async save(): Promise<void> {
-    // see if the number is taken, if so, everything after it needs to be renumbered
     const campaign = await this.loadCampaign();
-    const sessions = (await campaign.allSessions()).sort((a, b) => a.number - b.number);
 
-    // find the index of the session with the same number 
-    const currentNumberedSession = sessions.findIndex(s=> s.number===this.number && s.uuid!==this.uuid);
+    // we attempt to save first - because if it fails, we don't 
+    //    want to adjust anything else
+    try {
+      // see if the number is taken, if so, everything after it needs to be renumbered
+      const sessions = (await campaign.allSessions()).sort((a, b) => a.number - b.number);
 
-    if (currentNumberedSession!==-1) {
-      // need to re-number everything after this one
-      // go backward because otherwise these saves will kickoff a cascade of changes
-      for (let i = sessions.length-1; i>= currentNumberedSession; i--) {
-        if (sessions[i].uuid!==this.uuid) {
-          sessions[i].number++;
-          await sessions[i].save();
+      // find the index of the session with the same number 
+      const currentNumberedSession = sessions.findIndex(s=> s.number===this.number && s.uuid!==this.uuid);
+
+      if (currentNumberedSession!==-1) {
+        // need to re-number everything after this one
+        // go backward because otherwise these saves will kickoff a cascade of changes
+        for (let i = sessions.length-1; i>= currentNumberedSession; i--) {
+          if (sessions[i].uuid!==this.uuid) {
+            sessions[i].number++;
+            await sessions[i].save();
+          }
         }
       }
-    }
 
-    await super.save();
+      await super.save();
+    } catch (error) {
+      throw error;
+    }
 
     // we could get more specific about exactly whether we need to renumber the
     //    campaign or not, but don't bother

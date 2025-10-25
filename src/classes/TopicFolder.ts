@@ -1,5 +1,5 @@
 import { toRaw, } from 'vue';
-import { EntryDoc, entryIndexFields, } from '@/documents';
+import { entryIndexFields, } from '@/documents';
 import { Entry, FCBSetting } from '@/classes';
 import { EntryFilterIndex, ValidTopic } from '@/types';
 
@@ -86,8 +86,9 @@ export class TopicFolder {
       // now filter by the function passed in 
       .filter((s: EntryFilterIndex)=> filterFn(s)) || [];
 
+    // either fullEntry is false, so we return EntryFilterIndex or its an empty array
     if (!fullEntry || entries.length===0)
-      return entries;
+      return entries as T extends true ? Entry[] : EntryFilterIndex[];
     
     const idList = entries.map((e)=> e.id);
     const documentSet = await this.setting.compendium.getDocuments({ _id__in: idList });
@@ -99,7 +100,8 @@ export class TopicFolder {
         retval.push(entry);
     }
 
-    return retval;
+    // to get here, fullEntry must be true
+    return retval as T extends true ? Entry[] : EntryFilterIndex[];
   }
   
   /**

@@ -149,6 +149,7 @@
                 <Editor
                     :initial-content="currentEntry?.roleplayingNotes || ''"
                     :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
+                    :current-entity-uuid="currentEntry?.uuid"
                     @editor-saved="onRolePlayingNotesSaved"
                   />
               </div>
@@ -187,6 +188,7 @@
                 <Editor
                     :initial-content="currentEntry?.roleplayingNotes || ''"
                     :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
+                    :current-entity-uuid="currentEntry?.uuid"
                     @editor-saved="onRolePlayingNotesSaved"
                   />
               </div>
@@ -263,7 +265,7 @@
   import { hasHierarchy, validParentItems, } from '@/utils/hierarchy';
   import { generateImage } from '@/utils/generation';
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { notifyInfo } from '@/utils/notifications';  
+  import { notifyInfo, notifyWarn } from '@/utils/notifications';  
   import { updateEntryDialog } from '@/dialogs/createEntry';
 
   // library components
@@ -288,7 +290,7 @@
 
   // types
   import { DocumentLinkType, Topics, ValidTopic, WindowTabType, RelatedJournal } from '@/types';
-  import { FCBSetting, TopicFolder, Backend, Entry } from '@/classes';
+  import { FCBSetting, TopicFolder, Backend, Entry, Session } from '@/classes';
   import { DOCUMENT_TYPES } from '@/documents';
 
 
@@ -450,6 +452,14 @@
 
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
+      
+      // name can't be blank
+      if (newValue.trim() === '') {
+        notifyWarn(localize('errors.nameRequired'));
+        name.value = currentEntry.value?.name!;
+        return;
+      }
+
       if (currentEntry.value && currentEntry.value.name!==newValue) {
         currentEntry.value.name = newValue;
         await currentEntry.value.save();
@@ -497,7 +507,7 @@
     // if there's more than one, we need the menu
     const campaigns = currentSetting.value.campaigns;
 
-    type MenuItem = {
+    interface MenuItem {
       label: string;
       onClick: () => void | Promise<void>;
       customClass?: string;
@@ -509,11 +519,11 @@
     // if we're in play mode with an active session, put that at the top
     let currentCampaignId: string | null = null;
     let activeItem: MenuItem | null = null;
-    if (currentPlayedCampaign.value?.currentSession) {
+    if (currentPlayedCampaign.value?.currentSessionId) {
       currentCampaignId = currentPlayedCampaign.value.uuid;
       
       activeItem = {
-        label: `${campaigns[currentCampaignId].name} (#${campaigns[currentCampaignId].currentSession?.number})`,        
+        label: `${campaigns[currentCampaignId].name} (#${campaigns[currentCampaignId].currentSessionNumber})`,        
         customClass: 'push-to-active-campaign-menu-item',
         onClick: async () => { await selectCampaignForPush(currentCampaignId as string); },
         divided: campaignsWithSessions.length > 1 ? 'down' : undefined,
@@ -527,11 +537,11 @@
         continue;
 
       // skip ones without sessions
-      if (!campaigns[campaignId].currentSession)
+      if (!campaigns[campaignId].currentSessionId)
         continue;
 
       menuItems.push({
-        label: `${campaigns[campaignId].name} (#${campaigns[campaignId].currentSession?.number})`,        
+        label: `${campaigns[campaignId].name} (#${campaigns[campaignId].currentSessionNumber})`,        
         onClick: async () => { await selectCampaignForPush(campaignId); },
       });
     }
@@ -554,11 +564,11 @@
   const selectCampaignForPush = async (campaignUuid: string): Promise<void> => {
     // get the campaign
     const campaign = await currentSetting.value?.campaigns[campaignUuid];
-    if (!campaign)
+    if (!campaign || !campaign.currentSessionId)
       return;
 
     // get the session
-    const session = campaign.currentSession;
+    const session = await Session.fromUuid(campaign.currentSessionId);
     if (!session || !currentEntry.value)
       return;
 

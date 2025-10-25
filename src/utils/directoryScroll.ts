@@ -120,12 +120,12 @@ async function scrollToEntryInGroupedView(entry: Entry, topicNode: DirectoryTopi
   const typeNode = topicNode.loadedTypes.find(t => t.name === entryType);
   
   if (typeNode && !typeNode.expanded) {
-    // Expand the type node
+    // Expand the type node - this will trigger a refresh
     await settingDirectoryStore.toggleWithLoad(typeNode, true);
+    // Refresh only happens when we actually expanded something
+    await settingDirectoryStore.refreshSettingDirectoryTree();
   }
-
-  // Refresh the directory tree to ensure all expansions are reflected
-  await settingDirectoryStore.refreshSettingDirectoryTree();
+  // If already expanded, no refresh needed - CSS will update via reactivity
 }
 
 /**
@@ -149,13 +149,22 @@ async function scrollToEntryInNestedView(entryId: string): Promise<void> {
   const hierarchy = currentSetting.getEntryHierarchy(entryId);
   const ancestorIds = hierarchy?.ancestors || [];
 
+  // Track which nodes we actually expanded
+  const expandedNodeIds: string[] = [];
+  
   // Expand all ancestor nodes
   for (const ancestorId of ancestorIds) {
-    await currentSetting.expandNode(ancestorId);
+    if (!currentSetting.expandedIds[ancestorId]) {
+      await currentSetting.expandNode(ancestorId);
+      expandedNodeIds.push(ancestorId);
+    }
   }
 
-  // Refresh the directory tree to ensure all expansions are reflected
-  await settingDirectoryStore.refreshSettingDirectoryTree();
+  // Only refresh if we actually expanded something, and pass the IDs so children get loaded
+  if (expandedNodeIds.length > 0) {
+    await settingDirectoryStore.refreshSettingDirectoryTree(expandedNodeIds);
+  }
+  // If already expanded, no refresh needed - CSS will update via reactivity
 }
 
 /**

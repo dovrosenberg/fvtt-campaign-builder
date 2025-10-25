@@ -9,10 +9,13 @@
 - On the flip side, the compendia are no longer visible to anyone but the GM.  Note that this is just a change in visibility in the Foundry UI - anyone could programmatically access them from the console.  The purpose here is to prevent players from being able to see all of the entries via Foundry's sidebar, while still (eventually) allowing them to access specific pieces via the Campaign Builder interface.
 - Settings, campaigns, sessions, and entries are now each stored in their own Journal Entry and Campaign Builder is the viewer for those entries.  This has a variety of implications, but the most important one at the moment is that you can use Campaign Builder content as map notes.  To do this, open the compendium and drag the desired entry to the scene where you want it.  You can leave the 'journal entry page' field blank or set it - it has no impact.  Then double clicking the book icon on the map will open the content in Campaign Builder.
 - The ability to link to Settings in entries was removed.  I suspect no one was using it, because it wasn't very useful, it wasn't documented, and it was hard to do.
+- You can now move a campaign idea to the to-do list and vice versa with a single button click.
+- If you have more bookmarks than will fit, it will now give you a dropdown with the overflow, rather than breaking.
 - UX modernization (font/color updates - nothing functional for now), including complete overhaul of dark mode.
 - As part of that, if your Foundry world has multiple Settings, you now choose which you want to use from a drop-down.  This allows the setting directory to be a bit cleaner visually for the vast majority of people who only have a single setting.
 - Some performance improvements - particularly for large Settings
 - Dragging a campaign name into an editor now properly creates a link.
+- The description box in the create entry dialog can now be expanded if desired.
 
 ## v1.4.1 - Assorted bug fixes
 ![](https://img.shields.io/badge/release%20date-September%2023%2C%202025-blue)
@@ -128,7 +131,7 @@
 - Fixed bug where campaigns created by right-clicking in the Setting directory didn't immediately show up in the Campaign directory
 - Fixed bug where search index wasn't being populated if you closed and reopened the main window
 - Fixed bug where an error when generating an image prevented you from trying again
-- Eliminated inaccurate notifications about rolltables being repopulated
+- Eliminated inaccurate notifications about RollTables being repopulated
 - Allowed for numbering a session 0
 
 ## v1.0.0 - Coming out of beta!

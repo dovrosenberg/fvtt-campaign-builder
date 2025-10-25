@@ -3,7 +3,7 @@ import { notifyError } from '@/utils/notifications';
 import { ModuleSettings, SettingKey, UserFlagKey, } from '@/settings';
 import { RootFolder, FCBSetting, Session, Campaign, Entry, TopicFolder, WindowTab } from '@/classes';
 import { updateGlobalSetting } from '@/classes/Documents/FCBSetting';
-import { Bookmark, defaultCustomFields, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, SettingIndex, TabHeader, TagInfo, ToDoItem, Topics, ValidTopic } from '@/types';
+import { Bookmark, defaultCustomFields, Hierarchy, Idea, RelatedItemDetails, RelatedJournal, RelatedPCDetails, TabHeader, ToDoItem, Topics, ValidTopic, ValidTopicRecord } from '@/types';
 import { CampaignLore, SessionItem, SessionLocation, SessionLore, SessionMonster, SessionNPC, SessionVignette, } from '@/documents';
 import { cleanKeysOnLoad } from '@/utils/cleanKeys';
 
@@ -61,6 +61,7 @@ export class MigrationV1_5 implements Migration {
 
       // entries are the bulk of the data, so we use them to estimate progress
       for (const folder of allSettingFolders) {
+        // @ts-ignore
         const topicIds = folder.getFlag(moduleId, 'topicIds') as string[] | undefined;
         if (!topicIds)
           continue;
@@ -111,10 +112,12 @@ export class MigrationV1_5 implements Migration {
       }
 
       // if there's a currentWorld, delete it - that's old
+      // @ts-ignore
       await user.unsetFlag(moduleId, 'currentWorld');
 
       // bookmarks, tabs, and recently viewed are indexed by setting id (not uuid)
       for (const folder of allSettingFolders) {
+        // @ts-ignore
         const oldBookmarks = user.getFlag(moduleId, 'bookmarks.'+ folder.uuid) as Bookmark[] || [];
         if (oldBookmarks.length > 0) {
           const newBookmarks = oldBookmarks.map((b)=>({
@@ -129,11 +132,14 @@ export class MigrationV1_5 implements Migration {
             }
           }));
 
+          // @ts-ignore
           await user.unsetFlag(moduleId, 'bookmarks.'+ folder.uuid);
+          // @ts-ignore
           await user.setFlag(moduleId, 'bookmarks.'+ globalUuidMap[folder.uuid], newBookmarks);
         }
 
         // tabs
+        // @ts-ignore
         const oldTabs = user.getFlag(moduleId, 'tabs.' + folder.uuid) as WindowTab[] || [];
         if (oldTabs.length > 0) {
           const newTabs = oldTabs.map((t)=>({
@@ -148,11 +154,15 @@ export class MigrationV1_5 implements Migration {
             }))
           }));
 
+          // @ts-ignore
           await user.unsetFlag(moduleId, 'tabs.' + folder.uuid);
+
+          // @ts-ignore
           await user.setFlag(moduleId, 'tabs.' + globalUuidMap[folder.uuid], newTabs);
         }
 
         // recent viewed
+        // @ts-ignore
         const oldRecentViewed = user.getFlag(moduleId, 'recentlyViewed.' + folder.uuid) as TabHeader[] || [];
         if (oldRecentViewed.length > 0) {
           const newRecentViewed = oldRecentViewed.map((t)=>({
@@ -160,7 +170,10 @@ export class MigrationV1_5 implements Migration {
             uuid: t.uuid ? globalUuidMap[t.uuid] : t.uuid
           }));
 
+          // @ts-ignore
           await user.unsetFlag(moduleId, 'recentlyViewed' + folder.uuid);
+
+          // @ts-ignore
           await user.setFlag(moduleId, 'recentlyViewed.' + globalUuidMap[folder.uuid], newRecentViewed);
         }
       }
@@ -211,16 +224,16 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
 
   // get all the setting configuration
   // @ts-ignore
-  newSetting.description = folder.getFlag(moduleId, 'description');
+  newSetting.description = folder.getFlag(moduleId, 'description') || '';
   
   // @ts-ignore
-  topicIds = folder.getFlag(moduleId, 'topicIds');
+  topicIds = folder.getFlag(moduleId, 'topicIds') || [];
   
   // @ts-ignore
-  newSetting.campaignNames = folder.getFlag(moduleId, 'campaignNames');
+  newSetting.campaignNames = folder.getFlag(moduleId, 'campaignNames') || {};
   
   // @ts-ignore
-  newSetting.expandedIds = folder.getFlag(moduleId, 'expandedIds');
+  newSetting.expandedIds = folder.getFlag(moduleId, 'expandedIds') || {};
   
   // Store old hierarchies for later remapping - don't set them on the setting yet
   // They have old UUIDs that won't match the new entries until cleanCompendiumIds() runs
@@ -240,20 +253,20 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   newSetting.img = folder.getFlag(moduleId, 'img');   // image path for the setting
   
   // @ts-ignore
-  newSetting.nameStyles = folder.getFlag(moduleId, 'nameStyles');   // array of name styles to use for name generation
+  newSetting.nameStyles = folder.getFlag(moduleId, 'nameStyles') || [];   // array of name styles to use for name generation
   
   // @ts-ignore
-  newSetting.rollTableConfig = folder.getFlag(moduleId, 'rollTableConfig');   // setting-specific roll table configuration
+  newSetting.rollTableConfig = folder.getFlag(moduleId, 'rollTableConfig') || null;   // setting-specific roll table configuration
   
   // @ts-ignore
-  newSetting.nameStyleExamples = folder.getFlag(moduleId, 'nameStyleExamples');   // stored example names for each style with their genre and setting feeling
+  newSetting.nameStyleExamples = folder.getFlag(moduleId, 'nameStyleExamples') || { genre: '', settingFeeling: '', examples: [] } as NameStyleExamples;   // stored example names for each style with their genre and setting feeling
   
   // @ts-ignore
-  newSetting.journals = folder.getFlag(moduleId, 'journals');
+  newSetting.journals = folder.getFlag(moduleId, 'journals') || [];
 
   await newSetting.save();
 
-  // migrate all the topicfolders 
+  // migrate all the topicFolders 
   for (const topicId of Object.values(topicIds)) {
     // topic ids are JournalEntry
     const topic = await fromUuid<JournalEntry>(topicId);
@@ -270,6 +283,7 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
     //    compatible with the new schema
 
     // if it's not a campaign, clean up
+    // @ts-ignore
     if (!campaign || !campaign.getFlag(moduleId, 'isCampaign')) {
       delete newSetting.campaignNames[id];
       await newSetting.save();
@@ -324,20 +338,57 @@ async function migrateCampaign(oldCampaign: JournalEntry, setting: FCBSetting): 
   if (!newCampaign)
     throw new Error('Failed to create campaign in MigrationV1_5.migrateCampaign()');
 
+  // @ts-ignore
   newCampaign.description = oldCampaign.getFlag(moduleId, 'description') as string || '';
+  // @ts-ignore
   newCampaign.houseRules = oldCampaign.getFlag(moduleId, 'houseRules') as string || '';
+  // @ts-ignore
   newCampaign.img = oldCampaign.getFlag(moduleId, 'img') as string || '';
+  // @ts-ignore
   newCampaign.lore = oldCampaign.getFlag(moduleId, 'lore') as CampaignLore[] || [];
+  // @ts-ignore
   newCampaign.todoItems = oldCampaign.getFlag(moduleId, 'todoItems') as ToDoItem[] || [];
+  // @ts-ignore
   newCampaign.ideas = oldCampaign.getFlag(moduleId, 'ideas') as Idea[] || [];
+  // @ts-ignore
   newCampaign.journals = oldCampaign.getFlag(moduleId, 'journals') as RelatedJournal[] || [];
+  // @ts-ignore
   newCampaign.pcs = oldCampaign.getFlag(moduleId, 'pcs') as RelatedPCDetails[] || [];
 
+  // sort with missing values at the end
+  const sortWithMissing = (a: null | undefined | number, b: null | undefined | number) => {
+    if (a == null && b == null)
+      return 0;
+    if (a == null)
+      return 1;
+    if (b == null)
+      return -1;
+    return a - b;
+  };
   // some old lore don't have sort orders
   if (newCampaign.lore.find((lore)=>lore.sortOrder == null)) {
     // if any don't the probably all don't, so just reset them all
-    newCampaign.lore = newCampaign.lore.map((lore, index)=>({
+    // but sort first in case some have it ... but missing ones at the end
+    newCampaign.lore = newCampaign.lore.slice().sort((a, b)=>sortWithMissing(a.sortOrder, b.sortOrder)).map((lore, index)=>({
       ...lore,
+      sortOrder: index,
+    }));
+  }
+
+  // some old ideas don't have sort orders
+  if (newCampaign.ideas.find((idea)=>idea.sortOrder == null)) {
+    // if any don't they probably all don't, so just reset them all
+    newCampaign.ideas = newCampaign.ideas.slice().sort((a, b)=>sortWithMissing(a.sortOrder, b.sortOrder)).map((idea, index)=>({
+      ...idea,
+      sortOrder: index,
+    }));
+  }
+
+  // some old todos don't have sort orders
+  if (newCampaign.todoItems.find((todo)=>todo.sortOrder == null)) {
+    // if any don't they probably all don't, so just reset them all
+    newCampaign.todoItems = newCampaign.todoItems.slice().sort((a, b)=>sortWithMissing(a.sortOrder, b.sortOrder)).map((todo, index)=>({
+      ...todo,
       sortOrder: index,
     }));
   }
@@ -380,7 +431,9 @@ async function migrateSession(campaign: Campaign, oldSession: JournalEntryPage):
   newSession.monsters = system.monsters as SessionMonster[] || [];
   newSession.vignettes = system.vignettes as SessionVignette[] || [];
   newSession.lore = system.lore as SessionLore[] || [];
-  newSession.tags = system.tags as unknown as TagInfo[] || [];
+  // Convert old TagInfo[] format to string[] if needed
+  const oldTags = system.tags as unknown as any[] || [];
+  newSession.tags = oldTags.map(t => typeof t === 'string' ? t : t.value);
 
   // some old lore don't have sort orders
   if (newSession.lore.find((lore)=>lore.sortOrder == null)) {
@@ -398,19 +451,21 @@ async function migrateSession(campaign: Campaign, oldSession: JournalEntryPage):
 }
   
 async function migrateTopicFolder(setting: FCBSetting, oldTopicFolder: JournalEntry): Promise<void> {
+  // @ts-ignore
   const topic = oldTopicFolder.getFlag(moduleId, 'topic') as unknown as ValidTopic;
 
   const topicFolder = new TopicFolder(topic, setting);
 
   // topic folders now are just an object on the setting
-  topicFolder.types = oldTopicFolder.getFlag(moduleId, 'types') as string[];
+  // @ts-ignore
+  topicFolder.types = oldTopicFolder.getFlag(moduleId, 'types') as string[] || [];
 
   // these populate as you go
   // topicFolder.topNodes = oldTopicFolder.getFlag(moduleId, 'topNodes') as string[];
   // topicFolder.entries = {} as Record<string, string>;  
   await topicFolder.save();
 
-  // update the map - but the topic ids are settingid.topic.# 
+  // update the map - but the topic ids are settingId.topic.# 
   const oldSettingId = Object.keys(globalUuidMap).find((key)=>globalUuidMap[key] === setting.uuid);
   globalUuidMap[`${oldSettingId}.topic.${topic}`] = `${setting.uuid}.topic.${topic}`;
 
@@ -425,6 +480,7 @@ async function migrateTopicFolder(setting: FCBSetting, oldTopicFolder: JournalEn
   // everything gets added as a topNode because we don't know the right 
   //    parentId yet; so we need to make it match the old one (so things with
   //    parents don't show up)
+  // @ts-ignore
   const oldTopNodes = oldTopicFolder.getFlag(moduleId, 'topNodes') as string[] || [] ;
   const newTopNodes = oldTopNodes.map((uuid) => globalUuidMap[uuid]);
   topicFolder.topNodes = newTopNodes;
@@ -448,16 +504,23 @@ async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): 
 
   newEntry.description = entry.text.content || '';
   newEntry.type = system.type || '';
-  newEntry.tags = system.tags as unknown as TagInfo[]|| [];
+  // Convert old TagInfo[] format to string[] if needed
+  const oldTags = system.tags as unknown as any[] || [];
+  newEntry.tags = oldTags.map(t => typeof t === 'string' ? t : t.value);
+  // @ts-ignore
   newEntry.roleplayingNotes = system.rolePlayingNotes || ''; // note different caps in old one
 
   // relationships used to use _ in keys
-  const newRelationships = {} as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;
+  const newRelationships = {} as ValidTopicRecord<Record<string, RelatedItemDetails<any, any>>>;
 
   for (const topic in system.relationships) {
     const newTopicBlock = {} as Record<string, RelatedItemDetails<any, any>>;
     for (const entryId in system.relationships[topic]) {
-      newTopicBlock[entryId.replaceAll('_', '.')] = system.relationships[topic][entryId];
+      const relationship = system.relationships[topic][entryId];
+      // Filter out invalid relationships with null/undefined values
+      if (relationship && relationship.uuid && relationship.topic !== undefined) {
+        newTopicBlock[entryId.replaceAll('_', '.')] = relationship;
+      }
     }
     newRelationships[topic] = newTopicBlock;
   }
@@ -479,7 +542,8 @@ async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): 
   newEntry.scenes = system.scenes as string[] || [];
   newEntry.actors = system.actors as string[] || [];
   newEntry.journals = system.journals || [];
-  
+
+  console.log(JSON.stringify(newEntry.tags));
   await newEntry.save();  
 
   // add to the mapping
@@ -545,7 +609,7 @@ const cleanCompendiumIds = async (settingId: string) => {
   updateGlobalSetting(setting);
 
 
-  // topicfolders
+  // topicFolders
   for (const topicFolder of Object.values(setting.topicFolders)) {
     // topNodes - did it when we created the entry
     // entries object - should already be correct because they're added when they're created
@@ -553,7 +617,7 @@ const cleanCompendiumIds = async (settingId: string) => {
     // entries
     for (const entry of await topicFolder.allEntries(true)) {
       // relationships
-      const newRelationships = {} as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;
+      const newRelationships = {} as ValidTopicRecord<Record<string, RelatedItemDetails<any, any>>>;
       
       for (const topic in entry.relationships) {
         const relationships = entry.relationships[topic];

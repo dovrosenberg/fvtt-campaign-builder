@@ -15,7 +15,7 @@ import { scrollToActiveEntry } from '@/utils/directoryScroll';
 
 // types
 import { Entry, DirectoryTopicNode, DirectoryTypeEntryNode, DirectoryEntryNode, DirectoryTypeNode, CreateEntryOptions, FCBSetting, TopicFolder, getGlobalSetting } from '@/classes';
-import { DirectorySetting, Hierarchy, Topics, ValidTopic, EntryFilterIndex } from '@/types';
+import { DirectorySetting, Hierarchy, Topics, ValidTopic, EntryFilterIndex, ValidTopicRecord } from '@/types';
 import { MenuItem } from '@imengyu/vue3-context-menu';
 
 // the store definition
@@ -41,7 +41,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   const currentSettingTree = reactive<{value: DirectorySetting[]}>({value:[]});
 
   // topic tree currently refreshing
-  const isTopicTreeRefreshing = ref<boolean>(false);
+  const isSettingTreeRefreshing = ref<boolean>(false);
 
   // which mode are we un
   const isGroupedByType = ref<boolean>(false);
@@ -50,7 +50,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   const filterText = ref<string>('');
 
   // currently displayed nodes and types
-  const filterNodes = ref<Record<ValidTopic, string[]>>({} as Record<ValidTopic, string[]>);
+  const filterNodes = ref<ValidTopicRecord<string[]>>({});
 
   ///////////////////////////////
   // actions
@@ -155,12 +155,12 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (!currentSetting.value)
       return false;
 
-    // we're going to use this to simplify syntax below
-    const saveHierarchyToEntryFromNode = async (entry: Entry, node: DirectoryEntryNode) : Promise<void> => {
+    // Batch hierarchy updates - update the object directly without saving
+    const updateHierarchyFromNode = (entryUuid: string, node: DirectoryEntryNode) : void => {
       if (!currentSetting.value)
         return;
 
-      await currentSetting.value.setEntryHierarchy(entry.uuid, node.convertToHierarchy());
+      currentSetting.value.hierarchies[entryUuid] = node.convertToHierarchy();
     };
 
     // topic has to have hierarchy
@@ -200,7 +200,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
         const oldParentNode = await DirectoryEntryNode.fromEntry(oldParent);
         if (oldParentNode) {
           oldParentNode.children = oldParentNode.children.filter((c)=>c!==childId);
-          await saveHierarchyToEntryFromNode(oldParent, oldParentNode);
+          updateHierarchyFromNode(oldParent.uuid, oldParentNode);
         }
       }
     }
@@ -210,17 +210,17 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (parent && parentNode) {   
       // add the child to the children list of the parent (if it has a parent)
       parentNode.children = [...parentNode.children, childId];
-      await saveHierarchyToEntryFromNode(parent, parentNode);
+      updateHierarchyFromNode(parent.uuid, parentNode);
 
       // set the parent and the ancestors of the child (ancestors = parent + parent's ancestors)
       childNode.parentId = parentId;
       childNode.ancestors = parentNode.ancestors.concat(parentId ? [parentId] : []);
-      await saveHierarchyToEntryFromNode(child, childNode);
+      updateHierarchyFromNode(child.uuid, childNode);
     } else {
       // parent and ancestors are null
       childNode.parentId = null;
       childNode.ancestors = [];
-      await saveHierarchyToEntryFromNode(child, childNode);
+      updateHierarchyFromNode(child.uuid, childNode);
     }
 
     // recalculate the ancestor lists for all of the descendants of the child
@@ -231,13 +231,11 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     // then, update all of the child's descendants ancestor fields with that set of changes
     if (ancestorsToAdd || ancestorsToRemove) {
-      const hierarchies = currentSetting.value.hierarchies;
-
       // we switch to entries because of all the data retrieval
       const doUpdateOnDescendants = async (entry: Entry): Promise<void> => {
+        const hierarchies = currentSetting.value!.hierarchies;
         const children = hierarchies[entry.uuid]?.children || [];
 
-        // this seems safe, despite 
         for (let i=0; i<children?.length; i++) {
           const child = await Entry.fromUuid(children[i]);
 
@@ -248,7 +246,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
           childNode.ancestors = childNode.ancestors.filter(a => !ancestorsToRemove.includes(a));
           childNode.ancestors = childNode.ancestors.concat(ancestorsToAdd);
 
-          await saveHierarchyToEntryFromNode(child, childNode);
+          updateHierarchyFromNode(child.uuid, childNode);
 
           // now do it's kids
           await doUpdateOnDescendants(child);
@@ -271,19 +269,28 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     }
     
     topicFolder.topNodes = topNodes;
+
+    // if we have a valid parent - make sure it's expanded (batch with save below)
+    if (parentId && currentSetting.value) {
+      currentSetting.value.expandedIds[parentId] = true;
+    }
+
+    // Save all hierarchy and expandedIds changes in one batch
+    await currentSetting.value.save();
+    
+    // Save topicFolder separately
     await topicFolder.save();
 
     // force current entry to refresh if needed
-    if ([childId, parentId].includes(currentEntry.value?.uuid || null)) {
-      refreshCurrentEntry.value = true;      
-    }
-
-    // if we have a valid parent - make sure it's expanded
-    if (parentId && currentSetting.value) {
-      await currentSetting.value.expandNode(parentId);
-    }
+    const needCurrentRefresh = [childId, parentId].includes(currentEntry.value?.uuid || null);
 
     await refreshSettingDirectoryTree([parentId, oldParentId, childId].filter((id)=>id!==null));
+
+    // wait for the tree to be rebuilt first or we get race conditions with the
+    //   status of currentSetting.hierarchies
+    if (needCurrentRefresh) {
+      refreshCurrentEntry.value = true;      
+    }
 
     return true;
   };
@@ -377,7 +384,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     // save the parent
     const parentId = currentSetting.value.getEntryHierarchy(entryId)?.parentId || null;
 
-    const entry = (await currentSetting.value.topicFolders[topic].filterEntries((e: Entry) => e.uuid === entryId, true))[0];
+    const entry = (await currentSetting.value.topicFolders[topic].filterEntries((e: EntryFilterIndex) => e.uuid === entryId, true))[0];
     await entry.delete();
 
     // update tabs/bookmarks
@@ -392,6 +399,11 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   //    but that means that when names change or children change, we're not refreshing them properly
   // so updateEntryIds specifies an array of ids for nodes (entry, not pack) that just changed - this forces a reload of that entry and all its children
   const refreshSettingDirectoryTree = async (updateEntryIds?: string[]): Promise<void> => {
+    // Prevent concurrent refreshes
+    if (isSettingTreeRefreshing.value) {
+      return;
+    }
+
     // need to have a current setting and journals loaded
     if (!currentSetting.value) {
       // empty it out
@@ -399,7 +411,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       return;
     }
 
-    isTopicTreeRefreshing.value = true;
+    isSettingTreeRefreshing.value = true;
 
     // Preserve scroll position before refresh
     let scrollContainer: HTMLElement | null = document.querySelector('.fcb-setting-directory') as HTMLElement;
@@ -455,12 +467,13 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       await directoryTopicNode.loadTypeEntries(topicFolders[directoryTopicNode.topicFolder.topic].types, expandedNodes);
     }
 
+    // @ts-ignore (fvtt circularity issue)
     currentSettingTree.value = [currentSettingBlock];
 
     // make sure the node list is up to date
     await updateFilterNodes();
 
-    isTopicTreeRefreshing.value = false;
+    isSettingTreeRefreshing.value = false;
 
     // Wait for next tick to ensure DOM is updated
     await nextTick();
@@ -566,13 +579,9 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (!currentSetting.value)
       return;
 
-    const retval: Record<ValidTopic, string[]> = {
-      [Topics.Character]: [],
-      [Topics.Location]: [],
-      [Topics.Organization]: [],
-      [Topics.PC]: [],
-    };
+    const retval: ValidTopicRecord<string[]> = {};
 
+    // note this is safe only because setting doesn't get updated during the loop below
     const hierarchies = currentSetting.value.hierarchies;
 
     const regex = new RegExp( filterText.value, 'iu');  // do case insensitive search
@@ -610,16 +619,19 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // when the root folder changes, load the top level info (settings and packs)
   // when the setting changes, clean out the cache of loaded items
   //@ts-ignore - Vue can't handle reactive classes
-  watch(currentSetting, async (newSetting: FCBSetting | null): Promise<void> => {
+  watch(currentSetting, async (newSetting: FCBSetting | null, oldSetting: FCBSetting | null): Promise<void> => {
     if (!newSetting) {
       return;
     }
 
-    await refreshSettingDirectoryTree();
+    // Only refresh if the setting actually changed (not just a reactive update)
+        if (newSetting.uuid !== oldSetting?.uuid) {
+      await refreshSettingDirectoryTree();
+    }
   });
   
   // when the current journal set is updated, refresh the tree
-  // watch(currentTopicJournals, async (_newJournals: Record<ValidTopic, JournalEntry> | null): Promise<void> => {
+  // watch(currentTopicJournals, async (_newJournals: ValidTopicRecord<JournalEntry> | null): Promise<void> => {
   //   await refreshSettingDirectoryTree();
   // });
   
@@ -647,7 +659,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
   // return the public interface
   return {
     currentSettingTree,
-    isTopicTreeRefreshing,
+    isSettingTreeRefreshing,
     isGroupedByType,
     filterText,
     filterNodes,

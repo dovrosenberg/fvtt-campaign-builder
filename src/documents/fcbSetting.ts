@@ -1,4 +1,4 @@
-import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic, } from '@/types';
+import { Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord, } from '@/types';
 import { ApiNamePreviewPost200ResponsePreviewInner } from '@/apiClient';
 import { DOCUMENT_TYPES, } from './types';
 import { cleanKeysOnLoad,  } from '@/utils/cleanKeys';
@@ -54,16 +54,15 @@ export const SettingSchema = {
   rollTableConfig: new fields.ObjectField({ required: false, nullable: true, initial: null }),
 
   /** stored example names for each style with their genre and setting feeling */
-  nameStyleExamples: new fields.ArrayField(
-    new fields.SchemaField({
-      genre: new fields.StringField({ required: true, nullable: false }),
-      settingFeeling: new fields.StringField({ required: true, nullable: false }),
-      examples: new fields.ArrayField(
-        new fields.ObjectField({ required: true, nullable: false }),
-        { required: true, nullable: false, initial: [] as ApiNamePreviewPost200ResponsePreviewInner[] }
-      ),
-    }, { required: true, nullable: false }), { initial: [] as NameStyleExample[] }
-  ),
+  nameStyleExamples: new fields.SchemaField({
+    genre: new fields.StringField({ required: true, nullable: false }),
+    settingFeeling: new fields.StringField({ required: true, nullable: false }),
+    examples: new fields.ArrayField(
+      new fields.ObjectField({ required: true, nullable: false }),
+      { required: true, nullable: false, initial: [] as ApiNamePreviewPost200ResponsePreviewInner[] }
+    ),
+    // @ts-ignore - complex type it couldn't get
+  }, { required: true, nullable: false, initial: { genre: '', settingFeeling: '', examples: [] as ApiNamePreviewPost200ResponsePreviewInner[] } as NameStyleExamples }),
 
   /** related journal entries */
   journals: new fields.ArrayField(
@@ -87,7 +86,7 @@ export class SettingDataModel<
     this.campaignNames = cleanKeysOnLoad(this.campaignNames);
     this.expandedIds = cleanKeysOnLoad(this.expandedIds);
 
-    for (const topic in this.topics) {
+    for (const topic of Object.keys(this.topics) as unknown as ValidTopic[]) {
       this.topics[topic] = {
         ...this.topics[topic],
         entries: cleanKeysOnLoad(this.topics[topic].entries),
@@ -96,7 +95,7 @@ export class SettingDataModel<
   }
 }
 
-export type NameStyleExample = { 
+export interface NameStyleExamples { 
   genre: string; 
   settingFeeling: string; 
   examples: ApiNamePreviewPost200ResponsePreviewInner[] 
@@ -106,7 +105,7 @@ export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_T
   __type: 'FCBSettingDoc'; 
 
   system: {
-    topics: Record<ValidTopic, TopicFlatType>
+    topics: ValidTopicRecord<TopicFlatType>
     campaignNames: Record<string, string>;  
     expandedIds: Record<string, boolean>;  
     hierarchies: Record<string, Hierarchy>;  
@@ -115,7 +114,7 @@ export interface SettingDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_T
     img: string;   
     nameStyles: number[];   
     rollTableConfig: SettingGeneratorConfig | null;   
-    nameStyleExamples: NameStyleExample[];   
+    nameStyleExamples: NameStyleExamples;   
     journals: RelatedJournal[]; 
   };
 }

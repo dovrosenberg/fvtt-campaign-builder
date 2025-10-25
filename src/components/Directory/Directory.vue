@@ -57,10 +57,12 @@
         :options="settingOptions"
         optionLabel="name"
         optionValue="uuid"
+        :disabled="isInPlayMode"
         :pt="{
           root: { 
             'data-testid': 'setting-select',
-            style: 'width: 100%'
+            style: 'width: 100%',
+            'data-tooltip': isInPlayMode ? localize('tooltips.cannotChangeSettingInPlayMode') : ''
           }
         }"
         @change="onSettingChange"
@@ -69,15 +71,18 @@
 
     <Splitter layout="vertical" class="fcb-directory-splitter">
       <SplitterPanel :size="60" class="fcb-directory-panel">
-        <div v-if="isTopicTreeRefreshing" class="fcb-loading-container">
-          <ProgressSpinner v-if="isTopicTreeRefreshing" />
+        <div v-if="isSettingTreeRefreshing" class="fcb-loading-container">
+          <ProgressSpinner v-if="isSettingTreeRefreshing" />
         </div>
         <div v-else class="fcb-directory-panel-wrapper fcb-setting-directory">
           <SettingDirectory />
         </div>
       </SplitterPanel>
       <SplitterPanel :size="40" class="fcb-directory-panel">
-        <div class="fcb-directory-panel-wrapper fcb-campaign-directory">
+        <div v-if="isCampaignTreeRefreshing" class="fcb-loading-container">
+          <ProgressSpinner v-if="isCampaignTreeRefreshing" />
+        </div>
+        <div v-else class="fcb-directory-panel-wrapper fcb-campaign-directory">
           <CampaignDirectory />
         </div>
       </SplitterPanel>
@@ -103,7 +108,7 @@
 
   // local imports
   import { localize } from '@/utils/game';
-  import { useSettingDirectoryStore, useMainStore } from '@/applications/stores';
+  import { useSettingDirectoryStore, useCampaignDirectoryStore, useMainStore } from '@/applications/stores';
   import { ModuleSettings, SettingKey } from '@/settings';
 
   // library components
@@ -127,9 +132,11 @@
   ////////////////////////////////
   // store
   const settingDirectoryStore = useSettingDirectoryStore();
+  const campaignDirectoryStore = useCampaignDirectoryStore();
   const mainStore = useMainStore();
-  const { currentSetting } = storeToRefs(mainStore);
-  const { filterText, isTopicTreeRefreshing, isGroupedByType, currentSettingTree } = storeToRefs(settingDirectoryStore);
+  const { currentSetting, isInPlayMode } = storeToRefs(mainStore);
+  const { filterText, isSettingTreeRefreshing, isGroupedByType, } = storeToRefs(settingDirectoryStore);
+  const { isCampaignTreeRefreshing } = storeToRefs(campaignDirectoryStore);
 
   ////////////////////////////////
   // data

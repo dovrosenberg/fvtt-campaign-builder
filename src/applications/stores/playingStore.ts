@@ -187,8 +187,7 @@ export const usePlayingStore = defineStore('playing', () => {
       // have to do this first because once the current session changes, reactivity will lose any unsaved edits
       await SessionNotesApplication.close();
 
-      // clear the current played campaign
-      currentPlayedCampaignId.value = null;
+      // clear the notes; don't clear the campaign id because we need to save it
       currentPlayedSessionNotes.value = null;
     }
   });

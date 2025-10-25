@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, onMounted, computed, } from 'vue';
+  import { ref, watch, onMounted, } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -61,52 +61,13 @@
 
   ////////////////////////////////
   // watchers
-  // changes to the played session 
-  watch(() => currentPlayedSessionId.value, async (newSessionId: string | null, oldSessionId: string | null) => {
-    if (!newSessionId)
-      return;
-
-    const newSession = await Session.fromUuid(newSessionId);
-    if (!newSession)
-      return;
-
-    sessionNotes.value = newSession?.notes || '';
-
-    // if (!oldSession) 
-    //   return;
-
-    // // check if the session notes window is dirty and save if needed
-    // if (editorRef.value && isDirty()) {
-    //   if (await FCBDialog.confirmDialog(localize('dialogs.saveSessionNotes.title'), localize('dialogs.saveSessionNotes.message'))) {
-    //     oldSession.notes = editorRef.value.getContent();
-    //     await oldSession.save();
-
-    //     // refresh the content in case we're looking at the notes page for that session
-    //     await mainStore.refreshCurrentContent();
-    //   }
-    // }
-  }, { immediate: true });
-
   /** Handle when the notes are saved by the main session screen */
-  watch(() => currentPlayedSessionNotes.value, async () => {
-    sessionNotes.value = currentPlayedSessionNotes.value || '';
+  watch(() => currentPlayedSessionNotes.value, async (newNotes) => {
+    // Only update if we have notes - this prevents race conditions on mount
+    if (newNotes !== null) {
+      sessionNotes.value = newNotes || '';
+    }
   }, { immediate: true });
-
-  // lifecycle
-  onMounted(async () => {
-    if (!currentPlayedSessionId.value) {
-      sessionNotes.value = '';
-      return;
-    }
-
-    const session = await Session.fromUuid(currentPlayedSessionId.value);
-    if (!session) {
-      sessionNotes.value = '';
-      return;
-    }
-
-    sessionNotes.value = session?.notes || '';
-  })
 </script>
 
 <style lang="scss">

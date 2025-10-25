@@ -2,7 +2,7 @@ import { DOCUMENT_TYPES } from '@/documents';
 import { ValidTopic } from '.';
 
 /** the type available on the getIndex() for sessions; ties to the fields called for in the config */
-export type SessionIndex = {
+export interface SessionIndex {
   type: typeof DOCUMENT_TYPES.Session;
   name: string;
   _id: string;
@@ -18,7 +18,7 @@ export type SessionIndex = {
 }
 
 /** the type available on the getIndex() for sessions; ties to the fields called for in the config */
-export type EntryIndex = {
+export interface EntryIndex {
   type: typeof DOCUMENT_TYPES.Entry;
   name: string;
   _id: string;
@@ -35,7 +35,7 @@ export type EntryIndex = {
 }
 
 /** the type available for use in filterSessions */
-export type SessionFilterIndex = {
+export interface SessionFilterIndex {
   name: string;
   id: string;
   uuid: string;
@@ -44,7 +44,7 @@ export type SessionFilterIndex = {
 
 
 /** the type available for use in filterEntries */
-export type EntryFilterIndex = {
+export interface EntryFilterIndex {
   name: string;
   id: string;
   uuid: string;

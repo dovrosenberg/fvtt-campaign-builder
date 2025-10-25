@@ -87,6 +87,7 @@
                     :key="`strong-start-${currentSession?.uuid}-top`"
                     :initial-content="strongStartContent"
                     fixed-height="180px"
+                    :current-entity-uuid="currentSession?.uuid"
                     @editor-saved="onStartEditorSaved"
                   />
                 </div>
@@ -101,6 +102,7 @@
                 <Editor 
                   :initial-content="sessionNotesContent"
                   fixed-height="400px"
+                  :current-entity-uuid="currentSession?.uuid"
                   @editor-saved="onNotesEditorSaved"
                 />
               </div>
@@ -120,6 +122,7 @@
                     :key="`strong-start-${currentSession?.uuid}-bottom`"
                     :initial-content="strongStartContent"
                     fixed-height="180px"
+                    :current-entity-uuid="currentSession?.uuid"
                     @editor-saved="onStartEditorSaved"
                   />
                 </div>
@@ -180,6 +183,7 @@
   import { getTabTypeIcon } from '@/utils/misc';
   import { localize } from '@/utils/game'
   import { SettingKey, } from '@/settings';
+  import { notifyWarn } from '@/utils/notifications';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -255,6 +259,14 @@
     
     nameDebounceTimer = setTimeout(async () => {
       const newValue = newName || '';
+
+      // name can't be blank
+      if (newValue.trim() === '') {
+        notifyWarn(localize('errors.nameRequired'));
+        name.value = currentSession.value?.name!;
+        return;
+      }
+
       if (currentSession.value && currentSession.value.name!==newValue) {
         currentSession.value.name = newValue;
         await currentSession.value.save();

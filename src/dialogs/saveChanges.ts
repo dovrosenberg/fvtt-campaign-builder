@@ -1,3 +1,5 @@
+import { createApp } from 'vue';
+import SaveChangesDialogComponent from '@/components/SaveChangesDialog.vue';
 import { localize } from '@/utils/game';
 
 export enum SaveChangesResult {
@@ -10,38 +12,35 @@ export enum SaveChangesResult {
  * @return The user's choice (or cancel if the dialog was closed)
  */
 export async function saveChangesDialog(title?: string, prompt?: string): Promise<SaveChangesResult> {
-  // so if they don't hit anything, cancel gets returned
-  let response = SaveChangesResult.Cancel as SaveChangesResult;
+  return new Promise<SaveChangesResult>((resolve) => {
+    // Create a container for the dialog
+    const container = document.createElement('div');
+    document.body.appendChild(container);
 
-  const data = {
-    prompt: prompt || localize('dialogs.saveChanges.message')
-  };
-  
-  const content = await renderTemplate('modules/campaign-builder/templates/SaveChangesDialog.hbs', data);
-
-  const dialog = {
-    title: title || localize('dialogs.saveChanges.title'),
-    content: content,
-    buttons: {
-      save: {
-        label: localize('dialogs.saveChanges.save'),
-        callback: (): void => { response = SaveChangesResult.Save; },
+    // Create the Vue app
+    const app = createApp(SaveChangesDialogComponent, {
+      modelValue: true,
+      title: title || localize('dialogs.saveChanges.title'),
+      message: prompt || localize('dialogs.saveChanges.message'),
+      'onUpdate:modelValue': (value: boolean) => {
+        if (!value) {
+          // Dialog was closed without a definitive answer
+          cleanup();
+        }
       },
-      discard: {
-        label: localize('dialogs.saveChanges.discard'),
-        callback: (): void => { response = SaveChangesResult.Discard; },
+      onResult: (result: SaveChangesResult) => {
+        resolve(result);
+        cleanup();
       },
-      cancel: {
-        label: localize('dialogs.saveChanges.cancel'),
-        callback: (): void => { response = SaveChangesResult.Cancel; }
-      }
-    },
-    default: 'save',
-    close: (): void => { }
-  };
+    });
 
-  // this uses the foundry Dialog
-  await Dialog.wait(dialog);
+    // Mount the app
+    app.mount(container);
 
-  return response;
+    // Cleanup function
+    function cleanup() {
+      app.unmount();
+      document.body.removeChild(container);
+    }
+  });
 }

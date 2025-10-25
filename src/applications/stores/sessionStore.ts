@@ -120,12 +120,16 @@ export const useSessionStore = defineStore('session', () => {
     if (!currentPlayedSessionId.value)
       throw new Error('Invalid session Id in sessionStore.addLocationToPlayedSession()');
 
-    const session = await fromUuid(currentPlayedSessionId.value);
+    const session = await Session.fromUuid(currentPlayedSessionId.value);
     if (!session)
       throw new Error('Invalid session in sessionStore.addLocationToPlayedSession()');
 
-    await session.value.addLocation(uuid, delivered);
+    await session.addLocation(uuid, delivered);
     await _refreshLocationRows();
+
+    // refresh the viewed session if needed
+    if (currentSession.value?.uuid === session.uuid)
+      await mainStore.refreshSession(true);
   }
 
   /**
@@ -930,6 +934,7 @@ export const useSessionStore = defineStore('session', () => {
         delivered: lore.delivered,
         significant: lore.significant,
         description: lore.description,
+        sortOrder: lore.sortOrder,
         journalEntryPageId: lore.journalEntryPageId,
         journalEntryPageName: entry?.name || null,
         packId: entry?.pack || null,

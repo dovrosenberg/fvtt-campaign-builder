@@ -138,7 +138,13 @@ export function VueApplicationMixin<TBase extends new (...args: any[]) => foundr
             // Call the render method when the Vue Instance is updated
             // -- This will call FoundryVTTs Hooks related to rendering when Vue is updated
             // -- Useful for when other modules listen for rendering events to inject HTML
-            Instance.render();
+            // Instance.render();
+
+            // we have commented this out ^^^ because we are completely disconnecting rendering
+            //    from Vue to be able to enforce our singleton (which will also improve
+            //    performance because we do so much processing in every _canRender)
+            // additionally, every call to render() where there's a doc involved opens a new
+            //    tab... that's bad
           }
         });
 

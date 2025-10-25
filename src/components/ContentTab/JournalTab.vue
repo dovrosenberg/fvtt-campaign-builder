@@ -33,6 +33,7 @@
 
   // local imports
   import { localize } from '@/utils/game';
+  import { FCBDialog } from '@/dialogs';
 
   // library components
   import BaseTable from '@/components/tables/BaseTable.vue';
@@ -180,14 +181,14 @@
 
   const onDeleteItemClick = async (id: string) => {
     // show the confirmation dialog 
-    await Dialog.confirm({
-      title: localize('dialogs.confirmDeleteRelationship.title'),
-      content: localize('dialogs.confirmDeleteRelationship.message'),
-      yes: () => { 
-        emit('journals-updated', props.initialJournals.filter(j => j.uuid !== id));
-      },
-      no: () => {},
-    });
+    const confirmed = await FCBDialog.confirmDialog(
+      localize('dialogs.confirmDeleteRelationship.title'),
+      localize('dialogs.confirmDeleteRelationship.message')
+    );
+    
+    if (confirmed) {
+      emit('journals-updated', props.initialJournals.filter(j => j.uuid !== id));
+    }
   }
 
   async function onCellClick(data: any, field: string) {

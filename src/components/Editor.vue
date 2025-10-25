@@ -66,7 +66,7 @@
   const TextEditor = foundry.applications.ux.TextEditor;
   const ProseMirror = foundry.prosemirror;
 
-  // type EditorOptions = {
+  // interface EditorOptions {
   //   document: Document<any>,
   //   fieldName: string,
   //   height: number, 
@@ -517,7 +517,7 @@
 
     .editor-edit {
       position: absolute;
-      z-index: 1000;
+      z-index: 10;
       right: 12px;
       top: 3px;
       color: coral;

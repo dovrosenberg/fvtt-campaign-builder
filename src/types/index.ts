@@ -37,19 +37,19 @@ export enum WindowTabType  {
   Setting,
 }
 
-export type WindowTabHistory = {
+export interface WindowTabHistory {
   contentId: string | null;   // the uuid of the entry, campaign, etc.
   tabType: WindowTabType;
   contentTab: string | null;  // the current content tab (subtab) that was active
 }
 
-export type Bookmark = {
+export interface Bookmark {
   id: string;   // id of the bookmark
   tabInfo: WindowTabHistory;
   header: TabHeader;
 }
 
-export type TabHeader = {
+export interface TabHeader {
   /** uuid of the entity being displayed */
   uuid: string | null;   
 
@@ -60,7 +60,7 @@ export type TabHeader = {
   icon: string; 
 }
 
-export type TabSummary = {
+export interface TabSummary {
   uuid: string;   
   name: string;
 }
@@ -78,6 +78,9 @@ export enum Topics {
 // topics except None
 export type ValidTopic = Exclude<Topics, Topics.None>;
 
+// this  is a common structure
+export type ValidTopicRecord<T> = Partial<Record<ValidTopic, T>>;
+
 // content tabs that are document links not other entries
 export enum DocumentLinkType {
   None,
@@ -88,7 +91,7 @@ export enum DocumentLinkType {
 }
 
 // relationships
-export type TreeNode = {
+export interface TreeNode {
   text: string;   // the label
   value: string;   // a value to be passed up when clicked (ex. a uuid)
   children: TreeNode[];   // the children, if any
@@ -136,9 +139,12 @@ export interface Idea {
   sortOrder: number;
 }
 
-export type BaseTableGridRow = { uuid: string; sortOrder?: number } & Record<string, any>;
+export interface BaseTableGridRow extends Record<string, any> { 
+  uuid: string; 
+  sortOrder?: number 
+}
 
-export type SettingIndex = {
+export interface SettingIndex {
   settingId: string;
   name: string;
   packId: string;

@@ -13,11 +13,9 @@ type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign> {
-  static override _folderName = 'Campaigns';
   static override _documentType = DOCUMENT_TYPES.Campaign;
   static override _defaultSystem = { 
     description: '',  
-    houseRules: '',  
     sessions: [],
     lore: [],  
     img: '',   
@@ -25,6 +23,9 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     ideas: [],   
     journals: [], 
     pcs: [],
+    customFields: {
+     house_rules: '',  
+    },
   } as unknown as CampaignDocClass['system'];
   
   public static override async fromUuid<
@@ -371,6 +372,40 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   /**
+   * Moves an idea to the to-do list
+   * @param uuid The UUID of the idea to move
+   */
+  public async moveIdeaToToDo(uuid: string): Promise<void> {
+    const idea = this._clone.system.ideas.find(i => i.uuid === uuid);
+    if (!idea)
+      return;
+
+    // Create a new to-do item with the idea's text
+    await this.addNewToDoItem(ToDoTypes.Manual, idea.text);
+
+    // Remove the idea
+    this._clone.system.ideas = this._clone.system.ideas.filter(i => i.uuid !== uuid);
+    await this.save();
+  }
+
+  /**
+   * Moves a to-do item to the ideas list
+   * @param uuid The UUID of the to-do item to move
+   */
+  public async moveToDoToIdea(uuid: string): Promise<void> {
+    const toDo = this._clone.system.todoItems.find(i => i.uuid === uuid);
+    if (!toDo)
+      return;
+
+    // Create a new idea with the to-do's text
+    await this.addIdea(toDo.text);
+
+    // Remove the to-do item
+    this._clone.system.todoItems = this._clone.system.todoItems.filter(i => i.uuid !== uuid);
+    await this.save();
+  }
+
+  /**
    * Creates a new campaign.  Prompts for a name.
    * 
    * @param {FCBSetting} setting - The setting to create the campaign in. 
@@ -388,7 +423,7 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       return null;
     
     // create a journal entry for the campaign
-    const campaign = await super._create(setting.compendiumId, nameToUse) as unknown as Campaign;  
+    const campaign = await super._create(setting.compendiumId, nameToUse, 'Campaigns') as unknown as Campaign;  
 
     if (!campaign)
       throw new Error('Couldn\'t create new journal entry for campaign');
@@ -484,7 +519,13 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   public async save(): Promise<void> {
     const updateName = this._clone.name !== this._doc.name;
 
-    await super.save();
+    // we attempt to save first - because if it fails, we don't 
+    //    want to adjust anything else
+    try {
+      await super.save();
+    } catch (error) {
+      throw error;
+    }
 
     // update the name
     if (updateName) {    

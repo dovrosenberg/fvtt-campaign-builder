@@ -1,12 +1,12 @@
 import { DirectorySessionNode, DirectoryTopicNode } from '@/classes';
 
-export type DirectorySetting = {
+export interface DirectorySetting {
   id: string;   // the setting folder ID
   name: string;
   topicNodes: DirectoryTopicNode[];
 }
 
-export type DirectoryCampaign = {
+export interface DirectoryCampaign {
   id: string;   // the campaign compendium uuid
   name: string;
   loadedSessions: DirectorySessionNode[];
@@ -14,7 +14,7 @@ export type DirectoryCampaign = {
   expanded: boolean;
 }
 
-export type DirectorySessionNode = {
+export interface DirectorySessionNode {
   id: string;
   name: string;
   sessionNumber: number;   // needed to sort properly

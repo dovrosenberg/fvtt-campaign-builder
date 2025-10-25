@@ -6,4 +6,4 @@ export * from './campaign';
 export * from './indices';
 
 export { RootFolderDoc, RootFolderFlagKey, RootFolderFlagType, flagSettings as rootFolderFlagSettings } from './rootFolder';
-export { RollTableFlagKey, RollTableFlagType, flagSettings as rolltableFlagSettings } from './rolltables';
+export { RollTableFlagKey, RollTableFlagType, flagSettings as rollTableFlagSettings } from './rollTables';

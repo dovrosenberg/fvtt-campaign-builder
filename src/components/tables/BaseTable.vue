@@ -80,6 +80,7 @@
             <InputText 
               v-model="pagination.filters.global.value"  
               data-testid="table-filter-input"
+              unstyled
               style="font-size: var(--font-size-14);"
               :placeholder="localize('placeholders.search')"
             />
@@ -133,6 +134,24 @@
                 @click.stop="onEditButtonClick(data)" 
               >
                 <i class="fas fa-pen"></i>
+              </a>
+              <a 
+                v-if="props.showMoveToToDo"
+                class="fcb-action-icon" 
+                :data-testid="`table-move-to-todo-${data.uuid}`"
+                :data-tooltip="props.moveToToDoLabel"
+                @click.stop="emit('moveToToDo', data.uuid)" 
+              >
+                <i class="fas fa-arrow-right"></i>
+              </a>
+              <a 
+                v-if="props.showMoveToIdeas"
+                class="fcb-action-icon" 
+                :data-testid="`table-move-to-ideas-${data.uuid}`"
+                :data-tooltip="props.moveToIdeasLabel"
+                @click.stop="emit('moveToIdeas', data.uuid)" 
+              >
+                <i class="fas fa-arrow-left"></i>
               </a>
               <span v-if="props.trackDelivery">
                 <!-- this is a session one that's not delivered -->
@@ -215,6 +234,7 @@
                   :id="`${data.uuid}-${field}`" 
                   :data-testid="`table-textarea-${field}`"
                   rows="2"
+                  unstyled
                   @keydown.enter="saveCurrentlyEditingRow" 
                   @keydown.esc.stop="cancelEdit"
                 />
@@ -224,6 +244,7 @@
                   style="width: 100%; font-size: inherit;"
                   :id="`${data.uuid}-${field}`" 
                   :data-testid="`table-input-${field}`"
+                  unstyled
                   @keydown.enter.stop="saveCurrentlyEditingRow" 
                   @keydown.esc.stop="cancelEdit"
                 />
@@ -278,14 +299,13 @@
           <!-- STANDARD -->
           <div v-else>
             <div 
-              :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '',
-                      col.onClick ? 'clickable' : '']"
+              :class="['fcb-row-wrapper', isDragHoverRow===data.uuid ? 'valid-drag-hover' : '']"
               @dragover="onDragoverRow($event, data.uuid)"
               @dragleave="onDragLeaveRow(data.uuid)"
               @drop="onDropRow($event, data.uuid)"
             >
               <div
-                :class="['fcb-table-body-text']"
+                :class="['fcb-table-body-text', col.onClick ? 'clickable' : '']"
                 @click.stop="col.onClick && col.onClick($event, data.uuid)"
               >
                 <span :style="col.onClick ? 'text-decoration: underline;' : ''">
@@ -396,6 +416,22 @@
       type: Boolean,
       default: false,
     },
+    showMoveToToDo: {
+      type: Boolean,
+      default: false,
+    },
+    moveToToDoLabel: {
+      type: String,
+      default: '',
+    },
+    showMoveToIdeas: {
+      type: Boolean,
+      default: false,
+    },
+    moveToIdeasLabel: {
+      type: String,
+      default: '',
+    },
     draggableRows: {
       type: Boolean,
       required: false,
@@ -426,6 +462,8 @@
     (e: 'unmarkItemDelivered', uuid: string): void;
     (e: 'moveToNextSession', uuid: string): void;
     (e: 'moveToCampaign', uuid: string): void;
+    (e: 'moveToToDo', uuid: string): void;
+    (e: 'moveToIdeas', uuid: string): void;
     (e: 'dragstart', event: DragEvent, uuid: string): void;
     (e: 'dragoverNew', event: DragEvent): void;
     (e: 'dragoverRow', event: DragEvent, uuid: string): void;

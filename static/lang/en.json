@@ -585,6 +585,7 @@
       "collapseDirectory": "Collapse directory",
       "collapseAllTopics": "Collapse all",
       "addBookmark": "Add bookmark",
+      "moreBookmarks": "More bookmarks",
       "historyBack": "Back",
       "historyForward": "Forward",
       "editRelationship": "Edit relationship",
@@ -599,6 +600,8 @@
       "deleteLore": "Delete lore",
       "deleteToDo": "Complete to-do item",
       "deleteIdea": "Delete idea",
+      "moveToToDo": "Move to to-do list",
+      "moveToIdeas": "Move to ideas list",
       "markAsDelivered": "Mark as delivered",
       "unmarkAsDelivered": "Unmark as delivered",
       "moveToNextSession": "Move to next session",
@@ -607,12 +610,13 @@
       "addToASession": "Add to a session",
       "sessionUnavailable": "No campaigns with an active session, or this entry is already attached to them all",
       "generateContent": "Generate content",
-      "settingGenerateContent": "Manage setting generation configuration",
+      "settingGenerateContent": "Manage Setting generation configuration",
       "backendNotAvailable": "Backend not available",
       "playModeNoCampaigns": "You need to have at least one campaign with a session in order to use Play mode",
       "dragMonsterFromSession": "Drag to scene",
       "dragItemFromSession": "Drag to actor, etc.",
       "dragActorFromEntry": "Drag to scene",
+      "cannotChangeSettingInPlayMode": "Cannot change Setting while in play mode",
       "contentLinks": {
         "1": {
           "1": "Character",
@@ -635,7 +639,8 @@
       }
     },
     "errors": {
-      "duplicateBookmark": "Already stored as a bookmark"
+      "duplicateBookmark": "Already stored as a bookmark",
+      "nameRequired": "Name cannot be blank"
     }
   }
 }

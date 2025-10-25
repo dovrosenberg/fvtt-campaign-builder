@@ -1,6 +1,6 @@
 import { ValidTopic } from '@/types';
 
-export type EntryNodeDragData = {
+export interface EntryNodeDragData {
   type: 'fcb-entry';
   childId: string;
   name: string;
@@ -8,24 +8,24 @@ export type EntryNodeDragData = {
   topic: ValidTopic;
 };
 
-export type CampaignNodeDragData = {
+export interface CampaignNodeDragData {
   type: 'fcb-campaign';
   campaignId: string;
   name: string;
 };
 
-export type SessionNodeDragData = {
+export interface SessionNodeDragData {
   type: 'fcb-session';
   sessionId: string;
   name: string;
 };
 
-export type BookmarkDragDropData = {
+export interface BookmarkDragDropData {
   type: 'fcb-bookmark';
   bookmarkId: string;
 }
 
-export type TabDragData = {
+export interface TabDragData {
   type: 'fcb-tab';
   tabId: string;
 }

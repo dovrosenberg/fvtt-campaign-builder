@@ -146,11 +146,11 @@ export const useMainStore = defineStore('main', () => {
    * This is achieved by simply creating a new entry based on the EntryDoc of the current one
    */
   const refreshEntry = async function (): Promise<void> {
-    if (!_currentEntry.value?.raw?.parent)
+    if (!_currentEntry.value?.raw?.parent || !currentSetting.value)
       return;
 
     // just force all reactivity to update
-    _currentEntry.value = new Entry(_currentEntry.value.raw.parent);
+    _currentEntry.value = new Entry(_currentEntry.value.raw.parent as unknown as JournalEntry);
   };
 
   const refreshCampaign = async function (): Promise<void> {
@@ -158,26 +158,35 @@ export const useMainStore = defineStore('main', () => {
       return;
 
     // just force all reactivity to update
-    _currentCampaign.value = new Campaign(_currentCampaign.value.raw.parent);
+    _currentCampaign.value = new Campaign(_currentCampaign.value.raw.parent as unknown as JournalEntry);
   };
 
-  const refreshSetting = async function (): Promise<void> {
+  const refreshSetting = async function (reload = false): Promise<void> {
     if (!_currentSetting.value?.raw?.parent)
       return;
 
     // just force all reactivity to update
-    const newSetting = new FCBSetting(_currentSetting.value.raw.parent);
+    let newSetting;
+    if (reload) {
+      newSetting = await FCBSetting.fromUuid(_currentSetting.value.raw.parent.uuid);
+    } else {
+      newSetting = new FCBSetting(_currentSetting.value.raw.parent as unknown as JournalEntry);
+    }
+
     await newSetting.populate();
     _currentSetting.value = newSetting;
   };
 
-  const refreshSession = async function (): Promise<void> {
-    if (!_currentSession.value?.raw?.parent)
+  const refreshSession = async function (reload = false): Promise<void> {
+    if (!_currentSession.value?.raw?.parent || !currentSetting.value)
       return;
 
     // just force all reactivity to update
     const campaign = await _currentSession.value.loadCampaign();
-    _currentSession.value = new Session(_currentSession.value.raw.parent, campaign || undefined);
+    if (reload)
+      _currentSession.value = await Session.fromUuid(_currentSession.value.raw.parent.uuid);
+    else
+      _currentSession.value = new Session(_currentSession.value.raw.parent as unknown as JournalEntry, campaign || undefined);
   };
 
   /** Refresh whatever content is currently showing */

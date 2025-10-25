@@ -1,6 +1,6 @@
 import { VueApplicationMixin } from '@/libraries/fvtt-vue/VueApplicationMixin';
 import PrimeVue from 'primevue/config';
-import { pinia, useNavigationStore, } from '@/applications/stores';
+import { pinia, useNavigationStore, useMainStore } from '@/applications/stores';
 import App from '@/components/applications/CampaignBuilder.vue';
 
 const { DocumentSheetV2 } = foundry.applications.api;
@@ -13,7 +13,9 @@ import { DOCUMENT_TYPES } from '@/documents';
 import { MigrationManager } from '@/utils/migration';
 import { notifyError } from '@/utils/notifications';
 import { localize } from '@/utils/game';
-import { FCBSetting } from '@/classes';
+import { Entry, WindowTab } from '@/classes';
+import { UserFlagKey, UserFlags } from '@/settings';
+import { WindowTabType } from '@/types';
 
 // setup pinia
 
@@ -24,25 +26,26 @@ export let wbApp: CampaignBuilderApplication | null = null;
 const FCB_OPEN_WINDOW_NAME = 'FCB-Open-Window!!!@#';
 
 
-export const renderCampaignBuilderApp = async (render = false) => {
+export const renderCampaignBuilderApp = async () => {
   // Check if migration failed - prevent opening if it did
   if (MigrationManager.migrationFailed) {
     notifyError(localize('notifications.migration.cannotOpen'));
     return null;
   }
   
-  if (!wbApp) {
-    wbApp = new CampaignBuilderApplication();
+  // wbApp is managed inside _canRender, which gets called both by this as well
+  //    as any Foundry attempts to render
+  const newWindow = new CampaignBuilderApplication();
 
+  if (!wbApp) {
     // we hold it here... there's an issue where we can't import this file
     //    into other places that need access to wbApp because it triggers
     //    an issue with pinia reference instantiation order
+    // but we need it to be able to close it programatically
     // @ts-ignore
     game.modules.get(moduleId).activeWindow = wbApp;    
   }
-
-  await wbApp.render(render);
-
+  newWindow.render(true);
 };
 
 export class CampaignBuilderApplication extends VueApplicationMixin(DocumentSheetV2<JournalEntry | JournalEntryPage>) {
@@ -90,45 +93,102 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     }
   };
 
-  _canRender(options) { 
+  // Foundry's isFirstRender isn't available yet in _canRender and neither is #state
+  private isFirstRender = true;
+
+  // Override to prevent DocumentSheetV2 from adding default controls
+  override _getHeaderControls() {
+    return [];
+  }
+
+  private _inMiddleOfRender = false;  // because otherwise we can get stuck in strange loops
+
+  // there are a few general scenarios here:
+  // 1. this is just a general rerender call - we disallow it
+  // 2. this is a first call for a window, but we already have one open - we disallow it 
+  //    but handle the document we're trying to open
+  // 3. this is a first call for a window, and we don't have one open - we allow it
+  override _canRender(_options): false | void { 
+    if (this._inMiddleOfRender)
+      return false;
+    
+    this._inMiddleOfRender = true;
+
     // prevent the window from opening at all if we're trying to open an invalid
     //    doc or we had a failed migration
     if (MigrationManager.migrationFailed) {
       notifyError(localize('notifications.migration.cannotOpen'));
+      this._inMiddleOfRender = false;
       return false;
     }
+
+    // if we already have a wbApp, don't render another CampaignBuilder
+    // we will return false to prevent Foundry from opening another window
+    //    but we need to handle the document we're trying to open here otherwise
+    //    we can never open a specific document after the first time
+    let preventRender = (!!wbApp || !this.isFirstRender);
+
+    this.isFirstRender = false;    
+
+    if (!wbApp)
+      wbApp = this;
 
     const doc = this.document;
 
-    if (!doc)
-      return false;
-
-    // handle our special one
-    if (doc.name === FCB_OPEN_WINDOW_NAME) 
-      return true;
-
-    if (!['JournalEntry', 'JournalEntryPage'].includes(doc.documentName)) {
-      notifyError('Attempt to open invalid document in Campaign Builder');
+    // handle the scenarios where we just need to abort
+    if (!doc) {
+      this._inMiddleOfRender = false;
       return false;
     }
+
     const docToCheck = doc.documentName === 'JournalEntryPage' ? doc.parent : doc;
 
     if (!docToCheck) {
       notifyError('Attempt to open invalid journal entry in Campaign Builder');
+      this._inMiddleOfRender = false;
       return false;
     }
 
-    if (!docToCheck.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType)) {
-      // not FCB
-      notifyError('Attempt to open invalid journal entry in Campaign Builder');
-      return false;
-    } else if (docToCheck.pages.contents.length === 0) {
-      // no pages
-      notifyError('Attempt to open invalid journal entry in Campaign Builder');
-      return false;
+    // if it's our fake one, don't worry about other details 
+    if (doc.name !== FCB_OPEN_WINDOW_NAME) {
+      if (!['JournalEntry', 'JournalEntryPage'].includes(doc.documentName)) {
+        notifyError('Attempt to open invalid document in Campaign Builder');
+        this._inMiddleOfRender = false;
+        return false;
+      }
+
+      if (!docToCheck.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType)) {
+        // not FCB
+        notifyError('Attempt to open invalid journal entry in Campaign Builder');
+        this._inMiddleOfRender = false;
+        return false;
+      } else if (docToCheck.pages.contents.length === 0) {
+        // no pages
+        notifyError('Attempt to open invalid journal entry in Campaign Builder');
+        this._inMiddleOfRender = false;
+        return false;
+      }
     }
-    
-    return true;
+
+    // at this point we know this is a first attempt to open the window (though it 
+    //    might be a new instance we want to cancel)
+    // so we handle the document
+
+    // handle our special one
+    if (doc.name === FCB_OPEN_WINDOW_NAME) {
+      this._inMiddleOfRender = false;
+      return;
+    }
+
+    // handle opening any other document
+    // this is async, but should be OK
+    CampaignBuilderApplication.handleDocument(docToCheck);
+
+    this._inMiddleOfRender = false;
+    if (preventRender)
+      return false;  // we already had a wbApp open, so don't need another
+    else 
+      return;  // this is really the first time we're opening any CampaignBuilder
   }
 
   constructor(options?: any, ...args: any[]) {
@@ -151,44 +211,70 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
       //  2. we opened it with a non-FCB journal entry - this shouldn't be possible; we throw an error to prevent opening
       finalOptions = new.target._migrateConstructorParams(options, args);
 
-      //  3. we opened it with a FCB journal entry - we handle that in _onFirstRender
+      //  3. we opened it with a FCB journal entry - we handle that in _canRender
     }
 
     super(finalOptions);
   }
 
   // called when we first open the window
-  async _onFirstRender(context, options) {
-    await super._onFirstRender(context, options);
+  // doc must already have been checked to be a FCB entry
+  static async handleDocument(doc: foundry.documents.JournalEntry) {
+    let docType = doc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType);
+    let uuid = doc.uuid; 
 
-    // if there is a document, open that content
-    const doc = context.document;
-    let docType: typeof DOCUMENT_TYPES[keyof typeof DOCUMENT_TYPES] | null = null;
+    if (!docType || !uuid || !Object.values(DOCUMENT_TYPES).includes(docType))
+      throw new Error('Attempt to open invalid journal entry in CampaignBuilderApplication _onFirstRender')
 
-    let uuid: string; 
+    // Before opening the content, check if it belongs to a different setting
+    // If so, create a tab for it in the target setting, then switch settings
+    // This avoids a race condition where we try to open content before tabs are loaded
+    const mainStore = useMainStore();
 
-    // if it's our special one, just open if
-    if (doc.name === FCB_OPEN_WINDOW_NAME) {
-      return;
-    }
-    
-    // if it's a journalentrypage get the type; if it's a journalentry, pull it from the flag
-    // we dont have to validate here because we did it in _canRender
-    switch (doc.documentName) {
-      case 'JournalEntry':          
-        docType = doc.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType);
-        uuid = doc.pages?.contents?.[0]?.uuid;
-        break;
-      case 'JournalEntryPage':
-        docType = doc.type;
-        uuid = doc.uuid;
-        break;
+    const docSettingId = (new Entry(doc))?.settingId;
 
-      default:
-        throw new Error('Attempt to open non-journal entry in CampaignBuilderApplication _onFirstRender');
-    }
+    if (mainStore.currentSetting?.uuid !== docSettingId) {
+      // Map DOCUMENT_TYPES to WindowTabType
+      const docTypeToWindowTabType: Record<string, WindowTabType> = {
+        [DOCUMENT_TYPES.Entry]: WindowTabType.Entry,
+        [DOCUMENT_TYPES.Campaign]: WindowTabType.Campaign,
+        [DOCUMENT_TYPES.Session]: WindowTabType.Session,
+        [DOCUMENT_TYPES.Setting]: WindowTabType.Setting,
+      };
+      
+      const windowTabType = docTypeToWindowTabType[docType];
+      
+      // Load the document metadata using the shared helper
+      const metadata = await useNavigationStore().loadContentMetadata(uuid, windowTabType);
+      
+      const headerData = { uuid: uuid, name: metadata.name, icon: metadata.icon };
 
-    if (docType) {
+      // Create a new tab for this content
+      const newTab = new WindowTab(
+        true,  // active
+        headerData,
+        uuid,
+        metadata.contentType,
+        null,  // generate new ID
+        metadata.defaultContentTab
+      );
+
+      // Load existing tabs for the target setting
+      const existingTabs = UserFlags.get(UserFlagKey.tabs, docSettingId) || [];
+      
+      // Mark all existing tabs as inactive
+      existingTabs.forEach((t: WindowTab) => t.active = false);
+      
+      // Add the new tab to the front (it will be active)
+      existingTabs.push(newTab);
+      
+      // Save the tabs to the target setting
+      await UserFlags.set(UserFlagKey.tabs, existingTabs, docSettingId);
+      
+      // Now switch settings - loadTabs() will be triggered by the watcher and load our new tab
+      await mainStore.setNewSetting(docSettingId);
+    } else {
+      // Same setting, just open the content normally
       switch (docType) {
         case DOCUMENT_TYPES.Campaign:
           useNavigationStore().openCampaign(uuid);
@@ -203,10 +289,6 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
           useNavigationStore().openEntry(uuid);
           break;
       }
-    } else {
-      throw new Error('Attempt to open invalid journal entry in CampaignBuilderApplication _onFirstRender')
     }
-
-    // if it's false just show the default
-  }
+  } 
 }

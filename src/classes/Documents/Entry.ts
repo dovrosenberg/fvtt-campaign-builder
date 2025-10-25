@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 
 import { DOCUMENT_TYPES, } from '@/documents';
-import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, TagInfo, ToDoTypes, } from '@/types';
+import { RelatedJournal, RelatedItemDetails, ValidTopic, Topics, ToDoTypes, ValidTopicRecord, } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { getTopicText } from '@/compendia';
 import { TopicFolder,  } from '@/classes';
@@ -12,13 +12,16 @@ import { localize } from '@/utils/game';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from './FCBJournalEntryPage';
 import { cleanTopicKeysOnSave } from '@/utils/cleanKeys';
 
-export type CreateEntryOptions = { name?: string; type?: string; parentId?: string};
+export interface CreateEntryOptions { 
+  name?: string; 
+  type?: string; 
+  parentId?: string
+};
 
 type EntryDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Entry>;
 
 // represents a topic entry (ex. a character, location, etc.)
 export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
-  static override _folderName = 'Entries';
   static override _documentType = DOCUMENT_TYPES.Entry;
   static override _defaultSystem = { 
     topic: Topics.None,  
@@ -37,10 +40,12 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     playerName: '',
     actorId: null,
     background: '',
-    plotPoints: '',
-    magicItems: '',
     img: '',
-    roleplayingNotes: ''
+    customFields: {
+      other_plot_points: '',
+      desired_magic_items: '',
+      roleplaying_notes: '',
+    },
   } as unknown as EntryDocClass['system'];
 
   private _actor: Actor | null;  // for pcs
@@ -107,7 +112,21 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   {
     const topicText = getTopicText(topicFolder.topic);
     const promptText = topicFolder.topic === Topics.PC ? localize('dialogs.createPC.playerName') : `${topicText} Name:`;
-
+    let folderName = '';
+    switch (topicFolder.topic) {
+      case Topics.Character:
+        folderName = 'Characters';
+        break;
+      case Topics.Location:
+        folderName = 'Locations';
+        break;
+      case Topics.Organization:
+        folderName = 'Organizations';
+        break;
+      case Topics.PC:
+        folderName = 'PCs';
+        break;
+    }
     const setting = topicFolder.setting;
 
     let nameToUse: string | null = options.name || null;
@@ -123,6 +142,7 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     const entry = await super._create(
       setting.compendiumId,
       nameToUse,
+      folderName,
       { system: {
         playerName: topicFolder.topic === Topics.PC ? nameToUse : '',
         actorId: null,
@@ -182,12 +202,12 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     super.name = value;
   }
   
-  get tags(): TagInfo[] {
+  get tags(): string[] {
     // @ts-ignore
     return this._clone.system.tags;
   }
 
-  set tags(value: TagInfo[]) {
+  set tags(value: string[]) {
     // @ts-ignore
     this._clone.system.tags = value;
   }
@@ -299,11 +319,11 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   }
 
   // keyed by topic then by entryId
-  get relationships(): Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>> {
-    return this._clone.system.relationships as unknown as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>;
+  get relationships(): ValidTopicRecord<Record<string, RelatedItemDetails<any, any>>> {
+    return this._clone.system.relationships as unknown as ValidTopicRecord<Record<string, RelatedItemDetails<any, any>>>;
   }  
 
-  set relationships(value: Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>) {
+  set relationships(value: ValidTopicRecord<Record<string, RelatedItemDetails<any, any>>>) {
     this._clone.system.relationships = value;
   }
 
@@ -358,6 +378,19 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
    * @returns {Promise<void>} A promise that resolves after the update
    */
   public async save(): Promise<void> {
+    const needNameUpdate = this._clone.name !== this._doc.name;
+
+    // we attempt to save first - because if it fails, we don't 
+    //    want to adjust anything else
+    try {
+      this._clone.system.relationships = cleanTopicKeysOnSave(this._clone.system.relationships)
+
+      // this will reload relationships with a valid value
+      await super.save();        
+    } catch (error) {
+      throw error;
+    }
+
     const setting = await this.getSetting();
 
     // add the type to the master list if it was changed and doesn't exist
@@ -368,16 +401,11 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     }
 
     // update name index if it changed
-    if (this._clone.name !== this._doc.name) {
+    if (needNameUpdate) {
       const topicFolder = await this.getTopicFolder();
       topicFolder.entries[this.uuid] = this._clone.name;
       await topicFolder.save();
     }
-
-    this._clone.system.relationships = cleanTopicKeysOnSave(this._clone.system.relationships)
-
-    // this will reload relationships with a valid value
-    await super.save();        
 
     // Update the search index and to-do list
     await searchService.addOrUpdateEntryIndex(this, setting);

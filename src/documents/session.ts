@@ -1,4 +1,3 @@
-import { TagInfo } from '@/types';
 import { schemas } from './fields';
 
 const fields = foundry.data.fields;
@@ -117,6 +116,6 @@ export interface SessionDoc extends JournalEntryPage {
     vignettes: SessionVignette[];
     lore: SessionLore[];
     img: string;
-    tags: TagInfo[];
+    tags: string[];
   };
 }

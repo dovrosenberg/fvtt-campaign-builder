@@ -47,6 +47,7 @@
                 <InputText
                   v-model="currentSetting.genre"
                   type="text"
+                  unsyled
                   data-testid="setting-genre-input"
                   style="width: 250px; font-family: var(--fcb-font-family)"
                   @update:model-value="onGenreSaved"
@@ -61,6 +62,7 @@
                   v-model="currentSetting.settingFeeling"
                   rows="3"
                   data-testid="setting-feeling-textarea"
+                  unstyled
                   style="width: calc(100% - 2px); font-family: var(--fcb-font-family)"
                   @update:model-value="onSettingFeelingSaved"
                 />
@@ -75,6 +77,7 @@
                 <Editor
                     :initial-content="currentSetting.description || ''"
                     fixed-height="240px"
+                    :current-entity-uuid="currentSetting?.uuid"
                     @editor-saved="onDescriptionEditorSaved"
                   />
               </div>
@@ -108,6 +111,7 @@
   import { useMainStore, useNavigationStore, useSettingDirectoryStore } from '@/applications/stores';
   import { updateWindowTitle } from '@/utils/titleUpdater';
   import { Backend } from '@/classes';
+  import { notifyWarn } from '@/utils/notifications';
 
   // library components
   import InputText from 'primevue/inputtext';
@@ -167,6 +171,14 @@
     
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
+
+      // name can't be blank
+      if (newValue.trim() === '') {
+        notifyWarn(localize('errors.nameRequired'));
+        name.value = currentSetting.value?.name!;
+        return;
+      }
+
       if (currentSetting.value && currentSetting.value.name!==newValue) {
         currentSetting.value.name = newValue;
         await currentSetting.value.save();

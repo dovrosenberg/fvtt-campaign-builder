@@ -1,5 +1,5 @@
 // contains the data for the tests
 
-export type CharacterDescriptor = {
+export interface CharacterDescriptor {
   name: string;
 }

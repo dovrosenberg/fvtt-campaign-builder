@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
 import { UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
-import { EntryFilterIndex, Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic } from '@/types';
+import { EntryFilterIndex, Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { TopicFolder, RootFolder, Entry, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
@@ -8,8 +8,8 @@ import { localize } from '@/utils/game';
 import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
 import { Backend } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents/types';
-import { FCBJournalEntryPage } from '@/classes/Documents/FCBJournalEntryPage';
-import { entryIndexFields, NameStyleExample, TopicFlatType } from '@/documents';
+import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Documents/FCBJournalEntryPage';
+import { entryIndexFields, NameStyleExamples, TopicFlatType } from '@/documents';
 import { cleanKeysOnSave, } from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
 
@@ -67,22 +67,8 @@ type SettingCompendium = CompendiumCollection<'JournalEntry'>;
 
 type SettingDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Setting>;
 
-type FCBSettingConstructor<
-  DocType extends typeof DOCUMENT_TYPES.Setting = typeof DOCUMENT_TYPES.Setting,
-  DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>
-> = {
-  // constructor
-  new (doc: DocClass, ...args: any[]): FCBSetting;
-  // required statics used by base helpers
-  _defaultSystem: DocClass['system'];
-  _folderName: string;
-  _documentType: DocType;
-};
-
-
 // represents a campaign setting
 export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Setting> {
-  static override _folderName = '';  // put it in the root
   static override _documentType = DOCUMENT_TYPES.Setting;
   static override _defaultSystem = { 
     topics: {
@@ -99,7 +85,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     img: '',   
     nameStyles: [],   
     rollTableConfig: null,   
-    nameStyleExamples: [],   
+    nameStyleExamples: { genre: '', settingFeeling: '', examples: [] },   
     journals: [], 
   } as unknown as SettingDocClass['system'];
   
@@ -107,12 +93,10 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public campaigns: Record<string, Campaign> = {};   // Campaigns keyed by uuid 
 
   /** these are the the class objects - see topics for just the flattened system data */
-  public topicFolders: Record<ValidTopic, TopicFolder> = {} as Record<ValidTopic, TopicFolder>;  // we load them when we load the setting (using populate()), so we assume it's never empty
+  public topicFolders: ValidTopicRecord<TopicFolder> = {};  // we load them when we load the setting (using populate()), so we assume it's never empty
     
   static override async fromUuid<
-    DocType extends typeof DOCUMENT_TYPES.Setting = typeof DOCUMENT_TYPES.Setting,
-    DocClass extends JournalEntryPage<DocType> = JournalEntryPage<DocType>,
-    T extends FCBSettingConstructor<DocType, DocClass>=FCBSettingConstructor<DocType, DocClass>
+    T extends FCBJournalEntryPageStatic<any, any>
   > (this: T, settingId: string): Promise<InstanceType<T> | null> { 
     const setting = await super.fromUuid(settingId) as unknown as (FCBSetting | null);
     
@@ -178,12 +162,12 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   }
 
   /** these are the the flattened system data for the topics (see topicFolders for the class objects) */
-  public get topics(): TopicFlatType[] {
-    return this._clone.system.topics as TopicFlatType[];
+  public get topics(): ValidTopicRecord<TopicFlatType> {
+    return this._clone.system.topics;
   }
 
   /** these are the the flattened system data for the topics (see topicFolders for the class objects) */
-  public set topics(value: TopicFlatType[]) {
+  public set topics(value: ValidTopicRecord<TopicFlatType>) {
     this._clone.system.topics = value;
   }
 
@@ -227,12 +211,13 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     (this._clone.system.rollTableConfig as SettingGeneratorConfig | null) = value;
   }
 
-  public get nameStyleExamples(): NameStyleExample[] | null {
-    return (this._clone.system.nameStyleExamples || null) as unknown as NameStyleExample[] | null;
+  public get nameStyleExamples(): NameStyleExamples {
+    return this._clone.system.nameStyleExamples as NameStyleExamples;
   } 
 
-  public set nameStyleExamples(value: NameStyleExample[] | null) {
-    (this._clone.system.nameStyleExamples as NameStyleExample[] | null) = value;
+  public set nameStyleExamples(value: NameStyleExamples) {
+    // @ts-ignore
+    this._clone.system.nameStyleExamples = value;
   }
 
   public get journals(): RelatedJournal[] {
@@ -318,7 +303,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    * @param {boolean} [makeCurrent=false] If true, sets the new setting as the current setting.
    * @param {string} [name] The name of the new setting.
    * @param {string} [compendiumId] The ID of the compendium to use.
-   * @param {boolean} [skipValidation=false] If true, skips validation and rolltables.  Mostly only useful for migration
+   * @param {boolean} [skipValidation=false] If true, skips validation and RollTables.  Mostly only useful for migration
    * @returns The new setting, or null if the user cancelled the dialog.
    */
   public static async create(makeCurrent = false, name = '', compendiumId = '', skipValidation = false): Promise<FCBSetting | null> {
@@ -344,7 +329,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         throw new Error('Failed to create compendium in FCBSetting.create()');
     }
 
-    const newSetting = await super._create(compendiumId, nameToUse) as unknown as FCBSetting | null;
+    const newSetting = await super._create(compendiumId, nameToUse, '') as unknown as FCBSetting | null;
 
     if (!newSetting)
       return null;
@@ -402,7 +387,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         [Topics.Location]: { topic: Topics.Location, topNodes: [], types: [], entries: {} },
         [Topics.Organization]: { topic: Topics.Organization, topNodes: [], types: [], entries: {} },
         [Topics.PC]: { topic: Topics.PC, topNodes: [], types: [], entries: {} },
-      } as unknown as Record<ValidTopic, TopicFlatType>;
+      } as unknown as ValidTopicRecord<TopicFlatType>;
     }
 
     // load the topics
@@ -445,7 +430,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
       .filter((e: EntryFilterIndex)=> filterFn(e)) || [];
 
     if (!fullEntry || entries.length===0)
-      // @ts-ignore - we know it's false and entries is a EntryFilterIndex[]
+      // @ts-ignore - we know it's false and entries is a EntryFilterIndex[] or it's an empty array
       return entries;
 
     let retval = [] as Entry[];
@@ -455,6 +440,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         retval.push(entry);
     }
 
+    // @ts-ignore - we know fullEntry is true and retval is an Entry[]
     return retval;
   }
 
@@ -535,23 +521,29 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public async save() {
     const nameChanged = this._clone.name !== this._doc.name;
 
-    // convert unsafe keys
-    this.hierarchies = cleanKeysOnSave(this.hierarchies);
-    this.campaignNames = cleanKeysOnSave(this.campaignNames);
-    this.expandedIds = cleanKeysOnSave(this.expandedIds);
+    // we attempt to save first - because if it fails, we don't 
+    //    want to adjust anything else
+    try {
+      // convert unsafe keys
+      this.hierarchies = cleanKeysOnSave(this.hierarchies);
+      this.campaignNames = cleanKeysOnSave(this.campaignNames);
+      this.expandedIds = cleanKeysOnSave(this.expandedIds);
 
-    // populate the topic folders; important in case we changed anything in topics
-    this.populateTopics();
+      // populate the topic folders; important in case we changed anything in topics
+      this.populateTopics();
 
-    for (const topic in this.topics) {
-      this.topics[topic] = {
-        ...this.topics[topic],
-        entries: cleanKeysOnSave(this.topics[topic].entries)
+      for (const topic in this.topics) {
+        this.topics[topic] = {
+          ...this.topics[topic],
+          entries: cleanKeysOnSave(this.topics[topic].entries)
+        }
       }
-    }
 
-    // now save the setting - this will put clone back where it should be
-    await super.save();
+      // now save the setting - this will put clone back where it should be
+      await super.save();
+    } catch (error) {
+      throw error;
+    }
 
     // settings have long lived-cache... we need to refresh that in case we modified 
     //    something that was a copy

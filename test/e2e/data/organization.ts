@@ -1,5 +1,5 @@
 // contains the data for the tests
 
-export type OrganizationDescriptor = {
+export interface OrganizationDescriptor {
   name: string;
 }

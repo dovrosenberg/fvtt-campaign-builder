@@ -1,4 +1,4 @@
-import { RelatedItemDetails, Topics, ValidTopic } from '@/types';
+import { RelatedItemDetails, Topics, ValidTopic, ValidTopicRecord } from '@/types';
 import { TopicSchema } from './Topic';
 
 const fields = foundry.data.fields;
@@ -46,6 +46,6 @@ export const RelationshipsSchema = () => (
       [Topics.Location]: {},
       [Topics.Organization]: {},
       [Topics.PC]: {},
-    } as Record<ValidTopic, Record<string, RelatedItemDetails<any, any>>>   // all the things related to this item, grouped by topic
+    } as ValidTopicRecord<Record<string, RelatedItemDetails<any, any>>>   // all the things related to this item, grouped by topic
   }
 ));

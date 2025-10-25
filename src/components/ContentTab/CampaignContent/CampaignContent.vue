@@ -43,6 +43,7 @@
                 <Editor 
                   :initial-content="currentCampaign?.description || ''"
                   fixed-height="240px"
+                  :current-entity-uuid="currentCampaign?.uuid"
                   @editor-saved="onDescriptionEditorSaved"
                 />
               </div>
@@ -56,6 +57,7 @@
                 <Editor 
                   :initial-content="currentCampaign?.houseRules || ''"
                   fixed-height="240px"
+                  :current-entity-uuid="currentCampaign?.uuid"
                   @editor-saved="onHouseRulesEditorSaved"
                 />
               </div>
@@ -103,6 +105,7 @@
   import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useMainStore, useNavigationStore } from '@/applications/stores';
   import { ModuleSettings, SettingKey } from '@/settings';
+  import { notifyWarn } from '@/utils/notifications';
   
   // library components
   import InputText from 'primevue/inputtext';
@@ -166,6 +169,14 @@
     
     debounceTimer = setTimeout(async () => {
       const newValue = newName || '';
+
+      // name can't be blank
+      if (newValue.trim() === '') {
+        notifyWarn(localize('errors.nameRequired'));
+        name.value = currentCampaign.value?.name!;
+        return;
+      }
+
       if (currentCampaign.value && currentCampaign.value.name!==newValue) {
         currentCampaign.value.name = newValue;
         await currentCampaign.value.save();

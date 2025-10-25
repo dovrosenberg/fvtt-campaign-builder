@@ -1,6 +1,6 @@
 import { SessionDescriptor } from './session';
 
-export type CampaignDescriptor = {
+export interface CampaignDescriptor {
   name: string;
   sessions: SessionDescriptor[];
 }
