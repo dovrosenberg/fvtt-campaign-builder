@@ -101,16 +101,24 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     return [];
   }
 
+  private _inMiddleOfRender = false;  // because otherwise we can get stuck in strange loops
+
   // there are a few general scenarios here:
   // 1. this is just a general rerender call - we disallow it
   // 2. this is a first call for a window, but we already have one open - we disallow it 
   //    but handle the document we're trying to open
   // 3. this is a first call for a window, and we don't have one open - we allow it
   override _canRender(_options): false | void { 
+    if (this._inMiddleOfRender)
+      return false;
+    
+    this._inMiddleOfRender = true;
+
     // prevent the window from opening at all if we're trying to open an invalid
     //    doc or we had a failed migration
     if (MigrationManager.migrationFailed) {
       notifyError(localize('notifications.migration.cannotOpen'));
+      this._inMiddleOfRender = false;
       return false;
     }
 
@@ -128,13 +136,16 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     const doc = this.document;
 
     // handle the scenarios where we just need to abort
-    if (!doc)
+    if (!doc) {
+      this._inMiddleOfRender = false;
       return false;
+    }
 
     const docToCheck = doc.documentName === 'JournalEntryPage' ? doc.parent : doc;
 
     if (!docToCheck) {
       notifyError('Attempt to open invalid journal entry in Campaign Builder');
+      this._inMiddleOfRender = false;
       return false;
     }
 
@@ -142,16 +153,19 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     if (doc.name !== FCB_OPEN_WINDOW_NAME) {
       if (!['JournalEntry', 'JournalEntryPage'].includes(doc.documentName)) {
         notifyError('Attempt to open invalid document in Campaign Builder');
+        this._inMiddleOfRender = false;
         return false;
       }
 
       if (!docToCheck.getFlag(moduleId, JournalEntryFlagKey.campaignBuilderType)) {
         // not FCB
         notifyError('Attempt to open invalid journal entry in Campaign Builder');
+        this._inMiddleOfRender = false;
         return false;
       } else if (docToCheck.pages.contents.length === 0) {
         // no pages
         notifyError('Attempt to open invalid journal entry in Campaign Builder');
+        this._inMiddleOfRender = false;
         return false;
       }
     }
@@ -161,13 +175,16 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     // so we handle the document
 
     // handle our special one
-    if (doc.name === FCB_OPEN_WINDOW_NAME) 
+    if (doc.name === FCB_OPEN_WINDOW_NAME) {
+      this._inMiddleOfRender = false;
       return;
+    }
 
     // handle opening any other document
     // this is async, but should be OK
     CampaignBuilderApplication.handleDocument(docToCheck);
 
+    this._inMiddleOfRender = false;
     if (preventRender)
       return false;  // we already had a wbApp open, so don't need another
     else 
