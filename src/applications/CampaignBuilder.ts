@@ -36,15 +36,6 @@ export const renderCampaignBuilderApp = async () => {
   // wbApp is managed inside _canRender, which gets called both by this as well
   //    as any Foundry attempts to render
   const newWindow = new CampaignBuilderApplication();
-
-  if (!wbApp) {
-    // we hold it here... there's an issue where we can't import this file
-    //    into other places that need access to wbApp because it triggers
-    //    an issue with pinia reference instantiation order
-    // but we need it to be able to close it programatically
-    // @ts-ignore
-    game.modules.get(moduleId).activeWindow = wbApp;    
-  }
   newWindow.render(true);
 };
 
@@ -93,9 +84,6 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
     }
   };
 
-  // Foundry's isFirstRender isn't available yet in _canRender and neither is #state
-  private isFirstRender = true;
-
   // Override to prevent DocumentSheetV2 from adding default controls
   override _getHeaderControls() {
     return [];
@@ -130,16 +118,22 @@ export class CampaignBuilderApplication extends VueApplicationMixin(DocumentShee
         return false;
       }
 
+      if (!wbApp) {
+        wbApp = this;
+
+        // we hold it here... there's an issue where we can't import this file
+        //    into other places that need access to wbApp because it triggers
+        //    an issue with pinia reference instantiation order
+        // but we need it to be able to close it programatically
+        // @ts-ignore
+        game.modules.get(moduleId).activeWindow = wbApp;    
+      }
+
       // if we already have a wbApp, don't render another CampaignBuilder
       // we will return false to prevent Foundry from opening another window
       //    but we need to handle the document we're trying to open here otherwise
       //    we can never open a specific document after the first time
-      let preventRender = (!!wbApp || !this.isFirstRender);
-
-      this.isFirstRender = false;    
-
-      if (!wbApp)
-        wbApp = this;
+      let preventRender = wbApp.rendered;
 
       const doc = this.document;
 
