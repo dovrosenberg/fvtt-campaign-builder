@@ -517,7 +517,7 @@
 
     .editor-edit {
       position: absolute;
-      z-index: 1000;
+      z-index: 10;
       right: 12px;
       top: 3px;
       color: coral;

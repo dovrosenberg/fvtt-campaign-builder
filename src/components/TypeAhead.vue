@@ -395,7 +395,7 @@
       box-shadow: 0 0 5px #555555;
       border-radius: 3px;
       width: calc(100% - 2px);
-      z-index: 1;
+      z-index: 20;
       
       .typeahead-entry {
         padding: 1px 3px;
