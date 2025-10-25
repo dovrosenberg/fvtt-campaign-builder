@@ -143,7 +143,7 @@
       "rollTableSettings": {
         "title": "Configurer les Paramètres des Roll Tables",
         "folderName": "Tables de Roll du Constructeur de Campagne",
-        "tableDescription": "Tableau générateur pour",
+        "tableDescription": "Table de générateur pour",
         "labels": {
           "refreshAll": "Rafraîchir toutes les tables",
           "refreshAllHelp": "Remplacer tous les éléments utilisés par de nouveaux"
@@ -200,7 +200,6 @@
         "sessionNumber": "Numéro",
         "sessionDate": "Date de Session",
         "playerName": "Nom du Joueur",
-        "backgroundPoints": "Points de Contexte",
         "otherPlotPoints": "Autres Points de Scénario",
         "desiredMagicItems": "Objets Magiques Désirés",
         "species": "Espèces",
@@ -224,7 +223,8 @@
           "description": "Description",
           "roleplay": "Notes de jeu de rôle",
           "both": "Les deux"
-        }
+        },
+        "background": "Contexte"
       },
       "addTopic": {
         "character": "Ajouter un Personnage",
@@ -393,7 +393,8 @@
     "dialogs": {
       "generateNameDialog": {
         "title": "Sélectionner une Option",
-        "errorMessage": "Il y a eu une erreur :"
+        "errorMessage": "Il y a eu une erreur :",
+        "emptyTable": "Il n'y a plus de noms non tirés dans le RollTable. Vous pouvez l'ouvrir et en ajouter de nouveaux, ou utiliser 'Réinitialiser les résultats' pour réutiliser les anciens noms."
       },
       "confirmDeleteRelationship": {
         "title": "Retirer de la relation ?",
@@ -609,10 +610,15 @@
       "deleteToDo": "Compléter l'élément à faire",
       "editRow": "Modifier cet élément. Appuyez sur Entrée pour enregistrer les modifications.",
       "deleteIdea": "Supprimer l'idée",
-      "settingGenerateContent": "Gérer la configuration de génération de paramètres"
+      "settingGenerateContent": "Gérer la configuration de génération de paramètres",
+      "moreBookmarks": "Plus de favoris",
+      "moveToToDo": "Déplacer vers la liste des tâches",
+      "moveToIdeas": "Déplacer vers la liste des idées",
+      "cannotChangeSettingInPlayMode": "Impossible de changer le paramètre en mode jeu"
     },
     "errors": {
-      "duplicateBookmark": "Déjà enregistré comme favori"
+      "duplicateBookmark": "Déjà enregistré comme favori",
+      "nameRequired": "Le nom ne peut pas être vide"
     },
     "notifications": {
       "backend": {
@@ -625,7 +631,16 @@
       "addedToSession": "ajouté à la session",
       "changesSaved": "Modifications enregistrées",
       "todoReferenceNotFound": "La référence liée pour cet élément à faire n'existe plus.",
-      "changesDiscarded": "Modifications annulées"
+      "changesDiscarded": "Modifications annulées",
+      "migration": {
+        "minimumVersionRequired": "Le constructeur de campagne ne peut pas migrer depuis la version {0}. Vous devez d'abord passer à la version {1} ou supérieure avant de passer à {2}.",
+        "cannotOpen": "Le constructeur de campagne ne peut pas être ouvert car la migration a échoué. Veuillez vérifier la console pour plus de détails et résoudre le problème de migration."
+      }
+    },
+    "contentFolders": {
+      "campaigns": "Campagnes",
+      "entries": "Entrées",
+      "sessions": "Sessions"
     }
   }
 }
