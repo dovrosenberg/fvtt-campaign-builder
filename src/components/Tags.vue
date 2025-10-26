@@ -269,6 +269,10 @@
     }
   }
 
+  .tagify__input::before {
+    color: var(--fcb-text);
+  }
+
   .tags-input {
     width: 100%;
   }
