@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
   // library imports
-  import { ref, watch, onMounted, } from 'vue';
+  import { ref, watch } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
@@ -51,7 +51,7 @@
 
     // if we're showing the session, refresh it
     if (currentSession.value && currentSession.value.uuid===session.uuid) {
-      await mainStore.refreshSession();
+      await mainStore.refreshSession(true);
     }
   };
 
