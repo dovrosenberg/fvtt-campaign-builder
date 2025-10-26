@@ -2,8 +2,8 @@ body {
   --fcb-name-font-family: 'Inter', 'Signika', sans-serif;
   --fcb-font-family: 'Inter', 'Signika', sans-serif;
 
-  --fcb-font-size: var(--fcb-font-size);  // base size for most text
-  --fcb-font-size-large: var(--fcb-font-size-large);  // larger size for headings
+  --fcb-font-size: var(--font-size-13);  // base size for most text
+  --fcb-font-size-large: var(--font-size-14);  // larger size for headings
 
   --fcb-dark-overlay: rgba(0, 0, 0, 0.10);
   --fcb-light-overlay: rgba(255, 255, 255, 0.10);
@@ -121,6 +121,7 @@ body {
   --fcb-sidebar-bg:        var(--fcb-surface-shaded);
   --fcb-sidebar-border:    var(--fcb-gray-300);
   --fcb-sidebar-splitter:  var(--fcb-control-border);
+  --fcb-splitter-gutter:   var(--fcb-gray-300);
   --fcb-list-item-hover:   var(--fcb-gray-100);
   --fcb-badge-bg:          var(--fcb-primary-100);
   --fcb-badge-text:        var(--fcb-primary-700);
@@ -131,7 +132,7 @@ body {
   --fcb-danger:  var(--fcb-danger-500);
 
   /* Focus ring */
-  --fcb-ring: var(--fcb-ring);
+  --fcb-ring: var(--fcb-accent);
 }
 
 /* Dark theme */
@@ -158,7 +159,7 @@ body.theme-dark {
   --fcb-text-muted:    var(--fcb-gray-400);
   --fcb-text-inverted:   #0b0e0c;
 
-  --fcb-button-bg:      var(--fcb-primary-900);
+  --fcb-button-bg:      var(--fcb-primary-800);
   --fcb-button-text:    var(--fcb-text);
   --fcb-button-border:  var(--fcb-border);
   --fcb-button-bg-hover: var(--fcb-primary-800);
@@ -188,6 +189,7 @@ body.theme-dark {
   --fcb-sidebar-bg:        var(--fcb-surface-shaded);
   --fcb-sidebar-border:    var(--fcb-border);
   --fcb-sidebar-splitter:  var(--fcb-control-border);
+  --fcb-splitter-gutter:   var(--fcb-gray-700);
   --fcb-list-item-hover:   hsl(210 14% 22%);
   --fcb-badge-bg:          hsl(var(--fcb-primary-h) 28% 22%);
   --fcb-badge-text:        hsl(160 30% 85%);

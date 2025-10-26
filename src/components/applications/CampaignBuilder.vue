@@ -293,6 +293,33 @@
     color: var(--fcb-primary-400);
   }
 
+  // override primevue colors that aren't in theme
+  // these are outside our window...
+  body.vtt.game {
+    .p-select-list-container {
+      .p-select-option:not(.p-disabled).p-focus {
+        background-color: var(--fcb-primary-100) !important;
+
+        &:not(.p-select-option-selected) {
+          color: var(--fcb-text) !important;
+        }
+      }
+    }
+    &.dark-theme {
+      .p-select-list-container {
+        .p-select-option:not(.p-disabled).p-focus {
+          background-color: var(--fcb-primary-300) !important;
+ 
+          &:not(.p-select-option-selected) {
+            color: var(--fcb-text) !important;
+          }
+          }
+      }
+    }
+  }
+
+
+
   .fcb-main-window {  
     min-width: 640px;
 
