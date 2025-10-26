@@ -79,9 +79,6 @@ export class SessionNotesApplication extends VueApplicationMixin(ApplicationV2) 
         }
       }
 
-      // clear the variable
-      SessionNotesApplication.app = null;
-
       // Call the close method of the base application
       return await super.close(options);
     }

@@ -244,8 +244,9 @@ export function VueApplicationMixin<TBase extends new (...args: any[]) => foundr
         this.#instance = null;
       }
       
-      // Call the close method of the base application
-      return await super.close(options);
+      // Call the close method of the base application with animate: false
+      // to prevent the background from showing during the close animation
+      return await super.close({ animate: false, ...options });
     }
 
 
