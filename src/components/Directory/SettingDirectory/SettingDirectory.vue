@@ -285,7 +285,7 @@
   // https://www.youtube.com/watch?v=rvKCsHS590o&t=1755s has a nice overview of how this is assembled
 
   .fcb-topic-folder {
-    font-size: 0.8rem;
+    font-size: var(--fcb-font-size);
     font-family: var(--fcb-font-family);
 
     .fcb-entry-item, .fcb-type-item {

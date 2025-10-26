@@ -279,7 +279,7 @@
 
       .fcb-header-group-type {
         flex: 1;
-        font-size: var(--font-size-12);
+        font-size: var(--fcb-font-size);
 
         #fcb-group-by-type {
           flex: 0;

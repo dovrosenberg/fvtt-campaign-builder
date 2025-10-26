@@ -81,7 +81,7 @@
               v-model="pagination.filters.global.value"  
               data-testid="table-filter-input"
               unstyled
-              style="font-size: var(--font-size-14);"
+              style="font-size: var(--fcb-font-size-large); padding-left: 2rem;"
               :placeholder="localize('placeholders.search')"
             />
           </IconField>
@@ -738,7 +738,7 @@
 <style lang="scss" scoped>
   .fcb-table-wrapper {
     font-family: var(--fcb-font-family);
-    font-size: 0.8rem;
+    font-size: var(--fcb-font-size);
   }
 
   .fcb-action-icon {

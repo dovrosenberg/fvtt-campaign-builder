@@ -203,7 +203,7 @@
     white-space: nowrap;
     cursor: pointer;
     flex-wrap: nowrap;
-    font-size: var(--font-size-14);
+    font-size: var(--fcb-font-size-large);
 
     &.active, .fcb-tab:last-child {
       flex: 0 0 150px;

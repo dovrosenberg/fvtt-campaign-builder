@@ -33,7 +33,7 @@
                   type="text"
                   unstyled
                   class="field-input"
-                  :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
+                  :pt="{ root: { style: { 'font-size': 'var(--fcb-font-size-large)' }}}"      
                 />
               </div>
             </div>

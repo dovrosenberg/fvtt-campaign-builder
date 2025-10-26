@@ -43,7 +43,7 @@
           v-model="name"
           type="text"
           unstyled
-          :pt="{ root: { style: { 'font-size': 'var(--font-size-14)' }}}"      
+          :pt="{ root: { style: { 'font-size': 'var(--fcb-font-size-large)' }}}"      
         />
 
         <h6>
@@ -103,7 +103,7 @@
           unstyled
           :pt="{ root: { 
             style: { 
-              'font-size': 'var(--font-size-14)', 
+              'font-size': 'var(--fcb-font-size-large)', 
               'color': 'var(--input-text-color)',
               'min-height': '6rem',
               'max-height': '20rem',

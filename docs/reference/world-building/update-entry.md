@@ -32,16 +32,22 @@ When you have what you want, hit "Use" and the resulting values will be updated 
 ## Options {#options}
 There are 2-3 options below the description field:
 
-### Generate long descriptions
-When checked, the description generated will be two full paragraphs with lots of details:
+### What to generate {#description-styles}
+You can generate a long description, roleplaying notes, or both.  
 
+If you are using roleplaying notes (see [Module Settings]), you will have the choice to populate the description, the notes, or both. If you have that field turned off, you will instead have the option to do long vs. short description.  Note that a short description is the same text as the roleplaying notes would have been - it's just used in place of the other description.  The number of paragraphs generated for long descriptions, can be set in the [Module Settings].
+
+For your full description, you can either get a more "narrative" or "story-like" description (in the number of paragraphs you set with the slider in [Module Settings]) or you can get a "RPG-Style" description by checking that box in [Modules Settings].
+
+Sample roleplaying notes/short description:
+![Example short description](/assets/images/generate-roleplaying-notes.webp)
+
+
+Sample long description (this is a 1-paragraph one):
 ![Example long description](/assets/images/generate-long-description.webp)
 
-When off, it will simply create a quick description useful for roleplaying the character, including a brief description of their personality and appearance, and some suggested roleplaying approaches:
-
-![Example short description](/assets/images/generate-short-description.webp)
-
-The default value for this checkbox can be managed in the [Module Settings].
+Sample RPG-Style description:
+![Example RPG-Style description](/assets/images/generate-rpg-style.webp)
 
 ### Generate image
 When checked, after you finalize and hit "Use", the AI will [generate an image](/reference/world-building/image-generation) for the entry.

@@ -161,7 +161,7 @@
     margin-top: .0625rem;
     line-height: 1.6875rem;
     padding: 0px 10px;
-    font-size: var(--font-size-14);
+    font-size: var(--fcb-font-size-large);
     cursor: pointer;
     flex-wrap: nowrap;
     flex-grow: 0;

@@ -179,7 +179,7 @@
     top: 20%;
     left: 50%;
     transform: translateX(-50%);
-    font-size: var(--font-size-14);
+    font-size: var(--fcb-font-size-large);
     width: 550px;
     max-width: 90%;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
@@ -204,11 +204,11 @@
         transition: all 0.2s ease;
 
         i {
-          font-size: var(--font-size-14);
+          font-size: var(--fcb-font-size-large);
         }
 
         .close-text {
-          font-size: var(--font-size-14);
+          font-size: var(--fcb-font-size-large);
         }
       }
 
@@ -228,12 +228,12 @@
 
       // this is an ID so that we get css priority
       #fcb-dialog-content {
-        font-size: var(--font-size-14);
+        font-size: var(--fcb-font-size-large);
         width: 100%;
         overflow: visible !important; // allow typeaheads to come out
 
         input, textarea {
-          font-size: var(--font-size-14) !important;
+          font-size: var(--fcb-font-size-large) !important;
         }
 
         @include style-base-components;
@@ -253,7 +253,7 @@
           justify-content: center;
           gap: 8px;
           min-width: 100px;
-          font-size: var(--font-size-14);
+          font-size: var(--fcb-font-size-large);
           border-radius: 3px;
           padding: 1px 6px;
           cursor: pointer;
@@ -283,7 +283,7 @@
           }
 
           i {
-            font-size: var(--font-size-14);
+            font-size: var(--fcb-font-size-large);
           }
         }
       }

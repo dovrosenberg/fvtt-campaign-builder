@@ -428,7 +428,7 @@
 <style lang="scss">
   .fcb-sheet-image {
     flex: 0 0 180px;
-    font-size: var(--font-size-13);
+    font-size: var(--fcb-font-size);
     height: 240px;
     width: 180px;
     position: relative;

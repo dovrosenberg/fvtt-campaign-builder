@@ -456,7 +456,7 @@
       margin-left: 4px;
       margin-top: 0.0625rem;
       padding: 0px 8px;
-      font-size: var(--font-size-14);
+      font-size: var(--fcb-font-size-large);
       cursor: pointer;
       text-align: center;
       line-height: 1.5rem;
@@ -486,7 +486,7 @@
       flex: 0 0 auto;
       text-align: center;
       line-height: 1.5rem;
-      font-size: var(--font-size-14);
+      font-size: var(--fcb-font-size-large);
       margin-right: 4px;
       width: 1.5rem;
       height: 1.5rem;

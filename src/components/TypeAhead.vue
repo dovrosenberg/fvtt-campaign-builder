@@ -405,7 +405,7 @@
 
         &.add i {
           margin-right: 4px;
-          font-size: 0.8rem
+          font-size: var(--fcb-font-size);
         }
 
         &.highlighted,

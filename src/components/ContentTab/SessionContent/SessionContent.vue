@@ -385,12 +385,17 @@
   });
   
   // watch for changes to the notes
-  watch(() => currentPlayedSessionNotes.value, async () => {
+  watch(() => currentPlayedSessionNotes.value, async (newNotes) => {
     if (currentSession.value && currentSession.value.uuid===currentPlayedSessionId.value) {
-      // I'm not 100% sure why both of these are needed, which makes me a little 
-      //    nervous... but it seems to work
-      await mainStore.refreshSession();  // update the screen
-      sessionNotesContent.value = currentPlayedSessionNotes.value || '';
+      // If notes are null (exiting play mode), reload from database to get actual saved notes
+      // Otherwise just update the display with the new notes value
+      if (newNotes === null) {
+        await mainStore.refreshSession(true);  // reload from database
+        sessionNotesContent.value = currentSession.value?.notes || '';
+      } else {
+        await mainStore.refreshSession();  // update the screen
+        sessionNotesContent.value = newNotes || '';
+      }
     }
 
   }, { immediate: true });
@@ -441,7 +446,7 @@
   .fcb-table-help-icon {
     margin-left: 8px;
     margin-right: 8px;
-    font-size: var(--font-size-14);
+    font-size: var(--fcb-font-size-large);
     cursor: pointer;
   }
 </style>

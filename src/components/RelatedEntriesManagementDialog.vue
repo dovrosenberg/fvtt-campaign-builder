@@ -231,7 +231,7 @@
   .description {
     margin-bottom: 1rem;
     color: var(--fcb-text);
-    font-size: var(--font-size-14);
+    font-size: var(--fcb-font-size-large);
     line-height: 1.4;
   }
 

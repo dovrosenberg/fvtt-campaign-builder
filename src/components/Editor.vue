@@ -522,7 +522,7 @@
       top: 3px;
       color: coral;
       font-family: var(--fcb-font-family);
-      font-size: var(--font-size-14);
+      font-size: var(--fcb-font-size-large);
       font-weight: 400;
 
       &:hover {
@@ -541,7 +541,7 @@
       overflow-y: auto !important;
       border-radius: 4px;
       font-family: var(--fcb-font-family);
-      font-size: var(--font-size-14);
+      font-size: var(--fcb-font-size);
       font-weight: 400;
       padding: 0;
       background: var(--fcb-surface-2);

@@ -59,7 +59,7 @@
                       <template #option="slotProps">
                         <div style="max-width: 300px">
                           <div>{{ slotProps.option.name }}</div>
-                          <div style="font-size: 0.8rem; text-wrap: auto;" class="text-gray-600">{{ slotProps.option.description }}</div>
+                          <div style="font-size: var(--fcb-font-size); text-wrap: auto;" class="text-gray-600">{{ slotProps.option.description }}</div>
                         </div>
                       </template>
                     </Select>
@@ -82,7 +82,7 @@
                       <template #option="slotProps">
                         <div style="max-width: 300px">
                           <div>{{ slotProps.option.name }}</div>
-                          <div style="font-size: 0.8rem; text-wrap: auto;" class="text-gray-600">{{ slotProps.option.description }}</div>
+                          <div style="font-size: var(--fcb-font-size); text-wrap: auto;" class="text-gray-600">{{ slotProps.option.description }}</div>
                         </div>
                       </template>
                     </Select>

@@ -12,6 +12,7 @@ next:
 
 Bookmarks provide quick access to frequently used content without cluttering your tab bar. They allow you to mark any page that you frequently use and open it with one click.
 
+TODO: show with overflow and then add explanation of that
 ![Bookmarks](/assets/images/bookmarks.webp)
 
 ## Creating Bookmarks

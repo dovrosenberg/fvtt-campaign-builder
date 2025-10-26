@@ -52,7 +52,7 @@
               :class="{ selected: selectedOptionIndex === index }"
               @click="selectOption(index)"
             >
-              <div class="option-content">{{ option.name || option.text }}</div>
+              <div class="option-content">{{ option.name || option.description }}</div>
             </div>
           </div>
         </div>
@@ -116,7 +116,8 @@
     if (selectedOptionIndex.value === null) 
       return null;
     
-    return options.value[selectedOptionIndex.value].name;
+    const option = options.value[selectedOptionIndex.value];
+    return option.name || option.description;
   });
 
   ////////////////////////////////
@@ -195,7 +196,7 @@
 
     if (selectedOptionIndex.value) {
       const selectedId = options.value[selectedOptionIndex.value].id;
-      unusedOptions = options.value.filter(opt => opt.id !== selectedId);
+      unusedOptions = options.value.filter(opt => opt.id !== selectedId) as TableResult[];
     }
     
     // Mark them as undrawn
@@ -311,7 +312,7 @@
         }
 
         .option-content {
-          font-size: var(--font-size-14);
+          font-size: var(--fcb-font-size-large);
         }
       }
     }

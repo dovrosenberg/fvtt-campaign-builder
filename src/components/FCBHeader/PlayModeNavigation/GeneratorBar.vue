@@ -144,11 +144,12 @@
 .fcb-play-generators {
   // background-color: var(--fcb-header-background);
   border-bottom: 1px solid var(--fcb-header-border-color);
-  gap: 2px;
+  gap: 3px;
+  padding: 2px;
 
   .fcb-generate-label {
     margin: 0px;
-    padding: 5px 8px;
+    padding: 6px 10px;
     font-size: var(--font-size-12);
     font-weight: 500;
     flex: 0 1;
@@ -156,7 +157,6 @@
 
   .fcb-generator-button {
     margin: 0px;
-    padding: 5px 8px;
     border-radius: 4px;
     background-color: var(--fcb-surface-2);
     color: var(--fcb-text);
@@ -167,7 +167,7 @@
     max-width: 100px;
 
     i {
-      margin-right: 5px;
+      margin-right: 6px;
     }
 
     &:hover {

@@ -2,6 +2,9 @@ body {
   --fcb-name-font-family: 'Inter', 'Signika', sans-serif;
   --fcb-font-family: 'Inter', 'Signika', sans-serif;
 
+  --fcb-font-size: var(--fcb-font-size);  // base size for most text
+  --fcb-font-size-large: var(--fcb-font-size-large);  // larger size for headings
+
   --fcb-dark-overlay: rgba(0, 0, 0, 0.10);
   --fcb-light-overlay: rgba(255, 255, 255, 0.10);
 

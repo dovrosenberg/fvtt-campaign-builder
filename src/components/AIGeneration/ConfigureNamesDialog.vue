@@ -239,7 +239,7 @@
     
     .style-summary {
       margin-bottom: 0.5rem;
-      font-size: var(--font-size-14);
+      font-size: var(--fcb-font-size-large);
       
       &:last-child {
         margin-bottom: 0;
@@ -279,7 +279,7 @@
       
       .style-label {
         font-weight: 500;
-        font-size: var(--font-size-14);
+        font-size: var(--fcb-font-size-large);
         cursor: pointer;
       }
     }
