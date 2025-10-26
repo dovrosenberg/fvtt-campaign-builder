@@ -12,7 +12,6 @@ next:
 
 When in [^Play Mode], an extra row of buttons appears at the top of the Campaign Builder.  These buttons are used to instantly suggest names for various types of [^Entries].
 
-TODO: fix the formatting then retake image
 ![Name Generators](/assets/images/name-generators.webp)
 
 ## Using the name generators

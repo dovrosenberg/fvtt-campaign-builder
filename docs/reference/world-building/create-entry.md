@@ -34,7 +34,7 @@ These will all populate from any existing information on the Entry.  Name, speci
 ## Options {#options}
 There are 2-3 options below the description field:
 
-### What to generate 
+### What to generate {#description-styles}
 You can generate a long description, roleplaying notes, or both.  
 
 If you are using roleplaying notes (see [Module Settings]), you will have the choice to populate the description, the notes, or both. If you have that field turned off, you will instead have the option to do long vs. short description.  Note that a short description is the same text as the roleplaying notes would have been - it's just used in place of the other description.  The number of paragraphs generated for long descriptions, can be set in the [Module Settings].

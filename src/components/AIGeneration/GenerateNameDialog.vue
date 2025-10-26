@@ -36,7 +36,7 @@
       <div
         class="flexcol generate-options-dialog"
       >
-        <h3>{{ localize('dialogs.generateNameDialog.title') }}</h3>
+        <h3 style="margin-top: 1rem;">{{ localize('dialogs.generateNameDialog.title') }}</h3>
         <div class="options-container">
           <div v-if="loading" class="loading-container">
             <ProgressSpinner />
@@ -262,10 +262,9 @@
 
 <style lang="scss" scoped>
 .generate-options-dialog {
-  padding: 0.5rem 0;
-
   h3 {
-    margin: 0 0 1.25rem 0;
+    margin-top: 0;
+    margin-bottom: 1rem;
     font-size: var(--font-size-16);
     font-weight: 600;
   }
@@ -274,7 +273,6 @@
     min-height: 200px;
     max-height: 300px;
     overflow-y: auto;
-    padding: 0.25rem;
     
     .loading-container {
       display: flex;
@@ -295,10 +293,10 @@
     .options-list {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem;
       
       .option-item {
-        padding: 1rem;
+        padding: 0.75rem;
         border: 1px solid var(--fcb-control-border);
         border-radius: 4px;
         cursor: pointer;

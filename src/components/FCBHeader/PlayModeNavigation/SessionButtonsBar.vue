@@ -108,6 +108,7 @@
   // background-color: var(--fcb-header-background);
   border-bottom: 1px solid var(--fcb-header-border-color);
   gap: 2px;
+  padding: 2px;
 
   .fcb-play-tab-button {
     margin: 0px;
@@ -119,6 +120,7 @@
     font-size: 12px;
     align-items: center;
     justify-content: center;
+    padding: 6px;
 
     i {
       margin-right: 5px;

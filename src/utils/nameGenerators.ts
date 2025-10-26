@@ -9,6 +9,17 @@ import { RollTableFlagKey } from '@/documents';
 import { notifyInfo } from './notifications';
 
 /**
+ * Decodes HTML entities in a string (e.g., &amp; -> &, &quot; -> ")
+ * @param text - The text with HTML entities to decode
+ * @returns The decoded text
+ */
+function decodeHtmlEntities(text: string): string {
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = text;
+  return textarea.value;
+}
+
+/**
  * The number of items to generate for each roll table.
  * This constant defines the standard size for all generator roll tables.
  */
@@ -235,21 +246,24 @@ export const refreshSettingRollTable = async (rollTable: RollTable, setting: FCB
   if (neededItems > 0) {
     // get all the new results using setting-specific settings
     const newResults = await generateSettingTableResults(type, neededItems, setting);
+    
+    // Decode HTML entities in all results
+    const decodedResults = newResults.map(name => decodeHtmlEntities(name));
 
     // replace the drawn items first
     if (drawnResults.length > 0) {
       await rollTable.updateEmbeddedDocuments("TableResult", drawnResults.map((id: string, i: number) => ({
         _id: id,
-        name: newResults[i],
+        name: decodedResults[i],
         drawn: false,
       })));
     }
 
     // now add any extras
     const numUsed = drawnResults.length;
-    if (numUsed < newResults.length) {
+    if (numUsed < decodedResults.length) {
       await rollTable.createEmbeddedDocuments("TableResult", 
-        newResults.slice(numUsed).map((val: string, index: number) => ({
+        decodedResults.slice(numUsed).map((val: string, index: number) => ({
           type: CONST.TABLE_RESULT_TYPES.TEXT,
           drawn: false,
           name: val,

@@ -43,7 +43,6 @@ This is an optional field that can be disabled in the [Module Settings] and is u
 ## Managing Relationships {#managing-relationships}
 Assuming you have the "Auto-suggest relationships" [Module Setting] turned on, whenever you save the description, it will check to see if you've added or removed any references to other [^Entries].  If you have, you will be prompted with the "Manage Related Entries" dialog:
 
-TODO: there's a bug preventing this screen?
 ![Manage related entries](/assets/images/manage-related-entries.webp)
 
 This allows you to rapidly create and remove relationships without having to manually do each one in the [Relationship tabs](./relationships).  Simply turn off the checkboxes for the relationships you don't want to change and hit "Update".  You can hit "No to all" if you don't want to change anything.
