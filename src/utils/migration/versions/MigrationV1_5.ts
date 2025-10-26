@@ -85,6 +85,10 @@ export class MigrationV1_5 implements Migration {
         updateProgress(`Processing setting: ${folder.name}`);
       }
 
+      // Build the tag lists from migrated data
+      updateProgress('Building tag lists...');
+      await buildTagLists();
+
       // all the old entries should be deleted so now we can remap all the relationships
       for (const idx of ModuleSettings.get(SettingKey.settingIndex)) {
         await cleanCompendiumIds(idx.settingId);
@@ -207,6 +211,7 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   // and update the permissions to hide and unlock the compendium
   const pack = game.packs.get(compendiumId);
   await pack?.configure({ ownership: { 
+    NONE: 'NONE',
     GAMEMASTER: 'OWNER', 
     ASSISTANT: 'LIMITED', 
     TRUSTED: 'LIMITED', 
@@ -732,4 +737,62 @@ const cleanUuid = (text: string) => {
   });
 
   return updatedText;
+}
+
+/**
+ * Build the global tag lists by counting all tags in entries and sessions
+ */
+async function buildTagLists(): Promise<void> {
+  const entryTagCounts: Record<string, number> = {};
+  const sessionTagCounts: Record<string, number> = {};
+
+  // Loop through all settings
+  for (const idx of ModuleSettings.get(SettingKey.settingIndex)) {
+    const setting = await FCBSetting.fromUuid(idx.settingId);
+    
+    if (!setting) {
+      console.warn(`Could not load setting ${idx.settingId} when building tag lists`);
+      continue;
+    }
+
+    // Count tags from all entries
+    for (const topicFolder of Object.values(setting.topicFolders)) {
+      for (const entry of await topicFolder.allEntries(true)) {
+        for (const tag of entry.tags || []) {
+          entryTagCounts[tag] = (entryTagCounts[tag] || 0) + 1;
+        }
+      }
+    }
+
+    // Count tags from all sessions
+    for (const campaign of Object.values(setting.campaigns)) {
+      for (const sessionId of campaign.sessionIds) {
+        const session = await Session.fromUuid(sessionId);
+        
+        if (!session) {
+          console.warn(`Could not load session ${sessionId} when building tag lists`);
+          continue;
+        }
+        
+        for (const tag of session.tags || []) {
+          sessionTagCounts[tag] = (sessionTagCounts[tag] || 0) + 1;
+        }
+      }
+    }
+  }
+
+  // Build the tag list objects
+  const entryTagList: Record<string, { count: number }> = {};
+  for (const tag in entryTagCounts) {
+    entryTagList[tag] = { count: entryTagCounts[tag] };
+  }
+
+  const sessionTagList: Record<string, { count: number }> = {};
+  for (const tag in sessionTagCounts) {
+    sessionTagList[tag] = { count: sessionTagCounts[tag] };
+  }
+
+  // Save to settings
+  await ModuleSettings.set(SettingKey.entryTags, entryTagList);
+  await ModuleSettings.set(SettingKey.sessionTags, sessionTagList);
 }
