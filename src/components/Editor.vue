@@ -537,7 +537,7 @@
       width: 100%;
       display: flex;
       flex: 1;
-      border: 1px solid var(--fcb-button-border-color);
+      border: 1px solid var(--fcb-button-border);
       overflow-y: auto !important;
       border-radius: 4px;
       font-family: var(--fcb-font-family);

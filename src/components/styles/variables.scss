@@ -121,6 +121,7 @@ body {
   --fcb-sidebar-bg:        var(--fcb-surface-shaded);
   --fcb-sidebar-border:    var(--fcb-gray-300);
   --fcb-sidebar-splitter:  var(--fcb-control-border);
+  --fcb-splitter-gutter:   var(--fcb-gray-300);
   --fcb-list-item-hover:   var(--fcb-gray-100);
   --fcb-badge-bg:          var(--fcb-primary-100);
   --fcb-badge-text:        var(--fcb-primary-700);
@@ -188,6 +189,7 @@ body.theme-dark {
   --fcb-sidebar-bg:        var(--fcb-surface-shaded);
   --fcb-sidebar-border:    var(--fcb-border);
   --fcb-sidebar-splitter:  var(--fcb-control-border);
+  --fcb-splitter-gutter:   var(--fcb-gray-700);
   --fcb-list-item-hover:   hsl(210 14% 22%);
   --fcb-badge-bg:          hsl(var(--fcb-primary-h) 28% 22%);
   --fcb-badge-text:        hsl(160 30% 85%);
