@@ -128,7 +128,6 @@
           background: none;
           color: var(--fcb-text);
           margin-left: 3px;
-          margin-right: 8px;
           font-size: var(--font-size-32);
           height: 2.25rem;
 
@@ -189,6 +188,8 @@
           align-content: start;
           background: var(--fcb-tab-body-background);
           box-shadow: 0px -2px 4px rgba(0, 0, 0, 0.3);
+          border-radius: 6px;
+          margin-top: 4px;
 
         .fcb-subtab-wrapper {
           display: flex;
@@ -211,6 +212,7 @@
           &.tabs {
             flex-wrap: wrap;
             justify-content: flex-start;
+            border-top: 0px !important;  // override foundry
             
             .item {
               flex: 0 0 auto;

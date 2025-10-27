@@ -4,6 +4,7 @@ body {
 
   --fcb-font-size: var(--font-size-13);  // base size for most text
   --fcb-font-size-large: var(--font-size-14);  // larger size for headings
+  --fcb-font-size-header: var(--font-size-16);  // larger size for headings
 
   --fcb-dark-overlay: rgba(0, 0, 0, 0.10);
   --fcb-light-overlay: rgba(255, 255, 255, 0.10);
@@ -110,7 +111,7 @@ body {
   --fcb-control-border:    var(--fcb-border);
   --fcb-control-border-hover: var(--fcb-gray-400);
   --fcb-control-border-focus: var(--fcb-accent);
-  --fcb-control-filled:    var(--fcb-primary-50);
+  --fcb-control-filled:    var(--fcb-surface-shaded);
 
   /* Component-specific */
   --fcb-tab-active-bg:     var(--fcb-surface);
@@ -122,9 +123,7 @@ body {
   --fcb-sidebar-border:    var(--fcb-gray-300);
   --fcb-sidebar-splitter:  var(--fcb-control-border);
   --fcb-splitter-gutter:   var(--fcb-gray-300);
-  --fcb-list-item-hover:   var(--fcb-gray-100);
-  --fcb-badge-bg:          var(--fcb-primary-100);
-  --fcb-badge-text:        var(--fcb-primary-700);
+  --fcb-table-header-bottom-border: var(--fcb-gray-500);
 
   /* Status */
   --fcb-success: var(--fcb-success-500);
@@ -159,7 +158,7 @@ body.theme-dark {
   --fcb-text-muted:    var(--fcb-gray-400);
   --fcb-text-inverted:   #0b0e0c;
 
-  --fcb-button-bg:      var(--fcb-primary-800);
+  --fcb-button-bg:      var(--fcb-surface-shaded);
   --fcb-button-text:    var(--fcb-text);
   --fcb-button-border:  var(--fcb-border);
   --fcb-button-bg-hover: var(--fcb-primary-800);
@@ -179,7 +178,7 @@ body.theme-dark {
   --fcb-control-border:    var(--fcb-border);
   --fcb-control-border-hover: hsl(210 12% 40%);
   --fcb-control-border-focus: var(--fcb-accent);
-  --fcb-control-filled:    hsl(var(--fcb-primary-h) 25% 17%);
+  --fcb-control-filled:    var(--fcb-surface-shaded);
 
   --fcb-tab-active-bg:     var(--fcb-surface);
   --fcb-tab-active-text:   var(--fcb-text);
@@ -190,9 +189,7 @@ body.theme-dark {
   --fcb-sidebar-border:    var(--fcb-border);
   --fcb-sidebar-splitter:  var(--fcb-control-border);
   --fcb-splitter-gutter:   var(--fcb-gray-700);
-  --fcb-list-item-hover:   hsl(210 14% 22%);
-  --fcb-badge-bg:          hsl(var(--fcb-primary-h) 28% 22%);
-  --fcb-badge-text:        hsl(160 30% 85%);
+  --fcb-table-header-bottom-border: var(--fcb-gray-400);
 
   --fcb-success: hsl(145 55% 48%);
   --fcb-warning: hsl(35 95% 56%);
@@ -220,20 +217,20 @@ body {
   --fcb-header-nav-btn-color-hover: var(--fcb-header-nav-btn-color);
   --fcb-header-nav-btn-background-hover: var(--fcb-button-bg-hover);
   --fcb-header-nav-btn-border-hover: var(--fcb-button-border-hover);
-  --fcb-header-nav-vertical-line:  rgb(238, 237, 224);
+  --fcb-header-nav-vertical-line:  var(--fcb-control-border);
   --fcb-tab-body-background: var(--fcb-main-section-background);
-  --fcb-sheet-header-input-border: 1px solid rgb(122, 121, 113);
+  --fcb-sheet-header-input-border: 1px solid var(--fcb-control-border);
   --fcb-sheet-header-input-background: var(--fcb-dark-overlay);
   --fcb-sheet-header-label-color: rgb(75, 74, 68);
   --fcb-sheet-header-icon-color: #777;
-  --fcb-sheet-tab-bottom-border: rgb(250, 250, 230);
+  --fcb-sheet-tab-bottom-border: var(--fcb-control-border);
   --fcb-sheet-tab-border: 3px solid var(--fcb-control-border);
   --fcb-sheet-tab-shadow-active: var(--fcb-tab-shadow-active);
   --fcb-sheet-tab-shadow-hover: var(--fcb-tab-shadow-hover);
   --fcb-sheet-tab-border-active: var(--fcb-primary);
   --fcb-sheet-page-control-color: var(--fcb-control-text);
-  --fcb-sheet-page-control-bg: rgb(192, 192, 192);
-  --fcb-sheet-page-control-bg-hover: var(--fcb-sheet-page-control-bg);
+  --fcb-sheet-page-control-bg: var(--fcb-control-bg);
+  --fcb-sheet-page-control-bg-hover: var(--fcb-control-bg-hover);
   --fcb-icon-background: var(--fcb-surface-shaded);
   --fcb-icon-shadow: rgba(0, 0, 0, 0.4);
   --fcb-icon-outline: rgba(0, 0, 0, 0.4);

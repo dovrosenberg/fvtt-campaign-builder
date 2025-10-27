@@ -238,7 +238,7 @@
   .section {
     h3 {
       margin-bottom: 0.75rem;
-      font-size: var(--font-size-16);
+      font-size: var(--fcb-font-size-header);
       font-weight: 600;
       color: var(--fcb-text);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);

@@ -517,8 +517,6 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @returns Promise that returns after the update
    */
   public async save(): Promise<void> {
-    const updateName = this._clone.name !== this._doc.name;
-
     // we attempt to save first - because if it fails, we don't 
     //    want to adjust anything else
     try {

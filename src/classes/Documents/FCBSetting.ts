@@ -237,9 +237,9 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public async loadCampaigns(): Promise<Record<string, Campaign>> {
     // we clean up bad ones because various old versions may have stranded entries
     for (const id in this.campaignNames) {
-      const campaignObj = await Campaign.fromUuid(id);
+      const campaign = await Campaign.fromUuid(id);
 
-      if (!campaignObj) {
+      if (!campaign) {
         // clean it up
 
         // because we're going to save the changes, we'll put in these things to delete the keys and
@@ -251,8 +251,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         delete this.campaignNames[id];
         delete this.campaigns[id];
       } else {
-        this.campaignNames[id] = campaignObj.name;
-        this.campaigns[id] = campaignObj;
+        this.campaignNames[id] = campaign.name;
+        this.campaigns[id] = campaign;
       }
     }
 

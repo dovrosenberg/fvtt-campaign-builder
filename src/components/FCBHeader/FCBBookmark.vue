@@ -174,7 +174,7 @@
       border-radius: 4px;
       flex: 0 0 1.5rem;
       height: 1.5rem;
-      font-size: var(--font-size-16);
+      font-size: 1rem;
       padding-left: 2px;
       line-height: 1.375rem;
       text-overflow: clip;
