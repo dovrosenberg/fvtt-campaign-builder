@@ -338,6 +338,14 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return this._clone.system.pcs;
   }
 
+  public get completed(): boolean {
+    return this._clone.system.completed;
+  }
+
+  public set completed(value: boolean) {
+    this._clone.system.completed = value;
+  }
+
   public set pcs(value: RelatedPCDetails[] | readonly RelatedPCDetails[]) {
     this._clone.system.pcs = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }

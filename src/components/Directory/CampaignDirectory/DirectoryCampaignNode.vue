@@ -49,6 +49,7 @@
   import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
+  import { Campaign } from '@/classes';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -147,6 +148,23 @@
 
             if (session) {
               await navigationStore.openSession(session.uuid, { newTab: true, activate: true, }); 
+            }
+          }
+        },
+        { 
+          icon: 'fa-check-circle',
+          iconFontClass: 'fas',
+          label: props.campaignNode.completed ? localize('contextMenus.campaignFolder.markIncomplete') : localize('contextMenus.campaignFolder.markComplete'),
+          disabled: isInPlayMode.value,
+          onClick: async () => {
+            const campaign = await Campaign.fromUuid(props.campaignNode.id);
+            if (campaign) {
+              campaign.completed = !campaign.completed;
+              await campaign.save();
+              // Update the local node's completed status
+              props.campaignNode.completed = campaign.completed;
+              // Refresh the campaign directory to show the updated status
+              await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
         },

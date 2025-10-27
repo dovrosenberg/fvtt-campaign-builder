@@ -6,15 +6,17 @@ import { Campaign, CollapsibleNode, DirectorySessionNode, Session, } from '@/cla
 
 export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode> {
   name: string;
+  completed: boolean;
   
   // children are for the entries; loadedTypes is for the type nodes
   constructor(id: string, name: string, children: string[] = [], 
-    loadedChildren: DirectorySessionNode[] = [], expanded: boolean = false
+    loadedChildren: DirectorySessionNode[] = [], expanded: boolean = false, completed: boolean = false
   ) {
 
     super(id, expanded, null, children, loadedChildren, []);
 
     this.name = name;
+    this.completed = completed;
   }
 
   /**

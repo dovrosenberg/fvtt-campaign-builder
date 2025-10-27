@@ -541,7 +541,9 @@
       },
       "campaignFolder": {
         "createSession": "Create a session",
-        "delete": "Delete campaign"
+        "delete": "Delete campaign",
+        "markComplete": "Mark campaign complete",
+        "markIncomplete": "Mark campaign incomplete"
       },
       "session": {
         "delete": "Delete session"

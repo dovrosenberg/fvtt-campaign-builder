@@ -15,18 +15,14 @@
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useMainStore, } from '@/applications/stores';
-  import { getTabTypeIcon } from '@/utils/misc';
 
   // library components
-  import ContextMenu from '@imengyu/vue3-context-menu';
   
   // local components
   import DirectoryCampaignNodeComponent from './DirectoryCampaignNode.vue';
   
   // types
-  import { WindowTabType } from '@/types';
   
   ////////////////////////////////
   // props
@@ -38,7 +34,7 @@
   // store
   const mainStore = useMainStore();
   const campaignDirectoryStore = useCampaignDirectoryStore();
-  const { currentSetting, isInPlayMode } = storeToRefs(mainStore);
+  const { currentSetting, } = storeToRefs(mainStore);
   const { currentCampaignTree } = campaignDirectoryStore;
   
   ////////////////////////////////
@@ -53,30 +49,30 @@
   ////////////////////////////////
   // event handlers
 
-  const onHeaderContextMenu = (event: MouseEvent): void => {
-    //prevent the browser's default menu
-    event.preventDefault();
-    event.stopPropagation();
+  // const onHeaderContextMenu = (event: MouseEvent): void => {
+  //   //prevent the browser's default menu
+  //   event.preventDefault();
+  //   event.stopPropagation();
 
-    //show our menu
-    ContextMenu.showContextMenu({
-      customClass: 'fcb',
-      x: event.x,
-      y: event.y,
-      zIndex: 300,
-      items: [
-        { 
-          icon: getTabTypeIcon(WindowTabType.Campaign),
-          iconFontClass: 'fas',
-          label: localize('contextMenus.campaignsHeader.createCampaign'), 
-          disabled: isInPlayMode.value,
-          onClick: async () => {
-            await campaignDirectoryStore.createCampaign();
-          }
-        },
-      ]
-    });
-  };
+  //   //show our menu
+  //   ContextMenu.showContextMenu({
+  //     customClass: 'fcb',
+  //     x: event.x,
+  //     y: event.y,
+  //     zIndex: 300,
+  //     items: [
+  //       { 
+  //         icon: getTabTypeIcon(WindowTabType.Campaign),
+  //         iconFontClass: 'fas',
+  //         label: localize('contextMenus.campaignsHeader.createCampaign'), 
+  //         disabled: isInPlayMode.value,
+  //         onClick: async () => {
+  //           await campaignDirectoryStore.createCampaign();
+  //         }
+  //       },
+  //     ]
+  //   });
+  // };
 
   ////////////////////////////////
   // watchers
