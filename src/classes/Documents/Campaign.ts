@@ -527,18 +527,12 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
       throw error;
     }
 
-    // update the name
-    if (updateName) {    
-      let setting = await getGlobalSetting(this.settingId);
+    // keep the setting references up to date
+    let setting = await getGlobalSetting(this.settingId);
+    if (!setting)
+      throw new Error('Invalid setting in Campaign.save()');
 
-      if (!setting)
-        throw new Error('Invalid setting in Campaign.save()');
-
-      await setting.updateCampaignName(this.uuid, this.name);
-
-      // refresh the setting campaigns
-      await setting.loadCampaigns();
-    }
+    await setting.loadCampaigns();
   }
 
   /**
