@@ -235,8 +235,6 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   * @returns {Promise<Record<string, Campaign>>} A promise to the campaigns 
   */
   public async loadCampaigns(): Promise<Record<string, Campaign>> {
-    let changes = false;
-
     // we clean up bad ones because various old versions may have stranded entries
     for (const id in this.campaignNames) {
       const campaignObj = await Campaign.fromUuid(id);
@@ -252,15 +250,14 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         // clean up locally
         delete this.campaignNames[id];
         delete this.campaigns[id];
-
-        changes = true;
       } else {
+        this.campaignNames[id] = campaignObj.name;
         this.campaigns[id] = campaignObj;
       }
     }
 
-    if (changes)
-      await this.save();
+    await this.save();
+
     return this.campaigns;
   }
 
@@ -511,12 +508,6 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     delete this.expandedIds[sessionId];    
     await this.save();
   }  
-
-  // change a campaign name inside all the setting metadata
-  public async updateCampaignName(campaignId: string, name: string) {
-    this.campaignNames[campaignId] = name;
-    await this.save();
-  }
 
   public async save() {
     const nameChanged = this._clone.name !== this._doc.name;
