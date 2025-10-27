@@ -1,6 +1,6 @@
 <template>
   <li
-    :class="`fcb-campaign-folder folder flexcol ${props.campaignNode.expanded ? '' : 'collapsed'} ${isActiveCampaign ? 'active' : ''}`"
+    :class="`fcb-campaign-folder folder flexcol ${props.campaignNode.expanded ? '' : 'collapsed'} ${isActiveCampaign ? 'active' : ''} ${props.campaignNode.completed ? 'campaign-completed' : ''}`"
     :data-campaign="props.campaignNode.id"
   >
     <header class="folder-header flexrow">
@@ -18,7 +18,10 @@
           @click="onCampaignFolderClick"
         ></i>
         <span data-testid="campaign-name" @click="onCampaignSelectClick">
-          {{ props.campaignNode.name }}
+          <span class="node-name">
+            {{ props.campaignNode.name }}
+            <i v-if="props.campaignNode.completed" class="fas fa-check-circle completed-icon"></i>
+          </span>
         </span>
       </div>
     </header>
@@ -191,6 +194,32 @@
 </script>
 
 <style lang="scss">
+  // Style for completed campaign
+  .fcb-campaign-folder.campaign-completed {
+    .node-name {
+      color: var(--fcb-text-muted);
+      opacity: 0.8;
+      font-style: italic;
+    }
+
+    .completed-icon {
+      color: var(--fcb-success);
+      margin-left: 4px;
+    }
+
+    // Style all child elements to be muted
+    ::v-deep(*) {
+      color: var(--fcb-text-muted) !important;
+      opacity: 0.7 !important;
+      
+      // Make sure links are also styled correctly
+      a {
+        color: var(--fcb-text-muted) !important;
+        opacity: 0.7 !important;
+      }
+    }
+  }
+
   #fcb-directory {
     // the campaign list section
     .fcb-directory-panel-wrapper {
