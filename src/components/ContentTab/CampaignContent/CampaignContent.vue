@@ -181,10 +181,6 @@
         currentCampaign.value.name = newValue;
         await currentCampaign.value.save();
 
-        // need to make sure the mapping is right, because that's where refreshCampaignDirectoryTree pulls from
-        if (currentSetting.value)
-          currentSetting.value.updateCampaignName(currentCampaign.value.uuid, newValue);
-
         await campaignDirectoryStore.refreshCampaignDirectoryTree([currentCampaign.value.uuid]);
         await navigationStore.propagateNameChange(currentCampaign.value.uuid, newValue);
       }
