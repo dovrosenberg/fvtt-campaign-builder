@@ -560,37 +560,6 @@ async function migrateEntry(topicFolder: TopicFolder, entry: JournalEntryPage): 
 
   // add to the mapping
   globalUuidMap[entry.uuid] = newEntry.uuid;
-
-  // keep topic metadata in sync
-  const oldSettingId = Object.keys(globalUuidMap).find((key)=>globalUuidMap[key] === topicFolder.setting.uuid);
-  const oldSettingUuid = oldSettingId ?? topicFolder.setting.uuid;
-
-  if (!topicFolder.entries)
-    topicFolder.entries = {};
-
-  topicFolder.entries[newEntry.uuid] = newEntry.name || '';
-
-  if (!topicFolder.topNodes.includes(newEntry.uuid))
-    topicFolder.topNodes = [...topicFolder.topNodes, newEntry.uuid];
-
-  // Initialize hierarchy placeholder for this entry
-  if (!topicFolder.setting.hierarchies[newEntry.uuid]) {
-    topicFolder.setting.hierarchies[newEntry.uuid] = {
-      parentId: null,
-      ancestors: [],
-      children: [],
-      type: newEntry.type || '',
-    };
-  }
-
-  // Track unmapped hierarchies for cleanCompendiumIds to resolve later
-  const settingHierarchies = oldHierarchiesMap[oldSettingUuid] || {};
-  const oldHierarchy = settingHierarchies[entry.uuid];
-  if (oldHierarchy) {
-    settingHierarchies[newEntry.uuid] = oldHierarchy;
-    delete settingHierarchies[entry.uuid];
-    oldHierarchiesMap[oldSettingUuid] = settingHierarchies;
-  }
 }
 
 // remap all of the uuids in the full setting
