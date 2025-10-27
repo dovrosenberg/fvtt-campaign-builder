@@ -250,8 +250,8 @@ body {
   --fcb-scrollbar-thumb: transparent;
 
   // for typeaheads, search
-  --fcb-list-background: rgb(220, 220, 220);
-  --fcb-list-highlight: rgba(85, 85, 153, 0.13);
+  --fcb-list-background: var(--fcb-control-bg);
+  --fcb-list-highlight: var(--fcb-surface-shaded);
   --fcb-color-text-generate-message: var(--fcb-text);
 }
 

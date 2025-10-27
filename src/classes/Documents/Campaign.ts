@@ -535,6 +535,9 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
         throw new Error('Invalid setting in Campaign.save()');
 
       await setting.updateCampaignName(this.uuid, this.name);
+
+      // refresh the setting campaigns
+      await setting.loadCampaigns();
     }
   }
 
