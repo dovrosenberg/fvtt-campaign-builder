@@ -99,27 +99,6 @@ export class FCBJournalEntryPage<
     return setting;
   }
 
-  /**
-   * Sanitizes HTML content in custom fields that are of type Editor.
-   * This must be called before saving to ensure HTML is cleaned before being sent to the server.
-   */
-  protected sanitizeCustomFields(): void {
-    // we just sanitize every field because we don't yet have the custom field infrastructure 
-    // TODO: could make this more efficient once we have that 
-    const customFields = this._clone.system.customFields as Record<string, string>;
-
-    if (!customFields || typeof customFields !== 'object') 
-      return;
-
-    for (const fieldName in customFields) {
-      // const field = customFields[fieldName];
-      // if (field.fieldType !== FieldType.Editor) 
-      //   continue;
-
-      customFields[fieldName] = sanitizeHTML(customFields[fieldName]);
-    }
-  }
-
   /** takes the uuid of the wrapper entry */
   static async fromUuid<
     DocType extends ValidDocType,
@@ -141,6 +120,13 @@ export class FCBJournalEntryPage<
     }
   }
 
+  /** Returns a copy of _clone that's ready to save to the database.
+   *   Handle any thing like keys needing to be transformed here.  This
+   *   should NOT be a reference into clone so that anything that happens
+   *   to reference the object mid-save doesn't get corrupted.
+   */
+  protected _prepData(_data: DocClass): void {};
+
   /**
    * Updates document in the database and updates the name on the parent
    *    journal entry if needed
@@ -153,20 +139,26 @@ export class FCBJournalEntryPage<
       throw new Error(`Invalid journal entry page in FCBJournalEntryPage.save() ${this.uuid}`);
   
     try {
-      // Sanitize HTML in custom fields before saving
-      this.sanitizeCustomFields();
+      // get the db-safe copy of the data     
+      // we do this so anything with a reference into _clone doesn't
+      //   break if there's a timing issue 
+      const data = this._clone.toObject(false);
+      this._prepData(data as DocClass);
+
+      // sanitize custom fields
+      sanitizeCustomFields(data.system.customFields);
 
       // update the name on the wrapper
-      if (this._doc.name !== this._clone.name) {
+      if (this._doc.name !== data.name) {
         // because the child class objects can get proxied by Vue, this might be proxied, 
         //   which can then cause issues with the update
-        await toRaw(this._doc)?.parent?.update({ name: this._clone.name });
+        await toRaw(this._doc)?.parent?.update({ name: data.name });
       }
         
       // now save the page
       // need to pass false to toObject to use the current in memory version
       // we use recursive: false so that removed keys, etc. are removed from the database
-      const retval = await toRaw(this._doc)?.update(this._clone.toObject(false), { recursive: false })  as DocClass | undefined;
+      const retval = await toRaw(this._doc)?.update(data, { recursive: false })  as DocClass | undefined;
 
       // no update done; should probably reload clone to avoid data loss
       if (!retval) {
@@ -290,3 +282,23 @@ async function makeFolder(folderName: string, compendiumId: string, parentFolder
 
   return folders[0] as Folder<'JournalEntry'>;
 }
+
+  /**
+   * Sanitizes HTML content in custom fields that are of type Editor.
+   * This must be called before saving to ensure HTML is cleaned before being sent to the server.
+   */
+  function sanitizeCustomFields(customFields: Record<string, string>): void {
+    // we just sanitize every field because we don't yet have the custom field infrastructure 
+    // TODO: could make this more efficient once we have that 
+
+    if (!customFields || typeof customFields !== 'object') 
+      return;
+
+    for (const fieldName in customFields) {
+      // const field = customFields[fieldName];
+      // if (field.fieldType !== FieldType.Editor) 
+      //   continue;
+
+      customFields[fieldName] = sanitizeHTML(customFields[fieldName]);
+    }
+  }

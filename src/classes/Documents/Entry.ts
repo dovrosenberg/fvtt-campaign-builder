@@ -371,6 +371,10 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     return getParentId(setting, this);
   }
 
+  protected _prepData(data: EntryDocClass): void {
+    data.system.relationships = cleanTopicKeysOnSave(data.system.relationships);
+  }
+
   // used to set arbitrary properties on the entryDoc
   /**
    * Updates an entry in the database
@@ -383,8 +387,6 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     // we attempt to save first - because if it fails, we don't 
     //    want to adjust anything else
     try {
-      this._clone.system.relationships = cleanTopicKeysOnSave(this._clone.system.relationships)
-
       // this will reload relationships with a valid value
       await super.save();        
     } catch (error) {
