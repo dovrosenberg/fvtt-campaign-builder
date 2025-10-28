@@ -25,8 +25,9 @@ features:
   import { computed, inject, ref } from 'vue'
 
   const version = inject('version')
+  const baseUrl = import.meta.env.BASE_URL ?? '/'
   const screenshots = Array.from({ length: 4 }, (_, i) =>
-    new URL(`./assets/images/screenshot${i + 1}.webp`, import.meta.url).href
+    `${baseUrl}screenshots/screenshot${i + 1}.webp`
   )
   const labels = [
     'Build out your world',
