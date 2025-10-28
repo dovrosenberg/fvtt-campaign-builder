@@ -56,6 +56,9 @@ export const CampaignSchema = {
     { required: true, nullable: false, initial: [] as RelatedPCDetails[] }
   ),
 
+  /** whether the campaign is marked as completed */
+  completed: new fields.BooleanField({ required: true, nullable: false, initial: false }),
+
 };
 
 type SchemaType = typeof CampaignSchema;

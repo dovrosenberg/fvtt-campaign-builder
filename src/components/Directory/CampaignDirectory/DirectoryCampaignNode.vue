@@ -1,6 +1,6 @@
 <template>
   <li
-    :class="`fcb-campaign-folder folder flexcol ${props.campaignNode.expanded ? '' : 'collapsed'} ${isActiveCampaign ? 'active' : ''}`"
+    :class="`fcb-campaign-folder folder flexcol ${props.campaignNode.expanded ? '' : 'collapsed'} ${isActiveCampaign ? 'active' : ''} ${props.campaignNode.completed ? 'campaign-completed' : ''}`"
     :data-campaign="props.campaignNode.id"
   >
     <header class="folder-header flexrow">
@@ -8,6 +8,7 @@
         class="noborder"
         style="margin-bottom:0px"
         draggable="true"
+        :data-tooltip="props.campaignNode.completed ? localize('tooltip.campaignComplete') : ''"
         @contextmenu="onCampaignContextMenu"
         @dragstart="onDragStart"
       >
@@ -18,7 +19,10 @@
           @click="onCampaignFolderClick"
         ></i>
         <span data-testid="campaign-name" @click="onCampaignSelectClick">
-          {{ props.campaignNode.name }}
+          <span class="node-name">
+            {{ props.campaignNode.name }}
+            <i v-if="props.campaignNode.completed" class="fas fa-check-circle completed-icon"></i>
+          </span>
         </span>
       </div>
     </header>
@@ -49,6 +53,7 @@
   import { localize } from '@/utils/game';
   import { useCampaignDirectoryStore, useNavigationStore, useMainStore } from '@/applications/stores';
   import { getTabTypeIcon } from '@/utils/misc';
+  import { Campaign } from '@/classes';
 
   // library components
   import ContextMenu from '@imengyu/vue3-context-menu';
@@ -118,6 +123,11 @@
 
   // change campaign
   const onCampaignFolderClick = async (_event: MouseEvent) => {
+    // if it's completed, don't toggle
+    if (currentNode.value.completed) {
+      return;
+    }
+
     currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as DirectoryCampaignNode, !currentNode.value.expanded);
   };
 
@@ -147,6 +157,24 @@
 
             if (session) {
               await navigationStore.openSession(session.uuid, { newTab: true, activate: true, }); 
+            }
+          }
+        },
+        { 
+          icon: 'fa-check-circle',
+          iconFontClass: 'fas',
+          label: props.campaignNode.completed ? localize('contextMenus.campaignFolder.markActive') : localize('contextMenus.campaignFolder.markComplete'),
+          hidden: isInPlayMode.value,
+          onClick: async () => {
+            const campaign = await Campaign.fromUuid(props.campaignNode.id);
+            if (campaign) {
+              campaign.completed = !campaign.completed;
+              await campaign.save();
+
+              // Update the local node's completed status
+              props.campaignNode.completed = campaign.completed;
+              // Refresh the campaign directory to show the updated status
+              await campaignDirectoryStore.refreshCampaignDirectoryTree();
             }
           }
         },

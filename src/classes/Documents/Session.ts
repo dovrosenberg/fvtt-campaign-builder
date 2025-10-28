@@ -116,6 +116,11 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
     return session;
   }
 
+  public async isCampaignCompleted(): Promise<boolean> {
+    const campaign = await this.loadCampaign();
+    return campaign.completed;
+  }
+
   get tags(): string[] {
     // @ts-ignore
     return this._clone.system.tags;

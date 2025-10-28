@@ -81,9 +81,10 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
       currentCampaignTree.value.push(new DirectoryCampaignNode(
         id,
         campaigns[id].name,  // name
-        children,
+        children.slice(),
         [],
         expandedNodes[id] || false,
+        campaign.completed
       ));      
     }
     

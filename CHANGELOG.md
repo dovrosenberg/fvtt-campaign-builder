@@ -20,6 +20,7 @@
 - Some performance improvements - particularly for large Settings
 - Dragging a campaign name into an editor now properly creates a link.
 - The description box in the create entry dialog can now be expanded if desired.
+- You can now "complete" a campaign so your old campaigns don't clog up search results, etc.
 
 ## v1.4.2 - Bug fix
 ![](https://img.shields.io/badge/release%20date-October%209%2C%202025-blue)

@@ -8,6 +8,7 @@ import { localize } from '@/utils/game';
 import { ToDoItem, ToDoTypes, Idea } from '@/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic, } from './FCBJournalEntryPage';
 import { JournalEntryFlagKey } from '@/settings';
+import { searchService } from '@/utils/search';
 
 type CampaignDocClass = JournalEntryPage<typeof DOCUMENT_TYPES.Campaign>;
 
@@ -51,9 +52,8 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     const maxSessionInfo = entries
       // first find the relevant ones
       .filter((e)=> (
-        // @ts-ignore
         e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
-        e.pages && e.pages!.length > 0 &&
+        !!e.pages && e.pages!.length > 0 &&
         this._clone.system.sessionIds.includes(e.uuid)
       ))
       .reduce((maxInfo: {num: number; sessionId: string}, e): { num: number; sessionId: string}=> {
@@ -338,6 +338,14 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return this._clone.system.pcs;
   }
 
+  public get completed(): boolean {
+    return this._clone.system.completed;
+  }
+
+  public set completed(value: boolean) {
+    this._clone.system.completed = value;
+  }
+
   public set pcs(value: RelatedPCDetails[] | readonly RelatedPCDetails[]) {
     this._clone.system.pcs = value.slice();     // we clone it so it can't be edited outside (this is historical)
   }
@@ -482,9 +490,8 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     const sessions = entries
       // first find the relevant ones
       .filter((e)=> (
-        // @ts-ignore
         e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
-        e.pages && e.pages!.length > 0 &&
+        !!e.pages && e.pages!.length > 0 &&
         this._clone.system.sessionIds.includes(e.uuid)
       ))
       .map((e) => ({ 
@@ -520,7 +527,39 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     // we attempt to save first - because if it fails, we don't 
     //    want to adjust anything else
     try {
+      const justCompleted = this._clone.system.completed && !this._doc?.system.completed;
+      const justIncompleted = !this._clone.system.completed && this._doc?.system.completed;
+
       await super.save();
+
+      // if we just changed completed status, we need to make some changes
+      if (justCompleted || justIncompleted) {
+        const setting = await this.getSetting();
+
+        if (justCompleted) {
+          // collapse the node
+          await setting.collapseNode(this.uuid);
+
+          // remove from search results
+          const sessions = await this.allSessions();
+          for (const session of sessions) {
+            searchService.removeEntry(session.uuid);
+          }
+
+          // clear the email-to setting if it was set to this one
+          if (ModuleSettings.get(SettingKey.emailDefaultCampaign)===this.uuid)
+            await ModuleSettings.set(SettingKey.emailDefaultCampaign, '');
+        }
+
+        // if we just marked incomplete, we need to make some changes
+        if (justIncompleted) {
+          // add to search
+          const sessions = await this.allSessions();
+          for (const session of sessions) {
+            searchService.addOrUpdateSessionIndex(session, setting);
+          }
+        }
+      }
     } catch (error) {
       throw error;
     }

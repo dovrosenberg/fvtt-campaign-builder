@@ -541,7 +541,9 @@
       },
       "campaignFolder": {
         "createSession": "Create a session",
-        "delete": "Delete campaign"
+        "delete": "Delete campaign",
+        "markComplete": "Mark campaign complete",
+        "markActive": "Mark campaign active"
       },
       "session": {
         "delete": "Delete session"
@@ -586,6 +588,7 @@
       "collapseAllTopics": "Collapse all",
       "addBookmark": "Add bookmark",
       "moreBookmarks": "More bookmarks",
+      "campaignComplete": "Campaign complete",
       "historyBack": "Back",
       "historyForward": "Forward",
       "editRelationship": "Edit relationship",

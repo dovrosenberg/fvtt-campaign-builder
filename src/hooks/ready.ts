@@ -21,9 +21,6 @@ async function ready(): Promise<void> {
   const module = game.modules.get(moduleId);
   module.api = new ExternalAPI();
 
-  // register handlebars helpers
-  await foundry.applications.handlebars.loadTemplates([]);
-
   // setup the enricher
   setupEnricher();
 

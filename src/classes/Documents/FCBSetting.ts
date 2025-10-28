@@ -1,5 +1,5 @@
 import { toRaw } from 'vue';
-import { UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
+import { UserFlags, UserFlagKey, ModuleSettings, SettingKey, moduleId, JournalEntryFlagKey } from '@/settings'; 
 import { EntryFilterIndex, Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { TopicFolder, RootFolder, Entry, } from '@/classes';
@@ -408,13 +408,12 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     // get all the journal entries
     const indexEntries = await toRaw(this.compendium).getIndex(entryIndexFields);
 
-    // find the sessions connected to this campaign
+    // find the entries 
     const entries = indexEntries
       // first find the relevant ones
       .filter((e)=> (
-        // @ts-ignore
         e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Entry &&
-        e.pages && e.pages!.length > 0
+        !!e.pages && e.pages!.length > 0
       ))
       .map((e) => ({ 
         name: e.name, 
@@ -606,7 +605,7 @@ private async deleteRollTables() : Promise<void> {
   public async deleteActorFromSetting(actorId: string)
    {
     // remove from any PCs that are linked to it
-    for (let pc of (await this.topicFolders[Topics.PC].filterEntries((e)=>e.actorId === actorId, true))) {
+    for (let pc of (await this.topicFolders[Topics.PC]!.filterEntries((e)=>e.actorId === actorId, true))) {
       pc.actorId = '';
       await pc.save();
     }
@@ -625,7 +624,7 @@ private async deleteRollTables() : Promise<void> {
     }
 
     // remove from any Characters that are linked to it
-    for (let character of (await this.topicFolders[Topics.Character].allEntries(true))) {
+    for (let character of (await this.topicFolders[Topics.Character]!.allEntries(true))) {
       // check the related documents
       for (let i=0; i<character.actors.length; i++) {
         if (character.actors[i] === actorId) {
@@ -639,7 +638,7 @@ private async deleteRollTables() : Promise<void> {
 
   public async deleteSceneFromSetting(sceneId: string) {
     // remove from any Locations that are linked to it
-    for (let locations of (await this.topicFolders[Topics.Location].allEntries(true))) {
+    for (let locations of (await this.topicFolders[Topics.Location]!.allEntries(true))) {
       // check the related documents
       for (let i=0; i<locations.scenes.length; i++) {
         if (locations.scenes[i] === sceneId) {
