@@ -21,10 +21,14 @@ Click "Add Location/Organization/Character" to create a new relationship.  You c
 
 You can also drag and drop any Entry from the [^Setting Directory] onto the box at the top instead.
 
-## Roles
-For the relationship between a Character and either a Location or Organization, there is an extra field available - "Role".  This lets you describe how the Character is related.  For example, Joe might be the "Mayor" of Mainville.  This role is-bidirectional (i.e. if you edit it on the Joe side, you'll see that reflected on the Mainville side).  
+## Extra fields
+Some connectionships have additional fields to capture info about the relationship itself.
 
-Characters don't have a role when connected to other characters, in part because those tend to be asymmetrical (ex. Joe is Mary's parent, but Mary isn't Joe's parent).  These situations are better handled in your descriptions for the two Characters.
+### Role
+For the relationship between a Character and either a Location or Organization, there is an extra field available - "Role".  This lets you describe how the Character is related.  For example, Joe might be the "Mayor" of Mainville.  This role is bi-directional (i.e. if you edit it on the Joe side, you'll see that reflected on the Mainville side).  
+
+### Relationship
+When you connect two characters, two locations, or two organizations, there is an extra field available - "Relationship".  This lets you describe how the two are related.  For example, two kingdoms might be allies or two people might be friends.  This relationship is bi-directional (i.e. the same text shows on both sides).  This generally isn't a problem other than things like parent-child relationships where there isn't a good common word.  In these cases, I recommend just saying "mother/son" or whatever, which generally sufficient.
 
 ## The related entry list
 This list shows each of the related Entries.  You can click on the name to open that Entry (hold 'Control' to do it in a new tab).  You can click the Edit button or the role field text to modify the "Role" that describes the relationship (hit Enter to save).

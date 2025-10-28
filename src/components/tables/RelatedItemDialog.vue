@@ -371,24 +371,6 @@
   width: 100%;
   padding: 0.5rem 0;
 
-  h6 {
-    margin-bottom: 2px;
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
-
-    .tooltip-icon {
-      margin-left: 5px;
-      font-size: 12px;
-      color: #888;
-      cursor: help;
-
-      &:hover {
-        color: #555;
-      }
-    }
-  }
-
   .extra-fields-container {
     width: 100%;
     margin-top: 20px;
@@ -396,10 +378,36 @@
     .extra-fields-title {
       font-size: var(--fcb-font-size-header);
       font-weight: 600;
+      color: var(--fcb-text);
       margin-bottom: 0.75rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 2rem;
+      border-bottom: 3px solid var(--fcb-control-border);
       padding-bottom: 0.25rem;
-      width: 80%;
+      width: fit-content;
+    }
+
+    .field-wrapper {
+      font-size: var(--fcb-font-size-large);
+
+      h6 {
+        color: var(--fcb-text);
+        font-weight: 350;
+        margin-bottom: 2px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+
+        .tooltip-icon {
+          margin-left: 5px;
+          font-size: var(--font-size-12);
+          color: var(--fcb-text);
+          cursor: help;
+        }
+      }
+
+      input {
+        color: var(--fcb-text);
+      }
     }
   }
 }

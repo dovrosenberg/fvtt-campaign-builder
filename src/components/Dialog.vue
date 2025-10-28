@@ -254,27 +254,26 @@
           gap: 8px;
           min-width: 100px;
           font-size: var(--fcb-font-size-large);
+          color: var(--fcb-button-text);
+          background: var(--fcb-button-bg);
           border-radius: 3px;
           padding: 1px 6px;
           cursor: pointer;
           transition: all 0.2s ease;
           font-weight: 500;
-          border: 2px groove solid var(--fcb-control-border);
+          border: 2px groove solid var(--fcb-button-border);
 
             &:hover:not(:disabled) {
-              border-color: var(--fcb-control-border-hover);
+              border-color: var(--fcb-button-border-hover);
               box-shadow: 0 0 5px var(--fcb-accent);
+              background: var(--fcb-button-bg-hover);
+              color: var(--fcb-button-text-hover);
             }
 
           &.default {
             background: var(--fcb-primary);
             border: 2px groove solid rgb(201, 199, 184);
-            color: var(--fcb-text-inverted);
-
-            &:hover:not(:disabled) {
-              border-color: var(--fcb-control-border-hover-disabled);
-              box-shadow: 0 0 5px var(--fcb-accent);
-            }
+            color: var(--fcb-text-on-primary);
           }
 
           &:disabled {

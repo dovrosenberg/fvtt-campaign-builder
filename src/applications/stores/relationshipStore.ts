@@ -33,23 +33,26 @@ export const useRelationshipStore = defineStore('relationship', () => {
   const relatedDocumentRows = ref<RelatedDocumentDetails[]>([]);
   const sessionReferences = ref<SessionReference[]>([]);
 
+  // note that the field attribute becomes the key in the storage
+  //    and that key is used as part of the search index, so they should
+  //    be meaningful words/phrases
   const extraFields = {
     [Topics.Character]: {
-      [Topics.Character]: [],
+      [Topics.Character]: [{field:'relationship', header:'Relationship'}],
       [Topics.Location]: [{field:'role', header:'Role'}],
       [Topics.Organization]: [{field:'role', header:'Role'}],
       [Topics.PC]: [],
     },
     [Topics.Location]: {
       [Topics.Character]: [{field:'role', header:'Role'}],
-      [Topics.Location]: [],
+      [Topics.Location]: [{field:'relationship', header:'Relationship'}],
       [Topics.Organization]: [],
       [Topics.PC]: [{field:'role', header:'Role'}],
     },
     [Topics.Organization]: {
       [Topics.Character]: [{field:'role', header:'Role'}],
       [Topics.Location]: [],
-      [Topics.Organization]: [],
+      [Topics.Organization]: [{field:'relationship', header:'Relationship'}],
       [Topics.PC]: [{field:'role', header:'Role'}],
     },    
     [Topics.PC]: {
