@@ -511,7 +511,9 @@
       },
       "campaignFolder": {
         "createSession": "Créer une session",
-        "delete": "Supprimer la campagne"
+        "delete": "Supprimer la campagne",
+        "markComplete": "Marquer la campagne comme terminée",
+        "markActive": "Marquer la campagne comme active"
       },
       "session": {
         "delete": "Supprimer la session"
@@ -614,7 +616,8 @@
       "moreBookmarks": "Plus de favoris",
       "moveToToDo": "Déplacer vers la liste des tâches",
       "moveToIdeas": "Déplacer vers la liste des idées",
-      "cannotChangeSettingInPlayMode": "Impossible de changer le paramètre en mode jeu"
+      "cannotChangeSettingInPlayMode": "Impossible de changer le paramètre en mode jeu",
+      "campaignComplete": "Campagne terminée"
     },
     "errors": {
       "duplicateBookmark": "Déjà enregistré comme favori",

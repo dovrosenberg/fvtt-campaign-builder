@@ -536,7 +536,9 @@
       },
       "campaignFolder": {
         "createSession": "Создать сессию",
-        "delete": "Удалить кампанию"
+        "delete": "Удалить кампанию",
+        "markComplete": "Отметить кампанию завершенной",
+        "markActive": "Отметить кампанию активной"
       },
       "session": {
         "delete": "Удалить сессию"
@@ -631,7 +633,8 @@
       "moreBookmarks": "Больше закладок",
       "moveToToDo": "Переместить в список дел",
       "moveToIdeas": "Переместить в список идей",
-      "cannotChangeSettingInPlayMode": "Невозможно изменить настройки в режиме игры"
+      "cannotChangeSettingInPlayMode": "Невозможно изменить настройки в режиме игры",
+      "campaignComplete": "Кампания завершена"
     },
     "errors": {
       "duplicateBookmark": "Уже сохранено как закладка",

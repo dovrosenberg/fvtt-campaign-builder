@@ -511,7 +511,9 @@
       },
       "campaignFolder": {
         "createSession": "Sitzung erstellen",
-        "delete": "Kampagne löschen"
+        "delete": "Kampagne löschen",
+        "markComplete": "Kampagne als abgeschlossen markieren",
+        "markActive": "Kampagne als aktiv markieren"
       },
       "session": {
         "delete": "Sitzung löschen"
@@ -614,7 +616,8 @@
       "moreBookmarks": "Weitere Lesezeichen",
       "moveToToDo": "Zur Aufgabenliste verschieben",
       "moveToIdeas": "Zur Ideenliste verschieben",
-      "cannotChangeSettingInPlayMode": "Einstellung kann im Spielmodus nicht geändert werden"
+      "cannotChangeSettingInPlayMode": "Einstellung kann im Spielmodus nicht geändert werden",
+      "campaignComplete": "Kampagne abgeschlossen"
     },
     "errors": {
       "duplicateBookmark": "Bereits als Lesezeichen gespeichert",
