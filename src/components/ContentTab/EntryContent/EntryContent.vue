@@ -190,7 +190,9 @@
                     :initial-content="currentEntry?.roleplayingNotes || ''"
                     :style="{ 'height': '180px', 'margin-bottom': '.375rem'}"
                     :current-entity-uuid="currentEntry?.uuid"
+                    :enable-related-entries-tracking="ModuleSettings.get(SettingKey.autoRelationships)"
                     @editor-saved="onRolePlayingNotesSaved"
+                    @related-entries-changed="onRelatedEntriesChanged"
                   />
               </div>
 
