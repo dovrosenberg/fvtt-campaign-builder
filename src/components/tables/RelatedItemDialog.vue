@@ -23,10 +23,10 @@
                 :key="field.field"
                 class="field-wrapper"
               >
-                <h6>
+                <div class='field-name'>
                   {{ field.header }}
                   <!-- <i class="fas fa-info-circle tooltip-icon" data-tooltip="If you create a new type, it will be added to the master list"></i> -->
-                </h6>
+                </div>
                 <InputText
                   :id="field.field"
                   v-model="extraFieldValuesObj[field.field]"
@@ -387,11 +387,9 @@
     }
 
     .field-wrapper {
-      font-size: var(--fcb-font-size-large);
-
-      h6 {
+      .field-name {
+        font: 350 var(--fcb-font-size-large) var(--fcb-font-family);
         color: var(--fcb-text);
-        font-weight: 350;
         margin-bottom: 2px;
         margin-top: 8px;
         display: flex;
