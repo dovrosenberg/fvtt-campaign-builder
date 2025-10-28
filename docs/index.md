@@ -22,8 +22,32 @@ features:
 ---
 
 <script setup>
-import { inject } from 'vue'
-const version = inject('version')
+  import { computed, inject, ref } from 'vue'
+
+  const version = inject('version')
+  const screenshots = Array.from({ length: 4 }, (_, i) =>
+    new URL(`./assets/images/screenshot${i + 1}.webp`, import.meta.url).href
+  )
+  const labels = [
+    'Build out your world',
+    'Easily maintain connections between elements',
+    'Prep sessions in "Lazy DM" style (or however you choose)',
+    'AI generation of text and images (optional)'
+  ];
+  const currentIndex = ref(0);
+  const currentScreenshot = computed(() => screenshots[currentIndex.value]);
+  const slideLabel = computed(() => labels[currentIndex.value]);
+
+  const showNext = () => {
+    if (!screenshots.length) return
+    currentIndex.value = (currentIndex.value + 1) % screenshots.length
+  };
+
+  const showPrevious = () => {
+    if (!screenshots.length) return
+    currentIndex.value =
+      (currentIndex.value - 1 + screenshots.length) % screenshots.length
+  };
 </script>
 
 <style>
@@ -38,6 +62,57 @@ const version = inject('version')
   font-size: 1.2rem;
   color: var(--vp-c-text-2);
 }
+
+.screenshot-carousel {
+  margin: 2rem auto;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.screenshot-carousel__image {
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  max-width: 100%;
+  height: 480px;
+}
+
+.screenshot-carousel__controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.screenshot-carousel__button-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.screenshot-carousel__button {
+  background: var(--vp-c-brand-1);
+  border: none;
+  border-radius: 999px;
+  color: var(--vp-c-bg);
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.screenshot-carousel__button:hover,
+.screenshot-carousel__button:focus-visible {
+  background: var(--vp-c-brand-2);
+  transform: translateY(-2px);
+}
+
+.screenshot-carousel__label {
+  font-weight: 500;
+  color: var(--vp-c-text-2);
+}
 </style>
 
 # &nbsp;
@@ -48,6 +123,38 @@ const version = inject('version')
 # Quick start
 
 Do you learn by doing?  Just check out the [Getting Started](/getting-started/) guide. 
+
+# Preview
+
+<div class="screenshot-carousel" v-if="screenshots.length">
+  <img
+    class="screenshot-carousel__image"
+    :src="currentScreenshot"
+    :alt="slideLabel"
+    loading="lazy"
+  />
+  <div class="screenshot-carousel__controls" role="group" aria-label="Screenshots">
+    <span class="screenshot-carousel__label">{{ slideLabel }}</span>
+    <div class="screenshot-carousel__button-row">
+      <button
+        type="button"
+        class="screenshot-carousel__button"
+        @click="showPrevious"
+        aria-label="Show previous screenshot"
+      >
+        Previous
+      </button>
+      <button
+        type="button"
+        class="screenshot-carousel__button"
+        @click="showNext"
+        aria-label="Show next screenshot"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>
 
 # Introduction
 
