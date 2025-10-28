@@ -265,7 +265,7 @@
   h3 {
     margin-top: 0;
     margin-bottom: 1rem;
-    font-size: var(--font-size-16);
+    font-size: var(--fcb-font-size-header);
     font-weight: 600;
   }
 

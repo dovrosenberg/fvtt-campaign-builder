@@ -24,6 +24,7 @@
           @click="onPushToSessionClick"
           :disabled="pushButtonDisabled"
           :title="pushButtonTitle"
+          style="margin-left: 8px;"
         >
           <i class="fas fa-share"></i>
         </button>

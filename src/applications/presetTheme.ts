@@ -4,6 +4,7 @@ import { definePreset } from '@primevue/themes';
 const fcbVariables = {
   light: {
     fcbText: 'hsl(210 12% 18%)',
+    fcbTextMuted: 'hsl(210 9% 38%)',
     fcbSurface: '#fff',
     fcbSurface2: 'hsl(210 15% 95%)',
     fcbSurfaceShaded: '#f1edee',  //color-mix(in oklch, var(--fcb-primary-500), white 92%)',
@@ -16,9 +17,11 @@ const fcbVariables = {
     fcbButtonBorderHover: 'hsl(22 100% 55%)',
     fcbSheetInputBorder: 'rgb(122, 121, 113)',
     fcbSplitterGutter: 'hsl(210 10% 82%)',
+    fcbTableHeaderBottomBorder: 'hsl(210 7% 50%)',
   },
   dark: {
     fcbText: 'hsl(210 20% 94%)',
+    fcbTextMuted: 'hsl(210 8% 65%)',
     fcbSurface: 'hsl(210, 12%, 18%)',
     fcbSurface2: 'hsl(210 14% 15%)',
     fcbSurfaceShaded: '#293337', //'color-mix(in oklab, var(--fcb-primary) 10%, var(--fcb-surface))',
@@ -31,6 +34,7 @@ const fcbVariables = {
     fcbButtonBorderHover: 'hsl(22 100% 55%)',
     fcbSheetInputBorder: 'rgb(122, 121, 113)',
     fcbSplitterGutter: 'hsl(210 10% 28%)',
+    fcbTableHeaderBottomBorder: 'hsl(210 8% 65%)',
   },
   fcbDarkOverlay: 'rgba(0, 0, 0, 0.05)',
   fcbLightOverlay: 'rgba(255, 255, 255, 0.10)',
@@ -48,16 +52,30 @@ export default definePreset(Aura, {
     datatable: {
       colorScheme: {
         light: {
+          headerColor: fcbVariables.light.fcbTextMuted,
+          headerBackground: fcbVariables.light.fcbSurface,
+          headerCellBackground: fcbVariables.light.fcbSurface,
+          headerCellColor: fcbVariables.light.fcbText,
+          headerCellSelectedBackground: fcbVariables.light.fcbSurface2,
           headerCellSelectedColor: fcbVariables.fcbAccent,
+          headerCellBorderColor: fcbVariables.light.fcbTableHeaderBottomBorder,
           rowColor: fcbVariables.light.fcbText,
+          rowBackground: fcbVariables.light.fcbSurface,
           rowHoverColor: fcbVariables.light.fcbSurface2,
-          bodyCellBorderColor: 'rgb(165, 165, 155)',
+          bodyCellBorderColor: fcbVariables.light.fcbButtonBorder,
         },
         dark: {
+          headerColor: fcbVariables.dark.fcbTextMuted,
+          headerBackground: fcbVariables.dark.fcbSurface,
+          headerCellBackground: fcbVariables.dark.fcbSurface,
+          headerCellColor: fcbVariables.dark.fcbText,
+          headerCellSelectedBackground: fcbVariables.dark.fcbSurface2,
           headerCellSelectedColor:  fcbVariables.fcbAccent,
+          headerCellBorderColor: fcbVariables.dark.fcbTableHeaderBottomBorder,
           rowColor: fcbVariables.dark.fcbText,
+          rowBackground: fcbVariables.dark.fcbSurface,
           rowHoverColor: fcbVariables.dark.fcbSurface2,
-          bodyCellBorderColor: 'rgb(165, 165, 155)',
+          bodyCellBorderColor: fcbVariables.dark.fcbButtonBorder,
         }
       },
       headerBackground: 'inherit',

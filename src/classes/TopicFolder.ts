@@ -23,37 +23,37 @@ export class TopicFolder {
    * An array of top-level nodes.
    */
   public get topNodes(): readonly string[] {
-    return this.setting.topics[this.topic].topNodes;
+    return this.setting.topics[this.topic]!.topNodes;
   }
   
   /**
    * An array of top-level nodes.
    */
   public set topNodes(value: string[] | readonly string[]) {
-    this.setting.topics[this.topic].topNodes = value.slice();
+    this.setting.topics[this.topic]!.topNodes = value.slice();
   }
 
   /**
    * An object where each key is a topic, and the value is an array of valid types.
    */
   public get types(): string[] {
-    return this.setting.topics[this.topic].types;
+    return this.setting.topics[this.topic]!.types;
   }
 
   /**
    * An object where each key is a topic, and the value is an array of valid types.
    */
   public set types(value: string[]) {
-    this.setting.topics[this.topic].types = value;
+    this.setting.topics[this.topic]!.types = value;
   }
 
   /** map of entry uuid to name for all entries in the folder */
   public get entries(): Record<string, string> {
-    return this.setting.topics[this.topic].entries;
+    return this.setting.topics[this.topic]!.entries;
   }
 
   public set entries(value: Record<string, string>) {
-    this.setting.topics[this.topic].entries = value;
+    this.setting.topics[this.topic]!.entries = value;
   }
   
   /**

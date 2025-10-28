@@ -437,7 +437,7 @@
 
 <style lang="scss">
   .fcb-strong-start-header {
-    font-size: var(--font-size-16);
+    font-size: var(--fcb-font-size-large);
     font-weight: 600;
     font-family: var(--fcb-font-family);
     color: var(--fcb-sheet-header-label-color);

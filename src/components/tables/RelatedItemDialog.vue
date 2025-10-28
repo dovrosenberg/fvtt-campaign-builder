@@ -394,7 +394,7 @@
     margin-top: 20px;
 
     .extra-fields-title {
-      font-size: var(--font-size-16);
+      font-size: var(--fcb-font-size-header);
       font-weight: 600;
       margin-bottom: 0.75rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);

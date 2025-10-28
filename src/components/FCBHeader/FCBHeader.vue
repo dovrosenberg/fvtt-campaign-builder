@@ -471,7 +471,7 @@
     }
 
     hr.vertical {
-      height: 100%;
+      height: 80%;
       width: 1px;
       border-right: 2px groove var(--fcb-header-nav-vertical-line);
       flex: 0 0 auto;

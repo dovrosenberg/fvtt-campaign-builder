@@ -237,9 +237,9 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   public async loadCampaigns(): Promise<Record<string, Campaign>> {
     // we clean up bad ones because various old versions may have stranded entries
     for (const id in this.campaignNames) {
-      const campaignObj = await Campaign.fromUuid(id);
+      const campaign = await Campaign.fromUuid(id);
 
-      if (!campaignObj) {
+      if (!campaign) {
         // clean it up
 
         // because we're going to save the changes, we'll put in these things to delete the keys and
@@ -251,8 +251,8 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
         delete this.campaignNames[id];
         delete this.campaigns[id];
       } else {
-        this.campaignNames[id] = campaignObj.name;
-        this.campaigns[id] = campaignObj;
+        this.campaignNames[id] = campaign.name;
+        this.campaigns[id] = campaign;
       }
     }
 
@@ -509,26 +509,29 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     await this.save();
   }  
 
+  protected _prepData(data: SettingDocClass): void {
+    // convert unsafe keys
+    data.system.hierarchies = cleanKeysOnSave(data.system.hierarchies);
+    data.system.campaignNames = cleanKeysOnSave(data.system.campaignNames);
+    data.system.expandedIds = cleanKeysOnSave(data.system.expandedIds);
+
+    for (const topic in data.system.topics) {
+      data.system.topics[topic] = {
+        ...data.system.topics[topic],
+        entries: cleanKeysOnSave(data.system.topics[topic].entries)
+      }
+    }
+
+  }
+  
   public async save() {
     const nameChanged = this._clone.name !== this._doc.name;
 
     // we attempt to save first - because if it fails, we don't 
     //    want to adjust anything else
     try {
-      // convert unsafe keys
-      this.hierarchies = cleanKeysOnSave(this.hierarchies);
-      this.campaignNames = cleanKeysOnSave(this.campaignNames);
-      this.expandedIds = cleanKeysOnSave(this.expandedIds);
-
       // populate the topic folders; important in case we changed anything in topics
       this.populateTopics();
-
-      for (const topic in this.topics) {
-        this.topics[topic] = {
-          ...this.topics[topic],
-          entries: cleanKeysOnSave(this.topics[topic].entries)
-        }
-      }
 
       // now save the setting - this will put clone back where it should be
       await super.save();
