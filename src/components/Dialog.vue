@@ -14,7 +14,7 @@
       <a 
         class="header-button control close"
         data-testid="dialog-close-button"
-        @click="() => { show = false; emit('cancel'); }"
+        @click="() => { show = false; emit('update:modelValue', false); emit('cancel'); }"
       >
         <i class="fas fa-times"></i>
         <span class="close-text">{{ localize('labels.close') }}</span>
