@@ -605,7 +605,7 @@ private async deleteRollTables() : Promise<void> {
   public async deleteActorFromSetting(actorId: string)
    {
     // remove from any PCs that are linked to it
-    for (let pc of (await this.topicFolders[Topics.PC].filterEntries((e)=>e.actorId === actorId, true))) {
+    for (let pc of (await this.topicFolders[Topics.PC]!.filterEntries((e)=>e.actorId === actorId, true))) {
       pc.actorId = '';
       await pc.save();
     }
@@ -624,7 +624,7 @@ private async deleteRollTables() : Promise<void> {
     }
 
     // remove from any Characters that are linked to it
-    for (let character of (await this.topicFolders[Topics.Character].allEntries(true))) {
+    for (let character of (await this.topicFolders[Topics.Character]!.allEntries(true))) {
       // check the related documents
       for (let i=0; i<character.actors.length; i++) {
         if (character.actors[i] === actorId) {
@@ -638,7 +638,7 @@ private async deleteRollTables() : Promise<void> {
 
   public async deleteSceneFromSetting(sceneId: string) {
     // remove from any Locations that are linked to it
-    for (let locations of (await this.topicFolders[Topics.Location].allEntries(true))) {
+    for (let locations of (await this.topicFolders[Topics.Location]!.allEntries(true))) {
       // check the related documents
       for (let i=0; i<locations.scenes.length; i++) {
         if (locations.scenes[i] === sceneId) {
