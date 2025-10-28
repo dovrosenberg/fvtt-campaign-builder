@@ -10,6 +10,12 @@ World & Campaign Builder is designed to streamline every part of your TTRPG prep
 
 See the [user documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/) for full details.
 
+<p align="center">
+  <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot1.webp" alt="World building view" width="260" />
+  <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot2.webp" alt="Entry relationships view" width="260" />
+  <img src="https://dovrosenberg.github.io/fvtt-campaign-builder/screenshots/screenshot3.webp" alt="Session planning view" width="260" />
+</p>
+
 ## A note on AI and "Advanced Features"
 You'll see lots of references to AI capabilities in the [documentation](https://dovrosenberg.github.io/fvtt-campaign-builder/) and feature lists.  There is no AI-generated content (or any other content) provided by the module (other than foreign language translations of UI elements). It merely has the capability to use AI to generate various things if you desire.  
 
