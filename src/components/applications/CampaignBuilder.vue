@@ -298,27 +298,14 @@
   body.vtt.game {
     .p-select-list-container {
       .p-select-option:not(.p-disabled).p-focus {
-        background-color: var(--fcb-primary-100) !important;
+        background-color: var(--fcb-list-highlight-bg) !important;
 
         &:not(.p-select-option-selected) {
-          color: var(--fcb-text) !important;
+          color: var(--fcb-list-highlight-text) !important;
         }
       }
     }
-    &.dark-theme {
-      .p-select-list-container {
-        .p-select-option:not(.p-disabled).p-focus {
-          background-color: var(--fcb-primary-300) !important;
- 
-          &:not(.p-select-option-selected) {
-            color: var(--fcb-text) !important;
-          }
-          }
-      }
-    }
   }
-
-
 
   .fcb-main-window {  
     min-width: 640px;

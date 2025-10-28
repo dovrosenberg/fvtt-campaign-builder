@@ -31,14 +31,14 @@
       <div
         class="flexcol create-entry-dialog-content"
       >
-        <h6>
+        <div class="field-label">
           {{ localize('labels.fields.name')}}
           <i 
             v-if="generateMode"
             class="fas fa-info-circle tooltip-icon" 
             :data-tooltip="localize('tooltips.createEntry.name')"
           ></i>
-        </h6>
+        </div>
         <InputText
           v-model="name"
           type="text"
@@ -46,12 +46,12 @@
           :pt="{ root: { style: { 'font-size': 'var(--fcb-font-size-large)' }}}"      
         />
 
-        <h6>
+        <div class="field-label">
           {{ localize('labels.fields.type')}}
           <i 
             class="fas fa-info-circle tooltip-icon" 
             :data-tooltip="localize('tooltips.createEntry.type')"></i>
-        </h6>
+        </div>
         <TypeSelect
           :initial-value="type"
           :topic="props.topic"
@@ -59,14 +59,14 @@
         />
 
         <div v-if="props.topic===Topics.Character">
-          <h6>
+          <div class="field-label">
             {{ localize('labels.fields.species')}}
             <i 
               v-if="generateMode"
               class="fas fa-info-circle tooltip-icon" 
               :data-tooltip="localize('tooltips.createEntry.species')"
             ></i>
-          </h6>
+          </div>
           <SpeciesSelect
             :initial-value="speciesId"
             :allow-new-items="true"
@@ -75,14 +75,14 @@
           />
         </div>
         <div v-else-if="hasHierarchy(props.topic)">
-          <h6>
+          <div class="field-label">
             {{ localize('labels.fields.parent')}}
             <i 
               v-if="generateMode"
               class="fas fa-info-circle tooltip-icon" 
               :data-tooltip="localize('tooltips.createEntry.parent')"
             ></i>
-          </h6>
+          </div>
           <TypeAhead 
             :initial-list="validParents"
             :initial-value="parentId || ''"
@@ -90,21 +90,21 @@
           />
         </div>
 
-        <h6>
+        <div class="field-label">
           {{ generateMode ? localize('labels.fields.startingDescription') : localize('labels.fields.description') }}
           <i
             v-if="generateMode" 
             class="fas fa-info-circle tooltip-icon" 
             :data-tooltip="localize('tooltips.createEntry.description')"
           ></i>
-        </h6>
+        </div>
         <Textarea
           v-model="startingDescription"
           unstyled
           :pt="{ root: { 
             style: { 
               'font-size': 'var(--fcb-font-size-large)', 
-              'color': 'var(--input-text-color)',
+              'color': 'var(--fcb-text)',
               'min-height': '6rem',
               'max-height': '20rem',
               'resize': 'vertical',
@@ -664,7 +664,9 @@
   }
 
   .create-entry-dialog-content {
-    h6 {
+    .field-label {
+      font: 500 var(--fcb-font-size-large) var(--fcb-font-family);
+      color: var(--fcb-text-muted);
       display: flex;
       margin-bottom: 2px;
       margin-top: 8px;
@@ -728,7 +730,7 @@
 
       .prompt-message {
         text-align: center;
-        color: var(--fcb-color-text-generate-message);
+        color: var(--fcb-text);
         margin-top: 100px;
         font-style: italic;
       }

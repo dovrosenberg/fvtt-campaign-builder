@@ -410,7 +410,8 @@
 
         &.highlighted,
         &:hover {
-          background: var(--fcb-list-highlight); 
+          background-color: var(--fcb-list-highlight-bg); 
+          color: var(--fcb-list-highlight-text);
         }
       }
     }

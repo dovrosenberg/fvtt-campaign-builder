@@ -149,7 +149,7 @@ body.theme-dark {
   --fcb-surface:       var(--fcb-gray-800);
   --fcb-surface-2:     hsl(210 14% 15%);
   --fcb-surface-3:     hsl(210 14% 13%);
-  --fcb-surface-shaded: color-mix(in oklab, var(--fcb-primary) 10%, var(--fcb-surface));
+  --fcb-surface-shaded: color-mix(in oklab, var(--fcb-primary) 20%, var(--fcb-surface));
   --fcb-elevated:      hsl(210 14% 18%);
   --fcb-border:        var(--fcb-gray-700);
   --fcb-shadow:        0 1px 2px rgba(0,0,0,.6), 0 8px 24px rgba(0,0,0,.45);
@@ -247,8 +247,9 @@ body {
   --fcb-scrollbar-thumb: transparent;
 
   // for typeaheads, search
+  --fcb-list-highlight-bg: var(--fcb-primary-100);
+  --fcb-list-highlight-text: var(--fcb-gray-900);
+  --fcb-list-highlight-text-muted: var(--fcb-gray-600);
   --fcb-list-background: var(--fcb-control-bg);
-  --fcb-list-highlight: var(--fcb-surface-shaded);
-  --fcb-color-text-generate-message: var(--fcb-text);
 }
 

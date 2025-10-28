@@ -40,7 +40,8 @@
         <div class="fcb-search-result-header">
           <!-- If there's a type use that, otherwise, use the topic -->
           <span class="fcb-search-result-name">
-            {{ result.name }} ({{ result.resultType === 'entry' ? (result.type ? result.type : result.topic) : result.resultType === 'session' ? localize('labels.session.session') : localize('labels.pc.pc') }})
+            {{ result.name }} 
+            <span class="fcb-search-result-topic-type">({{ result.resultType === 'entry' ? (result.type ? result.type : result.topic) : result.resultType === 'session' ? localize('labels.session.session') : localize('labels.pc.pc') }})</span>
           </span>
         </div>
       </div>
@@ -318,15 +319,35 @@
       padding: 6px 8px;
       border-bottom: 1px solid var(--fcb-control-border);
       cursor: pointer;
-      background-color: var(--fcb-list-background);
+      background: var(--fcb-list-background);
       
       &:last-child {
         border-bottom: none;
       }
       
+      .fcb-search-result-name {
+        font-size: var(--font-size-12);
+        font-weight: 500;
+        color: var(--fcb-text);
+
+        .fcb-search-result-topic-type {
+          color: var(--fcb-text-muted);
+        }
+      }
+
       &:hover,
       &.fcb-search-result-selected {
-        background-color: var(--fcb-list-highlight);
+        background: var(--fcb-list-highlight-bg);
+
+        .fcb-search-result-name {
+          font-size: var(--font-size-12);
+          font-weight: 500;
+          color: var(--fcb-list-highlight-text);
+
+          .fcb-search-result-topic-type {
+            color: var(--fcb-list-highlight-text-muted);
+          }
+        }
       }
       
       .fcb-search-result-header {
@@ -334,17 +355,6 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 0.125rem;
-        
-        .fcb-search-result-name {
-          font-size: var(--font-size-12);
-          font-weight: 500;
-          color: var(--fcb-text);
-        }
-        
-        .fcb-search-result-topic-type {
-          font-size: var(--font-size-12);
-          color: var(--fcb-text-muted);
-        }
       }
     }
   }
