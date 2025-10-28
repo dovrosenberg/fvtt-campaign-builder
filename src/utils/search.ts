@@ -150,6 +150,9 @@ class SearchService {
     for (const campaignId in setting.campaigns) {
       const campaign = setting.campaigns[campaignId];
 
+      if (!campaign || campaign.completed)
+        continue;
+
       const sessions = await campaign.allSessions();
       for (const session of sessions) { 
         // Create a searchable item for each session
@@ -411,6 +414,10 @@ class SearchService {
    * @returns A promise that resolves when the operation is complete
    */
   public async addOrUpdateSessionIndex(session: Session, setting: FCBSetting): Promise<void> {
+    // don't index sessions for completed campaigns
+    if (await session.isCampaignCompleted())
+      return;
+    
     if (!this._initialized || !this._searchIndex) {
       await this.initIndex();
     }

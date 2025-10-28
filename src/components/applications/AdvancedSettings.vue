@@ -212,7 +212,7 @@
   
   // local imports
   import { ModuleSettings, SettingKey } from '@/settings';
-  import { Backend, getGlobalSetting } from '@/classes';
+  import { Backend, Campaign, getGlobalSetting } from '@/classes';
   import { advancedSettingsApp } from '@/applications/settings/AdvancedSettingsApplication';
   import { localize } from '@/utils/game';
   
@@ -298,7 +298,12 @@
     }
 
     await setting.loadCampaigns();
-    campaignOptions.value = Object.entries(setting.campaignNames).map(([uuid, name]) => ({ uuid, name: name as string }));
+    for (const campaignId in setting.campaignNames) {
+      const campaign = await Campaign.fromUuid(campaignId);
+      if (campaign && !campaign.completed) {
+        campaignOptions.value.push({ uuid: campaignId, name: campaign.name });
+      }
+    }
   };
 
   ////////////////////////////////

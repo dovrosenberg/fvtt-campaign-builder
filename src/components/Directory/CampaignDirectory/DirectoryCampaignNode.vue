@@ -8,6 +8,7 @@
         class="noborder"
         style="margin-bottom:0px"
         draggable="true"
+        :data-tooltip="props.campaignNode.completed ? localize('tooltip.campaignComplete') : ''"
         @contextmenu="onCampaignContextMenu"
         @dragstart="onDragStart"
       >
@@ -122,6 +123,11 @@
 
   // change campaign
   const onCampaignFolderClick = async (_event: MouseEvent) => {
+    // if it's completed, don't toggle
+    if (currentNode.value.completed) {
+      return;
+    }
+
     currentNode.value = await campaignDirectoryStore.toggleWithLoad(currentNode.value as DirectoryCampaignNode, !currentNode.value.expanded);
   };
 
@@ -157,13 +163,14 @@
         { 
           icon: 'fa-check-circle',
           iconFontClass: 'fas',
-          label: props.campaignNode.completed ? localize('contextMenus.campaignFolder.markIncomplete') : localize('contextMenus.campaignFolder.markComplete'),
-          disabled: isInPlayMode.value,
+          label: props.campaignNode.completed ? localize('contextMenus.campaignFolder.markActive') : localize('contextMenus.campaignFolder.markComplete'),
+          hidden: isInPlayMode.value,
           onClick: async () => {
             const campaign = await Campaign.fromUuid(props.campaignNode.id);
             if (campaign) {
               campaign.completed = !campaign.completed;
               await campaign.save();
+
               // Update the local node's completed status
               props.campaignNode.completed = campaign.completed;
               // Refresh the campaign directory to show the updated status
@@ -194,32 +201,6 @@
 </script>
 
 <style lang="scss">
-  // Style for completed campaign
-  .fcb-campaign-folder.campaign-completed {
-    .node-name {
-      color: var(--fcb-text-muted);
-      opacity: 0.8;
-      font-style: italic;
-    }
-
-    .completed-icon {
-      color: var(--fcb-success);
-      margin-left: 4px;
-    }
-
-    // Style all child elements to be muted
-    ::v-deep(*) {
-      color: var(--fcb-text-muted) !important;
-      opacity: 0.7 !important;
-      
-      // Make sure links are also styled correctly
-      a {
-        color: var(--fcb-text-muted) !important;
-        opacity: 0.7 !important;
-      }
-    }
-  }
-
   #fcb-directory {
     // the campaign list section
     .fcb-directory-panel-wrapper {

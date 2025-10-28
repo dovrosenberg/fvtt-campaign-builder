@@ -1,5 +1,5 @@
 import { toRaw } from 'vue';
-import { UserFlags, UserFlagKey, ModuleSettings, SettingKey } from '@/settings'; 
+import { UserFlags, UserFlagKey, ModuleSettings, SettingKey, moduleId, JournalEntryFlagKey } from '@/settings'; 
 import { EntryFilterIndex, Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';
 import { FCBDialog } from '@/dialogs';
 import { TopicFolder, RootFolder, Entry, } from '@/classes';
@@ -408,13 +408,12 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     // get all the journal entries
     const indexEntries = await toRaw(this.compendium).getIndex(entryIndexFields);
 
-    // find the sessions connected to this campaign
+    // find the entries 
     const entries = indexEntries
       // first find the relevant ones
       .filter((e)=> (
-        // @ts-ignore
         e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Entry &&
-        e.pages && e.pages!.length > 0
+        !!e.pages && e.pages!.length > 0
       ))
       .map((e) => ({ 
         name: e.name, 

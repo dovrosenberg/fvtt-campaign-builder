@@ -87,7 +87,7 @@ export const usePlayingStore = defineStore('playing', () => {
   });
 
   const playableCampaigns = computed((): Campaign[] => {
-    return availableCampaigns.value.filter((c) => c.sessionIds.length !== 0);
+    return availableCampaigns.value.filter((c) => !c.completed && c.sessionIds.length !== 0);
   });
 
 

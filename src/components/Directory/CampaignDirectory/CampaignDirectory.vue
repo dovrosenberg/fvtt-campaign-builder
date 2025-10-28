@@ -115,6 +115,8 @@
             background: inherit;
             text-shadow: none;
             position: relative;
+
+            // if it contains 
           }
 
           div.details {
@@ -124,29 +126,21 @@
             &:not(:has(ul)) {
               margin-bottom: 0.25rem;
             }
-          }          
-        }
-      
-        // .fcb-setting-folder > .folder-header {
-        //   background: inherit !important;
-        //   font-weight: 700;
-        // }
-      }
-    }
+          }
 
-    .fcb-campaign-folder.campaign-completed {      
-      :deep(a),
-      .fa-folder-open {
-        color: var(--fcb-text-muted) !important;
-        opacity: 0.8 !important;
-      }
-    
-      .node-name {
-        font-style: italic;
-      }
-      
-      .completed-icon {
-        margin-left: 4px;
+          &.campaign-completed {      
+            color: var(--fcb-text-muted) !important;
+            opacity: 0.8 !important;
+          
+            .node-name {
+              font-style: italic;
+            }
+            
+            .completed-icon {
+              margin-left: 4px;
+            }
+          }   
+        }      
       }
     }
 

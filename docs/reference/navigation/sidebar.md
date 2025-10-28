@@ -73,5 +73,14 @@ By default, the Sessions are sorted by session number.  You can rearrange the Se
 
 ### Context menus
 Right-clicking on items in the Campaign tree provides additional options depending on the item type:
-1. Campaign - Create a session, Delete the Campaign
+1. Campaign - Create a session, Delete the Campaign, Mark Campaign Complete/Active
 2. Session - Delete the Session
+
+"Completing" a campaign does not remove any of the data associated with it, but has the following effects:
+- Grays it out and keeps it collapsed in the tree
+- Removes all session details from search results
+- Removes it from the default "email-to" campaign list in [Module Setings]
+- Does not show in the campaign-selector dropdown when in play mode
+
+> [!NOTE]
+> You can't change the completed status of a campaign while in play mode.  
