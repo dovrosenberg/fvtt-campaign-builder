@@ -281,7 +281,9 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   }
 
   // now migrate all the campaigns
-  for (const id in newSetting.campaignNames) {
+  // we save these because they get removed as campaigns are created
+  const oldCampaignNames = { ...newSetting.campaignNames };
+  for (const id in oldCampaignNames) {
     const campaign = await fromUuid<JournalEntry>(id);
 
     // NOTE! This may generate a bunch of console warnings because the old stuff wasn't 
@@ -299,9 +301,11 @@ async function migrateSetting(folder: Folder): Promise<FCBSetting> {
   }
 
   // now that the campaigns are migrated, we need to update our keys
-  newSetting.campaignNames = Object.keys(newSetting.campaignNames).reduce((retval, id) => {
+  // it contains old ids and new ids at the moment; this will clear the new ones and then replace 
+  //    the old ones with the new ones :) 
+  newSetting.campaignNames = Object.keys(oldCampaignNames).reduce((retval, id) => {
     if (globalUuidMap[id]) {
-      retval[globalUuidMap[id]] = newSetting.campaignNames[id];
+      retval[globalUuidMap[id]] = oldCampaignNames[id];
     }
 
     return retval;
@@ -487,7 +491,10 @@ async function migrateTopicFolder(setting: FCBSetting, oldTopicFolder: JournalEn
   //    parents don't show up)
   // @ts-ignore
   const oldTopNodes = oldTopicFolder.getFlag(moduleId, 'topNodes') as string[] || [] ;
-  const newTopNodes = oldTopNodes.map((uuid) => globalUuidMap[uuid]);
+  const newTopNodes = oldTopNodes
+    .map((uuid) => globalUuidMap[uuid])
+    .filter((uuid) => uuid != undefined);
+
   topicFolder.topNodes = newTopNodes;
 
   await topicFolder.save();

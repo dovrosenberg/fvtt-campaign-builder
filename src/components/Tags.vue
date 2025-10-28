@@ -275,6 +275,7 @@
 
   .tags-input {
     width: 100%;
+    border-color: var(--fcb-control-border);
   }
 
   #fcb-tags-input.uninitialized {

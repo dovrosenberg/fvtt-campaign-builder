@@ -217,7 +217,7 @@
     text-align: center;
     align-items: center;
     justify-content: center;
-    font-size: var(--font-size-16);
+    font-size: var(--fcb-font-size-header);
     color: var(--fcb-home-color);
     font-weight: bold;
 
