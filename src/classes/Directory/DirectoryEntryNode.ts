@@ -2,8 +2,8 @@
  * A class representing an entry (which might have children) in the topic tree structure
  */
 
-import { Hierarchy, } from '@/types';
-import { TopicFolder, Entry, CollapsibleNode, DirectoryTopicTreeNode } from '@/classes';
+import { EntryBasicIndex, Hierarchy, } from '@/types';
+import { TopicFolder, CollapsibleNode, DirectoryTopicTreeNode } from '@/classes';
 import { NO_NAME_STRING, NO_TYPE_STRING } from '@/utils/hierarchy';
 
 export class DirectoryEntryNode extends DirectoryTopicTreeNode {
@@ -20,9 +20,9 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
   }
 
   // converts the entry to a DirectoryEntryNode for cleaner interface
-  static fromEntry = async (entry: Entry): Promise<DirectoryEntryNode> => {
+  static fromEntryBasicIndex = (entry: EntryBasicIndex, parentTopicFolder: TopicFolder): DirectoryEntryNode => {
     if (!CollapsibleNode._currentSetting)
-      throw new Error('No currentSetting in DirectoryEntryNode.fromEntry()');
+      throw new Error('No currentSetting in DirectoryEntryNode.fromEntryBasicIndex()');
 
     const hierarchy = CollapsibleNode._currentSetting.getEntryHierarchy(entry.uuid);
     const expandedIds = CollapsibleNode._currentSetting.expandedIds;
@@ -32,7 +32,7 @@ export class DirectoryEntryNode extends DirectoryTopicTreeNode {
       entry.uuid,
       entry.name || NO_NAME_STRING,
       entry.type || NO_TYPE_STRING,
-      await entry.getTopicFolder(),
+      parentTopicFolder,
       hierarchy?.parentId || null,
       hierarchy?.children || [],
       [],

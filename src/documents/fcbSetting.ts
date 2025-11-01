@@ -85,13 +85,6 @@ export class SettingDataModel<
     this.hierarchies = cleanKeysOnLoad(this.hierarchies);
     this.campaignNames = cleanKeysOnLoad(this.campaignNames);
     this.expandedIds = cleanKeysOnLoad(this.expandedIds);
-
-    for (const topic of Object.keys(this.topics) as unknown as ValidTopic[]) {
-      this.topics[topic] = {
-        ...this.topics[topic],
-        entries: cleanKeysOnLoad(this.topics[topic].entries),
-      }
-    }
   }
 }
 

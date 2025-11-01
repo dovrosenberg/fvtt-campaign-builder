@@ -64,7 +64,7 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
 
       let loadedChildrenNodes = [] as DirectoryTypeEntryNode[];
       for (const entry of loadedChildren) {
-        loadedChildrenNodes.push(await DirectoryTypeEntryNode.fromEntry(entry, this.loadedTypes[i]));
+        loadedChildrenNodes.push(DirectoryTypeEntryNode.fromEntryBasicIndex({uuid: entry.uuid, name: entry.name, type: entry.type}, this.loadedTypes[i]));
       }
       
       loadedChildrenNodes = loadedChildrenNodes.sort((a, b) => a.name.localeCompare(b.name));

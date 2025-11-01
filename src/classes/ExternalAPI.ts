@@ -48,8 +48,8 @@ export class ExternalAPI {
 
       const results = [] as GetListReturnValue[];
 
-      for (const entryId in topicFolder.entries) {
-        results.push({ uuid: entryId, name: topicFolder.entries[entryId] });
+      for (const entry of topicFolder?.entryIndex || []) {
+        results.push({ uuid: entry.uuid, name: entry.name });
       }
 
       return results;

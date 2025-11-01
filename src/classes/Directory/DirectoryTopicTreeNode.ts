@@ -3,7 +3,7 @@
  */
 
 import { CollapsibleNode, DirectoryEntryNode, TopicFolder, } from '@/classes';
-import { EntryFilterIndex } from '@/types';
+import { EntryBasicIndex } from '@/types';
 
 export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEntryNode> {
   topicFolder: TopicFolder;
@@ -32,10 +32,11 @@ export abstract class DirectoryTopicTreeNode extends CollapsibleNode<DirectoryEn
     // we only want to load ones not already in _loadedNodes, unless its in updateIds
     const uuidsToLoad = ids.filter((id)=>!CollapsibleNode._loadedNodes[id] || updateIds.includes(id));
 
-    const entries = await this.topicFolder.filterEntries((e: EntryFilterIndex)=>uuidsToLoad.includes(e.uuid), true);
+    const entryIndices = this.topicFolder.entryIndex
+      .filter((index: EntryBasicIndex)=>uuidsToLoad.includes(index.uuid));
 
-    for (let i=0; i<entries.length; i++) {
-      const newNode = await DirectoryEntryNode.fromEntry(entries[i]);
+    for (const index of entryIndices) {
+      const newNode = await DirectoryEntryNode.fromEntryBasicIndex(index);
       CollapsibleNode._loadedNodes[newNode.id] = newNode;
     }
   }

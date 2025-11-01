@@ -1,4 +1,4 @@
-import { TabSummary,  Hierarchy, Topics, } from '@/types';
+import { TabSummary,  Hierarchy, Topics, EntryBasicIndex, } from '@/types';
 import { TopicFolder, Entry, FCBSetting, } from '@/classes';
 
 /**
@@ -43,8 +43,8 @@ export function validParentItems(FCBSetting: FCBSetting, entry: Entry): {name: s
     return [];
 
   // get the list - every entry in the pack that is not this one and does not have it as an ancestor
-  return Object.keys(topicFolder.entries)
-    .map((uuid)=> ({ name: topicFolder.entries[uuid], id: uuid}))
+  return topicFolder.entryIndex
+    .map((index: EntryBasicIndex)=> ({ name: index.name, id: index.uuid}))
     .filter(e=>( e.id !== entry.uuid && !(hierarchies[e.id]?.ancestors || []).includes(entry.uuid)));
 }
 

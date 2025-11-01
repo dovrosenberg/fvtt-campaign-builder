@@ -513,14 +513,6 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
     data.system.hierarchies = cleanKeysOnSave(data.system.hierarchies);
     data.system.campaignNames = cleanKeysOnSave(data.system.campaignNames);
     data.system.expandedIds = cleanKeysOnSave(data.system.expandedIds);
-
-    for (const topic in data.system.topics) {
-      data.system.topics[topic] = {
-        ...data.system.topics[topic],
-        entries: cleanKeysOnSave(data.system.topics[topic].entries)
-      }
-    }
-
   }
   
   public async save() {

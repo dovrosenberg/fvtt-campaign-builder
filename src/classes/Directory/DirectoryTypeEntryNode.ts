@@ -2,8 +2,9 @@
  * A class representing a type grouping node in the topic tree structures (when in group by type mode)
  */
 
-import { Entry, CollapsibleNode, DirectoryTypeNode, } from '@/classes';
+import { CollapsibleNode, DirectoryTypeNode, } from '@/classes';
 import { NO_NAME_STRING } from '@/utils/hierarchy';
+import { EntryBasicIndex } from '@/types';
 
 // represents an entry in the type-grouped structure
 // has no children, the parent is a DirectoryTypeNode
@@ -17,8 +18,7 @@ export class DirectoryTypeEntryNode extends CollapsibleNode<never> {
   }
 
   // converts the entry to a DirectoryTypeEntryNode for cleaner interface
-  // async just for compatibility with DirectoryEntryNode.fromEntry
-  static fromEntry = async (entry: Entry, parentTypeNode: DirectoryTypeNode): Promise<DirectoryTypeEntryNode> => {
+  static fromEntryBasicIndex = (entry: EntryBasicIndex, parentTypeNode: DirectoryTypeNode): DirectoryTypeEntryNode => {
     return new DirectoryTypeEntryNode(
       entry.uuid,
       entry.name || NO_NAME_STRING,

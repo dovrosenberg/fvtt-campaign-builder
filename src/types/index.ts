@@ -150,6 +150,14 @@ export interface SettingIndex {
   packId: string;
 }
 
+/** This is the format of how our entries are stored in the topic folder */
+export interface EntryBasicIndex { 
+  uuid: string;
+  name: string; 
+  type: string; 
+};
+
+
 export type ValidDocType = 
   typeof DOCUMENT_TYPES.Setting | 
   typeof DOCUMENT_TYPES.Campaign | 

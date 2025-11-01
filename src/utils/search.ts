@@ -239,8 +239,10 @@ class SearchService {
         let ancestorName: string | undefined;
         for (const topicKey in setting.topicFolders) {
           const topicFolder = setting.topicFolders[topicKey];
-          if (topicFolder.entries[ancestorUuid]) {
-            ancestorName = topicFolder.entries[ancestorUuid];
+          
+          const ancestorEntry = topicFolder.entryIndex.find(e=>e.uuid===ancestorUuid);
+          if (ancestorEntry) {
+            ancestorName = ancestorEntry.name;
             break;
           }
         }

@@ -166,7 +166,17 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     if (!entry)
       return null;
 
-    topicFolder.entries[entry.uuid] = entry.name;
+    let entryItem = topicFolder.entryIndex.find((e)=> e.uuid === entry.uuid);
+    if (!entryItem) {
+      entryItem = {
+        uuid: entry.uuid,
+        name: entry.name,
+        type: entry.type,
+      };
+      topicFolder.entryIndex.push(entryItem);
+    } else {
+      entryItem.name = entry.name;
+    }
 
     // if there's no parent, add it to topnodes
     if (!options.parentId) {
@@ -405,7 +415,18 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     // update name index if it changed
     if (needNameUpdate) {
       const topicFolder = await this.getTopicFolder();
-      topicFolder.entries[this.uuid] = this._clone.name;
+
+      let entryItem = topicFolder.entryIndex.find((e)=> e.uuid === this.uuid);
+      if (!entryItem) {
+        entryItem = {
+          uuid: this.uuid,
+          name: this._clone.name,
+          type: this._clone.system.type,
+        };
+        topicFolder.entryIndex.push(entryItem);
+      } else {
+        entryItem.name = this._clone.name;
+      }
       await topicFolder.save();
     }
 
@@ -428,8 +449,8 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
     
     await toRaw(this._doc).delete();
 
-    // remove from master entry list and topnodes
-    delete topicFolder.entries[uuid];
+    // remove from master entry index and topnodes    
+    topicFolder.entryIndex = topicFolder.entryIndex.filter((e)=> e.uuid !== uuid);
     topicFolder.topNodes = topicFolder.topNodes.filter((node) => node !== uuid);
     await topicFolder.save();
 

@@ -116,7 +116,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       topicNode.loadedTypes.push(newTypeNode);
     }
 
-    newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([await DirectoryTypeEntryNode.fromEntry(entry, newTypeNode)]).sort((a,b)=>a.name.localeCompare(b.name));
+    newTypeNode.loadedChildren = newTypeNode.loadedChildren.concat([DirectoryTypeEntryNode.fromEntryBasicIndex(entry, newTypeNode)]).sort((a,b)=>a.name.localeCompare(b.name));
     newTypeNode.children.push(entry.uuid);
 
     // update the hierarchy (even for entries without hierarchy, we still need it for filtering)
@@ -173,7 +173,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
     if (!child)
       return false;
 
-    const childNode =  await DirectoryEntryNode.fromEntry(child);
+    const childNode =  DirectoryEntryNode.fromEntryBasicIndex({uuid: child.uuid, name: child.name, type: child.type}, topicFolder);
     const oldParentId = childNode.parentId;
 
     // make sure it's not already in the right place
@@ -182,7 +182,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
 
     // get the parent, if any, and create the nodes for simpler syntax 
     const parent = parentId ? await Entry.fromUuid(parentId) : null;
-    const parentNode = parent ? await DirectoryEntryNode.fromEntry(parent) : null;
+    const parentNode = parent ? DirectoryEntryNode.fromEntryBasicIndex({uuid: parent.uuid, name: parent.name, type: parent.type}, topicFolder) : null;
     
     // make sure they share a topic (if parent isn't null)
     if (parent && child.topic !== parent.topic)
@@ -197,7 +197,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
       const oldParent = await Entry.fromUuid(childNode.parentId);
 
       if (oldParent) {
-        const oldParentNode = await DirectoryEntryNode.fromEntry(oldParent);
+        const oldParentNode = DirectoryEntryNode.fromEntryBasicIndex({uuid: oldParent.uuid, name: oldParent.name, type: oldParent.type}, topicFolder);
         if (oldParentNode) {
           oldParentNode.children = oldParentNode.children.filter((c)=>c!==childId);
           updateHierarchyFromNode(oldParent.uuid, oldParentNode);
@@ -242,7 +242,7 @@ export const useSettingDirectoryStore = defineStore('settingDirectory', () => {
           if (!child)
             continue;
 
-          const childNode = await DirectoryEntryNode.fromEntry(child);
+          const childNode = DirectoryEntryNode.fromEntryBasicIndex({uuid: child.uuid, name: child.name, type: child.type}, topicFolder);
           childNode.ancestors = childNode.ancestors.filter(a => !ancestorsToRemove.includes(a));
           childNode.ancestors = childNode.ancestors.concat(ancestorsToAdd);
 
