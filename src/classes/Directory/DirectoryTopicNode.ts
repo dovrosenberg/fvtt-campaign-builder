@@ -4,7 +4,7 @@
 
 import { TopicFolder, DirectoryTopicTreeNode, DirectoryEntryNode, DirectoryTypeNode, DirectoryTypeEntryNode, } from '@/classes';
 import { NO_TYPE_STRING } from '@/utils/hierarchy';
-import { EntryFilterIndex } from '@/types';
+import { EntryBasicIndex } from '@/types';
 
 export class DirectoryTopicNode extends DirectoryTopicTreeNode {
   name: string;
@@ -28,14 +28,14 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
    * @param expandedIds the ids that are currently expanded
    * @returns a promise that resolves when the entries are loaded
    */
-  public async loadTypeEntries (types: string [], expandedIds: Record<string, boolean | null>): Promise<void> {
+  public loadTypeEntries (types: string [], expandedIds: Record<string, boolean | null>): void {
     // this is relatively fast for now, so we just load them all... otherwise, we need a way to index the entries by 
     //    type on the journalentry, or pack or setting, which is a lot of extra data (or consider a special subtype of Journal Entry with a type field in the data model
     //    that is also in the index)
 
     // Determine if there are any entries without a type. If so, ensure we create a '(none)' grouping.
     // We only add the '(none)' node when it is actually needed.
-    const hasNoTypeEntries = (await this.topicFolder.filterEntries((e: EntryFilterIndex) => !e.type, false)).length > 0;
+    const hasNoTypeEntries = (this.topicFolder.entryIndex.find((e: EntryBasicIndex) => !e.type)) !== undefined;
     const typesToUse = hasNoTypeEntries && !types.includes(NO_TYPE_STRING) ? types.concat([NO_TYPE_STRING]) : types;
 
     // create the loadedType nodes then populate their children
@@ -55,16 +55,11 @@ export class DirectoryTopicNode extends DirectoryTopicTreeNode {
     for (let i=0; i<this.loadedTypes.length; i++) {
       const type = this.loadedTypes[i].name;
 
-      const loadedChildren = 
-        (await this.topicFolder.filterEntries((e: EntryFilterIndex): boolean=> {
-          const entryType = e.type;
-          return (!entryType && type===NO_TYPE_STRING) || (entryType && entryType===type) as boolean;
-        }, true)
-      );
+      const loadedChildren = this.topicFolder.entryIndex.filter((e: EntryBasicIndex): boolean=> e.type===type);
 
       let loadedChildrenNodes = [] as DirectoryTypeEntryNode[];
-      for (const entry of loadedChildren) {
-        loadedChildrenNodes.push(DirectoryTypeEntryNode.fromEntryBasicIndex({uuid: entry.uuid, name: entry.name, type: entry.type}, this.loadedTypes[i]));
+      for (const index of loadedChildren) {
+        loadedChildrenNodes.push(DirectoryTypeEntryNode.fromEntryBasicIndex({uuid: index.uuid, name: index.name, type: index.type}, this.loadedTypes[i]));
       }
       
       loadedChildrenNodes = loadedChildrenNodes.sort((a, b) => a.name.localeCompare(b.name));
