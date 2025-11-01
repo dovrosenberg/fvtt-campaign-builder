@@ -21,10 +21,10 @@ export class MigrationV1_5_1 implements Migration {
   public readonly targetVersion = '1.5.1';
   public readonly description = 'Rebuilds the topic folder entries index';
 
-  // private _context: MigrationContext;
+  private _context: MigrationContext;
 
   constructor(_context: MigrationContext) {
-    // this._context = context;
+    this._context = _context;
   }
 
   async migrate(): Promise<MigrationResult> {
@@ -35,6 +35,12 @@ export class MigrationV1_5_1 implements Migration {
       errors: [],
       warnings: []
     };
+
+    // if we just ran the 1.5.0 then we don't need to do anything because it applies
+    //   the latest model; but if we are upgrading from 1.5.0 previously migrated, then
+    //   we need to do this
+    if (this._context.originalVersion !== '1.5.0')
+      return result;
 
     try {
       const settings = await useMainStore().getAllSettings();

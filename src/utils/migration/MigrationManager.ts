@@ -20,7 +20,6 @@ export class MigrationManager {
    * If the last known version is below this, the user must upgrade to this version first.
    */
   private static readonly MINIMUM_VERSION = '1.3.1';
-  private static readonly UPDATE_TO_VERSION = '1.3.1';
   /**
    * Tracks whether migration has failed. If true, the Campaign Builder should not be opened.
    */
@@ -69,10 +68,11 @@ export class MigrationManager {
   }
 
   /**
-   * Create migration context
+   * Create migration context with the original module version
    */
-  private static createMigrationContext(): MigrationContext {
+  private static async createMigrationContext(originalVersion: string): Promise<MigrationContext> {
     return {
+      originalVersion,
       dryRun: false
     };
   }
@@ -115,7 +115,7 @@ export class MigrationManager {
     if (VersionUtils.compareVersions(lastVersion, this.MINIMUM_VERSION) < 0) {
       const errorMsg = localize('notifications.migration.minimumVersionRequired')
         .replace('{0}', lastVersion)
-        .replace('{1}', this.UPDATE_TO_VERSION)
+        .replace('{1}', this.MINIMUM_VERSION)
         .replace('{2}', currentVersion);
       notifyError(errorMsg);
       console.error(errorMsg);
@@ -141,6 +141,9 @@ export class MigrationManager {
       };
     }
 
+    // Create a single context for all migrations to ensure consistent originalVersion
+    const migrationContext = await this.createMigrationContext(lastVersion);
+    
     return await MigrationProgressDialog.withProgress(
       'Migrating Campaign Builder to new version',
       'Migrating your campaign data to the latest version...',
@@ -168,9 +171,7 @@ export class MigrationManager {
             let currentVersion: string = 'unknown';
 
             try {
-              const context = this.createMigrationContext();
-              const migration = new migrationClass(context);
-              
+              const migration = new migrationClass(migrationContext);
               currentVersion = migration.targetVersion;
               progress.updateStatus(`Running migration for version ${currentVersion}...`);
               
@@ -190,12 +191,19 @@ export class MigrationManager {
                 }
                 progress.updateStatus(`Migration failed for version ${currentVersion}`);
               }
+              // If migration failed, stop processing further migrations
+              if (!overallResult.success) {
+                throw new Error(`Stopping migrations due to failure in version ${currentVersion}`);
+              }
             } catch (error) { 
               overallResult.success = false;
               const errorMsg = `Migration failed for version ${currentVersion}: ${error}`;
               overallResult.errors?.push(errorMsg);
               console.error(errorMsg);
               progress.updateStatus(`Migration failed for version ${currentVersion}`);
+              
+              // Re-throw to break out of the loop
+              throw error;
             }
 
             completedMigrations++;

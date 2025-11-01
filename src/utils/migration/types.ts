@@ -39,6 +39,13 @@ export interface MigrationResult {
  * Migration context that can be passed to migrations
  */
 export interface MigrationContext {
+  /**
+   * The version of the module before any migrations were run
+   */
+  originalVersion: string;
+  /**
+   * If true, the migration should not make any changes
+   */
   dryRun?: boolean;
 }
 

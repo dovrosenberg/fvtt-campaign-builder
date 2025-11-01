@@ -2,7 +2,8 @@
  * A class representing an node representing a campaign in the campaign tree structures
  */
 
-import { Campaign, CollapsibleNode, DirectorySessionNode, Session, } from '@/classes';
+import { Campaign, CollapsibleNode, DirectorySessionNode, } from '@/classes';
+import { SessionFilterIndex } from 'src/types';
 
 export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode> {
   name: string;
@@ -39,7 +40,7 @@ export class DirectoryCampaignNode extends CollapsibleNode<DirectorySessionNode>
     if (!campaign)
       throw new Error('Bad campaign id in DirectoryCampaignNode._loadNodeList()');
 
-    const sessions = uuidsToLoad.length===0 ? [] : await campaign.filterSessions((s: Session)=> uuidsToLoad.includes(s.uuid));
+    const sessions = uuidsToLoad.length===0 ? [] : await campaign.filterSessions((s: SessionFilterIndex)=> uuidsToLoad.includes(s.uuid));
 
     for (let i=0; i<sessions.length; i++) {
       const newNode = DirectorySessionNode.fromSession(sessions[i], this.id);
