@@ -1,7 +1,7 @@
 # Change Log
 
 ## v1.5.0 - Tons of changes, but mostly behind the scenes
-![](https://img.shields.io/badge/release%20date-October%2023%2C%202025-blue)
+![](https://img.shields.io/badge/release%20date-November%201%2C%202025-blue)
 ![GitHub release](https://img.shields.io/github/downloads/dovrosenberg/fvtt-campaign-builder/v1.5.0/module.zip)
 
 - **Version 1.7 prep: This version has some significant changes in how data is stored.  PLEASE BACKUP YOUR WORLD BEFORE UPDATING.  When you first enter a world using the module, it will automatically migrate your data to the new format.  If it runs into issues, DO NOT keep using it and DO NOT attempt to downgrade.  Instead, reach out via Github or Discord for assistance, and use your backup (after restoring the older module version) in the meantime.  These changes are in support of the upcoming version 1.7 (which will allow you to customize the fields on entries, sessions, etc.) and v2.0 (which will allow you to share content with players)**
