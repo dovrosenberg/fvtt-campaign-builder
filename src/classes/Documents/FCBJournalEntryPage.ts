@@ -178,7 +178,7 @@ export class FCBJournalEntryPage<
         void pack.getIndex({ fields: [foundry.utils.randomID()]});
       }      
     } catch (e) {
-      throw new Error(`Error updating journal entry page ${this._doc.uuid}: ${e}`);
+      throw new Error(`Error updating journal entry page ${this._doc.uuid} ${this._doc.name}: ${e}`);
     }
   }
   

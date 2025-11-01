@@ -47,7 +47,7 @@ export const cleanTopicKeysOnSave = (objectToClean: TopicFieldType): TopicFieldT
   const newObject = {} as TopicFieldType;
 
   for (const topic in objectToClean) {
-    newObject[topic] = cleanKeysOnSave(objectToClean[topic]);  
+    newObject[topic] = cleanKeysOnSave(objectToClean[topic] || {});  
   }
 
   return newObject;
