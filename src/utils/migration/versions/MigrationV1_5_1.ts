@@ -148,9 +148,8 @@ export class MigrationV1_5_1 implements Migration {
             });
             updateProgress(`Processing campaign: ${campaign.name}`);
           }
+          await campaign.save();
         }
-
-        await setting.save();
       }
     } catch (outer) {
       result.success = false;

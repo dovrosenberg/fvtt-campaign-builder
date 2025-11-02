@@ -68,22 +68,15 @@ export const useCampaignDirectoryStore = defineStore('campaignDirectory', () => 
     await currentSetting.value.loadCampaigns();
     const campaigns = currentSetting.value.campaigns;
 
-    for (const id in campaigns) {
-      const campaign = await Campaign.fromUuid(id);
-
-      // shouldn't happen but maybe something didn't get cleaned up; we'll clean it up in FCBSetting.loadCampaigns() at some point
-      if (!campaign) {
-        continue;
-      }
-
+    for (const campaign of Object.values(campaigns)) {
       const children = campaign.sessionIndex.map(s=> s.uuid) || [];
 
       currentCampaignTree.value.push(new DirectoryCampaignNode(
-        id,
-        campaigns[id].name,  // name
+        campaign.uuid,
+        campaign.name,  // name
         children.slice(),
         [],
-        expandedNodes[id] || false,
+        expandedNodes[campaign.uuid] || false,
         campaign.completed
       ));      
     }

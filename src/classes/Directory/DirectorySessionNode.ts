@@ -73,11 +73,13 @@ export class DirectorySessionNode extends CollapsibleNode<never> {
     if (!CollapsibleNode._currentSetting)
       throw new Error('No currentSetting in DirectorySessionNode.fromSessionBasicIndex()');
 
+    const dateValue = session.date ? new Date(session.date) : null;
+
     return new DirectorySessionNode(
       session.uuid,
       session.name,
       session.number,
-      session.date,
+      dateValue?.isValid() ? dateValue : null,
       campaignId,
     );
   };

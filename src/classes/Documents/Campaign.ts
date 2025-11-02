@@ -80,6 +80,10 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     return this._clone.system.sessions;
   }
 
+  public set sessionIndex(value: SessionBasicIndex[]) {
+    this._clone.system.sessions = value;
+  }
+
   public async addSession(session: Session): Promise<void> {
     // Add to session index
     this._clone.system.sessions.push({
