@@ -1,89 +1,154 @@
 <template>
-  <div ref="contentRef" class="fcb-sheet-container flexcol">
-    <header class="fcb-name-header flexrow">
-      <i :class="`fas ${getTabTypeIcon(WindowTabType.Front)} sheet-icon`"></i>
-      <InputText
-        v-model="name"
-        for="fcb-input-name" 
-        class="fcb-input-name"
-        unstyled
-        :placeholder="localize('placeholders.dangerName')"
-        :pt="{
-          root: { class: 'full-height' } 
-        }" 
-        @update:model-value="onNameUpdate"
+  <div class="fcb-description-wrapper flexrow">
+    <div ref="contentRef" class="fcb-sheet-container flexcol" style="overflow-y: visible">
+      <header class="fcb-name-header flexrow">
+        <i :class="`fas ${getTabTypeIcon(WindowTabType.Front)} sheet-icon`"></i>
+        <InputText
+          v-model="name"
+          for="fcb-input-name" 
+          class="fcb-input-name"
+          unstyled
+          :placeholder="localize('placeholders.dangerName')"
+          :pt="{
+            root: { class: 'full-height' } 
+          }" 
+          @update:model-value="onNameUpdate"
+        />
+      </header>
+      
+      <!-- Impending Doom -->
+      <div class="flexrow form-group">
+        <LabelWithHelp
+          label-text="labels.fields.impendingDoom"
+        />
+        <TextArea
+          v-model="impendingDoom"
+          rows="3"
+          data-testid="danger-impending-doom"
+          unstyled
+          style="width: calc(100% - 2px); font-family: var(--fcb-font-family)"
+          @update:model-value="onImpendingDoomSaved"
+        />
+      </div>
+      
+      <!-- Description -->
+      <div class="flexrow form-group">
+        <LabelWithHelp
+          label-text="labels.fields.description"
+          top-label
+        />
+      </div>
+      <div class="flexrow form-group">
+        <Editor
+          :initial-content="currentDanger?.description || ''"
+          fixed-height="120px"
+          :current-entity-uuid="currentFront?.uuid"
+          @editor-saved="onDescriptionEditorSaved"
+        />
+      </div>
+      
+      <!-- Participants -->
+      <div class="flexrow form-group">
+        <LabelWithHelp
+          label-text="labels.fields.participants"
+          top-label
+        />
+      </div>
+      <RelatedItemTable
+        :topic="Topics.Character"
+        :extra-fields="[
+          { field: 'role', header: localize('labels.fields.role') }
+        ]"
       />
-    </header>
-    <!-- <ContentTabStrip 
-      :tabs="tabs" 
-      default-tab="description"
-    >
-      <DescriptionTab
-        :name="currentFront?.name || 'Front'"
-        :image-url="currentFront?.img"
-        :window-type="WindowTabType.Front"
-        alt-tab-id="description"
-        @image-change="onImageChange"
-      > -->
-        <div class="flexrow form-group">
-          <LabelWithHelp
-            label-text="labels.fields.impendingDoom"
-          />
-          <TextArea
-            v-model="impendingDoom"
-            rows="3"
-            data-testid="danger-impending-doom"
-            unstyled
-            style="width: calc(100% - 2px); font-family: var(--fcb-font-family)"
-            @update:model-value="onImpendingDoomSaved"
-          />
-        </div>
-        <div 
-          class="flexrow form-group"
-        >
-          <LabelWithHelp
-            label-text="labels.fields.description"
-            top-label
-          />
-        </div>
-        <div 
-          class="flexrow form-group"
-        >
-          <Editor 
-            :initial-content="currentDanger?.description || ''"
-            fixed-height="240px"
-            :current-entity-uuid="currentFront?.uuid"
-            @editor-saved="onDescriptionEditorSaved"
-          />
-        </div>
-      <!-- </DescriptionTab>
-    </ContentTabStrip> -->
+      
+      <!-- Motivation -->
+      <div class="flexrow form-group">
+        <LabelWithHelp
+          label-text="labels.fields.motivation"
+          top-label
+        />
+      </div>
+      <div class="flexrow form-group">
+        <TextArea
+          v-model="motivation"
+          rows="3"
+          data-testid="danger-motivation"
+          unstyled
+          style="width: 100%; font-family: var(--fcb-font-family)"
+          @update:model-value="onMotivationSaved"
+        />
+      </div>
+      
+      <!-- Opposition -->
+      <div class="flexrow form-group">
+        <LabelWithHelp
+          label-text="labels.fields.opposition"
+          top-label
+        />
+      </div>
+      <RelatedItemTable
+        :topic="Topics.Character"
+        :extra-fields="[
+          { field: 'role', header: localize('labels.fields.role') }
+        ]"
+      />
+      
+      <!-- Grim Portents -->
+      <div class="flexrow form-group">
+        <LabelWithHelp
+          label-text="labels.fields.grimPortents"
+          top-label
+        />
+      </div>
+      <div class="flexcol form-group">
+        <SessionTable
+          ref="sessionTableRef"
+          :rows="mappedVignetteRows"
+          :columns="grimPortentColumns"
+          :delete-item-label="localize('tooltips.deleteVignette')"
+          :allow-edit="true"
+          :edit-item-label="localize('tooltips.editRow')"
+          :show-add-button="true"
+          :add-button-label="localize('labels.session.addVignette')"
+          :help-text="localize('labels.session.vignetteHelpText')"
+          help-link="https://slyflourish.com/scenes_catch_all_step.html"
+          :can-reorder="true"
+          @add-item="onAddVignette"
+          @delete-item="onDeleteVignette"
+          @mark-item-delivered="onMarkVignetteDelivered"
+          @unmark-item-delivered="onUnmarkVignetteDelivered"
+          @move-to-next-session="onMoveVignetteToNext"
+          @cell-edit-complete="onCellEditComplete"
+          @reorder="onReorder"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-
   // library imports
-  import { computed, ref, watch, onBeforeUnmount } from 'vue';
+  import { ref, watch, onMounted, onBeforeUnmount, computed, toRef } from 'vue';
   import { storeToRefs } from 'pinia';
 
   // local imports
-  import { useMainStore, } from '@/applications/stores';
-  import { localize } from '@/utils/game'
+  import { useMainStore } from '@/applications/stores';
+  import { localize } from '@/utils/game';
   import { getTabTypeIcon } from '@/utils/misc';
-  import { notifyWarn } from '@/utils/notifications';
-
+  
   // library components
   import TextArea from 'primevue/textarea';
-
+  import InputText from 'primevue/inputtext';
+  
   // local components
   import Editor from '@/components/Editor.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
+  import RelatedItemTable from '@/components/tables/RelatedItemTable.vue';
 
   // types
-  import { Danger, WindowTabType, } from '@/types';
-import { onMounted } from 'vue';
- 
+  import { Danger, WindowTabType, Topics } from '@/types';
+import { notifyWarn } from 'src/utils/notifications';
+
   ////////////////////////////////
   // props
   const props = defineProps({
@@ -95,21 +160,26 @@ import { onMounted } from 'vue';
 
   ////////////////////////////////
   // emits
-
+  
   ////////////////////////////////
   // store
-  // const frontStore = useFrontStore();
   const mainStore = useMainStore();
   const { currentFront } = storeToRefs(mainStore);
   
   ////////////////////////////////
   // data
-  const name = ref<string>('New Danger');
-  const impendingDoom = ref<string>('');
-
+  const contentRef = ref<HTMLElement | null>(null);
+  const name = ref('');
+  const impendingDoom = ref('');
+  const motivation = ref('');
+  const grimPortents = ref<string[]>([]);
+  
   ////////////////////////////////
   // computed data
   const currentDanger = computed(() => currentFront.value?.dangers[props.index] || null);
+  const grimPortentColumns = computed(() => [
+    { field: 'description', style: 'text-align: left', header: 'Grim Portent', editable: true },
+  ]);
 
   ////////////////////////////////
   // methods
@@ -142,15 +212,39 @@ import { onMounted } from 'vue';
     }, debounceTime);
   };
 
-  const onDescriptionEditorSaved = async (newContent: string) => {
-    if (!currentFront.value || !currentDanger.value)
-      return;
-
-    currentDanger.value.description = newContent;
-    currentFront.value.updateDanger(props.index, currentDanger.value);
-    await currentFront.value.save();
+  
+  const onImpendingDoomSaved = () => {
+    if (!currentDanger.value) return;
+    
+    currentDanger.value.impendingDoom = impendingDoom.value;
+    saveDanger();
   };
-
+  
+  const onMotivationSaved = () => {
+    if (!currentDanger.value) return;
+    
+    currentDanger.value.motivation = motivation.value;
+    saveDanger();
+  };
+  
+  const onDescriptionEditorSaved = (newContent: string) => {
+    if (!currentDanger.value) return;
+    
+    currentDanger.value.description = newContent;
+    saveDanger();
+  };
+  
+  const onGrimPortentChanged = (index: number, value: string) => {
+    if (!currentDanger.value) return;
+    
+    if (!currentDanger.value.grimPortents) {
+      currentDanger.value.grimPortents = [];
+    }
+    
+    currentDanger.value.grimPortents[index] = value;
+    saveDanger();
+  };
+  
   // const onDragoverNew = (event: DragEvent) => {
   //   event.preventDefault();  
   //   event.stopPropagation();
@@ -174,6 +268,38 @@ import { onMounted } from 'vue';
 
   //   await sessionStore.addLocation(data.childId);      
   // };
+
+  const addGrimPortent = () => {
+    if (!currentDanger.value) return;
+    
+    if (!currentDanger.value.grimPortents) {
+      currentDanger.value.grimPortents = [];
+    }
+    
+    currentDanger.value.grimPortents.push('');
+    grimPortents.value = [...currentDanger.value.grimPortents];
+    saveDanger();
+  };
+  
+  const removeGrimPortent = (index: number) => {
+    if (!currentDanger.value || !currentDanger.value.grimPortents) return;
+    
+    currentDanger.value.grimPortents.splice(index, 1);
+    grimPortents.value = [...currentDanger.value.grimPortents];
+    saveDanger();
+  };
+  
+  const saveDanger = async () => {
+    if (!currentFront.value || !currentDanger.value) return;
+    
+    // Update the danger in the front
+    const updatedDangers = [...currentFront.value.dangers];
+    updatedDangers[props.index] = currentDanger.value;
+    
+    // Save the front with the updated danger
+    currentFront.value.dangers = updatedDangers;
+    await currentFront.value.save();
+  };
 
   const refreshDanger = () => {
     if (currentDanger.value) {
