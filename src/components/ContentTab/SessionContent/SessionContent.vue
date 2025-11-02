@@ -449,4 +449,8 @@
     font-size: var(--fcb-font-size-large);
     cursor: pointer;
   }
+  .p-datepicker .p-inputtext{
+   padding-left: 8px; 
+   font-size: var(--fcb-font-size-large) !important;
+  }
 </style>
