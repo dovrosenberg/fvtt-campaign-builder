@@ -14,7 +14,7 @@
         @update:model-value="onNameUpdate"
       />
     </header>
-    <ContentTabStrip 
+    <!-- <ContentTabStrip 
       :tabs="tabs" 
       default-tab="description"
     >
@@ -24,7 +24,7 @@
         :window-type="WindowTabType.Front"
         alt-tab-id="description"
         @image-change="onImageChange"
-      >
+      > -->
         <div class="flexrow form-group">
           <LabelWithHelp
             label-text="labels.fields.impendingDoom"
@@ -56,8 +56,8 @@
             @editor-saved="onDescriptionEditorSaved"
           />
         </div>
-      </DescriptionTab>
-    </ContentTabStrip>
+      <!-- </DescriptionTab>
+    </ContentTabStrip> -->
   </div>
 </template>
 
@@ -77,13 +77,12 @@
   import TextArea from 'primevue/textarea';
 
   // local components
-  import DescriptionTab from '@/components/ContentTab/DescriptionTab.vue';
-  import ContentTabStrip from '@/components/ContentTab/ContentTabStrip.vue';
   import Editor from '@/components/Editor.vue';
   import LabelWithHelp from '@/components/LabelWithHelp.vue';
 
   // types
   import { Danger, WindowTabType, } from '@/types';
+import { onMounted } from 'vue';
  
   ////////////////////////////////
   // props
@@ -105,17 +104,11 @@
   
   ////////////////////////////////
   // data
-  const name = ref('New Danger');
+  const name = ref<string>('New Danger');
+  const impendingDoom = ref<string>('');
 
   ////////////////////////////////
   // computed data
-  const tabs = computed(() => [
-    { id: 'description', label: localize('labels.tabs.danger.description')},
-    { id: 'participants', label: localize('labels.tabs.danger.participants')},
-    { id: 'opposition', label: localize('labels.tabs.danger.opposition')},
-    { id: 'grimPortents', label: localize('labels.tabs.danger.grimPortents')},
-  ]);
-
   const currentDanger = computed(() => currentFront.value?.dangers[props.index] || null);
 
   ////////////////////////////////
@@ -158,31 +151,6 @@
     await currentFront.value.save();
   };
 
-  const onImageChange = async (imageUrl: string) => {
-    if (!currentFront.value || !currentDanger.value) 
-      return;
-
-    currentDanger.value.img = imageUrl;
-    currentFront.value.updateDanger(props.index, currentDanger.value);
-    await currentFront.value.save();
-  }
-
-  // const onDeleteLocation = async (uuid: string) => {
-  //   await sessionStore.deleteLocation(uuid);
-  // }
-
-  // const onMarkLocationDelivered = async (uuid: string) => {
-  //   await sessionStore.markLocationDelivered(uuid, true);
-  // }
-
-  // const onUnmarkLocationDelivered = async (uuid: string) => {
-  //   await sessionStore.markLocationDelivered(uuid, false);
-  // }
-
-  // const onMoveLocationToNext = async (uuid: string) => {
-  //   await sessionStore.moveLocationToNext(uuid);
-  // }
-
   // const onDragoverNew = (event: DragEvent) => {
   //   event.preventDefault();  
   //   event.stopPropagation();
@@ -207,18 +175,30 @@
   //   await sessionStore.addLocation(data.childId);      
   // };
 
+  const refreshDanger = () => {
+    if (currentDanger.value) {
+      name.value = currentDanger.value.name || localize('placeholders.dangerName');
+      impendingDoom.value = currentDanger.value.impendingDoom || '';
+    }
+  };
+
   ////////////////////////////////
   // watchers
   watch(currentDanger, async (newDanger: Danger | null): Promise<void> => {
     if (newDanger) {
-      // load starting data values
-      name.value = newDanger.name || '';
+      refreshDanger();
     }
   });
   
 
   ////////////////////////////////
   // lifecycle events
+  onMounted(() => {
+    if (currentDanger.value) {
+      refreshDanger();
+    }
+  });
+
   // cleanup timers on unmount
   onBeforeUnmount(() => {
     clearTimeout(nameDebounceTimer);
