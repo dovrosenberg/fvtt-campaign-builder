@@ -1,15 +1,15 @@
 import { toRaw } from 'vue';
 import { UserFlags, UserFlagKey, ModuleSettings, SettingKey, moduleId, JournalEntryFlagKey } from '@/settings'; 
-import { EntryFilterIndex, Hierarchy, RelatedJournal, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';
+import { EntryFilterIndex, Hierarchy, RelatedJournal, SessionFilterIndex, SettingGeneratorConfig, Topics, ValidTopic, ValidTopicRecord } from '@/types';
 import { FCBDialog } from '@/dialogs';
-import { TopicFolder, RootFolder, Entry, } from '@/classes';
+import { TopicFolder, RootFolder, Entry, Session, } from '@/classes';
 import { cleanTrees } from '@/utils/hierarchy';
 import { localize } from '@/utils/game';
 import { initializeSettingRollTables, refreshSettingRollTables } from '@/utils/nameGenerators';
 import { Backend } from '@/classes';
 import { DOCUMENT_TYPES } from '@/documents/types';
 import { FCBJournalEntryPage, FCBJournalEntryPageStatic } from '@/classes/Documents/FCBJournalEntryPage';
-import { entryIndexFields, NameStyleExamples, TopicFlatType } from '@/documents';
+import { entryIndexFields, NameStyleExamples, sessionIndexFields, TopicFlatType } from '@/documents';
 import { cleanKeysOnSave, } from '@/utils/cleanKeys';
 import { Campaign } from './Campaign';
 
@@ -398,7 +398,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
 
   /**
    * Given a filter function, returns all the matching Entries
-   * inside this topic
+   * inside this setting
    * 
    * @param {(e: EntryFilterIndex) => boolean} filterFn - The filter function
    * @param {boolean} fullEntry - return full Entry objects or just EntryFilterIndexes
@@ -406,7 +406,7 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
    */
   public async filterEntries<T extends boolean>(filterFn: (e: EntryFilterIndex) => boolean, fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
     // get all the journal entries
-    const indexEntries = await toRaw(this.compendium).getIndex(entryIndexFields);
+    const indexEntries = await toRaw(this.compendium).getIndex(entryIndexFields());
 
     // find the entries 
     const entries = indexEntries
@@ -441,12 +441,66 @@ export class FCBSetting extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Settin
   }
 
   /**
-   * Returns all the entries inside this topic
+   * Given a filter function, returns all the matching Sessions
+   * inside this setting
+   * 
+   * @param {(e: SessionFilterIndex) => boolean} filterFn - The filter function
+   * @param {boolean} fullSession - return full Session objects or just SessionFilterIndexes
+   * @returns {Session[] | SessionFilterIndex[]} The sessions that pass the filter (or simplified index versions, depending on fullSession)
+   */
+  public async filterSessions<T extends boolean>(filterFn: (s: SessionFilterIndex) => boolean, fullSession: T): Promise<T extends true ? Session[] : SessionFilterIndex[]> { 
+    // get all the journal entries
+    const indexSessions = await toRaw(this.compendium).getIndex(sessionIndexFields());
+
+    // find the entries 
+    const sessions = indexSessions
+      // first find the relevant ones
+      .filter((e)=> (
+        e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
+        !!e.pages && e.pages!.length > 0
+      ))
+      .map((e) => ({ 
+        name: e.name, 
+        id: foundry.utils.parseUuid(e.uuid).id,
+        uuid: e.uuid,
+        number: e.pages![0].system.number,
+        date: e.pages![0].system.date,
+      } as SessionFilterIndex))
+
+      // now filter by the function passed in 
+      .filter((s: SessionFilterIndex)=> filterFn(s)) || [];
+
+    if (!fullSession || sessions.length===0)
+      // @ts-ignore - we know it's false and sessions is a SessionFilterIndex[] or it's an empty array
+      return entries;
+
+    let retval = [] as Session[];
+    for (let i=0; i<sessions.length; i++) {
+      const session = await Session.fromUuid(sessions[i].uuid);
+      if (session)
+        retval.push(session);
+    }
+
+    // @ts-ignore - we know fullSession is true and retval is an Session[]
+    return retval;
+  }
+
+  /**
+   * Returns all the entries inside the setting
    * 
    * @returns {Entry[]} The entries
    */
   public async allEntries<T extends boolean>(fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
     return await this.filterEntries(() => true, fullEntry);
+  }
+
+  /**
+   * Returns all the sessions inside the setting
+   * 
+   * @returns {Session[]} The entries
+   */
+  public async allSessions<T extends boolean>(fullSession: T): Promise<T extends true ? Session[] : SessionFilterIndex[]> { 
+    return await this.filterSessions(() => true, fullSession);
   }
 
   public async collapseAll() {

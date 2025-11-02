@@ -167,15 +167,6 @@ export class FCBJournalEntryPage<
         // reset the doc and clone
         this._doc = retval;
         this._clone = retval.clone({}, { keepId: true });
-
-        // rebuild the index (by adding a random field name) because otherwise index won't update
-        // see Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
-        // don't really need to await this
-        const pack = game.packs.get(this.compendiumId);
-        if (!pack)
-          throw new Error(`Invalid compendium in FCBJournalEntryPage.save() ${this.compendiumId}`);
-        // @ts-ignore
-        void pack.getIndex({ fields: [foundry.utils.randomID()]});
       }      
     } catch (e) {
       throw new Error(`Error updating journal entry page ${this._doc.uuid} ${this._doc.name}: ${e}`);

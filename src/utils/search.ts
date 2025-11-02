@@ -132,18 +132,12 @@ class SearchService {
     // Collect all items first
     const items = [] as SearchableItem[];
 
-    // add all the entries, by topic
-    for (const topic of topics) {
-      const topicFolder = setting.topicFolders[topic];
-      if (!topicFolder) continue;
+    // add all the entries
+    const entries = await setting.allEntries(true);
       
-      // Get all entries for this topic
-      const entries = await topicFolder.filterEntries(() => true, true);
-      
-      for (const entry of entries) {
-        // Create a searchable item for each entry
-        items.push(await this.createSearchableItemFromEntry(entry, setting));
-      }
+    for (const entry of entries) {
+      // Create a searchable item for each entry
+      items.push(await this.createSearchableItemFromEntry(entry, setting));
     }
 
     // add all the sessions, by campaign

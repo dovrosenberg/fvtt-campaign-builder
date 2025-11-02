@@ -689,11 +689,11 @@ const cleanCompendiumIds = async (settingId: string) => {
     await campaign.save();
 
     // sessions
-    for (const sessionId of campaign.sessionIds) {
-      const session = await Session.fromUuid(sessionId);
+    for (const sessionIndex of campaign.sessionIndex) {
+      const session = await Session.fromUuid(sessionIndex.uuid);
 
       if (!session)
-        throw new Error(`Unable to find session ${sessionId} when cleaning ids in cleanCompendiumIds()`);
+        throw new Error(`Unable to find session ${sessionIndex.uuid} when cleaning ids in cleanCompendiumIds()`);
       
       // locations
       session.locations = session.locations.map((l)=>({
@@ -773,11 +773,11 @@ async function buildTagLists(): Promise<void> {
 
     // Count tags from all sessions
     for (const campaign of Object.values(setting.campaigns)) {
-      for (const sessionId of campaign.sessionIds) {
-        const session = await Session.fromUuid(sessionId);
+      for (const sessionIndex of campaign.sessionIndex) {
+        const session = await Session.fromUuid(sessionIndex.uuid);
         
         if (!session) {
-          console.warn(`Could not load session ${sessionId} when building tag lists`);
+          console.warn(`Could not load session ${sessionIndex.uuid} when building tag lists`);
           continue;
         }
         

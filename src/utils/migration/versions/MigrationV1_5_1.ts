@@ -1,7 +1,7 @@
 import { Migration, MigrationResult, MigrationContext } from '../types';
 import { notifyError } from '@/utils/notifications';
 import { useMainStore } from '@/applications/stores';
-import { EntryBasicIndex, Hierarchy, Topics, ValidTopic } from '@/types';
+import { EntryBasicIndex, Hierarchy, SessionBasicIndex, Topics, ValidTopic } from '@/types';
 
 
 let processed = 0;
@@ -118,6 +118,38 @@ export class MigrationV1_5_1 implements Migration {
         for (const topicId in setting.topics) {
           setting.topics[topicId].entries = newEntries[topicId];
         }
+
+        // ignore the sessions in the count for simplicity
+
+        // have to use allSessions on setting to get them b/c the one on
+        //    campaign filters by the (non-existent) index so we create temp index
+        const tempIndex = [] as (SessionBasicIndex & { campaignId: string })[];
+        for (const session of await setting.allSessions(true)) {
+          tempIndex.push({
+            campaignId: session.campaignId,
+            uuid: session.uuid,
+            name: session.name,
+            number: session.number,
+            date: session.date?.toLocaleDateString() || null,
+          });
+        }
+
+        await setting.loadCampaigns();
+        for (const campaign of Object.values(setting.campaigns)) {
+          const newIndex = tempIndex.filter((s)=> s.campaignId === campaign.uuid);
+
+          const index = campaign.sessionIndex;
+          for (const item of newIndex) {
+            index.push({
+              uuid: item.uuid,
+              name: item.name,
+              number: item.number,
+              date: item.date
+            });
+            updateProgress(`Processing campaign: ${campaign.name}`);
+          }
+        }
+
         await setting.save();
       }
     } catch (outer) {

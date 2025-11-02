@@ -5,16 +5,22 @@ import { id as moduleId } from '@module';  // have to pull from module directly 
 
 // hardcoding this because of load order
 export const TYPE_FIELD = `flags.${moduleId}.${JournalEntryFlagKey.campaignBuilderType}`;
-export const sessionIndexFields = {
+
+// rebuild the index (by adding a random field name) because otherwise index won't update
+// see Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
+export const sessionIndexFields = (): any => ({
   fields: [
+    foundry.utils.randomID(),
     TYPE_FIELD,
     'pages.name', 
     'pages.uuid', 
     'pages.system.number'
   ]
-} as any;
+});
 
-export const entryIndexFields = {
+// rebuild the index (by adding a random field name) because otherwise index won't update
+// see Foundry bug: https://github.com/foundryvtt/foundryvtt/issues/9984
+export const entryIndexFields = (): any => ({
   fields: [
     foundry.utils.randomID(),
     TYPE_FIELD,
@@ -23,4 +29,4 @@ export const entryIndexFields = {
     'pages.system.topic',
     'pages.system.type'
   ]
-} as any;
+} as any);

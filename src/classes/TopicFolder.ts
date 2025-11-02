@@ -64,8 +64,10 @@ export class TopicFolder {
    * @returns {Entry[]} The entries that pass the filter
    */
   public async filterEntries<T extends boolean>(filterFn: (s: EntryFilterIndex) => boolean, fullEntry: T): Promise<T extends true ? Entry[] : EntryFilterIndex[]> { 
+    // TODO: we could make this more efficient if we wanted to 
+    //    add actorId to the index and then calc id
     // get all the journal entries
-    const indexes = await toRaw(this.setting.compendium).getIndex(entryIndexFields);
+    const indexes = await toRaw(this.setting.compendium).getIndex(entryIndexFields());
   
     // find the sessions connected to this entries in this folder
     const entries = indexes

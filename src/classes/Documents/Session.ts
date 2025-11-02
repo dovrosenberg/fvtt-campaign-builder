@@ -494,6 +494,23 @@ export class Session extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Session> 
       throw error;
     }
 
+    // update index
+    let sessionItem = campaign.sessionIndex.find((e)=> e.uuid === this.uuid);
+    if (!sessionItem) {
+      sessionItem = {
+        uuid: this.uuid,
+        name: this._clone.name,
+        number: this._clone.system.number,
+        date: this._clone.system.date,
+      };
+      campaign.sessionIndex.push(sessionItem);
+    } else {
+      sessionItem.name = this._clone.name;
+      sessionItem.number = this._clone.system.number;
+      sessionItem.date = this._clone.system.date;
+    }
+    await campaign.save();
+
     // we could get more specific about exactly whether we need to renumber the
     //    campaign or not, but don't bother
     await campaign.resetCurrentSession();

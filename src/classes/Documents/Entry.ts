@@ -104,7 +104,6 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
   public get actor(): Actor | null {
     return this._actor;
   }
-
   
   // creates a new entry in the proper compendium in the given setting
   // if name is populated will skip the dialog
@@ -412,24 +411,23 @@ export class Entry extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Entry> {
       await Entry.addTypeIfNeeded(topicFolder!, this._clone.system.type);
     }
 
-    // update name index if it changed
-    if (needNameUpdate) {
-      const topicFolder = await this.getTopicFolder();
+    // update index
+    const topicFolder = await this.getTopicFolder();
 
-      let entryItem = topicFolder.entryIndex.find((e)=> e.uuid === this.uuid);
-      if (!entryItem) {
-        entryItem = {
-          uuid: this.uuid,
-          name: this._clone.name,
-          type: this._clone.system.type,
-        };
-        topicFolder.entryIndex.push(entryItem);
-      } else {
-        entryItem.name = this._clone.name;
-      }
-      await topicFolder.save();
+    let entryItem = topicFolder.entryIndex.find((e)=> e.uuid === this.uuid);
+    if (!entryItem) {
+      entryItem = {
+        uuid: this.uuid,
+        name: this._clone.name,
+        type: this._clone.system.type,
+      };
+      topicFolder.entryIndex.push(entryItem);
+    } else {
+      entryItem.name = this._clone.name;
+      entryItem.type = this._clone.system.type;
     }
-
+    await topicFolder.save();
+ 
     // Update the search index and to-do list
     await searchService.addOrUpdateEntryIndex(this, setting);
 

@@ -1,5 +1,5 @@
 import { SessionLore, } from '@/documents/session';
-import { ToDoItem, Idea, RelatedJournal, RelatedPCDetails } from '@/types';
+import { ToDoItem, Idea, RelatedJournal, RelatedPCDetails, SessionBasicIndex } from '@/types';
 import { DOCUMENT_TYPES } from './types';
 import { schemas } from './fields';
 
@@ -17,11 +17,13 @@ export const CampaignSchema = {
   /** map from field name to value */
   customFields: new fields.ObjectField({ required: true, nullable: false, initial: {} }),
 
-  /** all the sessionIds */
-  sessionIds: new fields.ArrayField(
-    new fields.DocumentUUIDField({ required: true, nullable: false }),
-    { required: true, nullable: false, initial: [] as string[] }
-  ),
+  /** high-level info for every contained entry */
+  sessions: new fields.ArrayField(schemas.SessionBasicIndex(), {
+    required: true, 
+    nullable: false, 
+    initial: [] as SessionBasicIndex[] 
+  }),
+
     
   /** campaign lore */
   lore: new fields.ArrayField(
@@ -88,6 +90,7 @@ export interface CampaignDocModel extends Omit<JournalEntryPage<typeof DOCUMENT_
     currentSessionId: string;
     description: string;
     customFields: Record<string, string>;
+    sessions: SessionBasicIndex[];
     lore: CampaignLore[];  
     img: string;   
     todoItems: ToDoItem[];   

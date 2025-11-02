@@ -1,3 +1,5 @@
+import { EntryBasicIndex } from '@/types';
+
 const fields = foundry.data.fields;
 
 export const EntryBasicIndexSchema = () => (
@@ -10,6 +12,6 @@ export const EntryBasicIndexSchema = () => (
     
     /** type */
     type: new fields.StringField({ required: true, nullable: false, initial: '' }),
-  }, { required: true, nullable: false, initial: {} as { name: string, type: string } } )
+  }, { required: true, nullable: false, initial: {} as EntryBasicIndex } )
 );
 

@@ -1,7 +1,7 @@
 import { toRaw } from 'vue';
 import { moduleId, ModuleSettings, SettingKey, } from '@/settings'; 
 import { DOCUMENT_TYPES, CampaignLore, sessionIndexFields } from '@/documents';
-import { RelatedPCDetails, RelatedJournal, SessionFilterIndex } from '@/types';
+import { RelatedPCDetails, RelatedJournal, SessionFilterIndex, SessionBasicIndex } from '@/types';
 import { Entry, Session, FCBSetting, getGlobalSetting } from '@/classes';
 import { FCBDialog } from '@/dialogs';
 import { localize } from '@/utils/game';
@@ -47,14 +47,14 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
 
   public async resetCurrentSession(): Promise<void> {
     // find the uuid of the one with the highest number
-    const entries = await toRaw(this.compendium).getIndex(sessionIndexFields)
+    const entries = await toRaw(this.compendium).getIndex(sessionIndexFields())
 
     const maxSessionInfo = entries
       // first find the relevant ones
       .filter((e)=> (
+        this._clone.system.sessions.find(s=> s.uuid===e.uuid) !== undefined &&
         e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
-        !!e.pages && e.pages!.length > 0 &&
-        this._clone.system.sessionIds.includes(e.uuid)
+        !!e.pages && e.pages!.length > 0        
       ))
       .reduce((maxInfo: {num: number; sessionId: string}, e): { num: number; sessionId: string}=> {
         const number = e.pages![0].system.number;
@@ -76,12 +76,18 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
     await this.save();
   }    
   
-  public get sessionIds(): readonly string[] {
-    return this._clone.system.sessionIds;
+  public get sessionIndex(): SessionBasicIndex[] {
+    return this._clone.system.sessions;
   }
 
   public async addSession(session: Session): Promise<void> {
-    this._clone.system.sessionIds.push(session.uuid);
+    // Add to session index
+    this._clone.system.sessions.push({
+      uuid: session.uuid,
+      name: session.name,
+      number: session.number,
+      date: session.date?.toLocaleDateString() || null,
+    });
 
     if (this.currentSessionNumber==null || session.number > this.currentSessionNumber) {
       this.currentSessionNumber = session.number;
@@ -92,7 +98,9 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
   }
 
   public async deleteSession(session: Session): Promise<void> {
-    this._clone.system.sessionIds = this._clone.system.sessionIds.filter(s=> s!==session.uuid);
+    
+    // Remove from session index
+    this._clone.system.sessions = this._clone.system.sessions.filter(s => s.uuid !== session.uuid);
 
     const reset = (session.uuid === this.currentSessionId);
     
@@ -483,16 +491,18 @@ export class Campaign extends FCBJournalEntryPage<typeof DOCUMENT_TYPES.Campaign
    * @returns {Session[]} The entries that pass the filter
    */
   public async filterSessions(filterFn: (s: SessionFilterIndex) => boolean): Promise<Session[]> { 
+    // TODO: we could make this more efficient if we wanted to 
+    //    calc id
     // get all the journal entries
-    const entries = await toRaw(this.compendium).getIndex(sessionIndexFields);
+    const entries = await toRaw(this.compendium).getIndex(sessionIndexFields());
 
     // find the sessions connected to this campaign
     const sessions = entries
       // first find the relevant ones
       .filter((e)=> (
+        this._clone.system.sessions.find(s=> s.uuid===e.uuid) !== undefined &&
         e.flags?.[moduleId]?.[JournalEntryFlagKey.campaignBuilderType]===DOCUMENT_TYPES.Session &&
-        !!e.pages && e.pages!.length > 0 &&
-        this._clone.system.sessionIds.includes(e.uuid)
+        !!e.pages && e.pages!.length > 0 
       ))
       .map((e) => ({ 
         name: e.name, 

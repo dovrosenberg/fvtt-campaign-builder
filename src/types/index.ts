@@ -157,6 +157,13 @@ export interface EntryBasicIndex {
   type: string; 
 };
 
+/** This is the format of how our sessions are stored in campaigns */
+export interface SessionBasicIndex { 
+  uuid: string;
+  name: string; 
+  number: number; 
+  date: string | null;
+};
 
 export type ValidDocType = 
   typeof DOCUMENT_TYPES.Setting | 

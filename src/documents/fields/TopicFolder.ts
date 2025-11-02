@@ -12,7 +12,7 @@ export const TopicFolderSchema = () => (
     /** uuid of top-level nodes inside the topic */
     topNodes: new fields.ArrayField(new fields.StringField({ required: true, nullable: false }), { required: true, nullable: false, initial: [] as string[] }),
 
-    /** basic map of ids to entry data (name and type) for every contained entry */
+    /** high-level info for every contained entry */
     entries: new fields.ArrayField(schemas.EntryBasicIndex(), {
       required: true, 
       nullable: false, 

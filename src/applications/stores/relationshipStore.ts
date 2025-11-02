@@ -466,7 +466,7 @@ export const useRelationshipStore = defineStore('relationship', () => {
     // Go through all campaigns in the setting
     for (const campaign of campaigns) {
       // Get all sessions in the campaign
-      const sessions = await campaign.filterSessions(() => true);
+      const sessions = await campaign.allSessions();
 
       for (const session of sessions) {
         let isReferenced = false;
